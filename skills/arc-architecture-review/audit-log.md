@@ -1,3 +1,69 @@
+## 2026-04-23T07:45:00.000Z — post-competition day 1; script dispatch pattern emerges; two carry items resolved
+
+**Task #13470** | Diff: 686aeb9 → 3f6c59d | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **6 substantive structural changes** since last audit. Competition is over — post-competition cleanup window now open.
+- **Competition final score: 804 / Rank: #47 / Top: 1922.** All beat claims reset. No active beats — monitor for new beat opportunities.
+- **Two major carry items resolved**: CARRY×12 (quantum auto-queuing, 3ea7a541) and CARRY-24 (ordinals HookState cleanup, 77a1837c). Both were deferred pending competition close.
+- **New dispatch model: `model: "script"`**. Five deterministic sensors now use zero-cost script execution. Pattern is validated and proven — should inform future sensor design. Candidates for this pattern: any sensor that emits a task with a single fixed CLI command.
+- **Timeout mitigations shipped**: housekeeping haiku→sonnet upgrade (bbf36f1a) and compliance-review batching (da130851). No post-fix timeout failures detected yet — monitor.
+- **blog-deploy structural issue still open** (task #13445 pending): no safe LLM model. Script dispatch may be the answer here too — the deployment step is deterministic.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** CARRY-24: ordinals HookState deprecated fields removed (77a1837c). Carry item closed.
+- **[WATCH]** `arc-weekly-presentation` sensor added one sensor (71→72). Sensor is live with genuine weekly demand. No deletion candidate.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition window now open. Should be tasked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
+- **[OPEN]** x402-relay v1.30.1 deploy still pending (PR #349 merged, not deployed). agent-news#578 fix in release 1.30.1; live relay on v1.30.0.
+- **[OPEN]** x402-api#93 (`/registry/register` 500) and x402-api#86 (nonce conflicts) — both open. Hiro-400 pattern variant. Should be investigated post-competition.
+
+### Step 3 — Simplify
+
+- **Script dispatch is the right pattern for deterministic tasks**. 5 sensors converted — the pattern is: sensor emits `model: "script"` + `script: "arc skills run --name X -- Y"`. No reasoning, zero cost, 5-min timeout. `blog-deploy` is a strong candidate for full conversion (build + deploy are both deterministic CLI calls). This would also resolve the structural OOM/timeout issue.
+- **`queue-signals` CLI in arxiv-research is well-scoped**. Reads one JSON file, applies keyword match, checks guards, emits task. 99 lines. Clean.
+- **`DISABLE_UPDATES=1` in dispatch systemd is the right place** for this guard. `generateServiceUnit()` extension with `extraEnv` map is minimal and reusable.
+- **No over-engineering found in this window's changes.** All 6 changes are targeted fixes or natural extensions of existing patterns.
+
+### Step 4 — Accelerate
+
+- **Script dispatch eliminates ~5 LLM cycles/day**: blog-deploy, worker-deploy, arc-starter-publish, erc8004-indexer, arc-housekeeping. At ~$0.34/task average, that's ~$1.70/day saved per dispatch cycle eliminated, plus the freed dispatch slots.
+- **Quantum auto-queue closes the sensor→signal pipeline**: arXiv fetch → haiku digest → queue-signals → signal task. Previously required manual intervention at the queue-signals step.
+- **Compliance-review batching**: ≤5 skills per task means each batch completes in <15min. Throughput unaffected; timeout risk eliminated.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Quantum auto-queuing — CARRY×12 closed (3ea7a541).
+- **[RESOLVED]** Ordinals HookState deprecated fields — CARRY-24 closed (77a1837c).
+- **[NEW CANDIDATE]** blog-deploy full script dispatch: OOM/timeout structural issue + deployment is deterministic. Convert sensor to `model: "script"` pointing at a direct build+deploy shell script. No LLM needed.
+- **[CARRY-20 → NOW OPEN]** layered-rate-limit sensor migration — post-competition window is here.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones. Still open.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+### Flags
+
+- **[RESOLVED]** CARRY×12 quantum auto-queuing — wired end-to-end (3ea7a541).
+- **[RESOLVED]** CARRY-24 ordinals HookState deprecated fields — removed (77a1837c).
+- **[OK]** Script dispatch pattern validated — 5 sensors converted, zero issues.
+- **[OK]** Timeout mitigations shipped — housekeeping + compliance-review. Monitor for failures.
+- **[OK]** DISABLE_UPDATES=1 in dispatch systemd — stabilization confirmed.
+- **[OK]** Architecture stable — all changes are targeted, no structural drift.
+- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[WATCH]** blog-deploy structural issue (task #13445) — no safe LLM model. Script dispatch is the likely fix.
+- **[WATCH]** x402-relay v1.30.1 deploy pending — agent-news#578 fix merged but not live.
+- **[WATCH]** x402-api#93 + #86 — hiro-400 pattern variant. Post-competition investigation warranted.
+- **[NEW CANDIDATE]** blog-deploy → full script dispatch (recommended follow-up task).
+- **[CARRY-20 → OPEN]** layered-rate-limit migration — post-competition window now here.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy.
+- **[OPEN]** Pre-commit hook not git-tracked.
+
+---
+
 ## 2026-04-22T19:45:00.000Z — competition T-3h; arc-weekly-presentation restored; post-competition window opens
 
 **Task #13381** | Diff: b4d02fb → 686aeb9 | Sensors: 71 | Skills: 111

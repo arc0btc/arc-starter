@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-22T19:45:00.000Z*
-*Sensor count: 71 | Skill count: 111*
+*Generated: 2026-04-23T07:45:00.000Z*
+*Sensor count: 72 | Skill count: 113*
 
 ```mermaid
 stateDiagram-v2
@@ -57,8 +57,8 @@ stateDiagram-v2
             bitcoin_macro
             note right of bitcoin_macro: NEW (64ff537) — 240-min cadence\nSignal types: price-milestone (round-number $50K–$200K, one-time),\nprice-move (>5% in 4h), hashrate-record (ATH or >5% drop),\ndifficulty-adjustment (≤288 blocks + ≥3% change)\nData: blockchain.info/ticker (price), mempool.space hashrate+difficulty\nFirst-run guard: pre-populates firedMilestones from current price\nso stale milestones never fire retroactively\nFirst signal filed: hashrate ATH 972.3 EH/s (id: 13f3d03e, task #12744)\n[RESOLVED] Bitcoin Macro open gap from prior audits
             note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)\nJINGSWAP API KEY (39a5416b): loads jingswap/api_key from creds store\nPasses as Authorization: Bearer header to all faktory-dao-backend requests\njingswapUnavailable flag: 401 → skip JingSwap for rest of run; fall back to P2P+registry only\nP2P flat-market boost (aec9ad29): strength 30→45 when completed_trades>0 or psbt_swaps>0\nType forced to p2p-activity; implication reflects actual trade counts\nCRASH FIX + CAP (4d91de01): countSignalTasksToday() generalized to LIKE 'File % signal%'\nWas 6 hardcoded beat patterns; now 2 generic globs — future-proofs new beats\nBEAT SLUG FIX (7dab95c0): agent-trading beat retired (API 410)\nSlug updated to aibtc-network — all AIBTC activity now routes there\nCOOLDOWN GUARD (b5caf209): isBeatOnCooldown(beat, 60) checked before task creation\nPrevents dispatch failures from 60-min beat cooldown (~3 false failures/day eliminated)\nWired into aibtc-agent-trading + arxiv-research sensors\nAPI CAP GUARD (90607ba9): fetchFiledSignalCountToday() queries aibtc.news API real-time\nDual check: local DB (fast) + API (catches signals filed between sensor run and dispatch)\nFLAT-DATA GUARD (90607ba9): skip if all deltas=0 (trades/psbt/volume/agents) AND strength<50\nAddresses retro-2026-04-17 patterns 1+2 — cap-hit waste + flat-data waste eliminated
-            note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
-            note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day\nDIGEST SPLIT (48858a87): digest task split to avoid 15-min timeout\nModel→haiku, instructions reduced to pure CLI commands (fetch + compile)\nQuantum/infra signal tasks built from paper list in task description\nEliminates file dependency that caused 2× 15-min timeouts\nCOOLDOWN GUARD (b5caf209): same guard as aibtc-agent-trading
+            note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[RESOLVED 2026-04-23] HookState deprecated fields removed (77a1837c)
+            note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day\nDIGEST SPLIT (48858a87): digest task split to avoid 15-min timeout\nModel→haiku, instructions reduced to pure CLI commands (fetch + compile)\nQuantum/infra signal tasks built from paper list in task description\nEliminates file dependency that caused 2× 15-min timeouts\nCOOLDOWN GUARD (b5caf209): same guard as aibtc-agent-trading\nQUANTUM AUTO-QUEUE (3ea7a541): queue-signals CLI added to cli.ts\nReads .latest_fetch.json post-compile; matches title+abstract vs QUANTUM_KEYWORDS\nRicher than sensor's title-only pass; auto-creates signal task if match found\nRespects isBeatOnCooldown + pendingTaskExistsForSource guards\nWired into AGENT.md step 3 so every haiku digest triggers it\nCloses CARRY×12 — arXiv digest now auto-queues quantum signals end-to-end
             note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped\nBEAT EDITOR SKILL (c7c03bec): aibtc-news-editor installed (skills-v0.37.0)\n9 new MCP tools: news_review_signal, news_editorial_review,\nnews_register_editor, news_deactivate_editor, news_list_editors,\nnews_editor_earnings, news_compile_brief, news_file_correction, news_update_beat\nINTEGRATION GATE: tools active when Arc gains editor status (#383)\nCORRECTIONS CLI (da7d25b3): file-correction --signal-id --claim --correction [--sources]\nlist-corrections --signal-id\nBIP-137 signed; rate limit 3/day; corrects published signal claims\nCONTEXT-REVIEW FIX (a2c7adf): signal filing tasks excluded from keyword checks\nProtocol names in news topic descriptions (bitflow, zest) caused false\ndefi-bitflow/defi-zest skill suggestions — aibtc-news-editorial is sufficient
         }
 
@@ -86,6 +86,7 @@ stateDiagram-v2
 
         state InfrastructureSensors {
             arc_housekeeping
+            note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)
             arc_email_sync
             arc_ceo_review
             arc_report_email
@@ -95,6 +96,7 @@ stateDiagram-v2
             arc_weekly_presentation
             note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total
             blog_deploy
+            note right of blog_deploy: SCRIPT DISPATCH (90df07f6): model="script"\nFully deterministic — runs arc skills run --name blog-deploy -- deploy\nZero LLM cost per execution; 5-min script timeout\nSTRUCTURAL ISSUE (task #13445 pending): no safe LLM model\nOpus causes OOM (npm build + wrangler subprocess); sonnet may hit 15min ceiling\nFix path: split into build+deploy subtasks or use direct shell script\nCurrent state: sensor uses model="script" after serial opus/sonnet failures
             worker_deploy
             context_review
             compliance_review
@@ -198,6 +200,7 @@ stateDiagram-v2
             ReadTaskModel --> OpusTier: model=opus (explicit)
             ReadTaskModel --> SonnetTier: model=sonnet (explicit)
             ReadTaskModel --> HaikuTier: model=haiku (explicit)
+            ReadTaskModel --> ScriptRoute: model=script (deterministic)
             ReadTaskModel --> CodexRoute: model=codex/*
             ReadTaskModel --> OpenRouterRoute: model=openrouter/*
             note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)\nDISPATCH_EFFORT_OPUS (f3a18557): env var override for opus effort\nDefault: "high"; set "xhigh" on v2.1.111+ for better intelligence\nwithout full "max" cost; allows per-deploy tuning without code change\nAPI_TIMEOUT_MS (95930cf0): env var set to match dispatch timeout\nOpus=30min, Sonnet=15min, Haiku=5min (model-aware)\nv2.1.101+ respects API_TIMEOUT_MS (previously hardcoded 5min)\nPre-set so individual API calls don't abort before outer watchdog fires\nV2.1.108 FIX (d263dbb6+8ad08307): Bash sandbox + permission bypass configured\nTrusted-VM dispatch unblocked; settings.json updated for new CC permission model\nOPUS 4.7 (f3a18557): claude-opus-4-6 → claude-opus-4-7\nBetter intelligence on deep-work tasks; same API structure
@@ -318,11 +321,11 @@ stateDiagram-v2
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **71** |
+| **Total** | **72** |
 
-## Skill Count by Category (2026-04-16T18:53Z)
+## Skill Count by Category (2026-04-23T07:45Z)
 
-*Skills: 110 total (was 108 at last review — +2 from skills-v0.40.0)*
+*Skills: 113 total (was 111 at last review — +2 from arc-weekly-presentation restore + queue-signals CLI addition)*
 
 New skills added (v0.40.0):
 - `contract-preflight` — dry-run Stacks contract calls via stxer simulation engine (Secret Mars, BFF winner)
@@ -331,6 +334,18 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (686aeb9 → 3f6c59d) [2026-04-23T07:45Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arxiv-research): wire digest output to auto-queue quantum signal tasks** (3ea7a541) | `queue-signals` CLI command added to `cli.ts`. Reads `.latest_fetch.json` post-compile; matches papers on title+abstract vs QUANTUM_KEYWORDS (richer than sensor's title-only pass). Wired into `AGENT.md` step 3 so every haiku digest run auto-creates a signal task when matching papers found. Respects `isBeatOnCooldown` + `pendingTaskExistsForSource` guards. Closes CARRY×12 — the most-deferred item in the audit log. |
+| **refactor(sensors): convert 5 deterministic sensors to script dispatch** (90df07f6) | `erc8004-indexer`, `blog-deploy`, `worker-deploy`, `arc-starter-publish`, `arc-housekeeping` converted from LLM dispatch (sonnet/haiku) to `model: "script"`. These sensors emit fully deterministic tasks that run a single CLI command — no reasoning needed. Zero LLM cost per execution; 5-min script timeout. Structural win: ~5 LLM cycles/day eliminated. `ScriptRoute` added to dispatch ModelRoute state. |
+| **refactor(ordinals): remove deprecated HookState fields** (77a1837c) | HookState deprecated fields removed from ordinals skill. Closes CARRY-24 (window opened 2026-04-23 as planned). |
+| **feat(dispatch): add DISABLE_UPDATES=1 to dispatch systemd unit** (c9a25f05) | Prevents Claude Code from self-updating mid-dispatch cycle. `generateServiceUnit()` extended to accept `extraEnv` map; dispatch unit now sets `DISABLE_UPDATES=1`. Eliminates risk of unexpected version changes during task execution. |
+| **fix(dispatch): upgrade haiku→sonnet when housekeeping has >2 modified .ts files** (bbf36f1a) | Pre-commit lint hook overhead causes haiku to hit 5min ceiling when committing 3+ `.ts` files. Dispatch dynamically upgrades model for housekeeping tasks that exceed the threshold. |
+| **fix(compliance-review): chunk sensor into ≤5 skills per dispatch task** (da130851) | Compliance-review sensor was creating single tasks covering all skills — running 10+ finding passes exhausted sonnet's 15min ceiling. Fix: sensor chunks into batches of ≤5 skills per task. Each batch completes within budget. |
+| **fix(arc-weekly-presentation): rename abbreviated vars** (3f6c59d5) | `idx→slideIndex`, `cmd→subcommand` compliance fix caught by post-commit scan. Pre-commit hook should have caught this — sensor.ts check covers vars, not cli.ts loops. Gap noted. |
 
 ## Key Architectural Changes (b4d02fb → 686aeb9) [2026-04-22T19:45Z]
 
