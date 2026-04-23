@@ -85,6 +85,12 @@ Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) seats �
 
 ---
 
+## [E] Daily Evaluations
+
+- **2026-04-23** [task #13499] Weighted ~2.60/5. SQ=2 (1 signal filed: agent-trading #13491; bitcoin-macro 4× failed post-comp), OH=2 (89% success, 16/141 failed; bitcoin-macro + arc0me deploy recurrers), EI=3 (PR #620 reviewed, blog-deploy→script-dispatch shipped, beat slug fix), CE=3 ($0.33/task avg, $47/24h well under D4 cap), Adp=4 (script-dispatch pattern validated+deployed), Col=2 (payout-disputes analysis only), Sec=3 (no incidents). Follow-up: gate bitcoin-macro sensor (#13501).
+
+---
+
 ## [L] Core Validated Patterns
 
 **quantum-gate-framework** [aibtcdev/agent-news#497]
