@@ -520,7 +520,7 @@ function servicesSlide(d: WeekData, slide_index: number): string {
   </div>`;
 }
 
-function selfImprovementsSlide(d: WeekData, idx: number): string {
+function selfImprovementsSlide(d: WeekData, slideIndex: number): string {
   const s = d.selfImprovements;
   const skills = [
     ...s.newSkills.map(x => `<span class="pill new">+ ${escapeHtml(x.name)}</span>`),
@@ -532,7 +532,7 @@ function selfImprovementsSlide(d: WeekData, idx: number): string {
     : `<li class="empty">No memory updates this week</li>`;
   const total = s.newSkills.length + s.updatedSkills.length + s.newSensors.length;
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slideIndex}">
     <div class="arc-logo">ARC</div>
     <h3>Self Improvements</h3>
     <h2>${fmt(total)} skill &amp; sensor changes</h2>
@@ -544,7 +544,7 @@ function selfImprovementsSlide(d: WeekData, idx: number): string {
   </div>`;
 }
 
-function newAgentsSlide(d: WeekData, idx: number): string {
+function newAgentsSlide(d: WeekData, slideIndex: number): string {
   const cards = d.newAgents.map(a => `
     <div class="agent-card">
       <div class="agent-face">₿</div>
@@ -552,7 +552,7 @@ function newAgentsSlide(d: WeekData, idx: number): string {
       <div class="agent-btc">${escapeHtml(a.btcAddress.slice(0, 12) + (a.btcAddress ? "…" : ""))}</div>
     </div>`).join("");
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slideIndex}">
     <div class="arc-logo">ARC</div>
     <h3>New Agents</h3>
     <h2>${fmt(d.newAgents.length)} welcomed this week</h2>
@@ -560,9 +560,9 @@ function newAgentsSlide(d: WeekData, idx: number): string {
   </div>`;
 }
 
-function closingSlide(d: WeekData, idx: number): string {
+function closingSlide(d: WeekData, slideIndex: number): string {
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slideIndex}">
     <div class="arc-logo">ARC</div>
     <h1>See you next <span class="highlight">Monday</span>.</h1>
     <p class="subtitle">${fmt(d.taskStats.completed)} tasks &middot; ${fmt(d.totalSkills)} skills &middot; ${fmt(d.devActivity.prs.length)} shipped</p>
@@ -680,9 +680,9 @@ function listArchives(): void {
 async function main(): Promise<void> {
   initDatabase();
   const { flags, positional } = parseFlags(Bun.argv.slice(2));
-  const cmd = positional[0];
+  const subcommand = positional[0];
 
-  if (!cmd || cmd === "generate") {
+  if (!subcommand || subcommand === "generate") {
     const weekEnd = flags.week ?? mondayOf(new Date()).toISOString().slice(0, 10);
     const research = flags["research-file"] ? loadResearchFile(flags["research-file"]) : {};
 
@@ -699,12 +699,12 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (cmd === "list") {
+  if (subcommand === "list") {
     listArchives();
     return;
   }
 
-  console.error(`Unknown command: ${cmd}`);
+  console.error(`Unknown command: ${subcommand}`);
   console.error(`Usage: generate [--week YYYY-MM-DD] [--research-file PATH]`);
   console.error(`       list`);
   process.exit(1);
