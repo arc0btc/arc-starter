@@ -11,6 +11,10 @@ const ARXIV_API = "http://export.arxiv.org/api/query";
 const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
+// Post-competition all beats reset; add beat slugs back here when reacquired.
+// Empty = sensor short-circuits immediately without fetching data or queuing tasks.
+const ACTIVE_BEATS: string[] = [];
+
 const log = createSensorLogger(SENSOR_NAME);
 
 // Infrastructure beat: aibtc-relevance filter.
@@ -122,6 +126,12 @@ export default async function arxivResearchSensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
+      return "skip";
+    }
+
+    // Beat-active gate — short-circuit if no beats are currently claimed
+    if (ACTIVE_BEATS.length === 0) {
+      log("no active beats — skipping (re-add beat slugs to ACTIVE_BEATS when reacquired)");
       return "skip";
     }
 
