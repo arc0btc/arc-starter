@@ -198,6 +198,11 @@ function checkMissingSkillCoverage(
   // Audit tasks similarly embed issue/PR titles (e.g. "Produce prioritized achievements audit for landing-page#384")
   if (/audit for [\w/-]+#\d+/.test(task.subject)) return findings;
 
+  // GitHub notification tasks (from github-mentions sensor) embed the external PR/issue title verbatim
+  // in the subject (e.g. "GitHub @mention in BitflowFinance/bff-skills: feat(bitflow-btc-onramp): send BTC...").
+  // Domain keywords in those titles belong to the PR content, not to the review task's skill requirements.
+  if (/^GitHub .+ in [\w/-]+:/.test(task.subject)) return findings;
+
   // Presentation update tasks (src/web/presentation.html) describe slide *content* as context
   // for what to write — e.g. "Zest sBTC supply ops", "AIBTC NEWS COMPETITION" — not as
   // operational requirements. These keywords belong to the slide topic, not the skill set.
