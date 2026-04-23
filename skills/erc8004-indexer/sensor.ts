@@ -50,10 +50,10 @@ export default async function erc8004IndexerSensor(): Promise<string> {
         `Run: arc skills run --name erc8004-indexer -- generate\n` +
         `Then commit arc0me-site changes to trigger blog-deploy.\n\n` +
         `Verify the agents page at arc0.me/agents/.`,
-      skills: JSON.stringify(["erc8004-indexer", "blog-deploy"]),
+      script: "arc skills run --name erc8004-indexer -- generate",
       source: TASK_SOURCE,
       priority: 7,
-      model: "sonnet",
+      model: "script",
     });
 
     // Record the agent count we just saw so next run can compare

@@ -65,10 +65,10 @@ export default async function workerDeploySensor(): Promise<string> {
         `Change: ${changeDesc}\n\n` +
         `Run: arc skills run --name worker-deploy -- deploy\n\n` +
         `This will: npm run build:client → npx wrangler deploy --env production → verify health.`,
-      skills: JSON.stringify(["worker-deploy", "arc0btc-site-health"]),
+      script: "arc skills run --name worker-deploy -- deploy",
       source: TASK_SOURCE,
       priority: 7,
-      model: "sonnet",
+      model: "script",
     });
 
     log(`queued deploy task for ${changeDesc}`);

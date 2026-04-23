@@ -70,10 +70,10 @@ export default async function arcStarterPublishSensor(): Promise<string> {
         "",
         "This will fast-forward merge v2 into main and push to origin.",
       ].join("\n"),
-      skills: JSON.stringify(["arc-starter-publish"]),
+      script: "arc skills run --name arc-starter-publish -- publish",
       source: TASK_SOURCE,
       priority: 7,
-      model: "haiku",
+      model: "script",
     });
 
     log(`queued publish task — v2 is ${ahead} commit(s) ahead (${sha})`);
