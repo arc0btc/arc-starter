@@ -115,13 +115,10 @@ interface HookState {
   lastCategory: number; // index into CATEGORIES
   lastAngle: number; // index into ANGLES
   lastRun?: string;
-  lastSignalQueued?: string; // DEPRECATED: legacy field, migrated to lastOrdinalSignalQueued
   lastOrdinalSignalQueued?: string; // ISO timestamp of last ordinals signal task creation — per-beat cooldown
   lastInscriptionCount?: number;
   lastFeeRate?: number;
   lastBrc20Volume?: number;
-  lastRuneTopIds?: string[]; // DEPRECATED: was top-10 rune IDs; runes/list endpoint removed
-  lastRuneHolders?: Record<string, number>; // DEPRECATED: was runeId -> holderCount; runes/list endpoint removed
   lastRuneTotal?: number; // total rune count from last runes/status run (for change-detection)
   lastRateMilestoneHigh?: string; // ISO timestamp of last high-rate milestone task creation
   lastRateMilestoneLow?: string; // ISO timestamp of last low-rate milestone task creation
