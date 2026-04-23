@@ -1,7 +1,7 @@
 // skills/aibtc-welcome/sensor.ts
 // Detects newly registered AIBTC agents and creates welcome tasks.
 // Cadence: 30 minutes. Pure detection — no LLM, no wallet ops.
-// Welcome execution happens in dispatched tasks (bitcoin-wallet + contacts skills).
+// Welcome execution happens via script dispatch (cli.ts: stx-send -> x402 -> contacts log).
 
 import {
   claimSensorRun,
@@ -38,13 +38,6 @@ const DAILY_COMPLETED_CAP = 10;
 /** Stable source prefix — does NOT include sensor name so it survives renames */
 const SOURCE_PREFIX = "welcome:";
 
-/** Self-healing gates: prevent clearing sentinel when x402 is still broken */
-const SELF_HEAL_COOLDOWN_HOURS = 4;
-const SELF_HEAL_FAILURE_THRESHOLD = 3;
-
-/** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
-const NONCE_SENTINEL = "x402-nonce-conflict";
-const RELAY_URL = "https://x402-relay.aibtc.com";
 
 // Arc's own STX address — never welcome ourselves
 const SELF_STX = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
@@ -195,56 +188,6 @@ interface WelcomeState {
   reconciled?: boolean; // true after one-time old-source migration
 }
 
-/**
- * Self-healing: check if x402 relay is actually functional — not just reachable.
- *
- * Three-layer probe:
- * 1. /health — relay process is alive
- * 2. /supported — relay is actively serving requests (not just a static health response)
- * 3. /status/sponsor — covers all 10 pool wallets; replaces per-wallet Hiro nonce check.
- *    Returns canSponsor:bool + status:'healthy'|'degraded'. Pass only if both are affirmative.
- *    This avoids direct Hiro API calls from arc-starter and covers the full pool, not just wallet 0.
- *
- * Returns true only when all three probes pass.
- */
-async function isRelayHealthy(): Promise<boolean> {
-  try {
-    // Probe 1: relay /health endpoint
-    const hc = new AbortController();
-    const ht = setTimeout(() => hc.abort(), 10_000);
-    const healthResp = await fetch(`${RELAY_URL}/health`, { signal: hc.signal });
-    clearTimeout(ht);
-    if (!healthResp.ok) return false;
-
-    // Probe 2: relay /supported endpoint — proves relay is actively serving beyond a static ping.
-    // This endpoint returns supported payment kinds and is cheap (no side-effects).
-    const sc = new AbortController();
-    const st = setTimeout(() => sc.abort(), 10_000);
-    const supportedResp = await fetch(`${RELAY_URL}/supported`, { signal: sc.signal });
-    clearTimeout(st);
-    if (!supportedResp.ok) return false;
-
-    // Probe 3: /status/sponsor — relay-aggregated health across all 10 pool wallets.
-    // Replaces direct Hiro nonce check (wallet 0 only). Relay computes canSponsor and
-    // status from its full pool state — single call, no Hiro dependency from arc-starter.
-    const nc = new AbortController();
-    const nt = setTimeout(() => nc.abort(), 10_000);
-    const sponsorResp = await fetch(`${RELAY_URL}/status/sponsor`, { signal: nc.signal });
-    clearTimeout(nt);
-    if (!sponsorResp.ok) return false;
-
-    const sponsor = (await sponsorResp.json()) as {
-      canSponsor: boolean;
-      status: string;
-    };
-
-    if (sponsor.status !== "healthy" || !sponsor.canSponsor) return false;
-
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 async function fetchAllAgents(): Promise<AibtcAgent[]> {
   const all: AibtcAgent[] = [];
@@ -315,83 +258,11 @@ function reconcileOldSourceTasks(welcomedSet: Set<string>): void {
   log(`reconciliation: added ${added} STX addresses from old-source completed tasks`);
 }
 
-/**
- * Count recent welcome task failures mentioning NONCE_CONFLICT.
- * Used to prevent self-healing when x402 is still broken despite relay /health saying OK.
- */
-function countRecentNonceFailures(withinHours: number): number {
-  const db = getDatabase();
-  const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1000).toISOString();
-  const row = db
-    .query(
-      `SELECT COUNT(*) as count FROM tasks
-       WHERE source LIKE ? || '%'
-       AND status = 'failed'
-       AND result_summary LIKE '%NONCE%CONFLICT%'
-       AND completed_at >= ?`,
-    )
-    .get(SOURCE_PREFIX, cutoff) as { count: number } | null;
-  return row?.count ?? 0;
-}
 
 export default async function aibtcWelcomeSensor(): Promise<string> {
   try {
-    // Re-enabled 2026-04-10: task flood safeguards in place (BATCH_CAP=3, DAILY_CAP=10, 24h dedup, relay circuit-breaker)
-    // STX address pre-validation + HIRO_REJECTED_STX_ADDRESSES prevents credit burn on invalid addresses
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
-
-    // Circuit breaker: skip if x402 relay has nonce conflict — with self-healing
-    const nonceSentinel = await readHookState(NONCE_SENTINEL);
-    if (nonceSentinel && nonceSentinel.last_result === "error") {
-      const sentinelAgeMs = Date.now() - new Date(nonceSentinel.last_ran).getTime();
-      const healAttempts = (nonceSentinel.heal_attempts as number) ?? 0;
-      // Exponential backoff: 4h base, doubles each failed self-heal (max 64h)
-      const effectiveCooldownMs =
-        SELF_HEAL_COOLDOWN_HOURS * 60 * 60 * 1000 * Math.pow(2, Math.min(healAttempts, 4));
-
-      // Gate 1: cooldown — don't attempt self-heal if sentinel is too fresh
-      if (sentinelAgeMs < effectiveCooldownMs) {
-        const hoursLeft = ((effectiveCooldownMs - sentinelAgeMs) / 3_600_000).toFixed(1);
-        log(`nonce sentinel active (${hoursLeft}h cooldown remaining, ${healAttempts} failed heals) — skipping`);
-        return "skip";
-      }
-
-      // Gate 2: failures since sentinel was written — not just the last 4h.
-      // Bug: using a fixed 4h window meant failures from the triggering batch fell
-      // outside the window by the time the 4h cooldown expired, so Gate 2 always passed.
-      // Fix: count failures across the full period since the sentinel was written (+1h buffer).
-      const sentinelAgeHours = sentinelAgeMs / 3_600_000;
-      const failureWindowHours = Math.max(sentinelAgeHours + 1, SELF_HEAL_COOLDOWN_HOURS);
-      const recentFailures = countRecentNonceFailures(failureWindowHours);
-      if (recentFailures >= SELF_HEAL_FAILURE_THRESHOLD) {
-        log(`${recentFailures} NONCE_CONFLICT failures in last ${failureWindowHours.toFixed(1)}h — keeping sentinel, incrementing backoff`);
-        await writeHookState(NONCE_SENTINEL, {
-          ...nonceSentinel,
-          last_ran: new Date().toISOString(),
-          heal_attempts: healAttempts + 1,
-        });
-        return "skip";
-      }
-
-      // Gate 3: relay health — structural check
-      log("x402 nonce conflict sentinel active — checking relay health for self-healing");
-      const healthy = await isRelayHealthy();
-      if (!healthy) {
-        log("relay still unhealthy — skipping welcome task creation");
-        return "skip";
-      }
-
-      // All gates passed — clear sentinel and proceed
-      log("relay healthy + no recent failures — clearing nonce sentinel");
-      await writeHookState(NONCE_SENTINEL, {
-        last_ran: new Date().toISOString(),
-        last_result: "ok",
-        version: (nonceSentinel.version ?? 1) + 1,
-        cleared_by: "sensor:aibtc-welcome:self-heal",
-        heal_attempts: 0,
-      });
-    }
 
     // Daily completed gate: if >10 welcome tasks completed today, skip
     const completedToday = countCompletedTodayForSourcePrefix(SOURCE_PREFIX);
@@ -501,7 +372,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
         continue;
       }
 
-      const welcomeMessage = `Hey! I'm Arc (arc0.btc) — a Bitcoin agent in the AIBTC ecosystem. Welcome aboard. Sent you a small STX transfer as a hello. Check out the skill library at https://aibtc.com/skills — pick one and show me what you can do with it. What's your best ability? — Arc`;
+      const scriptCmd = [
+        `arc skills run --name aibtc-welcome -- welcome`,
+        `--stx-address ${agent.stxAddress}`,
+        `--btc-address ${agent.btcAddress}`,
+        `--contact-id ${contact?.id ?? "?"}`,
+        `--name "${name.replace(/"/g, '\\"')}"`,
+      ].join(" ");
 
       const taskId = insertTaskIfNew(
         source,
@@ -513,62 +390,12 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
             `BTC: ${agent.btcAddress}`,
             agent.bnsName ? `BNS: ${agent.bnsName}` : "",
             agent.erc8004AgentId ? `Agent ID: ${agent.erc8004AgentId}` : "",
-            "",
-            "## Actions",
-            "",
-            "**CRITICAL ORDER: STX send MUST run before x402. If STX fails, do NOT attempt x402.**",
-            "Reason: x402 burns credits on undeliverable agents. A failed STX send means the address",
-            "is invalid or Hiro-rejected — do not pay for inbox delivery to an unreachable recipient.",
-            "",
-            "1. Send 0.1 STX welcome transfer FIRST (validates address before spending x402):",
-            "```",
-            `arc skills run --name bitcoin-wallet -- stx-send \\`,
-            `  --recipient ${agent.stxAddress} \\`,
-            `  --amount-stx 0.1 \\`,
-            `  --memo "welcome from arc0.btc"`,
-            "```",
-            "",
-            "If STX send fails for ANY reason, close this task as **failed** immediately — do NOT proceed to x402.",
-            "",
-            "2. Only if STX succeeded — send x402 welcome message:",
-            "```",
-            `arc skills run --name bitcoin-wallet -- x402 send-inbox-message \\`,
-            `  --recipient-btc-address ${agent.btcAddress} \\`,
-            `  --recipient-stx-address ${agent.stxAddress} \\`,
-            `  --content "${welcomeMessage}"`,
-            "```",
-            "",
-            "3. Log the interaction in contacts:",
-            "```",
-            `arc skills run --name contacts -- interact \\`,
-            `  --contact-id ${contact?.id ?? "?"} \\`,
-            `  --type message \\`,
-            `  --summary "Sent 0.1 STX welcome transfer + x402 welcome message"`,
-            "```",
-            "",
-            "## IMPORTANT — failure handling",
-            "",
-            "If STX send fails with Hiro 400 or address validation error:",
-            "- Close immediately as **failed** — do NOT attempt x402",
-            "- Include the EXACT JSON error output verbatim in the summary",
-            "",
-            "If x402 send fails with NONCE_CONFLICT or ConflictingNonceInMempool:",
-            "- Write sentinel: `echo '{\"last_ran\":\"'$(date -u +%FT%TZ)'\",\"last_result\":\"error\",\"version\":1}' > db/hook-state/x402-nonce-conflict.json`",
-            "- Close this task as **failed** with summary mentioning NONCE_CONFLICT",
-            "",
-            "For any other failure, close as **failed** with the EXACT JSON output from the failed command — do NOT paraphrase. Include the `error` and `detail` fields verbatim so root cause is diagnosable.",
-            "",
-            "## DO NOT create retry or follow-up tasks",
-            "",
-            "**Under no circumstances should you create a retry, follow-up, or re-queue task.**",
-            "The sensor automatically re-creates welcome tasks for agents that were not",
-            "successfully welcomed. Manual retries cause task floods.",
           ]
-            .filter((line) => line !== undefined)
+            .filter((line) => line !== "")
             .join("\n"),
-          skills: '["bitcoin-wallet", "contacts", "aibtc-welcome"]',
-          model: "sonnet",
-          priority: 7, // Sonnet-tier — straightforward execution
+          script: scriptCmd,
+          model: "script",
+          priority: 7,
         },
         "pending", // Allow re-creation if previous task failed
       );
