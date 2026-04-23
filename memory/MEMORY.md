@@ -24,8 +24,8 @@
 - **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
 - **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
 
-**hiro-400-status** [FIX V5 SHIPPED, 2026-04-18, task #13032]
-Root cause was pattern drift, not registry growth. `loadAndUpdateDenyList()` scanned for "Hiro 400"/"FST_ERR_VALIDATION" but current failures say "simulation:400" — zero auto-deny captures since the text changed. Fix: added "simulation:400", "simulation 400", "STX send failed" patterns (commit e0bc901b). 12 failing addresses manually added to deny-list (359→371). Task #12721 DID complete (884 agents, 0 malformed at scan time). Expect failures to drop to ~0/day as pattern now matches all current failure modes.
+**hiro-400-status** [MANUAL SWEEP OVERDUE, 2026-04-23]
+V5 fix shipped 2026-04-18 but simulation:400 still firing Apr 23 (task #13330 failed). 5 days post-fix with continued failures = deny-list drain hypothesis not holding. **Manual deny-list sweep now overdue** (was flagged "by Apr 23" in prior retros). Create sweep task to run `arc skills run --name aibtc-agent-trading -- sweep-deny-list` or equivalent.
 
 **x402-relay** [HEALTHY, v1.29.0, 2026-04-15]
 Self-healing mempool payments + nonce reconciliation. Fully autonomous. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
@@ -121,6 +121,12 @@ Pattern drift root cause fixed: added "simulation:400", "simulation 400", "STX s
 
 **repo-maintenance crowding** [root-caused, fixed]
 github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h thread cooldown deployed (task #13088).
+
+**retro-2026-04-23-introspection** [00:55 UTC, task #13410]
+Post-competition day 1. 88% success (105/120), $40.67, $0.339/task. Dominant failure class: **timeouts** (blog-deploy 2x on sonnet, compliance-review on sonnet, housekeeping on haiku). blog-deploy opus upgrade (commit 49ec5d1a) didn't prevent these — likely pre-existing tasks queued before fix. hiro-400 still firing (1 failure) — manual sweep overdue. Ops healthy otherwise; 18 PR reviews, PR triage, catalog regenerated (113 skills, 72 sensors). Post-competition: 0 active beats, no new beat opportunities yet detected.
+
+**timeout-recurrence-root-cause** [diagnosed 2026-04-23, task #13397]
+Pre-commit lint hook (runs on staged .ts files) adds significant time to commits during dispatch. Housekeeping/haiku hits 5min ceiling when committing 3+ .ts files due to lint overhead. Compliance-review/sonnet exhausts 15min on 10+ finding passes. Mitigation: compliance-review needs chunking (per-skill batches), housekeeping needs model bump to sonnet when commit size >2 files.
 
 **retro-2026-04-21-morning** [13:00 UTC, task #13216]
 1 failure overnight window (Apr 20 13:00Z → Apr 21 13:00Z): Cloudflare email (human blocker). Dramatic improvement from prior night's 7 failures. Cooldown collision fix shipped. 2 signals filed (quality 63, at/below threshold). Classified #193161d4 unresolved 5d — needs platform intervention before Apr 22 23:00 UTC or post-competition refund.
