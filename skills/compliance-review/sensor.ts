@@ -7,7 +7,7 @@ import {
   claimSensorRun,
   createSensorLogger,
 } from "../../src/sensors.ts";
-import { insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
+import { insertTaskDeduped } from "../../src/db.ts";
 import { discoverSkills, type SkillInfo } from "../../src/skills.ts";
 import { existsSync } from "node:fs";
 import { join, basename, resolve } from "node:path";
@@ -282,12 +282,14 @@ export default async function complianceReviewSensor(): Promise<string> {
 
     if (all_findings.length === 0) return "ok";
 
-    // Group findings by rule for the report
-    const by_rule = new Map<string, ComplianceFinding[]>();
+    // Group findings by skill so each batch covers ≤5 skills.
+    // This bounds each dispatch task to a manageable scope — pre-commit lint overhead
+    // means 10+ findings in a single pass reliably exhaust the 15-min dispatch ceiling.
+    const by_skill = new Map<string, ComplianceFinding[]>();
     for (const finding of all_findings) {
-      const group = by_rule.get(finding.rule) ?? [];
+      const group = by_skill.get(finding.skill_name) ?? [];
       group.push(finding);
-      by_rule.set(finding.rule, group);
+      by_skill.set(finding.skill_name, group);
     }
 
     const rule_labels: Record<string, string> = {
@@ -302,34 +304,63 @@ export default async function complianceReviewSensor(): Promise<string> {
       "cross-skill-path-valid": "Stale Cross-Skill Path",
     };
 
-    let description = `Compliance audit found ${all_findings.length} finding(s) across ${all_skills.length} skills.\n\n`;
-
-    for (const [rule, findings] of by_rule) {
-      description += `## ${rule_labels[rule] ?? rule}\n\n`;
-      for (const finding of findings) {
-        description += `- **${finding.skill_name}**: ${finding.detail}\n`;
-      }
-      description += "\n";
-    }
-
-    description += "Review each finding and fix or document exceptions. Structural issues should be fixed first.";
-
-    // Use workflow for findings→retrospective chain tracking
+    // Chunk: ≤5 skills per dispatch task
+    const BATCH_SIZE = 5;
+    const skill_names = Array.from(by_skill.keys());
     const today = new Date().toISOString().slice(0, 10);
-    const wfKey = `compliance-review:${today}`;
-    if (!getWorkflowByInstanceKey(wfKey)) {
-      insertWorkflow({
-        template: "compliance-review",
-        instance_key: wfKey,
-        current_state: "scan_complete",
-        context: JSON.stringify({
-          findingCount: all_findings.length,
-          skillCount: all_skills.length,
-          scanDate: today,
-        }),
+    let tasks_created = 0;
+
+    for (let batch_index = 0; batch_index < skill_names.length; batch_index += BATCH_SIZE) {
+      const batch_skills = skill_names.slice(batch_index, batch_index + BATCH_SIZE);
+      const batch_number = Math.floor(batch_index / BATCH_SIZE) + 1;
+      const total_batches = Math.ceil(skill_names.length / BATCH_SIZE);
+
+      // Collect findings for this batch
+      const batch_findings: ComplianceFinding[] = batch_skills.flatMap(
+        (skill_name) => by_skill.get(skill_name) ?? []
+      );
+
+      // Build description with findings listed so the dispatcher doesn't need to re-scan
+      let description = `Compliance audit (${today}) — batch ${batch_number}/${total_batches}: ${batch_findings.length} finding(s) across ${batch_skills.length} skill(s).\n\n`;
+
+      // Group by rule within this batch for readability
+      const batch_by_rule = new Map<string, ComplianceFinding[]>();
+      for (const finding of batch_findings) {
+        const group = batch_by_rule.get(finding.rule) ?? [];
+        group.push(finding);
+        batch_by_rule.set(finding.rule, group);
+      }
+
+      for (const [rule, findings] of batch_by_rule) {
+        description += `## ${rule_labels[rule] ?? rule}\n\n`;
+        for (const finding of findings) {
+          description += `- **${finding.skill_name}**: ${finding.detail}\n`;
+        }
+        description += "\n";
+      }
+
+      description += "Review each finding and fix or document exceptions. Structural issues should be fixed first.\n";
+      description += "Commit fixes in a single batch commit rather than per-finding to avoid lint-hook overhead.";
+
+      const source = `${TASK_SOURCE}:${today}:batch-${batch_number}`;
+      const task_id = insertTaskDeduped({
+        subject: `compliance-review: ${batch_findings.length} finding(s) [batch ${batch_number}/${total_batches}]`,
+        description,
+        skills: JSON.stringify(["compliance-review", "arc-memory", "arc-skill-manager"]),
+        priority: 6,
+        model: "sonnet",
+        source,
       });
+
+      if (task_id !== null) {
+        log(`queued batch ${batch_number}/${total_batches} (${batch_skills.length} skills, ${batch_findings.length} findings) → task #${task_id}`);
+        tasks_created++;
+      } else {
+        log(`batch ${batch_number}/${total_batches} already queued, skipping`);
+      }
     }
 
+    log(`created ${tasks_created} task(s) for ${all_findings.length} total finding(s)`);
     return "ok";
   } catch (e) {
     const error = e as Error;
