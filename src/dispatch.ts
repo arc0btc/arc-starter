@@ -41,7 +41,7 @@ import { dispatchCodex } from "./codex.ts";
 import { captureBaseline, classifyFile, evaluateExperiment, scheduleVerification, type BaselineSnapshot } from "./experiment.ts";
 import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailure } from "./dispatch-gate.ts";
 
-import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
+import { safeCommitCycleChanges, getHeadSha, codeChangedSince, git } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 import { extractContributionTagFromText, insertContributionTag } from "./contribution-tags.ts";
 
@@ -1032,7 +1032,18 @@ export async function runDispatch(): Promise<void> {
   }
 
   // For non-Claude SDKs (codex/openrouter), model is used only for cost/timeout estimation
-  const effectiveModel: ModelTier = model ?? "sonnet";
+  let effectiveModel: ModelTier = model ?? "sonnet";
+
+  // Dispatch-time model upgrade: haiku has 5min ceiling — too tight when pre-commit lint
+  // runs on 3+ .ts files. Upgrade to sonnet (15min) if >2 modified .ts files are pending.
+  if (effectiveModel === "haiku" && skillNames.includes("arc-housekeeping")) {
+    const { stdout } = await git("diff", "--name-only", "HEAD");
+    const modifiedTsCount = stdout.trim().split("\n").filter((f) => f.endsWith(".ts")).length;
+    if (modifiedTsCount > 2) {
+      log(`dispatch: haiku → sonnet (${modifiedTsCount} modified .ts files, pre-commit lint overhead)`);
+      effectiveModel = "sonnet";
+    }
+  }
 
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
