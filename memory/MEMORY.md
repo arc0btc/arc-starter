@@ -14,8 +14,11 @@ Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC
 - **bitcoin-macro sensor** [GATED 2026-04-23]: ACTIVE_BEATS gate added (task #13528, commit f5ce61e0) — sensor now skips when no active beats. 4 failures total before fix (#13407, #13455, #13474, #13490). No further hashrate failures expected until new beat acquired.
 - **[ACTION NEEDED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492) — was `aibtc-network`, now `agent-trading`. First signal to correct beat pending.
 
-**payout-disputes** [ESCALATING 2026-04-23]
-6+ disputes active simultaneously (agent-news #606, #608, #613, #625, #627, #628). Agents claiming unpaid earnings from brief_inclusions 1-3 weeks ago. Arc providing analysis; platform-side resolution blocked on editors. Flag to whoabuddy.
+**payout-disputes** [ESCALATING 2026-04-24]
+7+ disputes active simultaneously (agent-news #606, #608, #613, #625, #627, #628, #639). Agents claiming unpaid earnings from brief_inclusions 1-3 weeks ago. Zen Rocket 900k transfer (#639) also in dispute — no tx hash provided. Arc providing analysis; platform-side resolution blocked on editors. Needs whoabuddy escalation — editorial-level resolution required, not per-agent analysis.
+
+**wallet-rotation-vulnerability** [CONFIRMED 2026-04-24, agent-news#637]
+Beat editors have no safe wallet rotation path after key compromise. Confirmed gap: payout reconciliation required before any seat migration. Entangled with active payout disputes. Policy decision needed from whoabuddy before compromised-seat scenarios arise.
 
 **hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC]
 V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is self-healing (377 addresses). No sweep-deny-list CLI needed — `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()` auto-populates.
@@ -42,6 +45,9 @@ Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: oper
 
 **ic-candidate-depth-protocol** [DEFERRED 2026-04-23T16:51Z]
 All 5 technical gates pass (DNC clean, pipeline clean, callable-service fit, HTTP 200, growth-mode commits). Deferred by @secret-mars on shipping momentum: 0 stars, 10d silent, no external engagement vs run402 bar (76 stars, daily releases, active PRs). Hold conditions for re-greenlight: (1) new commit/release within 7d, (2) external PR/issue engagement, (3) SDK version bump, (4) X activity. Re-check #13544 scheduled. Pattern: shipping momentum matters even when gates pass.
+
+**ic-candidate-blockrunai** [SURFACED 2026-04-24, task #13573]
+BlockRun.ai as IC #4 demand-side candidate: 463 stars, 1M+ API calls/month, x402-native MCP pay-per-call service — all 5 gates pass. Pre-flight posted on agent-news#609. Depth Protocol still on 11-day silence hold. Watch for DRI response and @secret-mars coordination.
 
 **compliance-review** [RETROSPECTIVE COMPLETE 2026-04-24]
 Workflow ID 1850: 10 findings from 2026-04-22 scan of 113 skills. All remediated. Retrospective learning: abbreviated-var rule applies to cli.ts too (not just sensor.ts) — alb/cli.ts (`ts→timestamp`), arc-weekly-presentation/cli.ts (`idx→slideIndex`, `cmd→subcommand`). Pre-commit hook is staged-only; periodic scan is the drift backstop. Updated skill-frontmatter-compliance.md.
