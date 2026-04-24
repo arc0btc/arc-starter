@@ -51,9 +51,9 @@ Establishes the record before the code moves.
 
 Verifies Phase 1 took effect before Phase 3 ships any payment code.
 
-- [ ] **Refresh local editor registry**: `arc skills run --name editor-payout -- registry refresh`. If DC's STX address doesn't surface, fall back to `registry set` per beat with DC's manually-supplied STX.
-- [ ] **Public address verification on #634**: post returned BTC + STX on the thread, ask DC to confirm. Extra scrutiny on the transition — no funds route to an unverified address.
-- [ ] **Functional access test**: ask DC to approve one signal on aibtc.news after admin-change. Verifies admin authority actually flipped (not just that a DB row updated). DC either can or can't; that's the test.
+- [x] **Local editor registry reflects DC across all 3 beats** (2026-04-24T17:49Z). `registry refresh` didn't update because v2 cli expects `beat.editor` as a string but the API now returns `{address, assignedAt}`. Since v2 is retiring in Phase 3, fell back to `registry set` manually with DC's BTC + STX resolved via aibtc.com agent registry (ERC-8004 id 12, BNS `sable-arc.btc`).
+- [x] **Public address verification posted on #634** ([comment](https://github.com/aibtcdev/agent-news/issues/634#issuecomment-4315205656)) — BTC `bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0`, STX `SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M`. Awaiting DC's explicit ack.
+- [x] **Functional access test requested** in same #634 comment: DC to approve one signal on any beat. Awaiting completion.
 
 ### Phase 3 — Local publisher changes
 
