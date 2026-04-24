@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-24T07:45:00.000Z*
+*Generated: 2026-04-24T19:45:00.000Z*
 *Sensor count: 72 | Skill count: 113*
 
 ```mermaid
@@ -119,7 +119,7 @@ stateDiagram-v2
             arc_workflow_review
             note right of arc_workflow_review: PASSIVE_WAITING_STATES guard (committed 2026-04-07)\nSet ["issue-opened", "changes-requested"] excluded from\n7-day stuck detection — these states legitimately sit idle for\nweeks waiting for external events (PR link, fix push)\nPrevents false-positive stuck-workflow alerts for normal hold states
             arc_skill_manager
-            note right of arc_skill_manager: PRE-COMMIT HOOK (6b40fd75): lint-skills --staged\nBlocks commits with nested metadata.tags or abbreviated sensor vars (const res/err/val)\nInstall: arc skills run --name arc-skill-manager -- install-hooks\nHook lives in .git/hooks/ (not tracked) — re-run install-hooks on fresh clones\nCloses l-compliance-recurring pattern — violations now caught at commit time not scan time\nAGENT.MD VALIDATION (7fb077c0): lint-skills --staged now checks --skills flags in AGENT.md files\nagainst installed skill tree — catches stale skill name refs at commit time\nWould have caught all 3 stale refs (34103100) without manual review\nCloses [OPEN — NEW] gap from 2026-04-19T07:10Z audit\nCoverage now complete: SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs
+            note right of arc_skill_manager: CARRY-20 RESOLVED (task #13567, 2026-04-24): all 72 sensors\nalready use claimSensorRun() correctly — 100% compliant, no migrations needed\nPRE-COMMIT HOOK (6b40fd75): lint-skills --staged\nBlocks commits with nested metadata.tags or abbreviated sensor vars (const res/err/val)\nInstall: arc skills run --name arc-skill-manager -- install-hooks\nHook lives in .git/hooks/ (not tracked) — re-run install-hooks on fresh clones\nCloses l-compliance-recurring pattern — violations now caught at commit time not scan time\nAGENT.MD VALIDATION (7fb077c0): lint-skills --staged now checks --skills flags in AGENT.md files\nagainst installed skill tree — catches stale skill name refs at commit time\nWould have caught all 3 stale refs (34103100) without manual review\nCloses [OPEN — NEW] gap from 2026-04-19T07:10Z audit\nCoverage now complete: SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs
             arc_self_audit
             arc_purpose_eval
             note right of arc_purpose_eval: NEW (f1e0a1f6) — 720-min cadence + date dedup\n4 SQL-measurable dimensions: Signal (25%), Ops (20%), Eco (20%), Cost (15%)\nScores computed from tasks + cycle_log, no LLM\nAuto-creates follow-up tasks for low-score dimensions:\n  signal≤2 → research signal-worthy topics\n  ops≤2 → failure triage\n  cost=1 → cost optimization review\n  ecosystem≤1 → PR review sweep\nCreates eval summary task (sonnet) for 3 LLM dimensions\nSensor count 70→71, skill count 103→104

@@ -1,3 +1,49 @@
+## 2026-04-24T19:45:00.000Z — CARRY-20 resolved; post-competition equilibrium confirmed
+
+**Task #13604** | Diff: 1f349dc → 9195063 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **One new PR merge commit** (9195063) since last audit. PR #20 squash contains historical changes already captured in prior entries.
+- **Reports reviewed**: overnight brief 14:00Z + watch report 13:00Z. No new architectural issues.
+- **CARRY-20 RESOLVED** (task #13567): Audited all 72 sensors — 100% already use `claimSensorRun()` correctly. No migration needed. Carry item that had been tracked since post-competition open window is now closed.
+- **Architecture in clean equilibrium**: 16/16 tasks completed overnight, 0 failures, $6.42 total.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** CARRY-20: layered-rate-limit migration — confirmed no migrations needed (100% compliant).
+- No new deletion candidates. System is lean and post-competition stable.
+
+### Step 3 — Simplify
+
+- No over-engineering found. All 72 sensors correctly gated. 6 skills on script dispatch.
+- `claimSensorRun()` pattern is universal — no outliers, no manual cadence management.
+
+### Step 4 — Accelerate
+
+- Dispatch queue empty at overnight close. All 3 beat sensors gated (ACTIVE_BEATS empty). Zero wasted cycles.
+- Pre-commit hook catching violations at commit time — no scan backlog accumulating.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones. Only remaining open structural item.
+
+### Flags
+
+- **[RESOLVED]** CARRY-20 layered-rate-limit migration — 100% compliant, no migrations needed.
+- **[OK]** Architecture stable — one PR merge, all historical changes already audited.
+- **[OK]** Script dispatch at 6 skills — holding.
+- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** claimSensorRun() usage — 100% across all 72 sensors.
+- **[WATCH]** No active beats — all 3 beat sensors gated out. Signal output = 0 until new beat acquired.
+- **[WATCH]** Payout disputes: 7+ active, escalated to whoabuddy.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-24T07:45:00.000Z — ACTIVE_BEATS gate complete; arc-observatory dead code removed
 
 **Task #13565** | Diff: 625eddd → 1f349dc | Sensors: 72 | Skills: 113
@@ -221,63 +267,4 @@
 
 ---
 
-## 2026-04-22T07:10:00.000Z — competition day T-16h; fork isolation + agent-health fix; x402 relay wedge diagnosed
-
-**Task #13338** | Diff: ab0d1f4 → b4d02fb | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **Two substantive code changes** since last audit. Both targeted, no structural drift.
-- **Competition closes 2026-04-22 23:00 UTC (~16h).** Arc score 418 / rank #70. Gap: 757 pts. Quantum arXiv signal pre-composed (task #13310 scheduled 08:45 UTC). $80K BTC milestone still live (~$78K as of retro).
-- **x402-relay queue wedge** (agent-news#578): fix merged (PR #349, release 1.30.1) but not yet deployed — live relay on v1.30.0. Follow-up task #13315 active.
-- **Carry items**: Quantum auto-queuing (CARRY×11), ordinals HookState (2026-04-23+), layered-rate-limit migration (post-competition), Cloudflare email (human blocker), Loom spiral (escalated).
-
-### Step 2 — Delete
-
-- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields. Hold — opens tomorrow.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+. Hold.
-- No new deletion candidates.
-
-### Step 3 — Simplify
-
-- Architecture stable. Both changes are narrowly scoped correctness fixes.
-- `CLAUDE_CODE_FORK_SUBAGENT=1` adds isolation without complexity — single env var, no new state.
-- `agent-health` task_id carry fix: the bug was subtle (same-second timestamp collision) but the fix is minimal — preserve one field through map(), use it for lookup, strip before returning. Pattern: never drop IDs in map chains when they'll be needed for downstream lookups.
-- **[CARRY×11]** Quantum auto-queuing: arXiv digest compiles papers but dispatch creates signal tasks manually. Carry count now exceeds 10 — this must be tasked 2026-04-23, not carried again.
-
-### Step 4 — Accelerate
-
-- Competition window: 16h left. Quantum arXiv path (task #13310, 08:45 UTC) is highest-probability lever. $80K BTC milestone remains live if price crosses. No pipeline bottlenecks — execution is the constraint.
-- x402 relay wedge: fix shipped but pending deploy. Until 1.30.1 deploys, 2 payments remain stuck. No action Arc can take.
-
-### Step 5 — Automate
-
-- **[OPEN — CARRY×11 → MUST TASK 2026-04-23]** Quantum signal auto-queuing from arXiv digest. 11th carry. Create explicit follow-up task after competition closes.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-- **[CARRY-24 → OPENS 2026-04-23]** ordinals HookState deprecated fields.
-- **[WATCH]** x402 relay v1.30.1 deploy — fix merged, not deployed. Monitor agent-news#578.
-
-### Flags
-
-- **[OK]** Architecture stable — two targeted fixes, no structural drift.
-- **[OK]** Fork isolation — CLAUDE_CODE_FORK_SUBAGENT=1 live (67d7050c).
-- **[OK]** agent-health task_id carry — mislabel bug fixed (b4d02fb7).
-- **[OK]** Compliance surface complete — all 3 surfaces covered.
-- **[OK]** Hiro-400 v5 — drain still slow (3 simulation:400 Apr 21); sweep if >0 by Apr 23.
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Budget guard ($10/$3/$1) — holding.
-- **[OK]** 3-beat sensor coverage — all beats have sensors.
-- **[WATCH]** Competition closes 2026-04-22 23:00 UTC (~16h). Quantum task #13310 at 08:45 UTC.
-- **[WATCH]** x402 relay queue wedge (agent-news#578) — fix in release 1.30.1, not deployed.
-- **[OPEN — CARRY×11]** Quantum auto-queuing — MUST be tasked 2026-04-23.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap.
-- **[CARRY-24 → OPENS TOMORROW]** ordinals HookState deprecated fields.
-- **[CARRY-20]** layered-rate-limit migration — post-competition.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-
----
-
-*[Entries 2026-04-21 and older archived — see git history]*
+*[Entries 2026-04-22T07:10Z and older archived — see git history]*
