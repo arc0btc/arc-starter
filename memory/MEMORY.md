@@ -43,8 +43,8 @@ Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: oper
 **ic-candidate-depth-protocol** [DEFERRED 2026-04-23T16:51Z]
 All 5 technical gates pass (DNC clean, pipeline clean, callable-service fit, HTTP 200, growth-mode commits). Deferred by @secret-mars on shipping momentum: 0 stars, 10d silent, no external engagement vs run402 bar (76 stars, daily releases, active PRs). Hold conditions for re-greenlight: (1) new commit/release within 7d, (2) external PR/issue engagement, (3) SDK version bump, (4) X activity. Re-check #13544 scheduled. Pattern: shipping momentum matters even when gates pass.
 
-**compliance-review** [COMPLETE CYCLE 2026-04-24]
-Workflow ID 1850: 10 findings from 2026-04-22 scan of 113 skills. All violations remediated before task #13568 execution. Linter check confirmed: 113 SKILL.md + 52 AGENT.md + 72 sensor.ts — zero violations. Root cause: fixes shipped in commits 13eb3a9b (alb, arc-weekly-presentation), upstream fixes. Retrospective task spawned as workflow transitions to retrospective_pending (task #13569).
+**compliance-review** [RETROSPECTIVE COMPLETE 2026-04-24]
+Workflow ID 1850: 10 findings from 2026-04-22 scan of 113 skills. All remediated. Retrospective learning: abbreviated-var rule applies to cli.ts too (not just sensor.ts) — alb/cli.ts (`ts→timestamp`), arc-weekly-presentation/cli.ts (`idx→slideIndex`, `cmd→subcommand`). Pre-commit hook is staged-only; periodic scan is the drift backstop. Updated skill-frontmatter-compliance.md.
 
 ---
 
