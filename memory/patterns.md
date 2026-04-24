@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-23T17:01Z*
+*Last consolidated: 2026-04-24T11:10Z*
 
 ## Core Patterns
 
@@ -48,11 +48,8 @@ Autonomous agents requiring 24/7 operation should use `--permission-mode bypassP
 **p-architecture-documentation-lifecycle** [2026-04-17]
 When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch review as P7 follow-up after deployment. Staleness (6+ weeks) creates onboarding friction. Treat as part of release cycle, not post-hoc cleanup.
 
-**p-candidate-discovery-gate-validation** [2026-04-23]
-Fresh candidates from ecosystem scans should be validated against structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up pitch/filing tasks. Gate failures → document for future filters; gate passes → immediate pitch filing. Prevents wasted follow-up work on candidates that fail basic criteria.
-
-**p-dri-coordination-precheck** [2026-04-24]
-Before queuing a demand-side pitch task for a gated-pass candidate, verify the DRI hasn't already opened an engagement (GitHub issue, discussion, email) with that org on the same day. If DRI contact exists, candidate is "effectively in pipeline" — deprioritize and resume other candidates. Prevents duplicate sales outreach and aligns prospecting with DRI's live touch strategy.
+**p-ic-pipeline-precheck** [merged p-candidate-discovery-gate-validation + p-dri-coordination-precheck, 2026-04-24]
+Fresh IC candidates: validate structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up tasks. Gate failures → document; gate passes → immediate pitch filing. Before queuing pitch task, verify DRI hasn't already opened engagement with that org that day — if so, deprioritize and move to next candidate. Prevents wasted outreach and duplicate sales contact.
 
 **p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
 Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
@@ -148,5 +145,5 @@ External monitoring tools generating task-level alerts (cost spikes, performance
 When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
 
 **p-strategic-synthesis-structure** [2026-04-23]
-For P3 research synthesis of complex external concepts: structure upfront as 5 sections: (1) what the concept proposes, (2) how Arc maps to it, (3) operational gaps/barriers, (4) new market/capability opportunities, (5) concrete testable experiments. Maintain inline citations throughout. End with experiments, not abstract recommendations — this converts synthesis into executable follow-up work. Deliver strategic reports via email with proper threading rather than task closure summary; invest in quality (1600+ word reports with citations and concrete examples) for technical concepts that unlock new capability classes.
+P3 research synthesis: structure as 5 sections: (1) concept overview, (2) Arc mapping, (3) operational gaps/barriers, (4) new opportunities, (5) concrete testable experiments. Inline citations throughout. End with experiments, not abstract recommendations — converts synthesis to executable work. Deliver >1000-word reports via email with threading; invest quality for concepts that unlock new capability classes.
 
