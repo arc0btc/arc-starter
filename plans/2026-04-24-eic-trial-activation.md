@@ -59,22 +59,29 @@ Verifies Phase 1 took effect before Phase 3 ships any payment code.
 
 Only after Phase 2 confirms clean platform state.
 
-- [ ] **Freeze v2 `editor-payout`** in place as reference: disable its sensor (move to `skills/editor-payout/sensor.ts.retired` or gate behind a "v2 retired" flag so dispatch doesn't pick it up); SKILL.md gets a top-of-file note pointing at v3 and the retirement date. Preserves code + historical `editor_payouts` table intact.
-- [ ] **Create v3 `skills/eic-payout/`**: new `SKILL.md`, `sensor.ts`, `cli.ts`. Flat 400K sats/day to the single registered editor if any beat had signals today. No per-beat loop. New audit table `eic_payouts` (columns: `date`, `editor_name`, `editor_btc_address`, `editor_stx_address`, `amount_sats`, `beats_with_signals`, `signals_total`, `txid`, `status`, `spot_check_task_id`). Keeps spot-check gate as hygiene check (revisit level after activation settles).
-- [ ] **Balance-check follow-on**: after each `eic-payout execute` succeeds, the cli creates a script-only follow-on task `eic-payout balance-check --next-date YYYY-MM-DD` that compares current sBTC balance against 400K and fails visibly if next-day funding is short. Surfaces shortfall before it affects DC.
-- [ ] **Idempotency pre-flight**: before any accelerated run tonight, verify `daily-brief-compile` and `daily-brief-inscribe` are idempotent on re-entry (tomorrow's 05:00 / 07:00 UTC crons will fire on the same date). If not idempotent, add a minimal "already done, skip" guard. A partial/corrupt brief tomorrow is the risk we're heading off.
-- [ ] Dispatch surface hygiene: confirm `scripts/register-editors.ts` isn't wired to re-register former editors on next sensor run; confirm `scripts/peel-parent-excess-to-segwit.ts` + other payout orchestrators don't target former DRIs/editors on schedule.
+- [x] **v2 `editor-payout` frozen** (2026-04-24T17:55Z). Belt-and-suspenders: `skills/editor-payout/sensor.ts` renamed to `sensor.ts.retired` (sensors service only discovers exact `sensor.ts` per `src/sensors.ts:218`), AND an early `return "skip"` added to the sensor function if the file is ever put back. SKILL.md top rewritten with retirement note. CLI left intact for historical reads. `editor_payouts` table + history preserved.
+- [x] **v3 `skills/eic-payout/` created** (2026-04-24T17:55Z). SKILL.md, cli.ts, sensor.ts, and `eic_payouts` audit table schema added to `src/db.ts`. Commands: `calculate`, `execute`, `status`, `balance-check`. Flat 400K/day; refuses to run if `editor_registry` rows for the 3 active beats don't all point to the same editor.
+- [x] **Balance-check follow-on wired**: `cli.ts` cmdExecute uses `insertTask` to queue `arc skills run --name eic-payout -- balance-check --next-date <tomorrow>` scheduled +5m after a successful send. Script-only, no LLM. Task priority 8 (haiku tier) but set to `model=script` so no tokens are consumed.
+- [x] **Idempotency audit completed.** Findings:
+  - `daily-brief-compile` sensor: idempotent via hookState + API `data.compiledAt` check (`skills/daily-brief-compile/sensor.ts:42-58`). Manual accelerated compile → sensor's next-day check sees `compiledAt` and skips.
+  - `daily-brief-inscribe` sensor: dedups on UTC calendar day via hookState, checks `compiledAt` exists. Does NOT check inscription status, but `scripts/inscribe-brief.ts` is explicitly idempotent (line 478 short-circuit + line 567 documented) — worst case tomorrow's cron queues a no-op task that exits clean.
+  - `eic-payout` sensor: added explicit short-circuit for `eic_payouts WHERE date=? AND status='sent'` before any other work, so manual CLI execute tonight won't cause tomorrow's sensor to queue a redundant task.
+- [x] **Dispatch surface hygiene**:
+  - `scripts/register-editors.ts` — had hardcoded Orb/Coda addresses. Not wired to a sensor or cron (manual one-off script). Header rewritten to HISTORICAL + pointer to `scripts/reassign-editor.ts` for reassignments.
+  - `scripts/backfill-editor-payouts-round-b.ts` — references all 3 former editors for legitimate Round B backfill work (per `project_round_b_in_flight_2026-04-22.md`). Left as-is.
+  - `scripts/peel-parent-excess-to-segwit.ts` — no editor/DRI references, BTC/Taproot wallet ops only. Safe.
+  - No other automation path targets former editor/DRI addresses.
 
 ### Final — First payment + report back
 
 Requires DC's signal set handoff. DC's been in the seat a few hours — no volume pressure; quality bar is what we're testing.
 
 - [ ] Receive DC's approved signal set for the 2026-04-24 brief.
-- [ ] `arc skills run --name daily-brief-compile -- compile --date 2026-04-24` (normally 05:00 UTC, running early).
-- [ ] `arc skills run --name daily-brief-inscribe -- inscribe --date 2026-04-24` (normally 07:00 UTC, running early).
-- [ ] `arc skills run --name eic-payout -- calculate --date 2026-04-24` (dry-run sanity check).
-- [ ] `arc skills run --name eic-payout -- execute --date 2026-04-24` (sends flat 400K to DC).
-- [ ] Balance-check follow-on fires — expected pass (~2.6M sBTC remaining).
+- [ ] `arc skills run --name aibtc-news-editorial -- compile-brief --date 2026-04-24` (normally queued by the 05:00 UTC compile sensor; running early).
+- [ ] `bun run scripts/inscribe-brief.ts run --date 2026-04-24` (normally queued by the 07:00 UTC inscribe sensor; running early — script handles its own resume/idempotency).
+- [ ] `arc skills run --name eic-payout -- calculate --date 2026-04-24` (dry-run sanity check — today it returned `can_pay:false, beats_with_signals:[]` pre-brief, will flip once inscribe records `brief_included` signals).
+- [ ] `arc skills run --name eic-payout -- execute --date 2026-04-24` (sends flat 400K to DC via `sbtc-send-runner`, records in `eic_payouts`, queues balance-check follow-on).
+- [ ] Balance-check follow-on fires — expected pass (pre-trial balance 3,002,673 sBTC; after first send ~2.6M remaining).
 - [ ] **Report back on #634** confirming DC fully in seat, with first payment txid.
 - [ ] **Memory update** (after final confirmation, not mid-flight):
   - `MEMORY.md` `Publisher Status` + `Full DRI roster` lines: collapse to "EIC: Dual Cougar (trial 2026-04-24 → 2026-05-01); Sales + Distribution under EIC oversight."
@@ -192,4 +199,8 @@ Each day, Publisher does only these things on this vertical:
 
 ## Revisions
 
-- 2026-04-24 — trial start moved to immediate per #634 ack; funding topped up to 3M sBTC; v2 `editor-payout` frozen, v3 `eic-payout` created; plan restructured to Phase 1/2/3/Final activation timeline.
+- 2026-04-24 — trial start moved to immediate per #634 ack; funding topped up to 3M sBTC; plan restructured to Phase 1/2/3/Final activation timeline.
+- 2026-04-24 — Phase 1 complete: 10 GitHub comments (umbrella #568 closed, per-seat #403/#438/#637, DRI discussions #609/#570/#622/#569, #644 framing, #634 API question + reassignment outcome). 2 closures skipped (#469/#497 locked historical records — #568 covers the record). Platform admin-change: all 3 beats reassigned to DC via new `scripts/reassign-editor.ts` (DELETE + POST pattern against `/api/beats/:slug/editors`).
+- 2026-04-24 — Phase 2 Publisher-side complete: DC resolved via aibtc.com (STX `SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M`, BNS `sable-arc.btc`, ERC-8004 id 12). `editor_registry` populated for all 3 beats via `registry set` manual fallback (v2's `registry refresh` can't parse the new `beat.editor` object shape; not fixing since v2 retires in Phase 3). Verification + functional test posted on #634. Phase 2 DC-side items (STX ack + approve-one-signal test) awaiting DC.
+- 2026-04-24 — Phase 3 complete: v2 `editor-payout` frozen (sensor.ts → sensor.ts.retired + in-function skip gate + SKILL.md retirement note). v3 `skills/eic-payout/` live with `eic_payouts` audit table. Balance-check follow-on task wiring tested. Idempotency audit: sensors + scripts are safe to re-enter tomorrow. Dispatch hygiene: `register-editors.ts` retired with header; no automation targets former editors/DRIs.
+- 2026-04-24 — Final phase commands corrected: `daily-brief-compile` / `daily-brief-inscribe` skills have no CLI, so the accelerated run uses `aibtc-news-editorial compile-brief` and `scripts/inscribe-brief.ts` directly (which is what their sensors queue).

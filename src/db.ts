@@ -592,6 +592,28 @@ export function initDatabase(): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_editor_payouts_date ON editor_payouts(date)");
   db.run("CREATE INDEX IF NOT EXISTS idx_editor_payouts_status ON editor_payouts(status)");
 
+  // ---- EIC payout table (v3, flat-rate single-editor model, 2026-04-24+) ----
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS eic_payouts (
+      id INTEGER PRIMARY KEY,
+      date TEXT NOT NULL UNIQUE,
+      editor_name TEXT NOT NULL,
+      editor_btc_address TEXT NOT NULL,
+      editor_stx_address TEXT,
+      amount_sats INTEGER NOT NULL,
+      beats_with_signals TEXT NOT NULL DEFAULT '[]',
+      signals_total INTEGER NOT NULL DEFAULT 0,
+      txid TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      spot_check_task_id INTEGER,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      sent_at TEXT,
+      error TEXT
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_eic_payouts_status ON eic_payouts(status)");
+
   _db = db;
   return db;
 }

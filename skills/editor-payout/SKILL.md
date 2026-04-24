@@ -1,12 +1,26 @@
 ---
 name: editor-payout
-description: Pay editors sBTC for beats included in the daily brief
+description: RETIRED 2026-04-24 — superseded by eic-payout. Kept as historical reference.
 tags:
   - publishing
   - payments
+  - retired
 ---
 
-# editor-payout
+# editor-payout (RETIRED 2026-04-24)
+
+**This skill is retired. Superseded by `skills/eic-payout/` under the Editor-in-Chief trial (#634).**
+
+- Sensor file renamed to `sensor.ts.retired` so the sensors service no longer picks it up.
+- An early `return "skip"` is also wired into the sensor function as belt-and-suspenders if the file is ever put back.
+- CLI still works for reading historical state (`registry list`, `status --date ...`); do not use for new payouts.
+- `editor_payouts` audit table preserved intact with historical Orb/Coda/Zen rows through 2026-04-23.
+
+Active payout pipeline: `skills/eic-payout/`.
+
+---
+
+## Historical context (pre-retirement)
 
 Pays beat editors after the daily brief is compiled and inscribed. Replaces the correspondent-level `brief-payout` skill — editors receive a flat rate per beat and are responsible for paying their own correspondents.
 

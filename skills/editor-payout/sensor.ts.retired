@@ -19,12 +19,18 @@ import { getUTCInfo } from "../../src/time.ts";
 const EDITOR_RATE_SATS = 175_000;
 
 /**
+ * RETIRED 2026-04-24 — superseded by skills/eic-payout under the EIC trial (#634).
+ * File is also renamed to sensor.ts.retired so sensors discovery won't pick it up;
+ * this early return is a belt-and-suspenders guard in case the file is ever put back.
+ *
  * Editor payout sensor. Fires 09:00-14:00 UTC, gated by:
  * 1. Inscription completed for today
  * 2. Editor registry populated
  * Spot-check status is logged (informational) but does not gate payout.
  */
 export default async function editorPayoutSensor(): Promise<string> {
+  return "skip"; // RETIRED — see skills/eic-payout
+
   initDatabase();
 
   const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL);
