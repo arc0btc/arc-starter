@@ -36,7 +36,7 @@ import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
 const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT --model MODEL [--description TEXT] [--priority N] [--source TEXT]\n' +
-    '              [--skills SKILL1,SKILL2] [--parent ID]\n' +
+    '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
@@ -204,9 +204,12 @@ function cmdTasksAdd(args: string[]): void {
     process.exit(1);
   }
 
-  const modelFlag = flags["model"];
+  const scriptFlag = flags["script"] ?? undefined;
+
+  // --model is required unless --script is provided (script tasks default to model="script")
+  const modelFlag = flags["model"] ?? (scriptFlag ? "script" : undefined);
   if (!modelFlag) {
-    process.stderr.write(`Error: --model is required\nUsage: ${USAGE.tasksAdd}\n`);
+    process.stderr.write(`Error: --model is required (or use --script for LLM-bypass tasks)\nUsage: ${USAGE.tasksAdd}\n`);
     process.exit(1);
   }
 
@@ -227,7 +230,6 @@ function cmdTasksAdd(args: string[]): void {
     : undefined;
   const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
-  const model = flags["model"] ?? undefined;
 
   // Resolve scheduled_for from --defer or --scheduled-for
   let scheduledFor: string | undefined;
@@ -270,8 +272,9 @@ function cmdTasksAdd(args: string[]): void {
     priority,
     source: flags["source"],
     parent_id: parentId,
-    model,
+    model: modelFlag,
     scheduled_for: scheduledFor,
+    script: scriptFlag,
   });
 
   if (scheduledFor) {

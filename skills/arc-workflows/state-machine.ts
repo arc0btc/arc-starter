@@ -2795,6 +2795,7 @@ export const ComplianceReviewMachine: StateMachine<{
           type: "create-task",
           subject: `compliance-review: ${count} finding(s)${skills}`,
           priority: 6,
+          model: count > 7 ? "opus" : "sonnet",
           skills: ["compliance-review", "arc-memory", "arc-skill-manager"],
           description: `Compliance scan on ${date} found ${count} finding(s)${skills}.
 

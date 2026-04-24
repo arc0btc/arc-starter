@@ -118,16 +118,12 @@ export default async function housekeepingSensor(): Promise<string> {
 
   if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
-  const skills = staleWorktreeCount > 0
-    ? '["arc-housekeeping", "arc-skill-manager", "arc-worktrees"]'
-    : '["arc-housekeeping", "arc-skill-manager"]';
-
   insertTask({
     subject: `housekeeping: ${issues.length} issue(s) detected`,
     description: issues.map((i) => `- ${i}`).join("\n"),
-    skills,
+    script: "arc skills run --name arc-housekeeping -- fix",
     priority: 7,
-    model: "haiku",
+    model: "script",
     source: TASK_SOURCE,
   });
 

@@ -27,6 +27,7 @@ Monitors arXiv for notable papers on LLMs, autonomous agents, and AI infrastruct
 ```
 arc skills run --name arxiv-research -- fetch [--categories "cs.AI,cs.CL,cs.LG,cs.MA"] [--max 50]
 arc skills run --name arxiv-research -- compile [--date YYYY-MM-DD]
+arc skills run --name arxiv-research -- queue-signals
 arc skills run --name arxiv-research -- list [--limit 10]
 arc skills run --name arxiv-research -- publish-digest [--date YYYY-MM-DD] [--file FILENAME]
 ```
@@ -42,6 +43,10 @@ Produces a digest from fetched papers. Filters for LLM/agent relevance, groups b
 ### list
 
 Shows recent digests with date and paper counts.
+
+### queue-signals
+
+Reads `.latest_fetch.json` (populated by `fetch`) and matches papers against quantum beat keywords on title+abstract. Creates a quantum signal filing task if matches found and beat is not on cooldown. Run after `compile` — wired into AGENT.md digest workflow.
 
 ### publish-digest
 

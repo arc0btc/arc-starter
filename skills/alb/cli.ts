@@ -182,6 +182,77 @@ async function cmdRegister(): Promise<void> {
   console.log(JSON.stringify(data, null, 2));
 }
 
+interface AgentSignatureBlob {
+  agent_name: string;
+  btc_address: string;
+  stx_address: string;
+  timestamp: string;
+  btc_signature: string;
+  stx_signature: string;
+}
+
+function validateBlob(raw: unknown): AgentSignatureBlob {
+  if (!raw || typeof raw !== "object") throw new Error("Blob must be a JSON object");
+  const b = raw as Record<string, unknown>;
+  const required = ["agent_name", "btc_address", "stx_address", "timestamp", "btc_signature", "stx_signature"] as const;
+  for (const k of required) {
+    if (typeof b[k] !== "string" || (b[k] as string).length === 0) {
+      throw new Error(`Missing or non-string field: ${k}`);
+    }
+  }
+  const btc = b.btc_address as string;
+  const stx = b.stx_address as string;
+  const timestamp = b.timestamp as string;
+  if (!btc.startsWith("bc1q")) throw new Error(`btc_address must be P2WPKH (bc1q…), got: ${btc}`);
+  if (!stx.startsWith("SP")) throw new Error(`stx_address must be mainnet (SP…), got: ${stx}`);
+  const timestampNum = parseInt(timestamp, 10);
+  if (!Number.isFinite(timestampNum)) throw new Error(`timestamp not a valid integer: ${timestamp}`);
+  const drift = Math.abs(Math.floor(Date.now() / 1000) - timestampNum);
+  if (drift > 300) throw new Error(`timestamp drift ${drift}s exceeds ±300s window — ask agent to re-sign`);
+  return b as unknown as AgentSignatureBlob;
+}
+
+async function cmdRegisterAgent(flags: Record<string, string>): Promise<void> {
+  const input = flags["input"];
+  if (!input) throw new Error("--input <path-to-json> required");
+
+  const raw = await Bun.file(input).text();
+  const blob = validateBlob(JSON.parse(raw));
+
+  const adminKey = await getCredential("agents-love-bitcoin", "admin_api_key");
+  if (!adminKey) throw new Error("Missing credential agents-love-bitcoin/admin_api_key");
+
+  const base = await getApiBase();
+  log(`Registering ${blob.agent_name} (${blob.btc_address}) via admin key`);
+
+  const resp = await fetch(`${base}/api/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Admin-Key": adminKey,
+      "X-BTC-Address": blob.btc_address,
+      "X-BTC-Signature": blob.btc_signature,
+      "X-BTC-Timestamp": blob.timestamp,
+      "X-STX-Address": blob.stx_address,
+      "X-STX-Signature": blob.stx_signature,
+    },
+    body: "{}",
+  });
+
+  const text = await resp.text();
+  let data: unknown;
+  try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+  if (!resp.ok) {
+    log(`Registration failed: ${resp.status}`);
+    console.log(JSON.stringify(data, null, 2));
+    process.exit(1);
+  }
+
+  log(`Registration succeeded: ${resp.status}`);
+  console.log(JSON.stringify(data, null, 2));
+}
+
 async function cmdProfile(): Promise<void> {
   const data = await authGet("/api/me/profile");
   console.log(JSON.stringify(data, null, 2));
@@ -226,8 +297,9 @@ const flags = parseFlags(rest);
 
 try {
   switch (subcommand) {
-    case "register":    await cmdRegister(); break;
-    case "profile":     await cmdProfile(); break;
+    case "register":        await cmdRegister(); break;
+    case "register-agent":  await cmdRegisterAgent(flags); break;
+    case "profile":         await cmdProfile(); break;
     case "email":       await cmdEmail(); break;
     case "inbox":       await cmdInbox(flags); break;
     case "read":        await cmdRead(flags); break;
@@ -238,6 +310,7 @@ try {
       console.error("");
       console.error("Commands:");
       console.error("  register              Register Arc on ALB (dual BTC+STX signature)");
+      console.error("  register-agent --input <path>  Submit another agent's signed blob with admin key");
       console.error("  profile               View Arc's agent profile");
       console.error("  email                 View provisioned email details");
       console.error("  inbox [--limit N] [--unread]  List inbox messages");

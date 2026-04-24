@@ -41,7 +41,7 @@ import { dispatchCodex } from "./codex.ts";
 import { captureBaseline, classifyFile, evaluateExperiment, scheduleVerification, type BaselineSnapshot } from "./experiment.ts";
 import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailure } from "./dispatch-gate.ts";
 
-import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
+import { safeCommitCycleChanges, getHeadSha, codeChangedSince, git } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 import { extractContributionTagFromText, insertContributionTag } from "./contribution-tags.ts";
 
@@ -667,6 +667,101 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
 }
 
+// ---- Script dispatch (LLM-bypass) ----
+
+/** Timeout for script dispatch: 5 minutes hard cap. */
+const SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
+
+interface ScriptResult {
+  result_summary: string;
+  result_detail: string;
+  status: "completed" | "failed";
+}
+
+/**
+ * Execute a pre-baked shell command from task.script without spawning an LLM.
+ * - Runs via bash -c with 5-min timeout (SIGTERM, then SIGKILL after 5s)
+ * - On exit 0: tries to parse stdout as JSON for {message, status}, falls back to last non-empty line
+ * - On non-zero: combines stderr tail + stdout head into error
+ * - Cost is always zero (no LLM invocation)
+ */
+async function dispatchScript(script: string, skillNames: string[]): Promise<ScriptResult> {
+  // Pre-flight: unlock bitcoin wallet if skill is listed
+  if (skillNames.includes("bitcoin-wallet")) {
+    log("dispatch/script: unlocking bitcoin wallet before script execution");
+    try {
+      const unlock = Bun.spawn(["bash", "-c", "arc skills run --name bitcoin-wallet -- unlock"], {
+        cwd: ROOT,
+        env: process.env,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      await unlock.exited;
+    } catch (err) {
+      log(`dispatch/script: wallet unlock failed (non-fatal): ${err}`);
+    }
+  }
+
+  log(`dispatch/script: executing: ${script.slice(0, 200)}`);
+
+  const proc = Bun.spawn(["bash", "-c", script], {
+    cwd: ROOT,
+    env: process.env,
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  // Timeout watchdog
+  let timedOut = false;
+  const timeoutTimer = setTimeout(() => {
+    timedOut = true;
+    log(`dispatch/script: timeout after ${SCRIPT_TIMEOUT_MS / 60_000}min — killing pid ${proc.pid}`);
+    proc.kill("SIGTERM");
+    setTimeout(() => {
+      try { proc.kill("SIGKILL"); } catch { /* already dead */ }
+    }, 5_000);
+  }, SCRIPT_TIMEOUT_MS);
+
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+
+  clearTimeout(timeoutTimer);
+
+  if (timedOut) {
+    return {
+      result_summary: `Script timed out after ${SCRIPT_TIMEOUT_MS / 60_000}min`,
+      result_detail: `[timeout]\nstdout (first 2000 chars):\n${stdout.slice(0, 2000)}\nstderr (last 1000 chars):\n${stderr.slice(-1000)}`,
+      status: "failed",
+    };
+  }
+
+  const detail = `$ ${script}\n\n[exit ${exitCode}]\nstdout:\n${stdout}\nstderr:\n${stderr}`.trim();
+
+  if (exitCode === 0) {
+    // Try JSON parsing for structured result
+    const trimmed = stdout.trim();
+    try {
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      const message = typeof parsed.message === "string" ? parsed.message : trimmed.slice(0, 500);
+      const status = parsed.status === "failed" ? "failed" as const : "completed" as const;
+      return { result_summary: message, result_detail: detail, status };
+    } catch {
+      // Fall back to last non-empty line
+      const lines = trimmed.split("\n").filter(Boolean);
+      const summary = lines.length > 0 ? lines[lines.length - 1].slice(0, 500) : "Script completed (no output)";
+      return { result_summary: summary, result_detail: detail, status: "completed" };
+    }
+  } else {
+    const stderrTail = stderr.trim().split("\n").slice(-5).join("\n");
+    const stdoutHead = stdout.trim().split("\n").slice(0, 3).join("\n");
+    const summary = (stderrTail || stdoutHead || `Script exited with code ${exitCode}`).slice(0, 500);
+    return { result_summary: summary, result_detail: detail, status: "failed" };
+  }
+}
+
 // ---- Security scan ----
 
 interface SecurityScanResult {
@@ -856,6 +951,74 @@ export async function runDispatch(): Promise<void> {
 
   const skillNames = parseSkillNames(task.skills);
   const sdkRoute = selectSdk(task);
+
+  // ---- Script dispatch short-circuit ----
+  // When task.script is non-null, bypass the entire LLM path and run the shell command directly.
+  // Cost is zero. Same lock/gate/retry semantics as LLM tasks.
+  if (task.script) {
+    log(`dispatch: SCRIPT mode — task #${task.id} "${task.subject}"`);
+    insertServiceLog("info", "dispatch", `script dispatch: task #${task.id}`, task.id);
+
+    markTaskActive(task.id);
+    writeDispatchLock(task.id);
+
+    const cycleStartedAt = toSqliteDatetime(new Date());
+    const cycleId = insertCycleLog({
+      started_at: cycleStartedAt,
+      task_id: task.id,
+      skills_loaded: skillNames.length > 0 ? JSON.stringify(skillNames) : null,
+      model: "script",
+    });
+
+    const dispatchStart = Date.now();
+
+    try {
+      const scriptResult = await dispatchScript(task.script, skillNames);
+
+      if (scriptResult.status === "completed") {
+        markTaskCompleted(task.id, scriptResult.result_summary, scriptResult.result_detail);
+        recordGateSuccess();
+      } else {
+        // Check retries
+        const attemptNumber = task.attempt_count + 1;
+        if (attemptNumber < task.max_retries) {
+          requeueTask(task.id);
+          log(`dispatch/script: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — requeuing`);
+          insertServiceLog("warn", "dispatch", `script task #${task.id} failed attempt ${attemptNumber}/${task.max_retries}, requeued`, task.id);
+        } else {
+          markTaskFailed(task.id, scriptResult.result_summary);
+          recordGateFailure(scriptResult.result_summary, "unknown");
+          log(`dispatch/script: task #${task.id} failed — max retries exhausted`);
+          insertServiceLog("error", "dispatch", `script task #${task.id} max retries exhausted`, task.id);
+        }
+      }
+
+      // Zero-cost accounting
+      updateTaskCost(task.id, 0, 0, 0, 0);
+      updateCycleLog(cycleId, {
+        completed_at: toSqliteDatetime(new Date()),
+        duration_ms: Date.now() - dispatchStart,
+        cost_usd: 0,
+        api_cost_usd: 0,
+        tokens_in: 0,
+        tokens_out: 0,
+      });
+    } catch (err) {
+      const errMsg = String(err);
+      log(`dispatch/script: unexpected error — ${errMsg.slice(0, 300)}`);
+      markTaskFailed(task.id, `Script dispatch error: ${errMsg.slice(0, 400)}`);
+      recordGateFailure(errMsg, "unknown");
+      updateCycleLog(cycleId, {
+        completed_at: toSqliteDatetime(new Date()),
+        duration_ms: Date.now() - dispatchStart,
+      });
+    } finally {
+      clearDispatchLock();
+    }
+
+    return;
+  }
+
   const model = selectModel(task);
 
   // Guard: Claude SDK tasks require an explicit model — no implicit defaults
@@ -869,7 +1032,18 @@ export async function runDispatch(): Promise<void> {
   }
 
   // For non-Claude SDKs (codex/openrouter), model is used only for cost/timeout estimation
-  const effectiveModel: ModelTier = model ?? "sonnet";
+  let effectiveModel: ModelTier = model ?? "sonnet";
+
+  // Dispatch-time model upgrade: haiku has 5min ceiling — too tight when pre-commit lint
+  // runs on 3+ .ts files. Upgrade to sonnet (15min) if >2 modified .ts files are pending.
+  if (effectiveModel === "haiku" && skillNames.includes("arc-housekeeping")) {
+    const { stdout } = await git("diff", "--name-only", "HEAD");
+    const modifiedTsCount = stdout.trim().split("\n").filter((f) => f.endsWith(".ts")).length;
+    if (modifiedTsCount > 2) {
+      log(`dispatch: haiku → sonnet (${modifiedTsCount} modified .ts files, pre-commit lint overhead)`);
+      effectiveModel = "sonnet";
+    }
+  }
 
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);

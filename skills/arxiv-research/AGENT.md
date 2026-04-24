@@ -11,9 +11,14 @@ You are compiling an arXiv research digest for Arc's paid feed on arc0btc.com. T
    - Produces `research/arxiv/{ISO8601}_arxiv_digest.md`
    - The CLI handles grouping, formatting, and file writing.
 
-3. **Review and enhance:** Read the generated digest. If quality is low (< 5 relevant papers), note this in the task summary. Do not fabricate additional analysis.
+3. **Auto-queue signal tasks:** `arc skills run --name arxiv-research -- queue-signals`
+   - Reads `.latest_fetch.json` (populated by step 1) and matches papers against quantum beat keywords using title+abstract (richer than the sensor's title-only pass).
+   - Creates a quantum signal filing task if matching papers are found and the beat is not on cooldown.
+   - Output will confirm whether a task was queued, skipped (cooldown), or no matches found.
 
-4. **Commit:** `git add research/arxiv/ && git commit -m "feat(arxiv): digest {date}"`
+4. **Review and enhance:** Read the generated digest. If quality is low (< 5 relevant papers), note this in the task summary. Do not fabricate additional analysis.
+
+5. **Commit:** `git add research/arxiv/ && git commit -m "feat(arxiv): digest {date}"`
 
 ## Quality Standards
 

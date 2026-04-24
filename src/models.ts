@@ -4,13 +4,14 @@
  */
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
-export type SdkType = "claude" | "codex" | "openrouter";
+export type SdkType = "claude" | "codex" | "openrouter" | "script";
 
 /**
  * Parsed SDK routing result from a task's model field.
  *
  * Examples:
  *   "opus"        → { sdk: "claude", model: "opus" }
+ *   "script"      → { sdk: "script", model: undefined } (LLM-bypass, runs task.script)
  *   "codex"       → { sdk: "codex", model: undefined } (use codex default)
  *   "codex:o3"    → { sdk: "codex", model: "o3" }
  *   "codex:o4-mini"→ { sdk: "codex", model: "o4-mini" }
@@ -64,6 +65,9 @@ export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
  */
 export function parseTaskSdk(taskModel: string | null): SdkRoute {
   if (!taskModel) return { sdk: "claude", model: undefined };
+
+  // script — LLM-bypass, runs task.script directly
+  if (taskModel === "script") return { sdk: "script", model: undefined };
 
   // codex or codex:<model>
   if (taskModel === "codex") return { sdk: "codex", model: undefined };

@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-22T18:12Z*
+*Last consolidated: 2026-04-24T11:10Z*
 
 ## Core Patterns
 
@@ -24,8 +24,8 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade]
-Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding.
+**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade, +dependency-lifecycle 2026-04-23]
+Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears (bitcoin-macro: 3× post-competition failures).
 
 **p-audit-and-implementation** [2026-04-08]
 Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass.
@@ -48,8 +48,8 @@ Autonomous agents requiring 24/7 operation should use `--permission-mode bypassP
 **p-architecture-documentation-lifecycle** [2026-04-17]
 When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch review as P7 follow-up after deployment. Staleness (6+ weeks) creates onboarding friction. Treat as part of release cycle, not post-hoc cleanup.
 
-**p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
-Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
+**p-ic-pipeline-precheck** [merged p-candidate-discovery-gate-validation + p-dri-coordination-precheck, 2026-04-24]
+Fresh IC candidates: validate structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up tasks. Gate failures → document; gate passes → immediate pitch filing. Before queuing pitch task, verify DRI hasn't already opened engagement with that org that day — if so, deprioritize and move to next candidate. Prevents wasted outreach and duplicate sales contact.
 
 **p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
 Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
@@ -64,29 +64,17 @@ Triaging N independent items: quick-scan to skip low-relevance cases, create N i
 
 ## Signal Quality
 
-**p-beat-slug-drift** [2026-03-31]
-External platforms rename beats without notice; sensors silently fail with 404. Validate beat existence on first run or detect 404s explicitly. When publisher rejects signals, suspend filing but keep data collection running.
-
-**p-signal-quality** [2026-04-04]
-Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput) are valid signals — the metric IS the network state.
-
-**p-platform-capacity-preflight** [2026-04-22]
-Before filing to scored, capacity-capped platforms: (1) query the current minimum accepted score in the beat, (2) estimate predicted score for the candidate signal, (3) abort if predicted score < current minimum — saves the 60-min global cooldown budget on a certain rejection. Displacement requires exceeding the lowest current accepted score, not just the static score floor. At 10/10 capacity with min=91, a predicted score of 83 still fails even though it clears the baseline threshold. Check capacity + displacement gap, not just floor.
-
-**p-sensor-preflight-validation** [2026-04-22]
-Before queuing tasks, sensors should pre-validate that output will clear downstream acceptance floors. Bitcoin-macro sensor queued hashrate signals without checking sourceQuality score floor (mempool.space source → score 53, floor 65 → certain rejection). Sensor preflight: calculate predicted score/cost/metric, discard candidates that won't meet published platform minimums. Saves N follow-up rejections.
+**p-preflight-validation** [merged p-platform-capacity-preflight + p-sensor-preflight-validation, 2026-04-22]
+Pre-validate at two layers before committing cooldown budget: (1) **Sensor-level**: calculate predicted score/metric before queuing — discard candidates that won't clear published acceptance floors (e.g. mempool.space source → score 53, floor 65 → certain reject). (2) **Filing-level**: query current minimum accepted score in a capacity-capped beat; abort if predicted score < minimum even if it clears the static floor. Displacement requires exceeding the LOWEST current accepted score, not the baseline — at 10/10 cap with min=91, a score of 83 still fails. Check capacity + displacement gap, not just floor.
 
 **p-sensor-diversity-enforcement** [2026-04-06, enhanced 2026-04-16]
 Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Multi-signal-type sensors: track `lastSignalType`, filter candidates to exclude last type first — only repeat if no alternatives exist.
 
-**p-first-run-threshold-guard** [2026-04-16]
-Sensors detecting one-time-per-event thresholds (price milestones, ATH) must pre-populate already-crossed events on first run. Prevents retroactive noise for historical crossings.
-
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19, refined 2026-04-22]
-Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing — flatness signals inactivity, not data error. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing signals on same topic across different beats same day (e.g., infrastructure limits). Track topic keywords in signal registry.
+Signals require AIBTC-network-native angle ("Does this impact AIBTC protocol, agents, or infrastructure?") — operational metrics (nonce progression, relay throughput) ARE valid signals. Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing same topic across different beats same day.
 
-**p-fix-verification** [merged 2026-04-11, updated 2026-04-13]
-After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value.
+**p-fix-verification** [merged 2026-04-11, updated 2026-04-23]
+After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. When a formula or rule is corrected mid-cycle, trace backward through recent tasks that used it — document findings but don't attempt retroactive re-filing; use findings to confirm the correction is complete for future cycles.
 
 ## Agent Design
 
@@ -111,8 +99,8 @@ For financial operations, use contract simulation to validate account state befo
 **p-revision-loop-primitive** [2026-04-07, enhanced 2026-04-20]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving. **Structural integrity checklist**: validate payload counts (rows affected, TX clears, data mutations) match pre-agreed expectations, confirm CI green, THEN approve — catches partial fixes and silent corruption before merge.
 
-**p-purpose-loop** [2026-04-08, updated 2026-04-20]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities. Query live DB; missing outcome data is itself a priority gap. **Constraint vs capacity**: diagnose root cause before optimizing: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap — don't optimize naturally-capped dimensions. When queue is empty, focus shifts to external factor validation or creating new work streams. Cost outliers from legitimate audit work self-correct over 24h windows without remediation.
+**p-purpose-loop** [2026-04-08, updated 2026-04-20, +constraint-driven 2026-04-23]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities. Query live DB; missing outcome data is itself a priority gap. **Constraint vs capacity**: diagnose root cause before optimizing: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap — don't optimize naturally-capped dimensions. When queue is empty, focus shifts to external factor validation or creating new work streams. Cost outliers from legitimate audit work self-correct over 24h windows without remediation. **Structural constraints**: when evals show low scores but root cause is structural (no active beats, external service unavailable), distinguish from execution gaps — document the constraint explicitly so next cycle knows whether to (a) wait for recovery, (b) pivot to secondary targets, or (c) build new work streams.
 
 **p-strategic-communication** [2026-04-06, updated 2026-04-21]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Multi-item feedback: numbered action list, bundle into P1 if interdependent. **Narrative/presentation**: (1) query live DB for freshest metrics — stale metrics undermine credibility, (2) reuse templates from recent similar work, (3) document open decisions explicitly to guide feedback, (4) commit draft, (5) send async, (6) polish. Make scope-elimination decisions at draft time based on stated direction (e.g., "less fixes, more scale"), not in revision — prevents over-building.
@@ -138,20 +126,24 @@ Sensors creating workflows from external state (GitHub issues, PRs) must impleme
 **p-schema-change-discipline** [merged 2026-04-13, 2026-04-20]
 Breaking data-contract changes require exhaustive search across all consuming systems (transport, parsing, business logic) before merging. When incrementing schema versions, ALL touchpoints update atomically: version const, import paths, gate checks, history comments. Miss one and the schema silently diverges. Approval confidence = integration-point search breadth, not just PR review.
 
-**p-agent-peer-technical-inquiry** [2026-04-20]
-When responding to agent pitches or technical proposals, ask substantive follow-up questions on implementation details (auth patterns, protocol choices, sats-denominated reads, push vs pull) rather than generic acknowledgment. Link feedback signals (ERC-8004) and log interactions for audit trail — drives deeper ecosystem participation and creates verifiable engagement record.
-
 **p-multi-chain-identity-verification** [2026-04-21]
 Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BTC address hash + Stacks address) against known rotated wallets before processing. Compare both addresses to memory entries; legitimate agents rotate wallets intentionally. Mismatched pairs or old address reuse indicate compromised wallets (old address = hostile). Prevents message-forwarding attacks on multi-chain agents.
 
 **p-external-service-debugging** [2026-04-22]
 When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
 
-**p-signal-retry-cause-routing** [2026-04-22]
-Signal filing failures require cause-specific routing, not generic retry. Mixing all failures into `max_retries` inflates failure counts and burns cooldown budget. Route by cause: (1) cooldown 429 → close as `failed`, create new task with `--scheduled-for now + cooldown_remaining`; (2) daily cap → close as `failed`, create new task with `--scheduled-for midnight UTC`; (3) service transient (503/timeout) → retry inline up to `max_retries`; (4) environment/permission error → fail immediately, queue human task. Validated by 15 signal filing failures in one week spanning all 4 categories.
+**p-agent-engagement-authenticity** [2026-04-23]
+When other agents request work outside your core function, reply immediately with honest positioning about constraints, offer a genuine alternative angle (if available), and ask clarifying questions about mechanical/structural requirements. Use appropriate transport: BIP-137 inbox for free communication, ERC-8004 for reputation signals. Prevents wasted follow-up work and establishes clear operational boundaries.
 
 **p-introspection-model-sizing** [2026-04-22]
 Daily/weekly introspection and retrospective tasks don't require Opus. These tasks synthesize existing data (cycle logs, task summaries, known patterns) — they don't require novel reasoning or strategic depth. 4 of the top-10 weekly costs were P5 Opus self-evals at $2.5–$7.9 each; Sonnet handles synthesis at ~10% the cost with no quality gap. Reserve Opus for: (1) novel architectural decisions, (2) ambiguous multi-source synthesis, (3) tasks requiring creative depth or judgment calls not derivable from existing data. Sensor-created daily evals, retros, and pattern extraction → Sonnet by default.
 
 **p-alert-attribution-validation** [2026-04-22]
 External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
+
+**p-predictive-model-selection** [2026-04-23]
+When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
+
+**p-strategic-synthesis-structure** [2026-04-23]
+P3 research synthesis: structure as 5 sections: (1) concept overview, (2) Arc mapping, (3) operational gaps/barriers, (4) new opportunities, (5) concrete testable experiments. Inline citations throughout. End with experiments, not abstract recommendations — converts synthesis to executable work. Deliver >1000-word reports via email with threading; invest quality for concepts that unlock new capability classes.
+

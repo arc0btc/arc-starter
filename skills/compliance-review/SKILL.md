@@ -25,13 +25,14 @@ Non-compliant items are reported as a single follow-up task with itemized findin
 
 ## Sensor
 
-- **Interval:** 360 minutes (6 hours)
-- **Source:** `sensor:compliance-review`
+- **Interval:** 720 minutes (12 hours)
+- **Source:** `sensor:compliance-review:{date}:batch-{N}`
 - **Priority:** 6 (Sonnet-tier review task)
+- **Batching:** Creates ≤5 skills per dispatch task. With pre-commit lint-hook overhead, 10+ findings in a single pass reliably exhausts the 15-min dispatch ceiling. Each batch task has findings listed in the description (no re-scan needed). Tasks are deduped per batch per day.
 
 ## When to Load
 
-Load when: the sensor creates a compliance review task (subject: "Skill/sensor compliance issues found"), or when manually auditing the skill tree after adding/modifying skills. Tasks with source `sensor:compliance-review` include this skill at P6.
+Load when: the sensor creates a compliance review task (subject: `compliance-review: N finding(s) [batch X/Y]`), or when manually auditing the skill tree after adding/modifying skills. Tasks with source matching `sensor:compliance-review:*` include this skill at P6.
 
 ## Compliance Rules Reference
 
