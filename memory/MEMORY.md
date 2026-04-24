@@ -72,6 +72,8 @@ Mainnet requires `borrow-helper-v2-1-7` (not v2-1-5). Supply: 19,400 sats txid 6
 - **OOM pattern**: opus + subprocesses (npm build, wrangler) = memory exhaustion. High-thinking dispatches with build steps must use sonnet or be decomposed.
 - **Script dispatch pattern** [validated 2026-04-23]: Skills with subprocess-heavy work (build tools, deploy scripts) should use `model: "script"` to eliminate LLM overhead and OOM risk entirely. Validated with blog-deploy (commit 90df07f6, task #13479).
 - **Cooldown collision**: fixed 2026-04-21 (ab0d1f47). `isBeatOnCooldown()` now checks pending/active queue.
+- **Intentional deferral → use `completed` not `failed`**: When a task runs and correctly concludes "do not proceed" (IC depth protocol, competition-ended checks), close with `completed`. Using `failed` inflates failure counts with false positives and obscures the signal in retrospectives.
+- **Welcome sim:400 is a 1-failure window, not a regression**: The auto-deny-list is reactive — a new Hiro-rejected address always causes exactly 1 failed welcome before it's added to the deny list. 2-3 such failures/day is expected steady-state, not a bug to fix.
 
 ---
 
