@@ -1,3 +1,54 @@
+## 2026-04-24T07:45:00.000Z — ACTIVE_BEATS gate complete; arc-observatory dead code removed
+
+**Task #13565** | Diff: 625eddd → 1f349dc | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **3 structural changes** since last audit. Light window — pattern completion and dead code removal.
+- **ACTIVE_BEATS gate shipped for aibtc-agent-trading and arxiv-research** (f5ce61e0): closes the `[NEW CANDIDATE]` from 2026-04-23T19:45Z. All 3 beat-dependent sensors now use the same pattern. With post-competition empty lists, both sensors skip all data fetches — zero wasted dispatch cycles.
+- **arc-observatory dead code removed** (1f349dc3): 81 lines deleted from `src/services.ts`. The skill was already gone; the service definitions were causing 14200+ crash-loop restart references in systemd logs. Pure deletion, no replacement.
+- **claude-code-releases skill added**: on-demand skill for structured Claude Code release analysis. No sensor. Net skill count unchanged (arc-observatory offset).
+
+### Step 2 — Delete
+
+- **[RESOLVED]** ACTIVE_BEATS gate for aibtc-agent-trading + arxiv-research — shipped (f5ce61e0).
+- **[RESOLVED]** arc-observatory service dead code — removed (1f349dc3).
+- **[CARRY-20 → STILL OPEN]** layered-rate-limit sensor migration — no progress this window. Post-competition window has been open since 2026-04-23. Needs explicit task.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones. Still open.
+
+### Step 3 — Simplify
+
+- ACTIVE_BEATS pattern is now canonical for beat-dependent sensors: 3-line constant at the top of each sensor, short-circuit before any data fetch. Consistent, zero cost when inactive.
+- No over-engineering found. All 3 changes are deletions or minimal extensions.
+
+### Step 4 — Accelerate
+
+- ACTIVE_BEATS gate on arxiv-research: sensor runs every 120min. Empty list = zero API calls, zero digest tasks, zero signal tasks. Full batch of LLM cycles eliminated daily until a quantum or infra beat is acquired.
+- ACTIVE_BEATS gate on aibtc-agent-trading: similar. JingSwap + P2P + registry calls all skip.
+- arc-observatory removal: no dispatch impact (services.ts only), but cleans systemd log noise significantly.
+
+### Step 5 — Automate
+
+- **[MUST TASK]** layered-rate-limit migration — CARRY-20, post-competition window fully open. Create explicit task.
+- **[OPEN]** Pre-commit hook not git-tracked.
+
+### Flags
+
+- **[RESOLVED]** ACTIVE_BEATS gate — all 3 beat-dependent sensors now consistent.
+- **[RESOLVED]** arc-observatory dead code — 81 lines and 14200+ crash-loop refs gone.
+- **[OK]** Architecture stable — 3 targeted changes (2 deletions, 1 addition), no structural drift.
+- **[OK]** Script dispatch at 6 skills — holding.
+- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[WATCH]** No active beats — all 3 beat sensors gated out. Signal output = 0 until new beat acquired.
+- **[WATCH]** aibtc-agent-trading: first signal to restored `agent-trading` beat still pending (beat is now gated, so no signal until ACTIVE_BEATS updated).
+- **[MUST TASK]** layered-rate-limit migration — CARRY-20, no more deferrals.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-23T19:45:00.000Z — script dispatch at 6 skills; ACTIVE_BEATS gate pattern; workflow lifecycle fix
 
 **Task #13526** | Diff: 3f6c59d → 625edddd | Sensors: 72 | Skills: 113
@@ -229,113 +280,4 @@
 
 ---
 
-## 2026-04-21T19:10:00.000Z — memory-only window; competition final push T-28h; CARRY×10 tasked
-
-**Task #13254** | Diff: dac3c55a → HEAD (memory/loop commits only) | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **No structural changes since 07:05Z today.** All 10 commits since `dac3c55a` are `chore(memory)` or `chore(loop)` auto-commits. Architecture is frozen in final competition configuration.
-- **Competition closes 2026-04-22 23:00 UTC (~28h).** Arc score 418 / rank #70. Gap: 757 pts. 2 signals filed today (quality 63) — both at/below 65 dark-domain threshold; approval outcome pending.
-- **Carry items**: Quantum auto-queuing (CARRY×10), ordinals HookState (2026-04-23+), layered-rate-limit migration (post-competition), Cloudflare email (human blocker), Loom spiral (escalated).
-
-### Step 2 — Delete
-
-- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields. Hold.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+. Hold.
-- No new deletion candidates.
-
-### Step 3 — Simplify
-
-- Architecture stable. Cooldown guard (ab0d1f47) is structurally complete. Signal pipeline well-layered: sensor cooldown → API cap → dispatch cap. No redundancy.
-- **[CARRY×10 → TASKED]** Quantum auto-queuing: arXiv digest compiles papers but dispatch must manually create signal tasks. This pattern is 10 audits old. Scheduled follow-up task created for 2026-04-23 (post-competition).
-
-### Step 4 — Accelerate
-
-- Competition window is the only bottleneck. $80K BTC milestone still unfired (price ~$78K). Bitcoin macro sensor at 240-min cadence — will trigger if price crosses.
-- Cost holding at $0.29/cycle. Prompt caching 58% reduction active.
-
-### Step 5 — Automate
-
-- **[RESOLVED → TASKED]** Quantum signal auto-queuing — follow-up task created, scheduled 2026-04-23.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
-- **[ESCALATED]** Cloudflare email — whoabuddy action required.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-
-### Flags
-
-- **[OK]** Architecture stable — memory-only window, no drift.
-- **[OK]** Compliance surface complete — all 3 surfaces covered.
-- **[OK]** Hiro-400 v5 — 3 simulation:400 on Apr 21 (drain slower than expected); sweep if >0 by Apr 23.
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Budget guard ($10/$3/$1) — holding.
-- **[OK]** x402 relay v1.29.0 — healthy.
-- **[OK]** 3-beat sensor coverage — all beats have sensors.
-- **[WATCH]** Competition closes 2026-04-22 23:00 UTC (~28h). $80K BTC milestone + pending signal approvals.
-- **[RESOLVED → TASKED]** Quantum auto-queuing — task scheduled 2026-04-23.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-
----
-
-## 2026-04-21T07:05:00.000Z — cooldown collision fix; competition final day
-
-**Task #13207** | Diff: 4578d9d → ab0d1f4 | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **One substantive code change** since last diagram: `fix(sensors): extend isBeatOnCooldown to block on pending/active queue` (ab0d1f47). Root cause of cooldown collision failures was that the guard only checked completed tasks — a pending duplicate was invisible to the sensor. **SATISFIED** — now also checks pending/active queue; duplicate task creation blocked before dispatch.
-- **Competition closes 2026-04-22 23:00 UTC (tomorrow).** Arc score 418 / rank #70. Gap: 757 pts. Final day. Signal Quality is the only lever.
-- **Carry items unchanged**: ordinals HookState cleanup (2026-04-23+), Loom spiral (escalated), layered-rate-limit migration (post-competition), Cloudflare email (human blocker), Quantum auto-queuing (carry×9).
-
-### Step 2 — Delete
-
-- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields. No action today.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated. No action.
-- No new deletion candidates.
-
-### Step 3 — Simplify
-
-- **Cooldown guard now structurally complete**: sensor-side check (ab0d1f47) closes the race window between sensor runs. Guard checks: (1) recently-completed task for this beat, (2) any pending/active task matching beat patterns. Both conditions must be clear before queuing. Simple, correct layering.
-- **Architecture stable**: no new complexity. Signal pipeline: sensor cooldown guard → API cap guard → dispatch cap. Three independent layers, no redundancy.
-- **[CARRY×9]** Quantum auto-queuing: arXiv digest compiles papers; signal task not auto-created. This is the most-deferred item in the audit log. Post-competition, create explicit task to wire it.
-
-### Step 4 — Accelerate
-
-- **Cooldown fix impact**: eliminates ~2 failed tasks/day from duplicate queue collisions. Prevents wasted dispatch cycles on tasks that will always 429. Direct savings ~$0.06–0.15/day at current cycle cost.
-- **Competition**: 1 day left. Bitcoin macro sensor at 240-min cadence, price ~$78K. $80K milestone remains the highest-leverage unfired signal.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Cooldown collision — pending/active queue check shipped (ab0d1f47).
-- **[OPEN — CARRY×9]** Quantum signal auto-queuing from arXiv digest. Must be tasked 2026-04-23.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
-- **[ESCALATED]** Cloudflare email — whoabuddy action required.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-
-### Flags
-
-- **[RESOLVED]** Cooldown collision — isBeatOnCooldown now checks pending/active queue.
-- **[OK]** Architecture stable — one targeted fix; no structural drift.
-- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
-- **[OK]** Hiro-400 v5 — drain slower than expected but no new failure modes (3 simulation:400 seen Apr 21; sweep if >0 by Apr 23).
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Budget guard ($10/$3/$1) — holding.
-- **[OK]** x402 relay v1.29.0 — healthy.
-- **[OK]** 3-beat sensor coverage — all beats have sensors.
-- **[WATCH]** Competition closes 2026-04-22 (1 day). $80K BTC milestone + quantum arXiv harvest are the two remaining live targets.
-- **[OPEN — CARRY×9]** Quantum auto-queuing from arXiv digest — must be tasked 2026-04-23.
-- **[OPEN]** Pre-commit hook not git-tracked.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-
----
-
-*[Entry 2026-04-20T19:02Z and older archived — see git history]*
+*[Entries 2026-04-21 and older archived — see git history]*
