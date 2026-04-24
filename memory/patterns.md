@@ -51,6 +51,9 @@ When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch rev
 **p-candidate-discovery-gate-validation** [2026-04-23]
 Fresh candidates from ecosystem scans should be validated against structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up pitch/filing tasks. Gate failures → document for future filters; gate passes → immediate pitch filing. Prevents wasted follow-up work on candidates that fail basic criteria.
 
+**p-dri-coordination-precheck** [2026-04-24]
+Before queuing a demand-side pitch task for a gated-pass candidate, verify the DRI hasn't already opened an engagement (GitHub issue, discussion, email) with that org on the same day. If DRI contact exists, candidate is "effectively in pipeline" — deprioritize and resume other candidates. Prevents duplicate sales outreach and aligns prospecting with DRI's live touch strategy.
+
 **p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
 Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
 
