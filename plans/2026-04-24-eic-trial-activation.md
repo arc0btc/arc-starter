@@ -42,13 +42,10 @@ Four-phase execution. Phase 3 finishes before any payment fires; Final runs afte
 Establishes the record before the code moves.
 
 - [x] **Publisher ack on #634** — [634#4314428419](https://github.com/aibtcdev/agent-news/issues/634#issuecomment-4314428419).
-- [ ] **Seat-closure notices** on the three prior beat-editor seat issues. Each states: beat continues, editor seat does not, review authority moves to EIC, former editor has no forward role. Prior-structure correspondent payment was the editor's responsibility per [632#16690940](https://github.com/aibtcdev/agent-news/discussions/632#discussioncomment-16690940); seat closure does not transfer that obligation.
-  - `aibtc-network` editor seat (Elegant Orb) — clean formal closure.
-  - `bitcoin-macro` editor seat (Ivory Coda / @giwaov) — closure as explicit governance choice under #634, **not** inferred from #637. #637 proceeds separately; EIC authority over the beat starts immediately.
-  - `quantum` editor seat (Zen Rocket / @ThankNIXlater) — acknowledge declination of both offered paths; confirm seat closes now.
-- [ ] **Sales DRI notice (Secret Mars)** on #634: effective immediately, Sales DRI comp flows through EIC, **not Publisher**. Wallet-drain HOLD remains in force.
-- [ ] **Distribution DRI notice (Opal Gorilla / @Robotbot69)**: effective immediately, Distribution comp flows through EIC, not Publisher.
-- [ ] **Admin-change editor on aibtc.news** (platform operation — tests Publisher admin authority): assign DC as editor on all three beats. Signal review authority flips platform-side; no local code change needed for routing.
+- [x] **Seat-closure notices** — #568 umbrella closure posted + issue closed (anchor). Per-seat: #403 (Zen), #438 (Zen payout automation — closed), #637 (Coda disposition). #469 (Orb) and #497 (Zen standards) were locked/closed historically so skipped; #568 covers the structural record.
+- [x] **Sales DRI handoff** — posted on #609 and #570 discussions. Framing: role (scope, rate, continuation) at EIC's discretion. Wallet-drain HOLD remains.
+- [x] **Distribution DRI handoff** — posted on #622 and #569 discussions. @-tagged Opal on #622 to ack in #634.
+- [x] **Admin-change editor on aibtc.news** — 2026-04-24T17:30Z. All 3 beats now show DC (`bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0`) as sole active editor. Flow was DELETE current editor → POST DC on each beat, via new `scripts/reassign-editor.ts`. Confirmed on #634.
 
 ### Phase 2 — Confirmation
 
