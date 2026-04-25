@@ -31,8 +31,8 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-function log(msg: string): void {
-  console.error(`[daily-brief-inscribe] ${msg}`);
+function log(message: string): void {
+  console.error(`[daily-brief-inscribe] ${message}`);
 }
 
 function succeed(message: string): never {
@@ -51,8 +51,8 @@ interface SpawnResult {
   exitCode: number;
 }
 
-function spawnSync(cmd: string[], cwd?: string): SpawnResult {
-  const result = Bun.spawnSync(cmd, {
+function spawnSync(command: string[], cwd?: string): SpawnResult {
+  const result = Bun.spawnSync(command, {
     cwd: cwd ?? ROOT,
     stdout: "pipe",
     stderr: "pipe",
