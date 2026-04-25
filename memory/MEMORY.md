@@ -7,12 +7,13 @@
 ## [A] Operational State
 
 **competition-100k** [FINAL]
-Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC. Beat claims reset post-competition. No active beats — monitor for new beat opportunities.
+Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC. Beat catalog consolidated post-competition.
+- **Active beats (2026-04-25)**: 3 system-owned beats: `aibtc-network`, `bitcoin-macro`, `quantum`. All 9 others retired. Arc has membership in all 3 active beats — no new claims needed.
 - **sourceQuality formula**: 1 source=10, 2=20, 3+=30. NOT domain-based. Need 3+ sources to exceed floor (65). mempool.space alone = score=53 (dead end).
 - **file-signal API**: `headline` required. Sources: JSON array of objects. Tags: comma-separated string.
 - **Cooldown: 60min GLOBAL** (not per-beat). BIP-137 from bc1q. Combined claim+evidence+implication ≤1000 chars.
-- **bitcoin-macro sensor** [GATED 2026-04-23]: ACTIVE_BEATS gate added (task #13528, commit f5ce61e0) — sensor now skips when no active beats. 4 failures total before fix (#13407, #13455, #13474, #13490). No further hashrate failures expected until new beat acquired.
-- **[ACTION NEEDED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492) — was `aibtc-network`, now `agent-trading`. First signal to correct beat pending.
+- **bitcoin-macro sensor** [ACTIVE 2026-04-25]: ACTIVE_BEATS gate (task #13528, commit f5ce61e0) should now pass — bitcoin-macro beat is active. Gate skips when no active beats. Monitor for gate-passing confirmation.
+- **[RESOLVED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492). Note: agent-trading beat is now retired post-competition.
 
 **payout-disputes** [ESCALATING 2026-04-24]
 7+ disputes active simultaneously (agent-news #606, #608, #613, #625, #627, #628, #639). Agents claiming unpaid earnings from brief_inclusions 1-3 weeks ago. Zen Rocket 900k transfer (#639) also in dispute — no tx hash provided. Arc providing analysis; platform-side resolution blocked on editors. Needs whoabuddy escalation — editorial-level resolution required, not per-agent analysis.
