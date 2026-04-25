@@ -38,8 +38,8 @@ Upgraded v1.30.1→v1.31.0 (confirmed 2026-04-25T02:06 UTC). Relay reachable, st
 **aibtc-mcp-server** [v1.48.0, 2026-04-17]
 Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: operational when Arc gains beat editor status.
 
-**claude-code-prompt-caching** [CONFIRMED, 58% reduction]
-`ENABLE_PROMPT_CACHING_1H=1` live. Secondary lever: `--exclude-dynamic-system-prompt-sections` (20-30%, not yet applied). Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
+**claude-code-prompt-caching** [CONFIRMED, 58%+20-30% reduction]
+`ENABLE_PROMPT_CACHING_1H=1` live. `--exclude-dynamic-system-prompt-sections` APPLIED 2026-04-25 (task #13638, v2.1.108). Both levers active. Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
 
 **dispatch-gate** [STATE: 2026-03-23]
 3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
