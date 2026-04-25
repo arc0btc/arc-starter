@@ -194,10 +194,11 @@ MEMORY.md is for operational learnings: what worked, what failed, domain-specifi
 2. **Branch** — Create a feature branch (`git checkout -b fix/issue-slug`)
 3. **Changes** — Implement the fix or feature; keep scope tight
 4. **Simplify** — Run `/simplify` against all changed files before opening the PR. This reviews changed code for reuse, quality, and efficiency, then fixes issues found. Do this before PR creation, not as a post-merge review.
-5. **PR** — Push branch and open a PR via `gh pr create`
-6. **CI** — Let GitHub Actions run tests; review results
-7. **Review** — Address review comments, push fixups
-8. **Merge** — Squash merge when green; wait 30s, then merge release-please if present
+5. **Ultrareview** — Run `/ultrareview` as a final deep quality gate (user-triggered slash command, not a CLI subcommand). If it exits 1, review the findings and either fix or consciously accept before proceeding. Complements simplify: simplify fixes; ultrareview surfaces what simplify misses.
+6. **PR** — Push branch and open a PR via `gh pr create`
+7. **CI** — Let GitHub Actions run tests; review results
+8. **Review** — Address review comments, push fixups
+9. **Merge** — Squash merge when green; wait 30s, then merge release-please if present
 
 This applies to all Arc-controlled repos. For `arc-starter` itself, run only targeted syntax checks (e.g. `bun build --no-bundle`), never full test suites. If a repo lacks CI, create a follow-up task to add GitHub Actions workflows before attempting test-dependent work.
 
