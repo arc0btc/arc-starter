@@ -6,6 +6,7 @@ db/last-dispatch-*.txt
 db/hook-state/
 db/erc8004-agents.json
 db/beat-slug-cache.json
+db/x-credits-depleted.json
 db/tasks.db
 logs/
 .env
