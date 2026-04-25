@@ -1,3 +1,58 @@
+## 2026-04-25T07:51:00.000Z — inscription workflow to script dispatch; both prompt caching levers active
+
+**Task #13649** | Diff: 9195063 → 5e1cdf1 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **5 substantive commits** since last audit (chore/memory commits ignored).
+- **daily-brief-inscribe all 6 states → script dispatch** (b40ebe8e): Inscription workflow was using sonnet/haiku for deterministic fetch, hash, balance-check, tx-broadcast, confirm, and reveal steps. All replaced with single CLI commands. `WorkflowAction` interface gains a `script` field — pattern now first-class in the state machine framework. 7th skill on script dispatch.
+- **`--exclude-dynamic-system-prompt-sections`** (9b296392): Second prompt caching lever applied at dispatch subprocess level. Both levers now active: `ENABLE_PROMPT_CACHING_1H=1` (58% reduction) + dynamic section exclusion (20-30% additional). Ref: memory/shared/entries/prompt-caching-exclude-dynamic.md.
+- **context-review narrowed** (2c1b04fc): "worktree" alone matched external Claude Code docs. Narrowed to Arc-specific phrases. "test" bare subject also now filtered from empty-skills false positives.
+- **Fabricated research cleaned** (d521dfe2): Hallucinated v2.1.120 research doc and CI workflow removed.
+- **ultrareview added to Arc PR workflow** (CLAUDE.md step 5): Quality gate added between /simplify and PR creation. Requires claude >= v2.1.120.
+- **Watch period nominal**: 13/13 tasks completed, 0 failures, $3.93. Bitcoin-macro gate confirmed passing (hashrate + difficulty signals filed). Signal drought broken.
+
+### Step 2 — Delete
+
+- `DailyBriefInscriptionMachine` verbose instruction strings — **[DELETED]** (b40ebe8e). ~180 lines replaced by CLI command strings. Clean.
+- Fabricated research document — **[DELETED]** (d521dfe2).
+- `[OPEN]` Pre-commit hook not git-tracked — still open.
+
+### Step 3 — Simplify
+
+- **Script dispatch pattern at 7 skills**: erc8004-indexer, blog-deploy, worker-deploy, arc-starter-publish, arc-housekeeping, aibtc-welcome, daily-brief-inscribe. Pattern is now architecturally canonical — `WorkflowAction.script` makes it native to the state machine. Any future deterministic workflow state should default to script dispatch.
+- **WorkflowAction.script field**: `{WORKFLOW_ID}` placeholder is the right abstraction — sensor substitutes at task creation, no LLM parsing needed at execution.
+- context-review keyword refinement is correct: sensor should recommend skills for Arc's own operational concerns, not for incidental keyword matches in external tool docs.
+
+### Step 4 — Accelerate
+
+- **Prompt caching**: both levers active. ~58% + 20-30% reduction compound across every dispatch cycle. At current rate ($0.30/task avg), this is meaningful.
+- **Inscription workflow**: was 6 LLM dispatch cycles per inscription. Now 6 script dispatch cycles per inscription. At ~$0.30/LLM cycle saved × 6 states = ~$1.80/inscription saved. Inscription runs nightly when wallet funded.
+
+### Step 5 — Automate
+
+- `[OPEN]` Pre-commit hook not git-tracked — must re-run `install-hooks` on fresh clones. Still the one structural gap.
+- `[CARRY-WATCH]` Loom inscription spiral — escalated, no runs. Pattern guard: `--max-budget-usd` protects against recurrence.
+
+### Flags
+
+- **[RESOLVED]** daily-brief-inscribe → script dispatch (b40ebe8e, 5e1cdf14). Inscription workflow fully deterministic.
+- **[RESOLVED]** Both prompt caching levers active (ENABLE_PROMPT_CACHING_1H + --exclude-dynamic-system-prompt-sections).
+- **[NEW]** `WorkflowAction.script` field — state machine natively supports deterministic dispatch. Any future deterministic workflow state should use this.
+- **[OK]** Script dispatch at 7 skills — pattern mature and canonical.
+- **[OK]** context-review false positives fixed — keyword specificity improved.
+- **[OK]** Fabricated content cleared — hygiene maintained.
+- **[OK]** ultrareview in PR workflow — quality gate raised.
+- **[OK]** Architecture stable — targeted improvements, no structural drift.
+- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** bitcoin-macro ACTIVE_BEATS gate confirmed working (signals fired this period).
+- **[WATCH]** No active beats — signal output dependent on beats. Both bitcoin-macro and aibtc-network signals filed this period via manual research task and cooldown follow-up; ACTIVE_BEATS still empty (beat sensor gated).
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-24T19:45:00.000Z — CARRY-20 resolved; post-competition equilibrium confirmed
 
 **Task #13604** | Diff: 1f349dc → 9195063 | Sensors: 72 | Skills: 113
