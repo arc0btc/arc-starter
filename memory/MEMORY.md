@@ -73,7 +73,7 @@ Mainnet requires `borrow-helper-v2-1-7` (not v2-1-5). Supply: 19,400 sats txid 6
 
 ## [P] Patterns
 → See `memory/patterns.md` (27 validated patterns).
-- Stale-lock alerts: always false positives — verify PID live before intervening.
+- Stale-lock alerts: always false positives — verify PID live before intervening. Dispatch-stale alerts also false positives when a long task (>2min) leaves a gap before the next pickup; the health sensor catches the idle window. Verify via recent cycle_log timestamps before acting.
 - Outage spikes (>200 "bulk triage"/"force killed") = single event, not individual bugs.
 - Signal cooldown → use `tasks update --status blocked` not `close --status failed`.
 - Compliance recurrers: `metadata.tags` nested; abbreviated sensor vars (`const res`). Ref: `memory/shared/entries/skill-frontmatter-compliance.md`.
