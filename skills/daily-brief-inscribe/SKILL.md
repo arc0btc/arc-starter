@@ -1,7 +1,7 @@
 ---
 name: daily-brief-inscribe
-description: Manages Bitcoin L1 inscription lifecycle for daily briefs using single-state-per-task workflow pattern
-updated: 2026-04-12
+description: Manages Bitcoin L1 inscription lifecycle for daily briefs using script-dispatch per-state workflow pattern
+updated: 2026-04-25
 tags:
   - inscription
   - bitcoin
@@ -10,17 +10,16 @@ tags:
 
 # Daily Brief Inscribe
 
-Manages the lifecycle of inscribing daily briefs onto Bitcoin L1. Uses the `daily-brief-inscription` workflow template to coordinate multi-step inscription flows as single-state-per-task operations.
+Manages the lifecycle of inscribing daily briefs onto Bitcoin L1. Uses the `daily-brief-inscription` workflow template. All states use **script dispatch** (`model: "script"`) — no LLM context window involved, eliminating the token spiral root cause.
 
 ## Token Spiral Prevention
 
-This skill exists because the original inscription workflow caused 1.25-1.8M token spikes when a single task advanced multiple states in one session, loading 33K+ chars of brief content at each step.
+This skill exists because the original inscription workflow caused 1.25-1.8M token spikes (brief content appearing in tool call outputs within LLM context). The fix: convert all states to script dispatch so no LLM context window is ever loaded.
 
-**Hard rules:**
+**Hard rules (still apply):**
 1. Each task advances **exactly ONE state transition**, then exits
-2. Brief content is **NEVER** stored in workflow context — only `dataHash` (SHA-256) + `briefSummary` (max 200 chars)
+2. Brief content is cached to `db/brief-inscription-{date}.b64` (not in workflow context)
 3. Confirmation polling **always** spawns a separate scheduled task — never polls inline
-4. Workflow context must stay under **2KB total**
 
 ## Workflow States
 
@@ -28,16 +27,28 @@ This skill exists because the original inscription workflow caused 1.25-1.8M tok
 pending → brief_fetched → balance_ok → committed → commit_confirmed → revealed → confirmed → completed
 ```
 
-| State | Task | Model | Action |
-|-------|------|-------|--------|
-| `pending` | Fetch brief, compute hash | sonnet | Store dataHash + briefSummary in context |
-| `brief_fetched` | Check wallet balance | haiku | Verify sufficient funds for commit+reveal |
-| `balance_ok` | Build + broadcast commit tx | sonnet | Store commitTxid in context |
-| `committed` | Check commit confirmation | haiku | If unconfirmed, schedule follow-up (15min) |
-| `commit_confirmed` | Build + broadcast reveal tx | sonnet | Store revealTxid in context |
-| `revealed` | Check reveal confirmation | haiku | If unconfirmed, schedule follow-up (15min) |
-| `confirmed` | Record inscription on aibtc.news | haiku | Call inscribe-brief CLI |
+| State | Task | Model | Script handler |
+|-------|------|-------|----------------|
+| `pending` | Fetch brief, compute hash | script | `fetch-and-hash` |
+| `brief_fetched` | Check wallet balance | script | `check-balance` |
+| `balance_ok` | Build + broadcast commit tx | script | `commit-tx` |
+| `committed` | Check commit confirmation | script | `check-commit` (schedules follow-up if unconfirmed) |
+| `commit_confirmed` | Build + broadcast reveal tx | script | `reveal-tx` |
+| `revealed` | Check reveal confirmation | script | `check-reveal` (schedules follow-up if unconfirmed) |
+| `confirmed` | Record inscription on aibtc.news | script | `record-inscription` |
 | `completed` | Terminal | — | — |
+
+## CLI
+
+```bash
+arc skills run --name daily-brief-inscribe -- fetch-and-hash --workflow-id <id> --date YYYY-MM-DD
+arc skills run --name daily-brief-inscribe -- check-balance --workflow-id <id> --data-size <bytes> --network mainnet|testnet
+arc skills run --name daily-brief-inscribe -- commit-tx --workflow-id <id> --date YYYY-MM-DD --network mainnet|testnet
+arc skills run --name daily-brief-inscribe -- check-commit --workflow-id <id> --commit-txid <txid> --network mainnet|testnet
+arc skills run --name daily-brief-inscribe -- reveal-tx --workflow-id <id> --date YYYY-MM-DD --commit-txid <txid> --reveal-amount <sats> --fee-rate medium --network mainnet|testnet
+arc skills run --name daily-brief-inscribe -- check-reveal --workflow-id <id> --reveal-txid <txid> --network mainnet|testnet
+arc skills run --name daily-brief-inscribe -- record-inscription --workflow-id <id> --date YYYY-MM-DD --inscription-id <id>
+```
 
 ## Creating a Workflow Instance
 
@@ -45,18 +56,14 @@ pending → brief_fetched → balance_ok → committed → commit_confirmed → 
 arc skills run --name arc-workflows -- create \
   --template daily-brief-inscription \
   --instance-key "brief-inscription:2026-04-11" \
-  --context '{"date":"2026-04-11","walletAddress":"bc1q...","network":"mainnet"}'
+  --context '{"date":"2026-04-11","network":"mainnet"}'
 ```
 
-Context must include:
-- `date` — Brief date (YYYY-MM-DD)
-- `walletAddress` — Bitcoin address for inscription
-- `network` — "mainnet" or "testnet"
-
-Context must **NOT** include full brief text. The `pending` task fetches the brief and stores only `dataHash` + `briefSummary`.
+Context must include `date` (YYYY-MM-DD) and `network` ("mainnet" or "testnet"). The `walletAddress` field is no longer required — the wallet is read from the configured wallet at commit time.
 
 ## Dependencies
 
 - **aibtc-news-classifieds** — `get-brief` (fetch), `inscribe-brief` (record)
-- **bitcoin-wallet** — Balance check, commit/reveal transactions
+- **bitcoin-wallet** — Wallet unlock pre-flight + BTC address lookup
 - **arc-workflows** — Workflow state management
+- **ordinals** (`github/aibtcdev/skills/ordinals/ordinals.ts`) — Commit and reveal transactions

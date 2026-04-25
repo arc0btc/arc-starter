@@ -393,6 +393,9 @@ export default async function workflowsSensor(): Promise<string> {
             skills: action.skills ? JSON.stringify(action.skills) : null,
             source,
             parent_id: action.parentTaskId ?? undefined,
+            script: action.script
+              ? action.script.replace("{WORKFLOW_ID}", String(workflow.id))
+              : undefined,
           });
 
           // For PR reviews, record the HEAD SHA so we don't re-queue for the same commit

@@ -21,6 +21,8 @@ export interface WorkflowAction {
   skills?: string[];
   description?: string;
   model?: string;
+  /** Shell command for script dispatch. Use {WORKFLOW_ID} as placeholder — sensor substitutes the real ID. */
+  script?: string;
   parentTaskId?: number;
   source?: string;
   contextUpdate?: Record<string, unknown>;
@@ -567,6 +569,8 @@ export const DailyBriefInscriptionMachine: StateMachine<{
   network?: string;
   commitTxid?: string;
   commitFee?: number;
+  revealAmount?: number;
+  feeRate?: number;
   revealTxid?: string;
   revealFee?: number;
   inscriptionId?: string;
@@ -582,21 +586,10 @@ export const DailyBriefInscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Brief inscription: fetch brief for ${ctx.date}`,
           priority: 5,
-          model: "sonnet",
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- fetch-and-hash --workflow-id {WORKFLOW_ID} --date ${ctx.date}`,
           skills: ["daily-brief-inscribe", "aibtc-news-classifieds"],
-          description: [
-            `Fetch the daily brief for ${ctx.date} and prepare it for inscription.`,
-            "",
-            "Steps:",
-            "1. Fetch the brief via: arc skills run --name aibtc-news-classifieds -- get-brief --date " + (ctx.date || "YYYY-MM-DD"),
-            "2. Compute SHA-256 hash of the brief text content",
-            "3. Store ONLY the hash and byte size in workflow context (dataHash, dataSize)",
-            "4. Store a 1-2 sentence summary in briefSummary (max 200 chars)",
-            "5. Transition workflow to brief_fetched state",
-            "",
-            "IMPORTANT: Do NOT store the full brief text in workflow context.",
-            "IMPORTANT: Advance exactly ONE state (pending → brief_fetched), then exit.",
-          ].join("\n"),
+          description: `Fetch daily brief for ${ctx.date}, compute SHA-256, store hash in workflow context.`,
         };
       },
     },
@@ -604,49 +597,31 @@ export const DailyBriefInscriptionMachine: StateMachine<{
       on: { balance_ok: "balance_ok" },
       action: (ctx) => {
         if (!ctx.dataHash) return null;
+        const network = ctx.network || "mainnet";
         return {
           type: "create-task",
           subject: `Brief inscription: check balance for ${ctx.date || "brief"}`,
           priority: 5,
-          model: "haiku",
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- check-balance --workflow-id {WORKFLOW_ID} --data-size ${ctx.dataSize || 0} --network ${network}`,
           skills: ["daily-brief-inscribe", "bitcoin-wallet"],
-          description: [
-            `Verify wallet has sufficient balance for inscription.`,
-            `Data size: ${ctx.dataSize || "unknown"} bytes. Wallet: ${ctx.walletAddress || "default"}.`,
-            "",
-            "Steps:",
-            "1. Check wallet balance (need enough for commit + reveal fees)",
-            "2. If balance sufficient, transition workflow to balance_ok",
-            "3. If insufficient, set workflow status to blocked with reason",
-            "",
-            "IMPORTANT: Advance exactly ONE state (brief_fetched → balance_ok), then exit.",
-          ].join("\n"),
+          description: `Verify wallet has sufficient BTC balance for inscription (${ctx.dataSize || 0} bytes).`,
         };
       },
     },
     balance_ok: {
       on: { committed: "committed" },
       action: (ctx) => {
-        if (!ctx.dataHash || !ctx.walletAddress) return null;
+        if (!ctx.dataHash) return null;
+        const network = ctx.network || "mainnet";
         return {
           type: "create-task",
           subject: `Brief inscription: commit tx for ${ctx.date || "brief"}`,
           priority: 4,
-          model: "sonnet",
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- commit-tx --workflow-id {WORKFLOW_ID} --date ${ctx.date} --network ${network}`,
           skills: ["daily-brief-inscribe", "bitcoin-wallet"],
-          description: [
-            `Build and broadcast the commit transaction for the brief inscription.`,
-            `Data hash: ${ctx.dataHash}. Wallet: ${ctx.walletAddress}. Network: ${ctx.network || "mainnet"}.`,
-            "",
-            "Steps:",
-            "1. Build the commit transaction for the inscription",
-            "2. Broadcast the commit transaction",
-            "3. Store commitTxid and commitFee in workflow context",
-            "4. Transition workflow to committed state",
-            "",
-            "IMPORTANT: Advance exactly ONE state (balance_ok → committed), then exit.",
-            "Do NOT wait for confirmation — a separate task handles that.",
-          ].join("\n"),
+          description: `Build and broadcast commit transaction for brief inscription (${ctx.date}).`,
         };
       },
     },
@@ -654,23 +629,15 @@ export const DailyBriefInscriptionMachine: StateMachine<{
       on: { commit_confirmed: "commit_confirmed" },
       action: (ctx) => {
         if (!ctx.commitTxid) return null;
+        const network = ctx.network || "mainnet";
         return {
           type: "create-task",
           subject: `Brief inscription: confirm commit ${ctx.commitTxid.slice(0, 8)}...`,
           priority: 6,
-          model: "haiku",
-          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
-          description: [
-            `Check if commit transaction is confirmed. Txid: ${ctx.commitTxid}.`,
-            "",
-            "Steps:",
-            "1. Query the transaction status",
-            "2. If confirmed (≥1 block), transition workflow to commit_confirmed",
-            "3. If NOT confirmed, create a scheduled follow-up task (scheduled_for: 15 min from now) and exit",
-            "",
-            "IMPORTANT: Advance exactly ONE state (committed → commit_confirmed), then exit.",
-            "IMPORTANT: Do NOT poll in a loop. If unconfirmed, schedule a follow-up task and exit immediately.",
-          ].join("\n"),
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- check-commit --workflow-id {WORKFLOW_ID} --commit-txid ${ctx.commitTxid} --network ${network}`,
+          skills: ["daily-brief-inscribe"],
+          description: `Check commit tx confirmation. If unconfirmed, schedules follow-up in 15 min.`,
         };
       },
     },
@@ -678,25 +645,15 @@ export const DailyBriefInscriptionMachine: StateMachine<{
       on: { revealed: "revealed" },
       action: (ctx) => {
         if (!ctx.commitTxid) return null;
+        const network = ctx.network || "mainnet";
         return {
           type: "create-task",
           subject: `Brief inscription: reveal tx for ${ctx.date || "brief"}`,
           priority: 4,
-          model: "sonnet",
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- reveal-tx --workflow-id {WORKFLOW_ID} --date ${ctx.date} --commit-txid ${ctx.commitTxid} --reveal-amount ${ctx.revealAmount || 0} --fee-rate ${ctx.feeRate || "medium"} --network ${network}`,
           skills: ["daily-brief-inscribe", "bitcoin-wallet"],
-          description: [
-            `Build and broadcast the reveal transaction using the confirmed commit UTXO.`,
-            `Commit txid: ${ctx.commitTxid}. Network: ${ctx.network || "mainnet"}.`,
-            "",
-            "Steps:",
-            "1. Build the reveal transaction from the commit UTXO",
-            "2. Broadcast the reveal transaction",
-            "3. Store revealTxid and revealFee in workflow context",
-            "4. Transition workflow to revealed state",
-            "",
-            "IMPORTANT: Advance exactly ONE state (commit_confirmed → revealed), then exit.",
-            "Do NOT wait for confirmation — a separate task handles that.",
-          ].join("\n"),
+          description: `Build and broadcast reveal transaction for brief inscription (${ctx.date}).`,
         };
       },
     },
@@ -704,25 +661,15 @@ export const DailyBriefInscriptionMachine: StateMachine<{
       on: { reveal_confirmed: "confirmed" },
       action: (ctx) => {
         if (!ctx.revealTxid) return null;
+        const network = ctx.network || "mainnet";
         return {
           type: "create-task",
           subject: `Brief inscription: confirm reveal ${ctx.revealTxid.slice(0, 8)}...`,
           priority: 6,
-          model: "haiku",
-          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
-          description: [
-            `Check if reveal transaction is confirmed and extract inscription ID. Txid: ${ctx.revealTxid}.`,
-            "",
-            "Steps:",
-            "1. Query the transaction status",
-            "2. If confirmed, extract the inscription ID (format: {txid}i0)",
-            "3. Store inscriptionId in workflow context",
-            "4. Transition workflow to confirmed state",
-            "5. If NOT confirmed, create a scheduled follow-up task (scheduled_for: 15 min from now) and exit",
-            "",
-            "IMPORTANT: Advance exactly ONE state (revealed → confirmed), then exit.",
-            "IMPORTANT: Do NOT poll in a loop. If unconfirmed, schedule a follow-up task and exit immediately.",
-          ].join("\n"),
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- check-reveal --workflow-id {WORKFLOW_ID} --reveal-txid ${ctx.revealTxid} --network ${network}`,
+          skills: ["daily-brief-inscribe"],
+          description: `Check reveal tx confirmation. If unconfirmed, schedules follow-up in 15 min.`,
         };
       },
     },
@@ -734,18 +681,10 @@ export const DailyBriefInscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Brief inscription: record ${ctx.date} → ${ctx.inscriptionId}`,
           priority: 5,
-          model: "haiku",
+          model: "script",
+          script: `arc skills run --name daily-brief-inscribe -- record-inscription --workflow-id {WORKFLOW_ID} --date ${ctx.date} --inscription-id ${ctx.inscriptionId}`,
           skills: ["daily-brief-inscribe", "aibtc-news-classifieds"],
-          description: [
-            `Record the inscription on aibtc.news for brief ${ctx.date}.`,
-            `Inscription ID: ${ctx.inscriptionId}.`,
-            "",
-            "Steps:",
-            "1. Call: arc skills run --name aibtc-news-classifieds -- inscribe-brief --date " + (ctx.date || "YYYY-MM-DD"),
-            "2. Transition workflow to completed state",
-            "",
-            "IMPORTANT: Advance exactly ONE state (confirmed → completed), then exit.",
-          ].join("\n"),
+          description: `Record inscription ${ctx.inscriptionId} on aibtc.news for brief ${ctx.date}.`,
         };
       },
     },
