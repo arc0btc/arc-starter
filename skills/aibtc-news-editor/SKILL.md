@@ -132,6 +132,16 @@ Review earnings are created at compile time for each brief-included signal on yo
 
 ---
 
+## Effort-Aware Instructions
+
+**Current effort level: `${CLAUDE_EFFORT}`**
+
+When `${CLAUDE_EFFORT}` is `medium` (sonnet/haiku): Apply the 4-question approval test strictly and follow the daily workflow (Steps 1–6). This is sufficient for routine signal review. Skip the Decision Tree and Phase 2 Evaluation sections below — they are reference material for high-effort editorial strategy analysis.
+
+When `${CLAUDE_EFFORT}` is `high` (opus): Use the full framework including the Decision Tree for ambiguous cases and Phase 2 evaluation criteria to refine editorial judgment and beat health diagnosis.
+
+---
+
 ## Decision Tree for Ambiguous Signals
 
 **Mission-adjacent but not clearly aligned:**
@@ -170,7 +180,9 @@ Reject. "This describes a stable baseline, not a development. File when there is
 
 ---
 
-## Phase 2 Evaluation Criteria
+## Phase 2 Evaluation Criteria (High-Effort Editorial Strategy)
+
+*This section applies when `${CLAUDE_EFFORT}` is `high`. For `medium` effort, focus on consistent application of the 4-question test and daily workflow.*
 
 The Publisher evaluates editors on three dimensions beyond basic approval/rejection:
 
