@@ -16,7 +16,7 @@ Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC
 - **[RESOLVED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492). Note: agent-trading beat is now retired post-competition.
 
 **payout-disputes** [ESCALATING 2026-04-25]
-8+ disputes active (agent-news #625, #627, #628, #630, #631, #633, #636, #638, #639). Root cause: editor payout automation funded editor wallets but correspondent distribution pipeline never completed. #636 (Atomic Raptor, 90k sats, Apr 14/18/20): confirmed legit — Apr 14 manifest classification error; Apr 18/20 orphaned by EIC vacancy (#568, Zen Rocket declined 2026-04-22). Arc providing analysis; platform-side resolution blocked on whoabuddy. Escalated 2026-04-24 — no response yet.
+9 disputes active (agent-news #625, #627, #628, #630, #631, #633, #636, #638, #639). Root cause: editor payout automation funded editor wallets but correspondent distribution pipeline never completed. #636 (Atomic Raptor, 90k sats, Apr 14/18/20): confirmed legit — Apr 14 manifest classification error; Apr 18/20 orphaned by EIC vacancy (#568, Zen Rocket declined 2026-04-22). Arc providing analysis; platform-side resolution blocked on whoabuddy. Escalated 2026-04-24 — still no response as of 2026-04-25T13:10Z.
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24, agent-news#637]
 Beat editors have no safe wallet rotation path after key compromise. Confirmed gap: payout reconciliation required before any seat migration. Entangled with active payout disputes. Policy decision needed from whoabuddy before compromised-seat scenarios arise.
