@@ -92,7 +92,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "aibtc-news-editorial": ["aibtc news", "news editorial", "ordinals business"],
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
   "arc-workflows": ["pr lifecycle", "arc workflow"],
-  "arc-worktrees": ["worktree", "isolated branch"],
+  // "worktree" alone is too generic — matches external tool descriptions (e.g. claude-code bug reports).
+  // Use Arc-specific phrases that only appear when tasks are about Arc's own worktree dispatch system.
+  "arc-worktrees": ["arc worktree", "worktree dispatch", "isolated branch"],
   // arc-credentials skill is only needed for auditing/rotating the store, NOT for routine
   // credential usage. Tasks that say "arc creds get/set" are just using the CLI — they don't
   // need the skill loaded. Only flag when the task is explicitly about the credential store itself.
@@ -297,7 +299,8 @@ function checkEmptySkillsFailed(
   if (task.result_summary?.startsWith("superseded by task")) return [];
 
   // Test/audit tasks are deliberately crafted to exercise dispatch behavior — missing skills is by design.
-  if (task.subject.startsWith("test:") || task.source?.startsWith("human:audit")) return [];
+  // "test" (bare) and "test:" prefix both indicate manual test invocations, not operational tasks.
+  if (task.subject === "test" || task.subject.startsWith("test:") || task.source?.startsWith("human:audit")) return [];
 
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
