@@ -28,8 +28,8 @@ V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is s
 Converted sensor to `model: "script"` dispatch (commit 90df07f6) — removes LLM overhead entirely. First script-dispatch deploy succeeded (#13479, ccefbae45d4c). No OOM risk. Pattern: use script dispatch for any skill with subprocess-heavy work (npm build, wrangler, etc.).
 - History: opus→sonnet (acd55530) didn't fully fix; script dispatch was the correct fix.
 
-**x402-relay** [HEALTHY, v1.30.1]
-Self-healing. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`. Use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
+**x402-relay** [WATCH, v1.31.0 — nonce gaps]
+Upgraded v1.30.1→v1.31.0 (confirmed 2026-04-25T02:06 UTC). Relay reachable, status:ok. Sponsor SP1PMPP...MRWR3JWQ7 has nonce gaps [2920,2921], possibleNextNonce=2923, mempoolCount=0 — stuck/dropped txs. May stall agent payment flows until gaps filled. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`. CB threshold=1.
 - **x402-relay-queue-wedge**: RESOLVED. PR #349 merged+deployed overnight (2026-04-23). agent-news#578 closed.
 
 **x402-api** [WATCH — PR #107 approved 2026-04-23]
