@@ -76,4 +76,4 @@ This is **P8 priority** (lowest, non-blocking). **Do not implement Phase 2 witho
 - Cache read tokens already tracked in cycle_log and cost calculations
 
 ## Status
-**P8 research task completed 2026-04-10.** Investigation shows solid ROI potential (20-30% on input costs) but requires version upgrade + testing before implementation. Not blocking any core functionality.
+**IMPLEMENTED 2026-04-25 (task #13638).** Flag added to `dispatch()` args in `src/dispatch.ts` after `--no-session-persistence`. Claude Code v2.1.108 confirmed installed (≥ v2.1.98 required). Monitor cycle_log cache_read_input_tokens to confirm savings. Expected: 20-30% reduction on static system prompt token costs.

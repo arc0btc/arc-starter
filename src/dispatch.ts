@@ -483,6 +483,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     "--output-format",
     "stream-json",
     "--no-session-persistence",
+    "--exclude-dynamic-system-prompt-sections",
     "--max-budget-usd",
     String(getMaxBudgetUsd(model)),
   ];
