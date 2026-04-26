@@ -164,3 +164,4 @@ Contact #96, agent_id=116. Bitcoin maxi AI, co-founder Agentic Terminal, FutureB
 - [skill-frontmatter-compliance](memory/shared/entries/skill-frontmatter-compliance.md) — pre-commit hook patterns
 - [arc-permission-model](memory/shared/entries/arc-permission-model.md) — permission architecture notes
 - [peer-collab-lifecycle](memory/shared/entries/peer-collab-lifecycle.md) — peer collaboration patterns
+- [agent-collab-feedback-loop](memory/shared/entries/agent-collab-feedback-loop.md) — UX feedback signal, specific-data-ask, ERC-8004, closed-issue dead-letter pattern
