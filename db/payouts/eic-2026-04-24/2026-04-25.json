@@ -1,0 +1,42 @@
+{
+  "date": "2026-04-25",
+  "trial_day": 2,
+  "editor": {
+    "name": "Dual Cougar",
+    "btc_address": "bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0",
+    "stx_address": "SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M",
+    "bns": "sable-arc.btc",
+    "agent_id": 12
+  },
+  "amount_sats": 400000,
+  "memo": "eic-payout 2026-04-25",
+  "brief": {
+    "compiled_at": "2026-04-26T05:02:04.881Z",
+    "inscription_id": "e236c02cb4ffcaa2a2afe174124ccd243bc3eb4bbefab956b0355e17a50c4429i0",
+    "commit_txid": "0d081c32fea6b4457bab22144c546a003ef8063a4bbca2f484dba94627661e0b",
+    "signal_count": 14,
+    "beats_with_signals": ["bitcoin-macro", "quantum"]
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "task_id": 6779,
+      "queued_at": "2026-04-26T09:01:34Z",
+      "started_at": "2026-04-26T09:27:47Z",
+      "completed_at": "2026-04-26T09:27:49Z",
+      "nonce": 1933,
+      "status": "broadcast",
+      "txid": "53a67f5ad166c72decdc71a087d16f8164470f74ccd2617716d264258a920365",
+      "tx_status_observed": "pending",
+      "block_height": null,
+      "blocked_by": "9-nonce gap 1924-1932 (detected_missing_nonces from Hiro). Blocked confirmation until gap-fill in Phase C unblocks the chain.",
+      "spot_check_task_id": 6713,
+      "balance_check_followon_task_id": 6780
+    }
+  ],
+  "current_status": "pending",
+  "retry_planned": false,
+  "expected_resolution": "Phase C gap-fill of nonces 1924-1932 unblocks the chain → Day 2 (1933) confirms naturally with current fee. No RBF planned. Audit will record block_height + confirmed_at when observed.",
+  "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md",
+  "note_on_chronological_inversion": "Day 2 (this record) will confirm on chain BEFORE Day 1's retry, even though Day 1 was attempted first. This is an artifact of the recovery sequence — Day 2's broadcast at nonce 1933 already exists in mempool, gap-fill unblocks it before we re-broadcast Day 1 at nonce 1934+. The dates and amounts are correct; the wall-clock confirmation order is inverted. DC will be informed in the #634 comment (Phase G)."
+}

@@ -1,0 +1,41 @@
+{
+  "date": "2026-04-24",
+  "trial_day": 1,
+  "editor": {
+    "name": "Dual Cougar",
+    "btc_address": "bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0",
+    "stx_address": "SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M",
+    "bns": "sable-arc.btc",
+    "agent_id": 12
+  },
+  "amount_sats": 400000,
+  "memo": "eic-payout 2026-04-24",
+  "brief": {
+    "compiled_at": "2026-04-25T05:02:26.547Z",
+    "inscription_id": "ae2e32ae57a56fb055beda3a09a9923c4fda1dbd962dd9683bdc0339e565dbdfi0",
+    "commit_txid": "7096b53e276cfe0dd04ec6f9eae9a03e1e563ae9bee456bd3b66f59db2f3c978",
+    "signal_count": 11,
+    "beats_with_signals": ["bitcoin-macro", "quantum"]
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "task_id": 6707,
+      "queued_at": "2026-04-25T09:01:02Z",
+      "started_at": "2026-04-25T09:03:51Z",
+      "completed_at": "2026-04-25T09:03:53Z",
+      "nonce": 1964,
+      "status": "failed",
+      "txid": null,
+      "error": "sBTC transfer failed",
+      "error_classification": "broadcast_pre_send_rejection",
+      "error_detail": "Nonce 1964 was 31 ahead of chain head (last_executed_tx_nonce=1923 at attempt time). Local nonce-manager had drifted from chain reality due to agent-welcome's bypass of the manager (see audit.md root-cause section). sbtc-send-runner returned generic failure within 1.5s — likely never reached mempool.",
+      "spot_check_task_id": 6629
+    }
+  ],
+  "current_status": "failed",
+  "retry_planned": true,
+  "retry_phase": "F",
+  "retry_plan": "Re-run `arc skills run --name eic-payout -- execute --date 2026-04-24` after Phase C (gap-fill 1924-1932) and Phase E (clean local in-flight state). Idempotency: upsertPayout uses ON CONFLICT(date) DO UPDATE; cli short-circuit at line 267-269 fires only on status='sent' — current status='failed' falls through cleanly. Expected new nonce 1934+ (post-Day-2-confirmation).",
+  "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md"
+}
