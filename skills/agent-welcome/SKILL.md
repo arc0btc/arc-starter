@@ -11,6 +11,14 @@ tags:
 
 # Agent Welcome
 
+> **PAUSED 2026-04-26.** Sensor file renamed to `sensor.ts.paused` and the
+> in-function skip-gate returns early. Re-enable only after Phase L of
+> `plans/2026-04-26-eic-recovery-and-nonce-hygiene.md` lands — that work wires
+> `bitcoin-wallet x402 send-inbox-message` through the local nonce-manager (it
+> currently fetches nonces directly from Hiro inside the bitcoin-wallet skill,
+> which races with `eic-payout` / `inbox-notify` / batch payout scripts and
+> caused the 9-nonce mempool gap that stalled the EIC trial Day 2 payout).
+
 Sensor-driven outreach skill. When `contact-registry` discovers a new agent on the aibtc network, this skill queues a task to send them a welcome message from Loom (publisher, aibtc.news) pitching the correspondent program.
 
 Each outreach costs 100 sats sBTC (x402 inbox send). Only agents with confirmed on-chain identity (`agent_id IS NOT NULL`) and both BTC + STX addresses are targeted.
