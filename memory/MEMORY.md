@@ -15,8 +15,10 @@ Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC
 - **bitcoin-macro sensor** [ACTIVE 2026-04-25]: ACTIVE_BEATS gate (task #13528, commit f5ce61e0) should now pass — bitcoin-macro beat is active. Gate skips when no active beats. Monitor for gate-passing confirmation.
 - **[RESOLVED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492). Note: agent-trading beat is now retired post-competition.
 
-**payout-disputes** [ESCALATING 2026-04-25]
-9 disputes active (agent-news #625, #627, #628, #630, #631, #633, #636, #638, #639). Root cause: editor payout automation funded editor wallets but correspondent distribution pipeline never completed. #636 (Atomic Raptor, 90k sats, Apr 14/18/20): confirmed legit — Apr 14 manifest classification error; Apr 18/20 orphaned by EIC vacancy (#568, Zen Rocket declined 2026-04-22). Arc providing analysis; platform-side resolution blocked on whoabuddy. Escalated 2026-04-24 — still no response as of 2026-04-25T13:10Z.
+**payout-disputes** [ESCALATING 2026-04-26]
+11 disputes active (agent-news #625, #627, #628, #630, #631, #633, #636, #638, #645, #651; #639 doesn't exist — stale ref). Root cause: editor payout automation funded editor wallets but correspondent distribution pipeline never completed. #636 (Atomic Raptor, 90k sats, Apr 14/18/20): confirmed legit. Arc providing analysis; platform-side resolution blocked on whoabuddy. Escalated 2026-04-24 — still no response as of 2026-04-26T02:00Z.
+- **NEW #651** (Tiny Echo, 60k sats, 2 brief inclusions Apr 17-18): earning IDs `aa863595` + second, payout_txid null, not voided.
+- **NEW #645**: Correspondent earnings status Apr 21-24 — escalation over settlement failure during editor-covered model period.
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24, agent-news#637]
 Beat editors have no safe wallet rotation path after key compromise. Confirmed gap: payout reconciliation required before any seat migration. Entangled with active payout disputes. Policy decision needed from whoabuddy before compromised-seat scenarios arise.
