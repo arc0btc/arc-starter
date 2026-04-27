@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-26T19:53:00.000Z*
-*Sensor count: 72 | Skill count: 113*
+*Generated: 2026-04-27T18:55:00.000Z*
+*Sensor count: 74 | Skill count: 115*
 
 ```mermaid
 stateDiagram-v2
@@ -76,7 +76,7 @@ stateDiagram-v2
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
-            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION v3 (7bd2c117): 3-layer check (sensor + stx-send-runner.ts)\nLayer 1: STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]{39}$/ — fast SP-mainnet rejection\n  Replaces c32check + probeHiroStxAddress() (both confirmed broken)\n  probeHiroStxAddress() false-positive: GET /v2/accounts/{addr} returns 200\n  for broadcast-invalid addresses — wrong Hiro endpoint for validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES hardcoded deny-list (tasks #11448/#11449)\nLayer 3: loadAndUpdateDenyList() — dynamic deny-list from failed welcome tasks\n  Scans failed tasks for Hiro 400 errors → adds to aibtc-welcome-hiro-rejected\n  Self-healing: bad addresses auto-blocked after first failure, no manual updates\nGuard ALSO at stx-send-runner.ts call site (7bd2c117): fails fast pre-makeSTXTokenTransfer\n  Ensures x402 credits never burned on Hiro-rejected addresses (belt + suspenders)\nHIRO 400 FIX v4 (2ab3431c): execution-time deny-list check in bitcoin-wallet cli.ts\n  cmdStxSend reads db/hook-state/aibtc-welcome-hiro-rejected.json before runStxSend\n  150+ known-bad addresses fail fast — no Hiro API call burned\n  Self-healing: deny-list auto-populated by loadAndUpdateDenyList() from prior failures\n  Fail-open if state file unreadable — never blocks legitimate sends\n  3-layer architecture: sensor regex (L1) + stx-send-runner.ts regex (L2) + cli deny-list (L3)\nSKILL NAME FIX (2ab3431c): 13× wallet→bitcoin-wallet in SKILL.md + sensor.ts task description\n  stx-send and x402 commands in welcome task now reference correct skill\nEXECUTION ORDER: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)\nBROADCAST-INVALID EXTENDED (0116fcf2): deny-list dynamic query extended\nNow matches 'broadcast-invalid' AND 'FST_ERR_VALIDATION' error strings\nBoth broadcast-invalid and format-invalid classes are now self-healing\n3-layer validation fully covers all known failure classes\nREGEX-INVALID DENY-LIST (68d283bc): addresses matching specific regex-invalid patterns\nNow also added to dynamic deny-list — third error class auto-blocked\nRE-ENABLED (0f72a466): sensor disabled 2026-03-21 (71 pending flood)\nRe-enabled 2026-04-10 — 20 days of safeguards now mature:\nBATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup per-agent\nRelay CB + self-healing + STX pre-validation all in place\nNew agents now detected again after 20-day pause\nHIRO 400 FIX v5 (e0bc901b): PATTERN DRIFT FIX\n  Root cause: loadAndUpdateDenyList() scanned for 'Hiro 400'/'FST_ERR_VALIDATION'\n  Current failure text was 'simulation:400' — zero auto-captures since text changed\n  Added patterns: 'simulation:400', 'simulation 400', 'STX send failed'\n  12 failing addresses manually added to deny-list (359→371)\n  Expect failures to drop to ~0/day as all current modes now matched\n[RESOLVED v5] Hiro 400 pattern drift — deny-list now matches all current failure text\nSCRIPT DISPATCH (b8edb44f): sensor now emits model="script" tasks\nNew cli.ts: deterministic sequence STX-send→x402-inbox→contacts-log\nEach step checks exit code, stops on failure\nRemoved ~170 lines of LLM orchestration\n6th skill converted to script dispatch
+            note right of aibtc_welcome: FAIL() STDERR FIX (d62274d4): fail() was writing error JSON to stdout\ndispatchScript uses stderrTail as result_summary when stderr non-empty\nProgress message (stderr) was captured; actual "STX send failed" error (stdout) silently discarded\nloadAndUpdateDenyList() never saw simulation:400 pattern → 5-day Savage Moose/Steel Yeti loop\nFix: write fail() to stderr so error detail appears in result_summary → deny-list auto-populated\nBoth addresses manually added to aibtc-welcome-hiro-rejected.json immediately\n[RESOLVED 2026-04-27] 5-day recurring deny-list failure — self-healing now works correctly\nisRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION v3 (7bd2c117): 3-layer check (sensor + stx-send-runner.ts)\nLayer 1: STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]{39}$/ — fast SP-mainnet rejection\n  Replaces c32check + probeHiroStxAddress() (both confirmed broken)\n  probeHiroStxAddress() false-positive: GET /v2/accounts/{addr} returns 200\n  for broadcast-invalid addresses — wrong Hiro endpoint for validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES hardcoded deny-list (tasks #11448/#11449)\nLayer 3: loadAndUpdateDenyList() — dynamic deny-list from failed welcome tasks\n  Scans failed tasks for Hiro 400 errors → adds to aibtc-welcome-hiro-rejected\n  Self-healing: bad addresses auto-blocked after first failure, no manual updates\nGuard ALSO at stx-send-runner.ts call site (7bd2c117): fails fast pre-makeSTXTokenTransfer\n  Ensures x402 credits never burned on Hiro-rejected addresses (belt + suspenders)\nHIRO 400 FIX v4 (2ab3431c): execution-time deny-list check in bitcoin-wallet cli.ts\n  cmdStxSend reads db/hook-state/aibtc-welcome-hiro-rejected.json before runStxSend\n  150+ known-bad addresses fail fast — no Hiro API call burned\n  Self-healing: deny-list auto-populated by loadAndUpdateDenyList() from prior failures\n  Fail-open if state file unreadable — never blocks legitimate sends\n  3-layer architecture: sensor regex (L1) + stx-send-runner.ts regex (L2) + cli deny-list (L3)\nSKILL NAME FIX (2ab3431c): 13× wallet→bitcoin-wallet in SKILL.md + sensor.ts task description\n  stx-send and x402 commands in welcome task now reference correct skill\nEXECUTION ORDER: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)\nBROADCAST-INVALID EXTENDED (0116fcf2): deny-list dynamic query extended\nNow matches 'broadcast-invalid' AND 'FST_ERR_VALIDATION' error strings\nBoth broadcast-invalid and format-invalid classes are now self-healing\n3-layer validation fully covers all known failure classes\nREGEX-INVALID DENY-LIST (68d283bc): addresses matching specific regex-invalid patterns\nNow also added to dynamic deny-list — third error class auto-blocked\nRE-ENABLED (0f72a466): sensor disabled 2026-03-21 (71 pending flood)\nRe-enabled 2026-04-10 — 20 days of safeguards now mature:\nBATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup per-agent\nRelay CB + self-healing + STX pre-validation all in place\nNew agents now detected again after 20-day pause\nHIRO 400 FIX v5 (e0bc901b): PATTERN DRIFT FIX\n  Root cause: loadAndUpdateDenyList() scanned for 'Hiro 400'/'FST_ERR_VALIDATION'\n  Current failure text was 'simulation:400' — zero auto-captures since text changed\n  Added patterns: 'simulation:400', 'simulation 400', 'STX send failed'\n  12 failing addresses manually added to deny-list (359→371)\n  Expect failures to drop to ~0/day as all current modes now matched\n[RESOLVED v5] Hiro 400 pattern drift — deny-list now matches all current failure text\nSCRIPT DISPATCH (b8edb44f): sensor now emits model="script" tasks\nNew cli.ts: deterministic sequence STX-send→x402-inbox→contacts-log\nEach step checks exit code, stops on failure\nRemoved ~170 lines of LLM orchestration\n6th skill converted to script dispatch
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -308,7 +308,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-16T18:53Z)
+## Sensor Count by Category (2026-04-27T18:55Z)
 
 | Category | Count |
 |----------|-------|
@@ -321,11 +321,11 @@ stateDiagram-v2
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **72** |
+| **Total** | **~74** |
 
-## Skill Count by Category (2026-04-23T07:45Z)
+## Skill Count by Category (2026-04-27T18:55Z)
 
-*Skills: 113 total (was 111 at last review — +2 from arc-weekly-presentation restore + queue-signals CLI addition)*
+*Skills: ~115 total (was 113 at last review — +2 added since last full catalog count)*
 
 New skills added (v0.40.0):
 - `contract-preflight` — dry-run Stacks contract calls via stxer simulation engine (Secret Mars, BFF winner)
@@ -334,6 +334,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (5e1cdf1 → d62274d) [2026-04-27T18:55Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(aibtc-welcome): write fail() errors to stderr for deny-list detection** (d62274d4) | `fail()` was writing error JSON to stdout, but `dispatchScript` uses `stderrTail` as `result_summary` when stderr is non-empty. The step 1 progress message (stderr) was being captured as `result_summary`; the actual "STX send failed" error (stdout) was silently discarded. `loadAndUpdateDenyList()` never matched the `simulation:400` pattern, causing Savage Moose and Steel Yeti to be re-queued for 5 consecutive days. Fix: `fail()` now writes to stderr so the error detail appears in `result_summary` and triggers deny-list auto-population on the next sensor run. Both addresses manually added to `aibtc-welcome-hiro-rejected.json` immediately. Self-healing deny-list architecture now works end-to-end for script-dispatch welcome tasks. |
 
 ## Key Architectural Changes (9195063 → 5e1cdf1) [2026-04-25T07:51Z]
 

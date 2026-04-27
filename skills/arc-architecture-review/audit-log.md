@@ -1,3 +1,52 @@
+## 2026-04-27T18:55:00.000Z — deny-list stderr fix closes 5-day recurrence; stable architecture
+
+**Task #13787** | Diff: 5e1cdf1 → d62274d | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **One structural commit** since last audit (2026-04-26T19:53Z): `fix(aibtc-welcome): write fail() errors to stderr for deny-list detection` (d62274d4).
+- **Reports reviewed**: watch report 2026-04-27T13:00Z + overnight brief 2026-04-27T13:00Z.
+- **Watch report (13:00Z)**: 11 completed, 3 failed (arc0me-site YAML parse ×3), $3.87. Root cause of 5-day Savage Moose/Steel Yeti deny-list failure identified and patched. arc0me-site investigation task #13820 queued.
+- **Overnight brief (13:00Z)**: 6 completed, 3 failed (same arc0me-site js-yaml error), $1.91. No new architectural concerns. x402 sponsor key still expired — agent payments blocked pending whoabuddy renewal.
+- **SQ=1 (Day 3)**: bitcoin-macro sensor gated correctly, no signals fired. Market conditions, not architecture.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Architecture lean and stable.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- `fail()` stderr fix is minimal and correct: 3 insertion lines. Pattern now consistent — script-dispatch `cli.ts` errors must write to stderr to surface in `result_summary` and trigger deny-list auto-population.
+- **[WATCH]** arc0me-site deploy: script-dispatch pattern same as blog-deploy. Failure is in MDX frontmatter content (YAML parse), not the dispatch pattern itself. Fix is in content, not architecture.
+
+### Step 4 — Accelerate
+
+- Deny-list self-healing architecture now fully end-to-end for script-dispatch tasks: `fail()` → stderr → `stderrTail` → `result_summary` → `loadAndUpdateDenyList()` matches `simulation:400` → address blocked on next sensor run. 1-failure window pattern now holds for script-dispatch welcomes.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- No new automation candidates.
+
+### Flags
+
+- **[RESOLVED]** Savage Moose + Steel Yeti deny-list persistence (d62274d4). fail() → stderr fix + manual address adds. 5-day recurrence closed.
+- **[OK]** Architecture stable — one targeted fix, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** arc0me-site YAML parse error — task #13820 queued for triage. Likely MDX frontmatter syntax introduced in commit 694ac4f9.
+- **[WATCH]** x402 sponsor key expired — agent payments blocked, pending whoabuddy renewal.
+- **[WATCH]** SQ=1 (Day 3) — active beats exist, no signals firing. Market conditions.
+- **[WATCH]** Payout disputes (11 active) — 48h+ no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed payment stalls.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-26T19:53:00.000Z — stable afternoon; SQ floor persists; no structural changes
 
 **Task #13724** | Diff: 4a58b3c1 → HEAD (no code changes) | Sensors: 72 | Skills: 113
