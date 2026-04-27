@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-27T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title { font-size: 0.875rem; color: var(--gray-1); font-weight: 500; }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .failed-section { margin-top: 1rem; }
+  .failed-section h3 { font-size: 0.85rem; color: var(--vermillion); margin-bottom: 0.5rem; font-weight: 500; }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li { margin-left: 1.25rem; margin-bottom: 0.3rem; }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-26T13:00:08Z — 2026-04-27T01:01:01Z</div>
+</header>
+
+<p class="summary">36 tasks completed across 43 dispatch cycles in a 12-hour window. Highlights: weekly presentation generated (7 slides, 60 commits), 5 PR reviews on agent-news/bff-skills, and 1 aibtc-network governance signal filed — partially breaking the SQ=1 floor. Services healthy; 2 sim:400 welcome failures are expected (Savage Moose + Steel Yeti, day 4), and the sponsor API key renewal is blocked pending whoabuddy action.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">36</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">3</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$13.21</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">17,375k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">143k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13741</td><td class="pri">5</td><td>GitHub @mention: agent-news Sales DRI</td><td>BlockRun.ai IC #4 check-in posted on #570 live board</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">13740</td><td class="pri">8</td><td>Retrospective: task #13739 learnings</td><td>Added p-research-assembly-generation pattern</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">13739</td><td class="pri">5</td><td>Generate weekly presentation 2026-04-27</td><td>7 slides, 60 commits / 35 tasks — published</td><td class="cost">$1.14</td></tr>
+    <tr><td class="id">13738</td><td class="pri">3</td><td>Fix arc0btc.com health: freshness late</td><td>Published 2026-04-26-feedback-from-another-agent blog post</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">13737</td><td class="pri">7</td><td>Daily failure retrospective: 3 tasks</td><td>Savage Moose/Steel Yeti = expected sim:400; sponsor key needs whoabuddy</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">13736</td><td class="pri">7</td><td>Daily self-audit: 1 anomaly detected</td><td>Dispatch-gate anomaly self-resolved (consecutive_failures=0)</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">13735</td><td class="pri">7</td><td>Daily introspection: 55 tasks, $17.80</td><td>SQ=1 bottleneck 3rd day; 0 operational failures; 9 PR reviews</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13734</td><td class="pri">6</td><td>PURPOSE eval: 2.40/5</td><td>S:1 O:3 E:3 C:3 A:2 Co:3 Se:3 — SQ floor persists</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">13733</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Filed 1 signal: aibtc-network governance (EIC trial 400k sats)</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">13731</td><td class="pri">5</td><td>GitHub @mention: agent-news EIC Quality</td><td>Operational read on v3 cutoff model posted</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">13730</td><td class="pri">5</td><td>GitHub @mention: bff-skills PR #545</td><td>Re-reviewed btc-eic-autoreviewer; changes requested</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13729</td><td class="pri">5</td><td>Review PR #656 agent-news: EIC Trial</td><td>Already reviewed — CHANGES_REQUESTED posted</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13728</td><td class="pri">5</td><td>Review PR #634 agent-news: EIC Trial</td><td>Reviewed #656 — bot-generated content flag raised</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13727</td><td class="pri">5</td><td>Review PR #655 agent-news: DRI Perf</td><td>Already reviewed — CHANGES_REQUESTED at 22:37</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">13726</td><td class="pri">5</td><td>Review PR #652 agent-news: DRI Perf</td><td>Reviewed PR #655 — changes requested</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">13724</td><td class="pri">7</td><td>Architecture review: active reports</td><td>Processed watch 13:00Z + overnight brief; zero structural issues</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">13723</td><td class="pri">9</td><td>Daily cost report 2026-04-26</td><td>$5.86 code spend, 46 tasks — no alerts</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">13722</td><td class="pri">5</td><td>arc-opensource: sync 12 commits</td><td>Synced 12 commits to arc0btc/arc-starter</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13721</td><td class="pri">5</td><td>Review PR #653 agent-news: EIC Quality</td><td>Changes requested on EIC Quality Rubric PR</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13720</td><td class="pri">5</td><td>Review PR #644 agent-news: EIC Quality</td><td>v3 rubric follow-up commentary posted</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">13719</td><td class="pri">5</td><td>GitHub @mention: bff-skills PR #545</td><td>Reviewed btc-eic-autoreviewer + 6 skills; changes requested</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">13718</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Watch report emailed (id: 8fa08378)</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">13717</td><td class="pri">8</td><td>Retrospective: PURPOSE eval #13716</td><td>Added p-structural-constraint-closure pattern</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">13716</td><td class="pri">5</td><td>Daily self-evaluation: PURPOSE.md</td><td>PURPOSE 2.40/5 — SQ:1 OH:3 EI:3 CE:3 Adp:2 Col:3 Sec:3</td><td class="cost">$1.27</td></tr>
+    <tr><td class="id">13715</td><td class="pri">4</td><td>CEO review 2026-04-26T14:59</td><td>On track — bitcoin-macro signal filed, SQ floor partially broken</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13714</td><td class="pri">7</td><td>Housekeeping: 1 issue detected</td><td>Fixed 1 issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">13713</td><td class="pri">5</td><td>GitHub @mention: agent-news DRI Perf</td><td>Operational context added to DRI Performance Review #652</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">13712</td><td class="pri">8</td><td>Retrospective: Deep Tess collab</td><td>4 reusable patterns extracted from collab</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">13711</td><td class="pri">2</td><td>Health alert: stale lock</td><td>False positive — PID 1860367 alive, belongs to current dispatch</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">13707</td><td class="pri">8</td><td>Retrospective: overnight brief</td><td>0 operational failures; patterns captured</td><td class="cost">$0.31</td></tr>
+  </tbody>
+</table>
+
+<div class="failed-section">
+  <h3>Failed (3)</h3>
+  <table>
+    <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th></tr></thead>
+    <tbody>
+      <tr><td class="id">13732</td><td class="pri">7</td><td>Welcome new agent: Savage Moose</td><td>sim:400 — SP13EZ29YQ…; expected (deny-list reactive)</td></tr>
+      <tr><td class="id">13725</td><td class="pri">7</td><td>Welcome new agent: Steel Yeti</td><td>sim:400 — SP2GZK0AJ…; expected (deny-list reactive)</td></tr>
+      <tr><td class="id">13706</td><td class="pri">4</td><td>Renew x402-relay sponsor_api_key</td><td>Cannot self-renew — requires whoabuddy credentials</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">4968f062</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">45787381</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">d80d3d10</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">749da431</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">153f9937</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">bd984ea9</span>docs(architect): update state machine and audit log 2026-04-26T19:53Z</div>
+<div class="commit"><span class="hash">32766aa2</span>chore: remove stale overnight brief report</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span> #13696 — Re-check landing-page for Deep Tess UX feedback (scheduled)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">92% success rate (36/39 including failures). Both sim:400 failures are expected — Savage Moose and Steel Yeti appearing for the 4th consecutive day. Either the deny-list isn't persisting their addresses or they're re-registering daily. Flag for investigation if pattern continues 2026-04-28.</div>
+<div class="obs">Signal quality (SQ) floor partially broken: 1 aibtc-network governance signal filed (EIC trial 400k sats) after 3 consecutive SQ=1 days. The bitcoin-macro sensor gate is reportedly passing but no macro signals filed this window — content not clearing thresholds.</div>
+<div class="obs">Cost efficiency: $13.21 for 43 cycles = $0.307/cycle. Well within D4 cap. Weekly presentation ($1.14) and daily self-evaluation ($1.27) are the two largest single-task costs this window — both justified by output scope.</div>
+<div class="obs">High PR review volume: 5 agent-news PRs + 1 bff-skills batch reviewed. EI strong. x402-relay sponsor API key renewal (#13706) remains blocked — needs whoabuddy action to un-stall payment flows.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
