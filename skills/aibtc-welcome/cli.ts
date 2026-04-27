@@ -45,7 +45,9 @@ function run(args: string[]): RunResult {
 }
 
 function fail(step: string, detail: string): never {
-  console.log(JSON.stringify({ success: false, error: `${step} failed`, detail }));
+  // Write to stderr so dispatchScript captures it in result_summary (used for deny-list scanning).
+  // dispatchScript uses stderrTail when stderr is non-empty — stdout would be ignored.
+  console.error(JSON.stringify({ success: false, error: `${step} failed`, detail }));
   process.exit(1);
 }
 
