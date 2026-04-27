@@ -1,0 +1,43 @@
+{
+  "date": "2026-04-26",
+  "trial_day": 3,
+  "editor": {
+    "name": "Dual Cougar",
+    "btc_address": "bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0",
+    "stx_address": "SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M",
+    "bns": "sable-arc.btc",
+    "agent_id": 12
+  },
+  "amount_sats": 400000,
+  "memo": "eic-payout 2026-04-26",
+  "brief": {
+    "compiled_at": "2026-04-27T05:03:22.603Z",
+    "inscription_id": "6595d16d415711adebd17415298fa56cb38100fc80250110395fdb2f579aef8bi0",
+    "signal_count": 30,
+    "beats_with_signals": ["aibtc-network", "bitcoin-macro", "quantum"]
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "task_id": 6805,
+      "queued_at": "2026-04-27T09:02:42Z",
+      "started_at": "2026-04-27T09:02:42Z",
+      "completed_at": "2026-04-27T09:03:15Z",
+      "nonce": 1940,
+      "status": "broadcast",
+      "txid": "8ff46eaf9f7cd808911500d224d016bdae2c1699ea819e0ddfd9323f71949792",
+      "tx_status_observed": "pending",
+      "block_height": null,
+      "blocked_by": "Six-nonce gap 1934-1939 that emerged DURING Phase C's gap-fill window. Local nonce-manager handed out 1937, 1938, 1939 to internal retries that failed pre-broadcast and were released with default kind='broadcast' (consumed) instead of 'rejected' (reusable) — see audit.md §root-cause for the failure-kind classification bug. Day 3 (1940) was the first acquire that successfully reached mempool. Stuck behind 1937-1939 phantoms until Phase C-bis.",
+      "spot_check_task_id": 6784,
+      "balance_check_followon_task_id": 6806
+    }
+  ],
+  "current_status": "confirmed",
+  "txid": "8ff46eaf9f7cd808911500d224d016bdae2c1699ea819e0ddfd9323f71949792",
+  "block_height": 7765275,
+  "confirmed_at": "2026-04-27T~14:30Z",
+  "confirmed_by_phase": "C-bis (gap-fill of nonces 1934-1939 broadcast 2026-04-27T~14:30Z; Day 3 confirmed in same block 7765275)",
+  "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md",
+  "note": "Day 3 brief + payout cycle ran end-to-end during the recovery window for Day 1+Day 2. Compile fired at 05:02Z, inscribe pipeline ran 07:02-08:56Z, payout fired at 09:02Z, broadcast at nonce 1940 — but stuck behind the new 1934-1939 phantom gap. Phase C-bis cleared the gap; Day 3 confirmed in the same block as the C-bis fills."
+}

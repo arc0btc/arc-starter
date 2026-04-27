@@ -21,7 +21,7 @@ const DRY_RUN = process.argv.includes("--dry-run");
 // Set target nonces before running. Works for both gap-fill (missing nonces)
 // and RBF (replacing stuck txs at lower fee). See memory/topics/incidents.md
 // for the 2026-03-27 recovery where this cleared nonces 39-43.
-const MISSING_NONCES: number[] = [];
+const MISSING_NONCES: number[] = [1934, 1935, 1936, 1937, 1938, 1939];
 
 // ---- Unlock wallet ----
 const walletId = process.env.WALLET_ID || await getCredential("bitcoin-wallet", "id");

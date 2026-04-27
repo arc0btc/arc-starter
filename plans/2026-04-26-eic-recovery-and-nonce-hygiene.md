@@ -2,7 +2,8 @@
 title: EIC payout recovery + nonce-handling hygiene audit
 status: executing
 created: 2026-04-26
-trial_window: 2026-04-24 → 2026-05-01 (EIC trial; this plan covers Day 1+2 recovery and the broader nonce/wallet self-knowledge work it surfaced)
+last_updated: 2026-04-27
+trial_window: 2026-04-24 → 2026-05-01 (EIC trial; this plan covers Day 1+2+3 recovery and the broader nonce/wallet self-knowledge work it surfaced)
 related_plans:
   - plans/2026-04-24-eic-trial-activation.md
 audit_folder: db/payouts/eic-2026-04-24/
@@ -19,6 +20,13 @@ EIC trial Day 1 (2026-04-24) and Day 2 (2026-04-25) payouts both failed to land:
 - **Briefs are inscribed on-chain** for both days; aibtc.news API has `inscription.inscriptionId` set but `inscribedAt` and `inscription.inscribedTxid` are null. This isn't a regression — it's been null since at least 2026-04-10. DC's "doesn't see briefs inscribed" is reading a field we've never populated.
 
 DC continues to operate (functional approval test passed 2026-04-24T23:51Z, ledger publishing per terms) — the editorial side is fine. What's broken is our outflow.
+
+### 1a. Update — 2026-04-27 (Phase C in flight)
+
+- **Phase C broadcast 2026-04-27T09:02Z** — 9 gap-fill txs at nonces 1924-1932, all confirmed. Day 2 EIC (1933) confirmed in same window. Hiro `last_executed_tx_nonce: 1923 → 1933`. ✅
+- **Day 3 (2026-04-26 brief) ran end-to-end during the gap window.** Compile 05:02Z, inscribed 07:02–08:56Z (`inscriptionId: 6595d16d…`), EIC payout broadcast 09:02Z at nonce **1940** (txid `0x8ff46eaf…`). `eic_payouts` row id=3, status=sent, 400k sats, 30 signals across 3 beats. **Stuck pending behind a NEW 6-nonce gap (1934-1939).**
+- **Origin of new gap:** local `db/nonce-state.json` had `inFlight: [1924-1932, 1934-1936]` (12 phantoms) coming into the recovery. When Day 3 fired, the manager skipped phantoms and handed out 1940 — but its internal counter also advanced through 1937, 1938, 1939 without those landing on chain (they're not in `inFlight` either, so they were "lost" — released or never tracked). Three new phantoms emerged from the act of acquiring one good nonce. **This is a second nonce-store bug to fix in Phase L** (nonces handed out by `acquireNonce` must always be tracked until explicitly released).
+- **Plan response:** add **Phase C-bis** — gap-fill 1934-1939 to release Day 3. Phase F now scopes to Day 1 only (Day 3 self-recovers via C-bis confirmation).
 
 ## 2. Root cause confirmed
 
@@ -81,25 +89,39 @@ The agent-welcome path is the dominant pressure source and **does not coordinate
 
 **Verification gate:** all four files present; checked into git.
 
-### Phase C — Gap-fill nonces 1924-1932 (CHAIN OPS — explicit user approval each step)
+### Phase C — Gap-fill nonces 1924-1932 (CHAIN OPS — explicit user approval each step) ✅ DONE 2026-04-27
 
 Reuses `scripts/nonce-gap-fill.ts`. Recipient is the funding source already configured in the script.
 
-- [ ] **C1.** Edit `scripts/nonce-gap-fill.ts` — set `MISSING_NONCES = [1924,1925,1926,1927,1928,1929,1930,1931,1932]`
-- [ ] **C2.** Dry-run: `bun scripts/nonce-gap-fill.ts --dry-run` — paste output to audit folder, confirm nonces line up with Hiro's `detected_missing_nonces`
-- [ ] **C3.** Read user approval before broadcast
-- [ ] **C4.** Real broadcast: `bun scripts/nonce-gap-fill.ts` — capture txids, append to audit folder
-- [ ] **C5.** Watch confirmations: each at fee 10000 uSTX should land within 1-3 Stacks blocks
-- [ ] **C6.** Verify: `last_executed_tx_nonce` advances to 1932, then 1933 (Day 2 EIC) confirms naturally
+- [x] **C1.** Edit `scripts/nonce-gap-fill.ts` — set `MISSING_NONCES = [1924,1925,1926,1927,1928,1929,1930,1931,1932]`
+- [x] **C2.** Dry-run confirmed exact match to Hiro `detected_missing_nonces`
+- [x] **C3.** User approval ("yes do both" — 2026-04-27 ~05:30Z)
+- [x] **C4.** Real broadcast 2026-04-27 09:02Z — 9/9 succeeded; txids logged in `recovery-2026-04-26.md`
+- [x] **C5.** Confirmations observed within ~minutes
+- [x] **C6.** Hiro `last_executed_tx_nonce: 1933` — Day 2 EIC + all 9 gap-fills confirmed
 
-**Verification gate:** Hiro reports `last_executed_tx_nonce >= 1933` AND Day 2 EIC txid moves from `pending` to `success` with non-null `block_height`.
+**Verification gate satisfied.** Day 2 EIC (nonce 1933) confirmed.
 
-### Phase D — Day 2 confirmation captured (no chain ops)
+### Phase C-bis — Gap-fill nonces 1934-1939 (CHAIN OPS — pending approval)
 
-- [ ] Update `db/payouts/eic-2026-04-24/2026-04-25.json` — status=confirmed, block_height, confirmed_at
-- [ ] Update `db/arc.sqlite` `eic_payouts` row for 2026-04-25 if any field needs reconciliation (currently status=sent, sent_at recorded — no SQL change expected)
+New gap that emerged during Phase C window (see §1a). Day 3 EIC (1940) is stuck behind it.
 
-**Verification gate:** audit JSON and DB row agree on status=confirmed/sent and block_height.
+- [x] Edit `scripts/nonce-gap-fill.ts` — set `MISSING_NONCES = [1934,1935,1936,1937,1938,1939]`
+- [x] Dry-run confirmed (6 txs, ~0.06 STX, sender + recipient correct)
+- [ ] **C-bis.3.** User approval before broadcast
+- [ ] **C-bis.4.** Real broadcast — capture txids in audit folder
+- [ ] **C-bis.5.** Confirmations observed; Day 3 (1940) clears
+- [ ] **C-bis.6.** Verify `last_executed_tx_nonce >= 1940`
+
+**Verification gate:** Hiro reports `last_executed_tx_nonce >= 1940` AND Day 3 EIC tx `0x8ff46eaf…` confirms with non-null `block_height`.
+
+### Phase D — Day 2 + Day 3 confirmation captured (no chain ops)
+
+- [ ] Update `db/payouts/eic-2026-04-24/2026-04-25.json` — Day 2: status=confirmed, block_height, confirmed_at
+- [ ] Add `db/payouts/eic-2026-04-24/2026-04-26.json` — Day 3 record (status=sent then confirmed post C-bis, txid `0x8ff46eaf…`, signals 30, beats [aibtc-network, bitcoin-macro, quantum])
+- [ ] Update `eic_payouts` rows for 2026-04-25 + 2026-04-26 if any reconciliation needed
+
+**Verification gate:** audit JSONs and DB rows agree on status + block_height for both days.
 
 ### Phase E — Clean local in-flight state (no chain ops)
 
@@ -113,15 +135,17 @@ Reuses `scripts/nonce-gap-fill.ts`. Recipient is the funding source already conf
 
 ### Phase F — Re-run Day 1 EIC payout (CHAIN OPS — explicit user approval)
 
+Day 2 + Day 3 already broadcast and (post C-bis) confirmed; only **Day 1** needs a manual re-run.
+
 - [ ] Optional patch: clear `error` column on `markSent` in `skills/eic-payout/cli.ts` (cosmetic, decide with user)
 - [ ] **F1.** Read user approval before broadcast
 - [ ] **F2.** Run: `arc skills run --name eic-payout -- execute --date 2026-04-24`
    - Idempotency: `upsertPayout` uses `ON CONFLICT(date) DO UPDATE`; short-circuit at line 267-269 fires only on `status='sent'`. Current row is `status='failed'` → falls through cleanly.
 - [ ] **F3.** Capture new txid → append to audit `2026-04-24.json` and `recovery-2026-04-26.md`
-- [ ] **F4.** Verify balance-check follow-on task auto-queues (sensor wiring per existing trial plan)
-- [ ] **F5.** Watch confirmation — should land within 1-2 blocks behind Day 2 (which has now confirmed at 1933)
+- [ ] **F4.** Verify balance-check follow-on task auto-queues
+- [ ] **F5.** Watch confirmation — should land at next available nonce (1941 or higher, behind Day 3 at 1940)
 
-**Verification gate:** Hiro reports the new Day 1 txid as `success`, `eic_payouts` row shows `status=sent` with non-null txid and sent_at, audit folder records both Day 1 and Day 2 final state.
+**Verification gate:** Hiro reports the new Day 1 txid as `success`, `eic_payouts` row shows `status=sent` with non-null txid and sent_at, audit folder records all three days' final state.
 
 ### Phase G — Communicate to DC on #634 (no chain ops)
 
@@ -197,17 +221,37 @@ Build the muscles so we never stumble through this manually again.
 
 This is the bug the user explicitly flagged as "don't lose this." Phase L is the code fix that makes Phase A's pause unnecessary.
 
-- [ ] **L1.** Wire `bitcoin-wallet x402 send-inbox-message` (and any other bitcoin-wallet subcommand that broadcasts a publisher-wallet Stacks tx) through the nonce-manager. If the skill doesn't already accept `--nonce` correctly, fix the wiring.
-- [ ] **L2.** Update `scripts/send-agent-welcome.ts` to acquire/release nonces around its send call.
-- [ ] **L3.** Refine `inbox-notify/cli.ts:478` and any peer catch paths — distinguish:
-  - relay rejected pre-broadcast (`SENDER_NONCE_DUPLICATE`, `SENDER_NONCE_STALE`, signing error, network unreachable) → release as `"rejected"`
-  - relay accepted, tx in mempool but later observed dropped → release as `"broadcast"` AND queue an automatic gap-fill
-  - true unknown → keep current safe default (`"broadcast"`) but log a warning so we can audit
-- [ ] **L4.** Add an in-flight garbage collector to `nonce-store.ts`: on `sync`, prune `inFlight` entries that are either ≤ `last_executed_tx_nonce` (confirmed) or absent from mempool past a TTL (dropped → schedule gap-fill).
-- [ ] **L5.** Add unit tests covering: rejected vs broadcast release, GC pruning of confirmed/dropped entries, concurrent acquire from two skill paths.
-- [ ] **L6.** Re-enable `agent-welcome` sensor (Phase A reversal) once L1-L4 land and a smoke run confirms it advances chain nonces cleanly.
+**Architectural decisions confirmed 2026-04-27:**
+- **Authoritative status comes from the x402 sponsor relay receipt, not Hiro mempool reads.** Per `aibtcdev/x402-sponsor-relay` README: `POST /relay` returns `receiptId` + `txid` on broadcast; `GET /verify/:receiptId` returns `status: "confirmed" | "valid" | "error"` with settlement details. This is the polling endpoint we should drive L4 from. Mempool reads from a single Hiro node are unreliable when the node hasn't synced yet — confirmation typically lands in 5-15s but can take a few minutes.
+- **Broadcast = in mempool.** Once the relay returns a `txid`, the tx is in the network's mempool. Treat that nonce as consumed regardless of subsequent confirmation outcome. The remaining question is success vs revert, not consumed vs available.
+- **The relay handles nonce-gap "held" state explicitly.** `POST /relay` returns HTTP 202 with `status: "held"` + `queue.missingNonces` when there's a gap. We can drive automatic gap-fill from this response — the relay literally tells us which nonces to fill.
+- **`bitcoin-wallet x402 send-inbox-message` (upstream `aibtcdev/skills/x402/x402.ts:472-476`) does not accept a `--nonce` flag** — it fetches Hiro's nonce internally inside the skill. This is the bypass behind Mode 1 root cause. Fix requires upstream PR.
+- **Nonce-manager itself is local-only.** Upstream `aibtcdev/skills` does not have a nonce-coordinator skill. Our local `skills/nonce-manager` is the only cross-skill coordinator for this deployment. Long-term, propose it for upstream.
 
-**Verification gate:** with agent-welcome re-enabled, run a 24h soak. Hiro reports zero new `detected_missing_nonces`. Local `inFlight` stays bounded (entries cleared within one block of confirmation).
+#### Sub-tasks
+
+- [ ] **L1.** PR to `aibtcdev/skills`: add `--nonce` flag to `x402 send-inbox-message` (and any other broadcast subcommand that signs a publisher-wallet Stacks tx). Also accept `--receipt-id-out <path>` so callers can capture the relay receipt for downstream polling. Reference `aibtcdev/x402-sponsor-relay` for receipt shape; reference `aibtcdev/tx-schemas` for tx-shape definitions.
+- [ ] **L2.** Once L1 is mergeable: update `scripts/send-agent-welcome.ts` to (a) `acquireNonce` from the manager, (b) pass `--nonce`, (c) on relay failure release as `"rejected"`, (d) capture and persist the `receiptId` for the polling loop. Until L1 merges, the equivalent stop-gap is to switch `send-agent-welcome.ts` to use `inbox-notify send-batch` (which already goes through the manager).
+- [ ] **L3.** Fix `inbox-notify/cli.ts` failure-classification per the relay-receipt model:
+  - **Line 229 (`SENDER_NONCE_DUPLICATE` branch):** the relay's "duplicate" can be its own internal-state collision rather than a real chain conflict. Change default from `"broadcast"` to `"rejected"` — let the chain or the next acquire reject it if truly duplicate. Add explicit verification via `GET /verify/:receiptId` before consuming the nonce.
+  - **Line 478 (`executeBatch` failure branch):** classify by relay error code:
+    - `BROADCAST_FAILED` (502) → tx rejected by Stacks node → `"rejected"`
+    - `NOT_SPONSORED`, `INVALID_TRANSACTION`, `MISSING_API_KEY`, `EXPIRED_API_KEY`, `SPENDING_CAP_EXCEEDED` → never broadcast → `"rejected"`
+    - HTTP 202 `status: "held"` → never broadcast → `"rejected"` AND surface `queue.missingNonces` to caller for automatic gap-fill
+    - Network/timeout with no response body → unknown → log warning + keep safe `"broadcast"` default
+    - Any 2xx response with a `txid` → `"broadcast"` (success or pending; nonce consumed regardless)
+- [ ] **L4.** Replace the planned mempool-read GC with a **receipt-driven reconciliation** in `nonce-store.ts`:
+  - Persist `{nonce, receiptId, txid, broadcastAt}` for every released-as-broadcast entry
+  - On `sync` (or a new `reconcile` subcommand), poll `GET /verify/:receiptId` for each entry
+  - `confirmed`/`valid` with `txid` → drop from inFlight (already correct), confirm settlement details captured
+  - `error` with broadcast-rejection codes → drop from inFlight, **roll back nextNonce** if no later acquire ⇒ the nonce was a phantom, not really consumed
+  - Still pending after TTL (configurable; default 5 min for x402-sponsored, 15 min for direct-broadcast) → log warning, keep tracked, do NOT auto-rollback (could be index lag)
+  - Do NOT trust single-node mempool reads as evidence of "dropped" — only the relay receipt or a confirmed Hiro tx-detail query is authoritative
+- [ ] **L4b.** Audit `acquireNonce` to confirm every handed-out nonce is atomically added to `inFlight` before returning. Phase C-bis revealed nonces 1937-1939 went missing — manager counter advanced but those nonces never made it into `inFlight`. Add a test that simulates many `acquireNonce` calls without subsequent `releaseNonce` and asserts every returned nonce appears in `inFlight`. (Likely cause: the failing inbox-notify catch path released without re-acquiring, but the per-batch loop kept incrementing internally; verify via code trace + repro.)
+- [ ] **L5.** Add unit tests for nonce-store covering: rejected vs broadcast release; receipt-driven reconciliation pruning confirmed entries and rolling back phantoms; concurrent acquire from two skill paths.
+- [ ] **L6.** Re-enable `agent-welcome` sensor (Phase A reversal) once L1+L2+L3+L4 land AND a 24h smoke confirms it advances chain nonces cleanly without producing phantoms.
+
+**Verification gate:** with agent-welcome re-enabled, run a 24h soak. Hiro reports zero new `detected_missing_nonces` originating from our wallet. Local `inFlight` stays bounded (entries cleared within ~30s of relay-confirmed status, never linger past TTL). Receipt poll cycle completes within 5 min for any sponsored tx.
 
 ### Phase M — Ship + close-out
 
@@ -233,3 +277,5 @@ This is the bug the user explicitly flagged as "don't lose this." Phase L is the
 ## Revisions
 
 - 2026-04-26 — initial plan written. Phase A-G are immediate recovery; H is platform-side; I-J are audits; K-M are durable fixes and DX so this stops being a recurring class of incident.
+- 2026-04-27 — Phase C executed (9 gap-fills broadcast, all confirmed; Day 2 EIC 1933 confirmed). Discovered new 6-nonce gap (1934-1939) created by Day 3 cycle running during the recovery window — Day 3 EIC payout (nonce 1940, txid `0x8ff46eaf…`) is stuck behind it. Added Phase C-bis (gap-fill 1934-1939). Added L4b sub-task to fix `acquireNonce`'s phantom-nonce-emission bug. Rescoped Phase F to Day 1 only (Day 2 + Day 3 already broadcast).
+- 2026-04-27 (later) — Phases C-bis, D, E, F all executed. All three EIC trial days confirmed on chain (Day 1 bh=7765320 nonce 1941, Day 2 bh=7765150 nonce 1933, Day 3 bh=7765275 nonce 1940). Phase G comment posted (#634 comment 4328491106). Phase H issue filed (`aibtcdev/agent-news#659`). Phase L re-architected around the actual `aibtcdev/x402-sponsor-relay` receipt model (`POST /relay` → `receiptId`; `GET /verify/:receiptId` → status). L4 switched from mempool-poll-based GC to receipt-poll-based reconciliation per user guidance ("careful with bad mempool data from nodes that haven't synced yet, broadcast = in mempool, relay handles this with a receipt we can poll"). Confirmed upstream `aibtcdev/skills/x402/x402.ts:472-476` is the bypass — `getAccountInfo(account.address).nonce` fetched inline; no `--nonce` flag exists yet. L1 scoped as upstream PR. L2 has a stop-gap option (route `send-agent-welcome` through `inbox-notify send-batch`) that can land before L1 merges.

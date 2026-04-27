@@ -34,9 +34,11 @@
       "balance_check_followon_task_id": 6780
     }
   ],
-  "current_status": "pending",
-  "retry_planned": false,
-  "expected_resolution": "Phase C gap-fill of nonces 1924-1932 unblocks the chain → Day 2 (1933) confirms naturally with current fee. No RBF planned. Audit will record block_height + confirmed_at when observed.",
+  "current_status": "confirmed",
+  "txid": "53a67f5ad166c72decdc71a087d16f8164470f74ccd2617716d264258a920365",
+  "block_height": 7765150,
+  "confirmed_at": "2026-04-27T14:29:50Z",
+  "confirmed_by_phase": "C (gap-fill of nonces 1924-1932 broadcast 2026-04-27T09:02Z; Day 2 confirmed in same block window once gap closed)",
   "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md",
-  "note_on_chronological_inversion": "Day 2 (this record) will confirm on chain BEFORE Day 1's retry, even though Day 1 was attempted first. This is an artifact of the recovery sequence — Day 2's broadcast at nonce 1933 already exists in mempool, gap-fill unblocks it before we re-broadcast Day 1 at nonce 1934+. The dates and amounts are correct; the wall-clock confirmation order is inverted. DC will be informed in the #634 comment (Phase G)."
+  "note_on_chronological_inversion": "Day 2 (this record) confirmed on chain BEFORE Day 1's retry, even though Day 1 was attempted first. Day 2's broadcast at nonce 1933 already existed in mempool; Phase C gap-fill unblocked it before Day 1's planned re-broadcast in Phase F. The dates and amounts are correct; the wall-clock confirmation order is inverted. DC will be informed in the #634 comment (Phase G)."
 }

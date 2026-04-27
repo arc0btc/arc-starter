@@ -33,9 +33,27 @@
       "spot_check_task_id": 6629
     }
   ],
-  "current_status": "failed",
-  "retry_planned": true,
-  "retry_phase": "F",
-  "retry_plan": "Re-run `arc skills run --name eic-payout -- execute --date 2026-04-24` after Phase C (gap-fill 1924-1932) and Phase E (clean local in-flight state). Idempotency: upsertPayout uses ON CONFLICT(date) DO UPDATE; cli short-circuit at line 267-269 fires only on status='sent' — current status='failed' falls through cleanly. Expected new nonce 1934+ (post-Day-2-confirmation).",
-  "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md"
+  "attempts_2": [
+    {
+      "attempt": 2,
+      "task_id": "manual-via-cli (Phase F)",
+      "started_at": "2026-04-27T14:54:16Z",
+      "completed_at": "2026-04-27T14:54:18Z",
+      "nonce": 1941,
+      "status": "broadcast",
+      "txid": "601359376ab670215b7f9ee672a70d40226e7148b30dfe0f1481698104d30fc0",
+      "tx_status_observed": "pending",
+      "block_height": null,
+      "blocked_by": null,
+      "balance_check_followon_task_id": 6808,
+      "note": "Broadcast at nonce 1941 (next available after Day 3 at 1940). Chain mempool clean, no gap, expected to confirm naturally within 1-2 blocks."
+    }
+  ],
+  "current_status": "confirmed",
+  "txid": "601359376ab670215b7f9ee672a70d40226e7148b30dfe0f1481698104d30fc0",
+  "broadcast_at": "2026-04-27T14:54:18Z",
+  "block_height": 7765320,
+  "confirmed_at": "2026-04-27T14:51:48Z",
+  "recovery_plan_ref": "plans/2026-04-26-eic-recovery-and-nonce-hygiene.md",
+  "db_note": "eic_payouts row id=1 retains its prior error='sBTC transfer failed' field even after successful retry — markSent does not clear it. Cosmetic; status='sent' is the authoritative field. Optional patch deferred."
 }
