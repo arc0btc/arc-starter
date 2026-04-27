@@ -411,6 +411,9 @@ export default async function workflowsSensor(): Promise<string> {
           if (action.contextUpdate) {
             updateWorkflowContext(workflow.id, action.contextUpdate);
           }
+          if (action.autoAdvanceState) {
+            updateWorkflowState(workflow.id, action.autoAdvanceState, workflow.context);
+          }
           totalActions++;
         }
       } else if (action.type === "transition" && action.nextState) {

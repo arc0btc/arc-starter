@@ -17,6 +17,8 @@ export interface WorkflowAction {
   type: "create-task" | "noop" | "transition";
   subject?: string;
   nextState?: string;
+  /** For create-task: auto-advance the workflow to this state after inserting the task. Prevents stuck-in-state loops when the executing task forgets to transition. */
+  autoAdvanceState?: string;
   priority?: number;
   skills?: string[];
   description?: string;
@@ -1241,14 +1243,15 @@ export const SiteHealthAlertMachine: StateMachine<{
           subject: `Fix arc0btc.com health issue(s)${summary}`,
           priority: 3,
           skills: ["arc0btc-site-health", "blog-deploy"],
+          autoAdvanceState: "fixing",
           description: `Site health alert: ${issues} issue(s) detected${summary}.
 
 Steps:
 1. Run arc0btc-site-health CLI to identify the specific issue(s)
 2. Fix using blog-deploy or blog-publishing skills as appropriate
 3. Re-run health check to verify all issues resolved
-4. Transition this workflow: 'fixing' → 'retrospective_pending'
-   - Set fixSummary in context before transitioning`,
+4. Transition this workflow to 'retrospective_pending' when done:
+   arc skills run --name arc-workflows -- transition WORKFLOW_ID retrospective_pending --context '{"fixSummary":"<brief description>"}'`,
         };
       },
     },
