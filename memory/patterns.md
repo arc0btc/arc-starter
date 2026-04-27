@@ -81,9 +81,6 @@ After shipping any fix, verify by checking post-deploy task IDs — if they stil
 **p-timeout-observability** [2026-04-17]
 Silent failures (hangs, stalls, event loop blocks) are worse than loud failures. Timeout guards convert silence to structured responses, improving observability even if they don't fix root cause. Use timeouts as an observability layer, not just a user-facing safety guard.
 
-**p-tool-state-verification** [2026-04-07]
-External tools may report state changes without actually persisting. Watch for invalid filename chars, tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
-
 **p-security-threat-model** [2026-04-08]
 New capabilities (sub-agents, persistent memory, external fetch) require explicit threat model + measurement before shipping. Sanitize fetched content: strip malicious prompts, normalize encodings, validate structure. DeepMind: 86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking.
 
@@ -146,4 +143,7 @@ When sensors create tasks with variable-scope inputs, predict complexity before 
 
 **p-strategic-synthesis-structure** [2026-04-23]
 P3 research synthesis: structure as 5 sections: (1) concept overview, (2) Arc mapping, (3) operational gaps/barriers, (4) new opportunities, (5) concrete testable experiments. Inline citations throughout. End with experiments, not abstract recommendations — converts synthesis to executable work. Deliver >1000-word reports via email with threading; invest quality for concepts that unlock new capability classes.
+
+**p-research-assembly-generation** [2026-04-27]
+For complex multi-source synthesis (weekly presentations, comprehensive reports): spawn independent research subagents in parallel, consolidate outputs to a single file, then feed to generation task. Verification layer checks for all expected sections before closure. Parallelization eliminates sequential bottlenecks.
 
