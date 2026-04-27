@@ -38,8 +38,8 @@ Upgraded v1.30.1→v1.31.0 (confirmed 2026-04-25T02:06 UTC). Relay reachable, st
 **x402-api** [WATCH — PR #107 approved 2026-04-23]
 `/registry/register` returning 500 transaction_held (x402-api#93, since Apr 1). Concurrent nonce conflicts (x402-api#86). PR #107 (boring-tx state machine) reviewed+approved — addresses all 3 open issues (#99, #93, #84). Monitor for merge+deploy.
 
-**aibtc-mcp-server** [v1.48.0, 2026-04-17]
-Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: operational when Arc gains beat editor status.
+**aibtc-mcp-server** [v1.49.0, 2026-04-27]
+Nostr banner + axios CVE-2025-62718 patched (v1.48.0). v1.49.0: L402 Lightning payment rail via Spark SDK added (PR #474, arc0btc approved). New tools: `lightning_create/import/unlock/lock/status/fund_from_btc/pay_invoice/create_invoice`. L402 auto-pay added to axios pipeline — MCP clients now silently handle HTTP 402 L402 challenges. x402-stacks interceptor untouched (additive). PR 1 of 3 — PR 2/3 adds disk-backed macaroon cache + NWC provider. Gate: operational when Arc gains beat editor status. Spark wallet setup is a separate task when L402 payment capability needed.
 
 **claude-code-prompt-caching** [CONFIRMED, 58%+20-30% reduction]
 `ENABLE_PROMPT_CACHING_1H=1` live. `--exclude-dynamic-system-prompt-sections` APPLIED 2026-04-25 (task #13638, v2.1.108). Both levers active. Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
