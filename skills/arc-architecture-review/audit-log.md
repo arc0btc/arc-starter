@@ -1,3 +1,56 @@
+## 2026-04-27T19:55:00.000Z — two defensive fixes; workflow autoAdvanceState + blog-deploy SHA guard
+
+**Task #13831** | Diff: d62274d → e760b47 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **Two structural commits** since last audit (2026-04-27T18:55Z).
+- **fix(arc-workflows): autoAdvanceState** (e760b47e): `WorkflowAction` gains `autoAdvanceState` field. Sensor transitions the workflow immediately after inserting a create-task action. Prevents stuck-in-state loop where the spawned task forgets to call `transition()` and the dedup gate blocks all subsequent fix tasks. Applied to `SiteHealthAlertMachine` (`alert → fixing`).
+- **fix(blog-deploy): SHA guard** (7888632f): `last_failed_sha` written to hook state on build failure. Sensor skips re-queue when `currentSha === last_failed_sha`. Fixes the 9-attempt retry storm for commit 694ac4f9 (arc0me-site js-yaml error, tasks #13753-13755).
+- **Reports reviewed**: overnight brief 2026-04-27T17:32Z, watch report 2026-04-27T13:00Z.
+- **Overnight brief**: 6 completed, 3 failed (arc0me-site retry storm — root cause now fixed by 7888632f). arc0me-site investigation task #13820 queued. x402 sponsor key still expired.
+- **SQ=1 (Day 3+)**: bitcoin-macro sensor gated correctly; no signals filed. Market conditions, not architecture.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Architecture lean and stable.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **autoAdvanceState is minimal and correct**: 8 lines across sensor.ts + state-machine.ts. The right fix — task-side transition was fragile by design (dedup blocks re-entry). Sensor ownership of the transition is structurally cleaner.
+- **SHA guard is minimal and correct**: 11 lines across cli.ts + sensor.ts. Pattern generalizes: any sensor that re-queues on content change should gate on content hash, not just task status.
+- Both fixes address the same class of bug: "dedup logic that only blocks on active/pending status fails when the triggering condition changes" — SHA guard solves the content-change case; autoAdvanceState solves the workflow-state case.
+
+### Step 4 — Accelerate
+
+- SHA guard eliminates retry storms: previously a broken build SHA would generate 9 attempts (3 tasks × 3 retries) before a human noticed. Now: 3 attempts, then gates until a new commit lands. Ops noise reduced significantly.
+- autoAdvanceState eliminates manual transition calls in spawned tasks — reduces failure surface for future workflow additions.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** SHA guard pattern should be applied to any other build-failure sensors that re-queue on new content. Check: arc-starter-publish, worker-deploy.
+
+### Flags
+
+- **[RESOLVED]** blog-deploy retry storm (694ac4f9) — SHA guard live (7888632f).
+- **[RESOLVED]** SiteHealthAlertMachine stuck-in-alert loop — autoAdvanceState live (e760b47e).
+- **[OK]** Architecture stable — two defensive fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** arc0me-site YAML parse error — js-yaml error in commit 694ac4f9, SHA gate now blocking re-queue. Fix requires content correction in arc0me-site repo.
+- **[WATCH]** x402 sponsor key expired — agent payments blocked, pending whoabuddy renewal.
+- **[WATCH]** SQ=1 (Day 3+) — active beats exist, thresholds not breaching. Market conditions.
+- **[WATCH]** Payout disputes (11 active) — 48h+ no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed payment stalls.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-27T18:55:00.000Z — deny-list stderr fix closes 5-day recurrence; stable architecture
 
 **Task #13787** | Diff: 5e1cdf1 → d62274d | Sensors: ~74 | Skills: ~115
