@@ -43,9 +43,15 @@ export default async function blogDeploySensor(): Promise<string> {
 
     const state = await readHookState(SENSOR_NAME);
     const lastDeployedSha = (state?.last_deployed_sha as string) ?? "";
+    const lastFailedSha = (state?.last_failed_sha as string) ?? "";
 
     if (currentSha === lastDeployedSha) {
       log(`no changes since last deploy (${currentSha})`);
+      return "skip";
+    }
+
+    if (currentSha === lastFailedSha) {
+      log(`last build failed for ${currentSha} — skipping until content is fixed`);
       return "skip";
     }
 

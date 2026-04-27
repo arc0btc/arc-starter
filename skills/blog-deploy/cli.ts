@@ -113,6 +113,11 @@ async function cmdDeploy(args: string[]): Promise<void> {
   log("running npm run build...");
   const build = await runCommand([npm, "run", "build"], SITE_DIR, nodeEnv);
   if (build.exitCode !== 0) {
+    // Record failed SHA so the sensor won't re-queue the same broken commit
+    if (currentSha) {
+      const state = (await readHookState(SENSOR_NAME)) ?? {};
+      await writeHookState(SENSOR_NAME, { ...state, last_failed_sha: currentSha });
+    }
     process.stderr.write(`Build failed (exit ${build.exitCode}):\n${build.stderr || build.stdout}\n`);
     process.exit(1);
   }
