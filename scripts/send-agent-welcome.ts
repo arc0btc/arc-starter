@@ -18,6 +18,7 @@
  */
 
 import { Database } from "bun:sqlite";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
@@ -137,7 +138,7 @@ function logOutreachInteraction(contactId: number, summary: string): boolean {
 }
 
 // ---- Main ----
-function main(): void {
+async function main(): Promise<void> {
   const params = parseArgs(process.argv.slice(2));
   const contactIdRaw = params["contact-id"];
   if (!contactIdRaw || !/^\d+$/.test(contactIdRaw)) {
@@ -215,7 +216,28 @@ function main(): void {
     );
   }
 
-  // Send via x402 inbox
+  // Route through inbox-notify send-batch — that path acquires from the local
+  // nonce-manager and uses the local x402-send module which honors --nonce
+  // (the upstream `bitcoin-wallet x402 send-inbox-message` ignores --nonce, so
+  // every previous send drifted the nonce-manager from chain reality).
+  // We write a single-message batch JSON and shell out to send-batch.
+  const batchPath = join(ROOT, `db/inbox-notify/agent-welcome-${contactId}-${Date.now()}.json`);
+  const batchPayload = {
+    messages: [
+      {
+        btc_address: contact.btc_address!,
+        stx_address: contact.stx_address!,
+        content: message,
+        label:
+          contact.display_name ||
+          contact.aibtc_name ||
+          contact.btc_address!.slice(0, 16),
+      },
+    ],
+  };
+  mkdirSync(join(ROOT, "db/inbox-notify"), { recursive: true });
+  writeFileSync(batchPath, JSON.stringify(batchPayload, null, 2));
+
   const sendEnv = { ...process.env, NETWORK: "mainnet" };
   const sendProc = Bun.spawnSync(
     [
@@ -223,16 +245,11 @@ function main(): void {
       "skills",
       "run",
       "--name",
-      "bitcoin-wallet",
+      "inbox-notify",
       "--",
-      "x402",
-      "send-inbox-message",
-      "--recipient-btc-address",
-      contact.btc_address!,
-      "--recipient-stx-address",
-      contact.stx_address!,
-      "--content",
-      message,
+      "send-batch",
+      "--file",
+      batchPath,
     ],
     {
       cwd: ROOT,
@@ -245,31 +262,51 @@ function main(): void {
   const sendErr = new TextDecoder().decode(sendProc.stderr).trim();
   const sendCode = sendProc.exitCode ?? -1;
 
-  // Parse structured error from stdout/stderr when present
-  let parsedError: { error?: string; detail?: string } | null = null;
+  // Parse inbox-notify send-batch response. Shape:
+  //   { batch_id, status: "complete"|"failed"|"partial", sent, failed, total, failures: [...], ... }
+  // We sent exactly one message so success = sent === 1.
+  let parsedBatch: { status?: string; sent?: number; failures?: Array<{ label: string; error: string }> } | null = null;
   for (const text of [sendOut, sendErr]) {
     if (!text) continue;
-    // find last JSON-looking line (skip log noise)
-    const jsonLine = text
-      .split("\n")
-      .reverse()
-      .find((l) => l.trim().startsWith("{"));
-    if (jsonLine) {
+    const jsonLines = text.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("{") || l.startsWith("["));
+    // The summary JSON from send-batch is multi-line; reassemble by trying biggest-first.
+    // Simpler: find any JSON line containing "batch_id".
+    for (const line of jsonLines.reverse()) {
       try {
-        const j = JSON.parse(jsonLine);
-        if (j && j.success === false) {
-          parsedError = { error: j.error, detail: j.detail };
+        const j = JSON.parse(line);
+        if (j && typeof j === "object" && "status" in j && "sent" in j) {
+          parsedBatch = j;
           break;
         }
       } catch {
-        /* not JSON */
+        /* skip */
       }
     }
+    // Also try parsing the whole stream as one JSON object (send-batch prints pretty-printed JSON spanning lines).
+    if (!parsedBatch) {
+      const startIdx = text.indexOf("{");
+      const endIdx = text.lastIndexOf("}");
+      if (startIdx >= 0 && endIdx > startIdx) {
+        try {
+          const j = JSON.parse(text.slice(startIdx, endIdx + 1));
+          if (j && typeof j === "object" && "status" in j && "sent" in j) {
+            parsedBatch = j;
+          }
+        } catch {
+          /* skip */
+        }
+      }
+    }
+    if (parsedBatch) break;
   }
 
-  if (sendCode !== 0 || parsedError) {
-    const errSlug = parsedError?.error || `exit-${sendCode}`;
-    const errDetail = (parsedError?.detail || sendErr || sendOut || "").slice(0, 200);
+  const sentCount = parsedBatch?.sent ?? 0;
+  const failed = sendCode !== 0 || sentCount < 1;
+
+  if (failed) {
+    const failure = parsedBatch?.failures?.[0];
+    const errSlug = failure?.error?.slice(0, 60) ?? `exit-${sendCode}`;
+    const errDetail = (failure?.error || sendErr || sendOut || "").slice(0, 200);
     const summary = `Welcome send failed: ${errSlug} — ${errDetail}`;
     const logged = logOutreachInteraction(contactId, summary);
     emit(
@@ -306,4 +343,4 @@ function main(): void {
   );
 }
 
-main();
+await main();

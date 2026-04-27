@@ -6,7 +6,19 @@
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { getContactByAddress, insertContactInteraction } from "../contact-registry/schema.ts";
-import { acquireNonce, releaseNonce, syncNonce } from "../nonce-manager/nonce-store.js";
+import { acquireNonce, releaseNonce, syncNonce, type BroadcastInfo } from "../nonce-manager/nonce-store.js";
+import { getCredential } from "../../src/credentials.ts";
+import { sendInboxMessage, classifyRelayFailure } from "./x402-send.ts";
+import { getWalletManager } from "../../github/aibtcdev/skills/src/lib/services/wallet-manager.js";
+import {
+  decodePaymentRequired,
+  encodePaymentPayload,
+  decodePaymentResponse,
+  X402_HEADERS,
+} from "../../github/aibtcdev/skills/src/lib/utils/x402-protocol.js";
+import { getStacksNetwork } from "../../github/aibtcdev/skills/src/lib/config/networks.js";
+import { getContracts } from "../../github/aibtcdev/skills/src/lib/config/contracts.js";
+import { createFungiblePostCondition } from "../../github/aibtcdev/skills/src/lib/transactions/post-conditions.js";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const STATE_DIR = resolve(ROOT, "db/inbox-notify");
@@ -112,27 +124,64 @@ async function acquireManagedNonce(): Promise<bigint> {
   return BigInt(result.nonce);
 }
 
-async function releaseManagedNonce(nonce: bigint, success: boolean, rejected?: boolean): Promise<void> {
+async function releaseManagedNonce(
+  nonce: bigint,
+  success: boolean,
+  rejected?: boolean,
+  broadcastInfo?: BroadcastInfo,
+): Promise<void> {
   try {
     const failureKind = !success ? (rejected ? "rejected" as const : "broadcast" as const) : undefined;
-    await releaseNonce(SENDER_STX, Number(nonce), success, failureKind);
+    await releaseNonce(SENDER_STX, Number(nonce), success, failureKind, broadcastInfo);
   } catch {
     // best effort
   }
 }
 
-// ---- x402 Send (with explicit nonce) ----
+// ---- Wallet unlock (shared singleton; one unlock per CLI invocation) ----
 
-/**
- * Send an x402 inbox message using the bitcoin-wallet CLI.
- * Passes --nonce to override the default Hiro lookup.
- */
+let _walletUnlocked = false;
+async function ensureWalletUnlocked(): Promise<void> {
+  if (_walletUnlocked) return;
+  const walletId = await getCredential("bitcoin-wallet", "id");
+  const walletPassword = await getCredential("bitcoin-wallet", "password");
+  if (!walletId || !walletPassword) {
+    throw new Error("Wallet credentials not found (bitcoin-wallet/id, bitcoin-wallet/password)");
+  }
+  const wm = getWalletManager();
+  await wm.unlock(walletId, walletPassword);
+  _walletUnlocked = true;
+}
+
+function lockWallet(): void {
+  if (!_walletUnlocked) return;
+  try {
+    getWalletManager().lock();
+  } catch {
+    // best effort
+  }
+  _walletUnlocked = false;
+}
+
+// ---- x402 Send (with explicit nonce — local, bypasses bitcoin-wallet) ----
+//
+// We call the local sendInboxMessage directly instead of shelling out to
+// `bitcoin-wallet x402 send-inbox-message`. The upstream skill's Commander
+// definition has no --nonce option (and its action handler doesn't read one
+// either), so passing --nonce through bitcoin-wallet was a no-op — every send
+// fetched its own nonce from Hiro and drifted from the local nonce-manager.
+// Owning the send here puts our manager back in control.
+
 interface SendResult {
   success: boolean;
   error?: string;
+  errorCode?: string;
+  httpStatus?: number;
   txid?: string;
   payment_id?: string;
   payment_status?: "confirmed" | "pending";
+  /** When success=false, hint to the nonce-manager whether the nonce was consumed on chain. */
+  failureKind?: "rejected" | "broadcast";
 }
 
 async function sendX402Message(
@@ -141,58 +190,57 @@ async function sendX402Message(
   content: string,
   nonce: bigint,
 ): Promise<SendResult> {
-  const proc = Bun.spawn(
-    [
-      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
-      "x402", "send-inbox-message",
-      "--recipient-btc-address", btcAddress,
-      "--recipient-stx-address", stxAddress,
-      "--content", content,
-      "--nonce", nonce.toString(),
-    ],
-    { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-  );
+  await ensureWalletUnlocked();
+  const wm = getWalletManager();
+  const account = wm.getAccount() as { address: string; privateKey: string; network: string };
+  const networkName = account.network === "testnet" ? "testnet" : "mainnet";
+  const stacksNetwork = getStacksNetwork(networkName);
+  const contracts = getContracts(networkName);
 
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
+  const result = await sendInboxMessage(btcAddress, stxAddress, content, nonce, {
+    account,
+    stacksNetwork,
+    sbtcContractId: contracts.SBTC_TOKEN,
+    encodePaymentPayload,
+    decodePaymentRequired,
+    decodePaymentResponse,
+    headers: X402_HEADERS,
+    createFungiblePostCondition,
+  });
 
-  const exitCode = await proc.exited;
-  if (exitCode !== 0) {
-    const output = (stdout + stderr).slice(0, 500);
-    return { success: false, error: output };
-  }
-
-  // Parse payment info from x402 send-inbox-message JSON output
-  try {
-    const output = JSON.parse(stdout.trim()) as Record<string, unknown>;
-    const payment = output.payment as Record<string, unknown> | undefined;
-    return {
-      success: true,
-      txid: payment?.txid as string | undefined,
-      payment_id: payment?.paymentId as string | undefined,
-      payment_status: payment?.status as "confirmed" | "pending" | undefined,
-    };
-  } catch {
-    return { success: true };
-  }
+  return {
+    success: result.success,
+    error: result.error,
+    errorCode: result.errorCode,
+    httpStatus: result.httpStatus,
+    txid: result.txid,
+    payment_id: result.paymentId,
+    payment_status: result.paymentStatus,
+    failureKind: result.failureKind,
+  };
 }
 
-function isNonceDuplicate(error: string): boolean {
-  return error.includes("SENDER_NONCE_DUPLICATE");
+function isNonceDuplicate(result: SendResult): boolean {
+  if (result.errorCode === "SENDER_NONCE_DUPLICATE") return true;
+  return (result.error ?? "").includes("SENDER_NONCE_DUPLICATE");
 }
 
-function isNonceStale(error: string): boolean {
-  return error.includes("SENDER_NONCE_STALE") || error.includes("NONCE_CONFLICT") || error.includes("ConflictingNonceInMempool");
+function isNonceStale(result: SendResult): boolean {
+  if (result.errorCode === "SENDER_NONCE_STALE") return true;
+  const err = result.error ?? "";
+  return err.includes("SENDER_NONCE_STALE") || err.includes("NONCE_CONFLICT") || err.includes("ConflictingNonceInMempool");
 }
 
-function isRelayTransient(error: string): boolean {
-  return error.includes("RELAY_ERROR") || error.includes("retryable") || error.includes("TimeoutError");
+function isRelayTransient(result: SendResult): boolean {
+  if (result.errorCode === "RELAY_ERROR") return true;
+  const err = result.error ?? "";
+  return err.includes("RELAY_ERROR") || err.includes("retryable") || err.includes("TimeoutError");
 }
 
-function isRateLimited(error: string): boolean {
-  return error.includes("Too many requests") || error.includes("429");
+function isRateLimited(result: SendResult): boolean {
+  if (result.httpStatus === 429) return true;
+  const err = result.error ?? "";
+  return err.includes("Too many requests") || err.includes("429");
 }
 
 function parseRetryAfter(error: string): number {
@@ -204,8 +252,10 @@ function parseRetryAfter(error: string): number {
 
 /**
  * Send a message with retry, returning updated nonce after success or fatal failure.
- * On SENDER_NONCE_DUPLICATE, bumps nonce by 1 (relay has it stuck) and retries.
- * On SENDER_NONCE_STALE, re-seeds nonce from Hiro and retries.
+ *
+ * Failure classification comes from the local x402-send module's structured response
+ * (failureKind + errorCode). We pass that straight through to the nonce-manager so
+ * the in-flight set never accumulates phantoms from misclassification.
  */
 async function sendWithRetry(
   btcAddress: string,
@@ -221,19 +271,8 @@ async function sendWithRetry(
 
     if (result.success) return { ...result, nonce: currentNonce };
 
-    const err = result.error ?? "";
-
-    if (isNonceDuplicate(err) && attempt < MAX_RETRIES) {
-      // Relay already has a tx with this nonce — nonce consumed, acquire next
-      log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), acquiring next nonce...`);
-      await releaseManagedNonce(currentNonce, false, false); // broadcast — nonce consumed
-      currentNonce = await acquireManagedNonce();
-      await sleep(NONCE_RETRY_DELAY_MS);
-      continue;
-    }
-
-    if (isNonceStale(err) && attempt < MAX_RETRIES) {
-      // Nonce rejected pre-broadcast — release as rejected (reusable) and re-sync
+    if (isNonceStale(result) && attempt < MAX_RETRIES) {
+      // Nonce rejected pre-broadcast — release as rejected (reusable) and re-acquire.
       log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-syncing via nonce-manager...`);
       await releaseManagedNonce(currentNonce, false, true);
       await sleep(NONCE_RETRY_DELAY_MS);
@@ -241,8 +280,29 @@ async function sendWithRetry(
       continue;
     }
 
-    if (isRateLimited(err) && attempt < MAX_RETRIES) {
-      const waitSec = parseRetryAfter(err);
+    if (isNonceDuplicate(result) && attempt < MAX_RETRIES) {
+      // The relay claims a tx exists at this nonce. Trust it for now and consume
+      // the nonce — the reconciler will detect phantoms (relay-side state collisions
+      // that never made the chain) and surface them as gap-fill alerts. Capture
+      // payment_id/txid in broadcastInfo if the relay returned them so the reconciler
+      // has something to poll.
+      log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), trusting relay + acquiring next nonce...`);
+      const broadcastInfo: BroadcastInfo | undefined = (result.payment_id || result.txid)
+        ? {
+            source: "x402-relay",
+            paymentId: result.payment_id,
+            txid: result.txid,
+            context: JSON.stringify({ label, attempt, errorCode: result.errorCode, note: "duplicate-on-retry" }),
+          }
+        : undefined;
+      await releaseManagedNonce(currentNonce, false, false, broadcastInfo);
+      currentNonce = await acquireManagedNonce();
+      await sleep(NONCE_RETRY_DELAY_MS);
+      continue;
+    }
+
+    if (isRateLimited(result) && attempt < MAX_RETRIES) {
+      const waitSec = parseRetryAfter(result.error ?? "");
       log(`  Rate limited for ${label} (attempt ${attempt}/${MAX_RETRIES}), waiting ${waitSec}s...`);
       await releaseManagedNonce(currentNonce, false, true); // nonce not consumed
       await sleep(waitSec * 1000);
@@ -250,16 +310,19 @@ async function sendWithRetry(
       continue;
     }
 
-    if (isRelayTransient(err) && attempt < MAX_RETRIES) {
+    if (isRelayTransient(result) && attempt < MAX_RETRIES) {
       log(`  Relay transient error for ${label} (attempt ${attempt}/${MAX_RETRIES}), waiting ${POST_SEND_DELAY_MS / 1000}s...`);
       await sleep(POST_SEND_DELAY_MS);
+      // Don't release — same nonce for the next attempt.
       continue;
     }
 
-    return { success: false, error: result.error, nonce: currentNonce };
+    // Unrecoverable failure on this attempt — return with the failureKind hint
+    // populated so the caller (executeBatch) can release with the right kind.
+    return { ...result, nonce: currentNonce };
   }
 
-  return { success: false, error: "Max retries exhausted", nonce: currentNonce };
+  return { success: false, error: "Max retries exhausted", nonce: currentNonce, failureKind: "broadcast" };
 }
 
 // ---- Commands ----
@@ -385,7 +448,12 @@ async function cmdSendOne(args: string[]): Promise<void> {
   const result = await sendWithRetry(btcAddress, stxAddress, content, btcAddress.slice(0, 16), nonce);
 
   if (result.success) {
-    await releaseManagedNonce(result.nonce, true);
+    await releaseManagedNonce(result.nonce, true, false, {
+      source: "x402-relay",
+      paymentId: result.payment_id,
+      txid: result.txid,
+      context: JSON.stringify({ skill: "inbox-notify", command: "send-one", btc: btcAddress }),
+    });
     log("Message sent successfully");
 
     const contact = getContactByAddress(null, btcAddress);
@@ -404,11 +472,17 @@ async function cmdSendOne(args: string[]): Promise<void> {
       ...(result.payment_status && { payment_status: result.payment_status }),
     }));
   } else {
-    await releaseManagedNonce(result.nonce, false);
-    log(`Failed: ${result.error}`);
-    console.log(JSON.stringify({ success: false, error: result.error }));
+    // Use the failureKind hint from the local x402-send classifier rather than
+    // the legacy "always broadcast" default. Pre-broadcast errors leave the
+    // nonce reusable; only confirmed-broadcast (or unknown) classifications
+    // mark it consumed.
+    const isRejected = result.failureKind === "rejected";
+    await releaseManagedNonce(result.nonce, false, isRejected);
+    log(`Failed: ${result.error} (failureKind=${result.failureKind ?? "unknown"})`);
+    console.log(JSON.stringify({ success: false, error: result.error, errorCode: result.errorCode, failureKind: result.failureKind }));
     process.exit(1);
   }
+  lockWallet();
 }
 
 // ---- Batch Executor ----
@@ -420,6 +494,10 @@ async function executeBatch(state: BatchState): Promise<void> {
 
   log(`Batch ${state.id}: ${pending.length} to send, ${alreadySent} already sent, ${total} total`);
   log(`Delay between messages: ${POST_SEND_DELAY_MS / 1000}s`);
+
+  // Unlock the wallet once for the whole batch — every send-x402 call below
+  // shares the same in-process wallet manager singleton.
+  await ensureWalletUnlocked();
 
   // Acquire nonce from nonce-manager (atomic, cross-skill safe)
   let currentNonce = await acquireManagedNonce();
@@ -451,7 +529,12 @@ async function executeBatch(state: BatchState): Promise<void> {
       msg.payment_status = result.payment_status;
       successCount++;
       pendingSent++;
-      await releaseManagedNonce(currentNonce, true);
+      await releaseManagedNonce(currentNonce, true, false, {
+        source: "x402-relay",
+        paymentId: result.payment_id,
+        txid: result.txid,
+        context: JSON.stringify({ skill: "inbox-notify", batch_id: state.id, label: msg.label }),
+      });
       try {
         currentNonce = await acquireManagedNonce();
       } catch (acqErr) {
@@ -475,11 +558,36 @@ async function executeBatch(state: BatchState): Promise<void> {
         // Non-fatal
       }
     } else {
-      await releaseManagedNonce(currentNonce, false);
+      // Use the failureKind hint surfaced by sendWithRetry (which mirrors
+      // x402-send.classifyRelayFailure). Pre-broadcast rejections release
+      // as "rejected" so the nonce can be reused; ambiguous/transient errors
+      // fall back to the conservative "broadcast" default.
+      const isRejected = result.failureKind === "rejected";
+      // Capture any partial info the relay returned (rare on failure but happens
+      // on 202 "held" with queue.missingNonces, etc.) so the reconciler can
+      // poll if there's anything to poll for.
+      const broadcastInfo: BroadcastInfo | undefined = !isRejected && (result.payment_id || result.txid)
+        ? {
+            source: "x402-relay",
+            paymentId: result.payment_id,
+            txid: result.txid,
+            context: JSON.stringify({ skill: "inbox-notify", batch_id: state.id, label: msg.label, errorCode: result.errorCode }),
+          }
+        : undefined;
+      await releaseManagedNonce(currentNonce, false, isRejected, broadcastInfo);
       msg.status = "failed";
       msg.error = result.error?.slice(0, 500);
       failCount++;
-      log(`  FAILED for ${msg.label}: ${msg.error?.slice(0, 200)}`);
+      log(`  FAILED for ${msg.label}: ${msg.error?.slice(0, 200)} (failureKind=${result.failureKind ?? "unknown"})`);
+      // If we held an unused nonce after a rejected failure, re-acquire so the next message gets a fresh one.
+      if (isRejected) {
+        try {
+          currentNonce = await acquireManagedNonce();
+        } catch (acqErr) {
+          log(`  Failed to acquire next nonce after rejection: ${acqErr instanceof Error ? acqErr.message : String(acqErr)} — stopping batch`);
+          break;
+        }
+      }
     }
 
     writeState(state);
@@ -494,6 +602,9 @@ async function executeBatch(state: BatchState): Promise<void> {
 
   // Release the pre-acquired nonce that was never used (loop ended)
   await releaseManagedNonce(currentNonce, false, true);
+
+  // Lock the wallet now that all sends are done. Best-effort; never throws.
+  lockWallet();
 
   const finalSent = state.messages.filter(m => m.status === "sent").length;
   const finalFailed = state.messages.filter(m => m.status === "failed").length;

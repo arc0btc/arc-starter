@@ -4,10 +4,14 @@
 
 import { mkdirSync, rmdirSync, existsSync, readFileSync, writeFileSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
+import { recordBroadcast, type InsertNonceBroadcast } from "./schema.js";
 
 const ROOT = resolve(import.meta.dir, "../..");
-const STATE_PATH = resolve(ROOT, "db/nonce-state.json");
-const LOCK_DIR = resolve(ROOT, "db/nonce-state.lock");
+// State path overridable via NONCE_STATE_PATH so tests can isolate state per case.
+const STATE_PATH = process.env.NONCE_STATE_PATH
+  ? resolve(process.env.NONCE_STATE_PATH)
+  : resolve(ROOT, "db/nonce-state.json");
+const LOCK_DIR = STATE_PATH + ".lock";
 const HIRO_API = "https://api.hiro.so";
 
 /** How old (ms) state can be before auto-resyncing from Hiro */
@@ -244,6 +248,21 @@ export async function acquireNonce(address: string): Promise<AcquireResult> {
 }
 
 /**
+ * Optional broadcast metadata captured at release time so the reconciler
+ * (skills/nonce-manager/reconcile.ts) can poll the right endpoint.
+ */
+export interface BroadcastInfo {
+  /** "x402-relay" → poll aibtc.com/api/payment-status/{paymentId}; "direct" → poll Hiro tx by txid. */
+  source: "x402-relay" | "direct";
+  /** x402 sponsor relay payment/receipt id, when source=x402-relay. */
+  paymentId?: string;
+  /** Chain-side broadcast txid, when known. Both sources may have a txid; both are polled. */
+  txid?: string;
+  /** JSON-stringified caller context (skill name, batch_id, message label) — surfaces in soak-report. */
+  context?: string;
+}
+
+/**
  * Release a nonce after transaction outcome is known.
  *
  * @param success - true if tx succeeded (nonce consumed)
@@ -252,13 +271,39 @@ export async function acquireNonce(address: string): Promise<AcquireResult> {
  *   "rejected" = tx never broadcast (signing error, relay pre-broadcast rejection),
  *                nonce NOT consumed and can be reused
  *   Defaults to "broadcast" if omitted — safer to assume nonce was consumed.
+ * @param broadcastInfo - optional metadata for the reconciler. When release implies the
+ *   tx is on its way to the chain (success=true OR failureKind="broadcast"), the
+ *   reconciler needs to know HOW to poll for outcome — this is the only place callers
+ *   can communicate that. Omitting it means the reconciler has nothing to track and
+ *   the system relies on best-effort. Always pass it for production paths.
  */
 export async function releaseNonce(
   address: string,
   nonce: number,
   success: boolean,
-  failureKind?: FailureKind
+  failureKind?: FailureKind,
+  broadcastInfo?: BroadcastInfo,
 ): Promise<ReleaseResult> {
+  // Decide whether this release carries a chain-bound tx that the reconciler should track.
+  // Persist the broadcast row OUTSIDE the file lock — schema.ts uses bun:sqlite which has
+  // its own locking, and we don't want lock contention to delay nonce-state writes.
+  const kind = success ? "broadcast" : (failureKind ?? "broadcast");
+  if (kind === "broadcast" && broadcastInfo) {
+    try {
+      const row: InsertNonceBroadcast = {
+        address,
+        nonce,
+        source: broadcastInfo.source,
+        payment_id: broadcastInfo.paymentId ?? null,
+        txid: broadcastInfo.txid ?? null,
+        context: broadcastInfo.context ?? null,
+      };
+      recordBroadcast(row);
+    } catch {
+      // Reconciler will miss this entry, but the release itself must still proceed.
+    }
+  }
+
   return withLock(async () => {
     const state = readState();
     const entry = state[address];
@@ -281,7 +326,6 @@ export async function releaseNonce(
 
     // Only roll back if tx was rejected before broadcast (nonce not consumed).
     // Default to "broadcast" (nonce consumed) if caller doesn't specify — safer.
-    const kind = failureKind ?? "broadcast";
     if (kind === "rejected" && entry.nextNonce === nonce + 1) {
       entry.nextNonce = nonce;
       writeState(state);

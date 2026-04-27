@@ -1,56 +1,72 @@
 // skills/nonce-manager/sensor.ts
-// Periodic nonce health check — detects drift between local state and chain truth.
-// Calls syncNonce() which self-heals as a side effect.
+// Periodic receipt-driven reconciliation of pending broadcasts.
+//
+// Each cycle polls aibtc.com payment-status (for x402-sponsored) and Hiro tx
+// detail (for direct broadcasts), transitioning nonce_broadcasts rows from
+// pending → confirmed | rejected | expired. Phantoms are surfaced via a task
+// only when one is freshly detected — repeat phantoms don't re-page.
+//
+// Defensive: any throw during reconcile is caught and logged; the sensor
+// returns "error" rather than crashing the sensors process.
 
 import { claimSensorRun, insertTaskIfNew, createSensorLogger } from "../../src/sensors.ts";
-import { getStatus, syncNonce } from "./nonce-store.js";
+import { initDatabase } from "../../src/db.ts";
+import { initNonceManagerSchema } from "./schema.js";
+import { reconcile } from "./reconcile.js";
 
-const SENSOR_NAME = "nonce-health";
-const INTERVAL_MINUTES = 15;
-const SENDER_STX = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
-const DRIFT_THRESHOLD = 2;
+const SENSOR_NAME = "nonce-reconcile";
+const INTERVAL_MINUTES = 1;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-export default async function nonceSensor(): Promise<"skip" | void> {
-  // Disabled: local-ahead-of-chain drift is expected behavior — the nonce manager
-  // acquires nonces for txs in the sponsor pipeline before the chain API sees them.
-  // This sensor was creating ~$13/day in unnecessary Opus correction tasks.
-  return "skip";
+export default async function nonceReconcileSensor(): Promise<string> {
+  initDatabase();
+  initNonceManagerSchema();
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  const localState = getStatus(SENDER_STX);
-  if (!localState || !("nextNonce" in localState)) {
-    log("no local nonce state — skipping");
-    return;
-  }
-
-  const localNext = (localState as { nextNonce: number }).nextNonce;
-
+  let summary;
   try {
-    const hiro = await syncNonce(SENDER_STX);
-    const drift = localNext - hiro.nonce;
-    // Effective drift excludes nonces that are acquired but not yet confirmed
-    const effectiveDrift = drift - hiro.inFlightCount;
-
-    if (Math.abs(effectiveDrift) > DRIFT_THRESHOLD) {
-      log(`DRIFT: local=${localNext} chain=${hiro.nonce} drift=${drift} inFlight=${hiro.inFlightCount} effective=${effectiveDrift}`);
-      insertTaskIfNew(`sensor:${SENSOR_NAME}`, {
-        subject: `Nonce drift detected: effective=${effectiveDrift} (local=${localNext} chain=${hiro.nonce} inFlight=${hiro.inFlightCount})`,
-        description:
-          `The nonce-health sensor detected an effective nonce drift of ${effectiveDrift} ` +
-          `(raw drift=${drift}, in-flight=${hiro.inFlightCount}).\n\n` +
-          `Missing nonces: ${hiro.detectedMissing.join(", ") || "none"}\n` +
-          `Mempool pending: ${hiro.mempoolPending}`,
-        priority: 3,
-        skills: JSON.stringify(["nonce-manager", "relay-diagnostic"]),
-      });
-    } else {
-      log(`healthy: next=${hiro.nonce} mempool=${hiro.mempoolPending} missing=${hiro.detectedMissing.length} inFlight=${hiro.inFlightCount}`);
-    }
+    summary = await reconcile();
   } catch (err) {
-    log(`hiro fetch failed: ${err instanceof Error ? err.message : String(err)}`);
+    log(`reconcile threw: ${err instanceof Error ? err.message : String(err)}`);
+    return "error";
   }
+
+  if (summary.polled === 0) return "ok";
+
+  const headline = `polled=${summary.polled} confirmed=${summary.confirmed} rejected=${summary.rejected} expired=${summary.expired} pending=${summary.still_pending} skipped=${summary.skipped} errors=${summary.errors}`;
+  log(headline);
+
+  if (summary.phantoms.length > 0) {
+    // Surface freshly-detected phantoms as a single task so an operator can decide
+    // whether to gap-fill. Dedup by listing the (address, nonce) tuples in the
+    // task source — same set won't re-queue.
+    const key = summary.phantoms
+      .map((p) => `${p.address}:${p.nonce}`)
+      .sort()
+      .join(",");
+    const id = insertTaskIfNew(`sensor:${SENSOR_NAME}:phantoms:${key}`, {
+      subject: `Nonce phantoms detected: ${summary.phantoms.length} (${headline})`,
+      description: [
+        `The reconciler found nonces that were released as "broadcast" but the chain (or relay) reports the tx never reached terminal success.`,
+        ``,
+        ...summary.phantoms.map(
+          (p) => `- nonce=${p.nonce} address=${p.address} source=${p.source} outcome=${p.outcome}${p.detail ? ` — ${p.detail}` : ""}${p.txid ? ` txid=${p.txid}` : ""}`,
+        ),
+        ``,
+        `These are gaps on chain. Operator can run \`bun scripts/nonce-gap-fill.ts\` with the listed nonces (after dry-run) to unstick anything held behind them.`,
+        ``,
+        `Reconciler summary: ${headline}`,
+      ].join("\n"),
+      priority: 3,
+      skills: JSON.stringify(["nonce-manager"]),
+    });
+    if (id !== null) {
+      log(`queued phantom alert task #${id} for ${summary.phantoms.length} entries`);
+    }
+  }
+
+  return "ok";
 }

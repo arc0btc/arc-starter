@@ -3,6 +3,8 @@
 // CLI wrapper for the nonce oracle. Cross-process nonce coordination.
 
 import { acquireNonce, releaseNonce, syncNonce, getStatus, type FailureKind } from "./nonce-store.js";
+import { reconcile } from "./reconcile.js";
+import { initNonceManagerSchema, getPendingBroadcasts } from "./schema.js";
 
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -71,10 +73,44 @@ try {
       break;
     }
 
+    case "reconcile": {
+      initNonceManagerSchema();
+      const address = flags.address;
+      const summary = await reconcile(address);
+      console.log(JSON.stringify(summary, null, 2));
+      break;
+    }
+
+    case "broadcasts": {
+      initNonceManagerSchema();
+      const address = flags.address;
+      const rows = getPendingBroadcasts(address);
+      console.log(JSON.stringify(rows, null, 2));
+      break;
+    }
+
+    case "soak-report": {
+      initNonceManagerSchema();
+      const address = flags.address;
+      // Fast read-only summary intended for the morning check.
+      const pending = getPendingBroadcasts(address);
+      const local = getStatus(address);
+      const inFlight = local && "inFlight" in (local as Record<string, unknown>)
+        ? (local as { inFlight: number[] }).inFlight
+        : null;
+      console.log(JSON.stringify({
+        pending_broadcasts: pending.length,
+        oldest_pending: pending[0]?.broadcast_at ?? null,
+        in_flight: inFlight,
+        in_flight_count: inFlight?.length ?? null,
+      }, null, 2));
+      break;
+    }
+
     default:
       console.log(JSON.stringify({
         error: `Unknown command: ${command ?? "(none)"}`,
-        usage: "acquire | release | sync | status",
+        usage: "acquire | release | sync | status | reconcile | broadcasts | soak-report",
       }));
       process.exit(1);
   }
