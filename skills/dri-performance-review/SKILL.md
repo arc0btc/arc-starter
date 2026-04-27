@@ -1,6 +1,6 @@
 ---
 name: dri-performance-review
-description: Daily review of all 5 DRI seats with GitHub issue reporting
+description: Daily review of the EIC (trial) and active operational DRIs with GitHub issue reporting
 tags:
   - publishing
   - editorial
@@ -9,7 +9,7 @@ tags:
 
 # dri-performance-review
 
-Daily audit of all DRI (Directly Responsible Individual) seats under the aibtc.news Publisher. Fires once per morning, creates a dispatch task that gathers data from multiple sources, and posts a structured report as a GitHub issue on aibtcdev/agent-news.
+Daily audit of the active DRI (Directly Responsible Individual) seats under the aibtc.news Publisher. Fires once per morning, creates a dispatch task that gathers data from multiple sources, and posts a structured report as a GitHub issue on aibtcdev/agent-news.
 
 ## Purpose
 
@@ -18,15 +18,15 @@ Daily audit of all DRI (Directly Responsible Individual) seats under the aibtc.n
 - Create an auditable trail of DRI performance on GitHub
 - Keep tagged stakeholders informed without manual check-ins
 
-## DRI Roster (as of 2026-04-15)
+## DRI Roster (as of 2026-04-27, EIC trial)
 
 | Seat | DRI | GitHub | Type |
 |------|-----|--------|------|
-| `aibtc-network` editor | Elegant Orb | — | Beat Editor |
-| `bitcoin-macro` editor | Ivory Coda | @giwaov | Beat Editor |
-| `quantum` editor | Zen Rocket | — | Beat Editor |
+| Editor-in-Chief (all 3 beats) | Dual Cougar | @teflonmusk | EIC (Trial) |
 | Classifieds Sales | Secret Mars | @secret-mars | Operational DRI |
 | Distribution | Opal Gorilla | @Robotbot69 | Operational DRI |
+
+Past beat editors (Elegant Orb, Ivory Coda, Zen Rocket) are no longer active — their seats transferred to the EIC under #634 and should not appear in the daily review.
 
 ## Sensor Schedule
 
@@ -51,17 +51,15 @@ The GitHub issue should follow this structure:
 # DRI Performance Review — YYYY-MM-DD
 
 ## Summary
-- X/5 DRIs active, Y flags raised
+- EIC trial day N, X/3 active DRIs reporting, Y flags raised
 
-## Beat Editors
+## Editor-in-Chief (Trial)
 
-### aibtc-network — Elegant Orb
+### Dual Cougar (@teflonmusk) — EIC holding aibtc-network, bitcoin-macro, quantum
 - **Status:** active / degraded / dark
-- **Last 24h:** N signals approved, highlights
+- **Last 24h:** SOD filed, signals reviewed/approved per beat, brief handoff status
 - **Trend:** improving / steady / declining
 - **Flags:** (if any)
-
-(repeat for each beat)
 
 ## Operational DRIs
 
@@ -71,24 +69,27 @@ The GitHub issue should follow this structure:
 - **Trend:** ...
 - **Flags:** ...
 
-(repeat for Distribution DRI)
+### Distribution — Opal Gorilla (@Robotbot69)
+- **Status:** ...
+- **Last 24h:** ...
+- **Trend:** ...
+- **Flags:** ...
 
 ## Action Items
 - Numbered list of anything requiring Publisher attention
 
-cc @secret-mars @Robotbot69 @arc0btc @cedarxyz @pbtc21
+cc @teflonmusk @secret-mars @Robotbot69 @arc0btc @cedarxyz @pbtc21
 ```
 
 ## Stakeholder Tags
 
 Every issue must tag these GitHub users at the bottom:
+- `@teflonmusk` — EIC (Trial)
 - `@secret-mars` — Sales DRI
 - `@Robotbot69` — Distribution DRI
 - `@arc0btc` — stakeholder
 - `@cedarxyz` — stakeholder
 - `@pbtc21` — stakeholder
-
-Beat editors are mentioned by name in their sections (GitHub handles not all mapped).
 
 ## Composability
 
