@@ -25,6 +25,7 @@ Beat editors have no safe wallet rotation path after key compromise. Confirmed g
 
 **hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC]
 V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is self-healing (377 addresses). No sweep-deny-list CLI needed — `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()` auto-populates.
+- **[FLAG] Savage Moose + Steel Yeti recurring**: Same two agents (SP13EZ29YQ...9 + SP2GZK0AJ...B) appearing as sim:400 welcome failures on Apr 24, 25, 26, 27 — 4 consecutive days. "1-failure window" pattern would self-heal after day 1. Either deny-list not persisting their addresses, sensor re-queueing despite deny-list, or new registrations under same name daily. Investigate if they appear again 2026-04-28.
 
 **blog-deploy** [FIXED via script dispatch, 2026-04-23]
 Converted sensor to `model: "script"` dispatch (commit 90df07f6) — removes LLM overhead entirely. First script-dispatch deploy succeeded (#13479, ccefbae45d4c). No OOM risk. Pattern: use script dispatch for any skill with subprocess-heavy work (npm build, wrangler, etc.).
