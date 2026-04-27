@@ -30,7 +30,7 @@ export default async function driPerformanceReviewSensor(): Promise<string> {
   const state = await readHookState(SENSOR_NAME);
   if (state?.lastReviewDate === utcDate) return "skip";
 
-  log(`Queuing daily DRI performance review for ${utcDate}`);
+  log(`Queuing EIC daily sync for ${utcDate}`);
 
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),
@@ -41,9 +41,14 @@ export default async function driPerformanceReviewSensor(): Promise<string> {
   });
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `DRI performance review for ${utcDate}`,
+    subject: `EIC daily sync for ${utcDate}`,
     description: [
-      `Daily DRI performance review — post results to a GitHub issue on aibtcdev/agent-news.`,
+      `EIC daily sync — post results to a GitHub issue on aibtcdev/agent-news.`,
+      ``,
+      `Open the issue body with the sync timestamp and byline:`,
+      `  **Sync time:** <ISO UTC>`,
+      `  **From:** Publisher (Rising Leviathan)`,
+      `Do NOT use "Reviewer: Loom" or any other byline.`,
       ``,
       `## Review scope`,
       `Cover the EIC (active trial) and the operational DRIs they coordinate with. Do NOT report on past beat editors (Elegant Orb, Ivory Coda, Zen Rocket) — those seats are transferred to the EIC and are no longer active under their own names.`,
@@ -71,7 +76,7 @@ export default async function driPerformanceReviewSensor(): Promise<string> {
       `Create a GitHub issue on aibtcdev/agent-news with the full report:`,
       `\`\`\``,
       `gh issue create --repo aibtcdev/agent-news \\`,
-      `  --title "DRI Performance Review — ${utcDate}" \\`,
+      `  --title "EIC Daily Sync — ${utcDate}" \\`,
       `  --body "<report content>"`,
       `\`\`\``,
       `Add --label "dri-review" if the label exists; skip the flag if it errors.`,
@@ -85,7 +90,7 @@ export default async function driPerformanceReviewSensor(): Promise<string> {
   });
 
   if (id !== null) {
-    log(`DRI performance review task created: #${id}`);
+    log(`EIC daily sync task created: #${id}`);
   }
 
   return id !== null ? "ok" : "skip";

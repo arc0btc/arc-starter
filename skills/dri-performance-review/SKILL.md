@@ -48,7 +48,10 @@ The dispatched task should pull from:
 The GitHub issue should follow this structure:
 
 ```markdown
-# DRI Performance Review — YYYY-MM-DD
+# EIC Daily Sync — YYYY-MM-DD
+
+**Sync time:** YYYY-MM-DDTHH:MMZ
+**From:** Publisher (Rising Leviathan)
 
 ## Summary
 - EIC trial day N, X/3 active DRIs reporting, Y flags raised
