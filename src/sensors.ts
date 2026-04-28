@@ -8,7 +8,7 @@
 //
 // State files live in db/hook-state/{name}.json (already in .gitignore).
 
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
@@ -20,9 +20,57 @@ import type { InsertTask } from "./db.ts";
 // ---- Constants ----
 
 const HOOK_STATE_DIR = new URL("../db/hook-state", import.meta.url).pathname;
+const REPO_ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+const RUNTIME_CANARY_PATH = join(REPO_ROOT, ".arc-runtime");
+const EXPECTED_AGENT = "loom";
 
 // Ensure state directory exists once at module load
 mkdirSync(HOOK_STATE_DIR, { recursive: true });
+
+// ---- Working-tree guards ----
+//
+// The sensor service discovers sensors dynamically from skills/<name>/sensor.ts.
+// If the working tree is in a transient state (mid-rebase, mid-cherry-pick,
+// mid-merge) or pointing at a foreign branch (e.g., upstream main during a
+// throwaway checkout), discoverSkills will return whatever is on disk —
+// including sensors that don't belong to this agent. Those sensors then
+// queue tasks referencing skills that don't exist post-checkout. A 12-second
+// `git checkout origin/main` window on 2026-04-28 produced 26 such tasks.
+//
+// These guards exit early when the tree isn't in a safe state.
+
+export function detectMidGitOperation(repoRoot: string): string | null {
+  const gitDir = join(repoRoot, ".git");
+  if (!existsSync(gitDir)) return null;
+  const fileMarkers: Record<string, string> = {
+    MERGE_HEAD: "merge in progress",
+    CHERRY_PICK_HEAD: "cherry-pick in progress",
+    REVERT_HEAD: "revert in progress",
+    REBASE_HEAD: "rebase in progress",
+  };
+  for (const [name, label] of Object.entries(fileMarkers)) {
+    if (existsSync(join(gitDir, name))) return label;
+  }
+  if (existsSync(join(gitDir, "rebase-merge"))) return "interactive rebase in progress";
+  if (existsSync(join(gitDir, "rebase-apply"))) return "rebase-apply in progress";
+  return null;
+}
+
+export function checkRuntimeCanary(canaryPath: string, expected: string): { ok: true } | { ok: false; reason: string } {
+  if (!existsSync(canaryPath)) {
+    return { ok: false, reason: `.arc-runtime missing — working tree may be from a foreign branch state` };
+  }
+  let content = "";
+  try {
+    content = readFileSync(canaryPath, "utf-8").trim();
+  } catch (err) {
+    return { ok: false, reason: `.arc-runtime read failed: ${err instanceof Error ? err.message : String(err)}` };
+  }
+  if (content !== expected) {
+    return { ok: false, reason: `.arc-runtime mismatch (expected '${expected}', got '${content}')` };
+  }
+  return { ok: true };
+}
 
 // ---- Types ----
 
@@ -201,6 +249,18 @@ export async function runSensors(): Promise<void> {
   const shutdownState = getShutdownState();
   if (shutdownState) {
     process.stdout.write(`sensors: SHUTDOWN — skipping all sensors (${shutdownState.reason}, since ${shutdownState.since})\n`);
+    return;
+  }
+
+  // Working-tree guard — refuse to discover sensors during a transient git state
+  const midOp = detectMidGitOperation(REPO_ROOT);
+  if (midOp) {
+    process.stdout.write(`sensors: SKIP — ${midOp}; will retry next cycle\n`);
+    return;
+  }
+  const canary = checkRuntimeCanary(RUNTIME_CANARY_PATH, EXPECTED_AGENT);
+  if (!canary.ok) {
+    process.stdout.write(`sensors: SKIP — ${canary.reason}\n`);
     return;
   }
 
