@@ -10,14 +10,6 @@ const MAX_PER_RUN = 10; // cap burst spend at ~1000 sats per sensor cycle
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function agentWelcomeSensor(): Promise<string> {
-  // PAUSED 2026-04-26: this sensor consumes publisher-wallet Stacks nonces via
-  // x402 inbox sends but bypasses the local nonce-manager. Disabled pending
-  // Phase L of plans/2026-04-26-eic-recovery-and-nonce-hygiene.md (wire the
-  // bitcoin-wallet x402 path through the manager + add release-on-rejection
-  // semantics + in-flight GC). Belt-and-suspenders: file is also renamed to
-  // sensor.ts.paused so sensor discovery (src/sensors.ts:218) won't pick it up.
-  return "skip";
-
   initDatabase();
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
