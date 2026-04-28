@@ -97,8 +97,6 @@ export function classifyRelayFailure(
     "SENDER_NONCE_DUPLICATE",
   ]);
   if (errorCode && preBroadcast.has(errorCode)) return "rejected";
-  // HTTP 202 = relay queued / held → never broadcast yet.
-  if (httpStatus === 202) return "rejected";
   // 4xx (other than 402 challenge which is normal) → typically pre-broadcast rejection.
   if (httpStatus && httpStatus >= 400 && httpStatus < 500 && httpStatus !== 402) return "rejected";
   // No clear signal → keep the safe default. The reconciler will sort it out from the receipt.
@@ -254,17 +252,26 @@ export async function sendInboxMessage(
   }
 
   // Step 4: parse outcome.
-  // Success path: 200 (synchronous settlement) or 201 (queued for async settlement).
-  if (finalRes.status === 200 || finalRes.status === 201) {
+  // Success path: 200 (synchronous settlement), 201 (queued for async settlement),
+  // 202 (payment accepted, inbox delivery staged — the post-relay-v1.26.1 pending path).
+  // The relay also returns paymentStatus/paymentId either at the top level or nested
+  // under an "inbox" envelope (upstream skills/x402/x402.ts uses the envelope form).
+  if (finalRes.status === 200 || finalRes.status === 201 || finalRes.status === 202) {
     const settlementHeader = finalRes.headers.get(deps.headers.PAYMENT_RESPONSE);
     const settlement = deps.decodePaymentResponse(settlementHeader);
     const txid = settlement?.transaction;
-    // The relay surfaces paymentId in the inbox response body when settlement is async.
-    const paymentId = (responseBody?.paymentId as string | undefined)
+    const inboxEnvelope = (responseBody?.inbox && typeof responseBody.inbox === "object")
+      ? (responseBody.inbox as Record<string, unknown>)
+      : null;
+    const paymentId = (inboxEnvelope?.paymentId as string | undefined)
+      ?? (inboxEnvelope?.payment_id as string | undefined)
+      ?? (responseBody?.paymentId as string | undefined)
       ?? (responseBody?.payment_id as string | undefined);
-    const paymentStatus = (responseBody?.paymentStatus as "confirmed" | "pending" | undefined)
+    const paymentStatus = (inboxEnvelope?.paymentStatus as "confirmed" | "pending" | undefined)
+      ?? (inboxEnvelope?.payment_status as "confirmed" | "pending" | undefined)
+      ?? (responseBody?.paymentStatus as "confirmed" | "pending" | undefined)
       ?? (responseBody?.payment_status as "confirmed" | "pending" | undefined)
-      ?? (settlement?.success ? "confirmed" : "pending");
+      ?? (finalRes.status === 202 ? "pending" : (settlement?.success ? "confirmed" : "pending"));
 
     return {
       success: true,

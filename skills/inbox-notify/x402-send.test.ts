@@ -21,9 +21,9 @@ describe("classifyRelayFailure", () => {
     expect(classifyRelayFailure(undefined, errorCode, undefined)).toBe("rejected");
   });
 
-  test("HTTP 202 (relay queued / held) → rejected", () => {
-    expect(classifyRelayFailure(202, undefined, undefined)).toBe("rejected");
-  });
+  // Note: HTTP 202 is the relay's success-pending path (payment accepted, inbox
+  // delivery staged). It's handled in the success branch of sendInboxMessage and
+  // never reaches classifyRelayFailure.
 
   test("HTTP 401/403 → rejected (auth failure, never broadcast)", () => {
     expect(classifyRelayFailure(401, undefined, undefined)).toBe("rejected");
