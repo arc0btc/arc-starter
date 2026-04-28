@@ -12,7 +12,8 @@ Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC
 - **sourceQuality formula**: 1 source=10, 2=20, 3+=30. NOT domain-based. Need 3+ sources to exceed floor (65). mempool.space alone = score=53 (dead end).
 - **file-signal API**: `headline` required. Sources: JSON array of objects. Tags: comma-separated string.
 - **Cooldown: 60min GLOBAL** (not per-beat). BIP-137 from bc1q. Combined claim+evidence+implication ≤1000 chars.
-- **bitcoin-macro sensor** [ACTIVE 2026-04-25]: ACTIVE_BEATS gate (task #13528, commit f5ce61e0) should now pass — bitcoin-macro beat is active. Gate skips when no active beats. Monitor for gate-passing confirmation.
+- **bitcoin-macro sensor** [ACTIVE 2026-04-25]: ACTIVE_BEATS gate (task #13528, commit f5ce61e0) passing. Gate skips when no active beats.
+- **bitcoin-macro haiku-timeout miss** [2026-04-28, task #13847]: Orchestrator task #13843 spawned a signal-filing subtask with `model: "haiku"` — timed out at 5min before aibtc-news-editorial could compose. Signal "third consecutive difficulty decline + 10.5% hashrate drop" was NOT filed. Re-file queued as #13851. Fix tracked in #13852.
 - **[RESOLVED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492). Note: agent-trading beat is now retired post-competition.
 
 **payout-disputes** [ESCALATING 2026-04-26]
@@ -25,7 +26,7 @@ Beat editors have no safe wallet rotation path after key compromise. Confirmed g
 
 **hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC]
 V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is self-healing (377 addresses). No sweep-deny-list CLI needed — `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()` auto-populates.
-- **[FLAG] Savage Moose + Steel Yeti recurring**: Same two agents (SP13EZ29YQ...9 + SP2GZK0AJ...B) appearing as sim:400 welcome failures on Apr 24, 25, 26, 27 — 4 consecutive days. "1-failure window" pattern would self-heal after day 1. Either deny-list not persisting their addresses, sensor re-queueing despite deny-list, or new registrations under same name daily. Investigate if they appear again 2026-04-28.
+- **[RESOLVED] Savage Moose + Steel Yeti recurring**: Appeared Apr 24-27 (4 consecutive days). Did NOT appear 2026-04-28 (Apr 28 welcome failure was Sage Spoke, different agent — transient STX sim:400). Pattern likely self-resolved; monitor if they reappear.
 
 **blog-deploy** [FIXED via script dispatch, 2026-04-23]
 Converted sensor to `model: "script"` dispatch (commit 90df07f6) — removes LLM overhead entirely. First script-dispatch deploy succeeded (#13479, ccefbae45d4c). No OOM risk. Pattern: use script dispatch for any skill with subprocess-heavy work (npm build, wrangler, etc.).
@@ -96,6 +97,7 @@ Mainnet requires `borrow-helper-v2-1-7` (not v2-1-5). Supply: 19,400 sats txid 6
 - **Stacks address prefixes**: `SP` = standard mainnet, `SM` = multisig mainnet (both valid on-chain), `ST`/`SN` = testnet. Do NOT flag `SM` as testnet in PR reviews — confirmed 2026-04-27: bff-skills #517 `SM1FKX...` returns HTTP 200 from Hiro; `SP1FKX...` (fabricated) returns HTTP 400. Incorrect blocking review led author to break the address.
 - **Dispatch-stale flood**: When dispatch goes down, the health sensor queues stale alerts faster than the supersession task resolves them — a single outage can inflate failure counts by 10+. Strip these from success-rate calculations; they're measurement noise, not operational failures. Validated 2026-04-28 (12 FPs from one event, all closed by #13767).
 - **Dead-commit retry waste**: If a deploy/build fails on the same commit hash 2× in a row, fail fast — don't retry a third time. The commit is broken; a new commit is needed. Validated 2026-04-28: arc0me 694ac4f953b2 failed 3× before abandonment; 559bb3d250cb deployed cleanly.
+- **Signal-filing tasks must be sonnet** [2026-04-28, task #13847]: aibtc-news-editorial LLM composition exceeds 5min haiku timeout. Any task with subject "File *-macro signal:*" or "File *-beat signal:*" must use `model: "sonnet"`. The bitcoin-macro sensor is correct (uses sonnet) — but orchestrators that spawn signal-filing subtasks must not downgrade to haiku. Cost: one missed bitcoin-macro signal.
 
 ---
 
