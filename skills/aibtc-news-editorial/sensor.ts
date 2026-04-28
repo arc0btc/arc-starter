@@ -77,6 +77,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
 
       if (beatStatus === "active") {
         log(`beat ${beatSlug} is active (${status.totalSignals} signals)`);
+      } else if (beatStatus === "retired") {
+        log(`beat ${beatSlug} is retired (no alert)`);
       } else {
         log(`warn: beat ${beatSlug} is INACTIVE (${status.totalSignals} signals)`);
 
