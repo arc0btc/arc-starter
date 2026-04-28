@@ -12,8 +12,8 @@ Final Score: 804 / Rank: #47 / Top: 1922. Ended 2026-04-22 23:00 UTC.
 - **sourceQuality formula**: 1 source=10, 2=20, 3+=30. Need 3+ sources to exceed floor (65). mempool.space alone = score=53 (dead end).
 - **file-signal API**: `headline` required. Sources: JSON array of objects. Tags: comma-separated string.
 - **Cooldown: 60min GLOBAL** (not per-beat). BIP-137 from bc1q. Combined claim+evidence+implication ≤1000 chars.
-- **bitcoin-macro sensor** [ACTIVE]: ACTIVE_BEATS gate (commit f5ce61e0) passing. SQ=1 floor persists 6+ consecutive days — gate passes but 0 signals reaching approval; content failing quality thresholds.
-- **haiku-timeout miss** [2026-04-28, task #13847]: Signal-filing subtask spawned with haiku → timed out. Signal NOT filed. **Fix: signal-filing tasks must use sonnet.** Re-file #13851, fix tracked #13852.
+- **bitcoin-macro sensor** [ACTIVE]: SQ=1 streak broken 2026-04-28 — hashrate signal `d2237ab7` filed, quality 93, beatRelevance=20. Three-layer root cause fully resolved: (1) ACTIVE_BEATS empty → sensor never fired (commit f28aeafb); (2) missing beat tag → beatRelevance=0 (filing instructions fixed); (3) single source → sourceQuality=10 → added blockstream.info as 3rd source (commit 94938b4d). Monitor approval status of `d2237ab7`.
+- **haiku-timeout miss** [2026-04-28, task #13847]: Signal-filing subtask spawned with haiku → timed out. **Fix: signal-filing tasks must use sonnet.** Fix tracked #13852.
 
 **payout-disputes** [ESCALATING, no response from whoabuddy as of 2026-04-26]
 11 disputes (agent-news #625, #627, #628, #630, #631, #633, #636, #638, #645, #651). Root cause: editor payout automation funded editor wallets but correspondent distribution pipeline never completed. Arc analysis provided; platform-side resolution blocked. Escalated 2026-04-24.
@@ -41,8 +41,8 @@ L402 Lightning via Spark SDK added (PR #474). New tools: `lightning_create/impor
 **claude-code-prompt-caching** [CONFIRMED, 58%+20-30% reduction]
 `ENABLE_PROMPT_CACHING_1H=1` + `--exclude-dynamic-system-prompt-sections` both live (task #13638). Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
 
-**dispatch-gate** [STATE: 2026-03-23]
-3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
+**dispatch-gate** [STOPPED 2026-04-28 — awaiting whoabuddy review]
+3 consecutive failures → stop + email whoabuddy. Escalated 2026-04-28 with logs. **Do not `arc dispatch reset` without whoabuddy reviewing the 3 failure log entries.** State: `db/hook-state/dispatch-gate.json`.
 
 **ic-candidate-depth-protocol** [DEFERRED 2026-04-23]
 All 5 technical gates pass. Deferred by @secret-mars on shipping momentum. Re-greenlight conditions: new commit/release within 7d, external PR/issue engagement, SDK version bump, X activity.
@@ -86,6 +86,8 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **Dead-commit retry waste**: Same commit hash failing 2× → fail fast, don't retry. A new commit is needed.
 - **Signal-filing tasks must be sonnet**: haiku times out before aibtc-news-editorial can compose. Any "File *-signal:*" task must use sonnet.
 - **Cooldown collision**: fixed 2026-04-21. `isBeatOnCooldown()` checks pending/active queue.
+- **Layered failure masking**: When a pipeline has multiple sequential silent failures, fixing one reveals the next. The SQ=1 streak (6+ days) had 3 stacked root causes — each masked the next. Fix all layers before declaring resolved; confirm with a filed signal, not just sensor logs.
+- **Retired-beat inactivity false positives**: Sensors that check beat activity must filter out retired beats. `aibtc-news-editorial` sensor fixed 2026-04-28 (commit d7152b93) — now skips beats not in the active beat list.
 
 ---
 
