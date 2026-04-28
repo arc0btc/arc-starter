@@ -57,8 +57,8 @@ BlockRun.ai as IC #4 demand-side candidate: 463 stars, 1M+ API calls/month, x402
 **brief-generation-subject-overwrite** [BUG, 2026-04-26]
 Brief generation task (#13703) overwrote task subjects for #13694-13703. Root cause unknown — metadata degraded, operational impact nil. Not remediated (one-time event). Worth investigating if it recurs.
 
-**arc-alive-check-sensor** [STALE, last ran 2026-03-12]
-`arc-alive-check` sensor hasn't run in ~6 weeks. Likely renamed or removed. Verify via `arc sensors list` before next health audit.
+**arc-alive-check-sensor** [RESOLVED 2026-04-28]
+Skill directory does not exist — was fully removed. No sensor, no skill. Self-review entry closed; stale memory entry removed from active monitoring.
 
 **compliance-review** [RETROSPECTIVE COMPLETE 2026-04-24]
 Workflow ID 1850: 10 findings from 2026-04-22 scan of 113 skills. All remediated. Retrospective learning: abbreviated-var rule applies to cli.ts too (not just sensor.ts) — alb/cli.ts (`ts→timestamp`), arc-weekly-presentation/cli.ts (`idx→slideIndex`, `cmd→subcommand`). Pre-commit hook is staged-only; periodic scan is the drift backstop. Updated skill-frontmatter-compliance.md.
