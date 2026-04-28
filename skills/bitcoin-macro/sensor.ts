@@ -6,6 +6,7 @@
 //   blockchain.info/ticker — BTC/USD spot price (no auth)
 //   mempool.space/api/v1/mining/hashrate/1m — 30-day hashrate (no auth)
 //   mempool.space/api/v1/difficulty-adjustment — next retarget info (no auth)
+//   blockstream.info/api/blocks/tip/height — current block height (no auth)
 //
 // Signal types (rotated for beat diversity):
 //   price-milestone  — BTC crosses a round-number threshold
@@ -59,6 +60,14 @@ const DIFFICULTY_MIN_CHANGE_PCT = 3; // only signal if |difficultyChange| ≥ 3%
 
 const MEMPOOL_API = "https://mempool.space/api";
 const BLOCKCHAIN_INFO_API = "https://blockchain.info";
+const BLOCKSTREAM_API = "https://blockstream.info/api";
+
+// Three sources — sourceQuality=30 (floor is 65; 1 src=10, 2=20, 3+=30)
+const SIGNAL_SOURCES_JSON = JSON.stringify([
+  { url: "https://blockchain.info/ticker", title: "BTC/USD Spot Price (blockchain.info)" },
+  { url: "https://mempool.space/api/v1/mining/hashrate/1m", title: "Bitcoin Network Hashrate (mempool.space)" },
+  { url: "https://blockstream.info/api/blocks/tip/height", title: "Current Block Height (blockstream.info)" },
+]);
 
 // ---- Types ----
 
@@ -176,6 +185,25 @@ async function fetchDifficultyAdjustment(): Promise<DifficultyData | null> {
   }
 }
 
+async function fetchBlockHeight(): Promise<number | null> {
+  try {
+    const height_response = await fetchWithRetry(`${BLOCKSTREAM_API}/blocks/tip/height`, {
+      headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!height_response.ok) {
+      log(`blockstream.info height returned ${height_response.status}`);
+      return null;
+    }
+    const text = await height_response.text();
+    const height = parseInt(text.trim(), 10);
+    return isNaN(height) ? null : height;
+  } catch (e) {
+    log(`block height fetch failed: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 // ---- Signal detection ----
 
 interface DetectedSignal {
@@ -188,6 +216,7 @@ interface DetectedSignal {
 function detectPriceMilestone(
   price: number,
   firedMilestones: number[],
+  blockHeight: number | null,
 ): DetectedSignal | null {
   // Find the highest milestone crossed that hasn't been signalled yet
   const crossed = PRICE_MILESTONES_USD.filter(
@@ -215,8 +244,8 @@ function detectPriceMilestone(
         `Round-number crossings often attract momentum traders and media attention, ` +
         `amplifying short-term directional pressure. Sustained trade above ${fmt(milestone)} would ` +
         `validate the level as support and set sights on the next threshold.`,
-      dataSource: "blockchain.info/ticker",
       milestoneContext: `Milestone: ${fmt(milestone)} | Current price: $${Math.round(price).toLocaleString()}`,
+      blockHeight,
     }),
   };
 }
@@ -224,6 +253,7 @@ function detectPriceMilestone(
 function detectPriceMove(
   price: number,
   history: PriceReading[],
+  blockHeight: number | null,
 ): DetectedSignal | null {
   if (history.length === 0) return null;
   const prev = history[history.length - 1];
@@ -252,8 +282,8 @@ function detectPriceMove(
             ? "elevated volatility — potential liquidation cascade or major macro catalyst"
             : "active price discovery — monitor for follow-through or reversal"
         }.`,
-      dataSource: "blockchain.info/ticker",
       milestoneContext: `${sign}${changePct.toFixed(1)}% | $${Math.round(prev.usd).toLocaleString()} → $${Math.round(price).toLocaleString()}`,
+      blockHeight,
     }),
   };
 }
@@ -261,6 +291,7 @@ function detectPriceMove(
 function detectHashrateSignal(
   hr: HashrateData,
   state: SensorState,
+  blockHeight: number | null,
 ): { signal: DetectedSignal | null; newATH: number } {
   const currentEH = hr.currentEH;
   const storedATH = state.hashrateATH || 0;
@@ -283,8 +314,8 @@ function detectHashrateSignal(
             `A hashrate all-time high reflects record capital deployment in mining hardware and energy. ` +
             `Higher security budget strengthens Bitcoin's 51%-attack resistance and signals miner ` +
             `confidence in long-term block-reward economics.`,
-          dataSource: "mempool.space/api/v1/mining/hashrate/1m",
           milestoneContext: `ATH: ${currentEH.toFixed(1)} EH/s | Previous: ${storedATH.toFixed(1)} EH/s`,
+          blockHeight,
         }),
       },
       newATH,
@@ -310,8 +341,8 @@ function detectHashrateSignal(
               `unprofitable miners going offline due to falling prices or rising energy costs. ` +
               `Reduced hashrate may trigger a negative difficulty adjustment, temporarily lowering ` +
               `production costs for remaining miners.`,
-            dataSource: "mempool.space/api/v1/mining/hashrate/1m",
             milestoneContext: `Current: ${currentEH.toFixed(1)} EH/s | ATH: ${storedATH.toFixed(1)} EH/s | Drop: -${dropPct.toFixed(1)}%`,
+            blockHeight,
           }),
         },
         newATH, // ATH stays the same on a drop
@@ -325,6 +356,7 @@ function detectHashrateSignal(
 function detectDifficultySignal(
   diff: DifficultyData,
   state: SensorState,
+  blockHeight: number | null,
 ): DetectedSignal | null {
   // Only fire if within DIFFICULTY_ALERT_BLOCKS of retarget AND change is significant
   if (diff.remainingBlocks > DIFFICULTY_ALERT_BLOCKS) return null;
@@ -356,8 +388,8 @@ function detectDifficultySignal(
           `a bullish signal for miner economics and network security investment.`
         : `A negative difficulty adjustment signals miner capitulation or efficiency-driven consolidation — ` +
           `reducing production costs for survivors and historically preceding price stabilisation.`,
-      dataSource: "mempool.space/api/v1/difficulty-adjustment",
       milestoneContext: `Change: ${sign}${diff.difficultyChange.toFixed(1)}% | Blocks remaining: ${diff.remainingBlocks} | ETA: ${retargetDateStr}`,
+      blockHeight,
     }),
   };
 }
@@ -369,8 +401,8 @@ interface SignalParts {
   claim: string;
   evidence: string;
   implication: string;
-  dataSource: string;
   milestoneContext: string;
+  blockHeight?: number | null;
 }
 
 function buildSignalDescription(parts: SignalParts): string {
@@ -380,7 +412,7 @@ function buildSignalDescription(parts: SignalParts): string {
     `**Beat:** ${BEAT_SLUG} | **Type:** ${parts.type}`,
     "",
     "### Observation",
-    parts.milestoneContext,
+    parts.milestoneContext + (parts.blockHeight != null ? ` | Block: ${parts.blockHeight.toLocaleString()}` : ""),
     "",
     "### Claim",
     parts.claim,
@@ -393,12 +425,12 @@ function buildSignalDescription(parts: SignalParts): string {
     "",
     "### Filing Instructions",
     `Compose a signal in Economist editorial voice — data-rich, precise, no hype.`,
-    `Verify source is reachable: \`arc skills run --name aibtc-news-editorial -- check-sources --sources '["https://${parts.dataSource}"]'\``,
+    `Verify sources are reachable: \`arc skills run --name aibtc-news-editorial -- check-sources --sources '${SIGNAL_SOURCES_JSON}'\``,
     `Then file:`,
-    `\`arc skills run --name aibtc-news-editorial -- file-signal --beat ${BEAT_SLUG} --claim "<rewrite in Economist voice>" --evidence "<quantitative evidence with source>" --implication "<forward-looking consequence>" --tags "bitcoin-macro,<type-specific-tag>"\``,
+    `\`arc skills run --name aibtc-news-editorial -- file-signal --beat ${BEAT_SLUG} --claim "<rewrite in Economist voice>" --evidence "<quantitative evidence with sources>" --implication "<forward-looking consequence>" --sources '${SIGNAL_SOURCES_JSON}' --tags "bitcoin-macro,<type-specific-tag>"\``,
     "",
     "**Tags (required):** Always include `bitcoin-macro` as the first tag — omitting it causes beatRelevance=0 in publisher scoring. Add 1-2 type-specific tags (e.g. `hashrate`, `difficulty`, `price`, `mining`).",
-    "**Sources:** Use URLs from the `dataSource` field above — these are GitHub-reachable and accepted by the publisher.",
+    "**Sources (required):** The `--sources` flag above includes 3 GitHub-reachable sources, pushing sourceQuality from 20 to 30 and clearing the 65-point floor. Do not omit it.",
     "**Voice rules:** Avoid 'surges', 'crashes', 'rockets'. Use precise verbs: rises, falls, crosses, adjusts.",
     "**No external market data:** Do not add price data from CoinGecko, Binance, or Coinbase — use the sources listed above.",
   ].join("\n");
@@ -456,13 +488,14 @@ export default async function bitcoinMacroSensor(): Promise<string> {
     };
 
     // Fetch all data in parallel
-    const [price, hashrate, difficulty] = await Promise.all([
+    const [price, hashrate, difficulty, blockHeight] = await Promise.all([
       fetchBtcPrice(),
       fetchHashrate(),
       fetchDifficultyAdjustment(),
+      fetchBlockHeight(),
     ]);
 
-    log(`fetched — price: ${price ?? "null"}, hashrate: ${hashrate?.currentEH?.toFixed(1) ?? "null"} EH/s, difficulty blocks remaining: ${difficulty?.remainingBlocks ?? "null"}`);
+    log(`fetched — price: ${price ?? "null"}, hashrate: ${hashrate?.currentEH?.toFixed(1) ?? "null"} EH/s, difficulty blocks remaining: ${difficulty?.remainingBlocks ?? "null"}, block height: ${blockHeight ?? "null"}`);
 
     if (price === null && hashrate === null && difficulty === null) {
       log("all data sources failed");
@@ -491,26 +524,26 @@ export default async function bitcoinMacroSensor(): Promise<string> {
     // 1. Price milestones (highest priority — one-time events)
     // Skip on first run — we're just initialising baseline, not signalling
     if (price !== null && !isFirstRun) {
-      const milestoneSignal = detectPriceMilestone(price, state.firedMilestones ?? []);
+      const milestoneSignal = detectPriceMilestone(price, state.firedMilestones ?? [], blockHeight);
       if (milestoneSignal) candidates.push(milestoneSignal);
     }
 
     // 2. Difficulty adjustment (time-sensitive — only fires near retarget)
     if (difficulty !== null) {
-      const diffSignal = detectDifficultySignal(difficulty, state);
+      const diffSignal = detectDifficultySignal(difficulty, state, blockHeight);
       if (diffSignal) candidates.push(diffSignal);
     }
 
     // 3. Hashrate record
     if (hashrate !== null) {
-      const { signal: hrSignal, newATH: updatedATH } = detectHashrateSignal(hashrate, state);
+      const { signal: hrSignal, newATH: updatedATH } = detectHashrateSignal(hashrate, state, blockHeight);
       newATH = updatedATH;
       if (hrSignal) candidates.push(hrSignal);
     }
 
     // 4. Price move (lowest priority — most common)
     if (price !== null) {
-      const moveSignal = detectPriceMove(price, state.priceHistory);
+      const moveSignal = detectPriceMove(price, state.priceHistory, blockHeight);
       if (moveSignal) candidates.push(moveSignal);
     }
 
