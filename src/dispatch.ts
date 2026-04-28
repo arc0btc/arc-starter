@@ -1046,6 +1046,14 @@ export async function runDispatch(): Promise<void> {
     }
   }
 
+  // Dispatch-time model upgrade: signal-filing tasks invoke aibtc-news-editorial LLM composition
+  // which routinely exceeds the 5-min haiku timeout (validated 2026-04-28, task #13847/13852).
+  // Any task whose subject starts with "File <beat> signal:" must run on sonnet (15min ceiling).
+  if (effectiveModel === "haiku" && /^File\s+\S+-(?:macro|beat)\s+signal:/i.test(task.subject)) {
+    log(`dispatch: haiku → sonnet (signal-filing task "${task.subject.slice(0, 60)}" requires LLM composition, exceeds 5-min haiku timeout)`);
+    effectiveModel = "sonnet";
+  }
+
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
