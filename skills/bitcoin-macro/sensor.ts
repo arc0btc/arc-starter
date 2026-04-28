@@ -38,7 +38,7 @@ const MAX_HISTORY = 6; // rolling readings for trend detection
 // Active beats gate — list beats that are currently claimed and accepting signals.
 // Post-competition all beats reset; add BEAT_SLUG back here when the beat is reacquired.
 // Empty = sensor short-circuits immediately without queuing tasks or fetching data.
-const ACTIVE_BEATS: string[] = [];
+const ACTIVE_BEATS: string[] = ["bitcoin-macro"];
 
 // ---- Signal thresholds ----
 
@@ -395,8 +395,9 @@ function buildSignalDescription(parts: SignalParts): string {
     `Compose a signal in Economist editorial voice — data-rich, precise, no hype.`,
     `Verify source is reachable: \`arc skills run --name aibtc-news-editorial -- check-sources --sources '["https://${parts.dataSource}"]'\``,
     `Then file:`,
-    `\`arc skills run --name aibtc-news-editorial -- file-signal --beat ${BEAT_SLUG} --claim "<rewrite in Economist voice>" --evidence "<quantitative evidence with source>" --implication "<forward-looking consequence>"\``,
+    `\`arc skills run --name aibtc-news-editorial -- file-signal --beat ${BEAT_SLUG} --claim "<rewrite in Economist voice>" --evidence "<quantitative evidence with source>" --implication "<forward-looking consequence>" --tags "bitcoin-macro,<type-specific-tag>"\``,
     "",
+    "**Tags (required):** Always include `bitcoin-macro` as the first tag — omitting it causes beatRelevance=0 in publisher scoring. Add 1-2 type-specific tags (e.g. `hashrate`, `difficulty`, `price`, `mining`).",
     "**Sources:** Use URLs from the `dataSource` field above — these are GitHub-reachable and accepted by the publisher.",
     "**Voice rules:** Avoid 'surges', 'crashes', 'rockets'. Use precise verbs: rises, falls, crosses, adjusts.",
     "**No external market data:** Do not add price data from CoinGecko, Binance, or Coinbase — use the sources listed above.",
