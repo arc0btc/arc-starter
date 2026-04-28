@@ -68,16 +68,9 @@ async function pollDirect(broadcast: NonceBroadcast): Promise<{
   settlement_status: string | null;
   detail: string | null;
 }> {
-  if (!broadcast.txid) {
-    return {
-      outcome: "error",
-      txid: null,
-      block_height: null,
-      settlement_status: null,
-      detail: "direct-broadcast row has no txid to poll",
-    };
-  }
-  const id = broadcast.txid.startsWith("0x") ? broadcast.txid : `0x${broadcast.txid}`;
+  // Dispatch guarantees txid is set before we get here.
+  const txid = broadcast.txid as string;
+  const id = txid.startsWith("0x") ? txid : `0x${txid}`;
   try {
     const res = await fetch(`${HIRO_API}/extended/v1/tx/${id}`);
     if (res.status === 404) {
@@ -162,15 +155,6 @@ async function pollX402(broadcast: NonceBroadcast): Promise<{
   settlement_status: string | null;
   detail: string | null;
 }> {
-  if (!broadcast.payment_id) {
-    return {
-      outcome: "error",
-      txid: broadcast.txid,
-      block_height: null,
-      settlement_status: null,
-      detail: "x402-relay row has no payment_id to poll",
-    };
-  }
   try {
     const res = await fetch(`${PAYMENT_STATUS_BASE}/${broadcast.payment_id}`);
     if (!res.ok && res.status !== 404) {
@@ -276,17 +260,21 @@ export async function reconcile(address?: string): Promise<ReconcileSummary> {
 
     let result;
     try {
-      if (broadcast.source === "x402-relay") {
+      // Receipt-driven dispatch: route by what we can actually poll, not by source.
+      // Synchronous x402 settlements (HTTP 200) return a txid in the payment header
+      // but no paymentId in the response body, so x402-relay rows routinely arrive
+      // with payment_id=null and need the Hiro fallback. Source stays informational.
+      if (broadcast.payment_id) {
         result = await pollX402(broadcast);
-      } else if (broadcast.source === "direct") {
+      } else if (broadcast.txid) {
         result = await pollDirect(broadcast);
       } else {
         result = {
           outcome: "error" as const,
-          txid: broadcast.txid,
+          txid: null,
           block_height: null,
           settlement_status: null,
-          detail: `unknown source: ${broadcast.source}`,
+          detail: `row has neither payment_id nor txid (source=${broadcast.source})`,
         };
       }
     } catch (err) {
@@ -303,8 +291,14 @@ export async function reconcile(address?: string): Promise<ReconcileSummary> {
 
     let finalOutcome: ReconcileTransition["outcome"] = result.outcome;
 
-    // TTL: still-pending past EXPIRY_MS becomes expired (a soft phantom).
-    if (finalOutcome === "still_pending" && isExpired(broadcast, now)) {
+    // TTL: a row stuck past EXPIRY_MS becomes expired (a soft phantom). Applies to
+    // both still_pending and error outcomes — a row that hits a persistent error
+    // path must still surface as a phantom so an operator sees it, otherwise it
+    // would poll forever with no alarm.
+    if (
+      (finalOutcome === "still_pending" || finalOutcome === "error") &&
+      isExpired(broadcast, now)
+    ) {
       finalOutcome = "expired";
     }
 

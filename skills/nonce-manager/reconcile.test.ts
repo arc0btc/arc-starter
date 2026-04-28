@@ -207,10 +207,10 @@ describe("reconcile — defensive behavior", () => {
       const summary = await reconcile(addr);
       expect(summary.confirmed).toBe(2);
       expect(summary.errors).toBe(1);
-      // Bad row stays pending (error doesn't change status).
+      // Bad row stays pending (error doesn't change status, TTL hasn't elapsed yet).
       const badRow = getBroadcast(addr, 33);
       expect(badRow?.status).toBe("pending");
-      expect(badRow?.last_error).toContain("no txid");
+      expect(badRow?.last_error).toContain("neither payment_id nor txid");
     } finally {
       restoreFetch();
     }
@@ -230,6 +230,86 @@ describe("reconcile — defensive behavior", () => {
       const row = getBroadcast(addr, 41);
       expect(row?.status).toBe("pending"); // error doesn't transition status
       expect(row?.last_error).toContain("network unreachable");
+    } finally {
+      restoreFetch();
+    }
+  });
+});
+
+describe("reconcile — receipt-driven fallback", () => {
+  test("x402-relay row with no payment_id falls back to Hiro tx poll", async () => {
+    // Synchronous x402 settlements (HTTP 200) return a txid in the payment header
+    // but no paymentId in the body. Source stays "x402-relay" but the reconciler
+    // must poll Hiro by txid instead of erroring out.
+    const addr = testAddress();
+    recordBroadcast({ address: addr, nonce: 61, source: "x402-relay", txid: "sync-settled-tx" });
+
+    let paymentStatusFetches = 0;
+    let hiroFetches = 0;
+    mockFetch((url) => {
+      if (url.includes("/payment-status/")) {
+        paymentStatusFetches++;
+        throw new Error("must not poll payment-status without payment_id");
+      }
+      if (url.includes("/tx/0xsync-settled-tx")) {
+        hiroFetches++;
+        return { status: 200, body: { tx_status: "success", block_height: 7700400 } };
+      }
+      throw new Error("unexpected fetch: " + url);
+    });
+
+    try {
+      const summary = await reconcile(addr);
+      expect(summary.confirmed).toBe(1);
+      expect(paymentStatusFetches).toBe(0);
+      expect(hiroFetches).toBe(1);
+      const row = getBroadcast(addr, 61);
+      expect(row?.status).toBe("confirmed");
+      expect(row?.block_height).toBe(7700400);
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  test("row with neither payment_id nor txid → error", async () => {
+    const addr = testAddress();
+    recordBroadcast({ address: addr, nonce: 62, source: "x402-relay" });
+
+    mockFetch(() => {
+      throw new Error("must not fetch when there's nothing to poll");
+    });
+
+    try {
+      const summary = await reconcile(addr);
+      expect(summary.errors).toBe(1);
+      const row = getBroadcast(addr, 62);
+      expect(row?.status).toBe("pending");
+      expect(row?.last_error).toContain("neither payment_id nor txid");
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  test("errored row past TTL transitions to expired (phantom)", async () => {
+    // A row stuck in error state must surface as a phantom once TTL elapses,
+    // otherwise persistent error paths would poll forever with no alarm.
+    const addr = testAddress();
+    recordBroadcast({ address: addr, nonce: 63, source: "x402-relay" });
+    // Backdate broadcast_at by 31 minutes to push past EXPIRY_MS=30min.
+    const db = initDatabase();
+    db.query("UPDATE nonce_broadcasts SET broadcast_at = datetime('now', '-31 minutes') WHERE address = ? AND nonce = 63").run(addr);
+
+    mockFetch(() => {
+      throw new Error("must not fetch when there's nothing to poll");
+    });
+
+    try {
+      const summary = await reconcile(addr);
+      expect(summary.expired).toBe(1);
+      expect(summary.phantoms.length).toBe(1);
+      expect(summary.phantoms[0]?.outcome).toBe("expired");
+      const row = getBroadcast(addr, 63);
+      expect(row?.status).toBe("expired");
     } finally {
       restoreFetch();
     }
