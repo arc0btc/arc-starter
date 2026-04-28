@@ -53,25 +53,29 @@ Load when: building or maintaining the MCP server itself, debugging connection i
 
 ## Claude Code Integration
 
-Add to `.claude/settings.json`:
+Add to `.claude/settings.json` (external client config, not Arc's own dispatch):
 
 ```json
 {
   "mcpServers": {
     "arc": {
       "command": "bun",
-      "args": ["skills/arc-mcp-server/server.ts"]
+      "args": ["skills/arc-mcp-server/server.ts"],
+      "alwaysLoad": true
     }
   }
 }
 ```
+
+`alwaysLoad: true` is recommended for external clients — it ensures tools are immediately available without a ToolSearch round-trip. Do NOT add arc-mcp-server to Arc's own `.claude/settings.json`; Arc uses the `arc` CLI directly during dispatch and does not connect to its own MCP surface.
 
 For remote HTTP:
 ```json
 {
   "mcpServers": {
     "arc": {
-      "url": "http://localhost:3100/mcp"
+      "url": "http://localhost:3100/mcp",
+      "alwaysLoad": true
     }
   }
 }
