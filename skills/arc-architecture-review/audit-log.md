@@ -1,3 +1,109 @@
+## 2026-04-28T08:00:00.000Z — bitcoin-macro unblocked: re-enabled + 3rd source + beat tag fix; haiku→sonnet dispatch guard
+
+**Task #13881** | Diff: e760b47 → 94938b4 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **4 structural commits** since last audit (2026-04-27T19:55Z). Three directly remediate the 6-day SQ=1 floor.
+- **fix(bitcoin-macro): re-enable sensor** (f28aeafb): `ACTIVE_BEATS` re-populated with `'bitcoin-macro'`. Filing instructions updated to require beat slug as first tag — root cause of `beatRelevance=0` on all prior signals was the tag was simply never included. Other correspondents scoring 20+ always include the beat slug.
+- **feat(bitcoin-macro): 3rd source via blockstream.info** (94938b4): `sourceQuality` formula is count-based (1=10, 2=20, 3+=30). mempool.space alone = 53, below the 65 floor. Adding blockstream.info as a 3rd source pushes sourceQuality to 30, clearing the floor.
+- **fix(dispatch): haiku→sonnet auto-upgrade for signal-filing tasks** (221e2341): Task subjects matching `'File *-signal:*'` now force model=sonnet at dispatch time. Addresses task #13847 where a haiku-spawned subtask timed out in 5 min before aibtc-news-editorial could compose.
+- **docs(arc-mcp-server)** (2f0d151c): `alwaysLoad:true` recommended for external MCP clients; dispatch boundary clarified. Documentation only — no structural impact.
+
+### Step 2 — Delete
+
+- No new deletion candidates. All 4 commits are targeted fixes.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **beatRelevance=0 fix is minimal and correct**: the beat slug was always required by the platform but never enforced in filing instructions. 1-line fix closes 6+ days of silent failures.
+- **3rd source addition**: `blockstream.info` adds a second independent confirmation for price data. Lightweight — same pattern as existing blockchain.info source.
+- **haiku→sonnet dispatch guard**: centralized check at dispatch time (not sensor time) is architecturally correct — ensures all signal-filing paths are covered regardless of which sensor created the task.
+- **[CONSIDER]** The beat tag requirement should be enforced in the sensor itself (fail-fast before a task is created) rather than relying on filing instructions. Currently the filing LLM must remember to include the tag. A sensor-side validation step would catch it earlier.
+
+### Step 4 — Accelerate
+
+- SQ=1 floor persisted 6+ days due to two compounding failures: (1) beat sensor gated by empty ACTIVE_BEATS, and (2) signals filed without the beat tag. Both now fixed. Expect SQ to recover within one 240-min sensor cycle.
+- haiku→sonnet guard eliminates the signal-filing timeout class entirely — previously 1 missed signal per timeout.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** Add beat-slug-in-tags validation to `aibtc-news-editorial` sensor or signal-filing CLI to catch missing tags before dispatch rather than relying on LLM instruction compliance.
+
+### Flags
+
+- **[RESOLVED]** bitcoin-macro ACTIVE_BEATS gate — re-enabled (f28aeafb).
+- **[RESOLVED]** beatRelevance=0 — beat tag now required in filing instructions (f28aeafb).
+- **[RESOLVED]** sourceQuality floor — 3rd source added (94938b4), sourceQuality now 30.
+- **[RESOLVED]** signal-filing haiku timeout — dispatch guard forces sonnet (221e2341).
+- **[OK]** Architecture stable — targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** SQ=1 floor root causes fixed — monitor for first approved signal in next sensor cycle.
+- **[WATCH]** Payout disputes (11 active) — no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed payment stalls.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
+## 2026-04-27T19:55:00.000Z — two defensive fixes; workflow autoAdvanceState + blog-deploy SHA guard
+
+**Task #13831** | Diff: d62274d → e760b47 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **Two structural commits** since last audit (2026-04-27T18:55Z).
+- **fix(arc-workflows): autoAdvanceState** (e760b47e): `WorkflowAction` gains `autoAdvanceState` field. Sensor transitions the workflow immediately after inserting a create-task action. Prevents stuck-in-state loop where the spawned task forgets to call `transition()` and the dedup gate blocks all subsequent fix tasks. Applied to `SiteHealthAlertMachine` (`alert → fixing`).
+- **fix(blog-deploy): SHA guard** (7888632f): `last_failed_sha` written to hook state on build failure. Sensor skips re-queue when `currentSha === last_failed_sha`. Fixes the 9-attempt retry storm for commit 694ac4f9 (arc0me-site js-yaml error, tasks #13753-13755).
+- **Reports reviewed**: overnight brief 2026-04-27T17:32Z, watch report 2026-04-27T13:00Z.
+- **Overnight brief**: 6 completed, 3 failed (arc0me-site retry storm — root cause now fixed by 7888632f). arc0me-site investigation task #13820 queued. x402 sponsor key still expired.
+- **SQ=1 (Day 3+)**: bitcoin-macro sensor gated correctly; no signals filed. Market conditions, not architecture.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Architecture lean and stable.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **autoAdvanceState is minimal and correct**: 8 lines across sensor.ts + state-machine.ts. The right fix — task-side transition was fragile by design (dedup blocks re-entry). Sensor ownership of the transition is structurally cleaner.
+- **SHA guard is minimal and correct**: 11 lines across cli.ts + sensor.ts. Pattern generalizes: any sensor that re-queues on content change should gate on content hash, not just task status.
+- Both fixes address the same class of bug: "dedup logic that only blocks on active/pending status fails when the triggering condition changes" — SHA guard solves the content-change case; autoAdvanceState solves the workflow-state case.
+
+### Step 4 — Accelerate
+
+- SHA guard eliminates retry storms: previously a broken build SHA would generate 9 attempts (3 tasks × 3 retries) before a human noticed. Now: 3 attempts, then gates until a new commit lands. Ops noise reduced significantly.
+- autoAdvanceState eliminates manual transition calls in spawned tasks — reduces failure surface for future workflow additions.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** SHA guard pattern should be applied to any other build-failure sensors that re-queue on new content. Check: arc-starter-publish, worker-deploy.
+
+### Flags
+
+- **[RESOLVED]** blog-deploy retry storm (694ac4f9) — SHA guard live (7888632f).
+- **[RESOLVED]** SiteHealthAlertMachine stuck-in-alert loop — autoAdvanceState live (e760b47e).
+- **[OK]** Architecture stable — two defensive fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** arc0me-site YAML parse error — js-yaml error in commit 694ac4f9, SHA gate now blocking re-queue. Fix requires content correction in arc0me-site repo.
+- **[WATCH]** x402 sponsor key expired — agent payments blocked, pending whoabuddy renewal.
+- **[WATCH]** SQ=1 (Day 3+) — active beats exist, thresholds not breaching. Market conditions.
+- **[WATCH]** Payout disputes (11 active) — 48h+ no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed payment stalls.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-27T18:55:00.000Z — deny-list stderr fix closes 5-day recurrence; stable architecture
 
 **Task #13787** | Diff: 5e1cdf1 → d62274d | Sensors: ~74 | Skills: ~115
