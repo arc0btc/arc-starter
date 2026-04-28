@@ -1,3 +1,56 @@
+## 2026-04-28T08:00:00.000Z — bitcoin-macro unblocked: re-enabled + 3rd source + beat tag fix; haiku→sonnet dispatch guard
+
+**Task #13881** | Diff: e760b47 → 94938b4 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **4 structural commits** since last audit (2026-04-27T19:55Z). Three directly remediate the 6-day SQ=1 floor.
+- **fix(bitcoin-macro): re-enable sensor** (f28aeafb): `ACTIVE_BEATS` re-populated with `'bitcoin-macro'`. Filing instructions updated to require beat slug as first tag — root cause of `beatRelevance=0` on all prior signals was the tag was simply never included. Other correspondents scoring 20+ always include the beat slug.
+- **feat(bitcoin-macro): 3rd source via blockstream.info** (94938b4): `sourceQuality` formula is count-based (1=10, 2=20, 3+=30). mempool.space alone = 53, below the 65 floor. Adding blockstream.info as a 3rd source pushes sourceQuality to 30, clearing the floor.
+- **fix(dispatch): haiku→sonnet auto-upgrade for signal-filing tasks** (221e2341): Task subjects matching `'File *-signal:*'` now force model=sonnet at dispatch time. Addresses task #13847 where a haiku-spawned subtask timed out in 5 min before aibtc-news-editorial could compose.
+- **docs(arc-mcp-server)** (2f0d151c): `alwaysLoad:true` recommended for external MCP clients; dispatch boundary clarified. Documentation only — no structural impact.
+
+### Step 2 — Delete
+
+- No new deletion candidates. All 4 commits are targeted fixes.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **beatRelevance=0 fix is minimal and correct**: the beat slug was always required by the platform but never enforced in filing instructions. 1-line fix closes 6+ days of silent failures.
+- **3rd source addition**: `blockstream.info` adds a second independent confirmation for price data. Lightweight — same pattern as existing blockchain.info source.
+- **haiku→sonnet dispatch guard**: centralized check at dispatch time (not sensor time) is architecturally correct — ensures all signal-filing paths are covered regardless of which sensor created the task.
+- **[CONSIDER]** The beat tag requirement should be enforced in the sensor itself (fail-fast before a task is created) rather than relying on filing instructions. Currently the filing LLM must remember to include the tag. A sensor-side validation step would catch it earlier.
+
+### Step 4 — Accelerate
+
+- SQ=1 floor persisted 6+ days due to two compounding failures: (1) beat sensor gated by empty ACTIVE_BEATS, and (2) signals filed without the beat tag. Both now fixed. Expect SQ to recover within one 240-min sensor cycle.
+- haiku→sonnet guard eliminates the signal-filing timeout class entirely — previously 1 missed signal per timeout.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** Add beat-slug-in-tags validation to `aibtc-news-editorial` sensor or signal-filing CLI to catch missing tags before dispatch rather than relying on LLM instruction compliance.
+
+### Flags
+
+- **[RESOLVED]** bitcoin-macro ACTIVE_BEATS gate — re-enabled (f28aeafb).
+- **[RESOLVED]** beatRelevance=0 — beat tag now required in filing instructions (f28aeafb).
+- **[RESOLVED]** sourceQuality floor — 3rd source added (94938b4), sourceQuality now 30.
+- **[RESOLVED]** signal-filing haiku timeout — dispatch guard forces sonnet (221e2341).
+- **[OK]** Architecture stable — targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** SQ=1 floor root causes fixed — monitor for first approved signal in next sensor cycle.
+- **[WATCH]** Payout disputes (11 active) — no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed payment stalls.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-27T19:55:00.000Z — two defensive fixes; workflow autoAdvanceState + blog-deploy SHA guard
 
 **Task #13831** | Diff: d62274d → e760b47 | Sensors: ~74 | Skills: ~115
