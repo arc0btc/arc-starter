@@ -1,3 +1,56 @@
+## 2026-04-28T20:00:00.000Z — retired-beat inactivity fix; second signal filed; dispatch gate stopped
+
+**Task #13919** | Diff: 94938b4 → 29e3d20 | Sensors: ~72 | Skills: ~113
+
+### Step 1 — Requirements
+
+- **Two structural commits** since last audit (2026-04-28T08:00Z).
+- **fix(aibtc-news-editorial): skip retired beats in inactivity check** (d7152b93): Sensor was alerting on all beats including the 9 post-competition retired ones. Fix: sensor skips beats not in the active beat list. Beat `infrastructure` had triggered an inactivity alert (14d inactive) because the retired-beat filter was missing.
+- **fix(aibtc-news-editorial): cross-reference /api/beats** (29e3d208): Strengthened detection by fetching the active list from `/api/beats` (authoritative) rather than relying on a hardcoded retired set. Correct long-term approach — API is the source of truth.
+- **Reports reviewed**: overnight brief 2026-04-28T13:06Z, watch report 2026-04-28T13:00Z.
+- **Second signal filed**: difficulty decline signal `3573344b`, quality 73 (task #13853). SQ floor confirmed broken after the 3-layer fix stack.
+- **Dispatch gate STOPPED**: 3 consecutive failures → escalated to whoabuddy. Do not reset without review.
+- **Claude Code upgraded to v2.1.121** (task #13857): memory leak fixes + PostToolUse hook expansion.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Both commits are targeted sensor fixes.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **Two-commit approach is correct**: first patch (d7152b93) was minimal — skip retired beats. Second patch (29e3d208) replaced the hardcoded list with an API call. This is the right sequence: ship fast, then harden the data source.
+- The `/api/beats` cross-reference is the right abstraction: any beat-aware sensor that needs "what beats are active?" should call this endpoint, not maintain its own list.
+- **[CONSIDER]** Other sensors that reference beat names (arxiv-research, aibtc-agent-trading) use `ACTIVE_BEATS` constants — those are manually maintained. The editorial sensor's `/api/beats` approach is more robust. Evaluate whether the `ACTIVE_BEATS` pattern should also cross-reference the API rather than using a hardcoded constant. The tradeoff: API calls on every sensor run vs. a constant that must be manually updated.
+
+### Step 4 — Accelerate
+
+- Retired-beat inactivity fix eliminates false-positive alert tasks for 9 retired beats. Without this fix, each sensor run (every N minutes) would generate an inactivity alert task for each retired beat — significant noise accumulation over time.
+- Second signal filed confirms the 3-layer fix stack (ACTIVE_BEATS gate + beat tag + 3rd source) is end-to-end working. SQ floor is broken; pipeline is healthy.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** ACTIVE_BEATS constants in arxiv-research and aibtc-agent-trading sensors could be replaced with a `/api/beats` cross-reference, bringing them in line with the aibtc-news-editorial pattern. This would make re-enabling beats automatic rather than requiring a code change.
+
+### Flags
+
+- **[RESOLVED]** Retired-beat inactivity false positives — sensor now cross-references `/api/beats` (29e3d208).
+- **[RESOLVED]** SQ=1 floor — two signals filed and approved (d2237ab7 Q=93, 3573344b Q=73). Pipeline confirmed end-to-end healthy.
+- **[OK]** Architecture stable — two targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** Dispatch gate STOPPED — escalated to whoabuddy. Do not reset without reviewing 3 failure log entries.
+- **[WATCH]** Payout disputes (11 active) — still no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed stalls.
+- **[CONSIDER]** ACTIVE_BEATS constants vs. live /api/beats cross-reference — evaluate for arxiv-research + aibtc-agent-trading.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-28T08:00:00.000Z — bitcoin-macro unblocked: re-enabled + 3rd source + beat tag fix; haiku→sonnet dispatch guard
 
 **Task #13881** | Diff: e760b47 → 94938b4 | Sensors: ~74 | Skills: ~115
