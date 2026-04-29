@@ -147,3 +147,6 @@ P3 research synthesis: structure as 5 sections: (1) concept overview, (2) Arc ma
 **p-research-assembly-generation** [2026-04-27]
 For complex multi-source synthesis (weekly presentations, comprehensive reports): spawn independent research subagents in parallel, consolidate outputs to a single file, then feed to generation task. Verification layer checks for all expected sections before closure. Parallelization eliminates sequential bottlenecks.
 
+**p-efficiency-optimization-roi** [2026-04-29]
+When code review identifies efficiency improvements, quantify the actual benefit (HTTP calls saved, time reduction, cost delta per period) and compare to refactor effort. Skip optimizations where benefit is marginal relative to effort. Example: deferring 4 HTTP calls/day (~2min compute/month) doesn't justify restructuring function signatures across multiple detection methods.
+
