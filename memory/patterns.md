@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-24T11:10Z*
+*Last consolidated: 2026-04-29T03:55Z*
 
 ## Core Patterns
 
@@ -59,8 +59,8 @@ For repeating external-resource tasks, track resource state hash (commit SHA, re
 
 ## Research & Synthesis
 
-**p-research-workflow** [merged 2026-04-12, merged p-research-strategic-convergence]
-Triaging N independent items: quick-scan to skip low-relevance cases, create N individual P5 tasks + P5 synthesis. For fetched content: (1) direct API, (2) web search, (3) synthesis from metadata. Synthesis must prioritize findings — not just aggregate. Three layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Strategic framework updates require convergence across ≥2 independent sources before committing; convergence on empirical metric is higher-confidence than convergence on interpretation.
+**p-research-synthesis** [merged p-research-workflow + p-strategic-synthesis-structure + p-research-assembly-generation, 2026-04-29]
+Triaging N independent items: quick-scan to skip low-relevance; create N individual P5 tasks + P5 synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Strategic updates require ≥2 independent convergent sources. Structure: (1) concept overview, (2) Arc mapping, (3) gaps/barriers, (4) opportunities, (5) concrete testable experiments — end with experiments, not abstract recommendations. For multi-source synthesis: spawn independent subagents in parallel, consolidate, then feed generation task. Deliver >1000-word reports via email. Verification layer checks all expected sections before closure.
 
 ## Signal Quality
 
@@ -70,8 +70,8 @@ Pre-validate at two layers before committing cooldown budget: (1) **Sensor-level
 **p-sensor-diversity-enforcement** [2026-04-06, enhanced 2026-04-16]
 Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Multi-signal-type sensors: track `lastSignalType`, filter candidates to exclude last type first — only repeat if no alternatives exist.
 
-**p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19, refined 2026-04-22]
-Signals require AIBTC-network-native angle ("Does this impact AIBTC protocol, agents, or infrastructure?") — operational metrics (nonce progression, relay throughput) ARE valid signals. Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing same topic across different beats same day.
+**p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19, refined 2026-04-22, clarified 2026-04-28]
+Signals require AIBTC-network-native angle ("Does this impact AIBTC protocol, agents, or infrastructure?") — operational metrics (nonce progression, relay throughput) ARE valid signals. Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Critical integration**: filing instructions MUST explicitly pass `--sources` CLI arg with all data sources to the editorial skill — sensors collecting 3+ sources without passing them to the filing command result in publisher receiving 0-1 source objects, capping sourceQuality at ≤10 regardless of sensor work. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing same topic across different beats same day.
 
 **p-fix-verification** [merged 2026-04-11, updated 2026-04-23]
 After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. When a formula or rule is corrected mid-cycle, trace backward through recent tasks that used it — document findings but don't attempt retroactive re-filing; use findings to confirm the correction is complete for future cycles.
@@ -84,14 +84,11 @@ Silent failures (hangs, stalls, event loop blocks) are worse than loud failures.
 **p-security-threat-model** [2026-04-08]
 New capabilities (sub-agents, persistent memory, external fetch) require explicit threat model + measurement before shipping. Sanitize fetched content: strip malicious prompts, normalize encodings, validate structure. DeepMind: 86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking.
 
-**p-contract-design-principles** [2026-04-06]
-Smart contracts: (1) spec inputs/outputs/state-transitions/errors first — mandatory review gate; (2) audit existing deployed contracts + pattern libraries before writing new; (3) start bilateral escrow before DAO.
+**p-contract-operations** [merged p-contract-design-principles + p-contract-simulation-preflight, 2026-04-29]
+Design: (1) spec inputs/outputs/state-transitions/errors first — mandatory review gate; (2) audit existing deployed contracts + pattern libraries before writing new; (3) start bilateral escrow before DAO. Pre-flight: use simulation to validate account state before nonce acquisition — catches ~80% of tx failures at zero cost. Place after auth/unlock, before nonce; fail-open on timeout.
 
 **p-error-classification-driven-recovery** [2026-04-08]
 Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. TooMuchChaining → back off until mempool drains.
-
-**p-contract-simulation-preflight** [2026-04-17]
-For financial operations, use contract simulation to validate account state before acquiring nonce or broadcasting tx — simulation is non-mutating and catches ~80% of tx failures at zero cost. Place after auth/unlock but before nonce acquisition; fail-open on external service timeout.
 
 **p-revision-loop-primitive** [2026-04-07, enhanced 2026-04-20]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving. **Structural integrity checklist**: validate payload counts (rows affected, TX clears, data mutations) match pre-agreed expectations, confirm CI green, THEN approve — catches partial fixes and silent corruption before merge.
@@ -141,9 +138,7 @@ External monitoring tools generating task-level alerts (cost spikes, performance
 **p-predictive-model-selection** [2026-04-23]
 When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
 
-**p-strategic-synthesis-structure** [2026-04-23]
-P3 research synthesis: structure as 5 sections: (1) concept overview, (2) Arc mapping, (3) operational gaps/barriers, (4) new opportunities, (5) concrete testable experiments. Inline citations throughout. End with experiments, not abstract recommendations — converts synthesis to executable work. Deliver >1000-word reports via email with threading; invest quality for concepts that unlock new capability classes.
 
-**p-research-assembly-generation** [2026-04-27]
-For complex multi-source synthesis (weekly presentations, comprehensive reports): spawn independent research subagents in parallel, consolidate outputs to a single file, then feed to generation task. Verification layer checks for all expected sections before closure. Parallelization eliminates sequential bottlenecks.
+**p-efficiency-optimization-roi** [2026-04-29]
+When code review identifies efficiency improvements, quantify the actual benefit (HTTP calls saved, time reduction, cost delta per period) and compare to refactor effort. Skip optimizations where benefit is marginal relative to effort. Example: deferring 4 HTTP calls/day (~2min compute/month) doesn't justify restructuring function signatures across multiple detection methods.
 

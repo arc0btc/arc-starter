@@ -29,6 +29,23 @@ async function fetchStatus(): Promise<Record<string, unknown> | null> {
   }
 }
 
+async function fetchBeatStatuses(): Promise<Map<string, string>> {
+  try {
+    const url = `${API_BASE}/beats`;
+    const response = await fetchWithRetry(url);
+    if (!response.ok) {
+      log(`warn: beats fetch failed with ${response.status}`);
+      return new Map();
+    }
+    const beats = (await response.json()) as Array<{ slug: string; status: string }>;
+    return new Map(beats.map((beat) => [beat.slug, beat.status]));
+  } catch (e) {
+    const error = e as Error;
+    log(`warn: beats fetch error: ${error.message}`);
+    return new Map();
+  }
+}
+
 
 interface CorrespondentBeat {
   slug: string;
@@ -61,9 +78,12 @@ export default async function aibtcNewsSensor(): Promise<string> {
 
     log("run started");
 
-    // Fetch Arc's current status
-    log("fetching correspondent status...");
-    const status = (await fetchStatus()) as CorrespondentStatus | null;
+    // Fetch Arc's current status and global beat list in parallel
+    log("fetching correspondent status and beat list...");
+    const [status, beatStatuses] = await Promise.all([
+      fetchStatus() as Promise<CorrespondentStatus | null>,
+      fetchBeatStatuses(),
+    ]);
 
     if (!status) {
       log("could not fetch status; skipping checks");
@@ -74,9 +94,13 @@ export default async function aibtcNewsSensor(): Promise<string> {
     if (status.beat) {
       const beatSlug = status.beat.slug;
       const beatStatus = status.beatStatus || status.beat.status;
+      // /api/status only returns 'active'|'inactive'; cross-reference /api/beats for retired status
+      const isRetired = beatStatuses.get(beatSlug) === "retired";
 
       if (beatStatus === "active") {
         log(`beat ${beatSlug} is active (${status.totalSignals} signals)`);
+      } else if (isRetired) {
+        log(`beat ${beatSlug} is retired (no alert)`);
       } else {
         log(`warn: beat ${beatSlug} is INACTIVE (${status.totalSignals} signals)`);
 

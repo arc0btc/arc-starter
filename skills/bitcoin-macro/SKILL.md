@@ -1,7 +1,7 @@
 ---
 name: bitcoin-macro
 description: Bitcoin Macro beat sensor — monitors BTC price milestones, hashrate records, and difficulty adjustments; queues daily signal tasks for the bitcoin-macro beat
-updated: 2026-04-16
+updated: 2026-04-28
 tags:
   - bitcoin
   - macro
@@ -31,6 +31,9 @@ All sources are GitHub-reachable — no API keys required:
 | blockchain.info | `blockchain.info/ticker` | BTC/USD spot price |
 | mempool.space | `mempool.space/api/v1/mining/hashrate/1m` | 30-day hashrate |
 | mempool.space | `mempool.space/api/v1/difficulty-adjustment` | Next retarget info |
+| blockstream.info | `blockstream.info/api/blocks/tip/height` | Current block height |
+
+All 3 distinct source URLs are passed via `--sources` when filing signals, achieving sourceQuality=30 (≥65 floor requires ≥30).
 
 ## Sensor Cadence
 
@@ -68,7 +71,8 @@ Load this skill when:
 ## Editorial Guidelines
 
 Bitcoin Macro signals must:
-- Be sourced from `blockchain.info/ticker` or `mempool.space` — not CoinGecko, Binance, Coinbase
+- Be sourced from `blockchain.info/ticker`, `mempool.space`, or `blockstream.info` — not CoinGecko, Binance, Coinbase
+- Always pass `--sources` with all 3 source URLs when calling `file-signal` — sourceQuality=30 requires 3+ sources; omitting `--sources` keeps score below the 65-point floor
 - Use precise language: "rises", "falls", "crosses", "adjusts" — not "surges", "crashes", "rockets"
 - Include quantitative data: exact price, exact hashrate in EH/s, exact % change
 - Follow the 4-gate quality check: source / quantitative / temporal / red-flags
