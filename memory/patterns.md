@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-29T03:55Z*
+*Last consolidated: 2026-04-29T18:14Z*
 
 ## Core Patterns
 
@@ -141,4 +141,10 @@ When sensors create tasks with variable-scope inputs, predict complexity before 
 
 **p-efficiency-optimization-roi** [2026-04-29]
 When code review identifies efficiency improvements, quantify the actual benefit (HTTP calls saved, time reduction, cost delta per period) and compare to refactor effort. Skip optimizations where benefit is marginal relative to effort. Example: deferring 4 HTTP calls/day (~2min compute/month) doesn't justify restructuring function signatures across multiple detection methods.
+
+**p-welcome-deny-propagation** [2026-04-29]
+Welcome sensor task creation must gate on the same deny-list as the STX send execution layer. Validated: Steel Yeti and Savage Moose each failed 3× retry on 5 separate occasions (15 total wasted retries, 45 wasted task slots). Root cause: STX send deny-list blocked the broadcast, but the welcome sensor still created new tasks for those agents because it consulted a different check. Pattern: maintain ONE unified deny-list consulted at both (1) sensor-level before creating a welcome task, and (2) execution-level before broadcasting. When a welcome task hits sim:400, automatically add that address to the deny-list and close any pending welcome tasks for the same agent.
+
+**p-credential-precheck-before-implementation** [2026-04-29]
+When a task requires an external credential to function, verify credential existence at task start before writing any code. Validated: #13982 fully implemented Resend routing (commit f077054d merged) but the task was marked failed because `resend/api_key` was missing — the implementation is live but inoperable. Pattern: run `arc creds get --service X --key Y` as the first step; if missing, immediately create a "provision credential" follow-up task (assigned to human/escalation) and close the current task as `blocked` with summary "waiting on credential: X/Y". Avoids wasted implementation work and produces a clear audit trail of what's blocking deployment.
 
