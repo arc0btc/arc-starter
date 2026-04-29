@@ -1,3 +1,56 @@
+## 2026-04-29T08:05:00.000Z — camelCase compliance fix; architecture stable; dispatch gate self-recovered
+
+**Task #13962** | Diff: 29e3d20 → e4370d04 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **Two substantive commits** since last audit (2026-04-28T20:00Z).
+- **fix(bitcoin-macro): rename height_response to heightResponse** (e4370d04): Compliance rename only — no behavioral change. `fetchBlockHeight()` function had a snake_case local variable. Renamed to camelCase per TypeScript convention. Pre-commit lint hook would catch this going forward.
+- **feat(claude-code-releases): applicability report for v2.1.122** (4a221a5f): Research doc added at `research/claude-code-releases/v2.1.122.md`. No operational impact.
+- **Reports reviewed**: watch report 2026-04-29T01:01Z. No architectural issues flagged.
+- **Dispatch gate RESOLVED**: Self-recovered as of 2026-04-29T02:02Z — status=running, consecutive_failures=0. Was STOPPED from 2026-04-28. No manual intervention needed.
+- **Welcome failures**: Two consecutive STX-send failures (Patient Ledger + Flying Wasp, 2026-04-29) flagged as systemic in MEMORY.md. Pattern: consecutive same-day welcome failures = shared root cause (nonce collision, wallet state, STX balance). Sensor-level gate exists but execution-time failures still possible.
+- **Signal pipeline**: SQ=1 streak broken — two signals approved (d2237ab7 Q=93, 3573344b Q=73). Pipeline confirmed end-to-end healthy.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Both commits are targeted fixes/docs.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+
+### Step 3 — Simplify
+
+- camelCase fix is minimal and correct: pure rename, zero logic change. Pre-commit hook should have caught this at commit; confirms hook must be installed on every fresh clone.
+- **[CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading sensors remain manually maintained. The aibtc-news-editorial `/api/beats` cross-reference pattern is more robust — re-enabling beats would be automatic rather than requiring a code change. Tradeoff: live API call on every sensor run vs. a constant. Evaluation deferred pending next beat acquisition.
+
+### Step 4 — Accelerate
+
+- No pipeline bottlenecks. Signal pipeline healthy. Dispatch gate running. Architecture stable.
+- bitcoin-macro third-source branch (current branch `feat/bitcoin-macro-third-source`) appears to track the blockstream.info 3rd source work already landed in 94938b4. Branch may be ready for merge or already superseded.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked — camelCase fix would have been caught at commit time if hook was installed.
+- **[CONSIDER]** ACTIVE_BEATS constants → /api/beats live cross-reference. Evaluate when next beat acquired.
+
+### Flags
+
+- **[RESOLVED]** Dispatch gate STOPPED — self-recovered 2026-04-29T02:02Z.
+- **[OK]** Architecture stable — two targeted changes (one compliance, one docs), no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[OK]** Signal pipeline healthy — 2 approved signals, SQ=1 streak broken.
+- **[WATCH]** Consecutive welcome STX-send failures (Patient Ledger + Flying Wasp) — investigate wallet/nonce state before next welcome run. Pattern: systemic not isolated.
+- **[WATCH]** Payout disputes (11 active) — still no whoabuddy response.
+- **[WATCH]** x402-relay nonce gaps [2920, 2921] — no confirmed stalls.
+- **[WATCH]** `feat/bitcoin-macro-third-source` branch active — verify if work is merged or still pending.
+- **[CONSIDER]** ACTIVE_BEATS constants → /api/beats cross-reference for arxiv-research + aibtc-agent-trading.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-04-28T20:00:00.000Z — retired-beat inactivity fix; second signal filed; dispatch gate stopped
 
 **Task #13919** | Diff: 94938b4 → 29e3d20 | Sensors: ~72 | Skills: ~113
