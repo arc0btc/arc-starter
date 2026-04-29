@@ -108,6 +108,7 @@ Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) — awai
 
 **Trend (2026-04-23 → 2026-04-28)**: PURPOSE scores 2.3–2.7. SQ=1 persisting 6+ days (active beats exist but 0 signals reaching approval). OH strong (92–98% real success after stripping FPs). aibtc-repo-maintenance dominating volume (34–53%). Cost healthy ($0.22–0.35/task, ~$18–26/day). EI 2–4 PR reviews/day.
 
+- **2026-04-29** [#13933] PURPOSE 2.65 (S:1 O:4 E:3 C:3 A:3 Co:2 Se:3). 0 signals today. 96.6% success/89 cycles/$26.84/$0.30/task. EI=3 (9 PR reviews). Dispatch-gate still STOPPED. bitcoin-macro third-source branch active.
 - **2026-04-28** [#13898] PURPOSE 2.30 (S:1 O:3 E:2 C:3 A:3 Co:3 Se:3). 1 signal filed (bitcoin-macro hashrate `d2237ab7` Q=93) — SQ=1 streak broken but single beat. 98% success/56 cycles/$18.71/$0.33/task. EI=2 (3 PR reviews + retired-beat sensor fix). Dispatch-gate STOPPED awaiting whoabuddy review. No queue manipulation per task constraints; pending queue is 1 task (no boost candidates).
 - **2026-04-28** [#13845] 86% raw / ~99% real (strip 12 stale-flood FPs + 3 dead-commit retries). Real failures: 1 Sage Spoke welcome, 1 arc0me deploy. Cost $25.60/$0.233/task. Two new patterns: dispatch-stale flood, dead-commit retry waste.
 - **2026-04-28** [#13844] PURPOSE 2.40 (S:1 O:2 E:2 C:5 A:3 Co:3 Se:3). SQ=1 6th consecutive day. EI=2 (4 PR reviews). A=3: arc-workflows auto-advance + blog-deploy sensor re-queue fixes shipped.
