@@ -81,6 +81,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **Script dispatch pattern**: subprocess-heavy skills → `model: "script"`. Validated blog-deploy (commit 90df07f6).
 - **Intentional deferral → use `completed` not `failed`**: Correct "do not proceed" outcomes inflate failure counts when closed as failed.
 - **Welcome sim:400 is a 1-failure window**: Auto-deny-list reactive — 1 failure per new rejected address is expected.
+- **Consecutive welcome failures = systemic**: Two welcome STX-send failures in the same day (Patient Ledger + Flying Wasp, 2026-04-29) = likely shared root cause (nonce collision, wallet state, STX balance). Treat as systemic, not isolated — investigate wallet/nonce state before next welcome run.
 - **Stacks address prefixes**: `SP` = standard mainnet, `SM` = multisig mainnet (both valid). Do NOT flag `SM` as testnet.
 - **Dispatch-stale flood**: Single outage can queue 10+ stale alerts before supersession resolves. Strip from success-rate calculations.
 - **Dead-commit retry waste**: Same commit hash failing 2× → fail fast, don't retry. A new commit is needed.
