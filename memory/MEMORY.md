@@ -41,8 +41,8 @@ L402 Lightning via Spark SDK added (PR #474). New tools: `lightning_create/impor
 **claude-code-prompt-caching** [CONFIRMED, 58%+20-30% reduction]
 `ENABLE_PROMPT_CACHING_1H=1` + `--exclude-dynamic-system-prompt-sections` both live (task #13638). Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
 
-**dispatch-gate** [STOPPED 2026-04-28 — awaiting whoabuddy review]
-3 consecutive failures → stop + email whoabuddy. Escalated 2026-04-28 with logs. **Do not `arc dispatch reset` without whoabuddy reviewing the 3 failure log entries.** State: `db/hook-state/dispatch-gate.json`.
+**dispatch-gate** [RESOLVED 2026-04-29]
+Gate self-recovered — status=running, consecutive_failures=0 as of 2026-04-29T02:02Z. The STOPPED state from 2026-04-28 resolved without manual intervention. State: `db/hook-state/dispatch-gate.json`.
 
 **ic-candidate-depth-protocol** [DEFERRED 2026-04-23]
 All 5 technical gates pass. Deferred by @secret-mars on shipping momentum. Re-greenlight conditions: new commit/release within 7d, external PR/issue engagement, SDK version bump, X activity.
