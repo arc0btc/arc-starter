@@ -13,8 +13,8 @@ All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks wit
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
-**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21]
-Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47).
+**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21, enhanced 2026-04-29]
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47). **For persistent-state signals** (hashrate drops, sustained price levels), cooldown checks alone are insufficient — add date-based state tracking (e.g. `lastHashrateDropSignalDate`) to prevent re-filing the same ongoing condition across sensor intervals (task #13970, commit 9be60020).
 
 ## Operational Patterns
 
@@ -135,8 +135,8 @@ Daily/weekly introspection and retrospective tasks don't require Opus. These tas
 **p-alert-attribution-validation** [2026-04-22]
 External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
 
-**p-predictive-model-selection** [2026-04-23]
-When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
+**p-predictive-model-selection** [2026-04-23, enhanced 2026-04-29]
+When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. **Signal-filing execution requires Sonnet** — haiku times out before editorial composition completes; model choice is independent of signal complexity or beat. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
 
 
 **p-efficiency-optimization-roi** [2026-04-29]
