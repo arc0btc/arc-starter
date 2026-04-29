@@ -97,6 +97,7 @@ interface SensorState {
   hashrateATH: number; // EH/s — persisted across runs
   firedMilestones: number[]; // price milestones already signalled this cycle
   lastDifficultySignalDate: string | null; // ISO date of last difficulty signal
+  lastHashrateDropSignalDate: string | null; // ISO date of last hashrate-drop signal (dedup guard)
   lastSignalType: SignalType | null;
   [key: string]: unknown;
 }
@@ -322,10 +323,11 @@ function detectHashrateSignal(
     };
   }
 
-  // Significant drop from ATH
+  // Significant drop from ATH — deduplicated by date (same condition persists across sensor runs)
   if (storedATH > 0) {
     const dropPct = ((storedATH - currentEH) / storedATH) * 100;
-    if (dropPct >= HASHRATE_DROP_PCT) {
+    const today = new Date().toISOString().split("T")[0];
+    if (dropPct >= HASHRATE_DROP_PCT && state.lastHashrateDropSignalDate !== today) {
       return {
         signal: {
           type: "hashrate-record",
@@ -484,6 +486,7 @@ export default async function bitcoinMacroSensor(): Promise<string> {
       hashrateATH: (raw as SensorState | null)?.hashrateATH ?? 0,
       firedMilestones: (raw as SensorState | null)?.firedMilestones ?? [],
       lastDifficultySignalDate: (raw as SensorState | null)?.lastDifficultySignalDate ?? null,
+      lastHashrateDropSignalDate: (raw as SensorState | null)?.lastHashrateDropSignalDate ?? null,
       lastSignalType: (raw as SensorState | null)?.lastSignalType ?? null,
     };
 
@@ -520,6 +523,7 @@ export default async function bitcoinMacroSensor(): Promise<string> {
     let newATH = state.hashrateATH;
     let newMilestones = [...(state.firedMilestones ?? [])];
     let newDiffDate = state.lastDifficultySignalDate;
+    let newDropDate = state.lastHashrateDropSignalDate;
 
     // 1. Price milestones (highest priority — one-time events)
     // Skip on first run — we're just initialising baseline, not signalling
@@ -588,6 +592,11 @@ export default async function bitcoinMacroSensor(): Promise<string> {
         if (best.type === "difficulty-adjustment") {
           newDiffDate = new Date().toISOString().split("T")[0];
         }
+
+        // Track hashrate-drop signal date (prevents re-filing same condition on next sensor run)
+        if (best.type === "hashrate-record" && best.subject.includes("drops")) {
+          newDropDate = new Date().toISOString().split("T")[0];
+        }
       }
     } else {
       log("no signal candidates — quiet market conditions, no task queued");
@@ -612,6 +621,7 @@ export default async function bitcoinMacroSensor(): Promise<string> {
       hashrateATH: newATH,
       firedMilestones: newMilestones,
       lastDifficultySignalDate: newDiffDate,
+      lastHashrateDropSignalDate: newDropDate,
     });
 
     log("run complete");
