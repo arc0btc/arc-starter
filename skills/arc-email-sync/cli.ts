@@ -34,6 +34,57 @@ const APPROVED_SENDERS = new Set([
 ]);
 const DEFAULT_SENDER = "arc@arc0.me";
 
+// Domains whose mailboxes are managed by the arc-email-worker (inbound routing).
+// Sends to these addresses use the internal worker; all others go via Resend.
+const INTERNAL_DOMAINS = new Set(["arc0.me", "arc0btc.com", "agentslovebitcoin.com"]);
+
+function isInternalAddress(address: string): boolean {
+  const parts = address.split("@");
+  if (parts.length !== 2) return false;
+  return INTERNAL_DOMAINS.has(parts[1].toLowerCase());
+}
+
+async function sendViaResend(params: {
+  to: string;
+  from: string;
+  subject: string;
+  body?: string;
+  bodyHtml?: string;
+  inReplyTo?: string;
+}): Promise<void> {
+  const apiKey = await getCredential("resend", "api_key");
+  if (!apiKey) {
+    throw new Error("Resend API key not configured. Run: arc creds set --service resend --key api_key --value <key>");
+  }
+
+  const payload: Record<string, string | string[]> = {
+    from: params.from,
+    to: [params.to],
+    subject: params.subject,
+  };
+  if (params.body) payload.text = params.body;
+  if (params.bodyHtml) payload.html = params.bodyHtml;
+  if (params.inReplyTo) payload.reply_to = params.inReplyTo;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json() as Record<string, unknown>;
+
+  if (!response.ok) {
+    throw new Error(`Resend API error ${response.status}: ${JSON.stringify(result)}`);
+  }
+
+  log(`Resend send OK — id: ${result.id}`);
+  console.log(JSON.stringify({ success: true, provider: "resend", id: result.id }, null, 2));
+}
+
 async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -51,6 +102,25 @@ async function cmdSend(args: string[]): Promise<void> {
     log(`WARNING: using non-default sender '${flags.from}' (default is '${DEFAULT_SENDER}')`);
   }
 
+  const sender = flags.from ?? DEFAULT_SENDER;
+
+  log(`sending to ${flags.to}: "${flags.subject}"`);
+
+  if (!isInternalAddress(flags.to)) {
+    // External destination — route through Resend to bypass Cloudflare destination restrictions
+    log(`external destination detected — using Resend API`);
+    await sendViaResend({
+      to: flags.to,
+      from: sender,
+      subject: flags.subject,
+      body: flags.body,
+      bodyHtml: flags["body-html"],
+      inReplyTo: flags["in-reply-to"],
+    });
+    return;
+  }
+
+  // Internal destination — use email worker
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
 
   const payload: Record<string, string> = {
@@ -70,8 +140,6 @@ async function cmdSend(args: string[]): Promise<void> {
     payload.in_reply_to = flags["in-reply-to"];
   }
 
-  log(`sending to ${flags.to}: "${flags.subject}"`);
-
   const response = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
@@ -81,7 +149,7 @@ async function cmdSend(args: string[]): Promise<void> {
     body: JSON.stringify(payload),
   });
 
-  const result = await response.json();
+  const result = await response.json() as Record<string, unknown>;
 
   if (!response.ok) {
     log(`send failed: HTTP ${response.status}`);
