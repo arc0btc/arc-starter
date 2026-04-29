@@ -187,15 +187,15 @@ async function fetchDifficultyAdjustment(): Promise<DifficultyData | null> {
 
 async function fetchBlockHeight(): Promise<number | null> {
   try {
-    const height_response = await fetchWithRetry(`${BLOCKSTREAM_API}/blocks/tip/height`, {
+    const heightResponse = await fetchWithRetry(`${BLOCKSTREAM_API}/blocks/tip/height`, {
       headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
       signal: AbortSignal.timeout(15000),
     });
-    if (!height_response.ok) {
-      log(`blockstream.info height returned ${height_response.status}`);
+    if (!heightResponse.ok) {
+      log(`blockstream.info height returned ${heightResponse.status}`);
       return null;
     }
-    const text = await height_response.text();
+    const text = await heightResponse.text();
     const height = parseInt(text.trim(), 10);
     return isNaN(height) ? null : height;
   } catch (e) {
