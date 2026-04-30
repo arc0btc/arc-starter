@@ -7,7 +7,9 @@
     "types": ["bun-types"],
     "outDir": "./dist",
     "rootDir": "./",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["src/**/*", "skills/**/*.ts"]
 }
