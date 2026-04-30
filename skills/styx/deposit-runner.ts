@@ -40,9 +40,8 @@ const depositArgs = process.argv.slice(2);
 process.argv = ["bun", "styx.ts", ...depositArgs];
 
 // Monkey-patch Commander's parse() to use parseAsync()
-const { Command } = await import(
-  "../../github/aibtcdev/skills/node_modules/commander/index.js"
-);
+// @ts-ignore — no type declarations for bundled commander
+const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
 let parseResult: Promise<unknown> | null = null;
 const origParse = Command.prototype.parse;
 Command.prototype.parse = function (

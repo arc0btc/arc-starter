@@ -40,6 +40,7 @@ process.argv = ["bun", "bns.ts", ...bnsArgs];
 // async action. bns.ts calls program.parse() at module level which starts
 // the async action but never awaits it. Without this patch, the process exits
 // before network requests complete.
+// @ts-ignore — no type declarations for bundled commander
 const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
 let parseResult: Promise<unknown> | null = null;
 const origParse = Command.prototype.parse;

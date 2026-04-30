@@ -2,7 +2,7 @@
 // Contact management schema: contacts, contact_links, contact_interactions
 // Importable by other skills for cross-referencing contacts.
 
-import { Database } from "bun:sqlite";
+import { Database, type SQLQueryBindings } from "bun:sqlite";
 import { initDatabase } from "../../src/db";
 
 // ---- Types ----
@@ -226,7 +226,7 @@ export function insertContact(fields: InsertContact): number {
   const placeholders = cols.map(() => "?").join(", ");
   const result = db
     .query(`INSERT INTO contacts (${cols.join(", ")}) VALUES (${placeholders})`)
-    .run(...values);
+    .run(...(values as SQLQueryBindings[]));
   return Number(result.lastInsertRowid);
 }
 

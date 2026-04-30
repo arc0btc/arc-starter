@@ -4,9 +4,13 @@ import { Command } from "commander";
 import { homedir } from "os";
 import { join } from "path";
 import { cvToJSON, hexToCV } from "@stacks/transactions";
+// @ts-ignore
 import { getWalletManager } from "../src/lib/services/wallet-manager.js";
+// @ts-ignore
 import { getExplorerTxUrl } from "../src/lib/config/networks.js";
+// @ts-ignore
 import { getZestProtocolService } from "../src/lib/services/defi.service.js";
+// @ts-ignore
 import { getHiroApi } from "../src/lib/services/hiro-api.js";
 
 const NETWORK = "mainnet";

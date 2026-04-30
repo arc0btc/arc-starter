@@ -295,7 +295,7 @@ export default async function xMentionsSensor(): Promise<string> {
         await writeHookState(SENSOR_NAME, {
           ...(state || { version: 0 }),
           last_ran: new Date().toISOString(),
-          last_result: "credits_depleted",
+          last_result: "skip",
           version: (state?.version || 0) + 1,
           last_seen_id: newestId,
         });

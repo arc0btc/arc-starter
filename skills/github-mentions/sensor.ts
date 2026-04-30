@@ -136,7 +136,7 @@ export default async function githubMentionsSensor(): Promise<string> {
       // not just review_requested/assign — any notification about a PR that
       // already has a review task should be suppressed.
       const isPROnWatchedRepo =
-        n.type === "PullRequest" && WATCHED_REPOS.includes(n.repo);
+        n.type === "PullRequest" && WATCHED_REPOS.includes(n.repo as (typeof WATCHED_REPOS)[number]);
       const isReviewWork =
         n.reason === "review_requested" || n.reason === "assign";
       const subjectNum = n.url.split("/").pop() ?? "";

@@ -386,7 +386,7 @@ export default async function workflowsSensor(): Promise<string> {
           }
 
           insertTask({
-            subject: action.subject,
+            subject: action.subject ?? "",
             description: action.description ?? null,
             priority: action.priority || 5,
             model: action.model || "sonnet",

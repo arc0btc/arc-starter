@@ -27,7 +27,7 @@ export default async function erc8004IndexerSensor(): Promise<string> {
 
     // Signal-gate: only create task if registry has new agents since last index
     const state = await readHookState(SENSOR_NAME);
-    const lastKnownAgentId = state?.last_agent_id ?? 0;
+    const lastKnownAgentId = (state?.last_agent_id as number) ?? 0;
 
     let currentAgentId = 0;
     try {
@@ -60,7 +60,7 @@ export default async function erc8004IndexerSensor(): Promise<string> {
     await writeHookState(SENSOR_NAME, {
       ...(state ?? {}),
       last_agent_id: currentAgentId,
-    });
+    } as Parameters<typeof writeHookState>[1]);
 
     log(`queued ERC-8004 index refresh (lastAgentId=${currentAgentId}, was ${lastKnownAgentId})`);
     return "ok";

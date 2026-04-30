@@ -653,21 +653,21 @@ function handleFeedFree(url: URL): Response {
      FROM tasks
      WHERE status IN ('completed', 'active', 'pending') ${sinceClause}
      ORDER BY created_at DESC LIMIT ?`
-  ).all(since ? [since, limit] : [limit]);
+  ).all(...(since ? [since, limit] : [limit]));
 
   const recentCycles = db.query<
     { id: number; task_id: number | null; started_at: string; duration_ms: number | null; cost_usd: number },
     number[]
   >(
     `SELECT id, task_id, started_at, duration_ms, cost_usd FROM cycle_log ORDER BY started_at DESC LIMIT 10`
-  ).all([]);
+  ).all();
 
   const stats = db.query<{ pending: number; active: number; completed_today: number }, []>(
     `SELECT
        (SELECT COUNT(*) FROM tasks WHERE status = 'pending') as pending,
        (SELECT COUNT(*) FROM tasks WHERE status = 'active') as active,
        (SELECT COUNT(*) FROM tasks WHERE status = 'completed' AND date(completed_at) = date('now')) as completed_today`
-  ).get([]);
+  ).get();
 
   return json({
     feed: "arc-intelligence",
@@ -800,7 +800,7 @@ function handleX402WellKnown(): Response {
   return json({
     version: "1",
     description: "Arc agent paid API endpoints. Pay in sBTC or STX to Arc's Stacks address.",
-    payment_address: IDENTITY.stacks_address,
+    payment_address: IDENTITY.stx,
     payment_network: "stacks",
     endpoints: [
       {
@@ -957,7 +957,7 @@ async function handleKnowledgeRequest(req: Request): Promise<Response> {
     `SELECT id, result_detail, completed_at FROM tasks
      WHERE source = ? AND status = 'completed'
      ORDER BY completed_at DESC LIMIT 1`
-  ).get([`api:knowledge:${topicSlug}`]);
+  ).get(`api:knowledge:${topicSlug}`);
 
   if (existingCompleted?.result_detail) {
     try {
@@ -980,7 +980,7 @@ async function handleKnowledgeRequest(req: Request): Promise<Response> {
   // Check for an already-pending task for this topic
   const existingPending = db.query<{ id: number }, [string]>(
     `SELECT id FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1`
-  ).get([`api:knowledge:${topicSlug}`]);
+  ).get(`api:knowledge:${topicSlug}`);
 
   if (existingPending) {
     return json({
@@ -1075,7 +1075,7 @@ function handleKnowledgeGet(topicSlug: string): Response {
     `SELECT id, result_detail, completed_at FROM tasks
      WHERE source = ? AND status = 'completed'
      ORDER BY completed_at DESC LIMIT 1`
-  ).get([`api:knowledge:${topicSlug}`]);
+  ).get(`api:knowledge:${topicSlug}`);
 
   if (completed?.result_detail) {
     try {
@@ -1098,7 +1098,7 @@ function handleKnowledgeGet(topicSlug: string): Response {
   // Check pending/active
   const pending = db.query<{ id: number; status: string }, [string]>(
     `SELECT id, status FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1`
-  ).get([`api:knowledge:${topicSlug}`]);
+  ).get(`api:knowledge:${topicSlug}`);
 
   if (pending) {
     return json({
@@ -2313,6 +2313,7 @@ async function handlePostTask(req: Request): Promise<Response> {
     description?: string;
     skills?: string[];
     source?: string;
+    model?: string;
   };
   try {
     body = await req.json() as typeof body;

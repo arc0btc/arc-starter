@@ -37,6 +37,7 @@ process.argv = ["bun", "stacks-market.ts", ...tradeArgs];
 // Monkey-patch Commander's parse() to use parseAsync() so we can await the
 // async action. stacks-market.ts calls program.parse(process.argv) at module
 // level which starts the async action but never awaits it.
+// @ts-ignore — no type declarations for bundled commander
 const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
 let parseResult: Promise<unknown> | null = null;
 const origParse = Command.prototype.parse;
@@ -46,6 +47,7 @@ Command.prototype.parse = function (this: InstanceType<typeof Command>, ...args:
 };
 
 try {
+  // @ts-ignore — stacks-market module in external repo
   await import("../../github/aibtcdev/skills/defi-stacks-market/stacks-market.ts");
   if (parseResult) {
     await parseResult;

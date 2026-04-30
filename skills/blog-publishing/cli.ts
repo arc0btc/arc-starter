@@ -76,7 +76,7 @@ async function cmdCreate(args: string[]): Promise<void> {
 
   // Create directory structure
   try {
-    await Bun.file(postDir).mkdir({ recursive: true });
+    await fs.promises.mkdir(postDir, { recursive: true });
   } catch (e) {
     log(`warning: directory may already exist: ${postDir}`);
   }

@@ -204,6 +204,7 @@ export default async function mempoolWatchSensor(): Promise<string> {
 
   await writeHookState(SENSOR_NAME, {
     last_ran: new Date().toISOString(),
+    last_result: "ok",
     last_fee_fastest: fees?.fastestFee ?? null,
     last_fee_spike_at: newFeeSpikeAt,
     seen_txids: trimmedSeenTxids,

@@ -1147,6 +1147,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // ---- Multi-beat allocation gate ----
     // Skip allocation checks when signal filing is suspended — data collection still runs
     let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
+    let ordinalsToday = 0;
     let hourUTC = new Date().getUTCHours();
     if (!SIGNAL_FILING_SUSPENDED) {
       // Global cap: 6 signals/day across all beats
@@ -1157,7 +1158,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       }
 
       // Per-beat allocation: 3 agent-trading + 3 infrastructure per day
-      const ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
+      ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
       const infraToday = countSignalTasksTodayForBeat("infrastructure");
 
       // Late-day overflow: if infrastructure hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
@@ -1250,7 +1251,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       log(`data collection complete — ${signals.length} regular signal(s), ${milestoneSignals.length} milestone(s) detected (not filed — beat scope mismatch)`);
       state.lastAngle = angleIdx;
       state.lastRun = new Date().toISOString();
-      await writeHookState(SENSOR_NAME, state);
+      await writeHookState(SENSOR_NAME, state as unknown as Parameters<typeof writeHookState>[1]);
       return "ok";
     }
 
@@ -1344,7 +1345,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat agent-trading \
 
       state.lastAngle = angleIdx;
       state.lastRun = new Date().toISOString();
-      await writeHookState(SENSOR_NAME, state);
+      await writeHookState(SENSOR_NAME, state as unknown as Parameters<typeof writeHookState>[1]);
       return "ok";
     }
 
@@ -1519,7 +1520,7 @@ This data targets the agent-trading beat. Use Economist voice — precise, data-
     // Update angle rotation index and last run time
     state.lastAngle = angleIdx;
     state.lastRun = new Date().toISOString();
-    await writeHookState(SENSOR_NAME, state);
+    await writeHookState(SENSOR_NAME, state as unknown as Parameters<typeof writeHookState>[1]);
 
     const finalOrdinals = countSignalTasksTodayForBeat("agent-trading");
     const finalInfra = countSignalTasksTodayForBeat("infrastructure");

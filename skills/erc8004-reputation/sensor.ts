@@ -132,7 +132,7 @@ export default async function erc8004ReputationMonitorSensor(): Promise<string> 
     const hookState = await readHookState(SENSOR_NAME);
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
-      last_result: `error: ${errorMessage}`,
+      last_result: "error",
       feedback_count: hookState?.feedback_count ?? 0,
       version: (hookState?.version as number) ?? 1,
     });

@@ -40,6 +40,7 @@ process.argv = ["bun", "x402.ts", ...x402Args];
 // async action. x402.ts calls program.parse() at module level which starts
 // the async action but never awaits it. Without this patch, the process exits
 // before the network request completes.
+// @ts-ignore — no type declarations for bundled commander
 const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
 let parseResult: Promise<unknown> | null = null;
 const origParse = Command.prototype.parse;

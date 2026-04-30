@@ -107,7 +107,7 @@ async function cmdDeploy(args: string[]): Promise<void> {
 
   // Step 1: Build
   const fnmBinDir = resolveFnmBinDir();
-  const nodeEnv = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};
+  const nodeEnv: Record<string, string> = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};
   const npm = resolveNodeBin("npm", fnmBinDir);
   const npx = resolveNodeBin("npx", fnmBinDir);
   log("running npm run build...");
