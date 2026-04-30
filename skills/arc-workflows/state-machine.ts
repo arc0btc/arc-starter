@@ -3214,7 +3214,7 @@ Steps:
  * Registry maps template names to their state machines.
  */
 export function getTemplateByName(name: string): StateMachine | null {
-  const templates: Record<string, StateMachine> = {
+  const templates: Record<string, StateMachine<any>> = {
     "blog-posting": BlogPostingMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,

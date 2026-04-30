@@ -328,7 +328,7 @@ export default async function reputationTrackerSensor(): Promise<string> {
     log(`daily review cap reached (${todayReviewCount}/${MAX_REVIEWS_PER_DAY}) — skipping ${eligible.length} eligible`);
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
-      last_result: "capped",
+      last_result: "ok",
       version: hookState?.version ?? 1,
       reviewed_keys: [...reviewedKeys].slice(-500),
     });

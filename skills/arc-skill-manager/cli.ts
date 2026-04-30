@@ -343,7 +343,7 @@ function getStagedFiles(): string[] {
 
 function cmdLintSkills(args: string[]): void {
   const { flags, positional: _ } = parseFlags(args);
-  const staged = flags["staged"] === true || flags["staged"] === "true";
+  const staged = flags["staged"] === "true";
   const filesFlag = flags["files"] as string | undefined;
 
   let targetFiles: string[];

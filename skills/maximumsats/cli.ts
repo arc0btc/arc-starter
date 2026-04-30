@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+
+export {};
 /**
  * maximumsats CLI
  * Nostr Web of Trust scoring via MaximumSats API

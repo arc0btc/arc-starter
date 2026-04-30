@@ -413,7 +413,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       await writeHookState(HIRO_REJECTED_HOOK_KEY, {
         addresses: [...dynamicDenyList],
         updated_at: new Date().toISOString(),
-      } satisfies HiroRejectedState);
+      } as unknown as Parameters<typeof writeHookState>[1]);
       log(`auto-deny-list: persisted ${dynamicDenyList.size} Hiro-rejected addresses`);
     }
 

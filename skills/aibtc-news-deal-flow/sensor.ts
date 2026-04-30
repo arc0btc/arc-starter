@@ -392,7 +392,7 @@ export default async function dealFlowSensor(): Promise<string> {
     state = await checkBountyActivity(state);
     state = await checkDaoTreasury(state);
 
-    await writeHookState(SENSOR_NAME, state);
+    await writeHookState(SENSOR_NAME, state as Parameters<typeof writeHookState>[1]);
 
     log("run completed");
     return "ok";

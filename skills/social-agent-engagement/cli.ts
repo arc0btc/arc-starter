@@ -1,4 +1,6 @@
 // skills/social-agent-engagement/cli.ts
+
+export {};
 // CLI commands for agent engagement: send messages, list agents, collaboration briefing
 
 interface Agent {

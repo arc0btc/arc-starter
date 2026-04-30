@@ -63,7 +63,7 @@ function buildPrimaryTag(category: string, timestamp?: string): string {
     P: `[PATTERN: validated]`,
     L: `[LEARNING: ${dateStamp}]`,
   };
-  return tagsByCategory[category] ?? `[UPDATED: ${ts}]`;
+  return tagsByCategory[category] ?? `[UPDATED: ${dateStamp}]`;
 }
 
 // ---- MEMORY.md entry parsing ----

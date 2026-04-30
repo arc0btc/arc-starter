@@ -434,7 +434,7 @@ async function main(): Promise<void> {
     }
     // Initialize DB once for all sessions
     initDatabase();
-    await startHttp(port, authKey);
+    await startHttp(port, authKey!);
   } else {
     const server = createServer();
     await startStdio(server);

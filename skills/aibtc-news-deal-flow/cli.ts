@@ -274,7 +274,7 @@ async function cmdConfigure(args: string[]): Promise<void> {
     return;
   }
 
-  await writeHookState(SENSOR_NAME, hookState);
+  await writeHookState(SENSOR_NAME, hookState as Parameters<typeof writeHookState>[1]);
   process.stdout.write("Hook state updated.\n");
 }
 

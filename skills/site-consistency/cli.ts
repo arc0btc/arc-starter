@@ -1,5 +1,7 @@
 #!/usr/bin/env bun
 
+export {};
+
 const FETCH_TIMEOUT_MS = 15_000;
 
 interface CheckResult {

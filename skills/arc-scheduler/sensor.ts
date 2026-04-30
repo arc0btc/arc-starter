@@ -48,10 +48,9 @@ function getOverdueTasks(overdueMinutes: number): Task[] {
        WHERE status = 'pending'
          AND scheduled_for IS NOT NULL
          AND datetime(scheduled_for) <= datetime('now', ? || ' minutes')
-       ORDER BY datetime(scheduled_for) ASC`,
-      [`-${overdueMinutes}`]
-    )
-    .all() as Task[];
+       ORDER BY datetime(scheduled_for) ASC`
+  )
+    .all(`-${overdueMinutes}`) as Task[];
 }
 
 export default async function schedulerSensor(): Promise<string> {

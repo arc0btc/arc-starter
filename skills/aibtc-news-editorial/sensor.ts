@@ -189,7 +189,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
     // Calculate score from status data: signals×10 + streak×5 + daysActive×2
     const totalSignals = (status.totalSignals as number) || 0;
     const streakCurrent = (status.streak?.current as number) || 0;
-    const streakHistory = (status.streak?.history as string[]) || [];
+    const streakHistory = ((status.streak as Record<string, unknown>)?.history as string[]) || [];
     const daysActive = streakHistory.length;
     const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
 

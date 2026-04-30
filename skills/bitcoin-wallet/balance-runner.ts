@@ -6,6 +6,8 @@
 // Usage (called by cli.ts, not directly):
 //   bun skills/bitcoin-wallet/balance-runner.ts --address SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B
 
+export {};
+
 // Parse flags
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};

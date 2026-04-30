@@ -115,8 +115,8 @@ async function cmdDeploy(args: string[]): Promise<void> {
   if (build.exitCode !== 0) {
     // Record failed SHA so the sensor won't re-queue the same broken commit
     if (currentSha) {
-      const state = (await readHookState(SENSOR_NAME)) ?? {};
-      await writeHookState(SENSOR_NAME, { ...state, last_failed_sha: currentSha });
+      const state = (await readHookState(SENSOR_NAME)) ?? {} as Parameters<typeof writeHookState>[1];
+      await writeHookState(SENSOR_NAME, { ...state, last_failed_sha: currentSha } as Parameters<typeof writeHookState>[1]);
     }
     process.stderr.write(`Build failed (exit ${build.exitCode}):\n${build.stderr || build.stdout}\n`);
     process.exit(1);
@@ -141,8 +141,8 @@ async function cmdDeploy(args: string[]): Promise<void> {
 
   // Step 3: Record deployed SHA in hook state
   if (currentSha) {
-    const state = (await readHookState(SENSOR_NAME)) ?? {};
-    await writeHookState(SENSOR_NAME, { ...state, last_deployed_sha: currentSha });
+    const state = (await readHookState(SENSOR_NAME)) ?? {} as Parameters<typeof writeHookState>[1];
+    await writeHookState(SENSOR_NAME, { ...state, last_deployed_sha: currentSha } as Parameters<typeof writeHookState>[1]);
     log(`recorded deployed SHA: ${currentSha}`);
   }
 

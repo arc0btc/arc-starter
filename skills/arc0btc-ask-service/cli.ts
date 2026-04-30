@@ -7,7 +7,7 @@
 // re-queuing stuck tasks.
 
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
-import { initDatabase, getDatabase, updateTask } from "../../src/db.ts";
+import { initDatabase, getDatabase, updateTask, requeueTask } from "../../src/db.ts";
 
 const ASK_DAILY_LIMIT = 20;
 
@@ -241,7 +241,7 @@ function cmdAnswer(args: string[]): void {
     return;
   }
 
-  updateTask(id, { status: "pending" });
+  requeueTask(id);
   process.stdout.write(`Task ${id} re-queued to pending: ${task.subject}\n`);
 }
 
