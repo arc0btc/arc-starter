@@ -344,7 +344,7 @@ async function updateNarrativeThread(headline: string, claim: string, beat?: str
   // Regenerate summary from the last 3 signals
   thread.summary = generateNarrativeSummary(thread.signals);
 
-  await writeHookState(hookKey, rawState);
+  await writeHookState(hookKey, rawState as Parameters<typeof writeHookState>[1]);
 }
 
 /** Infer category from headline keywords. */

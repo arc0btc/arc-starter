@@ -1,5 +1,7 @@
 #!/usr/bin/env bun
 
+export {};
+
 /**
  * clarity-patterns CLI — Clarity smart contract pattern library
  *

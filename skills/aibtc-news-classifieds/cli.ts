@@ -350,7 +350,7 @@ async function cmdPostClassified(args: string[]): Promise<void> {
       (ad) =>
         ad.contact === contact &&
         ad.title === title &&
-        (ad.active || ad.status === "pending_review" || ad.status === "approved")
+        (ad.status === "pending_review" || ad.status === "approved")
     );
     if (duplicate) {
       throw new Error(

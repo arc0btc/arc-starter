@@ -2,6 +2,8 @@
 // skills/arc-content-quality/cli.ts
 // Quality gate: detect AI writing patterns before publishing blog posts, X posts, and AIBTC signals
 
+export {};
+
 // ---- Helpers ----
 
 function log(message: string): void {

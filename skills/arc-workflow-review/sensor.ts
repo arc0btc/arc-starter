@@ -535,7 +535,7 @@ export default async function workflowReviewSensor(): Promise<string> {
         proposed_keys: updatedKeys,
       };
 
-  await writeHookState(SENSOR_NAME, stateToWrite);
+  await writeHookState(SENSOR_NAME, stateToWrite as Parameters<typeof writeHookState>[1]);
 
   log(`created review task: ${subject}`);
   return "ok";

@@ -140,7 +140,7 @@ try {
         const simResp = await fetch(`${STXER_SIMS}/${sessionId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ steps: [{ Eval: [account.stxAddress, "", SBTC_CTX, balanceExpr] }] }),
+          body: JSON.stringify({ steps: [{ Eval: [account.address, "", SBTC_CTX, balanceExpr] }] }),
           signal: ctrl.signal,
         });
         if (!simResp.ok) throw new Error(`simulation: ${simResp.status}`);
@@ -179,7 +179,7 @@ try {
   let nonce = explicitNonce;
   let trackedNonce: number | undefined;
   if (nonce === undefined) {
-    const acquired = await acquireNonce(account.stxAddress);
+    const acquired = await acquireNonce(account.address);
     trackedNonce = acquired.nonce;
     nonce = BigInt(acquired.nonce);
   }
@@ -188,7 +188,7 @@ try {
     const result = await transferStx(account, recipient, amountMicroStx, memo, explicitFee, nonce);
 
     if (trackedNonce !== undefined) {
-      await releaseNonce(account.stxAddress, trackedNonce, true, undefined, result.txid);
+      await releaseNonce(account.address, trackedNonce, true, undefined, result.txid);
     }
 
     console.log(JSON.stringify({
@@ -207,7 +207,7 @@ try {
       // The nonce-tracker auto-syncs from Hiro after 90s if the conflict turns
       // out to be a false alarm; in the meantime we avoid re-using a nonce that
       // may already be in the mempool from a prior tx.
-      await releaseNonce(account.stxAddress, trackedNonce, false, "broadcast");
+      await releaseNonce(account.address, trackedNonce, false, "broadcast");
     }
     const msg = txErr instanceof Error ? txErr.message : String(txErr);
     console.log(JSON.stringify({ success: false, error: "STX transfer failed", detail: msg }));

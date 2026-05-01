@@ -52,7 +52,7 @@ async function writeState(state: PositionState): Promise<void> {
 }
 
 function serializeCVToHex(cv: unknown): string {
-  const serialized = serializeCV(cv);
+  const serialized = serializeCV(cv as import("@stacks/transactions").ClarityValue);
   if (typeof serialized === "string") {
     return serialized.startsWith("0x") ? serialized : `0x${serialized}`;
   }

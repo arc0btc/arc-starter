@@ -33,6 +33,7 @@ const swapArgs = process.argv.slice(2);
 process.argv = ["bun", "bitflow.ts", ...swapArgs];
 
 // Monkey-patch Commander's parse() to use parseAsync()
+// @ts-ignore — no type declarations for bundled commander
 const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
 let parseResult: Promise<unknown> | null = null;
 const origParse = Command.prototype.parse;
@@ -42,7 +43,9 @@ Command.prototype.parse = function (this: InstanceType<typeof Command>, ...args:
 };
 
 try {
-  await import("../../github/aibtcdev/skills/defi-bitflow/bitflow.ts");
+  await (async () => { // @ts-ignore
+  return import("../../github/aibtcdev/skills/defi-bitflow/bitflow.ts")
+})();
   if (parseResult) {
     await parseResult;
   }

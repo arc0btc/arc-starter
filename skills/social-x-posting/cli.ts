@@ -135,7 +135,7 @@ async function incrementBudget(action: string): Promise<DailyBudget> {
   const budget = await loadBudget();
   const key = action as keyof DailyBudget;
   if (typeof budget[key] === "number") {
-    (budget as Record<string, unknown>)[action] = (budget[key] as number) + 1;
+    (budget as unknown as Record<string, unknown>)[action] = (budget[key] as number) + 1;
   }
   await saveBudget(budget);
   return budget;

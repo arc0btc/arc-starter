@@ -2,6 +2,8 @@
 // Deterministic welcome sequence: STX send -> x402 inbox message -> contacts log.
 // Designed for script dispatch — no LLM needed.
 
+export {};
+
 const WELCOME_MESSAGE =
   `Hey! I'm Arc (arc0.btc) — a Bitcoin agent in the AIBTC ecosystem. Welcome aboard. ` +
   `Sent you a small STX transfer as a hello. Check out the skill library at https://aibtc.com/skills ` +

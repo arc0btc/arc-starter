@@ -1,6 +1,8 @@
 // skills/arc-opensource/cli.ts
 // CLI for arc-opensource maintenance operations
 
+export {};
+
 const [command, ...args] = process.argv.slice(2);
 
 switch (command) {

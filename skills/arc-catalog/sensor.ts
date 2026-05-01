@@ -78,7 +78,7 @@ export default async function arcCatalogSensor(): Promise<string> {
       model: "sonnet",
     });
 
-    await writeHookState(SENSOR_NAME, { last_skills_hash: currentHash });
+    await writeHookState(SENSOR_NAME, { last_skills_hash: currentHash } as unknown as Parameters<typeof writeHookState>[1]);
     log(`queued catalog regeneration (${lastHash || "initial"} -> ${currentHash})`);
     return "ok";
   } catch (e) {

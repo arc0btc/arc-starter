@@ -42,7 +42,7 @@ const REWARDS_CLAIM_THRESHOLD_USTX = 1_000; // claim when > 1000 uSTX pending
 const log = createSensorLogger(SENSOR_NAME);
 
 function serializeCVToHex(cv: unknown): string {
-  const serialized = serializeCV(cv);
+  const serialized = serializeCV(cv as import("@stacks/transactions").ClarityValue);
   if (typeof serialized === "string") {
     return serialized.startsWith("0x") ? serialized : `0x${serialized}`;
   }
@@ -101,8 +101,8 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
     if (decoded && typeof decoded === "object" && "value" in decoded) {
       const decoded_value = (decoded.value as Record<string, { value: string }>)?.value ?? decoded.value as Record<string, { value: string }>;
       return {
-        supplied: parseInt((decoded_value as Record<string, { value: string }>)["current-atoken-balance"]?.value ?? "0", 10),
-        borrowed: parseInt((decoded_value as Record<string, { value: string }>)["current-variable-debt"]?.value ?? "0", 10),
+        supplied: parseInt((decoded_value as unknown as Record<string, { value: string }>)["current-atoken-balance"]?.value ?? "0", 10),
+        borrowed: parseInt((decoded_value as unknown as Record<string, { value: string }>)["current-variable-debt"]?.value ?? "0", 10),
       };
     }
     return { supplied: 0, borrowed: 0 };

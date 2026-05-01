@@ -420,7 +420,7 @@ async function main(): Promise<void> {
     if (!authKey) {
       try {
         const { getCredential } = await import("../../src/credentials.ts");
-        authKey = (await getCredential("mcp-server", "auth_key")) ?? undefined;
+        authKey = (await getCredential("mcp-server", "auth_key")) ?? "";
       } catch {
         // Credential store unavailable — fall through to error
       }
@@ -434,7 +434,7 @@ async function main(): Promise<void> {
     }
     // Initialize DB once for all sessions
     initDatabase();
-    await startHttp(port, authKey);
+    await startHttp(port, authKey!);
   } else {
     const server = createServer();
     await startStdio(server);

@@ -70,9 +70,13 @@ function cmdInit(args: string[]): CommandResult {
     return { success: false, message: `Quest '${slug}' already exists (workflow id=${existing.id}, state=${existing.current_state})` };
   }
 
-  const skills = flags.skills ? flags.skills.split(",").map((s) => s.trim()) : [];
-  const model = flags.model || "sonnet";
-  const parentTaskId = flags.parent ? parseInt(flags.parent, 10) : null;
+  const skillsRaw = flags.skills;
+  const skills = skillsRaw ? (typeof skillsRaw === "string" ? skillsRaw.split(",").map((s: string) => s.trim()) : skillsRaw) : [];
+  const modelRaw = flags.model;
+  const model = (typeof modelRaw === "string" ? modelRaw : modelRaw?.[0]) || "sonnet";
+  const parentRaw = flags.parent;
+  const parentStr = typeof parentRaw === "string" ? parentRaw : parentRaw?.[0];
+  const parentTaskId = parentStr ? parseInt(parentStr, 10) : null;
 
   const context: QuestContext = {
     slug,

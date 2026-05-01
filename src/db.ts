@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import { Database, type SQLQueryBindings } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
 import { AGENT_NAME } from "./identity.ts";
 
@@ -834,7 +834,7 @@ function updateRow(table: string, id: number, fields: Record<string, unknown>): 
   const entries = Object.entries(fields).filter(([, v]) => v !== undefined);
   if (entries.length === 0) return;
   const sets = entries.map(([k]) => `${k} = ?`);
-  const values = [...entries.map(([, v]) => v), id];
+  const values = [...entries.map(([, v]) => v), id] as SQLQueryBindings[];
   db.query(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`).run(...values);
 }
 
@@ -885,7 +885,7 @@ export function insertTask(fields: InsertTask): number {
   const placeholders = cols.map(() => "?").join(", ");
   const result = db
     .query(`INSERT INTO tasks (${cols.join(", ")}) VALUES (${placeholders})`)
-    .run(...values);
+    .run(...(values as SQLQueryBindings[]));
 
   return Number(result.lastInsertRowid);
 }
@@ -1467,6 +1467,6 @@ export function getServiceLogs(opts?: {
 
   return db
     .query(`SELECT * FROM service_logs ${where} ORDER BY created_at DESC LIMIT ?`)
-    .all(...params) as ServiceLog[];
+    .all(...(params as SQLQueryBindings[])) as ServiceLog[];
 }
 
