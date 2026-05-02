@@ -18,6 +18,7 @@ import { Command } from "commander";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { acquireNonce, releaseNonce } from "../../github/aibtcdev/skills/src/lib/services/nonce-tracker.js";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -231,15 +232,24 @@ async function fetchStxBalance(wallet: string): Promise<number> {
   return Number(BigInt(data?.balance ?? "0")) / 1e6;
 }
 
-async function fetchNonce(wallet: string): Promise<bigint> {
-  const data = await fetchJson<Record<string, unknown>>(
-    `${HIRO_API}/extended/v1/address/${wallet}/nonces`
-  );
-  const nextNonce = data.possible_next_nonce;
-  if (nextNonce !== undefined && nextNonce !== null) return BigInt(Number(nextNonce));
-  const lastExec = data.last_executed_tx_nonce;
-  if (lastExec !== undefined && lastExec !== null) return BigInt(Number(lastExec) + 1);
-  return 0n;
+async function broadcastMove(
+  privateKey: string,
+  pool: PoolMeta,
+  moves: MoveEntry[],
+  wallet: string
+): Promise<string> {
+  const acquired = await acquireNonce(wallet);
+  const nonce = BigInt(acquired.nonce);
+  try {
+    const txid = await executeMove(privateKey, pool, moves, nonce);
+    await releaseNonce(wallet, acquired.nonce, true, undefined, txid);
+    return txid;
+  } catch (err) {
+    // Conservative: treat as broadcast so the tracker auto-resyncs from Hiro after 90s
+    // rather than rolling back a nonce that may already be in the mempool.
+    await releaseNonce(wallet, acquired.nonce, false, "broadcast");
+    throw err;
+  }
 }
 
 // ─── Position assessment ──────────────────────────────────────────────────────
@@ -657,11 +667,8 @@ program
         return;
       }
 
-      const nonce = await fetchNonce(wallet);
-      log(`Nonce: ${nonce}`);
-
       log(`Broadcasting atomic move (${movePositions.length} bins → ±${spread} around active ${activeBin})...`);
-      const moveTxId = await executeMove(keys.stxPrivateKey, pool, movePositions, nonce);
+      const moveTxId = await broadcastMove(keys.stxPrivateKey, pool, movePositions, wallet);
       log(`Move broadcast: ${moveTxId}`);
 
       // Record cooldown
@@ -801,8 +808,7 @@ program
             // Execute — single atomic transaction
             log(`${pool.pool_id} (${health.pair}): drift ${health.drift} bins — MOVING (atomic, ±${spread})`);
 
-            const nonce = await fetchNonce(wallet);
-            const moveTxId = await executeMove(keys.stxPrivateKey, pool, movePositions, nonce);
+            const moveTxId = await broadcastMove(keys.stxPrivateKey, pool, movePositions, wallet);
             log(`  Move broadcast: ${moveTxId}`);
 
             // Record cooldown

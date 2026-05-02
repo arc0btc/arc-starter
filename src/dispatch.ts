@@ -756,9 +756,26 @@ async function dispatchScript(script: string, skillNames: string[]): Promise<Scr
       return { result_summary: summary, result_detail: detail, status: "completed" };
     }
   } else {
-    const stderrTail = stderr.trim().split("\n").slice(-5).join("\n");
-    const stdoutHead = stdout.trim().split("\n").slice(0, 3).join("\n");
-    const summary = (stderrTail || stdoutHead || `Script exited with code ${exitCode}`).slice(0, 500);
+    // Prefer the last structured-error line (JSON with success:false or an "error" field) —
+    // multi-step scripts emit progress to stderr and a final JSON error on failure, and
+    // a naive tail+truncate would cut the actionable error mid-string.
+    const stderrLines = stderr.trim().split("\n").filter(Boolean);
+    let primary: string | null = null;
+    for (let i = stderrLines.length - 1; i >= 0; i--) {
+      const line = stderrLines[i].trim();
+      if (!line.startsWith("{")) continue;
+      try {
+        const parsed = JSON.parse(line) as Record<string, unknown>;
+        if (parsed.success === false || typeof parsed.error === "string") {
+          primary = line;
+          break;
+        }
+      } catch {
+        // not JSON, keep scanning
+      }
+    }
+    const fallback = stderrLines.slice(-5).join("\n") || stdout.trim().split("\n").slice(0, 3).join("\n");
+    const summary = (primary ?? fallback ?? `Script exited with code ${exitCode}`).slice(0, 500);
     return { result_summary: summary, result_detail: detail, status: "failed" };
   }
 }
@@ -987,7 +1004,7 @@ export async function runDispatch(): Promise<void> {
           log(`dispatch/script: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — requeuing`);
           insertServiceLog("warn", "dispatch", `script task #${task.id} failed attempt ${attemptNumber}/${task.max_retries}, requeued`, task.id);
         } else {
-          markTaskFailed(task.id, scriptResult.result_summary);
+          markTaskFailed(task.id, scriptResult.result_summary, scriptResult.result_detail);
           recordGateFailure(scriptResult.result_summary, "unknown");
           log(`dispatch/script: task #${task.id} failed — max retries exhausted`);
           insertServiceLog("error", "dispatch", `script task #${task.id} max retries exhausted`, task.id);

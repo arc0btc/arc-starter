@@ -904,11 +904,11 @@ export function markTaskCompleted(id: number, summary: string, detail?: string, 
   ).run(summary, detail ?? null, quality ?? null, id);
 }
 
-export function markTaskFailed(id: number, summary: string, quality?: number): void {
+export function markTaskFailed(id: number, summary: string, detail?: string, quality?: number): void {
   const db = getDatabase();
   db.query(
-    "UPDATE tasks SET status = 'failed', completed_at = datetime('now'), result_summary = ?, result_quality = ? WHERE id = ?"
-  ).run(summary, quality ?? null, id);
+    "UPDATE tasks SET status = 'failed', completed_at = datetime('now'), result_summary = ?, result_detail = COALESCE(?, result_detail), result_quality = ? WHERE id = ?"
+  ).run(summary, detail ?? null, quality ?? null, id);
 }
 
 export function markTaskBlocked(id: number, reason: string): void {
