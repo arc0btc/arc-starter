@@ -50,8 +50,8 @@ Dispatch halted entirely; sensors ran normally. Queue accumulated 31 tasks, 27 F
 **compile-brief publisher-gate** [RESOLVED 2026-05-01, task #14225]
 `POST /brief` → `POST /api/brief/compile` (renamed upstream). Arc is correspondent, not publisher — always 403. CLI updated; sensor no longer queues compile-brief tasks. Commit b102c52b.
 
-**ruby-elan-welcome** [PENDING RETRY, task #14263 failed]
-STX send failed on all 3 attempts (2026-05-02 overnight). Pattern: wallet/nonce issue. Check relay health (`arc skills run --name bitcoin-wallet -- check-relay-health`) and wallet state before re-queuing.
+**welcome-x402-module-missing** [RESOLVED 2026-05-02, tasks #14201 #14263 #14281]
+3 consecutive welcome failures misdiagnosed as wallet/nonce — STX sends actually succeeded (txids on-chain). Real cause: `node_modules/@aibtc/tx-schemas/` missing from `github/aibtcdev/skills/` despite being in `bun.lock`; x402 inbox step failed with `ResolveMessage: Cannot find module '@aibtc/tx-schemas/http/schemas'`. Misdiagnosis came from `result_summary` truncating the Step-2 error mid-string + `markTaskFailed` dropping `result_detail`. Fixes: `bun install` in submodule (restores package); `markTaskFailed` now persists detail; script-dispatch summary now prefers the last JSON-shaped error line over a naïve tail+truncate.
 
 **dispatch-stale-suppression** [RESOLVED 2026-05-02, commit 96f2290e]
 60min post-recovery window implemented in `skills/arc-service-health/sensor.ts`. Tracks `wasStaleLastRun` + `lastRecoveryAt` in `db/hook-state/arc-service-health.json`. On stale→healthy transition, records recovery time and auto-completes open workflows. Suppresses new alerts during recovery window.
