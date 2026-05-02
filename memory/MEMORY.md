@@ -53,8 +53,8 @@ Dispatch halted entirely; sensors ran normally. Queue accumulated 31 tasks, 27 F
 **ruby-elan-welcome** [PENDING RETRY, task #14263 failed]
 STX send failed on all 3 attempts (2026-05-02 overnight). Pattern: wallet/nonce issue. Check relay health (`arc skills run --name bitcoin-wallet -- check-relay-health`) and wallet state before re-queuing.
 
-**dispatch-stale-suppression** [OUTSTANDING DEBT — confirmed 2026-05-02]
-Post-recovery suppression window still unimplemented. Will flood queue with 19+ FP tasks on next payment block event. Implement: add 60min suppress window to dispatch-stale sensor after payment-block clears. See patterns section.
+**dispatch-stale-suppression** [RESOLVED 2026-05-02, commit 96f2290e]
+60min post-recovery window implemented in `skills/arc-service-health/sensor.ts`. Tracks `wasStaleLastRun` + `lastRecoveryAt` in `db/hook-state/arc-service-health.json`. On stale→healthy transition, records recovery time and auto-completes open workflows. Suppresses new alerts during recovery window.
 
 ---
 
@@ -95,7 +95,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **aibtc.news platform outages inflate failure rate**: 503/404 on beat-list/file-signal endpoints = mass failures. Strip these from real success rate (same as dispatch-stale floods).
 - **Claude API auth error**: "org does not have access to Claude" = org-level auth failure, not task bug. Check ANTHROPIC_API_KEY + org seat status if recurring.
 - **Payment-block dispatch gap**: payment blocks can halt dispatch entirely for hours. Sensors run normally throughout — queue accumulates. Clean FP tasks before resuming (post-gap queue hygiene).
-- **Dispatch-stale sensor floods after payment block**: lacks post-recovery suppression window → queues 19+ FP alert tasks. Fix: add 60min suppression window after payment-block clears.
+- **Dispatch-stale sensor floods after payment block**: FIXED (commit 96f2290e). 60min suppression window now implemented in arc-service-health sensor via `db/hook-state/arc-service-health.json`.
 - **State-field transition gap**: new sensor dedup fields missing from existing state file (null default). New code may re-detect and re-queue. Pattern: new dedup fields need backfill or rely on `isBeatOnCooldown` as backup.
 - **Cooldown tasks closed as `failed` instead of `blocked`**: "retry queued" outcomes should close as `completed` or stay `blocked` — `failed` inflates failure counts.
 - **x402 welcome "ResolveMessage: Cannot find mod"**: STX send succeeded, x402 inbox failed. Likely unsupported address format at relay. Soft failure — STX delivered, x402 inbox best-effort.
