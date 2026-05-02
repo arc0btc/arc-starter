@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-05-02T08:09:00.000Z*
+*Generated: 2026-05-02T20:11:00.000Z*
 *Sensor count: 74 | Skill count: 115*
 
 ```mermaid
@@ -25,7 +25,7 @@ stateDiagram-v2
 
         state HealthSensors {
             arc_service_health
-            note right of arc_service_health: arc-alive-check DELETED (ee328387)\nDormant since 2026-03-12, superseded by arc-service-health\nCARRY×8 resolved — sensor count 73→70\nAUTO-COMPLETE FIX (9905dbea): health-alert workflows in 'triggered' state\nauto-complete when alert condition clears\n50 stuck workflows cleared (dating back Apr 11)\nPattern: alert-style sensors must own workflow termination\nPAYMENT-BLOCK WATCHDOG (60372cb9): checkPaymentBlock() added to sensor\nDetects consecutive gate failures indicating payment block (25h gap 2026-04-30)\nCreates escalation task; pattern: payment blocks halt dispatch while sensors run normally\nDISPATCH-STALE SUPPRESSION (1396b36e): 60min post-recovery window added\nState: arc-service-health-post-recovery.json in hook state\nPrevents FP flood (19+ stale alerts) that occurred after every payment block\nPattern: health sensors must gate post-recovery alert noise
+            note right of arc_service_health: arc-alive-check DELETED (ee328387)\nDormant since 2026-03-12, superseded by arc-service-health\nCARRY×8 resolved — sensor count 73→70\nAUTO-COMPLETE FIX (9905dbea): health-alert workflows in 'triggered' state\nauto-complete when alert condition clears\n50 stuck workflows cleared (dating back Apr 11)\nPattern: alert-style sensors must own workflow termination\nPAYMENT-BLOCK WATCHDOG (60372cb9): checkPaymentBlock() added to sensor\nDetects consecutive gate failures indicating payment block (25h gap 2026-04-30)\nCreates escalation task; pattern: payment blocks halt dispatch while sensors run normally\nDISPATCH-STALE SUPPRESSION (96f2290e): 60min post-recovery window added\nTracks wasStaleLastRun + lastRecoveryAt in db/hook-state/arc-service-health.json\nOn stale→healthy transition, records recovery time and auto-completes open workflows\nPrevents FP flood (19+ stale alerts) that occurred after every payment block\nPattern: health sensors must gate post-recovery alert noise
         }
 
         state GitHubSensors {
@@ -334,6 +334,15 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (ff24d963 → 08ec7eb1) [2026-05-02T20:11Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arc-service-health): 60min post-recovery suppression window** (96f2290e) | `skills/arc-service-health/sensor.ts` now tracks `wasStaleLastRun` and `lastRecoveryAt` in `db/hook-state/arc-service-health.json`. On a stale→healthy transition, records recovery time and suppresses new dispatch-stale alert creation for 60 minutes. Resolves the FP flood (~19 alerts queued per payment-block recovery) documented in the 2026-04-30 incident. State machine diagram commit ID corrected from `1396b36e` to `96f2290e`. |
+| **fix(dispatch): script-dispatch summary prefers last JSON error line** (08ec7eb1) | `src/dispatch.ts` now scans stderr for the last JSON-shaped line and uses it as `result_summary` rather than a naive tail+truncate. Fixes multi-step scripts whose progress messages (to stderr) were being captured as the summary, hiding the real error JSON mid-string at the 500-char boundary. Root-cause fix for the 3 consecutive welcome-failure misdiagnoses (tasks #14201 #14263 #14281). |
+| **fix(db): markTaskFailed persists result_detail** (08ec7eb1) | `src/db.ts` — `markTaskFailed()` was silently dropping `result_detail` on the failure path. Full error detail is now stored. Enables accurate post-mortem for any script-dispatch or LLM-dispatch failure, not just the welcome path. |
+| **fix(hodlmm-move-liquidity): nonce serialization** (08ec7eb1) | `skills/hodlmm-move-liquidity/hodlmm-move-liquidity.ts` now routes all STX sends through `acquireNonce`/`releaseNonce` via a `broadcastMove` wrapper. Was the last path that called `broadcastTransaction` directly, bypassing the shared nonce coordinator at `~/.aibtc/nonce-state.json`. Nonce serialization is now complete across all STX send paths (bitcoin-wallet, defi-zest, hodlmm). |
 
 ## Key Architectural Changes (e4370d04 → ff24d963) [2026-05-02T08:09Z]
 

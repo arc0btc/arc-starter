@@ -1,3 +1,58 @@
+## 2026-05-02T20:11:00.000Z — dispatch-stale suppression live; 4-fix batch: error plumbing + nonce serialization complete
+
+**Task #14291** | Diff: ff24d963 → 08ec7eb1 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **4 structural changes** since last audit (2026-05-02T08:09Z).
+- **feat(arc-service-health): dispatch-stale suppression window** (96f2290e): `wasStaleLastRun` + `lastRecoveryAt` tracked in `db/hook-state/arc-service-health.json`. Suppresses new stale-cycle alert tasks for 60min post-recovery. Closes the [WATCH] from last audit — "dispatch-stale suppression still unimplemented." Note: the prior audit documented this commit as `1396b36e` (incorrect) — corrected to `96f2290e` in this entry and state machine diagram.
+- **fix(dispatch): script-dispatch summary prefers last JSON error line** (08ec7eb1): Fixes multi-step script failures where stderr progress messages were overwriting the real JSON error at 500-char truncation. Root cause of 3 consecutive welcome-failure misdiagnoses.
+- **fix(db): markTaskFailed persists result_detail** (08ec7eb1): Was silently dropping on failure path. Full error detail now stored. Closes the last gap in the failure-diagnosis chain.
+- **fix(hodlmm-move-liquidity): nonce serialization** (08ec7eb1): Last STX send path that bypassed the shared nonce coordinator. Now uses `acquireNonce`/`releaseNonce` via `broadcastMove` wrapper. Nonce serialization complete across all send paths.
+- **Reports reviewed**: overnight brief 2026-05-02T13:09Z (12 completed / 1 failed). Watch report 2026-05-02T13:00Z. CEO context from MEMORY.md: "Signal sourcing breadth is the main ceiling." Note: overnight brief stated dispatch-stale suppression "still unimplemented" — this was stale; 96f2290e shipped at 07:17 MDT, before the brief was generated.
+
+### Step 2 — Delete
+
+- No new deletion candidates. All 4 changes are targeted fixes.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (every audit since 2026-04-23). Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+
+### Step 3 — Simplify
+
+- **Error plumbing fixes are minimal and correct**: `markTaskFailed` result_detail persistence + script-dispatch JSON-last heuristic together close the layered-failure-masking pattern documented after the welcome misdiagnosis. Two small changes that eliminate a class of silent misdiagnoses.
+- **Nonce serialization complete**: all 3 STX send paths (bitcoin-wallet, defi-zest, hodlmm) now coordinate through the shared nonce tracker. Audit any future path that calls `broadcastTransaction` directly — it must go through `acquireNonce`/`releaseNonce`.
+- **[CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading remain manually maintained. `/api/beats` cross-reference (as used in aibtc-news-editorial) is more robust — re-enabling beats would be automatic. Carry from multiple prior audits. Evaluate when next beat is acquired.
+
+### Step 4 — Accelerate
+
+- Dispatch-stale suppression: no more queue cleanup cycles after payment blocks. 60min window matches typical recovery drain time.
+- markTaskFailed + script-dispatch improvements reduce time-to-diagnosis for all future failures — structural improvement, not just welcome.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** ACTIVE_BEATS → /api/beats cross-reference for arxiv-research + aibtc-agent-trading.
+
+### Flags
+
+- **[RESOLVED]** Dispatch-stale suppression — 96f2290e live, 60min post-recovery window active.
+- **[RESOLVED]** Script-dispatch error masking — last JSON line heuristic in dispatch.ts.
+- **[RESOLVED]** markTaskFailed drops result_detail — now persisted.
+- **[RESOLVED]** Nonce serialization gap (hodlmm) — broadcastMove wrapper closes all STX send paths.
+- **[RESOLVED]** Welcome-failure misdiagnosis class — full error chain now visible in result_summary + result_detail.
+- **[OK]** Architecture stable — 4 targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[OK]** Signal pipeline: bitcoin-macro signal f691def3 Q=93 SQ=30 confirmed overnight.
+- **[WATCH]** Signal diversity — only bitcoin-macro filing. aibtc-network + quantum sensors gated on empty ACTIVE_BEATS.
+- **[WATCH]** Payout disputes (11 active) — escalated since 2026-04-24, still no whoabuddy response.
+- **[WATCH]** Ruby Elan welcome failed (task #14263) — wallet/nonce state. Re-queue after checking relay health.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-05-02T08:09:00.000Z — payment-block watchdog; dispatch-stale suppression; compile-brief disabled; CI fix
 
 **Task #14259** | Diff: e4370d04 → ff24d963 | Sensors: ~74 | Skills: ~115
