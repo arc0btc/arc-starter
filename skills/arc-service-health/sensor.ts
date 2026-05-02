@@ -15,12 +15,33 @@ const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:arc-service-health";
 const STALE_LOCK_SOURCE = "sensor:arc-service-health:stale-lock";
 const PRIORITY = 2;
+// Suppress stale-dispatch alerts for this window after dispatch recovers from a long outage.
+// Prevents flooding the queue with ~N/hour FP alert tasks when payment blocks clear.
+const RECOVERY_SUPPRESSION_MS = 60 * 60 * 1000;
 
 const log = createSensorLogger(SENSOR_NAME);
 
 // Compute repo root: skills/arc-service-health/sensor.ts → ../../
 const ROOT = new URL("../../", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
+const STATE_FILE = join(ROOT, "db", "hook-state", "arc-service-health.json");
+
+interface ServiceHealthState {
+  wasStaleLastRun?: boolean;
+  lastRecoveryAt?: string;
+}
+
+async function readHealthState(): Promise<ServiceHealthState> {
+  try {
+    const file = Bun.file(STATE_FILE);
+    if (await file.exists()) return (await file.json()) as ServiceHealthState;
+  } catch { /* ignore */ }
+  return {};
+}
+
+async function writeHealthState(state: ServiceHealthState): Promise<void> {
+  await Bun.write(STATE_FILE, JSON.stringify(state));
+}
 
 /** Returns true if the last dispatch cycle started longer ago than the stale threshold and pending tasks exist. */
 function checkStaleCycle(): boolean {
@@ -73,8 +94,27 @@ export default async function healthSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
+  const state = await readHealthState();
   const staleCycle = checkStaleCycle();
-  if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
+
+  // Detect recovery: dispatch was stale last run but is healthy now
+  if (state.wasStaleLastRun && !staleCycle) {
+    state.lastRecoveryAt = new Date().toISOString();
+    log(`dispatch recovered from stale — recording recovery at ${state.lastRecoveryAt}`);
+    clearResolvedAlerts("dispatch-stale");
+  }
+
+  // Check if we're within the post-recovery suppression window
+  const inSuppressionWindow =
+    state.lastRecoveryAt !== undefined &&
+    Date.now() - new Date(state.lastRecoveryAt).getTime() < RECOVERY_SUPPRESSION_MS;
+
+  state.wasStaleLastRun = staleCycle;
+  await writeHealthState(state);
+
+  if (staleCycle && inSuppressionWindow) {
+    log(`dispatch-stale alert suppressed — within ${RECOVERY_SUPPRESSION_MS / 60000}min recovery window (since ${state.lastRecoveryAt})`);
+  } else if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
     const now = new Date().toISOString();
     const wfKey = `health-alert:dispatch-stale:${now.slice(0, 13)}`; // hourly dedup
     if (!getWorkflowByInstanceKey(wfKey)) {
@@ -88,8 +128,8 @@ export default async function healthSensor(): Promise<string> {
         }),
       });
     }
-  } else if (!staleCycle) {
-    // Condition cleared — auto-complete any open triggered workflows for this alert type
+  } else if (!staleCycle && !state.wasStaleLastRun) {
+    // Condition cleared and was already cleared — auto-complete any open triggered workflows
     clearResolvedAlerts("dispatch-stale");
   }
 
