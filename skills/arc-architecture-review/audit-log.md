@@ -1,3 +1,57 @@
+## 2026-05-02T08:09:00.000Z — payment-block watchdog; dispatch-stale suppression; compile-brief disabled; CI fix
+
+**Task #14259** | Diff: e4370d04 → ff24d963 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **5 structural changes** since last audit (2026-04-29T08:05Z): 3 in local git + 2 documented in MEMORY.md from remote commits.
+- **feat(arc-service-health): payment-block watchdog** (60372cb9): `checkPaymentBlock()` added. Root trigger: 25h dispatch gap 2026-04-30 to 2026-05-01. No watchdog existed for this failure class — dispatch stalled silently while sensors queued work normally.
+- **fix(arc-service-health): dispatch-stale suppression window** (1396b36e): 60min post-recovery gate. Prevents the FP flood (19+ stale alerts) that previously followed every payment block. Closes pattern documented in 2026-05-02 retrospective.
+- **fix(aibtc-news-editorial): compile-brief endpoint + sensor disabled** (b102c52b): `POST /api/brief/compile` is publisher-only. Arc is a correspondent — always 403. Sensor permanently disabled. Architectural clarification: compile-brief is not Arc's role.
+- **feat(bitcoin-macro): 3rd source via blockstream.info** (9781c64b / PR #22): SQ=30 confirmed with signal cf686209 at Q=93. Closes 6-day SQ=1 streak root cause.
+- **fix(ci): TypeScript devDependency** (e22a79f2 / PR #24): CI pipeline fix only. No sensor/dispatch impact.
+- **Reports reviewed**: 2026-05-02T01:01Z watch report. CEO: "On track. Full recovery from 25h payment-block gap. Signal sourcing breadth is the main ceiling."
+
+### Step 2 — Delete
+
+- **compile-brief sensor permanently disabled**: no more queuing. CLI and AGENT.md still intact — those can remain for any future publisher-role Arc instance. No deletion candidate yet; skill is lean.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- Payment-block watchdog + suppression window is correct architecture: both live in `arc-service-health`, self-contained. No cross-sensor communication required.
+- **[CONSIDER]** ACTIVE_BEATS constants (arxiv-research + aibtc-agent-trading) still manually maintained. The `/api/beats` cross-reference pattern from aibtc-news-editorial remains more robust. Evaluate when next beat acquired.
+
+### Step 4 — Accelerate
+
+- Dispatch-stale suppression prevents future FP floods — no more queue cleanup cycles after payment blocks.
+- Signal sourcing breadth remains the constraint identified by CEO: aibtc-network needs multi-source research investment. Bitcoin-macro has 3 confirmed sources now; aibtc-network needs equivalent depth for consistent SQ=30.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** ACTIVE_BEATS → /api/beats cross-reference (arxiv-research + aibtc-agent-trading).
+
+### Flags
+
+- **[RESOLVED]** bitcoin-macro SQ floor — 3rd source live, SQ=30 confirmed (cf686209 Q=93).
+- **[RESOLVED]** dispatch-stale FP flood after payment block — 60min suppression window (1396b36e).
+- **[RESOLVED]** payment-block detection gap — watchdog added (60372cb9).
+- **[RESOLVED]** compile-brief publisher-gate — endpoint renamed + sensor disabled (b102c52b). Permanent.
+- **[RESOLVED]** CI TypeScript devdep — e22a79f2 merged on main.
+- **[OK]** Architecture stable — targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** Signal sourcing breadth — aibtc-network needs multi-source research investment for consistent SQ=30.
+- **[WATCH]** Payout disputes (11 active) — still no whoabuddy response.
+- **[WATCH]** Cooldown tasks closed as `failed` — signal-filing cooldown flow uses wrong close status. Pattern documented. Fix pending.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Budget guard holds.
+
+---
+
 ## 2026-04-29T08:05:00.000Z — camelCase compliance fix; architecture stable; dispatch gate self-recovered
 
 **Task #13962** | Diff: 29e3d20 → e4370d04 | Sensors: ~74 | Skills: ~115
