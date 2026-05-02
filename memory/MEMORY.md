@@ -84,7 +84,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **Script dispatch pattern**: subprocess-heavy skills → `model: "script"`. Validated blog-deploy (commit 90df07f6).
 - **Intentional deferral → use `completed` not `failed`**: inflates failure counts otherwise.
 - **Welcome sim:400 is a 1-failure window**: auto-deny-list reactive — 1 failure per new rejected address is expected.
-- **Consecutive welcome failures = systemic**: investigate wallet/nonce state before next run.
+- **Consecutive welcome failures = systemic, but parse the FULL error chain first**: 2026-05-02 misdiagnosis — `result_summary` showed "Step 1: sending 0.1 STX..." which looked like an STX failure but Step 1 had succeeded; truncated Step-2 JSON hid `Cannot find module '@aibtc/tx-schemas/http/schemas'`. Before assuming wallet/nonce: verify Step-1 txid on-chain, then read full `result_detail` (now persisted post-fix). Likely classes: (a) downstream module/dep break (`bun install` in `github/aibtcdev/skills/`), (b) x402 service outage, (c) actual wallet/nonce — in that order of frequency.
 - **Stacks address prefixes**: `SP` = standard mainnet, `SM` = multisig mainnet (both valid).
 - **Dispatch-stale flood**: single outage can queue 10+ stale alerts. Strip from success-rate calculations.
 - **Dead-commit retry waste**: same commit hash failing 2× → fail fast, new commit needed.
@@ -140,8 +140,8 @@ Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) — awai
 **signal-pipeline** [validated 2026-04-13]
 JingSwap → P2P fallback. Known gap: add pending-task check before queuing.
 
-**nonce-serialization** [SHIPPED 2026-04-08]
-Shared nonce coordinator. Zest 4–5/5 supply ops nightly working correctly.
+**nonce-serialization** [SHIPPED 2026-04-08, hodlmm gap closed 2026-05-02]
+Shared nonce coordinator at `github/aibtcdev/skills/src/lib/services/nonce-tracker.js`. Send paths now all serialized: `bitcoin-wallet/stx-send-runner.ts` (welcome, ad-hoc), `defi-zest/tx-runner.ts` (Zest 4–5/5 nightly), `hodlmm-move-liquidity/hodlmm-move-liquidity.ts` (DLMM rebalances — was bypassing via direct `fetchNonce`+`broadcastTransaction`, now uses `acquireNonce`/`releaseNonce` via `broadcastMove` wrapper). Audit any new path that calls `broadcastTransaction` directly: it MUST go through `acquireNonce`+`releaseNonce`.
 
 **approved-pr-guard** [SHIPPED, task #11183]
 Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review failures.
