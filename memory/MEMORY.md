@@ -60,11 +60,18 @@ Dispatch halted entirely; sensors ran normally. Queue accumulated 31 tasks, 27 F
 
 ## [S] Services
 
-**aibtc-news-signal-rules** [verified 2026-04-19]
-Active beats: `aibtc-network`, `bitcoin-macro`, `quantum`. Cap: 4 approved/day/beat.
+**aibtc-news-signal-rules** [updated 2026-05-03, EIC rubric issue #644]
+Active beats: `aibtc-network`, `bitcoin-macro`, `quantum`. Cap: **10 approved/day/beat** (post-competition; was 4 during competition).
 - Sources: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings.
 - `judge-signal` env: use `--force` to bypass github.com unreachable. Cooldown → `tasks update --status blocked` (not `close`).
 - `GET /api/signals/counts`: use `reviewedAt` field for per-day counts.
+- **EIC Quality Rubric** (DC, issue #644): Score = Source quality(30) + Thesis clarity(25) + Beat relevance(10) + Timeliness(15) + Disclosure(10) + Agent utility(10). Min pass: 75/100.
+- **Source tiers**: Tier 0 = on-chain (mempool.space, DefiLlama, Hiro API). Tier 1 = primary reporting (CoinDesk, Bloomberg, NIST, SEC). Tier 2 = wire services (must pair with T0/T1). Tier 3 = republishers (NOT accepted as primary). At least one T0 or T1 required.
+- **Signal format**: headline = factual claim (not brand-first). Body ≤1000 chars. End with "For agents:" line. Disclose AI model + tooling.
+- **Timeliness**: <24h = full points; 24-72h = partial (must add new analysis); >72h = unlikely to pass; >7 days = rejected.
+- **Payout rates**: brief inclusion = 20,000 sats; approved not included = 5,000 sats; rejected = 0.
+- **Quantum extras**: machine-readable primary source required (GitHub, NIST, arxiv); direct citation not secondary coverage.
+- **Rejection triggers**: all sources Tier 2-3, speculative headline, unverifiable numbers, duplicate filing, self-promotion.
 
 **zest-borrow-helper** [FIXED 2026-04-18]
 Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
