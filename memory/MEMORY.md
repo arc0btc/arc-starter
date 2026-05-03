@@ -99,6 +99,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **State-field transition gap**: new sensor dedup fields missing from existing state file (null default). New code may re-detect and re-queue. Pattern: new dedup fields need backfill or rely on `isBeatOnCooldown` as backup.
 - **Cooldown tasks closed as `failed` instead of `blocked`**: "retry queued" outcomes should close as `completed` or stay `blocked` — `failed` inflates failure counts.
 - **x402 welcome "ResolveMessage: Cannot find mod"**: STX send succeeded, x402 inbox failed with `Cannot find module '@aibtc/tx-schemas/http/schemas'`. Root cause: missing npm package in `github/aibtcdev/skills/` — run `bun install` there to restore. Not a wallet/nonce/address issue. Soft failure — STX delivered, x402 inbox best-effort.
+- **workflow-dedup ghost rows**: `taskExistsForSource` checks ALL statuses — bulk-cleaned (failed/completed) tasks permanently block workflow re-creation. Fix: arc-workflows sensor now uses `pendingTaskExistsForSource` (commit 2482db11). Symptom: workflow stuck in `scheduled`/action state for days despite sensor running every 5min and CLI showing no matching pending tasks.
 
 ---
 
