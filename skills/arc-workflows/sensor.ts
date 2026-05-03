@@ -368,9 +368,10 @@ export default async function workflowsSensor(): Promise<string> {
         // Only block on pending/active — completed tasks shouldn't prevent re-reviews.
         const baseSource = source.replace(/:v\d+$/, "");
         const crossSensorDup = baseSource !== source && pendingTaskExistsForSource(baseSource);
-        // Dedup: skip if any task (pending, active, or completed) already exists for this source,
-        // or if another sensor already has a pending task for the same PR
-        if (!crossSensorDup && !taskExistsForSource(source)) {
+        // Dedup: skip if a pending/active task already exists for this source.
+        // Use pendingTaskExistsForSource (not taskExistsForSource) so that completed/failed tasks
+        // don't permanently block re-creation — bulk cleanups or task failures should allow retry.
+        if (!crossSensorDup && !pendingTaskExistsForSource(source)) {
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
