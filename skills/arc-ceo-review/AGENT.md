@@ -103,6 +103,27 @@ git add reports/
 git commit -m "docs(report): CEO review — {one-line assessment}"
 ```
 
+### 7.5. Advance the workflow
+
+The task was created by a ceo-review workflow. Find it and update its context so it can advance:
+
+```bash
+# Find the active ceo-review workflow for this report file
+arc skills run --name arc-workflows -- list-by-template ceo-review 2>/dev/null | \
+  bun -e "
+const chunks = []; process.stdin.on('data', c => chunks.push(c)); process.stdin.on('end', () => {
+  const d = JSON.parse(chunks.join(''));
+  const wf = d.data.find(w => !w.completed_at && w.current_state !== 'completed');
+  if (wf) console.log(wf.id); else console.log('none');
+});"
+
+# Then transition it to reviewing with the summary (replace WORKFLOW_ID and SUMMARY):
+arc skills run --name arc-workflows -- transition WORKFLOW_ID reviewing \
+  --context '{"reviewSummary": "{2-3 sentence assessment from step 6}"}'
+```
+
+If no active workflow is found, skip this step.
+
 ### 8. Close the task
 
 ```bash
