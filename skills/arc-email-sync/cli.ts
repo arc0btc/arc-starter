@@ -34,12 +34,58 @@ const APPROVED_SENDERS = new Set([
 ]);
 const DEFAULT_SENDER = "arc@arc0.me";
 
+async function cmdSendViaResend(flags: Record<string, string>): Promise<void> {
+  const apiKey = await getCredential("resend", "api_key");
+  const fromAddress = await getCredential("resend", "from_address");
+  if (!apiKey || !fromAddress) {
+    process.stderr.write("Error: Resend credentials not set. Run:\n  arc creds set --service resend --key api_key --value <key>\n  arc creds set --service resend --key from_address --value arc@arc0btc.com\n");
+    process.exit(1);
+  }
+
+  const from = flags.from || fromAddress;
+  const payload: Record<string, string> = {
+    from,
+    to: flags.to,
+    subject: flags.subject,
+  };
+  if (flags.body) payload.text = flags.body;
+  if (flags["body-html"]) payload.html = flags["body-html"];
+  if (flags["reply-to"]) payload.reply_to = flags["reply-to"];
+
+  log(`[resend] sending to ${flags.to}: "${flags.subject}"`);
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json() as Record<string, unknown>;
+
+  if (!response.ok) {
+    log(`[resend] send failed: HTTP ${response.status}`);
+    console.log(JSON.stringify({ success: false, status: response.status, error: result }, null, 2));
+    process.exit(1);
+  }
+
+  log("[resend] send successful");
+  console.log(JSON.stringify({ success: true, id: result.id, via: "resend" }, null, 2));
+}
+
 async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || (!flags.body && !flags["body-html"])) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]\n");
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--via resend|worker] [--in-reply-to <message-id>]\n");
     process.exit(1);
+  }
+
+  if (flags.via === "resend") {
+    await cmdSendViaResend(flags);
+    return;
   }
 
   if (flags.from && !APPROVED_SENDERS.has(flags.from)) {
