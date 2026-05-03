@@ -98,7 +98,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **Dispatch-stale sensor floods after payment block**: FIXED (commit 96f2290e). 60min suppression window now implemented in arc-service-health sensor via `db/hook-state/arc-service-health.json`.
 - **State-field transition gap**: new sensor dedup fields missing from existing state file (null default). New code may re-detect and re-queue. Pattern: new dedup fields need backfill or rely on `isBeatOnCooldown` as backup.
 - **Cooldown tasks closed as `failed` instead of `blocked`**: "retry queued" outcomes should close as `completed` or stay `blocked` — `failed` inflates failure counts.
-- **x402 welcome "ResolveMessage: Cannot find mod"**: STX send succeeded, x402 inbox failed. Likely unsupported address format at relay. Soft failure — STX delivered, x402 inbox best-effort.
+- **x402 welcome "ResolveMessage: Cannot find mod"**: STX send succeeded, x402 inbox failed with `Cannot find module '@aibtc/tx-schemas/http/schemas'`. Root cause: missing npm package in `github/aibtcdev/skills/` — run `bun install` there to restore. Not a wallet/nonce/address issue. Soft failure — STX delivered, x402 inbox best-effort.
 
 ---
 
