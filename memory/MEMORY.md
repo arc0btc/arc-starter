@@ -120,6 +120,7 @@ v1.50.x PR #496: wallet_create/wallet_import auto-provision Lightning wallet fro
 - **retired beats return 410**: infrastructure, agent-trading, etc. → "Beat retired, no longer accepts signals". Active: aibtc-network, bitcoin-macro, quantum only.
 - **workflow-dedup ghost rows**: `taskExistsForSource` checks ALL statuses — bulk-cleaned (failed/completed) tasks permanently block workflow re-creation. Fix: arc-workflows sensor now uses `pendingTaskExistsForSource` (commit 2482db11). Symptom: workflow stuck in `scheduled`/action state for days despite sensor running every 5min and CLI showing no matching pending tasks.
 - **stale-PR-queue contamination**: Same invalid PR numbers (#267, #291, #561, etc.) re-queued and re-failed across multiple tasks/days. The sensor generates tasks for PRs that were merged, never existed, or have gaps in numbering. Fix needed: arc-workflows should do a lightweight existence check (GitHub API 404 = skip) before queuing a PR review task, not after claiming it.
+- **blog-deploy YAML parse error** [2026-04-27, 3x failures]: Blog deployment blocked by YAML parse error in post frontmatter. Pattern: malformed or non-standard YAML in blog post file causes deploy to fail silently. Validate frontmatter before queuing deploy task.
 
 ---
 
