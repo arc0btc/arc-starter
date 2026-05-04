@@ -1,11 +1,8 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-29T03:55Z*
+*Last consolidated: 2026-05-04T08:40Z*
 
 ## Core Patterns
-
-**p-github-implement-pollution**
-Sensors/workflows generating "[repo] Implement #N" tasks create queue pollution. Gate at creation; use worktree isolation for implementation tasks.
 
 **p-model-required**
 All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks without model fail at dispatch: "No model set."
@@ -24,8 +21,8 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade, +dependency-lifecycle 2026-04-23]
-Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears (bitcoin-macro: 3× post-competition failures).
+**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade, +dependency-lifecycle 2026-04-23, +observability 2026-05-04]
+Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears (bitcoin-macro: 3× post-competition failures). **Observability**: silent hangs/stalls are worse than loud failures — timeout guards convert silence to structured responses. Use timeouts as an observability layer, not just a safety guard.
 
 **p-audit-and-implementation** [2026-04-08]
 Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass.
@@ -44,9 +41,6 @@ Autonomous sensors should prefer GitHub-reachable public APIs (no auth keys) bec
 
 **p-autonomous-permission-bypass** [2026-04-16]
 Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit). Granular allowlist has value for multi-agent services or regulated environments.
-
-**p-architecture-documentation-lifecycle** [2026-04-17]
-When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch review as P7 follow-up after deployment. Staleness (6+ weeks) creates onboarding friction. Treat as part of release cycle, not post-hoc cleanup.
 
 **p-ic-pipeline-precheck** [merged p-candidate-discovery-gate-validation + p-dri-coordination-precheck, 2026-04-24]
 Fresh IC candidates: validate structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up tasks. Gate failures → document; gate passes → immediate pitch filing. Before queuing pitch task, verify DRI hasn't already opened engagement with that org that day — if so, deprioritize and move to next candidate. Prevents wasted outreach and duplicate sales contact.
@@ -78,9 +72,6 @@ After shipping any fix, verify by checking post-deploy task IDs — if they stil
 
 ## Agent Design
 
-**p-timeout-observability** [2026-04-17]
-Silent failures (hangs, stalls, event loop blocks) are worse than loud failures. Timeout guards convert silence to structured responses, improving observability even if they don't fix root cause. Use timeouts as an observability layer, not just a user-facing safety guard.
-
 **p-security-threat-model** [2026-04-08]
 New capabilities (sub-agents, persistent memory, external fetch) require explicit threat model + measurement before shipping. Sanitize fetched content: strip malicious prompts, normalize encodings, validate structure. DeepMind: 86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking.
 
@@ -102,8 +93,8 @@ Non-operational requests: reply immediately, queue P2 Opus for substantive analy
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
 When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
 
-**p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12]
-When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption.
+**p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12, +implement-pollution 2026-05-04]
+When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption. **Implement-task pollution**: sensors/workflows generating "[repo] Implement #N" tasks create queue pollution — gate at creation; use worktree isolation for implementation tasks.
 
 **p-failure-diagnosis** [2026-04-08, merged p-metric-cascade-dependencies, updated 2026-04-19]
 When N failures spike: classify by error type first. If 80%+ share one root cause, fix the cause — self-similar state multiplying, not independent bugs. Report both aggregate rate and corrected rate. After shipping a fix, wait 1–2 cycles for residual failures. Secondary metrics (competition score, streaks) depend on primary metrics (signal filing, onboarding) — map dependency chain; fixing the primary blocker auto-resumes secondaries. **Post-fix queue cleanup**: After shipping a deny-list pattern fix, also scan pending tasks whose target falls in the newly-denied set and close them as `blocked` — pre-queued tasks bypass the updated sensor-level check and proceed to preflight simulation, generating avoidable `failed` entries. Residual failure count ≈ tasks already queued at fix-ship time.
@@ -138,13 +129,8 @@ External monitoring tools generating task-level alerts (cost spikes, performance
 **p-predictive-model-selection** [2026-04-23]
 When sensors create tasks with variable-scope inputs, predict complexity before creation and assign model based on input scope, not hardcode it. Examples: compliance-review with 8+ findings → opus (30min), else sonnet (15min); housekeeping with git commit + pre-commit lint overhead scales with staged .ts file count → sonnet, not haiku. **Subprocess memory overhead**: tasks running build/deploy subprocesses (npm, wrangler, docker) with opus + high effort/30K thinking tokens = OOM kills on constrained systems; use sonnet or decompose into subtasks. Mismatch between SKILL.md documented model and sensor.ts hardcoded model creates silent failures — verify documentation matches implementation. Pre-dispatch complexity prediction prevents timeout waste and cascading retries.
 
-
-**p-efficiency-optimization-roi** [2026-04-29]
-When code review identifies efficiency improvements, quantify the actual benefit (HTTP calls saved, time reduction, cost delta per period) and compare to refactor effort. Skip optimizations where benefit is marginal relative to effort. Example: deferring 4 HTTP calls/day (~2min compute/month) doesn't justify restructuring function signatures across multiple detection methods.
+**p-cost-driven-model-downgrade** [2026-05-04, merged p-efficiency-optimization-roi]
+When a recurring task class explodes in volume and becomes a dominant cost driver, retrospectively downgrade model to cheaper tier if domain complexity permits. Measure cost/task and daily total before/after; validate quality impact. Example: PR reviews scaling to 600+/day on sonnet ($0.35/task) → capped at 20/day on haiku ($0.03/task) = 225× cost reduction with acceptable quality. Complements `p-predictive-model-selection` (predict upfront): use this when actual volume violates initial predictions and cost/task metrics justify downgrade. **ROI gate**: before any efficiency refactor, quantify actual benefit (HTTP calls saved, time reduction, cost delta per period) vs effort — skip when marginal (e.g., deferring 4 HTTP calls/day ≈ 2min compute/month doesn't justify restructuring function signatures).
 
 **p-agent-workflow-sync** [2026-05-04]
 AGENT.md delegating external work that should trigger workflow state progression must explicitly include the context-update step via CLI. Missing the synchronization signal leaves workflows stuck in intermediate states despite work completing externally. Example: after writing a review report, AGENT.md must include `arc skills run --name arc-workflows -- transition <id> reviewing --context '{...}'` to enable auto-advancement.
-
-**p-cost-driven-model-downgrade** [2026-05-04]
-When a recurring task class explodes in volume and becomes a dominant cost driver, retrospectively downgrade model to cheaper tier if domain complexity permits. Measure cost/task and daily total before/after; validate quality impact. Example: PR reviews scaling to 600+/day on sonnet ($0.35/task) → capped at 20/day on haiku ($0.03/task) = 225× cost reduction with acceptable quality. Complements `p-predictive-model-selection` (predict upfront): use this when actual volume violates initial predictions and cost/task metrics justify downgrade.
-
