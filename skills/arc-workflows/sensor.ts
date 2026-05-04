@@ -333,6 +333,22 @@ export default async function workflowsSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
+  // Per-run cache so we don't hit the GitHub API twice for the same PR number
+  const prExistenceCache = new Map<string, boolean>();
+
+  function checkPrExists(owner: string, repo: string, number: number): boolean {
+    const key = `${owner}/${repo}#${number}`;
+    if (prExistenceCache.has(key)) return prExistenceCache.get(key)!;
+    const result = Bun.spawnSync(
+      ["gh", "pr", "view", String(number), "--repo", `${owner}/${repo}`, "--json", "number"],
+      { timeout: 10_000 },
+    );
+    // Only treat exit code 0 as existence — network/auth errors are not 404s
+    const exists = result.exitCode === 0;
+    prExistenceCache.set(key, exists);
+    return exists;
+  }
+
   try {
     let totalActions = 0;
 
@@ -391,6 +407,22 @@ export default async function workflowsSensor(): Promise<string> {
             const lastReviewed = ctx.lastReviewedCommit as string | undefined;
             if (headSha && headSha === lastReviewed) {
               // Same commit already queued for review — skip until author pushes new commits
+              continue;
+            }
+          }
+
+          // PR existence check: if the PR no longer exists on GitHub (404), close the workflow
+          // and skip task creation. Prevents stale PR numbers from burning queue slots forever.
+          if (source.startsWith("pr-review:")) {
+            let ctx: Record<string, unknown> = {};
+            try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
+            const prOwner = ctx.owner as string | undefined;
+            const prRepo = ctx.repo as string | undefined;
+            const prNumber = ctx.number as number | undefined;
+            if (prOwner && prRepo && prNumber && !checkPrExists(prOwner, prRepo, prNumber)) {
+              log(`pr-existence: ${prOwner}/${prRepo}#${prNumber} not found — closing workflow ${workflow.id}`);
+              updateWorkflowState(workflow.id, "closed", workflow.context);
+              completeWorkflow(workflow.id);
               continue;
             }
           }
