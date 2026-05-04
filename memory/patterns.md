@@ -142,3 +142,6 @@ When sensors create tasks with variable-scope inputs, predict complexity before 
 **p-efficiency-optimization-roi** [2026-04-29]
 When code review identifies efficiency improvements, quantify the actual benefit (HTTP calls saved, time reduction, cost delta per period) and compare to refactor effort. Skip optimizations where benefit is marginal relative to effort. Example: deferring 4 HTTP calls/day (~2min compute/month) doesn't justify restructuring function signatures across multiple detection methods.
 
+**p-agent-workflow-sync** [2026-05-04]
+AGENT.md delegating external work that should trigger workflow state progression must explicitly include the context-update step via CLI. Missing the synchronization signal leaves workflows stuck in intermediate states despite work completing externally. Example: after writing a review report, AGENT.md must include `arc skills run --name arc-workflows -- transition <id> reviewing --context '{...}'` to enable auto-advancement.
+
