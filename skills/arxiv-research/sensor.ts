@@ -11,9 +11,9 @@ const ARXIV_API = "http://export.arxiv.org/api/query";
 const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
-// Post-competition all beats reset; add beat slugs back here when reacquired.
-// Empty = sensor short-circuits immediately without fetching data or queuing tasks.
-const ACTIVE_BEATS: string[] = [];
+// Active beat slugs for digest compilation. Signal routing (infra/quantum) uses these.
+// Confirmed active post-competition: aibtc-network, bitcoin-macro (own sensor), quantum.
+const ACTIVE_BEATS: string[] = ["aibtc-network", "quantum"];
 
 const log = createSensorLogger(SENSOR_NAME);
 
