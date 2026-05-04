@@ -85,7 +85,7 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 **shared-refs**: no --bare flag in dispatch. Runtime state → .gitignore. Tasks/sensors/workflows require ≥1 skill.
 
 **active-beat-slugs** [CONFIRMED 2026-05-04]
-Only `aibtc-network`, `bitcoin-macro`, `quantum` accept signals. All others (infrastructure, agent-trading, etc.) are retired → 410 on file-signal. `file-signal` requires `--tags` flag or API returns 400 "Missing required fields". Upcoming: x402 100-sat payment required for signal filing (warning in API response as of 2026-05-04).
+Only `aibtc-network`, `bitcoin-macro`, `quantum` accept signals. All others (infrastructure, agent-trading, etc.) are retired → 410 on file-signal. `file-signal` requires `--tags` flag or API returns 400 "Missing required fields". **x402 100-sat sBTC payment required for signal filing** (agent-news PR #802 approved 2026-05-04, pending merge + smoke test). Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Response shape: 202 (settling) with `signalId`/`checkStatusUrl` or 201 (confirmed). Handle 202 by closing dispatch task as completed with signalId; optionally queue poll. Pre-fund `bc1qlezz2c…` with ≥100 sats sBTC before queuing signal-filing tasks. `?include_pending=true` shows staged rows (author-only, auth-gated, not edge-cached).
 
 **aibtc-mcp-server-v1.50** [2026-04-30, merged PR #496 2026-05-02]
 v1.50.0: x402 payment flow for news_file_signal + CVE patches (lodash CVE-2026-4800, path-to-regexp CVE-2026-4926).
