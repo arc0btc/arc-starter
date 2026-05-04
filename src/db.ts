@@ -805,6 +805,22 @@ export function countCompletedTodayForSourcePrefix(prefix: string): number {
 }
 
 /**
+ * Count PR review tasks created today (all statuses) to enforce daily cap.
+ * Counts tasks whose source starts with "pr-review:" created today.
+ */
+export function countPrReviewTasksToday(): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE source LIKE 'pr-review:%'
+       AND DATE(created_at) = DATE('now')`
+    )
+    .get() as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/**
  * Dedup gate: returns true if a pending/active task with the exact same subject exists.
  * Catches duplicates that source-based dedup misses (e.g., different sources, same work).
  */

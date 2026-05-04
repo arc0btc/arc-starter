@@ -9,7 +9,10 @@ import {
   getWorkflowByInstanceKey,
   insertWorkflow,
   completeWorkflow,
+  countPrReviewTasksToday,
 } from "../../src/db.ts";
+
+const DAILY_PR_REVIEW_CAP = 20;
 import {
   evaluateWorkflow,
   getAllowedTransitions,
@@ -372,6 +375,12 @@ export default async function workflowsSensor(): Promise<string> {
         // Use pendingTaskExistsForSource (not taskExistsForSource) so that completed/failed tasks
         // don't permanently block re-creation — bulk cleanups or task failures should allow retry.
         if (!crossSensorDup && !pendingTaskExistsForSource(source)) {
+          // Daily cap: skip PR review tasks once the daily limit is hit.
+          // Prevents queue flooding when many open PRs exist across watched repos.
+          if (source.startsWith("pr-review:") && countPrReviewTasksToday() >= DAILY_PR_REVIEW_CAP) {
+            continue;
+          }
+
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
