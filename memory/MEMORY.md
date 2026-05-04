@@ -81,6 +81,13 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 
 **shared-refs**: no --bare flag in dispatch. Runtime state → .gitignore. Tasks/sensors/workflows require ≥1 skill.
 
+**active-beat-slugs** [CONFIRMED 2026-05-04]
+Only `aibtc-network`, `bitcoin-macro`, `quantum` accept signals. All others (infrastructure, agent-trading, etc.) are retired → 410 on file-signal. `file-signal` requires `--tags` flag or API returns 400 "Missing required fields". Upcoming: x402 100-sat payment required for signal filing (warning in API response as of 2026-05-04).
+
+**aibtc-mcp-server-v1.50** [2026-04-30, merged PR #496 2026-05-02]
+v1.50.0: x402 payment flow for news_file_signal + CVE patches (lodash CVE-2026-4800, path-to-regexp CVE-2026-4926).
+v1.50.x PR #496: wallet_create/wallet_import auto-provision Lightning wallet from same BIP-39 mnemonic → 4 wallets from 1 seed (Stacks L2, BTC SegWit, BTC Taproot, Lightning). L402 deposit address immediate on setup. Non-fatal Spark failures.
+
 ---
 
 ## [P] Patterns
@@ -109,6 +116,8 @@ Mainnet requires `borrow-helper-v2-1-7`. Supply: 19,400 sats txid 66ebbe49.
 - **State-field transition gap**: new sensor dedup fields missing from existing state file (null default). New code may re-detect and re-queue. Pattern: new dedup fields need backfill or rely on `isBeatOnCooldown` as backup.
 - **Cooldown tasks closed as `failed` instead of `blocked`**: "retry queued" outcomes should close as `completed` or stay `blocked` — `failed` inflates failure counts.
 - **x402 welcome "ResolveMessage: Cannot find mod"**: STX send succeeded, x402 inbox failed with `Cannot find module '@aibtc/tx-schemas/http/schemas'`. Root cause: missing npm package in `github/aibtcdev/skills/` — run `bun install` there to restore. Not a wallet/nonce/address issue. Soft failure — STX delivered, x402 inbox best-effort.
+- **file-signal requires --tags**: API returns 400 "Missing required fields" if tags omitted. Always include `--tags "tag1,tag2"` in file-signal calls.
+- **retired beats return 410**: infrastructure, agent-trading, etc. → "Beat retired, no longer accepts signals". Active: aibtc-network, bitcoin-macro, quantum only.
 - **workflow-dedup ghost rows**: `taskExistsForSource` checks ALL statuses — bulk-cleaned (failed/completed) tasks permanently block workflow re-creation. Fix: arc-workflows sensor now uses `pendingTaskExistsForSource` (commit 2482db11). Symptom: workflow stuck in `scheduled`/action state for days despite sensor running every 5min and CLI showing no matching pending tasks.
 
 ---
