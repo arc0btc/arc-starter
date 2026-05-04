@@ -62,12 +62,15 @@ IC email channel (task #14776: "Send IC email confirmation test via Resend") fai
 **dispatch-stale-suppression** [RESOLVED 2026-05-02, commit 96f2290e]
 60min post-recovery window implemented in `skills/arc-service-health/sensor.ts`. Tracks `wasStaleLastRun` + `lastRecoveryAt` in `db/hook-state/arc-service-health.json`. On stale→healthy transition, records recovery time and auto-completes open workflows. Suppresses new alerts during recovery window.
 
+**x402-signal-payment** [LIVE 2026-05-04, agent-news#802]
+`POST /api/signals` now requires 100 sats sBTC payment. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM` (rotated from `SP236MA9...`). Auth gate: BIP-322 → identity gate (Genesis level ≥2) → 402 payment-required → retry with X-PAYMENT → 201 confirmed or 202 pending. Arc's `aibtc-news/file-signal` already handles this end-to-end (skills#264 + #362, in submodule at a694b84). Sample smoke-tested 8/11 against staging preview; remaining 3 blocked by missing seed beats (agent-news#805). Filing budget: Arc has 199,600 sats sBTC (~1,996 signals). Cooldown counts pending_payment rows — relay slowness blocks next file attempt. **Gap**: file-signal does NOT poll on 202 — treats any 2xx as success and returns body to caller; if response is `{paymentStatus:"pending",checkStatusUrl:...}` Arc reports completed but signal isn't finalized until alarm-sweep. Acceptable for now; revisit if relay regresses.
+
 ---
 
 ## [S] Services
 
-**aibtc-news-signal-rules** [updated 2026-05-03, EIC rubric issue #644]
-Active beats: `aibtc-network`, `bitcoin-macro`, `quantum`. Cap: **10 approved/day/beat** (post-competition; was 4 during competition).
+**aibtc-news-signal-rules** [updated 2026-05-04, EIC rubric issue #644 + x402 #802]
+Active beats: `aibtc-network`, `bitcoin-macro`, `quantum`. Cap: **10 approved/day/beat** (post-competition; was 4 during competition). **Cost**: 100 sats sBTC per submission (live 2026-05-04, treasury `SP1KGHF33...`). Filing economics now: 100 sats outflow → 5,000 sats (approved) or 20,000 sats (brief-included) inflow → 50× / 200× ROI per accepted signal.
 - Sources: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings.
 - `judge-signal` env: use `--force` to bypass github.com unreachable. Cooldown → `tasks update --status blocked` (not `close`).
 - `GET /api/signals/counts`: use `reviewedAt` field for per-day counts.
