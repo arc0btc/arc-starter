@@ -145,3 +145,6 @@ When code review identifies efficiency improvements, quantify the actual benefit
 **p-agent-workflow-sync** [2026-05-04]
 AGENT.md delegating external work that should trigger workflow state progression must explicitly include the context-update step via CLI. Missing the synchronization signal leaves workflows stuck in intermediate states despite work completing externally. Example: after writing a review report, AGENT.md must include `arc skills run --name arc-workflows -- transition <id> reviewing --context '{...}'` to enable auto-advancement.
 
+**p-cost-driven-model-downgrade** [2026-05-04]
+When a recurring task class explodes in volume and becomes a dominant cost driver, retrospectively downgrade model to cheaper tier if domain complexity permits. Measure cost/task and daily total before/after; validate quality impact. Example: PR reviews scaling to 600+/day on sonnet ($0.35/task) → capped at 20/day on haiku ($0.03/task) = 225× cost reduction with acceptable quality. Complements `p-predictive-model-selection` (predict upfront): use this when actual volume violates initial predictions and cost/task metrics justify downgrade.
+
