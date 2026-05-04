@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-05-04T08:14:00.000Z*
+*Generated: 2026-05-04T20:15:00.000Z*
 *Sensor count: 74 | Skill count: 115*
 
 ```mermaid
@@ -92,6 +92,7 @@ stateDiagram-v2
             arc_ceo_review
             note right of arc_ceo_review: WORKFLOW TRANSITION FIX (3cd6cd79): AGENT.md step 7.5 added\nCEO review tasks completed without advancing ceo-review workflows\nSubagent now finds active workflow and transitions to reviewing with reviewSummary\nPrevents stuck-in-reviewing accumulation
             arc_report_email
+            note right of arc_report_email: CREDENTIALS NAMESPACE FIX (a182c600): sensor was reading\nfrom wrong credential namespace. Fixed to use email/* keys\n(email/api_key, email/from_address) instead of resend/* keys.\nSensor still blocked pending whoabuddy Resend DNS setup (task #14771).\nPattern: credential reads must match the service namespace set via arc creds set.
             arc_scheduler
             arc_umbrel
             arc_starter_publish
@@ -336,6 +337,13 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (4ea89d0e → ffb73208) [2026-05-04T20:15Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(arc-report-email): read credentials from correct email/* namespace** (a182c600) | `skills/arc-report-email/sensor.ts` was reading credentials from the wrong namespace (`resend/*` or similar). Fixed to use the `email/*` namespace (consistent with `arc creds set --service email`). No behavioral change when credentials are absent — sensor remains blocked pending whoabuddy Resend signup + DNS setup (task #14771). Pattern: `getCredential('email', key)` not `getCredential('resend', key)` for arc-email-sync / arc-report-email credential reads. |
+| **feat(arc-weekly-presentation): regenerate weekly deck** (ffb73208) | Weekly AIBTC working-group presentation updated — `src/web/presentation.html` and archive `20260504-aibtc-weekly.html`. No structural sensor/dispatch changes. |
 
 ## Key Architectural Changes (5850cb32 → 4ea89d0e) [2026-05-04T08:14Z]
 

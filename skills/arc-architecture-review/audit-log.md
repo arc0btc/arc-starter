@@ -1,3 +1,59 @@
+## 2026-05-04T20:15:00.000Z — credentials namespace fix; signal pipeline recovering; cost normalized
+
+**Task #15698** | Diff: 4ea89d0e → ffb73208 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **One structural change** since last audit (2026-05-04T08:14Z): arc-report-email credentials namespace fix.
+- **fix(arc-report-email): read credentials from correct email/* namespace** (a182c600): Sensor was reading credentials from a mismatched key namespace. Fix aligns reads with the `arc creds set --service email` convention. Sensor remains blocked on whoabuddy Resend DNS setup (task #14771) — fix is necessary but not sufficient.
+- **Reports reviewed**: 2026-05-04T13:00Z overnight brief. 436 completed / 18 failed (all pre-fix stale PRs) / $96.24. Three arc-workflows fixes from prior window holding cleanly. bitcoin-macro signal `f2e72a1a` filed (Q=93, SQ=30). arxiv routing restored; quantum + aibtc-network unblocked. Budget-gate FP flood (~30 retrospective tasks from one event) — all correctly handled but dedup gap documented.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (every audit since 2026-04-23).
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat is retired (410). Sensor is gated, so it won't fire, but the array value is wrong and would 410 if re-enabled. Carry from prior audit.
+- No new deletion candidates.
+
+### Step 3 — Simplify
+
+- **Credential namespace fix is minimal and correct**: 3-line change, no logic change. The gap was a mismatch between how credentials were stored (`arc creds set --service email`) and how they were read. Pattern now consistent.
+- **[CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading remain manually maintained. The `/api/beats` live cross-reference (as in aibtc-news-editorial) would auto-enable beats without code changes. This carry has appeared in every audit since 2026-04-28 — evaluate concretely when next beat is acquired.
+- **[CONSIDER]** Budget-gate retrospective dedup: a single budget-gate event can queue 30 separate retrospective tasks. Arc-service-health sensor creates one per dispatch-stale alert, not one per incident. Fix: add a `lastRetroCreatedAt` dedup field in hook state, rate-limit retrospective creation to 1 per 4h.
+
+### Step 4 — Accelerate
+
+- **Cost normalized to $96.24** (down from $201.15 prior day) — PR review cap (20/day haiku) is working. Model switch alone cuts per-review cost by ~60%.
+- **PR review failures at zero**: existence check (4ea89d0e) + cap (99779912) working together. No stale PRs queuing, no cap overflow.
+- **Signal pipeline recovering**: arxiv routing restored, bitcoin-macro firing cleanly. Next sensor cycles should show quantum + aibtc-network signals materializing.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[NEW CANDIDATE]** Budget-gate retrospective dedup: add rate-limit on retrospective task creation per incident in arc-service-health. One retrospective per outage event, not one per stale alert.
+
+### Flags
+
+- **[RESOLVED]** arc-report-email credential namespace — email/* reads now correct (a182c600).
+- **[OK]** Architecture stable — one targeted fix, no structural drift.
+- **[OK]** PR review failure rate → 0 (existence check + cap working together).
+- **[OK]** arxiv routing restored — quantum + aibtc-network unblocked (fe615b45).
+- **[OK]** Cost normalized — $96.24 vs $201.15 prior day. PR review cap holding.
+- **[OK]** bitcoin-macro signal pipeline clean — Q=93, SQ=30, three Tier-0/1 sources confirmed.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** Resend credentials not set — arc-email-sync and arc-report-email both blocked until whoabuddy completes signup + DNS. Escalate.
+- **[WATCH]** Signal diversity — arxiv routing restored but no quantum/aibtc-network signals confirmed yet. Monitor next 2 sensor cycles.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat retired (410); fix before re-enabling.
+- **[WATCH]** Payout disputes (11 active) — no whoabuddy response.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[OPEN]** Budget-gate retrospective dedup gap — 30 FP tasks per event unresolved.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** ACTIVE_BEATS constants → /api/beats cross-reference not yet evaluated.
+
+---
+
 ## 2026-05-04T08:14:00.000Z — stale-PR existence check shipped; one structural change
 
 **Task #15616** | Diff: 5850cb32 → 4ea89d0e | Sensors: ~74 | Skills: ~115
