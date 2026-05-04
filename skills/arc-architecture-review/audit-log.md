@@ -1,3 +1,64 @@
+## 2026-05-04T07:53:00.000Z — PR review cost crisis resolved; signal pipeline restored; 7 structural changes
+
+**Task #14684** | Diff: 08ec7eb1 → 5850cb32 | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **7 structural changes** since last audit (2026-05-02T20:11Z). Two major incidents resolved: PR review cost crisis + signal pipeline silence.
+- **feat(arc-workflows): daily PR review cap 20/day + haiku model** (99779912): PR review sensor was queuing 600+/day tasks at sonnet rates, driving cost above $200/day cap. `countPrReviewTasksToday()` added to `src/db.ts`; cap gates sensor task creation. PrLifecycleMachine downgraded to haiku. 76 excess tasks manually closed. Root: no rate limiting existed on PR review dispatch at all.
+- **fix(arxiv-research): re-enable ACTIVE_BEATS** (fe615b45): `ACTIVE_BEATS=[]` post-competition caused silent early-exit — sensor fetched nothing, filed nothing. aibtc-network + quantum both added back. Signal silence for these beats traced to this single-line omission.
+- **fix(arc-workflows): pendingTaskExistsForSource** (2482db11): `taskExistsForSource` checked ALL statuses. Bulk-cleaned completed/failed tasks permanently blocked workflow re-creation. Fix: `pendingTaskExistsForSource` deduplicates only in-flight tasks. Unblocks 4 stuck workflows (1923/2038/2077/2127). Pattern in MEMORY.md.
+- **fix(review): gh pr view --json reviews** (f6174d2f): `gh pr reviews` silently exits 1 (no output) on some PRs. Was used for duplicate-review check — silent failure = missed dedup. Switched to `gh pr view --json reviews` which reliably returns reviews. CRITICAL note added to MEMORY.md [L].
+- **fix(arc-workflows): keyword skill detection** (66aefa05): `prReviewSkills()` scans PR title for domain keywords (bitflow, zest, hodlmm/dlmm). Adds matching skill to task. Fixes missing defi context on domain-specific PR reviews.
+- **feat(email): Resend backend** (cc22eb86): `arc-email-sync` CLI gains `--via resend` flag. Routes through Resend API for external addresses CF worker can't reach. DNS setup blocked on whoabuddy action (task #14771).
+- **fix(arc-ceo-review): workflow transition fix** (3cd6cd79): AGENT.md step 7.5 added. CEO reviews completed without transitioning ceo-review workflows. Fix: subagent explicitly transitions to reviewing with reviewSummary.
+- **Reports reviewed**: 2026-05-04T01:02Z watch report. PR review flood: 76 tasks superseded, haiku cap shipped. arxiv-research ACTIVE_BEATS fix. Resend DNS blocked. PURPOSE 2.55 (0 signals, cost over cap).
+
+### Step 2 — Delete
+
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS` still `['agent-trading']` with that beat likely retired (410). Verify active beat list before next sensor run or it will queue tasks that 410.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (every audit since 2026-04-23).
+- No new deletion candidates in this window's changes.
+
+### Step 3 — Simplify
+
+- **PR review cap is correct architecture**: 20/day is a tunable constant; the pattern (count today's tasks + gate on cap) is reusable for any high-volume sensor. haiku is appropriate for mechanical PR review work.
+- **`pendingTaskExistsForSource` is the right default**: `taskExistsForSource` (all statuses) was always a footgun for any sensor that re-creates tasks after failure. The fix should be evaluated for other high-dedup sensors.
+- **[CONSIDER]** `prReviewSkills()` keyword scan: PR title matching for skill inference is fragile — a PR mentioning "zest" for non-code reasons would load defi-zest unnecessarily. Low risk now, worth monitoring as PR volume grows.
+- **[CONSIDER]** ACTIVE_BEATS in arxiv-research + aibtc-agent-trading are still manually maintained code constants. `/api/beats` live cross-reference (as in aibtc-news-editorial) would auto-enable beats without code changes. Priority rises now that aibtc-network + quantum are re-enabled.
+
+### Step 4 — Accelerate
+
+- PR review cap eliminates cost runaway: 20 haiku tasks/day ≈ $0.80/day vs. 600 sonnet tasks ≈ $180/day. 225× cost reduction for this sensor class.
+- arxiv-research re-enablement: both aibtc-network and quantum signals can now flow again. Was completely blocked.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** ACTIVE_BEATS constants → `/api/beats` live cross-reference for arxiv-research + aibtc-agent-trading.
+
+### Flags
+
+- **[RESOLVED]** PR review cost crisis — 20/day cap + haiku (99779912). 76 excess tasks closed.
+- **[RESOLVED]** arxiv-research signal silence — ACTIVE_BEATS re-enabled (fe615b45).
+- **[RESOLVED]** Workflow-dedup ghost rows — pendingTaskExistsForSource (2482db11).
+- **[RESOLVED]** gh pr reviews silent failure — gh pr view --json reviews (f6174d2f).
+- **[RESOLVED]** arc-ceo-review workflow lifecycle — step 7.5 added (3cd6cd79).
+- **[OK]** Architecture stable — 7 targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** Signal diversity: 0 signals today (PURPOSE S=1). arxiv-research + bitcoin-macro re-enabled; need successful filing cycle.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — verify this beat is still active (not 410).
+- **[WATCH]** task #14771 (Resend DNS) — blocked on whoabuddy.
+- **[WATCH]** Payout disputes (11 active) — still no whoabuddy response.
+- **[WATCH]** arc0me-site deploy (#14426) — still pending.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-05-02T20:11:00.000Z — dispatch-stale suppression live; 4-fix batch: error plumbing + nonce serialization complete
 
 **Task #14291** | Diff: ff24d963 → 08ec7eb1 | Sensors: ~74 | Skills: ~115
