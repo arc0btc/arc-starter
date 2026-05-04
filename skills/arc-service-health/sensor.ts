@@ -29,7 +29,11 @@ const STATE_FILE = join(ROOT, "db", "hook-state", "arc-service-health.json");
 interface ServiceHealthState {
   wasStaleLastRun?: boolean;
   lastRecoveryAt?: string;
+  lastHealthAlertWorkflowAt?: string;
 }
+
+// One retrospective per outage incident — gate new health-alert workflows within this window.
+const RETRO_DEDUP_MS = 4 * 60 * 60 * 1000;
 
 async function readHealthState(): Promise<ServiceHealthState> {
   try {
@@ -112,8 +116,16 @@ export default async function healthSensor(): Promise<string> {
   state.wasStaleLastRun = staleCycle;
   await writeHealthState(state);
 
+  const lastWorkflowAge =
+    state.lastHealthAlertWorkflowAt !== undefined
+      ? Date.now() - new Date(state.lastHealthAlertWorkflowAt).getTime()
+      : Infinity;
+  const inRetroDedupWindow = lastWorkflowAge < RETRO_DEDUP_MS;
+
   if (staleCycle && inSuppressionWindow) {
     log(`dispatch-stale alert suppressed — within ${RECOVERY_SUPPRESSION_MS / 60000}min recovery window (since ${state.lastRecoveryAt})`);
+  } else if (staleCycle && inRetroDedupWindow) {
+    log(`dispatch-stale health-alert workflow skipped — retrospective dedup window active (last created ${Math.round(lastWorkflowAge / 60000)}min ago)`);
   } else if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
     const now = new Date().toISOString();
     const wfKey = `health-alert:dispatch-stale:${now.slice(0, 13)}`; // hourly dedup
@@ -127,6 +139,8 @@ export default async function healthSensor(): Promise<string> {
           alertDate: now.slice(0, 10),
         }),
       });
+      state.lastHealthAlertWorkflowAt = now;
+      await writeHealthState(state);
     }
   } else if (!staleCycle && !state.wasStaleLastRun) {
     // Condition cleared and was already cleared — auto-complete any open triggered workflows
@@ -134,7 +148,9 @@ export default async function healthSensor(): Promise<string> {
   }
 
   const staleLock = await checkStaleLock();
-  if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
+  if (staleLock && inRetroDedupWindow) {
+    log(`stale-lock health-alert workflow skipped — retrospective dedup window active (last created ${Math.round(lastWorkflowAge / 60000)}min ago)`);
+  } else if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
     const now = new Date().toISOString();
     const wfKey = `health-alert:stale-lock:${now.slice(0, 13)}`;
     if (!getWorkflowByInstanceKey(wfKey)) {
@@ -147,6 +163,8 @@ export default async function healthSensor(): Promise<string> {
           alertDate: now.slice(0, 10),
         }),
       });
+      state.lastHealthAlertWorkflowAt = now;
+      await writeHealthState(state);
     }
   } else if (!staleLock) {
     // Condition cleared — auto-complete any open triggered workflows for this alert type
