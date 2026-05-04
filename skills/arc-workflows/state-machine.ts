@@ -248,10 +248,22 @@ function shouldSkipPrReview(ctx: PrLifecycleContext): boolean {
   return false;
 }
 
-function prReviewSkills(repoFull: string): string[] {
-  return REACT_REPOS.has(repoFull)
+/** Keyword patterns → skill to add when PR title/description matches. */
+const KEYWORD_SKILL_MAP: Array<{ pattern: RegExp; skill: string }> = [
+  { pattern: /bitflow/i, skill: "defi-bitflow" },
+  { pattern: /\bzest\b/i, skill: "defi-zest" },
+  { pattern: /hodlmm|dlmm/i, skill: "hodlmm-move-liquidity" },
+];
+
+function prReviewSkills(repoFull: string, title?: string): string[] {
+  const base = REACT_REPOS.has(repoFull)
     ? ["aibtc-repo-maintenance", "dev-landing-page-review"]
     : ["aibtc-repo-maintenance"];
+  if (!title) return base;
+  const extra = KEYWORD_SKILL_MAP
+    .filter(({ pattern }) => pattern.test(title))
+    .map(({ skill }) => skill);
+  return extra.length > 0 ? [...base, ...extra] : base;
 }
 
 function buildReviewDescription(ctx: PrLifecycleContext, cycle: number): string {
@@ -292,7 +304,7 @@ function buildReviewAction(ctx: PrLifecycleContext): WorkflowAction | null {
     description: buildReviewDescription(ctx, cycle),
     priority: isRereview ? 4 : 5,
     model: "haiku",
-    skills: prReviewSkills(repoFull),
+    skills: prReviewSkills(repoFull, ctx.title),
     source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
   };
 }
