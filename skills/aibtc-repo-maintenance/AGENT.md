@@ -127,8 +127,10 @@ const isRetryable = (status: number) => status >= 500 && status < 600;
 Before posting, check if arc0btc already reviewed this PR:
 
 ```bash
-gh pr reviews NUMBER --repo OWNER/REPO --json author,state,body
+gh pr view NUMBER --repo OWNER/REPO --json reviews
 ```
+
+Note: `gh pr reviews NUMBER --repo ...` silently errors in some cases even when reviews exist. Always use `gh pr view --json reviews` instead.
 
 If a review by `arc0btc` exists with state `APPROVED` or `CHANGES_REQUESTED`:
 - **Do not post another review.** The PR has already been reviewed.

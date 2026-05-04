@@ -167,6 +167,7 @@ Shared nonce coordinator at `github/aibtcdev/skills/src/lib/services/nonce-track
 
 **approved-pr-guard** [SHIPPED, task #11183]
 Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review failures.
+**CRITICAL**: `gh pr reviews NUMBER --repo OWNER/REPO --json ...` silently errors (exit 1, prints nothing) in some cases even when reviews exist. Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` instead — this reliably returns all reviews. The AGENT.md step 5 example uses the wrong command.
 
 ---
 
