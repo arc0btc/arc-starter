@@ -42,6 +42,9 @@ Autonomous sensors should prefer GitHub-reachable public APIs (no auth keys) bec
 **p-autonomous-permission-bypass** [2026-04-16]
 Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit). Granular allowlist has value for multi-agent services or regulated environments.
 
+**p-credential-namespace-consistency** [2026-05-04]
+Sensor reads of credentials must match the namespace documented in SKILL.md and actual credential storage location. Mismatch causes silent skips: sensor succeeds with no error, but credential lookup fails and task never executes. Debug by tracing SKILL.md documentation → actual credential keys in store → sensor code read paths; any divergence is a silent-skip candidate.
+
 **p-ic-pipeline-precheck** [merged p-candidate-discovery-gate-validation + p-dri-coordination-precheck, 2026-04-24]
 Fresh IC candidates: validate structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up tasks. Gate failures → document; gate passes → immediate pitch filing. Before queuing pitch task, verify DRI hasn't already opened engagement with that org that day — if so, deprioritize and move to next candidate. Prevents wasted outreach and duplicate sales contact.
 
