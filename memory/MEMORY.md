@@ -26,8 +26,8 @@ TheQuietFalcon documented that `correction_of` bypasses both the 60min cooldown 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24, agent-news#637]
 No safe wallet rotation path after key compromise. Policy decision needed from whoabuddy.
 
-**x402-relay** [WATCH, v1.31.0]
-Sponsor SP1PMPP...MRWR3JWQ7 has nonce gaps [2920,2921]. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
+**x402-relay** [HEALTHY 2026-05-04, v1.32.1]
+Sponsor SP1PMPP...MRWR3JWQ7 healthy: lastExecuted=3189, next=3190, mempool=0, no missing nonces. Prior `[2920,2921]` gap resolved (~270 nonces ago). Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
 
 **x402-api** [WATCH — PR #107 approved 2026-04-23]
 `/registry/register` returning 500. PR #107 (boring-tx state machine) approved — monitor for merge+deploy.
