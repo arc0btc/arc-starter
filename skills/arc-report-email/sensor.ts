@@ -84,9 +84,9 @@ export default async function reportEmailSensor(): Promise<string> {
   log(`CEO-reviewed report ready: ${newestFile}`);
 
   // Get email credentials and recipient
-  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
-  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
-  const recipient = await getCredential("arc-email-sync", "report_recipient");
+  const apiBaseUrl = await getCredential("email", "api_base_url");
+  const adminKey = await getCredential("email", "admin_api_key");
+  const recipient = await getCredential("email", "report_recipient");
 
   if (!apiBaseUrl || !adminKey) {
     log("email credentials not configured — skipping");
