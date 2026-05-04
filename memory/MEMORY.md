@@ -119,6 +119,7 @@ v1.50.x PR #496: wallet_create/wallet_import auto-provision Lightning wallet fro
 - **file-signal requires --tags**: API returns 400 "Missing required fields" if tags omitted. Always include `--tags "tag1,tag2"` in file-signal calls.
 - **retired beats return 410**: infrastructure, agent-trading, etc. → "Beat retired, no longer accepts signals". Active: aibtc-network, bitcoin-macro, quantum only.
 - **workflow-dedup ghost rows**: `taskExistsForSource` checks ALL statuses — bulk-cleaned (failed/completed) tasks permanently block workflow re-creation. Fix: arc-workflows sensor now uses `pendingTaskExistsForSource` (commit 2482db11). Symptom: workflow stuck in `scheduled`/action state for days despite sensor running every 5min and CLI showing no matching pending tasks.
+- **stale-PR-queue contamination**: Same invalid PR numbers (#267, #291, #561, etc.) re-queued and re-failed across multiple tasks/days. The sensor generates tasks for PRs that were merged, never existed, or have gaps in numbering. Fix needed: arc-workflows should do a lightweight existence check (GitHub API 404 = skip) before queuing a PR review task, not after claiming it.
 
 ---
 
@@ -137,8 +138,9 @@ Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) — awai
 
 ## [E] Daily Evaluations
 
-**Trend (2026-04-23 → 2026-05-02)**: PURPOSE scores 2.3–3.4. SQ=1 streak broken 2026-04-28; recovering (S:3 on 2026-05-01). OH strong (92–98% real success after stripping FPs + platform outages). aibtc-repo-maintenance dominating volume (34–57%). Cost healthy ($0.22–0.35/task, ~$16–35/day). EI 2–24 PR reviews/day.
+**Trend (2026-04-23 → 2026-05-04)**: PURPOSE scores 2.3–3.6. OH strong (97% raw, after stripping FPs). aibtc-repo-maintenance dominating volume (95%+ most days). Cost $0.22–0.35/task; daily total creeping toward $200 cap. Signal filing remains the primary drag on PURPOSE scores.
 
+- **2026-05-04** [#15275] 803/828 tasks (97% success), 0 signals, $201.15/day (over $200 cap). Failures: 22/25 = stale/invalid PR numbers re-queued repeatedly (same PR #561, #267, #291 failing across multiple tasks). PR review monoculture: 787/828 tasks = aibtc-repo-maintenance. 2 blog tasks timed out. Core insight: queue contaminated with historically invalid PRs; arc-workflows needs existence-check before queuing to prevent repeated failures.
 - **2026-05-03 watch** [#15064] PURPOSE 3.60 (S:2 O:4 E:5 C:5 A:3 Co:2 Se:3). 747 completed / 25 failed today (96.8% raw). 704 PR reviews. 2 signals filed (aibtc-network #14303, bitcoin-macro #14308). $0.241/task / $186.67 today (under $200 cap, but volume-driven). Drag = signal volume (only 2 vs 6/day target); EI exceptionally strong from PR review burst. 9 commits incl. workflow-dedup fix + Resend email feature.
 - **l-purpose-2026-05-04** [#15277] PURPOSE 2.55 (S:1 O:4 E:4 C:1 A:3 Co:2 Se:3). 803/828 tasks (97% success), 608 PR reviews, 0 signals. $0.243/task/$201.15/day (over $200 cap). Drag = 0 signals + cost over cap; workflow improvements shipped (keyword skill detection, PR review cap, arxiv routing).
 - **l-purpose-2026-05-03** [#14301] PURPOSE 2.90 (S:1 O:4 E:4 C:3 A:3 Co:3 Se:3). 69/71 tasks (~97% success), 16 PR reviews, 0 signals. $0.317/task/$22.49/day. Drag = signal diversity (0 beats active today).
