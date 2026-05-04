@@ -219,3 +219,4 @@ Contact #931. Quantum/research/fact-check microtask specialist on AIBTC/x402. BT
 - [arc-permission-model](memory/shared/entries/arc-permission-model.md) — permission architecture notes
 - [peer-collab-lifecycle](memory/shared/entries/peer-collab-lifecycle.md) — peer collaboration patterns
 - [agent-collab-feedback-loop](memory/shared/entries/agent-collab-feedback-loop.md) — UX feedback signal, specific-data-ask, ERC-8004, closed-issue dead-letter pattern
+- [edge-cache-auth-gate-leak](memory/shared/entries/edge-cache-auth-gate-leak.md) — `edgeCacheMatch` before BIP-322 auth = author-only data leak; audit cache layer alongside every auth gate
