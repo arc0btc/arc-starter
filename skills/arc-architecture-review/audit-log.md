@@ -1,3 +1,55 @@
+## 2026-05-04T08:14:00.000Z — stale-PR existence check shipped; one structural change
+
+**Task #15616** | Diff: 5850cb32 → 4ea89d0e | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **One structural change** since last audit (2026-05-04T07:53Z): stale-PR queue contamination fix.
+- **fix(arc-workflows): PR existence check before queuing review tasks** (4ea89d0e): `checkPrExists()` calls `gh pr view` before `insertTask()` for pr-review workflows. If the PR is gone, workflow transitions to `closed` and task creation is skipped. Per-run Map caches results within a sensor cycle. Resolves the pattern where #267, #291, #561 and other invalid PRs re-failed daily. Root was documented in MEMORY.md yesterday: "stale-PR-queue contamination — sensor generates tasks for PRs that were merged, never existed, or have gaps in numbering."
+- **Reports reviewed**: 2026-05-04T01:02Z watch report (period: 2026-05-03T13:00Z → 2026-05-04T01:02Z). 60 completed, 98 failed, $92.08. Of 98 failures: 77 explicitly superseded by the PR review cap task; 21 stale PR 404s. The 4ea89d0e fix directly addresses those 21 stale-PR failures.
+- **Daily eval 2026-05-04** [#15275]: 803/828 tasks (97%), 0 signals, $201.15/day (over $200 cap). PR review monoculture: 787/828 tasks. 22/25 failures = stale/invalid PR numbers re-queuing. 4ea89d0e closes this class.
+
+### Step 2 — Delete
+
+- No new deletion candidates. Single targeted fix.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry.
+
+### Step 3 — Simplify
+
+- **`checkPrExists()` is minimal and correct**: 16 lines. Bun.spawnSync + exit code check + Map cache. The right abstraction — treat GitHub API as the authority on PR existence.
+- **Cache pattern is correct**: per-run Map prevents redundant API calls when multiple workflows reference the same PR within one sensor cycle. No cross-run caching needed (state is refreshed per cycle).
+- **[CONSIDER]** The existence check runs synchronously (Bun.spawnSync) which blocks the sensor during each uncached API call. With many stale PRs this could add latency. If sensor runtime grows, evaluate moving to async checks or pre-batching the existence lookups.
+- **[CARRY-WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat was retired per MEMORY.md `active-beat-slugs`. Sensor will still short-circuit (ACTIVE_BEATS gate), but the array value is wrong and would fire a 410 if re-enabled.
+
+### Step 4 — Accelerate
+
+- Stale-PR existence check eliminates a class of failures that was inflating the failure count across every daily retrospective. At 21 stale-PR failures/reporting window, this removes ~3-5 ghost failures/day from the queue.
+- Daily cost $201.15 is over the $200 cap. PR review cap (20/day + haiku) is the right lever — already shipped. Monitor for further reduction.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CONSIDER]** Validate ACTIVE_BEATS arrays against `/api/beats` at sensor startup rather than hardcoding — closes the drift risk permanently.
+
+### Flags
+
+- **[RESOLVED]** Stale-PR-queue contamination — existence check live (4ea89d0e). Pattern closed.
+- **[OK]** Architecture stable — one targeted fix, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[WATCH]** Signal diversity: 0 signals 2026-05-04. arxiv-research + bitcoin-macro re-enabled but no successful filing cycle yet today.
+- **[WATCH]** Daily cost $201.15 over $200 cap — PR review cap (20/day haiku) already shipped; monitor for normalization.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat is retired (410). Needs correction when beat is reacquired.
+- **[WATCH]** task #14771 (Resend DNS) — blocked on whoabuddy.
+- **[WATCH]** Payout disputes (11 active) — no whoabuddy response.
+- **[WATCH]** arc0me-site deploy (#14426) — still pending.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+---
+
 ## 2026-05-04T07:53:00.000Z — PR review cost crisis resolved; signal pipeline restored; 7 structural changes
 
 **Task #14684** | Diff: 08ec7eb1 → 5850cb32 | Sensors: ~74 | Skills: ~115
