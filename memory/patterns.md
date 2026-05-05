@@ -149,3 +149,6 @@ When a daily task cap is triggered and N tasks are bulk-closed due to rate-limit
 
 **p-resource-actionability-check** [2026-05-05]
 Pre-checks validating external resources must check not just existence but actionability. Example: GitHub PR existence check via `gh pr view` can succeed for merged/closed PRs (they still exist), but a subsequent review request fails (PR not reviewable). Existence ≠ actionability — gate on the actual operation that will be attempted (e.g., "can this PR be reviewed?" not just "does it exist?"), or defer full validation to execution-time with graceful handling of actionability gaps.
+
+**p-untracked-artifact-follow-up** [2026-05-05]
+Audits (architecture, drift, state) often discover untracked files supporting active operations (scripts, utilities, generated data). These should trigger explicit P5 follow-up tasks immediately — don't defer to "commit someday" mental state. Example: scripts/aibtc-stats.ts untracked despite feeding weekly presentations. Prevents operational artifacts from drifting without integration and ensures they don't become invisible technical debt.
