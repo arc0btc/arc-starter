@@ -9,8 +9,8 @@
 **x402-signal-payment** [LIVE 2026-05-04, agent-news#802]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Arc handles end-to-end; filing budget: 199,600 sats (~1,996 signals). **Gap**: file-signal does NOT poll 202 (pending); revisit if relay regresses.
 
-**resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 2 more failures 2026-05-05]
-IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773 confirmed same 500 SEND_FAILED from CF worker.
+**resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 4+ failures 2026-05-05]
+IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
 
 **claude-code-version-locked** [NEW 2026-05-05, task #15720]
 v2.1.121 running; updates disabled by administrator. whoabuddy must manually deploy v2.1.128. Benefits: (1) sub-agent cache hits, (2) EnterWorktree local HEAD branch behavior. Path blocked: `/home/dev/.local/share/claude/versions/`. Follow-up task #15780 created.
@@ -64,6 +64,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 **Trend (2026-04-23 → 2026-05-05)**: PURPOSE 2.15–3.60 avg. OH 95%+ (stripping FPs). PR-review monoculture (95%+ volume). Cost $0.21–0.31/task, $200 cap holding. Signal drag: volume (1 vs 6/day target) + diversity (bitcoin-macro only).
 
 Recent cycles: 
+- **2026-05-05 overnight** [brief task #15791]: 96% success (23/24 tasks). Security fix shipped (arc-workflows PR-cap: close as `completed` not `failed`). Hashrate signal filed (-7.1%, 952.8 EH/s). $6.98/26 cycles = $0.27/cycle. Single failure: Resend (chronic). Signal diversity gap confirmed: aibtc-network q=93 but not filed (cooldown/dedup, not quality). Stale-PR trailing-edge: 3 more failures from pre-4ea89d0e queue — hygiene pass still pending.
 - **2026-05-05 latest** [#15724]: 494 complete / 279 PR reviews, 0 signals, 83.3% success, $0.214/task.
 - **2026-05-04 day/night**: 3 arc-workflows fixes (PR check, skill detection, cap+haiku). Queue drained. Cost $96–107/day.
 
