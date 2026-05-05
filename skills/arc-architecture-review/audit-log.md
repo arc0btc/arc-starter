@@ -1,3 +1,65 @@
+## 2026-05-05T08:15:00.000Z — 5 targeted fixes: retro-dedup, PR state check hardened, cap-dequeue cleanup, x402 auth
+
+**Task #15781** | Diff: ffb73208 → 0d9f5f7c | Sensors: ~74 | Skills: ~115
+
+### Step 1 — Requirements
+
+- **5 structural changes** since last audit (2026-05-04T20:15Z).
+- **fix(arc-service-health): deduplicate retrospective creation per budget-gate event** (48879732): `lastHealthAlertWorkflowAt` added to state file. 4-hour gate on health-alert workflow creation. Closes the `[OPEN]` from prior audit — a single budget-gate outage was producing 30+ retrospective tasks (one per hourly sensor fire). Pattern: alert sensors must rate-limit workflow creation per incident, not just per alert condition.
+- **fix(arc-workflows): checkPrExists now returns false for merged/closed PRs** (486691cb): `checkPrExists()` now fetches `state` field and validates `state === 'OPEN'`. Prior fix (4ea89d0e) only checked exit code — `gh pr view` exits 0 for merged/closed PRs, so those were still queuing review tasks. This closes that gap.
+- **fix(arc-workflows): close cap-dequeued PR review tasks as completed not failed** (9aec6798): `getPendingPrReviewTaskIdsToday()` added to `src/db.ts`. Sensor auto-closes excess pending PR review tasks as `completed` when the 20/day cap is hit. Prevents failure metric inflation from tasks that were intentionally not executed.
+- **fix(arc-workflows): add blog-publishing to site-health-alert task skills** (0d9f5f7c): `SiteHealthAlertMachine` freshness-fix tasks now include `blog-publishing` skill. `blog-deploy` alone lacked the content creation CLI context needed to clear a freshness failure.
+- **fix(aibtc-news): pass BTC auth headers through x402 payment retry flow** (25622279): BTC auth headers lost in x402 payment retry path. `execute-endpoint` probe step also missing auth, getting 401 before 402 visible. Both fixed. Pattern: x402 retry paths must propagate all upstream auth headers.
+- **Reports reviewed**: recent cycle log shows 5 cycles in this window costing $0.07–$0.45 each. Task #15779 ($0.35) was the prior overnight dispatch. Budget holding.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** Budget-gate retrospective dedup gap (48879732) — closes the [OPEN] from 2026-05-04T20:15Z. 30 FP tasks per event → at most 1 per 4h window. Correct fix.
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat retired (410). Sensor is gated so it won't fire, but array is wrong. Carry from every prior audit — low risk while gated, but should be corrected before re-enabling.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (every audit since 2026-04-23). Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+
+### Step 3 — Simplify
+
+- **checkPrExists state-check is the right completion**: the exit-code-only check was a half-fix. State validation is one extra field in the JSON fetch — no additional API call, same performance.
+- **Cap-dequeue cleanup is correct**: closing as `completed` (not `failed`) matches the intent — these tasks were intentionally not executed, not errored. The metric hygiene improvement is real.
+- **Retro-dedup 4h window matches alert cadence**: the sensor fires hourly; 4h = 4 potential alert windows per outage. One workflow per outage incident is the right semantic.
+- **[CONSIDER]** `checkPrExists` is called per-PR via Bun.spawnSync (blocking). With many workflow instances, sensor runtime could grow. If sensor P99 latency exceeds 30s, evaluate async batching. Low risk today; monitor as workflow count scales.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading remain manually maintained. `/api/beats` live cross-reference (as in aibtc-news-editorial) would auto-enable beats without code changes. Carry from multiple prior audits.
+
+### Step 4 — Accelerate
+
+- **PR review failure metrics now accurate**: cap-dequeue tasks closed as completed means retrospective tools no longer see false failures from intentionally-dequeued tasks. Daily eval PURPOSE score should lift as success rate denominator is corrected.
+- **x402 auth fix unblocks signal pipeline path**: signals that required x402 payment were failing silently at the auth-before-402 stage. This restores the x402 payment retry path end-to-end.
+- **checkPrExists hardening** eliminates the narrow residual class of merged/closed PRs that slipped past the prior exit-code check.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS → /api/beats cross-reference for arxiv-research + aibtc-agent-trading.
+
+### Flags
+
+- **[RESOLVED]** Budget-gate retrospective dedup — 1 workflow per 4h outage window (48879732).
+- **[RESOLVED]** checkPrExists exit-code gap — state validation added (486691cb).
+- **[RESOLVED]** Cap-dequeued PR tasks inflating failure metrics — auto-closed as completed (9aec6798).
+- **[RESOLVED]** Site-health freshness fix missing blog-publishing context (0d9f5f7c).
+- **[RESOLVED]** x402 payment retry auth header loss (25622279).
+- **[OK]** Architecture stable — 5 targeted fixes, no structural drift.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[OK]** PR review pipeline: cap + haiku + dequeue cleanup now all consistent.
+- **[WATCH]** Resend credentials not set — arc-email-sync and arc-report-email both blocked until whoabuddy completes DNS setup. Escalate.
+- **[WATCH]** Signal diversity — monitor for quantum/aibtc-network signals in next cycles.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat retired (410); fix before re-enabling.
+- **[WATCH]** Payout disputes (11 active) — no whoabuddy response.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** ACTIVE_BEATS constants → /api/beats cross-reference not yet evaluated.
+
+---
+
 ## 2026-05-04T20:15:00.000Z — credentials namespace fix; signal pipeline recovering; cost normalized
 
 **Task #15698** | Diff: 4ea89d0e → ffb73208 | Sensors: ~74 | Skills: ~115
