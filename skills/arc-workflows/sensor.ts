@@ -315,8 +315,37 @@ function syncGitHubPRs(): number {
         completeWorkflow(workflow.id);
       }
     } else if (pr.headCommitSha) {
-      // State unchanged — still update headCommitSha so the SHA dedup guard sees the latest commit
-      updateWorkflowContext(workflow.id, { headCommitSha: pr.headCommitSha });
+      // State unchanged — but if author pushed new commits while we're in
+      // changes-requested, GitHub keeps reviewDecision=CHANGES_REQUESTED until the
+      // reviewer dismisses or re-reviews, so the state machine never transitions on
+      // its own. Detect the SHA bump here and force a re-review cycle.
+      let existingCtx: Record<string, unknown> = {};
+      try { existingCtx = JSON.parse(workflow.context); } catch { /* fresh context */ }
+      const lastReviewed = existingCtx.lastReviewedCommit as string | undefined;
+
+      if (
+        workflow.current_state === "changes-requested" &&
+        lastReviewed &&
+        lastReviewed !== pr.headCommitSha
+      ) {
+        const updatedCtx = {
+          ...existingCtx,
+          owner: pr.owner,
+          repo: pr.repo,
+          number: pr.number,
+          title: pr.title,
+          url: pr.url,
+          author: pr.author,
+          headCommitSha: pr.headCommitSha,
+          lastChecked: new Date().toISOString(),
+          reviewCycle: ((existingCtx.reviewCycle as number) || 1) + 1,
+        };
+        updateWorkflowState(workflow.id, "review-requested", JSON.stringify(updatedCtx));
+        workflowsUpdated++;
+        log(`re-review-trigger: ${pr.owner}/${pr.repo}#${pr.number} — new commit ${pr.headCommitSha.slice(0, 8)} since last review (${lastReviewed.slice(0, 8)})`);
+      } else {
+        updateWorkflowContext(workflow.id, { headCommitSha: pr.headCommitSha });
+      }
     }
   }
 
