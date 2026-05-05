@@ -81,7 +81,8 @@ async function callApi(
 async function x402Request(
   method: string,
   url: string,
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>,
+  extraHeaders?: Record<string, string>
 ): Promise<unknown> {
   const args = [
     "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
@@ -93,6 +94,10 @@ async function x402Request(
 
   if (data) {
     args.push("--data", JSON.stringify(data));
+  }
+
+  if (extraHeaders && Object.keys(extraHeaders).length > 0) {
+    args.push("--headers", JSON.stringify(extraHeaders));
   }
 
   log(`x402 request: ${method} ${url}`);
@@ -686,7 +691,12 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     } catch (e) {
       if (e instanceof ApiError && e.status === 402) {
         log(`Signal filing requires payment (402) — falling back to x402 payment flow`);
-        result = await x402Request("POST", `${API_BASE}/signals`, body) as Record<string, unknown>;
+        const tsStr = String(timestamp);
+        result = await x402Request("POST", `${API_BASE}/signals`, body, {
+          "X-BTC-Address": ARC_BTC_ADDRESS,
+          "X-BTC-Signature": signature,
+          "X-BTC-Timestamp": tsStr,
+        }) as Record<string, unknown>;
         log(`Signal filed successfully (x402)`);
       } else {
         throw e;
@@ -1743,7 +1753,12 @@ async function cmdFileCorrection(args: string[]): Promise<void> {
     } catch (e) {
       if (e instanceof ApiError && e.status === 402) {
         log(`Correction requires payment (402) — falling back to x402`);
-        result = await x402Request("POST", `${API_BASE}/signals/${signalId}/corrections`, body) as Record<string, unknown>;
+        const tsStr = String(timestamp);
+        result = await x402Request("POST", `${API_BASE}/signals/${signalId}/corrections`, body, {
+          "X-BTC-Address": ARC_BTC_ADDRESS,
+          "X-BTC-Signature": signature,
+          "X-BTC-Timestamp": tsStr,
+        }) as Record<string, unknown>;
         log(`Correction filed successfully (x402)`);
       } else {
         throw e;
