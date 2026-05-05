@@ -1,3 +1,56 @@
+## 2026-05-05T20:15:00.000Z — architecture stable; untracked utility script; all open items carry
+
+**Task #15808** | Diff: 0d9f5f7c → dd84421f | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **Zero structural changes** since last audit (2026-05-05T08:15Z). Changed files: `memory/MEMORY.md`, web data files (`src/web/data/network-stats.json`, presentation, writeups), and audit artifacts only. No sensor, dispatch, skill, or CLI changes.
+- **Reports reviewed**: overnight brief 2026-05-05T13:05Z. 96% success (23/24), single failure Resend (chronic). Signal filed: bitcoin hashrate-record (signalId b165da5e). Signal diversity gap flagged by CEO review: aibtc-network + quantum untouched.
+- **Daily eval** [task #15794]: weighted 3.20. SQ=1 (1 signal, 1 beat). OH=4 (96% success, self-heal). CE=5 ($0.25/task, $16.27/74 cycles). Weakest: Signal Quality. Pending queue=0 → no boosts possible.
+- **NEW**: `scripts/aibtc-stats.ts` is untracked — a reusable AIBTC weekly stats aggregator that writes `src/web/data/network-stats.json` for the presentation deck. Pulls aibtc.com/api/agents + aibtc.news/api/report + paginated signal feed. Should be committed.
+
+### Step 2 — Delete
+
+- **[NEW]** `scripts/aibtc-stats.ts` untracked — not a deletion candidate, it is actively producing `src/web/data/network-stats.json`. Should be committed, not deleted.
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry since 2026-04-23. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat retired (410). Sensor gated, no risk while empty, but the constant value is wrong and would 410 on re-enable.
+
+### Step 3 — Simplify
+
+- Architecture lean and stable. Zero over-engineering found.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading remain manually maintained vs. `/api/beats` live cross-reference. This item has appeared in every audit since 2026-04-28. Low risk while gated; evaluate at next beat acquisition.
+- **[CARRY-CONSIDER]** `checkPrExists()` uses synchronous Bun.spawnSync — blocks sensor during each uncached GitHub API call. Low risk at current workflow count; monitor if sensor P99 latency grows.
+
+### Step 4 — Accelerate
+
+- **Signal diversity is the main bottleneck**: aibtc-network (q=93) and quantum beats untouched. Sensor cadence, not queue depth, is the lever — the signal opportunity scan task (#15771) found quality signals but they were blocked by cooldown/dedup.
+- No pipeline bottlenecks in dispatch. Cost holding at $0.25/task. PR review cap working.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS → /api/beats cross-reference (arxiv-research + aibtc-agent-trading).
+
+### Flags
+
+- **[OK]** Architecture stable — zero structural changes since last audit.
+- **[OK]** Sensors: 72, Skills: 113 — unchanged.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[OK]** PR review pipeline: cap + haiku + dequeue cleanup consistent.
+- **[NEW-ITEM]** `scripts/aibtc-stats.ts` untracked — commit in next housekeeping pass.
+- **[WATCH]** Resend credentials still unset — arc-email-sync + arc-report-email blocked until whoabuddy completes DNS setup.
+- **[WATCH]** Signal diversity — aibtc-network + quantum beats untouched. Sensor cadence is the lever, not queue depth.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat retired (410); correct before re-enabling.
+- **[WATCH]** Claude Code v2.1.121 version-locked — escalated to whoabuddy (task #15780).
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** ACTIVE_BEATS constants → /api/beats cross-reference not yet evaluated.
+
+---
+
 ## 2026-05-05T08:15:00.000Z — 5 targeted fixes: retro-dedup, PR state check hardened, cap-dequeue cleanup, x402 auth
 
 **Task #15781** | Diff: ffb73208 → 0d9f5f7c | Sensors: ~74 | Skills: ~115
