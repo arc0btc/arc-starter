@@ -10,6 +10,8 @@ import {
   insertWorkflow,
   completeWorkflow,
   countPrReviewTasksToday,
+  getPendingPrReviewTaskIdsToday,
+  markTaskCompleted,
 } from "../../src/db.ts";
 
 const DAILY_PR_REVIEW_CAP = 20;
@@ -362,6 +364,18 @@ export default async function workflowsSensor(): Promise<string> {
     // Sync GitHub PRs and create/update workflow instances
     const prActionsCount = syncGitHubPRs();
     totalActions += prActionsCount;
+
+    // If the daily PR review cap is already met, close any excess pending PR review tasks
+    // as completed (intentional dequeue) to avoid inflating failure metrics.
+    const prCountToday = countPrReviewTasksToday();
+    if (prCountToday >= DAILY_PR_REVIEW_CAP) {
+      const excessIds = getPendingPrReviewTaskIdsToday();
+      for (const id of excessIds) {
+        markTaskCompleted(id, `daily PR review cap reached (${prCountToday}/${DAILY_PR_REVIEW_CAP}) — intentional dequeue`);
+        log(`cap-dequeue: closed task #${id} as completed (cap ${prCountToday}/${DAILY_PR_REVIEW_CAP})`);
+        totalActions++;
+      }
+    }
 
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();

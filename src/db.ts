@@ -821,6 +821,24 @@ export function countPrReviewTasksToday(): number {
 }
 
 /**
+ * Return IDs of pending (not yet active) PR review tasks created today.
+ * Used by the sensor to close excess tasks as completed when the daily cap is already met.
+ */
+export function getPendingPrReviewTaskIdsToday(): number[] {
+  const db = getDatabase();
+  const rows = db
+    .query(
+      `SELECT id FROM tasks
+       WHERE source LIKE 'pr-review:%'
+       AND status = 'pending'
+       AND DATE(created_at) = DATE('now')
+       ORDER BY id ASC`
+    )
+    .all() as { id: number }[];
+  return rows.map((r) => r.id);
+}
+
+/**
  * Dedup gate: returns true if a pending/active task with the exact same subject exists.
  * Catches duplicates that source-based dedup misses (e.g., different sources, same work).
  */
