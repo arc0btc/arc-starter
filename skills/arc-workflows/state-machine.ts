@@ -303,7 +303,7 @@ function buildReviewAction(ctx: PrLifecycleContext): WorkflowAction | null {
       : `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
     description: buildReviewDescription(ctx, cycle),
     priority: isRereview ? 4 : 5,
-    model: "haiku",
+    model: "sonnet",
     skills: prReviewSkills(repoFull, ctx.title),
     source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
   };

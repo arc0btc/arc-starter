@@ -9,12 +9,8 @@ import {
   getWorkflowByInstanceKey,
   insertWorkflow,
   completeWorkflow,
-  countPrReviewTasksToday,
-  getPendingPrReviewTaskIdsToday,
-  markTaskCompleted,
 } from "../../src/db.ts";
 
-const DAILY_PR_REVIEW_CAP = 20;
 import {
   evaluateWorkflow,
   getAllowedTransitions,
@@ -365,18 +361,6 @@ export default async function workflowsSensor(): Promise<string> {
     const prActionsCount = syncGitHubPRs();
     totalActions += prActionsCount;
 
-    // If the daily PR review cap is already met, close any excess pending PR review tasks
-    // as completed (intentional dequeue) to avoid inflating failure metrics.
-    const prCountToday = countPrReviewTasksToday();
-    if (prCountToday >= DAILY_PR_REVIEW_CAP) {
-      const excessIds = getPendingPrReviewTaskIdsToday();
-      for (const id of excessIds) {
-        markTaskCompleted(id, `daily PR review cap reached (${prCountToday}/${DAILY_PR_REVIEW_CAP}) — intentional dequeue`);
-        log(`cap-dequeue: closed task #${id} as completed (cap ${prCountToday}/${DAILY_PR_REVIEW_CAP})`);
-        totalActions++;
-      }
-    }
-
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();
     for (const workflow of workflows) {
@@ -412,12 +396,6 @@ export default async function workflowsSensor(): Promise<string> {
         // Use pendingTaskExistsForSource (not taskExistsForSource) so that completed/failed tasks
         // don't permanently block re-creation — bulk cleanups or task failures should allow retry.
         if (!crossSensorDup && !pendingTaskExistsForSource(source)) {
-          // Daily cap: skip PR review tasks once the daily limit is hit.
-          // Prevents queue flooding when many open PRs exist across watched repos.
-          if (source.startsWith("pr-review:") && countPrReviewTasksToday() >= DAILY_PR_REVIEW_CAP) {
-            continue;
-          }
-
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
