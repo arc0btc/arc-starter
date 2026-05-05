@@ -340,11 +340,18 @@ export default async function workflowsSensor(): Promise<string> {
     const key = `${owner}/${repo}#${number}`;
     if (prExistenceCache.has(key)) return prExistenceCache.get(key)!;
     const result = Bun.spawnSync(
-      ["gh", "pr", "view", String(number), "--repo", `${owner}/${repo}`, "--json", "number"],
+      ["gh", "pr", "view", String(number), "--repo", `${owner}/${repo}`, "--json", "state"],
       { timeout: 10_000 },
     );
-    // Only treat exit code 0 as existence — network/auth errors are not 404s
-    const exists = result.exitCode === 0;
+    let exists = false;
+    if (result.exitCode === 0) {
+      try {
+        const data = JSON.parse(result.stdout.toString()) as { state?: string };
+        exists = data.state === "OPEN";
+      } catch {
+        exists = false;
+      }
+    }
     prExistenceCache.set(key, exists);
     return exists;
   }
