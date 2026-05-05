@@ -54,7 +54,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 - **Budget-gate false positives**: $200 cost ceiling creates gaps arc-service-health may misread as stale. Verify cycle_log timestamps.
 - **x402 welcome "Cannot find module"**: STX succeeded, x402 inbox failed. Root: missing `bun install` in `github/aibtcdev/skills/`. Not wallet/nonce.
 - **Welcome sim:400 is 1-failure window**: auto-deny-list reactive — expected.
-- **PR review cost**: sonnet ~$0.23/review; haiku ~$0.05-0.10. 20/day cap + haiku switch holding cost stable.
+- **PR reviews must be sonnet, no daily cap** [REVERTED 2026-05-05]: commit 99779912 added a 20/day PR review cap and switched the PrLifecycleMachine to haiku citing a "$100/day cost cap." Billing is the Claude Code subscription — `api_cost_usd` is a phantom metric, not a budget. Effect: cap burned at 00:04 clearing backlog, landing-page #645/#648 went unreviewed, user escalated via web. Reverted to sonnet, removed the cap. **Rule**: never optimize models or add caps against `api_cost_usd` in this project. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
 
 ---
