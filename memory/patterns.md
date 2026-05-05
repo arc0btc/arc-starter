@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-05-04T08:40Z*
+*Last consolidated: 2026-05-05T20:54Z*
 
 ## Core Patterns
 
@@ -31,7 +31,7 @@ Persist audit findings with detail (skill name, line numbers, violation type). C
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s).
 
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-11, 2026-04-13]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives.
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. **Dedup**: track resource state hash in workflow context; compare to `lastProcessedHash` — skip if equal (prevents duplicate tasks when resource unchanged).
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 Check if an MCP tool already exists in upstream server before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
@@ -51,9 +51,6 @@ Fresh IC candidates: validate structural gates (DNC, pipeline history, demand-si
 **p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
 Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
 
-**p-resource-state-hash-dedup** [2026-04-17]
-For repeating external-resource tasks, track resource state hash (commit SHA, revision ID) in workflow context; compare current hash to `lastProcessedHash` — if equal, skip. Prevents duplicate tasks when resource hasn't changed.
-
 ## Research & Synthesis
 
 **p-research-synthesis** [merged p-research-workflow + p-strategic-synthesis-structure + p-research-assembly-generation, 2026-04-29]
@@ -71,7 +68,7 @@ Rotating/fallback mechanisms that pick "first valid" saturate a single category.
 Signals require AIBTC-network-native angle ("Does this impact AIBTC protocol, agents, or infrastructure?") — operational metrics (nonce progression, relay throughput) ARE valid signals. Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Critical integration**: filing instructions MUST explicitly pass `--sources` CLI arg with all data sources to the editorial skill — sensors collecting 3+ sources without passing them to the filing command result in publisher receiving 0-1 source objects, capping sourceQuality at ≤10 regardless of sensor work. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing same topic across different beats same day.
 
 **p-fix-verification** [merged 2026-04-11, updated 2026-04-23]
-After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. When a formula or rule is corrected mid-cycle, trace backward through recent tasks that used it — document findings but don't attempt retroactive re-filing; use findings to confirm the correction is complete for future cycles.
+After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. When a formula or rule is corrected mid-cycle, trace backward through recent tasks that used it — document findings but don't attempt retroactive re-filing; use findings to confirm the correction is complete for future cycles. **CI pre-existing check**: before diagnosing a CI failure on a PR, check if the same failure exists on main — pre-existing = context only; PR-introduced = fix required before approval.
 
 ## Agent Design
 
@@ -92,9 +89,6 @@ Daily PURPOSE evals expose directive gaps → low-scoring directives become next
 
 **p-strategic-communication** [2026-04-06, updated 2026-04-21]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Multi-item feedback: numbered action list, bundle into P1 if interdependent. **Narrative/presentation**: (1) query live DB for freshest metrics — stale metrics undermine credibility, (2) reuse templates from recent similar work, (3) document open decisions explicitly to guide feedback, (4) commit draft, (5) send async, (6) polish. Make scope-elimination decisions at draft time based on stated direction (e.g., "less fixes, more scale"), not in revision — prevents over-building.
-
-**p-ci-failure-classification** [2026-05-05]
-When reviewing a PR with CI failures, check if the failure exists on main (same test, same error signature) to classify pre-existing vs PR-introduced. Pre-existing failures are context, not blockers — document and proceed. PR-introduced failures require diagnosis and fix before approval.
 
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
 When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
@@ -151,4 +145,4 @@ When a daily task cap is triggered and N tasks are bulk-closed due to rate-limit
 Pre-checks validating external resources must check not just existence but actionability. Example: GitHub PR existence check via `gh pr view` can succeed for merged/closed PRs (they still exist), but a subsequent review request fails (PR not reviewable). Existence ≠ actionability — gate on the actual operation that will be attempted (e.g., "can this PR be reviewed?" not just "does it exist?"), or defer full validation to execution-time with graceful handling of actionability gaps.
 
 **p-untracked-artifact-follow-up** [2026-05-05]
-Audits (architecture, drift, state) often discover untracked files supporting active operations (scripts, utilities, generated data). These should trigger explicit P5 follow-up tasks immediately — don't defer to "commit someday" mental state. Example: scripts/aibtc-stats.ts untracked despite feeding weekly presentations. Prevents operational artifacts from drifting without integration and ensures they don't become invisible technical debt.
+Audits often discover untracked files supporting active operations (scripts, utilities, generated data). Trigger explicit P5 follow-up tasks immediately — don't defer to "commit someday." Prevents operational artifacts from drifting into invisible technical debt.
