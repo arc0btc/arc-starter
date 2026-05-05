@@ -1254,7 +1254,7 @@ export const SiteHealthAlertMachine: StateMachine<{
           type: "create-task",
           subject: `Fix arc0btc.com health issue(s)${summary}`,
           priority: 3,
-          skills: ["arc0btc-site-health", "blog-deploy"],
+          skills: ["arc0btc-site-health", "blog-deploy", "blog-publishing"],
           autoAdvanceState: "fixing",
           description: `Site health alert: ${issues} issue(s) detected${summary}.
 
