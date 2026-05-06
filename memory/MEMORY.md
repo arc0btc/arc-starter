@@ -56,6 +56,8 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 - **Welcome sim:400 is 1-failure window**: auto-deny-list reactive — expected.
 - **PR reviews must be sonnet, no daily cap** [REVERTED 2026-05-05]: commit 99779912 added a 20/day PR review cap and switched the PrLifecycleMachine to haiku citing a "$100/day cost cap." Billing is the Claude Code subscription — `api_cost_usd` is a phantom metric, not a budget. Effect: cap burned at 00:04 clearing backlog, landing-page #645/#648 went unreviewed, user escalated via web. Reverted to sonnet, removed the cap. **Rule**: never optimize models or add caps against `api_cost_usd` in this project. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
+- **arc0btc.com content tasks timeout**: blog-publish and freshness-fix tasks reliably hit 15min sonnet limit. Decompose into (1) draft/fetch and (2) publish subtasks before queuing.
+- **Stale-PR hygiene pass overdue**: 3+ cycles of trailing-edge ghost PR failures (#363, #417, #799). One-time pass to close all pre-4ea89d0e tasks is still pending — each cycle without it generates ~3 avoidable failures.
 
 ---
 
@@ -64,6 +66,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 **Trend (2026-04-23 → 2026-05-05)**: PURPOSE 2.15–3.60 avg. OH 95%+ (stripping FPs). PR-review monoculture (95%+ volume). Cost $0.21–0.31/task, $200 cap holding. Signal drag: volume (1 vs 6/day target) + diversity (bitcoin-macro only).
 
 Recent cycles: 
+- **introspection-2026-05-06** [2026-05-06] 92% success (95/103 tasks), $26.59 total ($0.258/task). Signal drought: 0 filed again. PR monoculture: 48/103 tasks aibtc-repo-maintenance. 3 timeout failures (arc0btc.com blog + freshness + signal research) — all need decomposition. 3 stale-PR ghost failures — queue hygiene pass overdue 3+ cycles. Resend chronic (2 more failures). Cost efficiency solid; execution mechanics strong; diversity and signal remain gaps.
 - **l-purpose-2026-05-06** [2026-05-06] PURPOSE score 2.80 (S:1 O:3 E:4 C:4 A:3 Co:2 Se:3) — signal drought continues (0 filed), PR reviews strong (26), cost healthy ($0.258/task). Collaboration and signal quality remain weak spots.
 - **2026-05-05 daily eval** [task #15794]: weighted **3.20**. SQ=1 (1 signal, 1 beat) · OH=4 (96% success, self-heal) · EI=4 (PR-review monoculture, ~10+/day) · CE=5 ($0.25/task, $16.27/74 cyc) · Adapt=3 (stale-PR trailing-edge documented, arc-workflows PR-cap fix shipped) · Collab=2 (fractal-swift + crystal-engine threads pending) · Sec=4 (proactive workflow hardening). Pending queue=0 → no boosts possible. Weakest = Signal Quality; sensor cadence is the lever, not queue boosting. D1=∅ (resend still blocked), D2=✓ (PR + 1 signal), D3=✓ (workflow fix), D4=✓ ($16/200), D5=∅. Stalled: resend (chronic, escalating), payout-disputes (>1wk silent), claude-code v2.1.128 (blocked on whoabuddy).
 - **2026-05-05 overnight** [brief task #15791]: 96% success (23/24 tasks). Security fix shipped (arc-workflows PR-cap: close as `completed` not `failed`). Hashrate signal filed (-7.1%, 952.8 EH/s). $6.98/26 cycles = $0.27/cycle. Single failure: Resend (chronic). Signal diversity gap confirmed: aibtc-network q=93 but not filed (cooldown/dedup, not quality). Stale-PR trailing-edge: 3 more failures from pre-4ea89d0e queue — hygiene pass still pending.
