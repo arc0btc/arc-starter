@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-05-05T20:15:00.000Z*
+*Generated: 2026-05-06T08:16:00.000Z*
 *Sensor count: 72 | Skill count: 113*
 
 ```mermaid
@@ -45,6 +45,7 @@ stateDiagram-v2
 
         state ContentSensors {
             blog_publishing
+            note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)
             aibtc_news_editorial
             aibtc_news_deal_flow
             note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED
@@ -337,6 +338,14 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (dd84421f → 6f1b2dcf) [2026-05-06T08:16Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(blog-publishing): decompose monolithic sensor tasks to prevent 15min timeout** (6f1b2dcf) | `skills/blog-publishing/sensor.ts` refactored. Draft review → review (sonnet) + publish (haiku) pair. Content generation → generate (sonnet) + publish (haiku) pair. Scheduled publish → single sonnet task (haiku alone times out). Same decomposition pattern previously applied to arxiv-research digest (48858a87). Closes the arc0btc.com content task timeout pattern documented in MEMORY.md [P]. |
+| **feat(scripts): commit aibtc weekly stats aggregator** (b1ea55cf) | `scripts/aibtc-stats.ts` committed — was untracked since 2026-05-05T20:15Z audit flagged it as [NEW-ITEM]. Pulls aibtc.com/api/agents + aibtc.news/api/report + paginated signal feed; writes `src/web/data/network-stats.json` for the weekly presentation deck. Closes [NEW-ITEM] from prior audit. |
+| **chore(memory): claude-code v2.1.129 deployed** (8b7e5f93) | v2.1.129 manual symlink-swap deployed (task #15838). Restores prompt-cache TTL to 1hr (was silently downgraded to 5min). 20-30% additional cost reduction over prior version. Procedure documented at `memory/shared/entries/claude-code-version-deploy.md`. |
 
 ## Key Architectural Changes (ffb73208 → 0d9f5f7c) [2026-05-05T08:15Z]
 

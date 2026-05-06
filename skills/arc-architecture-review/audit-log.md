@@ -1,3 +1,59 @@
+## 2026-05-06T08:16:00.000Z — blog-publishing decomposed; scripts committed; v2.1.129 deployed
+
+**Task #15851** | Diff: dd84421f → 6f1b2dcf | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **3 commits of note** since last audit (2026-05-05T20:15Z): blog-publishing decomposition, scripts commit, Claude Code version deploy.
+- **fix(blog-publishing): decompose monolithic sensor tasks to prevent 15min timeout** (6f1b2dcf): `skills/blog-publishing/sensor.ts` now creates task pairs instead of monolithic tasks. Draft review → review (sonnet) + publish (haiku). Content generation → generate (sonnet) + publish (haiku). Scheduled publish → single sonnet (haiku alone times out). Same pattern as arxiv digest split (48858a87). Closes the arc0btc.com content task timeout pattern in MEMORY.md [P].
+- **feat(scripts): commit aibtc weekly stats aggregator** (b1ea55cf): `scripts/aibtc-stats.ts` committed. Closes [NEW-ITEM] from 2026-05-05T20:15Z audit.
+- **chore(memory): claude-code v2.1.129 deployed** (8b7e5f93): Manual symlink-swap. Restores prompt-cache TTL to 1hr. 20-30% cost reduction over v2.1.121.
+- **Reports reviewed**: `reports/2026-05-06T01_02_40Z_watch_report.html`. Keywords: signal(13), Resend(10), fail(9), timeout(6), decompose(3), blog(2). Confirms blog-publishing decomposition is the live structural fix in this window. Signal drought and Resend failures are still the leading operational concerns.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** `scripts/aibtc-stats.ts` untracked — now committed (b1ea55cf). Closes prior [NEW-ITEM].
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (every audit since 2026-04-23). Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat retired (410). Sensor is gated; low risk while empty, but wrong constant value. Persistent carry.
+
+### Step 3 — Simplify
+
+- **Blog-publishing task-pair decomposition is correct architecture**: same pattern as arxiv digest (48858a87). Sonnet for LLM composition, haiku for deterministic publish CLI. Each step within timeout budget.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading still manually maintained vs. `/api/beats` live cross-reference. Low risk while gated; evaluate at next beat acquisition. This carry item has appeared in every audit since 2026-04-28.
+- **[CARRY-CONSIDER]** `checkPrExists()` uses synchronous Bun.spawnSync — blocks sensor during uncached GitHub API calls. Monitor as workflow count scales.
+
+### Step 4 — Accelerate
+
+- **Blog-publishing decomposition** eliminates the arc0btc.com content task timeout class — these reliably hit 15min on sonnet. Task pairs now each complete within budget.
+- **Prompt-cache TTL restored**: v2.1.129 restores 1hr TTL (was 5min silent downgrade). Cache hit rate should recover across all dispatch cycles.
+- Signal diversity remains the main throughput gap: 0 filed since the hashrate signal. Sensor cadence is the lever.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS → /api/beats cross-reference for arxiv-research + aibtc-agent-trading.
+
+### Flags
+
+- **[RESOLVED]** `scripts/aibtc-stats.ts` untracked — committed (b1ea55cf).
+- **[RESOLVED]** Claude Code v2.1.121 version-locked — v2.1.129 deployed (task #15838). Prompt-cache TTL restored.
+- **[RESOLVED]** arc0btc.com blog-publish/freshness-fix task timeouts — blog-publishing sensor now creates decomposed task pairs (6f1b2dcf).
+- **[OK]** Architecture stable — 1 structural fix, 1 scripts commit, 1 ops upgrade.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active — holding (TTL restored by v2.1.129).
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Compliance surface complete — holding.
+- **[OK]** PR review pipeline: cap + sonnet (reverted) + dequeue cleanup — holding.
+- **[WATCH]** Resend credentials — arc-email-sync and arc-report-email both blocked. Escalated 6+ times. Requires whoabuddy to complete Resend DNS setup.
+- **[WATCH]** Signal diversity — 0 signals since hashrate signal. aibtc-network + quantum beats need filing. Sensor cadence is the lever.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat retired (410); fix before re-enabling.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** ACTIVE_BEATS constants → /api/beats cross-reference not yet evaluated.
+- **[CARRY-WATCH]** Payout disputes (11 active) — no whoabuddy response since 2026-04-26.
+
+---
+
 ## 2026-05-05T20:15:00.000Z — architecture stable; untracked utility script; all open items carry
 
 **Task #15808** | Diff: 0d9f5f7c → dd84421f | Sensors: 72 | Skills: 113
