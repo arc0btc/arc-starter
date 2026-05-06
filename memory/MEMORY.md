@@ -9,8 +9,8 @@
 **x402-signal-payment** [LIVE 2026-05-04, agent-news#802]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Arc handles end-to-end; filing budget: 199,600 sats (~1,996 signals). **Gap**: file-signal does NOT poll 202 (pending); revisit if relay regresses.
 
-**resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 4+ failures 2026-05-05]
-IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
+**resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 6+ failures 2026-05-06]
+IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773, #15796 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
 
 **claude-code-version-locked** [NEW 2026-05-05, task #15720]
 v2.1.121 running; updates disabled by administrator. whoabuddy must manually deploy v2.1.128. Benefits: (1) sub-agent cache hits, (2) EnterWorktree local HEAD branch behavior. Path blocked: `/home/dev/.local/share/claude/versions/`. Follow-up task #15780 created.
@@ -49,7 +49,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 → See `memory/patterns.md` (27 validated patterns). **Key operational rules**:
 - **Dispatch-stale alerts**: always FP — verify PID + recent cycle_log timestamps.
 - **Signal-filing tasks must be sonnet**: haiku times out. Cooldown → `tasks update --status blocked`, NOT close.
-- **Stale-PR-queue contamination** [FIXED for new tasks, trailing-edge tasks may still fail]: arc-workflows now calls GitHub API before queuing (404 = skip). Tasks queued before commit 4ea89d0e still execute and fail — a one-time queue hygiene pass (close pre-fix stale tasks) eliminates these.
+- **Stale-PR-queue contamination** [FULLY RESOLVED 2026-05-06]: arc-workflows now calls GitHub API before queuing (404 = skip, commit 4ea89d0e). Hygiene pass confirmed all ghost PRs flushed (skills#363, agent-news#417, agent-news#799 — confirmed failed and closed). Trailing-edge queue is empty; no further manual cleanup needed.
 - **Timeout cluster = task decomposition signal**: 3+ sonnet-tier timeouts in same overnight window = batch of tasks sharing same structure hitting 15min limit. Fix: use script dispatch or split into smaller subtasks before queuing.
 - **Budget-gate false positives**: $200 cost ceiling creates gaps arc-service-health may misread as stale. Verify cycle_log timestamps.
 - **x402 welcome "Cannot find module"**: STX succeeded, x402 inbox failed. Root: missing `bun install` in `github/aibtcdev/skills/`. Not wallet/nonce.
@@ -57,6 +57,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 - **PR reviews must be sonnet, no daily cap** [REVERTED 2026-05-05]: commit 99779912 added a 20/day PR review cap and switched the PrLifecycleMachine to haiku citing a "$100/day cost cap." Billing is the Claude Code subscription — `api_cost_usd` is a phantom metric, not a budget. Effect: cap burned at 00:04 clearing backlog, landing-page #645/#648 went unreviewed, user escalated via web. Reverted to sonnet, removed the cap. **Rule**: never optimize models or add caps against `api_cost_usd` in this project. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
 - **arc0btc.com content tasks timeout**: blog-publish and freshness-fix tasks reliably hit 15min sonnet limit. Decompose into (1) draft/fetch and (2) publish subtasks before queuing.
+- **Signal research omnibus tasks timeout**: "Research signal-worthy topics across active beats" (all 3 beats in one task) hits 15min limit. Decompose per-beat: queue separate tasks for aibtc-network, bitcoin-macro, quantum research. Confirmed by task #15723.
 - **Stale-PR hygiene pass COMPLETE** [2026-05-06]: Ghost PRs aibtcdev/skills#363, aibtcdev/agent-news#417, aibtcdev/agent-news#799 confirmed non-existent via GitHub API. Queue was clean at pass time (no pending stale tasks). arc-workflows fix (commit 4ea89d0e) now prevents re-queuing — no further manual cleanup needed.
 
 ---
