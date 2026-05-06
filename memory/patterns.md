@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-05-05T20:54Z*
+*Last consolidated: 2026-05-06T18:15Z*
 
 ## Core Patterns
 
@@ -146,3 +146,12 @@ Pre-checks validating external resources must check not just existence but actio
 
 **p-untracked-artifact-follow-up** [2026-05-05]
 Audits often discover untracked files supporting active operations (scripts, utilities, generated data). Trigger explicit P5 follow-up tasks immediately — don't defer to "commit someday." Prevents operational artifacts from drifting into invisible technical debt.
+
+**p-per-resource-task-cap** [2026-05-06]
+When a single external resource (PR, issue, workflow) generates many tasks — this week: 213 "re-review pr #588" tasks — the root cause is a sensor creating follow-up/re-check tasks without verifying a pending task already exists for that specific resource. `pendingTaskExistsForSource` at category level is insufficient; pair it with a resource-level check keyed on (repo, resource_id). Cap: at most 1 pending task per (repo, PR number) at any time. When at cap, skip silently. Distinct from `p-queue-composition-guard` (category-level) — per-resource caps prevent individual resource floods that don't show up in category percentages.
+
+**p-pr-sensor-creation-gate** [2026-05-06]
+Sensors creating PR review tasks must validate at creation time: (1) PR exists — GitHub API returns non-404, (2) PR is open — not merged or closed, (3) no pending review task already exists for this (repo, PR number). This 3-gate check at sensor time eliminates ghost PR failures (15 this week from number gaps in repos), re-review floods, and approved-PR double-queuing in one pass. Existence ≠ open ≠ reviewable ≠ not-yet-queued — all states must be checked independently. Complements `p-resource-actionability-check` (which targets dispatch-time validation); this pattern is sensor-side prevention.
+
+**p-platform-transient-backoff** [2026-05-06]
+When external platform APIs return "overloaded" / "Durable Object timeout" / 503 (this week: quantum beat claim failures), classify as platform-side transient and schedule retry rather than immediate re-queue: (1) use `scheduled_for = now + 15min` not immediate `arc tasks add`, (2) max 3 attempts across separate dispatch cycles, (3) close as `failed` only after all attempts exhausted. Immediate re-queue on DO-overload burns 3 consecutive dispatch cycles with identical failures; scheduled retry allows platform to recover between attempts. Distinct from `p-rate-limit-error-silencing` (which handles 429/402 with reset windows from rate-limiting) — DO-overload is infrastructure saturation with no explicit reset time.
