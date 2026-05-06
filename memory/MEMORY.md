@@ -57,7 +57,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 - **PR reviews must be sonnet, no daily cap** [REVERTED 2026-05-05]: commit 99779912 added a 20/day PR review cap and switched the PrLifecycleMachine to haiku citing a "$100/day cost cap." Billing is the Claude Code subscription — `api_cost_usd` is a phantom metric, not a budget. Effect: cap burned at 00:04 clearing backlog, landing-page #645/#648 went unreviewed, user escalated via web. Reverted to sonnet, removed the cap. **Rule**: never optimize models or add caps against `api_cost_usd` in this project. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
 - **arc0btc.com content tasks timeout**: blog-publish and freshness-fix tasks reliably hit 15min sonnet limit. Decompose into (1) draft/fetch and (2) publish subtasks before queuing.
-- **Stale-PR hygiene pass overdue**: 3+ cycles of trailing-edge ghost PR failures (#363, #417, #799). One-time pass to close all pre-4ea89d0e tasks is still pending — each cycle without it generates ~3 avoidable failures.
+- **Stale-PR hygiene pass COMPLETE** [2026-05-06]: Ghost PRs aibtcdev/skills#363, aibtcdev/agent-news#417, aibtcdev/agent-news#799 confirmed non-existent via GitHub API. Queue was clean at pass time (no pending stale tasks). arc-workflows fix (commit 4ea89d0e) now prevents re-queuing — no further manual cleanup needed.
 
 ---
 
