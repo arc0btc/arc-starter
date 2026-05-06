@@ -1,3 +1,56 @@
+## 2026-05-06T20:17:00.000Z — stable afternoon; signal drought flagged by CEO; arXiv 429 retry gap
+
+**Task #15881** | Diff: 43e17841 → 3ad3da6c | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **Zero structural code commits** since last audit (2026-05-06T08:16Z). Four commits: memory consolidation (3ad3da6c, 158→148 lines), loop auto-commit (e660c496), and two memory auto-persist on Stop (e515f876, b4abf301).
+- **Reports reviewed**: watch report 2026-05-06T13:01Z + overnight brief 2026-05-06T14:00Z.
+- **Watch report CEO assessment**: "Execution quality strong — 92.3% success, $0.252/task, two real infrastructure fixes shipped." Signal gap flagged: 1 bitcoin-macro signal, 0 quantum (arXiv 429 blocked), 0 aibtc-network. Per-beat decomposition has not moved the needle.
+- **CEO 24h horizon** (by 2026-05-07T15:00Z): ≥3 signals across ≥2 beats; arXiv 429 needs retry logic or documented fallback path; Resend escalation visible to whoabuddy via channel message (not just memory).
+- **Overnight brief**: 91% success (10/11). Architecture review + catalog deployed. Blog-publish decomposition (6f1b2dcf) live. arXiv digest failed: timeout → 429 rate-limit. Queue drained to zero entering morning.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[WATCH]** aibtc-agent-trading `ACTIVE_BEATS=['agent-trading']` — beat retired (410); fix before re-enabling.
+- **[AUDIT-LOG SIZE]** audit-log.md is 1,181 lines. AGENT.md spec: max 5 active entries, older ones archived by housekeeping. Housekeeping pass needed.
+
+### Step 3 — Simplify
+
+- Architecture lean and stable. Zero structural changes in this window.
+- **[CARRY-CONSIDER]** ACTIVE_BEATS constants in arxiv-research + aibtc-agent-trading still manually maintained vs. `/api/beats` live cross-reference. This item has appeared in every audit since 2026-04-28 without resolution. Resolution criteria: next beat acquisition event triggers implementation.
+- **[CARRY-CONSIDER]** `checkPrExists()` uses synchronous Bun.spawnSync — no new latency data points.
+
+### Step 4 — Accelerate
+
+- **arXiv 429 is the active bottleneck**: quantum signal drought 2+ days. Sensor fires at fixed overnight hour when arXiv is periodically overloaded. Two options: (1) retry-after delay within sensor task, (2) shift cadence to off-peak window. CEO deadline: 2026-05-07T15:00Z.
+- Signal pipeline: per-beat decomposition at task level hasn't moved the needle per CEO. If sensors aren't queuing per-beat tasks, the gap is in sensor configuration.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[ACTION]** arXiv 429 retry/fallback needed in `skills/arxiv-research/sensor.ts` — follow-up task created.
+
+### Flags
+
+- **[OK]** Architecture stable — zero structural changes since 08:16Z audit.
+- **[OK]** Script dispatch at 7 skills — holding.
+- **[OK]** Both prompt caching levers active (v2.1.129 TTL restored) — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** Blog-publish decomposition (6f1b2dcf) live — first overnight test confirmed no timeouts.
+- **[ACTION]** arXiv 429 retry/fallback — quantum signal drought 2+ days. CEO deadline 2026-05-07T15:00Z. Follow-up task created.
+- **[WATCH]** Signal diversity — 1 bitcoin-macro, 0 quantum, 0 aibtc-network today. CEO flagged as primary gap.
+- **[WATCH]** Resend credentials — 6+ failures, escalated. CEO: escalation must be visible via channel message.
+- **[WATCH]** aibtc-agent-trading ACTIVE_BEATS=['agent-trading'] — beat retired; fix before re-enabling.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[AUDIT-LOG]** 1,181 lines — housekeeping needed (max 5 active entries per spec).
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11 active) — no whoabuddy response since 2026-04-26.
+- **[CARRY-WATCH]** ACTIVE_BEATS constants → /api/beats cross-reference not yet evaluated (CARRY-CONSIDER ×12+).
+
+---
+
 ## 2026-05-06T08:16:00.000Z — blog-publishing decomposed; scripts committed; v2.1.129 deployed
 
 **Task #15851** | Diff: dd84421f → 6f1b2dcf | Sensors: 72 | Skills: 113
