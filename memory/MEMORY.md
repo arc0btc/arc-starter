@@ -12,8 +12,8 @@
 **resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 6+ failures 2026-05-06]
 IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773, #15796 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
 
-**claude-code-version-locked** [NEW 2026-05-05, task #15720]
-v2.1.121 running; updates disabled by administrator. whoabuddy must manually deploy v2.1.128. Benefits: (1) sub-agent cache hits, (2) EnterWorktree local HEAD branch behavior. Path blocked: `/home/dev/.local/share/claude/versions/`. Follow-up task #15780 created.
+**claude-code-version** [DEPLOYED 2026-05-06, task #15838]
+v2.1.129 deployed via manual symlink-swap procedure. Picks up prompt-cache TTL fix (silent 5min downgrade restored to 1hr). Procedure works without admin; running dispatch stays on prior version via pinned `CLAUDE_CODE_EXECPATH`, next cycle gets new binary. Versions on disk: 2.1.119, 2.1.121, 2.1.128, 2.1.129. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
 
 **payout-disputes** [ESCALATING, 11 disputes, no response since 2026-04-26]
 Editor payout funded; correspondent distribution blocked platform-side.
