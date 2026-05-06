@@ -103,6 +103,34 @@ interface ArxivEntry {
   published: string;
 }
 
+// Retries on 429 with backoff. Respects Retry-After header, capped at 30s.
+// Max 3 total attempts — keeps total added wait under ~45s for sensor parallelism.
+async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Response> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (response.status !== 429) return response;
+
+    if (attempt === maxRetries) {
+      log(`warn: arXiv 429 rate-limit persists after ${maxRetries + 1} attempts — quantum signal drought likely this window`);
+      return response;
+    }
+
+    const retryAfterHeader = response.headers.get("Retry-After");
+    const backoffMs = retryAfterHeader
+      ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 30000)
+      : (attempt + 1) * 5000;
+
+    log(`warn: arXiv 429 (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${backoffMs}ms`);
+    await Bun.sleep(backoffMs);
+  }
+
+  throw new Error("unreachable");
+}
+
 function parseArxivFeed(xml: string): ArxivEntry[] {
   const entries: ArxivEntry[] = [];
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
@@ -142,13 +170,14 @@ export default async function arxivResearchSensor(): Promise<string> {
     const url = `${ARXIV_API}?search_query=${catQuery}&sortBy=submittedDate&sortOrder=descending&max_results=${MAX_RESULTS}`;
 
     log(`fetching from arXiv: ${CATEGORIES.join(", ")} (max ${MAX_RESULTS})`);
-    const response = await fetch(url, {
-      headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
-      signal: AbortSignal.timeout(30000),
-    });
+    const response = await fetchArxivWithRetry(url);
 
     if (!response.ok) {
-      log(`warn: arXiv API returned ${response.status}`);
+      if (response.status === 429) {
+        log("error: arXiv 429 exhausted all retries — quantum signal drought expected this window");
+      } else {
+        log(`warn: arXiv API returned ${response.status}`);
+      }
       return "error";
     }
 
