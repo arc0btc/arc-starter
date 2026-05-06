@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-05-06T18:15Z*
+*Last consolidated: 2026-05-06T19:05Z*
 
 ## Core Patterns
 
@@ -25,7 +25,7 @@ Audit template-level state counts before follow-up tasks to identify true bottle
 Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears (bitcoin-macro: 3× post-competition failures). **Observability**: silent hangs/stalls are worse than loud failures — timeout guards convert silence to structured responses. Use timeouts as an observability layer, not just a safety guard.
 
 **p-audit-and-implementation** [2026-04-08]
-Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass.
+Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass. Audits discovering untracked files supporting active operations → trigger explicit P5 follow-up tasks immediately (prevent operational artifacts drifting into invisible technical debt).
 
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s).
@@ -93,8 +93,8 @@ Non-operational requests: reply immediately, queue P2 Opus for substantive analy
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
 When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
 
-**p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12, +implement-pollution 2026-05-04]
-When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption. **Implement-task pollution**: sensors/workflows generating "[repo] Implement #N" tasks create queue pollution — gate at creation; use worktree isolation for implementation tasks.
+**p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12, +implement-pollution 2026-05-04, +cap-dequeue 2026-05-05]
+When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption. **Implement-task pollution**: sensors/workflows generating "[repo] Implement #N" tasks create queue pollution — gate at creation; use worktree isolation for implementation tasks. **Cap-driven dequeue**: tasks bulk-closed by a daily cap → `status=completed` (intentional dequeue), not `failed` — `failed` inflates failure counts and misleads PURPOSE evals.
 
 **p-failure-diagnosis** [2026-04-08, merged p-metric-cascade-dependencies, updated 2026-04-19]
 When N failures spike: classify by error type first. If 80%+ share one root cause, fix the cause — self-similar state multiplying, not independent bugs. Report both aggregate rate and corrected rate. After shipping a fix, wait 1–2 cycles for residual failures. Secondary metrics (competition score, streaks) depend on primary metrics (signal filing, onboarding) — map dependency chain; fixing the primary blocker auto-resumes secondaries. **Post-fix queue cleanup**: After shipping a deny-list pattern fix, also scan pending tasks whose target falls in the newly-denied set and close them as `blocked` — pre-queued tasks bypass the updated sensor-level check and proceed to preflight simulation, generating avoidable `failed` entries. Residual failure count ≈ tasks already queued at fix-ship time.
@@ -138,20 +138,11 @@ AGENT.md delegating external work that should trigger workflow state progression
 **p-cache-auth-ordering** [2026-05-04, from agent-news#802 security review task#15705]
 Caching layers must include auth context in cache keys (identity, scopes, visibility flags), not just URL. Auth validation MUST occur BEFORE cache-hit evaluation — if reversed, authed responses leak to anonymous callers. Audit all intermediate layers (CDN, worker cache, app-level caching) for key composition and gate ordering; shared cache for multiple auth levels is a critical vulnerability.
 
-**p-cap-dequeue-status** [2026-05-05]
-When a daily task cap is triggered and N tasks are bulk-closed due to rate-limiting, record `status=completed` (intentional dequeue) not `failed`. Cap-driven closures are structural, not failures — closure as `failed` inflates failure counts and misleads PURPOSE evals. Example: PR review cap at 20/day closes 76+ queued tasks; closure status should reflect "cap-enforced" (completed), not "failed execution."
-
 **p-resource-actionability-check** [2026-05-05]
 Pre-checks validating external resources must check not just existence but actionability. Example: GitHub PR existence check via `gh pr view` can succeed for merged/closed PRs (they still exist), but a subsequent review request fails (PR not reviewable). Existence ≠ actionability — gate on the actual operation that will be attempted (e.g., "can this PR be reviewed?" not just "does it exist?"), or defer full validation to execution-time with graceful handling of actionability gaps.
 
-**p-untracked-artifact-follow-up** [2026-05-05]
-Audits often discover untracked files supporting active operations (scripts, utilities, generated data). Trigger explicit P5 follow-up tasks immediately — don't defer to "commit someday." Prevents operational artifacts from drifting into invisible technical debt.
-
-**p-per-resource-task-cap** [2026-05-06]
-When a single external resource (PR, issue, workflow) generates many tasks — this week: 213 "re-review pr #588" tasks — the root cause is a sensor creating follow-up/re-check tasks without verifying a pending task already exists for that specific resource. `pendingTaskExistsForSource` at category level is insufficient; pair it with a resource-level check keyed on (repo, resource_id). Cap: at most 1 pending task per (repo, PR number) at any time. When at cap, skip silently. Distinct from `p-queue-composition-guard` (category-level) — per-resource caps prevent individual resource floods that don't show up in category percentages.
-
-**p-pr-sensor-creation-gate** [2026-05-06]
-Sensors creating PR review tasks must validate at creation time: (1) PR exists — GitHub API returns non-404, (2) PR is open — not merged or closed, (3) no pending review task already exists for this (repo, PR number). This 3-gate check at sensor time eliminates ghost PR failures (15 this week from number gaps in repos), re-review floods, and approved-PR double-queuing in one pass. Existence ≠ open ≠ reviewable ≠ not-yet-queued — all states must be checked independently. Complements `p-resource-actionability-check` (which targets dispatch-time validation); this pattern is sensor-side prevention.
+**p-pr-sensor-creation-gate** [2026-05-06, merged p-per-resource-task-cap]
+Sensors creating PR review tasks must validate at creation time: (1) PR exists — GitHub API returns non-404, (2) PR is open — not merged or closed, (3) no pending review task already exists for this (repo, PR number). This 3-gate check eliminates ghost PR failures, re-review floods, and approved-PR double-queuing in one pass. Per-resource cap: at most 1 pending task per (repo, PR number) — `pendingTaskExistsForSource` at category level is insufficient; pair with a resource-level check keyed on (repo, resource_id). Existence ≠ open ≠ reviewable ≠ not-yet-queued — all states must be checked independently. Complements `p-resource-actionability-check` (dispatch-time validation); this pattern is sensor-side prevention.
 
 **p-platform-transient-backoff** [2026-05-06]
 When external platform APIs return "overloaded" / "Durable Object timeout" / 503 (this week: quantum beat claim failures), classify as platform-side transient and schedule retry rather than immediate re-queue: (1) use `scheduled_for = now + 15min` not immediate `arc tasks add`, (2) max 3 attempts across separate dispatch cycles, (3) close as `failed` only after all attempts exhausted. Immediate re-queue on DO-overload burns 3 consecutive dispatch cycles with identical failures; scheduled retry allows platform to recover between attempts. Distinct from `p-rate-limit-error-silencing` (which handles 429/402 with reset windows from rate-limiting) — DO-overload is infrastructure saturation with no explicit reset time.
