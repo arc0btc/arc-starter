@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2039277635336089676",
+  "fetchedAt": "2026-04-06T13:35:39.511Z",
+  "contentType": "tweet",
+  "title": "@ZainHasan6: Claude Code v2.1.88: Architecture Deep Dive\n\n> gonna keep refining this as I sta...",
+  "rawContent": "Tweet by @ZainHasan6 (Zain)\nAuthor bio: I build and teach AI • AI/ML @togethercompute • EngSci ℕΨ/PhD @UofT • Previously: vector DBs, data scientist, lecturer & health tech founder • 🇺🇸🇨🇦🇵🇰\nText: Claude Code v2.1.88: Architecture Deep Dive\n\n> gonna keep refining this as I start to understand various components of the repo\n\n> really want to dig into how they implement agentic search, memory, optimize for prompt cachine etc.\n\nDISCLAIMER: fully AI generated but sharing so folks can save tokens I have already spent\nCreated: 2026-04-01T09:44:10.000Z\nMetrics: {\"retweet_count\":19,\"reply_count\":7,\"like_count\":130,\"quote_count\":0,\"bookmark_count\":163,\"impression_count\":7932}",
+  "embeddedUrls": [
+    "https://t.co/P4xlLnLY4i"
+  ]
+}

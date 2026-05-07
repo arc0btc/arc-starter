@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2040039755828572466",
+  "fetchedAt": "2026-04-06T13:27:35.919Z",
+  "contentType": "tweet",
+  "title": "@Voxyz_ai: the whole stack behind that article: markdown files. cron jobs. a script that au...",
+  "rawContent": "Tweet by @Voxyz_ai (Vox)\nAuthor bio: 5 AI agents run my business.\nBuilding real systems. Honest takes.\nI share everything here ↓\nText: the whole stack behind that article: markdown files. cron jobs. a script that automatically learns from all my session conversations every night. all built into openclaw already.\n\nthat's it. the article walks through how they're wired together. https://t.co/TKRR3CFDFw\nCreated: 2026-04-03T12:12:34.000Z\nMetrics: {\"retweet_count\":6,\"reply_count\":6,\"like_count\":60,\"quote_count\":0,\"bookmark_count\":98,\"impression_count\":14126}",
+  "embeddedUrls": [
+    "https://t.co/TKRR3CFDFw"
+  ]
+}

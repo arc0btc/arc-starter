@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2037925148599243005",
+  "fetchedAt": "2026-03-30T11:44:13.931Z",
+  "contentType": "tweet",
+  "title": "@_philschmid: Read the technical reports on how @Kimi_Moonshot, @cursor_ai, and @trychroma tra...",
+  "rawContent": "Tweet by @_philschmid (Philipp Schmid)\nAuthor bio: AI Developer Experience @GoogleDeepMind | prev: Tech Lead at @huggingface, AWS ML Hero 🤗 Sharing my own views and AI News 🧑🏻‍💻 https://t.co/7IosdlNz22\nText: Read the technical reports on how @Kimi_Moonshot, @cursor_ai, and @trychroma train vertical agentic models with RL. Same underlying recipe, strong base model, train inside the production harness, outcome-based rewards.\n\n- Kimi K2.5 learns to spawn parallel sub-agents through RL.\n-Cursor uses the same production Harness (same tools, same prompts..) and leanrs self-summarization during RL.\n- Chroma's 20B retrieval model learns to prune its own context mid-search.\n\nFull write-up 👇\nCreated: 2026-03-28T16:09:52.000Z\nMetrics: {\"retweet_count\":37,\"reply_count\":12,\"like_count\":313,\"quote_count\":3,\"bookmark_count\":271,\"impression_count\":37872}",
+  "embeddedUrls": [
+    "https://t.co/rnrn4Hu1Is"
+  ]
+}

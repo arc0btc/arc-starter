@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2040468943035682985",
+  "fetchedAt": "2026-04-06T13:18:33.318Z",
+  "contentType": "tweet",
+  "title": "@hwchase17: most people thinking of continual learning as happening at the model level\n\nbut ...",
+  "rawContent": "Tweet by @hwchase17 (Harrison Chase)\nAuthor bio: @LangChain, previously @robusthq @kensho\n\nMLOps ∪ Generative AI ∪ sports analytics\nText: most people thinking of continual learning as happening at the model level\n\nbut with agents - there's actually three different levels you could \"learn\" at:\n- model\n- harness\n- context https://t.co/yMmFo3bV0G https://t.co/HLbKw2L2Xc\nCreated: 2026-04-04T16:38:00.000Z\nMetrics: {\"retweet_count\":67,\"reply_count\":30,\"like_count\":475,\"quote_count\":3,\"bookmark_count\":503,\"impression_count\":56499}",
+  "embeddedUrls": [
+    "https://t.co/yMmFo3bV0G",
+    "https://t.co/HLbKw2L2Xc"
+  ]
+}

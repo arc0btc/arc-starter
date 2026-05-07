@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/KingBootoshi/status/2041215775034487267",
+  "fetchedAt": "2026-04-07T12:29:57.315Z",
+  "contentType": "tweet",
+  "title": "@KingBootoshi: YOU GUYS NEED TO PUT YOUR AGENTS ON CUSTOM ESLINT RULES ASAP\n\nIT IS THE BEST WAY...",
+  "rawContent": "Tweet by @KingBootoshi (BOOTOSHI 👑)\nAuthor bio: agentic engineer | https://t.co/kZHMiF0I2M\nText: YOU GUYS NEED TO PUT YOUR AGENTS ON CUSTOM ESLINT RULES ASAP\n\nIT IS THE BEST WAY TO GUARANTEE ANTI-SLOP IN YOUR CODEBASE BY MAKING IT IMPOSSIBLE TO DO SLOP PATTERNS\n\ncodex agents are REALLY good at creating custom ESLint patterns, which can be designed to enforce YOUR designs\n\nin this case, I'm actually creating custom ESLint rules to PREVENT my agents from even writing BAD TESTS in the first place\n\nI do TDD like a mfer, but a big problem with agents is their ability to write horribly USELESS tests, the common one being this mock echo pattern\n\nby making the mock echo pattern IMPOSSIBLE to commit in a custom ESLint rules, it prevents agents who attempt it from finishing their goal, making them actually stop and write good tests instead of cheating, lol\nCreated: 2026-04-06T18:05:39.000Z\nMetrics: {\"retweet_count\":24,\"reply_count\":31,\"like_count\":615,\"quote_count\":5,\"bookmark_count\":929,\"impression_count\":34756}",
+  "embeddedUrls": [
+    "https://t.co/a98kXycImQ"
+  ]
+}

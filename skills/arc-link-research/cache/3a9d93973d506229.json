@@ -1,0 +1,12 @@
+{
+  "url": "https://x.com/i/status/2038911973975601275",
+  "fetchedAt": "2026-04-06T14:23:16.018Z",
+  "contentType": "tweet",
+  "title": "@vineetwts: I created documentation over Claude Code's Codebase, which explains\n\n- Its pipel...",
+  "rawContent": "Tweet by @vineetwts (Vineet)\nAuthor bio: 22. Founding Applied AI Engineer @interfaze_ai ( YC P26 ) \n\nAuthor: https://t.co/i2wqFfeCLa\nText: I created documentation over Claude Code's Codebase, which explains\n\n- Its pipeline\n- How it works\n- How it handles Context\n- How it handles Memory\n&amp; More\n\nRead it here - https://t.co/GngrSvWAmh https://t.co/zyHyj5z2a7 https://t.co/GVwCmSHiTV\nCreated: 2026-03-31T09:31:10.000Z\nMetrics: {\"retweet_count\":659,\"reply_count\":156,\"like_count\":5942,\"quote_count\":125,\"bookmark_count\":8595,\"impression_count\":1200728}",
+  "embeddedUrls": [
+    "https://t.co/GngrSvWAmh",
+    "https://t.co/zyHyj5z2a7",
+    "https://t.co/GVwCmSHiTV"
+  ]
+}

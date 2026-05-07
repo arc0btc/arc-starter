@@ -1,0 +1,27 @@
+{
+  "url": "https://github.com/uditgoenka/autoresearch",
+  "fetchedAt": "2026-05-07T04:36:59.931Z",
+  "contentType": "github",
+  "title": "autoresearch",
+  "rawContent": "Repo: uditgoenka/autoresearch\nDescription: Claude Autoresearch Skill — Autonomous goal-directed iteration for Claude Code. Inspired by Karpathy's autoresearch. Modify → Verify → Keep/Discard → Repeat forever.\nTopics: ai, autonomous-agent, autoresearch, claude, claude-code, iteration, karpathy, productivity, skill\nStars: 4308\n\nREADME:\n<div align=\"center\">\n\n# Autoresearch\n\n**Turn [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenCode](https://opencode.ai), or [OpenAI Codex](https://developers.openai.com/codex) into a relentless improvement engine.**\n\nBased on [Karpathy's autoresearch](https://github.com/karpathy/autoresearch) â constraint + mechanical metric + autonomous iteration = compounding gains.\n\n[![Claude Code Skill](https://img.shields.io/badge/Claude_Code-Skill-blue?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)\n[![OpenCode](https://img.shields.io/badge/OpenCode-Skill-purple)](https://opencode.ai)\n[![Codex](https://img.shields.io/badge/Codex-Skill-green?logo=openai&logoColor=white)](https://developers.openai.com/codex)\n[![Version](https://img.shields.io/badge/version-2.0.03-blue.svg)](https://github.com/uditgoenka/autoresearch/releases)\n[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)\n\n[![Based on](https://img.shields.io/badge/Based_on-Karpathy's_Autoresearch-orange)](https://github.com/karpathy/autoresearch)\n[![Follow @iuditg](https://img.shields.io/badge/Follow-@iuditg-000000?style=flat&logo=x&logoColor=white)](https://x.com/intent/follow?screen_name=iuditg)\n[![Support](https://img.shields.io/badge/Support-PayPal-00457C?style=flat&logo=paypal&logoColor=white)](https://paypal.me/uditgoenka)\n\n<br>\n\n*\"Set the GOAL â The agent runs the LOOP â You wake up to results\"*\n\n*You don't need AGI. You need a goal, a metric, and a loop that never quits.*\n\n**Now supports Claude Code, OpenCode, and OpenAI Codex.**\n\n<br>\n\n[How It Works](#how-it-works) Â· [Commands](#commands) Â· [Quick Start](#quick-start) Â· [Guides](guide/) Â· [FAQ](#faq)\n\n</div>\n\n---\n\n```\n      PLAN              LOOP             DEBUG              FIX            SECURE            SHIP\n ââââââââââââ     ââââââââââââ     ââââââââââââ     ââââââââââââ     ââââââââââââ     ââââââââââââ\n â   Goal   â     â  Modify  â     â   Find   â     â   Fix    â     â  STRIDE  â     â  Stage   â\n â  Metric  ââââââ¶â  Verify  ââââââ¶â   Bugs   ââââââ¶â  Errors  ââââââ¶â  OWASP   ââââââ¶â  Deploy  â\n â  Scope   â     â  Keep/   â     â  Trace   â     â  Repair  â     â  Red     â     â Release  â\n ââââââââââââ     â  Discard â     ââââââââââââ     ââââââââââââ     â  Team    â     ââââââââââââ\n/autoresearch:    ââââââââââââ    /autoresearch:    /autoresearch:   ââââââââââââ    /autoresearch:\n  plan            /autoresearch     debug              fix          /autoresearch:      ship\n                                                           ",
+  "embeddedUrls": [
+    "https://docs.anthropic.com/en/docs/claude-code",
+    "https://opencode.ai",
+    "https://developers.openai.com/codex",
+    "https://github.com/karpathy/autoresearch",
+    "https://img.shields.io/badge/Claude_Code-Skill-blue?logo=anthropic&logoColor=white",
+    "https://docs.anthropic.com/en/docs/claude-code",
+    "https://img.shields.io/badge/OpenCode-Skill-purple",
+    "https://opencode.ai",
+    "https://img.shields.io/badge/Codex-Skill-green?logo=openai&logoColor=white",
+    "https://developers.openai.com/codex",
+    "https://img.shields.io/badge/version-2.0.03-blue.svg",
+    "https://github.com/uditgoenka/autoresearch/releases",
+    "https://img.shields.io/badge/License-MIT-green.svg",
+    "https://img.shields.io/badge/Based_on-Karpathy",
+    "https://github.com/karpathy/autoresearch",
+    "https://img.shields.io/badge/Follow-@iuditg-000000?style=flat&logo=x&logoColor=white",
+    "https://img.shields.io/badge/Support-PayPal-00457C?style=flat&logo=paypal&logoColor=white",
+    "https://paypal.me/uditgoenka"
+  ]
+}

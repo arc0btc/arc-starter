@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/caise_p/status/2035314646329008433",
+  "fetchedAt": "2026-03-26T01:13:43.258Z",
+  "contentType": "tweet",
+  "title": "@caise_p: started playing with git internals and ended up building a github replacement.\n\n...",
+  "rawContent": "Tweet by @caise_p (Steve James)\nAuthor bio: Caise P.🫡 | console cowboy | ?/acc | agents @cloudflare\nText: started playing with git internals and ended up building a github replacement.\n\nfast code search, storage efficient, self-hostable with human and agent UIs.\n\nthe whole thing is open if you want to build stuff with it\nhttps://t.co/vfBkxVnQu3\nCreated: 2026-03-21T11:16:40.000Z\nMetrics: {\"retweet_count\":19,\"reply_count\":18,\"like_count\":285,\"quote_count\":3,\"bookmark_count\":223,\"impression_count\":25991}",
+  "embeddedUrls": [
+    "https://t.co/vfBkxVnQu3"
+  ]
+}

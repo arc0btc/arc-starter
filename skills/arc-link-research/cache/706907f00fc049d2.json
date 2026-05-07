@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/himanshustwts/status/2038924027411222533",
+  "fetchedAt": "2026-04-06T13:53:10.058Z",
+  "contentType": "tweet",
+  "title": "@himanshustwts: Based on everything explored in the source code, here's the full technical recip...",
+  "rawContent": "Tweet by @himanshustwts (himanshu)\nAuthor bio: ai research x product • pods @groundzero_twt • DMs open!\nText: Based on everything explored in the source code, here's the full technical recipe behind Claude Code's memory architecture:\n\n[shared by claude code]\n\nClaude Code’s memory system is actually insanely well-designed. It isn't like  “store everything” but constrained, structured and self-healing memory.\n\nThe architecture is doing a few very non-obvious things:\n\n> Memory = index, not storage\n+ MEMORY.md is always loaded, but it’s just pointers (~150 chars/line)\n+ actual knowledge lives outside, fetched only when needed\n\n> 3-layer design (bandwidth aware)\n + index (always)\n + topic files (on-demand)\n+ transcripts (never read, only grep’d)\n\n> Strict write discipline\n +  write to file → then update index\n + never dump content into the index\n +  prevents entropy / context pollution\n\n> Background “memory rewriting” (autoDream)\n +  merges, dedupes, removes contradictions\n +  converts vague → absolute\n +  aggressively prunes\n +  memory is continuously edited, not appended\n\n> Staleness is first-class\n + if memory ≠ reality → memory is wrong\n +  code-derived facts are never stored\n +  index is forcibly truncated\n\n> Isolation matters\n + consolidation runs in a forked subagent\n + limited tools → prevents corruption of main context\n\n> Retrieval is skeptical, not blind\n +  memory is a hint, not truth\n +  model must verify before using\n\n> What they don’t store is the real insight\n +  no debugging logs, no code structure, no PR history\n +  if it’s derivable, don’t persist it\nCreated: 2026-03-31T10:19:04.000Z\nMetrics: {\"retweet_count\":696,\"reply_count\":153,\"like_count\":6281,\"quote_count\":91,\"bookmark_count\":8305,\"impression_count\":818023}",
+  "embeddedUrls": [
+    "https://t.co/PlGRvuvkts"
+  ]
+}

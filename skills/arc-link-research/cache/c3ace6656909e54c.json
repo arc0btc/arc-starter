@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2039912975444926885",
+  "fetchedAt": "2026-04-06T13:19:33.624Z",
+  "contentType": "tweet",
+  "title": "@Teknium: Hermes Agent now supports @plastic_lab's Honcho, @mem0ai, @openvikingai, @Vector...",
+  "rawContent": "Tweet by @Teknium (Teknium (e/λ))\nAuthor bio: Cofounder and Head of Post Training @NousResearch, prev @StabilityAI\nGithub: https://t.co/LZwHTUFwPq\nHuggingFace: https://t.co/sN2FFU8PVE\nText: Hermes Agent now supports @plastic_lab's Honcho, @mem0ai, @openvikingai, @Vectorizeio's Hindsight, @retaindb, and @ByteroverDev memory systems!\n\nTry them now with `hermes update` then `hermes memory setup`\n\nWe have rehauled our memory system to be much more maintainable and pluggable, so anyone can make their own memory system to build on top of Hermes easily and cleanly with a special class of plugin!\n\nWhich memory system is your favorite?\nCreated: 2026-04-03T03:48:47.000Z\nMetrics: {\"retweet_count\":106,\"reply_count\":111,\"like_count\":998,\"quote_count\":30,\"bookmark_count\":836,\"impression_count\":128392}",
+  "embeddedUrls": [
+    "https://t.co/CJjlvovowH"
+  ]
+}

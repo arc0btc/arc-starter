@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/fchollet/status/2037586076420968851",
+  "fetchedAt": "2026-03-27T22:34:40.881Z",
+  "contentType": "tweet",
+  "title": "@fchollet: I basically agree. Agents are soon going to be buying services/resources online,...",
+  "rawContent": "Tweet by @fchollet (François Chollet)\nAuthor bio: Co-founder @ndea. Co-founder @arcprize. Creator of Keras and ARC-AGI. Author of 'Deep Learning with Python'.\nText: I basically agree. Agents are soon going to be buying services/resources online, and the world is going to need agent-native payment infra, like Sam's @agentcashdev\n\nWe're probably looking at a &gt;10x transaction increase. https://t.co/sirM6K2YMK\nCreated: 2026-03-27T17:42:31.000Z\nMetrics: {\"retweet_count\":27,\"reply_count\":29,\"like_count\":251,\"quote_count\":6,\"bookmark_count\":197,\"impression_count\":37909}",
+  "embeddedUrls": [
+    "https://t.co/sirM6K2YMK"
+  ]
+}

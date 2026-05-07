@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038896733447475704",
+  "fetchedAt": "2026-04-06T13:48:43.294Z",
+  "contentType": "tweet",
+  "title": "@airesearch12: do this to protect yourself against supply chain attacks\n\n$ cat ~/.npmrc\nmin-rel...",
+  "rawContent": "Tweet by @airesearch12 (Florian S)\nAuthor bio: since age of 6, it's been me & the code. architecting tech for a fortune 500 + a lot of hobby projects (some slightly profitable). currently focusing on ai.\nText: do this to protect yourself against supply chain attacks\n\n$ cat ~/.npmrc\nmin-release-age=7\n\n$ cat ~/.config/uv/uv.toml\nexclude-newer = \"7 days\" https://t.co/Wve3ujEcCM\nCreated: 2026-03-31T08:30:36.000Z\nMetrics: {\"retweet_count\":295,\"reply_count\":55,\"like_count\":2802,\"quote_count\":23,\"bookmark_count\":4296,\"impression_count\":401049}",
+  "embeddedUrls": [
+    "https://t.co/Wve3ujEcCM"
+  ]
+}

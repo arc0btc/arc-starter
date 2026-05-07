@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/akshay_pachaar/status/2041433526189633928",
+  "fetchedAt": "2026-04-07T12:36:33.808Z",
+  "contentType": "tweet",
+  "title": "@akshay_pachaar: A raw LLM is just like a CPU without OS.\n\nIt can compute. But it can't do anythi...",
+  "rawContent": "Tweet by @akshay_pachaar (Akshay 🚀)\nAuthor bio: Simplifying LLMs, AI Agents, RAG, and Machine Learning for you! • Co-founder @dailydoseofds_• BITS Pilani • 3 Patents • ex-AI Engineer @ LightningAI\nText: A raw LLM is just like a CPU without OS.\n\nIt can compute. But it can't do anything useful on its own.\n\nThis analogy is the clearest way I've found to understand what an agent harness actually does.\n\nHere's the mapping:\n\n• 𝗖𝗣𝗨 → 𝗟𝗟𝗠 (model weights). The raw compute engine. Powerful, but useless without infrastructure around it.\n\n• 𝗥𝗔𝗠 → 𝗖𝗼𝗻𝘁𝗲𝘅𝘁 𝘄𝗶𝗻𝗱𝗼𝘄. Fast, always available, but limited. When it fills up, you start losing things.\n\n• 𝗛𝗮𝗿𝗱 𝗱𝗶𝘀𝗸 → 𝗩𝗲𝗰𝘁𝗼𝗿 𝗗𝗕 / 𝗹𝗼𝗻𝗴-𝘁𝗲𝗿𝗺 𝘀𝘁𝗼𝗿𝗮𝗴𝗲. Large capacity, but slow to access. You retrieve from it, not compute in it.\n\n• 𝗗𝗲𝘃𝗶𝗰𝗲 𝗱𝗿𝗶𝘃𝗲𝗿𝘀 → 𝗧𝗼𝗼𝗹 𝗶𝗻𝘁𝗲𝗴𝗿𝗮𝘁𝗶𝗼𝗻𝘀. The interfaces that let the model interact with the outside world. Code execution, web search, file I/O.\n\n• 𝗢𝗽𝗲𝗿𝗮𝘁𝗶𝗻𝗴 𝘀𝘆𝘀𝘁𝗲𝗺 → 𝗔𝗴𝗲𝗻𝘁 𝗵𝗮𝗿𝗻𝗲𝘀𝘀. This is the key layer. It manages everything: which tools to call, what fits in memory, when to retrieve, how to recover from errors, and when to stop.\n\nAnd then there's the 𝗮𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻 layer. That's the \"agent\" itself. Not a piece of software you install, but emergent behavior that arises when the OS does its job well.\n\nThis is why two products using the exact same model can perform completely differently. LangChain changed only their harness infrastructure (same model, same weights) and jumped from outside the top 30 to rank 5 on TerminalBench 2.0.\n\nThe model didn't improve. The operating system around it did.\n\nThe article below is a deep dive on agent harness engineering, covering the orchestration loop, tools, memory, context management, and everything else that transforms a stateless LLM into a capable agent.\nCreated: 2026-04-07T08:30:55.000Z\nMetrics: {\"retweet_count\":36,\"reply_count\":15,\"like_count\":162,\"quote_count\":2,\"bookmark_count\":169,\"impression_count\":13185}",
+  "embeddedUrls": [
+    "https://t.co/sRQPhMRLYl",
+    "https://t.co/sZrI87Wakm"
+  ]
+}

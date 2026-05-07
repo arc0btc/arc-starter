@@ -1,0 +1,13 @@
+{
+  "url": "https://x.com/i/status/2038373819304559058",
+  "fetchedAt": "2026-04-06T14:17:27.587Z",
+  "contentType": "tweet",
+  "title": "@bartoldson: I second the suggestion to learn about async RL by using prime-RL, their code is...",
+  "rawContent": "Tweet by @bartoldson (Brian Bartoldson)\nAuthor bio: ML researcher\nText: I second the suggestion to learn about async RL by using prime-RL, their code is very clear and hackable.\n\nBut if you prefer to learn about async RL for LLMs via papers, I recommend these early ones: \n- https://t.co/7lx15EIDar\n- https://t.co/JTVTWuU2P5\n\nhttps://t.co/7A7arVaxHR https://t.co/E7Rbf1J56U\nCreated: 2026-03-29T21:52:44.000Z\nMetrics: {\"retweet_count\":34,\"reply_count\":1,\"like_count\":263,\"quote_count\":0,\"bookmark_count\":331,\"impression_count\":22845}",
+  "embeddedUrls": [
+    "https://t.co/7lx15EIDar",
+    "https://t.co/JTVTWuU2P5",
+    "https://t.co/7A7arVaxHR",
+    "https://t.co/E7Rbf1J56U"
+  ]
+}

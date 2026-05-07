@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2039063681590231435",
+  "fetchedAt": "2026-04-06T13:34:36.699Z",
+  "contentType": "tweet",
+  "title": "@anishmoonka: Most people think the Claude Code leak was a security story.\n\nIt's actually a fr...",
+  "rawContent": "Tweet by @anishmoonka (Anish Moonka)\nAuthor bio: Follow me for Curiositymaxxing 🌱\n\nBuilding @10MinuteGita @10MinuteNotes | Investor 10Y | Ex CoS @Kavinbm | AI assisted Builder/Storyteller | DM for collab\nText: Most people think the Claude Code leak was a security story.\n\nIt's actually a free masterclass on how to prompt AI properly. Anthropic's internal prompts don't say \"be helpful.\" They specify exact tools, exact risks, and exact output formats. Three layers. Every time.\n\nBroke it all down here (& what we can learn)\nCreated: 2026-03-31T19:34:00.000Z\nMetrics: {\"retweet_count\":78,\"reply_count\":26,\"like_count\":554,\"quote_count\":1,\"bookmark_count\":1334,\"impression_count\":154004}",
+  "embeddedUrls": [
+    "https://t.co/TEH0wEHBxb"
+  ]
+}

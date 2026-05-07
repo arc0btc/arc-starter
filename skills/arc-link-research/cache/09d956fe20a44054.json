@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/RajaPatnaik/status/2041305017781833859",
+  "fetchedAt": "2026-04-07T12:20:56.240Z",
+  "contentType": "tweet",
+  "title": "@RajaPatnaik: Very cool stuff out of @NousResearch. They open-sourced a system that lets Herme...",
+  "rawContent": "Tweet by @RajaPatnaik (Raja Patnaik)\nAuthor bio: Head of AI (Research) @ Asset Manager. Quant PhD. Financial economist. Engineer. Tech and science enthusiast. Angel investor. All opinions are my own.\nText: Very cool stuff out of @NousResearch. They open-sourced a system that lets Hermes agents evolve themselves — no GPU training required.\n\nIt uses GEPA to automatically improve skills, prompts, and tool descriptions. Here's how it works: https://t.co/t217M2r8Zn\nCreated: 2026-04-07T00:00:16.000Z\nMetrics: {\"retweet_count\":17,\"reply_count\":4,\"like_count\":159,\"quote_count\":5,\"bookmark_count\":228,\"impression_count\":19516}",
+  "embeddedUrls": [
+    "https://t.co/t217M2r8Zn"
+  ]
+}

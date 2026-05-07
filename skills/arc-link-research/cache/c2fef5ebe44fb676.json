@@ -1,0 +1,24 @@
+{
+  "url": "https://github.com/builderz-labs/mission-control",
+  "fetchedAt": "2026-04-06T14:13:34.416Z",
+  "contentType": "github",
+  "title": "mission-control",
+  "rawContent": "Repo: builderz-labs/mission-control\nDescription: Self-hosted AI agent orchestration platform: dispatch tasks, run multi-agent workflows, monitor spend, and govern operations from one mission control dashboard.\nTopics: agent-orchestration, dashboard, nextjs, openclaw, sqlite, ai-agents, ai-automation, ai-dashboard, claude, developer-tools, llm, mcp, open-source, self-hosted, task-management, typescript\nStars: 3818\n\nREADME:\n<div align=\"center\">\n\n# Mission Control\n\n**Open-source dashboard for AI agent orchestration.**\n\nManage AI agent fleets, dispatch tasks, track costs, and coordinate multi-agent workflows â self-hosted, zero external dependencies, powered by SQLite.\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)\n[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)\n[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org/)\n[![Tests](https://img.shields.io/badge/Tests-577%20(282%20unit%20%2B%20295%20E2E)-brightgreen)](https://github.com/builderz-labs/mission-control)\n[![GitHub stars](https://img.shields.io/github/stars/builderz-labs/mission-control?style=social)](https://github.com/builderz-labs/mission-control/stargazers)\n[![GitHub forks](https://img.shields.io/github/forks/builderz-labs/mission-control?style=social)](https://github.com/builderz-labs/mission-control/network/members)\n[![Last commit](https://img.shields.io/github/last-commit/builderz-labs/mission-control)](https://github.com/builderz-labs/mission-control/commits/main)\n[![Open issues](https://img.shields.io/github/issues/builderz-labs/mission-control)](https://github.com/builderz-labs/mission-control/issues)\n\n![Mission Control Dashboard](docs/mission-control-overview.png)\n\n</div>\n\n---\n\n> **Alpha Software** â Mission Control is under active development. APIs, database schemas, and configuration formats may change between releases. Review the [security considerations](#security) before deploying to production.\n\n## Contents\n\n- [Quick Start](#quick-start)\n- [Why teams adopt Mission Control](#why-teams-adopt-mission-control)\n- [Use-case recipes](#use-case-recipes)\n- [Getting Started with Agents](#getting-started-with-agents)\n- [Documentation](#documentation)\n- [Features](#features)\n- [Architecture](#architecture)\n- [API Reference](#api-reference)\n- [Development](#development)\n- [Troubleshooting](#troubleshooting)\n- [Security](#security)\n- [Built with Mission Control](#built-with-mission-control)\n- [Roadmap](#roadmap)\n- [Contributing](#contributing)\n- [Support](#support)\n- [License](#license)\n\n<table>\n<tr><td><b>32 panels</b></td><td>Tasks, agents, skills, logs, tokens, memory, security, cron, alerts, webhooks, pipelines, and more â all from a single SPA shell.</td></tr>\n<tr><td><b>Real-time everything</b></td><td>WebSocket + SSE push updates with smart polling that pauses when you're away. Zero stale data.</td></tr>\n<tr><td><b>Zero external deps</b></td><td>SQLite database, single <code>pnpm start</code> to run. No Redis, no Postgres, no Docker required.</td></tr>\n<tr><td><b>Role-based access</b></td><td>Viewer, operator, and admin roles with session + API key auth. Google Sign-In with admin approval workflow.</td></tr>\n<tr><td><b>Quality gates</b></td><td>Built-in Aegis review system that blocks task completion without sign-off.</td></tr>\n<tr><td><b>Skills ",
+  "embeddedUrls": [
+    "https://img.shields.io/badge/License-MIT-blue.svg",
+    "https://img.shields.io/badge/Next.js-16-black?logo=next.js",
+    "https://nextjs.org/",
+    "https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white",
+    "https://typescriptlang.org/",
+    "https://img.shields.io/badge/Tests-577%20(282%20unit%20%2B%20295%20E2E",
+    "https://github.com/builderz-labs/mission-control",
+    "https://img.shields.io/github/stars/builderz-labs/mission-control?style=social",
+    "https://github.com/builderz-labs/mission-control/stargazers",
+    "https://img.shields.io/github/forks/builderz-labs/mission-control?style=social",
+    "https://github.com/builderz-labs/mission-control/network/members",
+    "https://img.shields.io/github/last-commit/builderz-labs/mission-control",
+    "https://github.com/builderz-labs/mission-control/commits/main",
+    "https://img.shields.io/github/issues/builderz-labs/mission-control",
+    "https://github.com/builderz-labs/mission-control/issues"
+  ]
+}

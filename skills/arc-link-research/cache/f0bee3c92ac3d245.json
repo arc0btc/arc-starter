@@ -1,0 +1,22 @@
+{
+  "url": "https://github.com/letta-ai/letta-code",
+  "fetchedAt": "2026-05-07T05:13:12.939Z",
+  "contentType": "github",
+  "title": "letta-code",
+  "rawContent": "Repo: letta-ai/letta-code\nDescription: The memory-first coding agent\nTopics: \nStars: 2425\n\nREADME:\n# Letta Code\n\n[![npm](https://img.shields.io/npm/v/@letta-ai/letta-code.svg?style=flat-square)](https://www.npmjs.com/package/@letta-ai/letta-code) [![Discord](https://img.shields.io/badge/discord-join-blue?style=flat-square&logo=discord)](https://discord.gg/letta)\n\nLetta Code is a memory-first coding harness, designed for long-lived agents that can learn from experience.\n\nInstead of working in independent sessions, you work with a persisted agent whose memory is portable across models (Claude, GPT, Gemini, GLM, Kimi, and more).\n\nRun Letta Code in the [**CLI**](https://docs.letta.com/letta-code/cli), or download the [**desktop app**](https://docs.letta.com/letta-code/desktop-app) for MacOS, Windows, and Linux.\nYou can also access Letta Code via [your phone](https://docs.letta.com/letta-code/remote-mobile) and [Slack/Telegram/Discord](https://docs.letta.com/letta-code/channels).\n\n![](https://github.com/letta-ai/letta-code/blob/main/assets/letta-code-demo.gif)\n\n## Get started\nInstall the package via [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm):\n```bash\nnpm install -g @letta-ai/letta-code\n```\nNavigate to your project directory and run `letta` (see various command-line options [on the docs](https://docs.letta.com/letta-code/commands)). \n\nRun `/connect` to configure your own LLM API keys (OpenAI / ChatGPT, Anthropic, zAI coding plan, etc.), and use `/model` to swap models.\n\nYou can also download the [**desktop app**](https://docs.letta.com/letta-code/desktop-app) for MacOS, Windows, and Linux. Agents created in the CLI are available via the desktop app, and vice versa.\n\n## Philosophy \nLetta Code is built around long-lived agents that persist across sessions and improve with use. Rather than working in independent sessions, each session is tied to a persisted agent that learns.\n\n**Claude Code / Codex / Gemini CLI** (Session-Based)\n- Sessions are independent\n- No learning between sessions\n- Context = messages in the current session + `AGENTS.md`\n- Relationship: Every conversation is like meeting a new contractor\n\n**Letta Code** (Agent-Based)\n- Same agent across sessions\n- Persistent memory and learning over time\n- `/clear` starts a new conversation (aka \"thread\" or \"session\"), but memory persists\n- Relationship: Like having a coworker or mentee that learns and remembers\n\n## Agent Memory & Learning\nIf youâre using Letta Code for the first time, you will likely want to run the `/init` command to initialize the agentâs memory system:\n```bash\n> /init\n```\n\nOver time, the agent will update its memory as it learns. To actively guide your agents memory, you can use the `/remember` command:\n```bash\n> /remember [optional instructions on what to remember]\n```\nLetta Code works with skills (reusable modules that teach your agent new capabilities in a `.skills` directory), but additionally supports [skill learning](https://www.letta.com/blog/skill-learning). You can ask your agent to learn a skill from its current trajectory with the c",
+  "embeddedUrls": [
+    "https://img.shields.io/npm/v/@letta-ai/letta-code.svg?style=flat-square",
+    "https://www.npmjs.com/package/@letta-ai/letta-code",
+    "https://img.shields.io/badge/discord-join-blue?style=flat-square&logo=discord",
+    "https://discord.gg/letta",
+    "https://docs.letta.com/letta-code/cli",
+    "https://docs.letta.com/letta-code/desktop-app",
+    "https://docs.letta.com/letta-code/remote-mobile",
+    "https://docs.letta.com/letta-code/channels",
+    "https://github.com/letta-ai/letta-code/blob/main/assets/letta-code-demo.gif",
+    "https://docs.npmjs.com/downloading-and-installing-node-js-and-npm",
+    "https://docs.letta.com/letta-code/commands",
+    "https://docs.letta.com/letta-code/desktop-app",
+    "https://www.letta.com/blog/skill-learning"
+  ]
+}

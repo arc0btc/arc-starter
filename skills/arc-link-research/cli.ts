@@ -8,8 +8,8 @@ import { join } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
-const RESEARCH_DIR = join(ROOT, "arc-link-research");
-const CACHE_DIR = join(RESEARCH_DIR, "cache");
+const RESEARCH_DIR = join(ROOT, "research");
+const CACHE_DIR = join(import.meta.dir, "cache");
 
 // ---- Helpers ----
 

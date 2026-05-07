@@ -33,7 +33,7 @@ arc skills run --name research -- list
 Fetches each link, evaluates mission relevance (high/medium/low), extracts key takeaways, and writes a timestamped report to `research/`. Raw fetched content is cached in `arc-link-research/cache/` by URL hash — subsequent calls for the same URL skip the network fetch. Embedded URLs from tweets (article links via t.co) are automatically followed and cached.
 
 Output: `research/{ISO8601}_research.md`
-Cache: `arc-link-research/cache/{url_hash}.json`
+Cache: `skills/arc-link-research/cache/{url_hash}.json`
 
 ### list
 

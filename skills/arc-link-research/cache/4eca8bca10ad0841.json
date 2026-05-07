@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/Vtrivedy10/status/2037204138774167657?s=20",
+  "fetchedAt": "2026-03-26T17:32:54.836Z",
+  "contentType": "tweet",
+  "title": "@Vtrivedy10: more evals != better agents\n\nat @LangChain, every eval our team maintains is lik...",
+  "rawContent": "Tweet by @Vtrivedy10 (Viv)\nAuthor bio: agents & evals @LangChain, prev @awscloud, phd cs @templeuniv\nText: more evals != better agents\n\nat @LangChain, every eval our team maintains is like a noisy vector that shapes agent behavior in production\n\nas teams hill climb hundreds or thousands of evals to “improve their agents”, this problem of bad evals contributing noisy behavior compounds\n\nhere’s a practical guide on:\n- how we design small subsets of targeted evals that test important abilities for our Task\n- our team’s shared responsibility approach for justifying every eval’s value and what it measures\n- metrics that influence our decisions beyond accuracy\n- how we store and run evals\nCreated: 2026-03-26T16:24:50.000Z\nMetrics: {\"retweet_count\":7,\"reply_count\":2,\"like_count\":16,\"quote_count\":0,\"bookmark_count\":15,\"impression_count\":2463}",
+  "embeddedUrls": [
+    "https://t.co/9miArXYoS0"
+  ]
+}

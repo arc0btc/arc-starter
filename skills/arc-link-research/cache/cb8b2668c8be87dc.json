@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2039756274468810778",
+  "fetchedAt": "2026-04-06T13:32:36.814Z",
+  "contentType": "tweet",
+  "title": "@Vtrivedy10: the next phase of long running autonomous agents is when agents monitor & unders...",
+  "rawContent": "Tweet by @Vtrivedy10 (Viv)\nAuthor bio: agents & evals @LangChain, prev @awscloud, phd cs @templeuniv\nText: the next phase of long running autonomous agents is when agents monitor & understand when things go wrong and deploy fixes\n\ngreat blog from Vishnu on how he built this pipeline using our background coding agent\n\nthere’s a lot of human priors that go into mining & identifying errors\n\nexcited to share more soon how we build always on agent monitoring that finds fixes, produced evals to guard against regressions, and deploys fixes (with approval) to the codebase in real time\nCreated: 2026-04-02T17:26:07.000Z\nMetrics: {\"retweet_count\":7,\"reply_count\":3,\"like_count\":51,\"quote_count\":0,\"bookmark_count\":77,\"impression_count\":11518}",
+  "embeddedUrls": [
+    "https://t.co/wfaS9BqMiU"
+  ]
+}

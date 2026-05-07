@@ -1,0 +1,27 @@
+{
+  "url": "https://github.com/alvinreal/awesome-autoresearch",
+  "fetchedAt": "2026-05-07T04:36:53.058Z",
+  "contentType": "github",
+  "title": "awesome-autoresearch",
+  "rawContent": "Repo: alvinreal/awesome-autoresearch\nDescription: A curated list of autonomous improvement loops, research agents, and autoresearch-style systems inspired by Karpathy's autoresearch.\nTopics: agentic-systems, ai-agents, ai-research, ai-tools, autonomous-agents, autoresearch, awesome-list, claude-code, llm-agents, research-agents, scientific-discovery, self-improving-systems, experiment-loops, karpathy, karpathy-inspired\nStars: 1766\n\nREADME:\n<div align=\"center\">\n\n# ð¬ Awesome Autoresearch\n\n**A curated, high-signal index of autonomous improvement loops, research agents, and descendants inspired by** [**karpathy/autoresearch**](https://github.com/karpathy/autoresearch).\n\n[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)\n[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](./CONTRIBUTING.md)\n[![License: CC0-1.0](https://img.shields.io/badge/license-CC0--1.0-blue.svg?style=flat-square)](./LICENSE)\n\n<sub>by **Boring Dystopia Development**</sub>\n\n<p align=\"center\">\n  <a href=\"https://boringdystopia.ai/\">\n    <img src=\"https://img.shields.io/badge/boringdystopia.ai-111111?style=for-the-badge&logo=vercel&logoColor=white\" alt=\"boringdystopia.ai\" />\n  </a>&nbsp;\n  <a href=\"https://x.com/alvinunreal\">\n    <img src=\"https://img.shields.io/badge/X-@alvinunreal-000000?style=for-the-badge&logo=x&logoColor=white\" alt=\"X @alvinunreal\" />\n  </a>&nbsp;\n  <a href=\"https://t.me/boringdystopiadevelopment\">\n    <img src=\"https://img.shields.io/badge/Telegram-Join%20channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white\" alt=\"Telegram Join channel\" />\n  </a>\n</p>\n\n</div>\n\n## Contents\n\n- [ð ï¸ General-purpose descendants](#ï¸-general-purpose-descendants)\n- [ð¬ Research-agent systems](#-research-agent-systems)\n- [ð» Platform ports and hardware forks](#-platform-ports-and-hardware-forks)\n- [ð¯ Domain-specific adaptations](#-domain-specific-adaptations)\n- [ð Evaluation & benchmarks](#-evaluation--benchmarks)\n- [ð Notable use cases and writeups](#-notable-use-cases-and-writeups)\n- [ð Related resources](#-related-resources)\n- [ð License](#-license)\n\n## ð ï¸ General-purpose descendants\n\n- [kayba-ai/recursive-improve](https://github.com/kayba-ai/recursive-improve) ![GitHub stars](https://img.shields.io/github/stars/kayba-ai/recursive-improve?style=social) - Recursive self-improvement framework where agents capture execution traces, analyze failure patterns, and apply targeted fixes with keep-or-revert evaluation.\n- [vukrosic/auto-research](https://github.com/vukrosic/auto-research) ![GitHub stars](https://img.shields.io/github/stars/vukrosic/auto-research?style=social) - Docs-only control plane for an open autonomous AI research lab â file-based operating model for human direction and agent execution.\n- [uditgoenka/autoresearch](https://github.com/uditgoenka/autoresearch) ![GitHub stars](https://img.shields.io/github/stars/uditgoenka/autoresearch?style=social) - Claude Code skill that generalizes autoresearch into a reusable loop for software, docs, security, shipping, debugging, and other measurable goals.\n- [leo-lilinxiao/codex-autoresearch](https://github.com/leo-lilinxiao/codex-autoresearch) ![GitHub stars](https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social) - Codex-native autoresearch skill with resume support, lessons across runs, optional parallel experiments, and mode-specific workflows",
+  "embeddedUrls": [
+    "https://github.com/karpathy/autoresearch",
+    "https://awesome.re/badge.svg",
+    "https://awesome.re",
+    "https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square",
+    "https://img.shields.io/badge/license-CC0--1.0-blue.svg?style=flat-square",
+    "https://boringdystopia.ai/",
+    "https://img.shields.io/badge/boringdystopia.ai-111111?style=for-the-badge&logo=vercel&logoColor=white",
+    "https://img.shields.io/badge/X-@alvinunreal-000000?style=for-the-badge&logo=x&logoColor=white",
+    "https://t.me/boringdystopiadevelopment",
+    "https://img.shields.io/badge/Telegram-Join%20channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white",
+    "https://github.com/kayba-ai/recursive-improve",
+    "https://img.shields.io/github/stars/kayba-ai/recursive-improve?style=social",
+    "https://github.com/vukrosic/auto-research",
+    "https://img.shields.io/github/stars/vukrosic/auto-research?style=social",
+    "https://github.com/uditgoenka/autoresearch",
+    "https://img.shields.io/github/stars/uditgoenka/autoresearch?style=social",
+    "https://github.com/leo-lilinxiao/codex-autoresearch",
+    "https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038143522000589241",
+  "fetchedAt": "2026-03-30T11:56:37.170Z",
+  "contentType": "tweet",
+  "title": "@_avichawla: Microsoft did it again!\n\nBuilding with AI agents almost never works on the first...",
+  "rawContent": "Tweet by @_avichawla (Avi Chawla)\nAuthor bio: Daily tutorials and insights on DS, ML, LLMs, and RAGs • Co-founder @dailydoseofds_ • IIT Varanasi • ex-AI Engineer @ MastercardAI\nText: Microsoft did it again!\n\nBuilding with AI agents almost never works on the first try.\n\nA dev has to spend days tweaking prompts, adding examples, hoping it gets better.\n\nThis is exactly what Microsoft's Agent Lightning solves.\n\nIt's an open-source framework that trains ANY AI agent with reinforcement learning. Works with LangChain, AutoGen, CrewAI, OpenAI SDK, or plain Python.\n\nHere's how it works:\n\n> Your agent runs normally with whatever framework you're using. Just add a lightweight agl.emit() helper or let the tracer auto-collect everything.\n\n> Agent Lightning captures every prompt, tool call, and reward. Stores them as structured events.\n\n> You pick an algorithm (RL, prompt optimization, fine-tuning). It reads the events, learns patterns, and generates improved prompts or policy weights.\n\n> The Trainer pushes updates back to your agent. Your agent gets better without you rewriting anything.\n\nIn fact, you can also optimize individual agents in a multi-agent system.\n\nI have shared the link to the GitHub repo in the replies!\nCreated: 2026-03-29T06:37:37.000Z\nMetrics: {\"retweet_count\":189,\"reply_count\":56,\"like_count\":1214,\"quote_count\":9,\"bookmark_count\":2037,\"impression_count\":96946}",
+  "embeddedUrls": [
+    "https://t.co/ZGPI3fOCds"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "url": "https://github.com/RightNow-AI/openfang",
+  "fetchedAt": "2026-04-06T13:59:18.572Z",
+  "contentType": "github",
+  "title": "openfang",
+  "rawContent": "Repo: RightNow-AI/openfang\nDescription: Open-source Agent Operating System\nTopics: agent-framework, ai-agents, llm, mcp, open-source, openclaw, operating-system, rust\nStars: 16376\n\nREADME:\n<p align=\"center\">\n  <img src=\"public/assets/openfang-logo.png\" width=\"160\" alt=\"OpenFang Logo\" />\n</p>\n\n<h1 align=\"center\">OpenFang</h1>\n<h3 align=\"center\">The Agent Operating System</h3>\n\n<p align=\"center\">\n  Open-source Agent OS built in Rust. 137K LOC. 14 crates. 1,767+ tests. Zero clippy warnings.<br/>\n  <strong>One binary. Battle-tested. Agents that actually work for you.</strong>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://openfang.sh/docs\">Documentation</a> &bull;\n  <a href=\"https://openfang.sh/docs/getting-started\">Quick Start</a> &bull;\n  <a href=\"https://x.com/openfangg\">Twitter / X</a>\n</p>\n\n<p align=\"center\">\n  <img src=\"https://img.shields.io/badge/language-Rust-orange?style=flat-square\" alt=\"Rust\" />\n  <img src=\"https://img.shields.io/badge/license-MIT-blue?style=flat-square\" alt=\"MIT\" />\n  <img src=\"https://img.shields.io/badge/version-0.3.30-green?style=flat-square\" alt=\"v0.3.30\" />\n  <img src=\"https://img.shields.io/badge/tests-1,767%2B%20passing-brightgreen?style=flat-square\" alt=\"Tests\" />\n  <img src=\"https://img.shields.io/badge/clippy-0%20warnings-brightgreen?style=flat-square\" alt=\"Clippy\" />\n  <a href=\"https://www.buymeacoffee.com/openfang\" target=\"_blank\"><img src=\"https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black\" alt=\"Buy Me A Coffee\" /></a>\n</p>\n\n---\n\n> **v0.3.30 â Security Hardening Release (March 2026)**\n>\n> OpenFang is feature-complete but still pre-1.0. You may encounter rough edges or breaking changes between minor versions. We ship fast and fix fast. Pin to a specific commit for production use until v1.0. [Report issues here.](https://github.com/RightNow-AI/openfang/issues)\n\n---\n\n## What is OpenFang?\n\nOpenFang is an **open-source Agent Operating System** â not a chatbot framework, not a Python wrapper around an LLM, not a \"multi-agent orchestrator.\" It is a full operating system for autonomous agents, built from scratch in Rust.\n\nTraditional agent frameworks wait for you to type something. OpenFang runs **autonomous agents that work for you** â on schedules, 24/7, building knowledge graphs, monitoring targets, generating leads, managing your social media, and reporting results to your dashboard.\n\nThe entire system compiles to a **single ~32MB binary**. One install, one command, your agents are live.\n\n```bash\ncurl -fsSL https://openfang.sh/install | sh\nopenfang init\nopenfang start\n# Dashboard live at http://localhost:4200\n```\n\n<details>\n<summary><strong>Windows</strong></summary>\n\n```powershell\nirm https://openfang.sh/install.ps1 | iex\nopenfang init\nopenfang start\n```\n\n</details>\n\n---\n\n## Hands: Agents That Actually Do Things\n\n<p align=\"center\"><em>\"Traditional agents wait for you to type. Hands work <strong>for</strong> you.\"</em></p>\n\n**Hands** are OpenFang's core innovation â pre-built autonomous capability packages that run independently, on schedules, without you having to prompt them. This is not a chatbot. This is an agent that wakes up ",
+  "embeddedUrls": [
+    "https://openfang.sh/docs",
+    "https://openfang.sh/docs/getting-started",
+    "https://img.shields.io/badge/language-Rust-orange?style=flat-square",
+    "https://img.shields.io/badge/license-MIT-blue?style=flat-square",
+    "https://img.shields.io/badge/version-0.3.30-green?style=flat-square",
+    "https://img.shields.io/badge/tests-1,767%2B%20passing-brightgreen?style=flat-square",
+    "https://img.shields.io/badge/clippy-0%20warnings-brightgreen?style=flat-square",
+    "https://www.buymeacoffee.com/openfang",
+    "https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black",
+    "https://github.com/RightNow-AI/openfang/issues",
+    "https://openfang.sh/install",
+    "http://localhost:4200",
+    "https://openfang.sh/install.ps1"
+  ]
+}

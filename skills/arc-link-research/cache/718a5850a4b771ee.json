@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2039978114655441141",
+  "fetchedAt": "2026-04-06T13:31:38.009Z",
+  "contentType": "tweet",
+  "title": "@akshay_pachaar: Context engineering in Claude Skills is GENIUS!\n\nSkills use a 3-layer context ma...",
+  "rawContent": "Tweet by @akshay_pachaar (Akshay 🚀)\nAuthor bio: Simplifying LLMs, AI Agents, RAG, and Machine Learning for you! • Co-founder @dailydoseofds_• BITS Pilani • 3 Patents • ex-AI Engineer @ LightningAI\nText: Context engineering in Claude Skills is GENIUS!\n\nSkills use a 3-layer context management system that lets it use 100s of skills without hitting context limits.\n\nHere's how it works:\n\n> Layer 1: Main Context - Always loaded, it contains the project configuration.\n\n> Layer 2: Skill Metadata - Comprises only the YAML frontmatter, about 2-3 lines (< 200 tokens).\n\n> Layer 3: Active Skill Context - SKILL. md files and associated documentation are loaded as needed.\n\nSupporting files like scripts and templates aren't pre-loaded but accessed directly when in use, consuming zero tokens.\n\nThis architecture supports hundreds of skills without breaching context limits.\n\nThe article below is a complete guide to 𝗖𝗟𝗔𝗨𝗗𝗘.𝗺𝗱, hooks, skills, agents, and permissions, and how to set them up properly.\nCreated: 2026-04-03T08:07:38.000Z\nMetrics: {\"retweet_count\":108,\"reply_count\":36,\"like_count\":700,\"quote_count\":3,\"bookmark_count\":1156,\"impression_count\":95688}",
+  "embeddedUrls": [
+    "https://t.co/dcpsyfmIK0",
+    "https://t.co/fCLQezp4lG"
+  ]
+}
