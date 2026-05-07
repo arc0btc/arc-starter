@@ -10,8 +10,8 @@ All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks wit
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
-**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21]
-Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47).
+**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21, +payment-order 2026-05-07]
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47). **Payment ordering**: cooldown check MUST occur before initiating x402 payment — task #15946 lost 100 sats by paying first then discovering cooldown; validate all gates, then pay.
 
 ## Operational Patterns
 
