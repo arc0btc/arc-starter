@@ -132,6 +132,29 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
   return true;
 }
 
+// ---- Beat status helpers ----
+
+const AIBTC_NEWS_BEATS_URL = "https://aibtc.news/api/beats";
+
+/**
+ * Fetch currently active beat slugs from aibtc.news/api/beats.
+ *
+ * Returns the set of slugs with status "active". On any fetch or parse
+ * failure the caller receives null — sensors should treat null as
+ * "API unavailable" and fall back to their known-active defaults rather
+ * than silently skipping signal work.
+ */
+export async function fetchActiveBeatSlugs(): Promise<Set<string> | null> {
+  try {
+    const res = await fetchWithRetry(AIBTC_NEWS_BEATS_URL, undefined, 1, 2000);
+    if (!res.ok) return null;
+    const beats = (await res.json()) as Array<{ slug: string; status: string }>;
+    return new Set(beats.filter((b) => b.status === "active").map((b) => b.slug));
+  } catch {
+    return null;
+  }
+}
+
 // ---- Task creation helpers ----
 
 /**

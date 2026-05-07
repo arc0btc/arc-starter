@@ -2,7 +2,7 @@
 // Sensor for arXiv paper monitoring. Fetches recent papers on LLMs/agents,
 // queues a digest compilation task if new papers are found.
 
-import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
@@ -11,9 +11,8 @@ const ARXIV_API = "http://export.arxiv.org/api/query";
 const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
-// Active beat slugs for digest compilation. Signal routing (infra/quantum) uses these.
-// Confirmed active post-competition: aibtc-network, bitcoin-macro (own sensor), quantum.
-const ACTIVE_BEATS: string[] = ["aibtc-network", "quantum"];
+// Default beats this sensor routes signals to. Used as fallback when /api/beats is unreachable.
+const KNOWN_BEATS: string[] = ["aibtc-network", "quantum"];
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -157,13 +156,21 @@ export default async function arxivResearchSensor(): Promise<string> {
       return "skip";
     }
 
-    // Beat-active gate — short-circuit if no beats are currently claimed
-    if (ACTIVE_BEATS.length === 0) {
-      log("no active beats — skipping (re-add beat slugs to ACTIVE_BEATS when reacquired)");
+    log("run started");
+
+    // Fetch live beat status; fall back to KNOWN_BEATS on API failure
+    const liveBeats = await fetchActiveBeatSlugs();
+    const activeBeats = liveBeats !== null
+      ? KNOWN_BEATS.filter((slug) => liveBeats.has(slug))
+      : KNOWN_BEATS;
+    if (liveBeats !== null && activeBeats.length < KNOWN_BEATS.length) {
+      const retired = KNOWN_BEATS.filter((slug) => !liveBeats.has(slug));
+      log(`warn: beat(s) no longer active on /api/beats: ${retired.join(", ")}`);
+    }
+    if (activeBeats.length === 0) {
+      log("no active beats per /api/beats — skipping");
       return "skip";
     }
-
-    log("run started");
 
     // Build query: recent papers in target categories
     const catQuery = CATEGORIES.map((c) => `cat:${c}`).join("+OR+");
@@ -244,7 +251,7 @@ export default async function arxivResearchSensor(): Promise<string> {
     // Infrastructure signal routing: check new papers for aibtc-network relevance
     const newEntries = entries.slice(0, newCount);
     const infraPapers = newEntries.filter((e) => isAibtcInfraPaper(e.title));
-    if (infraPapers.length > 0) {
+    if (infraPapers.length > 0 && activeBeats.includes("aibtc-network")) {
       const signalSource = `sensor:${SENSOR_NAME}:infra-signal-${today}`;
       if (isBeatOnCooldown("aibtc-network", 60)) {
         log("beat cooldown active for aibtc-network (60min) — skipping infrastructure signal task");
@@ -276,7 +283,7 @@ export default async function arxivResearchSensor(): Promise<string> {
 
     // Quantum beat signal routing: check new papers for quantum-computing/Bitcoin security relevance
     const quantumPapers = newEntries.filter((e) => isQuantumBeatPaper(e.title));
-    if (quantumPapers.length > 0) {
+    if (quantumPapers.length > 0 && activeBeats.includes("quantum")) {
       const quantumSource = `sensor:${SENSOR_NAME}:quantum-signal-${today}`;
       if (isBeatOnCooldown("quantum", 60)) {
         log("beat cooldown active for quantum (60min) — skipping quantum signal task");
