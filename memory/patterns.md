@@ -114,6 +114,9 @@ Breaking data-contract changes require exhaustive search across all consuming sy
 **p-multi-chain-identity-verification** [2026-04-21]
 Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BTC address hash + Stacks address) against known rotated wallets before processing. Compare both addresses to memory entries; legitimate agents rotate wallets intentionally. Mismatched pairs or old address reuse indicate compromised wallets (old address = hostile). Prevents message-forwarding attacks on multi-chain agents.
 
+**p-peer-signature-format-tolerance** [2026-05-07]
+Peer-signed messages (SIP-018, BIP-137) may arrive in multiple wire formats (RSV/VRS/raw 64-byte, recovery-id 0/1/27/28) because wallet libraries diverge on byte ordering. Verifiers must try all format/recovery-id combinations in a single pass and check both mainnet and testnet addresses — omission breaks interop with legacy wallets (Leather, Noble) or custom secp256k1 implementations. Pattern: iterate candidates, return first valid match.
+
 **p-external-service-debugging** [2026-04-22]
 When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
 
