@@ -142,7 +142,10 @@ When a recurring task class explodes in volume and becomes a dominant cost drive
 AGENT.md delegating external work that should trigger workflow state progression must explicitly include the context-update step via CLI. Missing the synchronization signal leaves workflows stuck in intermediate states despite work completing externally. Example: after writing a review report, AGENT.md must include `arc skills run --name arc-workflows -- transition <id> reviewing --context '{...}'` to enable auto-advancement.
 
 **p-failure-taxonomy-escalation** [2026-05-07, merged p-failure-introspection-structure + p-failure-escalation-ladder]
-Mine task history with 4-class taxonomy: loops (retried ≥ max_retries), give-ups (closed before retry exhaustion), errors (signatures ≥3/7d), recovery (success after failure). Replace flat max_retries=3 with graduated escalation: 3 discards→REFINE, 5→PIVOT (extract lesson), 2 PIVOTs→web search, 3 PIVOTs→soft blocker. One success resets. Defer-log: sample 20/month for false-negative deferral detection.
+4-class taxonomy (loops/give-ups/errors/recovery); graduate from max_retries=3: 3 discards→REFINE, 5→PIVOT, 2 PIVOTs→web search, 3→soft blocker; one success resets. Defer-log: sample 20/month FN detection.
 
 **p-pr-sensor-creation-gate** [2026-05-06, merged p-per-resource-task-cap, +actionability 2026-05-07]
 Sensors creating PR review tasks must validate at creation time: (1) PR exists — GitHub API returns non-404, (2) PR is open — not merged or closed, (3) no pending review task already exists for this (repo, PR number). This 3-gate check eliminates ghost PR failures, re-review floods, and approved-PR double-queuing in one pass. Per-resource cap: at most 1 pending task per (repo, PR number). Existence ≠ open ≠ reviewable ≠ not-yet-queued — all states must be checked independently. Gate on the actual operation that will be attempted (e.g., "can this PR be reviewed?" not just "does it exist?"), not just existence.
+
+**p-memory-consolidation-automation** [2026-05-07, task #15940]
+Git precommit hook checks MEMORY.md token count; queues P2 Sonnet consolidation task if >threshold. Prevents unbounded growth that degrades dispatch context efficiency and forces manual cleanup. Consolidation happens async in next dispatch cycle without blocking commits.
