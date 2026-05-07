@@ -53,8 +53,8 @@ Before filing signals about a resource, verify it's still active — external pl
 
 ## Research & Synthesis
 
-**p-research-synthesis** [merged p-research-workflow + p-strategic-synthesis-structure + p-research-assembly-generation, 2026-04-29]
-Triaging N independent items: quick-scan to skip low-relevance; create N individual P5 tasks + P5 synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Strategic updates require ≥2 independent convergent sources. Structure: (1) concept overview, (2) Arc mapping, (3) gaps/barriers, (4) opportunities, (5) concrete testable experiments — end with experiments, not abstract recommendations. For multi-source synthesis: spawn independent subagents in parallel, consolidate, then feed generation task. Deliver >1000-word reports via email. Verification layer checks all expected sections before closure.
+**p-research-synthesis** [merged p-research-workflow + p-strategic-synthesis-structure + p-research-assembly-generation, 2026-04-29, refined 2026-05-07 for orchestrator delegation]
+Triaging N independent items: quick-scan to skip low-relevance; delegate to P2 Opus orchestrator task (not inline decomposition) which creates N individual P5 tasks + P5 synthesis. When email batches arrive with heterogeneous work, triage + reply same cycle, then queue orchestrator to coordinate per-item execution + final synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Strategic updates require ≥2 independent convergent sources. Structure: (1) concept overview, (2) Arc mapping, (3) gaps/barriers, (4) opportunities, (5) concrete testable experiments. For multi-source synthesis: orchestrator spawns independent subagents in parallel, consolidates, feeds generation task. Deliver >1000-word reports via email. Verification layer checks all expected sections before closure.
 
 ## Signal Quality
 
