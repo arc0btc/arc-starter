@@ -581,7 +581,7 @@ async function cmdProcess(args: string[]): Promise<void> {
   // Follow embedded URLs from tweets (e.g. article links) — fetch and cache, then analyze
   const newEmbedded = allEmbeddedUrls.filter((u) => !urls.includes(u));
   if (newEmbedded.length > 0) {
-    process.stdout.write(`\nFollowing ${newEmbedded.length} embedded link(s) from tweets...\n`);
+    process.stdout.write(`\nFollowing ${newEmbedded.length} embedded link(s)...\n`);
     const embeddedAnalyses = await Promise.allSettled(newEmbedded.map((u) => fetchAndAnalyze(u)));
     for (let i = 0; i < embeddedAnalyses.length; i++) {
       const a = embeddedAnalyses[i];
