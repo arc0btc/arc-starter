@@ -1,0 +1,10 @@
+{
+  "url": "https://openfang.sh/docs",
+  "fetchedAt": "2026-04-06T13:59:20.412Z",
+  "contentType": "html",
+  "title": "Documentation — OpenFang",
+  "rawContent": "Documentation — OpenFang open fang Home Download Documentation Getting Started Getting Started Core Concepts Hands Architecture Configuration Security LLM Providers Integration Channel Adapters Agent Templates Skill Development Workflows MCP &amp; A2A Reference API Reference CLI Reference Desktop App Troubleshooting Edit on GitHub v1.0.0 ● DOCUMENTATION OpenFang Docs Everything you need to install, configure, and operate OpenFang — the open-source Agent Operating System built in Rust. 14 Crates 40+ Channels 60+ Skills 76 Endpoints Getting Started → Getting Started Installation, first agent, quick start guide Core Concepts → Hands Autonomous capability packages — the core innovation → Architecture 14-crate workspace, kernel design, subsystems → Configuration config.toml reference, 62 environment variables → Security 16 security systems, threat model, audit trail → LLM Providers 20 providers, 51 models, cost rates, routing Integration → Channel Adapters 40 messaging platform integrations → Agent Templates 30 pre-built agents across 4 performance tiers → Skill Development 60 bundled skills, SKILL.md format, marketplace → Workflows Multi-agent pipelines, triggers, step modes → MCP &amp; A2A Model Context Protocol, Agent-to-Agent protocol Reference → API Reference 76 REST/WS/SSE endpoints, OpenAI compat → CLI Reference Every command, flag, and subcommand → Desktop App Tauri 2.0 native app, system tray, IPC → Troubleshooting Common issues, FAQ, performance tips $ Quick Install curl -fsSL https://openfang.sh/install | sh",
+  "embeddedUrls": [
+    "https://openfang.sh/install"
+  ]
+}

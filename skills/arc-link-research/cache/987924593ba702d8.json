@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/PawelHuryn/status/2041418614557802747",
+  "fetchedAt": "2026-04-07T12:58:33.336Z",
+  "contentType": "tweet",
+  "title": "@PawelHuryn: So, I did some research.\n\nThe regression is real. But it's not Claude getting du...",
+  "rawContent": "Tweet by @PawelHuryn (Paweł Huryn)\nAuthor bio: AI PM | Deep research. I build, test, then teach. 130K+ subscribe → https://t.co/Tpe2QTF08u\nText: So, I did some research.\n\nThe regression is real. But it's not Claude getting dumber. And you can fix that.\n\nThinking budgets were adjusted. For complex multi-file work, the default medium effort may not be enough.\n\nThree fixes:\n\n1. /effort high (or /effort max on Opus for hard debugging)\n2. ~/.claude/settings.json → \"showThinkingSummaries\": true\n3. CLAUDE.md: \"Research the codebase before editing. Never change code you haven't read.\"\n\nGitHub issue #42796 analyzed 17,871 thinking blocks across 6,852 sessions. The pattern: when thinking depth drops, the model shifts from research-first to edit-first.\n\nClaude didn't get worse. The defaults got conservative.\nCreated: 2026-04-07T07:31:40.000Z\nMetrics: {\"retweet_count\":19,\"reply_count\":33,\"like_count\":259,\"quote_count\":0,\"bookmark_count\":454,\"impression_count\":43730}",
+  "embeddedUrls": [
+    "https://t.co/C0PorjgKcU"
+  ]
+}

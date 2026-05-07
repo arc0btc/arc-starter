@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2039634985834131505",
+  "fetchedAt": "2026-04-06T13:30:38.356Z",
+  "contentType": "tweet",
+  "title": "@gkisokay: The #1 criticism I've received about the self-improving multi-agent framework is...",
+  "rawContent": "Tweet by @gkisokay (Graeme)\nAuthor bio: AI agent enjoyer | @amplifi_now\nText: The #1 criticism I've received about the self-improving multi-agent framework is that you can't control the agents' outputs.\n\nSo I built a “Subconscious agent.”\n\nInspired by @karpathy’s autoresearch, it’s an LLM process that continuously looks for useful problems to solve.\n\nAll day long it contextualizes data, connects ideas, and stress-tests assumptions before anything reaches the main agent.\n\nOnce the Subconscious has a tested good idea, it brings it to the Main agent to be pressure-tested further.\n\nThe flow looks like this:\n\n- [IDEA] Subconscious surfaces a promising idea\n- [CHALLENGE] Main agent attacks it, questions it, and asks for proof\n- [DEFEND] Subconscious strengthens the case\n- [REVISE] Subconscious improves the idea based on feedback\n- [REJECT] Main agent kills weak ideas\n- [ACCEPT] Main agent approves ideas worth implementing\n- [SHELVE] rejected ideas get logged for future learning\n\nHard rules:\n- max 3 challenge rounds\n- every idea needs evidence and reasoning\n- every implementation runs in a sandbox\n\nThe two agents will go back and forth until the idea is either accepted or rejected. This runs all day long.\n\nI’m using Hermes agent frame for both agents, the Subconscious has its own profile to concentrate on surfacing ideas 24/7.\n\nThe Subconscious runs on a local Qwen3.5 9B model, while the main agent uses ChatGPT 5.4 mini. If you don’t have a local LLM, OpenRouter should work too.\n\nThe goal is simple: more magic, less noise.\n\nIf this gets traction, I’ll share the full setup in an article.\nCreated: 2026-04-02T09:24:09.000Z\nMetrics: {\"retweet_count\":34,\"reply_count\":44,\"like_count\":409,\"quote_count\":8,\"bookmark_count\":622,\"impression_count\":43964}",
+  "embeddedUrls": [
+    "https://t.co/9aVHkKYlXu",
+    "https://t.co/QVYxgnYEhG"
+  ]
+}

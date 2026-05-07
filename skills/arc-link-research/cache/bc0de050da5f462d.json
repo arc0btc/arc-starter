@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2039826228224430323",
+  "fetchedAt": "2026-04-06T13:29:37.985Z",
+  "contentType": "tweet",
+  "title": "@jumperz: karpathy is showing one of the simplest AI architectures that actually works..\n\n...",
+  "rawContent": "Tweet by @jumperz (JUMPERZ)\nAuthor bio: UX Designer . Founder of  @secondmateApp & @Rebirthstud_io  , still trenching through every cycle and on the way to reach AGI\nText: karpathy is showing one of the simplest AI architectures that actually works..\n\ndump research into a folder, let the model organise it into a wiki, ask questions, then file the answers back in.\n\nthe real insight is the loop...every query makes the wiki better. it compounds.. now thats a second brain building itself.\n\ni think this is so good for agents if applied right\n\ninstead of pulling from shared memory every session, they build a living knowledge base that stays. \n\nyour coordinator is not just coordinating tasks anymore.. it is maintaining institutional knowledge so every execution adds something back to the base.\n\nthe bigger implication is crazy tho. \n\nagents that own their own knowledge layer do not need infinite context windows, they need good file organisation and the ability to read their own indexes.\n\nway cheaper, way more scalable, and way more inspectable than stuffing everything into one giant prompt.\nCreated: 2026-04-02T22:04:05.000Z\nMetrics: {\"retweet_count\":716,\"reply_count\":130,\"like_count\":8136,\"quote_count\":39,\"bookmark_count\":14928,\"impression_count\":899764}",
+  "embeddedUrls": [
+    "https://t.co/Uq2D3ONvGT",
+    "https://t.co/vRhImgTQuN"
+  ]
+}

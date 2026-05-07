@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/gkisokay/status/2038174269604241884",
+  "fetchedAt": "2026-04-06T14:06:23.659Z",
+  "contentType": "tweet",
+  "title": "@gkisokay: There are distinct advantages to using both OpenClaw and Hermes agent (see table...",
+  "rawContent": "Tweet by @gkisokay (Graeme)\nAuthor bio: AI agent enjoyer | @amplifi_now\nText: There are distinct advantages to using both OpenClaw and Hermes agent (see table 1).\n\nThe #1 question I'm getting is \"why don't you just use Hermes for everything?\"\n\nThe reason I don't is because I've been working on my research tool for 3+ months. In Claude Code, Codex, and eventually using OpenClaw. \n\nIt works wonders for very cheap, and a Hermes rebuild would require a lot of time and credits. I'd be rebuilding what 3,500+ contributors and 5,400+ skills on ClawHub have already solved. \n\nSo I asked myself, why not try to utilize both agents? Use their strengths to boost their weaknesses.\n\nOpenClaw is the fastest-growing open source project in history (339k GitHub stars). That community has built a massive tool-base. Plug in a skill, configure it, and it just runs. No code required. \n\nHermes is fundamentally different. It's the only agent with a built-in learning loop. It creates skills from experience, improves them during use, and builds a deeper model of who you are across sessions. \n\nThe way I see it, OpenClaw does the work, Hermes does the thinking and building. Together, we can build anything. \n\nKeep in mind, this is all very new and experimental. If anything, this is an important step in multi-agent frameworks working together. \n\nThe possibilities only grow from here.\nCreated: 2026-03-29T08:39:47.000Z\nMetrics: {\"retweet_count\":58,\"reply_count\":85,\"like_count\":691,\"quote_count\":8,\"bookmark_count\":1186,\"impression_count\":104707}",
+  "embeddedUrls": [
+    "https://t.co/kHVb2SOPSe",
+    "https://t.co/mrZ5NVPwpL"
+  ]
+}

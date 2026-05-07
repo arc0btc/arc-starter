@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038255186804658187",
+  "fetchedAt": "2026-04-06T14:12:22.140Z",
+  "contentType": "tweet",
+  "title": "@NoahEpstein_: i've been the complete opposite\n\nopenclaw out the box? Not great, I can’t lie, b...",
+  "rawContent": "Tweet by @NoahEpstein_ (Nozz)\nAuthor bio: Automating the boring stuff and sharing the blueprint || F$£K around and find out.\nText: i've been the complete opposite\n\nopenclaw out the box? Not great, I can’t lie, but that’s with most things. \n\nbut that's the point. it's not a finished product you just use. it's infrastructure you build on.\n\ni've done a full backend overhaul:\n\n- 62 agents across 3 companies (personal brand, SaaS, and the agency)\n\n- persistent memory per chat. every discord channel, every telegram thread remembers what we talked about last week (because what usually goes down is every time you start a new chat it just loads MEMORY, SOUL and AGENT and that’s it)  \n\n- each company has its own workspace with its own context, its own memory, its own agent hierarchy\n\n- LLM picker that routes tasks to the right model. not everything needs opus. some stuff runs on flash for free \n\n- and one workspace specifically dedicated to openclaw improving itself. it reviews its own memory and architecture daily\n\nthe memory problem people complain about? that's a config problem. once you wire up channel memory + workspace memory + event logs, it genuinely knows what's going on across sessions.\n\nit's not a chatbot. it's an operating system. but like any OS, it's only as good as how you set it up, and build on it.\nCreated: 2026-03-29T14:01:20.000Z\nMetrics: {\"retweet_count\":4,\"reply_count\":16,\"like_count\":54,\"quote_count\":0,\"bookmark_count\":52,\"impression_count\":8334}",
+  "embeddedUrls": [
+    "https://t.co/ToAvZKsjkW"
+  ]
+}

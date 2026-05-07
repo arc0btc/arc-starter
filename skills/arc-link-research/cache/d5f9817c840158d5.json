@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2040058733682684315",
+  "fetchedAt": "2026-04-06T13:28:35.880Z",
+  "contentType": "tweet",
+  "title": "@aparnadhinak: I really like this articulation of shift from behavioral → decision traces. \n\nWe...",
+  "rawContent": "Tweet by @aparnadhinak (Aparna Dhinakaran)\nAuthor bio: founder @arizeai. I post about agents and evals. previously: @uber, @ycombinator alum\nText: I really like this articulation of shift from behavioral → decision traces. \n\nWe're building this at Arize because every agent can have its own feedback loop.\n\nHere's how your teams can tactically make that shift: \n\n1. Collect the traces — this is the highest-value signal. Trace everything possible. Capture every step the agent took - every piece of context gathered, the escalations, the tool calls, etc. Traces are powerful because they capture why decisions are made.\n\n2. Eval the outcome & the trajectory. The evals on the outcomes verify did the decision work. It's ultimately what matters, but it misses how the agent got there.  \n\nEval the trajectory — this is the critical unlock.\n\nThis reveals intent, loopholes, and failure modes the outcome misses. Because you have traces, you don’t just see what happened, you see how the decision evolved. \n\n3. Feed signal back — use these signals to improve the agent.  The reasoning can share whether the agent needed more context, tools and prompts that need improvement, etc.\nCreated: 2026-04-03T13:27:59.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":3,\"like_count\":63,\"quote_count\":0,\"bookmark_count\":75,\"impression_count\":11090}",
+  "embeddedUrls": [
+    "https://t.co/1vErGj3W3c",
+    "https://t.co/YEabDBKkLg"
+  ]
+}

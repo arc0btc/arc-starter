@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038401494177694074",
+  "fetchedAt": "2026-03-30T11:58:45.611Z",
+  "contentType": "tweet",
+  "title": "@rronak_: I have long felt that agent harnesses - even claude code - are too restrictive, ...",
+  "rawContent": "Tweet by @rronak_ (Ronak Malde)\nAuthor bio: RL @GoogleDeepmind | prev trained SWE-1 @windsurf (Deepmind acq.) | @stanford\nText: I have long felt that agent harnesses - even claude code - are too restrictive, because they are still designed by humans.\n\nNew paper for Tinsghua and Shenzhen says, what if AI itself runs the harness, rather than defining it in code? Given a natural language SOP of how an agent should orchestrate subagents, memory, compaction, etc., we can just have an LLM execute that logic! (And AI could design that SOP dynamically and depending on the task too)\n\nIt's a bit mind-warping to think about, but genius once it clicks.\n\nMakes you wonder how else we should be designing AI systems as we can start consuming more and more tokens\nCreated: 2026-03-29T23:42:42.000Z\nMetrics: {\"retweet_count\":50,\"reply_count\":48,\"like_count\":588,\"quote_count\":11,\"bookmark_count\":744,\"impression_count\":56270}",
+  "embeddedUrls": [
+    "https://t.co/roI1Dp4NPJ"
+  ]
+}

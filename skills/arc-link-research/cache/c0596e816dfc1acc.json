@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038260178051621036",
+  "fetchedAt": "2026-03-30T11:32:57.788Z",
+  "contentType": "tweet",
+  "title": "@Gavriel_Cohen: Agents can't be trusted with sensitive data and actions.\n\nOneCLI solves this wit...",
+  "rawContent": "Tweet by @Gavriel_Cohen (Gavriel Cohen)\nAuthor bio: Creator of NanoClaw; ex VP at Concrete Media; ex https://t.co/LCZI5lx0sx developer team lead; BSc Physics and Computer Science at Tel Aviv University; @NanoClaw_AI\nText: Agents can't be trusted with sensitive data and actions.\n\nOneCLI solves this with a zero trust vault for agents.\n\nAgent credential management &amp; agent-level policies are unsolved. None of the big labs have put forward an answer.\n\nNanoClaw and OneCLI are building both in the open. https://t.co/L6n6k2DAGa\nCreated: 2026-03-29T14:21:10.000Z\nMetrics: {\"retweet_count\":10,\"reply_count\":11,\"like_count\":105,\"quote_count\":2,\"bookmark_count\":165,\"impression_count\":26501}",
+  "embeddedUrls": [
+    "https://t.co/L6n6k2DAGa"
+  ]
+}

@@ -6,6 +6,7 @@
 import {
   claimSensorRun,
   createSensorLogger,
+  fetchActiveBeatSlugs,
   fetchWithRetry,
   readHookState,
   writeHookState,
@@ -26,9 +27,7 @@ const INTERVAL_MINUTES = 120; // every 2 hours
 const BEAT_SLUG = "agent-trading";
 const MAX_HISTORY = 8; // rolling window for change detection
 
-// Post-competition all beats reset; add BEAT_SLUG back here when the beat is reacquired.
-// Empty = sensor short-circuits immediately without queuing tasks or fetching data.
-const ACTIVE_BEATS: string[] = [];
+// No local fallback — sensor defers entirely to /api/beats for whether this beat is active.
 
 // ---- API endpoints ----
 
@@ -532,10 +531,15 @@ export default async function sensor(): Promise<string | void> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  // Beat-active gate — short-circuit if beat is not currently claimed
-  if (!ACTIVE_BEATS.includes(BEAT_SLUG)) {
-    log(`beat ${BEAT_SLUG} not in active beats list — skipping (re-add to ACTIVE_BEATS when beat is reacquired)`);
+  // Beat-active gate — check /api/beats; skip if beat is confirmed not active.
+  // On null (API unreachable), proceed with known default to avoid signal drought.
+  const liveBeats = await fetchActiveBeatSlugs();
+  if (liveBeats !== null && !liveBeats.has(BEAT_SLUG)) {
+    log(`beat ${BEAT_SLUG} is not active per /api/beats — skipping`);
     return "skip";
+  }
+  if (liveBeats === null) {
+    log("warn: /api/beats unreachable; proceeding with known default beat");
   }
 
   log("starting aibtc-agent-trading sensor run");

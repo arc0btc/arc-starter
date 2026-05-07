@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/KSimback/status/2041130607481180563",
+  "fetchedAt": "2026-04-07T12:15:50.379Z",
+  "contentType": "tweet",
+  "title": "@KSimback: A few tips to 3-5x your Claude usage within plan limits\n\nIf you’re like me and y...",
+  "rawContent": "Tweet by @KSimback (Kevin Simback 🍷)\nAuthor bio: COO @delphi_labs - building + investing in crypto and AI. Ex @IBM, @McKinsey, @CarnegieMellon, reformed CFA\nText: A few tips to 3-5x your Claude usage within plan limits\n\nIf you’re like me and you’ve hit Claude limits over the past few weeks, here’s what you can do:\n\nFor general use:\n\n1. Prompt better (see article - multiple tips)\n\n2. Do the “early morning hello” trick to start your 5-hour window 1-2 hours before you begin work, can use tools like freshquota or claude-warmup to automate it\n\n3. Install plugins or use a dashboard to show usage limits (check out ccburn) and use /compact regularly\n\nFor coding:\n\n1. Use a .claudeignore like .gitignore - can get aggressive with this, some saving 50-70% with this alone\n\n2. Lean out you CLAUDE[.]md to avoid bloated context reloads\n\n3. Queue up heavy tasks to run towards the end of usage windows where you have use remaining\n\n4. Lifecycle hooks + custom skills - if you’re doing repeated tasks, optimize them for fewer tokens\n\nFor even more, go multi-model - yes you need to pay a bit more for other plans but start offloading activities to Codex or other model of choice\n\nDon’t make Claude do everything (research, plan, code, review) and begin to orchestrate across models\nCreated: 2026-04-06T12:27:13.000Z\nMetrics: {\"retweet_count\":3,\"reply_count\":6,\"like_count\":31,\"quote_count\":1,\"bookmark_count\":51,\"impression_count\":4278}",
+  "embeddedUrls": [
+    "https://t.co/tx47ng3wmC"
+  ]
+}

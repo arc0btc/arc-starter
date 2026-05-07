@@ -1,0 +1,22 @@
+{
+  "url": "https://github.com/0xNyk/awesome-hermes-agent",
+  "fetchedAt": "2026-04-06T14:13:22.560Z",
+  "contentType": "github",
+  "title": "awesome-hermes-agent",
+  "rawContent": "Repo: 0xNyk/awesome-hermes-agent\nDescription: A curated list of awesome skills, tools, integrations, and resources for Hermes Agent by Nous Research\nTopics: ai-agents, awesome, awesome-list, hermes-agent, nous-research, skills\nStars: 834\n\nREADME:\n<p align=\"center\">\n  <picture>\n    <img src=\"https://raw.githubusercontent.com/NousResearch/hermes-agent/main/assets/banner.png\" alt=\"Awesome Hermes Agent\" width=\"600\">\n  </picture>\n</p>\n\n# Awesome Hermes Agent\n\n[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)\n\n> A curated list of skills, tools, integrations, and resources for enhancing your [Hermes Agent](https://github.com/NousResearch/hermes-agent) workflow â the self-improving AI agent built by [Nous Research](https://nousresearch.com).\n\nHermes Agent is the only agent with a built-in learning loop â it creates skills from experience, improves them during use, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure. Talk to it from Telegram while it works on a cloud VM.\n\nThis list tracks the growing ecosystem around it.\n\n> Ecosystem status (last reviewed: 2026-04-03)\n> - Hermes Agent: [v0.6.0 (v2026.3.30)](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.3.30)\n> - Core repo: [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) (23k+ stars)\n> - Latest release notes: [Hermes releases](https://github.com/NousResearch/hermes-agent/releases)\n\n---\n\n## Where Do I Start?\n\nNew to Hermes? Don't try to install everything at once. Here's the three-step path from zero to productive:\n\n1. **Get running** â Follow the [Official Docs quickstart](https://hermes-agent.nousresearch.com/docs/). It covers installation, CLI, configuration, and your first conversation.\n2. **Add your first skills** â Install [wondelai/skills](https://github.com/wondelai/skills) (380+ stars, actively maintained) â a cross-platform skills library that works with Hermes and other agents. Or try [litprog-skill](https://github.com/tlehman/litprog-skill) (75+ stars) for literate programming across Claude Code, OpenCode, and Hermes.\n3. **Get a GUI** â Set up [hermes-workspace](https://github.com/outsourc-e/hermes-workspace) (500+ stars) for a Hermes-native workspace with chat, terminal, and skills manager. Or use [mission-control](https://github.com/builderz-labs/mission-control) (3.7k+ stars) for a broader agent orchestration dashboard with fleet management, task dispatch, and cost tracking.\n\nOnce you're comfortable, explore the full list below. Every resource is tagged with a maturity level so you know what you're getting into:\n\n| Tag | What it means |\n|-----|---------------|\n| **production** | Stable, documented, actively maintained â safe to build on |\n| **beta** | Works but still evolving â expect some rough edges |\n| **experimental** | Proof of concept or early-stage â learn from it, don't depend on it |\n\n---\n\n## Contents\n\n- [Where Do I Start?](#where-do-i-start)\n- [Official Resources](#official-resources)\n- [Skills & Plugins](#skills--plugins)\n  - [Community Skills](#community-skills)\n  - [Plugins](#plugins)\n  - [agentskills.io Ecosystem](#agentskillsio-ecosystem)",
+  "embeddedUrls": [
+    "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/assets/banner.png",
+    "https://awesome.re/badge.svg",
+    "https://awesome.re",
+    "https://github.com/NousResearch/hermes-agent",
+    "https://nousresearch.com",
+    "https://github.com/NousResearch/hermes-agent/releases/tag/v2026.3.30",
+    "https://github.com/NousResearch/hermes-agent",
+    "https://github.com/NousResearch/hermes-agent/releases",
+    "https://hermes-agent.nousresearch.com/docs/",
+    "https://github.com/wondelai/skills",
+    "https://github.com/tlehman/litprog-skill",
+    "https://github.com/outsourc-e/hermes-workspace",
+    "https://github.com/builderz-labs/mission-control"
+  ]
+}

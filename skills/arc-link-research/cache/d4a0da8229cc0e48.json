@@ -1,0 +1,29 @@
+{
+  "url": "https://github.com/ai-boost/awesome-harness-engineering/commits/main",
+  "fetchedAt": "2026-05-07T04:33:39.102Z",
+  "contentType": "github",
+  "title": "awesome-harness-engineering",
+  "rawContent": "Repo: ai-boost/awesome-harness-engineering\nDescription: Awesome list for AI agent harness engineering: tools, patterns, evals, memory, MCP, permissions, observability, and orchestration.\nTopics: agent-harness, agent-memory, agent-orchestration, ai-agents, awesome-list, context-engineering, harness-engineering, mcp\nStars: 767\n\nREADME:\n<div align=\"center\">\n  <img src=\"assets/banner.jpg\" alt=\"Awesome Harness Engineering\" width=\"720\">\n  <h1>Awesome Harness Engineering</h1>\n  <p>Curated resources, patterns, and templates for building reliable AI agent harnesses.</p>\n  <p>\n    <a href=\"https://awesome.re\"><img src=\"https://awesome.re/badge.svg\" alt=\"Awesome\"></a>\n    <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/License-CC0-lightgrey.svg\" alt=\"License: CC0\"></a>\n    <a href=\"https://github.com/ai-boost/awesome-harness-engineering/stargazers\"><img src=\"https://img.shields.io/github/stars/ai-boost/awesome-harness-engineering?style=social\" alt=\"GitHub Stars\"></a>\n    <a href=\"https://github.com/ai-boost/awesome-harness-engineering/network/members\"><img src=\"https://img.shields.io/github/forks/ai-boost/awesome-harness-engineering?style=social\" alt=\"GitHub Forks\"></a>\n    <a href=\"https://github.com/ai-boost/awesome-harness-engineering/commits/main\"><img src=\"https://img.shields.io/github/last-commit/ai-boost/awesome-harness-engineering\" alt=\"Last Commit\"></a>\n    <a href=\"https://linux.do\"><img src=\"https://img.shields.io/badge/Join-linux.do-orange\" alt=\"linux.do\"></a>\n  </p>\n  <p>\n    <a href=\"https://zdoc.app/de/ai-boost/awesome-harness-engineering\">Deutsch</a> |\n    <a href=\"https://zdoc.app/en/ai-boost/awesome-harness-engineering\">English</a> |\n    <a href=\"https://zdoc.app/es/ai-boost/awesome-harness-engineering\">EspaÃ±ol</a> |\n    <a href=\"https://zdoc.app/fr/ai-boost/awesome-harness-engineering\">FranÃ§ais</a> |\n    <a href=\"https://zdoc.app/ja/ai-boost/awesome-harness-engineering\">æ¥æ¬èª</a> |\n    <a href=\"https://zdoc.app/ko/ai-boost/awesome-harness-engineering\">íêµ­ì´</a> |\n    <a href=\"https://zdoc.app/pt/ai-boost/awesome-harness-engineering\">PortuguÃªs</a> |\n    <a href=\"https://zdoc.app/ru/ai-boost/awesome-harness-engineering\">Ð ÑÑÑÐºÐ¸Ð¹</a> |\n    <a href=\"https://zdoc.app/zh/ai-boost/awesome-harness-engineering\">ä¸­æ</a>\n  </p>\n</div>\n\n**Harness engineering** is the discipline of designing the scaffolding â context delivery, tool interfaces, planning artifacts, verification loops, memory systems, and sandboxes â that surrounds an AI agent and determines whether it succeeds or fails on real tasks.\n\nThis list focuses on the *harness*, not the model. Every component here exists because the model can't do it alone â and the best harnesses are designed knowing those components will become unnecessary as models improve.\n\n---\n\n## Contents\n\n- [ð Foundations](#foundations)\n- [ð§© Design Primitives](#design-primitives)\n  - [ð Agent Loop](#agent-loop)\n  - [ðºï¸ Planning & Task Decomposition](#planning--task-decomposition)\n  - [ð¦ Context Delivery & Compaction](#context-delivery--compaction)\n  - [ð§ Tool Design](#tool-design)\n  - [ð Skills & MCP](#skills--mcp)\n  - [ð¡ï¸ Permissions & Authorization](#permissions--authorization)\n  - [ð§  Memory & State](#memory--state)\n  - [âï¸ Task Runners & Orchestration](#task-runners--orchestratio",
+  "embeddedUrls": [
+    "https://awesome.re",
+    "https://awesome.re/badge.svg",
+    "https://img.shields.io/badge/License-CC0-lightgrey.svg",
+    "https://github.com/ai-boost/awesome-harness-engineering/stargazers",
+    "https://img.shields.io/github/stars/ai-boost/awesome-harness-engineering?style=social",
+    "https://github.com/ai-boost/awesome-harness-engineering/network/members",
+    "https://img.shields.io/github/forks/ai-boost/awesome-harness-engineering?style=social",
+    "https://github.com/ai-boost/awesome-harness-engineering/commits/main",
+    "https://img.shields.io/github/last-commit/ai-boost/awesome-harness-engineering",
+    "https://linux.do",
+    "https://img.shields.io/badge/Join-linux.do-orange",
+    "https://zdoc.app/de/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/en/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/es/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/fr/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/ja/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/ko/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/pt/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/ru/ai-boost/awesome-harness-engineering",
+    "https://zdoc.app/zh/ai-boost/awesome-harness-engineering"
+  ]
+}

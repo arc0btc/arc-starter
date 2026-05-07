@@ -1,0 +1,19 @@
+{
+  "url": "https://github.com/letta-ai/letta",
+  "fetchedAt": "2026-05-07T05:13:10.727Z",
+  "contentType": "github",
+  "title": "letta",
+  "rawContent": "Repo: letta-ai/letta\nDescription: Letta is the platform for building stateful agents: AI with advanced memory that can learn and self-improve over time.\nTopics: llm, llm-agent, ai, ai-agents\nStars: 22481\n\nREADME:\n# Letta (formerly MemGPT)\n\nBuild AI with advanced memory that can learn and self-improve over time.\n\n* [Letta Code](https://docs.letta.com/letta-code): run agents locally in your terminal\n* [Letta API](https://docs.letta.com/quickstart/): build agents into your applications\n\n## Get started in the CLI\n\nRequires [Node.js 18+](https://nodejs.org/en/download)\n\n1. Install the [Letta Code](https://github.com/letta-ai/letta-code) CLI tool: `npm install -g @letta-ai/letta-code`\n2. Run `letta` in your terminal to launch an agent with memory running on your local computer\n\nWhen running the CLI tool, your agent help you code and do any task you can do on your computer.\n\nLetta Code supports [skills](https://docs.letta.com/letta-code/skills) and [subagents](https://docs.letta.com/letta-code/subagents), and bundles pre-built skills/subagents for advanced memory and continual learning. Letta is fully model-agnostic, though we recommend Opus 4.5 and GPT-5.2 for best performance (see our [model leaderboard](https://leaderboard.letta.com/) for our rankings).\n\n## Get started with the Letta API\n\nUse the Letta API to integrate stateful agents into your own applications.\nLetta has a full-featured agents API, and a Python and Typescript SDK (view our [API reference](https://docs.letta.com/api)).\n\n### Installation\n\nTypeScript / Node.js:\n```bash\nnpm install @letta-ai/letta-client\n```\n\nPython:\n```bash\npip install letta-client\n```\n\n### Hello World example\n\nBelow is a quick example of creating a stateful agent and sending it a message (requires a [Letta API key](https://app.letta.com)).\nSee the full [quickstart guide](https://docs.letta.com/quickstart) for complete documentation.\n\nTypeScript:\n```typescript\nimport Letta from \"@letta-ai/letta-client\";\n\nconst client = new Letta({ apiKey: process.env.LETTA_API_KEY });\n\n// Create your agent\nconst agentState = await client.agents.create({\n  model: \"openai/gpt-5.2\",\n  memory_blocks: [\n    {\n      label: \"human\",\n      value:\n        \"Name: Timber. Status: dog. Occupation: building Letta, infrastructure to democratize self-improving superintelligence\",\n    },\n    {\n      label: \"persona\",\n      value:\n        \"I am a self-improving superintelligence. Timber is my best friend and collaborator.\",\n    },\n  ],\n  tools: [\"web_search\", \"fetch_webpage\"],\n});\n\nconsole.log(\"Agent created with ID:\", agentState.id);\n\n// Send your agent a message\nconst response = await client.agents.messages.create(agentState.id, {\n  input: \"What do you know about me?\",\n});\n\nfor (const message of response.messages) {\n  console.log(message);\n}\n```\n\nPython:\n```python\nfrom letta_client import Letta\nimport os\n\nclient = Letta(api_key=os.getenv(\"LETTA_API_KEY\"))\n\n# Create your agent\nagent_state = client.agents.create(\n    model=\"openai/gpt-5.2\",\n    memory_blocks=[\n        {\n          \"label\": \"human\",\n          \"value\": \"Name: Timber. Status: dog. Occupation: building Letta, infrastructure to democratize self-improving superintelligence\"\n        },\n        {\n      ",
+  "embeddedUrls": [
+    "https://docs.letta.com/letta-code",
+    "https://docs.letta.com/quickstart/",
+    "https://nodejs.org/en/download",
+    "https://github.com/letta-ai/letta-code",
+    "https://docs.letta.com/letta-code/skills",
+    "https://docs.letta.com/letta-code/subagents",
+    "https://leaderboard.letta.com/",
+    "https://docs.letta.com/api",
+    "https://app.letta.com",
+    "https://docs.letta.com/quickstart"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/nichochar/status/2036515435131314377?s=20",
+  "fetchedAt": "2026-03-26T04:54:44.699Z",
+  "contentType": "tweet",
+  "title": "@nichochar: this is a fantastic read\n\n2026 will see tons of evolution around agent harnesses...",
+  "rawContent": "Tweet by @nichochar (Nicholas Charriere)\nAuthor bio: ceo @get_mocha (YC S23) \n\n ex @cruise @pinterest \n\ni like building legos that empower others to build castles\nText: this is a fantastic read\n\n2026 will see tons of evolution around agent harnesses. Beside models, they're the highest leverage point for improvement.\n\nI think the article could go in more depth around the communication protocol between agents. It mentions files as the handoff between the evaluator and the generator, but memory seems like a core part of recursive improvement harnesses and is under-discussed.\n\nSome small things I found interesting:\n- In the plan, they have Claude write a lot of prose over bullet points (codex prompts use a similar trick)\n- ~200$ for a little app seems expensive but is much cheaper than using humans\n- this is still zero-shot apps. You'd need to design a different harness for working in existing codebases (cf stuff @zeeg has been saying)\n- QA and LLM as evaluators is going to be huge. It was a thing in LLM evaluation frameworks but I think it's going to become a \"primitive\" in the harness world.\n- When models get better, the harness gets simpler (he killed \"sprints\" from 4.5 -> 4.6)\nCreated: 2026-03-24T18:48:11.000Z\nMetrics: {\"retweet_count\":1,\"reply_count\":0,\"like_count\":17,\"quote_count\":0,\"bookmark_count\":17,\"impression_count\":2727}",
+  "embeddedUrls": [
+    "https://t.co/yg1WZzyyiW",
+    "https://t.co/FzjlDXqPC3"
+  ]
+}

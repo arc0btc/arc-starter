@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/neural_avb/status/2037525176808525971?s=20",
+  "fetchedAt": "2026-03-27T22:29:55.096Z",
+  "contentType": "tweet",
+  "title": "@neural_avb: Very cool, very educational. Go check it out! \n\nMy thoughts:\n\nWhether you use th...",
+  "rawContent": "Tweet by @neural_avb (AVB)\nAuthor bio: Not 21 | Neural Breakdown on YT | Read research papers with AI: https://t.co/T4MlMfOtzh | Latest vid: RLMs | Next: Finetuning\nText: Very cool, very educational. Go check it out! \n\nMy thoughts:\n\nWhether you use this approach depends heavily on what type of application you are building. If you have a few static documents then YES, this could work. \n\nIf you are processing multiple seperate documents every day for users, this is not an approach for you.\n\n1. I feel the token usage and latency requirements to do a upfront doc analysis like this has a high overhead. Users want to get their docs analyzed fast. You want it to be done cheaply.\n\n2. the recursive partitioning thing is arbitrary. Different LMs will do it differently. \n\n3. And mistakes in initial partitioning will cascade coz LMs are not allowed to combined ideas from different parents.\n\nI'd probably just go for a flat list of chunks, and do some light parallel preprocessing (generate tags, questions, etc).\n\n- Then for the actual search, a BM-25 index and basic keyword search in a loop can get you a long way already.\n\n- The retrieval agent can access any chunk easily across the flat list, less inductive bias, more intelligent searching. Less debugging.\n\nWould love to see some experiments done that compare the cost/latency/retrieval accuracy breakdowns of flat structures vs hierarchical structures.\nCreated: 2026-03-27T13:40:32.000Z\nMetrics: {\"retweet_count\":3,\"reply_count\":4,\"like_count\":59,\"quote_count\":0,\"bookmark_count\":62,\"impression_count\":4955}",
+  "embeddedUrls": [
+    "https://t.co/fPqxEZl243"
+  ]
+}

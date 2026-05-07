@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/aigleeson/status/2041073339616387468",
+  "fetchedAt": "2026-04-07T13:14:15.228Z",
+  "contentType": "tweet",
+  "title": "@aigleeson: I just discovered an open source AI research agent that does in seconds what tak...",
+  "rawContent": "Tweet by @aigleeson (Louis Gleeson)\nAuthor bio: Founder of Sentient (25+ million follower network)\n\nWe make you go viral.\nText: I just discovered an open source AI research agent that does in seconds what takes PhDs hours.\n\nIt's called Feynman.\n\nType a topic. It searches papers, synthesizes findings, verifies every claim against real sources, and hands you a cited research brief.\n\nNot a chatbot. Not a summary tool.\n\nA full multi-agent research system running from your terminal.\n\nFour agents work automatically:\n\n→ Researcher pulls evidence from papers, repos, docs, and the web\n→ Reviewer runs simulated peer review with severity-graded feedback\n→ Writer drafts paper-style outputs from your research notes\n→ Verifier checks every citation and kills dead links\n\nIt can also replicate experiments on local or cloud GPUs, audit a paper against its own codebase for claim mismatches, and run recurring research watches on topics you care about.\n\nOne install command. Every output source-grounded.\n\n100% Open Source. MIT License.\nCreated: 2026-04-06T08:39:40.000Z\nMetrics: {\"retweet_count\":298,\"reply_count\":42,\"like_count\":2360,\"quote_count\":17,\"bookmark_count\":3752,\"impression_count\":138387}",
+  "embeddedUrls": [
+    "https://t.co/H2GoRM5MO5"
+  ]
+}

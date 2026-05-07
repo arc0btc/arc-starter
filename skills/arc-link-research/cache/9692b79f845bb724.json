@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/open_founder/status/2040889220907344257",
+  "fetchedAt": "2026-04-07T12:10:58.163Z",
+  "contentType": "tweet",
+  "title": "@open_founder: We've been pretty quiet about what we're building. That changes now.\n\nOur reason...",
+  "rawContent": "Tweet by @open_founder (Tim)\nAuthor bio: Founder @openservai Building an agentic economy where anyone can turn ideas into value.\nText: We've been pretty quiet about what we're building. That changes now.\n\nOur reasoning framework is currently beating every @OpenAI model on industry standard benchmarks. There are six models in development. SERV-nano just matched GPT-5.4 at 20x lower cost and 3x the speed. The research paper backing it is in peer review at a top-1% AI journal. The UAE government is running it in production, so are 10+ enterprises.\n\nNothing comes even close.\n\nThis goes far beyond any wrapper or prompt engineering gimmick, we've developed an entire AI reasoning layer from scratch: structured, bounded, deterministic using machine readable code instead of vague english prompts. \n\nAny builder or enterprise swaps two lines of code and their agents get much cheaper and much smarter instantly. The self-serve API is about to open, in a multi-phase rollout.\n\nMore soon.\nCreated: 2026-04-05T20:28:02.000Z\nMetrics: {\"retweet_count\":169,\"reply_count\":63,\"like_count\":1477,\"quote_count\":32,\"bookmark_count\":2031,\"impression_count\":287601}",
+  "embeddedUrls": [
+    "https://t.co/JbkR0ARcep"
+  ]
+}

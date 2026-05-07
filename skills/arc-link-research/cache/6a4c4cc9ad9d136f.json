@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038551495910568320",
+  "fetchedAt": "2026-03-30T11:54:24.775Z",
+  "contentType": "tweet",
+  "title": "@qu_stream: API security today relies on shared, persistent secrets:\nkeys, certificates, ide...",
+  "rawContent": "Tweet by @qu_stream (QuStream)\nAuthor bio: World’s 1st scalable Quantum ITS. Perfect Secrecy at 0.9 cpb for Gov & Defense\n\nTrade:  https://t.co/E3jd3mRaEk\nText: API security today relies on shared, persistent secrets:\nkeys, certificates, identity layers.\n\nThe flaw is structural.\nAPI calls are just one example.\n\nTwo services shouldn’t need to store or exchange anything to verify each other.\n\nThat model is now changing. https://t.co/AJiQNnbpmO\nCreated: 2026-03-30T09:38:45.000Z\nMetrics: {\"retweet_count\":7,\"reply_count\":1,\"like_count\":25,\"quote_count\":0,\"bookmark_count\":0,\"impression_count\":421}",
+  "embeddedUrls": [
+    "https://t.co/AJiQNnbpmO"
+  ]
+}

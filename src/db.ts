@@ -1092,6 +1092,31 @@ export function getTodayCostUsd(): number {
   return row.total;
 }
 
+// ---- Memory recall ----
+
+export interface MemoryRecallResult {
+  task_id: number;
+  subject: string;
+  result_summary: string | null;
+  completed_at: string | null;
+  status: string;
+}
+
+export function searchMemory(query: string, limit: number = 10): MemoryRecallResult[] {
+  const db = getDatabase();
+  const pattern = `%${query}%`;
+  return db
+    .query(
+      `SELECT id as task_id, subject, result_summary, completed_at, status
+       FROM tasks
+       WHERE (subject LIKE ? OR result_summary LIKE ? OR description LIKE ?)
+         AND status IN ('completed', 'failed', 'blocked')
+       ORDER BY completed_at DESC
+       LIMIT ?`
+    )
+    .all(pattern, pattern, pattern, limit) as MemoryRecallResult[];
+}
+
 // ---- Email queries ----
 
 export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {

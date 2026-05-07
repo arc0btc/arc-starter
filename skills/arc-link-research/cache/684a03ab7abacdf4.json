@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/hanzheng_7/status/2041291008378343707",
+  "fetchedAt": "2026-04-07T13:28:15.755Z",
+  "contentType": "tweet",
+  "title": "@hanzheng_7: 🚀The era of autonomous multi-agent discovery is arriving! @karpathy \n\n🪸Excited...",
+  "rawContent": "Tweet by @hanzheng_7 (Han Zheng)\nAuthor bio: PhD student @MIT\nText: 🚀The era of autonomous multi-agent discovery is arriving! @karpathy \n\n🪸Excited to share CORAL, our new work on autonomous multi-agent systems for open-ended scientific discovery.\n\n🙅‍♂️A key limitation of many current “self-evolving” frameworks is that agents still operate inside tightly constrained loops — they mutate solutions, but they do not truly decide how to explore.\n\nIn CORAL, we push toward genuine autonomy:\nAgents decide\n🔍 what to explore\n🧠 what knowledge to store\n♻️ which ideas to reuse\n🧪 when to test hypotheses\n\n🔥One of the most interesting findings:\nA single autonomous agent already outperforms fixed evolutionary search, but the biggest gains emerge when multiple agents form a research community. \n\n💪Over 50% of breakthroughs in multi-agent runs come from building on other agents’ discoveries. This suggests that knowledge reuse and collaboration are central to scalable automated discovery.\n\n🏅Across 10+ difficult tasks in algorithmic discovery and system optimization, CORAL achieves state-of-the-art performance while improving efficiency by 3–10×.\n \n📄 Paper: https://t.co/8ENJjgC5Xk\n💻 Code: https://t.co/WjUJlG7B6p\n💡AlphaXiv: https://t.co/TvheULeGgD\n\n#agentic #llms #selfevolvingagent #multiagent #autoresearch #alphaevolve\nCreated: 2026-04-06T23:04:36.000Z\nMetrics: {\"retweet_count\":54,\"reply_count\":7,\"like_count\":350,\"quote_count\":5,\"bookmark_count\":337,\"impression_count\":21100}",
+  "embeddedUrls": [
+    "https://t.co/Da6gn927EQ"
+  ]
+}

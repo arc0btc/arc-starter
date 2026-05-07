@@ -17,6 +17,7 @@
 import {
   claimSensorRun,
   createSensorLogger,
+  fetchActiveBeatSlugs,
   fetchWithRetry,
   readHookState,
   writeHookState,
@@ -36,10 +37,8 @@ const INTERVAL_MINUTES = 240; // 4 hours — fires 6×/day, daily cap gates actu
 const BEAT_SLUG = "bitcoin-macro";
 const MAX_HISTORY = 6; // rolling readings for trend detection
 
-// Active beats gate — list beats that are currently claimed and accepting signals.
-// Post-competition all beats reset; add BEAT_SLUG back here when the beat is reacquired.
-// Empty = sensor short-circuits immediately without queuing tasks or fetching data.
-const ACTIVE_BEATS: string[] = ["bitcoin-macro"];
+// Fallback used when /api/beats is unreachable — prevents false-negative short-circuits.
+const KNOWN_BEAT = BEAT_SLUG;
 
 // ---- Signal thresholds ----
 
@@ -448,13 +447,17 @@ export default async function bitcoinMacroSensor(): Promise<string> {
       return "skip";
     }
 
-    // Beat-active gate — short-circuit if beat is not currently claimed
-    if (!ACTIVE_BEATS.includes(BEAT_SLUG)) {
-      log(`beat ${BEAT_SLUG} not in active beats list — skipping (re-add to ACTIVE_BEATS when beat is reacquired)`);
+    log("run started");
+
+    // Beat-active gate — verify beat is still live on /api/beats; fall back to KNOWN_BEAT on failure
+    const liveBeats = await fetchActiveBeatSlugs();
+    if (liveBeats !== null && !liveBeats.has(KNOWN_BEAT)) {
+      log(`beat ${KNOWN_BEAT} is no longer active per /api/beats — skipping`);
       return "skip";
     }
-
-    log("run started");
+    if (liveBeats === null) {
+      log("warn: /api/beats unreachable — proceeding with known beat");
+    }
 
     // Daily cap guard
     const totalToday = countSignalTasksToday();

@@ -1,0 +1,13 @@
+{
+  "url": "https://github.com/stanford-iris-lab/meta-harness-tbench2-artifact",
+  "fetchedAt": "2026-04-06T14:11:22.155Z",
+  "contentType": "github",
+  "title": "meta-harness-tbench2-artifact",
+  "rawContent": "Repo: stanford-iris-lab/meta-harness-tbench2-artifact\nDescription: Meta-Harness: 76.4% on Terminal-Bench 2.0 (Claude Opus 4.6)\nTopics: \nStars: 644\n\nREADME:\n# Meta-Harness\n\nAgent scaffold for [Terminal-Bench 2.0](https://tbench.ai), built on top of [Terminus-KIRA](https://github.com/krafton-ai/KIRA) by KRAFTON AI and [Harbor](https://github.com/laude-institute/harbor)'s Terminus-2 framework.\n\n## Results\n\n76.4% on Terminal-Bench 2.0 (89 tasks Ã 5 trials, Claude Opus 4.6).\n\n| Split  | N  | Score |\n|--------|---:|------:|\n| Easy   |  4 | 100.0 |\n| Medium | 55 |  81.1 |\n| Hard   | 30 |  64.7 |\n| **All**| 89 |**76.4**|\n\n## Usage\n\n```bash\npip install harbor\n\nexport ANTHROPIC_API_KEY=<your-key>\n\nharbor run \\\n  --agent-import-path agent:AgentHarness \\\n  -d terminal-bench@2.0 \\\n  -m anthropic/claude-opus-4-6 \\\n  -e runloop \\\n  -n 20 \\\n  --n-attempts 5\n```\n\n## Method\n\nMeta-Harness extends the [Terminus-KIRA](https://github.com/krafton-ai/KIRA) agent with environment bootstrapping: before the agent loop starts, it gathers a snapshot of the sandbox environment (working directory, file listing, available languages/tools, package managers, memory) and injects it into the initial prompt. This saves 2-5 early exploration turns that the agent normally spends on `ls`, `which python3`, etc.\n\nThe agent was discovered through automated harness evolution. More details coming soon.\n\n## Acknowledgements\n\nWe thank KRAFTON AI for compute support.\n",
+  "embeddedUrls": [
+    "https://tbench.ai",
+    "https://github.com/krafton-ai/KIRA",
+    "https://github.com/laude-institute/harbor",
+    "https://github.com/krafton-ai/KIRA"
+  ]
+}

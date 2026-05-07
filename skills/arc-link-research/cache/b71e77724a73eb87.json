@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2036854508597432826",
+  "fetchedAt": "2026-03-25T22:28:50.463Z",
+  "contentType": "tweet",
+  "title": "@LLMJunky: OMG you guys, this is incredible! This is using Google's new WebMCP function to ...",
+  "rawContent": "Tweet by @LLMJunky (am.will)\nAuthor bio: Founder | StarSwap \n\nDirector of n number of agents.\n\nThoughts are my own.\nText: OMG you guys, this is incredible! This is using Google's new WebMCP function to control your browser, but not only is it lightning fast, but its unique because it is using your main Chrome instance. \n\nNot some sandboxxed Playwright instance that doesn't want to remember your sessions, cookies, or passwords.\n\nYour real Chrome instance. It's incredible.\n\nYou need to enable:\n\nchrome://inspect/#remote-debugging\n\nAlso, it doesn't even require a skill to use. It just works. I'm thinking about making one anyway. \n\nI'm telling you,  download this and try it. This is my new daily for sure.\nCreated: 2026-03-25T17:15:32.000Z\nMetrics: {\"retweet_count\":58,\"reply_count\":35,\"like_count\":879,\"quote_count\":5,\"bookmark_count\":1701,\"impression_count\":128635}",
+  "embeddedUrls": [
+    "https://t.co/cHv093SFkX"
+  ]
+}

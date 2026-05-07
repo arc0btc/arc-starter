@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/fabdarice/status/2036817562441585137?s=20",
+  "fetchedAt": "2026-03-26T17:32:54.837Z",
+  "contentType": "tweet",
+  "title": "@fabdarice: Many have missed all the cool new features of x402 since v2. Here’s a recap ⬇️\n\n...",
+  "rawContent": "Tweet by @fabdarice (fabda.gold)\nAuthor bio: Gold (prev: ETH)\n\nhttps://t.co/RJYI1McgSL\nhttps://t.co/DeGjQAm0Rf\nText: Many have missed all the cool new features of x402 since v2. Here’s a recap ⬇️\n\n✨ Networks: multi-chain (EVM, Solana, Aptos, Stellar via CAIP-2) + support for card networks & APMs\n✨ Assets: ERC-20s, stablecoins (USDC/EURC), SPL + fiat rails via extensions\n✨ Transport: HTTP (native 402), MCP, agent-to-agent (A2A)\n✨ Facilitator (optional): abstracts complexity by verifying payments + handling settlement (onchain or fiat rails)\n\nPayment Schemes:\n✨ exact (per request)\n✨ up to (metered usage)\n✨ streaming (coming soon)\n\nExtensions (where it gets powerful):\n✨ Auth (SIWX / wallet-signed identity)\n✨ Discovery (marketplace, pricing, reputation)\n✨ Receipts (verifiable proof of payment)\n✨ Gasless / sponsored transactions\n\nExtensible by design: add new chains, assets, rails, and logic.\nCreated: 2026-03-25T14:48:43.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":6,\"like_count\":39,\"quote_count\":2,\"bookmark_count\":6,\"impression_count\":2747}",
+  "embeddedUrls": []
+}

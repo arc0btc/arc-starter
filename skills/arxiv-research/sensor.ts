@@ -2,7 +2,7 @@
 // Sensor for arXiv paper monitoring. Fetches recent papers on LLMs/agents,
 // queues a digest compilation task if new papers are found.
 
-import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
@@ -11,9 +11,8 @@ const ARXIV_API = "http://export.arxiv.org/api/query";
 const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
-// Active beat slugs for digest compilation. Signal routing (infra/quantum) uses these.
-// Confirmed active post-competition: aibtc-network, bitcoin-macro (own sensor), quantum.
-const ACTIVE_BEATS: string[] = ["aibtc-network", "quantum"];
+// Default beats this sensor routes signals to. Used as fallback when /api/beats is unreachable.
+const KNOWN_BEATS: string[] = ["aibtc-network", "quantum"];
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -103,6 +102,43 @@ interface ArxivEntry {
   published: string;
 }
 
+// Retries on HTTP 429 and network errors (including AbortError/TimeoutError) with backoff.
+// Max 3 total attempts — keeps total added wait under ~45s for sensor parallelism.
+async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Response> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (response.status !== 429) return response;
+
+      if (attempt === maxRetries) {
+        log(`warn: arXiv 429 rate-limit persists after ${maxRetries + 1} attempts — quantum signal drought likely this window`);
+        return response;
+      }
+
+      const retryAfterHeader = response.headers.get("Retry-After");
+      const backoffMs = retryAfterHeader
+        ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 30000)
+        : (attempt + 1) * 5000;
+
+      log(`warn: arXiv 429 (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${backoffMs}ms`);
+      await Bun.sleep(backoffMs);
+    } catch (e) {
+      if (attempt === maxRetries) throw e;
+      const fetchError = e as Error;
+      const kind = fetchError.name === "AbortError" || fetchError.name === "TimeoutError" ? "timeout" : "network error";
+      const backoffMs = (attempt + 1) * 5000;
+      log(`warn: arXiv ${kind} (attempt ${attempt + 1}/${maxRetries + 1}): ${fetchError.message}, retrying in ${backoffMs}ms`);
+      await Bun.sleep(backoffMs);
+    }
+  }
+
+  throw new Error("unreachable");
+}
+
 function parseArxivFeed(xml: string): ArxivEntry[] {
   const entries: ArxivEntry[] = [];
   const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
@@ -122,6 +158,9 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
 }
 
 export default async function arxivResearchSensor(): Promise<string> {
+  // Read before claiming so we can release the interval on failure
+  const hookState = await readHookState(SENSOR_NAME);
+
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
@@ -129,26 +168,42 @@ export default async function arxivResearchSensor(): Promise<string> {
       return "skip";
     }
 
-    // Beat-active gate — short-circuit if no beats are currently claimed
-    if (ACTIVE_BEATS.length === 0) {
-      log("no active beats — skipping (re-add beat slugs to ACTIVE_BEATS when reacquired)");
+    log("run started");
+
+    // Fetch live beat status; fall back to KNOWN_BEATS on API failure
+    const liveBeats = await fetchActiveBeatSlugs();
+    const activeBeats = liveBeats !== null
+      ? KNOWN_BEATS.filter((slug) => liveBeats.has(slug))
+      : KNOWN_BEATS;
+    if (liveBeats !== null && activeBeats.length < KNOWN_BEATS.length) {
+      const retired = KNOWN_BEATS.filter((slug) => !liveBeats.has(slug));
+      log(`warn: beat(s) no longer active on /api/beats: ${retired.join(", ")}`);
+    }
+    if (activeBeats.length === 0) {
+      log("no active beats per /api/beats — skipping");
       return "skip";
     }
-
-    log("run started");
 
     // Build query: recent papers in target categories
     const catQuery = CATEGORIES.map((c) => `cat:${c}`).join("+OR+");
     const url = `${ARXIV_API}?search_query=${catQuery}&sortBy=submittedDate&sortOrder=descending&max_results=${MAX_RESULTS}`;
 
     log(`fetching from arXiv: ${CATEGORIES.join(", ")} (max ${MAX_RESULTS})`);
-    const response = await fetch(url, {
-      headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
-      signal: AbortSignal.timeout(30000),
-    });
+    const response = await fetchArxivWithRetry(url);
 
     if (!response.ok) {
-      log(`warn: arXiv API returned ${response.status}`);
+      if (response.status === 429) {
+        log("error: arXiv 429 exhausted all retries — quantum signal drought expected this window");
+      } else {
+        log(`warn: arXiv API returned ${response.status}`);
+      }
+      // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
+      await writeHookState(SENSOR_NAME, {
+        ...hookState,
+        last_ran: new Date(0).toISOString(),
+        last_result: "error",
+        version: (hookState?.version ?? 0) + 1,
+      });
       return "error";
     }
 
@@ -161,7 +216,6 @@ export default async function arxivResearchSensor(): Promise<string> {
     }
 
     // Check against last fetch to see if there are new papers
-    const hookState = await readHookState(SENSOR_NAME);
     const lastSeenId = hookState?.lastSeenId as string | undefined;
 
     let newCount = entries.length;
@@ -215,7 +269,7 @@ export default async function arxivResearchSensor(): Promise<string> {
     // Infrastructure signal routing: check new papers for aibtc-network relevance
     const newEntries = entries.slice(0, newCount);
     const infraPapers = newEntries.filter((e) => isAibtcInfraPaper(e.title));
-    if (infraPapers.length > 0) {
+    if (infraPapers.length > 0 && activeBeats.includes("aibtc-network")) {
       const signalSource = `sensor:${SENSOR_NAME}:infra-signal-${today}`;
       if (isBeatOnCooldown("aibtc-network", 60)) {
         log("beat cooldown active for aibtc-network (60min) — skipping infrastructure signal task");
@@ -225,7 +279,7 @@ export default async function arxivResearchSensor(): Promise<string> {
           .map((p) => `- ${p.title} (${p.id})`)
           .join("\n");
         insertTask({
-          subject: `File infrastructure signal from arXiv digest (${infraPapers.length} paper(s))`,
+          subject: `File aibtc-network signal from arXiv digest (${infraPapers.length} paper(s))`,
           description:
             `${infraPapers.length} aibtc-relevant papers found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
@@ -241,13 +295,13 @@ export default async function arxivResearchSensor(): Promise<string> {
           status: "pending",
           source: signalSource,
         });
-        log(`infrastructure signal task queued (${infraPapers.length} matching papers)`);
+        log(`aibtc-network signal task queued (${infraPapers.length} matching papers)`);
       }
     }
 
     // Quantum beat signal routing: check new papers for quantum-computing/Bitcoin security relevance
     const quantumPapers = newEntries.filter((e) => isQuantumBeatPaper(e.title));
-    if (quantumPapers.length > 0) {
+    if (quantumPapers.length > 0 && activeBeats.includes("quantum")) {
       const quantumSource = `sensor:${SENSOR_NAME}:quantum-signal-${today}`;
       if (isBeatOnCooldown("quantum", 60)) {
         log("beat cooldown active for quantum (60min) — skipping quantum signal task");
@@ -283,6 +337,13 @@ export default async function arxivResearchSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
+    // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
+    await writeHookState(SENSOR_NAME, {
+      ...hookState,
+      last_ran: new Date(0).toISOString(),
+      last_result: "error",
+      version: (hookState?.version ?? 0) + 1,
+    });
     return "error";
   }
 }
