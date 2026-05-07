@@ -660,33 +660,35 @@ async function cmdProcess(args: string[]): Promise<void> {
   process.stdout.write(`Report written: research/${filename}\n`);
   process.stdout.write(JSON.stringify({ file: filename, links: results.length, high: counts.high, medium: counts.medium, low: counts.low }, null, 2) + "\n");
 
-  // Signal routing: HIGH relevance + dev-tool tags + extractable content → queue infrastructure signal filing task
+  // Signal routing: HIGH relevance + dev-tool tags + extractable content → queue aibtc-network signal filing task
+  // infrastructure beat retired (410) 2026-05-07; aibtc-network covers agent tooling, MCP, orchestration
   // Skip links where content couldn't be extracted (JS walls, t.co with no server-side content, etc.)
   const devToolHighLinks = results.filter(
     (r) => r.relevance === "high" && r.devToolTags.length > 0 && !r.fetchError
       && !r.takeaways[0]?.includes("review manually")
   );
   if (devToolHighLinks.length > 0) {
-    routeInfrastructureSignal(devToolHighLinks, filename);
+    routeAibtcNetworkSignal(devToolHighLinks, filename);
   }
 }
 
-function routeInfrastructureSignal(links: LinkAnalysis[], reportFile: string): void {
+function routeAibtcNetworkSignal(links: LinkAnalysis[], reportFile: string): void {
   const linkSummary = links
     .map((l) => `- ${l.title} (${l.url}): ${l.justification} [dev-tool tags: ${l.devToolTags.join(", ")}]`)
     .join("\n");
-  const subject = `File infrastructure signal from research (${links.length} high-relevance link(s))`;
+  const subject = `File aibtc-network signal from research (${links.length} high-relevance link(s))`;
   const description = [
     `Research report: arc-link-research/${reportFile}`,
     "",
-    "High-relevance infrastructure/dev-tool links found:",
+    "High-relevance agent tooling/infrastructure links found:",
     linkSummary,
     "",
     "Instructions:",
     "1. Read the research report for full context",
-    "2. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat infrastructure",
-    "3. Follow editorial guide for infrastructure beat voice and sourcing",
-    "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat infrastructure ...",
+    "2. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat aibtc-network",
+    "3. Follow editorial guide for aibtc-network beat voice and sourcing",
+    "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat aibtc-network ...",
+    "Note: aibtc-network covers AIBTC network activity, agent tooling, MCP, orchestration, protocol releases.",
   ].join("\n");
 
   const arcBin = join(ROOT, "bin", "arc");
@@ -700,7 +702,7 @@ function routeInfrastructureSignal(links: LinkAnalysis[], reportFile: string): v
   ]);
 
   if (proc.exitCode === 0) {
-    process.stdout.write(`Signal routing: queued infrastructure signal filing task (${links.length} link(s))\n`);
+    process.stdout.write(`Signal routing: queued aibtc-network signal filing task (${links.length} link(s))\n`);
   } else {
     process.stderr.write(`Signal routing: failed to queue task — ${proc.stderr.toString()}\n`);
   }
