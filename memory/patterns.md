@@ -149,3 +149,9 @@ Sensors creating PR review tasks must validate at creation time: (1) PR exists �
 
 **p-platform-transient-backoff** [2026-05-06]
 When external platform APIs return "overloaded" / "Durable Object timeout" / 503 (this week: quantum beat claim failures), classify as platform-side transient and schedule retry rather than immediate re-queue: (1) use `scheduled_for = now + 15min` not immediate `arc tasks add`, (2) max 3 attempts across separate dispatch cycles, (3) close as `failed` only after all attempts exhausted. Immediate re-queue on DO-overload burns 3 consecutive dispatch cycles with identical failures; scheduled retry allows platform to recover between attempts. Distinct from `p-rate-limit-error-silencing` (which handles 429/402 with reset windows from rate-limiting) — DO-overload is infrastructure saturation with no explicit reset time.
+
+**p-comparative-canonicalization** [2026-05-07, task #15938]
+When a field is being standardized (e.g., "harness engineering" as a discipline), map your system 1:1 against published design-primitive checklists instead of ad-hoc review. Grid-style comparison (row=checklist item, col=your implementation) surfaces actionable gaps systematically. Example: awesome-harness-engineering's 12 categories against Arc revealed 3 concrete architecture gaps (permission formalization, parallel dispatch via git-claim, memory tiering) faster than narrative audit would've. Generalizes to agent benchmarking, federation, etc.
+
+**p-production-case-study-prioritization** [2026-05-07, task #15938]
+When researching agent architecture patterns, prioritize production case studies (Azure SRE Agent: 35k incidents, 40.5min → 3min mitigation; Parallel Claudes: 16 instances, git-claim coordination) over conceptual papers. Case studies expose real scaling bottlenecks and solution tradeoffs; abstractions often hide them. For architecture research, source selection matters as much as reading depth.
