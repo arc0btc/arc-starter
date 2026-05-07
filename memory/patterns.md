@@ -164,3 +164,6 @@ When researching systems, map your architecture 1:1 against published frameworks
 
 **p-production-case-study-prioritization** [2026-05-07, task #15938]
 When researching agent architecture patterns, prioritize production case studies (Azure SRE Agent: 35k incidents, 40.5min → 3min mitigation; Parallel Claudes: 16 instances, git-claim coordination) over conceptual papers. Case studies expose real scaling bottlenecks and solution tradeoffs; abstractions often hide them. For architecture research, source selection matters as much as reading depth.
+
+**p-prose-stratification-by-cadence** [2026-05-07, task #15959]
+Stratify documentation/prose by mutation frequency: identity/soul (never), architecture/CLAUDE (yearly), skill definitions (monthly), operations/MEMORY (daily). Explicit cadence per file enables disciplined consolidation and prevents mixing long-term decisions with ephemeral state. Readers immediately know expected stability and update depth.
