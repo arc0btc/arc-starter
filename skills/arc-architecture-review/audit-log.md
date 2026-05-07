@@ -1,3 +1,57 @@
+## 2026-05-07T08:20:00.000Z — beat hygiene pass (4 files); arXiv 429 retry; +2 sensors/skills
+
+**Task #15989** | Diff: 6f1b2dcf → 0d84bf9e | Sensors: 74 | Skills: 115
+
+### Step 1 — Requirements
+
+- **9 structural commits** since last audit (2026-05-06T20:17Z). Core theme: beat reference hygiene across 4 files; arXiv 429 retry; new CLI capability.
+- **Beat hygiene pass** (036bc2ab, 2ec57646, 68223424, 0d84bf9e): 4 files patched — `aibtc-news-editorial` sensor/beat table updated from retired infra/agent-trading to active 3 beats; `arc-link-research` dev-tool signals rerouted from `infrastructure` to `aibtc-network`; `arxiv-research` task subject renamed from 'File infrastructure signal'; `auto-queue` briefing corrected from 'infrastructure, agent-trading, quantum' to 'aibtc-network, bitcoin-macro, quantum'.
+- **arXiv 429 retry** (450a1a24): `fetchArxivWithRetry()` — 3 attempts, 5s/10s backoff, Retry-After header. First live test ~08:11Z today.
+- **arc memory recall CLI** (d364fd58): `arc memory recall --query` added — past dispatch search.
+- **context-review fix** (90df9f7e): Research orchestrator tasks excluded from missing-coverage checks.
+- **arc-link-research cleanup** (13aa9922, bc723247): reports write to `research/` not `arc-link-research/`; misleading message corrected.
+- **Sensor count**: 72→74. **Skill count**: 113→115.
+- **Watch report reviewed** (2026-05-07T01:03Z): 10/10 tasks, 0 failures, $0.29/cycle. CEO: execution solid; arXiv fix is right move; signal volume (1/10 cap, single beat) and PURPOSE (2.40) are primary gaps.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (×15 audits). Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[WATCH]** `aibtc-agent-trading` ACTIVE_BEATS=[] — correctly gated; dead BEAT_SLUG constant still references retired 'agent-trading'. Low risk while gated.
+- **[AUDIT-LOG]** ~1,200 lines — housekeeping needed (spec: max 5 active entries).
+
+### Step 3 — Simplify
+
+- Beat hygiene pass (4 files, 1 day) provides strong evidence that manually-maintained ACTIVE_BEATS constants don't scale. Every beat lifecycle event requires patching multiple unrelated files. CARRY-CONSIDER has appeared ×13 audits; **promoting to [ACTION]**: build /api/beats cross-reference to auto-gate all beat-dependent sensors.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new data.
+
+### Step 4 — Accelerate
+
+- arXiv 429 retry is the primary quantum signal bottleneck. Fix awaits live test. If it holds, quantum drought ends tonight.
+- Signal pipeline: 1 signal in last window. CEO notes per-beat task decomposition hasn't moved the needle — sensor cadence is the lever.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[ACTION PROMOTED]** ACTIVE_BEATS → /api/beats cross-reference. Beat hygiene pass (4-file cleanup) provides clear implementation trigger.
+
+### Flags
+
+- **[RESOLVED]** Stale beat references across 4 files — patched (036bc2ab, 2ec57646, 68223424, 0d84bf9e).
+- **[WATCH]** arXiv 429 retry — shipped, first live test ~08:11Z. Re-verify after that window.
+- **[WATCH]** Signal diversity — 1 signal (aibtc-network), bitcoin-macro + quantum untouched.
+- **[ACTION]** ACTIVE_BEATS → /api/beats cross-reference — promoted from CARRY-CONSIDER after 4-file beat hygiene pass.
+- **[OK]** Architecture stable — 74 sensors, 115 skills.
+- **[OK]** Script dispatch at 7+ skills — holding.
+- **[OK]** Both prompt caching levers active (v2.1.129 TTL) — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OPEN]** Pre-commit hook not git-tracked (×15).
+- **[AUDIT-LOG]** ~1,200 lines — housekeeping needed.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11 active) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Resend credentials — 6+ failures, waiting on whoabuddy.
+
+---
+
 ## 2026-05-06T20:17:00.000Z — stable afternoon; signal drought flagged by CEO; arXiv 429 retry gap
 
 **Task #15881** | Diff: 43e17841 → 3ad3da6c | Sensors: 72 | Skills: 113
