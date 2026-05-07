@@ -531,15 +531,15 @@ export default async function sensor(): Promise<string | void> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  // Beat-active gate — check /api/beats; skip if beat is not currently active
+  // Beat-active gate — check /api/beats; skip if beat is confirmed not active.
+  // On null (API unreachable), proceed with known default to avoid signal drought.
   const liveBeats = await fetchActiveBeatSlugs();
   if (liveBeats !== null && !liveBeats.has(BEAT_SLUG)) {
     log(`beat ${BEAT_SLUG} is not active per /api/beats — skipping`);
     return "skip";
   }
   if (liveBeats === null) {
-    log("warn: /api/beats unreachable; skipping to avoid filing to a potentially retired beat");
-    return "skip";
+    log("warn: /api/beats unreachable; proceeding with known default beat");
   }
 
   log("starting aibtc-agent-trading sensor run");

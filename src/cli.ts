@@ -329,7 +329,7 @@ function cmdTasksClose(args: string[]): void {
   } else if (status === "blocked") {
     markTaskBlocked(id, summary);
   } else {
-    markTaskFailed(id, summary, quality);
+    markTaskFailed(id, summary, undefined, quality);
   }
 
   process.stdout.write(`Closed task #${id} as ${status}${quality !== undefined ? ` (quality=${quality})` : ""}\n`);

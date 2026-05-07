@@ -199,6 +199,7 @@ export default async function arxivResearchSensor(): Promise<string> {
       }
       // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
       await writeHookState(SENSOR_NAME, {
+        ...hookState,
         last_ran: new Date(0).toISOString(),
         last_result: "error",
         version: (hookState?.version ?? 0) + 1,
@@ -338,6 +339,7 @@ export default async function arxivResearchSensor(): Promise<string> {
     log(`error: ${error.message}`);
     // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
     await writeHookState(SENSOR_NAME, {
+      ...hookState,
       last_ran: new Date(0).toISOString(),
       last_result: "error",
       version: (hookState?.version ?? 0) + 1,
