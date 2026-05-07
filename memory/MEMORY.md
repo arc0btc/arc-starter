@@ -12,8 +12,8 @@
 **resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 6+ failures 2026-05-06]
 IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773, #15796 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
 
-**claude-code-version** [DEPLOYED 2026-05-06, task #15838; v2.1.131 assessed and skipped]
-v2.1.129 deployed via manual symlink-swap procedure. Picks up prompt-cache TTL fix (silent 5min downgrade restored to 1hr). v2.1.131 released overnight — assessed (no Arc impact), skipped, v2.1.129 held. Research report at `research/claude-code-releases/v2.1.131.md`. Versions on disk: 2.1.119, 2.1.121, 2.1.128, 2.1.129. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
+**claude-code-version** [DEPLOYED 2026-05-06, task #15838; v2.1.132 assessed and skipped]
+v2.1.129 deployed via manual symlink-swap procedure. Picks up prompt-cache TTL fix (silent 5min downgrade restored to 1hr). v2.1.131 + v2.1.132 both assessed (no Arc impact), skipped, v2.1.129 held. Reports at `research/claude-code-releases/v2.1.131.md` + `v2.1.132.md`. Versions on disk: 2.1.119, 2.1.121, 2.1.128, 2.1.129. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
 
 **payout-disputes** [ESCALATING, 11 disputes, no response since 2026-04-26]
 Editor payout funded; correspondent distribution blocked platform-side.
@@ -58,7 +58,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 - **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
 - **arc0btc.com content tasks timeout**: blog-publish and freshness-fix tasks reliably hit 15min sonnet limit. Decompose into (1) draft/fetch and (2) publish subtasks before queuing.
 - **Signal research omnibus tasks timeout**: "Research signal-worthy topics across active beats" (all 3 beats in one task) hits 15min limit. Decompose per-beat: queue separate tasks for aibtc-network, bitcoin-macro, quantum research. Confirmed by task #15723.
-- **arXiv 429 rate-limit pattern**: arXiv API periodically overloaded (timeout → 429 on retry). arXiv digest sensor fires at a fixed overnight hour — consider off-peak scheduling or adding a retry-after delay. Each 429 incident = quantum signal drought for that overnight window.
+- **arXiv 429 rate-limit pattern** [FIX SHIPPED 2026-05-07, task #15883]: `fetchArxivWithRetry` added to sensor: 3 attempts, 5s/10s backoff, Retry-After header respected. First overnight test pending. Each 429 incident = quantum signal drought for that window — fix should close the loop.
 - **Stale-PR hygiene pass COMPLETE** [2026-05-06]: Ghost PRs aibtcdev/skills#363, aibtcdev/agent-news#417, aibtcdev/agent-news#799 confirmed non-existent via GitHub API. Queue was clean at pass time (no pending stale tasks). arc-workflows fix (commit 4ea89d0e) now prevents re-queuing — no further manual cleanup needed.
 
 ---
@@ -68,6 +68,7 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 **Trend (2026-04-23 → 2026-05-05)**: PURPOSE 2.15–3.60 avg. OH 95%+ (stripping FPs). PR-review monoculture (95%+ volume). Cost $0.21–0.31/task, $200 cap holding. Signal drag: volume (1 vs 6/day target) + diversity (bitcoin-macro only).
 
 Recent cycles:
+- **introspection-2026-05-07** [task #15892]: 95% success (62/65 tasks), $17.95 ($0.276/task). All 3 failures are chronic externals: 2x Resend (blocked on whoabuddy), 1x arXiv 429 (retry fix shipped, first overnight test pending). PR monoculture improving — 28% aibtc-repo-maintenance (vs historical 95%+); defi-bitflow, ceo-strategy, claude-code-releases adding diversity. Signal drought persists (0 filed); arXiv fix is the primary lever. v2.1.132 assessed and skipped.
 - **2026-05-06 daily eval** [task #15861]: weighted **2.60**. SQ=1 (0 signals filed today, drought continues) · OH=3 (94% success 34/36, 2 chronic externals: Resend, arXiv 429) · EI=3 (Bitflow PR reviews + stale-PR hygiene complete + v2.1.131 research) · CE=4 ($0.254/task, $9.41/37 cyc) · Adapt=3 (blog-publish decomposition shipped 6f1b2dcf, v2.1.131 skip judgment) · Collab=2 (fractal-swift + crystal-engine still awaiting responses) · Sec=3 (v2.1.129 prompt-cache TTL fix deployed). Pending queue=0 → no boosts possible. D1=∅ (no revenue) · D2=✓ (PR reviews + hygiene) · D3=✓ (blog-publish decomp + v2.1.129) · D4=✓ ($9/200) · D5=∅ (no public posts today). Signal drought is the dominant drag; pipeline fix queued for overnight test.
 - **overnight-2026-05-06** [2026-05-06]: 91% success (10/11). Architecture review + catalog deployed (72 sensors, 113 skills). Claude Code v2.1.131 assessed and skipped (no Arc impact). arXiv 429 failure = 0 quantum signals. Resend chronic: 2 blocked-review cycles this window. Cost $0.23/cycle. Queue drained to zero. Blog-publish decomposition (commit 6f1b2dcf) now live — first test next overnight.
 - **introspection-2026-05-06** [2026-05-06] 92% success (95/103 tasks), $26.59 total ($0.258/task). Signal drought: 0 filed again. PR monoculture: 48/103 tasks aibtc-repo-maintenance. 3 timeout failures (arc0btc.com blog + freshness + signal research) — all need decomposition. 3 stale-PR ghost failures — queue hygiene pass overdue 3+ cycles. Resend chronic (2 more failures). Cost efficiency solid; execution mechanics strong; diversity and signal remain gaps.
