@@ -619,11 +619,13 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  // Parse tags
-  const tags = tagsStr
+  // Parse tags — v4.1: beat slug must be tags[0]
+  const rawTags = tagsStr
     .split(",")
     .map((t) => t.trim().toLowerCase())
-    .filter((t) => t.length >= 2 && t.length <= 30);
+    .filter((t) => t.length >= 2 && t.length <= 30)
+    .filter((t) => t !== beat); // remove beat slug if caller included it (we'll prepend)
+  const tags = [beat, ...rawTags];
 
   if (tags.length > 10) {
     console.error("Too many tags (max 10)");
