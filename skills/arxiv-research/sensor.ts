@@ -254,7 +254,7 @@ export default async function arxivResearchSensor(): Promise<string> {
           .map((p) => `- ${p.title} (${p.id})`)
           .join("\n");
         insertTask({
-          subject: `File infrastructure signal from arXiv digest (${infraPapers.length} paper(s))`,
+          subject: `File aibtc-network signal from arXiv digest (${infraPapers.length} paper(s))`,
           description:
             `${infraPapers.length} aibtc-relevant papers found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
@@ -270,7 +270,7 @@ export default async function arxivResearchSensor(): Promise<string> {
           status: "pending",
           source: signalSource,
         });
-        log(`infrastructure signal task queued (${infraPapers.length} matching papers)`);
+        log(`aibtc-network signal task queued (${infraPapers.length} matching papers)`);
       }
     }
 
