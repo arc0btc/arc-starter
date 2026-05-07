@@ -631,6 +631,25 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   }
 
   try {
+    // Pre-flight: cooldown check — must happen BEFORE payment (100 sats lost on task #15946)
+    log(`checking cooldown via /api/status`);
+    try {
+      const statusResp = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);
+      const canFile = statusResp.canFileSignal;
+      if (canFile === false) {
+        log(`cooldown active (canFileSignal=false) — aborting to avoid payment waste`);
+        console.error(JSON.stringify({
+          error: "Cooldown active: canFileSignal=false. Wait 60 minutes between signals.",
+          canFileSignal: false,
+        }, null, 2));
+        process.exit(1);
+      }
+      log(`cooldown clear (canFileSignal=${canFile ?? "not returned"})`);
+    } catch (cooldownErr) {
+      // Non-fatal: if status check fails, proceed and let the API reject (don't block on network errors)
+      log(`cooldown check failed (non-fatal, proceeding): ${(cooldownErr as Error).message}`);
+    }
+
     // Pre-flight: judge-signal quality gate (skip with --force)
     if (!force) {
       log(`running judge-signal pre-flight`);
