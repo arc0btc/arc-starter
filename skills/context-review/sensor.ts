@@ -183,6 +183,10 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // Research orchestrator tasks process link batches and may describe link sources (e.g. "arc-email")
+  // in their description as provenance context, not as operational skill requirements.
+  if (task.subject.startsWith("Research orchestrator:")) return findings;
+
   // Retry tasks are about waiting for relay/service recovery and resending a message.
   // Their descriptions contain the original message topic (e.g., "bitflow", "zest") as context
   // for what to resend, not as indicators of skills needed for execution. The relay
