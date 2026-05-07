@@ -33,6 +33,9 @@ Persist audit findings with detail (skill name, line numbers, violation type). C
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s).
 
+**p-lock-ttl-operation-duration** [2026-05-07, task #16027]
+Cache rebuild sentinels and shared locks must exceed actual operation duration; if TTL < measured latency, concurrent requests bypass the lock and trigger duplicates that multiply fan-out costs (e.g., 457s rebuild with 120s TTL = 1,136 duplicate calls per miss). Measure p99 latency, set TTL = p99 + safety margin.
+
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-11, 2026-04-13]
 Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. **Dedup**: track resource state hash in workflow context; compare to `lastProcessedHash` — skip if equal (prevents duplicate tasks when resource unchanged).
 
