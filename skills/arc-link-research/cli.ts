@@ -269,6 +269,48 @@ function parseTweetUrl(url: string): string | null {
   return match ? match[1] : null;
 }
 
+interface TweetPrescreen {
+  accessible: boolean;
+  reason: string | null;
+}
+
+// Lightweight existence check: minimal fields, no content fetch needed.
+// Returns accessible=true if we can't determine status (avoids false positives).
+async function prescreenTweet(tweetId: string): Promise<TweetPrescreen> {
+  const params = { "tweet.fields": "id" };
+  let data: Record<string, unknown> | null = null;
+
+  try {
+    const xCreds = await loadXCreds();
+    if (xCreds) {
+      data = await xApiGet(`/tweets/${tweetId}`, xCreds, params);
+    } else {
+      const bearerToken = await loadBearerToken();
+      if (!bearerToken) return { accessible: true, reason: null };
+      data = await xApiGetBearer(`/tweets/${tweetId}`, bearerToken, params);
+    }
+  } catch {
+    return { accessible: true, reason: null };
+  }
+
+  if (!data) return { accessible: false, reason: "API returned HTTP error" };
+
+  // If response has no data key, tweet is inaccessible (deleted or protected)
+  if (!data["data"]) {
+    const errors = data["errors"] as Array<Record<string, unknown>> | undefined;
+    const title = (errors?.[0]?.["title"] as string) || "inaccessible";
+    if (title.toLowerCase().includes("not found")) {
+      return { accessible: false, reason: "tweet deleted or not found" };
+    }
+    if (title.toLowerCase().includes("authorization")) {
+      return { accessible: false, reason: "tweet protected or private" };
+    }
+    return { accessible: false, reason: title };
+  }
+
+  return { accessible: true, reason: null };
+}
+
 // ---- Fetch & Analyze ----
 
 async function fetchRawContent(url: string): Promise<CachedContent> {
@@ -543,7 +585,7 @@ async function cmdProcess(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  const urls = extractUrls(flags.links);
+  let urls = extractUrls(flags.links);
 
   if (urls.length === 0) {
     process.stderr.write("Error: no valid URLs found in --links\n");
@@ -551,6 +593,31 @@ async function cmdProcess(args: string[]): Promise<void> {
   }
 
   ensureResearchDir();
+
+  // Pre-screen X/Twitter links — skip deleted/protected tweets before wasting a dispatch cycle
+  const xUrls = urls.filter((u) => parseTweetUrl(u) !== null);
+  const skippedTweets: Array<{ url: string; reason: string }> = [];
+  if (xUrls.length > 0) {
+    process.stdout.write(`Pre-screening ${xUrls.length} X/Twitter link(s)...\n`);
+    const checks = await Promise.allSettled(
+      xUrls.map(async (url) => {
+        const tweetId = parseTweetUrl(url)!;
+        const result = await prescreenTweet(tweetId);
+        return { url, ...result };
+      })
+    );
+    for (const check of checks) {
+      if (check.status === "fulfilled" && !check.value.accessible) {
+        skippedTweets.push({ url: check.value.url, reason: check.value.reason ?? "inaccessible" });
+        process.stdout.write(`  [skip] ${check.value.url} — ${check.value.reason}\n`);
+      }
+    }
+    if (skippedTweets.length > 0) {
+      const skippedSet = new Set(skippedTweets.map((s) => s.url));
+      urls = urls.filter((u) => !skippedSet.has(u));
+      process.stdout.write(`Pre-screen: ${skippedTweets.length} skipped, ${urls.length} proceeding\n\n`);
+    }
+  }
 
   process.stdout.write(`Processing ${urls.length} link(s)...\n`);
 
@@ -615,6 +682,7 @@ async function cmdProcess(args: string[]): Promise<void> {
     "",
     `**Links analyzed:** ${results.length}`,
     `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
+    ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
     "",
     "---",
     "",
@@ -632,6 +700,17 @@ async function cmdProcess(args: string[]): Promise<void> {
     lines.push("### Key Takeaways");
     for (const t of r.takeaways) {
       lines.push(`- ${t}`);
+    }
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+  }
+
+  if (skippedTweets.length > 0) {
+    lines.push("## Skipped (Inaccessible X Links)");
+    lines.push("");
+    for (const s of skippedTweets) {
+      lines.push(`- ${s.url} — ${s.reason}`);
     }
     lines.push("");
     lines.push("---");
@@ -708,6 +787,55 @@ function routeAibtcNetworkSignal(links: LinkAnalysis[], reportFile: string): voi
   }
 }
 
+async function cmdPrescreen(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.links) {
+    process.stderr.write("Usage: arc skills run --name arc-link-research -- prescreen --links \"url1,url2,...\"\n");
+    process.exit(1);
+  }
+
+  const urls = extractUrls(flags.links);
+  const xUrls = urls.filter((u) => parseTweetUrl(u) !== null);
+  const nonXUrls = urls.filter((u) => parseTweetUrl(u) === null);
+
+  if (xUrls.length === 0) {
+    process.stdout.write(`No X/Twitter links found. ${nonXUrls.length} other URL(s) pass through.\n`);
+    process.stdout.write(JSON.stringify({ accessible: urls, skipped: [] }, null, 2) + "\n");
+    return;
+  }
+
+  process.stdout.write(`Pre-screening ${xUrls.length} X/Twitter link(s)...\n`);
+  const checks = await Promise.allSettled(
+    xUrls.map(async (url) => {
+      const tweetId = parseTweetUrl(url)!;
+      const result = await prescreenTweet(tweetId);
+      return { url, ...result };
+    })
+  );
+
+  const accessible: string[] = [...nonXUrls];
+  const skipped: Array<{ url: string; reason: string }> = [];
+
+  for (const check of checks) {
+    if (check.status === "fulfilled") {
+      if (check.value.accessible) {
+        accessible.push(check.value.url);
+      } else {
+        skipped.push({ url: check.value.url, reason: check.value.reason ?? "inaccessible" });
+        process.stdout.write(`  [skip] ${check.value.url} — ${check.value.reason}\n`);
+      }
+    } else {
+      // Unknown — include to avoid false positives
+      const url = xUrls[checks.indexOf(check)];
+      accessible.push(url);
+    }
+  }
+
+  process.stdout.write(`\nResult: ${accessible.length} accessible, ${skipped.length} skipped\n`);
+  process.stdout.write(JSON.stringify({ accessible, skipped }, null, 2) + "\n");
+}
+
 function cmdList(): void {
   if (!existsSync(RESEARCH_DIR)) {
     process.stdout.write("No research reports yet.\n");
@@ -732,21 +860,27 @@ function cmdList(): void {
 }
 
 function printUsage(): void {
-  process.stdout.write(`research CLI
+  process.stdout.write(`arc-link-research CLI
 
 USAGE
-  arc skills run --name research -- <subcommand> [flags]
+  arc skills run --name arc-link-research -- <subcommand> [flags]
 
 SUBCOMMANDS
+  prescreen --links "url1,url2,..."
+    Check X/Twitter links for existence before queueing research tasks.
+    Outputs JSON with accessible and skipped arrays. Use before arc tasks add.
+
   process --links "url1,url2,..."
     Fetch each link, evaluate mission relevance, produce a timestamped report.
+    X/Twitter links are pre-screened automatically; inaccessible tweets are skipped.
 
   list
     Show recent research reports (active, not archived).
 
 EXAMPLES
-  arc skills run --name research -- process --links "https://example.com/article,https://github.com/owner/repo"
-  arc skills run --name research -- list
+  arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/123,https://x.com/user/status/456"
+  arc skills run --name arc-link-research -- process --links "https://example.com/article,https://github.com/owner/repo"
+  arc skills run --name arc-link-research -- list
 `);
 }
 
@@ -757,6 +891,9 @@ async function main(): Promise<void> {
   const sub = args[0];
 
   switch (sub) {
+    case "prescreen":
+      await cmdPrescreen(args.slice(1));
+      break;
     case "process":
       await cmdProcess(args.slice(1));
       break;
