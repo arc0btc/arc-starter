@@ -21,6 +21,7 @@ import {
   deleteTaskDep,
   getServiceLogs,
   getQualityStats,
+  searchMemory,
 } from "./db.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -721,6 +722,45 @@ function cmdLogs(args: string[]): void {
   }
 }
 
+function cmdMemoryRecall(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const query = flags["query"];
+  if (!query) {
+    process.stderr.write("Error: --query is required\nUsage: arc memory recall --query TEXT [--limit N]\n");
+    process.exit(1);
+  }
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+
+  initDatabase();
+  const rows = searchMemory(query, limit);
+
+  if (rows.length === 0) {
+    process.stdout.write(`No past dispatches match "${query}"\n`);
+    return;
+  }
+
+  process.stdout.write(`Matches for "${query}" (${rows.length}):\n\n`);
+  for (const row of rows) {
+    const when = row.completed_at ? row.completed_at.slice(0, 16) : "unknown";
+    process.stdout.write(`#${row.task_id} [${row.status}] ${when}\n`);
+    process.stdout.write(`  ${row.subject}\n`);
+    if (row.result_summary) {
+      process.stdout.write(`  → ${truncate(row.result_summary, 120)}\n`);
+    }
+    process.stdout.write("\n");
+  }
+}
+
+function cmdMemory(args: string[]): void {
+  const sub = args[0];
+  if (sub === "recall") {
+    cmdMemoryRecall(args.slice(1));
+  } else {
+    process.stderr.write("Usage: arc memory recall --query TEXT [--limit N]\n");
+    process.exit(sub ? 1 : 0);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -810,6 +850,10 @@ COMMANDS
   resume
     Exit shutdown state. Sensors and dispatch resume on next timer cycle.
 
+  memory recall --query TEXT [--limit N]
+    Search past dispatch results. Queries task subjects, summaries, and descriptions
+    using substring match. Returns most recent matches first. Default limit: 10.
+
   logs [--limit N] [--level info|warn|error] [--service NAME] [--task ID]
     Show structured service log events (dispatch task lifecycle, errors, retries).
 
@@ -867,6 +911,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "memory":
+      cmdMemory(argv.slice(1));
       break;
     case "logs":
       cmdLogs(argv.slice(1));
