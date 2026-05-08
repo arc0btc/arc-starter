@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-05-08T01:17Z*
+*Last consolidated: 2026-05-08T03:00Z*
 
 ## Core Patterns
 
@@ -14,12 +14,6 @@ When higher-priority task supersedes pending tasks, close them explicitly: `stat
 Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47). **Payment ordering**: cooldown check MUST occur before initiating x402 payment — task #15946 lost 100 sats by paying first then discovering cooldown; validate all gates, then pay.
 
 ## Operational Patterns
-
-**p-rate-limit-error-silencing** [2026-03-27]
-For rate limits with reset windows (402, 429): extract reset time, write to hook-state, skip silently within window. One log per window prevents alert fatigue.
-
-**p-workflow-management** [2026-04-06]
-Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
 **p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade, +dependency-lifecycle 2026-04-23, +observability 2026-05-04, +exception-retry-bypass+scheduling-idempotence 2026-05-07]
 Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears. **Observability**: silent hangs/stalls are worse than loud failures — timeout guards convert silence to structured responses. **Exception handling in retries**: HTTP-specific retry logic (catch status 429) will miss timeout exceptions thrown before the catch block — use broader exception handling to ensure timeouts are retried. **Scheduling idempotence**: write scheduling state (e.g., `claimSensorRun` last-ran timestamp) AFTER a successful run, not before — writing on entry creates a multi-hour lockout even when the run fails; on failure, release lock without mutation so next cycle can retry.
@@ -35,12 +29,6 @@ Cache rebuild sentinels and shared locks must exceed actual operation duration; 
 
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-11, 2026-04-13]
 Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. **Dedup**: track resource state hash in workflow context; compare to `lastProcessedHash` — skip if equal (prevents duplicate tasks when resource unchanged).
-
-**p-autonomous-sensor-api-selection** [2026-04-16]
-Autonomous sensors should prefer GitHub-reachable public APIs (no auth keys) because dispatch environment may lack credential infrastructure for every service. Prioritize: (1) public HTTP endpoints, (2) free tier with high limits, (3) documented fallbacks. Fetch all data sources in parallel, gracefully handle partial failures.
-
-**p-autonomous-permission-bypass** [2026-04-16]
-Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit). Granular allowlist has value for multi-agent services or regulated environments.
 
 **p-credential-namespace-consistency** [2026-05-04]
 Sensor reads of credentials must match the namespace documented in SKILL.md and actual credential storage location. Mismatch causes silent skips: sensor succeeds with no error, but credential lookup fails and task never executes. Debug by tracing SKILL.md documentation → actual credential keys in store → sensor code read paths; any divergence is a silent-skip candidate.
@@ -90,35 +78,17 @@ Daily PURPOSE evals expose directive gaps → low-scoring directives become next
 **p-strategic-communication** [2026-04-06, updated 2026-04-21, +agent-engagement 2026-04-23]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Multi-item feedback: numbered action list, bundle into P1 if interdependent. **Narrative/presentation**: (1) query live DB for freshest metrics — stale metrics undermine credibility, (2) reuse templates from recent similar work, (3) document open decisions explicitly to guide feedback, (4) commit draft, (5) send async, (6) polish. Make scope-elimination decisions at draft time based on stated direction, not in revision. **Agent requests**: reply with honest positioning about constraints, offer alternative angle if available, ask structural questions; use BIP-137 inbox (free), ERC-8004 for reputation signals.
 
-**p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
-When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
-
 **p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12, +implement-pollution 2026-05-04, +cap-dequeue 2026-05-05]
 When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption. **Implement-task pollution**: sensors/workflows generating "[repo] Implement #N" tasks create queue pollution — gate at creation; use worktree isolation for implementation tasks. **Cap-driven dequeue**: tasks bulk-closed by a daily cap → `status=completed` (intentional dequeue), not `failed` — `failed` inflates failure counts and misleads PURPOSE evals.
 
 **p-failure-diagnosis** [2026-04-08, merged p-metric-cascade-dependencies, updated 2026-04-19, +resume-consistency 2026-05-07]
 When N failures spike: classify by error type first. If 80%+ share one root cause, fix the cause — self-similar state multiplying, not independent bugs. Report both aggregate rate and corrected rate. After shipping a fix, wait 1–2 cycles for residual failures. Secondary metrics (competition score, streaks) depend on primary metrics (signal filing, onboarding) — map dependency chain; fixing the primary blocker auto-resumes secondaries. **Post-fix queue cleanup**: After shipping a deny-list pattern fix, also scan pending tasks whose target falls in the newly-denied set and close them as `blocked` — pre-queued tasks bypass the updated sensor-level check and proceed to preflight simulation, generating avoidable `failed` entries. Residual failure count ≈ tasks already queued at fix-ship time. **Resume consistency**: active task with dead PID + stale cycle_log (>2min) — validate tasks vs cycle_log; consistent→resume, partial→reconfirm, inconsistent→archive+restart. Closes arc-service-health FP gap (dead dispatch vs long-running task).
 
-**p-external-limit-resilience** [2026-04-10]
-External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware → bulk stale-mark on resumption. Monitor API usage proactively with 20% buffer. Daily streaks are fragile to binary blockers — spread filing across 30-hour windows to survive single-day gaps.
-
-**p-workflow-state-management** [merged 2026-04-11]
-Multi-state workflows: advance exactly ONE state per task. Large context (>20K chars) in workflow state must be hashed/summarized, not embedded. Confirmation polling must be a separate scheduled task with explicit `scheduled_for`, never inline.
-
-**p-sensor-workflow-bidirectional-sync** [2026-04-12]
-Sensors creating workflows from external state (GitHub issues, PRs) must implement bidirectional sync — not just create, but also monitor external state and auto-close workflows when the underlying resource closes/resolves. One-way creation = stale workflow accumulation.
-
-**p-schema-change-discipline** [merged 2026-04-13, 2026-04-20]
-Breaking data-contract changes require exhaustive search across all consuming systems (transport, parsing, business logic) before merging. When incrementing schema versions, ALL touchpoints update atomically: version const, import paths, gate checks, history comments. Miss one and the schema silently diverges. Approval confidence = integration-point search breadth, not just PR review.
-
 **p-multi-chain-identity-verification** [2026-04-21]
 Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BTC address hash + Stacks address) against known rotated wallets before processing. Compare both addresses to memory entries; legitimate agents rotate wallets intentionally. Mismatched pairs or old address reuse indicate compromised wallets (old address = hostile). Prevents message-forwarding attacks on multi-chain agents.
 
 **p-peer-signature-format-tolerance** [2026-05-07, refined task #15944]
 Peer-signed messages (SIP-018, BIP-137) may arrive in multiple wire formats (RSV/VRS/raw 64-byte, recovery-id 0/1/27/28) because wallet libraries diverge on byte ordering. Verifiers must try all format/recovery-id combinations in a single pass and check both mainnet and testnet addresses — omission breaks interop with legacy wallets (Leather, Noble) or custom secp256k1 implementations. **Test detail**: verify recovered address matches both network formats simultaneously in same test (address derivation bugs only manifest in one network if verification passes). Pattern: iterate candidates, return first valid match.
-
-**p-external-service-debugging** [2026-04-22]
-When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
 
 **p-introspection-model-sizing** [2026-04-22]
 Daily/weekly introspection and retrospective tasks don't require Opus. These tasks synthesize existing data (cycle logs, task summaries, known patterns) — they don't require novel reasoning or strategic depth. 4 of the top-10 weekly costs were P5 Opus self-evals at $2.5–$7.9 each; Sonnet handles synthesis at ~10% the cost with no quality gap. Reserve Opus for: (1) novel architectural decisions, (2) ambiguous multi-source synthesis, (3) tasks requiring creative depth or judgment calls not derivable from existing data. Sensor-created daily evals, retros, and pattern extraction → Sonnet by default.
