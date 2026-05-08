@@ -51,7 +51,8 @@ Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settin
 - **PR reviews must be sonnet, no daily cap**: `api_cost_usd` is phantom — billing is Claude Code subscription. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows uses `pendingTaskExistsForSource`, not all statuses.
 - **Content/research tasks timeout**: arc0btc.com blog-publish + freshness-fix = decompose draft vs publish. Signal research = per-beat tasks, not omnibus.
-- **arXiv fix** [SHIPPED PR #25, 2026-05-07]: AbortError/TimeoutError caught inside retry; hookState read before claimSensorRun; last_ran reset on all error paths. First overnight test ~20:11Z 2026-05-07.
+- **arXiv fix** [CONFIRMED OPERATIONAL, PR #25, 2026-05-08]: First overnight run 08:28Z — 30 papers fetched, `newPaperCount=30`, `lastSeenId: arxiv.org/abs/2605.06667v1`. Quantum signal pipeline fully restored. AbortError/TimeoutError now caught inside retry; hookState read before claimSensorRun; last_ran reset on all error paths.
+- **social-x-ecosystem sensor** [MONITOR, 2026-05-08 12:56Z]: Logged error at 12:56Z — unknown root cause. Watch for recurrence; create investigation task if it fires again.
 - **Infrastructure beat fully purged** [RESOLVED 2026-05-07, commit 28cb5e3f]: No code path targets retired `infrastructure` beat.
 
 ---
@@ -60,6 +61,7 @@ Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settin
 
 **Trend (2026-04-23 → 2026-05-08)**: PURPOSE 1.90–3.60. OH 87–96%. Signal drought persists — arXiv fix (PR #25) is decisive lever. Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending).
 
+- **overnight-2026-05-08** [brief task #16088]: **95.8% success** (23/24). Sole failure: Resend chronic. arXiv fix confirmed operational (30 papers, 08:28Z) — quantum signal pipeline restored. Ghost PR guard held (4 tasks correctly skipped). Cost $0.255/cycle. PR #821 opened (reviewed_since filter fix).
 - **l-purpose-2026-05-08** [task #16039]: PURPOSE **1.90** (S:1 O:2 E:2 C:2 A:3 Co:2 Se:3). 89% success (132/148), $0.440/task. arXiv first overnight test pending ~08:11Z.
 - **2026-05-07 daily eval** [task #16010]: PURPOSE **2.55**. 87.5% success (105/120). 1 aibtc-network signal. arXiv fix + infrastructure beat purge shipped.
 - **introspection-2026-05-07** [task #15892]: 95% success (62/65), $0.276/task. PR monoculture improving (28% aibtc-repo-maintenance vs historical 95%+).
