@@ -1,3 +1,50 @@
+## 2026-05-08T08:22:00.000Z — X prescreen shipped; infra beat dead code purged; hookstate guard; tag limit fix
+
+**Task #16073** | Diff: 36ee2c24 → 1f951fdf | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **5 structural commits** since last audit (2026-05-07T20:19Z). Core theme: close [ACTION] items from prior audit; PR #26 review feedback addressed.
+- **X link prescreen** (2bac6fc3 + 7240787c): [ACTION] from last audit closed. `prescreenXUrls()` extracted as shared helper; `prescreen` subcommand added. Eliminates 42% wasted dispatch spend (11/26 deleted/protected tweets ~$5/overnight batch). Also: lenient-default path logged (1f951fdf) for auth failure diagnostics.
+- **Infrastructure beat dead code purged** (28cb5e3f): `BEAT_SUBJECT_PATTERNS` in `db.ts` matched `'File agent-trading signal%'` and `'File infrastructure signal%'` — not `'File aibtc-network signal%'`. **aibtc-network cooldown was never triggering** — silent drift for weeks. Fixed. Also: ordinals-market-data dead two-beat overflow logic to retired `infrastructure` beat removed. AGENT.md and cli.ts comment refs updated.
+- **arXiv hookstate guard** (1f951fdf): `readHookState()` wrapped in try/catch in `arxiv-research/sensor.ts`. Disk error before `claimSensorRun()` no longer defeats interval-release logic — prevents sensor lockout on transient filesystem errors.
+- **Tag limit 10→11** (1f951fdf): `file-signal` tag limit bumped from 10 to 11 (10 user tags + 1 auto-beat slug). Preserves prior user-facing budget; error message clarified. Closes PR #26 reviewer concern.
+- **Claude Code v2.1.133** (76ca99bd): deployed; `worktree.baseRef: "head"` set in `.claude/settings.json`.
+- **Watch report** (2026-05-08T01:02Z): "Infrastructure beat fully purged. Cooldown-before-payment bug closed." 14/15 tasks completed overnight. No new structural issues. Signal drought persists.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — **×17 audits**. This is a structural liability. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[OPEN]** audit-log.md is ~1,350+ lines — spec: max 5 active entries. Housekeeping pass overdue.
+
+### Step 3 — Simplify
+
+- **[NEW-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` is a manual sync surface that drifted silently for weeks (28cb5e3f). Pattern strings must match actual sensor task subjects. Consider deriving patterns programmatically from sensor constants rather than maintaining a separate string list.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new data.
+
+### Step 4 — Accelerate
+
+- arXiv first overnight test was ~20:11Z 2026-05-07. Watch report (01:02Z 2026-05-08) does not report quantum signals filed. Still waiting for first confirmed result post-fix.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked (×17).
+
+### Flags
+
+- **[RESOLVED]** X link pre-screening (2bac6fc3+7240787c). Closes [ACTION] from last audit.
+- **[RESOLVED]** BEAT_SUBJECT_PATTERNS aibtc-network pattern drift (28cb5e3f). Cooldown now correctly gates aibtc-network tasks.
+- **[RESOLVED]** Infrastructure beat dead code in ordinals-market-data (28cb5e3f).
+- **[WATCH]** arXiv 429 retry (PR #25/#26 shipped) — awaiting first confirmed quantum signal post-fix.
+- **[NEW-WATCH]** BEAT_SUBJECT_PATTERNS is a manual sync surface — prone to silent drift on beat changes.
+- **[OPEN]** Pre-commit hook not git-tracked (×17).
+- **[OPEN]** audit-log.md ~1,350 lines — housekeeping pass needed.
+- **[CARRY-WATCH]** Resend credentials — 6+ failures, waiting on whoabuddy.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-07T20:19:00.000Z — ACTIVE_BEATS → live /api/beats; cooldown guard; v4.1 slug; X link waste
 
 **Task #16032** | Diff: 0d84bf9e → 36ee2c24 | Sensors: 72 | Skills: 113
