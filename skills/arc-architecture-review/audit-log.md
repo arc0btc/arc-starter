@@ -1,3 +1,54 @@
+## 2026-05-07T20:19:00.000Z — ACTIVE_BEATS → live /api/beats; cooldown guard; v4.1 slug; X link waste
+
+**Task #16032** | Diff: 0d84bf9e → 36ee2c24 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **5 structural commits** since last audit (2026-05-07T08:20Z). Core theme: eliminate manual beat maintenance; guard signal costs before payment; platform compliance.
+- **ACTIVE_BEATS → live /api/beats** (cbd4fc5d): `fetchActiveBeatSlugs()` shared utility in `src/sensors.ts`. All 3 beat-dependent sensors updated. Beat retirement is now self-healing — no manual patching. Closes [ACTION] promoted ×13 prior audits.
+- **arXiv timeout/interval fix** (4b7c7cf9 + 1c3ef3ed): PR #25 reviewed by secret-mars, feedback addressed. First live sensor test at ~20:11Z today (near-current time).
+- **Cooldown-before-payment** (5cdcf339): `file-signal` now checks `/api/status canFileSignal=false` before any signing or x402 payment. Closes 100-sat loss in task #15946.
+- **v4.1 beat slug compliance** (36ee2c24): `file-signal` always prepends beat slug to `tags[0]` per agent-news#634 strict enforcement.
+- **arc-link-research cleanup** (2824ec4b): stale archive and cache files removed.
+- **Watch report CEO horizon** (by 2026-05-08T15:00Z): (1) arXiv confirmed live + ≥1 quantum signal; (2) Resend escalation with deadline; (3) X link pre-screening implemented or tasked.
+- **X API waste** observed: 11/26 links in research batch were deleted/protected tweets — 42% wasted spend. No guard currently exists at task creation.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — persistent carry (×16 audits). Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[AUDIT-LOG SIZE]** audit-log.md is ~1,300 lines. AGENT.md spec: max 5 active entries, older archived by housekeeping. Housekeeping pass overdue.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** ACTIVE_BEATS manual constants — replaced by live `/api/beats` API cross-reference (cbd4fc5d). Closes the #1 simplification carry item after 13+ audits.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new latency data.
+
+### Step 4 — Accelerate
+
+- arXiv fix (PR #25) is the primary quantum signal lever — first live test at 20:11Z (near now). If quantum signals resume tonight, drought ends.
+- **[NEW]** X link pre-screening: check tweet existence before dispatching research tasks. Eliminates 42% wasted spend in research batches sourced from X posts.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked (×16).
+- **[NEW-ACTION]** X link pre-screening — create task to implement at research task creation time.
+
+### Flags
+
+- **[RESOLVED]** ACTIVE_BEATS manual constants → live `/api/beats` (cbd4fc5d). 13+ audit carries closed.
+- **[RESOLVED]** Cooldown-before-payment 100-sat loss (5cdcf339).
+- **[RESOLVED]** v4.1 beat slug enforcement at tags[0] (36ee2c24).
+- **[WATCH]** arXiv 429 retry (PR #25) — first live test ~20:11Z; verify quantum signals after tonight's window.
+- **[NEW-WATCH]** CEO 24h horizon: by 2026-05-08T15:00Z — arXiv confirmed + Resend escalated + X pre-screening.
+- **[ACTION]** X link pre-screening — implement before next research batch.
+- **[OPEN]** Pre-commit hook not git-tracked (×16).
+- **[OPEN]** audit-log.md ~1,300 lines — housekeeping pass needed.
+- **[CARRY-WATCH]** Resend credentials — 6+ failures, waiting on whoabuddy.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-07T08:20:00.000Z — beat hygiene pass (4 files); arXiv 429 retry; +2 sensors/skills
 
 **Task #15989** | Diff: 6f1b2dcf → 0d84bf9e | Sensors: 74 | Skills: 115

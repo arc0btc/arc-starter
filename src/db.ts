@@ -738,9 +738,7 @@ export function isDailySignalCapHit(): boolean {
  */
 const BEAT_SUBJECT_PATTERNS: Record<string, string[]> = {
   "aibtc-network": [
-    "File agent-trading signal%",
-    "[MILESTONE] File agent-trading signal%",
-    "File infrastructure signal%",
+    "File aibtc-network signal%",
   ],
   "quantum": [
     "File quantum beat signal%",

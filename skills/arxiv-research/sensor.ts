@@ -2,7 +2,7 @@
 // Sensor for arXiv paper monitoring. Fetches recent papers on LLMs/agents,
 // queues a digest compilation task if new papers are found.
 
-import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, HookState, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
@@ -102,29 +102,38 @@ interface ArxivEntry {
   published: string;
 }
 
-// Retries on 429 with backoff. Respects Retry-After header, capped at 30s.
+// Retries on HTTP 429 and network errors (including AbortError/TimeoutError) with backoff.
 // Max 3 total attempts — keeps total added wait under ~45s for sensor parallelism.
 async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Response> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const response = await fetch(url, {
-      headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
-      signal: AbortSignal.timeout(30000),
-    });
+    try {
+      const response = await fetch(url, {
+        headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
+        signal: AbortSignal.timeout(30000),
+      });
 
-    if (response.status !== 429) return response;
+      if (response.status !== 429) return response;
 
-    if (attempt === maxRetries) {
-      log(`warn: arXiv 429 rate-limit persists after ${maxRetries + 1} attempts — quantum signal drought likely this window`);
-      return response;
+      if (attempt === maxRetries) {
+        log(`warn: arXiv 429 rate-limit persists after ${maxRetries + 1} attempts — quantum signal drought likely this window`);
+        return response;
+      }
+
+      const retryAfterHeader = response.headers.get("Retry-After");
+      const backoffMs = retryAfterHeader
+        ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 30000)
+        : (attempt + 1) * 5000;
+
+      log(`warn: arXiv 429 (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${backoffMs}ms`);
+      await Bun.sleep(backoffMs);
+    } catch (e) {
+      if (attempt === maxRetries) throw e;
+      const fetchError = e as Error;
+      const kind = fetchError.name === "AbortError" || fetchError.name === "TimeoutError" ? "timeout" : "network error";
+      const backoffMs = (attempt + 1) * 5000;
+      log(`warn: arXiv ${kind} (attempt ${attempt + 1}/${maxRetries + 1}): ${fetchError.message}, retrying in ${backoffMs}ms`);
+      await Bun.sleep(backoffMs);
     }
-
-    const retryAfterHeader = response.headers.get("Retry-After");
-    const backoffMs = retryAfterHeader
-      ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 30000)
-      : (attempt + 1) * 5000;
-
-    log(`warn: arXiv 429 (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${backoffMs}ms`);
-    await Bun.sleep(backoffMs);
   }
 
   throw new Error("unreachable");
@@ -149,6 +158,14 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
 }
 
 export default async function arxivResearchSensor(): Promise<string> {
+  // Read before claiming so we can release the interval on failure
+  let hookState: HookState | null | undefined;
+  try {
+    hookState = await readHookState(SENSOR_NAME);
+  } catch (e) {
+    log(`warn: failed to read hookState: ${(e as Error).message}`);
+  }
+
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
@@ -185,6 +202,13 @@ export default async function arxivResearchSensor(): Promise<string> {
       } else {
         log(`warn: arXiv API returned ${response.status}`);
       }
+      // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
+      await writeHookState(SENSOR_NAME, {
+        ...hookState,
+        last_ran: new Date(0).toISOString(),
+        last_result: "error",
+        version: (hookState?.version ?? 0) + 1,
+      });
       return "error";
     }
 
@@ -197,7 +221,6 @@ export default async function arxivResearchSensor(): Promise<string> {
     }
 
     // Check against last fetch to see if there are new papers
-    const hookState = await readHookState(SENSOR_NAME);
     const lastSeenId = hookState?.lastSeenId as string | undefined;
 
     let newCount = entries.length;
@@ -319,6 +342,13 @@ export default async function arxivResearchSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
+    // Release interval: reset last_ran to epoch so next sensor tick can retry immediately
+    await writeHookState(SENSOR_NAME, {
+      ...hookState,
+      last_ran: new Date(0).toISOString(),
+      last_result: "error",
+      version: (hookState?.version ?? 0) + 1,
+    });
     return "error";
   }
 }

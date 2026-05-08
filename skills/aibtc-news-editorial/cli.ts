@@ -619,18 +619,38 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  // Parse tags
-  const tags = tagsStr
+  // Parse tags — v4.1: beat slug must be tags[0]
+  const rawTags = tagsStr
     .split(",")
     .map((t) => t.trim().toLowerCase())
-    .filter((t) => t.length >= 2 && t.length <= 30);
+    .filter((t) => t.length >= 2 && t.length <= 30 && t !== beat); // dedupe beat slug; prepended below
+  const tags = [beat, ...rawTags];
 
-  if (tags.length > 10) {
-    console.error("Too many tags (max 10)");
+  if (tags.length > 11) {
+    console.error("Too many tags (max 10 user tags; beat slug is auto-prepended)");
     process.exit(1);
   }
 
   try {
+    // cooldown check must precede payment — API won't refund the 100 sats
+    log(`checking cooldown via /api/status`);
+    try {
+      const statusResp = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);
+      const canFile = statusResp.canFileSignal;
+      if (canFile === false) {
+        log(`cooldown active (canFileSignal=false) — aborting to avoid payment waste`);
+        console.error(JSON.stringify({
+          error: "Cooldown active: canFileSignal=false. Wait 60 minutes between signals.",
+          canFileSignal: false,
+        }, null, 2));
+        process.exit(1);
+      }
+      log(`cooldown clear (canFileSignal=${canFile ?? "not returned"})`);
+    } catch (cooldownErr) {
+      // Non-fatal: if status check fails, proceed and let the API reject (don't block on network errors)
+      log(`cooldown check failed (non-fatal, proceeding): ${(cooldownErr as Error).message}`);
+    }
+
     // Pre-flight: judge-signal quality gate (skip with --force)
     if (!force) {
       log(`running judge-signal pre-flight`);

@@ -44,10 +44,6 @@ const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market 
 // or the sensor is repurposed for AIBTC-network agent trading data.
 const SIGNAL_FILING_SUSPENDED = true;
 
-// Multi-beat allocation — 3 agent-trading + 3 infrastructure per day
-// After OVERFLOW_HOUR_UTC, unused infrastructure slots become available to agent-trading
-const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
-
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -1148,7 +1144,6 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // Skip allocation checks when signal filing is suspended — data collection still runs
     let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
     let ordinalsToday = 0;
-    let hourUTC = new Date().getUTCHours();
     if (!SIGNAL_FILING_SUSPENDED) {
       // Global cap: 6 signals/day across all beats
       const totalToday = countSignalTasksToday();
@@ -1157,25 +1152,14 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
         return "skip";
       }
 
-      // Per-beat allocation: 3 agent-trading + 3 infrastructure per day
       ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
-      const infraToday = countSignalTasksTodayForBeat("infrastructure");
-
-      // Late-day overflow: if infrastructure hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
-      if (hourUTC >= OVERFLOW_HOUR_UTC) {
-        const infraUnused = BEAT_DAILY_ALLOCATION - infraToday;
-        if (infraUnused > 0) {
-          ordinalsAllocation += infraUnused;
-          log(`late-day overflow: ${infraUnused} unused infrastructure slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
-        }
-      }
 
       if (ordinalsToday >= ordinalsAllocation) {
-        log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (infrastructure: ${infraToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
+        log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation}; skipping`);
         return "skip";
       }
 
-      log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, infrastructure ${infraToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
+      log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
     } else {
       log("signal filing suspended — collecting data for cross-category context only");
     }
@@ -1455,12 +1439,7 @@ This data targets the agent-trading beat.`,
         log(`daily cap hit (${currentTotal}/${DAILY_SIGNAL_CAP}); cannot queue milestone signal`);
         break;
       }
-      // Milestones respect per-beat allocation but can use overflow slots
-      let milestoneAllocation = BEAT_DAILY_ALLOCATION;
-      if (hourUTC >= OVERFLOW_HOUR_UTC) {
-        const infraNow = countSignalTasksTodayForBeat("infrastructure");
-        milestoneAllocation += Math.max(0, BEAT_DAILY_ALLOCATION - infraNow);
-      }
+      const milestoneAllocation = BEAT_DAILY_ALLOCATION;
       if (currentOrdinals >= milestoneAllocation) {
         log(`agent-trading allocation full for milestone (${currentOrdinals}/${milestoneAllocation}); skipping`);
         break;
@@ -1523,8 +1502,7 @@ This data targets the agent-trading beat. Use Economist voice — precise, data-
     await writeHookState(SENSOR_NAME, state as unknown as Parameters<typeof writeHookState>[1]);
 
     const finalOrdinals = countSignalTasksTodayForBeat("agent-trading");
-    const finalInfra = countSignalTasksTodayForBeat("infrastructure");
-    log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}, infrastructure ${finalInfra}/${BEAT_DAILY_ALLOCATION}`);
+    log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}`);
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);

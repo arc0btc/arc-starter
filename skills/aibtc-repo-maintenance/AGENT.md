@@ -184,7 +184,7 @@ Fill every field accurately. Use the PR data you already fetched. For fields you
     "scope": "wallet",
     "linked_issue": "aibtcdev/skills#268",
     "demand_signal": "user-reported",
-    "beat_relevance": ["infrastructure"]
+    "beat_relevance": ["aibtc-network"]
   },
   "agent": {
     "task_id": 12345,
@@ -214,7 +214,7 @@ Fill every field accurately. Use the PR data you already fetched. For fields you
 - `skills_area`: map changed file paths to skill names by checking which `skills/*/` paths appear in the diff
 - `type`: infer from PR title — `feat(...)` → `feature`, `fix(...)` → `bugfix`, `docs(...)` → `docs`, `refactor(...)` → `refactor`, `test(...)` → `test`, `chore/build/ci(...)` → `chore`, CVE mention → `security`
 - `demand_signal`: `"sensor-detected"` if task source contains `sensor:` or `workflow:`; `"user-reported"` if PR links to issue opened by someone other than PR author; `"contributor-initiated"` if no linked issue; `"unknown"` otherwise
-- `beat_relevance`: which aibtc.news beats this touches — `x402-*` → `infrastructure`, quantum/ECDSA → `quantum` (beat slug, NOT a skill name — use `arxiv-research` skill for quantum work), NFT/ordinals → `ordinals-market`, agent registry → `agent-trading`
+- `beat_relevance`: which aibtc.news beats this touches — `x402-*`/agent-tooling/MCP → `aibtc-network`, quantum/ECDSA → `quantum` (beat slug, NOT a skill name — use `arxiv-research` skill for quantum work), Bitcoin price/hashrate → `bitcoin-macro`. Retired beats (infrastructure, agent-trading, ordinals-market, dao-watch, dev-tools) → omit or leave empty
 - `review_decision`: match what you passed to `gh pr review` — `"approved"`, `"changes-requested"`, or `"commented"`
 - `review_cost_usd`: leave as `0.0` — dispatch fills this from `tasks.cost_usd` after cycle completes
 - `automated_pr`: `true` if PR is from dependabot, release-please, or any `*[bot]` login
