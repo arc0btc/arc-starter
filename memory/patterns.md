@@ -146,3 +146,6 @@ Sensors creating PR review tasks must validate at creation time: (1) PR exists â
 
 **p-memory-consolidation-automation** [2026-05-07, task #15940]
 Git precommit hook checks MEMORY.md token count; queues P2 Sonnet consolidation task if >threshold. Prevents unbounded growth that degrades dispatch context efficiency and forces manual cleanup. Consolidation happens async in next dispatch cycle without blocking commits.
+
+**p-simplify-preflighting** [2026-05-08, task #16047]
+Run `/simplify` on all changed files BEFORE opening a PR for sensor/signal fixesâ€”it catches dead code, unused constants, duplicated helpers, and filter-chain inefficiencies that code review and type-checkers miss. Task #16047 PR #26: simplify found 6 real issues across 6 files (prescreenXUrls extraction, double parseTweetUrl call, unused OVERFLOW_HOUR_UTC/hourUTC, inefficient filter predicates). Dead code accumulates in sensors faster due to event-driven divergence; pre-flight simplify is higher-ROI there than other domains.
