@@ -44,9 +44,6 @@ const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market 
 // or the sensor is repurposed for AIBTC-network agent trading data.
 const SIGNAL_FILING_SUSPENDED = true;
 
-// Beat allocation — 3 agent-trading signals/day
-const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window (unused; infrastructure beat retired)
-
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -1147,7 +1144,6 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // Skip allocation checks when signal filing is suspended — data collection still runs
     let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
     let ordinalsToday = 0;
-    let hourUTC = new Date().getUTCHours();
     if (!SIGNAL_FILING_SUSPENDED) {
       // Global cap: 6 signals/day across all beats
       const totalToday = countSignalTasksToday();

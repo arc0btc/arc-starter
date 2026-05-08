@@ -623,8 +623,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const rawTags = tagsStr
     .split(",")
     .map((t) => t.trim().toLowerCase())
-    .filter((t) => t.length >= 2 && t.length <= 30)
-    .filter((t) => t !== beat); // remove beat slug if caller included it (we'll prepend)
+    .filter((t) => t.length >= 2 && t.length <= 30 && t !== beat); // dedupe beat slug; prepended below
   const tags = [beat, ...rawTags];
 
   if (tags.length > 10) {
@@ -633,7 +632,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   }
 
   try {
-    // Pre-flight: cooldown check — must happen BEFORE payment (100 sats lost on task #15946)
+    // cooldown check must precede payment — API won't refund the 100 sats
     log(`checking cooldown via /api/status`);
     try {
       const statusResp = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);

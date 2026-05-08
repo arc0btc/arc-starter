@@ -311,6 +311,44 @@ async function prescreenTweet(tweetId: string): Promise<TweetPrescreen> {
   return { accessible: true, reason: null };
 }
 
+async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; skipped: Array<{ url: string; reason: string }> }> {
+  const xItems: Array<{ url: string; tweetId: string }> = [];
+  const accessible: string[] = [];
+
+  for (const url of urls) {
+    const tweetId = parseTweetUrl(url);
+    if (tweetId) {
+      xItems.push({ url, tweetId });
+    } else {
+      accessible.push(url);
+    }
+  }
+
+  if (xItems.length === 0) return { accessible, skipped: [] };
+
+  const checks = await Promise.allSettled(
+    xItems.map(async ({ url, tweetId }) => {
+      const result = await prescreenTweet(tweetId);
+      return { url, ...result };
+    })
+  );
+
+  const skipped: Array<{ url: string; reason: string }> = [];
+  for (const [i, check] of checks.entries()) {
+    if (check.status === "fulfilled") {
+      if (check.value.accessible) {
+        accessible.push(check.value.url);
+      } else {
+        skipped.push({ url: check.value.url, reason: check.value.reason ?? "inaccessible" });
+      }
+    } else {
+      accessible.push(xItems[i].url);
+    }
+  }
+
+  return { accessible, skipped };
+}
+
 // ---- Fetch & Analyze ----
 
 async function fetchRawContent(url: string): Promise<CachedContent> {
@@ -595,28 +633,19 @@ async function cmdProcess(args: string[]): Promise<void> {
   ensureResearchDir();
 
   // Pre-screen X/Twitter links — skip deleted/protected tweets before wasting a dispatch cycle
-  const xUrls = urls.filter((u) => parseTweetUrl(u) !== null);
-  const skippedTweets: Array<{ url: string; reason: string }> = [];
-  if (xUrls.length > 0) {
-    process.stdout.write(`Pre-screening ${xUrls.length} X/Twitter link(s)...\n`);
-    const checks = await Promise.allSettled(
-      xUrls.map(async (url) => {
-        const tweetId = parseTweetUrl(url)!;
-        const result = await prescreenTweet(tweetId);
-        return { url, ...result };
-      })
-    );
-    for (const check of checks) {
-      if (check.status === "fulfilled" && !check.value.accessible) {
-        skippedTweets.push({ url: check.value.url, reason: check.value.reason ?? "inaccessible" });
-        process.stdout.write(`  [skip] ${check.value.url} — ${check.value.reason}\n`);
-      }
+  let skippedTweets: Array<{ url: string; reason: string }> = [];
+  const xUrlCount = urls.filter((u) => parseTweetUrl(u) !== null).length;
+  if (xUrlCount > 0) {
+    process.stdout.write(`Pre-screening ${xUrlCount} X/Twitter link(s)...\n`);
+    const prescreen = await prescreenXUrls(urls);
+    skippedTweets = prescreen.skipped;
+    for (const s of skippedTweets) {
+      process.stdout.write(`  [skip] ${s.url} — ${s.reason}\n`);
     }
     if (skippedTweets.length > 0) {
-      const skippedSet = new Set(skippedTweets.map((s) => s.url));
-      urls = urls.filter((u) => !skippedSet.has(u));
-      process.stdout.write(`Pre-screen: ${skippedTweets.length} skipped, ${urls.length} proceeding\n\n`);
+      process.stdout.write(`Pre-screen: ${skippedTweets.length} skipped, ${prescreen.accessible.length} proceeding\n\n`);
     }
+    urls = prescreen.accessible;
   }
 
   process.stdout.write(`Processing ${urls.length} link(s)...\n`);
@@ -796,40 +825,19 @@ async function cmdPrescreen(args: string[]): Promise<void> {
   }
 
   const urls = extractUrls(flags.links);
-  const xUrls = urls.filter((u) => parseTweetUrl(u) !== null);
-  const nonXUrls = urls.filter((u) => parseTweetUrl(u) === null);
+  const xUrlCount = urls.filter((u) => parseTweetUrl(u) !== null).length;
 
-  if (xUrls.length === 0) {
-    process.stdout.write(`No X/Twitter links found. ${nonXUrls.length} other URL(s) pass through.\n`);
+  if (xUrlCount === 0) {
+    process.stdout.write(`No X/Twitter links found. ${urls.length} other URL(s) pass through.\n`);
     process.stdout.write(JSON.stringify({ accessible: urls, skipped: [] }, null, 2) + "\n");
     return;
   }
 
-  process.stdout.write(`Pre-screening ${xUrls.length} X/Twitter link(s)...\n`);
-  const checks = await Promise.allSettled(
-    xUrls.map(async (url) => {
-      const tweetId = parseTweetUrl(url)!;
-      const result = await prescreenTweet(tweetId);
-      return { url, ...result };
-    })
-  );
+  process.stdout.write(`Pre-screening ${xUrlCount} X/Twitter link(s)...\n`);
+  const { accessible, skipped } = await prescreenXUrls(urls);
 
-  const accessible: string[] = [...nonXUrls];
-  const skipped: Array<{ url: string; reason: string }> = [];
-
-  for (const check of checks) {
-    if (check.status === "fulfilled") {
-      if (check.value.accessible) {
-        accessible.push(check.value.url);
-      } else {
-        skipped.push({ url: check.value.url, reason: check.value.reason ?? "inaccessible" });
-        process.stdout.write(`  [skip] ${check.value.url} — ${check.value.reason}\n`);
-      }
-    } else {
-      // Unknown — include to avoid false positives
-      const url = xUrls[checks.indexOf(check)];
-      accessible.push(url);
-    }
+  for (const s of skipped) {
+    process.stdout.write(`  [skip] ${s.url} — ${s.reason}\n`);
   }
 
   process.stdout.write(`\nResult: ${accessible.length} accessible, ${skipped.length} skipped\n`);
