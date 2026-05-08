@@ -626,8 +626,8 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     .filter((t) => t.length >= 2 && t.length <= 30 && t !== beat); // dedupe beat slug; prepended below
   const tags = [beat, ...rawTags];
 
-  if (tags.length > 10) {
-    console.error("Too many tags (max 10)");
+  if (tags.length > 11) {
+    console.error("Too many tags (max 10 user tags; beat slug is auto-prepended)");
     process.exit(1);
   }
 

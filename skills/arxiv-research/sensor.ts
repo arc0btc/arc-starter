@@ -2,7 +2,7 @@
 // Sensor for arXiv paper monitoring. Fetches recent papers on LLMs/agents,
 // queues a digest compilation task if new papers are found.
 
-import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, HookState, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
@@ -159,7 +159,12 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
 
 export default async function arxivResearchSensor(): Promise<string> {
   // Read before claiming so we can release the interval on failure
-  const hookState = await readHookState(SENSOR_NAME);
+  let hookState: HookState | null | undefined;
+  try {
+    hookState = await readHookState(SENSOR_NAME);
+  } catch (e) {
+    log(`warn: failed to read hookState: ${(e as Error).message}`);
+  }
 
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

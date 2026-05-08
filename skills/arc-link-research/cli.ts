@@ -289,7 +289,8 @@ async function prescreenTweet(tweetId: string): Promise<TweetPrescreen> {
       if (!bearerToken) return { accessible: true, reason: null };
       data = await xApiGetBearer(`/tweets/${tweetId}`, bearerToken, params);
     }
-  } catch {
+  } catch (e) {
+    process.stderr.write(`prescreen lenient-default for ${tweetId}: ${(e as Error).message}\n`);
     return { accessible: true, reason: null };
   }
 
