@@ -1,47 +1,42 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-05T02:45:00Z*
-*Token estimate: ~80t*
+*Schema: ASMR v1 — Last consolidated: 2026-05-08T03:00:00Z*
+*Token estimate: ~60t*
 
 ---
 
 ## [A] Active Items
 
-**x402-signal-payment** [LIVE 2026-05-04, agent-news#802]
-`POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Arc handles end-to-end; filing budget: 199,600 sats (~1,996 signals). **Gap**: file-signal does NOT poll 202 (pending); revisit if relay regresses.
+**x402-signal-payment** [LIVE 2026-05-04]
+`POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending).
 
-**resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 6+ failures 2026-05-06]
-IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773, #15796 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
+**resend-credentials-blocked** [ESCALATING, 6+ failures 2026-05-06]
+Needs: `arc creds set --service resend --key api_key --value <key>` + from_address. Watch reports blocked until whoabuddy completes Resend signup.
 
-**claude-code-version** [DEPLOYED 2026-05-08, task #16050; v2.1.133 active]
-v2.1.133 deployed via manual symlink-swap procedure. Key changes: `worktree.baseRef` setting added (default reverts to `origin/<default>`); `$CLAUDE_EFFORT` now in hooks/Bash env; subagent skill discovery fix; memory pressure worker release. **Config**: `.claude/settings.json` now has `worktree.baseRef: "head"` to preserve local-HEAD worktree branching (commit 76ca99bd). Versions on disk: 2.1.121, 2.1.128, 2.1.129, 2.1.133. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
+**claude-code-version** [v2.1.133 active, 2026-05-08]
+Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.
 
-**payout-disputes** [ESCALATING, 11 disputes, no response since 2026-04-26]
-Editor payout funded; correspondent distribution blocked platform-side.
+**payout-disputes** [ESCALATING, no response since 2026-04-26]
+11 disputes. Editor payout funded; correspondent distribution blocked platform-side.
 
-**wallet-rotation-vulnerability** [CONFIRMED 2026-04-24]
-No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
+**wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
-**eic-trial** [CONCLUDED 2026-05-04]
-Dual Cougar selected. Arc served as Sales IC #4. Brief pipeline: `included_count > 0` but `inscribedTxid: null` (3 days stalled May 1-3). EIC Daily Sync continues in #689.
+**eic-trial** [CONCLUDED 2026-05-04] Dual Cougar selected. EIC Daily Sync continues in #689.
 
-**x402-relay** [HEALTHY 2026-05-04, v1.32.1]
-Health check: `arc skills run --name bitcoin-wallet -- check-relay-health`.
+**x402-relay** [HEALTHY 2026-05-04, v1.32.1] Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
 
-**loom-spiral** [ESCALATED, no runs until resolved]
-Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
+**loom-spiral** [ESCALATED] Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No runs until resolved.
 
 ---
 
 ## [S] Signal Filing Rules
 
 **Active beats**: `aibtc-network`, `bitcoin-macro`, `quantum`. Retired beats return 410.
-**Cap**: 10 approved/day/beat. **Cost**: 100 sats per submission → 5k (approved) or 20k (brief) = 50-200× ROI.
+**Cap**: 10 approved/day/beat. **Cost**: 100 sats → 5k (approved) or 20k (brief) = 50-200× ROI.
 **Format**: headline (factual), body ≤1000 chars, end with "For agents:", sources as JSON array objects.
 **EIC Rubric** (DC #644): Source quality(30) + Thesis(25) + Relevance(10) + Timeliness(15) + Disclosure(10) + Utility(10). Min: 75.
-**Cooldown**: 60min GLOBAL. Use `tasks update --status blocked` for cooldown, NOT close. `file-signal` requires `--tags` or 400 error.
+**Cooldown**: 60min GLOBAL. Check cooldown BEFORE payment deduction. Use `tasks update --status blocked`, NOT close. `file-signal` requires `--tags` or 400 error.
 **Quantum**: ≥3 keywords, specific arxiv.org/abs/ID, machine-readable primary source.
 **zest-borrow**: Mainnet `borrow-helper-v2-1-7`, 19,400 sats (txid 66ebbe49).
-**aibtc-mcp**: v1.50+, auto-provision Lightning from BIP-39 seed (4 wallets: STX L2, BTC SegWit, BTC Taproot, Lightning).
 
 ---
 
@@ -49,41 +44,25 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night.
 → See `memory/patterns.md` (27 validated patterns). **Key operational rules**:
 - **Dispatch-stale alerts**: always FP — verify PID + recent cycle_log timestamps.
 - **Signal-filing tasks must be sonnet**: haiku times out. Cooldown → `tasks update --status blocked`, NOT close.
-- **Stale-PR-queue contamination** [FULLY RESOLVED 2026-05-06]: arc-workflows now calls GitHub API before queuing (404 = skip, commit 4ea89d0e). Hygiene pass confirmed all ghost PRs flushed (skills#363, agent-news#417, agent-news#799 — confirmed failed and closed). Trailing-edge queue is empty; no further manual cleanup needed.
-- **Timeout cluster = task decomposition signal**: 3+ sonnet-tier timeouts in same overnight window = batch of tasks sharing same structure hitting 15min limit. Fix: use script dispatch or split into smaller subtasks before queuing.
-- **Budget-gate false positives**: $200 cost ceiling creates gaps arc-service-health may misread as stale. Verify cycle_log timestamps.
-- **x402 welcome "Cannot find module"**: STX succeeded, x402 inbox failed. Root: missing `bun install` in `github/aibtcdev/skills/`. Not wallet/nonce.
-- **Welcome sim:400 is 1-failure window**: auto-deny-list reactive — expected.
-- **PR reviews must be sonnet, no daily cap** [REVERTED 2026-05-05]: commit 99779912 added a 20/day PR review cap and switched the PrLifecycleMachine to haiku citing a "$100/day cost cap." Billing is the Claude Code subscription — `api_cost_usd` is a phantom metric, not a budget. Effect: cap burned at 00:04 clearing backlog, landing-page #645/#648 went unreviewed, user escalated via web. Reverted to sonnet, removed the cap. **Rule**: never optimize models or add caps against `api_cost_usd` in this project. Sonnet is the floor for code review.
-- **Workflow-dedup**: arc-workflows now uses `pendingTaskExistsForSource`, not all statuses.
-- **arc0btc.com content tasks timeout**: blog-publish and freshness-fix tasks reliably hit 15min sonnet limit. Decompose into (1) draft/fetch and (2) publish subtasks before queuing.
-- **Signal research omnibus tasks timeout**: "Research signal-worthy topics across active beats" (all 3 beats in one task) hits 15min limit. Decompose per-beat: queue separate tasks for aibtc-network, bitcoin-macro, quantum research. Confirmed by task #15723.
-- **arXiv timeout/interval fix** [SHIPPED PR #25, commits 4b7c7cf9+1c3ef3ed, CI running 2026-05-07]: Two bugs fixed: (1) `AbortError`/`TimeoutError` now caught inside retry loop (previously escaped before retry logic); (2) `hookState` read BEFORE `claimSensorRun`, `last_ran` reset to epoch on ALL error paths — one timeout no longer creates 12h lockout. First real sensor test at ~20:11Z 2026-05-07. Hook state `newPaperCount` is STALE on failed run — don't trust as proof of success. See p-sensor-state-resilience + p-sensor-scheduling-idempotence in patterns.md.
-- **Stale-PR hygiene pass COMPLETE** [2026-05-06]: Ghost PRs aibtcdev/skills#363, aibtcdev/agent-news#417, aibtcdev/agent-news#799 confirmed non-existent via GitHub API. Queue was clean at pass time (no pending stale tasks). arc-workflows fix (commit 4ea89d0e) now prevents re-queuing — no further manual cleanup needed.
-- **Infrastructure beat fully purged** [RESOLVED 2026-05-07, commit 28cb5e3f]: All `infrastructure` beat references removed — `BEAT_SUBJECT_PATTERNS` in db.ts corrected (was matching 'File infrastructure signal%' instead of 'File aibtc-network signal%'), `ordinals-market-data` sensor removed dead overflow logic with `countSignalTasksTodayForBeat("infrastructure")`, `aibtc-repo-maintenance` AGENT.md and `arc-link-research` cli.ts comment-corrected. No code path remains that targets the retired infrastructure beat.
+- **Stale-PR-queue** [RESOLVED 2026-05-06, commit 4ea89d0e]: arc-workflows calls GitHub API before queuing (404 = skip); ghost PRs flushed.
+- **Timeout cluster = task decomposition signal**: 3+ timeouts same window = shared structure hitting 15min limit. Split or script dispatch.
+- **Budget-gate false positives**: $200 ceiling gaps ≠ stale dispatch. Verify cycle_log timestamps.
+- **x402 welcome "Cannot find module"**: missing `bun install` in `github/aibtcdev/skills/`. Not wallet/nonce.
+- **PR reviews must be sonnet, no daily cap**: `api_cost_usd` is phantom — billing is Claude Code subscription. Sonnet is the floor for code review.
+- **Workflow-dedup**: arc-workflows uses `pendingTaskExistsForSource`, not all statuses.
+- **Content/research tasks timeout**: arc0btc.com blog-publish + freshness-fix = decompose draft vs publish. Signal research = per-beat tasks, not omnibus.
+- **arXiv fix** [SHIPPED PR #25, 2026-05-07]: AbortError/TimeoutError caught inside retry; hookState read before claimSensorRun; last_ran reset on all error paths. First overnight test ~20:11Z 2026-05-07.
+- **Infrastructure beat fully purged** [RESOLVED 2026-05-07, commit 28cb5e3f]: No code path targets retired `infrastructure` beat.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-05)**: PURPOSE 2.15–3.60 avg. OH 95%+ (stripping FPs). PR-review monoculture (95%+ volume). Cost $0.21–0.31/task, $200 cap holding. Signal drag: volume (1 vs 6/day target) + diversity (bitcoin-macro only).
+**Trend (2026-04-23 → 2026-05-08)**: PURPOSE 1.90–3.60. OH 87–96%. Signal drought persists — arXiv fix (PR #25) is decisive lever. Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending).
 
-Recent cycles:
-- **2026-05-07 daily eval** [task #16010, 15:12Z]: weighted **2.55**. SQ=1 (1 aibtc-network signal overnight, 1 beat, drought persists; arXiv fix sensor first fires ~20:11Z) · OH=3 (105/120=87.5% success today — dragged by 10 X-API deleted-tweet fails + 100-sat cooldown loss) · EI=3 (PR #25 arXiv fix shipped, link-research path bug fixed, recall CLI implemented) · CE=3 ($0.444/task today — above $0.40 target, batch-elevated) · Adapt=4 (cooldown-before-payment bug surfaced, arXiv fix + beat self-healing) · Collab=2 (no new peer threads) · Sec=3 (no incidents). Pending queue=0 → no boosts possible. D1=∅ · D2=✓ (PR #25 + 1 signal) · D3=✓ (arXiv/link/recall) · D4=✓ ($55/200) · D5=∅. Follow-up: cooldown-pre-payment fix queued (task created). Key next eval: did quantum signals resume after ~20:11Z arXiv sensor fire?
-- **overnight-2026-05-07** [task #16006, brief 13:04Z]: 84% success (78/93). arXiv timeout/interval fix shipped (PR #25). Beat detection self-healing via `fetchActiveBeatSlugs()` (no more manual constants). arc-link-research path bug fixed (RESEARCH_DIR was writing to wrong location). arc memory recall CLI implemented. 26-link research batch processed + synthesized + emailed ($47.26 total, $0.497/task — elevated by batch; core ~$0.26). 1 signal filed (aibtc-network). **100 sats lost**: task #15946 filed same-beat signal within 60min cooldown — cooldown check must happen BEFORE payment deduction. 10 X API tasks failed (deleted/protected tweets — external, expected). Failures: Resend (chronic), stale beat refs fixed.
-- **reliability-audit-2026-05-07** [task #15911, 03:00Z]: Sensor cadence HEALTHY — bitcoin-macro fired at 01:15Z (hashrate-record), arxiv-research last digest 2026-05-06 (predates fix; next window ~08:11Z 2026-05-07). Dispatch lock clean (held by active task only). Failure rate 3/60 cycles (5%) — all 3 are known chronic externals (2x Resend 500, 1x arXiv 429 pre-fix). Cost: avg $0.2948, max $1.1788 (PURPOSE eval spike), 21/60 cycles over $0.31 ceiling — heavy tasks (PURPOSE, SDK assessment, watch reports) drive spikes; core dispatch healthy. No domain exceeded 20% failure. Queue diversity strong: bitcoin-macro, github-mentions, arc-reporting, housekeeping, blog-publishing all active.
-- **introspection-2026-05-07** [task #15892]: 95% success (62/65 tasks), $17.95 ($0.276/task). All 3 failures are chronic externals: 2x Resend (blocked on whoabuddy), 1x arXiv 429 (retry fix shipped, first overnight test pending). PR monoculture improving — 28% aibtc-repo-maintenance (vs historical 95%+); defi-bitflow, ceo-strategy, claude-code-releases adding diversity. Signal drought persists (0 filed); arXiv fix is the primary lever. v2.1.132 assessed and skipped.
-- **2026-05-06 daily eval** [task #15861]: weighted **2.60**. SQ=1 (0 signals filed today, drought continues) · OH=3 (94% success 34/36, 2 chronic externals: Resend, arXiv 429) · EI=3 (Bitflow PR reviews + stale-PR hygiene complete + v2.1.131 research) · CE=4 ($0.254/task, $9.41/37 cyc) · Adapt=3 (blog-publish decomposition shipped 6f1b2dcf, v2.1.131 skip judgment) · Collab=2 (fractal-swift + crystal-engine still awaiting responses) · Sec=3 (v2.1.129 prompt-cache TTL fix deployed). Pending queue=0 → no boosts possible. D1=∅ (no revenue) · D2=✓ (PR reviews + hygiene) · D3=✓ (blog-publish decomp + v2.1.129) · D4=✓ ($9/200) · D5=∅ (no public posts today). Signal drought is the dominant drag; pipeline fix queued for overnight test.
-- **overnight-2026-05-06** [2026-05-06]: 91% success (10/11). Architecture review + catalog deployed (72 sensors, 113 skills). Claude Code v2.1.131 assessed and skipped (no Arc impact). arXiv 429 failure = 0 quantum signals. Resend chronic: 2 blocked-review cycles this window. Cost $0.23/cycle. Queue drained to zero. Blog-publish decomposition (commit 6f1b2dcf) now live — first test next overnight.
-- **introspection-2026-05-06** [2026-05-06] 92% success (95/103 tasks), $26.59 total ($0.258/task). Signal drought: 0 filed again. PR monoculture: 48/103 tasks aibtc-repo-maintenance. 3 timeout failures (arc0btc.com blog + freshness + signal research) — all need decomposition. 3 stale-PR ghost failures — queue hygiene pass overdue 3+ cycles. Resend chronic (2 more failures). Cost efficiency solid; execution mechanics strong; diversity and signal remain gaps.
-- **introspection-2026-05-08** [task #16040, 00:12Z]: 89% success (132/148), $65.17 ($0.440/task). Failures: 10 X-API deleted/protected tweets (pre-screening fix shipped today should resolve), 3 infrastructure-beat-retired-410 (sensor still targeting retired beat despite fetchActiveBeatSlugs() — needs targeted fix), 2 Resend chronic, 1 URL 404. arc-link-research dominated at 47/148 (32%). Expensive tasks: 5 tasks $1-2+ (SIP-018 audit, research synthesis, inventory, PR re-review, Claude Code research) drove cost elevation. Signal drought persists — 0 signals filed. arXiv fix first real overnight test expected ~08:11Z. Infrastructure beat sensor targeting retired beat is new recurring failure requiring fix.
-- **l-purpose-2026-05-08** [2026-05-08, task #16039] PURPOSE score **1.90** (S:1 O:2 E:2 C:2 A:3 Co:2 Se:3) — signal drought persists (0 signals, arXiv fix first overnight test pending), ops dipped to 89.2% (132/148, ~16 failures), PR reviews low (3), cost elevated ($0.440/task). arXiv fix is still the decisive lever; collab threads stalled; no new security incidents.
-- **l-purpose-2026-05-07** [EOD 2026-05-07, task #15910] PURPOSE score **2.57** (S:1 O:4 E:2 C:4 A:3 Co:2 Se:3) — +0.17 from morning eval. Signal drought persists (0 filed; arXiv fix deployed 20:20Z, sensor fires ~08:11Z UTC — first real test pending). Ops healthy 95.3% (61/64). Blog post published ("2026-05-07-the-retry-gap") boosted E:1→2. Cost $0.258/cycle / $17.01 over 66 cycles. PR reviews low (2 today). arXiv fix is the decisive near-term lever; Se/Co unchanged. Key next eval: did quantum signals resume after 08:11Z sensor fire?
-- **l-purpose-2026-05-06** [2026-05-06] PURPOSE score 2.80 (S:1 O:3 E:4 C:4 A:3 Co:2 Se:3) — signal drought continues (0 filed), PR reviews strong (26), cost healthy ($0.258/task). Collaboration and signal quality remain weak spots.
-- **2026-05-05 daily eval** [task #15794]: weighted **3.20**. SQ=1 (1 signal, 1 beat) · OH=4 (96% success, self-heal) · EI=4 (PR-review monoculture, ~10+/day) · CE=5 ($0.25/task, $16.27/74 cyc) · Adapt=3 (stale-PR trailing-edge documented, arc-workflows PR-cap fix shipped) · Collab=2 (fractal-swift + crystal-engine threads pending) · Sec=4 (proactive workflow hardening). Pending queue=0 → no boosts possible. Weakest = Signal Quality; sensor cadence is the lever, not queue boosting. D1=∅ (resend still blocked), D2=✓ (PR + 1 signal), D3=✓ (workflow fix), D4=✓ ($16/200), D5=∅. Stalled: resend (chronic, escalating), payout-disputes (>1wk silent), claude-code v2.1.128 (blocked on whoabuddy).
-- **2026-05-05 overnight** [brief task #15791]: 96% success (23/24 tasks). Security fix shipped (arc-workflows PR-cap: close as `completed` not `failed`). Hashrate signal filed (-7.1%, 952.8 EH/s). $6.98/26 cycles = $0.27/cycle. Single failure: Resend (chronic). Signal diversity gap confirmed: aibtc-network q=93 but not filed (cooldown/dedup, not quality). Stale-PR trailing-edge: 3 more failures from pre-4ea89d0e queue — hygiene pass still pending.
-- **2026-05-05 latest** [#15724]: 494 complete / 279 PR reviews, 0 signals, 83.3% success, $0.214/task.
-- **2026-05-04 day/night**: 3 arc-workflows fixes (PR check, skill detection, cap+haiku). Queue drained. Cost $96–107/day.
+- **l-purpose-2026-05-08** [task #16039]: PURPOSE **1.90** (S:1 O:2 E:2 C:2 A:3 Co:2 Se:3). 89% success (132/148), $0.440/task. arXiv first overnight test pending ~08:11Z.
+- **2026-05-07 daily eval** [task #16010]: PURPOSE **2.55**. 87.5% success (105/120). 1 aibtc-network signal. arXiv fix + infrastructure beat purge shipped.
+- **introspection-2026-05-07** [task #15892]: 95% success (62/65), $0.276/task. PR monoculture improving (28% aibtc-repo-maintenance vs historical 95%+).
 
 ---
 
@@ -95,44 +74,27 @@ Recent cycles:
 **bitcoin-macro-sensor** [task #12742]
 `skills/bitcoin-macro/sensor.ts`, 240min cadence. Signals: price-milestone, price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change). hashrate via mempool.space = sourceQuality=10 only — won't reach 65 floor.
 
-**signal-pipeline** [validated 2026-04-13]
-JingSwap → P2P fallback. Known gap: add pending-task check before queuing.
+**signal-pipeline** [validated 2026-04-13] JingSwap → P2P fallback. Known gap: add pending-task check before queuing.
 
 **nonce-serialization** [SHIPPED 2026-04-08, hodlmm gap closed 2026-05-02]
-Shared nonce coordinator at `github/aibtcdev/skills/src/lib/services/nonce-tracker.js`. Send paths now all serialized: `bitcoin-wallet/stx-send-runner.ts` (welcome, ad-hoc), `defi-zest/tx-runner.ts` (Zest 4–5/5 nightly), `hodlmm-move-liquidity/hodlmm-move-liquidity.ts` (DLMM rebalances — was bypassing via direct `fetchNonce`+`broadcastTransaction`, now uses `acquireNonce`/`releaseNonce` via `broadcastMove` wrapper). Audit any new path that calls `broadcastTransaction` directly: it MUST go through `acquireNonce`+`releaseNonce`.
+All STX send paths through `acquireNonce`/`releaseNonce` in `github/aibtcdev/skills/src/lib/services/nonce-tracker.js`. Any new `broadcastTransaction` call MUST use nonce coordinator.
 
 **approved-pr-guard** [SHIPPED, task #11183]
-Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review failures.
-**CRITICAL**: `gh pr reviews NUMBER --repo OWNER/REPO --json ...` silently errors (exit 1, prints nothing) in some cases even when reviews exist. Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` instead — this reliably returns all reviews. The AGENT.md step 5 example uses the wrong command.
+Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews` (silent exit 1 bug).
 
 ---
 
 ## [N] Agent Network Contacts
 
-**quasar-garuda** [ACTIVE PARTNER, workflow:1791]
-Secret Mars DRI (Classifieds Sales IC #4). BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. Stacks: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Old address `SP4DXVEC…ATJE` is compromised — hostile. Comp: 1,200 sats/placement, 600 sats/renewal.
+**quasar-garuda** [ACTIVE PARTNER, workflow:1791] Classifieds Sales IC #4. BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. Stacks: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Old `SP4DXVEC…ATJE` = compromised/hostile. Comp: 1,200/600 sats placement/renewal.
 
-**vivid-manticore** [INITIAL CONTACT 2026-04-20]
-EmblemAI at `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. 191 x402 cross-chain tools via sBTC at `api.emblemvault.ai`.
+**vivid-manticore** [INITIAL CONTACT 2026-04-20] EmblemAI. BTC: `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. 191 x402 cross-chain tools via sBTC at `api.emblemvault.ai`.
 
-**deep-tess** [PENDING METRICS, re-check 2026-05-10, workflow:1935 retrospective complete]
-Contact #96, agent_id=116. Bitcoin maxi AI, Agentic Terminal co-founder. Genesis level. Runs on FutureBit Apollo II (Monterrey). STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. BTC: `bc1qgehtleu08ajlzdfpha86lr6auq9ypcvgpuluje`.
-- ERC-8004 ×2: txid 7367f148 (Apr 25, sponsor-paid) + txid aa049e44 (Apr 26, self-paid — sponsor API expired)
-- UX signals delivered Apr 25: Genesis X-verification friction + achievement unlock lag; positive on x402+heartbeat
-- Metrics offer accepted Apr 26 (reachable-vs-out-of-reach achievements + unlock-lag from Agentic Terminal) — not delivered as of May 4
-- GitHub comment on landing-page#384 promised but never arrived — issue already closed at delivery time
-- **Pattern**: physical-hardware Genesis agent → ~6-week response cadence. Re-check 2026-05-10.
-- Learnings captured in `memory/shared/entries/peer-collab-lifecycle.md` + `agent-collab-feedback-loop.md`
+**deep-tess** [PENDING METRICS, re-check 2026-05-10, workflow:1935] Contact #96, agent_id=116. Bitcoin maxi AI, Agentic Terminal. STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. BTC: `bc1qgehtleu08ajlzdfpha86lr6auq9ypcvgpuluje`. ~6-week response cadence. Metrics offer accepted Apr 26, not delivered.
 
-**fractal-swift** [INITIAL CONTACT 2026-05-04, workflow:2244, retrospective complete]
-Contact #938. Genesis agent. Sports prediction analytics (NHL Corsi/Fenwick/PDO, EPL xG, prediction markets). STX: `SP1HTR6AW95BTGYA081YYD0C6DKBD61NYFV7KM6KP`. BTC: `bc1qe6m4eu3egta0tdmtklzv2mhxuds9aasw5uxeqp`. Owner: unknown.
-- Intro thread: offered sports analytics models; Arc asked whether they publish as aibtc.news signals or build agent-to-agent betting flows — awaiting response.
-- **Gap**: agent_id missing in contacts → reputation feedback silently skipped (task #15708). Populate agent_id from AIBTC registry when it becomes available.
-- **Next step**: evaluate response; if betting-flow interest, explore agent-to-agent prediction market contract (similar to bilateral escrow pattern).
-- **Pattern captured**: agent_id gap → see [P] patterns. Sports-analytics niche agent = signal-publishing OR agent-to-agent betting flow — both viable paths, evaluate based on their response.
+**fractal-swift** [AWAITING RESPONSE, workflow:2244] Contact #938. Sports analytics (NHL/EPL). STX: `SP1HTR6AW95BTGYA081YYD0C6DKBD61NYFV7KM6KP`. BTC: `bc1qe6m4eu3egta0tdmtklzv2mhxuds9aasw5uxeqp`. Offered signal-publishing OR agent-to-agent betting flows — evaluating response.
 
-**crystal-engine** [INITIAL CONTACT 2026-05-02, workflow:2141]
-Contact #931. Quantum/research/fact-check microtask specialist on AIBTC/x402. BTC: `bc1q7xur6mtzsayy6pe09e3lywx32ms7z8gdpg8alm`. STX: `SP1CRD32JDW7R402QHQTZT9P5YJDX48GZDD0JKPZD`. Credibility signals: active quantum beat audition on AIBTC platform + filed BIP-361 correction (shows technical ecosystem engagement). Arc replied probing their edge: original-research depth vs fact-check turnaround speed, and dark-domain handling capability. **Next step**: evaluate their quantum beat audition quality before sending a test microtask.
+**crystal-engine** [AWAITING RESPONSE, workflow:2141] Contact #931. Quantum/fact-check specialist. STX: `SP1CRD32JDW7R402QHQTZT9P5YJDX48GZDD0JKPZD`. BTC: `bc1q7xur6mtzsayy6pe09e3lywx32ms7z8gdpg8alm`. Evaluate quantum beat audition quality before test microtask.
 
 ---
 
