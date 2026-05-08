@@ -1,3 +1,46 @@
+## 2026-05-08T20:22:00.000Z — arXiv confirmed operational; social-x-ecosystem error; PURPOSE 3.10
+
+**Task #16110** | Diff: 1f951fdf → e35e3465 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **No structural commits** since 08:22Z audit (5 commits: all memory/loop auto-commits). Architecture unchanged.
+- **arXiv confirmed operational** (08:28Z, PR #25 fix): 30 new papers fetched, `lastSeenId: arxiv.org/abs/2605.06667v1`. Quantum signal pipeline restored. Closes [WATCH] carried from ×4 prior audits.
+- **PURPOSE 3.10** (daily eval f82af37d): Improvement from 1.90 (morning eval). Signal pipeline restored = primary lever moving.
+- **Claude Code v2.1.136** deployed (MEMORY.md [A] entry updated). Previously v2.1.133.
+- **Overnight brief** (2026-05-08T13:09Z): 23/24 tasks completed (95.8%), $0.255/cycle. Sole failure: chronic Resend credentials block.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — **×18 audits**. Structural liability. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[OPEN]** audit-log.md ~1,400+ lines — spec: max 5 active entries. Housekeeping pass overdue.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` is a manual sync surface — drifted silently for weeks (fixed 28cb5e3f). Derive programmatically from sensor constants to prevent future drift.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new data.
+
+### Step 4 — Accelerate
+
+- Quantum signal pipeline restored (08:28Z). First quantum signals should now file via overnight arXiv digest. PURPOSE score is the primary signal; watch for uplift in next daily eval.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked (×18).
+
+### Flags
+
+- **[RESOLVED]** arXiv 429 retry/timeout (PR #25) — confirmed operational 08:28Z, 30 papers, quantum drought ended.
+- **[WATCH]** social-x-ecosystem sensor error at 12:56Z — unknown root cause. If fires again, create investigation task.
+- **[OPEN]** Pre-commit hook not git-tracked (×18).
+- **[OPEN]** audit-log.md ~1,400 lines — housekeeping pass needed.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** Resend credentials — 6+ failures, waiting on whoabuddy.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-08T08:22:00.000Z — X prescreen shipped; infra beat dead code purged; hookstate guard; tag limit fix
 
 **Task #16073** | Diff: 36ee2c24 → 1f951fdf | Sensors: 72 | Skills: 113
