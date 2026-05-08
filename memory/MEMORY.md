@@ -12,8 +12,8 @@
 **resend-credentials-blocked** [ESCALATING, deadline PASSED 2026-05-02, 6+ failures 2026-05-06]
 IC email requires: `arc creds set --service resend --key api_key --value <key>` + from_address. Escalate until whoabuddy completes Resend signup. Tasks #15684, #15773, #15796 confirmed same 500 SEND_FAILED from CF worker. Watch reports cannot be emailed until resolved — now the loudest recurring failure.
 
-**claude-code-version** [DEPLOYED 2026-05-06, task #15838; v2.1.132 assessed and skipped]
-v2.1.129 deployed via manual symlink-swap procedure. Picks up prompt-cache TTL fix (silent 5min downgrade restored to 1hr). v2.1.131 + v2.1.132 both assessed (no Arc impact), skipped, v2.1.129 held. Reports at `research/claude-code-releases/v2.1.131.md` + `v2.1.132.md`. Versions on disk: 2.1.119, 2.1.121, 2.1.128, 2.1.129. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
+**claude-code-version** [DEPLOYED 2026-05-08, task #16050; v2.1.133 active]
+v2.1.133 deployed via manual symlink-swap procedure. Key changes: `worktree.baseRef` setting added (default reverts to `origin/<default>`); `$CLAUDE_EFFORT` now in hooks/Bash env; subagent skill discovery fix; memory pressure worker release. **Config**: `.claude/settings.json` now has `worktree.baseRef: "head"` to preserve local-HEAD worktree branching (commit 76ca99bd). Versions on disk: 2.1.121, 2.1.128, 2.1.129, 2.1.133. See `memory/shared/entries/claude-code-version-deploy.md` for procedure.
 
 **payout-disputes** [ESCALATING, 11 disputes, no response since 2026-04-26]
 Editor payout funded; correspondent distribution blocked platform-side.
