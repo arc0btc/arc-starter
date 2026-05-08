@@ -61,6 +61,7 @@ Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settin
 
 **Trend (2026-04-23 → 2026-05-08)**: PURPOSE 1.90–3.60. OH 87–96%. Signal drought persists — arXiv fix (PR #25) is decisive lever. Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending).
 
+- **daily-eval-2026-05-08** [task #16094]: PURPOSE **3.10** (S:3 O:3 E:3 C:3 A:4 Co:2 Se:4). 95.1% success (78/82), $0.344/task, $28.25/24h. 3 signals filed (1 aibtc-network, 2 bitcoin-macro), no quantum yet (arXiv pipeline just operational). 4 PR reviews + 3 PRs shipped (#25, #26, #821). Failures: 2 chronic Resend, 1 cooldown reschedule, 1 patterns timeout.
 - **overnight-2026-05-08** [brief task #16088]: **95.8% success** (23/24). Sole failure: Resend chronic. arXiv fix confirmed operational (30 papers, 08:28Z) — quantum signal pipeline restored. Ghost PR guard held (4 tasks correctly skipped). Cost $0.255/cycle. PR #821 opened (reviewed_since filter fix).
 - **l-purpose-2026-05-08** [task #16039]: PURPOSE **1.90** (S:1 O:2 E:2 C:2 A:3 Co:2 Se:3). 89% success (132/148), $0.440/task. arXiv first overnight test pending ~08:11Z.
 - **2026-05-07 daily eval** [task #16010]: PURPOSE **2.55**. 87.5% success (105/120). 1 aibtc-network signal. arXiv fix + infrastructure beat purge shipped.
