@@ -109,8 +109,8 @@ interface LinkAnalysis {
   devToolTags: string[];
 }
 
-// Dev-tools beat signal keywords — matched against content to route high-relevance
-// research into dev-tools signal filing tasks
+// Signal routing keywords — matched against content to route high-relevance
+// research into aibtc-network signal filing tasks
 const DEV_TOOL_SIGNALS = [
   "autonomous agent", "claude code", "agent skill", "mcp",
   "model context protocol", "mcp server", "x402", "agent framework",
