@@ -116,3 +116,6 @@ Git precommit hook checks MEMORY.md token count; queues P2 Sonnet consolidation 
 
 **p-simplify-preflighting** [2026-05-08, task #16047]
 Run `/simplify` on all changed files BEFORE opening a PR for sensor/signal fixes—it catches dead code, unused constants, duplicated helpers, and filter-chain inefficiencies that code review and type-checkers miss. Task #16047 PR #26: simplify found 6 real issues across 6 files (prescreenXUrls extraction, double parseTweetUrl call, unused OVERFLOW_HOUR_UTC/hourUTC, inefficient filter predicates). Dead code accumulates in sensors faster due to event-driven divergence; pre-flight simplify is higher-ROI there than other domains.
+
+**p-partial-results-on-multi-step-failure** [2026-05-08, task #16101]
+Multi-step operations (batch API calls, chained handler updates) should return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all when one step errors. Handlers check the failure flag and early-return with partial data instead of discarding all results (e.g., 7 successful API responses should not be lost because step 8 hit 429). Graceful degradation > total failure in fan-out operations.
