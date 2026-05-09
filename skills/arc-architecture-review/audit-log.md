@@ -1,3 +1,47 @@
+## 2026-05-09T20:24:00.000Z — Merge PR #26 into main; PURPOSE 3.70 (best); quantum drought broken; audit-log housekeeping critically overdue
+
+**Task #16171** | Diff: db104089 → fb182d16 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **Merge fb182d16**: PR #26 (X pre-screen, infra beat purge, cooldown order, arXiv retry) squash-merged into main. No new structural changes — all content was already audited in prior cycles. Clean baseline.
+- **Daily eval (task #16161, 15:13Z)**: PURPOSE **3.70** (S:4 O:4 E:3 C:5 A:3 Co:2 Se:3) — best score since launch. 21/24 success (~88%), $0.314/task. **5 signals across 3 beats** (3 bitcoin-macro, 1 quantum, 1 aibtc-network). Quantum drought broken: BTQ paper arXiv:2603.25519v2, signal 9a477540, all 7 gates passed.
+- **Overnight brief (13:09Z)**: 21 completed, 2 failed (hashrate timeout + Resend chronic), 3 blocked (Resend×2 + ALB cooldown). CVE-2026-6321 autonomously patched (PR #509).
+- **Recurring [OPEN] items** from last audit carry forward unchanged: pre-commit hook ×19→×20, audit-log housekeeping critically overdue.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — **×20 audits**. Every audit cycle this resurfaces. Creating a follow-up task to close it finally.
+- **[OPEN]** audit-log.md is **1,473 lines** — spec is max 5 active entries. Housekeeping task required; this file is structurally unusable at current size.
+
+### Step 3 — Simplify
+
+- **[ACTION]** bitcoin-macro sensor creates a single hashrate task that reliably hits the 15-min wall (confirmed ×2 same day). The sensor already knows the task type — it should create two tasks at queue time (research+compose / file) instead of one monolithic task. This would eliminate the recurring decomposition pattern from dispatch.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` still a manual sync surface. Now smaller post-purge but still present.
+
+### Step 4 — Accelerate
+
+- Dispatch throughput healthy: 88% success, $0.314/task, 5-signal day. No pipeline bottlenecks beyond the hashrate decomposition gap (Step 3).
+- **[WATCH]** ALB signal (#16147) was cooldown-blocked mid-day; retry pending. Not a structural issue — normal cooldown behavior.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook (×20) — store under `skills/arc-skill-manager/hooks/pre-commit`, symlink at install time. Version-controlled. Does not require re-install on each clone if symlinked from tracked path.
+- **[CONSIDER]** bitcoin-macro sensor auto-decompose: emit `[hashrate-research, hashrate-file]` task pair instead of single hashrate task when signal type = hashrate-record. Eliminates recurring manual decomposition.
+
+### Flags
+
+- **[RESOLVED]** arXiv quantum signal drought — BTQ paper filed (signal 9a477540, task #16142). Pipeline end-to-end verified.
+- **[WATCH]** social-x-ecosystem sensor — no new recurrence since 2026-05-08T12:56Z. Monitoring continues.
+- **[OPEN]** Pre-commit hook not git-tracked (×20).
+- **[OPEN]** audit-log.md 1,473 lines — housekeeping task created (follow-up below).
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** Resend credentials — 9+ failures, human-gated on whoabuddy Resend signup.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, human decision pending.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-09T08:23:00.000Z — No structural changes; arXiv transient miss; PURPOSE 2.85; patterns.md timeout pattern x3
 
 **Task #16152** | Diff: e35e3465 → db104089 | Sensors: 72 | Skills: 113
