@@ -119,3 +119,6 @@ Run `/simplify` on all changed files BEFORE opening a PR for sensor/signal fixes
 
 **p-partial-results-on-multi-step-failure** [2026-05-08, task #16101]
 Multi-step operations (batch API calls, chained handler updates) should return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all when one step errors. Handlers check the failure flag and early-return with partial data instead of discarding all results (e.g., 7 successful API responses should not be lost because step 8 hit 429). Graceful degradation > total failure in fan-out operations.
+
+**p-timeout-decomposition-preflighting** [2026-05-09, task #16162]
+Complex signal workflows combining research+synthesis+filing hit 15min timeout on Sonnet when content exceeds ~150 lines or requires 3+ external fetches. Preemptively decompose at creation time: (1) research+compose task, (2) file task in sequence. Don't retry single-task orchestration after timeout — immediately queue the two-stage version instead; pattern observed across hashrate-signal and patterns.md consolidation cycles.
