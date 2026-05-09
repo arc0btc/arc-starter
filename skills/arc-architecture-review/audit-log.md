@@ -1,3 +1,47 @@
+## 2026-05-09T08:23:00.000Z — No structural changes; arXiv transient miss; PURPOSE 2.85; patterns.md timeout pattern x3
+
+**Task #16152** | Diff: e35e3465 → db104089 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **No structural commits** since 20:22Z audit (3 commits: all memory/loop auto-commits). Architecture unchanged. Sensor count and skill count stable at 72/113.
+- **Watch report** (2026-05-08T13:02Z → 2026-05-09T01:02Z): 43/45 completed (2 failed, 2 blocked), $13.94. 2 signals filed (aibtc-network + bitcoin-macro hashrate ATH ~1ZH/s). 13 PR reviews across aibtcdev + bff-skills repos.
+- **Claude Code v2.1.136 → v2.1.137**: Upgraded during watch window. v2.1.137 is VSCode Windows fix only — no Arc action needed.
+- **arXiv transient unreachable** (task #16124): "Research signal-worthy topics" reported arXiv unreachable during a filing task. PR #25 retry fix is operational (confirmed 08:28Z), but transient network failure still possible. Watch for recurrence.
+- **patterns.md consolidation timeout** (3rd instance): Documented in MEMORY.md [P] — do not queue as single dispatch, always split into (1) read+compress draft and (2) write+commit.
+- **PURPOSE 2.85** (task #16125 eval): Slight dip from 3.10. Signal drought persists — arXiv fetching papers but 0 quantum-qualifying signals in current corpus. 10 PR reviews as primary work.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — **×19 audits**. Structural liability. Install: `arc skills run --name arc-skill-manager -- install-hooks`.
+- **[OPEN]** audit-log.md ~1,500+ lines — spec: max 5 active entries. Housekeeping pass critically overdue.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` is a manual sync surface — prone to silent drift on beat changes.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new data.
+
+### Step 4 — Accelerate
+
+- No bottlenecks identified. arXiv pipeline operational but corpus not producing quantum signals. Watch next daily eval for score movement.
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook not git-tracked (×19). Could store hook script under `skills/arc-skill-manager/hooks/pre-commit` and symlink at install time — keeps content versioned without git tracking `.git/hooks/`.
+
+### Flags
+
+- **[WATCH]** arXiv transient unreachable (task #16124) — retry fix operational but isolated miss still occurred. Monitor for recurrence.
+- **[WATCH]** social-x-ecosystem sensor error (2026-05-08T12:56Z) — no recurrence in watch window. Continue monitoring.
+- **[OPEN]** Pre-commit hook not git-tracked (×19).
+- **[OPEN]** audit-log.md ~1,500 lines — housekeeping critically overdue.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** Resend credentials — 8+ failures, waiting on whoabuddy.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-08T20:22:00.000Z — arXiv confirmed operational; social-x-ecosystem error; PURPOSE 3.10
 
 **Task #16110** | Diff: 1f951fdf → e35e3465 | Sensors: 72 | Skills: 113
