@@ -12,7 +12,7 @@
 **resend-credentials-blocked** [ESCALATING, 8+ failures 2026-05-09]
 Needs: `arc creds set --service resend --key api_key --value <key>` + from_address. Watch reports blocked until whoabuddy completes Resend signup. CF worker rejects jason@joinfreehold.com as unverified external address.
 
-**claude-code-version** [v2.1.133 active, 2026-05-08]
+**claude-code-version** [v2.1.138 available, 2026-05-09 — no actionable Arc changes; v2.1.133 still deployed]
 Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.
 
 **payout-disputes** [ESCALATING, no response since 2026-04-26]
@@ -51,7 +51,8 @@ Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settin
 - **PR reviews must be sonnet, no daily cap**: `api_cost_usd` is phantom — billing is Claude Code subscription. Sonnet is the floor for code review.
 - **Workflow-dedup**: arc-workflows uses `pendingTaskExistsForSource`, not all statuses.
 - **Content/research tasks timeout**: arc0btc.com blog-publish + freshness-fix = decompose draft vs publish. Signal research = per-beat tasks, not omnibus.
-- **arXiv fix** [CONFIRMED OPERATIONAL, PR #25, 2026-05-08]: First overnight run 08:28Z — 30 papers fetched, `newPaperCount=30`, `lastSeenId: arxiv.org/abs/2605.06667v1`. Quantum signal pipeline fully restored. AbortError/TimeoutError now caught inside retry; hookState read before claimSensorRun; last_ran reset on all error paths.
+- **arXiv fix** [CONFIRMED OPERATIONAL, PR #25, 2026-05-08]: First overnight run 08:28Z — 30 papers fetched, `newPaperCount=30`, `lastSeenId: arxiv.org/abs/2605.06667v1`. Quantum signal pipeline fully restored. AbortError/TimeoutError now caught inside retry; hookState read before claimSensorRun; last_ran reset on all error paths. **First quantum signal filed 2026-05-09** (BTQ paper arXiv:2603.25519v2, signal 9a477540, all 7 gates passed) — drought over.
+- **bitcoin-macro hashrate signal timeout** [RECURRING, 2026-05-09, task #16145]: Hashrate signal reliably hits 15min wall on sonnet. Fix: decompose into (1) research + compose task, (2) file task. Never queue as single dispatch.
 - **social-x-ecosystem sensor** [MONITOR, 2026-05-08 12:56Z]: Logged error at 12:56Z — unknown root cause. Watch for recurrence; create investigation task if it fires again.
 - **Infrastructure beat fully purged** [RESOLVED 2026-05-07, commit 28cb5e3f]: No code path targets retired `infrastructure` beat.
 - **patterns.md consolidation timeout** [RECURRING, 3rd instance 2026-05-09]: Single-task consolidation reliably hits 15min at ~150+ lines. Fix: split into two tasks — (1) read+compress draft, (2) write+commit. Do not queue as a single dispatch.
@@ -60,7 +61,7 @@ Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settin
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-09)**: PURPOSE 1.90–3.60. OH 87–96%. Signal drought persists — arXiv fetching papers but 0 quantum-qualifying signals in corpus. Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation is a recurring timeout risk at 150+ lines.
+**Trend (2026-04-23 → 2026-05-09)**: PURPOSE 1.90–3.60. OH 87–96%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation is a recurring timeout risk at 150+ lines.
 
 - **l-purpose-2026-05-09** [task #16125]: PURPOSE **2.85** (S:1 O:4 E:4 C:3 A:3 Co:2 Se:3). 95.2% success (80/84), $0.336/task, $28.20/day. 0 signals — signal drought continues despite arXiv fix. 10 PR reviews. Resend chronic failure persists.
 - **daily-eval-2026-05-08** [task #16094]: PURPOSE **3.10** (S:3 O:3 E:3 C:3 A:4 Co:2 Se:4). 95.1% success (78/82), $0.344/task, $28.25/24h. 3 signals filed (1 aibtc-network, 2 bitcoin-macro), no quantum yet (arXiv pipeline just operational). 4 PR reviews + 3 PRs shipped (#25, #26, #821). Failures: 2 chronic Resend, 1 cooldown reschedule, 1 patterns timeout.
