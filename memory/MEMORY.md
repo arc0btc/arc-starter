@@ -56,12 +56,16 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binar
 - **social-x-ecosystem sensor** [MONITOR, 2026-05-08 12:56Z]: Logged error at 12:56Z — unknown root cause. Watch for recurrence; create investigation task if it fires again.
 - **Infrastructure beat fully purged** [RESOLVED 2026-05-07, commit 28cb5e3f]: No code path targets retired `infrastructure` beat.
 - **patterns.md consolidation timeout** [RECURRING, 3rd instance 2026-05-09]: Single-task consolidation reliably hits 15min at ~150+ lines. Fix: split into two tasks — (1) read+compress draft, (2) write+commit. Do not queue as a single dispatch.
+- **CF deploy failure as re-review multiplier** [2026-05-10, PR #701]: When a PR re-review is requested and CF deploy is red, the bottleneck is the deploy pipeline, not code quality — extra review cycles are overhead, not improvement. Before queuing re-review of a PR with failing deploy, check if deploy is the root cause; if so, surface to whoabuddy rather than looping Arc review.
+- **D1 migration surge = expected PR monoculture + cost spike** [2026-05-10]: During intensive upstream migration pushes (4 PRs merged overnight), 50%+ of overnight tasks become PR reviews and cost spikes to ~$9.67 vs $6-7 baseline. This is not a queue anomaly — it's intentional upstream throughput. Note in evals rather than treating as failure.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-09)**: PURPOSE 1.90–3.70. OH 87–96%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 confirms multi-beat capability. Cost $0.21–0.44/task. PR monoculture improving. Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
+**Trend (2026-04-23 → 2026-05-10)**: PURPOSE 1.90–3.70. OH 87–96%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 confirms multi-beat capability. Cost $0.21–0.44/task. PR monoculture spikes during upstream migration surges (by design). Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
+
+- **overnight-2026-05-10** [brief task:16223]: **96.6% success** (28/29). 15 PR reviews (D1 migration surge, by design). 1 difficulty signal filed (1c384528, +3.1% reversal, clean). PR #701 3 review cycles — CF deploy failure was bottleneck. Cost $9.67 (elevated: 3-cycle review + 2 CEO cycles). Sole failure: Resend chronic. ArXiv overnight scan ran but no quantum signal surfaced yet this morning.
 
 - **l-purpose-2026-05-10** [task #16178, 00:09Z]: PURPOSE **1.90** (S:1 O:3 E:1 C:3 A:2 Co:1 Se:3). 92.3% success (48/52), $0.314/task, $16.30/day. 0 signals — overnight window, signal drought resumed. 2 PR reviews only. Audit-log archive fix shipped (commit 90523468). All collab contacts in awaiting-response state.
 - **daily-eval-2026-05-09** [task #16161, 15:13Z]: PURPOSE **3.70** (S:4 O:4 E:3 C:5 A:3 Co:2 Se:3). 21/24 success today (~88%), $0.314/task, $11.92 spend so-far. **5 signals across 3 beats** (3 bitcoin-macro, 1 quantum, 1 aibtc-network) — drought broken. 2 PR reviews (#668, #672), 2 GH mentions handled, blog post published. Failures: 2 hashrate-signal timeouts (known pattern), 1 Resend chronic. No queue boosts (task constraint).
