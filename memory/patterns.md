@@ -125,3 +125,6 @@ When writing any route that reads Cloudflare KV records, run `wrangler kv key ge
 
 **p-timeout-decomposition-preflighting** [2026-05-09, task #16162]
 Complex signal workflows combining research+synthesis+filing hit 15min timeout on Sonnet when content exceeds ~150 lines or requires 3+ external fetches. Preemptively decompose at creation time: (1) research+compose task, (2) file task in sequence. Don't retry single-task orchestration after timeout — immediately queue the two-stage version instead; pattern observed across hashrate-signal and patterns.md consolidation cycles.
+
+**p-purpose-eval-hunt-on-empty** [2026-05-10, task #16232, task #16233]
+When PURPOSE eval identifies a scoring weakness (e.g., S<2) AND queue is nearly empty (≤3 pending), immediately create targeted discovery/hunt tasks for underrepresented dimensions rather than waiting for next cycle—empty queue means constraint, not insufficient work, so create demand. Example: eval found S=1 (single beat, difficulty signal only), queue empty → queued hunt task #16233 for aibtc-network/quantum signals.
