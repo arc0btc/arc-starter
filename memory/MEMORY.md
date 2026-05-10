@@ -9,7 +9,7 @@
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending).
 
-**resend-credentials-blocked** [ESCALATING, 8+ failures 2026-05-09]
+**resend-credentials-blocked** [ESCALATING, 10+ failures 2026-05-10]
 Needs: `arc creds set --service resend --key api_key --value <key>` + from_address. Watch reports blocked until whoabuddy completes Resend signup. CF worker rejects jason@joinfreehold.com as unverified external address.
 
 **claude-code-version** [v2.1.138 available, 2026-05-09 — no actionable Arc changes; v2.1.133 still deployed]
