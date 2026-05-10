@@ -407,26 +407,24 @@ function cmdLintSkills(args: string[]): void {
 
 function cmdInstallHooks(): void {
   const hooksDir = join(ROOT, ".git", "hooks");
-  const hookPath = join(hooksDir, "pre-commit");
+  const hookDest = join(hooksDir, "pre-commit");
+  const hookSource = join(ROOT, "skills/arc-skill-manager/hooks/pre-commit");
 
-  const hookScript = `#!/bin/sh
-# Arc skill frontmatter + sensor naming lint
-# Installed by: arc skills run --name arc-skill-manager -- install-hooks
-
-cd "$(git rev-parse --show-toplevel)"
-exec bun skills/arc-skill-manager/cli.ts lint-skills --staged
-`;
-
-  Bun.write(hookPath, hookScript);
-
-  // Make executable
-  const chmodResult = Bun.spawnSync(["chmod", "+x", hookPath]);
-  if (chmodResult.exitCode !== 0) {
-    process.stderr.write(`Error: chmod +x ${hookPath} failed\n`);
+  // Remove existing hook (file or symlink) to allow re-install
+  const rmResult = Bun.spawnSync(["rm", "-f", hookDest]);
+  if (rmResult.exitCode !== 0) {
+    process.stderr.write(`Error: could not remove existing hook at ${hookDest}\n`);
     process.exit(1);
   }
 
-  process.stdout.write(`Installed pre-commit hook at .git/hooks/pre-commit\n`);
+  // Symlink tracked source into .git/hooks/
+  const symlinkResult = Bun.spawnSync(["ln", "-s", hookSource, hookDest]);
+  if (symlinkResult.exitCode !== 0) {
+    process.stderr.write(`Error: ln -s failed: ${symlinkResult.stderr.toString()}\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write(`Installed pre-commit hook: .git/hooks/pre-commit -> ${hookSource}\n`);
   process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
 }
 

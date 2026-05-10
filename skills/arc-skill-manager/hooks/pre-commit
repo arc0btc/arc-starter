@@ -1,0 +1,7 @@
+#!/bin/sh
+# Arc skill frontmatter + sensor naming lint
+# Managed by: arc skills run --name arc-skill-manager -- install-hooks
+# Source: skills/arc-skill-manager/hooks/pre-commit
+
+cd "$(git rev-parse --show-toplevel)"
+exec bun skills/arc-skill-manager/cli.ts lint-skills --staged
