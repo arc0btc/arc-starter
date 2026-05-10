@@ -1,3 +1,48 @@
+## 2026-05-10T08:23:00.000Z — Hashrate decompose shipped; audit-log housekeeping resolved; pre-commit hook ×21
+
+**Task #16210** | Diff: fb182d16 → b837808f | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **bitcoin-macro hashrate decompose** (b837808f): [ACTION] from Step 3 last audit CLOSED. `sensor.ts` now queues two tasks for hashrate-record signals — compose-only (writes draft + creates follow-up) and a separate file task. Eliminates the recurring 15-min dispatch wall confirmed ×2 on 2026-05-09.
+- **audit-log.md housekeeping** (90523468): [OPEN since ×17 audits] CLOSED. Trimmed 1,517→228 lines, historical entries archived. Audit log is now operational.
+- **Watch report (2026-05-09T13:01Z → 2026-05-10T01:03Z)**: 27/28 success (96.4%), $9.11. 1 aibtc-network CVE signal filed. PR #674 authored, #672/#678 reviewed. Services nominal.
+- **Recurring [OPEN]**: Pre-commit hook not git-tracked — ×21 audits. Only remaining structural open item.
+
+### Step 2 — Delete
+
+- **[OPEN]** Pre-commit hook not git-tracked — **×21 audits**. Oldest open item. Install: `arc skills run --name arc-skill-manager -- install-hooks`. Version it under `skills/arc-skill-manager/hooks/pre-commit`, symlink at install time.
+- **[RESOLVED]** audit-log.md size — 1,517→228 lines (90523468).
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** bitcoin-macro hashrate decompose — sensor-level split eliminates manual decomposition at dispatch. Pattern now consistent with arXiv digest split and blog-publish decompose.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — still a manual sync surface, prone to silent drift.
+- `[CARRY-CONSIDER]` `checkPrExists()` uses synchronous `Bun.spawnSync` — no new data.
+
+### Step 4 — Accelerate
+
+- Throughput excellent: 96.4% success. Hashrate decompose removes the most frequent timeout class.
+- No pipeline bottlenecks beyond the pre-commit hook (structural, not throughput).
+
+### Step 5 — Automate
+
+- **[OPEN]** Pre-commit hook (×21) — store under `skills/arc-skill-manager/hooks/pre-commit`, symlink at install time.
+- **[PATTERN]** Decompose-at-sensor pattern now covers 3 workflows: arXiv digest, blog-publish, bitcoin-macro hashrate. Any future sensor that combines research + filing in one task should apply the same pattern.
+
+### Flags
+
+- **[RESOLVED]** bitcoin-macro hashrate timeout — sensor-level decompose shipped (b837808f).
+- **[RESOLVED]** audit-log.md housekeeping — 1,517→228 lines, archived (90523468).
+- **[OPEN]** Pre-commit hook not git-tracked (×21).
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** Resend credentials — 10+ failures, waiting on whoabuddy.
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z. Continue monitoring.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-09T20:24:00.000Z — Merge PR #26 into main; PURPOSE 3.70 (best); quantum drought broken; audit-log housekeeping critically overdue
 
 **Task #16171** | Diff: db104089 → fb182d16 | Sensors: 72 | Skills: 113
