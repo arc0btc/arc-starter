@@ -303,9 +303,10 @@ function detectHashrateSignal(
       signal: {
         type: "hashrate-record",
         strength: 75,
-        subject: `File bitcoin-macro signal: Bitcoin hashrate hits new all-time high of ${currentEH.toFixed(1)} EH/s`,
+        subject: `Compose bitcoin-macro hashrate signal: Bitcoin hashrate hits new all-time high of ${currentEH.toFixed(1)} EH/s`,
         description: buildSignalDescription({
           type: "hashrate-record",
+          mode: "compose",
           claim: `Bitcoin's mining hashrate reached a new all-time high of ${currentEH.toFixed(1)} EH/s.`,
           evidence: `Current hashrate: ${currentEH.toFixed(2)} EH/s (previous ATH: ${storedATH.toFixed(2)} EH/s). ` +
             `ATH improvement: +${(((currentEH - storedATH) / storedATH) * 100).toFixed(1)}%. ` +
@@ -331,9 +332,10 @@ function detectHashrateSignal(
         signal: {
           type: "hashrate-record",
           strength: 65,
-          subject: `File bitcoin-macro signal: Bitcoin hashrate drops ${dropPct.toFixed(1)}% from ATH`,
+          subject: `Compose bitcoin-macro hashrate signal: Bitcoin hashrate drops ${dropPct.toFixed(1)}% from ATH`,
           description: buildSignalDescription({
             type: "hashrate-record",
+            mode: "compose",
             claim: `Bitcoin's mining hashrate has fallen ${dropPct.toFixed(1)}% from its all-time high.`,
             evidence: `Current hashrate: ${currentEH.toFixed(2)} EH/s. ATH: ${storedATH.toFixed(2)} EH/s. ` +
               `Drop: ${dropPct.toFixed(1)}%. Source: mempool.space/api/v1/mining/hashrate/1m.`,
@@ -404,10 +406,13 @@ interface SignalParts {
   implication: string;
   milestoneContext: string;
   blockHeight?: number | null;
+  // "compose" mode: task researches + drafts, then creates a follow-up file task.
+  // Used for hashrate signals to avoid the 15-min timeout from doing both in one dispatch.
+  mode?: "file" | "compose";
 }
 
 function buildSignalDescription(parts: SignalParts): string {
-  return [
+  const header = [
     `## Bitcoin Macro Signal — ${parts.type}`,
     "",
     `**Beat:** ${BEAT_SLUG} | **Type:** ${parts.type}`,
@@ -424,6 +429,32 @@ function buildSignalDescription(parts: SignalParts): string {
     "### Implication",
     parts.implication,
     "",
+  ];
+
+  if (parts.mode === "compose") {
+    const tail = [
+      "### Compose Instructions",
+      "**Task role:** Research + compose only. Do NOT call file-signal in this task.",
+      "A follow-up file task must be created once the draft is ready.",
+      "",
+      `1. Verify sources: \`arc skills run --name aibtc-news-editorial -- check-sources --sources '${SIGNAL_SOURCES_JSON}'\``,
+      "2. Compose the signal draft in Economist editorial voice:",
+      "   - headline: factual, ≤120 chars",
+      "   - body: ≤1000 chars, quantitative, ends with \"For agents:\"",
+      "   - tags: `bitcoin-macro,hashrate`",
+      "3. Create the follow-up file task (substitute THIS_TASK_ID with this task's id):",
+      "   ```",
+      `   arc tasks add --subject "File bitcoin-macro hashrate signal: <headline>" --description "File this pre-composed hashrate signal.\\n\\n--beat bitcoin-macro\\n--claim \\"<composed claim>\\"\\n--evidence \\"<composed evidence>\\"\\n--implication \\"<composed implication>\\"\\n--sources '${SIGNAL_SOURCES_JSON}'\\n--tags \\"bitcoin-macro,hashrate\\"" --skills bitcoin-macro,aibtc-news-editorial --model sonnet --priority 5 --source "task:THIS_TASK_ID"`,
+      "   ```",
+      "4. Close this task: `arc tasks close --id THIS_TASK_ID --status completed --summary 'hashrate signal composed, file task queued as #<new_id>'`",
+      "",
+      "**Voice rules:** Avoid 'surges', 'crashes', 'rockets'. Use precise verbs: rises, falls, crosses, adjusts.",
+      "**No external market data:** Do not add price data from CoinGecko, Binance, or Coinbase.",
+    ];
+    return [...header, ...tail].join("\n");
+  }
+
+  const tail = [
     "### Filing Instructions",
     `Compose a signal in Economist editorial voice — data-rich, precise, no hype.`,
     `Verify sources are reachable: \`arc skills run --name aibtc-news-editorial -- check-sources --sources '${SIGNAL_SOURCES_JSON}'\``,
@@ -434,7 +465,8 @@ function buildSignalDescription(parts: SignalParts): string {
     "**Sources (required):** The `--sources` flag above includes 3 GitHub-reachable sources, pushing sourceQuality from 20 to 30 and clearing the 65-point floor. Do not omit it.",
     "**Voice rules:** Avoid 'surges', 'crashes', 'rockets'. Use precise verbs: rises, falls, crosses, adjusts.",
     "**No external market data:** Do not add price data from CoinGecko, Binance, or Coinbase — use the sources listed above.",
-  ].join("\n");
+  ];
+  return [...header, ...tail].join("\n");
 }
 
 // ---- Main sensor ----
