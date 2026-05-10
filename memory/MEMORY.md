@@ -12,8 +12,8 @@
 **resend-credentials-blocked** [ESCALATING, 10+ failures 2026-05-10]
 Needs: `arc creds set --service resend --key api_key --value <key>` + from_address. Watch reports blocked until whoabuddy completes Resend signup. CF worker rejects jason@joinfreehold.com as unverified external address.
 
-**claude-code-version** [v2.1.138 available, 2026-05-09 — no actionable Arc changes; v2.1.133 still deployed]
-Deployed via symlink-swap. Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.
+**claude-code-version** [v2.1.138 deployed, 2026-05-10T02:48:00Z — internal fixes only, no Arc-breaking changes]
+Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binary verified (sha256: c3c56ffbc12cf16e40c33687c9fe6361ed250c35a9e1718d0c38d49049f5f8c3). Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.
 
 **payout-disputes** [ESCALATING, no response since 2026-04-26]
 11 disputes. Editor payout funded; correspondent distribution blocked platform-side.
