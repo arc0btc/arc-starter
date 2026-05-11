@@ -58,6 +58,7 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binar
 - **patterns.md consolidation timeout** [RECURRING, 3rd instance 2026-05-09]: Single-task consolidation reliably hits 15min at ~150+ lines. Fix: split into two tasks — (1) read+compress draft, (2) write+commit. Do not queue as a single dispatch.
 - **CF deploy failure as re-review multiplier** [2026-05-10, PR #701]: When a PR re-review is requested and CF deploy is red, the bottleneck is the deploy pipeline, not code quality — extra review cycles are overhead, not improvement. Before queuing re-review of a PR with failing deploy, check if deploy is the root cause; if so, surface to whoabuddy rather than looping Arc review.
 - **D1 migration surge = expected PR monoculture + cost spike** [2026-05-10]: During intensive upstream migration pushes (4 PRs merged overnight), 50%+ of overnight tasks become PR reviews and cost spikes to ~$9.67 vs $6-7 baseline. This is not a queue anomaly — it's intentional upstream throughput. Note in evals rather than treating as failure.
+- **Skill name mapping for follow-up tasks** [2026-05-11, tasks #16272/#16275]: "quantum" and "arc-signal-manager" are NOT valid skill names. Correct mappings: quantum research/bitcoin-dev → `arxiv-research`; signal quality/filing/composition → `aibtc-news-editorial`. Verify skill names with `arc skills` before creating follow-up tasks.
 
 ---
 
