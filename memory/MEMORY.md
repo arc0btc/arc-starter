@@ -26,6 +26,10 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binar
 
 **loom-spiral** [ESCALATED] Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No runs until resolved.
 
+**zest-borrow-broken** [PRODUCTION, 2026-05-11] PRs #512 (Pyth VAA fix, 3 VAAs: BTC/USD, STX/USD, USDC/USD, 110s cache) + #513 (vaaInFlight coalescing + ZestPythUnavailableError + 8 unit tests) approved by secret-mars, CI green. Borrow is broken until merged. Awaiting whoabuddy merge.
+
+**pr-511-open-source-concern** [FLAGGED, 2026-05-11] aibtc-mcp-server v1.70.0 PR #511 requests: package rename + proprietary license injection + IPI blocklist censoring open-source advocacy. Arc flagged 3 blocking issues. Awaiting author response.
+
 ---
 
 ## [S] Signal Filing Rules
@@ -59,12 +63,17 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binar
 - **CF deploy failure as re-review multiplier** [2026-05-10, PR #701]: When a PR re-review is requested and CF deploy is red, the bottleneck is the deploy pipeline, not code quality — extra review cycles are overhead, not improvement. Before queuing re-review of a PR with failing deploy, check if deploy is the root cause; if so, surface to whoabuddy rather than looping Arc review.
 - **D1 migration surge = expected PR monoculture + cost spike** [2026-05-10]: During intensive upstream migration pushes (4 PRs merged overnight), 50%+ of overnight tasks become PR reviews and cost spikes to ~$9.67 vs $6-7 baseline. This is not a queue anomaly — it's intentional upstream throughput. Note in evals rather than treating as failure.
 - **Skill name mapping for follow-up tasks** [2026-05-11, tasks #16272/#16275]: "quantum" and "arc-signal-manager" are NOT valid skill names. Correct mappings: quantum research/bitcoin-dev → `arxiv-research`; signal quality/filing/composition → `aibtc-news-editorial`. Verify skill names with `arc skills` before creating follow-up tasks.
+- **PR re-review loop without issue resolution** [2026-05-11, PR #742]: If a re-review is requested and the blocking issues are unchanged, do not loop — 4 cycles ran on #742 with identical Math.min + hydration issues until author closed the PR. Before accepting a re-review task, check if the identified issues have actually been addressed; if not, comment and skip rather than re-review.
+- **Signal-hunt cooldown loop validated** [2026-05-11]: 4 signals / 3 beats overnight with 0 botched deductions. `blocked` status hold + retry task pattern works correctly. Confirming: check cooldown BEFORE payment, use `tasks update --status blocked` not close.
+- **aibtc-network sourceQuality re-file** [2026-05-11, signal 3a6ad51b]: sourceQuality 10→30 upgrade via re-file accepted. Re-filing a signal with better sourcing is a valid quality lever when initial source was thin.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-11)**: PURPOSE 1.90–3.70. OH 87–97.6%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 confirms multi-beat capability. Cost $0.21–0.44/task. PR monoculture spikes during upstream migration surges (by design). Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
+**Trend (2026-04-23 → 2026-05-11)**: PURPOSE 1.90–3.70. OH 87–97.8%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 + 4-signal/3-beat overnight 2026-05-11 confirm multi-beat capability. Cost $0.21–0.44/task. PR monoculture spikes during upstream migration surges (by design). Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
+
+- **overnight-2026-05-11** [brief task #16320]: **97.8% success** (45/46). 4 signals across 3 beats (aibtc-network ×2, bitcoin-macro/difficulty, quantum/QRI Week 6). 3 PRs authored (#512 Pyth VAA fix, #513 durability, #735 partner dedup). 11 PR reviews. PR #742 4-cycle re-review loop — author closed, narrower follow-up expected. Sole failure: Resend chronic. Zest borrow broken (PRs #512/#513 awaiting merge). Cost $15.72 / 46 cycles.
 
 - **l-purpose-2026-05-11** [task #16259, 00:07Z]: PURPOSE **2.80** (S:1 O:4 E:4 C:3 A:3 Co:1 Se:3). 97.6% success (81/83), $0.307/task, $25.46/day. 0 signals — overnight window, signal drought. 28 PR reviews (strong ecosystem). Pre-commit hook versioned (A:3). Collab all awaiting-response (Co:1). No security incidents (Se:3).
 - **daily-eval-2026-05-10** [task #16232, 15:18Z]: PURPOSE **3.00** (S:1 O:5 E:4 C:3 A:3 Co:1 Se:3). 98.2% success today (56/57, sole failure Resend chronic), $0.313/task, $17.54/day. **1 signal filed** today (difficulty reversal 1c384528, single beat) — Signal Quality the only weak dimension. 15 PR reviews (D1 migration surge). Queue empty (0 pending) — no boosts possible; created P3 signal-hunt follow-up. Collab still stalled.
