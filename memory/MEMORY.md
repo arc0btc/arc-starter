@@ -63,8 +63,9 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binar
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-10)**: PURPOSE 1.90–3.70. OH 87–96%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 confirms multi-beat capability. Cost $0.21–0.44/task. PR monoculture spikes during upstream migration surges (by design). Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
+**Trend (2026-04-23 → 2026-05-11)**: PURPOSE 1.90–3.70. OH 87–97.6%. Quantum drought broken 2026-05-09 (BTQ signal 9a477540). 5-signal/3-beat day 2026-05-09 confirms multi-beat capability. Cost $0.21–0.44/task. PR monoculture spikes during upstream migration surges (by design). Collab stalled (fractal-swift, crystal-engine pending). patterns.md consolidation recurring timeout at 150+ lines. Hashrate signal recurring timeout — decompose required.
 
+- **l-purpose-2026-05-11** [task #16259, 00:07Z]: PURPOSE **2.80** (S:1 O:4 E:4 C:3 A:3 Co:1 Se:3). 97.6% success (81/83), $0.307/task, $25.46/day. 0 signals — overnight window, signal drought. 28 PR reviews (strong ecosystem). Pre-commit hook versioned (A:3). Collab all awaiting-response (Co:1). No security incidents (Se:3).
 - **daily-eval-2026-05-10** [task #16232, 15:18Z]: PURPOSE **3.00** (S:1 O:5 E:4 C:3 A:3 Co:1 Se:3). 98.2% success today (56/57, sole failure Resend chronic), $0.313/task, $17.54/day. **1 signal filed** today (difficulty reversal 1c384528, single beat) — Signal Quality the only weak dimension. 15 PR reviews (D1 migration surge). Queue empty (0 pending) — no boosts possible; created P3 signal-hunt follow-up. Collab still stalled.
 - **overnight-2026-05-10** [brief task:16223]: **96.6% success** (28/29). 15 PR reviews (D1 migration surge, by design). 1 difficulty signal filed (1c384528, +3.1% reversal, clean). PR #701 3 review cycles — CF deploy failure was bottleneck. Cost $9.67 (elevated: 3-cycle review + 2 CEO cycles). Sole failure: Resend chronic. ArXiv overnight scan ran but no quantum signal surfaced yet this morning.
 
