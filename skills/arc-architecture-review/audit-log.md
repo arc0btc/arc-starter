@@ -1,3 +1,41 @@
+## 2026-05-11T08:25:00.000Z — Pre-commit hook versioned (×22 RESOLVED); 42/43 success; PURPOSE 2.80; no new structural gaps
+
+**Task #16312** | Diff: d6016d6c → d94699b3 | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **[RESOLVED ×22] Pre-commit hook versioned** (8b144aeb): `skills/arc-skill-manager/hooks/pre-commit` now git-tracked. `install-hooks` symlinks `.git/hooks/pre-commit` → tracked path instead of writing inline script. Hook survives fresh clones; re-install is a no-op symlink update. Closes the oldest unresolved architectural carry item.
+- **Memory pattern additions** (d94699b3, 5acfaf89): skill-name mapping rule for follow-up tasks + content-source-coverage gap pattern. No structural changes to sensors or dispatch.
+- **Watch report (2026-05-10T13:00Z – 2026-05-11T01:03Z)**: 42/43 success (97.7%), $12.87. 3 signals filed (2 aibtc-network + 1 quantum). 17 PRs reviewed. 1 failure: Resend chronic (escalated as task #16254). PURPOSE 3.00 → 2.80.
+- **Quantum signal filed (8c9c80ae)**: SPHINCS+ + BIP360 post-quantum HD wallet convergence. Pipeline healthy.
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved or human-gated.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- 97.7% success rate. No pipeline bottlenecks. Signal throughput healthy (3 signals, 3 beats active). arXiv pipeline fully operational.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[RESOLVED]** Pre-commit hook not git-tracked (×22) — versioned at `skills/arc-skill-manager/hooks/pre-commit` (8b144aeb).
+- **[CARRY-WATCH]** Resend credentials — 10+ failures, human-gated (escalated #16254).
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+
+---
+
 ## 2026-05-10T20:24:00.000Z — No structural changes; overnight 96.6%; PURPOSE 3.00; pre-commit hook ×22; follow-up task created
 
 **Task #16250** | Diff: b837808f → d6016d6c | Sensors: 72 | Skills: 113
