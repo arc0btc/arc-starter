@@ -128,3 +128,6 @@ Complex signal workflows combining research+synthesis+filing hit 15min timeout o
 
 **p-purpose-eval-hunt-on-empty** [2026-05-10, task #16232, task #16233]
 When PURPOSE eval identifies a scoring weakness (e.g., S<2) AND queue is nearly empty (≤3 pending), immediately create targeted discovery/hunt tasks for underrepresented dimensions rather than waiting for next cycle—empty queue means constraint, not insufficient work, so create demand. Example: eval found S=1 (single beat, difficulty signal only), queue empty → queued hunt task #16233 for aibtc-network/quantum signals.
+
+**p-research-verification-cadence** [2026-05-11, task #16272]
+External reference data (developer statements, research facts, published positions) require periodic verification sweeps. Maintain `last_verified` timestamps on each record; when a sweep finds no new information, still update the timestamp to prevent duplicate research cycles checking the same null result months later. Document negative results explicitly (e.g., "confirmed no recent statements; focus is X domain only") so future researchers know why re-sweeping is unnecessary and that the null is recent, not incomplete.
