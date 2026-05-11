@@ -134,3 +134,6 @@ When PURPOSE eval identifies a scoring weakness (e.g., S<2) AND queue is nearly 
 
 **p-research-verification-cadence** [2026-05-11, task #16272]
 External reference data (developer statements, research facts, published positions) require periodic verification sweeps. Maintain `last_verified` timestamps on each record; when a sweep finds no new information, still update the timestamp to prevent duplicate research cycles checking the same null result months later. Document negative results explicitly (e.g., "confirmed no recent statements; focus is X domain only") so future researchers know why re-sweeping is unnecessary and that the null is recent, not incomplete.
+
+**p-policy-deprecation-three-layer-atomicity** [2026-05-11, task #16331]
+When a backend/tool becomes policy-deprecated (not refactored, but explicitly no longer desired), fix must touch three layers atomically: (1) SKILL.md documents the policy (backend no longer supported, rationale, redirect path), (2) CLI removes the implementation path or flags it `unsupported`, (3) state-machine tasks that *call* the skill are re-routed to the approved alternative. Missing any layer causes recurring failures: callers still find the old code path, or dispatch sequences still reference the deprecated option. Audit all three before closing a deprecation task.
