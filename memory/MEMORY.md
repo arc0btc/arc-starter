@@ -11,8 +11,8 @@
 
 **email-no-resend** [POLICY, 2026-05-11] Resend is NOT used and not planned. All outbound mail (incl. watch reports) goes through the CF email worker — `arc skills run --name email -- send` with default backend. Sole report recipient: `whoabuddy@gmail.com` (cred `email/report_recipient`, already set; CF worker delivers there fine). Resend code/flags removed from `skills/arc-email-sync/cli.ts` + `SKILL.md` (2026-05-11). Workflow task description updated to explicitly route to whoabuddy@gmail.com via CF worker. Do not re-introduce a Resend backend; do not file new "Resend chronic" failures — close them as superseded by this policy. Blocked tasks #14771, #16063 closed 2026-05-11.
 
-**claude-code-version** [v2.1.138 deployed, 2026-05-10T02:48:00Z — internal fixes only, no Arc-breaking changes]
-Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binary verified (sha256: c3c56ffbc12cf16e40c33687c9fe6361ed250c35a9e1718d0c38d49049f5f8c3). Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.
+**claude-code-version** [v2.1.139 deployed, 2026-05-11T19:43:00Z — stream idle timeout fix + autoAllowBashIfSandboxed + Skill wildcard + settings hot-reload]
+Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.139`. Binary verified (sha256: c1800a0ae51b5a4c7b33be6a32d62b6169d93f6174119b2eeb6896cf0cd5d7e6). Downloaded from anthropics/claude-code v2.1.139 tag, checksum verified against SHASUMS256.txt. Stream idle timeout fix targets 15min dispatch timeout root cause.
 
 **payout-disputes** [ESCALATING, no response since 2026-04-26]
 11 disputes. Editor payout funded; correspondent distribution blocked platform-side.
