@@ -1,7 +1,7 @@
 ---
 name: nostr-wot
-description: Nostr Web of Trust trust scoring, sybil detection, and neighbor discovery via MaximumSats API
-updated: 2026-03-19
+description: "DEPRECATED — use wot skill instead. Nostr Web of Trust trust scoring, sybil detection, and neighbor discovery via MaximumSats API"
+updated: 2026-05-11
 tags:
   - nostr
   - trust
