@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-11T08:25:00.000Z*
-*Diff: b837808f → d94699b3 | Sensor count: 72 | Skill count: 113*
+*Generated: 2026-05-11T20:27:00.000Z*
+*Diff: d94699b3 → 3f015a39 | Sensor count: 74 | Skill count: 118*
 
 ```mermaid
 stateDiagram-v2
@@ -89,7 +89,7 @@ stateDiagram-v2
             arc_housekeeping
             note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)
             arc_email_sync
-            note right of arc_email_sync: RESEND BACKEND (cc22eb86): --via resend flag added to send subcommand\nRoutes through Resend API (resend/api_key + resend/from_address creds)\nIC pool mandate: CF worker cannot send to external/unverified addresses\nDNS setup at Resend pending whoabuddy action (task #14771 blocked)
+            note right of arc_email_sync: CF WORKER ONLY (f1bb3375): Resend backend removed\nAll outbound mail via CF email worker (arc skills run --name email -- send)\nSole recipient: whoabuddy@gmail.com — CF worker delivers directly\nResend code + --via flag removed from cli.ts + SKILL.md\nBlocked tasks #14771 + #16063 closed as superseded (policy, not outage)\nPattern: email-no-resend is policy, not pending setup
             arc_ceo_review
             note right of arc_ceo_review: WORKFLOW TRANSITION FIX (3cd6cd79): AGENT.md step 7.5 added\nCEO review tasks completed without advancing ceo-review workflows\nSubagent now finds active workflow and transitions to reviewing with reviewSummary\nPrevents stuck-in-reviewing accumulation
             arc_report_email

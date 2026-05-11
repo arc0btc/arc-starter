@@ -1,3 +1,46 @@
+## 2026-05-11T20:27:00.000Z — Email simplified (Resend removed); skills v0.42.0 (+5 skills, +2 sensors); nostr-wot orphaned
+
+**Task #16354** | Diff: d94699b3 → 3f015a39 | Sensors: 74 | Skills: 118
+
+### Step 1 — Requirements
+
+- **Email simplification** (f1bb3375): Resend backend removed from arc-email-sync. CF worker is the sole email path. `--via resend` flag + cmdSendViaResend removed from cli.ts. Blocked tasks #14771 + #16063 closed. This eliminates a dead code path that was causing chronic dispatch failures. Clean.
+- **Skills v0.42.0** (4cd1a26a + 3f015a39): 3 new knowledge skills added — `lunarcrush` (pay-per-call social/market intelligence via x402, authored by Prime Spoke), `wot` (consolidated Web of Trust, adds trust-path/recommend/taproot-key sources), `ordinals-marketplace` (Magic Eden PSBT browse/buy/sell flow). None have sensors.
+- **nostr-wot deprecated** (4cd1a26a): wot replaces nostr-wot, but nostr-wot skill directory still exists on disk. Not deleted — orphaned.
+- **amber-otter contact** (3f015a39 + 4cd1a26a): Genesis Level 2 agent (369SunRay, 1744+ check-ins) registered as peer. Bitcoin-macro/aibtc-network/quantum beat overlap = potential collaboration.
+- **sbtc-yield-maximizer**: HODLMM routing leg updated (d9446137). No structural impact.
+- **Overnight brief (13:05Z)**: PURPOSE 3.60 (daily eval), 97.8% success (45/46). 4 signals/3 beats. 11 PR reviews. Resend chronic = sole failure.
+- **Watch report (13:00Z)**: Aligned. Zest borrow PRs #512/#513 approved/CI green, awaiting whoabuddy merge. PR #511 mcp-server blocking issues unresolved.
+
+### Step 2 — Delete
+
+- **[NEW-OPEN]** `skills/nostr-wot/` orphaned — deprecated by wot (4cd1a26a) but directory still present. Remove to avoid confusion. Follow-up task created.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** Email Resend dead code path removed (f1bb3375). arc-email-sync now has a single delivery path.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface, no new data.
+
+### Step 4 — Accelerate
+
+- Throughput healthy: 97.8% success, 4 signals/3 beats overnight. No bottlenecks. Sensor +2 / Skill +5 expand coverage without adding dispatch complexity.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[NEW-OPEN]** nostr-wot orphaned — `skills/nostr-wot/` directory should be deleted after wot integration confirmed stable.
+- **[RESOLVED]** Resend chronic failure loop — email-no-resend policy closes the 10+ failure chain.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge; borrow broken until merged.
+
+---
+
 ## 2026-05-11T08:25:00.000Z — Pre-commit hook versioned (×22 RESOLVED); 42/43 success; PURPOSE 2.80; no new structural gaps
 
 **Task #16312** | Diff: d6016d6c → d94699b3 | Sensors: 72 | Skills: 113
