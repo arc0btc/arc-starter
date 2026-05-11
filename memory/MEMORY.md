@@ -9,8 +9,7 @@
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending).
 
-**resend-credentials-blocked** [ESCALATING, 10+ failures 2026-05-10]
-Needs: `arc creds set --service resend --key api_key --value <key>` + from_address. Watch reports blocked until whoabuddy completes Resend signup. CF worker rejects jason@joinfreehold.com as unverified external address.
+**email-no-resend** [POLICY, 2026-05-11] Resend is NOT used and not planned. All outbound mail (incl. watch reports) goes through the CF email worker — `arc skills run --name email -- send` with default backend. Sole report recipient: `whoabuddy@gmail.com` (cred `email/report_recipient`, already set; CF worker delivers there fine). Resend code/flags removed from `skills/arc-email-sync/cli.ts` + `SKILL.md` (2026-05-11). Workflow task description updated to explicitly route to whoabuddy@gmail.com via CF worker. Do not re-introduce a Resend backend; do not file new "Resend chronic" failures — close them as superseded by this policy. Blocked tasks #14771, #16063 closed 2026-05-11.
 
 **claude-code-version** [v2.1.138 deployed, 2026-05-10T02:48:00Z — internal fixes only, no Arc-breaking changes]
 Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.138`. Binary verified (sha256: c3c56ffbc12cf16e40c33687c9fe6361ed250c35a9e1718d0c38d49049f5f8c3). Config: `worktree.baseRef: "head"` in `.claude/settings.json` (commit 76ca99bd). See `memory/shared/entries/claude-code-version-deploy.md`.

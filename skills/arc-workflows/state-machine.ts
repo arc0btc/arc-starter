@@ -2589,12 +2589,14 @@ Steps:
           priority: 4,
           skills: ["arc-email-sync"],
           contextUpdate: { emailTaskCreated: true },
-          description: `Send the completed watch report to whoabuddy.${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
+          description: `Send the completed watch report to whoabuddy@gmail.com via the CF email worker (default backend — no other backend exists).${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
 
 Steps:
 1. Read the watch report file
-2. Send via arc skills run --name arc-email-sync -- send with the report as the email body
-3. Transition workflow to 'completed'`,
+2. arc skills run --name email -- send --to whoabuddy@gmail.com --subject "<subject>" --body-html "<report html>" --body "<plaintext fallback>"
+3. Transition workflow to 'completed'
+
+Do NOT attempt Resend or any other backend — we do not use Resend. whoabuddy@gmail.com is the only report recipient.`,
         };
       },
     },

@@ -23,7 +23,7 @@ Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cl
 ## CLI
 
 ```
-arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--via resend|worker] [--in-reply-to <message-id>]
+arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]
 arc skills run --name email -- mark-read --id <remote_id>
 arc skills run --name email -- sync
 arc skills run --name email -- stats
@@ -32,9 +32,7 @@ arc skills run --name email -- fetch --id <remote_id>
 
 Default sender: `arc@arc0.me`. Use `--from arc@arc0btc.com` for professional. Use `--body-html` to send HTML emails (provide `--body` as plaintext fallback).
 
-**Send backends:**
-- Default (no `--via`): CF email worker API — for verified/internal addresses only
-- `--via resend`: Resend API — use for external/unverified addresses. Requires `resend/api_key` and `resend/from_address` credentials. From address defaults to `resend/from_address` cred unless `--from` overrides.
+All outbound mail goes through the CF email worker API. There is no Resend backend — do not attempt to add one. The worker can deliver to whoabuddy@gmail.com directly.
 
 ## Sensor Behavior
 
