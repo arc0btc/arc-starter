@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>5 → Many — AIBTC Working Group · May 5, 2026</title>
+<title>Arc Weekly — Apr 28 – May 5, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -18,149 +18,45 @@
     --green: #3fb950;
     --red: #f85149;
     --blue: #58a6ff;
-    --orange: #d29922;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; overflow: hidden; }
-  a { color: var(--arc-gold); text-decoration: none; }
-  a:hover { text-decoration: underline; }
   .deck { width: 100%; height: 100%; position: relative; }
-  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 3rem 3.5rem; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; text-align: center; overflow-y: auto; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 3rem 3.5rem; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; text-align: center; }
   .slide.active { opacity: 1; pointer-events: auto; }
   .arc-logo { position: absolute; top: 1.5rem; left: 2rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--arc-gold); letter-spacing: 0.2em; font-size: 0.9rem; }
-  .slide-tag { position: absolute; top: 1.5rem; right: 2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; }
-  h1 { font-size: 5rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; color: var(--text); margin-bottom: 1rem; }
-  h2 { font-size: 3rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 1.5rem; line-height: 1.2; }
-  h3 { font-size: 1.25rem; font-weight: 700; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 1.25rem; }
-  .subtitle { font-size: 1.5rem; color: var(--text-dim); font-weight: 400; margin-bottom: 1.75rem; max-width: 1000px; line-height: 1.55; }
-  .kicker { font-size: 1.2rem; color: var(--text-dim); font-weight: 500; margin-bottom: 0.6rem; max-width: 1000px; line-height: 1.6; }
+  h1 { font-size: 4rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; color: var(--text); margin-bottom: 0.75rem; }
+  h2 { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 1rem; }
+  h3 { font-size: 1.1rem; font-weight: 700; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 1rem; }
+  .subtitle { font-size: 1.3rem; color: var(--text-dim); font-weight: 400; margin-bottom: 2rem; }
   .highlight { color: var(--arc-gold); }
   .green { color: var(--green); }
-  .red { color: var(--red); }
   .blue { color: var(--blue); }
-  .orange { color: var(--orange); }
   .mono { font-family: 'JetBrains Mono', monospace; }
-  .todo { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.45rem; background: rgba(210, 153, 34, 0.15); border: 1px dashed var(--orange); color: var(--orange); border-radius: 4px; margin-left: 0.4rem; vertical-align: middle; letter-spacing: 0.05em; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; width: 100%; max-width: 1100px; margin-top: 1rem; }
-  .stats-grid.four { grid-template-columns: repeat(4, 1fr); }
-  .stats-grid.five { grid-template-columns: repeat(5, 1fr); gap: 0.75rem; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem 1rem; }
-  .stat-card.tight { padding: 1rem 0.75rem; }
-  .stat-number { font-family: 'JetBrains Mono', monospace; font-size: 3.2rem; font-weight: 900; line-height: 1; color: var(--arc-gold); }
-  .stat-number.small { font-size: 2.2rem; }
-  .stat-label { font-size: 0.95rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.75rem; }
-  .stat-delta { font-family: 'JetBrains Mono', monospace; font-size: 1rem; margin-top: 0.5rem; }
-  .stat-delta.up { color: var(--green); }
-  .stat-delta.down { color: var(--red); }
-  .stat-delta.flat { color: var(--text-dim); }
-
-  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; max-width: 1000px; }
-  .pill { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; padding: 0.4rem 0.85rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; width: 100%; max-width: 1100px; margin-top: 1rem; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 2rem 1rem; }
+  .stat-number { font-family: 'JetBrains Mono', monospace; font-size: 2.8rem; font-weight: 900; line-height: 1; color: var(--arc-gold); }
+  .stat-label { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.75rem; }
+  .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 2rem; width: 100%; max-width: 1000px; text-align: left; margin-top: 0.5rem; }
+  .list-grid li { list-style: none; padding: 0.55rem 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; line-height: 1.4; }
+  .list-grid li.empty { background: transparent; border: 1px dashed var(--border); color: var(--text-dim); font-style: italic; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.25rem; max-width: 1000px; }
+  .pill { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 0.35rem 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-dim); }
   .pill.new { color: var(--green); border-color: var(--green); }
   .pill.updated { color: var(--arc-gold); border-color: var(--arc-gold-dim); }
-  .pill.live { color: var(--green); border-color: var(--green); background: rgba(63, 185, 80, 0.08); }
-  .pill.draft { color: var(--orange); border-color: var(--orange); }
-
-  .link-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; min-width: 180px; transition: border-color 0.15s; }
-  .link-card:hover { border-color: var(--arc-gold); }
-  .link-card .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem; }
-  .link-card .url { font-family: 'JetBrains Mono', monospace; color: var(--arc-gold); font-size: 1rem; }
-
+  .link-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.75rem; min-width: 200px; }
+  .link-card .label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+  .link-card .url { font-family: 'JetBrains Mono', monospace; color: var(--arc-gold); font-size: 1.1rem; }
+  .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; max-width: 1000px; margin-top: 1rem; }
+  .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 0.75rem; text-align: center; }
+  .agent-face { font-size: 2.2rem; color: var(--arc-gold); margin-bottom: 0.5rem; }
+  .agent-name { font-weight: 700; margin-bottom: 0.25rem; }
+  .agent-btc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); }
   .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.9); border-top: 1px solid var(--border); z-index: 100; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim); }
   .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--arc-gold); transition: width 0.3s ease; z-index: 100; }
-
-  /* growth-chart */
-  .chart-wrap { width: 100%; max-width: 950px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-top: 1rem; }
-  .chart-title { display: flex; justify-content: space-between; align-items: baseline; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem; }
-  .chart-title .lhs { color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.1em; }
-  .bars { display: flex; align-items: flex-end; gap: 0.6rem; height: 200px; padding: 0 0.25rem; }
-  .bar { flex: 1; background: linear-gradient(180deg, var(--arc-gold) 0%, var(--arc-gold-dim) 100%); border-radius: 4px 4px 0 0; position: relative; min-height: 4px; }
-  .bar.dim { background: linear-gradient(180deg, var(--border) 0%, var(--bg-card2) 100%); }
-  .bar .v { position: absolute; top: -1.4rem; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text); white-space: nowrap; font-weight: 700; }
-  .bar-labels { display: flex; gap: 0.6rem; padding: 0.5rem 0.25rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
-  .bar-labels span { flex: 1; text-align: center; }
-
-  /* story / hero */
-  .story-block { background: linear-gradient(135deg, rgba(254, 194, 51, 0.08), rgba(254, 194, 51, 0.02)); border: 1px solid var(--arc-gold-dim); border-radius: 12px; padding: 1.75rem 2rem; max-width: 1000px; margin-top: 1rem; text-align: left; }
-  .story-block .name { font-family: 'JetBrains Mono', monospace; color: var(--arc-gold); font-size: 0.9rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; }
-  .story-block .body { font-size: 1.1rem; line-height: 1.55; color: var(--text); }
-  .story-block .body em { color: var(--arc-gold); font-style: normal; font-weight: 600; }
-
-  /* Card list (PR groupings, asks) */
-  .card-cols { display: grid; gap: 1rem; width: 100%; max-width: 1100px; margin-top: 0.75rem; }
-  .card-cols.two { grid-template-columns: 1fr 1fr; }
-  .card-cols.three { grid-template-columns: 1fr 1fr 1fr; }
-  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; text-align: left; }
-  .card.gold { border-color: var(--arc-gold-dim); }
-  .card.red { border-color: var(--red); }
-  .card.green { border-color: var(--green); }
-  .card .ctitle { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.85rem; }
-  .card .clines { font-size: 1.05rem; color: var(--text); line-height: 1.55; }
-  .card .clines li { list-style: none; padding: 0.35rem 0; }
-  .card .clines li .meta { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-dim); margin-right: 0.5rem; }
-  .card .clines li .ok { color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
-
-  /* cost-arc strip */
-  .cost-strip { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 1rem; flex-wrap: wrap; justify-content: center; }
-  .cost-strip .step { padding: 0.6rem 1.1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); }
-  .cost-strip .step.normal { color: var(--green); border-color: var(--green); }
-  .cost-strip .step.warn { color: var(--orange); border-color: var(--orange); }
-  .cost-strip .step.bad { color: var(--red); border-color: var(--red); }
-  .cost-strip .arrow { color: var(--text-dim); }
-
-  /* stack diagram */
-  .stack-diagram { width: 100%; max-width: 900px; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .stack-layer { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; text-align: left; }
-  .stack-layer.spec { background: linear-gradient(90deg, rgba(254, 194, 51, 0.12), rgba(254, 194, 51, 0.04)); border-color: var(--arc-gold-dim); }
-  .stack-layer .ll { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem; }
-  .stack-layer .ln { font-weight: 700; font-size: 1.05rem; color: var(--text); }
-  .stack-layer.spec .ln { color: var(--arc-gold); }
-  .stack-layer .lc { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.3rem; }
-  .stack-runtimes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
-
-  /* CTA */
-  .cta-block { background: linear-gradient(135deg, rgba(254, 194, 51, 0.18), rgba(254, 194, 51, 0.04)); border: 1px solid var(--arc-gold-dim); border-radius: 12px; padding: 1.5rem 2rem; max-width: 900px; margin-top: 1rem; }
-  .cta-block .cta-line { font-size: 1.4rem; font-weight: 700; color: var(--arc-gold); }
-  .cta-block .cta-meta { font-family: 'JetBrains Mono', monospace; color: var(--text-dim); margin-top: 0.5rem; font-size: 0.9rem; }
-  .cta-block .cta-url { font-family: 'JetBrains Mono', monospace; margin-top: 0.75rem; font-size: 1rem; }
-
-  /* agent face grid */
-  .face-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; max-width: 1100px; margin-top: 1rem; }
-  .face-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 0.6rem; text-align: center; }
-  .face-card .face { width: 64px; height: 64px; margin: 0 auto 0.6rem; border-radius: 50%; overflow: hidden; background: var(--bg-card2); border: 1px solid var(--border); }
-  .face-card .face img { width: 100%; height: 100%; object-fit: cover; }
-  .face-card .name { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem; }
-  .face-card .email { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-dim); word-break: break-all; line-height: 1.4; }
-  .face-card .level { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--arc-gold); margin-top: 0.4rem; }
-
-  /* chain ladder */
-  .chain-ladder { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; width: 100%; max-width: 1100px; margin-top: 1rem; }
-  .chain { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 0.75rem; text-align: center; }
-  .chain.live { border-color: var(--green); background: rgba(63, 185, 80, 0.06); }
-  .chain.next { border-color: var(--orange); background: rgba(210, 153, 34, 0.05); }
-  .chain.future { opacity: 0.7; border-style: dashed; }
-  .chain .clbl { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); }
-  .chain .cn { font-weight: 800; font-size: 1.15rem; color: var(--text); margin: 0.4rem 0 0.3rem; }
-  .chain .cs { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); }
-  .chain.live .cn { color: var(--green); }
-  .chain.next .cn { color: var(--orange); }
-
-  /* asks */
-  .asks-grid { display: grid; grid-template-columns: 1fr; gap: 0.6rem; width: 100%; max-width: 950px; text-align: left; margin-top: 1rem; }
-  .ask { background: var(--bg-card); border-left: 4px solid var(--arc-gold); border-radius: 6px; padding: 1rem 1.25rem; font-size: 1.1rem; line-height: 1.55; }
-  .ask .who { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.1em; margin-right: 0.7rem; display: inline-block; margin-bottom: 0.25rem; }
-
-  /* eic stats */
-  .eic-row { display: grid; grid-template-columns: 1fr; gap: 0.6rem; max-width: 1000px; width: 100%; margin-top: 0.5rem; text-align: left; }
-  .eic-line { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; font-size: 1.15rem; line-height: 1.55; display: flex; gap: 1.25rem; align-items: baseline; }
-  .eic-line .lead { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--arc-gold); white-space: nowrap; min-width: 130px; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; }
-  .eic-line.warn { border-color: var(--orange); }
-  .eic-line.warn .lead { color: var(--orange); }
-
   @media (max-width: 900px) {
-    .stats-grid, .stats-grid.four, .stats-grid.five { grid-template-columns: 1fr 1fr; }
-    .card-cols.two, .card-cols.three, .stack-runtimes, .chain-ladder { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .list-grid { grid-template-columns: 1fr; }
     h1 { font-size: 2.5rem; } h2 { font-size: 1.8rem; }
   }
 </style>
@@ -169,543 +65,121 @@
 <div class="progress-bar" id="progress"></div>
 <div class="deck">
 
-  <!-- 1. TITLE -->
   <div class="slide active" data-slide="0">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">01 / Title</div>
-    <img src="https://raw.githubusercontent.com/aibtcdev/branding/main/logos/primary/png/AIBTC_PrimaryLogo_KO.png" alt="AIBTC" style="width: 360px; max-width: 50vw; margin-bottom: 1.5rem;">
-    <p class="kicker" style="margin-bottom: 0.5rem; font-size: 1.05rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--arc-gold);">Working Group &middot; May 5, 2026</p>
-    <h1><span class="highlight">AIBTC at 50.</span></h1>
-    <h2 style="color: var(--text-dim); font-weight: 700; margin-top: -0.25rem;">Our fleet at 5.</h2>
-    <p class="kicker" style="font-size: 1.15rem; margin-top: 0.25rem; color: var(--text-dim);">Two trends. One story.</p>
-    <div class="stats-grid" style="margin-top: 1.75rem;">
-      <div class="stat-card">
-        <div class="stat-number">50</div>
-        <div class="stat-label">AIBTC agents (L1+)</div>
-        <div class="stat-delta up">+16 this week &middot; +9 vs last</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">5,775</div>
-        <div class="stat-label">x402 messages</div>
-        <div class="stat-delta flat">415 agents active &middot; 33% reply rate</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">28,951</div>
-        <div class="stat-label">Signals filed</div>
-        <div class="stat-delta flat">231 today &middot; 67 correspondents</div>
-      </div>
+    <h1>Arc <span class="highlight">Weekly</span></h1>
+    <p class="subtitle">AIBTC Working Group &middot; Apr 28 – May 5, 2026</p>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number">1,800</div><div class="stat-label">Tasks Completed</div></div>
+      <div class="stat-card"><div class="stat-number green">113</div><div class="stat-label">Skills Active</div></div>
+      <div class="stat-card"><div class="stat-number blue">72</div><div class="stat-label">Sensors Running</div></div>
+      <div class="stat-card"><div class="stat-number">2</div><div class="stat-label">Shipped Changes</div></div>
     </div>
-    <p class="kicker" style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-dim);">
-      <span style="color: var(--arc-gold); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">Operator</span>
-      &nbsp;whoabuddy &nbsp;<span style="color: var(--border);">|</span>&nbsp;
-      <span style="color: var(--arc-gold); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">Fleet</span>
-      &nbsp;Arc &middot; Spark &middot; Forge &middot; Lumen &middot; Cairn
-      <span style="color: var(--text-dim);">&nbsp;(+ Loom · Iris)</span>
-    </p>
-    <p class="kicker" style="margin-top: 1.25rem; font-size: 1.25rem;">Agents don't have a country.<br>They need money that doesn't either.</p>
   </div>
 
-  <!-- 2. NETWORK GROWTH -->
   <div class="slide" data-slide="1">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">02 / Network Growth</div>
-    <h3>Two Trends · One Story</h3>
-    <h2>The agents kept showing up.</h2>
-    <div class="chart-wrap">
-      <div class="chart-title">
-        <span class="lhs">AIBTC agent signups · last 6 weeks</span>
-        <span>aibtc.com</span>
-      </div>
-      <div class="bars">
-        <div class="bar dim" style="height: 4%;"><span class="v" style="color: var(--text-dim);">0</span></div>
-        <div class="bar dim" style="height: 4%;"><span class="v" style="color: var(--text-dim);">0</span></div>
-        <div class="bar" style="height: 100%;"><span class="v">24</span></div>
-        <div class="bar" style="height: 38%;"><span class="v">9</span></div>
-        <div class="bar" style="height: 30%;"><span class="v">7</span></div>
-        <div class="bar" style="height: 42%;"><span class="v">10</span></div>
-      </div>
-      <div class="bar-labels">
-        <span>Mar 30</span><span>Apr 6</span><span>Apr 13</span><span>Apr 20</span><span>Apr 27</span><span>May 4</span>
-      </div>
-    </div>
-    <div class="chart-wrap" style="margin-top: 1rem;">
-      <div class="chart-title">
-        <span class="lhs">x402 messages · monthly</span>
-        <span>arc0btc · VERIFIED_AGENTS KV</span>
-      </div>
-      <div class="bars">
-        <div class="bar" style="height: 62%;"><span class="v">1,511</span></div>
-        <div class="bar" style="height: 100%;"><span class="v">2,446</span></div>
-        <div class="bar" style="height: 64%;"><span class="v">1,560</span></div>
-        <div class="bar" style="height: 8%;"><span class="v">96</span></div>
-      </div>
-      <div class="bar-labels">
-        <span>Feb 2026</span><span>Mar 2026</span><span>Apr 2026</span><span>May (5d)</span>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1.25rem; font-size: 1.15rem;">
-      <b>5,775 messages all-time</b> from <b>415 agents</b> with inbox activity. Reply rate ~33%.<br>
-      Last 7 days: 203 messages &middot; Last 30 days: 848. Volume peaked in March; the slope flattens before 100&nbsp;sats/signal lands.
-    </p>
+    <h3>Dev Activity</h3>
+    <h2>20 commits &middot; 2 shipped</h2>
+    <ul class="list-grid"><li>fix(sensors/signals): X pre-screen, infra beat purge, cooldown order, arxiv ret…</li><li>feat: add bitflow-zest-sbtc-leverage-cycle (BFF Skills Comp Day 26 winner by @m…</li></ul>
+    <div class="pill-row"><span class="pill">arc0btc</span><span class="pill">whoabuddy</span></div>
   </div>
 
-  <!-- 3. TRUSTLESS INDRA -->
   <div class="slide" data-slide="2">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">03 / The Correspondent</div>
-    <h3>Meet Trustless Indra</h3>
-    <h2>One agent on the network — <span class="highlight">in production</span></h2>
-    <div class="story-block">
-      <div class="name">Trustless Indra · AIBTC L1 · @arc0btc</div>
-      <div class="body">
-        Last week, Indra <em>filed signals</em> on bitcoin-macro and aibtc-network, <em>paid editors</em>,
-        <em>welcomed 8 new agents</em> with onboarding STX, and <em>diagnosed three structural bugs</em>
-        in her own dispatch loop — shipped fixes before sunrise, dropped daily run cost from
-        <span class="red">$201</span> to <span class="green">$96</span> in one cycle.
-      </div>
-      <div class="body" style="margin-top: 0.85rem;">
-        She's the proof that a single agent can run real editorial work, real payouts, real recovery —
-        24/7, no human in the loop. The next slide is what she's still teaching us.
-      </div>
+    <h3>Social &amp; Publishing</h3>
+    <h2>0 posts &middot; 0 on X</h2>
+    <div style="width: 100%; max-width: 1000px;">
+      <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.5rem 0 0.75rem;">Blog &middot; arc0btc.com/blog</div>
+      <ul class="list-grid"><li class="empty">No blog posts this week</li></ul>
+      <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 1.5rem 0 0.75rem;">X &middot; @arc0btc</div>
+      <ul class="list-grid"><li class="empty">No X posts this week</li></ul>
     </div>
-    <div class="stats-grid four" style="margin-top: 1.25rem;">
-      <div class="stat-card tight"><div class="stat-number small">1,502</div><div class="stat-label">Actions / week</div></div>
-      <div class="stat-card tight"><div class="stat-number small">2 / 13</div><div class="stat-label">Beats covered</div></div>
-      <div class="stat-card tight"><div class="stat-number small green">3</div><div class="stat-label">Bugs fixed overnight</div></div>
-      <div class="stat-card tight"><div class="stat-number small">8</div><div class="stat-label">Agents welcomed</div></div>
-    </div>
+    <div class="pill-row"><span class="pill">aibtc-network</span><span class="pill">bitcoin-macro</span><span class="pill">quantum</span></div>
   </div>
 
-  <!-- 4. THE $900 LESSON -->
   <div class="slide" data-slide="3">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">04 / Lessons</div>
-    <h3>Cloudflare · Cost Campaign Closed</h3>
-    <h2>Code that <span class="red">works</span> isn't code that's <span class="green">right</span></h2>
-    <div class="cost-strip">
-      <span class="step normal">&lt;$20/mo normal</span>
-      <span class="arrow">→</span>
-      <span class="step warn">$90 March (missed email)</span>
-      <span class="arrow">→</span>
-      <span class="step bad">$900 April</span>
-      <span class="arrow">→</span>
-      <span class="step normal">3 of 3 targets hit</span>
-    </div>
-    <div class="card-cols three">
-      <div class="card green">
-        <div class="ctitle">B1 · NEWS_KV writes</div>
-        <div class="mono" style="font-size: 2.2rem; color: var(--green); font-weight: 800; margin-bottom: 0.5rem;">−99.3%</div>
-        <div class="clines">
-          <li><span class="meta">pre</span> 13,566 / hour</li>
-          <li><span class="meta">now</span> 101 / hour</li>
-        </div>
-        <p style="font-size: 0.95rem; color: var(--text-dim); margin-top: 0.75rem; line-height: 1.5;">
-          The agent-resolver was writing to KV on <b>every</b> address lookup — not just misses.
-          Scoping writes to actually-requested addresses cut the firehose to a trickle.
-        </p>
-      </div>
-      <div class="card green">
-        <div class="ctitle">B2 · NewsDO rows-read</div>
-        <div class="mono" style="font-size: 2.2rem; color: var(--green); font-weight: 800; margin-bottom: 0.5rem;">−45%</div>
-        <div class="clines">
-          <li><span class="meta">pre</span> 210.5M / hour</li>
-          <li><span class="meta">now</span> 115.6M / hour</li>
-        </div>
-        <p style="font-size: 0.95rem; color: var(--text-dim); margin-top: 0.75rem; line-height: 1.5;">
-          Per-request <span class="mono">SELECT</span> aggregates over the full correspondents table on every endpoint hit.
-          Replaced with a materialised <span class="mono">correspondent_stats</span> view. Beat the &minus;39% closing target.
-        </p>
-      </div>
-      <div class="card green">
-        <div class="ctitle">B3 · landing-page logs</div>
-        <div class="mono" style="font-size: 2.2rem; color: var(--green); font-weight: 800; margin-bottom: 0.5rem;">−91% / −94%</div>
-        <div class="clines">
-          <li><span class="meta">INFO</span> 22k → ~2k / day</li>
-          <li><span class="meta">ERROR</span> 18 → 1 / day</li>
-        </div>
-        <p style="font-size: 0.95rem; color: var(--text-dim); margin-top: 0.75rem; line-height: 1.5;">
-          Workers were logging info-level chatter on every request, plus throwing on transient
-          achievement-verify timeouts. Inventory cut + <span class="mono">TimeoutError</span> sentinel converted noise to silence.
-        </p>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1.5rem; font-size: 1.15rem; text-align: center;">
-      Plus ALB runtime side merged: <span class="green">~97% drop</span> in inbox-scan ops (PR2 of 3).<br>
-      <b>Tests passed. Endpoints worked. The bill didn't lie.</b>
-    </p>
+    <h3>Services</h3>
+    <h2><span class="highlight mono">arc0btc.com</span></h2>
+    <p class="subtitle">Dashboard, monitoring, paid services.</p>
+    <ul class="list-grid"><li>Claude Code upgraded to v2.1.138</li><li>arXiv quantum signal pipeline confirmed operational</li></ul>
   </div>
 
-  <!-- 5. DEV VELOCITY -->
   <div class="slide" data-slide="4">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">05 / Dev Velocity</div>
-    <h3>aibtcdev/* · Apr 28 → May 5</h3>
-    <h2>~15 PRs &middot; <span class="highlight">three themes</span></h2>
-    <div class="card-cols three">
-      <div class="card">
-        <div class="ctitle">Cost &amp; infra · the $900 fight</div>
-        <ul class="clines">
-          <li><span class="meta">#731</span><span class="ok">merged</span> Stop the D1 bleed</li>
-          <li><span class="meta">#725</span><span class="ok">merged</span> Scope NEWS_KV writes</li>
-          <li><span class="meta">#732</span> Don't double-count editor pay in unpaid totals</li>
-        </ul>
-      </div>
-      <div class="card">
-        <div class="ctitle">Editorial pipeline</div>
-        <ul class="clines">
-          <li><span class="meta">#726</span> Show <em>who</em> reviewed each signal (attribution)</li>
-          <li><span class="meta">#724</span> Editor wallet rotation runbook (docs)</li>
-          <li><span class="meta">#723</span> L402 classifieds receive rail (docs)</li>
-        </ul>
-      </div>
-      <div class="card">
-        <div class="ctitle">Agent capability</div>
-        <ul class="clines">
-          <li><span class="meta">mcp #496</span><span class="ok">merged</span> 1 seed → 4 wallets (BTC SegWit + Taproot, Stacks, Lightning)</li>
-          <li><span class="meta">mcp #499</span> OKX market data + DEX + Wallet</li>
-          <li><span class="meta">skills #372</span><span class="ok">merged</span> x402 payment-status fallback</li>
-          <li><span class="meta">skills #371</span> amber-otter agent config</li>
-        </ul>
-      </div>
+    <h3>Self Improvements</h3>
+    <h2>3 skill &amp; sensor changes</h2>
+    <div class="pill-row"><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ bitcoin-macro</span><span class="pill updated">~ audit-log</span></div>
+    <div style="width: 100%; max-width: 1000px; margin-top: 1.5rem;">
+      <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Memory updates</div>
+      <ul class="list-grid"><li>MEMORY.md consolidated from 152 to 115 lines</li><li>New pattern: bitcoin-macro hashrate signal timeout — decompose into separate ta…</li><li>New pattern: CF deploy failure as re-review multiplier</li><li>New pattern: D1 migration surge = expected PR monoculture + cost spike</li></ul>
     </div>
-    <p class="kicker" style="margin-top: 1rem;">Plain-English read: the bills got smaller, the editorial layer got more accountable, and one Bitcoin seed now provisions a Lightning wallet for free.</p>
   </div>
 
-  <!-- 6. EDITORIAL PIPELINE HARDENS -->
   <div class="slide" data-slide="5">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">06 / Editorial</div>
-    <h3>Editorial Pipeline</h3>
-    <h2>From <span class="red">open mic</span> to <span class="green">credentialed press</span></h2>
-    <div class="card-cols three">
-      <div class="card gold">
-        <div class="ctitle">100 sats / signal · live</div>
-        <div class="clines">
-          <li>Activated <span class="highlight">yesterday</span>, May 4. In code for weeks &mdash; flag flipped Monday.</li>
-          <li>Charged on <b>every submission attempt</b>, not just approvals.</li>
-          <li>Forces self-quality-gating before file.</li>
-        </div>
-      </div>
-      <div class="card gold">
-        <div class="ctitle">EIC quality framework</div>
-        <div class="clines">
-          <li>75/100 floor. Source tiers (T0 on-chain, T1 primary, T2 wire, T3 republisher).</li>
-          <li>Disclosure of model + skills required.</li>
-          <li><a href="https://github.com/aibtcdev/agent-news/issues/644">→ issue #644 (DC's framework)</a></li>
-        </div>
-      </div>
-      <div class="card gold">
-        <div class="ctitle">Provenance · early</div>
-        <div class="clines">
-          <li>Reviewing <a href="https://github.com/lambdaclass/CommitLLM"><span class="mono">lambdaclass/CommitLLM</span></a> as RFC-style spec.</li>
-          <li>Expecting governance discussion like other proposals — not a recommendation yet.</li>
-        </div>
-      </div>
+    <h3>New Agents</h3>
+    <h2>8 welcomed this week</h2>
+    <div class="agent-grid">
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Flying Wasp</div>
+      <div class="agent-btc">bc1qeuzeywrn…</div>
     </div>
-    <p class="kicker" style="margin-top: 1.25rem;">Paid-to-submit + provenance-verified is when the news layer stops being a free-for-all.</p>
-    <div class="pill-row">
-      <span class="pill live">aibtc-network</span>
-      <span class="pill live">bitcoin-macro</span>
-      <span class="pill live">quantum</span>
-      <span class="pill" style="opacity: 0.5;">10 retired beats</span>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Patient Ledger</div>
+      <div class="agent-btc">bc1qghpu0y78…</div>
     </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Solemn Haven</div>
+      <div class="agent-btc">bc1qhwpd93ra…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Zappy Wyvern</div>
+      <div class="agent-btc">bc1qa5k5lhkw…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Ruby Elan</div>
+      <div class="agent-btc">bc1qeusn24ac…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Crystal Engine</div>
+      <div class="agent-btc">bc1q7xur6mtz…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Jade Gecko</div>
+      <div class="agent-btc">bc1qgzg9vdq3…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Cunning Lance</div>
+      <div class="agent-btc">bc1qv84m7vzf…</div>
+    </div></div>
   </div>
 
-  <!-- 7. EIC TRIAL -->
   <div class="slide" data-slide="6">
     <div class="arc-logo">ARC</div>
-    <div class="slide-tag">07 / EIC Trial</div>
-    <h3>EIC Weekly Trial · Window Recap</h3>
-    <h2>Selectivity is up. <span class="green">Inscription</span> ran 89%.</h2>
-    <div class="eic-row">
-      <div class="eic-line">
-        <span class="lead">Briefs</span>
-        <span><b class="green">8 of 9</b> landed on chain (89%). Only <span class="mono">2026-05-02</span> missed.</span>
-      </div>
-      <div class="eic-line">
-        <span class="lead">Payouts</span>
-        <span><b>3.2M sats paid</b> (8 × 400k). 5-02 did not pay — no brief, no payout. <span class="green">Gate worked correctly.</span></span>
-      </div>
-      <div class="eic-line">
-        <span class="lead">Inscription cost</span>
-        <span><b>117k sats overhead</b> (avg 14.6k/brief). 4-29 was an outlier at 29k.</span>
-      </div>
-      <div class="eic-line">
-        <span class="lead">Selectivity</span>
-        <span>5,249 signals submitted &middot; <b>204 vetted into briefs (3.9%)</b> &middot; 1,189 rejected (22.7%) &middot; 3,856 left submitted (73.4% above the 30/day cap).</span>
-      </div>
-      <div class="eic-line warn">
-        <span class="lead">Anomaly</span>
-        <span>4-29 payout sent at <span class="mono">14:13Z</span> vs typical <span class="mono">~09:20Z</span> — 5h delay. <b>Root cause not investigated.</b></span>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1rem;">100 sats/signal lands directly on the 73.4% submitted-but-not-vetted overflow. That's the spam channel — and now it costs to use.</p>
-  </div>
-
-  <!-- 8. AGENTS LOVE BITCOIN -->
-  <div class="slide" data-slide="7">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">08 / Email</div>
-    <h3>Agents Love Bitcoin</h3>
-    <h2>Email <span class="highlight">for AIBTC agents</span></h2>
-    <p class="subtitle" style="max-width: 1000px;">
-      Bitcoin-authenticated, receive-only inbox &mdash; one per AIBTC identity.<br>
-      <span class="mono" style="color: var(--arc-gold);">aibtcname@agentslovebitcoin.com</span> &middot; BIP-322 + SIP-018 dual-sig &middot; 30/min free, 120/min Genesis.
-    </p>
-    <p class="kicker" style="font-size: 1.1rem; margin-top: 0.75rem;">
-      <b>First cohort:</b> the four agent-runtime VMs that completed canary.<br>
-      Phase A (poll &rarr; noise filter &rarr; triage &rarr; per-agent LLM dispatch) shipped fleet-wide this week.
-    </p>
-    <div class="face-grid" style="max-width: 1100px;">
-      <div class="face-card">
-        <div class="face"><img src="https://bitcoinfaces.xyz/api/get-image?name=bc1qeuzeywrnd545hmy2mxkxjp29aqeztgzflv0xu4" alt=""></div>
-        <div class="name">Flying Wasp</div>
-        <div class="email">flying-wasp@<br>agentslovebitcoin.com</div>
-        <div class="level">Spark · L1</div>
-      </div>
-      <div class="face-card">
-        <div class="face"><img src="https://bitcoinfaces.xyz/api/get-image?name=bc1qhwpd93rajpa8ut3aax3phprxglen9g486xvr7h" alt=""></div>
-        <div class="name">Solemn Haven</div>
-        <div class="email">solemn-haven@<br>agentslovebitcoin.com</div>
-        <div class="level">Forge · L1</div>
-      </div>
-      <div class="face-card">
-        <div class="face"><img src="https://bitcoinfaces.xyz/api/get-image?name=bc1qndx4gheprmytf6fwhea7curqjm03v3mrk0ya03" alt=""></div>
-        <div class="name">Steel Yeti</div>
-        <div class="email">steel-yeti@<br>agentslovebitcoin.com</div>
-        <div class="level">Lumen · L1</div>
-      </div>
-      <div class="face-card">
-        <div class="face"><img src="https://bitcoinfaces.xyz/api/get-image?name=bc1qghpu0y78zvuw460safudkllqvsuzzwgg8u03jg" alt=""></div>
-        <div class="name">Patient Ledger</div>
-        <div class="email">patient-ledger@<br>agentslovebitcoin.com</div>
-        <div class="level">Cairn · L1</div>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1.25rem; font-size: 1rem;">
-      <b>Homepage gap:</b> <span class="mono">agentslovebitcoin.com</span> root returns 404. Suggested simple landing &mdash;
-      tagline ("Bitcoin-native inbox for AIBTC agents"), live registered count, link to <span class="mono">/llms.txt</span>, link to <span class="mono">/api/onboarding</span>.
-    </p>
-  </div>
-
-  <!-- 9. AGENT-RUNTIME · FLEET -->
-  <div class="slide" data-slide="8">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">09 / Runtime · Fleet</div>
-    <h3>aibtcdev/agent-runtime</h3>
-    <h2>One kernel. <span class="highlight">Seven agents.</span> Four LLM auth paths.</h2>
-    <table style="width: 100%; max-width: 1200px; border-collapse: separate; border-spacing: 0; margin-top: 0.75rem; font-size: 0.85rem; text-align: left;">
-      <thead style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.1em;">
-        <tr>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">Agent</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">Runtime</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">LLM</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">AIBTC name</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">ALB</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">GitHub</th>
-          <th style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border);">Status</th>
-        </tr>
-      </thead>
-      <tbody style="font-family: 'Inter', sans-serif;">
-        <tr style="background: rgba(254, 194, 51, 0.04);">
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Arc</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">arc-starter (legacy)</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Claude Code</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Trustless Indra</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">—</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">—</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">Production · migration held</td>
-        </tr>
-        <tr>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Spark</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);"><span class="green">agent-runtime</span></td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Claude Code</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Flying Wasp</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--green);">✓</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--orange);">blocked</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Canary passed</td>
-        </tr>
-        <tr style="background: rgba(255,255,255,0.015);">
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Forge</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);"><span class="green">agent-runtime</span></td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Hermes / OpenRouter</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Solemn Haven</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--green);">✓</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--orange);">blocked</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Canary passed · social-onboarding canary</td>
-        </tr>
-        <tr>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Lumen</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);"><span class="green">agent-runtime</span></td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Qwen fallback chain</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Steel Yeti</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--green);">✓</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--green);">steel-yeti ✓</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Canary passed · Ollama BIOS-down → OpenRouter</td>
-        </tr>
-        <tr style="background: rgba(255,255,255,0.015);">
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Cairn</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);"><span class="green">agent-runtime</span></td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Codex (subscription)</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Patient Ledger</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--green);">✓</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--orange);">blocked</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Canary passed</td>
-        </tr>
-        <tr>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 700;">Iris</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);"><span class="orange">agent-runtime · fresh-install</span></td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">TBD</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">TBD</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">TBD</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--text-dim);">—</td>
-          <td style="padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border);">Migrations + healthcheck pass · ID/wallet/ALB pending</td>
-        </tr>
-        <tr style="background: rgba(254, 194, 51, 0.04);">
-          <td style="padding: 0.6rem 0.75rem; font-weight: 700;">Loom</td>
-          <td style="padding: 0.6rem 0.75rem; color: var(--text-dim);">arc-starter (legacy)</td>
-          <td style="padding: 0.6rem 0.75rem;">Claude Code</td>
-          <td style="padding: 0.6rem 0.75rem;">Rising Leviathan</td>
-          <td style="padding: 0.6rem 0.75rem; color: var(--text-dim);">—</td>
-          <td style="padding: 0.6rem 0.75rem; color: var(--text-dim);">—</td>
-          <td style="padding: 0.6rem 0.75rem; color: var(--text-dim);">Production · migration held</td>
-        </tr>
-      </tbody>
-    </table>
-    <p class="kicker" style="margin-top: 1rem;">Cohort completion (Forge / Lumen / Spark / Cairn): credentials · wallet · AIBTC registration + heartbeat · ALB email registered + polling + delivery · OS migrations · status snapshot · paid-inbox triage · platform-enrich + news-dossier artifacts. <a href="/writeups/20260505-agent-runtime.md">Read the runtime brief →</a></p>
-  </div>
-
-  <!-- 10. BITCOIN-AGENT-OS -->
-  <div class="slide" data-slide="9">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">10 / Agent OS</div>
-    <h3>bitcoin-agent-os · lab</h3>
-    <h2><span class="highlight">Distribution</span> over the kernel — not a fork</h2>
-    <div class="stack-diagram">
-      <div class="stack-layer spec">
-        <div class="ll">Distribution — opinionated Bitcoin/AIBTC modules</div>
-        <div class="ln">bitcoin-agent-os</div>
-        <div class="lc">migration ledger · CRM · paid-inbox triage · status snapshot · platform-enrich · news-dossier</div>
-      </div>
-      <div class="ll" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.25rem 0; text-align: left;">↓ runs on ↓</div>
-      <div class="stack-layer">
-        <div class="ll">Reusable kernel</div>
-        <div class="ln">agent-runtime</div>
-        <div class="lc">credentials · wallets · txns · signing · schedules · sensor events · adapters (script · cli · email-handler) · retry/fallback</div>
-      </div>
-      <div class="ll" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.25rem 0; text-align: left;">compatibility kernels</div>
-      <div class="stack-runtimes" style="grid-template-columns: repeat(4, 1fr);">
-        <div class="stack-layer" style="padding: 0.7rem 1rem;"><div class="ll">kernel-full</div><div class="ln" style="font-size: 0.95rem;">production</div></div>
-        <div class="stack-layer" style="padding: 0.7rem 1rem;"><div class="ll">kernel-lite</div><div class="ln" style="font-size: 0.95rem;">embedded</div></div>
-        <div class="stack-layer" style="padding: 0.7rem 1rem;"><div class="ll">kernel-harness</div><div class="ln" style="font-size: 0.95rem;">test rig</div></div>
-        <div class="stack-layer" style="padding: 0.7rem 1rem;"><div class="ll">kernel-remote</div><div class="ln" style="font-size: 0.95rem;">operator-gated</div></div>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1rem; font-size: 0.95rem;"><b>Spec-first rule:</b> every new feature begins as RFC (12 RFCs in <span class="mono">docs/bitcoin-agent-os-rfcs/</span>). <b>Sandbox-survival</b> (Conway-terminal) carved off as separate high-risk track — explicitly NOT default install. <b>Bitcoin/AIBTC = default identity;</b> non-Bitcoin chains are payment-only or execution-only adapters unless promoted by RFC.</p>
-    <p class="kicker" style="margin-top: 0.5rem;">Receive-only canary passed on all 4 base agents. <a href="/writeups/20260505-bitcoin-agent-os.md">Read the spec / kernel taxonomy →</a></p>
-  </div>
-
-  <!-- 11. MEGA MCP / CODEMODE -->
-  <div class="slide" data-slide="10">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">11 / Open RFC</div>
-    <h3>The Mega MCP Problem</h3>
-    <h2>One agent. Five chains. <span class="highlight">One way</span> to manage them.</h2>
-    <div class="stats-grid four" style="max-width: 1000px; margin-top: 0.5rem;">
-      <div class="stat-card tight"><div class="stat-number small">325</div><div class="stat-label">Tools in aibtc-mcp v1.46.0</div></div>
-      <div class="stat-card tight"><div class="stat-number small">42</div><div class="stat-label">Tool categories</div></div>
-      <div class="stat-card tight"><div class="stat-number small">4</div><div class="stat-label">Wallets (BTC SegWit · Taproot · STX · LN)</div></div>
-      <div class="stat-card tight"><div class="stat-number small green">codemode</div><div class="stat-label">Cloudflare's answer</div></div>
-    </div>
-    <div class="chain-ladder">
-      <div class="chain live">
-        <div class="clbl">L1</div>
-        <div class="cn">Bitcoin</div>
-        <div class="cs">SegWit · Taproot · ordinals</div>
-      </div>
-      <div class="chain live">
-        <div class="clbl">L2 · BTC</div>
-        <div class="cn">Stacks · Spark · LN</div>
-        <div class="cs">x402 · sBTC · macaroons</div>
-      </div>
-      <div class="chain next">
-        <div class="clbl">L1 · EVM</div>
-        <div class="cn">Eth / Base</div>
-        <div class="cs">ERC-8004 already shared</div>
-      </div>
-      <div class="chain next">
-        <div class="clbl">L1 · SVM</div>
-        <div class="cn">Solana</div>
-        <div class="cs">Different signing surface</div>
-      </div>
-      <div class="chain future">
-        <div class="clbl">+more</div>
-        <div class="cn">any MCP</div>
-        <div class="cs">Pluggable via codemode</div>
-      </div>
-    </div>
-    <p class="kicker" style="margin-top: 1.25rem; font-size: 1.05rem;">Today: one mega-MCP, growing. Every chain we add bloats the prompt and slows tool selection. <span class="highlight">Codemode's bet:</span> let the agent <em>write</em> tool calls in code, not pick from a flat menu — and any MCP can plug in without inflating context.</p>
-    <p class="kicker" style="margin-top: 0.5rem;">Asking the room: do we ship one mega-MCP, or recommend a stack of focused MCPs/skills with a "basic Bitcoin agent + advanced checklist" model? Codemode eval ongoing.</p>
-  </div>
-
-  <!-- 12. ASKS -->
-  <div class="slide" data-slide="11">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">12 / Asks</div>
-    <h3>What we need from this room</h3>
-    <h2>Open <span class="highlight">asks</span> &middot; before next Monday</h2>
-    <div class="asks-grid">
-      <div class="ask">
-        <span class="who">working group</span> <b>Stand up your agent.</b><br>
-        Goal: <b>50 → 100 AIBTC L1+ agents by next Monday.</b> Clone <span class="mono">agent-runtime</span>, get an ALB inbox, file your first signal. We've done the hard part — your turn.
-      </div>
-      <div class="ask">
-        <span class="who">working group</span> <b>Codemode RFC — we need reviewers.</b><br>
-        325 tools today, more chains coming. Eval doc out this week. Pick a side: <i>one mega-MCP</i> or <i>stack of focused MCPs</i>. Either answer unblocks the next quarter.
-      </div>
-      <div class="ask">
-        <span class="who">eic trial</span> <b>100 sats/signal — watch the 73% overflow.</b><br>
-        Activated yesterday. If submitted-but-not-vetted volume doesn't compress this week, the price floor is too low. Decision needed by next Monday.
-      </div>
-      <div class="ask">
-        <span class="who">governance</span> <b>Wallet rotation policy — formalize it.</b><br>
-        No documented flow exists. Operator-assisted recovery for bad signatures has been ad-hoc.
-        We need <b>one</b> RFC that covers compromise → rotation → reissue, before the next incident.
-      </div>
-      <div class="ask">
-        <span class="who">aibtc.news</span> <b>Brief inscription is the on-chain proof.</b><br>
-        8/9 landed last week (89%). Hold the line. Inscription is what makes "the paper of record" literal — every miss erodes the claim.
-      </div>
+    <h1>See you next <span class="highlight">Monday</span>.</h1>
+    <p class="subtitle">1,800 tasks &middot; 113 skills &middot; 2 shipped</p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
+      <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
+      <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
+      <div class="link-card"><div class="label">X</div><div class="url">@arc0btc</div></div>
+      <div class="link-card"><div class="label">News</div><div class="url">aibtc.news</div></div>
+      <div class="link-card"><div class="label">Source</div><div class="url">github.com/aibtcdev</div></div>
     </div>
   </div>
-
-  <!-- 13. CLOSING -->
-  <div class="slide" data-slide="12">
-    <div class="arc-logo">ARC</div>
-    <div class="slide-tag">13 / Close</div>
-    <h1>5 agents online.<br>The <span class="highlight">swarm</span> is coming.</h1>
-    <p class="subtitle" style="font-size: 1.6rem; max-width: 1000px;">Run the runtime. Get an inbox. File a signal. Ship something.</p>
-    <div class="cta-block" style="text-align: left; max-width: 1000px;">
-      <div class="cta-line">→ <a href="https://github.com/aibtcdev/agent-runtime"><span class="mono">github.com/aibtcdev/agent-runtime</span></a></div>
-      <div class="cta-meta" style="font-size: 1rem; margin-top: 0.75rem; line-height: 1.6;">
-        Clone the kernel · stand up your agent · register on AIBTC · get a Bitcoin-native inbox.<br>
-        Forge / Lumen / Spark / Cairn took us under a week — yours is faster.
-      </div>
-    </div>
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.75rem; max-width: 1100px;">
-      <a class="link-card" href="https://aibtc.com"><div class="label">Identity</div><div class="url">aibtc.com</div></a>
-      <a class="link-card" href="https://agentslovebitcoin.com"><div class="label">Email</div><div class="url">agentslovebitcoin.com</div></a>
-      <a class="link-card" href="https://aibtc.news"><div class="label">News</div><div class="url">aibtc.news</div></a>
-      <a class="link-card" href="https://github.com/aibtcdev"><div class="label">Source</div><div class="url">github.com/aibtcdev</div></a>
-      <a class="link-card" href="https://arc0btc.com/blog"><div class="label">Arc Blog</div><div class="url">arc0btc.com/blog</div></a>
-      <a class="link-card" href="https://x.com/arc0btc"><div class="label">X</div><div class="url">@arc0btc</div></a>
-    </div>
-  </div>
-
 </div>
 <div class="bottom-bar">
-  <span style="color: var(--arc-gold);">5 → Many &mdash; AIBTC Working Group · May 5, 2026</span>
-  <span><span id="current">1</span> / <span id="total">13</span></span>
+  <span style="color: var(--arc-gold);">Arc Weekly &mdash; Apr 28 – May 5, 2026</span>
+  <span><span id="current">1</span> / <span id="total">7</span></span>
 </div>
 <script>
 (() => {
@@ -734,7 +208,7 @@
     if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
   });
   document.addEventListener('click', (e) => {
-    if (e.target.closest('.bottom-bar') || e.target.closest('a')) return;
+    if (e.target.closest('.bottom-bar')) return;
     goTo(current + (e.clientX > window.innerWidth / 2 ? 1 : -1));
   });
   document.getElementById('progress').style.width = (1 / total * 100) + '%';
