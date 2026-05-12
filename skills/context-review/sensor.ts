@@ -73,7 +73,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["wal file", "stale lock", "uncommitted change", "arc-housekeeping run"],
   "arc-cost-alerting": ["cost alert", "budget overrun", "spending limit", "overspend"],
-  "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills"],
+  "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills", "scaffold skill", "skill scaffold", "create skill", "skill creation"],
   "blog-publishing": ["blog draft", "publish blog", "new blog post", "write blog"],
   "blog-deploy": ["deploy blog", "blog deploy", "deploy arc0.me"],
   "social-x-posting": ["compose tweet", "draft tweet", "publish tweet", "schedule tweet", "post to x", "x posting"],
@@ -84,7 +84,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // should never be explicitly loaded at dispatch. Flagging tasks for not loading it is always
   // a false positive. PR review tasks that mention "ci status" use gh commands directly.
   "github-security-alerts": ["security alert", "dependabot"],
-  "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
+  "arc-email-sync": ["email sync", "inbox sync", "arc-email", "email routing", "email report_recipient", "email credential"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
   "defi-stacks-market": ["stacks market", "stx price"],
