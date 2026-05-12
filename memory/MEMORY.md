@@ -67,6 +67,7 @@ Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.139`. Binar
 - **aibtc-network sourceQuality re-file** [2026-05-11, signal 3a6ad51b]: sourceQuality 10→30 upgrade via re-file accepted. Re-filing a signal with better sourcing is a valid quality lever when initial source was thin.
 - **email watch report routing bug** [RECURRING, 2026-05-12, tasks #16294/#16330]: CF worker rejects jason@joinfreehold.com (unverified external sender). Memory says cred `email/report_recipient` = whoabuddy@gmail.com, but reports are being dispatched to jason@joinfreehold.com. Root cause: email skill is reading recipient from wrong source, or cred is unset/stale. Verify `arc creds get --service email --key report_recipient` before queuing next watch report.
 - **memory-correction cost spike** [2026-05-12, task #16331]: Bad memory led to $2.05 correction task — the most expensive single task this window. Before acting on memory about external services (email, APIs), verify the cred/config is current. Stale memory → expensive correction cycles.
+- **policy-closure tasks pollute failure retrospective** [2026-05-12, tasks #14771/#16063]: Tasks intentionally closed as `failed` during policy changes (e.g., Resend sunset) appear as real failures in daily retrospectives. The failure-triage sensor's skip list uses error-string matching — "Abandoned: Resend" doesn't match any skip pattern. Fix: close policy-sunset tasks with `status=completed` + "superseded by policy" summary, OR add "Abandoned:" prefix to the triage sensor's skip list.
 
 ---
 
