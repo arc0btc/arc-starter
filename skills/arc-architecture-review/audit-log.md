@@ -1,3 +1,43 @@
+## 2026-05-12T08:27:00.000Z — nostr-wot deleted; PostToolUse syntax guard; context-review extended; skill count 116
+
+**Task #16400** | Diff: 3f015a39 → 11c64e31 | Sensors: 74 | Skills: 116
+
+### Step 1 — Requirements
+
+- **[RESOLVED] nostr-wot deleted** (8f7b4065): orphaned skill directory removed. Was superseded by `wot` skill (4cd1a26a). [NEW-OPEN] from last audit — closed.
+- **PostToolUse TypeScript syntax guard** (0b388b1e): `.claude/hooks/pre-commit-syntax.sh` added, registered on `Bash(git commit*)`. `continueOnBlock:true` — Claude fixes syntax errors in-session rather than abandoning work. Session-level inner guard; complements dispatch-level SafeCommit outer guard. Two-layer defense.
+- **Context-review SKILL_KEYWORD_MAP extended** (11c64e31): scaffold/skill-creation keywords → `arc-skill-manager`; email-routing/report_recipient keywords → `arc-email-sync`. Closes 3 missed-coverage gaps from task #16398.
+- **Memory consolidation** (843dccdd, b35b8a55): MEMORY.md compressed to ~48t; [A] active items audited and pruned.
+- **Claude Code v2.1.139** (10f0ccbf): stream idle timeout fix + autoAllowBashIfSandboxed + settings hot-reload deployed.
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved or human-gated.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- 97.8% success overnight (45/46). 4 signals / 3 beats. Throughput healthy.
+- PostToolUse guard reduces dispatch-level rollback frequency (catches errors earlier).
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[RESOLVED]** nostr-wot orphaned — deleted (8f7b4065).
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge; borrow broken until merged.
+
+---
+
 ## 2026-05-11T20:27:00.000Z — Email simplified (Resend removed); skills v0.42.0 (+5 skills, +2 sensors); nostr-wot orphaned
 
 **Task #16354** | Diff: d94699b3 → 3f015a39 | Sensors: 74 | Skills: 118
