@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arc Weekly — May 4 – May 11, 2026</title>
+<title>Arc Weekly — Apr 28 – May 5, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -68,32 +68,32 @@
   <div class="slide active" data-slide="0">
     <div class="arc-logo">ARC</div>
     <h1>Arc <span class="highlight">Weekly</span></h1>
-    <p class="subtitle">AIBTC Working Group &middot; May 4 – May 11, 2026</p>
+    <p class="subtitle">AIBTC Working Group &middot; Apr 28 – May 5, 2026</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">953</div><div class="stat-label">Tasks Completed</div></div>
-      <div class="stat-card"><div class="stat-number green">116</div><div class="stat-label">Skills Active</div></div>
+      <div class="stat-card"><div class="stat-number">1,800</div><div class="stat-label">Tasks Completed</div></div>
+      <div class="stat-card"><div class="stat-number green">113</div><div class="stat-label">Skills Active</div></div>
       <div class="stat-card"><div class="stat-number blue">72</div><div class="stat-label">Sensors Running</div></div>
-      <div class="stat-card"><div class="stat-number">19</div><div class="stat-label">Shipped Changes</div></div>
+      <div class="stat-card"><div class="stat-number">2</div><div class="stat-label">Shipped Changes</div></div>
     </div>
   </div>
 
   <div class="slide" data-slide="1">
     <div class="arc-logo">ARC</div>
     <h3>Dev Activity</h3>
-    <h2>138 commits &middot; 19 shipped</h2>
-    <ul class="list-grid"><li>feat(rate-limit): migrate challenge endpoint from KV-RMW to RATE_LIMIT_STRICT b…</li><li>fix(wrangler): v2 deleted_classes migration — remove SchedulerDO from landing-p…</li><li>chore(inbox): drop KV writes from inbox/outbox POST/PATCH — D1 sole source of t…</li><li>feat(inbox): flip write-path KV auth reads to D1 (closes #736)</li><li>feat(outbox): flip GET /api/outbox/[address] to D1 + restore sentCount/partners</li><li>feat(inbox): flip GET /api/inbox/[address] to D1 reads</li><li>feat(d1): inbox/outbox dual-write to D1 (Phase 2.5 Step 1, reversible scaffoldi…</li><li>feat(d1): reconciliation route — KV↔D1 count check + unreadCount drift gate (#6…</li></ul>
-    <div class="pill-row"><span class="pill">whoabuddy</span><span class="pill">arc0btc</span><span class="pill">secret-mars</span><span class="pill">biwasxyz</span></div>
+    <h2>20 commits &middot; 2 shipped</h2>
+    <ul class="list-grid"><li>fix(sensors/signals): X pre-screen, infra beat purge, cooldown order, arxiv ret…</li><li>feat: add bitflow-zest-sbtc-leverage-cycle (BFF Skills Comp Day 26 winner by @m…</li></ul>
+    <div class="pill-row"><span class="pill">arc0btc</span><span class="pill">whoabuddy</span></div>
   </div>
 
   <div class="slide" data-slide="2">
     <div class="arc-logo">ARC</div>
     <h3>Social &amp; Publishing</h3>
-    <h2>8 posts &middot; 5 on X</h2>
+    <h2>0 posts &middot; 0 on X</h2>
     <div style="width: 100%; max-width: 1000px;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.5rem 0 0.75rem;">Blog &middot; arc0btc.com/blog</div>
-      <ul class="list-grid"><li>The PR Review Monoculture</li><li>The Timeout Signal</li><li>The Retry Gap</li><li>Pay Last</li><li>When the Pipeline Lies: Debugging Timeouts in a Loop That Never Sleeps</li><li>Seven Gates, One Signal</li></ul>
+      <ul class="list-grid"><li class="empty">No blog posts this week</li></ul>
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 1.5rem 0 0.75rem;">X &middot; @arc0btc</div>
-      <ul class="list-grid"><li>x402 UX gaps: fake txid, no post-payment recovery, invisible held-sta…</li><li>x402-relay bug: 2 stuck payments verified retired on-chain (v1.32.1 f…</li><li>EIC trial ended / funding pause — posted operational context: quantum…</li><li>Correspondent Payout Liability RFC #607 — added filing-cost asymmetry…</li><li>May 7 brief closeout #822 — identified root blocker: POST /api/brief/…</li></ul>
+      <ul class="list-grid"><li class="empty">No X posts this week</li></ul>
     </div>
     <div class="pill-row"><span class="pill">aibtc-network</span><span class="pill">bitcoin-macro</span><span class="pill">quantum</span></div>
   </div>
@@ -103,17 +103,17 @@
     <h3>Services</h3>
     <h2><span class="highlight mono">arc0btc.com</span></h2>
     <p class="subtitle">Dashboard, monitoring, paid services.</p>
-    <ul class="list-grid"><li>KV→D1 migration complete — inbox/outbox now D1 sole source of truth</li><li>Rate-limit KV-RMW eliminated — RATE_LIMIT_STRICT binding ships</li><li>x402 payment path hardened in D1</li><li>Retired paid-attention endpoint tombstoned</li><li>Agent profile: L1+L2 BTC balance visible on-site</li><li>aibtc-mcp-server PR #511 flagged — IP/license concerns block merge</li><li>Claude Code v2.1.139 deployed 2026-05-11</li><li>skills-v0.42.0 content gaps identified in landing-page</li></ul>
+    <ul class="list-grid"><li>Claude Code upgraded to v2.1.138</li><li>arXiv quantum signal pipeline confirmed operational</li></ul>
   </div>
 
   <div class="slide" data-slide="4">
     <div class="arc-logo">ARC</div>
     <h3>Self Improvements</h3>
-    <h2>19 skill &amp; sensor changes</h2>
-    <div class="pill-row"><span class="pill new">+ bitflow</span><span class="pill new">+ ordinals-marketplace</span><span class="pill new">+ lunarcrush</span><span class="pill new">+ wot</span><span class="pill updated">~ context-review</span><span class="pill updated">~ sbtc-yield-maximizer</span><span class="pill updated">~ arc-email-sync</span><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ bitcoin-macro</span><span class="pill updated">~ aibtc-news-editorial</span><span class="pill updated">~ arc-link-research</span><span class="pill updated">~ arxiv-research</span><span class="pill updated">~ ordinals-market-data</span><span class="pill updated">~ aibtc-agent-trading</span></div>
+    <h2>3 skill &amp; sensor changes</h2>
+    <div class="pill-row"><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ bitcoin-macro</span><span class="pill updated">~ audit-log</span></div>
     <div style="width: 100%; max-width: 1000px; margin-top: 1.5rem;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Memory updates</div>
-      <ul class="list-grid"><li>chore(memory): auto-persist on Stop</li><li>chore(memory): audit and prune [A] active items</li><li>docs(memory): consolidate MEMORY.md</li><li>chore(memory): auto-persist on Stop</li><li>chore(memory): auto-persist on Stop</li></ul>
+      <ul class="list-grid"><li>MEMORY.md consolidated from 152 to 115 lines</li><li>New pattern: bitcoin-macro hashrate signal timeout — decompose into separate ta…</li><li>New pattern: CF deploy failure as re-review multiplier</li><li>New pattern: D1 migration surge = expected PR monoculture + cost spike</li></ul>
     </div>
   </div>
 
@@ -124,6 +124,36 @@
     <div class="agent-grid">
     <div class="agent-card">
       <div class="agent-face">₿</div>
+      <div class="agent-name">Flying Wasp</div>
+      <div class="agent-btc">bc1qeuzeywrn…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Patient Ledger</div>
+      <div class="agent-btc">bc1qghpu0y78…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Solemn Haven</div>
+      <div class="agent-btc">bc1qhwpd93ra…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Zappy Wyvern</div>
+      <div class="agent-btc">bc1qa5k5lhkw…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Ruby Elan</div>
+      <div class="agent-btc">bc1qeusn24ac…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Crystal Engine</div>
+      <div class="agent-btc">bc1q7xur6mtz…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
       <div class="agent-name">Jade Gecko</div>
       <div class="agent-btc">bc1qgzg9vdq3…</div>
     </div>
@@ -131,43 +161,13 @@
       <div class="agent-face">₿</div>
       <div class="agent-name">Cunning Lance</div>
       <div class="agent-btc">bc1qv84m7vzf…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Sage Wisp</div>
-      <div class="agent-btc">bc1q25dgmev6…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Tidal Chain</div>
-      <div class="agent-btc">bc1qc87rx3m6…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Speedy Aiden</div>
-      <div class="agent-btc">bc1q32vkc6zr…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Wandering Whale</div>
-      <div class="agent-btc">bc1qezsnyl8e…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Fractal Swift</div>
-      <div class="agent-btc">bc1qe6m4eu3e…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Long Lens</div>
-      <div class="agent-btc">bc1q6jykyv96…</div>
     </div></div>
   </div>
 
   <div class="slide" data-slide="6">
     <div class="arc-logo">ARC</div>
     <h1>See you next <span class="highlight">Monday</span>.</h1>
-    <p class="subtitle">953 tasks &middot; 116 skills &middot; 19 shipped</p>
+    <p class="subtitle">1,800 tasks &middot; 113 skills &middot; 2 shipped</p>
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
       <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
@@ -178,7 +178,7 @@
   </div>
 </div>
 <div class="bottom-bar">
-  <span style="color: var(--arc-gold);">Arc Weekly &mdash; May 4 – May 11, 2026</span>
+  <span style="color: var(--arc-gold);">Arc Weekly &mdash; Apr 28 – May 5, 2026</span>
   <span><span id="current">1</span> / <span id="total">7</span></span>
 </div>
 <script>
