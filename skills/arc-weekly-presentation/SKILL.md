@@ -1,6 +1,6 @@
 ---
 name: arc-weekly-presentation
-description: Auto-generate the Monday AIBTC working-group deck from live Arc data — four consistent sections, last-week anchor, subagent research
+description: Auto-generate the Tuesday AIBTC working-group deck from live Arc data — four consistent sections, last-week anchor, subagent research
 updated: 2026-04-22
 tags:
   - publishing
@@ -10,7 +10,7 @@ tags:
 
 # arc-weekly-presentation
 
-Generates the week-over-week deck for the Monday AIBTC working-group meeting. Internal recap, data-dense, predictable shape. Not the same as [`agent-pitch`](../agent-pitch/SKILL.md) — that skill is for external-audience narrative talks. Use both together when an external deck needs current stats.
+Generates the week-over-week deck for the Tuesday AIBTC working-group meeting. Internal recap, data-dense, predictable shape. Not the same as [`agent-pitch`](../agent-pitch/SKILL.md) — that skill is for external-audience narrative talks. Use both together when an external deck needs current stats.
 
 ## Consistent sections (every week, always present)
 
@@ -35,7 +35,7 @@ arc skills run --name arc-weekly-presentation -- list
 ```
 
 - `generate` — Collect local data (git + task DB), merge optional research file, render deck. Writes `src/web/presentation.html` (served at `/presentation`) and archives the prior file to `src/web/archives/YYYYMMDD-aibtc-weekly.html`.
-- `--week YYYY-MM-DD` — Monday of the week to generate for. Defaults to this past Monday UTC.
+- `--week YYYY-MM-DD` — Tuesday of the week to generate for. Defaults to this past Tuesday UTC.
 - `--research-file PATH` — JSON with supplementary data from subagents. Overrides local data where provided.
 - `list` — Show archived weekly decks under `src/web/archives/`.
 
@@ -47,7 +47,7 @@ Research areas: PR titles (`gh`), blog titles (`arc0btc.com/blog`), X post subje
 
 ## Sensor
 
-Runs hourly. Mondays only. Creates a P5 Sonnet task if no weekly task exists for the current Monday (7-day dedup via source prefix `sensor:arc-weekly-presentation:YYYY-MM-DD`).
+Runs hourly. Tuesdays only. Creates a P5 Sonnet task if no weekly task exists for the current Tuesday (7-day dedup via source prefix `sensor:arc-weekly-presentation:YYYY-MM-DD`).
 
 ## Last-week anchor
 
@@ -61,7 +61,7 @@ Before generating, read the most recent file under `src/web/archives/` matching 
 
 - [x] SKILL.md with valid frontmatter, under 2000 tokens
 - [x] `cli.ts` with `generate` + `list` commands
-- [x] `sensor.ts` with Monday scheduling + 7-day dedup
+- [x] `sensor.ts` with Tuesday scheduling + 7-day dedup
 - [x] `AGENT.md` with subagent research workflow and JSON schema
 - [x] Archives land in `src/web/archives/YYYYMMDD-aibtc-weekly.html`
 - [x] Live slot stays at `src/web/presentation.html` for `/presentation` endpoint

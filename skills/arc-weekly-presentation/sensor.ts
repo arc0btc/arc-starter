@@ -1,6 +1,6 @@
 // arc-weekly-presentation/sensor.ts
 //
-// Runs every 60 minutes. On Mondays, creates a task to generate
+// Runs every 60 minutes. On Tuesdays, creates a task to generate
 // the weekly presentation if one hasn't been created yet this week.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors";
@@ -12,24 +12,24 @@ const SOURCE_PREFIX = `sensor:${SENSOR_NAME}`;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-function isMondayUTC(): boolean {
-  return new Date().getUTCDay() === 1;
+function isTuesdayUTC(): boolean {
+  return new Date().getUTCDay() === 2;
 }
 
 function currentWeekSource(): string {
   const now = new Date();
   const day = now.getUTCDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setUTCDate(monday.getUTCDate() + mondayOffset);
-  return `${SOURCE_PREFIX}:${monday.toISOString().slice(0, 10)}`;
+  const tuesdayOffset = -(((day - 2) + 7) % 7);
+  const tuesday = new Date(now);
+  tuesday.setUTCDate(tuesday.getUTCDate() + tuesdayOffset);
+  return `${SOURCE_PREFIX}:${tuesday.toISOString().slice(0, 10)}`;
 }
 
 export default async function weeklyPresentationSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (!isMondayUTC()) return "skip";
+  if (!isTuesdayUTC()) return "skip";
 
   if (recentTaskExistsForSourcePrefix(SOURCE_PREFIX, 7 * 24 * 60)) return "skip";
 

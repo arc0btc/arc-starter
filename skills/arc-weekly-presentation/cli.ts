@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // arc-weekly-presentation/cli.ts
 //
-// Generates the Monday AIBTC working-group deck from live Arc data.
-// Four consistent sections: Dev Activity, Social & Publishing, Services, Self Improvements.
+// Generates the Tuesday AIBTC working-group deck from live Arc data.
+// Four consistent sections + optional Council highlight: Dev Activity, Social & Publishing, Services, Self Improvements, The Council.
 //
 // Usage:
 //   arc skills run --name arc-weekly-presentation -- generate [--week YYYY-MM-DD] [--research-file PATH]
@@ -46,6 +46,15 @@ interface SelfImprovements {
   memoryChanges: string[];
 }
 
+interface Council {
+  cycles: number;
+  actionableRate?: string;
+  agents: Array<{ name: string; backend?: string }>;
+  highlights: string[];
+  summary?: string;
+  repoUrl?: string;
+}
+
 interface WeekData {
   weekStart: string;
   weekEnd: string;
@@ -53,6 +62,8 @@ interface WeekData {
   socialActivity: SocialActivity;
   servicesUpdates: ServicesUpdate;
   selfImprovements: SelfImprovements;
+  council?: Council;
+  closingTeaser?: string;
   taskStats: { completed: number; failed: number; total: number };
   totalSkills: number;
   totalSensors: number;
@@ -64,6 +75,8 @@ interface ResearchData {
   socialActivity?: Partial<SocialActivity>;
   servicesUpdates?: Partial<ServicesUpdate>;
   selfImprovements?: Partial<SelfImprovements>;
+  council?: Council;
+  closingTeaser?: string;
 }
 
 // ---- Small helpers ----
@@ -85,17 +98,18 @@ function fmt(n: number): string {
   return n.toLocaleString();
 }
 
-function mondayOf(date: Date): Date {
+function tuesdayOf(date: Date): Date {
+  // Most recent Tuesday on or before `date` (UTC).
   const d = new Date(date);
   const day = d.getUTCDay();
-  const offset = day === 0 ? -6 : 1 - day;
+  const offset = -(((day - 2) + 7) % 7);
   d.setUTCDate(d.getUTCDate() + offset);
   d.setUTCHours(0, 0, 0, 0);
   return d;
 }
 
 function getWeekRange(weekEnd: string): { start: string; end: string } {
-  // weekEnd is a Monday (ISO date). Range covers the previous 7 days.
+  // weekEnd is a Tuesday (ISO date). Range covers the previous 7 days (Tue→Tue).
   const endDate = new Date(weekEnd);
   const startDate = new Date(endDate);
   startDate.setUTCDate(startDate.getUTCDate() - 7);
@@ -382,6 +396,8 @@ function collectWeekData(weekEnd: string, research: ResearchData = {}): WeekData
       newSensors: research.selfImprovements?.newSensors ?? newSensors,
       memoryChanges: research.selfImprovements?.memoryChanges ?? memoryChanges,
     },
+    council: research.council,
+    closingTeaser: research.closingTeaser,
     taskStats: getTaskStats(start, end),
     totalSkills: allSkills.length,
     totalSensors: allSkills.filter(s => s.hasSensor).length,
@@ -560,12 +576,45 @@ function newAgentsSlide(d: WeekData, slideIndex: number): string {
   </div>`;
 }
 
-function closingSlide(d: WeekData, slideIndex: number): string {
+function councilSlide(d: WeekData, slideIndex: number): string {
+  const c = d.council;
+  if (!c) return "";
+  const headlineRight = c.actionableRate ? ` &middot; ${escapeHtml(c.actionableRate)} actionable` : "";
+  const agents = c.agents.length
+    ? c.agents.slice(0, 6).map(a => {
+        const label = a.backend
+          ? `${escapeHtml(a.name)} &middot; ${escapeHtml(a.backend)}`
+          : escapeHtml(a.name);
+        return `<span class="pill updated">${label}</span>`;
+      }).join("")
+    : `<span class="pill">no agents listed</span>`;
+  const highlights = c.highlights.length
+    ? c.highlights.slice(0, 5).map(h => `<li>${escapeHtml(truncate(h, 180))}</li>`).join("")
+    : `<li class="empty">No highlights this week</li>`;
+  const subtitle = c.summary
+    ? `<p class="subtitle">${escapeHtml(truncate(c.summary, 220))}</p>`
+    : `<p class="subtitle">Multi-LLM PR review &middot; private substrate at genesis-works.</p>`;
   return `
   <div class="slide" data-slide="${slideIndex}">
     <div class="arc-logo">ARC</div>
-    <h1>See you next <span class="highlight">Monday</span>.</h1>
+    <h3>The Council</h3>
+    <h2>${fmt(c.cycles)} cycles${headlineRight}</h2>
+    ${subtitle}
+    <div class="pill-row">${agents}</div>
+    <ul class="list-grid" style="margin-top: 1rem;">${highlights}</ul>
+  </div>`;
+}
+
+function closingSlide(d: WeekData, slideIndex: number): string {
+  const teaser = d.closingTeaser
+    ? `<p class="subtitle" style="color: var(--arc-gold); font-weight: 600; margin-top: 1.5rem;">${escapeHtml(truncate(d.closingTeaser, 180))}</p>`
+    : "";
+  return `
+  <div class="slide" data-slide="${slideIndex}">
+    <div class="arc-logo">ARC</div>
+    <h1>See you next <span class="highlight">Tuesday</span>.</h1>
     <p class="subtitle">${fmt(d.taskStats.completed)} tasks &middot; ${fmt(d.totalSkills)} skills &middot; ${fmt(d.devActivity.prs.length)} shipped</p>
+    ${teaser}
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
       <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
@@ -585,6 +634,7 @@ function renderPresentation(d: WeekData): string {
   slides.push(socialSlide(d, slides.length));
   slides.push(servicesSlide(d, slides.length));
   slides.push(selfImprovementsSlide(d, slides.length));
+  if (d.council) slides.push(councilSlide(d, slides.length));
   if (d.newAgents.length > 0) slides.push(newAgentsSlide(d, slides.length));
   slides.push(closingSlide(d, slides.length));
 
@@ -683,7 +733,7 @@ async function main(): Promise<void> {
   const subcommand = positional[0];
 
   if (!subcommand || subcommand === "generate") {
-    const weekEnd = flags.week ?? mondayOf(new Date()).toISOString().slice(0, 10);
+    const weekEnd = flags.week ?? tuesdayOf(new Date()).toISOString().slice(0, 10);
     const research = flags["research-file"] ? loadResearchFile(flags["research-file"]) : {};
 
     console.log(`Generating weekly deck for week ending ${weekEnd}…`);
