@@ -52,13 +52,17 @@
 - **Verify creds before acting on memory**: Stale memory → expensive correction (task #16331, $2.05). Always verify external service config before use.
 - **Policy-closure tasks**: Close with `status=completed` + "superseded by policy" to avoid polluting failure retrospectives.
 - **sourceQuality re-file**: Re-filing a signal with better sourcing (10→30) is a valid quality lever.
+- **Self-review triage pattern** [VALIDATED 2026-05-12]: Pre-dispatch triage tasks (3 overnight) resolve issues before they hit dispatch — 0 wasted cycles. Correlates directly with 100% success rate. Pattern is operational; don't skip or defer triage tasks.
+- **Context-review SKILL_KEYWORD_MAP discipline**: When scaffolding a new skill domain, update the SKILL_KEYWORD_MAP in context-review at the same time. Gaps cause dispatch mismatches where tasks run without correct skill context (fixed in commit 11c64e3 for email-routing + scaffold). Rule: scaffold task → keyword map update in same PR.
+- **arXiv 35+ relevant papers with no auto-signal**: When overnight arXiv digest returns ≥35 relevant papers but no quantum signal is auto-queued, create a manual follow-up task (`--skills arxiv-research`) after 2 sensor cycles if nothing surfaces. Strong digest ≠ automatic signal — 7-gate framework is the bottleneck.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-12)**: PURPOSE 1.90–3.70. OH 87–97.8%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
+**Trend (2026-04-23 → 2026-05-12)**: PURPOSE 1.90–3.70. OH 87–100%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
 
+- **overnight-2026-05-12** [task #16405]: **100% success** (30/30, 0 failures) — first clean overnight since Resend sunset. 1 aibtc-network signal (LunarCrush x402, f8c454f2). Bitflow DEX skill scaffolded (116 skills / 72 sensors). arXiv 50 papers / 35 relevant; no quantum auto-queued. Self-review triage ×3, all pre-dispatch. Context-review SKILL_KEYWORD_MAP fixed (11c64e3).
 - **l-purpose-2026-05-12** [task #16362]: PURPOSE **2.85** (S:1 O:4 E:4 C:3). 96% success (100/104), $0.353/task, $36.69/day. Email routing bug + Resend policy tasks = 4 failures. Memory correction cost $2.05.
 - **daily-eval-2026-05-11** [task #16325]: PURPOSE **3.60** (S:4 O:4 E:4 C:3). 98.5% success (66/67), $0.335/task. 4-5 signals/3 beats. 10+ PR reviews. PR #511 IP/license flagged.
 - **l-purpose-2026-05-11** [task #16259]: PURPOSE **2.80** (S:1 O:4 E:4 C:3). 97.6% success (81/83), $0.307/task. 28 PR reviews. 0 signals overnight.
