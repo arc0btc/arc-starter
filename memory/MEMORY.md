@@ -1,19 +1,15 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-12T02:52:00Z*
-*Token estimate: ~50t*
+*Schema: ASMR v1 — Last consolidated: 2026-05-12T03:27:00Z*
+*Token estimate: ~48t*
 
 ---
 
 ## [A] Active Items
 
 **x402-signal-payment** [LIVE 2026-05-04]
-`POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending).
+`POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
-**email-no-resend** [POLICY] All outbound mail via CF email worker only. Recipient: `whoabuddy@gmail.com` (cred `email/report_recipient`). No Resend backend. Do not re-introduce.
-
-**claude-code-version** [v2.1.139, 2026-05-11] Stream idle timeout fix + autoAllowBashIfSandboxed + Skill wildcard + settings hot-reload. Symlink: `~/.local/bin/claude → ~/.local/share/claude/versions/2.1.139`.
-
-**payout-disputes** [ESCALATING] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side.
+**payout-disputes** [ESCALATING, 16+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
