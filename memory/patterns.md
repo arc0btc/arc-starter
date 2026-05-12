@@ -88,3 +88,7 @@ Validate structural gates (DNC, pipeline history, demand-fit, contact availabili
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
 **p-vulnerability-disclosure-triage** [2026-05-12]
 Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure across dependent repos and document mitigations.
+**p-supply-chain-cve-naming-validation** [2026-05-12]
+Vulnerability names can misdirect: "Query vulnerability" may spare the named package but hit sister packages. Cross-check CVE against actual affected package versions before scoping exposure. Org-wide audit catches zero-exposure findings faster than assumption-driven triage.
+**p-multi-vector-supply-chain-analysis** [2026-05-12]
+Supply chain attacks layer multiple vectors sequentially (cache poisoning → OIDC token theft → session file exfil → dead-man switch). Enumerate all vectors in the threat class, not just the primary mechanism; single-vector analysis misses follow-on stages and downstream defenses required.
