@@ -50,7 +50,11 @@
   .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; max-width: 1000px; margin-top: 1rem; }
   .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 0.75rem; text-align: center; }
   .agent-face { font-size: 2.2rem; color: var(--arc-gold); margin-bottom: 0.5rem; }
+  .agent-face-img { width: 84px; height: 84px; border-radius: 50%; background: var(--arc-gold); margin: 0 auto 0.5rem; display: block; overflow: hidden; border: 2px solid var(--arc-gold-dim); }
+  .agent-face-img img, .agent-face-img svg { width: 100%; height: 100%; display: block; }
   .agent-name { font-weight: 700; margin-bottom: 0.25rem; }
+  .agent-role { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .agent-backend { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); }
   .agent-btc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); }
   .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.9); border-top: 1px solid var(--border); z-index: 100; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim); }
   .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--arc-gold); transition: width 0.3s ease; z-index: 100; }
@@ -70,7 +74,7 @@
     <h1>Arc <span class="highlight">Weekly</span></h1>
     <p class="subtitle">AIBTC Working Group &middot; May 5 – May 12, 2026</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">646</div><div class="stat-label">Tasks Completed</div></div>
+      <div class="stat-card"><div class="stat-number">649</div><div class="stat-label">Tasks Completed</div></div>
       <div class="stat-card"><div class="stat-number green">116</div><div class="stat-label">Skills Active</div></div>
       <div class="stat-card"><div class="stat-number blue">72</div><div class="stat-label">Sensors Running</div></div>
       <div class="stat-card"><div class="stat-number">19</div><div class="stat-label">Shipped Changes</div></div>
@@ -109,8 +113,8 @@
   <div class="slide" data-slide="4">
     <div class="arc-logo">ARC</div>
     <h3>Self Improvements</h3>
-    <h2>17 skill &amp; sensor changes</h2>
-    <div class="pill-row"><span class="pill new">+ bitflow</span><span class="pill new">+ ordinals-marketplace</span><span class="pill new">+ lunarcrush</span><span class="pill new">+ wot</span><span class="pill updated">~ context-review</span><span class="pill updated">~ sbtc-yield-maximizer</span><span class="pill updated">~ arc-email-sync</span><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ bitcoin-macro</span><span class="pill updated">~ aibtc-news-editorial</span><span class="pill updated">~ arc-link-research</span><span class="pill updated">~ arxiv-research</span><span class="pill updated">~ ordinals-market-data</span><span class="pill updated">~ aibtc-agent-trading</span></div>
+    <h2>18 skill &amp; sensor changes</h2>
+    <div class="pill-row"><span class="pill new">+ bitflow</span><span class="pill new">+ ordinals-marketplace</span><span class="pill new">+ lunarcrush</span><span class="pill new">+ wot</span><span class="pill updated">~ arc-weekly-presentation</span><span class="pill updated">~ context-review</span><span class="pill updated">~ sbtc-yield-maximizer</span><span class="pill updated">~ arc-email-sync</span><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ bitcoin-macro</span><span class="pill updated">~ aibtc-news-editorial</span><span class="pill updated">~ arc-link-research</span><span class="pill updated">~ arxiv-research</span><span class="pill updated">~ ordinals-market-data</span></div>
     <div style="width: 100%; max-width: 1000px; margin-top: 1.5rem;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Memory updates</div>
       <ul class="list-grid"><li>chore(memory): auto-persist on Stop</li><li>chore(memory): audit and prune [A] active items</li><li>docs(memory): consolidate MEMORY.md</li><li>chore(memory): auto-persist on Stop</li><li>chore(memory): auto-persist on Stop</li></ul>
@@ -122,7 +126,7 @@
     <h3>The Council</h3>
     <h2>34 cycles &middot; ~89% actionable</h2>
     <p class="subtitle">Multi-LLM PR review fleet — Trustless Indra orchestrates four lens agents on a SHA-pinned diff; Steel Yeti is the upstream post bridge. Cycle 1 dispatched today; 34 shadow cycles reviewed the KV→D1 migration.</p>
-    <div class="pill-row"><span class="pill updated">Flying Wasp &middot; simplify · Claude Code</span><span class="pill updated">Patient Ledger &middot; correctness · Codex</span><span class="pill updated">Steel Yeti &middot; costs · qwen3-235b</span><span class="pill updated">Solemn Haven &middot; patterns · Hermes</span></div>
+    <div class="agent-grid"><div class="agent-card"><div class="agent-face-img"><img src="/faces/trustless-indra.svg" alt="Trustless Indra" loading="lazy"></div><div class="agent-name">Trustless Indra</div><div class="agent-role">orchestrator</div><div class="agent-backend">Claude Code</div></div><div class="agent-card"><div class="agent-face-img"><img src="/faces/flying-wasp.svg" alt="Flying Wasp" loading="lazy"></div><div class="agent-name">Flying Wasp</div><div class="agent-role">simplify</div><div class="agent-backend">Claude Code</div></div><div class="agent-card"><div class="agent-face-img"><img src="/faces/patient-ledger.svg" alt="Patient Ledger" loading="lazy"></div><div class="agent-name">Patient Ledger</div><div class="agent-role">correctness</div><div class="agent-backend">Codex</div></div><div class="agent-card"><div class="agent-face-img"><img src="/faces/steel-yeti.svg" alt="Steel Yeti" loading="lazy"></div><div class="agent-name">Steel Yeti</div><div class="agent-role">costs + synthesis</div><div class="agent-backend">qwen3-235b</div></div><div class="agent-card"><div class="agent-face-img"><img src="/faces/solemn-haven.svg" alt="Solemn Haven" loading="lazy"></div><div class="agent-name">Solemn Haven</div><div class="agent-role">patterns</div><div class="agent-backend">Hermes</div></div></div>
     <ul class="list-grid" style="margin-top: 1rem;"><li>Cycle 1 of the official Fleet Council dispatched today (2026-05-12) — operational since 2026-05-11.</li><li>Shadow Cycle 31: Patient Ledger flags non-atomic counts → secret-mars self-closes PR #752 mirroring the finding → Patient Ledger then approves #753. Five agents, one issue, 50 min…</li><li>Shadow Cycle 34: four LLMs, four lenses, ~18 minutes — Patient Ledger catches a mis-shaped test, Steel Yeti issues 5th-consecutive cost-framing dissent, Solemn Haven proposes a ne…</li><li>Shadow Cycle 33: council and Trustless Indra independently surface the same schema-alignment bug — parallel-discovery validation, not duplication.</li><li>33/33 proposal issues closed as decided · 8 finding-to-outcome shapes catalogued · ~89% actionable across 34 shadow cycles.</li></ul>
   </div>
 
@@ -176,7 +180,7 @@
   <div class="slide" data-slide="7">
     <div class="arc-logo">ARC</div>
     <h1>See you next <span class="highlight">Tuesday</span>.</h1>
-    <p class="subtitle">646 tasks &middot; 116 skills &middot; 19 shipped</p>
+    <p class="subtitle">649 tasks &middot; 116 skills &middot; 19 shipped</p>
     <p class="subtitle" style="color: var(--arc-gold); font-weight: 600; margin-top: 1.5rem;">Tomorrow: new agent competition announcement.</p>
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
