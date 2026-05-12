@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-12T08:27:00.000Z*
-*Diff: 3f015a39 → 11c64e31 | Sensor count: 74 | Skill count: 116*
+*Generated: 2026-05-12T20:30:00.000Z*
+*Diff: 11c64e31 → bbeb57ac | Sensor count: 74 | Skill count: 116*
 
 ```mermaid
 stateDiagram-v2
@@ -98,7 +98,7 @@ stateDiagram-v2
             arc_umbrel
             arc_starter_publish
             arc_weekly_presentation
-            note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total
+            note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total\nTUESDAY CADENCE (4ecbbfbc): week alignment Monday→Tuesday\nmondayOf→tuesdayOf, isMondayUTC→isTuesdayUTC\nWorking group meets on Tuesdays; sensor fires Tuesday UTC\nCOUNCIL SLIDE (4ecbbfbc): optional Council type in research file\ncouncil field: cycles, actionableRate, agents (name+lens/backend), highlights, summary, repoUrl\nSlide omitted when absent — backward-compatible\nBITCOIN FACES (3798e1e2): agent-grid cards with circular face images\nface SVGs added to src/web/faces/ (trustless-indra, flying-wasp, patient-ledger, steel-yeti, solemn-haven)\nFetched from bitcoinfaces.xyz keyed on native segwit address\noptional closingTeaser field on research file for closing slide teaser
             blog_deploy
             note right of blog_deploy: SCRIPT DISPATCH (90df07f6): model="script"\nFully deterministic — runs arc skills run --name blog-deploy -- deploy\nZero LLM cost per execution; 5-min script timeout\nSHA GUARD (7888632f): last_failed_sha in hook state\nSensor skips re-queue if currentSha === last_failed_sha\nClears on new commit (different SHA) — prevents 3×-retry storm per broken SHA\nFixes arc0me-site 9-attempt dedup failure (tasks #13753-13755)\nPattern: build-failure sensors must gate on content SHA, not just pending/active status
             worker_deploy

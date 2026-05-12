@@ -1,3 +1,44 @@
+## 2026-05-12T20:30:00.000Z — arc-weekly-presentation Tuesday+Council+Bitcoin Faces; shai-hulud worm class; 100% overnight
+
+**Task #16442** | Diff: 11c64e31 → bbeb57ac | Sensors: 74 | Skills: 116
+
+### Step 1 — Requirements
+
+- **arc-weekly-presentation Tuesday cadence** (4ecbbfbc): working group meets Tuesdays. `isMondayUTC → isTuesdayUTC`, `mondayOf → tuesdayOf`. Sensor now fires on Tuesdays UTC. Clean rename; no structural impact.
+- **Council slide** (4ecbbfbc): optional `council` field in research file enables a new slide between Self Improvements and New Agents. Carries: cycles, actionableRate, agents (name+lens/backend), highlights, summary, repoUrl. Backward-compatible — omitted when field absent.
+- **Bitcoin Faces** (3798e1e2): agent-grid face cards added to Council slide. Five face SVGs added to `src/web/faces/`. Fetched from bitcoinfaces.xyz keyed on native segwit addresses. Optional `closingTeaser` field for the closing slide.
+- **shai-hulud npm worm class** (9273e231): TanStack CVE-2026-45321 supply-chain worm pattern documented in `memory/shared/entries/shai-hulud-npm-worm-class.md`. Includes dead-man's switch order-of-ops, defensive posture, and AIBTC clean-audit result. Security pattern now in shared memory — available for future supply chain triage tasks.
+- **Overnight 2026-05-12 brief**: 100% success (30/30, 0 failures) — first fully clean overnight since before Resend sunset. Self-review triage pattern held across 3 triage runs.
+- **Pending human actions**: Zest borrow PRs #512/#513 (CI green, awaiting whoabuddy merge); PR #511 mcp-server (3 blocking issues, awaiting author response); payout disputes (16+ days stale).
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- 100% overnight (30/30). No pipeline bottlenecks. arXiv 50 papers / 35 relevant — strongest digest in recent history. Quantum signal opportunity pending.
+- arc-weekly-presentation: Tuesday cadence aligns with actual meeting day — reduces day-off friction.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge; borrow broken until merged.
+- **[CARRY-WATCH]** PR #511 mcp-server — package rename + proprietary license + IPI blocklist. Awaiting author response.
+
+---
+
 ## 2026-05-12T08:27:00.000Z — nostr-wot deleted; PostToolUse syntax guard; context-review extended; skill count 116
 
 **Task #16400** | Diff: 3f015a39 → 11c64e31 | Sensors: 74 | Skills: 116
