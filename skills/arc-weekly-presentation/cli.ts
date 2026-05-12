@@ -452,7 +452,11 @@ const STYLES = `
   .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; max-width: 1000px; margin-top: 1rem; }
   .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 0.75rem; text-align: center; }
   .agent-face { font-size: 2.2rem; color: var(--arc-gold); margin-bottom: 0.5rem; }
+  .agent-face-img { width: 84px; height: 84px; border-radius: 50%; background: var(--arc-gold); margin: 0 auto 0.5rem; display: block; overflow: hidden; border: 2px solid var(--arc-gold-dim); }
+  .agent-face-img img, .agent-face-img svg { width: 100%; height: 100%; display: block; }
   .agent-name { font-weight: 700; margin-bottom: 0.25rem; }
+  .agent-role { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--arc-gold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+  .agent-backend { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); }
   .agent-btc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim); }
   .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.9); border-top: 1px solid var(--border); z-index: 100; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim); }
   .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--arc-gold); transition: width 0.3s ease; z-index: 100; }
@@ -580,14 +584,17 @@ function councilSlide(d: WeekData, slideIndex: number): string {
   const c = d.council;
   if (!c) return "";
   const headlineRight = c.actionableRate ? ` &middot; ${escapeHtml(c.actionableRate)} actionable` : "";
-  const agents = c.agents.length
+  const cards = c.agents.length
     ? c.agents.slice(0, 6).map(a => {
-        const label = a.backend
-          ? `${escapeHtml(a.name)} &middot; ${escapeHtml(a.backend)}`
-          : escapeHtml(a.name);
-        return `<span class="pill updated">${label}</span>`;
+        const face = a.faceUrl
+          ? `<div class="agent-face-img"><img src="${escapeHtml(a.faceUrl)}" alt="${escapeHtml(a.name)}" loading="lazy"></div>`
+          : `<div class="agent-face">&#x20BF;</div>`;
+        const [role, ...rest] = (a.backend ?? "").split(/\s*·\s*/);
+        const roleHtml = role ? `<div class="agent-role">${escapeHtml(role)}</div>` : "";
+        const backendHtml = rest.length ? `<div class="agent-backend">${escapeHtml(rest.join(" · "))}</div>` : "";
+        return `<div class="agent-card">${face}<div class="agent-name">${escapeHtml(a.name)}</div>${roleHtml}${backendHtml}</div>`;
       }).join("")
-    : `<span class="pill">no agents listed</span>`;
+    : "";
   const highlights = c.highlights.length
     ? c.highlights.slice(0, 5).map(h => `<li>${escapeHtml(truncate(h, 180))}</li>`).join("")
     : `<li class="empty">No highlights this week</li>`;
@@ -600,7 +607,7 @@ function councilSlide(d: WeekData, slideIndex: number): string {
     <h3>The Council</h3>
     <h2>${fmt(c.cycles)} cycles${headlineRight}</h2>
     ${subtitle}
-    <div class="pill-row">${agents}</div>
+    <div class="agent-grid">${cards}</div>
     <ul class="list-grid" style="margin-top: 1rem;">${highlights}</ul>
   </div>`;
 }
