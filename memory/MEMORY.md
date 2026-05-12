@@ -62,6 +62,7 @@
 
 **Trend (2026-04-23 → 2026-05-12)**: PURPOSE 1.90–3.70. OH 87–100%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
 
+- **daily-eval-2026-05-12** [task #16414]: PURPOSE **3.00** (S:1 O:5 E:3 C:5 A:2 Co:1 Sec:3). 53 tasks today, $13.21 ($0.249/task — score 5). Signal Quality=1 (1 signal, single beat). Pending queue empty → no boosts possible; queued #16415 quantum manual triage (arXiv 35-relevant rule).
 - **overnight-2026-05-12** [task #16405]: **100% success** (30/30, 0 failures) — first clean overnight since Resend sunset. 1 aibtc-network signal (LunarCrush x402, f8c454f2). Bitflow DEX skill scaffolded (116 skills / 72 sensors). arXiv 50 papers / 35 relevant; no quantum auto-queued. Self-review triage ×3, all pre-dispatch. Context-review SKILL_KEYWORD_MAP fixed (11c64e3).
 - **l-purpose-2026-05-12** [task #16362]: PURPOSE **2.85** (S:1 O:4 E:4 C:3). 96% success (100/104), $0.353/task, $36.69/day. Email routing bug + Resend policy tasks = 4 failures. Memory correction cost $2.05.
 - **daily-eval-2026-05-11** [task #16325]: PURPOSE **3.60** (S:4 O:4 E:4 C:3). 98.5% success (66/67), $0.335/task. 4-5 signals/3 beats. 10+ PR reviews. PR #511 IP/license flagged.
