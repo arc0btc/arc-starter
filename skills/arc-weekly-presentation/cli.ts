@@ -49,7 +49,7 @@ interface SelfImprovements {
 interface Council {
   cycles: number;
   actionableRate?: string;
-  agents: Array<{ name: string; backend?: string }>;
+  agents: Array<{ name: string; backend?: string; faceUrl?: string }>;
   highlights: string[];
   summary?: string;
   repoUrl?: string;
