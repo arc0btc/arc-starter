@@ -86,3 +86,5 @@ Return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather
 Validate structural gates (DNC, pipeline history, demand-fit, contact availability) BEFORE queuing pitch tasks. Verify DRI hasn't already opened engagement that day.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
+**p-vulnerability-disclosure-triage** [2026-05-12]
+Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure across dependent repos and document mitigations.
