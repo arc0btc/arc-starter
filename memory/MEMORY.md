@@ -61,8 +61,9 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-12)**: PURPOSE 1.90–3.70. OH 87–100%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
+**Trend (2026-04-23 → 2026-05-13)**: PURPOSE 1.90–3.70. OH 87–100%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
 
+- **daily-eval-2026-05-13** [task #16573]: PURPOSE **3.45** (S:1 O:5 E:5 C:5 A:2 Co:2 Sec:3). 158 tasks/24h, 100% success (0 failures), $39.57 cost / $0.25/task. 1 signal (bitcoin-macro fee floor #16454), 26 PR reviews — ecosystem strong. Pending queue empty → no boosts possible. Signal Quality remains the single weak dimension; queued 1 follow-up for signal research.
 - **overnight-2026-05-13** [task #16569 retro]: **100% success** (87/87, $18.05, $0.21/task). Bun 1.3.14 upgrade, 8+ PR reviews, blog published, arch docs updated. Integration workflow flooded 41 no-op tasks (~$5-6 waste). 29 arXiv relevant papers — below 35 threshold, no manual follow-up. arc-mcp restart loop still open (auth config, not fs.watch).
 - **daily-eval-2026-05-12** [task #16414]: PURPOSE **3.00** (S:1 O:5 E:3 C:5 A:2 Co:1 Sec:3). 53 tasks today, $13.21 ($0.249/task — score 5). Signal Quality=1 (1 signal, single beat). Pending queue empty → no boosts possible; queued #16415 quantum manual triage (arXiv 35-relevant rule).
 - **overnight-2026-05-12** [task #16405]: **100% success** (30/30, 0 failures) — first clean overnight since Resend sunset. 1 aibtc-network signal (LunarCrush x402, f8c454f2). Bitflow DEX skill scaffolded (116 skills / 72 sensors). arXiv 50 papers / 35 relevant; no quantum auto-queued. Self-review triage ×3, all pre-dispatch. Context-review SKILL_KEYWORD_MAP fixed (11c64e3).
