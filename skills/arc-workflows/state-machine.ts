@@ -733,6 +733,7 @@ export const NewReleaseMachine: StateMachine<{
           model: "sonnet",
           skills: skillList,
           description: `Review release ${ctx.version} of ${ctx.repo} for breaking changes or integration opportunities.${ctx.releaseUrl ? ` Release: ${ctx.releaseUrl}` : ""}\n\nAfter assessment, transition workflow to 'integration_pending' (if action required) or 'no_action' (if nothing to do).`,
+          autoAdvanceState: "assessing",
         };
       },
     },
@@ -752,6 +753,7 @@ export const NewReleaseMachine: StateMachine<{
           model: "sonnet",
           skills: skillList,
           description: ctx.integrationDescription || `Apply relevant changes from ${ctx.repo} ${ctx.version} to Arc.`,
+          autoAdvanceState: "integrating",
         };
       },
     },
