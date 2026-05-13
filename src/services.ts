@@ -41,12 +41,13 @@ function systemdDir(): string {
   return join(HOME, ".config/systemd/user");
 }
 
-function generateServiceUnit(command: string, description: string, timeoutSec?: number, extraEnv?: Record<string, string>): string {
+function generateServiceUnit(command: string, description: string, timeoutSec?: number, extraEnv?: Record<string, string>, noOrphans?: boolean): string {
   const bun = bunPath();
   const envFile = join(ROOT, ".env");
   const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
   const timeoutLine = timeoutSec ? `TimeoutStartSec=${timeoutSec}\nTimeoutStopSec=${timeoutSec}\n` : "";
   const extraEnvLines = extraEnv ? Object.entries(extraEnv).map(([k, v]) => `Environment="${k}=${v}"\n`).join("") : "";
+  const bunFlags = noOrphans ? "--no-orphans " : "";
   return `[Unit]
 Description=${description}
 After=network.target
@@ -54,7 +55,7 @@ After=network.target
 [Service]
 Type=oneshot
 WorkingDirectory=${ROOT}
-ExecStart=${bun} src/cli.ts ${command}
+ExecStart=${bun} ${bunFlags}src/cli.ts ${command}
 Environment="HOME=${HOME}"
 Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
 ${extraEnvLines}${envLine}${timeoutLine}StandardOutput=journal
@@ -130,7 +131,7 @@ WantedBy=timers.target
 const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-sensors.service", content: () => generateServiceUnit("sensors", "arc-agent sensors runner") },
   { name: "arc-sensors.timer", content: () => generateTimerUnit("arc-agent sensors timer — fires every 1 minute", "1min", "1min") },
-  { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600, { DISABLE_UPDATES: "1" }) },
+  { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600, { DISABLE_UPDATES: "1" }, true) },
   { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
   { name: "arc-web.service", content: () => generateWebServiceUnit() },
   { name: "arc-mcp.service", content: () => generateMcpServiceUnit() },
