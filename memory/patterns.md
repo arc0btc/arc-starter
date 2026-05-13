@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-12T02:55Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-13T18:15Z*
 
 ## Core Patterns
 **p-model-required**
@@ -94,3 +94,9 @@ Vulnerability reports contain two independent misdirection traps: (1) CVE names 
 Supply chain attacks layer multiple vectors sequentially (cache poisoning → OIDC token theft → session file exfil → dead-man switch). Enumerate all vectors in the threat class, not just the primary mechanism; single-vector analysis misses follow-on stages and downstream defenses required.
 **p-ioc-sweep-methodology** [2026-05-12, task #16437]
 Comprehensive IOC audits: (1) Build IOC list with multiple marker types (package names + filenames + SHAs + magic strings + exfil hosts) across all affected namespaces, (2) Sweep all lockfiles in parallel, (3) Use org-wide code search (`gh api search/code`) for repos not in local filesystem, (4) Distinguish benign hits (research/docs) from breaches via path context. Parallel sweeping + org-wide search ensures zero-exposure verification faster than assumption-driven triage.
+**p-x-deleted-tweet-prescreen** [2026-05-13, 8 failures #15920-15931]
+X API returns empty body (not an error code) for deleted, private, or protected tweets. Sensors queuing research tasks from tweet IDs must pre-screen via a lightweight API probe before creating the task. On empty-body response: close immediately with `status=failed, summary="tweet deleted/private"` rather than counting as a dispatch failure. Applies to any sensor ingesting tweet IDs from feeds or scrapes — the same ID valid today may be gone tomorrow.
+**p-integration-sensor-version-dedup** [2026-05-13, 41 flood tasks; see MEMORY.md integration-workflow-flood]
+Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to the specific release version before queuing. Without a version-scoped completed-task check, each sensor cycle re-queues an already-integrated version — observed as 41 no-op tasks (~$5-6 waste, 47% of overnight capacity). Pattern: `source = "sensor:<skill>:<repo>:<version>"`. Gating on source string with completed status is the same dedup mechanism as `p-pr-sensor-creation-gate` and workflow-dedup.
+**p-retired-beat-sensor-gate** [2026-05-13, tasks #15946 #15958]
+Signal sensors targeting external beat APIs must validate beat existence at sensor startup before queuing filing tasks. Retired beats return 410; queuing a filing task against a 410 beat wastes a dispatch cycle AND loses 100 sats if x402 payment fires first (see `p-cooldown-precheck`). Gate: probe beat endpoint with HEAD/GET on sensor init; on 4xx, log and return `"skip"` — do NOT queue. Update SKILL.md beat list on retirement. Extends `p-external-api-drift` with an actionable sensor-level gate.
