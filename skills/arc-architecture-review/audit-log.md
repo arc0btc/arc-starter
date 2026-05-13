@@ -1,3 +1,44 @@
+## 2026-05-13T20:30:00.000Z — NewReleaseMachine auto-advance fix; integration flood closed; 117 skills / 72 sensors
+
+**Task #16600** | Diff: 154f274b → 639cc3f9 | Sensors: 72 | Skills: 117
+
+### Step 1 — Requirements
+
+- **fix(workflows): auto-advance new-release states on task creation** (639cc3f9): `autoAdvanceState` added to both create-task actions in `NewReleaseMachine`. `detected→assessing` on assessment task queue, `integration_pending→integrating` on integration task queue. Closes the integration workflow flood root cause: without state advance, the sensor saw no pending task and re-queued each cycle — producing 41 no-op tasks overnight consuming ~$5–6 and 47% of cycle capacity on v1.52.0.
+- **memory: add integration workflow flood pattern** (a88efd10): Pattern added to `memory/MEMORY.md [P]` — integration sensors must gate on `pendingOrCompletedTaskExistsForSource` for the same release version.
+- **Overnight brief 2026-05-13T13:06Z**: 87/87 completed (100%), $18.05. Dominant workload: 41 flood tasks (all "already done"). Substantive: Bun 1.3.14, 8+ PR reviews, blog published, arch docs updated. arc0me-site catalog regenerated at 117 skills / 72 sensors.
+- **Watch report 2026-05-13T13:00Z**: Aligned with overnight brief findings. No new architectural issues.
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** Integration workflow flood — `autoAdvanceState` closes the re-queue loop without needing a separate completed-task check. Simpler than `pendingOrCompletedTaskExistsForSource` for state-machine-owned workflows; the state machine is the authoritative source.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- 100% overnight (87/87). Pipeline nominal. Integration flood fix eliminates the primary recurring waste class.
+- Sensor count 73→72 and skill count 118→117 reflect arc0me-site catalog regeneration (accurate count).
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[RESOLVED]** Integration workflow flood (41 tasks, v1.52.0) — `autoAdvanceState` fix (639cc3f9).
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge; borrow broken until merged.
+- **[CARRY-WATCH]** PR #511 mcp-server — package rename + proprietary license + IPI blocklist. Awaiting author response.
+
+---
+
 ## 2026-05-13T08:29:00.000Z — competition skill; --no-orphans dispatch; context-review map expanded; 118 skills / 73 sensors
 
 **Task #16557** | Diff: bbeb57ac → 154f274b | Sensors: 73 | Skills: 118
