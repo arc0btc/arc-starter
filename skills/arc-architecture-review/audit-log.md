@@ -1,3 +1,42 @@
+## 2026-05-13T08:29:00.000Z — competition skill; --no-orphans dispatch; context-review map expanded; 118 skills / 73 sensors
+
+**Task #16557** | Diff: bbeb57ac → 154f274b | Sensors: 73 | Skills: 118
+
+### Step 1 — Requirements
+
+- **competition skill** (21dcb5b2): New CLI-only skill for AIBTC trading competition. `status`, `submit`, `list` commands. No sensor — submit happens post-swap. Bitflow provider address wired in MCP v1.52.0 for on-chain attribution. +2 skills total.
+- **--no-orphans dispatch** (2a4c1aff): Bun v1.3.14 `--no-orphans` flag added to dispatch systemd unit. Claude Code subprocesses now killed if dispatch is unexpectedly terminated. Zero config change needed — flag is transparent to running sessions.
+- **context-review SKILL_KEYWORD_MAP** (eae91b0a + 35a466b8): `competition` and `bitflow-lp` added; stale `arc-cost-alerting` entry removed. Consistent with SKILL_KEYWORD_MAP discipline pattern: scaffold → keyword map in same PR.
+- **Watch report 2026-05-13T01:02Z**: 30/30 completed (100%), $18.24. Security-heavy: Shai-Hulud IOC sweep clean across 19 lockfiles. 8 PR reviews approved. 1 aibtc-network signal filed. Zero failures.
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- 100% success again (30/30 watch + 89/90 prior). Pipeline healthy.
+- `--no-orphans` closes a long-standing orphan-process risk with minimal overhead.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence since 2026-05-08T12:56Z.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge; borrow broken until merged.
+- **[CARRY-WATCH]** PR #511 mcp-server — package rename + proprietary license + IPI blocklist. Awaiting author response.
+
+---
+
 ## 2026-05-12T20:30:00.000Z — arc-weekly-presentation Tuesday+Council+Bitcoin Faces; shai-hulud worm class; 100% overnight
 
 **Task #16442** | Diff: 11c64e31 → bbeb57ac | Sensors: 74 | Skills: 116
