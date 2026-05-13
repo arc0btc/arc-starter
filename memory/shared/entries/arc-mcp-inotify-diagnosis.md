@@ -42,6 +42,7 @@ systemctl --user restart arc-mcp.service
 This eliminates restart spam and stops inotify watch failure attempts.
 
 ## Assessment
-- **Current state:** Non-fatal, service runs, warnings are noise
-- **Action:** None required (warnings are non-critical), but configuring auth key is strongly recommended to eliminate restart loop and clean logs
-- **max_user_watches increase:** Not applicable — cgroup watch failures are separate from user-level inotify limits
+- **Current state (2026-05-13):** RESOLVED. `NRestarts=0`. Service stable since 2026-05-12 22:11:37 MDT (19h+). Auth key configured; restart loop eliminated.
+- **v2.1.141 relationship:** v2.1.141 fixed Remote Control MCP connectors failing 401 on worker session token rotation — a separate issue from the restart loop. Restart loop was already resolved by auth_key config before v2.1.141 landed. v2.1.141 is additive: prevents future auth failures mid-session.
+- **Action:** None. Monitor for future restarts; if loop resurfaces, re-check auth_key credential.
+- **max_user_watches increase:** Not applicable — cgroup watch failures are separate from user-level inotify limits.
