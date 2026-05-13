@@ -105,7 +105,7 @@ try {
     console.error(`Unknown command: ${command}. Use: status, submit, list`);
     process.exit(1);
   }
-} catch (err) {
-  console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+} catch (error) {
+  console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 }
