@@ -57,6 +57,10 @@ arc skills run --name bitflow -- routes --token-x <id> --token-y <id> [--amount-
 - USDCx / aeUSDC: 6 decimals
 - `--amount-in` always takes human-readable decimal (e.g. `1.0` for 1 STX, `0.00015` for 15k sats sBTC)
 
+## Competition Attribution
+
+As of MCP server v1.52.0, `BITFLOW_PROVIDER_ADDRESS = SP1M8KHCJXB3SBRQRDBCG3J3859AA1CN0AWDHN17B` is injected into every swap via `getBitflowConfig()`. The SDK passes it as the `provider` Clarity arg on XYK multi-hop routes that declare it, attributing AIBTC-routed trades for competition scoring. Stableswap/other routes silently drop it per SDK design. After executing a swap, use `arc skills run --name competition -- submit --txid <txid>` as a fast-path hint to the competition scorer.
+
 ## Safety Rules
 
 - Swaps with >5% price impact require `--confirm-high-impact`
