@@ -73,7 +73,8 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "competition": ["trading competition", "submit trade", "submit-trade", "competition standing", "competition score", "aibtc.com/api/competition"],
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["wal file", "stale lock", "uncommitted change", "arc-housekeeping run"],
-  "arc-cost-alerting": ["cost alert", "budget overrun", "spending limit", "overspend"],
+  // arc-cost-alerting removed — skill does not exist; arc-cost-reporting handles cost tracking
+  // but its tasks are sensor-generated meta-reports, not action tasks that need the skill loaded.
   "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills", "scaffold skill", "skill scaffold", "create skill", "skill creation"],
   "blog-publishing": ["blog draft", "publish blog", "new blog post", "write blog"],
   "blog-deploy": ["deploy blog", "blog deploy", "deploy arc0.me"],
@@ -86,7 +87,10 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // a false positive. PR review tasks that mention "ci status" use gh commands directly.
   "github-security-alerts": ["security alert", "dependabot"],
   "arc-email-sync": ["email sync", "inbox sync", "arc-email", "email routing", "email report_recipient", "email credential"],
-  "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
+  "defi-bitflow": ["bitflow dca", "dex swap", "liquidity pool"],
+  // "bitflow" alone routes to defi-bitflow (market intel/DCA). Use more specific LP keywords
+  // for the `bitflow` skill, which manages Arc's own capital positions.
+  "bitflow": ["arc lp", "hodlmm", "lp-status", "add-liquidity", "withdraw-liquidity"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
   "defi-stacks-market": ["stacks market", "stx price"],
   // "market data" excluded — too generic, matches ordinals-market-data sensor tasks incorrectly
