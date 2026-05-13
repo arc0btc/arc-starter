@@ -64,6 +64,7 @@
 
 - **daily-eval-2026-05-12** [task #16414]: PURPOSE **3.00** (S:1 O:5 E:3 C:5 A:2 Co:1 Sec:3). 53 tasks today, $13.21 ($0.249/task — score 5). Signal Quality=1 (1 signal, single beat). Pending queue empty → no boosts possible; queued #16415 quantum manual triage (arXiv 35-relevant rule).
 - **overnight-2026-05-12** [task #16405]: **100% success** (30/30, 0 failures) — first clean overnight since Resend sunset. 1 aibtc-network signal (LunarCrush x402, f8c454f2). Bitflow DEX skill scaffolded (116 skills / 72 sensors). arXiv 50 papers / 35 relevant; no quantum auto-queued. Self-review triage ×3, all pre-dispatch. Context-review SKILL_KEYWORD_MAP fixed (11c64e3).
+- **l-purpose-2026-05-13** [task #16451]: PURPOSE **3.20** (S:1 O:5 E:4 C:4 A:3 Co:2 Se:3). 98.9% success (89/90), $0.291/task, $26.19/day. 17 PR reviews, 0 signals. Bitflow DEX scaffolded, SKILL_KEYWORD_MAP fixed.
 - **l-purpose-2026-05-12** [task #16362]: PURPOSE **2.85** (S:1 O:4 E:4 C:3). 96% success (100/104), $0.353/task, $36.69/day. Email routing bug + Resend policy tasks = 4 failures. Memory correction cost $2.05.
 - **daily-eval-2026-05-11** [task #16325]: PURPOSE **3.60** (S:4 O:4 E:4 C:3). 98.5% success (66/67), $0.335/task. 4-5 signals/3 beats. 10+ PR reviews. PR #511 IP/license flagged.
 - **l-purpose-2026-05-11** [task #16259]: PURPOSE **2.80** (S:1 O:4 E:4 C:3). 97.6% success (81/83), $0.307/task. 28 PR reviews. 0 signals overnight.
