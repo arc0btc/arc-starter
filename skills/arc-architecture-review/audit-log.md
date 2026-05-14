@@ -1,3 +1,43 @@
+## 2026-05-14T23:33:00.000Z — dispatch-gate quota auto-reset; 19h outage post-mortem; 117 skills / 72 sensors
+
+**Task #16631** | Diff: 639cc3f9 → 0a62b3cf | Sensors: 72 | Skills: 117
+
+### Step 1 — Requirements
+
+- **fix(dispatch-gate) quota auto-reset** (0a62b3cf): `checkDispatchGate()` now parses 'resets HH:MM (Timezone)' from stop_reason for rate_limited class. Finds the first reset time after stopped_at; if now >= reset_time → auto-reset and proceed. Consecutive-failure stops still require manual `arc dispatch reset`. Addresses 19h dispatch outage on 2026-05-14 (quota hit 03:00Z, reset 17:00Z, no cycle until 22:40Z).
+- **Overnight brief 2026-05-14** (7dc26640): 19.5h dispatch gap documented. Pre-sleep productive (21 tasks, $5.16): Claude Code v2.1.141 upgrade, arc-mcp restart loop confirmed resolved, bitcoin difficulty signal, PR #384 reviewed (3 passes). 13 tasks batch-failed on restart (CEO review, arXiv digest, watch report, PR reviews, health alerts). Post-reset 5.5h gap (17:00→22:40Z) root cause still open — auto-reset fix closes this class going forward.
+- **Memory/pattern updates** (e0fb9d66, 99ac4fdd): Stacks address prefix correction (SP=standard, SM=multisig both mainnet); dispatch 19h outage post-mortem pattern added.
+
+### Step 2 — Delete
+
+- No deletions. All prior [OPEN] items resolved.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** Dispatch-gate quota recovery: was manual (`arc dispatch reset`). Now auto-resets for rate_limited class based on machine-readable stop_reason. Manual reset path preserved for consecutive-failure stops (legitimate — needs human review). Simpler operational model.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- Auto-reset eliminates the manual recovery path for quota exhaustion. Future quota outages self-resolve at reset time rather than requiring human intervention.
+- Batch-fail on restart (13 tasks) is expected dispatch-lock behavior — not a bottleneck to address.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle. The quota auto-reset IS the automation — it converts a manual-recovery class into a self-healing one.
+
+### Flags
+
+- **[RESOLVED]** Claude usage quota = 19h dispatch outage — auto-reset fix (0a62b3cf). Pattern closed for rate_limited class.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-13T20:30:00.000Z — NewReleaseMachine auto-advance fix; integration flood closed; 117 skills / 72 sensors
 
 **Task #16600** | Diff: 154f274b → 639cc3f9 | Sensors: 72 | Skills: 117

@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-13T20:30:00.000Z*
-*Diff: 154f274b → 639cc3f9 | Sensor count: 72 | Skill count: 117*
+*Generated: 2026-05-14T23:33:00.000Z*
+*Diff: 639cc3f9 → 0a62b3cf | Sensor count: 72 | Skill count: 117*
 
 ```mermaid
 stateDiagram-v2
@@ -172,6 +172,7 @@ stateDiagram-v2
 
         CheckGate --> [*]: gate closed (rate limit / auth failure)
         CheckGate --> SelectTask
+        note right of CheckGate: AUTO-RESET ON QUOTA (0a62b3cf): checkDispatchGate() parses\n'resets HH:MM (Timezone)' from stop_reason for rate_limited class\nFinds first reset time after stopped_at; if now >= reset_time → auto-reset and proceed\nConsecutive-failure stops (too_many_consecutive_failures) still require manual reset\nFixes 19h outage 2026-05-14: quota hit at 03:00Z, reset at 17:00Z\npost-reset 5.5h gap (17:00→22:40Z) would not have occurred with this fix in place\nPattern: rate_limited is temporary and machine-readable; auto-recovery is safe
 
         SelectTask --> [*]: no pending tasks
         SelectTask --> PreFlightCheck
