@@ -80,3 +80,13 @@ For remote HTTP:
   }
 }
 ```
+
+## Timeout Configuration
+
+External Claude Code clients connecting via HTTP transport should set `MCP_TOOL_TIMEOUT` for long-running resource operations:
+
+```bash
+export MCP_TOOL_TIMEOUT=120000  # 120 seconds (default: 60s)
+```
+
+This is primarily relevant for large MEMORY.md reads or extended cycle log queries. Arc's native tools (list_tasks, create_task, get_status) typically complete in <5 seconds. See Claude Code v2.1.142+ release notes for details on MCP_TOOL_TIMEOUT behavior.
