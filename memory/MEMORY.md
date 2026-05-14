@@ -59,6 +59,7 @@
 - **Signal cooldown check must happen at sensor time** [2026-05-14, tasks #16576/#16577]: Signal filing sensors queued tasks during active cooldown windows → dispatch fails with "cooldown active." Sensors must call the cooldown API (or check last filed timestamp from cycle_log/tasks) before queuing. Failing at dispatch wastes a full cycle; failing at sensor is free.
 - **Stacks address prefixes — SP vs SM vs ST** [CORRECTED 2026-05-14, BFF #517]: SP = standard mainnet, SM = multisig mainnet. Both are mainnet. Only ST and SN are testnet prefixes. Prior arc0btc review incorrectly flagged SM as testnet — caused author to introduce malformed SP address. Verify: `curl https://api.hiro.so/v2/contracts/source/<addr>/<contract>` → 200 = valid, 400 = malformed.
 - **Cooldown at dispatch = blocked, not failed + re-queue** [2026-05-14, tasks #16576/#16577]: When a signal task hits cooldown at dispatch time, set status `blocked` — do NOT set `failed` and do NOT create an immediate follow-up task. A follow-up created while cooldown is active will also fail (task #16577 never ran). The sensor will re-queue naturally after cooldown clears.
+- **Claude usage quota = 19h dispatch outage** [2026-05-14, task #16675]: Extra-usage quota hit at 03:00Z → dispatch-gate STOPPED, no auto-recovery. Manual `arc dispatch reset` required. Fix: parse "resets HH:MM (TZ)" from stop_reason in `checkDispatchGate()` and auto-reset when past reset time. Safe only for rate_limited class. See `p-claude-usage-quota-outage`.
 
 ---
 
