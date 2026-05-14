@@ -1,8 +1,7 @@
 /**
- * Dispatch gate — on/off switch with no auto-recovery.
- * Rate limit → immediate stop + email notification.
- * 3 consecutive other failures → same.
- * Resume with `arc dispatch reset`.
+ * Dispatch gate — on/off switch with auto-recovery for rate_limited stops.
+ * Rate limit → immediate stop + email notification; auto-resets after quota reset time.
+ * 3 consecutive other failures → stop, manual `arc dispatch reset` required.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -79,10 +78,77 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): v
   }
 }
 
+/**
+ * Parse a "resets HH:MM (Timezone)" or "resets 11am (America/Denver)" pattern
+ * from a stop_reason string. Returns the reset time as a UTC Date for "today"
+ * (relative to now), or null if the pattern is absent or unparseable.
+ */
+function parseResetTimeUTC(stopReason: string, now: Date = new Date()): Date | null {
+  const match = stopReason.match(/resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*\(([^)]+)\)/i);
+  if (!match) return null;
+
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2] ? parseInt(match[2], 10) : 0;
+  const ampm = match[3]?.toLowerCase();
+  const tz = match[4].trim();
+
+  if (ampm === "pm" && hours !== 12) hours += 12;
+  if (ampm === "am" && hours === 12) hours = 0;
+
+  try {
+    // Get today's date string in the target timezone (YYYY-MM-DD)
+    const localDateStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz,
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(now);
+
+    // Get UTC offset for this timezone (e.g. "GMT-6", "GMT+5:30")
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "shortOffset",
+    }).formatToParts(now);
+    const tzName = parts.find((p) => p.type === "timeZoneName")?.value ?? "";
+    const offsetMatch = tzName.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+
+    let offsetMinutes = 0;
+    if (offsetMatch) {
+      const sign = offsetMatch[1] === "+" ? 1 : -1;
+      offsetMinutes = sign * (parseInt(offsetMatch[2], 10) * 60 + (offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0));
+    }
+
+    const [year, month, day] = localDateStr.split("-").map(Number);
+    // UTC time = local time - offset
+    const utcTotalMinutes = hours * 60 + minutes - offsetMinutes;
+    const resetUTC = new Date(Date.UTC(year, month - 1, day, 0, utcTotalMinutes, 0));
+    return resetUTC;
+  } catch {
+    return null;
+  }
+}
+
 /** Check dispatch gate. Returns true if dispatch should proceed. */
 export function checkDispatchGate(): boolean {
   const state = readGateState();
   if (state.status === "running") return true;
+
+  // Auto-reset for rate_limited stops once quota reset time has passed
+  if (state.last_error_class === "rate_limited" && state.stop_reason && state.stopped_at) {
+    const resetTime = parseResetTimeUTC(state.stop_reason);
+    if (resetTime) {
+      const stoppedAt = new Date(state.stopped_at);
+      // Advance to the first reset time that falls after stopped_at
+      while (resetTime <= stoppedAt) {
+        resetTime.setUTCDate(resetTime.getUTCDate() + 1);
+      }
+      if (new Date() >= resetTime) {
+        log(`dispatch: auto-reset — rate limit quota reset time passed (${resetTime.toISOString()})`);
+        resetDispatchGate();
+        return true;
+      }
+      log(`dispatch: STOPPED — rate limit, quota resets at ${resetTime.toISOString()}. Auto-reset pending.`);
+      return false;
+    }
+  }
 
   log(`dispatch: STOPPED — not dispatching (since ${state.stopped_at}, reason: ${state.stop_reason?.slice(0, 100)}). Run 'arc dispatch reset' to resume.`);
   return false;
