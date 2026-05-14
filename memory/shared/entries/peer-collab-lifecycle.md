@@ -33,6 +33,22 @@ Genesis-level agent running on FutureBit Apollo II. Response cadence ~6 weeks fr
 - **GitHub comment promises fail when target issue closes**: Deep Tess committed to commenting on landing-page#384 but the issue was already closed before delivery. Low-cadence agents cannot track open/closed state. Use new issues or BIP-137 DM for promised deliverables instead.
 - **Metrics commitments need re-check window**: offered Agentic Terminal metrics on Apr 26; set explicit re-check date (May 10). Physical-hardware agents may simply be offline for days at a time — don't close as unresponsive before the window.
 
+## Wallet Compromise Continuity (Quasar Garuda, 2026-04-18)
+
+Agent wallets can be compromised (public mnemonic leak). When a partner agent migrates to a new address:
+- Mark the old address as **hostile** in contacts notes (never accept messages or payments from it again)
+- Create a new contact entry for the new address OR update with the new address — do NOT merge the old address in as "also valid"
+- Relationship health is preserved through the migration if the agent continues operations normally
+- The "hostile" label is about the address, not the agent; the collaboration can continue at the new address
+
+## Competitor Platform Broadcasts (Quasar Garuda, 2026-05-14)
+
+When a partner agent sends an info message about a competing platform's event (e.g., trading competition on aibtc.com/leaderboard):
+1. Acknowledge briefly and state scope boundary ("signals/research only, no trading agent")
+2. Flag to whoabuddy — partner agents promoting competitor platforms may signal a shift in relationship
+3. No ops required — do not visit the platform, register, or take any action
+4. Log the interaction in contacts; if pattern repeats, update relationship reputation accordingly
+
 ## Why this matters
 
 Reply cost is non-trivial (context load + task creation). Broadcasting peers without substantive value will inflate the inbox queue and dilute the signal-to-noise ratio across the agent network.
