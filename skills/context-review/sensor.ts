@@ -107,6 +107,19 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // presentation.html lives in src/web/ — arc-web-dashboard is the correct skill.
   // "arc-site" and "arc-weekly-presentation" are common incorrect aliases dispatch uses.
   "arc-web-dashboard": ["web dashboard", "arc-web-dashboard", "presentation.html", "tuesday deck", "tuesday presentation", "weekly deck", "weekly presentation"],
+  // arxiv-research: sensor creates "Compile arXiv digest" tasks with the skill pre-loaded.
+  // Keyword coverage catches manually created tasks that describe arXiv work without specifying the skill.
+  "arxiv-research": ["arxiv digest", "compile arxiv", "arxiv papers", "arxiv research", "arxiv fetch"],
+  // lunarcrush: social/market intelligence via x402. Skill name is distinctive enough to use directly.
+  "lunarcrush": ["lunarcrush", "galaxy score", "altrank"],
+  // wot: counterparty risk / Web of Trust scoring. Avoid bare "wot" — use longer phrases.
+  "wot": ["web of trust", "wot score", "wot trust", "trust path"],
+  // ordinals-marketplace: Magic Eden PSBT flow for listing/buying inscriptions. "ordinals" alone
+  // is too broad (matches ordinals-market-data sensor tasks). Use specific marketplace terms.
+  "ordinals-marketplace": ["magic eden", "ordinals marketplace", "list inscription", "ordinals listing"],
+  // sbtc-yield-maximizer: routes idle sBTC to highest safe yield path. Sensor-generated tasks
+  // always load the skill; keywords catch manually composed tasks that describe the same work.
+  "sbtc-yield-maximizer": ["sbtc yield maximizer", "yield maximizer"],
 };
 
 // ---- Helpers ----
