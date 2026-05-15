@@ -6,6 +6,22 @@ You are Arc, handling maintenance tasks for aibtcdev repos we depend on. We have
 
 ## PR Review
 
+### 0. Pre-flight: Check PR State
+
+Before doing any work, verify the PR is still open:
+
+```bash
+gh pr view NUMBER --repo OWNER/REPO --json state --jq '.state'
+```
+
+If the result is `MERGED` or `CLOSED`, stop immediately:
+
+```bash
+arc tasks close --id <task_id> --status completed --summary "PR already merged/closed — no review needed"
+```
+
+Do not fetch the diff, write a review, or post any comment. The sensor queued this task when the PR was open; it may have been merged while waiting in the queue.
+
 ### 1. Fetch the PR
 
 ```bash
@@ -294,7 +310,7 @@ arc skills run --name wallet -- send-inbox-message --to "<agent-name>" --message
 
 - `gh` auth fails: report failed, don't retry — likely credential/permission issue
 - API rate limit: report failed, create follow-up task scheduled for 1 hour later
-- PR already merged/closed: mark task completed with note, no review needed
+- PR already merged/closed: caught by Step 0 pre-flight — should not reach this point
 - Repo not accessible: report failed, don't retry
 
 ## Task Completion
