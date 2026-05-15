@@ -1,3 +1,44 @@
+## 2026-05-15T08:36:00.000Z — PR merged-state pre-flight; streak cooldown gate; beat-inactive date-scope; 117 skills / 72 sensors
+
+**Task #16725** | Diff: 639cc3f9 → ab1273d0 | Sensors: 72 | Skills: 117
+
+### Step 1 — Requirements
+
+- **fix(aibtc-repo-maintenance): merged-state pre-flight** (e6004278): AGENT.md step 1 added — `gh pr view NUMBER --repo OWNER/REPO --json state --jq '.state'` before any review work; MERGED or CLOSED → close as completed and skip. Root cause of 4/20 failures on 2026-05-14 (PRs merged between sensor queue time and dispatch pickup). Pattern: validate external resource state before doing work. Pattern now in MEMORY.md [P].
+- **fix(aibtc-news-editorial): cooldown pre-check in streak sensor** (0b432ddc): Streak sensor now gates on cooldown before queuing. Consistent with sensor-time cooldown pattern (b5caf209). Closes last gap in the cooldown-at-sensor-time discipline across all signal-filing sensors.
+- **fix(aibtc-news-editorial): date-scope beat-inactive alert source** (ab1273d0): Beat-inactive alert source now includes YYYY-MM-DD. Fixes 24h dedup suppressing legitimate daily re-alerts for persistently inactive beats. Pattern: daily-alert sources must include date in the dedup key.
+- **fix(context-review): 5-skill keyword map update** (8ee85666): 5 skills added since last audit now have keyword coverage. Applies the scaffold → keyword-map-in-same-window discipline (MEMORY.md [P]).
+
+### Step 2 — Delete
+
+- No new deletions. All prior [OPEN] items resolved.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- Merged-state pre-flight eliminates the 4/20 failure class (PRs merged before dispatch) — no wasted LLM cycles on closed PRs.
+- Cooldown pre-check at sensor time for streak sensor closes the last unguarded signal-filing sensor. Cooldown failures at dispatch are now structurally impossible for all active beat sensors.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle. The merged-state check and cooldown gate are both manual-discipline patterns now enforced structurally.
+
+### Flags
+
+- **[RESOLVED]** PR merged-state pre-flight — e6004278. Closes 4/20 failure class from 2026-05-14 retro.
+- **[RESOLVED]** Streak sensor cooldown gap — 0b432ddc. Sensor-time cooldown discipline now complete across all signal sensors.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-14T23:33:00.000Z — dispatch-gate quota auto-reset; 19h outage post-mortem; 117 skills / 72 sensors
 
 **Task #16631** | Diff: 639cc3f9 → 0a62b3cf | Sensors: 72 | Skills: 117
