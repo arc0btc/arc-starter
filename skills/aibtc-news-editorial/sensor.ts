@@ -104,7 +104,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
       } else {
         log(`warn: beat ${beatSlug} is INACTIVE (${status.totalSignals} signals)`);
 
-        const alertSource = `sensor:${SENSOR_NAME}:beat-${beatSlug}-inactive`;
+        const alertDate = new Date().toISOString().split("T")[0];
+        const alertSource = `sensor:${SENSOR_NAME}:beat-${beatSlug}-inactive-${alertDate}`;
         const taskExists = pendingTaskExistsForSource(alertSource);
 
         if (!taskExists) {
