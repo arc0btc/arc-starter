@@ -2,7 +2,7 @@
 // Sensor for beat activity monitoring and signal filing opportunities
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isBeatOnCooldown, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-news-editorial";
@@ -162,6 +162,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
         } else if (!status.canFileSignal) {
           // API-level rate-limit check
           log("rate limit active (canFileSignal=false); skipping streak task");
+        } else if (["aibtc-network", "bitcoin-macro", "quantum"].every((beat) => isBeatOnCooldown(beat, 60))) {
+          log("cooldown: all active beats on 60-min cooldown — skipping streak task");
         } else {
           // Queue a reminder to maintain streak (only if streak > 0)
           const streakSource = `sensor:${SENSOR_NAME}:maintain-streak`;
