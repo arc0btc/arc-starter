@@ -73,7 +73,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "competition": ["submit trade", "submit-trade", "competition standing", "competition score", "aibtc.com/api/competition"],
   // trading-comp is the strategy layer (submit primitive + metrics + competitor/pair/ecosystem hooks).
   // `competition` remains the thin API client; prefer `trading-comp` for build-order workflows.
-  "trading-comp": ["trading competition", "trading-comp", "competition-submit", "leaderboard delta", "competitor mirror", "pair watch", "aibtc trading competition", "aibtc.com/leaderboard"],
+  "trading-comp": ["trading competition", "trading-comp", "competition-submit", "leaderboard delta", "pair watch", "aibtc trading competition", "aibtc.com/leaderboard"],
+  // trading-comp-mirror is the competitor-watcher sensor/CLI (build #2 in competition build order).
+  "trading-comp-mirror": ["trading-comp-mirror", "competitor mirror", "competitor trade", "mirror competitor", "competitor watcher", "competition mirror"],
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["wal file", "stale lock", "uncommitted change", "arc-housekeeping run"],
   // arc-cost-alerting removed — skill does not exist; arc-cost-reporting handles cost tracking

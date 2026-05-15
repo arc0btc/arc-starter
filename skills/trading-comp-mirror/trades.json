@@ -1,0 +1,38 @@
+[
+  {
+    "txid": "0x856acc5665d283f4b9a8600a5965e6e4e2662c42886e1f5ab40170d2921997c4",
+    "competitor_address": "SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW",
+    "competitor_label": "amber-otter",
+    "token_in": "stx",
+    "token_out": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token",
+    "amount_in": 4990005,
+    "amount_out": 1581,
+    "burn_block_time": 1778855602,
+    "tx_status": "success",
+    "detected_at": "2026-05-15T14:40:55.674Z"
+  },
+  {
+    "txid": "0xd732bdcd76f81644589cb8b80d3f1b0e5cde8bf4dc2ea1668944cc727ff1b9a8",
+    "competitor_address": "SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW",
+    "competitor_label": "amber-otter",
+    "token_in": "stx",
+    "token_out": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token",
+    "amount_in": 4990005,
+    "amount_out": 1581,
+    "burn_block_time": 1778855082,
+    "tx_status": "success",
+    "detected_at": "2026-05-15T14:40:55.674Z"
+  },
+  {
+    "txid": "0x837e2ca266d27dd99f7a4350bfc4ea4cf0f76b80f4bc8708669ad8cee17702fa",
+    "competitor_address": "SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW",
+    "competitor_label": "amber-otter",
+    "token_in": "stx",
+    "token_out": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token",
+    "amount_in": 4990005,
+    "amount_out": 1691,
+    "burn_block_time": 1778775214,
+    "tx_status": "success",
+    "detected_at": "2026-05-15T14:40:55.674Z"
+  }
+]
