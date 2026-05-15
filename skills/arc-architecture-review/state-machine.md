@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-15T08:36:00.000Z*
-*Diff: 639cc3f9 → ab1273d0 | Sensor count: 72 | Skill count: 117*
+*Generated: 2026-05-15T20:34:00.000Z*
+*Diff: ab1273d0 → 3a8b0f6f | Sensor count: 73 | Skill count: 119*
 
 ```mermaid
 stateDiagram-v2
@@ -82,6 +82,8 @@ stateDiagram-v2
             erc8004_indexer
             identity_guard
             alb
+            trading_comp_mirror
+            note right of trading_comp_mirror: NEW (c4a8d690) — 10-min cadence\nPolls GET /api/competition/trades per competitor address\nCaches last 500 trades to trades.json; dedup via per-address seen_txids in hook state\nDEDUP FIX (4febce67): also checks trades.json cache on startup\nHook-state loss (restart/reset) caused same txid to re-append; cache is the durable source\nTwo-layer dedup: hook state (fast, ephemeral) + trades.json (durable, restart-safe)\nCOMPLIANCE FIX (3a8b0f6f): fetchError replaces abbreviated err variable name\nCOMPETITORS (c4a8d690): quasar-garuda + amber-otter seeded in competitors.json\nSkips pre-competition trades (before COMP_START_TIMESTAMP 2026-05-13T19:30Z)\nNote: competition-scoped sensor — plan sunset when competition ends
             note right of erc8004_reputation: contact validation guard (b181a5d6)\nisContactActuallyInvolved() — prevents false-positive contact matches\npr-review: contact.github_handle must appear in task text\nx402-exchange: btc_address or stx_address must appear\nFixes task #10871 Halcyon Wolf contact-mismatch bug
         }
 

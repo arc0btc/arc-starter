@@ -1,3 +1,45 @@
+## 2026-05-15T20:34:00.000Z — trading-comp + trading-comp-mirror scaffolded; dedup two-layer; 119 skills / 73 sensors
+
+**Task #16767** | Diff: ab1273d0 → 3a8b0f6f | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **feat(trading-comp)**: Strategy layer skill for AIBTC Trading Competition. No sensor — CLI + AGENT.md only. Composes `bitflow` (swap) + `competition` (scorer API) primitives. Owns metrics.md for daily snapshots. `submit` normalizes txid and posts to competition API. Fail-loud: POST failure or txid validation error creates P2/opus alert task (fc12f4b2) — surfaces immediately to next dispatch cycle.
+- **feat(trading-comp-mirror)**: Competitor trade watcher with 10-min sensor. Polls `GET /api/competition/trades` per configured competitor address (quasar-garuda + amber-otter seeded). Caches last 500 trades to trades.json. Dedup via per-address seen_txids in hook state.
+- **fix(trading-comp-mirror)**: Dedup extended to check trades.json cache at startup (4febce67). Hook-state loss on restart caused same txids to re-append every sensor cycle. Cache is now the durable dedup source; hook state is fast ephemeral layer. Two-layer dedup pattern validated.
+- **fix(compliance)**: `err` → `fetchError`, `msg` → `errorMessage` in both skills (3a8b0f6f). Satisfies pre-commit hook variable naming rules. No behavioral change.
+- **context-review SKILL_KEYWORD_MAP** updated for both skills at scaffold time (c4a8d690) — consistent with scaffold→keyword-map discipline.
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- trading-comp-mirror two-layer dedup (hook state + trades.json) is intentionally redundant — not an over-engineering candidate. Hook state handles fast dedup per run; trades.json handles restart-loss recovery. Single-layer would reintroduce the re-append bug.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. No new data.
+
+### Step 4 — Accelerate
+
+- Sensor count +1 (trading-comp-mirror). No new pipeline bottlenecks.
+- 10-min sensor cadence is aggressive but appropriate for a live competition. No timeout risk (sensor is pure data fetch, no LLM).
+
+### Step 5 — Automate
+
+- **[NEW-WATCH]** trading-comp-mirror is competition-scoped. When the competition ends, the sensor should be disabled or sunset. No automation path exists today — this is a manual action. Consider adding competition-end detection to the sensor (check `COMP_END_TIMESTAMP` or API status) so it self-disables.
+
+### Flags
+
+- **[NEW-WATCH]** trading-comp-mirror sensor sunset — competition ends at an unknown future date. Sensor will continue polling even post-competition unless manually disabled. Add competition-end guard.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-15T08:36:00.000Z — PR merged-state pre-flight; streak cooldown gate; beat-inactive date-scope; 117 skills / 72 sensors
 
 **Task #16725** | Diff: 639cc3f9 → ab1273d0 | Sensors: 72 | Skills: 117
