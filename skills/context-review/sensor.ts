@@ -70,7 +70,10 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // Only match on unambiguous operational keywords: actual transaction/UTXO work.
   "bitcoin-wallet": ["utxo", "send btc", "bitcoin transaction", "wallet unlock btc", "spend bitcoin"],
   "bitcoin-taproot-multisig": ["taproot multisig", "musig", "multisig psbt", "sign multisig", "m-of-n"],
-  "competition": ["trading competition", "submit trade", "submit-trade", "competition standing", "competition score", "aibtc.com/api/competition"],
+  "competition": ["submit trade", "submit-trade", "competition standing", "competition score", "aibtc.com/api/competition"],
+  // trading-comp is the strategy layer (submit primitive + metrics + competitor/pair/ecosystem hooks).
+  // `competition` remains the thin API client; prefer `trading-comp` for build-order workflows.
+  "trading-comp": ["trading competition", "trading-comp", "competition-submit", "leaderboard delta", "competitor mirror", "pair watch", "aibtc trading competition", "aibtc.com/leaderboard"],
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["wal file", "stale lock", "uncommitted change", "arc-housekeeping run"],
   // arc-cost-alerting removed — skill does not exist; arc-cost-reporting handles cost tracking
