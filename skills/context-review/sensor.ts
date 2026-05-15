@@ -246,6 +246,11 @@ function checkMissingSkillCoverage(
   // or defi-zest would add no value to a documentation update. Skip keyword checks entirely.
   if (/^Update llms/i.test(task.subject)) return findings;
 
+  // arc-opensource sync tasks include the full text of commit messages in their descriptions.
+  // Those commit messages may reference any skill domain (e.g. "trading-comp", "zest") because
+  // the commits touched those skill files — not because the sync task needs those skills loaded.
+  if (/^arc-opensource: sync \d+ commit/i.test(task.subject)) return findings;
+
   // Self-review triage tasks describe issues found (e.g. "zest supply failing", "pox reward gap").
   // Those domain keywords belong to the issues being triaged, not to what the triage task itself
   // needs — it only reads issue summaries and creates follow-up tasks.
