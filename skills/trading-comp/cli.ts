@@ -93,11 +93,11 @@ async function submitTxid(txid: string, source: string): Promise<SubmitResult> {
     parsed = text;
   }
   if (!response.ok) {
-    const msg = `Competition submit failed (${response.status}): ${
+    const errorMessage = `Competition submit failed (${response.status}): ${
       typeof parsed === "string" ? parsed : JSON.stringify(parsed)
     }`;
-    createAlertTask("competition-post", msg, normalized);
-    throw new Error(msg);
+    createAlertTask("competition-post", errorMessage, normalized);
+    throw new Error(errorMessage);
   }
   return {
     ok: true,
@@ -129,9 +129,9 @@ try {
     try {
       normalizedForAlert = normalizeTxid(flags.txid);
     } catch (validationErr) {
-      const msg = validationErr instanceof Error ? validationErr.message : String(validationErr);
-      createAlertTask("txid-validation", msg);
-      console.error(`Error: ${msg}`);
+      const errorMessage = validationErr instanceof Error ? validationErr.message : String(validationErr);
+      createAlertTask("txid-validation", errorMessage);
+      console.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
     const result = await submitTxid(normalizedForAlert, source);

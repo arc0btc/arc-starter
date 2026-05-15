@@ -158,9 +158,9 @@ export default async function (): Promise<string> {
       log(
         `${label}: ${trades.length} fetched, ${newForAddr} new (${seenForAddr.length} seen total)`,
       );
-    } catch (err) {
+    } catch (fetchError) {
       log(
-        `${label}: error — ${err instanceof Error ? err.message : String(err)}`,
+        `${label}: error — ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`,
       );
     }
   }
