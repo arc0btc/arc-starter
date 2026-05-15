@@ -100,6 +100,9 @@ export default async function (): Promise<string> {
     ? await tradesFile.json()
     : [];
 
+  // Guard against hook-state loss: treat anything already in trades.json as seen
+  const cachedTxidSet = new Set(existingTrades.map((t) => t.txid));
+
   const newTrades: TradeRecord[] = [];
 
   for (const competitor of competitors) {
@@ -125,8 +128,9 @@ export default async function (): Promise<string> {
 
         // Skip pre-competition trades
         if (trade.burn_block_time < COMP_START_TIMESTAMP) continue;
-        // Skip already-seen txids
+        // Skip already-seen txids (hook state + trades.json cache)
         if (seenForAddr.includes(normalizedTxid)) continue;
+        if (cachedTxidSet.has(normalizedTxid)) continue;
         // Skip failed swaps (Clarity aborts are not real trades)
         if (trade.tx_status !== "success") continue;
 
@@ -144,6 +148,7 @@ export default async function (): Promise<string> {
         });
 
         seenForAddr.push(normalizedTxid);
+        cachedTxidSet.add(normalizedTxid);
         newForAddr++;
       }
 
