@@ -38,6 +38,8 @@ Pre-validate at two layers: (1) Sensor — predict score, discard if below floor
 Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30); domain doesn't boost alone. Multi-beat sprints: identify → pre-filter (temporal/structural eligibility) → skip already-covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources — missing it caps sourceQuality at ≤10. Every named artifact in signal body must appear as a source object. Re-filing with improved sourcing is a valid quality lever.
 **p-timeout-decomposition-preflighting** [2026-05-09]
 Complex signal workflows hit 15min timeout when content >150 lines or requires 3+ external fetches. Decompose at creation: (1) research+compose, (2) file. Don't retry single-task — queue two-stage immediately.
+**p-signal-cooldown-queue-strategy** [2026-05-15, task #16705]
+When global cooldown is active but will clear within task TTL, compose the signal immediately (validation is free) and queue filing as follow-up with `--scheduled_for` after cooldown expires. Avoids re-queuing research and maximizes throughput; composed signals keep quality even if filing is delayed.
 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07]
