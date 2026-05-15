@@ -14,6 +14,27 @@ const API_BASE =
 const TIMEOUT_MS = 10_000;
 const METRICS_PATH = resolve(import.meta.dir, "metrics.md");
 
+function createAlertTask(step: string, errorMsg: string, txid?: string): void {
+  const txidNote = txid ? ` txid=${txid}` : "";
+  const subject = `[ALERT] trading-comp submit failed at ${step}${txidNote}`;
+  const description = `Step: ${step}\nError: ${errorMsg}${txid ? `\nTxid: ${txid}` : ""}\n\nNo retry. Resolve manually.`;
+  const result = Bun.spawnSync(
+    [
+      "arc", "tasks", "add",
+      "--subject", subject,
+      "--description", description,
+      "--priority", "2",
+      "--model", "opus",
+      "--skills", "trading-comp",
+    ],
+    { stdout: "pipe", stderr: "pipe" }
+  );
+  if (result.exitCode !== 0) {
+    const stderr = new TextDecoder().decode(result.stderr);
+    console.error(`[trading-comp] WARNING: failed to create alert task: ${stderr}`);
+  }
+}
+
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
   for (let i = 0; i < args.length; i++) {
@@ -72,11 +93,11 @@ async function submitTxid(txid: string, source: string): Promise<SubmitResult> {
     parsed = text;
   }
   if (!response.ok) {
-    throw new Error(
-      `Competition submit failed (${response.status}): ${
-        typeof parsed === "string" ? parsed : JSON.stringify(parsed)
-      }`
-    );
+    const msg = `Competition submit failed (${response.status}): ${
+      typeof parsed === "string" ? parsed : JSON.stringify(parsed)
+    }`;
+    createAlertTask("competition-post", msg, normalized);
+    throw new Error(msg);
   }
   return {
     ok: true,
@@ -104,7 +125,16 @@ try {
       process.exit(1);
     }
     const source = flags.source ?? "manual";
-    const result = await submitTxid(flags.txid, source);
+    let normalizedForAlert: string | undefined;
+    try {
+      normalizedForAlert = normalizeTxid(flags.txid);
+    } catch (validationErr) {
+      const msg = validationErr instanceof Error ? validationErr.message : String(validationErr);
+      createAlertTask("txid-validation", msg);
+      console.error(`Error: ${msg}`);
+      process.exit(1);
+    }
+    const result = await submitTxid(normalizedForAlert, source);
     console.log(JSON.stringify(result, null, 2));
   } else if (command === "metrics") {
     const file = Bun.file(METRICS_PATH);
