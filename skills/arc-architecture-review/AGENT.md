@@ -10,15 +10,23 @@ You are Arc, performing an architecture review. Your job is to look at the syste
 - Read `skills/arc-architecture-review/audit-log.md` (if it exists) for previous findings
 - Read recent reports in `reports/` (active files only, not `archive/`) for CEO/whoabuddy feedback
 
-### 2. Walk the Codebase
+### 2. Walk the Codebase (changed files only)
 
-Trace the full path: `src/sensors.ts` → `src/dispatch.ts` → `skills/*/SKILL.md` → `skills/*/AGENT.md`
+First, identify what changed since the last review:
+```bash
+git log --oneline --name-only <last-reviewed-sha>..HEAD -- src/ skills/
+```
+If no SHA is stored, use `git log --oneline -20 -- src/ skills/` to get recent changes.
 
-At each decision point ask:
+Read only the files that appear in that diff plus the core path: `src/sensors.ts` and `src/dispatch.ts`. Do NOT glob-read all `skills/*/SKILL.md` or `skills/*/AGENT.md` — with 100+ skills this creates millions of input tokens. If a skill changed, read only that skill's files.
+
+At each changed decision point ask:
 - Does the expert have what they need?
 - Is anything loaded that shouldn't be?
 - Are there dead paths or unreachable states?
 - Is any context duplicated across files?
+
+If no files changed since last review and the diagram is fresh, skip codebase walk and note "no structural changes since last review."
 
 ### 3. Apply the Five Principles (in order)
 

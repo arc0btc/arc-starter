@@ -261,9 +261,19 @@ If we have useful context, comment on the issue with our operational data. Be sp
 ## @Mentions
 
 When notified via @mention or review request:
-1. Read the full context (PR diff, issue body, comment thread)
-2. Respond with relevant operational context
-3. Mark the notification as read: `gh api --method PATCH notifications/threads/THREAD_ID`
+
+**Do NOT read the full PR diff for @mention responses.** @mentions are usually questions or comments, not requests for a full code review. Reading a full diff for a comment response wastes 1-2M input tokens.
+
+1. Read only the specific comment thread:
+   ```bash
+   gh api repos/OWNER/REPO/issues/NUMBER/comments
+   gh api repos/OWNER/REPO/pulls/NUMBER/reviews
+   ```
+2. If the @mention asks about specific code, read only the relevant file(s) — not the full diff
+3. Respond with relevant operational context (1-3 paragraphs max)
+4. Mark the notification as read: `gh api --method PATCH notifications/threads/THREAD_ID`
+
+If the @mention is a request for a full PR review (e.g., "can you review this PR?"), follow the PR Review workflow above — but even then, read only changed files via `gh pr diff`, not the entire repo.
 
 ---
 

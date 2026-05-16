@@ -79,7 +79,12 @@ bun skills/arc-skill-manager/cli.ts consolidate-memory [check|commit]
 bun skills/arc-skill-manager/cli.ts lint-skills               # lint all skills
 bun skills/arc-skill-manager/cli.ts lint-skills --staged      # lint staged files (pre-commit)
 bun skills/arc-skill-manager/cli.ts install-hooks             # install .git/hooks/pre-commit
+bun skills/arc-skill-manager/cli.ts sensor-health-report      # aggregate all sensor health in one call
 ```
+
+### sensor-health-report
+
+Produces a single structured table: sensor name, interval, last run time, consecutive failures, last task produced. **Use this for any sensor health audit task.** Never read individual sensor.ts files during health audits — 73 sequential reads with accumulated context causes 1-3M token explosions per session. One CLI call replaces all of them.
 
 ## Pre-commit Hook
 

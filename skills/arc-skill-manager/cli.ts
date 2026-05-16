@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
+import { initDatabase, getDatabase } from "../../src/db.ts";
 
 // ---- Constants ----
 
@@ -428,6 +429,93 @@ function cmdInstallHooks(): void {
   process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
 }
 
+function cmdSensorHealthReport(): void {
+  initDatabase();
+  const db = getDatabase();
+  const skills = discoverSkills();
+  const sensors = skills.filter((s) => s.hasSensor);
+  const hookStateDir = join(ROOT, "db/hook-state");
+
+  const now = Date.now();
+  const lines: string[] = [
+    `# Sensor Health Report — ${new Date().toISOString()}`,
+    `Total sensors: ${sensors.length}`,
+    "",
+    "## Per-Sensor Status",
+    "",
+    "sensor | interval_min | last_run | consecutive_failures | last_task_at | status",
+    "-------|-------------|----------|---------------------|--------------|-------",
+  ];
+
+  const alerts: string[] = [];
+
+  for (const sensor of sensors) {
+    const stateFile = join(hookStateDir, `${sensor.name}.json`);
+    let lastRun = "never";
+    let consecutiveFailures = 0;
+    let intervalMinutes: number | null = null;
+
+    if (existsSync(stateFile)) {
+      try {
+        const raw = JSON.parse(readFileSync(stateFile, "utf-8"));
+        if (raw.last_ran) {
+          lastRun = raw.last_ran as string;
+          const ageMin = Math.round((now - new Date(lastRun).getTime()) / 60_000);
+          if (ageMin < 60) lastRun = `${ageMin}m ago`;
+          else if (ageMin < 1440) lastRun = `${Math.round(ageMin / 60)}h ago`;
+          else lastRun = `${Math.round(ageMin / 1440)}d ago`;
+        }
+        if (typeof raw.consecutive_failures === "number") {
+          consecutiveFailures = raw.consecutive_failures;
+        }
+        if (typeof raw.interval_minutes === "number") {
+          intervalMinutes = raw.interval_minutes;
+        }
+      } catch {
+        // unreadable state
+      }
+    }
+
+    // Find most recent task from this sensor
+    const sourcePattern = `sensor:${sensor.name}`;
+    const lastTaskRow = db
+      .query(
+        "SELECT completed_at, status FROM tasks WHERE source = ? ORDER BY id DESC LIMIT 1"
+      )
+      .get(sourcePattern) as { completed_at: string | null; status: string } | null;
+
+    let lastTaskAt = "none";
+    if (lastTaskRow?.completed_at) {
+      const ageMin = Math.round((now - new Date(lastTaskRow.completed_at).getTime()) / 60_000);
+      if (ageMin < 60) lastTaskAt = `${ageMin}m ago`;
+      else if (ageMin < 1440) lastTaskAt = `${Math.round(ageMin / 60)}h ago`;
+      else lastTaskAt = `${Math.round(ageMin / 1440)}d ago`;
+    }
+
+    const status = consecutiveFailures > 0 ? `FAIL(${consecutiveFailures})` : "ok";
+    const intervalStr = intervalMinutes !== null ? String(intervalMinutes) : "?";
+
+    lines.push(
+      `${sensor.name} | ${intervalStr} | ${lastRun} | ${consecutiveFailures} | ${lastTaskAt} | ${status}`
+    );
+
+    if (consecutiveFailures > 2) {
+      alerts.push(`${sensor.name}: ${consecutiveFailures} consecutive failures`);
+    }
+  }
+
+  if (alerts.length > 0) {
+    lines.push("", "## Alerts", "");
+    for (const alert of alerts) {
+      lines.push(`- ALERT: ${alert}`);
+    }
+  } else {
+    lines.push("", "## Alerts", "", "None — all sensors nominal.");
+  }
+
+  process.stdout.write(lines.join("\n") + "\n");
+}
+
 function printUsage(): void {
   process.stdout.write(`manage-skills CLI
 
@@ -455,6 +543,11 @@ SUBCOMMANDS
 
   install-hooks
     Install .git/hooks/pre-commit to run lint-skills on every commit.
+
+  sensor-health-report
+    Aggregate health data for all sensors in one call: last run time, consecutive
+    failures, last task produced. Use this instead of reading each sensor.ts
+    individually — avoids 1-3M token explosion in sensor health audit tasks.
 
 EXAMPLES
   bun skills/arc-skill-manager/cli.ts list
@@ -492,6 +585,9 @@ async function main(): Promise<void> {
       break;
     case "install-hooks":
       await cmdInstallHooks();
+      break;
+    case "sensor-health-report":
+      cmdSensorHealthReport();
       break;
     case "help":
     case "--help":
