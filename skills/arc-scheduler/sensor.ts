@@ -15,7 +15,6 @@ import type { Task } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-scheduler";
 const INTERVAL_MINUTES = 5;
-const OVERDUE_ALERT_SOURCE = "sensor:arc-scheduler:overdue";
 const OVERDUE_ALERT_THRESHOLD = 5;    // alert if >5 overdue tasks
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -62,7 +61,9 @@ export default async function schedulerSensor(): Promise<string> {
 
   // Create a health alert if scheduled tasks are accumulating without being dispatched.
   // This shouldn't happen in normal operation — dispatch picks them up within 1 minute.
-  if (overdue.length > OVERDUE_ALERT_THRESHOLD && !pendingTaskExistsForSource(OVERDUE_ALERT_SOURCE)) {
+  // Date-scoped to prevent re-alerting on the same persistent backlog every 5 minutes.
+  const overdueAlertSource = `sensor:arc-scheduler:overdue-${new Date().toISOString().split("T")[0]}`;
+  if (overdue.length > OVERDUE_ALERT_THRESHOLD && !pendingTaskExistsForSource(overdueAlertSource)) {
     const nextSubject = overdue[0]?.subject ?? "unknown";
     insertTask({
       subject: `scheduler alert: ${overdue.length} scheduled tasks overdue by >${OVERDUE_MINUTES}m`,
@@ -73,7 +74,7 @@ export default async function schedulerSensor(): Promise<string> {
         `Check: arc status, arc tasks --status pending, systemd dispatch timer.`,
       priority: 3,
       model: "haiku",
-      source: OVERDUE_ALERT_SOURCE,
+      source: overdueAlertSource,
     });
   }
 
