@@ -747,6 +747,8 @@ const BEAT_SUBJECT_PATTERNS: Record<string, string[]> = {
   "bitcoin-macro": [
     "File bitcoin-macro signal%",
     "File Bitcoin Macro signal%",
+    "File bitcoin-macro%signal%",
+    "Compose bitcoin-macro%signal%",
   ],
 };
 

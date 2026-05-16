@@ -163,24 +163,28 @@ export default async function aibtcNewsSensor(): Promise<string> {
         } else if (!status.canFileSignal) {
           // API-level rate-limit check
           log("rate limit active (canFileSignal=false); skipping streak task");
-        } else if (["aibtc-network", "bitcoin-macro", "quantum"].every((beat) => isBeatOnCooldown(beat, 60))) {
-          log("cooldown: all active beats on 60-min cooldown — skipping streak task");
         } else {
-          // Queue a reminder to maintain streak (only if streak > 0)
-          const streakSource = `sensor:${SENSOR_NAME}:maintain-streak`;
-          const taskExists = pendingTaskExistsForSource(streakSource);
+          const availableBeats = ["aibtc-network", "bitcoin-macro", "quantum"]
+            .filter((beat) => !isBeatOnCooldown(beat, 60));
+          if (availableBeats.length === 0) {
+            log("cooldown: all active beats on 60-min cooldown — skipping streak task");
+          } else {
+            // Queue a reminder to maintain streak (only if streak > 0)
+            const streakSource = `sensor:${SENSOR_NAME}:maintain-streak`;
+            const taskExists = pendingTaskExistsForSource(streakSource);
 
-          if (!taskExists && streak > 0) {
-            log("queuing reminder to maintain streak");
-            insertTask({
-              subject: `Maintain ${streak}-day streak on aibtc.news`,
-              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Arc's active beats are aibtc-network, bitcoin-macro, and quantum — do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
-              skills: JSON.stringify(["aibtc-news-editorial"]),
-              priority: 7,
-              model: "haiku",
-              status: "pending",
-              source: streakSource,
-            });
+            if (!taskExists && streak > 0) {
+              log(`queuing reminder to maintain streak (available beats: ${availableBeats.join(", ")})`);
+              insertTask({
+                subject: `Maintain ${streak}-day streak on aibtc.news`,
+                description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Available beats (not on cooldown): ${availableBeats.join(", ")}. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
+                skills: JSON.stringify(["aibtc-news-editorial"]),
+                priority: 7,
+                model: "haiku",
+                status: "pending",
+                source: streakSource,
+              });
+            }
           }
         }
       }
