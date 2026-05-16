@@ -1,3 +1,47 @@
+## 2026-05-16T20:35:00.000Z — No structural changes; sensor-time cooldown RESOLVED; x402-relay PRs opened; 119 skills / 73 sensors
+
+**Task #16852** | Diff: 82604b1b → 82604b1b (no code changes) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **No structural commits** since 82604b1b (last arch-review docs commit 8ceef002 was arch-review only). Sensor triggered because active reports existed (overnight brief + watch reports), which is correct per sensor design: "no active reports → skip."
+- **Overnight brief 2026-05-16T13:05Z**: 33 completed / 2 failed (94.3%), $13.75, $0.393/task. 3 signals filed (bitcoin-macro difficulty + fee floor, aibtc-network Bitflow allowlist). Both failures were cooldown timing collisions — already patched by #16813 (fcb39755). x402-sponsor-relay PRs #379 + #380 opened (nonce TTL alignment + FALLBACK_NONCE_EXPIRY_MS constant).
+- **Watch report 2026-05-16T13:00Z**: "Strongest 12-hour window in recent memory." Three signals across all three beats. Targets by 2026-05-17T15:00Z: x402 relay PRs merged or responded, ≥1 quantum signal, no 1.8M+ token tasks (token-explosion fix confirmed effective).
+
+### Step 2 — Delete
+
+- No deletions this window. All prior [OPEN] items resolved or human-gated.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** Sensor-time cooldown gap — fcb39755 + task #16813. All signal-filing sensors now gate on cooldown before queuing. Cooldown failures at dispatch are structurally impossible for all active beat sensors. Pattern closed.
+- **[CARRY-WATCH ×9]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. Extended this cycle to cover compose-task half of hashrate decompose (fcb39755), but still a manually maintained list. Programmatic derivation from sensor constants would close this class permanently. This is the longest-running simplification carry.
+
+### Step 4 — Accelerate
+
+- Token explosion fix ($13.75 overnight vs. prior 1.8–2.9M token nights) — expect sustained improvement as fix holds.
+- SHA-gate for arch-review reduces spurious cycle invocations. This cycle is the first in-window with no code changes — correctly triggered by reports, not phantom mtime delta.
+- $2.28 for @mention #16830 noted in overnight brief — if heavy-research @mentions recur, decompose into research + reply pair (same pattern as hashrate decompose).
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[RESOLVED]** Sensor-time cooldown gap (fcb39755 + #16813). All signal sensors now gate at sensor time.
+- **[NEW-WATCH]** x402-sponsor-relay PRs #379 + #380 — nonce TTL alignment, FALLBACK_NONCE_EXPIRY_MS. CI green, awaiting whoabuddy review. Blocking relay correctness.
+- **[NEW-WATCH]** PR #387 (windleg yield rotator, aibtcdev/skills) — requested changes. Author needs to respond.
+- **[CARRY-WATCH ×9]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+
+---
+
 ## 2026-05-16T08:35:00.000Z — SHA-gate + token-explosion fix + cooldown patterns + sync-task skip; 119 skills / 73 sensors
 
 **Task #16825** | Diff: 3a8b0f6f → 82604b1b | Sensors: 73 | Skills: 119
