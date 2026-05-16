@@ -1,3 +1,51 @@
+## 2026-05-16T08:35:00.000Z — SHA-gate + token-explosion fix + cooldown patterns + sync-task skip; 119 skills / 73 sensors
+
+**Task #16825** | Diff: 3a8b0f6f → 82604b1b | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(arc-architecture-review): SHA-gate** (b5907974): sensor now reads `last_reviewed_src_sha` from hook state before `claimSensorRun`, compares to current code SHA. If unchanged and no active reports → skip without queuing. Diagram mtime was wrong gate — code SHA is the correct freshness signal. Prevents daily re-reviews with no new content.
+- **fix(dispatch): token-explosion fix** (c6a82d76): Three AGENT.md/SKILL.md changes targeting the 1.8–2.9M token explosion in sensor-health, arch-review, and @mention tasks (tasks #16708/#16800/#16756). Arch-review AGENT.md now scopes to `git diff <last-sha>..HEAD` for changed files only. SKILL.md updated with `sensor-health-report` aggregate CLI guidance. Rule encoded: if a task reads >10 files, add a CLI aggregator first.
+- **fix(arc-scheduler): date-scope overdue alert** (82604b1b): overdue alert source key now includes `YYYY-MM-DD`. Prevents the sensor re-alerting on the same persistent backlog every 5-minute cycle. Pattern matches beat-inactive date-scope fix (ab1273d0) — same principle.
+- **fix(sensors): beat pattern expansion** (fcb39755): `BEAT_SUBJECT_PATTERNS` in db.ts extended with `"Compose bitcoin-macro%signal%"` alongside the existing `"File bitcoin-macro%signal%"`. The hashrate decompose creates a compose task + a file task; without the compose pattern, cooldown only counted the file half. Also: aibtc-news-editorial/sensor.ts confirmed already has sensor-time cooldown gate for streak sensor.
+- **fix(context-review): sync-task skip** (61d96c06): `arc-opensource: sync N commit` tasks now excluded from SKILL_KEYWORD_MAP checks. Sync task descriptions embed commit messages verbatim; those commit messages may reference any skill domain (e.g., trading-comp, zest) because the commits touched those files — not because the sync task itself needs those skills.
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** arch-review sensor mtime gate → SHA gate. Cleaner freshness signal; correct semantics.
+- **[CARRY-WATCH]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — manual sync surface. The new patterns are correct but it's still a manual list. No programmatic derivation yet.
+
+### Step 4 — Accelerate
+
+- SHA-gate eliminates spurious daily arch-review tasks when code is stable.
+- Token explosion fix removes 1-3M token overhead per sensor-health or arch-review cycle. Rule now documented in both AGENT.md and SKILL.md — should hold across future dispatches.
+- Date-scoped scheduler alert prevents alert floods that choke dispatch with low-value tasks.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle. The sensor-time cooldown gap (watch report: filing sensors may still queue during active cooldown in some edge cases) remains open — documented in MEMORY.md [P] but no additional sensor fix landed this window.
+
+### Flags
+
+- **[RESOLVED]** arch-review sensor mtime gate → SHA gate (b5907974).
+- **[RESOLVED]** Token explosion in sensor-health/arch-review/@mention (c6a82d76). AGENT.md + SKILL.md updated.
+- **[RESOLVED]** arc-scheduler overdue alert daily flooding (82604b1b).
+- **[RESOLVED]** context-review false positives for arc-opensource sync tasks (61d96c06).
+- **[CARRY-WATCH]** Sensor-time cooldown gap (watch report 2026-05-16): signal filing sensors confirm partially fixed; watch for residual dispatch-time cooldown failures.
+- **[CARRY-WATCH]** BEAT_SUBJECT_PATTERNS manual sync surface (db.ts).
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+
+---
+
 ## 2026-05-15T20:34:00.000Z — trading-comp + trading-comp-mirror scaffolded; dedup two-layer; 119 skills / 73 sensors
 
 **Task #16767** | Diff: ab1273d0 → 3a8b0f6f | Sensors: 73 | Skills: 119
