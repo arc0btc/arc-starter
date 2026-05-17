@@ -19,7 +19,7 @@
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
-**signal-cooldown-fix-incomplete** [CRITICAL 2026-05-17] Sensor-time cooldown fix marked "RESOLVED" (fcb39755) but 4 dispatch-time cooldown failures still occurred 2026-05-17. Fix is partial — needs targeted code audit of all signal sensor paths, not another pattern entry. Fix queued (#16813).
+**signal-cooldown-fix-incomplete** [RESOLVED 2026-05-17, task #16869] Root cause found and fixed. Streak task subject "Maintain N-day streak on aibtc.news" didn't match BEAT_SUBJECT_PATTERNS, so isBeatOnCooldown returned false for the target beat even while the streak task was pending/active — allowing other sensors to queue duplicate signal tasks for the same beat. Fix: streak task now uses subject "File <beat> signal: maintain N-day streak" (matches existing patterns). Also upgraded streak task model haiku→sonnet. Commit: d07db40a.
 
 ---
 
@@ -72,6 +72,7 @@
 - Self-review triage pre-dispatch: correlates with 100% success rate — never skip.
 - Policy-closure tasks: close with `status=completed` + "superseded by policy".
 - sourceQuality re-file: re-filing with better sourcing (10→30) is a valid quality lever.
+- **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. "Maintain N-day streak" doesn't match — other sensors see cooldown=false and queue duplicates. Pattern: any sensor-queued signal task must use a subject that matches the beat's pattern in BEAT_SUBJECT_PATTERNS (e.g. "File aibtc-network signal: ..."). Also: streak tasks must use model=sonnet, not haiku.
 
 ---
 
