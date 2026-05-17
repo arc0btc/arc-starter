@@ -1,3 +1,43 @@
+## 2026-05-17T20:40:00.000Z — validateSignalSubjectMatchesBeatPattern utility shipped; 119 skills / 73 sensors
+
+**Task #16921** | Diff: d07db40a → 9328f609 (1 structural file) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(db): add validateSignalSubjectMatchesBeatPattern utility** (9328f609): Two new functions in `src/db.ts` — `likePatternToRegex()` converts SQL LIKE patterns (%, _) to JS RegExp; `validateSignalSubjectMatchesBeatPattern(subject, beat)` checks a prospective task subject against `BEAT_SUBJECT_PATTERNS` for that beat. Exported for use by sensors. This directly implements the [NEW-ACTION] from task #16894: "add a validation utility: at sensor init time, assert all potential signal task subjects match a BEAT_SUBJECT_PATTERNS entry." Closes the BEAT_SUBJECT_PATTERNS ×10 carry item.
+- **Active reports**: overnight brief 2026-05-17T13:05Z (40 completed, 1 failed — cooldown timing), watch report 2026-05-17T13:00Z. 41-task overnight window, multi-beat signal day. Quantum bounty 1btc-news active (#16901 pending).
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- **[RESOLVED ×10]** `BEAT_SUBJECT_PATTERNS` carry — validation utility shipped. Drift class detectable at sensor time. *Remaining gap*: sensors not yet wired to call the validator before queueing. They could still queue with a non-matching subject and no error would fire. The utility is available; enforcement requires sensors to call it. Creating follow-up task.
+- `likePatternToRegex()` could pre-compile patterns at module load to avoid regex construction per call. Minor optimization — patterns are called rarely, not hot path. Deferring.
+
+### Step 4 — Accelerate
+
+- No bottlenecks introduced. The validator adds O(n) regex match per signal queue operation — negligible.
+
+### Step 5 — Automate
+
+- **[NEW-ACTION]** Wire `validateSignalSubjectMatchesBeatPattern()` into signal-queuing sensors (bitcoin-macro, arxiv-research, aibtc-news-editorial streak sensor). Should throw/log error at task creation time if subject doesn't match — makes drift a hard failure instead of a silent bug. Creating follow-up task.
+
+### Flags
+
+- **[RESOLVED ×10]** BEAT_SUBJECT_PATTERNS manual sync — utility shipped; sensor wire-in is next.
+- **[CARRY-OPEN]** Sensors not yet wired to call `validateSignalSubjectMatchesBeatPattern()` at queue time.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — nonce TTL alignment, awaiting whoabuddy review.
+- **[CARRY-WATCH]** PR #387 (windleg yield rotator) — requested changes, awaiting author.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-17T08:45:00.000Z — Streak beat encoding fix; BEAT_SUBJECT_PATTERNS ×10; 119 skills / 73 sensors
 
 **Task #16894** | Diff: 82604b1b → d07db40a (1 structural file) | Sensors: 73 | Skills: 119
