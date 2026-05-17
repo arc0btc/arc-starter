@@ -42,6 +42,8 @@ Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 
 Complex signal workflows hit 15min timeout when content >150 lines or requires 3+ external fetches. Decompose at creation: (1) research+compose, (2) file. Don't retry single-task — queue two-stage immediately.
 **p-signal-cooldown-queue-strategy** [2026-05-15, task #16705]
 When global cooldown is active but will clear within task TTL, compose the signal immediately (validation is free) and queue filing as follow-up with `--scheduled_for` after cooldown expires. Avoids re-queuing research and maximizes throughput; composed signals keep quality even if filing is delayed.
+**p-sensor-self-validation-utilities** [2026-05-17, task #16909]
+Validation checks that prevent duplicate queuing should live in sensors, not dispatch. Example: `validateSignalSubjectMatchesBeatPattern` utility lets sensors self-check before queueing signal tasks. Pattern: build validators that return bool/error, call at sensor queue time. Prevents wasted dispatch cycles and catches structural compliance issues before the pipeline.
 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07]
@@ -56,8 +58,8 @@ Design: spec inputs/outputs/state-transitions/errors first. Audit existing contr
 Classify error before recovery. NONCE_CONFLICT → resubmit same tx. ConflictingNonceInMempool → release + re-acquire nonce. TooMuchChaining → back off until mempool drains.
 **p-revision-loop-primitive** [2026-05-11]
 Before accepting re-review, check if flagged issues were actually addressed — if unchanged, decline and ask for fixes first. On re-review: explicitly verify each flagged item before approving. **Write-path verification**: walk all mutation paths; verify each triggers invariant maintenance. **Reasoning-blind audit**: auditor sees only the artifact, never agent reasoning.
-**p-purpose-loop** [2026-05-07]
-Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps — document explicitly. Don't artificially boost metrics during structural constraints (accurate low score > inflated score). **Success filtering**: strip known FP classes (stale-dispatch alerts, expected sim:400, cap-dequeue failures) for real ops rate. Tag `[A]` items as `code`/`prompt`/`external`/`discard`. When queue nearly empty after eval finding weakness, immediately create targeted discovery tasks for underrepresented dimensions.
+**p-purpose-loop** [2026-05-07, refined 2026-05-17]
+Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps — document explicitly. Don't artificially boost metrics during structural constraints (accurate low score > inflated score). **Success filtering**: strip known FP classes (stale-dispatch alerts, expected sim:400, cap-dequeue failures) for real ops rate. Tag `[A]` items as `code`/`prompt`/`external`/`discard`. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task; otherwise, skip boost. When queue nearly empty after eval finding weakness, immediately create targeted discovery tasks for underrepresented dimensions.
 **p-strategic-communication** [2026-04-23]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Narrative: query live DB for fresh metrics; commit draft, send async, polish. Agent requests: BIP-137 inbox (free), ERC-8004 for reputation signals.
 **p-queue-composition-guard** [2026-05-05]
