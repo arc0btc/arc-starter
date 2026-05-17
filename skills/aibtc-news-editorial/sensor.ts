@@ -174,13 +174,17 @@ export default async function aibtcNewsSensor(): Promise<string> {
             const taskExists = pendingTaskExistsForSource(streakSource);
 
             if (!taskExists && streak > 0) {
-              log(`queuing reminder to maintain streak (available beats: ${availableBeats.join(", ")})`);
+              // Commit to the first available beat so the subject matches BEAT_SUBJECT_PATTERNS.
+              // Without this, isBeatOnCooldown won't detect this pending/completed task,
+              // allowing other sensors to queue a duplicate signal for the same beat.
+              const targetBeat = availableBeats[0];
+              log(`queuing streak task for beat ${targetBeat} (${streak}-day streak, available: ${availableBeats.join(", ")})`);
               insertTask({
-                subject: `Maintain ${streak}-day streak on aibtc.news`,
-                description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Available beats (not on cooldown): ${availableBeats.join(", ")}. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
+                subject: `File ${targetBeat} signal: maintain ${streak}-day streak`,
+                description: `Arc has a ${streak}-day signal-filing streak. File a signal to the \`${targetBeat}\` beat to maintain it. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat.\n\nUse: arc skills run --name aibtc-news-editorial -- file-signal --beat ${targetBeat} --claim <text> --evidence <text> --implication <text>`,
                 skills: JSON.stringify(["aibtc-news-editorial"]),
                 priority: 7,
-                model: "haiku",
+                model: "sonnet",
                 status: "pending",
                 source: streakSource,
               });
