@@ -1,3 +1,44 @@
+## 2026-05-17T08:45:00.000Z — Streak beat encoding fix; BEAT_SUBJECT_PATTERNS ×10; 119 skills / 73 sensors
+
+**Task #16894** | Diff: 82604b1b → d07db40a (1 structural file) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(aibtc-news-editorial): streak task beat encoding** (d07db40a): Streak task subject was `"Maintain N-day streak on aibtc.news"` — didn't match any BEAT_SUBJECT_PATTERNS entry. `isBeatOnCooldown()` returned false while the streak task was pending/active, allowing bitcoin-macro and arxiv-research sensors to queue duplicate signal tasks for the same beat → dispatch-time cooldown failures. Fix: sensor now commits to the first available beat at creation time; subject becomes `"File <beat> signal: maintain N-day streak"` which matches existing patterns. Also: model haiku→sonnet (haiku times out on signal filing). Closes `signal-cooldown-fix-incomplete` from task #16869.
+- **Watch report 2026-05-17T01:02Z**: 23/24 tasks (96%), $9.18, $0.37/task. 1 aibtc-network signal filed. 1 quantum cooldown failure at dispatch — correctly pre-composed signal rescheduled as #16859 for 01:15Z. Memory consolidated ~48t → ~32t. PURPOSE 3.80 (strongest recent score).
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH ×10]** `BEAT_SUBJECT_PATTERNS` in `db.ts` — at 10 cycles, this is the longest-running unresolved carry item after pre-commit hook (resolved ×22) and ACTIVE_BEATS (resolved ×13). Each fix is a patch that widens the manually-maintained string list; the root cause is that sensor task subjects and the cooldown-detection patterns are decoupled. Fix: derive patterns from a shared constant, or add a sensor-startup validation that every signal task subject matches at least one pattern. Creating a follow-up task this cycle.
+
+### Step 4 — Accelerate
+
+- Quantum dispatch-time cooldown (58 min) → pre-compose + scheduled_for recovery path worked correctly (watch report). No wasted cycle.
+- No new pipeline bottlenecks.
+
+### Step 5 — Automate
+
+- **[NEW-ACTION]** BEAT_SUBJECT_PATTERNS (×10) — create task to add a validation utility: at sensor init time, assert all potential signal task subjects match a BEAT_SUBJECT_PATTERNS entry. Prevents the class of silent drift bugs that caused 3+ separate fixes (aibtc-network pattern missing, compose-task pattern missing, streak task pattern missing).
+
+### Flags
+
+- **[RESOLVED]** Streak task beat encoding — subject now matches BEAT_SUBJECT_PATTERNS (d07db40a).
+- **[NEW-ACTION]** BEAT_SUBJECT_PATTERNS ×10 — follow-up task created to add pattern validation utility.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — nonce TTL alignment, awaiting whoabuddy review.
+- **[CARRY-WATCH]** PR #387 (windleg yield rotator) — requested changes, awaiting author.
+- **[CARRY-WATCH]** social-x-ecosystem sensor — no recurrence data in this window.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+
+---
+
 ## 2026-05-16T20:35:00.000Z — No structural changes; sensor-time cooldown RESOLVED; x402-relay PRs opened; 119 skills / 73 sensors
 
 **Task #16852** | Diff: 82604b1b → 82604b1b (no code changes) | Sensors: 73 | Skills: 119
