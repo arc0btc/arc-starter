@@ -1,6 +1,6 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-12T03:27:00Z*
-*Token estimate: ~48t*
+*Schema: ASMR v1 — Last consolidated: 2026-05-17T00:13:00Z*
+*Token estimate: ~32t*
 
 ---
 
@@ -9,7 +9,7 @@
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
-**payout-disputes** [ESCALATING, 16+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
+**payout-disputes** [ESCALATING, 21+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
@@ -19,6 +19,8 @@
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
+**signal-cooldown-fix-incomplete** [CRITICAL 2026-05-17] Sensor-time cooldown fix marked "RESOLVED" (fcb39755) but 4 dispatch-time cooldown failures still occurred 2026-05-17. Fix is partial — needs targeted code audit of all signal sensor paths, not another pattern entry. Fix queued (#16813).
+
 ---
 
 ## [S] Signal Filing Rules
@@ -27,70 +29,62 @@
 **Cap**: 10 approved/day/beat. **Cost**: 100 sats → 5k (approved) or 20k (brief) = 50-200× ROI.
 **Format**: headline (factual), body ≤1000 chars, end with "For agents:", sources as JSON array objects.
 **EIC Rubric** (DC #644): Source quality(30) + Thesis(25) + Relevance(10) + Timeliness(15) + Disclosure(10) + Utility(10). Min: 75.
-**Cooldown**: 60min GLOBAL. Check cooldown BEFORE payment deduction. Use `tasks update --status blocked`, NOT close. `file-signal` requires `--tags` or 400 error.
+**Cooldown**: 60min GLOBAL. Check cooldown at SENSOR TIME, not dispatch. `file-signal` requires `--tags` or 400 error.
+**Cooldown at dispatch**: (1) close as `failed`, (2) new task with `--scheduled-for <clear+5min>`. Sensor tasks: just close, sensor re-queues. CLI: `tasks update --status blocked` NOT supported — only `--status pending`.
 **Quantum**: ≥3 keywords, specific arxiv.org/abs/ID, machine-readable primary source.
+**Skill names**: `arxiv-research` (quantum/bitcoin-dev), `aibtc-news-editorial` (signal filing). "quantum" and "arc-signal-manager" are INVALID.
 
 ---
 
 ## [P] Critical Patterns
 → See `memory/patterns.md` (27 validated patterns). **Key operational rules**:
-- **Dispatch-stale alerts**: always FP — verify PID + recent cycle_log timestamps.
-- **Signal-filing tasks must be sonnet**: haiku times out. Cooldown → `tasks update --status blocked`, NOT close.
-- **Timeout cluster = task decomposition signal**: 3+ timeouts same window = shared structure hitting 15min limit. Split or script dispatch.
-- **Budget-gate false positives**: $200 ceiling gaps ≠ stale dispatch. Verify cycle_log timestamps.
-- **x402 welcome "Cannot find module"**: missing `bun install` in `github/aibtcdev/skills/`. Not wallet/nonce.
-- **PR reviews must be sonnet, no daily cap**: `api_cost_usd` is phantom — billing is Claude Code subscription.
-- **Workflow-dedup**: arc-workflows uses `pendingTaskExistsForSource`, not all statuses.
-- **Content/research tasks timeout**: decompose draft vs publish. Signal research = per-beat tasks, not omnibus.
-- **arXiv/quantum pipeline**: OPERATIONAL (PR #25, 2026-05-08). First signal 2026-05-09 (BTQ arXiv:2603.25519v2, signal 9a477540).
-- **bitcoin-macro hashrate signal timeout** [RECURRING]: Decompose into (1) research+compose, (2) file. Never single dispatch.
-- **patterns.md consolidation timeout** [RECURRING]: Split into two tasks at 150+ lines — (1) read+compress, (2) write+commit.
-- **CF deploy failure as re-review multiplier**: Before re-queuing PR review with failing deploy, check if deploy is the bottleneck; surface to whoabuddy instead.
-- **Skill name mapping**: "quantum" and "arc-signal-manager" are NOT valid. Use `arxiv-research` (quantum/bitcoin-dev) and `aibtc-news-editorial` (signal filing). Verify with `arc skills`.
-- **PR re-review loop**: If blocking issues unchanged, comment and skip rather than re-review. Confirmed by PR #742 (4 loops, author closed).
-- **email watch report routing** [RECURRING 2026-05-12]: Verify `arc creds get --service email --key report_recipient` before queuing. CF worker rejects unverified senders (jason@joinfreehold.com).
-- **Verify creds before acting on memory**: Stale memory → expensive correction (task #16331, $2.05). Always verify external service config before use.
-- **Policy-closure tasks**: Close with `status=completed` + "superseded by policy" to avoid polluting failure retrospectives.
-- **sourceQuality re-file**: Re-filing a signal with better sourcing (10→30) is a valid quality lever.
-- **Self-review triage pattern** [VALIDATED 2026-05-12]: Pre-dispatch triage tasks (3 overnight) resolve issues before they hit dispatch — 0 wasted cycles. Correlates directly with 100% success rate. Pattern is operational; don't skip or defer triage tasks.
-- **Context-review SKILL_KEYWORD_MAP discipline**: When scaffolding a new skill domain, update the SKILL_KEYWORD_MAP in context-review at the same time. Gaps cause dispatch mismatches where tasks run without correct skill context (fixed in commit 11c64e3 for email-routing + scaffold). Rule: scaffold task → keyword map update in same PR.
-- **arXiv 35+ relevant papers with no auto-signal**: When overnight arXiv digest returns ≥35 relevant papers but no quantum signal is auto-queued, create a manual follow-up task (`--skills arxiv-research`) after 2 sensor cycles if nothing surfaces. Strong digest ≠ automatic signal — 7-gate framework is the bottleneck.
-- **Integration workflow flood** [2026-05-13, 41 no-op tasks]: Integration sensors must gate on `pendingOrCompletedTaskExistsForSource` for the same release version before queuing. Without this check, each sensor cycle queues a new integration task for an already-integrated version — 41 tasks, ~$5-6 wasted, 47% of overnight cycle capacity. Fix: add version-scoped completed-task check to integration sensor (same `pendingTaskExistsForSource` pattern as workflow-dedup).
-- **Signal cooldown check must happen at sensor time** [2026-05-14, tasks #16576/#16577; still recurring 2026-05-17, 4 dispatch-time failures]: Signal filing sensors queued tasks during active cooldown windows → dispatch fails with "cooldown active." Sensors must call the cooldown API (or check last filed timestamp from cycle_log/tasks) before queuing. Failing at dispatch wastes a full cycle; failing at sensor is free. **Note**: arch docs marked sensor-time cooldown "RESOLVED" (fcb39755) but failures continued 2026-05-17 — the fix is partial; verify all signal sensor paths are covered, not just the one that was patched.
-- **Stacks address prefixes — SP vs SM vs ST** [CORRECTED 2026-05-14, BFF #517]: SP = standard mainnet, SM = multisig mainnet. Both are mainnet. Only ST and SN are testnet prefixes. Prior arc0btc review incorrectly flagged SM as testnet — caused author to introduce malformed SP address. Verify: `curl https://api.hiro.so/v2/contracts/source/<addr>/<contract>` → 200 = valid, 400 = malformed.
-- **Cooldown at dispatch = schedule-for-later, not immediate requeue** [2026-05-14, tasks #16576/#16577; updated #16688]: When a signal task hits cooldown at dispatch time, do NOT create an immediate follow-up task (it will also fail). CLI CONSTRAINT: `tasks update --status blocked` is NOT supported — only `--status pending` works. Correct flow: (1) close current task as `failed` with cooldown explanation, (2) create new task with `--scheduled-for <cooldown-clear-time+5min>`. Sensor-generated signal tasks: sensor will re-queue naturally, so just close. Orchestrator-generated tasks: use `--scheduled-for`.
-- **Claude usage quota = 19h dispatch outage** [2026-05-14, task #16675]: Extra-usage quota hit at 03:00Z → dispatch-gate STOPPED, no auto-recovery. Manual `arc dispatch reset` required. Fix: parse "resets HH:MM (TZ)" from stop_reason in `checkDispatchGate()` and auto-reset when past reset time. Safe only for rate_limited class. See `p-claude-usage-quota-outage`.
-- **Batch-fail on dispatch restart after long gap** [2026-05-14, overnight brief]: When dispatch resumes after a long outage (19.5h), tasks queued by sensors during the gap batch-fail due to lock-gate conflicts. 13 tasks dropped including CEO review, arXiv digest, watch report, and health alerts. Time-sensitive tasks (P2–P4) are the highest-loss category. Investigation: consider auto-rescheduling CEO review + watch report tasks rather than dropping them on restart.
-- **PR review pre-flight: check merged state before reviewing** [2026-05-15, tasks #16628/#16629/#16640/#16658]: 4 of 20 failures were PR review tasks that ran against already-merged PRs. Sensor queues review → PR merges before dispatch picks it up → wasted cycle. Fix: at start of any PR review task, run `gh pr view NUMBER --repo OWNER/REPO --json state --jq '.state'`; if `MERGED` or `CLOSED`, close the task as `completed` ("PR already merged/closed — no review needed") without reviewing.
-- **Bounty-farming PR flood: escalate, don't review in loop** [2026-05-15, landing-page #854–#865]: 12 consecutive PRs, all HTML comment chains with no implementation, consumed 38% of overnight cycles. Pattern: PRs keep arriving faster than reviews can reject. Correct response after 3+ rejections of identical pattern: stop reviewing, create escalation task for whoabuddy, flag for policy change. Reviewing each one wastes a cycle; policy fix stops the flood.
-- **Sensor health audit → same-night fix** [2026-05-15, task #16708→#16716]: Proactive sensor health review (P6, every N days) found beat-inactive dedup bug, enabling same-night fix (ab1273d0). Pattern validated: sensor health audit catches bugs that sensor self-monitoring misses. Schedule this audit regularly.
-- **Token explosion = per-file reads in dispatch** [2026-05-16, task #16814]: Tasks #16708/#16800/#16756 hit 1.8–2.9M input tokens. Root cause: each file read (sensor.ts, PR diff, SKILL.md) re-incurs full accumulated conversation context. 73 sensors × 50K context = 3.6M tokens just from context re-send. Fix: (1) use `sensor-health-report` CLI (one call aggregates all 73 sensors) instead of per-sensor file reads; (2) arch-review AGENT.md now scopes to git diff since last SHA, not all 119 SKILL.md/AGENT.md files; (3) @mention AGENT.md now forbids reading full PR diff for comment responses. Rule: if a task requires reading >10 files, add a CLI command that aggregates the data first.
+
+**Dispatch/queue**
+- Dispatch-stale alerts: always FP — verify PID + recent cycle_log timestamps.
+- Timeout cluster (3+ same window): task decomposition signal. Split or script.
+- Signal-filing tasks must be sonnet: haiku times out.
+- Claude usage quota → 19h outage (task #16675). Fix: parse reset time in `checkDispatchGate()`, auto-reset for rate_limited class.
+- Batch-fail on restart after long gap: sensors queue tasks → lock-gate drops them. Consider auto-reschedule for P2-P4 time-sensitive tasks.
+
+**PR reviews**
+- Model: sonnet, no daily cap. `api_cost_usd` is phantom.
+- Pre-flight: check `gh pr view --json state` — if MERGED/CLOSED, close task as completed.
+- Bounty-farming flood (3+ identical rejections): escalate to whoabuddy, flag for policy. Don't loop.
+- Re-review loop: if blocking issues unchanged, comment and skip.
+- CF deploy failure: check if deploy is bottleneck; surface to whoabuddy before re-queuing.
+
+**Sensors**
+- Integration sensors: gate on `pendingOrCompletedTaskExistsForSource` per release version.
+- Signal cooldown: must check at sensor time. Dispatch-time check = wasted cycle.
+- arXiv 35+ relevant papers + no auto-signal: create manual follow-up after 2 sensor cycles.
+- Sensor health audit (P6, periodic): catches bugs sensor self-monitoring misses. Use `sensor-health-report` CLI.
+
+**Token management**
+- Per-file reads in dispatch = token explosion (1.8–2.9M). Use aggregate CLIs.
+- Rule: >10 files needed → add a CLI command first. `sensor-health-report` replaces 73 per-sensor reads.
+- arch-review: scope to git diff since last SHA, not all SKILL.md/AGENT.md files.
+
+**Misc**
+- Stacks address prefixes: SP/SM = mainnet, ST/SN = testnet. Verify via Hiro API.
+- Verify creds before acting on memory — stale memory → expensive correction.
+- Context-review SKILL_KEYWORD_MAP: update when scaffolding new skill in same PR.
+- Workflow-dedup: arc-workflows uses `pendingTaskExistsForSource`.
+- Self-review triage pre-dispatch: correlates with 100% success rate — never skip.
+- Policy-closure tasks: close with `status=completed` + "superseded by policy".
+- sourceQuality re-file: re-filing with better sourcing (10→30) is a valid quality lever.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-04-23 → 2026-05-13)**: PURPOSE 1.90–3.70. OH 87–100%. Quantum drought broken 2026-05-09. 5-signal/3-beat days confirm multi-beat capability. Cost $0.21–0.44/task. Hashrate signal + patterns.md consolidation = recurring decompose targets.
+**Trend (2026-05-09 → 2026-05-17)**: PURPOSE range 2.35–3.80. Signal Quality (S) is the persistent floor dimension — S:1 in 9 of last 11 evals. Cooldown violations at dispatch are the dominant failure class. Cost stable $0.20–0.38/task. 96–100% success when dispatch healthy; drops to ~66–74% during outages. Quantum drought ongoing since 2026-05-09 first signal.
 
-- **daily-eval-2026-05-16** [task #16844]: PURPOSE **3.80** (S:3 O:4 E:5 C:4 A:4 Co:2 Sec:3). 88 completed / 4 failed (96% success), $33.28 / $0.378/task, 92 tasks. 4 signals filed (bitcoin-macro x3, aibtc-network x1) — multi-signal but only 2 beats. All 4 failures were cooldown violations at dispatch — fix queued (#16813). Pending queue empty (1 task) → no boosts possible. Quantum drought continues; queued 1 follow-up for arXiv quantum research.
-- **daily-eval-2026-05-15** [task #16752]: PURPOSE **3.60** (S:2 O:5 E:4 C:4 A:4 Co:3 Sec:3). 67 completed / 2 failed (97% success), $22.86 / $0.327/task, 70 cycles. Quality 4.5/5 (rated 2). Queue empty (pending+blocked=0) → no boosts possible. Signal Quality remains weakest dimension (recurring); created 1 follow-up to research+file 1 bitcoin-macro or quantum signal candidate.
-- **daily-eval-2026-05-13** [task #16573]: PURPOSE **3.45** (S:1 O:5 E:5 C:5 A:2 Co:2 Sec:3). 158 tasks/24h, 100% success (0 failures), $39.57 cost / $0.25/task. 1 signal (bitcoin-macro fee floor #16454), 26 PR reviews — ecosystem strong. Pending queue empty → no boosts possible. Signal Quality remains the single weak dimension; queued 1 follow-up for signal research.
-- **overnight-2026-05-13** [task #16569 retro]: **100% success** (87/87, $18.05, $0.21/task). Bun 1.3.14 upgrade, 8+ PR reviews, blog published, arch docs updated. Integration workflow flooded 41 no-op tasks (~$5-6 waste). 29 arXiv relevant papers — below 35 threshold, no manual follow-up. arc-mcp restart loop RESOLVED (auth_key configured 2026-05-12; v2.1.141 token rotation fix additive, not causal).
-- **daily-eval-2026-05-12** [task #16414]: PURPOSE **3.00** (S:1 O:5 E:3 C:5 A:2 Co:1 Sec:3). 53 tasks today, $13.21 ($0.249/task — score 5). Signal Quality=1 (1 signal, single beat). Pending queue empty → no boosts possible; queued #16415 quantum manual triage (arXiv 35-relevant rule).
-- **overnight-2026-05-12** [task #16405]: **100% success** (30/30, 0 failures) — first clean overnight since Resend sunset. 1 aibtc-network signal (LunarCrush x402, f8c454f2). Bitflow DEX skill scaffolded (116 skills / 72 sensors). arXiv 50 papers / 35 relevant; no quantum auto-queued. Self-review triage ×3, all pre-dispatch. Context-review SKILL_KEYWORD_MAP fixed (11c64e3).
-- **introspection-2026-05-14** [task #16611]: 99% success (159/161), $36.51/$0.227/task. arc-skill-manager 81/161 (50%) driven by PR maintenance surge. 0 signals filed. Both failures were cooldown violations at dispatch time — sensor should gate on cooldown before queuing. Signal Quality remains the single weakest dimension.
-- **l-purpose-2026-05-16** [task #16778]: PURPOSE **2.85** (S:1 O:4 E:4 C:3 A:3 Co:2 Se:3). 97.8% success (91/93), $0.331/task, $30.74/day. 15 PR reviews, 0 signals. Signal Quality remains floor — no signals filed.
-- **l-purpose-2026-05-17** [task #16855]: PURPOSE **2.45** (S:1 O:3 E:3 C:3 A:3 Co:2 Se:3). 94.9% success (74/78), $0.372/task, $28.98/day. 8 PR reviews, 0 signals. Signal Quality at floor again — no signals filed.
-- **introspection-2026-05-17** [task #16856]: 95% success (74/78). All 4 failures = cooldown violations at dispatch — sensor-time fix marked "RESOLVED" in arch docs but partial at best; signal sensor coverage audit still needed. 0 signals filed. Good operational throughput: PR reviews, x402-relay PRs, defi-bitflow active. Core issue: signal pipeline failing repeatedly despite multiple documented fixes — requires targeted code audit, not another pattern entry.
-- **l-purpose-2026-05-15** [task #16685]: PURPOSE **2.35** (S:1 O:1 E:3 C:5 A:3 Co:2 Se:3). 73.6% success (53/72), $0.197/task, $14.17/day. 5 PR reviews, 0 signals. Dispatch outage cascade driving ops failure. Signal Quality + Ops both at floor.
-- **l-purpose-2026-05-14** [task #16613]: PURPOSE **3.30** (S:1 O:5 E:4 C:5 A:3 Co:1 Se:3). 98.8% success (159/161), $0.227/task, $36.51/day. 31 PR reviews, 0 signals. Signal Quality remains weak link.
-- **daily-eval-2026-05-14-pm** [task #16649]: PURPOSE **2.35** (S:2 O:1 E:2 C:5 A:3 Co:1 Se:3). 66% success (37/56, 19 failed), $10.04/day, $0.179/task — cost score is offset by **dispatch 19h outage overnight** that cascaded 12+ FP failures (missed overnight brief/watch report/arXiv digest + stale dispatch health alerts). Only 2 signals (bitcoin-macro difficulty #16618, aibtc-network mcp-server #16612), 2 PR reviews. Below 3.0 trip — dispatch reliability is the dominant driver, not signal quality.
-- **l-purpose-2026-05-13** [task #16451]: PURPOSE **3.20** (S:1 O:5 E:4 C:4 A:3 Co:2 Se:3). 98.9% success (89/90), $0.291/task, $26.19/day. 17 PR reviews, 0 signals. Bitflow DEX scaffolded, SKILL_KEYWORD_MAP fixed.
-- **l-purpose-2026-05-12** [task #16362]: PURPOSE **2.85** (S:1 O:4 E:4 C:3). 96% success (100/104), $0.353/task, $36.69/day. Email routing bug + Resend policy tasks = 4 failures. Memory correction cost $2.05.
-- **daily-eval-2026-05-11** [task #16325]: PURPOSE **3.60** (S:4 O:4 E:4 C:3). 98.5% success (66/67), $0.335/task. 4-5 signals/3 beats. 10+ PR reviews. PR #511 IP/license flagged.
-- **l-purpose-2026-05-11** [task #16259]: PURPOSE **2.80** (S:1 O:4 E:4 C:3). 97.6% success (81/83), $0.307/task. 28 PR reviews. 0 signals overnight.
-- **daily-eval-2026-05-10** [task #16232]: PURPOSE **3.00** (S:1 O:5 E:4 C:3). 98.2% success (56/57), $0.313/task. 1 signal + 15 PR reviews (D1 surge).
-- **daily-eval-2026-05-09** [task #16161]: PURPOSE **3.70** (S:4 O:4 E:3 C:5). ~88% success (21/24). 5 signals/3 beats — drought broken. Hashrate timeout ×2.
+- **l-purpose-2026-05-17** [task #16855]: PURPOSE **2.45** (S:1 O:3 E:3 C:3 A:3 Co:2). 94.9% success (74/78), $0.372/task. 8 PR reviews, 0 signals. Cooldown failures = all 4 failures.
+- **daily-eval-2026-05-16** [task #16844]: PURPOSE **3.80** (S:3 O:4 E:5 C:4 A:4 Co:2). 88/92 (96%), $0.378/task. 4 signals (bitcoin-macro ×3, aibtc-network ×1), 2 beats only. All 4 failures = cooldown violations.
+- **l-purpose-2026-05-16** [task #16778]: PURPOSE **2.85** (S:1 O:4 E:4 C:3 A:3 Co:2). 97.8% (91/93), $0.331/task. 15 PR reviews, 0 signals.
+- **l-purpose-2026-05-15** [task #16685]: PURPOSE **2.35** (S:1 O:1 E:3 C:5 A:3 Co:2). 73.6% (53/72), $0.197/task. Dispatch outage cascade. 0 signals.
+- **daily-eval-2026-05-14-pm** [task #16649]: PURPOSE **2.35**. 66% success (37/56). 19h dispatch outage cascaded 12+ FP failures. 2 signals, 2 PR reviews.
+- **daily-eval-2026-05-13** [task #16573]: PURPOSE **3.45**. 158 tasks, 100% success, $0.25/task. 1 signal, 26 PR reviews. Integration flood = 41 no-op tasks (~$5 wasted).
 
 ---
 
@@ -100,9 +94,9 @@
 7-gate validation. Cluster cap: 2-signal/cluster. ≥3 quantum keywords (Gate 5). ≥500 chars + ≥1 specific number (Gate 6). Specific arxiv.org/abs/ID required (Gate 0). Score: 75 standard, 65 dark domains.
 
 **bitcoin-macro-sensor** [task #12742]
-`skills/bitcoin-macro/sensor.ts`, 240min cadence. Signals: price-milestone, price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change). hashrate via mempool.space = sourceQuality=10 only — won't reach 65 floor.
+`skills/bitcoin-macro/sensor.ts`, 240min cadence. Signals: price-milestone, price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change). hashrate via mempool.space = sourceQuality=10 only — won't reach 65 floor. Hashrate signal: always decompose (1) research+compose, (2) file.
 
-**signal-pipeline** [validated 2026-04-13] JingSwap → P2P fallback. Known gap: add pending-task check before queuing.
+**signal-pipeline** [validated 2026-04-13] JingSwap → P2P fallback. Known gap: pending-task check before queuing.
 
 **nonce-serialization** [SHIPPED 2026-04-08]
 All STX send paths through `acquireNonce`/`releaseNonce` in `github/aibtcdev/skills/src/lib/services/nonce-tracker.js`.
@@ -114,11 +108,11 @@ Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews`
 
 ## [N] Agent Network Contacts
 
-**quasar-garuda** [ACTIVE PARTNER] Classifieds IC #4. BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. STX: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Old `SP4DXVEC…ATJE` = hostile. Comp: 1,200/600 sats. Last contact: 2026-05-14 (info message re trading competition on aibtc.com/leaderboard — replied, flagged to whoabuddy, no ops). Relationship: healthy.
+**quasar-garuda** [ACTIVE PARTNER] Classifieds IC #4. BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. STX: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Old `SP4DXVEC…ATJE` = hostile. Comp: 1,200/600 sats. Last: 2026-05-14 (trading competition info, no ops). Healthy.
 
 **vivid-manticore** [CONTACT 2026-04-20] EmblemAI. 191 x402 tools via sBTC at `api.emblemvault.ai`. BTC: `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`.
 
-**deep-tess** [PENDING METRICS, re-check 2026-05-10] Bitcoin maxi AI. STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. ~6-week response cadence.
+**deep-tess** [PENDING METRICS] Bitcoin maxi AI. STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. ~6-week response cadence.
 
 **fractal-swift** [AWAITING RESPONSE] Sports analytics (NHL/EPL). STX: `SP1HTR6AW95BTGYA081YYD0C6DKBD61NYFV7KM6KP`.
 
