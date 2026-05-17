@@ -732,9 +732,23 @@ export function isDailySignalCapHit(): boolean {
   return countSignalTasksToday() >= DAILY_SIGNAL_CAP;
 }
 
+/** Convert a SQL LIKE pattern (% = any sequence, _ = any char) to a JS RegExp. */
+function likePatternToRegex(pattern: string): RegExp {
+  const escaped = pattern
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/%/g, ".*")
+    .replace(/_/g, ".");
+  return new RegExp(`^${escaped}$`, "i");
+}
+
 /**
  * Beat-to-subject-pattern mapping for cooldown detection.
  * Maps each active beat slug to the task subject patterns that represent a filed signal for that beat.
+ *
+ * IMPORTANT: Every subject used when creating a signal task MUST match at least one pattern here.
+ * Call validateSignalSubjectMatchesBeatPattern() in sensors to enforce this at queue time.
+ * Drift history: aibtc-network missing (28cb5e3f), hashrate decompose missing (fcb39755),
+ * streak subject mismatch (d07db40a). The validator closes this class of bugs.
  */
 const BEAT_SUBJECT_PATTERNS: Record<string, string[]> = {
   "aibtc-network": [
@@ -788,6 +802,25 @@ export function isBeatOnCooldown(beat: string, cooldownMinutes: number = 60): bo
     if (queued !== null) return true;
   }
   return false;
+}
+
+/**
+ * Returns true if `subject` matches at least one BEAT_SUBJECT_PATTERNS entry for `beat`.
+ *
+ * Call this in sensors before queueing a signal task. If it returns false, the subject
+ * will not be recognized by isBeatOnCooldown() — other sensors will see cooldown=false
+ * and queue duplicate tasks for the same beat.
+ *
+ * @example
+ *   const subject = `File aibtc-network signal: ${headline}`;
+ *   if (!validateSignalSubjectMatchesBeatPattern(subject, "aibtc-network")) {
+ *     throw new Error(`Subject does not match BEAT_SUBJECT_PATTERNS for aibtc-network: "${subject}"`);
+ *   }
+ */
+export function validateSignalSubjectMatchesBeatPattern(subject: string, beat: string): boolean {
+  const patterns = BEAT_SUBJECT_PATTERNS[beat];
+  if (!patterns || patterns.length === 0) return false;
+  return patterns.some((pattern) => likePatternToRegex(pattern).test(subject));
 }
 
 /** Count completed tasks today whose source starts with the given prefix. */
