@@ -3,7 +3,7 @@
 // queues a digest compilation task if new papers are found.
 
 import { claimSensorRun, createSensorLogger, fetchActiveBeatSlugs, HookState, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown, validateSignalSubjectMatchesBeatPattern } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
 const INTERVAL_MINUTES = 720; // 12 hours
@@ -283,8 +283,13 @@ export default async function arxivResearchSensor(): Promise<string> {
           .slice(0, 5)
           .map((p) => `- ${p.title} (${p.id})`)
           .join("\n");
+        const infraSignalSubject = `File aibtc-network signal from arXiv digest (${infraPapers.length} paper(s))`;
+        if (!validateSignalSubjectMatchesBeatPattern(infraSignalSubject, "aibtc-network")) {
+          log(`error: subject does not match BEAT_SUBJECT_PATTERNS for aibtc-network: "${infraSignalSubject}"`);
+          throw new Error(`Subject validation failed for beat aibtc-network: "${infraSignalSubject}"`);
+        }
         insertTask({
-          subject: `File aibtc-network signal from arXiv digest (${infraPapers.length} paper(s))`,
+          subject: infraSignalSubject,
           description:
             `${infraPapers.length} aibtc-relevant papers found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
@@ -315,8 +320,13 @@ export default async function arxivResearchSensor(): Promise<string> {
           .slice(0, 5)
           .map((p) => `- ${p.title} (${p.id})`)
           .join("\n");
+        const quantumSignalSubject = `File quantum beat signal from arXiv digest (${quantumPapers.length} paper(s))`;
+        if (!validateSignalSubjectMatchesBeatPattern(quantumSignalSubject, "quantum")) {
+          log(`error: subject does not match BEAT_SUBJECT_PATTERNS for quantum: "${quantumSignalSubject}"`);
+          throw new Error(`Subject validation failed for beat quantum: "${quantumSignalSubject}"`);
+        }
         insertTask({
-          subject: `File quantum beat signal from arXiv digest (${quantumPapers.length} paper(s))`,
+          subject: quantumSignalSubject,
           description:
             `${quantumPapers.length} quantum-relevant paper(s) found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +

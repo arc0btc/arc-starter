@@ -2,7 +2,7 @@
 // Sensor for beat activity monitoring and signal filing opportunities
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, isBeatOnCooldown, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isBeatOnCooldown, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix, validateSignalSubjectMatchesBeatPattern } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-news-editorial";
@@ -178,9 +178,14 @@ export default async function aibtcNewsSensor(): Promise<string> {
               // Without this, isBeatOnCooldown won't detect this pending/completed task,
               // allowing other sensors to queue a duplicate signal for the same beat.
               const targetBeat = availableBeats[0];
+              const streakSubject = `File ${targetBeat} signal: maintain ${streak}-day streak`;
+              if (!validateSignalSubjectMatchesBeatPattern(streakSubject, targetBeat)) {
+                log(`error: subject does not match BEAT_SUBJECT_PATTERNS for ${targetBeat}: "${streakSubject}"`);
+                throw new Error(`Subject validation failed for beat ${targetBeat}: "${streakSubject}"`);
+              }
               log(`queuing streak task for beat ${targetBeat} (${streak}-day streak, available: ${availableBeats.join(", ")})`);
               insertTask({
-                subject: `File ${targetBeat} signal: maintain ${streak}-day streak`,
+                subject: streakSubject,
                 description: `Arc has a ${streak}-day signal-filing streak. File a signal to the \`${targetBeat}\` beat to maintain it. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat.\n\nUse: arc skills run --name aibtc-news-editorial -- file-signal --beat ${targetBeat} --claim <text> --evidence <text> --implication <text>`,
                 skills: JSON.stringify(["aibtc-news-editorial"]),
                 priority: 7,

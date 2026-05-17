@@ -28,6 +28,7 @@ import {
   countSignalTasksTodayForBeat,
   countSignalTasksToday,
   isBeatOnCooldown,
+  validateSignalSubjectMatchesBeatPattern,
   BEAT_DAILY_ALLOCATION,
   DAILY_SIGNAL_CAP,
 } from "../../src/db.ts";
@@ -604,6 +605,10 @@ export default async function bitcoinMacroSensor(): Promise<string> {
       if (pendingTaskExistsForSource(source)) {
         log(`signal task already pending for source ${source}, skipping`);
       } else {
+        if (!validateSignalSubjectMatchesBeatPattern(best.subject, BEAT_SLUG)) {
+          log(`error: subject does not match BEAT_SUBJECT_PATTERNS for ${BEAT_SLUG}: "${best.subject}"`);
+          throw new Error(`Subject validation failed for beat ${BEAT_SLUG}: "${best.subject}"`);
+        }
         const taskId = insertTask({
           subject: best.subject,
           description: best.description,
