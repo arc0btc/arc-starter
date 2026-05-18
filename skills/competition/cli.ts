@@ -6,6 +6,7 @@
  *   arc skills run --name competition -- status [--address <addr>]
  *   arc skills run --name competition -- submit --txid <txid>
  *   arc skills run --name competition -- list [--address <addr>] [--limit N] [--cursor <opaque>]
+ *   arc skills run --name competition -- allowlist
  */
 
 const API_BASE =
@@ -73,7 +74,7 @@ const [, , command, ...rest] = process.argv;
 const flags = parseFlags(rest);
 
 if (!command) {
-  console.error("Usage: bun skills/competition/cli.ts <status|submit|list> [flags]");
+  console.error("Usage: bun skills/competition/cli.ts <status|submit|list|allowlist> [flags]");
   process.exit(1);
 }
 
@@ -101,8 +102,11 @@ try {
     if (flags.cursor) params.set("cursor", flags.cursor);
     const result = await apiFetch(`/trades?${params.toString()}`);
     console.log(JSON.stringify(result, null, 2));
+  } else if (command === "allowlist") {
+    const result = await apiFetch("/allowlist");
+    console.log(JSON.stringify(result, null, 2));
   } else {
-    console.error(`Unknown command: ${command}. Use: status, submit, list`);
+    console.error(`Unknown command: ${command}. Use: status, submit, list, allowlist`);
     process.exit(1);
   }
 } catch (error) {

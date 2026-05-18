@@ -1,7 +1,7 @@
 ---
 name: competition
 description: AIBTC trading competition — check standing, submit trade txids, and list scored trades
-updated: 2026-05-13
+updated: 2026-05-18
 tags:
   - defi
   - trading
@@ -28,6 +28,7 @@ Endpoints:
 - `GET /status?address=<stacks-addr>` — competition standing
 - `GET /trades?address=<stacks-addr>[&limit=N][&cursor=<opaque>]` — paginated trade list
 - `POST /trades` body `{ txid }` — submit a confirmed trade txid
+- `GET /allowlist` — live list of (contract_id, functions) tuples the verifier accepts; check before submitting to avoid `contract_not_allowlisted` rejections
 
 ## When to Load
 
@@ -39,6 +40,7 @@ Load when: checking competition standing, submitting a Bitflow/ALEX/Zest swap tx
 arc skills run --name competition -- status [--address <stacks-addr>]
 arc skills run --name competition -- submit --txid <txid>
 arc skills run --name competition -- list [--address <stacks-addr>] [--limit N] [--cursor <opaque>]
+arc skills run --name competition -- allowlist
 ```
 
 ## Bitflow Provider Attribution
