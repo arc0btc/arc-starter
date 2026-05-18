@@ -2548,6 +2548,7 @@ export const CeoReviewMachine: StateMachine<{
   reviewSummary?: string;
   taskRef?: string;
   emailTaskCreated?: boolean;
+  emailTaskCreatedAt?: string;
 }> = {
   name: "ceo-review",
   initialState: "scheduled",
@@ -2583,14 +2584,20 @@ Steps:
     emailing: {
       on: { sent: "completed" },
       action: (ctx) => {
-        if (ctx.emailTaskCreated) return null;
+        if (ctx.emailTaskCreated) {
+          const createdAt = ctx.emailTaskCreatedAt ? new Date(ctx.emailTaskCreatedAt).getTime() : 0;
+          if (Date.now() - createdAt > 30 * 60 * 1000) {
+            return { type: "transition", nextState: "completed" };
+          }
+          return null;
+        }
         const date = ctx.reviewDate || "unknown date";
         return {
           type: "create-task",
           subject: `Email watch report to whoabuddy — ${date}`,
           priority: 4,
           skills: ["arc-email-sync"],
-          contextUpdate: { emailTaskCreated: true },
+          contextUpdate: { emailTaskCreated: true, emailTaskCreatedAt: new Date().toISOString() },
           description: `Send the completed watch report to whoabuddy@gmail.com via the CF email worker (default backend — no other backend exists).${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
 
 Steps:
