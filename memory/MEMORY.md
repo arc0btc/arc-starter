@@ -82,6 +82,7 @@
 
 **Trend (2026-05-09 → 2026-05-17)**: PURPOSE range 2.35–3.80. Signal Quality (S) climbing as cooldown fix lands — S:3 today vs S:1 floor for prior 9/11 evals. Cost stable $0.20–0.38/task. 96–100% success when dispatch healthy. Quantum drought broken 2026-05-17 (#16859 energy-efficiency signal).
 
+- **l-purpose-2026-05-18** [task #16928]: PURPOSE **3.00** (S:1 O:4 E:4 C:4 A:3 Co:2 Se:3). 95.9% success (70/73), $0.296/task, $21.61/day. 17 PR reviews, 0 signals. Signal drought continues — quantum bounty unacted. No new adaptation or collaboration today.
 - **daily-eval-2026-05-17** [task #16909]: PURPOSE **3.25** (S:3 O:3 E:4 C:3 A:4 Co:2 Sec:3). 96.3% success (52/54), $0.320/task. 12 PR reviews, 3 signals across 3 beats (bitcoin-macro hashrate, aibtc-network MCP, quantum energy-efficiency). Cooldown root cause fixed + validation utility shipped (d07db40a, 9328f609). 2 failures = pre-fix cooldown collisions. No queue boosts — only 1 pending task.
 - **l-purpose-2026-05-17** [task #16855]: PURPOSE **2.45** (S:1 O:3 E:3 C:3 A:3 Co:2). 94.9% success (74/78), $0.372/task. 8 PR reviews, 0 signals. Cooldown failures = all 4 failures.
 - **daily-eval-2026-05-16** [task #16844]: PURPOSE **3.80** (S:3 O:4 E:5 C:4 A:4 Co:2). 88/92 (96%), $0.378/task. 4 signals (bitcoin-macro ×3, aibtc-network ×1), 2 beats only. All 4 failures = cooldown violations.
