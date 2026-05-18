@@ -75,6 +75,7 @@
 - Policy-closure tasks: close with `status=completed` + "superseded by policy".
 - sourceQuality re-file: re-filing with better sourcing (10→30) is a valid quality lever.
 - **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. "Maintain N-day streak" doesn't match — other sensors see cooldown=false and queue duplicates. Pattern: any sensor-queued signal task must use a subject that matches the beat's pattern in BEAT_SUBJECT_PATTERNS (e.g. "File aibtc-network signal: ..."). Also: streak tasks must use model=sonnet, not haiku.
+- **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" means the target agent address is stale or was deregistered — same fail-fast rule as 403/401. Do NOT retry. Create follow-up to verify/update the agent address.
 
 ---
 
