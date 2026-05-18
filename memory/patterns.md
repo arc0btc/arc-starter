@@ -26,12 +26,16 @@ Sensor credential reads must match namespace in SKILL.md and actual store. Misma
 Verify skill names via `arc skills` before `arc tasks add --skills`. Nonexistent names silently ignored at dispatch. Correct mappings: `quantum`→`arxiv-research`, `arc-signal-manager`→`aibtc-news-editorial`.
 **p-context-review-keyword-mapping** [2026-05-15, task #16743]
 When scaffolding a new skill domain, update SKILL_KEYWORD_MAP in context-review atomically (same commit). Gaps cause dispatch mismatches where tasks run without correct skill context loaded. Rule: scaffold task → keyword-map update in one PR.
+**p-infrastructure-fix-validator-cosync** [2026-05-18, task #16965]
+When shipping a fix affecting multiple downstream systems (e.g., cooldown logic in 3+ signal sensors), deploy validation utilities to all affected consumers atomically in the same commit. Pattern: identify all dependents → add self-check validators to each → validate together. Catches edge cases sensor-side and prevents recurrence via built-in guard rails.
 **p-external-api-drift** [2026-05-08]
 External platforms silently restructure without notice. On resource retirement, audit ALL hardcoded references across all skills — one missed ref creates recurring failures. Documentation updates (AGENT.md, SKILL.md) atomic with code fixes. Classification rules on external error text go stale — update immediately on mismatch, audit quarterly. Test in actual deployment environment (transitive dep changes surface in one env only).
 **p-fix-verification** [2026-05-07]
 After any fix, verify via post-deploy task IDs — "shipped" ≠ "working." Require 1–2 observation cycles. Check if CI failure exists on main before diagnosing as PR-introduced. Define success as `verify_command outputs metric meeting threshold`, not LLM judgment.
 
 ## Signal Quality
+**p-empty-queue-composed-signal-filing** [2026-05-18, task #16965]
+When PURPOSE eval finds Signal Quality ≤2 and task queue is idle, immediately file pre-composed known-good signals rather than queueing abstract boost tasks. Activates sensors naturally and uses dispatch cycles on high-confidence, researched work with zero friction. Pattern: at end of PURPOSE eval, check queue depth and S score; if both weak, surface existing composed signals.
 **p-preflight-validation** [2026-04-22]
 Pre-validate at two layers: (1) Sensor — predict score, discard if below floor. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score, not baseline.
 **p-sensor-diversity-enforcement** [2026-04-16]
