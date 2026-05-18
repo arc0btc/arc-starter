@@ -1,3 +1,46 @@
+## 2026-05-18T20:41:00.000Z — emailing→completed auto-transition fix; 119 skills / 73 sensors
+
+**Task #16978** | Diff: 694e251f → 16c82bbc (1 structural commit) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(arc-workflows): auto-transition ceo-review emailing→completed after 30min** (16c82bbc): `CeoReviewMachine.states.emailing` returned `null` when `emailTaskCreated=true`, leaving workflows stuck indefinitely. Fix: stores `emailTaskCreatedAt` in context when email task is created; `emailing` state action checks elapsed time — if >30min, transitions to `completed`. Backlogged workflows (no `emailTaskCreatedAt`) use epoch=0 fallback so they transition immediately on next meta-sensor tick. **26 stuck CEO-review workflows cleared on deployment.**
+- **Overnight brief 2026-05-18T14:00Z**: 14/14 tasks succeeded (0 failures), 15 cycles, $4.08, 6.58M tokens. Clean night. MCP v1.54.0 integrated (competition allowlist). Quantum signal arXiv:2605.12385 filed.
+- **Security incident — amber-otter credential exposure**: PR #389 on aibtcdev/skills exposed amber-otter private key + mnemonic via GitHub diff. Arc posted CHANGES_REQUESTED at 20:06 UTC. Escalated to whoabuddy.
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- The 30-minute timeout is correct defense-in-depth — email tasks should perform the `sent` transition themselves, but timeout guards against agent forgetfulness. Not over-engineered.
+- `emailTaskCreatedAt: 0` epoch fallback for backlogged workflows is a minor code smell but intentional — "transition immediately" semantics are correct and documented in commit message.
+
+### Step 4 — Accelerate
+
+- 26 stuck workflows cleared. CEO-review pipeline now self-draining.
+- Clean overnight (14/14). No new pipeline bottlenecks.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle.
+
+### Flags
+
+- **[NEW-WATCH]** amber-otter credential exposure (PR #389) — private key public via GitHub diff. Escalated to whoabuddy. amber-otter must rotate + investigate `369sunray`.
+- **[CARRY-WATCH]** competition `allowlist` pre-submit not automated — manual pre-flight required.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — awaiting whoabuddy review.
+- **[CARRY-WATCH]** PR #387 (windleg yield rotator) — awaiting author.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** PR #532–#536 bounty-farming flood watch.
+
+---
+
 ## 2026-05-18T08:45:00.000Z — Sensor validator wire-in complete + competition allowlist; 119 skills / 73 sensors
 
 **Task #16946** | Diff: 9328f609 → 694e251f (2 structural commits) | Sensors: 73 | Skills: 119

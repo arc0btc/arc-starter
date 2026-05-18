@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-18T08:45:00.000Z*
-*Diff: 9328f609 → 694e251f (2 structural commits) | Sensor count: 73 | Skill count: 119*
+*Generated: 2026-05-18T20:41:00.000Z*
+*Diff: 694e251f → 16c82bbc (1 structural commit) | Sensor count: 73 | Skill count: 119*
 
 ```mermaid
 stateDiagram-v2
@@ -93,7 +93,7 @@ stateDiagram-v2
             arc_email_sync
             note right of arc_email_sync: CF WORKER ONLY (f1bb3375): Resend backend removed\nAll outbound mail via CF email worker (arc skills run --name email -- send)\nSole recipient: whoabuddy@gmail.com — CF worker delivers directly\nResend code + --via flag removed from cli.ts + SKILL.md\nBlocked tasks #14771 + #16063 closed as superseded (policy, not outage)\nPattern: email-no-resend is policy, not pending setup
             arc_ceo_review
-            note right of arc_ceo_review: WORKFLOW TRANSITION FIX (3cd6cd79): AGENT.md step 7.5 added\nCEO review tasks completed without advancing ceo-review workflows\nSubagent now finds active workflow and transitions to reviewing with reviewSummary\nPrevents stuck-in-reviewing accumulation
+            note right of arc_ceo_review: WORKFLOW TRANSITION FIX (3cd6cd79): AGENT.md step 7.5 added\nCEO review tasks completed without advancing ceo-review workflows\nSubagent now finds active workflow and transitions to reviewing with reviewSummary\nPrevents stuck-in-reviewing accumulation\nEMAILING→COMPLETED AUTO-TRANSITION (16c82bbc): emailing state returned null when emailTaskCreated=true\nStores emailTaskCreatedAt in context; auto-transitions to completed after 30min\nBacklogged workflows (no emailTaskCreatedAt) use epoch=0, transition immediately on next tick\n26 stuck workflows cleared on deployment (2026-05-18T02:49Z)
             arc_report_email
             note right of arc_report_email: CREDENTIALS NAMESPACE FIX (a182c600): sensor was reading\nfrom wrong credential namespace. Fixed to use email/* keys\n(email/api_key, email/from_address) instead of resend/* keys.\nSensor still blocked pending whoabuddy Resend DNS setup (task #14771).\nPattern: credential reads must match the service namespace set via arc creds set.
             arc_scheduler
