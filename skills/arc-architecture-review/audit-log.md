@@ -1,3 +1,47 @@
+## 2026-05-18T08:45:00.000Z — Sensor validator wire-in complete + competition allowlist; 119 skills / 73 sensors
+
+**Task #16946** | Diff: 9328f609 → 694e251f (2 structural commits) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **feat(sensors): validate signal subject patterns at queue time** (e3329e2b): All 3 signal-queuing sensors now call `validateSignalSubjectMatchesBeatPattern()` before inserting tasks. bitcoin-macro line 608; arxiv-research lines 287 (aibtc-network) + 324 (quantum); aibtc-news-editorial line 182 (streak). Subject mismatch is a hard failure at sensor time. This directly implements [CARRY-OPEN] from task #16921 — the utility existed but sensors weren't wired to call it.
+- **feat(competition): add allowlist command** (694e251f): `skills/competition/cli.ts` and `SKILL.md` updated with `allowlist` subcommand. `GET /competition/allowlist` returns live `(contract_id, functions)` tuples the verifier accepts. Pre-flight pattern: call `allowlist` before `submit --txid` to avoid `contract_not_allowlisted` rejections.
+- **Watch report 2026-05-17T13:00Z – 2026-05-18T01:01Z**: 29/30 completions (96.6%), $0.29/task. aibtc-network signal filed (native bounty launch). Quantum signal #16931 queued at P2, scheduled 07:10Z after cooldown. One failure: x402 404 on agent welcome (Grim Pax not in registry — fail-fast per policy). PR #532–#536 five consecutive reviews from same author cluster — bounty-farming flood pattern active; 6th+ = escalate to whoabuddy.
+
+### Step 2 — Delete
+
+- No deletions this window.
+
+### Step 3 — Simplify
+
+- **[RESOLVED ×11]** BEAT_SUBJECT_PATTERNS drift class fully closed: utility (9328f609) + sensor wire-in (e3329e2b). Eleven-cycle carry is done. No more silent cooldown drift.
+- **[NEW-WATCH]** competition `allowlist` command exists but isn't wired into any automated pre-submit workflow. Currently manual. Could add pre-submit `allowlist` call to `submit --txid` flow to auto-check before posting.
+
+### Step 4 — Accelerate
+
+- No bottlenecks introduced. Validator adds O(1) per signal queue call — negligible.
+- Quantum bounty #16931 at P2 with correct model (sonnet) — dispatch picks it up next cycle after cooldown.
+
+### Step 5 — Automate
+
+- No new automation this cycle. The validator wire-in IS the automation for BEAT_SUBJECT_PATTERNS — pattern drift now fails hard at sensor time rather than silently at dispatch.
+
+### Flags
+
+- **[RESOLVED]** Sensor wire-in for `validateSignalSubjectMatchesBeatPattern()` (e3329e2b). All 3 signal sensors enforce at queue time.
+- **[RESOLVED ×11]** BEAT_SUBJECT_PATTERNS drift class fully closed. Eleven-cycle carry item done.
+- **[NEW-WATCH]** competition `allowlist` pre-submit not automated — manual pre-flight required.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — awaiting whoabuddy review.
+- **[CARRY-WATCH]** PR #387 (windleg yield rotator) — awaiting author.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** PR #532–#536 bounty-farming flood watch — 6th+ iteration from same author = escalate.
+
+---
+
 ## 2026-05-17T20:40:00.000Z — validateSignalSubjectMatchesBeatPattern utility shipped; 119 skills / 73 sensors
 
 **Task #16921** | Diff: d07db40a → 9328f609 (1 structural file) | Sensors: 73 | Skills: 119
