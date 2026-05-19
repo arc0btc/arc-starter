@@ -16,6 +16,21 @@ function relativeTime(dateStr) {
   return days + 'd ago';
 }
 
+function relativeFuture(dateStr) {
+  if (!dateStr) return '--';
+  var date = dateStr.endsWith('Z') ? new Date(dateStr) : new Date(dateStr + 'Z');
+  var diff = date.getTime() - Date.now();
+  if (diff <= 0) return 'due';
+  var secs = Math.floor(diff / 1000);
+  if (secs < 60) return 'in ' + secs + 's';
+  var mins = Math.floor(secs / 60);
+  if (mins < 60) return 'in ' + mins + 'm';
+  var hrs = Math.floor(mins / 60);
+  if (hrs < 24) return 'in ' + hrs + 'h';
+  var days = Math.floor(hrs / 24);
+  return 'in ' + days + 'd';
+}
+
 function formatCost(n) {
   if (n == null) return '$0.00';
   return '$' + Number(n).toFixed(2);

@@ -225,6 +225,7 @@
         + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
         + ' ' + skills
         + ' <span>' + relativeTime(t.created_at) + '</span>'
+        + (t.scheduled_for ? ' <span class="pill pill-muted" title="Scheduled for ' + esc(t.scheduled_for) + 'Z">⏰ ' + relativeFuture(t.scheduled_for) + '</span>' : '')
         + (t.cost_usd ? ' <span>' + formatCost(t.cost_usd) + '</span>' : '')
         + '</div>'
         + '<div class="feed-detail" data-task-id="' + t.id + '"><p class="placeholder">Loading...</p></div>'
@@ -274,6 +275,9 @@
           if (task.started_at) {
             var dur = task.completed_at ? new Date(task.completed_at + 'Z').getTime() - new Date(task.started_at + 'Z').getTime() : null;
             html += '<div class="feed-detail-row"><span class="feed-detail-label">Duration</span><span class="feed-detail-value">' + formatDuration(dur) + '</span></div>';
+          }
+          if (task.scheduled_for) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Scheduled</span><span class="feed-detail-value">' + esc(task.scheduled_for) + 'Z (' + relativeFuture(task.scheduled_for) + ')</span></div>';
           }
           if (task.tokens_in || task.tokens_out) {
             html += '<div class="feed-detail-row"><span class="feed-detail-label">Tokens</span><span class="feed-detail-value">' + formatNumber(task.tokens_in) + ' in / ' + formatNumber(task.tokens_out) + ' out</span></div>';
