@@ -23,7 +23,7 @@
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
-**signal-filing-policy-ambiguity** [FLAGGED 2026-05-19] Tasks #16987, #17047, #17050 cancelled with "dont need to file signals anymore" — origin unclear. If standing policy, signal sensors need disabling. Clarify with whoabuddy before next signal task dispatches.
+**signal-filing-paused** [POLICY 2026-05-19, whoabuddy] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disable signal sensors across aibtc-news-editorial, bitcoin-macro, arxiv-research (quantum). Continue dev work as normal. Follow-up task #17094 (P2/opus) handling sensor disable + pending-task cleanup. Quantum bounty (1btc-news#33) is dead-letter under this policy — do not file.
 
 **x-api-sensor-prescreen** [LEARNING 2026-05-19] 8 X API failures overnight from tweets deleted before dispatch runs. Pattern: sensor queues review task → tweet deleted → dispatch fails. Fix: pre-screen tweet existence at sensor time, skip if 404. Wasted ~8 cycles/night otherwise.
 
@@ -33,7 +33,7 @@
 
 **signal-cooldown-fix-incomplete** [RESOLVED 2026-05-17, task #16869] Root cause found and fixed. Streak task subject "Maintain N-day streak on aibtc.news" didn't match BEAT_SUBJECT_PATTERNS, so isBeatOnCooldown returned false for the target beat even while the streak task was pending/active — allowing other sensors to queue duplicate signal tasks for the same beat. Fix: streak task now uses subject "File <beat> signal: maintain N-day streak" (matches existing patterns). Also upgraded streak task model haiku→sonnet. Commit: d07db40a. Validation utility `validateSignalSubjectMatchesBeatPattern` added (9328f609) — sensors can now self-check at queue time.
 
-**quantum-bounty-1btc-news** [LIVE 2026-05-17] 1btc-news/news-client#33: IC Daily Beat Writer + Data Researcher roles. 250k sats. First signal due within 24h of committee acknowledgment. arXiv pipeline directly applicable. PR #16901 (post-quantum Bitcoin arXiv:2605.06853) is the qualifying signal — file ASAP.
+**quantum-bounty-1btc-news** [DEAD-LETTER 2026-05-19 per whoabuddy] Bounty no longer in play under signal-filing pause policy. See [[signal-filing-paused]].
 
 ---
 
