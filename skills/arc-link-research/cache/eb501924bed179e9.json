@@ -1,0 +1,20 @@
+{
+  "url": "https://github.com/earendil-works/pi-mono",
+  "fetchedAt": "2026-05-19T05:26:53.383Z",
+  "contentType": "github",
+  "title": "pi",
+  "rawContent": "Repo: earendil-works/pi-mono\nDescription: AI agent toolkit: coding agent CLI, unified LLM API, TUI & web UI libraries, Slack bot, vLLM pods\nTopics: \nStars: 51345\n\nREADME:\n<p align=\"center\">\n  <a href=\"https://pi.dev\">\n    <img alt=\"pi logo\" src=\"https://pi.dev/logo-auto.svg\" width=\"128\">\n  </a>\n</p>\n<p align=\"center\">\n  <a href=\"https://discord.com/invite/3cU7Bz4UPx\"><img alt=\"Discord\" src=\"https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white\" /></a>\n</p>\n<p align=\"center\">\n  <a href=\"https://pi.dev\">pi.dev</a> domain graciously donated by\n  <br /><br />\n  <a href=\"https://exe.dev\"><img src=\"packages/coding-agent/docs/images/exy.png\" alt=\"Exy mascot\" width=\"48\" /><br />exe.dev</a>\n</p>\n\n> New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING.md).\n\n---\n\n# Pi Agent Harness Mono Repo\n\nThis is the home of the pi agent harness project including our self extensible coding agent.\n\n* **[@earendil-works/pi-coding-agent](packages/coding-agent)**: Interactive coding agent CLI\n* **[@earendil-works/pi-agent-core](packages/agent)**: Agent runtime with tool calling and state management\n* **[@earendil-works/pi-ai](packages/ai)**: Unified multi-provider LLM API (OpenAI, Anthropic, Google, â¦)\n\nTo learn more about pi:\n\n* [Visit pi.dev](https://pi.dev), the project website with demos\n* [Read the documentation](https://pi.dev/docs/latest), but you can also ask the agent to explain itself\n\n## Share your OSS coding agent sessions\n\nIf you use pi or other coding agents for open source work, please share your sessions.\n\nPublic OSS session data helps improve coding agents with real-world tasks, tool use, failures, and fixes instead of toy benchmarks.\n\nFor the full explanation, see [this post on X](https://x.com/badlogicgames/status/2037811643774652911).\n\nTo publish sessions, use [`badlogic/pi-share-hf`](https://github.com/badlogic/pi-share-hf). Read its README.md for setup instructions. All you need is a Hugging Face account, the Hugging Face CLI, and `pi-share-hf`.\n\nYou can also watch [this video](https://x.com/badlogicgames/status/2041151967695634619), where I show how I publish my `pi-mono` sessions.\n\nI regularly publish my own `pi-mono` work sessions here:\n\n- [badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)\n\n## All Packages\n\n| Package | Description |\n|---------|-------------|\n| **[@earendil-works/pi-ai](packages/ai)** | Unified multi-provider LLM API (OpenAI, Anthropic, Google, etc.) |\n| **[@earendil-works/pi-agent-core](packages/agent)** | Agent runtime with tool calling and state management |\n| **[@earendil-works/pi-coding-agent](packages/coding-agent)** | Interactive coding agent CLI |\n| **[@earendil-works/pi-tui](packages/tui)** | Terminal UI library with differential rendering |\n| **[@earendil-works/pi-web-ui](packages/web-ui)** | Web components for AI chat interfaces |\n\nFor Slack/chat automation and workflows see [earendil-works/pi-chat](https://github.com/earendil-works/pi-chat).\n\n## Contributing\n\nSee [CONTRIBUTING.md](CONTRIBUTING.md) for co",
+  "embeddedUrls": [
+    "https://pi.dev",
+    "https://pi.dev/logo-auto.svg",
+    "https://discord.com/invite/3cU7Bz4UPx",
+    "https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white",
+    "https://pi.dev",
+    "https://exe.dev",
+    "https://pi.dev",
+    "https://pi.dev/docs/latest",
+    "https://github.com/badlogic/pi-share-hf",
+    "https://huggingface.co/datasets/badlogicgames/pi-mono",
+    "https://github.com/earendil-works/pi-chat"
+  ]
+}
