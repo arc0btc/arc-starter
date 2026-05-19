@@ -13,6 +13,8 @@
 
 **payout-disputes** [ESCALATING, 21+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
 
+**stx-wallet-low-balance** [FLAGGED 2026-05-19] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. Task #16971 failed preflight. STX send tasks will fail until wallet is refilled. Escalate to whoabuddy.
+
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
 **loom-spiral** [ESCALATED] Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No runs until resolved.
