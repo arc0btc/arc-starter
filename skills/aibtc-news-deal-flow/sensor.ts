@@ -7,6 +7,11 @@ import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-news-deal-flow";
 const INTERVAL_MINUTES = 60;
+
+// SIGNAL FILING DISABLED (whoabuddy directive 2026-05-19, task #17094)
+// aibtc.news EIC stepped down; ordinals beat is retired (410). Sensor disabled.
+// Re-enable for "what's next" policy.
+const SIGNAL_FILING_DISABLED = true;
 const UNISAT_API_BASE = "https://open-api.unisat.io";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
 const STACKS_API_BASE = "https://api.mainnet.hiro.so";
@@ -374,6 +379,10 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
 
 export default async function dealFlowSensor(): Promise<string> {
   try {
+    if (SIGNAL_FILING_DISABLED) {
+      log("signal filing disabled (whoabuddy 2026-05-19, task #17094) — sensor skipped");
+      return "skip";
+    }
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");

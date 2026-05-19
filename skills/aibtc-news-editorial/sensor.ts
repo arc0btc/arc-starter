@@ -11,6 +11,11 @@ const API_BASE = "https://aibtc.news/api";
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 const BRIEF_SCORE_THRESHOLD = 50; // minimum score to queue brief compilation
 
+// SIGNAL FILING DISABLED (whoabuddy directive 2026-05-19, task #17094)
+// aibtc.news EIC stepped down, trading competition winding down.
+// Re-enable for "what's next" policy. Search SIGNAL_FILING_DISABLED to find gates.
+const SIGNAL_FILING_DISABLED = true;
+
 const log = createSensorLogger(SENSOR_NAME);
 
 async function fetchStatus(): Promise<Record<string, unknown> | null> {
@@ -174,25 +179,29 @@ export default async function aibtcNewsSensor(): Promise<string> {
             const taskExists = pendingTaskExistsForSource(streakSource);
 
             if (!taskExists && streak > 0) {
-              // Commit to the first available beat so the subject matches BEAT_SUBJECT_PATTERNS.
-              // Without this, isBeatOnCooldown won't detect this pending/completed task,
-              // allowing other sensors to queue a duplicate signal for the same beat.
-              const targetBeat = availableBeats[0];
-              const streakSubject = `File ${targetBeat} signal: maintain ${streak}-day streak`;
-              if (!validateSignalSubjectMatchesBeatPattern(streakSubject, targetBeat)) {
-                log(`error: subject does not match BEAT_SUBJECT_PATTERNS for ${targetBeat}: "${streakSubject}"`);
-                throw new Error(`Subject validation failed for beat ${targetBeat}: "${streakSubject}"`);
+              if (SIGNAL_FILING_DISABLED) {
+                log(`signal filing disabled (whoabuddy 2026-05-19, task #17094) — skipping streak task for ${availableBeats[0]}`);
+              } else {
+                // Commit to the first available beat so the subject matches BEAT_SUBJECT_PATTERNS.
+                // Without this, isBeatOnCooldown won't detect this pending/completed task,
+                // allowing other sensors to queue a duplicate signal for the same beat.
+                const targetBeat = availableBeats[0];
+                const streakSubject = `File ${targetBeat} signal: maintain ${streak}-day streak`;
+                if (!validateSignalSubjectMatchesBeatPattern(streakSubject, targetBeat)) {
+                  log(`error: subject does not match BEAT_SUBJECT_PATTERNS for ${targetBeat}: "${streakSubject}"`);
+                  throw new Error(`Subject validation failed for beat ${targetBeat}: "${streakSubject}"`);
+                }
+                log(`queuing streak task for beat ${targetBeat} (${streak}-day streak, available: ${availableBeats.join(", ")})`);
+                insertTask({
+                  subject: streakSubject,
+                  description: `Arc has a ${streak}-day signal-filing streak. File a signal to the \`${targetBeat}\` beat to maintain it. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat.\n\nUse: arc skills run --name aibtc-news-editorial -- file-signal --beat ${targetBeat} --claim <text> --evidence <text> --implication <text>`,
+                  skills: JSON.stringify(["aibtc-news-editorial"]),
+                  priority: 7,
+                  model: "sonnet",
+                  status: "pending",
+                  source: streakSource,
+                });
               }
-              log(`queuing streak task for beat ${targetBeat} (${streak}-day streak, available: ${availableBeats.join(", ")})`);
-              insertTask({
-                subject: streakSubject,
-                description: `Arc has a ${streak}-day signal-filing streak. File a signal to the \`${targetBeat}\` beat to maintain it. Do NOT file to infrastructure, agent-trading, dao-watch, dev-tools, or any retired beat.\n\nUse: arc skills run --name aibtc-news-editorial -- file-signal --beat ${targetBeat} --claim <text> --evidence <text> --implication <text>`,
-                skills: JSON.stringify(["aibtc-news-editorial"]),
-                priority: 7,
-                model: "sonnet",
-                status: "pending",
-                source: streakSource,
-              });
             }
           }
         }

@@ -38,6 +38,11 @@ const INTERVAL_MINUTES = 240; // 4 hours — fires 6×/day, daily cap gates actu
 const BEAT_SLUG = "bitcoin-macro";
 const MAX_HISTORY = 6; // rolling readings for trend detection
 
+// SIGNAL FILING DISABLED (whoabuddy directive 2026-05-19, task #17094)
+// aibtc.news EIC stepped down, trading competition winding down.
+// Re-enable for "what's next" policy. Search SIGNAL_FILING_DISABLED to find gates.
+const SIGNAL_FILING_DISABLED = true;
+
 // Fallback used when /api/beats is unreachable — prevents false-negative short-circuits.
 const KNOWN_BEAT = BEAT_SLUG;
 
@@ -604,6 +609,8 @@ export default async function bitcoinMacroSensor(): Promise<string> {
       const source = `sensor:${SENSOR_NAME}:${best.type}`;
       if (pendingTaskExistsForSource(source)) {
         log(`signal task already pending for source ${source}, skipping`);
+      } else if (SIGNAL_FILING_DISABLED) {
+        log(`signal filing disabled (whoabuddy 2026-05-19, task #17094) — would have queued ${best.type}: ${best.subject}`);
       } else {
         if (!validateSignalSubjectMatchesBeatPattern(best.subject, BEAT_SLUG)) {
           log(`error: subject does not match BEAT_SUBJECT_PATTERNS for ${BEAT_SLUG}: "${best.subject}"`);

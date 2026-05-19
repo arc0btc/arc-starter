@@ -27,6 +27,11 @@ const INTERVAL_MINUTES = 120; // every 2 hours
 const BEAT_SLUG = "agent-trading";
 const MAX_HISTORY = 8; // rolling window for change detection
 
+// SIGNAL FILING DISABLED (whoabuddy directive 2026-05-19, task #17094)
+// aibtc.news EIC stepped down; agent-trading beat is retired (410). Sensor disabled.
+// Re-enable for "what's next" policy.
+const SIGNAL_FILING_DISABLED = true;
+
 // No local fallback — sensor defers entirely to /api/beats for whether this beat is active.
 
 // ---- API endpoints ----
@@ -528,6 +533,10 @@ function pickNextSignalType(lastType: string | null): SignalType {
 // ---- Main sensor ----
 
 export default async function sensor(): Promise<string | void> {
+  if (SIGNAL_FILING_DISABLED) {
+    log("signal filing disabled (whoabuddy 2026-05-19, task #17094) — sensor skipped");
+    return "skip";
+  }
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

@@ -11,6 +11,11 @@ const ARXIV_API = "http://export.arxiv.org/api/query";
 const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
+// SIGNAL FILING DISABLED (whoabuddy directive 2026-05-19, task #17094)
+// aibtc.news EIC stepped down, trading competition winding down.
+// Re-enable for "what's next" policy. Digest fetch/compile remains active.
+const SIGNAL_FILING_DISABLED = true;
+
 // Default beats this sensor routes signals to. Used as fallback when /api/beats is unreachable.
 const KNOWN_BEATS: string[] = ["aibtc-network", "quantum"];
 
@@ -276,7 +281,9 @@ export default async function arxivResearchSensor(): Promise<string> {
     const infraPapers = newEntries.filter((e) => isAibtcInfraPaper(e.title));
     if (infraPapers.length > 0 && activeBeats.includes("aibtc-network")) {
       const signalSource = `sensor:${SENSOR_NAME}:infra-signal-${today}`;
-      if (isBeatOnCooldown("aibtc-network", 60)) {
+      if (SIGNAL_FILING_DISABLED) {
+        log(`signal filing disabled (whoabuddy 2026-05-19, task #17094) — would have queued aibtc-network signal for ${infraPapers.length} paper(s)`);
+      } else if (isBeatOnCooldown("aibtc-network", 60)) {
         log("beat cooldown active for aibtc-network (60min) — skipping infrastructure signal task");
       } else if (!pendingTaskExistsForSource(signalSource)) {
         const paperList = infraPapers
@@ -313,7 +320,9 @@ export default async function arxivResearchSensor(): Promise<string> {
     const quantumPapers = newEntries.filter((e) => isQuantumBeatPaper(e.title));
     if (quantumPapers.length > 0 && activeBeats.includes("quantum")) {
       const quantumSource = `sensor:${SENSOR_NAME}:quantum-signal-${today}`;
-      if (isBeatOnCooldown("quantum", 60)) {
+      if (SIGNAL_FILING_DISABLED) {
+        log(`signal filing disabled (whoabuddy 2026-05-19, task #17094) — would have queued quantum signal for ${quantumPapers.length} paper(s)`);
+      } else if (isBeatOnCooldown("quantum", 60)) {
         log("beat cooldown active for quantum (60min) — skipping quantum signal task");
       } else if (!pendingTaskExistsForSource(quantumSource)) {
         const paperList = quantumPapers

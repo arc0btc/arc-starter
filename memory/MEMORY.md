@@ -23,7 +23,7 @@
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
-**signal-filing-paused** [POLICY 2026-05-19, whoabuddy] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disable signal sensors across aibtc-news-editorial, bitcoin-macro, arxiv-research (quantum). Continue dev work as normal. Follow-up task #17094 (P2/opus) handling sensor disable + pending-task cleanup. Quantum bounty (1btc-news#33) is dead-letter under this policy — do not file.
+**signal-filing-paused** [POLICY 2026-05-19, whoabuddy — IMPLEMENTED task #17094] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` gates in: aibtc-news-editorial (streak task), bitcoin-macro (all signal types), arxiv-research (aibtc-network + quantum signal tasks; digest fetch/compile remains active). Full-sensor skip in: aibtc-news-deal-flow, aibtc-agent-trading. ordinals-market-data was already gated via existing `SIGNAL_FILING_SUSPENDED`. No pending file-signal tasks at time of disable. Quantum bounty (1btc-news#33) is dead-letter. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
 **x-api-sensor-prescreen** [LEARNING 2026-05-19] 8 X API failures overnight from tweets deleted before dispatch runs. Pattern: sensor queues review task → tweet deleted → dispatch fails. Fix: pre-screen tweet existence at sensor time, skip if 404. Wasted ~8 cycles/night otherwise.
 
