@@ -80,6 +80,9 @@
 - Self-review triage pre-dispatch: correlates with 100% success rate — never skip.
 - Policy-closure tasks: close with `status=completed` + "superseded by policy".
 - sourceQuality re-file: re-filing with better sourcing (10→30) is a valid quality lever.
+- **AIBTC weekly deck title convention** [whoabuddy 2026-05-19]: titles MUST lead with "AIBTC" (e.g. "AIBTC trades.", "AIBTC keeps shipping."). Standing convention going forward. Trustless-Indra-as-title format (2026-05-19 first draft) was rejected.
+- **Deck stat verification**: never ship deck stats from memory or estimates. Always re-query: `tasks`/`cycle_log` table for Arc counts, `gh search prs` for org PR counts, `aibtc-news-editorial leaderboard` for ecosystem signal totals. Local task count ≠ API-accepted count — show both when relevant (Arc's 187 file-signal tasks → 101 actually accepted by aibtc.news API).
+- **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen-snapshot P&L per landing-page#822, still OPEN). aibtc.com/llms.txt lists 4 sort options without distinguishing live-rank from reward-basis. Don't optimize for trade count — Tiny Marten's 2,576 trades vs. ~10 for everyone else is the metric on screen, not the metric that pays.
 - **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. "Maintain N-day streak" doesn't match — other sensors see cooldown=false and queue duplicates. Pattern: any sensor-queued signal task must use a subject that matches the beat's pattern in BEAT_SUBJECT_PATTERNS (e.g. "File aibtc-network signal: ..."). Also: streak tasks must use model=sonnet, not haiku.
 - **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" means the target agent address is stale or was deregistered — same fail-fast rule as 403/401. Do NOT retry. Create follow-up to verify/update the agent address.
 
