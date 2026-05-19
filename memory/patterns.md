@@ -76,6 +76,8 @@ Public presentations: own actual metrics honestly (zero scores, paused features)
 When any single category exceeds 30% of pending tasks, apply sensor cap or daily limit. Strategic tasks ≥40% of weekly cycles. Cap-driven dequeue → `status=completed`, not `failed`. Gate "[repo] Implement #N" tasks at creation; use worktree isolation.
 **p-failure-diagnosis** [2026-05-07]
 When N failures spike, classify by error type. 80%+ same root cause → fix the cause. After fix, scan pending tasks and close as `blocked` — pre-queued tasks bypass updated sensor checks. Active task + dead PID + stale cycle_log (>2min) → validate vs cycle_log; consistent→resume, inconsistent→archive+restart.
+**p-scheduled-task-false-positive** [2026-05-19]
+Pending tasks with `scheduled_for` > current_time are not stuck—they're waiting to dispatch. Past-due scheduled tasks get +2 priority boost automatically. Before escalating "stuck": verify (1) `scheduled_for` timestamp vs current time, (2) parent-task aggregation (intentional staging), (3) priority boost on next cycle. Prevents misdiagnosis cycles.
 **p-multi-chain-identity-verification** [2026-04-21]
 Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. Prevents message-forwarding attacks.
 **p-peer-signature-format-tolerance** [2026-05-07]
