@@ -1,0 +1,25 @@
+{
+  "url": "https://github.com/Delgan/loguru",
+  "fetchedAt": "2026-05-19T05:21:14.504Z",
+  "contentType": "github",
+  "title": "loguru",
+  "rawContent": "Repo: Delgan/loguru\nDescription: Python logging made (stupidly) simple\nTopics: python, logging, logger, log\nStars: 23883\n\nREADME:\n<p align=\"center\">\n    <a href=\"#readme\">\n        <img alt=\"Loguru logo\" src=\"https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/logo.png\">\n        <!-- Logo credits: Sambeet from Pixabay -->\n        <!-- Logo fonts: Comfortaa + Raleway -->\n    </a>\n</p>\n<p align=\"center\">\n    <a href=\"https://pypi.python.org/pypi/loguru\"><img alt=\"Pypi version\" src=\"https://img.shields.io/pypi/v/loguru.svg\"></a>\n    <a href=\"https://pypi.python.org/pypi/loguru\"><img alt=\"Python versions\" src=\"https://img.shields.io/badge/python-3.5%2B%20%7C%20PyPy-blue.svg\"></a>\n    <a href=\"https://loguru.readthedocs.io/en/stable/index.html\"><img alt=\"Documentation\" src=\"https://img.shields.io/readthedocs/loguru.svg\"></a>\n    <a href=\"https://github.com/Delgan/loguru/actions/workflows/tests.yml?query=branch:master\"><img alt=\"Build status\" src=\"https://img.shields.io/github/actions/workflow/status/Delgan/loguru/tests.yml?branch=master\"></a>\n    <a href=\"https://codecov.io/gh/delgan/loguru/branch/master\"><img alt=\"Coverage\" src=\"https://img.shields.io/codecov/c/github/delgan/loguru/master.svg\"></a>\n    <a href=\"https://app.codacy.com/gh/Delgan/loguru/dashboard\"><img alt=\"Code quality\" src=\"https://img.shields.io/codacy/grade/be7337df3c0d40d1929eb7f79b1671a6.svg\"></a>\n    <a href=\"https://github.com/Delgan/loguru/blob/master/LICENSE\"><img alt=\"License\" src=\"https://img.shields.io/github/license/delgan/loguru.svg\"></a>\n</p>\n<p align=\"center\">\n    <a href=\"#readme\">\n        <img alt=\"Loguru logo\" src=\"https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/demo.gif\">\n    </a>\n</p>\n\n______________________________________________________________________\n\n**Loguru** is a library which aims to bring enjoyable logging in Python.\n\nDid you ever feel lazy about configuring a logger and used `print()` instead?... I did, yet logging is fundamental to every application and eases the process of debugging. Using **Loguru** you have no excuse not to use logging from the start, this is as simple as `from loguru import logger`.\n\nAlso, this library is intended to make Python logging less painful by adding a bunch of useful functionalities that solve caveats of the standard loggers. Using logs in your application should be an automatism, **Loguru** tries to make it both pleasant and powerful.\n\n<!-- end-of-readme-intro -->\n\n## Installation\n\n```\npip install loguru\n```\n\n## Features\n\n- [Ready to use out of the box without boilerplate](#ready-to-use-out-of-the-box-without-boilerplate)\n- [No Handler, no Formatter, no Filter: one function to rule them all](#no-handler-no-formatter-no-filter-one-function-to-rule-them-all)\n- [Easier file logging with rotation / retention / compression](#easier-file-logging-with-rotation--retention--compression)\n- [Modern string formatting using braces style](#modern-string-formatting-using-braces-style)\n- [Exceptions catching within threads or main](#exceptions-catching-within-threads-or-main)\n- [Pretty logging with colors](#pretty-logging",
+  "embeddedUrls": [
+    "https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/logo.png",
+    "https://pypi.python.org/pypi/loguru",
+    "https://img.shields.io/pypi/v/loguru.svg",
+    "https://pypi.python.org/pypi/loguru",
+    "https://img.shields.io/badge/python-3.5%2B%20%7C%20PyPy-blue.svg",
+    "https://loguru.readthedocs.io/en/stable/index.html",
+    "https://img.shields.io/readthedocs/loguru.svg",
+    "https://github.com/Delgan/loguru/actions/workflows/tests.yml?query=branch:master",
+    "https://img.shields.io/github/actions/workflow/status/Delgan/loguru/tests.yml?branch=master",
+    "https://codecov.io/gh/delgan/loguru/branch/master",
+    "https://img.shields.io/codecov/c/github/delgan/loguru/master.svg",
+    "https://app.codacy.com/gh/Delgan/loguru/dashboard",
+    "https://img.shields.io/codacy/grade/be7337df3c0d40d1929eb7f79b1671a6.svg",
+    "https://github.com/Delgan/loguru/blob/master/LICENSE",
+    "https://img.shields.io/github/license/delgan/loguru.svg",
+    "https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/demo.gif"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "url": "https://github.com/Alishahryar1/free-claude-code",
+  "fetchedAt": "2026-05-19T05:21:07.315Z",
+  "contentType": "github",
+  "title": "free-claude-code",
+  "rawContent": "Repo: Alishahryar1/free-claude-code\nDescription: Use claude-code for free in the terminal, VSCode extension or discord like OpenClaw (voice supported)\nTopics: \nStars: 25806\n\nREADME:\n<div align=\"center\">\n\n# ð¤ Free Claude Code\n\nUse Claude Code CLI, VS Code, JetBrains ACP, or chat bots through your own Anthropic-compatible proxy.\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)\n[![Python 3.14](https://img.shields.io/badge/python-3.14-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)\n[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&style=for-the-badge)](https://github.com/astral-sh/uv)\n[![Tested with Pytest](https://img.shields.io/badge/testing-Pytest-00c0ff.svg?style=for-the-badge)](https://github.com/Alishahryar1/free-claude-code/actions/workflows/tests.yml)\n[![Type checking: Ty](https://img.shields.io/badge/type%20checking-ty-ffcc00.svg?style=for-the-badge)](https://pypi.org/project/ty/)\n[![Code style: Ruff](https://img.shields.io/badge/code%20formatting-ruff-f5a623.svg?style=for-the-badge)](https://github.com/astral-sh/ruff)\n[![Logging: Loguru](https://img.shields.io/badge/logging-loguru-4ecdc4.svg?style=for-the-badge)](https://github.com/Delgan/loguru)\n\nFree Claude Code routes Anthropic Messages API traffic from Claude Code to NVIDIA NIM, Kimi, Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, or Ollama. It keeps Claude Code's client-side protocol stable while letting you choose free, paid, or local models.\n\n[Quick Start](#quick-start) Â· [Providers](#choose-a-provider) Â· [Clients](#connect-claude-code) Â· [Integrations](#optional-integrations) Â· [Development](#development)\n\n</div>\n\n<div align=\"center\">\n  <img src=\"assets/pic.png\" alt=\"Free Claude Code in action\" width=\"700\">\n</div>\n\n## Star History\n\n<div align=\"center\">\n  <a href=\"https://star-history.com/#Alishahryar1/free-claude-code&Date\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date&theme=dark\">\n      <source media=\"(prefers-color-scheme: light)\" srcset=\"https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date\">\n      <img alt=\"Star History Chart\" src=\"https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date\" width=\"700\">\n    </picture>\n  </a>\n</div>\n\n## What You Get\n\n- Drop-in proxy for Claude Code's Anthropic API calls.\n- Ten provider backends: NVIDIA NIM, Kimi, Wafer, OpenRouter, DeepSeek, LM Studio, llama.cpp, Ollama, OpenCode Zen, and Z.ai.\n- Per-model routing: send Opus, Sonnet, Haiku, and fallback traffic to different providers.\n- Native Claude Code `/model` picker support through the proxy's `/v1/models` endpoint (Claude Code must opt in to Gateway model discovery; see [Model Picker](#model-picker)).\n- Streaming, tool use, reasoning/thinking block handling, and local request optimizations.\n- Optional Discord or Telegram bot wrapper for remote coding sessions.\n- Optional Usage through the VSCode extension.\n- Optional v",
+  "embeddedUrls": [
+    "https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge",
+    "https://opensource.org/licenses/MIT",
+    "https://img.shields.io/badge/python-3.14-3776ab.svg?style=for-the-badge&logo=python&logoColor=white",
+    "https://www.python.org/downloads/",
+    "https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json&style=for-the-badge",
+    "https://github.com/astral-sh/uv",
+    "https://img.shields.io/badge/testing-Pytest-00c0ff.svg?style=for-the-badge",
+    "https://github.com/Alishahryar1/free-claude-code/actions/workflows/tests.yml",
+    "https://img.shields.io/badge/type%20checking-ty-ffcc00.svg?style=for-the-badge",
+    "https://pypi.org/project/ty/",
+    "https://img.shields.io/badge/code%20formatting-ruff-f5a623.svg?style=for-the-badge",
+    "https://github.com/astral-sh/ruff",
+    "https://img.shields.io/badge/logging-loguru-4ecdc4.svg?style=for-the-badge",
+    "https://github.com/Delgan/loguru",
+    "https://star-history.com/#Alishahryar1/free-claude-code&Date",
+    "https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date&theme=dark",
+    "https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date",
+    "https://api.star-history.com/svg?repos=Alishahryar1/free-claude-code&type=Date"
+  ]
+}
