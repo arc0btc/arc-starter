@@ -1,3 +1,49 @@
+## 2026-05-19T08:43:00.000Z — context-review PR/welcome skip; presentation title convention; 119 skills / 73 sensors
+
+**Task #17070** | Diff: 16c82bbc → 2d4fa54c (2 structural commits) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(context-review): exclude multi-PR review tasks and welcome tasks from false-positive checks** (e69abb6a): `checkMissingSkillCoverage` in `skills/context-review/sensor.ts` gained two new skip conditions. (1) PR review tasks matching `/^Review (PR #\d+|[\w/-]+ PRs? #\d+)/` — PR titles embedded in task subjects contain domain keywords from the PR content, not from what the review task needs. (2) Welcome tasks (`source.startsWith("welcome:")` or `subject.startsWith("Welcome new AIBTC agent:")`) fail due to infrastructure issues (STX balance), not missing skill context — already excluded from `checkEmptySkillsFailed`, now also excluded from `checkMissingSkillCoverage`. Closes the PR-title false positive class.
+- **feat/refactor(presentation)** (f26453ec + 2d4fa54c): AIBTC 2026-05-19 weekly deck generated then revised per whoabuddy feedback. Key changes: AIBTC-led title convention applied ("AIBTC trades."), trading-comp moved to front matter (slides 1–3), stats re-verified against source (88 PRs via gh search, 101 API-accepted signals vs. 187 local task count, 10 beats, 80 days), trading scoring mismatch (live sort ≠ frozen-snapshot reward basis) surfaced on slide 1. Title convention now documented in MEMORY.md as standing rule.
+- **Watch report 2026-05-19T01:05Z**: 14/14 completed (0 failures), $5.47. Five x402-sponsor-relay PRs (#382–#386) reviewed and approved. Claude Code upgraded v2.1.141→v2.1.144 (Skill tool headless regression fix). Signals queued: aibtc-network #16987 (07:05Z), quantum #16988 (08:00Z, arXiv:2605.02276). STX wallet 89,332 microSTX — below 100k send threshold. Welcome tasks will fail until refilled.
+
+### Step 2 — Delete
+
+- No deletions this window.
+- `drafts/` gitignored for presentation drafts (issue body + email reply pending whoabuddy sign-off) — correct pattern.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `context-review/sensor.ts` `checkMissingSkillCoverage` now has 13+ skip conditions. The list is growing incrementally as each new false-positive class is identified and patched. Each condition is justified by a concrete real case — no premature abstraction needed yet. If the count exceeds ~20, consider a `SKIP_SUBJECT_PATTERNS: Array<RegExp | ((task: RecentTask) => boolean)>` table to reduce function length. Not urgent.
+- Presentation pipeline required two commits (feat + refactor) due to title convention violation in the initial draft. MEMORY.md now has the standing rule. Next deck should be clean in one commit.
+
+### Step 4 — Accelerate
+
+- 14/14 success, zero failures. Pipeline nominal.
+- Signals self-scheduled via research task (#16984) — pipeline working as designed.
+- STX wallet low balance is the active bottleneck: welcome tasks fail until wallet refilled. Escalated to whoabuddy.
+
+### Step 5 — Automate
+
+- No new automation opportunities this window.
+
+### Flags
+
+- **[RESOLVED]** context-review false positives for PR review tasks (e69abb6a). PR title keywords no longer trigger `missing_skill_coverage` findings.
+- **[CARRY-WATCH]** context-review skip list growing (13+ conditions). Monitor; refactor if >20.
+- **[CARRY-WATCH]** STX wallet critically low (~89k microSTX) — welcome tasks failing. Escalated. No STX sends until refilled.
+- **[CARRY-WATCH]** amber-otter credential exposure (PR #389 CHANGES_REQUESTED) — needs resolution and rotation.
+- **[CARRY-WATCH]** trading-comp-mirror sensor sunset — competition-end guard still needed.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — #382–#386 approved this window; #379/#380 status unknown.
+- **[CARRY-WATCH]** PR #387 (windleg yield rotator) — awaiting author.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-18T20:41:00.000Z — emailing→completed auto-transition fix; 119 skills / 73 sensors
 
 **Task #16978** | Diff: 694e251f → 16c82bbc (1 structural commit) | Sensors: 73 | Skills: 119
