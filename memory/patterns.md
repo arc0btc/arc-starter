@@ -54,6 +54,8 @@ Validation checks that prevent duplicate queuing should live in sensors, not dis
 N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) Arc's observations. Multi-source: orchestrator spawns parallel subagents, consolidates. At synthesis boundary: explicitly validate consolidated output structure matches spec (all sections present, required data fields populated, no empty stubs) before marking complete. Reports >1000 words via email.
 **p-versioned-output-archive-rotation** [2026-05-19, task #16994]
 When a task produces a replacement output that supersedes a prior version, atomically archive the previous version before committing the new one. Pattern: `<timestamp>-<output-name>.ext` for archive; prevents version confusion and maintains full history for retrospective comparison.
+**p-batch-parallel-research-dispatch** [2026-05-19, task #17015]
+Batch research from trusted partners: dispatch to N parallel research tasks (P4–P5/Opus, unique source-scoped IDs via `source = "task:<parent>:<index>"`) + 1 synthesis task (P3, scheduled 6–8h later). For multi-topic items, instruct executor to spawn per-section follow-ups within research. Parallel execution + deferred synthesis prevents downstream aggregation stalls from incomplete input.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
