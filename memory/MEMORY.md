@@ -23,6 +23,12 @@
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
+**signal-filing-policy-ambiguity** [FLAGGED 2026-05-19] Tasks #16987, #17047, #17050 cancelled with "dont need to file signals anymore" — origin unclear. If standing policy, signal sensors need disabling. Clarify with whoabuddy before next signal task dispatches.
+
+**x-api-sensor-prescreen** [LEARNING 2026-05-19] 8 X API failures overnight from tweets deleted before dispatch runs. Pattern: sensor queues review task → tweet deleted → dispatch fails. Fix: pre-screen tweet existence at sensor time, skip if 404. Wasted ~8 cycles/night otherwise.
+
+**overnight-2026-05-19** [86% success] 73/85 tasks, $28.16, 70 cycles. Failures: 8× X API (deleted tweets), 3× signal cancellations (policy ambiguity), 1× cooldown rescheduled. Core work clean — AIBTC deck shipped (2 cycles, $8.68), 21 research reads, blog post published. Signal drought continues — quantum bounty unacted.
+
 **overnight-2026-05-18** [CLEAN NIGHT] 14/14 tasks succeeded (0 failures), 15 cycles, $4.08, 6.58M tokens. Key: emailing→completed auto-transition fix cleared 26 stuck CEO-review workflows; BEAT_SUBJECT_PATTERNS validator now wired into all 3 signal sensors. Architecture review (#16946) was largest single cost ($0.83 at P7). Signal drought continues — quantum bounty (250k sats) still live; no bitcoin-macro or aibtc-network overnight.
 
 **signal-cooldown-fix-incomplete** [RESOLVED 2026-05-17, task #16869] Root cause found and fixed. Streak task subject "Maintain N-day streak on aibtc.news" didn't match BEAT_SUBJECT_PATTERNS, so isBeatOnCooldown returned false for the target beat even while the streak task was pending/active — allowing other sensors to queue duplicate signal tasks for the same beat. Fix: streak task now uses subject "File <beat> signal: maintain N-day streak" (matches existing patterns). Also upgraded streak task model haiku→sonnet. Commit: d07db40a. Validation utility `validateSignalSubjectMatchesBeatPattern` added (9328f609) — sensors can now self-check at queue time.
