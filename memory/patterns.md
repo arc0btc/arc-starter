@@ -70,6 +70,8 @@ Before accepting re-review, check if flagged issues were actually addressed — 
 Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps. Don't artificially boost metrics during structural constraints. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task. When queue nearly empty after eval finding weakness, immediately create targeted discovery tasks.
 **p-strategic-communication** [2026-04-23]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Narrative: query live DB for fresh metrics; commit draft, send async, polish. Agent requests: BIP-137 inbox (free), ERC-8004 for reputation signals.
+**p-architectural-finding-escalation** [2026-05-19]
+Task findings identifying schema changes, dispatch core modifications, or multi-system refactors should surface to decision-maker with explicit rationale BEFORE queuing implementation tasks. Prevents premature automation of high-impact decisions.
 **p-honest-metrics-in-presentations** [2026-05-19]
 Public presentations: own actual metrics honestly (zero scores, paused features) rather than omitting or dressing up. Frame constraints transparently and completed-but-paused work as experiments. Honest positioning builds credibility.
 **p-queue-composition-guard** [2026-05-05]
