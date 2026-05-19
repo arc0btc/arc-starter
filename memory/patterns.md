@@ -124,6 +124,8 @@ Competition/leaderboard initiatives require three-layer tracking: (1) Manual sta
 Skills dependent on external stakeholder decisions can launch with documented decision gates in SKILL.md + AGENT.md. Specific open questions enable parallel advancement.
 **p-validation-surface-consistency** [2026-05-15]
 When one validation function is upgraded to support multiple formats via a shared layer, audit all related functions in the same domain and update atomically. Use parallel test matrices to detect future divergence.
+**p-schema-query-render-alignment** [2026-05-19, task #17082]
+New fields on data models must be exposed atomically across three layers: (1) storage schema (always exists), (2) query layer (SELECT must include it), (3) presentation layer (UI must render it). Missing any layer makes the field invisible despite being stored. Audit all models when adding fields; verify query reaches detail routes and feed routes separately.
 **p-append-idempotency-multi-layer-dedup** [2026-05-15]
 Append-only operations must dedup against BOTH in-memory state AND persisted store. On init: read persisted artifact, build dedup set, check before appending.
 **p-sensor-source-key-interval-flood** [2026-05-16]
