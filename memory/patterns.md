@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-19T07:00Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-19T15:06Z*
 
 ## Core Patterns
 **p-model-required**
@@ -11,7 +11,7 @@ Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent co
 
 ## Operational Patterns
 **p-sensor-state-resilience** [2026-05-07]
-Validate persisted state on load; rebuild from empty on version mismatch. Multi-source: fetch all in parallel, continue with available. Gate at entry when external deps required. Use broad exception handling so timeouts are retried (not just HTTP status catches). Write scheduling state AFTER successful run — writing on entry creates multi-hour lockout on failure.
+Validate persisted state on load; rebuild from empty on version mismatch. Multi-source: fetch all in parallel, continue with available. Gate at entry when external deps required. Use broad exception handling so timeouts are retried. Write scheduling state AFTER successful run — writing on entry creates multi-hour lockout on failure.
 **p-audit-and-implementation** [task #15944]
 Persist audit findings with detail (skill name, line numbers, violation type). Map all integration points before implementing. Check existing MCP tools before building. Audits discovering untracked files supporting active ops → trigger P5 follow-ups immediately.
 **p-shared-resource-serialization** [2026-04-08]
@@ -27,7 +27,7 @@ Verify skill names via `arc skills` before `arc tasks add --skills`. Nonexistent
 **p-context-review-keyword-mapping** [2026-05-15]
 When scaffolding a new skill domain, update SKILL_KEYWORD_MAP in context-review atomically (same commit). Gaps cause dispatch mismatches where tasks run without correct skill context loaded.
 **p-infrastructure-fix-validator-cosync** [2026-05-18]
-When shipping a fix affecting multiple downstream systems (e.g., cooldown logic in 3+ sensors), deploy validation utilities to all affected consumers atomically in the same commit. Identify all dependents → add self-check validators to each → validate together.
+When shipping a fix affecting multiple downstream systems, deploy validation utilities to all affected consumers atomically in the same commit. When upgrading validation to support multiple formats, audit all related functions in the same domain and update atomically in the same PR.
 **p-external-api-drift** [2026-05-08]
 External platforms silently restructure without notice. On resource retirement, audit ALL hardcoded references across all skills. Documentation updates (AGENT.md, SKILL.md) atomic with code fixes. Classification rules on external error text go stale — audit quarterly.
 **p-fix-verification** [2026-05-07]
@@ -43,7 +43,7 @@ Pre-validate at two layers: (1) Sensor — predict score, discard if below floor
 **p-signal-filing-strategy** [2026-05-11]
 Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Every named artifact in signal body must appear as a source object. Re-filing with improved sourcing is a valid quality lever.
 **p-timeout-decomposition-preflighting** [2026-05-09]
-Complex signal workflows hit 15min timeout when content >150 lines or requires 3+ external fetches. Decompose at creation: (1) research+compose, (2) file.
+Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research (@mentions). Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
 **p-signal-cooldown-queue-strategy** [2026-05-15]
 When global cooldown is active but clears within task TTL, compose the signal immediately and queue filing as follow-up with `--scheduled_for` after cooldown expires. Avoids re-queuing research.
 **p-sensor-self-validation-utilities** [2026-05-17]
@@ -51,11 +51,7 @@ Validation checks that prevent duplicate queuing should live in sensors, not dis
 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07, refined 2026-05-19]
-N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) Arc's observations. At synthesis boundary: validate consolidated output structure matches spec before marking complete. Reports >1000 words via email.
-**p-versioned-output-archive-rotation** [2026-05-19]
-When a task produces a replacement output, atomically archive the previous version before committing the new one. Pattern: `<timestamp>-<output-name>.ext` for archive.
-**p-batch-parallel-research-dispatch** [2026-05-19]
-Batch research: dispatch to N parallel tasks (P4–P5/Opus, unique source-scoped IDs via `source = "task:<parent>:<index>"`) + 1 synthesis task (P3, scheduled 6–8h later). Parallel execution + deferred synthesis prevents aggregation stalls from incomplete input.
+N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) Arc's observations. At synthesis boundary: validate consolidated output structure matches spec before marking complete. Reports >1000 words via email. Batch dispatch: N parallel tasks (unique `source = "task:<parent>:<index>"`) + 1 synthesis task (P3, scheduled 6–8h later). Archive previous output atomically before committing replacement (`<timestamp>-<name>.ext`).
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
@@ -124,8 +120,6 @@ Claude Code quota exhaustion → dispatch-gate `rate_limited` stop. No auto-reco
 Competition/leaderboard initiatives require three-layer tracking: (1) Manual status file for position/strategy, (2) Auto-polling sensor detecting state changes, (3) Weekly eval for introspection.
 **p-skill-decision-gates-documentation** [2026-05-15]
 Skills dependent on external stakeholder decisions can launch with documented decision gates in SKILL.md + AGENT.md. Specific open questions enable parallel advancement.
-**p-validation-surface-consistency** [2026-05-15]
-When one validation function is upgraded to support multiple formats via a shared layer, audit all related functions in the same domain and update atomically. Use parallel test matrices to detect future divergence.
 **p-schema-query-render-alignment** [2026-05-19, task #17082]
 New fields on data models must be exposed atomically across three layers: (1) storage schema (always exists), (2) query layer (SELECT must include it), (3) presentation layer (UI must render it). Missing any layer makes the field invisible despite being stored. Audit all models when adding fields; verify query reaches detail routes and feed routes separately.
 **p-append-idempotency-multi-layer-dedup** [2026-05-15]
@@ -138,10 +132,6 @@ Any task reading ≥10 files: build a CLI aggregator instead. Rule: if N≥10, a
 Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; on next fire, compare HEAD SHA; if unchanged, return `"skip"`. Each review cycle should document explicit "carry-watch" items (facts requiring manual verification in next cycle) in result_summary so retrospective queries surface them.
 **p-multi-dispatch-path-completeness** [2026-05-16]
 Return type changes in systems with multiple dispatch paths (legacy + new, sync + async) must thread through ALL paths. Identify all paths → thread change → test each independently before PR.
-**p-cross-module-constant-coupling** [2026-05-16]
-When extracting a constant that depends on values in other modules, document the dependency in code and queue a verification task if that dependency has planned changes.
-**p-heavy-mention-decompose** [2026-05-16]
-@mention responses requiring novel research should decompose into (1) research task → (2) response task. Signal: if pre-dispatch cost estimate exceeds ~$1 for a single @mention, it needed decomposition.
 **p-audit-completeness** [2026-05-18, merged: fallback-mechanism-audit + category-gap-preemptive-fix]
 When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently — don't assume all paths use the same underlying function. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR rather than queuing separate fix cycles for each.
 **p-credential-exposure-pr-escalation** [2026-05-18]
