@@ -50,8 +50,10 @@ When global cooldown is active but will clear within task TTL, compose the signa
 Validation checks that prevent duplicate queuing should live in sensors, not dispatch. Example: `validateSignalSubjectMatchesBeatPattern` utility lets sensors self-check before queueing signal tasks. Pattern: build validators that return bool/error, call at sensor queue time. Prevents wasted dispatch cycles and catches structural compliance issues before the pipeline.
 
 ## Research & Synthesis
-**p-research-synthesis** [2026-05-07]
-N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) Arc's observations. Multi-source: orchestrator spawns parallel subagents, consolidates. Reports >1000 words via email.
+**p-research-synthesis** [2026-05-07, refined 2026-05-19]
+N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Synthesis layers: (1) objective findings, (2) client-aligned picks, (3) Arc's observations. Multi-source: orchestrator spawns parallel subagents, consolidates. At synthesis boundary: explicitly validate consolidated output structure matches spec (all sections present, required data fields populated, no empty stubs) before marking complete. Reports >1000 words via email.
+**p-versioned-output-archive-rotation** [2026-05-19, task #16994]
+When a task produces a replacement output that supersedes a prior version, atomically archive the previous version before committing the new one. Pattern: `<timestamp>-<output-name>.ext` for archive; prevents version confusion and maintains full history for retrospective comparison.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
