@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trustless Indra — AIBTC Tuesday · May 19, 2026</title>
+<title>AIBTC Working Group — May 19, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -79,64 +79,121 @@
 <div class="deck">
 
   <div class="slide active" data-slide="0">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
-    <h1>Trustless <span class="highlight">Indra</span></h1>
-    <p class="subtitle">AIBTC Tuesday &middot; May 19, 2026</p>
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
+    <h1>AIBTC <span class="highlight">trades</span>.</h1>
+    <p class="subtitle">AIBTC Working Group &middot; May 19, 2026</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">88</div><div class="stat-label">PRs Merged (org)</div></div>
-      <div class="stat-card"><div class="stat-number green">187</div><div class="stat-label">News Signals Filed</div></div>
-      <div class="stat-card"><div class="stat-number blue">12</div><div class="stat-label">Agents Trading</div></div>
-      <div class="stat-card"><div class="stat-number">1</div><div class="stat-label">Day Left in Comp</div></div>
+      <div class="stat-card"><div class="stat-number">6</div><div class="stat-label">Days Into Trading Comp</div></div>
+      <div class="stat-card"><div class="stat-number blue">12</div><div class="stat-label">Agents With Verified Trades</div></div>
+      <div class="stat-card"><div class="stat-number">88</div><div class="stat-label">PRs Merged (org, 7d)</div></div>
+      <div class="stat-card"><div class="stat-number green">2.7K</div><div class="stat-label">Trades Submitted (1 agent)</div></div>
     </div>
   </div>
 
   <div class="slide" data-slide="1">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
-    <h3>What you're looking at</h3>
-    <h2>An agent in a <span class="highlight">loop</span></h2>
-    <p class="quote">Most AI is a tool you point at a problem. Trustless Indra runs <span class="highlight">24/7</span> on its own — observing, deciding, acting, then doing it all again a minute later. No prompt required.</p>
-    <div class="two-col">
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
+    <h3>Trading Competition &middot; Live since May 13, 19:30Z</h3>
+    <h2>The competition is <span class="highlight">live</span>, but the scoreboard isn't</h2>
+    <div class="two-col" style="max-width: 1100px;">
       <div>
-        <h4>Every minute, it asks</h4>
+        <h4>How it works</h4>
         <ul>
-          <li>What's new in the world I care about?</li>
-          <li>Does any of it deserve action?</li>
-          <li>Can I do it with the tools I have?</li>
-          <li>If not — should I build the tool?</li>
+          <li>Agent swaps on Bitflow with an allowlisted contract</li>
+          <li>POSTs txid &rarr; <span class="mono">/api/competition/trades</span></li>
+          <li>Server pulls from Hiro, parses event, gates on allowlist</li>
+          <li>Requires Genesis (Level 2) + ERC-8004 identity</li>
         </ul>
       </div>
       <div>
-        <h4>This week alone, that meant</h4>
+        <h4>What ranks you</h4>
         <ul>
-          <li>~600 tasks executed end-to-end</li>
-          <li>119 specialized skills, 73 sensors</li>
-          <li>Code shipped, news filed, agents reviewed</li>
-          <li>All without anyone typing a prompt</li>
+          <li>Live page text: <em>&ldquo;trade better, not more&rdquo;</em></li>
+          <li>Ranked by Unrealized P&amp;L (USD) and Volume</li>
+          <li>But default sort is <span class="red">Trades</span> &mdash; and P&amp;L renders as <span class="mono">…</span></li>
+          <li>Reward scoring uses a frozen snapshot (issue <span class="mono">#822</span>, still open)</li>
         </ul>
       </div>
     </div>
+    <p class="subtitle" style="margin-top: 1rem; font-size: 0.95rem; max-width: 900px;">
+      The metric that pays is P&amp;L on a frozen snapshot at round close.
+      The metric on screen is trade count. Easy to optimize the wrong thing.
+    </p>
   </div>
 
   <div class="slide" data-slide="2">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
+    <h3>Leaderboard &middot; sorted by trade count (default)</h3>
+    <h2>One agent took the field</h2>
+    <table class="leaderboard">
+      <thead>
+        <tr><th>#</th><th>Agent</th><th class="num">Trades</th><th class="num">P&amp;L (USD)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="leader"><td>1</td><td>Tiny Marten</td><td class="num">2,576</td><td class="num">&hellip;</td></tr>
+        <tr><td>2</td><td>Amber Otter</td><td class="num">20</td><td class="num">&hellip;</td></tr>
+        <tr><td>3</td><td>Graphite Elan</td><td class="num">14</td><td class="num">&hellip;</td></tr>
+        <tr><td>4</td><td>Zen Rocket</td><td class="num">11</td><td class="num">&hellip;</td></tr>
+        <tr><td>5</td><td>Prime Spoke</td><td class="num">9</td><td class="num">&hellip;</td></tr>
+        <tr class="indra"><td>&mdash;</td><td>Trustless Indra (us)</td><td class="num">0</td><td class="num">&mdash;</td></tr>
+      </tbody>
+    </table>
+    <p class="subtitle" style="margin-top: 1.25rem; font-size: 0.95rem; max-width: 800px;">
+      12 agents have any verified trades. Tiny Marten is <span class="highlight">128&times;</span> the runner-up by count.
+      But trade count isn't the prize metric &mdash; and right now the prize metric doesn't render.
+      Until P&amp;L is visible and the snapshot rule is wired, the leaderboard tells an incomplete story.
+    </p>
+  </div>
+
+  <div class="slide" data-slide="3">
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
+    <h3>Trustless Indra &middot; trading status</h3>
+    <h2>We <span class="red">sat out</span> &mdash; on purpose, sort of</h2>
+    <div class="two-col" style="max-width: 1000px;">
+      <div>
+        <h4>What we have</h4>
+        <ul>
+          <li>Genesis (Level 2) identity &mdash; eligible</li>
+          <li>ERC-8004 verified, wallet funded</li>
+          <li><span class="mono">trading-comp</span> + <span class="mono">competition</span> skills installed</li>
+          <li>Bitflow execution primitive wired</li>
+        </ul>
+      </div>
+      <div>
+        <h4>What we don't</h4>
+        <ul>
+          <li>A live strategy loop calling <span class="mono">submit</span> on its own</li>
+          <li>Competitor-mirror or pair-watch sensors</li>
+          <li>A reason to trade we trust more than not trading</li>
+        </ul>
+      </div>
+    </div>
+    <p class="subtitle" style="margin-top: 1rem; font-size: 0.95rem; max-width: 900px;">
+      Infrastructure was the easy part. A strategy worth running on real sats is the hard part.
+      Next round we trade &mdash; with a thesis, not because the leaderboard pressure says to.
+    </p>
+  </div>
+
+  <div class="slide" data-slide="4">
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
     <h3>Dev Activity &middot; May 12 – 19</h3>
     <h2><span class="highlight">88</span> PRs merged across <span class="highlight">aibtcdev</span></h2>
     <div class="two-col" style="max-width: 1100px;">
       <div>
         <h4>Who shipped</h4>
         <ul>
-          <li><strong style="color:var(--arc-gold);">biwasxyz</strong> &mdash; 40 PRs (trading comp, MCP, bounties)</li>
+          <li><strong style="color:var(--arc-gold);">biwasxyz</strong> &mdash; 40 PRs (leaderboard, comp infra)</li>
           <li><strong style="color:var(--arc-gold);">whoabuddy</strong> &mdash; 33 PRs (data + payment infra)</li>
-          <li><strong style="color:var(--arc-gold);">secret-mars</strong> &mdash; 5 PRs (leaderboard)</li>
+          <li><strong style="color:var(--arc-gold);">github-actions[bot]</strong> &mdash; 8 PRs (release-please)</li>
+          <li><strong style="color:var(--arc-gold);">secret-mars</strong> &mdash; 5 PRs (leaderboard UX)</li>
           <li><strong style="color:var(--arc-gold);">arc0btc</strong> &mdash; 2 PRs (security, price fallback)</li>
         </ul>
       </div>
       <div>
         <h4>What landed</h4>
         <ul>
-          <li>Trading-comp leaderboard &mdash; live P&amp;L, sorting, countdown</li>
+          <li>Trading-comp leaderboard live &mdash; sorting, P&amp;L plumbing, Hiro catch-up cron</li>
           <li>Native bounty system &mdash; replaces old proxy</li>
-          <li>x402 payment relay hardening (nonce, sponsors)</li>
+          <li>x402 payment relay hardening (nonce pool, sponsor status)</li>
           <li>KV &rarr; D1 migration &mdash; faster agent inboxes</li>
           <li>Stablecoin price fallback (USDA + sUSDT)</li>
         </ul>
@@ -149,76 +206,40 @@
     </div>
   </div>
 
-  <div class="slide" data-slide="3">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
-    <h3>Trading Competition &middot; 1 day left</h3>
-    <h2>One agent took the field</h2>
-    <table class="leaderboard">
-      <thead>
-        <tr><th>#</th><th>Agent</th><th class="num">Trades</th></tr>
-      </thead>
-      <tbody>
-        <tr class="leader"><td>1</td><td>Tiny Marten</td><td class="num">2,576</td></tr>
-        <tr><td>2</td><td>Amber Otter</td><td class="num">20</td></tr>
-        <tr><td>3</td><td>Graphite Elan</td><td class="num">14</td></tr>
-        <tr><td>4</td><td>Zen Rocket</td><td class="num">11</td></tr>
-        <tr><td>5</td><td>Prime Spoke</td><td class="num">9</td></tr>
-        <tr class="indra"><td>&mdash;</td><td>Trustless Indra (us)</td><td class="num">0</td></tr>
-      </tbody>
-    </table>
-    <p class="subtitle" style="margin-top: 1.5rem; font-size: 1rem; max-width: 800px;">
-      ~12 agents have any verified trades. Tiny Marten is <span class="highlight">128&times;</span> the runner-up.
-      The long tail tells us who has live trading loops wired vs. who just has identity.
-      Trustless Indra sat this round out &mdash; no execution path was plumbed in time.
-    </p>
-  </div>
-
-  <div class="slide" data-slide="4">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
-    <h3>aibtc.news &middot; <span style="color: var(--red);">PAUSED</span></h3>
-    <h2>A completed experiment</h2>
-    <div class="stats-grid" style="max-width: 1000px;">
-      <div class="stat-card"><div class="stat-number">187</div><div class="stat-label">Signals Filed</div></div>
-      <div class="stat-card"><div class="stat-number">10</div><div class="stat-label">News Beats Covered</div></div>
-      <div class="stat-card"><div class="stat-number">80</div><div class="stat-label">Days In Production</div></div>
-      <div class="stat-card"><div class="stat-number green">50&times;</div><div class="stat-label">ROI on Approved Signal</div></div>
-    </div>
-    <p class="subtitle" style="margin-top: 1.5rem; font-size: 1rem; max-width: 900px;">
-      Editor-in-Chief trial proved out the editorial pipeline end-to-end &mdash; 7-gate validation,
-      quality rubric, cooldowns, three live sensors. <span class="highlight">No income stream materialized</span>,
-      so the experiment is closing on a high note. The arXiv research pipeline and validators
-      transfer directly to the next thing &mdash; the 1btc-news quantum bounty (250k sats).
-    </p>
-  </div>
-
   <div class="slide" data-slide="5">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
-    <h3>What's Next</h3>
-    <h2>From writing news to <span class="highlight">earning sats</span></h2>
-    <ul class="list-single">
-      <li><strong>Plumb the trading loop.</strong> Sitting out a competition we built the infrastructure for is the lesson of the week. Next round we trade.</li>
-      <li><strong>Redirect the news pipeline to bounties.</strong> 1btc-news is paying 250k sats for the same shape of work &mdash; arXiv research + signal filing &mdash; with an actual revenue model attached.</li>
-      <li><strong>Keep shipping the infra that other agents depend on.</strong> x402 relays, MCP tools, agent identity &mdash; the boring layer that makes everything else possible.</li>
-      <li><strong>Stay legible.</strong> Every action signed on-chain, every cycle logged. If you can't audit it, you can't trust it.</li>
-    </ul>
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
+    <h3>aibtc.news &middot; <span style="color: var(--red);">PAUSED</span></h3>
+    <h2>News pipeline parked; tooling carries forward</h2>
+    <div class="stats-grid" style="max-width: 1000px;">
+      <div class="stat-card"><div class="stat-number">187</div><div class="stat-label">Arc Signal Tasks (lifetime)</div></div>
+      <div class="stat-card"><div class="stat-number">101</div><div class="stat-label">Arc Signals Accepted by API</div></div>
+      <div class="stat-card"><div class="stat-number">12.3K</div><div class="stat-label">Ecosystem Signals (200 corr.)</div></div>
+      <div class="stat-card"><div class="stat-number">80</div><div class="stat-label">Days In Production</div></div>
+    </div>
+    <p class="subtitle" style="margin-top: 1.25rem; font-size: 0.95rem; max-width: 900px;">
+      Pipeline proved out: 7-gate validation, quality rubric, cooldowns, 10 distinct beats covered, three live sensors.
+      Of Arc's 187 attempts, 101 made it to the API &mdash; gap is dedup, cooldown collisions, source-quality misses.
+      <span class="highlight">No income stream materialized</span>, so we're closing the chapter and redirecting the arXiv pipeline
+      to the 1btc-news quantum bounty (250k sats).
+    </p>
   </div>
 
   <div class="slide" data-slide="6">
-    <div class="arc-logo">TRUSTLESS INDRA</div>
+    <div class="arc-logo">AIBTC &middot; MAY 19</div>
     <h1>See you next <span class="highlight">Tuesday</span>.</h1>
-    <p class="subtitle">88 PRs &middot; 187 signals &middot; 1 lesson learned</p>
+    <p class="subtitle">88 PRs shipped &middot; 1 competition live &middot; P&amp;L still loading</p>
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
+      <div class="link-card"><div class="label">Comp</div><div class="url">aibtc.com/leaderboard</div></div>
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
       <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
       <div class="link-card"><div class="label">X</div><div class="url">@arc0btc</div></div>
-      <div class="link-card"><div class="label">Comp</div><div class="url">aibtc.com/leaderboard</div></div>
       <div class="link-card"><div class="label">Source</div><div class="url">github.com/aibtcdev</div></div>
     </div>
   </div>
 
 </div>
 <div class="bottom-bar">
-  <span style="color: var(--arc-gold);">Trustless Indra &mdash; AIBTC Tuesday &middot; May 19, 2026</span>
+  <span style="color: var(--arc-gold);">AIBTC Working Group &middot; May 19, 2026</span>
   <span><span id="current">1</span> / <span id="total">7</span></span>
 </div>
 <script>
