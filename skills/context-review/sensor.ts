@@ -221,9 +221,10 @@ function checkMissingSkillCoverage(
   // not to what the reputation review task itself needs.
   if (task.subject.startsWith("Submit reputation review:")) return findings;
 
-  // PR review tasks: the PR title in the subject (e.g. "Review PR #427 on landing-page: Stacker achievement")
-  // contains domain keywords from the PR content, not from what the review task itself needs.
-  if (/^Review PR #\d+/.test(task.subject)) return findings;
+  // PR review tasks: the PR title in the subject (e.g. "Review PR #427 on landing-page: Stacker achievement"
+  // or "Review aibtcdev/skills PRs #386 #387: BFF competition winner skills") contains domain keywords
+  // from the PR content, not from what the review task itself needs.
+  if (/^Review (PR #\d+|[\w/-]+ PRs? #\d+)/.test(task.subject)) return findings;
   // Audit tasks similarly embed issue/PR titles (e.g. "Produce prioritized achievements audit for landing-page#384")
   if (/audit for [\w/-]+#\d+/.test(task.subject)) return findings;
 
@@ -333,6 +334,10 @@ function checkEmptySkillsFailed(
   // Test/audit tasks are deliberately crafted to exercise dispatch behavior — missing skills is by design.
   // "test" (bare) and "test:" prefix both indicate manual test invocations, not operational tasks.
   if (task.subject === "test" || task.subject.startsWith("test:") || task.source?.startsWith("human:audit")) return [];
+
+  // Welcome tasks run a script (model: "script") to send an on-chain welcome message.
+  // They fail due to infrastructural issues (e.g. low STX balance), not missing skill context.
+  if (task.source?.startsWith("welcome:") || task.subject.startsWith("Welcome new AIBTC agent:")) return [];
 
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
