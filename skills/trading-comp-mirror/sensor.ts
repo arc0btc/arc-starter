@@ -22,6 +22,7 @@ const TRADES_PER_POLL = 50;
 const MAX_CACHED_TRADES = 500;
 const MAX_SEEN_TXIDS_PER_ADDR = 200;
 const COMP_START_TIMESTAMP = 1778700600; // 2026-05-13T19:30:00Z
+const COMP_END_TIMESTAMP = 1779305400; // 2026-05-20T19:30:00Z (1 week from start)
 
 const API_BASE =
   process.env.AIBTC_CAMPAIGN_API_URL ?? "https://aibtc.com/api/competition";
@@ -66,6 +67,19 @@ export default async function (): Promise<string> {
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
+
+  // Competition ended; disable sensor (whoabuddy directive 2026-05-19)
+  const nowTimestamp = Math.floor(Date.now() / 1000);
+  if (nowTimestamp >= COMP_END_TIMESTAMP) {
+    log("competition ended; sensor disabled");
+    await writeHookState(SENSOR_NAME, {
+      last_ran: new Date().toISOString(),
+      last_result: "disabled",
+      version: 1,
+      seen_txids: {},
+    });
+    return "skip";
+  }
 
   const competitorsFile = Bun.file(COMPETITORS_PATH);
   if (!(await competitorsFile.exists())) {
