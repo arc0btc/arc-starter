@@ -1,3 +1,56 @@
+## 2026-05-19T20:43:00.000Z — signal filing disabled policy (5 sensors); scheduled_for web visibility; 119 skills / 73 sensors
+
+**Task #17110** | Diff: 2d4fa54c → 2709582a (4 structural commits) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **chore(sensors): disable signal filing** (01daaa58): `SIGNAL_FILING_DISABLED = true` constant added to 5 sensors. whoabuddy directive (2026-05-19, task #17094) — aibtc.news EIC stepped down, trading competition winding down. Impact by sensor:
+  - `aibtc-news-editorial`: streak task gated; inactivity/beat checks remain active
+  - `bitcoin-macro`: all signal task creation gated; data collection/fetch continues
+  - `arxiv-research`: aibtc-network + quantum signal tasks gated; digest fetch/compile active
+  - `aibtc-news-deal-flow`: full sensor skip
+  - `aibtc-agent-trading`: full sensor skip (ordinals-market-data already had `SIGNAL_FILING_SUSPENDED`)
+  - Re-enable path: grep `SIGNAL_FILING_DISABLED`, flip to `false` in each of the 5 files
+- **feat(web): surface scheduled_for** (12de85b7): Web dashboard task feed now includes `scheduled_for` column in all 4 query paths. Deferred tasks show a "⏰ in Xh" pill in feed rows and a Scheduled timestamp in detail panel. Previously invisible — pending + deferred tasks looked identical in the UI.
+- **Overnight brief 2026-05-19T13:09Z**: 73/85 success (86%), $28.16. 8× X API failures (deleted tweets — known pattern, fix pending), 3× signal cancellations ("dont need to file signals anymore" — pre-dating disable commit), 1× cooldown rescheduled. AIBTC Tuesday deck shipped (2 cycles, $8.68). STX wallet ~89k microSTX (below 100k send threshold).
+
+### Step 2 — Delete
+
+- `trading-comp-mirror` sensor: competition is "winding down" per the same whoabuddy directive that triggered signal filing pause. Sensor continues polling `/api/competition/trades` every 10 min with no actionable output. **Promote from WATCH → ACTION**: disable or add `COMP_END_TIMESTAMP` self-gate. Creating follow-up task.
+- 5-file `SIGNAL_FILING_DISABLED` scatter: minor code smell. When re-enable lands, 5 files need manual updates. Could be a single shared constant in `src/sensors.ts` or a DB flag. Acceptable for a temporary policy pause; the comment in each file points to the same task (#17094). Not worth adding shared infrastructure unless the pause extends >1 month or re-enable becomes error-prone.
+
+### Step 3 — Simplify
+
+- Signal disable pattern is consistent: same constant name, same comment format, same re-enable instruction in each sensor. Per-sensor granularity is intentional — allows partial re-enable (e.g., aibtc-network before bitcoin-macro). This is the right level of abstraction.
+- `context-review` skip list: still at 13+ conditions (CARRY-WATCH from prior audit). No new conditions added this window — not growing.
+- Web `scheduled_for` change: clean, minimal. 4 query paths updated uniformly.
+
+### Step 4 — Accelerate
+
+- Signal filing pause = ~0 signal tasks queued = lower nightly cost. Deliberate deceleration.
+- `scheduled_for` UI visibility removes the need for DB queries to find deferred tasks — operational improvement for dispatch monitoring.
+- Active bottlenecks unchanged: STX wallet (welcome tasks fail), Loom spiral (no runs), amber-otter PR #389.
+
+### Step 5 — Automate
+
+- `trading-comp-mirror` sunset: sensor should self-disable when competition ends. No automation path today — manual action required. Follow-up task created this cycle.
+
+### Flags
+
+- **[RESOLVED]** Signal filing disabled across 5 sensors (01daaa58) — policy implementation complete. Queue EMPTY at time of disable. Re-enable when "what's next" policy lands.
+- **[NEW-ACTION]** trading-comp-mirror sunset — competition winding down. Disable sensor or add competition-end self-gate. Follow-up task created.
+- **[CARRY-WATCH]** x-api-sensor-prescreen — 8 wasted cycles/night from deleted tweets. Fix: check tweet existence at sensor time (skip if 404). Task #17094 context: known pattern, no fix yet.
+- **[CARRY-WATCH]** STX wallet critically low (~89k microSTX) — welcome tasks failing. Escalated to whoabuddy.
+- **[CARRY-WATCH]** amber-otter credential exposure (PR #389 CHANGES_REQUESTED) — needs resolution and rotation.
+- **[CARRY-WATCH]** context-review skip list growing (13+ conditions). Monitor; refactor if >20.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** x402-sponsor-relay PRs #379/#380 — awaiting whoabuddy review.
+
+---
+
 ## 2026-05-19T08:43:00.000Z — context-review PR/welcome skip; presentation title convention; 119 skills / 73 sensors
 
 **Task #17070** | Diff: 16c82bbc → 2d4fa54c (2 structural commits) | Sensors: 73 | Skills: 119
