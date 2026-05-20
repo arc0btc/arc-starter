@@ -23,6 +23,7 @@ import {
   insertTask,
   upsertSkillVersion,
   markTaskActive,
+  markTaskBlocked,
   markTaskCompleted,
   markTaskFailed,
   requeueTask,
@@ -676,7 +677,7 @@ const SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
 interface ScriptResult {
   result_summary: string;
   result_detail: string;
-  status: "completed" | "failed";
+  status: "completed" | "failed" | "blocked";
 }
 
 /**
@@ -761,6 +762,7 @@ async function dispatchScript(script: string, skillNames: string[]): Promise<Scr
     // a naive tail+truncate would cut the actionable error mid-string.
     const stderrLines = stderr.trim().split("\n").filter(Boolean);
     let primary: string | null = null;
+    let blocked = false;
     for (let i = stderrLines.length - 1; i >= 0; i--) {
       const line = stderrLines[i].trim();
       if (!line.startsWith("{")) continue;
@@ -768,6 +770,13 @@ async function dispatchScript(script: string, skillNames: string[]): Promise<Scr
         const parsed = JSON.parse(line) as Record<string, unknown>;
         if (parsed.success === false || typeof parsed.error === "string") {
           primary = line;
+          // Recoverable preflight conditions (e.g. insufficient STX balance) — don't
+          // burn retries or trip the gate; surface as blocked for human/refill.
+          const preflight = parsed.preflight as { safe_to_broadcast?: boolean } | undefined;
+          const errStr = typeof parsed.error === "string" ? parsed.error : "";
+          if (preflight?.safe_to_broadcast === false || /Pre-flight blocked/i.test(errStr)) {
+            blocked = true;
+          }
           break;
         }
       } catch {
@@ -776,7 +785,7 @@ async function dispatchScript(script: string, skillNames: string[]): Promise<Scr
     }
     const fallback = stderrLines.slice(-5).join("\n") || stdout.trim().split("\n").slice(0, 3).join("\n");
     const summary = (primary ?? fallback ?? `Script exited with code ${exitCode}`).slice(0, 500);
-    return { result_summary: summary, result_detail: detail, status: "failed" };
+    return { result_summary: summary, result_detail: detail, status: blocked ? "blocked" : "failed" };
   }
 }
 
@@ -996,6 +1005,11 @@ export async function runDispatch(): Promise<void> {
       if (scriptResult.status === "completed") {
         markTaskCompleted(task.id, scriptResult.result_summary, scriptResult.result_detail);
         recordGateSuccess();
+      } else if (scriptResult.status === "blocked") {
+        // Recoverable precondition (e.g. wallet balance) — don't requeue or trip the gate.
+        markTaskBlocked(task.id, scriptResult.result_summary);
+        log(`dispatch/script: task #${task.id} blocked — ${scriptResult.result_summary.slice(0, 160)}`);
+        insertServiceLog("warn", "dispatch", `script task #${task.id} blocked: ${scriptResult.result_summary.slice(0, 160)}`, task.id);
       } else {
         // Check retries
         const attemptNumber = task.attempt_count + 1;

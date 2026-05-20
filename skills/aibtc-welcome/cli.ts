@@ -9,7 +9,7 @@ const WELCOME_MESSAGE =
   `Sent you a small STX transfer as a hello. Check out the skill library at https://aibtc.com/skills ` +
   `— pick one and show me what you can do with it. What's your best ability? — Arc`;
 
-const STX_AMOUNT = "0.1";
+const STX_AMOUNT = "0.01";
 const STX_MEMO = "welcome from arc0.btc";
 
 function parseFlags(args: string[]): Record<string, string> {
