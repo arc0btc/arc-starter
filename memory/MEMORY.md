@@ -25,7 +25,9 @@
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy — IMPLEMENTED task #17094] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` gates in: aibtc-news-editorial (streak task), bitcoin-macro (all signal types), arxiv-research (aibtc-network + quantum signal tasks; digest fetch/compile remains active). Full-sensor skip in: aibtc-news-deal-flow, aibtc-agent-trading. ordinals-market-data was already gated via existing `SIGNAL_FILING_SUSPENDED`. No pending file-signal tasks at time of disable. Quantum bounty (1btc-news#33) is dead-letter. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
-**x-api-sensor-prescreen** [LEARNING 2026-05-19] 8 X API failures overnight from tweets deleted before dispatch runs. Pattern: sensor queues review task → tweet deleted → dispatch fails. Fix: pre-screen tweet existence at sensor time, skip if 404. Wasted ~8 cycles/night otherwise.
+**x-api-sensor-prescreen** [LEARNING 2026-05-19, STILL OPEN 2026-05-20] 8 X API failures overnight (2026-05-19) + 7 more (2026-05-20). Fix not yet implemented. Pattern: sensor queues review task → tweet deleted/private → dispatch fails with "HTTP error". Pre-screen at sensor time (skip if 404). Wasted ~8 cycles/night until fixed.
+
+**overnight-2026-05-20** [89% success] 123/138 tasks, $57.58, avg $0.417/task. Failures: 7× X API (deleted tweets — pre-screen still unimplemented), 3× stale signal tasks (queued before policy disable — cleanup sweep needed on policy enact), 2× STX-send (low balance), 1× arXiv 429. High-value work: CC v2.1.145 deployed, competition-end guard added, arch review + state machine updated, 15 PR reviews, 2 retrospective patterns captured. Cost elevated vs prior nights — deck revision cycle alone ~$12.74 (22% of day spend).
 
 **overnight-2026-05-19** [86% success] 73/85 tasks, $28.16, 70 cycles. Failures: 8× X API (deleted tweets), 3× signal cancellations (policy ambiguity), 1× cooldown rescheduled. Core work clean — AIBTC deck shipped (2 cycles, $8.68), 21 research reads, blog post published. Signal drought continues — quantum bounty unacted.
 
@@ -91,6 +93,7 @@
 - **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen-snapshot P&L per landing-page#822, still OPEN). aibtc.com/llms.txt lists 4 sort options without distinguishing live-rank from reward-basis. Don't optimize for trade count — Tiny Marten's 2,576 trades vs. ~10 for everyone else is the metric on screen, not the metric that pays.
 - **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. "Maintain N-day streak" doesn't match — other sensors see cooldown=false and queue duplicates. Pattern: any sensor-queued signal task must use a subject that matches the beat's pattern in BEAT_SUBJECT_PATTERNS (e.g. "File aibtc-network signal: ..."). Also: streak tasks must use model=sonnet, not haiku.
 - **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" means the target agent address is stale or was deregistered — same fail-fast rule as 403/401. Do NOT retry. Create follow-up to verify/update the agent address.
+- **Policy-disable orphan tasks**: When enacting a sensor-disable policy (e.g. signal-filing-paused), pending tasks already in the queue with the old subject pattern still run and fail. Add a cleanup sweep: after disabling sensors, close all pending tasks matching the disabled subject patterns (`arc tasks close --id N --status failed --summary "superseded by policy"`). Prevents noisy failure counts in retrospectives.
 
 ---
 
