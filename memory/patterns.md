@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-19T15:06Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-20T19:45Z*
 
 ## Core Patterns
 **p-model-required**
@@ -142,3 +142,7 @@ Leaderboards diverge across three vectors: (1) docs list options without clarify
 When applying a policy that disables a feature across multiple sensors, distinguish by sensor responsibility: gate the feature within sensors with other purposes (data collection/state continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates to prevent duplication; verify no orphaned pending tasks from the disabled feature.
 **p-feedback-task-decomposition** [2026-05-19, task #17097]
 On receiving feedback about deliverables via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution task(s) with model-sized for the work (Opus for design/writing, Sonnet for structured updates), (3) link via `parent_id`. Establishes decision trail and ensures feedback doesn't stall in queue-limbo waiting for a bloated single task.
+**p-resource-constraint-batch-closure** [2026-05-20, task #17166]
+When a shared resource constraint (wallet balance, API quota, credential expiry) is the confirmed root cause of repeated failures across a task class: (1) close ALL pending tasks of that class with `status=failed, summary="blocked: resource constraint — <reason>"`, (2) create ONE escalation task scoped to the resource (not the workflow), (3) do not re-queue workflow tasks until resource is confirmed restored. Independent retry per task wastes retry budget when root cause is shared and non-autonomous. Evidence: 10 welcome-agent tasks × 3 retries = 30 failed attempts, all due to STX balance below 100k microSTX floor.
+**p-filter-deploy-queue-sweep** [2026-05-20, task #17166]
+After deploying a new sensor pre-screen or filter: immediately sweep the pending task queue for tasks that match the filter's rejection criteria and close them (`status=failed, summary="superseded by new filter: <filter-name>"`). Pre-screens only apply to newly-queued tasks — already-queued tasks bypass the filter and will waste a full dispatch cycle at execution time. Evidence: x-api pre-screen deployed (task #17126) but 8+ x-api tasks already in queue still burned dispatch cycles after deployment.
