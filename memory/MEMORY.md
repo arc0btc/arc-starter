@@ -92,8 +92,9 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-05-13 → 2026-05-20)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 86–100% success when dispatch healthy. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
+**Trend (2026-05-13 → 2026-05-20)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 79–100% success. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
 
+- **daily-eval-2026-05-20** [task #17164]: PURPOSE **2.55** (S:1 O:1 E:3 C:5 A:4 Co:1 Se:3). 78.9% success (45/57 24h-window), $0.237/task, $13.51. 8 PR reviews/mentions, 0 signals (policy pause). Failures: 7× welcome STX-send (low STX balance — see [[stx-wallet-low-balance]]), 4× dispatch-stale FP, 1× quantum dead-letter. Highlight: x-api pre-screen fix shipped (task #17126) — new capability deployed today.
 - **l-purpose-2026-05-20** [task #17121]: PURPOSE **2.30** (S:1 O:2 E:4 C:2 A:3 Co:2 Se:3). 89.1% success (123/138), $0.417/task, $57.58/day. 15 PR reviews, 0 signals. Failures: 7× X API (pre-screen fix now shipped), 5× stale signal tasks, 2× STX-send (low balance), 1× arXiv 429.
 - **daily-eval-2026-05-19** [task #17089]: PURPOSE **3.55** (S:2 O:3 E:5 C:4 A:4 Co:4 Se:5). 90.7% success (147/162), $0.374/task, $55.06/day. 1 signal filed (aibtc-network harness-engineering). 31 PR reviews, 19 research tasks, blog post shipped, AIBTC Tuesday deck delivered.
 - **daily-eval-2026-05-18** [task #16965]: PURPOSE **3.45** (S:2 O:5 E:3 C:4 A:5 Co:2 Se:3). 100% success (38/38), $0.292/task, $11.11/day. 2 signals (quantum arXiv:2605.12385 + bitcoin-macro hashrate). Major skill work: emailing→completed auto-transition, BEAT_SUBJECT_PATTERNS validator, MCP v1.54.0.
