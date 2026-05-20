@@ -1,3 +1,50 @@
+## 2026-05-20T19:36:00.000Z — competition sunset; x-api dispatch pre-screen; welcome STX reduction; script blocked status; 119 skills / 73 sensors
+
+**Task #17149** | Diff: 2709582a → 6012ea3a (4 structural commits) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(trading-comp-mirror): competition-end self-gate** (727751a1): `COMP_END_TIMESTAMP = 2026-05-20T19:30:00Z` added. Sensor now self-disables when competition ends — fires right now (current time 19:36Z). Directly implements [NEW-ACTION] from 2026-05-19 audit.
+- **fix(x-api): dispatch-time tweet pre-screen** (6418d431): Three-part fix for 15 wasted X API cycles (2 nights). `arc-link-research/AGENT.md` + `arc-email-sync/AGENT.md` gain dispatch-time pre-screen guidance. `social-x-ecosystem/sensor.ts` filters x.com/twitter.com self-references from `extractUrls()`. Complements sensor-time pre-screen from task #17126. Resolves [CARRY-WATCH] x-api-sensor-prescreen from prior audit.
+- **fix(dispatch): script blocked status for preflight failures** (a1e4ddd0): `dispatchScript()` now detects `preflight.safe_to_broadcast === false` and returns `status: "blocked"`. `runDispatch()` calls `markTaskBlocked()` instead of consuming retries or tripping the gate. Targets the 7× welcome STX-send preflight failures/day from stx-wallet-low-balance.
+- **fix(aibtc-welcome): STX_AMOUNT 0.1→0.01 STX** (a1e4ddd0): Reduced from 100k µSTX to 10k µSTX per welcome. With ~89k µSTX balance, 0.1 STX was impossible; 0.01 STX allows ~7-8 more sends before depletion. Directly unblocks welcome pipeline.
+
+### Step 2 — Delete
+
+- `trading-comp-mirror`: sensor is now benign (always "skip"). No urgent deletion required — but can be uninstalled at next housekeeping pass. Zero cost to leave, minimal value to keep.
+- No other deletions this window.
+
+### Step 3 — Simplify
+
+- dispatch blocked status: clean addition — 15 lines, imports one new function. No over-engineering.
+- STX amount reduction: single constant change. The right fix for the immediate problem (wallet depleted) without requiring a wallet refill.
+- x-api pre-screen: AGENT.md guidance is the correct layer — sensors already have the pre-screen logic; dispatch-time guidance covers the case where an orchestrator session creates subtasks inline.
+
+### Step 4 — Accelerate
+
+- Welcome task failure class: 7×/day → near-zero. Blocked tasks won't burn retries or trip the daily gate.
+- Trading-comp-mirror: 10-min polling eliminated — reduces sensor cycle overhead.
+- x-api pre-screen: dispatch cycles for inaccessible tweets now fail early (closed early from AGENT.md guidance) rather than after full task execution.
+
+### Step 5 — Automate
+
+- No new automation opportunities this cycle. All 4 changes are targeted bug/policy fixes.
+
+### Flags
+
+- **[RESOLVED]** trading-comp-mirror sunset — COMP_END_TIMESTAMP self-gate fired (competition ended 2026-05-20T19:30Z). Sensor auto-disabled (727751a1).
+- **[RESOLVED]** x-api dispatch pre-screen gap — AGENT.md guidance shipped for arc-link-research + arc-email-sync (6418d431).
+- **[NEW-WATCH]** script dispatch blocked status — verify welcome tasks appear as `blocked` (not `failed`) in next dispatch window. Check `arc tasks --status blocked`.
+- **[NEW-WATCH]** aibtc-welcome 0.01 STX — at ~89k µSTX balance, ~7-8 sends possible. STX wallet still needs refill; escalated to whoabuddy.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — 0.01 STX/send buys time but wallet must be refilled.
+- **[CARRY-WATCH]** amber-otter credential exposure (PR #389) — unresolved.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-19T20:43:00.000Z — signal filing disabled policy (5 sensors); scheduled_for web visibility; 119 skills / 73 sensors
 
 **Task #17110** | Diff: 2d4fa54c → 2709582a (4 structural commits) | Sensors: 73 | Skills: 119
