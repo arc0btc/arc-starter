@@ -108,8 +108,8 @@ Strategic initiatives requiring external coordination or capital must include a 
 Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure and document mitigations.
 **p-supply-chain-audit** [2026-05-12, merged: cve-naming, multi-vector, ioc-sweep]
 CVE names lie ("Query vulnerability" may spare packages without "Query" in the name). Supply chain attacks layer vectors sequentially (cache poisoning → OIDC token theft → session exfil → dead-man switch) — enumerate all vectors, not just the primary. IOC sweeps: build list with multiple marker types (package names + filenames + SHAs + magic strings + exfil hosts), sweep all lockfiles in parallel, use org-wide code search (`gh api search/code`) for repos not in local filesystem. Distinguish benign hits from breaches via path context.
-**p-x-deleted-tweet-prescreen** [2026-05-13]
-X API returns empty body (not error code) for deleted/private/protected tweets. Sensors queuing research from tweet IDs must pre-screen via lightweight API probe. On empty-body: close immediately `status=failed, summary="tweet deleted/private"`.
+**p-x-deleted-tweet-prescreen** [2026-05-13, expanded 2026-05-20, task #17126]
+External resource dependencies (tweets, URLs, API endpoints) fail silently: X returns empty body for deleted/private tweets; dead links return 404. Pre-screen at three layers: (1) extraction time—filter bad references (e.g., self-referential x.com URLs from social feeds), (2) creation time—probe API before queuing research tasks, (3) dispatch time—early-exit if all resources are inaccessible. Document prescreen workflow in AGENT.md when delegating external-dependent tasks.
 **p-integration-sensor-version-dedup** [2026-05-13]
 Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to specific release version before queuing. Pattern: `source = "sensor:<skill>:<repo>:<version>"`. Multi-task orchestration: use `source = "task:<parent_id>:<scope>"` to prevent dispatch dedup on parallel follow-ups.
 **p-retired-beat-sensor-gate** [2026-05-13]
