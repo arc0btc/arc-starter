@@ -10,7 +10,23 @@ You are Arc, processing a batch of links for research analysis. The task descrip
 
 Parse URLs from the task description. They may be comma-separated, newline-separated, or embedded in prose.
 
-### 2. Fetch Each Link
+### 2. Pre-screen X/Twitter links (if any)
+
+If the task contains x.com or twitter.com tweet URLs, pre-screen them before doing any fetch work:
+
+```bash
+arc skills run --name arc-link-research -- prescreen --links "url1,url2,..."
+```
+
+If ALL links are x.com tweets and ALL are inaccessible (deleted/private), close the task immediately as failed:
+
+```bash
+arc tasks close --id <task_id> --status failed --summary "All x.com links inaccessible (deleted or private) — no content to research"
+```
+
+If only some x.com links are inaccessible, continue with the accessible ones.
+
+### 3. Fetch Each Link
 
 For each URL:
 - **X/Twitter posts:** Use the CLI — it fetches via X API with OAuth automatically
@@ -18,7 +34,7 @@ For each URL:
 - **GitHub repos/PRs/issues:** Use `gh api` or `gh repo view` / `gh pr view` / `gh issue view`
 - **If fetch fails:** Note the failure with specific error (e.g. "needs X API auth"), don't dismiss as "likely low relevance"
 
-### 3. Evaluate Relevance
+### 4. Evaluate Relevance
 
 Rate each link against our mission lens. Cast a **wide net** — Arc operates across many domains:
 
@@ -41,14 +57,14 @@ Rate each link against our mission lens. Cast a **wide net** — Arc operates ac
 
 Each rating gets a one-line justification.
 
-### 4. Extract Takeaways
+### 5. Extract Takeaways
 
 For each link, pull out:
 - 2-3 key points or insights
 - Any implications for our skills, capabilities, or strategy
 - Cross-references to existing Arc skills or gaps that suggest new ones
 
-### 5. Write the Report
+### 6. Write the Report
 
 Use the CLI to process links:
 ```bash
@@ -87,7 +103,7 @@ Or if executing directly, write the report to `research/{ISO8601}_research.md` w
 - Follow-up task or skill suggestion
 ```
 
-### 6. Close the Task
+### 7. Close the Task
 
 ```bash
 arc tasks close --id <task_id> --status completed --summary "Analyzed N links: X high, Y medium, Z low relevance"

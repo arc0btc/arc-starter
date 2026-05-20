@@ -155,8 +155,18 @@ const URL_RE = /https?:\/\/[^\s)]+/g;
 function extractUrls(text: string): string[] {
   const matches = text.match(URL_RE);
   if (!matches) return [];
-  // Filter out t.co shortlinks that are just twitter's own wrapping
-  return matches.filter((u) => !u.startsWith("https://t.co/"));
+  return matches.filter((u) => {
+    // Filter out t.co shortlinks (Twitter's own URL wrapping)
+    if (u.startsWith("https://t.co/")) return false;
+    // Filter out x.com/twitter.com self-references — the tweet is already captured via tweet ID
+    try {
+      const host = new URL(u).hostname;
+      if (host === "x.com" || host === "twitter.com") return false;
+    } catch {
+      return false;
+    }
+    return true;
+  });
 }
 
 function isHighSignal(tweet: Tweet): boolean {

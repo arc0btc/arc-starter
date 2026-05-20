@@ -79,6 +79,16 @@ arc tasks add --subject "<action description>" --priority <1-8> --skills <releva
 
 Priority guide: P1-4 (Opus) for code/architecture/PR review, P5-7 (Sonnet) for composition/reports, P8+ (Haiku) for simple ops. Include `--skills` when the work touches a specific skill domain.
 
+#### Research tasks with x.com / Twitter URLs
+
+Before creating individual "Research: x.com/..." tasks for tweet links, pre-screen them:
+
+```bash
+arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/ID1,https://x.com/user/status/ID2"
+```
+
+The output is JSON with `accessible` and `skipped` arrays. Only create tasks for URLs in `accessible`. If a tweet is deleted or private, skip it — there's nothing to research and the task will fail.
+
 ### 7. Close the Task
 
 ```bash

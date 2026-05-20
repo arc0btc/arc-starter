@@ -24,13 +24,22 @@ No sensor — triggered by human task creation or ecosystem sensor signals. X/Tw
 ## CLI
 
 ```
-arc skills run --name research -- process --links "url1,url2,url3"
-arc skills run --name research -- list
+arc skills run --name arc-link-research -- prescreen --links "url1,url2,..."
+arc skills run --name arc-link-research -- process --links "url1,url2,url3"
+arc skills run --name arc-link-research -- list
+```
+
+### prescreen
+
+**Use this before creating research tasks for x.com/Twitter URLs.** Checks each tweet for accessibility (deleted or private tweets return inaccessible). Returns JSON with `accessible` and `skipped` arrays. Only create tasks for URLs in `accessible`.
+
+```bash
+arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/123,https://x.com/user/status/456"
 ```
 
 ### process
 
-Fetches each link, evaluates mission relevance (high/medium/low), extracts key takeaways, and writes a timestamped report to `research/`. Raw fetched content is cached in `arc-link-research/cache/` by URL hash — subsequent calls for the same URL skip the network fetch. Embedded URLs from tweets (article links via t.co) are automatically followed and cached.
+Fetches each link, evaluates mission relevance (high/medium/low), extracts key takeaways, and writes a timestamped report to `research/`. X/Twitter links are pre-screened automatically inside `process` — inaccessible tweets are skipped. Raw fetched content is cached in `arc-link-research/cache/` by URL hash.
 
 Output: `research/{ISO8601}_research.md`
 Cache: `skills/arc-link-research/cache/{url_hash}.json`
