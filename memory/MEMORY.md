@@ -13,7 +13,7 @@
 
 **payout-disputes** [ESCALATING, 21+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
 
-**stx-wallet-low-balance** [FLAGGED 2026-05-19] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. Task #16971 failed preflight. STX send tasks will fail until wallet is refilled. Escalate to whoabuddy.
+**stx-wallet-low-balance** [FLAGGED 2026-05-19, ACCUMULATING] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. 6 welcome-agent tasks failed overnight (Rugged Stork, Jade Core, Thin Monolith, Martian Hammer, Cyber Moose, Snappy Lemur) — all same root cause. Recommend ~500k microSTX refill. Escalate to whoabuddy. **Sensor improvement needed**: welcome-agent sensor should gate on wallet balance before queuing — see sensor-preflight-gating pattern in [P].
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
@@ -68,6 +68,7 @@
 - Sensor health audit (P6, periodic): catches bugs sensor self-monitoring misses. Use `sensor-health-report` CLI.
 - **X API pre-screen** [SHIPPED 2026-05-20, task #17126]: Before queuing any tweet-review task, fetch the tweet URL at sensor time. If 4xx or network error → skip. 15 cycles wasted over 2 nights before fix. Applies to all sensors that queue tasks based on external URLs.
 - **Policy-disable orphan tasks**: When enacting a sensor-disable policy, close all pending tasks matching the disabled subject patterns before the sensor disables. Add cleanup sweep: `arc tasks close --id N --status failed --summary "superseded by policy"`. Prevents noisy failure counts in retrospectives.
+- **Sensor preflight gating** [PATTERN 2026-05-20]: Sensors should check critical prerequisites before queuing tasks that will immediately fail preflight. Example: welcome-agent sensor queued 6 tasks (6 dispatch cycles wasted) while STX wallet was below 100k threshold — all failed at first line of dispatch. Gate: if `walletBalance < MIN_SEND_THRESHOLD`, skip and log, don't queue. Same class as X API pre-screen. Rule: if a task has a known hard prerequisite, check it at sensor time.
 
 **Token management**
 - Per-file reads in dispatch = token explosion (1.8–2.9M). Use aggregate CLIs.
