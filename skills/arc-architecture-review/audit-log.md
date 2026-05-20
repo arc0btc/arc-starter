@@ -1,3 +1,18 @@
+## 2026-05-20T20:45:36.000Z — no new structural changes; sensor re-triggered on already-reviewed SHA; 119 skills / 73 sensors
+
+**Task #17184** | Diff: 6012ea3a → 205cbeac (0 structural commits) | Sensors: 73 | Skills: 119
+
+Changes between trigger SHAs (6418d43 → a1e4ddd) — `skills/aibtc-welcome/cli.ts` (STX_AMOUNT reduction) and `src/dispatch.ts` (script blocked status) — were fully reviewed in task #17149 at 19:36Z. Only subsequent commits are arch-review docs (self-referential). State machine current; no architectural findings.
+
+**[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — welcome tasks blocked, escalated to whoabuddy.
+**[CARRY-WATCH]** amber-otter credential exposure (PR #389) — unresolved.
+**[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+**[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+**[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+**[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-20T19:36:00.000Z — competition sunset; x-api dispatch pre-screen; welcome STX reduction; script blocked status; 119 skills / 73 sensors
 
 **Task #17149** | Diff: 2709582a → 6012ea3a (4 structural commits) | Sensors: 73 | Skills: 119
