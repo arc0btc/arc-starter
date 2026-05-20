@@ -1,6 +1,6 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-17T00:13:00Z*
-*Token estimate: ~32t*
+*Schema: ASMR v1 — Last consolidated: 2026-05-20T03:11:00Z*
+*Token estimate: ~28t*
 
 ---
 
@@ -25,21 +25,13 @@
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy — IMPLEMENTED task #17094] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` gates in: aibtc-news-editorial (streak task), bitcoin-macro (all signal types), arxiv-research (aibtc-network + quantum signal tasks; digest fetch/compile remains active). Full-sensor skip in: aibtc-news-deal-flow, aibtc-agent-trading. ordinals-market-data was already gated via existing `SIGNAL_FILING_SUSPENDED`. No pending file-signal tasks at time of disable. Quantum bounty (1btc-news#33) is dead-letter. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
-**x-api-sensor-prescreen** [TASK #17126 CREATED 2026-05-20] 8 X API failures overnight (2026-05-19) + 7 more (2026-05-20) = 15 wasted cycles over 2 nights. Fix queued as P3/sonnet task #17126. Pattern: sensor queues review task → tweet deleted/private → dispatch fails with "HTTP error". Pre-screen at sensor time (skip if 4xx/network error). Also note: cooldown-rescheduled tasks become orphans if policy changes before they execute — same cleanup sweep applies (they also show up as "dont need to file" failures).
-
-**overnight-2026-05-20** [89% success] 123/138 tasks, $57.58, avg $0.417/task. Failures: 7× X API (deleted tweets — pre-screen still unimplemented), 5× stale signal tasks (queued before policy disable — actual count was 5, not 3; cleanup sweep needed on policy enact), 2× STX-send (low balance), 1× arXiv 429. High-value work: CC v2.1.145 deployed, competition-end guard added, arch review + state machine updated, 15 PR reviews, 2 retrospective patterns captured. Cost elevated vs prior nights — deck revision cycle alone ~$12.74 (22% of day spend).
-
-**overnight-2026-05-19** [86% success] 73/85 tasks, $28.16, 70 cycles. Failures: 8× X API (deleted tweets), 3× signal cancellations (policy ambiguity), 1× cooldown rescheduled. Core work clean — AIBTC deck shipped (2 cycles, $8.68), 21 research reads, blog post published. Signal drought continues — quantum bounty unacted.
-
-**overnight-2026-05-18** [CLEAN NIGHT] 14/14 tasks succeeded (0 failures), 15 cycles, $4.08, 6.58M tokens. Key: emailing→completed auto-transition fix cleared 26 stuck CEO-review workflows; BEAT_SUBJECT_PATTERNS validator now wired into all 3 signal sensors. Architecture review (#16946) was largest single cost ($0.83 at P7). Signal drought continues — quantum bounty (250k sats) still live; no bitcoin-macro or aibtc-network overnight.
-
-**signal-cooldown-fix-incomplete** [RESOLVED 2026-05-17, task #16869] Root cause found and fixed. Streak task subject "Maintain N-day streak on aibtc.news" didn't match BEAT_SUBJECT_PATTERNS, so isBeatOnCooldown returned false for the target beat even while the streak task was pending/active — allowing other sensors to queue duplicate signal tasks for the same beat. Fix: streak task now uses subject "File <beat> signal: maintain N-day streak" (matches existing patterns). Also upgraded streak task model haiku→sonnet. Commit: d07db40a. Validation utility `validateSignalSubjectMatchesBeatPattern` added (9328f609) — sensors can now self-check at queue time.
-
-**quantum-bounty-1btc-news** [DEAD-LETTER 2026-05-19 per whoabuddy] Bounty no longer in play under signal-filing pause policy. See [[signal-filing-paused]].
+**x-api-sensor-prescreen** [RESOLVED 2026-05-20, task #17126, $2.01] 15 wasted X API dispatch cycles over 2 nights (deleted/private tweets). Fix shipped: sensors now pre-screen tweet URLs at queue time — skip if 4xx/network error. Pattern promoted to [P] section.
 
 ---
 
 ## [S] Signal Filing Rules
+
+**STATUS: PAUSED** as of 2026-05-19 per whoabuddy policy (EIC stepped down). Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
 **Active beats**: `aibtc-network`, `bitcoin-macro`, `quantum`. Retired beats return 410.
 **Cap**: 10 approved/day/beat. **Cost**: 100 sats → 5k (approved) or 20k (brief) = 50-200× ROI.
@@ -74,6 +66,8 @@
 - Signal cooldown: must check at sensor time. Dispatch-time check = wasted cycle.
 - arXiv 35+ relevant papers + no auto-signal: create manual follow-up after 2 sensor cycles.
 - Sensor health audit (P6, periodic): catches bugs sensor self-monitoring misses. Use `sensor-health-report` CLI.
+- **X API pre-screen** [SHIPPED 2026-05-20, task #17126]: Before queuing any tweet-review task, fetch the tweet URL at sensor time. If 4xx or network error → skip. 15 cycles wasted over 2 nights before fix. Applies to all sensors that queue tasks based on external URLs.
+- **Policy-disable orphan tasks**: When enacting a sensor-disable policy, close all pending tasks matching the disabled subject patterns before the sensor disables. Add cleanup sweep: `arc tasks close --id N --status failed --summary "superseded by policy"`. Prevents noisy failure counts in retrospectives.
 
 **Token management**
 - Per-file reads in dispatch = token explosion (1.8–2.9M). Use aggregate CLIs.
@@ -88,30 +82,23 @@
 - Self-review triage pre-dispatch: correlates with 100% success rate — never skip.
 - Policy-closure tasks: close with `status=completed` + "superseded by policy".
 - sourceQuality re-file: re-filing with better sourcing (10→30) is a valid quality lever.
-- **AIBTC weekly deck title convention** [whoabuddy 2026-05-19]: titles MUST lead with "AIBTC" (e.g. "AIBTC trades.", "AIBTC keeps shipping."). Standing convention going forward. Trustless-Indra-as-title format (2026-05-19 first draft) was rejected.
-- **Deck stat verification**: never ship deck stats from memory or estimates. Always re-query: `tasks`/`cycle_log` table for Arc counts, `gh search prs` for org PR counts, `aibtc-news-editorial leaderboard` for ecosystem signal totals. Local task count ≠ API-accepted count — show both when relevant (Arc's 187 file-signal tasks → 101 actually accepted by aibtc.news API).
-- **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen-snapshot P&L per landing-page#822, still OPEN). aibtc.com/llms.txt lists 4 sort options without distinguishing live-rank from reward-basis. Don't optimize for trade count — Tiny Marten's 2,576 trades vs. ~10 for everyone else is the metric on screen, not the metric that pays.
-- **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. "Maintain N-day streak" doesn't match — other sensors see cooldown=false and queue duplicates. Pattern: any sensor-queued signal task must use a subject that matches the beat's pattern in BEAT_SUBJECT_PATTERNS (e.g. "File aibtc-network signal: ..."). Also: streak tasks must use model=sonnet, not haiku.
-- **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" means the target agent address is stale or was deregistered — same fail-fast rule as 403/401. Do NOT retry. Create follow-up to verify/update the agent address.
-- **Policy-disable orphan tasks**: When enacting a sensor-disable policy (e.g. signal-filing-paused), pending tasks already in the queue with the old subject pattern still run and fail. Add a cleanup sweep: after disabling sensors, close all pending tasks matching the disabled subject patterns (`arc tasks close --id N --status failed --summary "superseded by policy"`). Prevents noisy failure counts in retrospectives.
+- **AIBTC weekly deck title convention** [whoabuddy 2026-05-19]: titles MUST lead with "AIBTC" (e.g. "AIBTC trades.", "AIBTC keeps shipping."). Standing convention going forward.
+- **Deck stat verification**: never ship deck stats from memory or estimates. Always re-query: `tasks`/`cycle_log` for Arc counts, `gh search prs` for org PR counts, `aibtc-news-editorial leaderboard` for signal totals. Local task count ≠ API-accepted count.
+- **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. Use "File <beat> signal: maintain N-day streak". Streak tasks must use model=sonnet, not haiku.
+- **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" = stale address. Do NOT retry. Create follow-up to verify/update agent address.
+- **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen P&L snapshot per landing-page#822). Don't optimize for trade count.
 
 ---
 
 ## [E] Recent Evaluations
 
-**Trend (2026-05-09 → 2026-05-19)**: PURPOSE range 2.35–3.80. Signal Quality (S) volatile — 1 signal/day floor when no quantum filing. Cost stable $0.20–0.38/task. 86–100% success when dispatch healthy. Quantum bounty still unacted as of 2026-05-19.
+**Trend (2026-05-13 → 2026-05-20)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 86–100% success when dispatch healthy. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
 
-- **daily-eval-2026-05-19** [task #17089]: PURPOSE **3.55** (S:2 O:3 E:5 C:4 A:4 Co:4 Se:5). 90.7% success (147/162, 15 failed), $0.374/task, $55.06/day. 1 signal filed (aibtc-network harness-engineering, #17041) — quantum bounty still unacted. 31 PR reviews/mentions, 19 research tasks, blog post shipped, AIBTC Tuesday deck delivered + revised per whoabuddy. Failures: 7× X API (deleted tweets — known pattern, see [[x-api-sensor-prescreen]]), 5× signal (3 cancelled "dont need to file signals" — see [[signal-filing-policy-ambiguity]], 2 cooldown), 2× welcome STX-send (see [[stx-wallet-low-balance]]), 1× arXiv 429. Queue EMPTY — no boosts possible. Security score boosted by gregoryford963-sys CHANGES_REQUESTED follow-up (#17072).
-- **daily-eval-2026-05-18** [task #16965]: PURPOSE **3.45** (S:2 O:5 E:3 C:4 A:5 Co:2 Se:3). 100% success (38/38, zero failures), $0.292/task, $11.11/day. 2 signals across 2 beats (quantum arXiv:2605.12385 + bitcoin-macro hashrate -6.2% ATH). Major skill work: emailing→completed auto-transition (16c82bbc, cleared 26 stuck workflows), BEAT_SUBJECT_PATTERNS validator wired into all 3 signal sensors, MCP v1.54.0 integrated. Blog post published. Queue empty — no boosts possible (Signal Quality S:2 had no pending signal tasks to surface).
-- **l-purpose-2026-05-20** [task #17121]: PURPOSE **2.30** (S:1 O:2 E:4 C:2 A:3 Co:2 Se:3). 89.1% success (123/138), $0.417/task, $57.58/day. 15 PR reviews, 0 signals (filing paused by policy). Cost elevated vs prior nights. No new capabilities; amber-otter security tracking ongoing.
-- **l-purpose-2026-05-19** [task #16985]: PURPOSE **2.80** (S:1 O:5 E:2 C:4 A:3 Co:2 Se:3). 98.2% success (55/56), $0.275/task, $15.42/day. 4 PR reviews, 0 signals. Signal drought persists — quantum bounty still live. Eco dim low (only 4 reviews). Cost efficiency strong.
-- **l-purpose-2026-05-18** [task #16928]: PURPOSE **3.00** (S:1 O:4 E:4 C:4 A:3 Co:2 Se:3). 95.9% success (70/73), $0.296/task, $21.61/day. 17 PR reviews, 0 signals. Signal drought continues — quantum bounty unacted. No new adaptation or collaboration today.
-- **daily-eval-2026-05-17** [task #16909]: PURPOSE **3.25** (S:3 O:3 E:4 C:3 A:4 Co:2 Sec:3). 96.3% success (52/54), $0.320/task. 12 PR reviews, 3 signals across 3 beats (bitcoin-macro hashrate, aibtc-network MCP, quantum energy-efficiency). Cooldown root cause fixed + validation utility shipped (d07db40a, 9328f609). 2 failures = pre-fix cooldown collisions. No queue boosts — only 1 pending task.
-- **l-purpose-2026-05-17** [task #16855]: PURPOSE **2.45** (S:1 O:3 E:3 C:3 A:3 Co:2). 94.9% success (74/78), $0.372/task. 8 PR reviews, 0 signals. Cooldown failures = all 4 failures.
-- **daily-eval-2026-05-16** [task #16844]: PURPOSE **3.80** (S:3 O:4 E:5 C:4 A:4 Co:2). 88/92 (96%), $0.378/task. 4 signals (bitcoin-macro ×3, aibtc-network ×1), 2 beats only. All 4 failures = cooldown violations.
-- **l-purpose-2026-05-16** [task #16778]: PURPOSE **2.85** (S:1 O:4 E:4 C:3 A:3 Co:2). 97.8% (91/93), $0.331/task. 15 PR reviews, 0 signals.
-- **l-purpose-2026-05-15** [task #16685]: PURPOSE **2.35** (S:1 O:1 E:3 C:5 A:3 Co:2). 73.6% (53/72), $0.197/task. Dispatch outage cascade. 0 signals.
-- **daily-eval-2026-05-14-pm** [task #16649]: PURPOSE **2.35**. 66% success (37/56). 19h dispatch outage cascaded 12+ FP failures. 2 signals, 2 PR reviews.
+- **l-purpose-2026-05-20** [task #17121]: PURPOSE **2.30** (S:1 O:2 E:4 C:2 A:3 Co:2 Se:3). 89.1% success (123/138), $0.417/task, $57.58/day. 15 PR reviews, 0 signals. Failures: 7× X API (pre-screen fix now shipped), 5× stale signal tasks, 2× STX-send (low balance), 1× arXiv 429.
+- **daily-eval-2026-05-19** [task #17089]: PURPOSE **3.55** (S:2 O:3 E:5 C:4 A:4 Co:4 Se:5). 90.7% success (147/162), $0.374/task, $55.06/day. 1 signal filed (aibtc-network harness-engineering). 31 PR reviews, 19 research tasks, blog post shipped, AIBTC Tuesday deck delivered.
+- **daily-eval-2026-05-18** [task #16965]: PURPOSE **3.45** (S:2 O:5 E:3 C:4 A:5 Co:2 Se:3). 100% success (38/38), $0.292/task, $11.11/day. 2 signals (quantum arXiv:2605.12385 + bitcoin-macro hashrate). Major skill work: emailing→completed auto-transition, BEAT_SUBJECT_PATTERNS validator, MCP v1.54.0.
+- **daily-eval-2026-05-17** [task #16909]: PURPOSE **3.25** (S:3 O:3 E:4 C:3 A:4 Co:2 Sec:3). 96.3% success (52/54), $0.320/task. 12 PR reviews, 3 signals. Cooldown root cause fixed (d07db40a, 9328f609).
+- **daily-eval-2026-05-16** [task #16844]: PURPOSE **3.80** (S:3 O:4 E:5 C:4 A:4 Co:2). 96% (88/92), $0.378/task. 4 signals (bitcoin-macro ×3, aibtc-network ×1).
 - **daily-eval-2026-05-13** [task #16573]: PURPOSE **3.45**. 158 tasks, 100% success, $0.25/task. 1 signal, 26 PR reviews. Integration flood = 41 no-op tasks (~$5 wasted).
 
 ---
@@ -146,7 +133,7 @@ Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews`
 
 **crystal-engine** [AWAITING RESPONSE] Quantum/fact-check specialist. STX: `SP1CRD32JDW7R402QHQTZT9P5YJDX48GZDD0JKPZD`.
 
-**amber-otter** [REGISTERED 2026-05-11] Genesis L2 agent, 1,744+ check-ins, 228+ signals. Beats: bitcoin-macro, aibtc-network, quantum. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`.
+**amber-otter** [COMPROMISED 2026-05-18] Genesis L2 agent, 1,744+ check-ins, 228+ signals. Beats: bitcoin-macro, aibtc-network, quantum. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`. Credentials exposed via gregoryford963-sys PR #389 — must rotate before trusting further interactions.
 
 ---
 
