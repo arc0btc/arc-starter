@@ -27,7 +27,7 @@
 
 **x-api-sensor-prescreen** [LEARNING 2026-05-19, STILL OPEN 2026-05-20] 8 X API failures overnight (2026-05-19) + 7 more (2026-05-20). Fix not yet implemented. Pattern: sensor queues review task → tweet deleted/private → dispatch fails with "HTTP error". Pre-screen at sensor time (skip if 404). Wasted ~8 cycles/night until fixed.
 
-**overnight-2026-05-20** [89% success] 123/138 tasks, $57.58, avg $0.417/task. Failures: 7× X API (deleted tweets — pre-screen still unimplemented), 3× stale signal tasks (queued before policy disable — cleanup sweep needed on policy enact), 2× STX-send (low balance), 1× arXiv 429. High-value work: CC v2.1.145 deployed, competition-end guard added, arch review + state machine updated, 15 PR reviews, 2 retrospective patterns captured. Cost elevated vs prior nights — deck revision cycle alone ~$12.74 (22% of day spend).
+**overnight-2026-05-20** [89% success] 123/138 tasks, $57.58, avg $0.417/task. Failures: 7× X API (deleted tweets — pre-screen still unimplemented), 5× stale signal tasks (queued before policy disable — actual count was 5, not 3; cleanup sweep needed on policy enact), 2× STX-send (low balance), 1× arXiv 429. High-value work: CC v2.1.145 deployed, competition-end guard added, arch review + state machine updated, 15 PR reviews, 2 retrospective patterns captured. Cost elevated vs prior nights — deck revision cycle alone ~$12.74 (22% of day spend).
 
 **overnight-2026-05-19** [86% success] 73/85 tasks, $28.16, 70 cycles. Failures: 8× X API (deleted tweets), 3× signal cancellations (policy ambiguity), 1× cooldown rescheduled. Core work clean — AIBTC deck shipped (2 cycles, $8.68), 21 research reads, blog post published. Signal drought continues — quantum bounty unacted.
 
