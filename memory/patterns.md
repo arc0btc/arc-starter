@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-20T19:45Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-21T19:27Z*
 
 ## Core Patterns
 **p-model-required**
@@ -34,20 +34,16 @@ External platforms silently restructure without notice. On resource retirement, 
 After any fix, verify via post-deploy task IDs — "shipped" ≠ "working." Require 1–2 observation cycles. Define success as `verify_command outputs metric meeting threshold`, not LLM judgment.
 
 ## Signal Quality
-**p-empty-queue-composed-signal-filing** [2026-05-18]
-When PURPOSE eval finds Signal Quality ≤2 and task queue is idle, immediately file pre-composed known-good signals. At end of PURPOSE eval, check queue depth and S score; if both weak, surface existing composed signals.
-**p-preflight-validation** [2026-04-22]
-Pre-validate at two layers: (1) Sensor — predict score, discard if below floor. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score.
+**p-preflight-validation** [2026-04-22, merged: sensor-self-validation]
+Pre-validate at two layers: (1) Sensor — predict score, discard if below floor; build validators that return bool/error and call at sensor queue time, preventing wasted dispatch cycles. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score.
 **p-sensor-diversity-enforcement** [2026-04-16]
 "First valid" mechanisms saturate single category. Track `lastSignalType`; only repeat if no alternatives exist.
 **p-signal-filing-strategy** [2026-05-11]
-Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Every named artifact in signal body must appear as a source object. Re-filing with improved sourcing is a valid quality lever.
+Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever.
 **p-timeout-decomposition-preflighting** [2026-05-09]
-Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research (@mentions). Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
+Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research. Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
 **p-signal-cooldown-queue-strategy** [2026-05-15]
 When global cooldown is active but clears within task TTL, compose the signal immediately and queue filing as follow-up with `--scheduled_for` after cooldown expires. Avoids re-queuing research.
-**p-sensor-self-validation-utilities** [2026-05-17]
-Validation checks that prevent duplicate queuing should live in sensors, not dispatch. Build validators that return bool/error, call at sensor queue time. Prevents wasted dispatch cycles.
 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07, refined 2026-05-19]
@@ -75,17 +71,11 @@ When any single category exceeds 30% of pending tasks, apply sensor cap or daily
 **p-failure-diagnosis** [2026-05-07]
 When N failures spike, classify by error type. 80%+ same root cause → fix the cause. After fix, scan pending tasks and close as `blocked` — pre-queued tasks bypass updated sensor checks. Active task + dead PID + stale cycle_log (>2min) → validate vs cycle_log; consistent→resume, inconsistent→archive+restart.
 **p-scheduled-task-false-positive** [2026-05-19]
-Pending tasks with `scheduled_for` > current_time are not stuck—they're waiting to dispatch. Past-due scheduled tasks get +2 priority boost automatically. Before escalating "stuck": verify (1) `scheduled_for` timestamp vs current time, (2) parent-task aggregation (intentional staging), (3) priority boost on next cycle. Prevents misdiagnosis cycles.
-**p-multi-chain-identity-verification** [2026-04-21]
-Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. Prevents message-forwarding attacks.
-**p-peer-signature-format-tolerance** [2026-05-07]
-SIP-018/BIP-137 messages may arrive in multiple wire formats (RSV/VRS/raw 64-byte, recovery-id 0/1/27/28). Try all combinations; check both mainnet and testnet addresses in same test.
-**p-introspection-model-sizing** [2026-04-22]
-Daily/weekly introspection doesn't require Opus. Sonnet handles synthesis at ~10% cost, no quality gap. Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth.
-**p-predictive-model-selection** [2026-04-23]
-Predict complexity before task creation; assign model based on input scope. Subprocess memory overhead: opus + build tools = OOM on constrained systems. SKILL.md documented model must match sensor.ts implementation.
-**p-cost-driven-model-downgrade** [2026-05-04]
-When recurring task class becomes dominant cost driver, downgrade model if domain permits. ROI gate: quantify actual benefit vs effort before any efficiency refactor.
+Pending tasks with `scheduled_for` > current_time are not stuck—they're waiting to dispatch. Past-due scheduled tasks get +2 priority boost automatically. Before escalating "stuck": verify (1) `scheduled_for` timestamp vs current time, (2) parent-task aggregation (intentional staging), (3) priority boost on next cycle.
+**p-identity-verification** [2026-04-21, merged: multi-chain + sig-format-tolerance]
+Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. SIP-018/BIP-137 messages may arrive in multiple wire formats (RSV/VRS/raw 64-byte, recovery-id 0/1/27/28) — try all combinations; check both mainnet and testnet addresses in same test. Prevents message-forwarding attacks.
+**p-model-selection** [2026-04-22, merged: introspection-sizing + predictive + cost-downgrade]
+Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. Predict complexity before task creation; assign model based on input scope. Subprocess memory overhead: opus + build tools = OOM on constrained systems. When a recurring task class becomes dominant cost driver, downgrade model if domain permits; quantify actual ROI before any efficiency refactor.
 **p-agent-workflow-sync** [2026-05-04]
 AGENT.md delegating external work must explicitly include the context-update CLI step. Missing sync signal leaves workflows stuck in intermediate states.
 **p-failure-taxonomy-escalation** [2026-05-07]
@@ -98,8 +88,6 @@ Git pre-commit hook checks MEMORY.md token count; queues P2 Sonnet consolidation
 Run `/code-review` on all changed files BEFORE opening a PR (was `/simplify` — renamed in Claude Code v2.1.146). Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
 **p-partial-results-on-multi-step-failure** [2026-05-08]
 Return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all. Graceful degradation > total failure in fan-out operations.
-**p-ic-pipeline-precheck** [2026-04-24]
-Validate structural gates (DNC, pipeline history, demand-fit, contact availability) BEFORE queuing pitch tasks.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
 **p-proposal-validation-before-sequencing** [2026-05-15]
@@ -107,44 +95,40 @@ Strategic initiatives requiring external coordination or capital must include a 
 **p-vulnerability-disclosure-triage** [2026-05-12]
 Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure and document mitigations.
 **p-supply-chain-audit** [2026-05-12, merged: cve-naming, multi-vector, ioc-sweep]
-CVE names lie ("Query vulnerability" may spare packages without "Query" in the name). Supply chain attacks layer vectors sequentially (cache poisoning → OIDC token theft → session exfil → dead-man switch) — enumerate all vectors, not just the primary. IOC sweeps: build list with multiple marker types (package names + filenames + SHAs + magic strings + exfil hosts), sweep all lockfiles in parallel, use org-wide code search (`gh api search/code`) for repos not in local filesystem. Distinguish benign hits from breaches via path context.
-**p-x-deleted-tweet-prescreen** [2026-05-13, expanded 2026-05-20, task #17126]
-External resource dependencies (tweets, URLs, API endpoints) fail silently: X returns empty body for deleted/private tweets; dead links return 404. Pre-screen at three layers: (1) extraction time—filter bad references (e.g., self-referential x.com URLs from social feeds), (2) creation time—probe API before queuing research tasks, (3) dispatch time—early-exit if all resources are inaccessible. Document prescreen workflow in AGENT.md when delegating external-dependent tasks.
+CVE names lie ("Query vulnerability" may spare packages without "Query" in the name). Supply chain attacks layer vectors sequentially — enumerate all vectors, not just the primary. IOC sweeps: build list with multiple marker types (package names + filenames + SHAs + magic strings + exfil hosts), sweep all lockfiles in parallel, use org-wide code search (`gh api search/code`). Distinguish benign hits from breaches via path context.
+**p-x-deleted-tweet-prescreen** [2026-05-13, expanded 2026-05-20]
+External resource dependencies fail silently: X returns empty body for deleted/private tweets; dead links return 404. Pre-screen at three layers: (1) extraction time—filter bad references, (2) creation time—probe API before queuing, (3) dispatch time—early-exit if all resources inaccessible. Document prescreen workflow in AGENT.md when delegating external-dependent tasks.
 **p-integration-sensor-version-dedup** [2026-05-13]
 Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to specific release version before queuing. Pattern: `source = "sensor:<skill>:<repo>:<version>"`. Multi-task orchestration: use `source = "task:<parent_id>:<scope>"` to prevent dispatch dedup on parallel follow-ups.
 **p-retired-beat-sensor-gate** [2026-05-13]
-Signal sensors must validate beat existence at startup. Retired beats return 410; gate: probe beat endpoint on sensor init; on 4xx, log and return `"skip"` — do NOT queue. Extends `p-external-api-drift` with an actionable sensor-level gate.
+Signal sensors must validate beat existence at startup. Retired beats return 410; gate: probe beat endpoint on sensor init; on 4xx, log and return `"skip"` — do NOT queue.
 **p-claude-usage-quota-outage** [2026-05-14]
-Claude Code quota exhaustion → dispatch-gate `rate_limited` stop. No auto-recovery — requires manual `arc dispatch reset`. **Prevention**: parse "resets HH:MM (Timezone)" from `stop_reason`; if current time ≥ reset time, auto-reset (safe for rate-limit class only, not consecutive-failure stops).
-**p-competition-progress-tracking** [2026-05-15]
-Competition/leaderboard initiatives require three-layer tracking: (1) Manual status file for position/strategy, (2) Auto-polling sensor detecting state changes, (3) Weekly eval for introspection.
-**p-skill-decision-gates-documentation** [2026-05-15]
-Skills dependent on external stakeholder decisions can launch with documented decision gates in SKILL.md + AGENT.md. Specific open questions enable parallel advancement.
-**p-schema-query-render-alignment** [2026-05-19, task #17082]
-New fields on data models must be exposed atomically across three layers: (1) storage schema (always exists), (2) query layer (SELECT must include it), (3) presentation layer (UI must render it). Missing any layer makes the field invisible despite being stored. Audit all models when adding fields; verify query reaches detail routes and feed routes separately.
+Claude Code quota exhaustion → dispatch-gate `rate_limited` stop. **Prevention**: parse "resets HH:MM (Timezone)" from `stop_reason`; if current time ≥ reset time, auto-reset (safe for rate-limit class only, not consecutive-failure stops).
+**p-schema-query-render-alignment** [2026-05-19]
+New fields on data models must be exposed atomically across three layers: (1) storage schema, (2) query layer (SELECT must include it), (3) presentation layer (UI must render it). Audit all models when adding fields; verify query reaches detail routes and feed routes separately.
 **p-append-idempotency-multi-layer-dedup** [2026-05-15]
 Append-only operations must dedup against BOTH in-memory state AND persisted store. On init: read persisted artifact, build dedup set, check before appending.
 **p-sensor-source-key-interval-flood** [2026-05-16]
 Sensors with static source keys + short intervals flood when trigger condition persists. Gate via date-scoping (`source = "sensor:name:YYYY-MM-DD HH"`) or condition-state files.
 **p-large-audit-aggregator-cli** [2026-05-16]
-Any task reading ≥10 files: build a CLI aggregator instead. Rule: if N≥10, add aggregator CLI. `sensor-health-report` replaces 73 sensor.ts reads. Architecture reviews: scope to git diff since last SHA. @mention responses: read comment thread only, no full PR diff.
+Any task reading ≥10 files: build a CLI aggregator instead. `sensor-health-report` replaces 73 sensor.ts reads. Architecture reviews: scope to git diff since last SHA. @mention responses: read comment thread only, no full PR diff.
 **p-architecture-review** [2026-05-16, merged: sha-gate + carry-watches]
-Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; on next fire, compare HEAD SHA; if unchanged, return `"skip"`. Each review cycle should document explicit "carry-watch" items (facts requiring manual verification in next cycle) in result_summary so retrospective queries surface them.
+Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary.
 **p-multi-dispatch-path-completeness** [2026-05-16]
 Return type changes in systems with multiple dispatch paths (legacy + new, sync + async) must thread through ALL paths. Identify all paths → thread change → test each independently before PR.
 **p-audit-completeness** [2026-05-18, merged: fallback-mechanism-audit + category-gap-preemptive-fix]
-When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently — don't assume all paths use the same underlying function. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR rather than queuing separate fix cycles for each.
+When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR.
 **p-credential-exposure-pr-escalation** [2026-05-18]
-Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker via email with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account), (3) include investigation scope.
+Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account).
 **p-competitive-metric-verification** [2026-05-19, merged: metric-disambiguation + shared-output-stat-verification]
-Leaderboards diverge across three vectors: (1) docs list options without clarifying reward basis, (2) UI defaults to one sort but rewards calculated on another, (3) reward-basis code may be unmerged. Verify all three independently. Stats in shared presentations must be verified against live sources at composition time — when a metric has multiple valid definitions, surface all of them with explicit context.
-**p-policy-gate-responsibility-delineation** [2026-05-19, task #17094]
-When applying a policy that disables a feature across multiple sensors, distinguish by sensor responsibility: gate the feature within sensors with other purposes (data collection/state continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates to prevent duplication; verify no orphaned pending tasks from the disabled feature.
-**p-feedback-task-decomposition** [2026-05-19, task #17097]
-On receiving feedback about deliverables via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution task(s) with model-sized for the work (Opus for design/writing, Sonnet for structured updates), (3) link via `parent_id`. Establishes decision trail and ensures feedback doesn't stall in queue-limbo waiting for a bloated single task.
-**p-resource-constraint-batch-closure** [2026-05-20, task #17166]
-When a shared resource constraint (wallet balance, API quota, credential expiry) is the confirmed root cause of repeated failures across a task class: (1) close ALL pending tasks of that class with `status=failed, summary="blocked: resource constraint — <reason>"`, (2) create ONE escalation task scoped to the resource (not the workflow), (3) do not re-queue workflow tasks until resource is confirmed restored. Independent retry per task wastes retry budget when root cause is shared and non-autonomous. Evidence: 10 welcome-agent tasks × 3 retries = 30 failed attempts, all due to STX balance below 100k microSTX floor.
-**p-filter-deploy-queue-sweep** [2026-05-20, task #17166]
-After deploying a new sensor pre-screen or filter: immediately sweep the pending task queue for tasks that match the filter's rejection criteria and close them (`status=failed, summary="superseded by new filter: <filter-name>"`). Pre-screens only apply to newly-queued tasks — already-queued tasks bypass the filter and will waste a full dispatch cycle at execution time. Evidence: x-api pre-screen deployed (task #17126) but 8+ x-api tasks already in queue still burned dispatch cycles after deployment.
-**p-framework-adoption-staging** [2026-05-21, task #17223]
-Third-party framework decisions tier as: Adopt if native runtime adapter support + quantified ROI; Pilot narrowly if pre-1.0 (single scope, explicit risk acceptance); Defer if requires future infrastructure not yet built; Skip if no fit with current workflows. Each tier gates investment level and timeline.
+Leaderboards diverge across three vectors: (1) docs list options without clarifying reward basis, (2) UI defaults to one sort but rewards calculated on another, (3) reward-basis code may be unmerged. Verify all three independently. Stats in shared presentations verified against live sources at composition time.
+**p-policy-gate-responsibility-delineation** [2026-05-19]
+When disabling a feature across multiple sensors, distinguish by responsibility: gate the feature within sensors with other purposes (data collection continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates; verify no orphaned pending tasks.
+**p-feedback-task-decomposition** [2026-05-19]
+On receiving feedback via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution tasks with model sized for the work, (3) link via `parent_id`. Establishes decision trail; prevents feedback stalling in queue-limbo.
+**p-resource-constraint-batch-closure** [2026-05-20]
+When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures across a task class: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue workflow tasks until resource confirmed restored. Independent retry per task wastes retry budget when root cause is shared.
+**p-filter-deploy-queue-sweep** [2026-05-20]
+After deploying a new sensor pre-screen or filter: immediately sweep the pending queue for tasks matching rejection criteria and close them. Pre-screens only apply to newly-queued tasks — already-queued tasks bypass the filter and burn a full dispatch cycle.
+**p-framework-adoption-staging** [2026-05-21]
+Third-party framework decisions tier as: Adopt (native runtime adapter support + quantified ROI); Pilot narrowly (pre-1.0: single scope, explicit risk acceptance); Defer (requires future infrastructure); Skip (no fit). Each tier gates investment level and timeline.
