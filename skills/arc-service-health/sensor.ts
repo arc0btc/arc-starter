@@ -48,7 +48,17 @@ async function writeHealthState(state: ServiceHealthState): Promise<void> {
 }
 
 /** Returns true if the last dispatch cycle started longer ago than the stale threshold and pending tasks exist. */
-function checkStaleCycle(): boolean {
+async function checkStaleCycle(): Promise<boolean> {
+  // If dispatch is currently running (lock file + live PID), it's not stale —
+  // cycle_log only records completed cycles, so an in-flight cycle looks old.
+  const lockFile = Bun.file(DISPATCH_LOCK_FILE);
+  if (await lockFile.exists()) {
+    try {
+      const lock = (await lockFile.json()) as { pid: number };
+      if (isPidAlive(lock.pid)) return false;
+    } catch { /* stale/corrupt lock — fall through to cycle_log check */ }
+  }
+
   const cycles = getRecentCycles(1);
   if (cycles.length === 0) return false;
 
@@ -99,7 +109,7 @@ export default async function healthSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   const state = await readHealthState();
-  const staleCycle = checkStaleCycle();
+  const staleCycle = await checkStaleCycle();
 
   // Detect recovery: dispatch was stale last run but is healthy now
   if (state.wasStaleLastRun && !staleCycle) {
