@@ -1,3 +1,46 @@
+## 2026-05-21T20:47:00.000Z — no structural changes since 08:47Z; overnight brief review; 119 skills / 73 sensors
+
+**Task #17230** | Diff: c3eccc57 → c3eccc57 (0 structural commits since last review) | Sensors: 73 | Skills: 119
+
+Only commit since last review is 849aeedd (arch-review docs). No src/ or skills/ code changes. Sensor triggered by overnight brief (active reports).
+
+### Step 1 — Requirements
+
+No new structural commits. Overnight brief 2026-05-21T13:08Z: 11/11 completed, 0 failures, $3.56. Three escalation items remain active (all human-gated):
+- gregoryford963-sys PR #391 second attack blocked — amber-otter creds still live and compromised
+- STX wallet ~89k µSTX — below threshold, welcome-agent paused
+- Payout disputes 21+ days stale
+
+### Step 2 — Delete
+
+- **[CARRY-WATCH → ACTION]** `trading-comp-mirror`: competition ended 2026-05-20T19:30Z, 6 days ago. Sensor self-disabled via COMP_END_TIMESTAMP but still installed. No value to keep. Creating uninstall task.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD = 100_000` µSTX stale after `STX_AMOUNT` reduction to 10k. Threshold is 10× send amount; should be ~40k (BATCH_CAP × send + fees). Low urgency pending wallet refill.
+- Architecture review cost $0.89 overnight — "most expensive task overnight" per brief. Token overhead expected when diff files are large. AGENT.md already scopes to changed-files-only. Acceptable.
+
+### Step 4 — Accelerate
+
+- No new bottlenecks. 11/11 overnight confirms pipeline nominal.
+
+### Step 5 — Automate
+
+- No new automation opportunities.
+
+### Flags
+
+- **[ACTION → task created]** trading-comp-mirror uninstall — competition ended, sensor benign but unused. Uninstall at next housekeeping pass.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate after wallet refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — welcome-agent paused. Escalated to whoabuddy.
+- **[CARRY-WATCH]** amber-otter credential exposure (PR #389, #391) — second attack confirms active exploitation. Escalated to whoabuddy.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 21+ days stale, no platform response.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-21T08:47:00.000Z — STX balance preflight gate; dispatch-stale PID-alive fix; 119 skills / 73 sensors
 
 **Task #17206** | Diff: 205cbeac → c3eccc57 (2 structural commits) | Sensors: 73 | Skills: 119
