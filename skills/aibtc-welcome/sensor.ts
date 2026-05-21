@@ -27,10 +27,17 @@ import {
 const SENSOR_NAME = "aibtc-welcome";
 const INTERVAL_MINUTES = 30;
 const API_BASE = "https://aibtc.com/api";
+const HIRO_API = "https://api.mainnet.hiro.so";
 const PAGE_LIMIT = 50;
 
 /** Max welcome tasks created per sensor cycle — prevents queue flood after long freezes */
 const BATCH_CAP = 3;
+
+/**
+ * Minimum STX balance (microSTX) required before queuing welcome tasks.
+ * Each welcome sends 100k microSTX; below this threshold every task will fail immediately.
+ */
+const MIN_STX_SEND_THRESHOLD = 100_000;
 
 /** If more than this many welcome tasks completed today, skip creating more */
 const DAILY_COMPLETED_CAP = 10;
@@ -163,6 +170,34 @@ async function loadAndUpdateDenyList(): Promise<{ denyList: Set<string>; dirty: 
 
 const log = createSensorLogger(SENSOR_NAME);
 
+interface HiroStxBalance {
+  stx: { balance: string; locked: string };
+}
+
+/**
+ * Returns Arc's available STX balance in microSTX.
+ * Returns -1 on API failure (sensor should skip, not error).
+ */
+async function getSelfStxBalanceMicroStx(): Promise<number> {
+  try {
+    const response = await fetchWithRetry(
+      `${HIRO_API}/extended/v1/address/${SELF_STX}/balances`,
+    );
+    if (!response.ok) {
+      log(`warn: balance check returned HTTP ${response.status} — skipping preflight`);
+      return -1;
+    }
+    const data = (await response.json()) as HiroStxBalance;
+    const balance = BigInt(data.stx.balance);
+    const locked = BigInt(data.stx.locked || "0");
+    return Number(balance - locked);
+  } catch (e) {
+    const error = e as Error;
+    log(`warn: balance check failed (${error.message}) — skipping preflight`);
+    return -1;
+  }
+}
+
 interface AibtcAgent {
   stxAddress: string;
   btcAddress: string;
@@ -268,6 +303,17 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     const completedToday = countCompletedTodayForSourcePrefix(SOURCE_PREFIX);
     if (completedToday >= DAILY_COMPLETED_CAP) {
       log(`daily cap reached: ${completedToday} welcome tasks completed today (cap=${DAILY_COMPLETED_CAP}) — skipping`);
+      return "skip";
+    }
+
+    // STX balance preflight gate: skip if wallet is below the minimum send threshold.
+    // Each welcome task sends 100k microSTX; queuing when balance is insufficient
+    // wastes a full dispatch cycle per task (sensor-preflight-gating pattern, 2026-05-20).
+    const stxBalance = await getSelfStxBalanceMicroStx();
+    if (stxBalance !== -1 && stxBalance < MIN_STX_SEND_THRESHOLD) {
+      log(
+        `STX balance too low: ${stxBalance} microSTX available, need ${MIN_STX_SEND_THRESHOLD} — skipping welcome queue. Escalation required: refill wallet.`,
+      );
       return "skip";
     }
 
