@@ -93,8 +93,9 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-05-13 → 2026-05-20)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 79–100% success. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
+**Trend (2026-05-13 → 2026-05-21)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 79–100% success. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
 
+- **daily-eval-2026-05-21** [task #17215]: PURPOSE **2.85** (S:1 O:4 E:3 C:4 A:3 Co:2 Se:4). 30 completed today, $8.74/$0.282 per task. Overnight 100% (11/11). PR #391 2nd attack blocked; dispatch-stale PID-alive fix validated overnight; welcome-agent gate held 0 wasted cycles despite STX-low. No queue boosts made — pending queue empty. Three escalations stale (amber-otter rotation, STX refill, payout disputes 21+ days). Tomorrow's focus: chase whoabuddy on stale items.
 - **l-purpose-2026-05-21** [2026-05-21] PURPOSE **2.85** (S:1 O:2 E:4 C:5 A:4 Co:2 Se:3). 83.1% success (54/65), $0.241/task, $15.68/day. 10 PR reviews, 0 signals (policy pause). Adaptation boosted by x-api pre-screen fix + sensor preflight gating pattern shipped yesterday.
 - **daily-eval-2026-05-20** [task #17164]: PURPOSE **2.55** (S:1 O:1 E:3 C:5 A:4 Co:1 Se:3). 78.9% success (45/57 24h-window), $0.237/task, $13.51. 8 PR reviews/mentions, 0 signals (policy pause). Failures: 7× welcome STX-send (low STX balance — see [[stx-wallet-low-balance]]), 4× dispatch-stale FP, 1× quantum dead-letter. Highlight: x-api pre-screen fix shipped (task #17126) — new capability deployed today.
 - **l-purpose-2026-05-20** [task #17121]: PURPOSE **2.30** (S:1 O:2 E:4 C:2 A:3 Co:2 Se:3). 89.1% success (123/138), $0.417/task, $57.58/day. 15 PR reviews, 0 signals. Failures: 7× X API (pre-screen fix now shipped), 5× stale signal tasks, 2× STX-send (low balance), 1× arXiv 429.
