@@ -1,3 +1,47 @@
+## 2026-05-21T08:47:00.000Z — STX balance preflight gate; dispatch-stale PID-alive fix; 119 skills / 73 sensors
+
+**Task #17206** | Diff: 205cbeac → c3eccc57 (2 structural commits) | Sensors: 73 | Skills: 119
+
+### Step 1 — Requirements
+
+- **feat(aibtc-welcome): STX balance preflight gate** (c3eccc57): `sensor.ts` now calls `getSelfStxBalanceMicroStx()` before any task queuing. If balance < `MIN_STX_SEND_THRESHOLD` (100k µSTX), sensor logs and returns early without queuing. Directly implements [sensor-preflight-gating] pattern from MEMORY.md [P] — triggered by the 6 welcome task failures overnight (Rugged Stork, Jade Core, Thin Monolith, Martian Hammer, Cyber Moose, Snappy Lemur) all failing with insufficient STX balance. Closes the "Sensor improvement needed" note on [stx-wallet-low-balance] in MEMORY.md [A].
+- **fix(arc-service-health): skip stale-cycle alert when dispatch PID is alive** (c23777ea): `checkStaleCycle()` now reads `db/dispatch-lock.json` and calls `isPidAlive(lock.pid)` — if dispatch is actively running, returns `false` immediately. Fixes FP class: cycle_log only records *completed* cycles, so an in-flight dispatch session looks stale to the sensor. Daily eval 2026-05-21 noted 4× dispatch-stale FP — this fix closes that specific class.
+
+### Step 2 — Delete
+
+- No deletions this window.
+- `trading-comp-mirror` sensor auto-disabled (COMP_END_TIMESTAMP fired 2026-05-20T19:30Z). Benign to leave, zero cost, minimal value. Carry forward for housekeeping uninstall.
+
+### Step 3 — Simplify
+
+- STX preflight gate: clean, minimal addition. Pattern is correct — fail-safe (returns -1 on API error, which skips the gate so sensor proceeds normally). No over-engineering.
+- **[NEW-WATCH]** `MIN_STX_SEND_THRESHOLD = 100_000` µSTX was correct when `STX_AMOUNT = 100_000` µSTX. After (a1e4ddd0) reduced `STX_AMOUNT` to 10k µSTX, the threshold is now 10× the send amount. A balance of 50k µSTX would allow ~4 sends but the sensor still skips. Better threshold: `BATCH_CAP × (STX_AMOUNT + fee_buffer) ≈ 40k µSTX`. Low urgency — the wallet refill resolves the symptom regardless.
+- PID-alive gate: uses existing `isPidAlive()` from `src/utils.ts`. Zero new dependencies. Right layer (sensor, not dispatch).
+
+### Step 4 — Accelerate
+
+- Welcome sensor: 6× wasted dispatch cycles/day eliminated. Tasks that would fail at preflight are now never queued.
+- Service-health: dispatch-stale FPs for in-flight cycles eliminated. Reduces noise in alert queue.
+
+### Step 5 — Automate
+
+- No new automation opportunities this window. Both changes are sensor-layer guard additions.
+
+### Flags
+
+- **[RESOLVED]** Welcome sensor STX preflight gate — c3eccc57. Sensor-preflight-gating pattern applied.
+- **[RESOLVED]** Dispatch-stale FP during active in-flight cycles — c23777ea. PID-alive check closes this class.
+- **[NEW-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k) stale after `STX_AMOUNT` reduction to 10k. Consider lowering to ~40k (BATCH_CAP × send + fees).
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — welcome tasks blocked, escalated to whoabuddy.
+- **[CARRY-WATCH]** amber-otter credential exposure (PR #389) — unresolved.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — no response since 2026-04-26.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** trading-comp-mirror auto-disabled — uninstall at next housekeeping pass.
+
+---
+
 ## 2026-05-20T20:45:36.000Z — no new structural changes; sensor re-triggered on already-reviewed SHA; 119 skills / 73 sensors
 
 **Task #17184** | Diff: 6012ea3a → 205cbeac (0 structural commits) | Sensors: 73 | Skills: 119
