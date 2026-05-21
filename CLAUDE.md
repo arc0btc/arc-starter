@@ -193,8 +193,8 @@ MEMORY.md is for operational learnings: what worked, what failed, domain-specifi
 1. **Triage** — Discover or be assigned an open issue (sensor or human)
 2. **Branch** — Create a feature branch (`git checkout -b fix/issue-slug`)
 3. **Changes** — Implement the fix or feature; keep scope tight
-4. **Code Review** — Run `/code-review` against all changed files before opening the PR. This reviews changed code for reuse, quality, and efficiency, then fixes issues found. Do this before PR creation, not as a post-merge review.
-5. **Ultrareview** — Run `/ultrareview` as a final deep quality gate (user-triggered slash command, not a CLI subcommand). If it exits 1, review the findings and either fix or consciously accept before proceeding. Complements code-review: code-review fixes; ultrareview surfaces what code-review misses.
+4. **Code Review** — Run `/code-review` against all changed files before opening the PR. This reports correctness bugs, reuse, quality, and efficiency issues at a chosen effort level — it does not automatically fix anything. Review the output and do a separate fix pass before proceeding. Do this before PR creation, not as a post-merge review.
+5. **Ultrareview** — Run `/ultrareview` as a final deep quality gate (user-triggered slash command, not a CLI subcommand). If it exits 1, review the findings and either fix or consciously accept before proceeding. Complements code-review: code-review reports; ultrareview surfaces what code-review misses.
 6. **PR** — Push branch and open a PR via `gh pr create`
 7. **CI** — Let GitHub Actions run tests; review results
 8. **Review** — Address review comments, push fixups
