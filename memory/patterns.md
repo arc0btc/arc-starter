@@ -94,8 +94,8 @@ AGENT.md delegating external work must explicitly include the context-update CLI
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
 **p-memory-consolidation-automation** [2026-05-07]
 Git pre-commit hook checks MEMORY.md token count; queues P2 Sonnet consolidation if >threshold. Async, doesn't block commits.
-**p-simplify-preflighting** [2026-05-08]
-Run `/simplify` on all changed files BEFORE opening a PR. Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
+**p-simplify-preflighting** [2026-05-08, renamed 2026-05-21]
+Run `/code-review` on all changed files BEFORE opening a PR (was `/simplify` — renamed in Claude Code v2.1.146). Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
 **p-partial-results-on-multi-step-failure** [2026-05-08]
 Return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all. Graceful degradation > total failure in fan-out operations.
 **p-ic-pipeline-precheck** [2026-04-24]
