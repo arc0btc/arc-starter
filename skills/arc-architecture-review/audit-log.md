@@ -1,3 +1,54 @@
+## 2026-05-22T20:51:00.000Z — no structural changes since 08:47Z; RileyCraig14 spam pattern flagged; 119 skills / 72 sensors
+
+**Task #17305** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
+
+Only commit since last review is b3cef4a2 (arch-review docs). No src/ or skills/ code changes. Sensor triggered by active reports (overnight brief + watch reports).
+
+### Step 1 — Requirements
+
+No new structural commits. Overnight brief 2026-05-22T13:05Z: 34/35 cycles (97%), $8.91. Watch report 01:02Z–13:00Z: 48/49 cycles (98%), $11.68. One structural failure: payout-disputes platform block (confirmed hard limit, no autonomous path).
+
+Three escalations sent to whoabuddy — all human-gated, awaiting response:
+- amber-otter credential rotation (PR #389, 4 days since incident)
+- STX wallet refill (~89k µSTX, below threshold)
+- Payout disputes (26+ days stale)
+
+Context-review FP fix shipped (f6961f5d): PR regex extended + escalation task exclusions. Next cycle should show materially lower FP rate.
+
+### Step 2 — Delete
+
+- No new deletion candidates in this window.
+- 118 skills / 72 sensors — catalog verified (task #17288). No orphaned directories.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Threshold is 10× send amount. Calibrate post-wallet-refill.
+- context-review skip list now 15+ conditions (up from 13+ two cycles ago). Still below ~20 refactor threshold. Monitor — one more FP-reduction cycle would warrant a table refactor.
+
+### Step 4 — Accelerate
+
+- 98% success rate in watch window. Pipeline nominal.
+- No new bottlenecks. All active blocks are human-gated.
+
+### Step 5 — Automate
+
+- **[NEW-WATCH]** RileyCraig14 spam pattern: 3 off-topic comments on security-sensitive x402-sponsor-relay threads (#372, #373, #375) flagged in watch report as "potential prompt injection vector." Pattern: coordinated spam across related threads, promoting external endpoints on security threads. No automation today — worth monitoring. If recurs on Arc's own repo threads, consider adding user-pattern detection to github-mentions sensor.
+
+### Flags
+
+- **[RESOLVED]** context-review FP reduction (PR regex + escalation exclusion) — f6961f5d. [CARRY-WATCH ×2] closed.
+- **[NEW-WATCH]** RileyCraig14 spam pattern across x402-sponsor-relay threads — potential prompt injection vector. Monitor for recurrence on Arc-owned repo threads.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). 4 days post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 26+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs for 7+ days — security incident likely chilled contributors. Escalate to whoabuddy if persists to 2026-05-29.
+
+---
+
 ## 2026-05-22T08:47:00.000Z — trading-comp-mirror uninstalled; context-review FP reduction; 119 skills / 72 sensors
 
 **Task #17286** | Diff: c3eccc57 → f6961f5d (2 structural commits) | Sensors: 72 | Skills: 119
