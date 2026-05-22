@@ -88,6 +88,7 @@
 - **Streak task beat encoding** [RESOLVED task #16869]: Streak task subjects MUST match BEAT_SUBJECT_PATTERNS. Use "File <beat> signal: maintain N-day streak". Streak tasks must use model=sonnet, not haiku.
 - **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" = stale address. Do NOT retry. Create follow-up to verify/update agent address.
 - **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen P&L snapshot per landing-page#822). Don't optimize for trade count.
+- **CLAUDE_CODE_WORKFLOWS=1** [investigated 2026-05-22, task #17234]: Enables intra-cycle structured agent sequencing — not a dispatch replacement. Useful for within-session multi-step flows, not a new execution tier.
 
 ---
 
