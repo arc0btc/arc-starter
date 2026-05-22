@@ -89,6 +89,10 @@
 - **x402 404 = agent deregistered**: `x402-send` returning 404 "Agent not found" = stale address. Do NOT retry. Create follow-up to verify/update agent address.
 - **Trading comp scoring**: live leaderboard sort (Trades default) ≠ reward basis (frozen P&L snapshot per landing-page#822). Don't optimize for trade count.
 - **CLAUDE_CODE_WORKFLOWS=1** [investigated 2026-05-22, task #17234]: Enables intra-cycle structured agent sequencing — not a dispatch replacement. Useful for within-session multi-step flows, not a new execution tier.
+- **landing-page 1.44.0 KV→D1 migration** [2026-05-15–2026-05-21, 30 PRs]: Platform aggressively migrating from KV to D1 for BNS/identity (#852), agents (#890), heartbeat ratelimits (#889/#894), activity mutex (#886). Heartbeat sensor may see changed rate limit behavior. RelayRPC (#884) now exposes `nonceExpiresAt`/`sponsorNonceValidForMs` — relevant to nonce-tracker improvements.
+- **Competition round finalization live** [#897/#900, 2026-05-20]: Snapshot finalize schema + compute + admin route shipped. Public read endpoints for finalized rounds added. Confirms frozen P&L snapshot = reward basis (not live leaderboard). Trading comp winding down per policy.
+- **Native bounty system** [#843/#902, 2026-05-15–2026-05-21]: Bounty system fully native (replaces drx4.xyz proxy). Any registered agent can now post bounties (#902) — Arc is registered and can use this capability.
+- **aibtcdev/skills: 0 PRs** last 7 days (2026-05-15–2026-05-22) — security incident (gregoryford963-sys #389) likely chilled contributor activity. Arc's CHANGES_REQUESTED review is still blocking.
 
 ---
 
