@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-22T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-21T13:01:02Z — 2026-05-22T01:02:48Z</div>
+</header>
+
+<p class="summary">Strong 12-hour window: 30 tasks completed across PR reviews, research, retrospectives, architecture work, and housekeeping — zero failures. Cost ran $11.96 over 33 cycles, driven by a deep rtk-ai integration research task ($1.54) and an architecture review ($0.67). All systems nominal; queue is empty heading into the next watch window.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$11.96</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">14,233k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">143k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">17242</td><td class="pri">7</td><td>Daily self-audit: all systems nominal</td><td>Systems healthy, services running, queue clear</td><td class="cost">$0.1415</td></tr>
+    <tr><td class="id">17241</td><td class="pri">7</td><td>Daily introspection: 54 tasks, 54 completed</td><td>$17.62 spent; 100% success; coherence check passed</td><td class="cost">$0.1615</td></tr>
+    <tr><td class="id">17240</td><td class="pri">6</td><td>PURPOSE eval: 2.87/5 — S:1 O:5 E:3 C:3</td><td>Ops strong; signal floor drag continues (filing paused)</td><td class="cost">$0.1749</td></tr>
+    <tr><td class="id">17239</td><td class="pri">4</td><td>Research signal-worthy topics across beats</td><td>No fileable signals; filing paused by policy</td><td class="cost">$0.2604</td></tr>
+    <tr><td class="id">17238</td><td class="pri">5</td><td>GitHub @mention: Major Bounty in 1btc-news</td><td>Reviewed bounty mention; quantum bounty dead-letter</td><td class="cost">$0.2904</td></tr>
+    <tr><td class="id">17237</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>Deploy triggered (0ff1065cafc1)</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17236</td><td class="pri">7</td><td>Regenerate and deploy skills/sensors catalog</td><td>Catalog updated and deployed</td><td class="cost">$0.1367</td></tr>
+    <tr><td class="id">17235</td><td class="pri">5</td><td>Assess release: anthropic-sdk-typescript</td><td>SDK release assessed; no action required</td><td class="cost">$0.1386</td></tr>
+    <tr><td class="id">17234</td><td class="pri">8</td><td>Investigate CLAUDE_CODE_WORKFLOWS=1</td><td>Intra-cycle sequencing tool; not dispatch replacement. Pattern saved to memory.</td><td class="cost">$0.5567</td></tr>
+    <tr><td class="id">17233</td><td class="pri">6</td><td>Update CLAUDE.md PR workflow step 4</td><td>/code-review now reports only; no auto-fix. CLAUDE.md updated.</td><td class="cost">$0.1859</td></tr>
+    <tr><td class="id">17232</td><td class="pri">6</td><td>New release: claude-code v2.1.147</td><td>Release reviewed; upgrade queued if needed</td><td class="cost">$0.3153</td></tr>
+    <tr><td class="id">17231</td><td class="pri">8</td><td>Housekeeping: uninstall trading-comp-mirror</td><td>Sensor uninstalled; competition ended 2026-05-20</td><td class="cost">$0.1779</td></tr>
+    <tr><td class="id">17230</td><td class="pri">7</td><td>Architecture review — active reports</td><td>State machine and audit log updated; no structural changes</td><td class="cost">$0.6714</td></tr>
+    <tr><td class="id">17229</td><td class="pri">8</td><td>Consolidate patterns.md (151 lines)</td><td>Compressed 151→134 lines; threshold maintained</td><td class="cost">$0.5348</td></tr>
+    <tr><td class="id">17228</td><td class="pri">9</td><td>Daily cost report — 2026-05-21</td><td>Cost report generated</td><td class="cost">$0.0611</td></tr>
+    <tr><td class="id">17227</td><td class="pri">5</td><td>arc-opensource: sync 14 commits to GitHub</td><td>14 commits synced to public fork</td><td class="cost">$0.1348</td></tr>
+    <tr><td class="id">17226</td><td class="pri">5</td><td>Review PR #541: fix(send_image) on mcp-server</td><td>PR reviewed; feedback posted</td><td class="cost">$0.2351</td></tr>
+    <tr><td class="id">17225</td><td class="pri">8</td><td>Retrospective: task #17223 — Research rtk-ai</td><td>Learnings extracted and saved</td><td class="cost">$0.0924</td></tr>
+    <tr><td class="id">17224</td><td class="pri">8</td><td>Retrospective: task #17222 — Email whoabuddy</td><td>Learnings extracted and saved</td><td class="cost">$0.1468</td></tr>
+    <tr><td class="id">17223</td><td class="pri">3</td><td>Research: rtk-ai integration with AIBTC</td><td>Deep research on rtk/icm/vox/grit; briefing delivered</td><td class="cost">$1.5406</td></tr>
+    <tr><td class="id">17222</td><td class="pri">1</td><td>Email from whoabuddy: Research rtk-ai tasks</td><td>Email processed; research task spawned</td><td class="cost">$0.4902</td></tr>
+    <tr><td class="id">17221</td><td class="pri">5</td><td>Review PR #392: feat(lunarcrush) on skills</td><td>PR reviewed; feedback posted</td><td class="cost">$0.3619</td></tr>
+    <tr><td class="id">17220</td><td class="pri">5</td><td>Review PR #903: feat(bounty) on landing-page</td><td>PR reviewed; feedback posted</td><td class="cost">$0.4933</td></tr>
+    <tr><td class="id">17219</td><td class="pri">4</td><td>Email watch report to whoabuddy — 15:41Z</td><td>Report emailed successfully</td><td class="cost">$0.1932</td></tr>
+    <tr><td class="id">17218</td><td class="pri">4</td><td>CEO review — 2026-05-21T15:41Z</td><td>Review completed and attached to report</td><td class="cost">$0.2680</td></tr>
+    <tr><td class="id">17217</td><td class="pri">5</td><td>Review PR #902: feat(bounty) on landing-page</td><td>PR reviewed; feedback posted</td><td class="cost">$0.3836</td></tr>
+    <tr><td class="id">17216</td><td class="pri">8</td><td>Retrospective: task #17215 — Daily eval</td><td>Learnings extracted and saved</td><td class="cost">$0.1627</td></tr>
+    <tr><td class="id">17215</td><td class="pri">5</td><td>Daily self-evaluation: PURPOSE rubric</td><td>PURPOSE 2.85/5; S:1 continues to drag; 100% ops success</td><td class="cost">$1.3058</td></tr>
+    <tr><td class="id">17214</td><td class="pri">7</td><td>Housekeeping: 1 issue detected</td><td>Issue resolved</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17213</td><td class="pri">8</td><td>Retrospective: overnight brief</td><td>Learnings extracted from overnight brief</td><td class="cost">$0.3061</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not installed.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">8176a41</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+  <div class="commit"><span class="hash">3248bc1</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">6099cf6</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">15f6287</span>docs(claude): update PR workflow step 4 — /code-review reports only, no auto-fix</div>
+  <div class="commit"><span class="hash">3c519fa</span>chore(trading-comp-mirror): uninstall sensor — competition ended 2026-05-20</div>
+  <div class="commit"><span class="hash">05f829c</span>docs(architect): update state machine and audit log — no structural changes</div>
+  <div class="commit"><span class="hash">820f983</span>chore(memory): consolidate patterns.md (151→134 lines)</div>
+  <div class="commit"><span class="hash">73ec1c9</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">df23fb3</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">b8ffad1</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">1154f3a</span>docs(report): overnight brief 2026-05-21T14_00_00Z</div>
+  <div class="commit"><span class="hash">7673114</span>docs(report): watch report 2026-05-21T13_01_02Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Queue empty — no pending tasks.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">100% success rate on 30 tasks — clean window with no failures or retries. The zero-failure pattern is holding since the X API pre-screen fix shipped yesterday.</div>
+  <div class="obs">rtk-ai research (#17223, $1.54) was the cost heavyweight this window, a P3 triggered by a direct email from whoabuddy. Appropriate spend for the depth requested.</div>
+  <div class="obs">trading-comp-mirror sensor retired, patterns.md compressed, CLAUDE.md updated — good housekeeping cadence maintaining lean context for dispatch.</div>
+  <div class="obs">CLAUDE_CODE_WORKFLOWS=1 investigated and documented: useful for intra-session sequencing, not a new execution tier. Pattern saved to memory; no architectural changes needed.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
