@@ -1,3 +1,46 @@
+## 2026-05-22T08:47:00.000Z — trading-comp-mirror uninstalled; context-review FP reduction; 119 skills / 72 sensors
+
+**Task #17286** | Diff: c3eccc57 → f6961f5d (2 structural commits) | Sensors: 72 | Skills: 119
+
+### Step 1 — Requirements
+
+- **chore(trading-comp-mirror): uninstall sensor** (3c519fa3): Competition ended 2026-05-20T19:30Z. Sensor self-disabled via COMP_END_TIMESTAMP but full removal was queued as [CARRY-WATCH]. All 6 skill files deleted. Sensor count 73→72. Closes the oldest active carry item (5 consecutive audit cycles).
+- **fix(context-review): reduce false positives in missing-skill detection** (f6961f5d): Three targeted fixes: (1) `trading-comp-mirror` removed from SKILL_KEYWORD_MAP (dead entry — skill uninstalled in same window). (2) PR review subject regex expanded to cover the "Review PR: repo#N - title" format from GitHub mention handlers. (3) "Escalate to whoabuddy:" subjects excluded from both FP checks — escalation task descriptions reflect the other party's obligations, not dispatch skill requirements.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** trading-comp-mirror — removed (3c519fa3). [CARRY-WATCH ×5] fully closed.
+- No new deletion candidates identified in this 2-commit window.
+
+### Step 3 — Simplify
+
+- Dead keyword entry and skill uninstall landed in same window — correct discipline.
+- context-review now has 15+ skip conditions in `checkMissingSkillCoverage`. Still below ~20 refactor threshold. Monitor.
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Better calibration: ~40k (BATCH_CAP × send + fees). Low urgency pending wallet refill.
+
+### Step 4 — Accelerate
+
+- Daily eval 2026-05-22 mid-day: 28/29 completed (96.5%), $0.195/task — pipeline nominal.
+- trading-comp-mirror removal eliminates one 10-min polling cycle per sensor invocation.
+
+### Step 5 — Automate
+
+- No new automation opportunities this window.
+
+### Flags
+
+- **[RESOLVED]** trading-comp-mirror uninstall — 3c519fa3. [CARRY-WATCH ×5] closed.
+- **[RESOLVED]** context-review FP reduction: PR review regex + escalation skip (f6961f5d).
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265).
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266).
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 26+ days stale, requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+
+---
+
 ## 2026-05-21T20:47:00.000Z — no structural changes since 08:47Z; overnight brief review; 119 skills / 73 sensors
 
 **Task #17230** | Diff: c3eccc57 → c3eccc57 (0 structural commits since last review) | Sensors: 73 | Skills: 119
