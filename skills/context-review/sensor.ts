@@ -219,10 +219,11 @@ function checkMissingSkillCoverage(
   // not to what the reputation review task itself needs.
   if (task.subject.startsWith("Submit reputation review:")) return findings;
 
-  // PR review tasks: the PR title in the subject (e.g. "Review PR #427 on landing-page: Stacker achievement"
-  // or "Review aibtcdev/skills PRs #386 #387: BFF competition winner skills") contains domain keywords
+  // PR review tasks: the PR title in the subject (e.g. "Review PR #427 on landing-page: Stacker achievement",
+  // "Review PR: aibtcdev/landing-page#758 - feat(skills): add lunarcrush, ...", or
+  // "Review aibtcdev/skills PRs #386 #387: BFF competition winner skills") contains domain keywords
   // from the PR content, not from what the review task itself needs.
-  if (/^Review (PR #\d+|[\w/-]+ PRs? #\d+)/.test(task.subject)) return findings;
+  if (/^Review (PR[: #]|[\w/-]+ PRs? #\d+)/.test(task.subject)) return findings;
   // Audit tasks similarly embed issue/PR titles (e.g. "Produce prioritized achievements audit for landing-page#384")
   if (/audit for [\w/-]+#\d+/.test(task.subject)) return findings;
 
@@ -254,6 +255,11 @@ function checkMissingSkillCoverage(
   // Those domain keywords belong to the issues being triaged, not to what the triage task itself
   // needs — it only reads issue summaries and creates follow-up tasks.
   if (task.subject.startsWith("self-review triage:")) return findings;
+
+  // Escalation tasks relay findings to a human (e.g. "Escalate to whoabuddy: amber-otter credential
+  // rotation"). Their descriptions describe what the OTHER party needs to do — "rotate credentials",
+  // "zest borrow broken", etc. — not what skills this task's own dispatch needs.
+  if (task.subject.startsWith("Escalate to whoabuddy:")) return findings;
 
   // Signal sprint / multi-beat filing tasks list beat names in the subject
   // (e.g. "stacking", "defi", "bitflow", "governance"). These are news category names on
@@ -322,6 +328,9 @@ function checkEmptySkillsFailed(
   // Human-action tasks require a human to act — they fail because the human didn't, not due to missing context.
   if (task.subject.startsWith("HUMAN ACTION:")) return [];
   if (task.subject.startsWith("whoabuddy action needed:")) return [];
+  // Escalation tasks send a finding to a human; they fail when the escalation path is structurally blocked,
+  // not because skills were missing.
+  if (task.subject.startsWith("Escalate to whoabuddy:")) return [];
 
   // Tasks rejected at dispatch (no model set) never ran — missing skills is irrelevant.
   if (task.result_summary?.startsWith("No model set")) return [];
