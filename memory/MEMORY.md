@@ -6,14 +6,14 @@
 
 ## [A] Active Items
 
-**amber-otter-credential-exposure** [SECURITY INCIDENT 2026-05-18] PR #389 on aibtcdev/skills (`gregoryford963-sys`) added 39 scripts containing amber-otter's Stacks private key (`9922d5bc...ffbab`) and full wallet mnemonic in plaintext. Scripts called `aibtc.com/api/challenge` with `action: "update-owner"` targeting `owner: "369sunray"` — a credential-based identity takeover attempt. Credentials are now public via GitHub PR diff. Arc posted blocking review (CHANGES_REQUESTED) at 20:06 UTC. Escalation to whoabuddy required — amber-otter must rotate credentials and investigate `369sunray`. CI also added unvetted `pip install skills-ref==0.1.1` (supply chain risk). Flag: `gregoryford963-sys` is likely a compromised/automated account.
+**amber-otter-credential-exposure** [SECURITY INCIDENT 2026-05-18, ESCALATED 2026-05-22] PR #389 on aibtcdev/skills (`gregoryford963-sys`) added 39 scripts containing amber-otter's Stacks private key (`9922d5bc...ffbab`) and full wallet mnemonic in plaintext. Scripts called `aibtc.com/api/challenge` with `action: "update-owner"` targeting `owner: "369sunray"` — a credential-based identity takeover attempt. Credentials are now public via GitHub PR diff. Arc posted blocking review (CHANGES_REQUESTED) at 20:06 UTC. Escalation to whoabuddy sent 2026-05-22 via task #17266 — amber-otter must rotate credentials and investigate `369sunray`. CI also added unvetted `pip install skills-ref==0.1.1` (supply chain risk). Flag: `gregoryford963-sys` is likely a compromised/automated account.
 
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
-**payout-disputes** [ESCALATING, 21+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Human escalation required.
+**payout-disputes** [ESCALATING, 26+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Escalation attempted 2026-05-22 (task #17264) — failed, cannot escalate autonomously, requires whoabuddy direct outreach to aibtc.news platform team.
 
-**stx-wallet-low-balance** [FLAGGED 2026-05-19, ACCUMULATING] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. 6 welcome-agent tasks failed overnight (Rugged Stork, Jade Core, Thin Monolith, Martian Hammer, Cyber Moose, Snappy Lemur) — all same root cause. Recommend ~500k microSTX refill. Escalate to whoabuddy. **Sensor improvement needed**: welcome-agent sensor should gate on wallet balance before queuing — see sensor-preflight-gating pattern in [P].
+**stx-wallet-low-balance** [FLAGGED 2026-05-19, ESCALATED 2026-05-22] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. 6 welcome-agent tasks failed overnight (Rugged Stork, Jade Core, Thin Monolith, Martian Hammer, Cyber Moose, Snappy Lemur) — all same root cause. Escalation sent to whoabuddy via task #17265 on 2026-05-22. Recommend ~500k microSTX refill. **Sensor gate implemented**: welcome-agent sensor now gates on wallet balance (task #17262) — no more wasted dispatch cycles.
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
@@ -96,6 +96,7 @@
 
 **Trend (2026-05-13 → 2026-05-21)**: PURPOSE range 2.30–3.80. Signal Quality (S) locked at 1 — filing paused by policy. Cost $0.20–0.42/task. 79–100% success. Deck revision cost spike 2026-05-20 ($57.58 = 1 day, ~$12.74 for deck cycle alone).
 
+- **daily-eval-2026-05-22** [task #17272, mid-day]: 28/29 completed (96.5%), $5.85/$0.195/task (30 cycles by 03:54 UTC). 1 structural failure (payout-disputes — platform-side block). Services healthy. Escalations sent: amber-otter (task #17266), STX wallet (task #17265). Welcome-agent preflight gate active — 0 wasted cycles. payout-disputes now 26+ days stale.
 - **l-purpose-2026-05-22** [2026-05-22] PURPOSE **2.90** (S:1 O:5 E:3 C:3 A:3 Co:2 Se:4). 54/54 success (100%), $0.326/task, $17.62/day. 5 PR reviews, 0 signals (policy pause). Perfect ops score; signal floor drag continues.
 - **daily-eval-2026-05-21** [task #17215]: PURPOSE **2.85** (S:1 O:4 E:3 C:4 A:3 Co:2 Se:4). 30 completed today, $8.74/$0.282 per task. Overnight 100% (11/11). PR #391 2nd attack blocked; dispatch-stale PID-alive fix validated overnight; welcome-agent gate held 0 wasted cycles despite STX-low. No queue boosts made — pending queue empty. Three escalations stale (amber-otter rotation, STX refill, payout disputes 21+ days). Tomorrow's focus: chase whoabuddy on stale items.
 - **l-purpose-2026-05-21** [2026-05-21] PURPOSE **2.85** (S:1 O:2 E:4 C:5 A:4 Co:2 Se:3). 83.1% success (54/65), $0.241/task, $15.68/day. 10 PR reviews, 0 signals (policy pause). Adaptation boosted by x-api pre-screen fix + sensor preflight gating pattern shipped yesterday.
