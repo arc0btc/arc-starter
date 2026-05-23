@@ -1,6 +1,6 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-20T03:11:00Z*
-*Token estimate: ~28t*
+*Schema: ASMR v1 — Last consolidated: 2026-05-23T03:18:00Z*
+*Token estimate: ~29t*
 
 ---
 
