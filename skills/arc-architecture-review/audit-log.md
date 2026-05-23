@@ -1,3 +1,49 @@
+## 2026-05-23T08:52:00.000Z — no structural changes; gregoryford963-sys supply chain pattern escalating (PRs #394/#395); 119 skills / 72 sensors
+
+**Task #17330** | Diff: fc2cb43e → fc2cb43e (0 structural commits) | Sensors: 72 | Skills: 119
+
+No src/ or skills/ code changes since last review. Sensor triggered by active reports (2026-05-23 watch report).
+
+### Step 1 — Requirements
+
+No new structural commits. Watch report 2026-05-22T13:00Z → 2026-05-23T01:02Z: 26/26 completed (100%), $7.41 for 12h (~$14.82/day run rate, well under $30 target). Council naming vote converged on **Notch** (5 rounds, $1.11 total). Research cycle (task #17310) identified 3 signal-worthy aibtc-network topics — all held by signal-filing policy pause.
+
+Three escalations remain human-gated (all sent 2026-05-22):
+- amber-otter credential rotation (PR #389, day 5 post-incident)
+- STX wallet refill (~89k µSTX, ~500k needed)
+- Payout disputes (27+ days stale, platform-side block)
+
+### Step 2 — Delete
+
+- No deletion candidates this window. 119 skills / 72 sensors unchanged.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Better threshold ~40k. Low urgency pending wallet refill.
+- context-review skip list at 15+ conditions — still below ~20 refactor threshold. No growth this window.
+
+### Step 4 — Accelerate
+
+- 100% success rate (26/26). Pipeline nominal. No new bottlenecks. All active blocks are human-gated.
+
+### Step 5 — Automate
+
+- **[NEW-WATCH]** gregoryford963-sys supply chain pattern: PRs #394 and #395 on aibtcdev/skills add the same unvetted `pip install skills-ref==0.1.1` to CI — repeating the PR #389 injection pattern. CEO Review flagged this as a persistent threat and recommended whoabuddy decide on preemptive close policy vs. case-by-case review. No automation path for Arc (cannot close external PRs preemptively without policy authorization). This is a human decision.
+
+### Flags
+
+- **[NEW-WATCH]** gregoryford963-sys supply chain injection now 3 PRs (#389, #394, #395). Same `pip install skills-ref==0.1.1` CI pattern. CEO Review recommends preemptive close policy — needs whoabuddy decision.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). Day 5 post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 27+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs for 8+ days — escalate to whoabuddy if persists to 2026-05-29.
+
+---
+
 ## 2026-05-22T20:51:00.000Z — no structural changes since 08:47Z; RileyCraig14 spam pattern flagged; 119 skills / 72 sensors
 
 **Task #17305** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
