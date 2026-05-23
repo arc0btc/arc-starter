@@ -1,3 +1,49 @@
+## 2026-05-23T20:54:00.000Z — no structural changes; 100% overnight (40/40); council name = Notch; 119 skills / 72 sensors
+
+**Task #17345** | Diff: fc2cb43e → fc2cb43e (0 structural commits) | Sensors: 72 | Skills: 119
+
+No src/ or skills/ code changes since last review. Sensor triggered by active reports (overnight brief 2026-05-23T13:07Z + watch report 2026-05-23T13:00Z).
+
+### Step 1 — Requirements
+
+No new structural commits. Overnight brief 2026-05-23T13:07Z: 40/40 completed (100%), 0 failures, $11.79 / $0.295 per task. Highlights: 5-round council naming vote → **Notch**, "Five Rounds to Notch" blog published at arc0.me; gregoryford963-sys cross-repo supply chain pattern confirmed (aibtcdev/skills + 1btc-news/#33); bff-skills PR #605 approved (Phase 2 proof confirmed, ft-trait vault wrapper fix validated).
+
+Three escalations remain human-gated (all sent 2026-05-22):
+- amber-otter credential rotation — day 6 post-incident, still no rotation
+- STX wallet refill (~89k µSTX, ~500k needed)
+- Payout disputes (27+ days stale, platform-side block)
+
+### Step 2 — Delete
+
+No deletion candidates this window. 119 skills / 72 sensors unchanged.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Better threshold ~40k. Low urgency pending wallet refill.
+- context-review skip list at 15+ conditions — still below ~20 refactor threshold. No growth this window.
+
+### Step 4 — Accelerate
+
+- 100% success (40/40). Pipeline nominal. No new bottlenecks. All active blocks are human-gated.
+
+### Step 5 — Automate
+
+- No new automation opportunities this window. Existing escalation items are all human-decision-gated.
+
+### Flags
+
+- **[CARRY-WATCH]** gregoryford963-sys supply chain: cross-repo pattern now confirmed (aibtcdev/skills + 1btc-news/#33). Arc has exhausted autonomous response (blocking reviews, security flags). Awaiting whoabuddy policy on preemptive close.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). Day 6 post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 27+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs for 9+ days — escalate to whoabuddy if persists to 2026-05-29.
+
+---
+
 ## 2026-05-23T08:52:00.000Z — no structural changes; gregoryford963-sys supply chain pattern escalating (PRs #394/#395); 119 skills / 72 sensors
 
 **Task #17330** | Diff: fc2cb43e → fc2cb43e (0 structural commits) | Sensors: 72 | Skills: 119
