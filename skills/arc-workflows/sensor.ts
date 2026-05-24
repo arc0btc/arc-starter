@@ -3,6 +3,7 @@ import {
   insertTask,
   taskExistsForSource,
   pendingTaskExistsForSource,
+  recentTaskExistsForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   updateWorkflowContext,
@@ -424,7 +425,11 @@ export default async function workflowsSensor(): Promise<string> {
         // Dedup: skip if a pending/active task already exists for this source.
         // Use pendingTaskExistsForSource (not taskExistsForSource) so that completed/failed tasks
         // don't permanently block re-creation — bulk cleanups or task failures should allow retry.
-        if (!crossSensorDup && !pendingTaskExistsForSource(source)) {
+        // Belt-and-braces: also skip if ANY task with this source was created in the last 60min
+        // (catches stuck-in-state workflow loops where autoAdvanceState was missing — see
+        // retrospective flood 2026-05-24, task #17585/#17590).
+        const recentDup = recentTaskExistsForSource(source, 60);
+        if (!crossSensorDup && !pendingTaskExistsForSource(source) && !recentDup) {
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
