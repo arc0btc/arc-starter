@@ -1,3 +1,51 @@
+## 2026-05-24T20:55:00.000Z — retrospective flood confirmed ($15.10 waste, 116 duplicates); no structural changes; 119 skills / 72 sensors
+
+**Task #17583** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
+
+No src/ or skills/ code changes since last review. Sensor triggered by active reports (watch 2026-05-24T01:01Z–13:00Z + overnight brief 2026-05-24T13:03Z).
+
+### Step 1 — Requirements
+
+No new structural commits. Overnight brief (2026-05-24T13:03Z): 145 tasks, 100% success, $22.85 — clean ops but dominated by the retrospective flood already in-flight.
+
+**Watch report (2026-05-24T01:01Z–13:00Z):** 136 tasks completed (0 failed), $20.72 total — but 116 of those were duplicate "Retrospective: arc0btc.com health alert" runs, each spending ~$0.13 to confirm "pattern already captured." Total waste: **~$15.10** (73% of period spend). Token ratio: 21,556k in / 151k out (143:1) — driven entirely by 116 retro cycles loading full context per run. Effective non-duplicate work: 20 tasks at ~$0.28/task.
+
+Previous audit (task #17453, 2026-05-24T08:55Z) flagged retrospective dedup as [NEW-WATCH]. It then flooded in this exact period. Prediction validated; fix is now critical.
+
+Three escalations remain stale (all human-gated): amber-otter credential rotation (day 7), STX wallet refill (~89k µSTX), payout disputes (28+ days).
+
+### Step 2 — Delete
+
+- No new deletion candidates. Skill/sensor catalog stable (119 skills / 72 sensors).
+
+### Step 3 — Simplify
+
+- **[CRITICAL → ACTION]** Retrospective sensor dedup: the retrospective sensor re-queues for already-documented patterns without checking if a completed retrospective for the same source already exists. `pendingOrCompletedTaskExistsForSource` check (or TTL per source task) would close this. 116 duplicate cycles = $15.10 waste in one 12h period. This is the #1 structural fix.
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Better threshold ~40k. Low urgency pending wallet refill.
+
+### Step 4 — Accelerate
+
+- 20 meaningful tasks at 100% (PR approvals, blog published, sensor health 72/72 clean, lint audit 0 violations). Pipeline nominal for real work.
+- The flood is the sole bottleneck. Fixing retrospective dedup restores token ratio and cost efficiency to baseline.
+
+### Step 5 — Automate
+
+- No new automation opportunities beyond the retrospective dedup fix.
+
+### Flags
+
+- **[CRITICAL → ACTION]** Retrospective sensor dedup: 116 duplicates, ~$15.10 waste in one 12h window. Add `pendingOrCompletedTaskExistsForSource` check or TTL before queuing retrospective tasks. Follow-up task created.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). Day 7 post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 28+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs — gregoryford963-sys threat actor; escalate to whoabuddy if persists to 2026-06-01.
+
+---
+
 ## 2026-05-24T08:55:00.000Z — no structural changes; retrospective dedup FP noted; 119 skills / 72 sensors
 
 **Task #17453** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
