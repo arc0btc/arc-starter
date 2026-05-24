@@ -112,6 +112,8 @@ Append-only operations must dedup against BOTH in-memory state AND persisted sto
 Sensors with static source keys + short intervals flood when trigger condition persists. Gate via date-scoping (`source = "sensor:name:YYYY-MM-DD HH"`) or condition-state files.
 **p-large-audit-aggregator-cli** [2026-05-16]
 Any task reading ≥10 files: build a CLI aggregator instead. `sensor-health-report` replaces 73 sensor.ts reads. Architecture reviews: scope to git diff since last SHA. @mention responses: read comment thread only, no full PR diff.
+**p-state-machine-dedup-auto-advance** [2026-05-24, task #17585]
+When a state machine creates a dedup'd task (checked via `pendingOrCompletedTaskExistsForSource` on workflow state), the state must advance immediately upon task creation. If state remains pending after task creation, sensors re-detect it on next cycle and re-queue — causing duplicate floods. Pattern: every task-creation action in a dedup'd state must include `autoAdvanceState: <target_state>`. Fix validated: retrospective_pending actions now auto-advance to completed, stopping 116-duplicate re-creation loop across 9 workflow machines.
 **p-architecture-review** [2026-05-16, merged: sha-gate + carry-watches]
 Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary.
 **p-multi-dispatch-path-completeness** [2026-05-16]
