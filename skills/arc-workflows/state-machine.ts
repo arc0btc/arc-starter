@@ -1199,14 +1199,14 @@ Steps:
           subject: `Retrospective: extract learnings from collaboration with ${ctx.sender}`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract and record learnings from the collaboration with ${ctx.sender}.
 ${ctx.retrospectiveRef ? `Reference: ${ctx.retrospectiveRef}` : ""}
 
 Steps:
 1. Review what happened in this collaboration thread
 2. Identify patterns, insights, or improvements for future agent interactions
-3. Update memory/MEMORY.md with key learnings (under Agent Network section if relevant)
-4. Transition workflow to 'completed'`,
+3. Update memory/MEMORY.md with key learnings (under Agent Network section if relevant)`,
         };
       },
     },
@@ -1281,14 +1281,14 @@ Steps:
           subject: `Retrospective: arc0btc.com health alert — extract learnings`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from a recent arc0btc.com health alert and its fix.
 ${ctx.fixSummary ? `Fix summary: ${ctx.fixSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
 
 Steps:
 1. Review what broke and how it was fixed
 2. Identify if this is a recurring issue type and note the pattern
-3. Add prevention notes to memory/MEMORY.md if a pattern is identified
-4. Transition workflow to 'completed'`,
+3. Add prevention notes to memory/MEMORY.md if a pattern is identified`,
         };
       },
     },
@@ -1418,6 +1418,7 @@ After applying the fix:
           subject: `Retrospective: recurring failure "${failureType}" (${occurrences} occurrences)`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract and record learnings from the recurring "${failureType}" failure investigation.
 ${fixRef}
 Root cause: ${ctx.investigationSummary || "see investigation task"}
@@ -1425,8 +1426,7 @@ Root cause: ${ctx.investigationSummary || "see investigation task"}
 Steps:
 1. Summarize the failure pattern, root cause, and fix applied (if any)
 2. Identify prevention measures or monitoring improvements
-3. Update memory/MEMORY.md if this reveals a systemic pattern
-4. Transition workflow to 'completed'`,
+3. Update memory/MEMORY.md if this reveals a systemic pattern`,
         };
       },
     },
@@ -1504,13 +1504,13 @@ Steps:
           subject: `Retrospective: health alert — ${alertType.replace(/-/g, " ")}`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from a health alert: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.resolutionSummary ? `\nResolution: ${ctx.resolutionSummary}` : ""}
 
 Steps:
 1. Review what triggered the alert and how it was resolved
 2. Identify if this is a recurring pattern or a one-off condition
-3. If recurring, note prevention measures or monitoring improvements in memory/MEMORY.md
-4. Transition workflow to 'completed'`,
+3. If recurring, note prevention measures or monitoring improvements in memory/MEMORY.md`,
         };
       },
     },
@@ -1582,18 +1582,14 @@ Steps:
           subject: `Retrospective: extract learnings from overnight brief — ${date}`,
           priority: 8,
           skills: ["arc-reporting", "arc-skill-manager", "arc-workflows"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from the overnight brief for ${date}.
 ${ctx.briefTaskRef ? `Brief task: ${ctx.briefTaskRef}` : ""}
 ${ctx.briefSummary ? `Brief summary: ${ctx.briefSummary}` : ""}
 
 Steps:
 1. Review the overnight brief and identify patterns, insights, or anomalies
-2. Note any recurring issues or improvements for future briefs in memory/MEMORY.md
-3. Close the workflow (required — workflows accumulate otherwise):
-   arc skills run --name arc-workflows -- list-by-template overnight-brief
-   (find the row with instance_key = overnight-brief:${date})
-   arc skills run --name arc-workflows -- transition <id> learnings_extracted
-   arc skills run --name arc-workflows -- complete <id>`,
+2. Note any recurring issues or improvements for future briefs in memory/MEMORY.md`,
         };
       },
     },
@@ -1672,14 +1668,14 @@ Steps:
           subject: `Retrospective: cost alert — ${spend} daily spend`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from a cost alert for daily spend of ${spend}.
 ${ctx.reviewSummary ? `Review summary: ${ctx.reviewSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
 
 Steps:
 1. Review the cost drivers identified in the review task
 2. Identify if this is a recurring pattern (same sensors, same task types)
-3. If recurring, note the pattern in memory/MEMORY.md for future reference
-4. Transition workflow to 'completed'`,
+3. If recurring, note the pattern in memory/MEMORY.md for future reference`,
         };
       },
     },
@@ -2787,6 +2783,7 @@ Steps:
           subject: `Retrospective: compliance-review ${count} finding(s) — ${date}`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from the compliance review scan on ${date} (${count} finding(s)).
 ${ctx.taskRef ? `Review task: ${ctx.taskRef}` : ""}
 ${ctx.learningsSummary ? `Learnings: ${ctx.learningsSummary}` : ""}
@@ -2794,8 +2791,7 @@ ${ctx.learningsSummary ? `Learnings: ${ctx.learningsSummary}` : ""}
 Steps:
 1. Review findings and fixes applied
 2. Identify if any findings are recurring patterns
-3. If recurring, add prevention notes to memory/MEMORY.md
-4. Transition workflow to 'completed'`,
+3. If recurring, add prevention notes to memory/MEMORY.md`,
         };
       },
     },
@@ -2887,14 +2883,14 @@ Steps:
           subject: `Retrospective: extract learnings from GitHub @mention in ${repo}`,
           priority: 8,
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract learnings from handling a GitHub @mention in ${repo}.
 ${ctx.taskRef ? `Work task: ${ctx.taskRef}` : ""}${ctx.mentionUrl ? `\nMention: ${ctx.mentionUrl}` : ""}${ctx.mentionContext ? `\nContext: ${ctx.mentionContext}` : ""}
 
 Steps:
 1. Review what the mention requested and how it was addressed
 2. Identify patterns (recurring request types, gaps in the codebase, process issues)
-3. If a pattern is recurring, add prevention or improvement notes to memory/MEMORY.md
-4. Transition workflow to 'completed'`,
+3. If a pattern is recurring, add prevention or improvement notes to memory/MEMORY.md`,
         };
       },
     },
@@ -3211,6 +3207,7 @@ Steps:
           priority: 8,
           model: "haiku",
           skills: ["arc-skill-manager"],
+          autoAdvanceState: "completed",
           description: `Extract and record learnings from human feedback on task #${refId ?? "unknown"}.
 ${fixRef}
 Feedback: ${ctx.senderNote || "(see inbox)"}
@@ -3219,9 +3216,7 @@ Action taken: ${ctx.actionTaken || "see action task"}
 Steps:
 1. Summarize the feedback and the response
 2. Identify any systemic issues or process improvements
-3. Update memory/MEMORY.md if this reveals a pattern worth remembering
-4. Set learningsSummary in workflow context
-5. Transition workflow to 'completed'`,
+3. Update memory/MEMORY.md if this reveals a pattern worth remembering`,
         };
       },
     },
