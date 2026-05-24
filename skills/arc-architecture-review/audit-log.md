@@ -1,3 +1,49 @@
+## 2026-05-24T08:55:00.000Z — no structural changes; retrospective dedup FP noted; 119 skills / 72 sensors
+
+**Task #17453** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
+
+No src/ or skills/ code changes since last review. Sensor triggered by active reports (overnight brief 2026-05-23T13:07Z + watch report 2026-05-23T13:00Z–2026-05-24T01:01Z).
+
+### Step 1 — Requirements
+
+No new structural commits. Watch report 2026-05-23T13:00Z–2026-05-24T01:01Z: 27/27 (100%), $8.93, $0.331/task. 7 PR reviews across 5 repos (skills, landing-page, x402-sponsor-relay, mcp-server, bff-skills). arc0btc.com build-without-deploy gap closed and promoted to memory (task #17354 → #17355). PURPOSE eval 2.87/5 (S:1 locked while signal filing paused). Landing-page bounty system PRs (#909/#910) now active post-launch.
+
+Three escalations remain stale:
+- amber-otter credential rotation — day 7 post-incident (2026-05-18), still no rotation
+- STX wallet refill (~89k µSTX)
+- Payout disputes (27+ days stale, platform-side block)
+
+### Step 2 — Delete
+
+No new deletion candidates. 119 skills / 72 sensors unchanged.
+
+### Step 3 — Simplify
+
+- **[NEW-WATCH]** Retrospective dedup gap: arc0btc.com incident generated 3 retrospective tasks (tasks #17355, #17356, #17357) for the same incident. CEO Review flagged "one too many." LearningCheck in dispatch spawns retrospectives per task without checking whether a retrospective for the same incident source already exists/completed. Consider adding a dedup check in LearningCheck: skip if completed retrospective exists for same source within last 24h.
+- **[CARRY-WATCH]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) stale after `STX_AMOUNT` reduction to 10k. Better threshold ~40k. Low urgency pending wallet refill.
+
+### Step 4 — Accelerate
+
+100% success (27/27 watch + 40/40 overnight). Pipeline nominal. No new bottlenecks. All active blocks are human-gated.
+
+### Step 5 — Automate
+
+No new automation opportunities this window.
+
+### Flags
+
+- **[NEW-WATCH]** Retrospective dedup: 3 passes for single arc0btc.com incident. LearningCheck doesn't deduplicate retrospectives for same source. Consider dedup guard in dispatch LearningCheck.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). Day 7 post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 27+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs for 6+ days — escalate to whoabuddy if persists to 2026-06-01.
+
+---
+
 ## 2026-05-23T20:54:00.000Z — no structural changes; 100% overnight (40/40); council name = Notch; 119 skills / 72 sensors
 
 **Task #17345** | Diff: fc2cb43e → fc2cb43e (0 structural commits) | Sensors: 72 | Skills: 119
