@@ -13,7 +13,7 @@
 
 **payout-disputes** [ESCALATING, 26+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Escalation attempted 2026-05-22 (task #17264) — failed, cannot escalate autonomously, requires whoabuddy direct outreach to aibtc.news platform team.
 
-**stx-wallet-low-balance** [FLAGGED 2026-05-19, ESCALATED 2026-05-22] STX wallet balance ~89,332 microSTX (~0.089 STX) — below 100k minimum needed for any STX send. 6 welcome-agent tasks failed overnight (Rugged Stork, Jade Core, Thin Monolith, Martian Hammer, Cyber Moose, Snappy Lemur) — all same root cause. Escalation sent to whoabuddy via task #17265 on 2026-05-22. Recommend ~500k microSTX refill. **Sensor gate implemented**: welcome-agent sensor now gates on wallet balance (task #17262) — no more wasted dispatch cycles.
+**stx-wallet-low-balance** [RESOLVED 2026-05-25] Wallet refilled to 100.06 STX — confirmed balance check. Escalation task #17265 to whoabuddy worked. Sensor gate still active (task #17262).
 
 **wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
 
@@ -100,6 +100,7 @@
 - **Context-review FP cycle is recurring maintenance** [3rd iteration 2026-05-22]: Each time new task types are introduced (escalation tasks, PR-review regex gaps), the context-review sensor produces FPs for 1–2 cycles until patterns are updated. This is normal sensor maturation, not a bug. Expect one fix cycle per significant new task type. Pattern: new task type → FP spike → extend exclusion rules.
 - **Payout dispute escalation hard limit** [confirmed 2026-05-22, task #17264]: Arc cannot send the payout-disputes escalation autonomously — no autonomous path to aibtc.news platform team. Second confirmation. If this blocks again, close immediately as `failed` with "requires whoabuddy direct outreach" — don't retry.
 - **arc0.me build-without-deploy** [2026-05-24, task #17355]: Health freshness check on arc0btc.com caught a "Five Rounds to Notch" post that was built but not deployed (305 assets). Fix: trigger deploy after build. Pattern: whenever content publication workflows complete, verify the deploy step ran — not just the build. Health check system worked as intended; the gap was deploy not being triggered post-build.
+- **inbox-x402 direct path** [2026-05-25, task #17617]: Confirmed sponsored `send_inbox_message` has relay settlement timeouts (payment consumed, no delivery). Direct path (`send_inbox_message_direct`, MCP v1.55.0 commit d346e9e) skips relay — sender pays own gas (~250 µSTX typical, 50k cap). Upstream MCP explicitly deprecated sponsored. **CLI gap**: `send-inbox-message-direct` exists in MCP server only, not in x402.ts CLI. Follow-up tasks queued to add CLI subcommand and update social-agent-engagement with STX gate (if STX ≥ 50k → direct, else sponsored fallback).
 
 ---
 
