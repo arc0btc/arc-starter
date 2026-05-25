@@ -1,3 +1,46 @@
+## 2026-05-25T08:56:00.000Z — retrospective flood root cause closed (autoAdvanceState + 60min dedup gate); 119 skills / 72 sensors
+
+**Task #17612** | Diff: f6961f5d → e4c8a9b3 (2 structural commits) | Sensors: 72 | Skills: 119
+
+### Step 1 — Requirements
+
+- **fix(arc-workflows): add autoAdvanceState to all retrospective_pending actions** (1a700e99): Adds `autoAdvanceState: "completed"` to all 9 retrospective_pending state actions in `state-machine.ts`. Root cause of the 2026-05-24 flood (116 dupes, $15.10 in 12h): workflow stuck in `retrospective_pending` — `pendingTaskExistsForSource` returned false because the task completed but the workflow never advanced state → sensor re-created the task every 5-min cycle. Fix: state machine auto-advances to `completed` on task creation. Also removes "Transition workflow to 'completed'" from 9 task description step lists — dispatched agents no longer need to execute this manually.
+- **fix(arc-workflows): add belt-and-braces 60min sensor-side dedup gate** (e4c8a9b3): `recentTaskExistsForSource(source, 60)` check added before `insertTask` in the workflow meta-sensor. Defense-in-depth: if a future state action omits `autoAdvanceState`, duplicates are capped at 1/hour instead of 1 per 5-min cycle. Two-layer guard: (1) state machine auto-advance, (2) time-based sensor fallback.
+- **Last watch report** (2026-05-25T01:00Z): 9 tasks since last arch-review. Both commits landed overnight post-flood. No new PR reviews or signal tasks (policy pause continues).
+
+### Step 2 — Delete
+
+- The "Transition workflow to 'completed'" instruction was deleted from 9 retrospective task descriptions. Correct: instructions that are now automated by the state machine have no place in agent briefings — they're noise that could cause double-transition bugs.
+
+### Step 3 — Simplify
+
+- `autoAdvanceState` is the correct architecture: the state machine owns its transitions, not the dispatched agent. Previously the state machine depended on the agent following a specific step — that's an inversion of control that caused this exact class of failure. Fixed.
+- Belt-and-braces redundancy is appropriate: two independent guards at different layers (machine vs. sensor). Cost is one DB query per task-creation attempt — negligible vs. the $15 flood that prompted it.
+- No over-engineering. Both changes are small, targeted additions to existing patterns.
+
+### Step 4 — Accelerate
+
+- Retrospective cost per event: ~$0.13 (one task) vs. $15.10 (116 tasks). Token ratio should normalize away from the 143:1 extreme during the flood.
+- No new bottlenecks introduced. All existing blocks remain human-gated.
+
+### Step 5 — Automate
+
+- Both commits ARE the automation fix. Dispatched agents no longer need to manually transition workflows for retrospective states. The state machine is now self-driving for this task class.
+
+### Flags
+
+- **[RESOLVED — CRITICAL]** Retrospective flood ($15.10, 116 dupes in 12h) — 1a700e99 closes root cause (autoAdvanceState on all 9 retrospective_pending actions); e4c8a9b3 adds defense-in-depth (60min recentDup gate). Closes [CRITICAL → ACTION] from 2026-05-24T20:55Z audit.
+- **[CARRY-WATCH]** MIN_STX_SEND_THRESHOLD stale (100k vs. 10k send). Calibrate post-wallet-refill.
+- **[CARRY-WATCH]** STX wallet critically low (~89k µSTX) — escalated (task #17265). Awaiting whoabuddy refill.
+- **[CARRY-WATCH]** amber-otter credential exposure — escalated (task #17266). Day 8 post-incident, no rotation yet.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 29+ days stale. Requires whoabuddy direct outreach. Hard limit confirmed.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs — escalate to whoabuddy if persists to 2026-06-01.
+
+---
+
 ## 2026-05-24T20:55:00.000Z — retrospective flood confirmed ($15.10 waste, 116 duplicates); no structural changes; 119 skills / 72 sensors
 
 **Task #17583** | Diff: f6961f5d → f6961f5d (0 structural commits) | Sensors: 72 | Skills: 119
