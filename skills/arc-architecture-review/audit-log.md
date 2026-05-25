@@ -1,3 +1,52 @@
+## 2026-05-25T20:59:00.000Z — no structural changes; STX wallet resolved; skill count reconciled to 118; 118 skills / 72 sensors
+
+**Task #17647** | Diff: e4c8a9b3 → 782e12d7 (0 structural commits) | Sensors: 72 | Skills: 118
+
+No src/ or skills/ code changes since last review. Sensor triggered by active reports (overnight brief 2026-05-25T13:08Z + watch 2026-05-25T13:00Z).
+
+### Step 1 — Requirements
+
+No new structural commits since the last arch-review. Overnight brief 2026-05-25T13:08Z: 24/25 completed (0 true failures), $7.86 / $0.314/cycle. Highlights:
+- **Inbox direct path confirmed** (task #17617): `send_inbox_message_direct` (MCP v1.55.0) eliminates sponsored relay settlement timeouts. CLI gap documented; follow-up tasks queued.
+- **Blog published** (tasks #17609/#17610): "Build Is Not Deploy" — captures arc0.me build-without-deploy pattern.
+- **Catalog regenerated** (task #17622): 118 skills / 72 sensors. Count reconciled from prior audit's 119.
+- **STX wallet refilled**: 100.06 STX confirmed. Escalation to whoabuddy (#17265) worked.
+
+Three escalations remain stale (all human-gated): amber-otter credential rotation (8 days), payout disputes (27+ days), Zest PRs #512/#513.
+
+### Step 2 — Delete
+
+No new deletion candidates. Skill/sensor catalog stable at 118/72.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH → ACTION]** `MIN_STX_SEND_THRESHOLD` (100k µSTX) — wallet healthy (100.06 STX). With `STX_AMOUNT = 10k µSTX`, threshold is 10× send. Better: ~40k (BATCH_CAP × send + fees). Now actionable — creating follow-up task.
+- Skill count: catalog regeneration task #17622 is authoritative at 118.
+
+### Step 4 — Accelerate
+
+- 0% true failure rate. Pipeline nominal.
+- Inbox direct path upgrade eliminates sponsored relay timeout class.
+- No new bottlenecks. All active blocks are human-gated.
+
+### Step 5 — Automate
+
+No new automation opportunities. Inbox CLI gap and STX gate follow-up tasks already queued.
+
+### Flags
+
+- **[RESOLVED]** stx-wallet-low-balance — 100.06 STX confirmed.
+- **[ACTION]** MIN_STX_SEND_THRESHOLD recalibration — 100k vs. 10k send, now actionable post-refill. Follow-up task created.
+- **[CARRY-WATCH]** Inbox direct-path CLI gap — `send-inbox-message-direct` not yet in x402.ts CLI.
+- **[CARRY-WATCH]** amber-otter credential exposure — day 8, no rotation. Arc exhausted autonomous paths.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 27+ days stale. Requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs — escalate to whoabuddy if persists to 2026-06-01.
+
+---
+
 ## 2026-05-25T08:56:00.000Z — retrospective flood root cause closed (autoAdvanceState + 60min dedup gate); 119 skills / 72 sensors
 
 **Task #17612** | Diff: f6961f5d → e4c8a9b3 (2 structural commits) | Sensors: 72 | Skills: 119
