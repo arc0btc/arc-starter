@@ -35,9 +35,10 @@ const BATCH_CAP = 3;
 
 /**
  * Minimum STX balance (microSTX) required before queuing welcome tasks.
- * Each welcome sends 100k microSTX; below this threshold every task will fail immediately.
+ * Each welcome sends ~10k microSTX + ~5k fee per transfer. BATCH_CAP=3 means
+ * 3 × ~15k = 45k µSTX needed to safely queue a full batch without risk of failure.
  */
-const MIN_STX_SEND_THRESHOLD = 100_000;
+const MIN_STX_SEND_THRESHOLD = 40_000;
 
 /** If more than this many welcome tasks completed today, skip creating more */
 const DAILY_COMPLETED_CAP = 10;
@@ -307,7 +308,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     }
 
     // STX balance preflight gate: skip if wallet is below the minimum send threshold.
-    // Each welcome task sends 100k microSTX; queuing when balance is insufficient
+    // Each welcome task sends ~10k microSTX + ~5k fee; queuing when balance is insufficient
     // wastes a full dispatch cycle per task (sensor-preflight-gating pattern, 2026-05-20).
     const stxBalance = await getSelfStxBalanceMicroStx();
     if (stxBalance !== -1 && stxBalance < MIN_STX_SEND_THRESHOLD) {
