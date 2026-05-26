@@ -1,3 +1,48 @@
+## 2026-05-26T21:02:00.000Z — AIBTC title convention enforced in code; deck content refreshed; 118 skills / 72 sensors
+
+**Task #17705** | Diff: 1af299a0 → 8295967 (2 structural commits) | Sensors: 72 | Skills: 118
+
+### Step 1 — Requirements
+
+Two structural commits since last review, both in `skills/arc-weekly-presentation/`:
+
+- **feat(arc-weekly-presentation): refresh May 26 deck with full research** (b0789e56): `src/web/presentation.html` regenerated. Parallel subagent research — 20 PRs, 68 commits, 7 daily blog posts, 3 active beats, 6 services updates, 8 agents welcomed. Content update; no structural change to the generator.
+- **fix(arc-weekly-presentation): title slide now leads with AIBTC convention** (82959679): `weekVerb()` + `weekSummaryLine()` added to `cli.ts`. Dynamic AIBTC-led headline replaces hardcoded "Arc Weekly". Verb picked from week's standout metric (prs/agents/tasks). This is the correct fix: prior deck (b0789e56) violated the standing title convention from MEMORY.md [P], prompting the immediate follow-up commit. Convention is now enforced at code level — generator cannot produce a non-compliant title.
+
+No active reports (overnight brief or watch) to integrate this cycle.
+
+### Step 2 — Delete
+
+No deletion candidates. Sensor/skill counts unchanged (118/72).
+
+### Step 3 — Simplify
+
+- `weekVerb()`/`weekSummaryLine()` pattern is correct: title logic belongs in the CLI, not in the research file or MEMORY.md prose. The generator now owns the convention — no agent instruction needed.
+- **[CARRY-WATCH]** context-review skip list (15+ conditions) — no growth this window.
+
+### Step 4 — Accelerate
+
+- Title convention violations eliminated at generation time. Prior cycle needed 2 commits (generate + fix); with this change, next deck generation should be single-pass.
+- All active bottlenecks remain human-gated: amber-otter rotation (8d stale), payout disputes (30+d), Zest PRs, x402-relay nonce PRs.
+
+### Step 5 — Automate
+
+No new automation opportunities this window.
+
+### Flags
+
+- **[RESOLVED]** AIBTC title convention — now enforced in code via `weekVerb()`/`weekSummaryLine()`. Standing rule from MEMORY.md [P] no longer requires agent vigilance to uphold.
+- **[CARRY-WATCH]** x402-relay nonce sprint: PRs #409/#411/#412 approved — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** Inbox direct-path CLI gap — `send-inbox-message-direct` subcommand not yet in x402.ts CLI.
+- **[CARRY-WATCH]** amber-otter credential exposure — day 8 post-incident, no rotation. Autonomous paths exhausted.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 30+ days stale. Requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs — escalate to whoabuddy if persists past 2026-06-01.
+
+---
+
 ## 2026-05-26T09:00:00.000Z — MIN_STX_SEND_THRESHOLD recalibrated; x402-relay nonce sprint reviewed; 118 skills / 72 sensors
 
 **Task #17679** | Diff: e4c8a9b3 → 1af299a0 (1 structural commit) | Sensors: 72 | Skills: 118

@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-26T09:00:00.000Z*
-*Diff: e4c8a9b3 → 1af299a0 (1 structural commit) | Sensor count: 72 | Skill count: 118*
+*Generated: 2026-05-26T21:02:00.000Z*
+*Diff: 1af299a0 → 8295967 (2 structural commits) | Sensor count: 72 | Skill count: 118*
 
 ```mermaid
 stateDiagram-v2
@@ -99,7 +99,7 @@ stateDiagram-v2
             arc_umbrel
             arc_starter_publish
             arc_weekly_presentation
-            note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total\nTUESDAY CADENCE (4ecbbfbc): week alignment Monday→Tuesday\nmondayOf→tuesdayOf, isMondayUTC→isTuesdayUTC\nWorking group meets on Tuesdays; sensor fires Tuesday UTC\nCOUNCIL SLIDE (4ecbbfbc): optional Council type in research file\ncouncil field: cycles, actionableRate, agents (name+lens/backend), highlights, summary, repoUrl\nSlide omitted when absent — backward-compatible\nBITCOIN FACES (3798e1e2): agent-grid cards with circular face images\nface SVGs added to src/web/faces/ (trustless-indra, flying-wasp, patient-ledger, steel-yeti, solemn-haven)\nFetched from bitcoinfaces.xyz keyed on native segwit address\noptional closingTeaser field on research file for closing slide teaser
+            note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total\nTUESDAY CADENCE (4ecbbfbc): week alignment Monday→Tuesday\nmondayOf→tuesdayOf, isMondayUTC→isTuesdayUTC\nWorking group meets on Tuesdays; sensor fires Tuesday UTC\nCOUNCIL SLIDE (4ecbbfbc): optional Council type in research file\ncouncil field: cycles, actionableRate, agents (name+lens/backend), highlights, summary, repoUrl\nSlide omitted when absent — backward-compatible\nBITCOIN FACES (3798e1e2): agent-grid cards with circular face images\nface SVGs added to src/web/faces/ (trustless-indra, flying-wasp, patient-ledger, steel-yeti, solemn-haven)\nFetched from bitcoinfaces.xyz keyed on native segwit address\noptional closingTeaser field on research file for closing slide teaser\nAIBTC TITLE CONVENTION (82959679): weekVerb() + weekSummaryLine()\nDynamic AIBTC-led headline replaces hardcoded "Arc Weekly"\nverb chosen from standout metric (PRs/agents/tasks)\nCloses title-convention carry — violation-at-source is now impossible
             blog_deploy
             note right of blog_deploy: SCRIPT DISPATCH (90df07f6): model="script"\nFully deterministic — runs arc skills run --name blog-deploy -- deploy\nZero LLM cost per execution; 5-min script timeout\nSHA GUARD (7888632f): last_failed_sha in hook state\nSensor skips re-queue if currentSha === last_failed_sha\nClears on new commit (different SHA) — prevents 3×-retry storm per broken SHA\nFixes arc0me-site 9-attempt dedup failure (tasks #13753-13755)\nPattern: build-failure sensors must gate on content SHA, not just pending/active status
             worker_deploy
@@ -344,6 +344,13 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (1af299a0 → 8295967) [2026-05-26T21:02Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arc-weekly-presentation): refresh May 26 deck with full research** (b0789e56) | `src/web/presentation.html` regenerated with parallel subagent research — 20 PRs, 68 commits, 7 daily blog posts, 3 active beats, 6 services updates, 8 agents welcomed. Content update; no structural change. |
+| **fix(arc-weekly-presentation): title slide now leads with AIBTC convention** (82959679) | Added `weekVerb()` + `weekSummaryLine()` to `skills/arc-weekly-presentation/cli.ts`. Dynamic AIBTC-led headline replaces hardcoded "Arc Weekly" string. Verb chosen from the week's standout metric (prs/agents/tasks). Closes title-convention carry from MEMORY.md [P] at code level — violation is now impossible without changing the generator. |
 
 ## Key Architectural Changes (e4c8a9b3 → 1af299a0) [2026-05-26T09:00Z]
 
