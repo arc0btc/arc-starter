@@ -469,12 +469,30 @@ const STYLES = `
 
 // ---- Slide renderers ----
 
+function weekVerb(d: WeekData): string {
+  if (d.devActivity.prs.length >= 5) return "ships.";
+  if (d.newAgents.length >= 3) return "grows.";
+  if (d.taskStats.completed >= 100) return "executes.";
+  if (d.devActivity.prs.length >= 2) return "keeps shipping.";
+  return "keeps building.";
+}
+
+function weekSummaryLine(d: WeekData): string {
+  const parts: string[] = [];
+  if (d.devActivity.prs.length > 0) parts.push(`${fmt(d.devActivity.prs.length)} shipped`);
+  if (d.newAgents.length > 0) parts.push(`${fmt(d.newAgents.length)} agent${d.newAgents.length !== 1 ? "s" : ""} welcomed`);
+  if (d.taskStats.completed > 0) parts.push(`${fmt(d.taskStats.completed)} tasks done`);
+  return parts.join(" &middot; ");
+}
+
 function titleSlide(d: WeekData): string {
+  const verb = weekVerb(d);
+  const summary = weekSummaryLine(d);
   return `
   <div class="slide active" data-slide="0">
     <div class="arc-logo">ARC</div>
-    <h1>Arc <span class="highlight">Weekly</span></h1>
-    <p class="subtitle">AIBTC Working Group &middot; ${formatDateRange(d.weekStart, d.weekEnd)}</p>
+    <h1>AIBTC <span class="highlight">${verb}</span></h1>
+    <p class="subtitle">${summary ? summary + " &nbsp;&middot;&nbsp; " : ""}AIBTC Working Group &middot; ${formatDateRange(d.weekStart, d.weekEnd)}</p>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-number">${fmt(d.taskStats.completed)}</div><div class="stat-label">Tasks Completed</div></div>
       <div class="stat-card"><div class="stat-number green">${fmt(d.totalSkills)}</div><div class="stat-label">Skills Active</div></div>
