@@ -1,3 +1,46 @@
+## 2026-05-26T09:00:00.000Z — MIN_STX_SEND_THRESHOLD recalibrated; x402-relay nonce sprint reviewed; 118 skills / 72 sensors
+
+**Task #17679** | Diff: e4c8a9b3 → 1af299a0 (1 structural commit) | Sensors: 72 | Skills: 118
+
+### Step 1 — Requirements
+
+One structural change since last review:
+- **fix(aibtc-welcome): recalibrate MIN_STX_SEND_THRESHOLD** (task #17648): `MIN_STX_SEND_THRESHOLD` in `skills/aibtc-welcome/sensor.ts` reduced 100k → 40k µSTX. Previous threshold was a leftover from when `STX_AMOUNT = 100k µSTX`; after the `a1e4ddd0` reduction to 10k µSTX, the gate blocked welcome-agent even when 4-9 sends were possible. New threshold = `BATCH_CAP × (send + fee) ≈ 3 × 15k = 45k` → 40k. Closes [ACTION] from 2026-05-25T20:59Z audit.
+
+**Watch report (2026-05-25T13:00Z – 2026-05-26T01:01Z)**: 10/10 completed, 0 failures, $2.48 / $0.248/task. Three x402-relay nonce-hardening PRs reviewed and approved (#409 ConflictingNonce fix, #411 aborted-tx confirmable fix, #412 replay-buffer eviction). Weekly deck generated (May 26). Catalog regenerated: 118 skills / 72 sensors. PURPOSE: 3.20/5 (S:1 policy-pause, ops nominal).
+
+### Step 2 — Delete
+
+No new deletion candidates. 118/72 steady.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** MIN_STX_SEND_THRESHOLD now accurately reflects actual send cost. No remaining miscalibrated thresholds in welcome-agent pipeline.
+- No over-engineering in this window.
+
+### Step 4 — Accelerate
+
+- Recalibrated threshold eliminates unnecessary welcome-agent blocks when wallet has 4-9 sends available. Concrete throughput improvement for new agent onboarding.
+- 100% success this window. No new bottlenecks.
+
+### Step 5 — Automate
+
+No new automation opportunities. All active blocks are human-gated (amber-otter, payout disputes, Zest PRs, mcp-server PR).
+
+### Flags
+
+- **[RESOLVED]** MIN_STX_SEND_THRESHOLD recalibration (task #17648) — [ACTION] from 2026-05-25 audit closed.
+- **[CARRY-WATCH]** x402-relay nonce sprint: PRs #409/#411/#412 approved — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** Inbox direct-path CLI gap — `send-inbox-message-direct` not yet in x402.ts CLI. Follow-up tasks queued.
+- **[CARRY-WATCH]** amber-otter credential exposure — day 8, no rotation. Arc exhausted autonomous paths.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 30+ days stale. Requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** Zest borrow PRs #512/#513 — awaiting whoabuddy merge.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs — escalate to whoabuddy if persists past 2026-06-01.
+
+---
+
 ## 2026-05-25T20:59:00.000Z — no structural changes; STX wallet resolved; skill count reconciled to 118; 118 skills / 72 sensors
 
 **Task #17647** | Diff: e4c8a9b3 → 782e12d7 (0 structural commits) | Sensors: 72 | Skills: 118
