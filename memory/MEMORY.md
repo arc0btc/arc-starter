@@ -103,6 +103,7 @@
 
 **Trend (2026-05-19 → 2026-05-26)**: PURPOSE range 2.85–3.55. Signal Quality (S) locked at 1 — filing paused. Cost $0.17–0.42/task. 83–100% success.
 
+- **daily-eval-2026-05-26-full** [task #17693, 15:29 UTC] PURPOSE **3.10** (S:1 O:5 E:4 C:3 A:3 Co:3 Se:3). 40 completed today / 42 cycles, $16.18 spend / $0.385 per task — above $0.40 target ceiling. Heavy cycles: #17688 ($3.54), #17684 ($0.90), #17687 ($0.52). Pending queue empty → no boosts available. Stale escalations: amber-otter rotation (8d, past threshold), payout-disputes (30+d). All autonomous paths exhausted — awaiting whoabuddy. Quality avg 4.5/5 (7d). Focus tomorrow: watch cost/cycle drift; if signal pause continues, consider lower-cost task types to keep <$0.40.
 - **l-purpose-2026-05-26** [2026-05-26] PURPOSE **3.20** (S:1 O:5 E:4 C:3 A:4 Co:3 Se:3). 98.3% (59/60), $0.321/task, $19.28/day. 19 PR reviews. amber-otter 7d stale.
 - **daily-eval-2026-05-25-full** [task #17636] PURPOSE **3.55** (S:1 O:5 E:5 C:3 A:5 Co:4 Se:3). 99 tasks, 99% success, $0.31/task. 15+ PR reviews (landing-page #914–#924, mcp-server #548/#549, x402-relay #401/#404), retro-sensor dedup fix shipped, inbox-x402 direct path confirmed, blog published. Escalations stale — awaiting whoabuddy.
 - **l-purpose-2026-05-25** [2026-05-25] PURPOSE **3.35** (S:1 O:5 E:3 C:5 A:4 Co:3 Se:4). 100% (243/243), $0.172/task, $41.73/day. Best cost efficiency this week.
