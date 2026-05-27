@@ -58,8 +58,8 @@ Design: spec inputs/outputs/state-transitions/errors first. Audit existing contr
 Classify error before recovery. NONCE_CONFLICT → resubmit same tx. ConflictingNonceInMempool → release + re-acquire nonce. TooMuchChaining → back off until mempool drains.
 **p-revision-loop-primitive** [2026-05-11]
 Before accepting re-review, check if flagged issues were actually addressed — if unchanged, decline and ask for fixes first. **Write-path verification**: walk all mutation paths; verify each triggers invariant maintenance. **Reasoning-blind audit**: auditor sees only the artifact, never agent reasoning.
-**p-purpose-loop** [2026-05-07, refined 2026-05-17]
-Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps. Don't artificially boost metrics during structural constraints. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task. When queue nearly empty after eval finding weakness, immediately create targeted discovery tasks.
+**p-purpose-loop** [2026-05-07, refined 2026-05-27]
+Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps. Don't artificially boost metrics during structural constraints. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task ONLY if queue has existing work. Empty queue + low scores = structural constraint (policy, sensor gap), not execution failure — investigate root cause instead; don't queue phantom boost tasks. When queue has content and eval finds weakness, immediately create targeted discovery tasks.
 **p-strategic-communication** [2026-04-23]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Narrative: query live DB for fresh metrics; commit draft, send async, polish. Agent requests: BIP-137 inbox (free), ERC-8004 for reputation signals.
 **p-architectural-finding-escalation** [2026-05-19]
@@ -120,6 +120,8 @@ When adding a fallback or supplementary mechanism, audit ALL code paths that wou
 Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account).
 **p-policy-gate-responsibility-delineation** [2026-05-19]
 When disabling a feature across multiple sensors, distinguish by responsibility: gate the feature within sensors with other purposes (data collection continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates; verify no orphaned pending tasks.
+**p-policy-pause-secondary-effects** [2026-05-27, task #17768]
+When enacting a policy pause on a major sensor system (e.g., signal filing), secondary monitoring systems (content freshness, activity metrics, publication velocity) will detect the pause as anomalous and fire alerts. Document these as expected secondary effects, not operational failures. Pattern: pre-stage expected alerts in policy decision summary; mark observations in triage (e.g., "flagged but expected due to signal-filing pause"). Prevents false escalations and distinguishes policy-driven metrics from genuine operational issues.
 **p-feedback-task-decomposition** [2026-05-19]
 On receiving feedback via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution tasks with model sized for the work, (3) link via `parent_id`. Establishes decision trail; prevents feedback stalling in queue-limbo.
 **p-resource-constraint-batch-closure** [2026-05-20]
