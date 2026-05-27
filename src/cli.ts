@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   initDatabase,
@@ -761,6 +761,115 @@ function cmdMemory(args: string[]): void {
   }
 }
 
+// ---- Dead-ends registry ----
+
+interface DeadEnd {
+  topic: string;
+  approach: string;
+  why_failed: string;
+  date: string;
+  source_task?: string;
+}
+
+const DEAD_ENDS_PATH = join(import.meta.dir, "..", "memory", "dead-ends.md");
+
+function loadDeadEnds(): DeadEnd[] {
+  if (!existsSync(DEAD_ENDS_PATH)) return [];
+  const lines = readFileSync(DEAD_ENDS_PATH, "utf8").split("\n");
+  const entries: DeadEnd[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    try {
+      entries.push(JSON.parse(trimmed) as DeadEnd);
+    } catch {
+      // skip malformed lines
+    }
+  }
+  return entries;
+}
+
+function cmdDeadEnds(args: string[]): void {
+  const sub = args[0];
+
+  if (sub === "list") {
+    const { flags } = parseFlags(args.slice(1));
+    const topic = flags["topic"]?.toLowerCase();
+    const entries = loadDeadEnds();
+    const filtered = topic
+      ? entries.filter((e) => e.topic.toLowerCase().includes(topic))
+      : entries;
+
+    if (filtered.length === 0) {
+      process.stdout.write(topic ? `No dead-ends found for topic "${topic}"\n` : "No dead-ends recorded yet.\n");
+      return;
+    }
+
+    // Group by topic for readability
+    const byTopic: Record<string, DeadEnd[]> = {};
+    for (const e of filtered) {
+      (byTopic[e.topic] ??= []).push(e);
+    }
+
+    for (const [t, items] of Object.entries(byTopic)) {
+      process.stdout.write(`\n[${t}]\n`);
+      for (const item of items) {
+        const src = item.source_task ? ` (task #${item.source_task})` : "";
+        process.stdout.write(`  ${item.date}${src}\n`);
+        process.stdout.write(`  Approach: ${item.approach}\n`);
+        process.stdout.write(`  Failed:   ${item.why_failed}\n\n`);
+      }
+    }
+    return;
+  }
+
+  if (sub === "add") {
+    const { flags } = parseFlags(args.slice(1));
+    const topic = flags["topic"];
+    const approach = flags["approach"];
+    const whyFailed = flags["why-failed"];
+    const date = flags["date"] ?? new Date().toISOString().split("T")[0];
+    const sourceTask = flags["source-task"];
+
+    if (!topic || !approach || !whyFailed) {
+      process.stderr.write("Error: --topic, --approach, and --why-failed are required\n");
+      process.stderr.write("Usage: arc dead-ends add --topic TEXT --approach TEXT --why-failed TEXT [--date YYYY-MM-DD] [--source-task N]\n");
+      process.exit(1);
+    }
+
+    const entry: DeadEnd = { topic, approach, why_failed: whyFailed, date };
+    if (sourceTask) entry.source_task = sourceTask;
+
+    appendFileSync(DEAD_ENDS_PATH, JSON.stringify(entry) + "\n");
+    process.stdout.write(`Added dead-end: [${topic}] ${approach}\n`);
+    return;
+  }
+
+  if (sub === "check") {
+    const { flags } = parseFlags(args.slice(1));
+    const topic = flags["topic"]?.toLowerCase();
+    if (!topic) {
+      process.stderr.write("Error: --topic is required\nUsage: arc dead-ends check --topic TEXT\n");
+      process.exit(1);
+    }
+    const entries = loadDeadEnds().filter((e) => e.topic.toLowerCase().includes(topic));
+    if (entries.length === 0) {
+      process.stdout.write(`No dead-ends for topic "${topic}" — no known blockers.\n`);
+      return;
+    }
+    process.stdout.write(`${entries.length} known dead-end(s) for "${topic}":\n\n`);
+    for (const e of entries) {
+      const src = e.source_task ? ` (task #${e.source_task})` : "";
+      process.stdout.write(`  [${e.date}${src}] ${e.approach}\n`);
+      process.stdout.write(`  → ${e.why_failed}\n\n`);
+    }
+    return;
+  }
+
+  process.stderr.write("Usage: arc dead-ends list [--topic TEXT] | arc dead-ends add --topic TEXT --approach TEXT --why-failed TEXT | arc dead-ends check --topic TEXT\n");
+  process.exit(sub ? 1 : 0);
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -854,6 +963,16 @@ COMMANDS
     Search past dispatch results. Queries task subjects, summaries, and descriptions
     using substring match. Returns most recent matches first. Default limit: 10.
 
+  dead-ends list [--topic TEXT]
+    List known dead-ends (approaches tried and failed). Optionally filter by topic.
+    Topics: x-api, payout-disputes, x402, wallet-rotation, signal-filing, dispatch, etc.
+
+  dead-ends check --topic TEXT
+    Check for known blockers on a topic before starting work. Compact format.
+
+  dead-ends add --topic TEXT --approach TEXT --why-failed TEXT [--date YYYY-MM-DD] [--source-task N]
+    Record a new dead-end. Append to memory/dead-ends.md.
+
   logs [--limit N] [--level info|warn|error] [--service NAME] [--task ID]
     Show structured service log events (dispatch task lifecycle, errors, retries).
 
@@ -914,6 +1033,9 @@ async function main(): Promise<void> {
       break;
     case "memory":
       cmdMemory(argv.slice(1));
+      break;
+    case "dead-ends":
+      cmdDeadEnds(argv.slice(1));
       break;
     case "logs":
       cmdLogs(argv.slice(1));
