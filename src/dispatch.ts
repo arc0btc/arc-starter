@@ -100,6 +100,10 @@ function classifyError(errMsg: string): ErrorClass {
       || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
     return "auth";
   }
+  // Layer 2: structural rate_limit_event parsed from JSON stream (unambiguous)
+  if (/\brate_limit_event\b/.test(errMsg)) {
+    return "rate_limited";
+  }
   if (RATE_LIMIT_RE.test(errMsg)) {
     return "rate_limited";
   }
@@ -591,6 +595,8 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   const toolCallNames: string[] = [];
   const decoder = new TextDecoder();
   let lineBuffer = "";
+  // Layer 2 rate-limit detection: ISO reset timestamp from rate_limit_event JSON event
+  let rateLimitResetAt: string | null = null;
 
   function processLine(line: string): void {
     if (!line.trim()) return;
@@ -599,6 +605,19 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     try {
       parsed = JSON.parse(line);
     } catch {
+      return;
+    }
+
+    // Structural rate-limit signal — unambiguous, takes priority over stderr text fallback
+    if (parsed["type"] === "rate_limit_event") {
+      const reset = parsed["reset_at"] ?? parsed["retry_after"] ?? parsed["retryAfterMs"];
+      if (typeof reset === "string") {
+        rateLimitResetAt = reset;
+      } else if (typeof reset === "number") {
+        rateLimitResetAt = new Date(Date.now() + reset).toISOString();
+      } else {
+        rateLimitResetAt = "unknown";
+      }
       return;
     }
 
@@ -667,6 +686,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   const exitCode = await proc.exited;
   if (timedOut) {
     throw new Error(`claude subprocess timed out after ${dispatchTimeoutMs / 60_000} minutes`);
+  }
+  // Layer 2: structural rate_limit_event in stream — prefer over stderr text (Layer 3)
+  if (rateLimitResetAt) {
+    throw new Error(`rate_limit_event: resets ${rateLimitResetAt}`);
   }
   if (exitCode !== 0) {
     const errText = (await stderrPromise).trim();

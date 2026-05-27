@@ -79,11 +79,19 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): v
 }
 
 /**
- * Parse a "resets HH:MM (Timezone)" or "resets 11am (America/Denver)" pattern
- * from a stop_reason string. Returns the reset time as a UTC Date for "today"
- * (relative to now), or null if the pattern is absent or unparseable.
+ * Parse reset time from a stop_reason string. Two formats supported:
+ * 1. ISO timestamp from rate_limit_event JSON: "rate_limit_event: resets 2026-05-27T21:00:00Z"
+ * 2. Text fallback: "resets HH:MM (Timezone)" or "resets 11am (America/Denver)"
  */
 function parseResetTimeUTC(stopReason: string, now: Date = new Date()): Date | null {
+  // ISO timestamp from structural rate_limit_event (Layer 2)
+  const isoMatch = stopReason.match(/resets\s+(\d{4}-\d{2}-\d{2}T[\d:.]+Z)/);
+  if (isoMatch) {
+    const d = new Date(isoMatch[1]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Text fallback (Layer 3): "resets HH:MM (Timezone)"
   const match = stopReason.match(/resets\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*\(([^)]+)\)/i);
   if (!match) return null;
 
