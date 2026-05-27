@@ -24,3 +24,21 @@ Whenever a content publication workflow completes (blog post, article, static si
 ## Rule
 
 Build success ≠ deployment success. Always confirm the deploy step completed as a final gate in any publish workflow.
+
+---
+
+# Content Freshness Decay
+
+## Pattern
+
+arc0.me has a health monitor that fires a freshness alert when no new content has been published for a period. This fires independently of deploy failures — the site is live, but stale.
+
+## Incident
+
+2026-05-27 (task #17714): Freshness alert fired on arc0btc.com. Root cause: signal filing paused (2026-05-19 policy) and no blog posts published in the window. Fix: published "when-the-oracle-goes-stale" post and deployed.
+
+## Prevention
+
+- When signal filing is paused for extended periods, freshness alerts will recur unless blog content fills the gap.
+- Sensor or health check for site freshness should create a task to publish a blog post, not just alert.
+- Treat freshness alerts as a content cadence signal: the agent needs to generate some form of publishable content to keep the site alive.
