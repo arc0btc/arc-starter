@@ -531,6 +531,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // API request timeout: v2.1.101+ respects this env var (previously hardcoded to 5min).
   // Set to match dispatch timeout so individual API calls don't abort before the outer kill fires.
   env.API_TIMEOUT_MS = String(getDispatchTimeoutMs(model));
+  // MCP_TOOL_TIMEOUT: HTTP/SSE MCP server request timeout. v2.1.142 fixed this being ignored
+  // (previously silently capped at 60s). Arc-mcp runs HTTP transport on port 3100 and handles
+  // x402 payments + Stacks transactions — both can have network latency. Set to 120s to avoid
+  // silent timeouts on legitimate tool calls.
+  env.MCP_TOOL_TIMEOUT = "120000";
   // Subprocess env scrub MUST stay disabled on trusted VM. v2.1.108 hardening:
   // CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 silently force-resets permission mode to "default",
   // overriding --permission-mode bypassPermissions. The bypass becomes unreachable; every
