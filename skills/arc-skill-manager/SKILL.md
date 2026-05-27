@@ -39,6 +39,33 @@ Use the scaffold command to generate a starter template:
 arc skills run --name manage-skills -- create <name> --description "what it does"
 ```
 
+## Restricting Tools: `disallowed-tools`
+
+Claude Code v2.1.152+ supports a `disallowed-tools` frontmatter field that prevents specific tools from being used when a skill is active. Use this for skills that are read-only by design — it makes intent explicit and prevents accidental side effects.
+
+**When to add `disallowed-tools`:**
+- Research skills (fetch data, produce reports, no writes)
+- Audit / monitoring skills (read system state, detect anomalies)
+- Review skills (assess PRs, code, content — separate from auto-fix workflows)
+- Sensor-adjacent skills (detect signals, queue tasks — no direct file writes)
+
+**Standard read-only block:**
+```yaml
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
+```
+
+**Review skills** may retain `Bash` if they need `gh` or `git` for read-only queries:
+```yaml
+disallowed-tools: [Edit, Write, NotebookEdit]
+```
+
+**Exceptions to check before blocking Bash:**
+- Skills that send emails or external API calls via subprocess (e.g. `arc-report-email`)
+- Skills that serve a local web interface (e.g. `arc-web-dashboard`)
+- Skills that run `gh pr view` or `git log` as part of their read-only work
+
+If a skill accidentally attempts a disallowed tool, Claude Code fails the operation before it executes — better than a silent write. See `research/skills-disallowed-tools-audit-2026-05-27.md` for the full list of 29 candidates identified in the initial audit.
+
 ## Checklist
 
 - [ ] `skills/<name>/SKILL.md` exists with valid frontmatter (name, description, tags)
@@ -47,6 +74,7 @@ arc skills run --name manage-skills -- create <name> --description "what it does
 - [ ] If `cli.ts` present: `bun skills/<name>/cli.ts` runs without error
 - [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
+- [ ] If read-only skill: `disallowed-tools: [Edit, Write, NotebookEdit, Bash]` in frontmatter
 
 ## Memory Consolidation
 
