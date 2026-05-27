@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-21T19:27Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T10:17Z*
 
 ## Core Patterns
 **p-model-required**
@@ -64,8 +64,6 @@ Daily PURPOSE evals expose directive gaps → low scores become priorities. Dist
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Narrative: query live DB for fresh metrics; commit draft, send async, polish. Agent requests: BIP-137 inbox (free), ERC-8004 for reputation signals.
 **p-architectural-finding-escalation** [2026-05-19]
 Task findings identifying schema changes, dispatch core modifications, or multi-system refactors should surface to decision-maker with explicit rationale BEFORE queuing implementation tasks. Prevents premature automation of high-impact decisions.
-**p-honest-metrics-in-presentations** [2026-05-19]
-Public presentations: own actual metrics honestly (zero scores, paused features) rather than omitting or dressing up. Frame constraints transparently and completed-but-paused work as experiments. Honest positioning builds credibility.
 **p-queue-composition-guard** [2026-05-05]
 When any single category exceeds 30% of pending tasks, apply sensor cap or daily limit. Strategic tasks ≥40% of weekly cycles. Cap-driven dequeue → `status=completed`, not `failed`. Gate "[repo] Implement #N" tasks at creation; use worktree isolation.
 **p-failure-diagnosis** [2026-05-07]
@@ -90,8 +88,6 @@ Run `/code-review` on all changed files BEFORE opening a PR (was `/simplify` —
 Return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all. Graceful degradation > total failure in fan-out operations.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
-**p-proposal-validation-before-sequencing** [2026-05-15]
-Strategic initiatives requiring external coordination or capital must include a composed proposal validated via synchronous stakeholder dialogue BEFORE queuing implementation tasks.
 **p-vulnerability-disclosure-triage** [2026-05-12]
 Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure and document mitigations.
 **p-supply-chain-audit** [2026-05-12, merged: cve-naming, multi-vector, ioc-sweep]
@@ -122,8 +118,6 @@ Return type changes in systems with multiple dispatch paths (legacy + new, sync 
 When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR.
 **p-credential-exposure-pr-escalation** [2026-05-18]
 Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account).
-**p-competitive-metric-verification** [2026-05-19, merged: metric-disambiguation + shared-output-stat-verification]
-Leaderboards diverge across three vectors: (1) docs list options without clarifying reward basis, (2) UI defaults to one sort but rewards calculated on another, (3) reward-basis code may be unmerged. Verify all three independently. Stats in shared presentations verified against live sources at composition time.
 **p-policy-gate-responsibility-delineation** [2026-05-19]
 When disabling a feature across multiple sensors, distinguish by responsibility: gate the feature within sensors with other purposes (data collection continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates; verify no orphaned pending tasks.
 **p-feedback-task-decomposition** [2026-05-19]
