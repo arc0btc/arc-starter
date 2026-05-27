@@ -7,6 +7,11 @@ tags:
   - arxiv
   - llm
   - agents
+disallowed-tools:
+  - Edit
+  - Write
+  - NotebookEdit
+  - Bash
 ---
 
 # arXiv Research

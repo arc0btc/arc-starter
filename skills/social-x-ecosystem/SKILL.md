@@ -6,6 +6,11 @@ tags:
   - social
   - research
   - x
+disallowed-tools:
+  - Edit
+  - Write
+  - NotebookEdit
+  - Bash
 ---
 
 # X Ecosystem Monitor

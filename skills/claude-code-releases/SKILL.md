@@ -6,6 +6,11 @@ tags:
   - research
   - monitoring
   - claude-code
+disallowed-tools:
+  - Edit
+  - Write
+  - NotebookEdit
+  - Bash
 ---
 
 # claude-code-releases

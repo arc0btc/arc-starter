@@ -5,6 +5,11 @@ updated: 2026-03-06
 tags:
   - research
   - analysis
+disallowed-tools:
+  - Edit
+  - Write
+  - NotebookEdit
+  - Bash
 ---
 
 # Research
