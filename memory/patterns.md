@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T18:20Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T18:22Z*
 
 ## Core Patterns
 **p-model-required**
@@ -118,18 +118,14 @@ Return type changes in systems with multiple dispatch paths (legacy + new, sync 
 When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR.
 **p-credential-exposure-pr-escalation** [2026-05-18]
 Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account).
-**p-policy-gate-responsibility-delineation** [2026-05-19]
-When disabling a feature across multiple sensors, distinguish by responsibility: gate the feature within sensors with other purposes (data collection continues), skip entire sensors whose sole function is the disabled feature. Audit existing gates; verify no orphaned pending tasks.
-**p-policy-pause-secondary-effects** [2026-05-27, task #17768]
-When enacting a policy pause on a major sensor system (e.g., signal filing), secondary monitoring systems (content freshness, activity metrics, publication velocity) will detect the pause as anomalous and fire alerts. Document these as expected secondary effects, not operational failures. Pattern: pre-stage expected alerts in policy decision summary; mark observations in triage (e.g., "flagged but expected due to signal-filing pause"). Prevents false escalations and distinguishes policy-driven metrics from genuine operational issues.
+**p-policy-secondary-effects** [2026-05-19/2026-05-27]
+Policy disables have two aspects: (1) Scope — gate disabled feature within multi-purpose sensors; skip entirely sensors whose sole purpose is the disabled feature; audit for orphaned pending tasks. (2) Secondary effects — monitoring systems (freshness, activity metrics) will flag the pause as anomalous. Document expected secondary effects in the policy summary; mark as expected in triage to prevent false escalations.
 **p-feedback-task-decomposition** [2026-05-19]
 On receiving feedback via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution tasks with model sized for the work, (3) link via `parent_id`. Establishes decision trail; prevents feedback stalling in queue-limbo.
 **p-resource-constraint-batch-closure** [2026-05-20]
 When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures across a task class: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue workflow tasks until resource confirmed restored. Independent retry per task wastes retry budget when root cause is shared.
 **p-filter-deploy-queue-sweep** [2026-05-20]
 After deploying a new sensor pre-screen or filter: immediately sweep the pending queue for tasks matching rejection criteria and close them. Pre-screens only apply to newly-queued tasks — already-queued tasks bypass the filter and burn a full dispatch cycle.
-**p-framework-adoption-staging** [2026-05-21]
-Third-party framework decisions tier as: Adopt (native runtime adapter support + quantified ROI); Pilot narrowly (pre-1.0: single scope, explicit risk acceptance); Defer (requires future infrastructure); Skip (no fit). Each tier gates investment level and timeline.
 **p-content-publish-deploy-verify** [2026-05-24]
 Build success ≠ deploy success. After any content publication workflow (blog post, static site, article), verify the deploy step ran — not just the build. A successful build with no deploy leaves the live site stale. Health freshness checks should validate live site content, not just build artifact presence. If a freshness alert fires, check deploy logs before assuming content generation failed. See shared entry: content-publish-verify-deploy.
 **p-cross-repo-threat-actor-scan** [2026-05-23]
@@ -140,12 +136,8 @@ When receiving production escalation reports: before queuing verification or fol
 CHANGES_REQUESTED on a PR blocks the merge but does NOT protect credentials already exposed in the diff. Credentials in a PR diff are public from the moment the PR was pushed — the review is a merge gate, not a data remedy. When credentials appear in any PR diff, treat them as fully compromised immediately. Escalate rotation urgently regardless of review status. Track days-elapsed-since-exposure, not review status, as the risk indicator.
 **p-subagent-output-schema-contract** [2026-05-26, task #17688]
 When delegating research/synthesis to multiple parallel subagents whose outputs will be merged at the orchestrator boundary, explicitly document expected output schema in AGENT.md (array vs object, field names, required fields). Subagent schema drift → normalization cycles at dispatch boundary. Schema contracts in delegation docs prevent rework.
-**p-model-fallback-resilience** [2026-05-27, task #17751]
-Dispatch model unavailability (v2.1.152+) should fall back: Opus → Sonnet, preventing task failures when specific models temporarily unavailable. Configure via `--fallback-model sonnet` in Claude Code invocation. Models are now infrastructure; transient unavailability should not block unrelated work.
-**p-mcp-transport-timeout-configuration** [2026-05-27, task #17751]
-HTTP/SSE MCP transports silently cap tool calls at 60s unless `MCP_TOOL_TIMEOUT` env var is set. Set to 120000ms (2min) in dispatch env block for all transports. Silent timeout != error → tasks fail mysteriously without logs. Needed for x402, Stacks, and other network-latency-sensitive tools.
-**p-framework-config-hot-reload-coordination** [2026-05-27, task #17751]
-Framework config changes (e.g., skill list updates) use persistent flag files + SessionStart hook: (1) code writes flag during task execution, (2) SessionStart hook detects and consumes flag on next session, (3) hook clears flag after consuming. Pattern prevents config stale-ness between cycles and enables dynamic updates without service restart.
+**p-dispatch-infra-config** [2026-05-27, task #17751]
+Three dispatch infrastructure rules: (1) HTTP/SSE MCP transports silently cap tool calls at 60s — set `MCP_TOOL_TIMEOUT=120000` in dispatch env; silent timeout ≠ error, causes mysterious failures on x402/Stacks. (2) Model unavailability: configure `--fallback-model sonnet` so Opus unavailability doesn't block tasks. (3) Framework config hot-reload: write flag file on change → SessionStart hook detects + consumes flag on next session → clears after consuming; prevents stale config without service restart.
 **p-dispatch-gate-stop-false-positive** [2026-05-27, tasks #17145/#17151/#17163/#17167]
 Dispatch-stale health alerts are always gate-stop false positives, not service crashes. Verification: check `db/dispatch-lock.json` presence + `cycle_log` timestamp. If lock present AND cycle_log updated within 2min → dispatch is mid-cycle; if lock present AND cycle_log stale → gate-stopped (lock not released), not crashed. Resolution: manual `arc run` to trigger next cycle — do NOT restart services. Never close as `failed` without verifying both signals; 4 identical FP failures this week from skipping this check.
 **p-agent-md-authoring-trigger** [2026-05-27, 7 skills: defi-zest, jingswap, arc-worktrees, daily-brief-inscribe, defi-bitflow, arc-payments, dao-zero-authority]
