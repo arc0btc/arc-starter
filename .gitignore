@@ -16,6 +16,7 @@ github/
 reports/
 research/
 drafts/
+inbox/arc/processed/
 .worktrees/
 .claude/worktrees/
 skills/*/pool-state.json
