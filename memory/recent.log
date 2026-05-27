@@ -1,1 +1,2 @@
 2026-05-27T20:52:41.658Z | task #17808 | completed | haiku | Add reflect-per-task: append learning line to memory/recent. | Per-task reflection appends ISO timestamp + task ID + status + model + subject +
+2026-05-27T20:55:13.401Z | task #17810 | completed | sonnet | Fix: arc-link-research process doesn't honor 'Section: X' hi | Added --section flag to process subcommand: fetches full README and extracts URL
