@@ -8,6 +8,7 @@ tags:
   - ai-btc
   - markets
   - archived
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # AIBTC News — Deal Flow Sensor (Archived, Rerouted)

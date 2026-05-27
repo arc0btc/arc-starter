@@ -6,6 +6,7 @@ tags:
   - publishing
   - meta
   - skills
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Arc Catalog

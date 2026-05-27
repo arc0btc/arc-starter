@@ -8,6 +8,7 @@ tags:
   - competition
   - aibtc-network
   - mainnet-only
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # trading-comp
