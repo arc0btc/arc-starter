@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T10:17Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T18:20Z*
 
 ## Core Patterns
 **p-model-required**
@@ -146,3 +146,9 @@ Dispatch model unavailability (v2.1.152+) should fall back: Opus → Sonnet, pre
 HTTP/SSE MCP transports silently cap tool calls at 60s unless `MCP_TOOL_TIMEOUT` env var is set. Set to 120000ms (2min) in dispatch env block for all transports. Silent timeout != error → tasks fail mysteriously without logs. Needed for x402, Stacks, and other network-latency-sensitive tools.
 **p-framework-config-hot-reload-coordination** [2026-05-27, task #17751]
 Framework config changes (e.g., skill list updates) use persistent flag files + SessionStart hook: (1) code writes flag during task execution, (2) SessionStart hook detects and consumes flag on next session, (3) hook clears flag after consuming. Pattern prevents config stale-ness between cycles and enables dynamic updates without service restart.
+**p-dispatch-gate-stop-false-positive** [2026-05-27, tasks #17145/#17151/#17163/#17167]
+Dispatch-stale health alerts are always gate-stop false positives, not service crashes. Verification: check `db/dispatch-lock.json` presence + `cycle_log` timestamp. If lock present AND cycle_log updated within 2min → dispatch is mid-cycle; if lock present AND cycle_log stale → gate-stopped (lock not released), not crashed. Resolution: manual `arc run` to trigger next cycle — do NOT restart services. Never close as `failed` without verifying both signals; 4 identical FP failures this week from skipping this check.
+**p-agent-md-authoring-trigger** [2026-05-27, 7 skills: defi-zest, jingswap, arc-worktrees, daily-brief-inscribe, defi-bitflow, arc-payments, dao-zero-authority]
+Author `AGENT.md` for a skill when: (1) skill has been dispatched 3+ times, (2) each dispatch required re-deriving multi-step flows from scratch (detectable via high token-in on tasks using that skill), (3) SKILL.md alone doesn't contain procedural detail (only architecture/CLI). `AGENT.md` is a subagent briefing — never load into orchestrator context. After authoring, dispatch context shrinks because orchestrator delegates execution to subagent reading `AGENT.md` directly. Batch authoring when multiple skills qualify simultaneously — reduces the identification overhead.
+**p-sensor-triage-state-diff-guard** [2026-05-27, task #17763]
+When all escalation paths for a triage sensor are blocked (no autonomous resolution), the sensor fires repeatedly with identical findings — wasted cycles with zero impact. Fix: persist a hash of the triage state after each run; compare on next fire; if unchanged AND last escalation was sent < cooldown threshold (e.g., 1h), return `"skip"`. Applies to any sensor whose primary output is escalation tasks (self-review, payout-disputes, incident monitoring). The guard is not a substitute for resolution — it prevents noise while awaiting human action on genuinely blocked escalations.
