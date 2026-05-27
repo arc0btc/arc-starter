@@ -121,6 +121,9 @@ TODO: Describe how to use this skill.
 
   await Bun.write(join(skillDir, "SKILL.md"), template);
 
+  // Signal that skills changed so SessionStart hook can return reloadSkills:true
+  await Bun.write(join(ROOT, "db/skills-pending-reload.flag"), "");
+
   process.stdout.write(`Created skill '${name}' at skills/${name}/SKILL.md\n`);
   process.stdout.write(`Edit the file to complete the skill definition.\n`);
 }
