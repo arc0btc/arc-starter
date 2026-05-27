@@ -3,6 +3,7 @@ name: arc-web-dashboard
 description: Arc's live web dashboard — real-time task feed, sensor status, cost tracking
 updated: 2026-03-05
 tags: [web, ui, operations, monitoring]
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Dashboard Skill

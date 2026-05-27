@@ -6,6 +6,7 @@ tags:
   - health
   - monitoring
   - self-review
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-self-review

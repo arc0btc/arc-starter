@@ -7,6 +7,7 @@ tags:
   - macro
   - news
   - sensor
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Bitcoin Macro

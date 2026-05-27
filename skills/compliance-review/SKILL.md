@@ -5,6 +5,7 @@ updated: 2026-03-05
 tags:
   - housekeeping
   - quality
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # compliance-review

@@ -6,6 +6,7 @@ tags:
   - orchestration
   - workflows
   - meta
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # workflow-review

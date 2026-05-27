@@ -6,6 +6,7 @@ tags:
   - sensor
   - system
   - health
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # health

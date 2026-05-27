@@ -6,6 +6,7 @@ tags:
   - sensor
   - site
   - monitoring
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # site-consistency

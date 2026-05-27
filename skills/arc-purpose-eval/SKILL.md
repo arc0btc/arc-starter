@@ -6,6 +6,7 @@ tags:
   - evaluation
   - metrics
   - orchestration
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-purpose-eval

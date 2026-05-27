@@ -6,6 +6,7 @@ tags:
   - infrastructure
   - monitoring
   - daily
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # self-audit

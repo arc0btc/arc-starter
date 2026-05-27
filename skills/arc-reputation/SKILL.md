@@ -6,6 +6,7 @@ tags:
   - reputation
   - signing
   - l1
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Arc Reputation
