@@ -17,7 +17,7 @@
 
 **loom-spiral** [ESCALATED] Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No runs until resolved.
 
-**zest-borrow-broken** [PRODUCTION] PRs #512 (Pyth VAA fix) + #513 (vaaInFlight coalescing + 8 unit tests) approved, CI green. Awaiting whoabuddy merge.
+**zest-borrow-broken** [RESOLVED 2026-05-26] PRs #512 + #513 merged to main at 14:09/14:10 UTC. MCP server 1.56.1 release PR #552 pending merge (release-please). Zest borrow, collateral-add, and collateral-remove-redeem now use fresh Pyth VAAs with vaaInFlight dedup.
 
 **pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
 
