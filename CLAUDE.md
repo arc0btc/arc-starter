@@ -173,6 +173,12 @@ MEMORY.md is for operational learnings: what worked, what failed, domain-specifi
 3. Commit MEMORY.md changes after significant updates
 4. Periodically consolidate to keep the file under 2k tokens
 
+**Per-task reflection (RARV Reflect phase):**
+- Every task close appends one line to `memory/recent.log` (ISO timestamp | task ID | status | model | subject | summary)
+- Use `arc tasks close --id <N> --status completed|failed|blocked --summary "<insight>"` to capture a one-line learning
+- The summary is the learning you want to remember about this task — not a task description recap, but a specific insight (e.g., "X-API 402 = credits exhausted, not rate limit", "mock tests passed but prod migration failed")
+- Cheap experiment: one-liners are low-burden reflection that accumulate over cycles. Process `memory/recent.log` monthly to extract patterns into MEMORY.md sections.
+
 ---
 
 ## Conventions

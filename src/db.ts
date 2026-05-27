@@ -1,6 +1,7 @@
 import { Database, type SQLQueryBindings } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
 import { AGENT_NAME } from "./identity.ts";
+import { appendFileSync } from "node:fs";
 
 // ---- Types ----
 
@@ -967,11 +968,30 @@ export function markTaskActive(id: number): void {
   ).run(id);
 }
 
+function appendTaskReflection(id: number, status: string, summary: string): void {
+  try {
+    const task = getTaskById(id);
+    if (!task) return;
+
+    const now = new Date().toISOString();
+    const model = task.model ?? "unknown";
+    const subject = task.subject.substring(0, 60).replace(/\|/g, "•");
+    const summaryClean = summary.substring(0, 80).replace(/\|/g, "•");
+    const line = `${now} | task #${id} | ${status} | ${model} | ${subject} | ${summaryClean}`;
+
+    const logPath = "memory/recent.log";
+    mkdirSync("memory", { recursive: true });
+    appendFileSync(logPath, line + "\n");
+  } catch {
+  }
+}
+
 export function markTaskCompleted(id: number, summary: string, detail?: string, quality?: number): void {
   const db = getDatabase();
   db.query(
     "UPDATE tasks SET status = 'completed', completed_at = datetime('now'), result_summary = ?, result_detail = ?, result_quality = ? WHERE id = ?"
   ).run(summary, detail ?? null, quality ?? null, id);
+  appendTaskReflection(id, "completed", summary);
 }
 
 export function markTaskFailed(id: number, summary: string, detail?: string, quality?: number): void {
@@ -979,6 +999,7 @@ export function markTaskFailed(id: number, summary: string, detail?: string, qua
   db.query(
     "UPDATE tasks SET status = 'failed', completed_at = datetime('now'), result_summary = ?, result_detail = COALESCE(?, result_detail), result_quality = ? WHERE id = ?"
   ).run(summary, detail ?? null, quality ?? null, id);
+  appendTaskReflection(id, "failed", summary);
 }
 
 export function markTaskBlocked(id: number, reason: string): void {
@@ -986,6 +1007,7 @@ export function markTaskBlocked(id: number, reason: string): void {
   db.query(
     "UPDATE tasks SET status = 'blocked', result_summary = ? WHERE id = ?"
   ).run(reason, id);
+  appendTaskReflection(id, "blocked", reason);
 }
 
 export interface UpdateTaskFields {
