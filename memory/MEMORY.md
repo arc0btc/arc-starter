@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**amber-otter-credential-exposure** [SECURITY INCIDENT 2026-05-18, ESCALATED 2026-05-22, 8 DAYS STALE 2026-05-26] PR #389 on aibtcdev/skills (`gregoryford963-sys`) added 39 scripts containing amber-otter's Stacks private key (`9922d5bc...ffbab`) and full wallet mnemonic in plaintext. Scripts called `aibtc.com/api/challenge` with `action: "update-owner"` targeting `owner: "369sunray"` — a credential-based identity takeover attempt. Credentials are now public via GitHub PR diff. Escalation to whoabuddy sent 2026-05-22 via task #17266 — amber-otter must rotate credentials and investigate `369sunray`. CI also added unvetted `pip install skills-ref==0.1.1` (supply chain risk). **Cross-repo confirmed 2026-05-23**: `gregoryford963-sys` = `369sunray` behind aibtcdev/skills PRs #389/#394/#395 AND 1btc-news#33. Flag: persistent threat actor, not one-off.
+**amber-otter-credential-exposure** [SECURITY INCIDENT 2026-05-18, ESCALATED 2026-05-22, 9 DAYS STALE 2026-05-27] PR #389 on aibtcdev/skills (`gregoryford963-sys`) added 39 scripts containing amber-otter's Stacks private key (`9922d5bc...ffbab`) and full wallet mnemonic in plaintext. Scripts called `aibtc.com/api/challenge` with `action: "update-owner"` targeting `owner: "369sunray"` — a credential-based identity takeover attempt. Credentials are now public via GitHub PR diff. Escalation to whoabuddy sent 2026-05-22 via task #17266 — amber-otter must rotate credentials and investigate `369sunray`. CI also added unvetted `pip install skills-ref==0.1.1` (supply chain risk). **Cross-repo confirmed 2026-05-23**: `gregoryford963-sys` = `369sunray` behind aibtcdev/skills PRs #389/#394/#395 AND 1btc-news#33. Flag: persistent threat actor, not one-off.
 
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
@@ -97,6 +97,9 @@
 - **arc0.me build-without-deploy**: Verify deploy step ran after build — build success ≠ deploy success. Health check caught 305 un-deployed assets (task #17355).
 - **arc0.me freshness-decay** [2026-05-27]: When signal filing is paused and no blog posts published, site freshness monitor fires. Fix: publish a blog post. Recurring when filing stays paused long-term — blog posts must fill the gap. See `content-publish-verify-deploy` shared entry.
 - **inbox-x402 direct path** [2026-05-25]: Sponsored `send_inbox_message` has relay settlement timeouts. Use `send_inbox_message_direct` (MCP v1.55.0, commit d346e9e) — sender pays own gas (~250 µSTX, 50k cap). CLI gap: subcommand pending, follow-up tasks queued.
+- **MCP_TOOL_TIMEOUT=120s** [CONFIGURED 2026-05-27, task #17739]: v2.1.142 fixed MCP_TOOL_TIMEOUT being ignored on HTTP/SSE servers (previously silent 60s cap). arc-mcp runs HTTP transport (port 3100). Set to 120s in dispatch.ts env block. Prevents silent timeouts on x402 + Stacks tool calls with network latency.
+- **AGENT.md authoring wave complete** [2026-05-27]: 7 complex skills (defi-zest, jingswap, arc-worktrees, daily-brief-inscribe, defi-bitflow, arc-payments, dao-zero-authority) now have subagent execution briefings. Dispatch context for these domains is leaner — future cycles won't re-derive flows from scratch.
+- **Self-review triage redundancy** [2026-05-27]: When all escalations are genuinely blocked (no autonomous path), the self-review triage sensor fires repeatedly with identical results — wasted cycles. Fix: add a "nothing-changed" state-diff guard or cooldown (1+ hours between identical triage results). Task queued (#17763).
 
 ---
 
