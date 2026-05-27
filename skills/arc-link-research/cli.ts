@@ -71,6 +71,41 @@ async function writeCache(entry: CachedContent): Promise<void> {
   await Bun.write(path, JSON.stringify(entry, null, 2));
 }
 
+function extractSectionUrls(readmeContent: string, sectionName: string): string[] {
+  const lines = readmeContent.split("\n");
+  // Strip emoji/punctuation for fuzzy match
+  const normalize = (s: string) => s.replace(/[^\w\s-]/g, "").trim().toLowerCase();
+  const target = normalize(sectionName);
+  let inSection = false;
+  const sectionLines: string[] = [];
+
+  for (const line of lines) {
+    if (/^##\s/.test(line)) {
+      const heading = normalize(line.replace(/^##\s+/, ""));
+      if (!inSection && (heading === target || heading.startsWith(target) || target.startsWith(heading))) {
+        inSection = true;
+        continue;
+      } else if (inSection) {
+        break;
+      }
+    }
+    if (inSection) sectionLines.push(line);
+  }
+
+  return extractEmbeddedUrls(sectionLines.join("\n"));
+}
+
+async function fetchFullReadme(owner: string, repo: string): Promise<string | null> {
+  const proc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+  if (proc.exitCode !== 0) return null;
+  const b64 = proc.stdout.toString().trim();
+  try {
+    return atob(b64);
+  } catch {
+    return null;
+  }
+}
+
 function extractEmbeddedUrls(text: string): string[] {
   const urlRegex = /https?:\/\/[^\s"'<>)\]]+/g;
   const matches = text.match(urlRegex) || [];
@@ -624,6 +659,7 @@ async function cmdProcess(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  const section = flags.section?.trim() || null;
   let urls = extractUrls(flags.links);
 
   if (urls.length === 0) {
@@ -672,6 +708,27 @@ async function cmdProcess(args: string[]): Promise<void> {
         fetchError: String(a.reason),
         devToolTags: [],
       });
+    }
+  }
+
+  // If --section is set, override embedded URLs for GitHub repo inputs with section-scoped extraction.
+  // Without this, fetchRawContent truncates README at 3000 chars and always returns the first section's links.
+  if (section) {
+    allEmbeddedUrls.length = 0;
+    for (const inputUrl of urls) {
+      const ghMatch = inputUrl.match(/github\.com\/([^/]+)\/([^/?#]+)/);
+      if (ghMatch) {
+        const [, owner, repo] = ghMatch;
+        process.stdout.write(`\nExtracting section "${section}" from ${owner}/${repo}...\n`);
+        const readme = await fetchFullReadme(owner, repo);
+        if (readme) {
+          const sectionUrls = extractSectionUrls(readme, section);
+          process.stdout.write(`  Found ${sectionUrls.length} URL(s) in section\n`);
+          allEmbeddedUrls.push(...sectionUrls);
+        } else {
+          process.stderr.write(`  Warning: could not fetch README for ${owner}/${repo}\n`);
+        }
+      }
     }
   }
 
@@ -879,9 +936,12 @@ SUBCOMMANDS
     Check X/Twitter links for existence before queueing research tasks.
     Outputs JSON with accessible and skipped arrays. Use before arc tasks add.
 
-  process --links "url1,url2,..."
+  process --links "url1,url2,..." [--section "Section Name"]
     Fetch each link, evaluate mission relevance, produce a timestamped report.
     X/Twitter links are pre-screened automatically; inaccessible tweets are skipped.
+    --section: when the link is a GitHub awesome-list repo, extract URLs only from the
+    named ## heading range. Fuzzy-matched (strips emoji/punctuation). Required for
+    awesome-list tasks that include a "Section: X" hint in the task description.
 
   list
     Show recent research reports (active, not archived).

@@ -46,6 +46,14 @@ arc skills run --name arc-link-research -- prescreen --links "https://x.com/user
 
 Fetches each link, evaluates mission relevance (high/medium/low), extracts key takeaways, and writes a timestamped report to `research/`. X/Twitter links are pre-screened automatically inside `process` — inaccessible tweets are skipped. Raw fetched content is cached in `arc-link-research/cache/` by URL hash.
 
+```bash
+arc skills run --name arc-link-research -- process --links "url1,url2,url3" [--section "Section Name"]
+```
+
+**`--section` flag (awesome-list decomposition):** When the link is a GitHub repo (awesome-list), pass `--section "Section Name"` to scope URL extraction to that `## heading` only. Without `--section`, the tool extracts URLs from the first ~3000 chars of the README, which returns the wrong section. The heading match is fuzzy (strips emoji/punctuation). Always use `--section` for awesome-list tasks.
+
+If the task description contains `Section: <name>`, extract that name and pass it as `--section`.
+
 Output: `research/{ISO8601}_research.md`
 Cache: `skills/arc-link-research/cache/{url_hash}.json`
 
@@ -61,6 +69,11 @@ arc tasks add --subject "Research: [topic]" --skills research --description "Lin
 ```
 
 The dispatched agent reads links from the task description, runs `process`, and closes the task.
+
+**Awesome-list tasks:** If the description includes `Section: <name>`, extract the section name and pass it as `--section`:
+```bash
+arc skills run --name arc-link-research -- process --links "https://github.com/owner/awesome-list" --section "Multi-Agent Swarms"
+```
 
 ## When to Load
 
