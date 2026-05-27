@@ -2252,15 +2252,22 @@ Then complete the health check:
           subject: `self-review triage: ${count} issue(s) found${cost}`,
           priority: 5,
           skills: ["arc-self-review", "arc-skill-manager"],
+          // Auto-advance to triaging when task is created — prevents the workflow from staying
+          // in issues_found and the arc-workflows sensor re-queuing triage tasks after the
+          // 60-min recentTaskExistsForSource window expires.
+          autoAdvanceState: "triaging",
           description: `Triage and dispatch fixes for ${count} issue(s) identified in today's self-review.
 
 Issues: ${ctx.issueSummary || "see review task"}
+
+Note: the workflow is already in 'triaging' state.
 
 Steps:
 1. Review each issue and determine the correct fix task
 2. Create targeted fix tasks (use arc tasks add) for each actionable issue
 3. Record dispatched task IDs in workflow context as fixTaskIds array
-4. Transition workflow to 'triaging', then 'dispatched'
+4. Transition workflow to 'dispatched':
+   arc skills run --name arc-workflows -- transition <workflow_id> dispatched
 5. Capture learningsSummary before transitioning to 'resolved'`,
         };
       },
