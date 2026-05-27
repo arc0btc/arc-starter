@@ -1,0 +1,11 @@
+{
+  "url": "https://github.com/owengretzinger/constellagent",
+  "fetchedAt": "2026-05-27T20:22:54.270Z",
+  "contentType": "github",
+  "title": "constellagent",
+  "rawContent": "Repo: owengretzinger/constellagent\nDescription: Desktop app for running multiple AI agents in parallel. Each agent gets its own terminal, editor, and git worktree, all in one window.\nTopics: \nStars: 209\n\nREADME:\n# Constellagent\n\nA macOS desktop app for running multiple AI agents in parallel. Each agent gets its own terminal, editor, and git worktree, all in one window.\n\n<img width=\"3506\" height=\"2200\" alt=\"image\" src=\"https://github.com/user-attachments/assets/9f055656-c213-4d56-8af4-251bd739ad8b\" />\n\n## Features\n\n- Run separate agent sessions side-by-side, each in its own workspace with an isolated git worktree\n- Full terminal emulator (`xterm.js` + node-pty)\n- Monaco code editor with syntax highlighting and diffs\n- Git staging, committing, branching, and worktree management\n- File tree navigation\n- Cron-based automation scheduling\n- Sleep/wake recovery for automations (coalesces missed runs while app stays open)\n- Keyboard-driven - Quick Open, tab switching, shortcuts\n\n## Getting started\n\nRequires macOS and [Bun](https://bun.sh).\n\n```bash\nbun run setup\nbun run dev\n```\n\n### Build and package\n\n```bash\nbun run build     # Production build\nbun run dist      # Package as signed macOS DMG\n```\n\n### Test\n\n```bash\nbun run test      # Playwright e2e tests\n```\n\nAutomation scheduling notes:\n- If the laptop sleeps during a scheduled time while the app is still running, Constellagent runs one catch-up execution on wake.\n- If the app is fully quit, missed runs are not backfilled on next launch.\n",
+  "embeddedUrls": [
+    "https://github.com/user-attachments/assets/9f055656-c213-4d56-8af4-251bd739ad8b",
+    "https://bun.sh"
+  ]
+}

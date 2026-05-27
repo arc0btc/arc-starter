@@ -1,0 +1,29 @@
+{
+  "url": "https://github.com/chernistry/bernstein",
+  "fetchedAt": "2026-05-27T20:22:41.192Z",
+  "contentType": "github",
+  "title": "bernstein",
+  "rawContent": "Repo: chernistry/bernstein\nDescription: Audit-grade multi-agent orchestration for CLI coding agents (Claude Code, Codex, Gemini CLI, +40 more). HMAC-chained audit log, signed agent cards, per-artefact lineage, air-gap deploy. The orchestrator your compliance team will sign off on. https://bernstein.run\nTopics: ai-agents, mcp-server, claude-code, model-context-protocol, agent-framework, ai-coding, cli-tool, coding-agent, python, agent-orchestrator, aider, codex-cli, multi-agent, swe-bench, deterministic-scheduler, hmac-audit, parallel-worktrees, agentic-ai, anthropic, llm\nStars: 475\n\nREADME:\n<div align=\"center\">\n\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/assets/logo-dark.svg\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"docs/assets/logo-light.svg\">\n  <img alt=\"Bernstein\" src=\"docs/assets/logo-light.svg\" width=\"340\">\n</picture>\n\n<br>\n\n> *\"To achieve great things, two things are needed: a plan and not quite enough time.\"* - Leonard Bernstein\n\n</div>\n\n### why the name?\n\nBernstein is named after Leonard Bernstein, the American conductor and composer. The project orchestrates a crew of CLI coding agents the way Bernstein conducted the New York Philharmonic: every player on cue, the score deterministic, the conductor accountable for the result. He is the original orchestrator the project takes its name from.\n\n<div align=\"center\">\n\n### deterministic multi-agent CLI orchestration\n\n[![CI](https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/ci.yml/badge.svg)](https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/ci.yml)\n[![PyPI](https://img.shields.io/pypi/v/bernstein)](https://pypi.org/project/bernstein/)\n[![GHCR](https://img.shields.io/badge/ghcr.io-bernstein-2496ed?logo=docker&logoColor=white)](https://ghcr.io/sipyourdrink-ltd/bernstein)\n[![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776ab?logo=python&logoColor=white)](https://python.org)\n[![License](https://img.shields.io/github/license/sipyourdrink-ltd/bernstein)](LICENSE)\n[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/sipyourdrink-ltd/bernstein/badge)](https://scorecard.dev/viewer/?uri=github.com/sipyourdrink-ltd/bernstein)\n[![CodeQL](https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/codeql.yml)\n[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/sipyourdrink-ltd/bernstein?quickstart=1)\n\n[website](https://bernstein.run) &middot; [docs](https://bernstein.readthedocs.io/) &middot; [install](docs/getting-started/install.md) &middot; [first run](docs/getting-started/first-run.md) &middot; [glossary](docs/reference/GLOSSARY.md) &middot; [limitations](docs/reference/KNOWN_LIMITATIONS.md) &middot; [sponsor](https://github.com/sponsors/chernistry)\n\n</div>\n\n---\n\nBernstein is a deterministic Python scheduler that runs a crew of CLI coding agents (Claude Code, Codex, Gemini CLI, and 40 more) against a single goal in parallel git worktrees, with an HMAC-signed audit chain over every step.\n\n### at a glance\n\n- **44 CLI agent adapters** in v2.2.x: 41 third-party wrappers, 2 leaf-node delegators, plus a generic `--prompt` wrapper. Source of truth: the [supported agents](#supported-agents) table below.\n- **HMAC-SHA256 audit chain** per [RFC 2104](https://datatracker.ietf.org/doc/html/rfc2104), one record per scheduling decision, tamper-evident. Operator guide: [docs/security/audit-log.md](docs/security/audit-log.md).\n- **Bearer-token task server** authent",
+  "embeddedUrls": [
+    "https://bernstein.run",
+    "https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/ci.yml/badge.svg",
+    "https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/ci.yml",
+    "https://img.shields.io/pypi/v/bernstein",
+    "https://pypi.org/project/bernstein/",
+    "https://img.shields.io/badge/ghcr.io-bernstein-2496ed?logo=docker&logoColor=white",
+    "https://ghcr.io/sipyourdrink-ltd/bernstein",
+    "https://img.shields.io/badge/python-3.12+-3776ab?logo=python&logoColor=white",
+    "https://python.org",
+    "https://img.shields.io/github/license/sipyourdrink-ltd/bernstein",
+    "https://api.securityscorecards.dev/projects/github.com/sipyourdrink-ltd/bernstein/badge",
+    "https://scorecard.dev/viewer/?uri=github.com/sipyourdrink-ltd/bernstein",
+    "https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/codeql.yml/badge.svg?branch=main",
+    "https://github.com/sipyourdrink-ltd/bernstein/actions/workflows/codeql.yml",
+    "https://github.com/codespaces/badge.svg",
+    "https://codespaces.new/sipyourdrink-ltd/bernstein?quickstart=1",
+    "https://bernstein.run",
+    "https://bernstein.readthedocs.io/",
+    "https://github.com/sponsors/chernistry",
+    "https://datatracker.ietf.org/doc/html/rfc2104"
+  ]
+}

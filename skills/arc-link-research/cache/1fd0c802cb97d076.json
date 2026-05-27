@@ -1,0 +1,27 @@
+{
+  "url": "https://github.com/asheshgoplani/agent-deck",
+  "fetchedAt": "2026-05-27T20:22:22.011Z",
+  "contentType": "github",
+  "title": "agent-deck",
+  "rawContent": "Repo: asheshgoplani/agent-deck\nDescription: Terminal session manager for AI coding agents. One TUI for Claude, Gemini, OpenCode, Codex, and more.\nTopics: claude-code, ai-agents, ai-coding-assistant, aider, bubble-tea, cli, codex, developer-tools, gemini-cli, golang, productivity, session-manager, terminal, tmux, tui, discord, ai-agent, mcp\nStars: 2543\n\nREADME:\n<div align=\"center\">\n\n<!-- Status Grid Logo -->\n<img src=\"site/logo.svg\" alt=\"Agent Deck Logo\" width=\"120\">\n\n# Agent Deck\n\n**Your AI agent command center**\n\n[![GitHub Stars](https://img.shields.io/github/stars/asheshgoplani/agent-deck?style=for-the-badge&logo=github&color=yellow&labelColor=1a1b26)](https://github.com/asheshgoplani/agent-deck/stargazers)\n[![Downloads](https://img.shields.io/github/downloads/asheshgoplani/agent-deck/total?style=for-the-badge&logo=github&color=bb9af7&labelColor=1a1b26)](https://github.com/asheshgoplani/agent-deck/releases)\n[![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=for-the-badge&logo=go&labelColor=1a1b26)](https://go.dev)\n[![License](https://img.shields.io/badge/License-MIT-9ece6a?style=for-the-badge&labelColor=1a1b26)](LICENSE)\n[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20WSL-7aa2f7?style=for-the-badge&labelColor=1a1b26)](https://github.com/asheshgoplani/agent-deck)\n[![Latest Release](https://img.shields.io/github/v/release/asheshgoplani/agent-deck?style=for-the-badge&color=e0af68&labelColor=1a1b26)](https://github.com/asheshgoplani/agent-deck/releases)\n[![Discord](https://img.shields.io/discord/1469423271144587379?style=for-the-badge&logo=discord&logoColor=white&label=Discord&color=5865F2&labelColor=1a1b26)](https://discord.gg/e4xSs6NBN8)\n\n[Features](#features) . [Conductor](#conductor) . [Install](#installation) . [Quick Start](#quick-start) . [Docs](#documentation) . [Discord](https://discord.gg/e4xSs6NBN8) . [FAQ](#faq)\n\n</div>\n\n<details>\n<summary><b>Ask AI about Agent Deck</b></summary>\n\n**Option 1: Claude Code Skill** (recommended for Claude Code users)\n```bash\n/plugin marketplace add asheshgoplani/agent-deck\n/plugin install agent-deck@agent-deck-help\n```\nThen ask: *\"How do I set up MCP pooling?\"*\n\n**Option 2: OpenCode** (has built-in Claude skill compatibility)\n```bash\n# Create skill directory\nmkdir -p ~/.claude/skills/agent-deck/references\n\n# Download skill and references\ncurl -sL https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/skills/agent-deck/SKILL.md \\\n  > ~/.claude/skills/agent-deck/SKILL.md\nfor f in cli-reference config-reference tui-reference troubleshooting; do\n  curl -sL \"https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/skills/agent-deck/references/${f}.md\" \\\n    > ~/.claude/skills/agent-deck/references/${f}.md\ndone\n```\nOpenCode will auto-discover the skill from `~/.claude/skills/`.\n\n**Option 3: Any LLM** (ChatGPT, Claude, Gemini, etc.)\n```\nRead https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/llms-full.txt\nand answer: How do I fork a session?\n```\n\n</details>\n\nhttps://github.com/user-attachments/assets/e4f55917-435c-45ba-92cc-89737d0d1401\n\n## Quickstart: orchestrate a fleet of AI agents\n\nFive minutes from zero to a Telegram bot that watches every Claude session you have running.\n\n```bash\n# 1. Create a Telegram bot via @BotFather, grab the token + your user ID from @userinfobot.\n# 2. Run the wizard",
+  "embeddedUrls": [
+    "https://img.shields.io/github/stars/asheshgoplani/agent-deck?style=for-the-badge&logo=github&color=yellow&labelColor=1a1b26",
+    "https://github.com/asheshgoplani/agent-deck/stargazers",
+    "https://img.shields.io/github/downloads/asheshgoplani/agent-deck/total?style=for-the-badge&logo=github&color=bb9af7&labelColor=1a1b26",
+    "https://github.com/asheshgoplani/agent-deck/releases",
+    "https://img.shields.io/badge/Go-1.24+-00ADD8?style=for-the-badge&logo=go&labelColor=1a1b26",
+    "https://go.dev",
+    "https://img.shields.io/badge/License-MIT-9ece6a?style=for-the-badge&labelColor=1a1b26",
+    "https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20WSL-7aa2f7?style=for-the-badge&labelColor=1a1b26",
+    "https://github.com/asheshgoplani/agent-deck",
+    "https://img.shields.io/github/v/release/asheshgoplani/agent-deck?style=for-the-badge&color=e0af68&labelColor=1a1b26",
+    "https://github.com/asheshgoplani/agent-deck/releases",
+    "https://img.shields.io/discord/1469423271144587379?style=for-the-badge&logo=discord&logoColor=white&label=Discord&color=5865F2&labelColor=1a1b26",
+    "https://discord.gg/e4xSs6NBN8",
+    "https://discord.gg/e4xSs6NBN8",
+    "https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/skills/agent-deck/SKILL.md",
+    "https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/skills/agent-deck/references/${f}.md",
+    "https://raw.githubusercontent.com/asheshgoplani/agent-deck/main/llms-full.txt",
+    "https://github.com/user-attachments/assets/e4f55917-435c-45ba-92cc-89737d0d1401"
+  ]
+}

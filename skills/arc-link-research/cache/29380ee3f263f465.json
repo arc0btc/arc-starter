@@ -1,0 +1,31 @@
+{
+  "url": "https://github.com/AndyMik90/Aperant",
+  "fetchedAt": "2026-05-27T20:22:36.196Z",
+  "contentType": "github",
+  "title": "Aperant",
+  "rawContent": "Repo: AndyMik90/Aperant\nDescription: Autonomous multi-session AI coding\nTopics: \nStars: 14306\n\nREADME:\n# Aperant (formerly Auto Claude)\n\n**Autonomous multi-agent coding framework that plans, builds, and validates software for you.**\n\n![Aperant Kanban Board](.github/assets/Auto-Claude-Kanban.png)\n\n[![License](https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square)](./agpl-3.0.txt)\n[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/KCXaPBr4Dj)\n[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://www.youtube.com/@AndreMikalsen)\n[![CI](https://img.shields.io/github/actions/workflow/status/AndyMik90/Auto-Claude/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/AndyMik90/Auto-Claude/actions)\n[![Mentioned in Awesome Claude Code](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/hesreallyhim/awesome-claude-code)\n\n---\n\n## Download\n\n### Stable Release\n\n<!-- STABLE_VERSION_BADGE -->\n[![Stable](https://img.shields.io/badge/stable-2.7.6-blue?style=flat-square)](https://github.com/AndyMik90/Auto-Claude/releases/tag/v2.7.6)\n<!-- STABLE_VERSION_BADGE_END -->\n\n<!-- STABLE_DOWNLOADS -->\n| Platform | Download |\n|----------|----------|\n| **Windows** | [Auto-Claude-2.7.6-win32-x64.exe](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-win32-x64.exe) |\n| **macOS (Apple Silicon)** | [Auto-Claude-2.7.6-darwin-arm64.dmg](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-darwin-arm64.dmg) |\n| **macOS (Intel)** | [Auto-Claude-2.7.6-darwin-x64.dmg](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-darwin-x64.dmg) |\n| **Linux** | [Auto-Claude-2.7.6-linux-x86_64.AppImage](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-x86_64.AppImage) |\n| **Linux (Debian)** | [Auto-Claude-2.7.6-linux-amd64.deb](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-amd64.deb) |\n| **Linux (Flatpak)** | [Auto-Claude-2.7.6-linux-x86_64.flatpak](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-x86_64.flatpak) |\n<!-- STABLE_DOWNLOADS_END -->\n\n### Beta Release\n\n> â ï¸ Beta releases may contain bugs and breaking changes. [View all releases](https://github.com/AndyMik90/Auto-Claude/releases)\n\n<!-- BETA_VERSION_BADGE -->\n[![Beta](https://img.shields.io/badge/beta-2.8.0--beta.6-orange?style=flat-square)](https://github.com/AndyMik90/Auto-Claude/releases/tag/v2.8.0-beta.6)\n<!-- BETA_VERSION_BADGE_END -->\n\n<!-- BETA_DOWNLOADS -->\n| Platform | Download |\n|----------|----------|\n| **Windows** | [Aperant-2.8.0-beta.5-win32-x64.exe](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.8.0-beta.5/Aperant-2.8.0-beta.5-win32-x64.exe) |\n| **macOS (Apple Silicon)** | [Aperant-2.8.0-beta.5-darwin-arm64.dmg](https://github.com/AndyMik90/Auto-Claude/releases/download/v2.8.0-beta.5/Aper",
+  "embeddedUrls": [
+    "https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square",
+    "https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white",
+    "https://discord.gg/KCXaPBr4Dj",
+    "https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=flat-square&logo=youtube&logoColor=white",
+    "https://www.youtube.com/@AndreMikalsen",
+    "https://img.shields.io/github/actions/workflow/status/AndyMik90/Auto-Claude/ci.yml?branch=main&style=flat-square&label=CI",
+    "https://github.com/AndyMik90/Auto-Claude/actions",
+    "https://awesome.re/mentioned-badge-flat.svg",
+    "https://github.com/hesreallyhim/awesome-claude-code",
+    "https://img.shields.io/badge/stable-2.7.6-blue?style=flat-square",
+    "https://github.com/AndyMik90/Auto-Claude/releases/tag/v2.7.6",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-win32-x64.exe",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-darwin-arm64.dmg",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-darwin-x64.dmg",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-x86_64.AppImage",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-amd64.deb",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.7.6/Auto-Claude-2.7.6-linux-x86_64.flatpak",
+    "https://github.com/AndyMik90/Auto-Claude/releases",
+    "https://img.shields.io/badge/beta-2.8.0--beta.6-orange?style=flat-square",
+    "https://github.com/AndyMik90/Auto-Claude/releases/tag/v2.8.0-beta.6",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.8.0-beta.5/Aperant-2.8.0-beta.5-win32-x64.exe",
+    "https://github.com/AndyMik90/Auto-Claude/releases/download/v2.8.0-beta.5/Aper"
+  ]
+}

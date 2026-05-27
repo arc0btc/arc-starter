@@ -1,0 +1,24 @@
+{
+  "url": "https://github.com/smtg-ai/claude-squad",
+  "fetchedAt": "2026-05-27T20:22:43.433Z",
+  "contentType": "github",
+  "title": "claude-squad",
+  "rawContent": "Repo: smtg-ai/claude-squad\nDescription: Manage multiple AI terminal agents like Claude Code, Codex, OpenCode, and Amp.\nTopics: claude-code, cli, vibe-coding, codex, opencode\nStars: 7642\n\nREADME:\n# Claude Squad [![CI](https://github.com/smtg-ai/claude-squad/actions/workflows/build.yml/badge.svg)](https://github.com/smtg-ai/claude-squad/actions/workflows/build.yml) [![GitHub Release](https://img.shields.io/github/v/release/smtg-ai/claude-squad)](https://github.com/smtg-ai/claude-squad/releases/latest)\n\n[Claude Squad](https://smtg-ai.github.io/claude-squad/) is a terminal app that manages multiple [Claude Code](https://github.com/anthropics/claude-code), [Codex](https://github.com/openai/codex), [Gemini](https://github.com/google-gemini/gemini-cli) (and other local agents including [Aider](https://github.com/Aider-AI/aider)) in separate workspaces, allowing you to work on multiple tasks simultaneously.\n\n\n![Claude Squad Screenshot](assets/screenshot.png)\n\n### Highlights\n- Complete tasks in the background (including yolo / auto-accept mode!)\n- Manage instances and tasks in one terminal window\n- Review changes before applying them, checkout changes before pushing them\n- Each task gets its own isolated git workspace, so no conflicts\n\n<br />\n\nhttps://github.com/user-attachments/assets/aef18253-e58f-4525-9032-f5a3d66c975a\n\n<br />\n\n### Installation\n\nBoth Homebrew and manual installation will install Claude Squad as `cs` on your system.\n\n#### Homebrew\n\n```bash\nbrew install claude-squad\nln -s \"$(brew --prefix)/bin/claude-squad\" \"$(brew --prefix)/bin/cs\"\n```\n\n#### Manual\n\nClaude Squad can also be installed by running the following command:\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/smtg-ai/claude-squad/main/install.sh | bash\n```\n\nThis puts the `cs` binary in `~/.local/bin`.\n\nTo use a custom name for the binary:\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/smtg-ai/claude-squad/main/install.sh | bash -s -- --name <your-binary-name>\n```\n\n### Prerequisites\n\n- [tmux](https://github.com/tmux/tmux/wiki/Installing)\n- [gh](https://cli.github.com/)\n\n### Usage\n\n```\nUsage:\n  cs [flags]\n  cs [command]\n\nAvailable Commands:\n  completion  Generate the autocompletion script for the specified shell\n  debug       Print debug information like config paths\n  help        Help about any command\n  reset       Reset all stored instances\n  version     Print the version number of claude-squad\n\nFlags:\n  -y, --autoyes          [experimental] If enabled, all instances will automatically accept prompts for claude code & aider\n  -h, --help             help for claude-squad\n  -p, --program string   Program to run in new instances (e.g. 'aider --model ollama_chat/gemma3:1b')\n```\n\nRun the application with:\n\n```bash\ncs\n```\nNOTE: The default program is `claude` and we recommend using the latest version.\n\n<br />\n\n<b>Using Claude Squad with other AI assistants:</b>\n- For [Codex](https://github.com/openai/codex): Set your API key with `export OPENAI_API_KEY=<your_key>`\n- Launch with specific assistants:\n   - Codex: `cs -p \"codex\"`\n   - Aider: `cs -p \"aider ...\"`\n   - Gemini: `cs -p \"gemini\"`\n- Make this the default, by modifying the config file (locate with `cs debug`)\n",
+  "embeddedUrls": [
+    "https://github.com/smtg-ai/claude-squad/actions/workflows/build.yml/badge.svg",
+    "https://github.com/smtg-ai/claude-squad/actions/workflows/build.yml",
+    "https://img.shields.io/github/v/release/smtg-ai/claude-squad",
+    "https://github.com/smtg-ai/claude-squad/releases/latest",
+    "https://smtg-ai.github.io/claude-squad/",
+    "https://github.com/anthropics/claude-code",
+    "https://github.com/openai/codex",
+    "https://github.com/google-gemini/gemini-cli",
+    "https://github.com/Aider-AI/aider",
+    "https://github.com/user-attachments/assets/aef18253-e58f-4525-9032-f5a3d66c975a",
+    "https://raw.githubusercontent.com/smtg-ai/claude-squad/main/install.sh",
+    "https://raw.githubusercontent.com/smtg-ai/claude-squad/main/install.sh",
+    "https://github.com/tmux/tmux/wiki/Installing",
+    "https://cli.github.com/",
+    "https://github.com/openai/codex"
+  ]
+}

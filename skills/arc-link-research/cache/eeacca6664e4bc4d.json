@@ -1,0 +1,22 @@
+{
+  "url": "https://github.com/stravu/crystal",
+  "fetchedAt": "2026-05-27T20:22:55.990Z",
+  "contentType": "github",
+  "title": "crystal",
+  "rawContent": "Repo: stravu/crystal\nDescription: (Crystal is now Nimbalyst) Run multiple Codex and Claude Code AI sessions in parallel git worktrees. Test, compare approaches & manage AI-assisted development workflows in one desktop app.\nTopics: ai, ai-coding, development-environment, vibe-coding, agentic-ai, anthropic, claude, claude-code, cursor, ide, llm-coding, codex, openai-codex\nStars: 3072\n\nREADME:\n<div align=\"center\">\n  <a href=\"https://nimbalyst.com/\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://nimbalyst.com/nimbalyst-logo-white.svg\" />\n      <img src=\"https://nimbalyst.com/nimbalyst-logo.svg\" alt=\"Nimbalyst Logo\" width=\"260\" />\n    </picture>\n  </a>\n  <p><a href=\"https://nimbalyst.com/\">https://nimbalyst.com/</a></p>\n  <p><a href=\"https://nimbalyst.com/download/\">Download here</a></p>\n</div>\n\n<div align=\"center\">\n  <h1>Crystal Is Now Nimbalyst</h1>\n  <p>Crystal (formerly a multi-session AI code assistant manager) has been deprecated and replaced by <strong>Nimbalyst</strong>.</p>\n  <p>Deprecated: February 2026.</p>\n</div>\n\n<div align=\"center\">\n  <a href=\"https://nimbalyst.com/\">\n    <img src=\"https://nimbalyst.com/_astro/ai-agent-transcript.Bd8j1G0q_BQpgv.webp\" alt=\"Nimbalyst Agent Window\" width=\"960\" />\n  </a>\n</div>\n\n## Migration\n\n- Download Nimbalyst: https://nimbalyst.com/\n- Documentation: https://docs.nimbalyst.com/\n- GitHub repository: https://github.com/Nimbalyst/nimbalyst\n\n## Nimbalyst Features\n\n- AI-native workspace for human + AI collaboration\n- AI agents that stream edits directly into open editors in real time\n- Multi-editor environment for code, markdown, spreadsheets, diagrams, and visual docs\n- Extension-first architecture for custom editor/file-type support\n- Local-first file model using open formats like Markdown, JSON, and CSV\n- Code-aware agent orchestration for implementation planning and task execution\n- Git worktree isolation for safer parallel AI coding sessions\n- Rich markdown editing with tables, code blocks, embeds, and formatting tools\n- Monaco-based code editing experience for programming workflows\n- RevoGrid-powered spreadsheet editing for CSV and tabular workflows\n- Excalidraw integration for diagram and whiteboard workflows\n- Visual data modeling tools for schema-centric work\n- Visual mockup editing for interface ideation and iteration\n- Unified editor lifecycle with consistent AI integration across editor types\n- Auto-save and file watching for reliable local development workflows\n- Project-level workspace management and AI session tracking\n- Built on production-grade desktop foundations with Electron\n\n## FAQ\n\n- **Is Crystal discontinued?** Yes. Crystal is deprecated and replaced by Nimbalyst.\n- **Can I still use Crystal?** Yes. You can continue using Crystal, but we recommend moving to Nimbalyst for active updates.\n- **Where is Nimbalyst?** https://nimbalyst.com/\n\nFor downloads, documentation, and updates, go to **https://nimbalyst.com/**.\n",
+  "embeddedUrls": [
+    "https://nimbalyst.com/",
+    "https://nimbalyst.com/nimbalyst-logo-white.svg",
+    "https://nimbalyst.com/nimbalyst-logo.svg",
+    "https://nimbalyst.com/",
+    "https://nimbalyst.com/",
+    "https://nimbalyst.com/download/",
+    "https://nimbalyst.com/",
+    "https://nimbalyst.com/_astro/ai-agent-transcript.Bd8j1G0q_BQpgv.webp",
+    "https://nimbalyst.com/",
+    "https://docs.nimbalyst.com/",
+    "https://github.com/Nimbalyst/nimbalyst",
+    "https://nimbalyst.com/",
+    "https://nimbalyst.com/**."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "url": "https://github.com/ComposioHQ/agent-orchestrator",
+  "fetchedAt": "2026-05-27T20:22:28.408Z",
+  "contentType": "github",
+  "title": "agent-orchestrator",
+  "rawContent": "Repo: ComposioHQ/agent-orchestrator\nDescription:  Agentic orchestrator for parallel coding agents — plans tasks, spawns agents, and autonomously handles CI    fixes, merge conflicts, and code reviews.\nTopics: claude-code, codex-cli, orchestration, orchestrator, skills, agent-fleet, agent-swarm, git-worktrees, multi-agent, parallel-agents, parallel-coding, tmux\nStars: 7304\n\nREADME:\n<h1 align=\"center\">Agent Orchestrator â The Orchestration Layer for Parallel AI Agents</h1>\n\n<p align=\"center\">\n<a href=\"https://github.com/ComposioHQ/agent-orchestrator\">\n  <img width=\"800\" alt=\"Agent Orchestrator banner\" src=\"docs/assets/agent_orchestrator_banner.png\">\n</a>\n</p>\n\n<div align=\"center\">\n\nSpawn parallel AI coding agents, each in its own git worktree. Agents autonomously fix CI failures, address review comments, and open PRs â you supervise from one dashboard.\n\n[![GitHub stars](https://img.shields.io/github/stars/ComposioHQ/agent-orchestrator?style=flat-square)](https://github.com/ComposioHQ/agent-orchestrator/stargazers)\n[![npm version](https://img.shields.io/npm/v/%40aoagents%2Fao?style=flat-square)](https://www.npmjs.com/package/@aoagents/ao)\n[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)\n[![PRs merged](https://img.shields.io/badge/PRs_merged-61-brightgreen?style=flat-square)](https://github.com/ComposioHQ/agent-orchestrator/pulls?q=is%3Amerged)\n[![Tests](https://img.shields.io/badge/test_cases-3%2C288-blue?style=flat-square)](https://github.com/ComposioHQ/agent-orchestrator/releases/tag/metrics-v1)\n[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/UZv7JjxbwG)\n\n</div>\n\n---\n\nAgent Orchestrator manages fleets of AI coding agents working in parallel on your codebase. Each agent gets its own git worktree, its own branch, and its own PR. When CI fails, the agent fixes it. When reviewers leave comments, the agent addresses them. You only get pulled in when human judgment is needed.\n\n**Agent-agnostic** (Claude Code, Codex, Aider) Â· **Runtime-agnostic** (tmux, ConPTY/process, Docker) Â· **Tracker-agnostic** (GitHub, Linear)\n\n<div align=\"center\">\n\n## See it in action\n\n<a href=\"https://x.com/agent_wrapper/status/2026329204405723180\">\n  <img src=\"docs/assets/demo-video-tweet.png\" alt=\"Agent Orchestrator demo â AI agents building their own orchestrator\" width=\"560\">\n</a>\n<br><br>\n<a href=\"https://x.com/agent_wrapper/status/2026329204405723180\"><img src=\"docs/assets/btn-watch-demo.png\" alt=\"Watch the Demo on X\" height=\"48\"></a>\n<br><br><br>\n<a href=\"https://x.com/agent_wrapper/status/2025986105485733945\">\n  <img src=\"docs/assets/article-tweet.png\" alt=\"The Self-Improving AI System That Built Itself\" width=\"560\">\n</a>\n<br><br>\n<a href=\"https://x.com/agent_wrapper/status/2025986105485733945\"><img src=\"docs/assets/btn-read-article.png\" alt=\"Read the Full Article on X\" height=\"48\"></a>\n\n</div>\n\n## Quick Start\n\n> **Prerequisites:** [Node.js 20.18.3+](https://nodejs.org), [Git 2.25+](https://git-scm.com), [`gh` CLI](https://cli.github.com), and:\n> - **macOS / Linux:** [tmux](https://github.com/tmux/tmux/wiki/Installing) â install via `brew install tmux` or `sudo apt install tmux`.\n> - **Windows:** PowerShell 7+ recommended. tmux is **not** required â AO uses native ConPTY via the `runtime-process` plugin",
+  "embeddedUrls": [
+    "https://github.com/ComposioHQ/agent-orchestrator",
+    "https://img.shields.io/github/stars/ComposioHQ/agent-orchestrator?style=flat-square",
+    "https://github.com/ComposioHQ/agent-orchestrator/stargazers",
+    "https://img.shields.io/npm/v/%40aoagents%2Fao?style=flat-square",
+    "https://www.npmjs.com/package/@aoagents/ao",
+    "https://img.shields.io/badge/license-MIT-blue?style=flat-square",
+    "https://img.shields.io/badge/PRs_merged-61-brightgreen?style=flat-square",
+    "https://github.com/ComposioHQ/agent-orchestrator/pulls?q=is%3Amerged",
+    "https://img.shields.io/badge/test_cases-3%2C288-blue?style=flat-square",
+    "https://github.com/ComposioHQ/agent-orchestrator/releases/tag/metrics-v1",
+    "https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white",
+    "https://discord.gg/UZv7JjxbwG",
+    "https://nodejs.org",
+    "https://git-scm.com",
+    "https://cli.github.com",
+    "https://github.com/tmux/tmux/wiki/Installing"
+  ]
+}

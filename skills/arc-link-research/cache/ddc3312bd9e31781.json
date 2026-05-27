@@ -1,0 +1,21 @@
+{
+  "url": "https://github.com/vivy-company/aizen",
+  "fetchedAt": "2026-05-27T20:22:32.739Z",
+  "contentType": "github",
+  "title": "aizen",
+  "rawContent": "Repo: vivy-company/aizen\nDescription: Bring order to your projects, environments, and day-to-day work.\nTopics: agents, ai, claude, claude-code, codex, gemini, git, macos, native, swift, terminal, worktree, kimi, opencode\nStars: 260\n\nREADME:\n# Aizen\n\n[English](README.md) | [ç®ä½ä¸­æ](README.zh-CN.md)\n\n[![macOS](https://img.shields.io/badge/macOS-13.5+-black?style=flat-square&logo=apple)](https://aizen.win)\n[![Swift](https://img.shields.io/badge/Swift-5.0+-F05138?style=flat-square&logo=swift&logoColor=white)](https://swift.org)\n[![License](https://img.shields.io/badge/License-GPL%203.0-blue?style=flat-square)](LICENSE)\n[![Discord](https://img.shields.io/badge/-Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/zemMZtrkSb)\n[![Twitter](https://img.shields.io/badge/-Twitter-1DA1F2?style=flat-square&logo=x&logoColor=white)](https://x.com/aizenwin)\n[![Sponsor](https://img.shields.io/badge/-Sponsor-ff69b4?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/vivy-company)\n\n> **Early Access** â Aizen is under active development with near-daily updates. Expect breaking changes and new features frequently.\n\nAizen is a macOS workspace for parallel development.\n\nBring order to your projects, environments, and day-to-day work.\n\nGive each project or branch its own environment, with its own terminal, files, browser, agents, and state.\n\n![Aizen Demo](https://r2.aizen.win/demo.png)\n\n## What is Aizen?\n\nAizen is an agentic-first developer workspace for macOS. It helps you run projects and branches in parallel without turning worktrees, folders, or copies into manual setup. Each environment keeps its own terminal, files, browser, agent sessions, Git context, and review state in one place.\n\n## Current Highlights\n\n### Parallel Environments\n- **Workspaces** â Organize active projects into color-coded groups\n- **Per-project environments** â Give each project or branch its own terminal, files, browser, and chat\n- **Flexible under the hood** â Aizen can use Git worktrees, folders, or copies, depending on the setup\n\n### Terminal and CLI\n- **GPU-accelerated** â Powered by [libghostty](https://github.com/ghostty-org/ghostty)\n- **Split panes and tabs** â Horizontal and vertical splits with presets and themes\n- **Persistence** â Optional tmux-backed terminal session restore\n- **CLI companion** â Open projects, manage workspaces, and attach to persistent terminals with `aizen`\n\n### Agentic-First Workflow\n- **ACP registry-first** â Add registry agents or bring your own custom command/binary\n- **Agent sessions per environment** â Keep chat, tool calls, and context attached to the project you are working in\n- **MCP marketplace** â Browse and add MCP servers from inside the app\n- **Rich input** â File attachments, tool calls, and on-device voice input with waveform visualization\n\n### Git, Review, and Delivery\n- **Git operations** â Stage, commit, push, pull, merge, and branch from the UI\n- **Diff and review** â Syntax-highlighted diffs, review comments, and PR/MR detail views\n- **Workflow visibility** â GitHub Actions and GitLab CI runs from the worktree sidebar\n- **Apple workflows** â Xcode build integration for `.xcodepr",
+  "embeddedUrls": [
+    "https://img.shields.io/badge/macOS-13.5+-black?style=flat-square&logo=apple",
+    "https://aizen.win",
+    "https://img.shields.io/badge/Swift-5.0+-F05138?style=flat-square&logo=swift&logoColor=white",
+    "https://swift.org",
+    "https://img.shields.io/badge/License-GPL%203.0-blue?style=flat-square",
+    "https://img.shields.io/badge/-Discord-5865F2?style=flat-square&logo=discord&logoColor=white",
+    "https://discord.gg/zemMZtrkSb",
+    "https://img.shields.io/badge/-Twitter-1DA1F2?style=flat-square&logo=x&logoColor=white",
+    "https://img.shields.io/badge/-Sponsor-ff69b4?style=flat-square&logo=githubsponsors&logoColor=white",
+    "https://github.com/sponsors/vivy-company",
+    "https://r2.aizen.win/demo.png",
+    "https://github.com/ghostty-org/ghostty"
+  ]
+}

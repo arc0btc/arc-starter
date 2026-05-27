@@ -1,0 +1,32 @@
+{
+  "url": "https://github.com/andyrewlee/awesome-agent-orchestrators",
+  "fetchedAt": "2026-05-27T20:22:18.075Z",
+  "contentType": "github",
+  "title": "awesome-agent-orchestrators",
+  "rawContent": "Repo: andyrewlee/awesome-agent-orchestrators\nDescription: List of agent orchestrators\nTopics: agent-orchestration, claude-code, codex, gemini-cli, opencode, agentic-ai, ai-agents, ai-coding, awesome, awesome-list, coding-agents, git-worktree, multi-agent-systems, parallel-agents, vibe-coding, agent-coordination, agent-swarm, ai-orchestration, ralph-loop, ralph-wiggum\nStars: 568\n\nREADME:\n# Awesome Agent Orchestrators [![Awesome](https://awesome.re/badge.svg)](https://awesome.re)\n\nA curated list of tools and frameworks for orchestrating AI coding agents.\n\n## Parallel Agent Runners\n\nTools for running multiple coding agents simultaneously on different tasks.\n\n- [1code](https://github.com/21st-dev/1code) - UI for Claude Code with local and remote agent execution.\n- [agent-deck](https://github.com/asheshgoplani/agent-deck) - Terminal session manager for AI coding agents.\n- [agent-kanban](https://github.com/saltbo/agent-kanban) - Agent-first kanban board with leader-worker model, cryptographic agent identity, and multi-runtime support (Claude Code, Codex, Gemini CLI).\n- [agent-of-empires](https://github.com/njbrake/agent-of-empires) - A terminal session manager for AI coding agents on Linux and macOS.\n- [agent-orchestrator](https://github.com/ComposioHQ/agent-orchestrator) - Agentic orchestrator for parallel coding agents.\n- [ai-maestro](https://github.com/23blocks-OS/ai-maestro) - Dashboard for orchestrating Claude, Aider, and Cursor agents across machines.\n- [aizen](https://github.com/vivy-company/aizen) - macOS workspace for managing git worktrees with integrated agent sessions.\n- [amux](https://github.com/andyrewlee/amux) - TUI for easily running parallel coding agents.\n- [Aperant](https://github.com/AndyMik90/Aperant) - Autonomous multi-session AI coding.\n- [ariana](https://github.com/ariana-dot-dev/ariana) - The IDE of the future.\n- [automaker](https://github.com/AutoMaker-Org/automaker) - Autonomous AI development studio.\n- [bernstein](https://github.com/chernistry/bernstein) - Deterministic orchestrator â spawns parallel AI coding agents (Claude Code, Codex CLI, Gemini CLI), verifies with tests, auto-commits. Zero LLM tokens on coordination.\n- [claude-squad](https://github.com/smtg-ai/claude-squad) - Manage multiple AI terminal agents in background.\n- [claude_code_bridge](https://github.com/bfly123/claude_code_bridge) - Real-time multi-AI collaboration.\n- [clideck](https://github.com/rustykuntz/clideck) - WhatsApp-like dashboard for managing multiple AI coding agents (Claude Code, Codex, Gemini CLI, OpenCode) in one browser window. Live status, session resume, autopilot routing between agents, and full control from a phone while away.\n- [cmux](https://github.com/manaflow-ai/cmux) - Open-source platform for running multiple coding agents in parallel.\n- [CodexMonitor](https://github.com/Dimillian/CodexMonitor) - Orchestrate multiple Codex agents across local workspaces.\n- [collaborator](https://github.com/collaborator-ai/collab-public) - A place to create with agents.\n- [constellagent](https://github.com/owengretzinger/constellagent) - macOS app for running multiple AI agents with their own terminal, editor, and git worktree.\n- [crystal](https://github.com/stravu/crystal) - Run multiple Codex and Claude Code sessions in parallel git worktrees.\n- [dmux](https://github.com/standardagents/dmux) - Parallel agents with tmux and work",
+  "embeddedUrls": [
+    "https://awesome.re/badge.svg",
+    "https://awesome.re",
+    "https://github.com/21st-dev/1code",
+    "https://github.com/asheshgoplani/agent-deck",
+    "https://github.com/saltbo/agent-kanban",
+    "https://github.com/njbrake/agent-of-empires",
+    "https://github.com/ComposioHQ/agent-orchestrator",
+    "https://github.com/23blocks-OS/ai-maestro",
+    "https://github.com/vivy-company/aizen",
+    "https://github.com/andyrewlee/amux",
+    "https://github.com/AndyMik90/Aperant",
+    "https://github.com/ariana-dot-dev/ariana",
+    "https://github.com/AutoMaker-Org/automaker",
+    "https://github.com/chernistry/bernstein",
+    "https://github.com/smtg-ai/claude-squad",
+    "https://github.com/bfly123/claude_code_bridge",
+    "https://github.com/rustykuntz/clideck",
+    "https://github.com/manaflow-ai/cmux",
+    "https://github.com/Dimillian/CodexMonitor",
+    "https://github.com/collaborator-ai/collab-public",
+    "https://github.com/owengretzinger/constellagent",
+    "https://github.com/stravu/crystal",
+    "https://github.com/standardagents/dmux"
+  ]
+}
