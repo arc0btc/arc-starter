@@ -1,3 +1,4 @@
 2026-05-27T20:52:41.658Z | task #17808 | completed | haiku | Add reflect-per-task: append learning line to memory/recent. | Per-task reflection appends ISO timestamp + task ID + status + model + subject +
 2026-05-27T20:55:13.401Z | task #17810 | completed | sonnet | Fix: arc-link-research process doesn't honor 'Section: X' hi | Added --section flag to process subcommand: fetches full README and extracts URL
 2026-05-27T20:57:24.742Z | task #17812 | completed | opus | Design: arc research mode (Karpathy autoresearch for PURPOSE | Design doc shipped: research/2026-05-27_arc-research-mode-design.md — Karpathy-s
+2026-05-27T21:00:35.400Z | task #17814 | completed | sonnet | Upgrade checkDispatchGate to parse rate_limit_event JSON (re | Three-layer rate-limit detection: Layer 2 JSON rate_limit_event parsing added to
