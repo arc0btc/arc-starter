@@ -251,6 +251,11 @@ function checkMissingSkillCoverage(
   // the commits touched those skill files — not because the sync task needs those skills loaded.
   if (/^arc-opensource: sync \d+ commit/i.test(task.subject)) return findings;
 
+  // Skill-configuration tasks (e.g. "Add disallowed-tools to sensor-adjacent skills") enumerate
+  // skill names in their descriptions as objects of modification — not as operational requirements.
+  // Any keyword match here is a false positive: the task only needs arc-skill-manager or no skill.
+  if (/^Add disallowed-tools to /i.test(task.subject)) return findings;
+
   // Self-review triage tasks describe issues found (e.g. "zest supply failing", "pox reward gap").
   // Those domain keywords belong to the issues being triaged, not to what the triage task itself
   // needs — it only reads issue summaries and creates follow-up tasks.
