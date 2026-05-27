@@ -1,3 +1,52 @@
+## 2026-05-27T09:05:00.000Z — disallowed-tools rollout complete; dispatch resilience (opus fallback + MCP timeout); AGENT.md wave; 118 skills / 72 sensors
+
+**Task #17751** | Diff: 8295967 → 428b8fd (7 structural commits) | Sensors: 72 | Skills: 118
+
+### Step 1 — Requirements
+
+- **fix(dispatch): MCP_TOOL_TIMEOUT=120s + opus fallback model** (7f3fdefc): Two targeted resilience improvements. `MCP_TOOL_TIMEOUT=120000` fixes v2.1.142 regression where HTTP/SSE MCP servers ignored this env var (silent 60s cap). `--fallback-model sonnet` for opus tasks prevents full dispatch stall if Opus is temporarily unavailable (v2.1.152+ feature).
+- **feat(skills): disallowed-tools rollout complete** (4 batch commits + 10c3d2fa): 29/29 candidates from the 2026-05-27 audit now have `disallowed-tools` frontmatter. Read-only enforcement is now structural, not just documented. Authoring guide in `arc-skill-manager/SKILL.md` updated.
+- **feat(hooks): reloadSkills flag on skill create** (cd278723): `arc-skill-manager/cli.ts` writes `db/skills-pending-reload.flag` on `create`. SessionStart hook returns `reloadSkills:true`, enabling dynamic reload. Closes the workflow gap where freshly scaffolded skills were invisible to the current session.
+- **docs: AGENT.md wave** (41f62581 + auto-commits): 7 skills got subagent briefings: `daily-brief-inscribe`, `arc-worktrees`, `jingswap`, `defi-zest`, `arc-payments`, `dao-zero-authority`, `defi-bitflow`. Implements the SKILL.md-for-orchestrator / AGENT.md-for-subagent separation cleanly.
+- **fix(context-review): disallowed-tools config tasks excluded from keyword matching** (428b8fd4): Skip list grows to ~16 conditions (+1). `/^Add disallowed-tools to /i` added. Consistent with prior sync-task exclusion.
+- **Watch/brief integration**: 2026-05-27T01:00Z watch — 32 completed, 0 failed, $13.51. Queue clear. 2026-05-26 overnight brief — 31 tasks, 0 failures, $10.61. Pipeline nominal.
+
+### Step 2 — Delete
+
+- No deletion candidates this window. Sensor/skill counts hold at 72/118.
+
+### Step 3 — Simplify
+
+- disallowed-tools rollout is architecturally clean: enforcement at the skill layer (SKILL.md frontmatter), not buried in dispatch logic or agent instructions. Claude Code blocks disallowed tool calls before they execute — belt-and-suspenders over "don't do that" prose.
+- AGENT.md separation is correct pattern: orchestrators get SKILL.md (lean), subagents get AGENT.md (full detail). 7 new AGENT.md files reduce token exposure when dispatching deep-work.
+- **[CARRY-WATCH]** context-review skip list at ~16 conditions. One more per window → ~20 within 2-4 cycles. Consider `SKIP_SUBJECT_PATTERNS: Array<RegExp | ((task) => boolean)>` table refactor if list grows further.
+- **[NEW-WATCH]** `db/skills-pending-reload.flag` cleanup: verify SessionStart hook clears the flag after consuming it. If not cleared, every subsequent session start would trigger spurious reload.
+
+### Step 4 — Accelerate
+
+- Opus fallback eliminates dispatch stalls on model availability issues. MCP timeout prevents silent 60s cap that caused x402/Stacks tool calls to appear to hang. Both reduce invisible failure modes.
+- No new pipeline bottlenecks. 0% failure rate this window.
+
+### Step 5 — Automate
+
+- `disallowed-tools` lint check in `lint-skills --staged` hook would enforce the new best practice for future skill additions. Currently the authoring guide documents it but the hook doesn't verify. Low-priority follow-up.
+- No other new automation opportunities.
+
+### Flags
+
+- **[RESOLVED]** disallowed-tools rollout — 29/29 candidates complete. Authoring guide updated. Read-only enforcement is now structural.
+- **[NEW-WATCH]** `db/skills-pending-reload.flag` cleanup path — verify SessionStart hook clears flag after reloadSkills (cd278723).
+- **[CARRY-WATCH]** context-review skip list ~16 conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — day 9 stale. Autonomous paths exhausted.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 30+ days stale. Requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** x402-relay nonce sprint PRs #409/#411/#412 — approved, awaiting whoabuddy merge.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs since 2026-05-22 — escalate to whoabuddy if persists past 2026-06-01.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** Zest borrow MCP server 1.56.1 release PR #552 — awaiting release-please merge.
+
+---
+
 ## 2026-05-26T21:02:00.000Z — AIBTC title convention enforced in code; deck content refreshed; 118 skills / 72 sensors
 
 **Task #17705** | Diff: 1af299a0 → 8295967 (2 structural commits) | Sensors: 72 | Skills: 118
