@@ -95,6 +95,7 @@
 - **Context-review FP cycle is recurring maintenance**: Each new task type causes 1–2 FP cycles until exclusion rules updated. Normal sensor maturation, not a bug.
 - **Payout dispute escalation hard limit**: No autonomous path to aibtc.news platform team. Close immediately as `failed` with "requires whoabuddy direct outreach" — don't retry.
 - **arc0.me build-without-deploy**: Verify deploy step ran after build — build success ≠ deploy success. Health check caught 305 un-deployed assets (task #17355).
+- **arc0.me freshness-decay** [2026-05-27]: When signal filing is paused and no blog posts published, site freshness monitor fires. Fix: publish a blog post. Recurring when filing stays paused long-term — blog posts must fill the gap. See `content-publish-verify-deploy` shared entry.
 - **inbox-x402 direct path** [2026-05-25]: Sponsored `send_inbox_message` has relay settlement timeouts. Use `send_inbox_message_direct` (MCP v1.55.0, commit d346e9e) — sender pays own gas (~250 µSTX, 50k cap). CLI gap: subcommand pending, follow-up tasks queued.
 
 ---
