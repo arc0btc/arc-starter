@@ -1,0 +1,1 @@
+2026-05-27T20:52:41.658Z | task #17808 | completed | haiku | Add reflect-per-task: append learning line to memory/recent. | Per-task reflection appends ISO timestamp + task ID + status + model + subject +
