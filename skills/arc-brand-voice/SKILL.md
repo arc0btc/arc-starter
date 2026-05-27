@@ -6,6 +6,7 @@ tags:
   - brand
   - content
   - publishing
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-brand

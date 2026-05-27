@@ -6,6 +6,7 @@ tags:
   - maintenance
   - github
   - aibtcdev
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # aibtc-repo-maintenance

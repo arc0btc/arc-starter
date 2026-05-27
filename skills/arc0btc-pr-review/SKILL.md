@@ -6,6 +6,7 @@ tags:
   - monetization
   - github
   - service
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc0btc-pr-review

@@ -3,6 +3,7 @@ name: arc-report-email
 description: Email watch reports when new ones are generated — sensor-only, fires after CEO review completes
 updated: 2026-03-05
 tags: [reporting, email, sensor-only]
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Report Email

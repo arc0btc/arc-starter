@@ -4,6 +4,7 @@ description: Sensor that periodically reviews blocked tasks to check if they can
 tags:
   - operations
   - tasks
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-blocked-review

@@ -6,6 +6,7 @@ tags:
   - architecture
   - simplification
   - review
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # architect

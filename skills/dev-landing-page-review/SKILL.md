@@ -10,6 +10,7 @@ tags:
   - composition
   - accessibility
   - ui
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # dev-landing-page-review

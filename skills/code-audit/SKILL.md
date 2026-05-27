@@ -7,6 +7,7 @@ tags:
   - audit
   - static-analysis
   - dev
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # code-audit

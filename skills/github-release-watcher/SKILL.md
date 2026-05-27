@@ -6,6 +6,7 @@ tags:
   - monitoring
   - github
   - ecosystem
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # release-watcher

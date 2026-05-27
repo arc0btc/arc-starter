@@ -3,6 +3,7 @@ name: arc-ceo-review
 description: CEO reviews the latest watch report and actively manages the task queue
 updated: 2026-03-05
 tags: [strategy, review, recurring]
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # CEO Review Skill

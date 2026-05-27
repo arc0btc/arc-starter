@@ -13,6 +13,7 @@ metadata:
   entry: "aibtc-news-editor/SKILL.md"
   mcp-tools: "news_list_signals, news_editor_review_signal, news_editor_file_review, news_editor_check_earnings, news_list_editors, news_list_beats, news_check_status, news_front_page"
   requires: "aibtc-news, wallet, signing"
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Beat Editor — aibtc.news
