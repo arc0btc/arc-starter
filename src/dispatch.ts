@@ -489,6 +489,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     String(getMaxBudgetUsd(model)),
   ];
 
+  // Fallback to Sonnet if Opus is unavailable (v2.1.152+)
+  if (model === "opus") {
+    args.push("--fallback-model", "sonnet");
+  }
+
   if (Bun.env.DANGEROUS === "true") {
     // v2.1.108 split permission bypass into enable (--allow-...) + activate (--permission-mode).
     // Passing only the activator silently no-ops; LLM hits "requires approval" on every tool call.
