@@ -61,6 +61,7 @@ export interface CycleLog {
   skill_hashes: string | null;
   security_grade: string | null;
   model: string | null;
+  tool_calls: string | null;
 }
 
 export interface InsertCycleLog {
@@ -69,6 +70,7 @@ export interface InsertCycleLog {
   skills_loaded?: string | null;
   skill_hashes?: string | null;
   model?: string | null;
+  tool_calls?: string | null;
 }
 
 export interface SkillVersion {
@@ -312,6 +314,7 @@ export function initDatabase(): Database {
   addColumn("tasks", "model", "TEXT");
   addColumn("cycle_log", "model", "TEXT");
   addColumn("cycle_log", "skill_hashes", "TEXT");
+  addColumn("cycle_log", "tool_calls", "TEXT");
   addColumn("tasks", "assigned_to", "TEXT");
   addColumn("tasks", "result_quality", "INTEGER");
   addColumn("tasks", "script", "TEXT");
@@ -1080,7 +1083,7 @@ export function insertCycleLog(entry: InsertCycleLog): number {
 export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const allowed: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
-    "tokens_in", "tokens_out", "skills_loaded", "skill_hashes", "task_id", "security_grade", "model",
+    "tokens_in", "tokens_out", "skills_loaded", "skill_hashes", "task_id", "security_grade", "model", "tool_calls",
   ];
   const filtered: Record<string, unknown> = {};
   for (const key of allowed) {

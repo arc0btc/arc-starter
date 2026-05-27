@@ -472,6 +472,7 @@ interface DispatchResult {
   api_cost_usd: number;
   input_tokens: number;
   output_tokens: number;
+  tool_calls?: string[];
 }
 
 async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string, taskId?: number, taskSubject?: string): Promise<DispatchResult> {
@@ -587,6 +588,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   let output_tokens = 0;
   let cache_read_tokens = 0;
   let cache_creation_tokens = 0;
+  const toolCallNames: string[] = [];
   const decoder = new TextDecoder();
   let lineBuffer = "";
 
@@ -617,6 +619,9 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
         for (const block of content) {
           if (block["type"] === "text" && typeof block["text"] === "string") {
             result += block["text"];
+          }
+          if (block["type"] === "tool_use" && typeof block["name"] === "string") {
+            toolCallNames.push(block["name"]);
           }
         }
       }
@@ -676,7 +681,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     throw new Error("stream-JSON incomplete: subprocess exited 0 but produced no result and no cost data (likely crashed mid-stream)");
   }
 
-  return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
+  return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens, tool_calls: toolCallNames };
 }
 
 // ---- Script dispatch (LLM-bypass) ----
@@ -1219,7 +1224,7 @@ export async function runDispatch(): Promise<void> {
 
     recordGateSuccess();
 
-    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } = dispatchResult;
+    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens, tool_calls } = dispatchResult;
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
@@ -1292,6 +1297,7 @@ export async function runDispatch(): Promise<void> {
       api_cost_usd,
       tokens_in: input_tokens,
       tokens_out: output_tokens,
+      tool_calls: tool_calls && tool_calls.length > 0 ? JSON.stringify(tool_calls) : null,
     });
     cycleUpdated = true;
     cycleCostUsd = cost_usd;
