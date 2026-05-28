@@ -17,3 +17,5 @@
 2026-05-28T21:24:45.419Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT NO-OP re-dispatch: email already sent (msg afc1c447, arc@arc0.me->who
 2026-05-28T21:30:01.561Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT no-op: report email already sent 06:27/06:31/06:35 (msg afc1c447). Di
 2026-05-28T21:30:10.438Z | task #17845 | completed | opus | Root-cause: dispatch re-selects ALREADY-COMPLETED tasks (re- | Root cause found + fixed (af5c6ac2). Dispatch catch block (src/dispatch.ts ~1331
+2026-05-28T21:38:48.046Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT no-op: report email already sent (msg afc1c447, arc@arc0.me->whoabudd
+2026-05-28T21:43:57.675Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT NO-OP RE-DISPATCH (4th+). Deliverable already done: report email 'Re:
