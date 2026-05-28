@@ -1330,7 +1330,16 @@ export async function runDispatch(): Promise<void> {
 
     recordGateFailure(errMsg, errClass);
 
-    if (errClass === "auth") {
+    // If the LLM already closed the task to a terminal state, the work is done.
+    // A subprocess error during teardown (e.g. rate limit after self-close) must
+    // NOT requeue it — requeueTask overwrites the terminal status with 'pending',
+    // resurrecting completed tasks for re-dispatch. For side-effecting tasks
+    // (email, STX send, x402) that means duplicate sends. See tasks #17845/#17797.
+    const postErrStatus = getTaskById(task.id);
+    if (postErrStatus && postErrStatus.status !== "active") {
+      log(`dispatch: task #${task.id} errored after LLM self-close (status=${postErrStatus.status}, ${errClass}) — preserving status, not requeuing`);
+      insertServiceLog("warn", "dispatch", `task #${task.id} errored post-close (${errClass}); preserving ${postErrStatus.status}, not requeued`, task.id);
+    } else if (errClass === "auth") {
       markTaskFailed(task.id, `Auth error (not retried): ${errMsg.slice(0, 400)}`);
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
       insertServiceLog("error", "dispatch", `task #${task.id} failed: auth error`, task.id);
