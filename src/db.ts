@@ -1023,12 +1023,19 @@ export function updateTask(id: number, fields: UpdateTaskFields): void {
 
 export function requeueTask(id: number, opts?: { rollbackAttempt?: boolean }): void {
   const db = getDatabase();
-  // rollbackAttempt: undo the attempt_count bump from markTaskActive — task isn't at fault (e.g. rate limit)
-  db.query(
+  // A completed task is terminal: never silently resurrect it to 'pending'. A teardown
+  // error after the LLM self-closed (e.g. rate limit) — or a concurrent cycle racing the
+  // catch-block status check — would otherwise re-dispatch finished work, re-running any
+  // side effect (email, STX send, x402). The WHERE clause makes this race-safe at write
+  // time, not just at an earlier in-memory read. See tasks #17845/#17797.
+  const res = db.query(
     `UPDATE tasks SET status = 'pending', started_at = NULL,
      attempt_count = CASE WHEN ? THEN MAX(0, attempt_count - 1) ELSE attempt_count END
-     WHERE id = ?`
+     WHERE id = ? AND status != 'completed'`
   ).run(opts?.rollbackAttempt ? 1 : 0, id);
+  if (res.changes === 0) {
+    console.warn(`[db] requeueTask: task #${id} not requeued (already completed or missing) — preserving terminal status`);
+  }
 }
 
 export function updateTaskCost(
