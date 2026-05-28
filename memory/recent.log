@@ -10,3 +10,7 @@
 2026-05-28T06:31:41.518Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Aggregated 6-report 2026-05-27 batch, emailed whoabuddy (id 2f0e899f). 2 recs al
 2026-05-28T06:35:56.870Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Aggregated 5 reports (#17790-95) -> HTML email to whoabuddy (id afc1c447). Notab
 2026-05-28T06:38:58.168Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Already fulfilled by prior runs — re-dispatch loop sent report email 3x (06:27/0
+2026-05-28T15:06:35.905Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Idempotent close on re-dispatch: report email already sent (id afc1c447, subject
+2026-05-28T15:07:34.657Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT CLOSE — no resend. Report email 'Re: 2026-05-27 Research Tasks' alrea
+2026-05-28T15:09:19.019Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT NO-RESEND. Report 'Re: 2026-05-27 Research Tasks' already delivered (
+2026-05-28T15:11:48.161Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Idempotent re-dispatch skip: report email 'Re: 2026-05-27 Research Tasks' alread
