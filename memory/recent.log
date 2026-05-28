@@ -14,3 +14,6 @@
 2026-05-28T15:07:34.657Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT CLOSE — no resend. Report email 'Re: 2026-05-27 Research Tasks' alrea
 2026-05-28T15:09:19.019Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT NO-RESEND. Report 'Re: 2026-05-27 Research Tasks' already delivered (
 2026-05-28T15:11:48.161Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Idempotent re-dispatch skip: report email 'Re: 2026-05-27 Research Tasks' alread
+2026-05-28T21:24:45.419Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT NO-OP re-dispatch: email already sent (msg afc1c447, arc@arc0.me->who
+2026-05-28T21:30:01.561Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | IDEMPOTENT no-op: report email already sent 06:27/06:31/06:35 (msg afc1c447). Di
+2026-05-28T21:30:10.438Z | task #17845 | completed | opus | Root-cause: dispatch re-selects ALREADY-COMPLETED tasks (re- | Root cause found + fixed (af5c6ac2). Dispatch catch block (src/dispatch.ts ~1331
