@@ -6,3 +6,7 @@
 2026-05-27T21:02:36.225Z | task #17809 | completed | sonnet | Skim: swarm-protocol MCP server for arc-mcp peering pattern | swarm-protocol: lift send_signal/get_signals + get_context as arc-mcp tools back
 2026-05-27T21:02:50.824Z | task #17809 | completed | sonnet | Skim: swarm-protocol MCP server for arc-mcp peering pattern | swarm-protocol skim: send_signal+get_context are the Arc-relevant primitives for
 2026-05-27T21:03:14.837Z | task #17809 | completed | sonnet | Skim: swarm-protocol MCP server for arc-mcp peering pattern | swarm-protocol: 19 MCP tools (signals+claims+intents+teams); lift send_signal/ge
+2026-05-28T06:27:22.659Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Aggregated 6 child reports (howtoeval, Mirage, awesome-orchestrators 4 sections)
+2026-05-28T06:31:41.518Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Aggregated 6-report 2026-05-27 batch, emailed whoabuddy (id 2f0e899f). 2 recs al
+2026-05-28T06:35:56.870Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Aggregated 5 reports (#17790-95) -> HTML email to whoabuddy (id afc1c447). Notab
+2026-05-28T06:38:58.168Z | task #17797 | completed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Already fulfilled by prior runs — re-dispatch loop sent report email 3x (06:27/0
