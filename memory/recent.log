@@ -78,3 +78,4 @@
 2026-05-29T08:16:31.324Z | task #17866 | completed | sonnet | Survey microsoft/SkillOpt + microsoft/waza for Bun-native ev | waza=93-99MB Copilot-bundled binary, not arc-compatible; recommend Bun-native po
 2026-05-29T08:18:22.180Z | task #17867 | completed | haiku | Lint aibtcdev/skills for harness-coupled language per RFC 00 | Scanned 109 SKILL.md files in aibtcdev/skills. Found 4 skills with RFC 0008 inva
 2026-05-29T08:19:39.545Z | task #17893 | failed | sonnet | verify arc-email-worker §1 deployed (PR #3 schema-health) | FAIL: endpoint 404 — PR #3 merged but no CI/CD workflow exists, worker never dep
+2026-05-29T08:22:26.639Z | task #17868 | completed | sonnet | Sketch RFC 0011: REFINE/PIVOT/web-search/handoff escalation  | Drafted ARC-0011 at agent-runtime/proposals/0011-escalation-ladder.md: 4-rung la
