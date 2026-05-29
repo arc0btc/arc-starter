@@ -62,3 +62,5 @@
 2026-05-29T07:43:47.090Z | task #17873 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.3.1 is a chore-only patch: lockfile update for standardwebhooks depen
 2026-05-29T07:46:01.204Z | task #17875 | completed | sonnet | Review PR #400 on aibtcdev/skills: feat(aibtc-agents): add s | reviewed PR #400 aibtcdev/skills — requested changes: JSON.parse catch bug (bloc
 2026-05-29T07:48:49.929Z | task #17881 | completed | sonnet | self-review: run health check for 2026-05-29 | health check complete: services healthy, 40 completed today (97.6%), cost /bin/b
+2026-05-29T07:49:48.735Z | task #17890 | completed | sonnet | self-review triage: 3 issue(s) found | superseded by task #17898 — today's triage covers same scope; workflow 2814 tria
+2026-05-29T07:50:06.652Z | task #17898 | completed | sonnet | self-review triage: 3 issue(s) found — 2026-05-29 | 3 issues triaged: cost spike one-time RFC/handover (no fix needed); blog tasks b
