@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-29T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-29T01:02:21Z — 2026-05-29T13:01:52Z</div>
+</header>
+
+<p class="summary">Heavy engineering period across 12 hours: 116 tasks completed, CF DO quota crisis addressed with since-cursor fix live and composite index PR open, RFC 0007-0010 wave advancing, 2 blog posts published, 2 security CVEs patched. 4 failures — 1 crash-recovery artifact, 2 arc-email-worker deploy verifications blocked by missing CI/CD (MDX parse error since fixed).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">116</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">4</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$44.07</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">77,029k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">580k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17928</td>
+      <td class="pri">2</td>
+      <td>arc-email-sync: since-cursor fix (CF quota)</td>
+      <td>since-cursor live; DO row reads expected ~4.67M/day → ~5k/day</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">17836</td>
+      <td class="pri">2</td>
+      <td>Add sent-folder dedup guard to email send path</td>
+      <td>Checks last 60min sent folder before send; --force bypass; Re:/Fwd: normalization</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">17843</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-05-28</td>
+      <td>3 dispatch bugs fixed; RFC 0007-0010 queued; 4 stale FPs; arc0btc.com health flagged</td>
+      <td class="cost">$0.60</td>
+    </tr>
+    <tr>
+      <td class="id">17857</td>
+      <td class="pri">3</td>
+      <td>Review + publish RFCs 0007-0010</td>
+      <td>Reviewed 0007-0010 for consistency; committed to proposals/0007-0010-batch; awaiting whoabuddy OK to push PR</td>
+      <td class="cost">$0.70</td>
+    </tr>
+    <tr>
+      <td class="id">17870</td>
+      <td class="pri">3</td>
+      <td>Fix dispatch-gate: default backoff on unparseable reset</td>
+      <td>DEFAULT_RATE_LIMIT_BACKOFF_MS (60min, env-configurable); stopped_until field; auto-recovers instead of manual reset</td>
+      <td class="cost">$0.48</td>
+    </tr>
+    <tr>
+      <td class="id">17872</td>
+      <td class="pri">3</td>
+      <td>Fix arc0btc.com freshness; publish "The Resurrection Bug"</td>
+      <td>Post published, deployed; all 4 health checks passing; freshness 0d</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">17877</td>
+      <td class="pri">3</td>
+      <td>Blog draft: "One Outage, Four Bugs"</td>
+      <td>Covers compound failure pattern from May 28 outage (4 bugs: parser blindness, false-abort, resurrection, non-idempotency)</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">17878</td>
+      <td class="pri">3</td>
+      <td>Publish "One Outage, Four Bugs"</td>
+      <td>Live on arc0.me; 5 published posts; em-dash overuse noted for future edits</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">17889</td>
+      <td class="pri">3</td>
+      <td>arc-email-worker: schema-health + stats cache (issue #2 §1+§3)</td>
+      <td>PR #3 opened: sqlite_master diff endpoint + /api/stats 60s cache; wrangler dry-run clean</td>
+      <td class="cost">$0.87</td>
+    </tr>
+    <tr>
+      <td class="id">17929</td>
+      <td class="pri">3</td>
+      <td>arc-email-worker: drop COUNT + composite index (CF quota)</td>
+      <td>PR #8: drop COUNT(*) saves ~4M row reads/day + (folder, received_at) composite index</td>
+      <td class="cost">$0.78</td>
+    </tr>
+    <tr>
+      <td class="id">17858</td>
+      <td class="pri">4</td>
+      <td>RFC 0007 Verification Gate Phase 1</td>
+      <td>Schema migration 0003, src/verification.ts, runtime.ts wired, 18 tests pass</td>
+      <td class="cost">$1.97</td>
+    </tr>
+    <tr>
+      <td class="id">17859</td>
+      <td class="pri">4</td>
+      <td>RFC 0008: 5 reference skills in agent-runtime</td>
+      <td>arc-mcp-server, arc-credentials, arc-worktrees, arc-peer-inbox, contacts — each with SKILL.md, AGENT.md, evals</td>
+      <td class="cost">$0.99</td>
+    </tr>
+    <tr>
+      <td class="id">17860</td>
+      <td class="pri">4</td>
+      <td>RFC 0009 Lessons Layer Phase 1</td>
+      <td>src/memory.ts with appendRecentLog/appendDeadEnd/addPattern/loadLessonBundle; dead-ends.jsonl surface</td>
+      <td class="cost">$0.89</td>
+    </tr>
+    <tr>
+      <td class="id">17833</td>
+      <td class="pri">4</td>
+      <td>Security: tmp (high) in aibtcdev/landing-page</td>
+      <td>Bumped tmp 0.2.5→0.2.6 via npm override; PR #938 opened</td>
+      <td class="cost">$0.61</td>
+    </tr>
+    <tr>
+      <td class="id">17834</td>
+      <td class="pri">4</td>
+      <td>Security: tmp (high) in aibtcdev/x402-api</td>
+      <td>Pinned tmp ≥0.2.6 via overrides; PR #126 opened</td>
+      <td class="cost">$0.75</td>
+    </tr>
+    <tr>
+      <td class="id">17891</td>
+      <td class="pri">4</td>
+      <td>Integrate sdk-v0.100.0</td>
+      <td>MODEL_IDS.opus updated to claude-opus-4-8; mid-conv system blocks + output_tokens_details N/A for dispatch path</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">17913</td>
+      <td class="pri">4</td>
+      <td>Merge worker-logs PR: fold daily_stats into log()/logBatch()</td>
+      <td>Squash-merged PR #2; drops 2nd DO fetch + HTTP double-count bug; secret-mars approved</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">17917</td>
+      <td class="pri">4</td>
+      <td>Merge arc0btc-worker PR: log only non-2xx responses</td>
+      <td>Merged PR #24; gates on status≥400; cuts AppLogsDO load by >95%</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">17861</td>
+      <td class="pri">5</td>
+      <td>Loom VM handover: pause arc-starter, install agent-runtime</td>
+      <td>RFC 0010 Phase 1: arc-starter paused (snapshot c33d41b6), agent-runtime cloned, hermes-openrouter profile, identity preserved</td>
+      <td class="cost">$1.75</td>
+    </tr>
+    <tr>
+      <td class="id">17862</td>
+      <td class="pri">5</td>
+      <td>Port credentials.ts to agent-runtime</td>
+      <td>AES-256-GCM+scrypt, CLI, SKILL.md, AGENT.md (rotation procedure), 5 evals</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">17864</td>
+      <td class="pri">5</td>
+      <td>Port arc-mcp-server + dead_ends MCP tools (RFC 0009 Ph2)</td>
+      <td>Two-tier auth, list_skills + dead_ends_read/write, arc://memory resource, eval cases</td>
+      <td class="cost">$1.50</td>
+    </tr>
+    <tr>
+      <td class="id">17912</td>
+      <td class="pri">5</td>
+      <td>Fix MDX JSX parse error in catalog/index.mdx:24</td>
+      <td>Escaped inbox/&lt;peer&gt;/ path with backticks; unblocks arc0me-site deploy</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">17817</td>
+      <td class="pri">7</td>
+      <td>Architecture review (428b8fd → 0de5548)</td>
+      <td>State machine + audit log updated for 7 structural commits; two new watches queued</td>
+      <td class="cost">$1.48</td>
+    </tr>
+    <tr>
+      <td class="id">17908</td>
+      <td class="pri">7</td>
+      <td>Architecture review (0de5548 → 32e8ae4)</td>
+      <td>Resurrection fix, rate_limit_event, email dedup, opus 4.8, recent.log trigger, email-worker scaffold</td>
+      <td class="cost">$1.43</td>
+    </tr>
+    <tr>
+      <td class="id">17919</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md (157 → 148 lines)</td>
+      <td>Removed 4 entries, folded p-audit-and-implementation insights; under 150-line cap</td>
+      <td class="cost">$0.55</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-4); margin-bottom:0.75rem;">Showing 25 of 116 completed tasks. Omitted: 7 health-alert FPs, 11 retrospectives, 5 PR reviews, 3 release assessments, 4 welcome-agent tasks, misc housekeeping.</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-bottom:0.5rem;">Failed</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Summary</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17893</td>
+      <td>verify arc-email-worker §1 deployed</td>
+      <td>404 — PR #3 merged but no CI/CD workflow; issue #5 filed for manual deploy</td>
+    </tr>
+    <tr>
+      <td class="id">17894</td>
+      <td>verify arc-email-worker §3 cache active</td>
+      <td>Zero cf-cache-status headers after 5 attempts; issue #7 filed</td>
+    </tr>
+    <tr>
+      <td class="id">17907</td>
+      <td>Deploy arc0me-site to Cloudflare (701ec80b)</td>
+      <td>MDX JSX parse error in catalog/index.mdx:24 — fixed by #17912</td>
+    </tr>
+    <tr>
+      <td class="id">17797</td>
+      <td>Aggregate research batch + email report</td>
+      <td>Crash-recovery artifact — task left active from pre-fix requeue; email confirmed not re-sent</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market skill not installed. No position data available.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">b7c5f4b8</span>fix(arc-email-sync): add since-cursor to /api/messages poll (CF quota)</div>
+<div class="commit"><span class="hash">32e8ae47</span>feat(arc-memory): add recent.log line count check to trigger monthly consolidation</div>
+<div class="commit"><span class="hash">8d8b18a5</span>feat(models): upgrade opus tier to claude-opus-4-8</div>
+<div class="commit"><span class="hash">02e904b0</span>feat(claude-code-releases): applicability report for v2.1.154</div>
+<div class="commit"><span class="hash">b26e3538</span>feat(claude-code-releases): applicability report for v2.1.153</div>
+<div class="commit"><span class="hash">a059b2f8</span>docs(architect): update state machine — resurrection fix, rate_limit_event, email dedup, opus 4.8</div>
+<div class="commit"><span class="hash">282ceb1a</span>docs(architect): update state machine — dispatch gate, peer-inbox, reflect, dead-ends, tool_calls</div>
+<div class="commit"><span class="hash">7ac15797</span>docs(memory): define dead-ends vs MEMORY.md convention, apply migration</div>
+<div class="commit"><span class="hash">7efc3dac</span>docs(memory): X-API-402 parking via tasks close --status blocked</div>
+<div class="commit"><span class="hash">9d2ae788</span>docs(memory): v2.1.154 token reduction verification baseline</div>
+<div class="commit"><span class="hash">bc81f45a</span>docs(memory): add upgrade-verification-pattern entry</div>
+<div class="commit"><span class="hash">7ab75a40</span>fix(arc-peer-inbox): rename abbreviated 'ts' to 'timestamp' in sensor</div>
+<div class="commit"><span class="hash">cbd1ff78</span>fix(arc-email-sync): rename abbreviated vars res/msg to response/message in cli.ts</div>
+<div class="commit"><span class="hash">0cdd0d61</span>chore(memory): consolidate patterns.md from 157→148 lines</div>
+<div class="commit"><span class="hash" style="color:var(--gray-4)">+71 auto</span>chore(loop): auto-commit after dispatch cycle [various]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span>#17895 — verify arc-email-worker §3 impact (8h CF analytics, PR #3)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED P6</span>#17916 — Verify token reduction: check #17895 tokens_in vs baseline</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED P9</span>#17796 — [X-API] Reschedule research: 46 tweets from 2026-05-27 batch (credits depleted)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>CF quota crisis addressed.</strong> The since-cursor fix (b7c5f4b8) is live — arc-email-sync now sends the last-seen message ID on every /api/messages poll. Combined with PR #8's COUNT drop + composite index, DO row reads should fall from 4.67M/day to ~5k/day once #8 merges. Verification task #17895 will measure 8h analytics post-fix.</div>
+<div class="obs"><strong>RFC 0007-0010 wave: Phase 1 done.</strong> Verification Gate (#17858, $1.97), 5 reference skills (#17859), Lessons Layer (#17860), Loom VM handover (#17861, $1.75), and MCP server port (#17864, $1.50) all landed. RFC batch review (#17857) committed and awaiting push approval. Agent-runtime now has credentials, worktrees, peer-inbox, mcp-server, and contacts ported with eval coverage.</div>
+<div class="obs"><strong>Dispatch-stale FP rate high.</strong> 7 health-alert FP tasks completed this period at ~$0.15 each (~$1.05 total). All confirmed false positives from the inter-cycle gap triggering the sensor. Dedup cooldown fix (#17763) still pending — each new cycle gap continues generating a task. This is the single highest-yield queue cleanup remaining.</div>
+<div class="obs"><strong>arc-email-worker no-CI/CD pattern held.</strong> Verification tasks #17893/#17894 failed as expected — PR #3 merged but worker never deployed. Two issues filed (#5, #7). Unblocked: #17912 fixed the MDX parse error that was blocking arc0me-site deploys. Two blog posts published ("The Resurrection Bug" + "One Outage, Four Bugs") keep arc0.me freshness green.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
