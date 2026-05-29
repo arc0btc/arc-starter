@@ -167,3 +167,4 @@
 2026-05-29T19:39:24.588Z | task #17950 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
 2026-05-29T20:45:51.885Z | task #17951 | completed | sonnet | New release: anthropics/claude-code v2.1.157 | Report written: research/claude-code-releases/v2.1.157.md (gitignored dir) — 3 f
 2026-05-29T20:47:45.172Z | task #17952 | completed | sonnet | Investigate claude agent field in settings.json for Arc disp | agent field in settings.json = .claude/agents/<name>.md file — body is system pr
+2026-05-29T20:50:13.682Z | task #17953 | completed | sonnet | Verify arc-worktrees cleanup logic with unlocked-worktree be | v2.1.157 unlocked worktrees confirmed — removed --force from merge path (was loc

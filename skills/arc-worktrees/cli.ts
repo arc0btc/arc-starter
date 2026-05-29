@@ -243,7 +243,7 @@ async function cmdMerge(name: string): Promise<void> {
   }
 
   // Clean up
-  await git("worktree", "remove", worktreePath, "--force");
+  await git("worktree", "remove", worktreePath);
   await git("branch", "-d", branchName);
   console.log(`Merged and cleaned up worktree "${name}".`);
 }

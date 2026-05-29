@@ -99,7 +99,7 @@ export async function mergeWorktree(taskId: number): Promise<{ ok: boolean; erro
   const { exitCode, stderr } = await git("merge", branchName, "--no-edit");
   if (exitCode !== 0) return { ok: false, error: stderr.trim() };
 
-  await git("worktree", "remove", worktreePath, "--force");
+  await git("worktree", "remove", worktreePath);
   await git("branch", "-d", branchName);
   log(`dispatch: worktree ${name} merged and cleaned up`);
   return { ok: true };
