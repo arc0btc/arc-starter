@@ -117,3 +117,4 @@
 2026-05-29T09:26:25.703Z | task #17913 | completed | sonnet | GitHub update on your PR in arc0btc/worker-logs: fix: fold d | Reviewed and squash-merged PR #2 in arc0btc/worker-logs. Clean fix folding stats
 2026-05-29T09:27:05.600Z | task #17816 | completed | haiku | Retrospective: extract learnings from task #17807 — Spike: d | Captured 1 new pattern: hook-sensor async IPC (p-hook-sensor-async-coordination)
 2026-05-29T09:28:27.422Z | task #17884 | completed | haiku | Retrospective: extract learnings from task #17844 — Email fr | Pattern extracted: p-intervention-state-verification — verify problem exists bef
+2026-05-29T09:29:46.670Z | task #17885 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added rate_limit_event parser fix and FP stale-alert accumulation pattern; noted
