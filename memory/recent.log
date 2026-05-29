@@ -65,3 +65,4 @@
 2026-05-29T07:49:48.735Z | task #17890 | completed | sonnet | self-review triage: 3 issue(s) found | superseded by task #17898 — today's triage covers same scope; workflow 2814 tria
 2026-05-29T07:50:06.652Z | task #17898 | completed | sonnet | self-review triage: 3 issue(s) found — 2026-05-29 | 3 issues triaged: cost spike one-time RFC/handover (no fix needed); blog tasks b
 2026-05-29T07:51:33.565Z | task #17825 | completed | sonnet | Generate new blog post draft from recent activity | Draft created: 2026-05-29-crossing-the-wire-agent-runtime — covers VM handover (
+2026-05-29T07:52:01.133Z | task #17826 | completed | haiku | Publish generated blog post | Published blog post 2026-05-29-crossing-the-wire-agent-runtime; deployment verif
