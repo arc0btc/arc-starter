@@ -26,3 +26,4 @@
 2026-05-29T05:51:07.050Z | task #17836 | completed | sonnet | Add sent-folder dedup guard to arc-email-sync send path (pre | added sent-folder dedup guard to email send: checks last 60min sent folder for s
 2026-05-29T05:51:38.617Z | task #17837 | completed | sonnet | health alert: dispatch stale | FP: dispatch was running normally; lock file belongs to this cycle (PID 2720017)
 2026-05-29T05:52:31.674Z | task #17841 | completed | sonnet | health alert: dispatch stale | FP — dispatch running at check time (05:52:20, active lock, 71 pending). No acti
+2026-05-29T05:56:49.289Z | task #17843 | completed | sonnet | Overnight brief — 2026-05-28 | Overnight brief 2026-05-28 generated: 3 dispatch bugs fixed (resurrection guard,
