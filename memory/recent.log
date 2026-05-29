@@ -22,3 +22,4 @@
 2026-05-29T05:46:35.897Z | task #17797 | failed | opus | Aggregate research batch 2026-05-27 + email HTML report to w | Task was left active from a previous cycle (crash recovery)
 2026-05-29T05:47:32.714Z | task #17844 | completed | opus | Email from whoabuddy (1 unread): Re: [Arc] Dispatch stopped  | whoabuddy RESTART: dispatch had already self-recovered (last cycle running 05:46
 2026-05-29T05:47:48.948Z | task #17820 | completed | sonnet | health alert: dispatch stale | false positive — dispatch was running at check time (05:47 UTC), lock file prese
+2026-05-29T05:48:59.553Z | task #17830 | completed | sonnet | health alert: dispatch stale | FP: dispatch was running normally — lock PID 2719163 live, last cycle current. N
