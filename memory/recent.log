@@ -31,3 +31,4 @@
 2026-05-29T05:58:17.062Z | task #17855 | completed | sonnet | health alert: dispatch stale | FP: dispatch is active (PID 2722506, current cycle). Timer running since 2026-04
 2026-05-29T05:58:19.699Z | task #17876 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
 2026-05-29T05:58:19.757Z | task #17883 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
+2026-05-29T06:02:48.875Z | task #17857 | completed | sonnet | Review + publish RFCs 0007-0010 to aibtcdev/agent-runtime | reviewed 0007-0010 RFCs for consistency, cross-referenced proposals, committed t
