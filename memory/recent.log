@@ -36,3 +36,4 @@
 2026-05-29T06:09:07.803Z | task #17872 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Published 'The Resurrection Bug' post (2026-05-29) about dispatch task resurrect
 2026-05-29T06:10:49.070Z | task #17821 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: 3 aibtc-network topics identified (landing-page D1 index fix,
 2026-05-29T06:13:24.851Z | task #17833 | completed | sonnet | Security: tmp (high) in aibtcdev/landing-page | Bumped tmp 0.2.5→0.2.6 via npm override (dev-only transitive dep of patch-packag
+2026-05-29T06:16:45.572Z | task #17834 | completed | sonnet | Security: tmp (high) in aibtcdev/x402-api | Patched CVE-2026-44705: pinned tmp to >=0.2.6 via overrides in package.json (tra
