@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-27T09:05:00.000Z*
-*Diff: 8295967 → 428b8fd (7 structural commits) | Sensor count: 72 | Skill count: 118*
+*Generated: 2026-05-29T08:50:00.000Z*
+*Diff: 428b8fd → 0de5548 (7 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -96,6 +96,8 @@ stateDiagram-v2
             note right of arc_report_email: CREDENTIALS NAMESPACE FIX (a182c600): sensor was reading\nfrom wrong credential namespace. Fixed to use email/* keys\n(email/api_key, email/from_address) instead of resend/* keys.\nSensor still blocked pending whoabuddy Resend DNS setup (task #14771).\nPattern: credential reads must match the service namespace set via arc creds set.
             arc_scheduler
             note right of arc_scheduler: DATE-SCOPE OVERDUE ALERT (82604b1b): source key includes YYYY-MM-DD\nPrevents re-alerting on same persistent backlog every sensor cycle\nPattern: daily-repeat alerts must scope source by date — consistent with beat-inactive fix (ab1273d0)
+            arc_peer_inbox
+            note right of arc_peer_inbox: NEW (9d287f4d): file-based inter-agent IPC via Stop hook + sensor\nStop hook (inbox-write.sh) fires after each dispatch cycle\nWrites inbox/<peer-btc-addr>/<ts>.md if task source matches :thread:<btc_addr> pattern\nSensor reads inbox/arc/ (1-min cadence), creates P3/sonnet task per unprocessed file\nDedup: pendingTaskExistsForSource(sensor:arc-peer-inbox:<filename>)\nArchive: processed files move to inbox/arc/processed/ (audit trail)\nLocal IPC only — cross-machine: git push PR, HTTP endpoint (TBD), or aibtc.com inbox\nProduction path for external agents remains aibtc.com inbox (BIP-137/x402)
             arc_umbrel
             arc_starter_publish
             arc_weekly_presentation
@@ -174,7 +176,7 @@ stateDiagram-v2
 
         CheckGate --> [*]: gate closed (rate limit / auth failure)
         CheckGate --> SelectTask
-        note right of CheckGate: AUTO-RESET ON QUOTA (0a62b3cf): checkDispatchGate() parses\n'resets HH:MM (Timezone)' from stop_reason for rate_limited class\nFinds first reset time after stopped_at; if now >= reset_time → auto-reset and proceed\nConsecutive-failure stops (too_many_consecutive_failures) still require manual reset\nFixes 19h outage 2026-05-14: quota hit at 03:00Z, reset at 17:00Z\npost-reset 5.5h gap (17:00→22:40Z) would not have occurred with this fix in place\nPattern: rate_limited is temporary and machine-readable; auto-recovery is safe
+        note right of CheckGate: AUTO-RESET ON QUOTA (0a62b3cf): checkDispatchGate() parses\n'resets HH:MM (Timezone)' from stop_reason for rate_limited class\nFinds first reset time after stopped_at; if now >= reset_time → auto-reset and proceed\nConsecutive-failure stops (too_many_consecutive_failures) still require manual reset\nFixes 19h outage 2026-05-14: quota hit at 03:00Z, reset at 17:00Z\npost-reset 5.5h gap (17:00→22:40Z) would not have occurred with this fix in place\nPattern: rate_limited is temporary and machine-readable; auto-recovery is safe\nGATE EXTRACTED (0de5548): gate logic moved to src/dispatch-gate.ts\n3-layer rate_limit_event detection: (1) rate_limit_event JSON → ISO ts (2) ISO in string (3) 'resets HH:MM (Tz)' text\nstopped_until field computed at record time (not check time) — eliminates string parse on every gate poll\nFallback: ARC_RATE_LIMIT_BACKOFF_MS (default 60min) when no parseable reset time\nEmail notification fires on gate stop (fire-and-forget via arc-email-sync)
 
         SelectTask --> [*]: no pending tasks
         SelectTask --> PreFlightCheck
@@ -259,6 +261,8 @@ stateDiagram-v2
         state PostDispatch {
             [*] --> RecordCycleLog
             RecordCycleLog --> RecordQuality
+            note right of RecordCycleLog: TOOL_CALLS (f51a7ec2): cycle_log.tool_calls JSON array\nCaptures tool name sequence per dispatch cycle\nEnables golden case assertions for vitest-evals-style harness eval\nPer Hylak eval guidance (agent-eval-volume-taxonomy.md)
+            note right of RecordQuality: COMPLETED TASK GUARD (78408d07): requeueTask WHERE status!='completed'\nDB-layer invariant: a completed task can NEVER be set to pending\nRace-safe: UPDATE 0-row no-op on already-completed task\nCloses dispatch resurrection bug class (task #17845)
             RecordQuality --> ExtractContributionTag
             ExtractContributionTag --> SafeCommit
             note right of ExtractContributionTag: NEW (fe033d92): parses ```contribution-tag\nblock from result_detail (aibtc-repo-maintenance tasks)\ninserts row into contribution_tags table\nfields: repo, pr_number, type, contributor_type,\nquality_score, cost_usd, tags\nlogs gap warning for PR review tasks with no tag
@@ -279,13 +283,15 @@ stateDiagram-v2
         PostDispatch --> LearningCheck
 
         state LearningCheck {
-            [*] --> CheckCriteria
+            [*] --> AppendReflection
+            AppendReflection --> CheckCriteria: always (6aa253fe)
             CheckCriteria --> SpawnRetrospective: P1 task OR cost >$1
             CheckCriteria --> KeywordScan: completed, below threshold
             KeywordScan --> SpawnLearningExtraction: discovery keywords matched (P8/Haiku)
             KeywordScan --> [*]: no keywords matched
             SpawnRetrospective --> [*]
             SpawnLearningExtraction --> [*]
+            note right of AppendReflection: REFLECT (6aa253fe): appendTaskReflection() called at markTaskCompleted/Failed/Blocked\nAppends one line to memory/recent.log: ISO ts | task ID | status | model | subject | summary\nTwo memory outputs: MEMORY.md (compressed, consolidated) + recent.log (rolling, cheap)\nProcess recent.log monthly to extract patterns — deliberate deferred automation (see CLAUDE.md)
         }
     }
 
@@ -344,6 +350,18 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (428b8fd → 0de5548) [2026-05-29T08:50Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(dispatch): three-layer rate-limit detection via rate_limit_event JSON** (0de55487) | Gate logic extracted to `src/dispatch-gate.ts` (own module). New `stopped_until` field stores computed auto-reset time at record time — no more string parsing on every gate check. Three-layer detection: (1) structured JSON `rate_limit_event` → ISO timestamp (2) ISO timestamp in stop_reason string (3) text "resets HH:MM (Timezone)" fallback. `ARC_RATE_LIMIT_BACKOFF_MS` env var fallback (default 60min) when no parseable reset. Email notification fires on gate stop. Closes the 19h recovery gap that affected 2026-05-14 and 2026-05-28. |
+| **feat(arc-peer-inbox): file-based inter-agent inbox via Stop hook + sensor** (9d287f4d) | New skill + sensor for local IPC. Stop hook (`inbox-write.sh`) fires after each dispatch cycle; writes `inbox/<peer>/<ts>.md` for aibtc.com inbox-thread tasks. Sensor reads `inbox/arc/` at 1-min cadence, creates P3/sonnet task per unprocessed file. Production agent-to-agent path remains aibtc.com inbox. This is an intra-session and async local result-forwarding layer. Sensor count 72→73. |
+| **feat(reflect): per-task reflection to memory/recent.log** (6aa253fe) | `appendTaskReflection()` called at every `markTaskCompleted/Failed/Blocked`. Appends one line: `ISO ts \| task ID \| status \| model \| subject \| summary`. Two memory outputs: MEMORY.md (compressed) + recent.log (rolling cheap log). CLAUDE.md updated with monthly processing instruction. Implements RARV Reflect phase. |
+| **feat(cycle_log): add tool_calls column for harness-backed eval support** (f51a7ec2) | `cycle_log.tool_calls` stores JSON array of tool names per dispatch cycle. Enables golden case assertions on tool-call sequences per Hylak eval guidance (agent-eval-volume-taxonomy.md). Schema migration via `addColumn`. |
+| **feat(memory): dead-end registry with arc dead-ends CLI** (8d2378fa) | `memory/dead-ends.md` JSONL file with 15 known blockers from MEMORY.md. `arc dead-ends list/check/add` CLI. Before escalating to human, dispatch can check known dead-ends — operationalizes "Exhaust Your Own Tools First" principle. |
+| **fix(arc-link-research): --section flag for awesome-list scoped URL extraction** (30f38bc4) | `--section <heading>` flag scopes URL extraction to a single `## heading` block. Implements Awesome-list decomposition policy (MEMORY.md): per-section not per-entry. Prevents per-entry queueing on 100-entry lists ($50+ waste). |
+| **fix(arc-workflows): auto-advance self-review-cycle from issues_found to triaging** (d797bb65) | `issues_found` state in `SelfReviewCycleMachine` gains `autoAdvanceState`. Prevents stuck-in-state loop (self-review triage redundancy pattern, task #17763). Consistent with autoAdvanceState rollout on all 9 retrospective_pending actions (1a700e99). |
 
 ## Key Architectural Changes (8295967 → 428b8fd) [2026-05-27T09:05Z]
 

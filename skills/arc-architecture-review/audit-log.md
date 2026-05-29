@@ -1,3 +1,55 @@
+## 2026-05-29T08:50:00.000Z — dispatch gate extracted to own module; arc-peer-inbox; per-task reflect; dead-ends registry; tool_calls eval column; 120 skills / 73 sensors
+
+**Task #17817** | Diff: 428b8fd → 0de5548 (7 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **feat(dispatch): three-layer rate-limit detection** (0de55487): Gate logic extracted from `dispatch.ts` to `src/dispatch-gate.ts`. New `stopped_until` field computed at record time eliminates parse cost on every check. Three-layer detection hierarchy for rate limit events. Email notification on gate stop. Closes the 19h recovery gap pattern.
+- **feat(arc-peer-inbox): file-based inter-agent inbox** (9d287f4d): New skill + sensor. Stop hook writes `inbox/<peer>/<ts>.md` for aibtc.com inbox-thread tasks. Sensor creates P3/sonnet task per unprocessed file. Local IPC; production path remains aibtc.com. Sensor count 72→73, skill count 118→120.
+- **feat(reflect): per-task reflection to memory/recent.log** (6aa253fe): RARV Reflect phase. `appendTaskReflection()` appends one line at every task close. Two memory outputs now: MEMORY.md (compressed) + recent.log (rolling).
+- **feat(cycle_log): tool_calls column** (f51a7ec2): JSON array of tool names per cycle. Enables golden case assertions per Hylak eval guidance.
+- **feat(memory): dead-end registry** (8d2378fa): `memory/dead-ends.md` JSONL + `arc dead-ends` CLI. 15 known blockers. "Check dead-ends before escalating" pattern now operationalized.
+- **fix(arc-workflows): auto-advance self-review-cycle issues_found→triaging** (d797bb65): Closes self-review triage redundancy carry (task #17763).
+- **Reports**: Overnight 2026-05-29T05:53Z — dispatch resurrection bug fully patched (78408d07 + af5c6ac2). Email dedup guard shipped (651120e6). 6 completed, $1.41, 70 pending.
+
+### Step 2 — Delete
+
+No deletion candidates this window. 120/73 stable.
+
+### Step 3 — Simplify
+
+- `dispatch-gate.ts` extraction correct — gate state was entangled with dispatch orchestration. Own module improves separation.
+- **[NEW-WATCH]** `dead-ends.md` vs MEMORY.md [A] overlap: same blockers in both. Need convention: dead-ends.md = machine-readable, MEMORY.md [A] = human context. Or consolidate [A] into dead-ends.md to prevent drift on blocker resolution.
+- **[NEW-WATCH]** `memory/recent.log` accumulation — no automated trigger for monthly consolidation. Add to arc-memory sensor: if line count > N, queue consolidation task.
+- **[CARRY-WATCH]** context-review skip list ~16 conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- `stopped_until` eliminates repeated string parsing on gate checks — now O(1) date comparison.
+- Email dedup guard prevents whoabuddy duplicate emails during re-dispatch windows.
+
+### Step 5 — Automate
+
+- **[NEW-WATCH]** recent.log monthly consolidation — add line count check to arc-memory sensor.
+- dead-ends.md check before escalation is the right mechanism — next step: surface matched dead-ends in task description at dispatch time.
+
+### Flags
+
+- **[RESOLVED]** dispatch resurrection bug — two-layer fix (af5c6ac2 + 78408d07). Terminal task invariant now enforced at DB layer.
+- **[RESOLVED]** self-review triage redundancy (task #17763) — d797bb65 auto-advances issues_found→triaging.
+- **[NEW-WATCH]** dead-ends.md / MEMORY.md [A] overlap — define convention to prevent drift.
+- **[NEW-WATCH]** recent.log consolidation trigger — add to arc-memory sensor.
+- **[CARRY-WATCH]** context-review skip list ~16 conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — day 11 stale. Autonomous paths exhausted.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs.
+- **[CARRY-WATCH]** Payout disputes (11) — 30+ days stale. Requires whoabuddy direct outreach.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs since 2026-05-22 — escalate to whoabuddy if persists past 2026-06-01.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** X API credits depleted — task #17796 parked P9. Awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** RFC 0007–0010 implementation (#17857–17860) — 4 tasks queued by whoabuddy, not yet started.
+
+---
+
 ## 2026-05-27T09:05:00.000Z — disallowed-tools rollout complete; dispatch resilience (opus fallback + MCP timeout); AGENT.md wave; 118 skills / 72 sensors
 
 **Task #17751** | Diff: 8295967 → 428b8fd (7 structural commits) | Sensors: 72 | Skills: 118
