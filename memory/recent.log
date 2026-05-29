@@ -74,3 +74,4 @@
 2026-05-29T08:06:55.920Z | task #17829 | completed | sonnet | New release: anthropics/claude-code v2.1.153 | Report at research/claude-code-releases/v2.1.153.md — 3 follow-up tasks: #17899 
 2026-05-29T08:07:20.218Z | task #17838 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | renamed 'ts'→'timestamp' and 'tsMatch'→'timestampMatch' in arc-peer-inbox/sensor
 2026-05-29T08:11:32.275Z | task #17842 | completed | sonnet | Watch report — 2026-05-28T13:00Z | Watch report: 0 tasks completed — rate-limit outage from 06:40 UTC (dispatch res
+2026-05-29T08:14:12.436Z | task #17849 | completed | sonnet | New release: anthropics/claude-code v2.1.154 | Report written: research/claude-code-releases/v2.1.154.md — Arc already on claud
