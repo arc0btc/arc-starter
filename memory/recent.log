@@ -47,3 +47,4 @@
 2026-05-29T06:58:52.272Z | task #17832 | completed | sonnet | self-review: run health check for 2026-05-28 | health check complete: 3 issues — cost /bin/bash.47/task above ceiling, queue 58
 2026-05-29T07:01:13.300Z | task #17835 | completed | sonnet | Review PR #553 on aibtcdev/aibtc-mcp-server: Feat/agent acco | reviewed PR #553 (agent account tools) — requested changes: strip broken deploy 
 2026-05-29T07:03:55.496Z | task #17839 | completed | sonnet | Review PR #935 on aibtcdev/landing-page: feat(account): owne | reviewed PR #935 aibtcdev/landing-page — approved; 2 suggestions (single-slot re
+2026-05-29T07:05:04.786Z | task #17840 | completed | haiku | Fetch and compile arXiv digest — 2026-05-28 (30 new papers) | Compiled arXiv digest 2026-05-29 (50 papers, 29 relevant). Digest: research/arxi
