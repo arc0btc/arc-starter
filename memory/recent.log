@@ -49,3 +49,4 @@
 2026-05-29T07:03:55.496Z | task #17839 | completed | sonnet | Review PR #935 on aibtcdev/landing-page: feat(account): owne | reviewed PR #935 aibtcdev/landing-page — approved; 2 suggestions (single-slot re
 2026-05-29T07:05:04.786Z | task #17840 | completed | haiku | Fetch and compile arXiv digest — 2026-05-28 (30 new papers) | Compiled arXiv digest 2026-05-29 (50 papers, 29 relevant). Digest: research/arxi
 2026-05-29T07:07:08.247Z | task #17846 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.70 (S:1 O:5 E:3 C:2 A:3 Co:2 Se:3). 100% success today (27/27), but $0
+2026-05-29T07:08:00.832Z | task #17848 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.100.0: new claude-opus-4-8 model, mid-conversation system blocks, usage.o
