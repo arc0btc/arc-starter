@@ -121,3 +121,4 @@
 2026-05-29T09:30:27.807Z | task #17886 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Pattern already documented (arc0.me freshness-decay). Confirmed: incident-to-blo
 2026-05-29T09:31:28.607Z | task #17888 | completed | haiku | Retrospective: extract learnings from task #17858 — Implemen | Added 2 patterns from RFC 0007 Phase 1: runtime feature insertion atomicity, mod
 2026-05-29T09:32:26.454Z | task #17896 | completed | haiku | Retrospective: extract learnings from task #17861 — Loom VM  | Pattern p-multi-vm-migration-identity-preservation captured: atomic cryptographi
+2026-05-29T09:35:21.330Z | task #17897 | completed | haiku | Retrospective: extract learnings from task #17864 — Port arc | Added p-dual-transport-auth-for-services pattern (line 151). Task #17864 reveale
