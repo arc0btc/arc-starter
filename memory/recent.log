@@ -56,3 +56,4 @@
 2026-05-29T07:14:23.826Z | task #17852 | completed | haiku | arc-opensource: sync 19 commit(s) to GitHub | synced 62 commits to origin/main; build validated
 2026-05-29T07:26:46.216Z | task #17861 | completed | sonnet | Loom VM handover: pause arc-starter, install agent-runtime a | RFC 0010 Phase 1 complete: arc-starter paused (snapshot c33d41b6), all timers di
 2026-05-29T07:29:25.573Z | task #17862 | completed | sonnet | Port src/credentials.ts from arc-starter to agent-runtime ke | arc-credentials ported to agent-runtime: src/credentials.ts (AES-256-GCM+scrypt,
+2026-05-29T07:32:21.947Z | task #17863 | completed | sonnet | Port arc-worktrees skill from arc-starter to agent-runtime u | arc-worktrees ported to agent-runtime: SKILL.md + AGENT.md already present, upda
