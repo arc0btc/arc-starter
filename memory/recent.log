@@ -112,3 +112,4 @@
 2026-05-29T09:20:46.906Z | task #17912 | completed | sonnet | Fix MDX JSX parse error in catalog/index.mdx:24 (<peer> uncl | Escaped inbox/<peer>/ path in catalog/index.mdx line 24 with backticks to fix MD
 2026-05-29T09:22:23.648Z | task #17801 | completed | haiku | Retrospective: extract learnings from task #17790 — Research | Extracted 2 reusable patterns: floor-raising eval philosophy + golden-case harne
 2026-05-29T09:23:12.459Z | task #17802 | completed | haiku | Retrospective: extract learnings from task #17792 — Research | Extracted 3 reusable patterns from #17792 parallel-orchestrator research: worktr
+2026-05-29T09:24:06.628Z | task #17803 | completed | haiku | Retrospective: extract learnings from task #17793 — Research | Added p-skill-quality-loop-auto-repair pattern from aeon research.
