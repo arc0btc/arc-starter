@@ -64,16 +64,16 @@ async function findRecentSentDuplicate(
   const since = new Date(Date.now() - windowMs).toISOString();
   const url = `${apiBaseUrl}/api/messages?folder=sent&since=${encodeURIComponent(since)}&limit=50`;
 
-  const res = await fetch(url, {
+  const response = await fetch(url, {
     headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
   });
 
-  if (!res.ok) {
-    log(`WARNING: sent-folder dedup check failed: HTTP ${res.status} — skipping dedup`);
+  if (!response.ok) {
+    log(`WARNING: sent-folder dedup check failed: HTTP ${response.status} — skipping dedup`);
     return null;
   }
 
-  const body = (await res.json()) as SentApiResponse;
+  const body = (await response.json()) as SentApiResponse;
   if (!body.ok || !body.data) {
     log(`WARNING: sent-folder dedup check returned unexpected shape — skipping dedup`);
     return null;
@@ -82,13 +82,13 @@ async function findRecentSentDuplicate(
   const normalizedTarget = normalizeSubject(subject);
   const toNorm = to.toLowerCase().trim();
 
-  for (const msg of body.data.messages) {
+  for (const message of body.data.messages) {
     if (
-      msg.to_address.toLowerCase().trim() === toNorm &&
-      msg.subject !== null &&
-      normalizeSubject(msg.subject) === normalizedTarget
+      message.to_address.toLowerCase().trim() === toNorm &&
+      message.subject !== null &&
+      normalizeSubject(message.subject) === normalizedTarget
     ) {
-      return msg;
+      return message;
     }
   }
   return null;
