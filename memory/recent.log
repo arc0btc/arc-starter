@@ -58,3 +58,4 @@
 2026-05-29T07:29:25.573Z | task #17862 | completed | sonnet | Port src/credentials.ts from arc-starter to agent-runtime ke | arc-credentials ported to agent-runtime: src/credentials.ts (AES-256-GCM+scrypt,
 2026-05-29T07:32:21.947Z | task #17863 | completed | sonnet | Port arc-worktrees skill from arc-starter to agent-runtime u | arc-worktrees ported to agent-runtime: SKILL.md + AGENT.md already present, upda
 2026-05-29T07:39:25.448Z | task #17864 | completed | sonnet | Port arc-mcp-server + add dead_ends MCP tools (RFC 0009 Phas | Ported arc-mcp-server to agent-runtime: server.ts (two-tier auth council/readonl
+2026-05-29T07:43:23.444Z | task #17865 | completed | sonnet | Port arc-peer-inbox skill from arc-starter to agent-runtime | Ported arc-peer-inbox to agent-runtime: added sensor.ts (adapted from arc-starte
