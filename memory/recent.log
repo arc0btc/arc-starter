@@ -91,3 +91,4 @@
 2026-05-29T08:43:31.927Z | task #17809 | completed | sonnet | Skim: swarm-protocol MCP server for arc-mcp peering pattern | swarm-protocol skim complete — send_signal/get_signals + get_context are the two
 2026-05-29T08:44:24.658Z | task #17815 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed: #17799 was a policy closure (signal filing paused), not a re
 2026-05-29T08:50:12.043Z | task #17817 | completed | sonnet | architecture review — codebase changed since last review (42 | State machine + audit log updated for 7 structural commits (dispatch-gate.ts ext
+2026-05-29T08:51:49.506Z | task #17904 | completed | haiku | architect: add recent.log line count check to arc-memory sen | recent.log monitoring added to arc-memory sensor: Check 1c queues monthly consol
