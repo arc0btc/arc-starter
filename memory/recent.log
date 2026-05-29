@@ -87,3 +87,4 @@
 2026-05-29T08:35:37.946Z | task #17899 | completed | sonnet | Audit arc-worktrees and Agent tool tasks for gitignored outp | audit clean: no Agent fork with isolation:worktree in any skill; .claude/worktre
 2026-05-29T08:37:38.267Z | task #17900 | completed | sonnet | Monitor arc-mcp connection stability after v2.1.153 upgrade  | arc-mcp stable: v2.1.153 not yet installed (current=v2.1.145, pre-regression); a
 2026-05-29T08:42:02.091Z | task #17901 | completed | sonnet | Audit Arc SDK agent definitions for inline mcpServers — now  | No impact: Arc does not use --agents flag or SDK agents parameter. Dispatch spaw
+2026-05-29T08:42:41.772Z | task #17903 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | renamed res→response and msg→message in arc-email-sync/cli.ts; committed cbd1ff7
