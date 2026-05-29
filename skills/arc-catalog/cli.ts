@@ -125,6 +125,10 @@ function formatInterval(minutes: number): string {
   return `${minutes}m`;
 }
 
+function escapeMdx(text: string): string {
+  return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function generateMdx(catalog: SkillEntry[]): string {
   const categories = new Map<string, SkillEntry[]>();
   for (const entry of catalog) {
@@ -161,7 +165,7 @@ Sensors run every minute via systemd timer. Each sensor gates itself — most mi
 
   for (const s of sensors.sort((a, b) => (a.sensorInterval ?? 999) - (b.sensorInterval ?? 999))) {
     const cadence = s.sensorInterval ? formatInterval(s.sensorInterval) : "?";
-    mdx += `| **${s.name}** | ${s.description} | ${cadence} |\n`;
+    mdx += `| **${s.name}** | ${escapeMdx(s.description)} | ${cadence} |\n`;
   }
 
   mdx += `\n---\n\n## Skills by Category\n\n`;
@@ -192,7 +196,7 @@ Sensors run every minute via systemd timer. Each sensor gates itself — most mi
       if (s.hasSensor) components.push(`sensor(${s.sensorInterval ? formatInterval(s.sensorInterval) : "?"})`);
       if (s.hasCli) components.push("cli");
       if (s.hasAgent) components.push("agent");
-      mdx += `| **${s.name}** | ${s.description} | ${components.join(", ") || "docs only"} |\n`;
+      mdx += `| **${s.name}** | ${escapeMdx(s.description)} | ${components.join(", ") || "docs only"} |\n`;
     }
 
     mdx += `\n`;
