@@ -107,3 +107,4 @@
 2026-05-29T09:15:02.020Z | task #17909 | completed | sonnet | workflow review — 1 health issue(s) | Closed stuck workflow 2700 (sdk-v0.98.0 in assessing 8 days) — superseded by v0.
 2026-05-29T09:15:35.066Z | task #17789 | completed | haiku | Retrospective: extract learnings from task #17787 — Email fr | Added p-batch-uniform-error-diagnosis: when batch operations return uniform erro
 2026-05-29T09:16:59.190Z | task #17798 | completed | haiku | Retrospective: extract learnings from task #17788 — Research | Added p-external-api-status-diagnosis pattern: HTTP 402 CreditsDepleted is disti
+2026-05-29T09:18:35.988Z | task #17911 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | 2 failures: (1) arc0me-site build blocked by unclosed <peer> JSX tag in catalog/
