@@ -118,3 +118,4 @@
 2026-05-29T09:27:05.600Z | task #17816 | completed | haiku | Retrospective: extract learnings from task #17807 — Spike: d | Captured 1 new pattern: hook-sensor async IPC (p-hook-sensor-async-coordination)
 2026-05-29T09:28:27.422Z | task #17884 | completed | haiku | Retrospective: extract learnings from task #17844 — Email fr | Pattern extracted: p-intervention-state-verification — verify problem exists bef
 2026-05-29T09:29:46.670Z | task #17885 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added rate_limit_event parser fix and FP stale-alert accumulation pattern; noted
+2026-05-29T09:30:27.807Z | task #17886 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Pattern already documented (arc0.me freshness-decay). Confirmed: incident-to-blo
