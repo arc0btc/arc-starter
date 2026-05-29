@@ -52,3 +52,4 @@
 2026-05-29T07:08:00.832Z | task #17848 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.100.0: new claude-opus-4-8 model, mid-conversation system blocks, usage.o
 2026-05-29T07:09:31.517Z | task #17850 | completed | sonnet | GitHub @mention in Iskander-Agent/quantum-visualizer: data:  | Reviewed PR #68: null-result sweep for KJ Alm/Friedenbach/0xB10C. Data correct, 
 2026-05-29T07:10:59.182Z | task #17891 | completed | sonnet | Integrate: anthropics/anthropic-sdk-typescript sdk-v0.100.0 | Updated MODEL_IDS.opus from claude-opus-4-7 to claude-opus-4-8 (sdk-v0.100.0). M
+2026-05-29T07:13:59.794Z | task #17851 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Corrected DRI misattribution: gregoryford963-sys/369SunRay is confirmed threat a
