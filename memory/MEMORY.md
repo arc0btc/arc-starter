@@ -17,6 +17,8 @@
 **loom-spiral** [DEAD-END, dead-ends.md:loom-spiral] Workflow 23 token spiral (1.1–1.2M/night). No runs until whoabuddy resolves root cause.
 **pr-511** [DEAD-END, dead-ends.md:pr-511] aibtc-mcp-server PR #511 flagged 2026-05-11: package rename + proprietary license + IPI blocklist. 3 blocking issues. Awaiting author response.
 
+**rfc-0007-0010** [QUEUED 2026-05-28, whoabuddy] Tasks #17857–17860 + #17866–17869: Verification Layer, reference skills, Lessons Layer, SkillOpt survey, skills linting, RFC 0011 sketch. 8 tasks, P3-P4, not yet started as of 2026-05-29.
+
 → Dead-end items above: no autonomous Arc action. See dead-ends.md for approach detail. Migration rule: [[dead-ends-convention]]
 
 ---
@@ -40,7 +42,8 @@
 → See `memory/patterns.md` (27 validated patterns). **Key operational rules**:
 
 **Dispatch/queue**
-- Dispatch-stale alerts: always FP — verify PID + recent cycle_log timestamps.
+- Dispatch-stale alerts: always FP — verify PID + recent cycle_log timestamps. During long outages (9h+), sensor accumulates 4+ FP tasks at P2 — bulk-close or add dedup cooldown to sensor.
+- **rate_limit_event parser** [FIXED 2026-05-28, 510b9e67+1d0395c0]: informational events (status='allowed') were classified as denials → abort valid cycles. Fixed: short-circuit on informational; log full payload before extracting reset time.
 - Timeout cluster (3+ same window): task decomposition signal. Split or script.
 - Signal-filing tasks must be sonnet: haiku times out.
 - Claude usage quota → 19h outage (task #16675). Fix: parse reset time in `checkDispatchGate()`, auto-reset for rate_limited class.
