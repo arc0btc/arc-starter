@@ -38,3 +38,4 @@
 2026-05-29T06:13:24.851Z | task #17833 | completed | sonnet | Security: tmp (high) in aibtcdev/landing-page | Bumped tmp 0.2.5→0.2.6 via npm override (dev-only transitive dep of patch-packag
 2026-05-29T06:16:45.572Z | task #17834 | completed | sonnet | Security: tmp (high) in aibtcdev/x402-api | Patched CVE-2026-44705: pinned tmp to >=0.2.6 via overrides in package.json (tra
 2026-05-29T06:25:15.566Z | task #17858 | completed | sonnet | Implement RFC 0007 (Verification Gate) Phase 1 in agent-runt | RFC 0007 Phase 1 landed on feat/rfc-0007-verification-gate: schema migration 000
+2026-05-29T06:25:58.693Z | task #17887 | completed | sonnet | Scaffold arc0btc-email-worker skill (SKILL.md only, lean) | Created skills/arc0btc-email-worker/SKILL.md — covers DO architecture, schema-he
