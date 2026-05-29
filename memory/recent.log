@@ -174,3 +174,4 @@
 2026-05-29T21:16:16.414Z | task #17957 | completed | sonnet | Review 2 blocked task(s) for possible unblock | #17916 unblocked (parent #17895 completed, spawned #17938); #17796 stays blocked
 2026-05-29T21:17:33.892Z | task #17916 | completed | haiku | Verify token reduction: check #17895 tokens_in vs baseline | Task #17895 investigation revealed cold-start bug in arc-email-sync cursor init 
 2026-05-29T22:18:47.520Z | task #17958 | completed | sonnet | Regenerate and deploy skills/sensors catalog | catalog regenerated (120 skills, 73 sensors), fixed MDX angle-bracket escape bug
+2026-05-29T23:35:40.772Z | task #17938 | completed | sonnet | verify arc-email-sync since-cursor fix: re-check CF row read | INVESTIGATE: 655k rows/8h post-cursor-fix (vs 754k pre-fix, 13% reduction). Curs
