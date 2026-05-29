@@ -60,3 +60,4 @@
 2026-05-29T07:39:25.448Z | task #17864 | completed | sonnet | Port arc-mcp-server + add dead_ends MCP tools (RFC 0009 Phas | Ported arc-mcp-server to agent-runtime: server.ts (two-tier auth council/readonl
 2026-05-29T07:43:23.444Z | task #17865 | completed | sonnet | Port arc-peer-inbox skill from arc-starter to agent-runtime | Ported arc-peer-inbox to agent-runtime: added sensor.ts (adapted from arc-starte
 2026-05-29T07:43:47.090Z | task #17873 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.3.1 is a chore-only patch: lockfile update for standardwebhooks depen
+2026-05-29T07:46:01.204Z | task #17875 | completed | sonnet | Review PR #400 on aibtcdev/skills: feat(aibtc-agents): add s | reviewed PR #400 aibtcdev/skills — requested changes: JSON.parse catch bug (bloc
