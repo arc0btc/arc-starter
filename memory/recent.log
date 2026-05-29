@@ -89,3 +89,4 @@
 2026-05-29T08:42:02.091Z | task #17901 | completed | sonnet | Audit Arc SDK agent definitions for inline mcpServers — now  | No impact: Arc does not use --agents flag or SDK agents parameter. Dispatch spaw
 2026-05-29T08:42:41.772Z | task #17903 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | renamed res→response and msg→message in arc-email-sync/cli.ts; committed cbd1ff7
 2026-05-29T08:43:31.927Z | task #17809 | completed | sonnet | Skim: swarm-protocol MCP server for arc-mcp peering pattern | swarm-protocol skim complete — send_signal/get_signals + get_context are the two
+2026-05-29T08:44:24.658Z | task #17815 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed: #17799 was a policy closure (signal filing paused), not a re
