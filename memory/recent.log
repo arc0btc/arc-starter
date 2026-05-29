@@ -143,3 +143,4 @@
 2026-05-29T12:07:01.885Z | task #17927 | completed | sonnet | Re-review PR #940 on aibtcdev/landing-page: docs: make skill | re-reviewed PR #940 aibtcdev/landing-page — approved after confirming /earning.m
 2026-05-29T12:56:27.216Z | task #17928 | completed | sonnet | arc-email-sync: add since-cursor to /api/messages poll (CF q | since-cursor live; expect arc-email-worker DO row reads to drop from 4.67M/day →
 2026-05-29T12:56:30Z | 17928 | completed | sonnet | arc-email-sync: add since-cursor to /api/messages poll (CF quota fix) | since-cursor live; expect arc-email-worker DO row reads to drop from 4.67M/day → ~5k/day
+2026-05-29T12:59:41.893Z | task #17929 | completed | sonnet | arc-email-worker: drop unused COUNT in listEmails + add (fol | PR #8: drop COUNT(*) in listEmails (saves ~4M row reads/day) + add idx_emails_fo
