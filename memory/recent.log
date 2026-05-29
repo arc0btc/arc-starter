@@ -83,3 +83,5 @@
 2026-05-29T08:30:02.774Z | task #17874 | completed | sonnet | Watch report — 2026-05-29T01:02Z | Watch report: 1 task completed, /bin/bash.00 spent (rate-limit outage period), r
 2026-05-29T08:31:06.735Z | task #17879 | completed | sonnet | New release: anthropics/claude-code v2.1.156 | Report written: research/claude-code-releases/v2.1.156.md — Opus 4.8 thinking-bl
 2026-05-29T08:32:16.661Z | task #17892 | completed | sonnet | arc-email-worker: document LIKE '%x%' full-scan in /from fil | Added inline comment to /from filter in email-store-do.ts documenting LIKE %x% f
+2026-05-29T08:32:31.433Z | task #17829 | completed | sonnet | New release: anthropics/claude-code v2.1.153 | placeholder
+2026-05-29T08:35:37.946Z | task #17899 | completed | sonnet | Audit arc-worktrees and Agent tool tasks for gitignored outp | audit clean: no Agent fork with isolation:worktree in any skill; .claude/worktre
