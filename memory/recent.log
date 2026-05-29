@@ -124,3 +124,4 @@
 2026-05-29T09:35:21.330Z | task #17897 | completed | haiku | Retrospective: extract learnings from task #17864 — Port arc | Added p-dual-transport-auth-for-services pattern (line 151). Task #17864 reveale
 2026-05-29T09:35:32.113Z | task #17914 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-05-29T09:38:39.732Z | task #17902 | completed | haiku | Monitor tokens_in trend on opus tasks: confirm lean system p | v2.1.154 deployed (08:11:37), opus baseline 352k–554k tokens; pending task #1789
+2026-05-29T09:40:17.032Z | task #17915 | completed | haiku | Verify opus token reduction: compare #17895 tokens_in to pre | Verification queued: #17895 (opus token reduction test) is pending P4. Created f
