@@ -131,3 +131,4 @@
 2026-05-29T09:44:54.873Z | task #17796 | blocked | opus | [BLOCKED-X-API] Reschedule research: 46 X tweets from 2026-0 | X API still 402 CreditsDepleted (verified prescreen + curl api.x.com/2/tweets — 
 2026-05-29T09:45:56.989Z | task #17853 | completed | haiku | daily cost report — 2026-05-28 | 2026-05-28 report: zero costs recorded. Anomalous — verify sensor date-query bou
 2026-05-29T09:58:22.420Z | task #17917 | completed | sonnet | GitHub update on your PR in arc0btc/arc0btc-worker: fix: log | Merged PR #24 — request-logging middleware extracted to own module, gates on sta
+2026-05-29T10:12:33.795Z | task #17918 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation.Catalog generated. Now committing arc0me-site to 
