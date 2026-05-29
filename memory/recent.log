@@ -40,3 +40,5 @@
 2026-05-29T06:25:15.566Z | task #17858 | completed | sonnet | Implement RFC 0007 (Verification Gate) Phase 1 in agent-runt | RFC 0007 Phase 1 landed on feat/rfc-0007-verification-gate: schema migration 000
 2026-05-29T06:25:58.693Z | task #17887 | completed | sonnet | Scaffold arc0btc-email-worker skill (SKILL.md only, lean) | Created skills/arc0btc-email-worker/SKILL.md — covers DO architecture, schema-he
 2026-05-29T06:34:32.820Z | task #17859 | completed | sonnet | Stand up 5 reference skills under RFC 0008 contract in agent | 5 reference skills authored under RFC 0008: arc-mcp-server, arc-credentials, arc
+2026-05-29T06:45:42.097Z | task #17860 | completed | sonnet | Implement RFC 0009 (Lessons Layer) Phase 1 in agent-runtime | RFC 0009 Phase 1 landed on feat/rfc-0009-lessons-layer (eacf10f): memory/ layout
+2026-05-29T06:50:51.794Z | task #17860 | completed | sonnet | Implement RFC 0009 (Lessons Layer) Phase 1 in agent-runtime | RFC 0009 Phase 1: src/memory.ts with appendRecentLog/appendDeadEnd/addPattern/lo
