@@ -1,6 +1,7 @@
 /**
  * Dispatch gate — on/off switch with auto-recovery for rate_limited stops.
  * Rate limit → immediate stop + email notification; auto-resets after quota reset time.
+ * When rate_limit_event has no parseable reset, falls back to DEFAULT_RATE_LIMIT_BACKOFF_MS.
  * 3 consecutive other failures → stop, manual `arc dispatch reset` required.
  */
 
@@ -12,6 +13,12 @@ import { log } from "./utils.ts";
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_GATE_FILE = join(ROOT, "db", "hook-state", "dispatch-gate.json");
 const GATE_FAILURE_THRESHOLD = 3;
+// Fallback backoff when rate_limit_event carries no parseable reset timestamp.
+// Configurable via ARC_RATE_LIMIT_BACKOFF_MS; default 60 minutes.
+const DEFAULT_RATE_LIMIT_BACKOFF_MS = parseInt(
+  process.env.ARC_RATE_LIMIT_BACKOFF_MS ?? String(60 * 60 * 1000),
+  10,
+);
 
 export type ErrorClass = "auth" | "rate_limited" | "subprocess_timeout" | "transient" | "unknown";
 
@@ -19,6 +26,7 @@ interface DispatchGateState {
   status: "running" | "stopped";
   consecutive_failures: number;
   stopped_at: string | null;
+  stopped_until: string | null;  // ISO timestamp; when reached, auto-reset for rate_limited stops
   stop_reason: string | null;
   last_error_class: ErrorClass | null;
   last_updated: string;
@@ -27,12 +35,16 @@ interface DispatchGateState {
 function readGateState(): DispatchGateState {
   try {
     const data = readFileSync(DISPATCH_GATE_FILE, "utf-8");
-    return JSON.parse(data) as DispatchGateState;
+    const parsed = JSON.parse(data) as DispatchGateState;
+    // Backfill stopped_until for state files written before this field existed
+    if (!("stopped_until" in parsed)) parsed.stopped_until = null;
+    return parsed;
   } catch {
     return {
       status: "running",
       consecutive_failures: 0,
       stopped_at: null,
+      stopped_until: null,
       stop_reason: null,
       last_error_class: null,
       last_updated: new Date().toISOString(),
@@ -50,19 +62,26 @@ function writeGateState(state: DispatchGateState): void {
  * Send email notification to whoabuddy that dispatch has stopped.
  * Uses arc CLI (fire-and-forget, non-blocking).
  */
-function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): void {
+function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null, stoppedUntil?: string | null): void {
+  const autoRecovery = errorClass === "rate_limited" && stoppedUntil;
   const subject = errorClass === "rate_limited"
     ? `[Arc] Dispatch stopped — rate/plan limit hit`
     : `[Arc] Dispatch stopped — ${GATE_FAILURE_THRESHOLD} consecutive failures`;
+  const recoveryLine = autoRecovery
+    ? `Auto-recovery scheduled at: ${stoppedUntil}`
+    : `Auto-recovery: NOT scheduled — manual restart required.`;
   const body = [
-    `Arc dispatch has stopped and will not auto-recover.`,
+    autoRecovery
+      ? `Arc dispatch has stopped and will auto-recover at ${stoppedUntil}.`
+      : `Arc dispatch has stopped and will not auto-recover.`,
     ``,
     `Reason: ${reason}`,
     `Error class: ${errorClass ?? "unknown"}`,
+    recoveryLine,
     `Time: ${new Date().toISOString()}`,
     `Host: ${hostname()}`,
     ``,
-    `To resume, reply to this email with RESTART in the body.`,
+    `To resume early, reply to this email with RESTART in the body.`,
     ``,
     `Or SSH in and run:`,
     `  bash bin/arc dispatch reset`,
@@ -139,22 +158,37 @@ export function checkDispatchGate(): boolean {
   const state = readGateState();
   if (state.status === "running") return true;
 
-  // Auto-reset for rate_limited stops once quota reset time has passed
-  if (state.last_error_class === "rate_limited" && state.stop_reason && state.stopped_at) {
-    const resetTime = parseResetTimeUTC(state.stop_reason);
-    if (resetTime) {
-      const stoppedAt = new Date(state.stopped_at);
-      // Advance to the first reset time that falls after stopped_at
-      while (resetTime <= stoppedAt) {
-        resetTime.setUTCDate(resetTime.getUTCDate() + 1);
-      }
-      if (new Date() >= resetTime) {
-        log(`dispatch: auto-reset — rate limit quota reset time passed (${resetTime.toISOString()})`);
+  // Auto-reset for rate_limited stops: check stopped_until (preferred) or parse from stop_reason (legacy)
+  if (state.last_error_class === "rate_limited" && state.stopped_at) {
+    const now = new Date();
+
+    // Primary path: stopped_until field (set at record time from 2026-05-29 onward)
+    if (state.stopped_until) {
+      if (now >= new Date(state.stopped_until)) {
+        log(`dispatch: auto-reset — rate limit backoff expired (${state.stopped_until})`);
         resetDispatchGate();
         return true;
       }
-      log(`dispatch: STOPPED — rate limit, quota resets at ${resetTime.toISOString()}. Auto-reset pending.`);
+      log(`dispatch: STOPPED — rate limit, auto-reset at ${state.stopped_until}`);
       return false;
+    }
+
+    // Legacy path: parse reset time from stop_reason string (state files written before stopped_until)
+    if (state.stop_reason) {
+      const resetTime = parseResetTimeUTC(state.stop_reason);
+      if (resetTime) {
+        const stoppedAt = new Date(state.stopped_at);
+        while (resetTime <= stoppedAt) {
+          resetTime.setUTCDate(resetTime.getUTCDate() + 1);
+        }
+        if (now >= resetTime) {
+          log(`dispatch: auto-reset — rate limit quota reset time passed (${resetTime.toISOString()})`);
+          resetDispatchGate();
+          return true;
+        }
+        log(`dispatch: STOPPED — rate limit, quota resets at ${resetTime.toISOString()}. Auto-reset pending.`);
+        return false;
+      }
     }
   }
 
@@ -168,6 +202,7 @@ export function recordGateSuccess(): void {
   state.consecutive_failures = 0;
   state.status = "running";
   state.stopped_at = null;
+  state.stopped_until = null;
   state.stop_reason = null;
   state.last_error_class = null;
   writeGateState(state);
@@ -180,12 +215,27 @@ export function recordGateFailure(errMsg: string, errClass: ErrorClass): void {
 
   // Rate limit or plan suspension → immediate stop (no threshold)
   if (errClass === "rate_limited") {
+    const now = new Date();
     state.status = "stopped";
-    state.stopped_at = new Date().toISOString();
+    state.stopped_at = now.toISOString();
     state.stop_reason = errMsg.slice(0, 500);
+
+    // Compute stopped_until: use parseable reset time if available, else default backoff
+    const parsedReset = parseResetTimeUTC(errMsg, now);
+    if (parsedReset) {
+      // Advance to the first reset time that falls after now (same logic as check path)
+      while (parsedReset <= now) {
+        parsedReset.setUTCDate(parsedReset.getUTCDate() + 1);
+      }
+      state.stopped_until = parsedReset.toISOString();
+    } else {
+      state.stopped_until = new Date(now.getTime() + DEFAULT_RATE_LIMIT_BACKOFF_MS).toISOString();
+      log(`dispatch: rate_limit_event has no parseable reset — defaulting to ${DEFAULT_RATE_LIMIT_BACKOFF_MS / 60000}min backoff (${state.stopped_until})`);
+    }
+
     writeGateState(state);
-    log(`dispatch: STOPPED — rate/plan limit hit. Manual restart required.`);
-    notifyDispatchStopped(errMsg.slice(0, 300), errClass);
+    log(`dispatch: STOPPED — rate/plan limit hit. Auto-reset at ${state.stopped_until}.`);
+    notifyDispatchStopped(errMsg.slice(0, 300), errClass, state.stopped_until);
     return;
   }
 
@@ -216,6 +266,7 @@ export function resetDispatchGate(): void {
     status: "running",
     consecutive_failures: 0,
     stopped_at: null,
+    stopped_until: null,
     stop_reason: null,
     last_error_class: null,
     last_updated: new Date().toISOString(),
