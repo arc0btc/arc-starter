@@ -98,7 +98,13 @@ function toLocalMessage(record: ApiEmailRecord): Omit<EmailMessage, "id"> {
 async function loadCursorState(): Promise<SyncCursorState> {
   const file = Bun.file(STATE_FILE);
   if (await file.exists()) {
-    return (await file.json()) as SyncCursorState;
+    const raw = (await file.json()) as Record<string, unknown>;
+    // Validate cursor values — the file may only contain sensor metadata (last_ran/version)
+    // if this is the first run after the since-cursor fix was deployed.
+    if (typeof raw.inbox === "string" && !isNaN(new Date(raw.inbox).getTime()) &&
+        typeof raw.sent === "string" && !isNaN(new Date(raw.sent).getTime())) {
+      return { inbox: raw.inbox, sent: raw.sent };
+    }
   }
   // Cold start: initialize to NOW — do NOT backfill existing messages (already in local DB)
   const now = new Date().toISOString();
@@ -107,7 +113,13 @@ async function loadCursorState(): Promise<SyncCursorState> {
 }
 
 async function saveCursorState(state: SyncCursorState): Promise<void> {
-  await Bun.write(STATE_FILE, JSON.stringify(state, null, 2));
+  // Preserve any existing sensor metadata (last_ran, version, etc.) in the shared state file.
+  let existing: Record<string, unknown> = {};
+  const file = Bun.file(STATE_FILE);
+  if (await file.exists()) {
+    try { existing = (await file.json()) as Record<string, unknown>; } catch { /* ignore */ }
+  }
+  await Bun.write(STATE_FILE, JSON.stringify({ ...existing, inbox: state.inbox, sent: state.sent }, null, 2));
 }
 
 async function fetchPage(
