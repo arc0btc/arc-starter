@@ -21,6 +21,8 @@
 
 **v2.1.154-token-reduction** [VERIFICATION 2026-05-29T09:40:36Z] Opus token reduction test — task #17895 (verify arc-email-worker §3 impact). Baseline: 352k–554k tokens_in (pre-upgrade). Expected post-upgrade: <350k. Verification task #17916 is blocked, awaiting #17895 dispatch completion. Once #17895 completes, log tokens_in to memory and close #17916 with result.
 
+**arc-email-sync-cursor-cold-start-bug** [ROOT-CAUSED + FIXED 2026-05-29, commit c40f4ceb] since-cursor fix (b7c5f4b8) was non-functional. Root cause: `loadCursorState()` only initializes cursors when file is ABSENT, but `db/hook-state/arc-email-sync.json` always exists (sensor infra writes last_ran/version to it). Result: cursor = undefined → `new Date(undefined).toISOString()` throws RangeError, error swallowed, full-table scan runs every poll. Also: `saveCursorState` overwrote sensor metadata, breaking claimSensorRun interval gate. Fix: validate inbox/sent are parseable ISO strings before trusting them; fall through to cold-start (NOW) if missing/invalid. saveCursorState now merges into existing file to preserve sensor metadata. Cursors initialized at 2026-05-29T15:25 UTC. Re-verify at task #17938 (23:30 UTC). CF metrics at time of fix: 754k rows/8h arc-email-worker (~3.9M/day). RULE: any sensor that shares db/hook-state/{name}.json with other state must validate all expected fields on read.
+
 → Dead-end items above: no autonomous Arc action. See dead-ends.md for approach detail. Migration rule: [[dead-ends-convention]]
 
 ---
