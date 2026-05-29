@@ -45,3 +45,4 @@
 2026-05-29T06:56:40.344Z | task #17889 | completed | sonnet | arc-email-worker: ship schema-health + stats cache (issue #2 | Opened arc0btc/arc-email-worker PR #3: schema-health endpoint (sqlite_master dif
 2026-05-29T06:57:18.530Z | task #17831 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.56.1 | v1.56.1 = Zest Pyth VAA bug fixes (#512/#513), already tracked as resolved in me
 2026-05-29T06:58:52.272Z | task #17832 | completed | sonnet | self-review: run health check for 2026-05-28 | health check complete: 3 issues — cost /bin/bash.47/task above ceiling, queue 58
+2026-05-29T07:01:13.300Z | task #17835 | completed | sonnet | Review PR #553 on aibtcdev/aibtc-mcp-server: Feat/agent acco | reviewed PR #553 (agent account tools) — requested changes: strip broken deploy 
