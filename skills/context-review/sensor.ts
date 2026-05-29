@@ -89,7 +89,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // should never be explicitly loaded at dispatch. Flagging tasks for not loading it is always
   // a false positive. PR review tasks that mention "ci status" use gh commands directly.
   "github-security-alerts": ["security alert", "dependabot"],
-  "arc-email-sync": ["email sync", "inbox sync", "arc-email", "email routing", "email report_recipient", "email credential"],
+  // "arc-email" excluded — too broad, matches "arc-email-worker" (CF worker code tasks) which don't need this client skill.
+  // Use "arc-email-sync" (explicit skill name) to catch tasks that explicitly reference the email client.
+  "arc-email-sync": ["email sync", "inbox sync", "arc-email-sync", "email routing", "email report_recipient", "email credential"],
   "defi-bitflow": ["bitflow dca", "dex swap", "liquidity pool"],
   // "bitflow" alone routes to defi-bitflow (market intel/DCA). Use more specific LP keywords
   // for the `bitflow` skill, which manages Arc's own capital positions.
