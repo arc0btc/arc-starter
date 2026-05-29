@@ -32,3 +32,4 @@
 2026-05-29T05:58:19.699Z | task #17876 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
 2026-05-29T05:58:19.757Z | task #17883 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
 2026-05-29T06:02:48.875Z | task #17857 | completed | sonnet | Review + publish RFCs 0007-0010 to aibtcdev/agent-runtime | reviewed 0007-0010 RFCs for consistency, cross-referenced proposals, committed t
+2026-05-29T06:05:38.771Z | task #17870 | completed | sonnet | Fix dispatch-gate: default backoff when rate_limit_event has | Added DEFAULT_RATE_LIMIT_BACKOFF_MS (60min, env-configurable) + stopped_until fi
