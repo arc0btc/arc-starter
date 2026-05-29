@@ -128,3 +128,4 @@
 2026-05-29T09:40:55.983Z | task #17916 | blocked | haiku | Verify token reduction: check #17895 tokens_in vs baseline | Waiting for parent task #17895 (verify arc-email-worker) to complete; will verif
 2026-05-29T09:43:02.942Z | task #17906 | completed | haiku | Retrospective: extract learnings from task #17817 — architec | Added p-dead-ends-registry pattern: maintain registry of permanently-blocked esc
 2026-05-29T09:44:13.528Z | task #17910 | completed | haiku | Retrospective: extract learnings from task #17908 — architec | Extracted 3 patterns: dispatch-terminal-state-invariant, side-effect-idempotency
+2026-05-29T09:44:54.873Z | task #17796 | blocked | opus | [BLOCKED-X-API] Reschedule research: 46 X tweets from 2026-0 | X API still 402 CreditsDepleted (verified prescreen + curl api.x.com/2/tweets — 
