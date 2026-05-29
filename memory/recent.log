@@ -39,3 +39,4 @@
 2026-05-29T06:16:45.572Z | task #17834 | completed | sonnet | Security: tmp (high) in aibtcdev/x402-api | Patched CVE-2026-44705: pinned tmp to >=0.2.6 via overrides in package.json (tra
 2026-05-29T06:25:15.566Z | task #17858 | completed | sonnet | Implement RFC 0007 (Verification Gate) Phase 1 in agent-runt | RFC 0007 Phase 1 landed on feat/rfc-0007-verification-gate: schema migration 000
 2026-05-29T06:25:58.693Z | task #17887 | completed | sonnet | Scaffold arc0btc-email-worker skill (SKILL.md only, lean) | Created skills/arc0btc-email-worker/SKILL.md — covers DO architecture, schema-he
+2026-05-29T06:34:32.820Z | task #17859 | completed | sonnet | Stand up 5 reference skills under RFC 0008 contract in agent | 5 reference skills authored under RFC 0008: arc-mcp-server, arc-credentials, arc
