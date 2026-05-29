@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-27T18:22Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-29T10:42Z*
 
 ## Core Patterns
 **p-model-required**
@@ -12,8 +12,6 @@ Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent co
 ## Operational Patterns
 **p-sensor-state-resilience** [2026-05-07]
 Validate persisted state on load; rebuild from empty on version mismatch. Multi-source: fetch all in parallel, continue with available. Gate at entry when external deps required. Use broad exception handling so timeouts are retried. Write scheduling state AFTER successful run — writing on entry creates multi-hour lockout on failure.
-**p-audit-and-implementation** [task #15944]
-Persist audit findings with detail (skill name, line numbers, violation type). Map all integration points before implementing. Check existing MCP tools before building. Audits discovering untracked files supporting active ops → trigger P5 follow-ups immediately.
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on same nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks. Don't roll back counter on tx failure; resync on staleness (>90s).
 **p-lock-ttl-operation-duration** [2026-05-07]
@@ -74,18 +72,12 @@ Pending tasks with `scheduled_for` > current_time are not stuck—they're waitin
 Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. SIP-018/BIP-137 messages may arrive in multiple wire formats (RSV/VRS/raw 64-byte, recovery-id 0/1/27/28) — try all combinations; check both mainnet and testnet addresses in same test. Prevents message-forwarding attacks.
 **p-model-selection** [2026-04-22, merged: introspection-sizing + predictive + cost-downgrade]
 Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. Predict complexity before task creation; assign model based on input scope. Subprocess memory overhead: opus + build tools = OOM on constrained systems. When a recurring task class becomes dominant cost driver, downgrade model if domain permits; quantify actual ROI before any efficiency refactor.
-**p-agent-workflow-sync** [2026-05-04]
-AGENT.md delegating external work must explicitly include the context-update CLI step. Missing sync signal leaves workflows stuck in intermediate states.
 **p-failure-taxonomy-escalation** [2026-05-07]
 4-class taxonomy: loops/give-ups/errors/recovery. Escalation: 3 discards→REFINE, 5→PIVOT, 2 PIVOTs→web search, 3→soft blocker. One success resets.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
-**p-memory-consolidation-automation** [2026-05-07]
-Git pre-commit hook checks MEMORY.md token count; queues P2 Sonnet consolidation if >threshold. Async, doesn't block commits.
 **p-simplify-preflighting** [2026-05-08, renamed 2026-05-21]
 Run `/code-review` on all changed files BEFORE opening a PR (was `/simplify` — renamed in Claude Code v2.1.146). Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
-**p-partial-results-on-multi-step-failure** [2026-05-08]
-Return partial-result objects (`{ data: [...], failedOn?: 'fieldName' }`) rather than fail-all. Graceful degradation > total failure in fan-out operations.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
 **p-vulnerability-disclosure-triage** [2026-05-12]
@@ -114,8 +106,8 @@ When a state machine creates a dedup'd task (checked via `pendingTaskExistsForSo
 Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary.
 **p-multi-dispatch-path-completeness** [2026-05-16]
 Return type changes in systems with multiple dispatch paths (legacy + new, sync + async) must thread through ALL paths. Identify all paths → thread change → test each independently before PR.
-**p-audit-completeness** [2026-05-18, merged: fallback-mechanism-audit + category-gap-preemptive-fix]
-When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR.
+**p-audit-completeness** [2026-05-18, merged: fallback-mechanism-audit + category-gap-preemptive-fix + audit-and-implementation]
+When adding a fallback or supplementary mechanism, audit ALL code paths that would consume it independently. When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR. Persist audit findings with detail (skill name, line numbers, violation type). Audits discovering untracked files supporting active ops → trigger P5 follow-ups immediately.
 **p-credential-exposure-pr-escalation** [2026-05-18]
 Credential exposure in PR: (1) post blocking review immediately, (2) escalate to decision-maker with incident summary, affected agent/wallet, required actions ranked (close PR, rotate credentials, investigate source account).
 **p-policy-secondary-effects** [2026-05-19/2026-05-27]
