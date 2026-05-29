@@ -127,3 +127,4 @@
 2026-05-29T09:40:17.032Z | task #17915 | completed | haiku | Verify opus token reduction: compare #17895 tokens_in to pre | Verification queued: #17895 (opus token reduction test) is pending P4. Created f
 2026-05-29T09:40:55.983Z | task #17916 | blocked | haiku | Verify token reduction: check #17895 tokens_in vs baseline | Waiting for parent task #17895 (verify arc-email-worker) to complete; will verif
 2026-05-29T09:43:02.942Z | task #17906 | completed | haiku | Retrospective: extract learnings from task #17817 — architec | Added p-dead-ends-registry pattern: maintain registry of permanently-blocked esc
+2026-05-29T09:44:13.528Z | task #17910 | completed | haiku | Retrospective: extract learnings from task #17908 — architec | Extracted 3 patterns: dispatch-terminal-state-invariant, side-effect-idempotency
