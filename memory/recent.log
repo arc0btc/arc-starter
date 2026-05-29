@@ -59,3 +59,4 @@
 2026-05-29T07:32:21.947Z | task #17863 | completed | sonnet | Port arc-worktrees skill from arc-starter to agent-runtime u | arc-worktrees ported to agent-runtime: SKILL.md + AGENT.md already present, upda
 2026-05-29T07:39:25.448Z | task #17864 | completed | sonnet | Port arc-mcp-server + add dead_ends MCP tools (RFC 0009 Phas | Ported arc-mcp-server to agent-runtime: server.ts (two-tier auth council/readonl
 2026-05-29T07:43:23.444Z | task #17865 | completed | sonnet | Port arc-peer-inbox skill from arc-starter to agent-runtime | Ported arc-peer-inbox to agent-runtime: added sensor.ts (adapted from arc-starte
+2026-05-29T07:43:47.090Z | task #17873 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.3.1 is a chore-only patch: lockfile update for standardwebhooks depen
