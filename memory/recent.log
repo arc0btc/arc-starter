@@ -42,3 +42,4 @@
 2026-05-29T06:34:32.820Z | task #17859 | completed | sonnet | Stand up 5 reference skills under RFC 0008 contract in agent | 5 reference skills authored under RFC 0008: arc-mcp-server, arc-credentials, arc
 2026-05-29T06:45:42.097Z | task #17860 | completed | sonnet | Implement RFC 0009 (Lessons Layer) Phase 1 in agent-runtime | RFC 0009 Phase 1 landed on feat/rfc-0009-lessons-layer (eacf10f): memory/ layout
 2026-05-29T06:50:51.794Z | task #17860 | completed | sonnet | Implement RFC 0009 (Lessons Layer) Phase 1 in agent-runtime | RFC 0009 Phase 1: src/memory.ts with appendRecentLog/appendDeadEnd/addPattern/lo
+2026-05-29T06:56:40.344Z | task #17889 | completed | sonnet | arc-email-worker: ship schema-health + stats cache (issue #2 | Opened arc0btc/arc-email-worker PR #3: schema-health endpoint (sqlite_master dif
