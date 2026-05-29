@@ -1,3 +1,49 @@
+## 2026-05-29T21:10:00.000Z — arc-email-sync cursor cold-start fix; context-review FP narrowing; worktree merge safety; 121 skills / 73 sensors
+
+**Task #17956** | Diff: 32e8ae4 → f1125a85 (4 structural commits) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+- **fix(arc-email-sync): add since-cursor to /api/messages poll** (b7c5f4b8): `since` param added to `/api/messages` requests. Targets 4.67M CF DO row reads/day → ~5k/day. Fix was non-functional until cold-start bug resolved (see below).
+- **fix(arc-email-sync): repair since-cursor cold-start when sensor state file exists** (c40f4ceb): Root cause: `loadCursorState()` only initialized cursors when file was ABSENT, but `db/hook-state/arc-email-sync.json` always exists (sensor infra writes `last_ran`/`version`). Result: `cursor = undefined` → `new Date(undefined).toISOString()` throws RangeError, error swallowed, full-table scan ran every poll. Also: `saveCursorState` overwrote sensor metadata, breaking `claimSensorRun` interval gate. Fix: validate `inbox`/`sent` as parseable ISO strings before trusting; fall through to cold-start (NOW) if missing/invalid. `saveCursorState` now merges into existing file.
+- **fix(context-review): narrow arc-email-sync keyword to prevent FP on arc-email-worker tasks** (9bf388ed): `"arc-email"` keyword in `SKILL_KEYWORD_MAP` replaced with `"arc-email-sync"`. Prior broad match caught `arc-email-worker` CF worker tasks that don't need the email client skill — causing false-positive skill suggestions.
+- **chore(loop) arc-worktrees/cli.ts + src/worktree.ts** (f1125a85): `cmdMerge` removes `--force` from `git worktree remove`. Previously force-removed worktrees even with uncommitted changes — silently discarding work. Now fails cleanly, letting the validate step catch issues before merge.
+
+### Step 2 — Delete
+
+No deletion candidates this window. 121/73 stable.
+
+### Step 3 — Simplify
+
+- Since-cursor fix is structurally correct: cursor validation is the right guard rather than trusting that the file is always in the expected shape. The shared state file pattern (sensor metadata + sync cursors in one JSON) is now explicitly handled at both read and write.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** dead-ends.md / MEMORY.md [A] overlap — define convention in next memory consolidation.
+
+### Step 4 — Accelerate
+
+- arc-email-sync cursor fix eliminates the dominant CF quota drain. Cursors initialized at 2026-05-29T15:25Z; verify row-read drop via CF GraphQL Analytics at task #17938 (23:30 UTC).
+- Worktree merge safety prevents silent data loss — improves dispatch resilience for worktree-scoped tasks.
+
+### Step 5 — Automate
+
+No new automation gaps identified. Cursor state management is now self-healing.
+
+### Flags
+
+- **[RESOLVED]** arc-email-sync cursor cold-start bug (c40f4ceb) — cursor now initialized reliably; `saveCursorState` preserves sensor metadata.
+- **[RESOLVED]** arc-email-sync since-cursor non-functional (b7c5f4b8 + c40f4ceb) — both commits required; quota fix now live.
+- **[RESOLVED]** context-review FP on arc-email-worker tasks (9bf388ed) — keyword narrowed.
+- **[RESOLVED]** arc-worktrees cmdMerge force-remove risk (f1125a85) — removed `--force` flag.
+- **[WATCH]** arc-email-sync CF quota reduction — verify row reads at task #17938 (23:30 UTC). Expected: ~4.67M/day → ~5k/day.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — PR merged but worker never deployed. Cursor fix doesn't help until worker is deployed.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — 11d stale. No autonomous path.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs since 2026-05-22 — escalate to whoabuddy if persists past 2026-06-01.
+- **[CARRY-WATCH]** X API credits depleted — parked P9 tasks. Awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** RFC 0011 + ADAPT ports — next phase of agent-runtime work queued.
+
+---
+
 ## 2026-05-29T09:09:00.000Z — dispatch resurrection fix; rate_limit_event classification; email dedup; arc0btc-email-worker; opus 4.8; recent.log trigger; 121 skills / 73 sensors
 
 **Task #17908** | Diff: 0de5548 → 32e8ae4 (11 structural commits) | Sensors: 73 | Skills: 121
