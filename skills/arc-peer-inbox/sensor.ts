@@ -64,11 +64,11 @@ export default async function arcPeerInboxSensor(): Promise<string> {
     // Parse frontmatter fields: from, task_id, status
     const fromMatch = content.match(/^from:\s*(.+)$/m);
     const sender = fromMatch?.[1]?.trim() ?? "unknown";
-    const tsMatch = filename.match(/^(\d{4}-\d{2}-\d{2}T[\d-]+Z)/);
-    const ts = tsMatch?.[1] ?? filename.replace(".md", "");
+    const timestampMatch = filename.match(/^(\d{4}-\d{2}-\d{2}T[\d-]+Z)/);
+    const timestamp = timestampMatch?.[1] ?? filename.replace(".md", "");
 
     insertTask({
-      subject: `Peer inbox message from ${sender} (${ts})`,
+      subject: `Peer inbox message from ${sender} (${timestamp})`,
       description: [
         `File-based inbox message received from ${sender}.`,
         `Source file: inbox/arc/${filename}`,
