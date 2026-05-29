@@ -24,3 +24,4 @@
 2026-05-29T05:47:48.948Z | task #17820 | completed | sonnet | health alert: dispatch stale | false positive — dispatch was running at check time (05:47 UTC), lock file prese
 2026-05-29T05:48:59.553Z | task #17830 | completed | sonnet | health alert: dispatch stale | FP: dispatch was running normally — lock PID 2719163 live, last cycle current. N
 2026-05-29T05:51:07.050Z | task #17836 | completed | sonnet | Add sent-folder dedup guard to arc-email-sync send path (pre | added sent-folder dedup guard to email send: checks last 60min sent folder for s
+2026-05-29T05:51:38.617Z | task #17837 | completed | sonnet | health alert: dispatch stale | FP: dispatch was running normally; lock file belongs to this cycle (PID 2720017)
