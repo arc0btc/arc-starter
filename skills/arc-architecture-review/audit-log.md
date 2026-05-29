@@ -1,3 +1,56 @@
+## 2026-05-29T09:09:00.000Z — dispatch resurrection fix; rate_limit_event classification; email dedup; arc0btc-email-worker; opus 4.8; recent.log trigger; 121 skills / 73 sensors
+
+**Task #17908** | Diff: 0de5548 → 32e8ae4 (11 structural commits) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+- **fix(dispatch): informational rate_limit_event bypass** (510b9e67): `status='allowed'` events (bucket warning, call succeeded) no longer abort dispatch or trip gate. Prior code treated all events as denials — discarded successful results. Fix: short-circuit on `status='allowed'`; read reset from `rate_limit_info.resetsAt` (epoch). Verified against 2026-05-28 repro. Pairs with default-backoff fix.
+- **fix(dispatch-gate): default backoff for unknown reset** (e423f55f): When `rate_limit_event` has no parseable reset, `stopped_until = now + 60min`. Previously latched indefinitely. Closes 2026-05-28T15:11:56Z incident (11+ min freeze). Full rate-limit handling now self-healing with no manual intervention path.
+- **fix(dispatch+db): dispatch resurrection two-layer fix** (af5c6ac2 + 78408d07): Catch-block guard prevents requeue if LLM self-closed; DB-layer `WHERE status != 'completed'` enforces terminal invariant race-safely. Closes task #17845 class fully.
+- **feat(arc-email-sync): sent-folder dedup guard** (651120e6): Before any send, query sent folder for matching subject. Skip + idempotent close if already sent. Closes side-effecting re-dispatch bug #1 (task #17836).
+- **feat(models): opus 4.8** (8d8b18a5): `MODEL_IDS.opus` → `claude-opus-4-8` (sdk-v0.100.0, 2026-05-28). Clean one-liner.
+- **feat(skill): arc0btc-email-worker scaffold** (495369d1): New skill for `arc0btc/arc-email-worker` CF Worker + DO email store. Skill count 120→121. Pending: schema-health issue #2.
+- **feat(arc-memory): recent.log consolidation trigger** (32e8ae47): Check 1c in arc-skill-manager sensor — queues consolidation at >300 lines. Closes [NEW-WATCH] from 2026-05-29T08:50Z audit.
+- **fix(abbreviated vars)** (cbd1ff78+7ccf1eef): Pre-commit hook compliance. `res/msg → response/message`; `ts → timestamp`.
+
+### Step 2 — Delete
+
+No deletion candidates this window. 121/73 stable. Rate limit handling is now three properly-separated modules (dispatch.ts / dispatch-gate.ts) — correct decomposition, no dead code.
+
+### Step 3 — Simplify
+
+- Rate limit handling is now structurally complete: 3 distinct bugs (classification, backoff, gate extraction) each fixed in isolation. `stopped_until` as a first-class field eliminates all O(n) string-parsing on gate checks.
+- **[CARRY-WATCH]** context-review skip list ~16 conditions — refactor if >20.
+- **[CARRY-WATCH]** dead-ends.md / MEMORY.md [A] overlap — both lists same blockers. Convention: dead-ends.md = machine-readable check, MEMORY.md [A] = human context. Apply migration in next memory consolidation.
+
+### Step 4 — Accelerate
+
+- Full rate-limit auto-recovery path: denial events now parse reset time reliably; informational events don't abort. Gate stops only on real quota denials, self-heals without manual reset.
+- Email dedup + dispatch resurrection fixes eliminate the main class of wasted cycles during rate-limit recovery windows.
+
+### Step 5 — Automate
+
+- recent.log consolidation is now automated (sensor-triggered at 300 lines) — closes the [NEW-WATCH] from prior audit.
+- No new automation gaps identified.
+
+### Flags
+
+- **[RESOLVED]** dispatch resurrection bug (af5c6ac2 + 78408d07) — terminal task invariant enforced at catch + DB layer.
+- **[RESOLVED]** informational rate_limit_event classification (510b9e67) — allowed events no longer abort dispatch.
+- **[RESOLVED]** rate_limit_event unknown reset → default backoff (e423f55f) — gate always self-heals.
+- **[RESOLVED]** email sent-folder dedup guard (651120e6) — side-effecting task re-dispatch bug #1 closed.
+- **[RESOLVED]** recent.log consolidation trigger (32e8ae47) — [NEW-WATCH] from 2026-05-29T08:50Z audit closed.
+- **[NEW-WATCH]** arc0btc-email-worker: schema-health endpoint (issue #2) pending. No sensor/cli yet — just SKILL.md scaffold.
+- **[CARRY-WATCH]** context-review skip list ~16 conditions — refactor if >20.
+- **[CARRY-WATCH]** dead-ends.md / MEMORY.md [A] overlap — define convention in next memory consolidation.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs since 2026-05-22 — escalate to whoabuddy if persists past 2026-06-01.
+- **[CARRY-WATCH]** PR #511 mcp-server — awaiting author response.
+- **[CARRY-WATCH]** amber-otter credential exposure — 11d stale. No autonomous path.
+- **[CARRY-WATCH]** X API credits depleted — parked P9 tasks. Awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** RFC 0007–0010 (#17857–17860) — 4 tasks queued by whoabuddy, not yet started.
+
+---
+
 ## 2026-05-29T08:50:00.000Z — dispatch gate extracted to own module; arc-peer-inbox; per-task reflect; dead-ends registry; tool_calls eval column; 120 skills / 73 sensors
 
 **Task #17817** | Diff: 428b8fd → 0de5548 (7 structural commits) | Sensors: 73 | Skills: 120
