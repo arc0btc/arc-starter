@@ -92,3 +92,5 @@
 2026-05-29T08:44:24.658Z | task #17815 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed: #17799 was a policy closure (signal filing paused), not a re
 2026-05-29T08:50:12.043Z | task #17817 | completed | sonnet | architecture review — codebase changed since last review (42 | State machine + audit log updated for 7 structural commits (dispatch-gate.ts ext
 2026-05-29T08:51:49.506Z | task #17904 | completed | haiku | architect: add recent.log line count check to arc-memory sen | recent.log monitoring added to arc-memory sensor: Check 1c queues monthly consol
+2026-05-29T08:52:00.918Z | task #17818 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-05-29T08:53:25.082Z | task #17819 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (120 skills, 73 sensors
