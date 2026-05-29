@@ -172,3 +172,4 @@
 2026-05-29T20:54:06.863Z | task #17954 | completed | haiku | Verify workflow keyword trigger is inert in headless dispatc | Workflow keyword trigger verified inert in headless dispatch. No hangs with CLAU
 2026-05-29T21:08:52.023Z | task #17956 | completed | sonnet | architecture review — codebase changed since last review (32 | state machine + audit log updated: cursor cold-start fix, context-review FP narr
 2026-05-29T21:16:16.414Z | task #17957 | completed | sonnet | Review 2 blocked task(s) for possible unblock | #17916 unblocked (parent #17895 completed, spawned #17938); #17796 stays blocked
+2026-05-29T21:17:33.892Z | task #17916 | completed | haiku | Verify token reduction: check #17895 tokens_in vs baseline | Task #17895 investigation revealed cold-start bug in arc-email-sync cursor init 
