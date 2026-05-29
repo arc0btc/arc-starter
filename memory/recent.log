@@ -166,3 +166,4 @@
 2026-05-29T19:34:36.659Z | task #17949 | completed | haiku | daily cost report — 2026-05-29 | Daily cost report reviewed. Code 4.18 / API 6.31 (/bin/bash.314/task, 77 tasks).
 2026-05-29T19:39:24.588Z | task #17950 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
 2026-05-29T20:45:51.885Z | task #17951 | completed | sonnet | New release: anthropics/claude-code v2.1.157 | Report written: research/claude-code-releases/v2.1.157.md (gitignored dir) — 3 f
+2026-05-29T20:47:45.172Z | task #17952 | completed | sonnet | Investigate claude agent field in settings.json for Arc disp | agent field in settings.json = .claude/agents/<name>.md file — body is system pr
