@@ -13,9 +13,12 @@ const TASK_SOURCE = "sensor:arc-memory-consolidate";
 const SENSOR_VALIDATION_SOURCE = "sensor:arc-sensor-validation";
 const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
 const PATTERNS_PATH = join(import.meta.dir, "../../memory/patterns.md");
+const RECENT_LOG_PATH = join(import.meta.dir, "../../memory/recent.log");
 const LINE_THRESHOLD = 500;
 const PATTERNS_LINE_THRESHOLD = 150;
+const RECENT_LOG_THRESHOLD = 300;
 const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
+const RECENT_LOG_TASK_SOURCE = "sensor:arc-recent-log-consolidate";
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
 const DECAY_SENSOR_NAME = "arc-research-decay";
 const DECAY_INTERVAL_MINUTES = 1440; // 24 hours
@@ -164,6 +167,37 @@ export default async function manageSkillsSensor(): Promise<string> {
         results.push("patterns-task-created");
       } else {
         results.push("patterns-ok");
+      }
+    }
+  }
+
+  // Check 1c: recent.log consolidation (monthly reflection processing)
+  if (memoryClaimed) {
+    if (existsSync(RECENT_LOG_PATH)) {
+      const rContent = readFileSync(RECENT_LOG_PATH, "utf-8");
+      const rLineCount = rContent.split("\n").length;
+
+      if (rLineCount > RECENT_LOG_THRESHOLD && !pendingTaskExistsForSource(RECENT_LOG_TASK_SOURCE)) {
+        insertTask({
+          subject: `Consolidate recent.log (${rLineCount} lines, threshold ${RECENT_LOG_THRESHOLD})`,
+          description: [
+            "memory/recent.log has accumulated ~monthly reflection entries.",
+            "",
+            "Steps:",
+            "1. Read memory/recent.log — one line per task close (ISO timestamp | task ID | status | model | subject | summary)",
+            "2. Extract patterns: cluster by source (sensor, task), status trends, cost outliers, and operational learnings",
+            "3. Append significant patterns to memory/MEMORY.md under [E] Recent Evaluations or thematic sections",
+            "4. Archive recent.log: move entries older than 30 days to memory/archive/recent-log-<date>.bak",
+            "5. Commit MEMORY.md updates",
+          ].join("\n"),
+          skills: '["arc-skill-manager"]',
+          priority: 7,
+          model: "sonnet",
+          source: RECENT_LOG_TASK_SOURCE,
+        });
+        results.push("recent-log-task-created");
+      } else {
+        results.push("recent-log-ok");
       }
     }
   }
