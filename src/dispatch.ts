@@ -610,6 +610,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
 
     // Structural rate-limit signal — unambiguous, takes priority over stderr text fallback
     if (parsed["type"] === "rate_limit_event") {
+      // Diagnostic: capture full payload. Prior versions discarded everything except reset fields,
+      // making it impossible to distinguish 5-hour-window / request-rate / concurrent-session / plan-tier limits.
+      const payloadStr = JSON.stringify(parsed);
+      log(`dispatch: rate_limit_event payload (task=${taskId ?? "n/a"}): ${payloadStr}`);
+      insertServiceLog("error", "dispatch", `rate_limit_event payload: ${payloadStr.slice(0, 2000)}`, taskId);
       const reset = parsed["reset_at"] ?? parsed["retry_after"] ?? parsed["retryAfterMs"];
       if (typeof reset === "string") {
         rateLimitResetAt = reset;
