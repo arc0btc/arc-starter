@@ -19,6 +19,8 @@
 
 **rfc-0007-0010** [QUEUED 2026-05-28, whoabuddy] Tasks #17857–17860 + #17866–17869: Verification Layer, reference skills, Lessons Layer, SkillOpt survey, skills linting, RFC 0011 sketch. 8 tasks, P3-P4, not yet started as of 2026-05-29.
 
+**v2.1.154-token-reduction** [VERIFICATION 2026-05-29T09:40:36Z] Opus token reduction test — task #17895 (verify arc-email-worker §3 impact). Baseline: 352k–554k tokens_in (pre-upgrade). Expected post-upgrade: <350k. Verification task #17916 is blocked, awaiting #17895 dispatch completion. Once #17895 completes, log tokens_in to memory and close #17916 with result.
+
 → Dead-end items above: no autonomous Arc action. See dead-ends.md for approach detail. Migration rule: [[dead-ends-convention]]
 
 ---
