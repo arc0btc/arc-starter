@@ -2,6 +2,7 @@
 // Syncs email messages from arc-email-worker API to the local database.
 // Called by sensor.ts on each run. Can also be run standalone via CLI.
 
+import { join } from "node:path";
 import {
   initDatabase,
   upsertEmailMessage,
@@ -43,9 +44,17 @@ export interface EmailSyncStats {
   errors: string[];
 }
 
+interface SyncCursorState {
+  inbox: string;
+  sent: string;
+}
+
 // ---- Constants ----
 
 const FETCH_TIMEOUT_MS = 10_000;
+const MAX_PAGINATION_ITERS = 5;
+const ROOT = new URL("../../", import.meta.url).pathname;
+const STATE_FILE = join(ROOT, "db", "hook-state", "arc-email-sync.json");
 
 // ---- Helpers ----
 
@@ -86,16 +95,33 @@ function toLocalMessage(record: ApiEmailRecord): Omit<EmailMessage, "id"> {
   };
 }
 
-async function fetchFolder(
+async function loadCursorState(): Promise<SyncCursorState> {
+  const file = Bun.file(STATE_FILE);
+  if (await file.exists()) {
+    return (await file.json()) as SyncCursorState;
+  }
+  // Cold start: initialize to NOW — do NOT backfill existing messages (already in local DB)
+  const now = new Date().toISOString();
+  log(`cold start: initializing since-cursor to ${now}`);
+  return { inbox: now, sent: now };
+}
+
+async function saveCursorState(state: SyncCursorState): Promise<void> {
+  await Bun.write(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+async function fetchPage(
   apiBaseUrl: string,
   adminKey: string,
   folder: string,
   limit: number,
+  since: string,
+  offset: number,
 ): Promise<ApiEmailRecord[]> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-  const url = `${apiBaseUrl}/api/messages?folder=${folder}&limit=${limit}`;
+  const url = `${apiBaseUrl}/api/messages?folder=${folder}&limit=${limit}&since=${encodeURIComponent(since)}&offset=${offset}`;
   const res = await fetch(url, {
     headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
     signal: controller.signal,
@@ -109,6 +135,27 @@ async function fetchFolder(
     throw new Error(body.error?.message ?? `Unexpected response shape (${folder})`);
   }
   return body.data.messages;
+}
+
+// Fetches all messages after cursor with offset-based pagination (hard cap: 5 pages).
+// Worker filter is `received_at >= since`, so we add 1ms to cursor for strict > semantics.
+async function fetchFolderSince(
+  apiBaseUrl: string,
+  adminKey: string,
+  folder: string,
+  limit: number,
+  cursor: string,
+): Promise<ApiEmailRecord[]> {
+  const sinceParam = new Date(new Date(cursor).getTime() + 1).toISOString();
+  const all: ApiEmailRecord[] = [];
+
+  for (let iter = 0; iter < MAX_PAGINATION_ITERS; iter++) {
+    const records = await fetchPage(apiBaseUrl, adminKey, folder, limit, sinceParam, iter * limit);
+    all.push(...records);
+    if (records.length < limit) break;
+  }
+
+  return all;
 }
 
 // ---- Main sync ----
@@ -133,15 +180,17 @@ export async function syncEmail(): Promise<EmailSyncStats> {
   }
 
   const existingIds = getAllEmailRemoteIds();
+  const cursorState = await loadCursorState();
+  const updatedCursor = { ...cursorState };
 
-  const folders: Array<{ name: string; limit: number }> = [
+  const folders: Array<{ name: keyof SyncCursorState; limit: number }> = [
     { name: "inbox", limit: 50 },
     { name: "sent", limit: 20 },
   ];
 
   for (const { name, limit } of folders) {
     try {
-      const records = await fetchFolder(apiBaseUrl, adminKey, name, limit);
+      const records = await fetchFolderSince(apiBaseUrl, adminKey, name, limit, cursorState[name]);
       for (const record of records) {
         upsertEmailMessage(toLocalMessage(record));
         stats.total_fetched++;
@@ -151,6 +200,19 @@ export async function syncEmail(): Promise<EmailSyncStats> {
           stats.new_count++;
         }
       }
+      // Advance cursor to MAX(received_at) of returned messages; never go backward
+      if (records.length > 0) {
+        const maxReceivedAt = records.reduce(
+          (max, r) => (r.received_at > max ? r.received_at : max),
+          records[0].received_at,
+        );
+        if (maxReceivedAt > updatedCursor[name]) {
+          updatedCursor[name] = maxReceivedAt;
+          log(`${name} cursor → ${maxReceivedAt} (${records.length} message(s) fetched)`);
+        }
+      } else {
+        log(`${name}: no new messages since ${cursorState[name]}`);
+      }
     } catch (err) {
       const msg = `${name} fetch failed: ${err}`;
       stats.errors.push(msg);
@@ -158,8 +220,10 @@ export async function syncEmail(): Promise<EmailSyncStats> {
     }
   }
 
+  await saveCursorState(updatedCursor);
+
   log(
-    `sync complete: ${stats.total_fetched} fetched, ${stats.new_count} new, ${stats.updated} updated, ${stats.errors.length} error(s)`
+    `sync complete: ${stats.total_fetched} fetched, ${stats.new_count} new, ${stats.updated} updated, ${stats.errors.length} error(s)`,
   );
   return stats;
 }
