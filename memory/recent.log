@@ -125,3 +125,4 @@
 2026-05-29T09:35:32.113Z | task #17914 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-05-29T09:38:39.732Z | task #17902 | completed | haiku | Monitor tokens_in trend on opus tasks: confirm lean system p | v2.1.154 deployed (08:11:37), opus baseline 352k–554k tokens; pending task #1789
 2026-05-29T09:40:17.032Z | task #17915 | completed | haiku | Verify opus token reduction: compare #17895 tokens_in to pre | Verification queued: #17895 (opus token reduction test) is pending P4. Created f
+2026-05-29T09:40:55.983Z | task #17916 | blocked | haiku | Verify token reduction: check #17895 tokens_in vs baseline | Waiting for parent task #17895 (verify arc-email-worker) to complete; will verif
