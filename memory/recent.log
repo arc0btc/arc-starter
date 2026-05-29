@@ -105,3 +105,4 @@
 2026-05-29T09:08:12.573Z | task #17907 | failed | script | Deploy arc0me-site to Cloudflare (701ec80b754d) | file: /home/dev/arc-starter/github/arc0btc/arc0me-site/src/content/docs/catalog/
 2026-05-29T09:14:01.276Z | task #17908 | completed | sonnet | architecture review — codebase changed since last review (0d | State machine + audit log updated: resurrection fix (af5c6ac2+78408d07), rate_li
 2026-05-29T09:15:02.020Z | task #17909 | completed | sonnet | workflow review — 1 health issue(s) | Closed stuck workflow 2700 (sdk-v0.98.0 in assessing 8 days) — superseded by v0.
+2026-05-29T09:15:35.066Z | task #17789 | completed | haiku | Retrospective: extract learnings from task #17787 — Email fr | Added p-batch-uniform-error-diagnosis: when batch operations return uniform erro
