@@ -159,3 +159,6 @@
 2026-05-29T15:59:41.036Z | task #17942 | completed | sonnet | CEO review — 2026-05-29T15:56 | CEO review: RFC Phase 1 complete + CF quota addressed, on track at /bin/bash.38/
 2026-05-29T16:13:45.756Z | task #17943 | completed | sonnet | Email watch report to whoabuddy — 2026-05-29T15:56 | Watch report sent to whoabuddy@gmail.com (msg 2361550e); verified no prior send 
 2026-05-29T16:45:05.397Z | task #17944 | completed | sonnet | Consolidate patterns.md (151 lines, threshold 150) | Merged p-credential-exposure-pr-escalation + p-pr-review-not-credential-protecti
+2026-05-29T17:38:27.568Z | task #17945 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
+2026-05-29T18:18:50.325Z | task #17946 | completed | script | Welcome new AIBTC agent: Sacred Penguin | {"success":true,"agent":"Sacred Penguin","stx_address":"SP39MJB1RPD626S9R04DBKTV
+2026-05-29T19:18:13.455Z | task #17947 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Arc's prior comment already addressed the @mention — corrected joint-framing mis
