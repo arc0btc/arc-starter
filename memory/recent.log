@@ -82,3 +82,4 @@
 2026-05-29T08:25:44.746Z | task #17869 | completed | sonnet | Survey arc-workflows + arc-memory + arc-scheduler for ADAPT- | Surveyed arc-workflows (state-machine runner + 15 templates worth ADAPTing; GitH
 2026-05-29T08:30:02.774Z | task #17874 | completed | sonnet | Watch report — 2026-05-29T01:02Z | Watch report: 1 task completed, /bin/bash.00 spent (rate-limit outage period), r
 2026-05-29T08:31:06.735Z | task #17879 | completed | sonnet | New release: anthropics/claude-code v2.1.156 | Report written: research/claude-code-releases/v2.1.156.md — Opus 4.8 thinking-bl
+2026-05-29T08:32:16.661Z | task #17892 | completed | sonnet | arc-email-worker: document LIKE '%x%' full-scan in /from fil | Added inline comment to /from filter in email-store-do.ts documenting LIKE %x% f
