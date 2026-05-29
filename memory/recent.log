@@ -80,3 +80,4 @@
 2026-05-29T08:19:39.545Z | task #17893 | failed | sonnet | verify arc-email-worker §1 deployed (PR #3 schema-health) | FAIL: endpoint 404 — PR #3 merged but no CI/CD workflow exists, worker never dep
 2026-05-29T08:22:26.639Z | task #17868 | completed | sonnet | Sketch RFC 0011: REFINE/PIVOT/web-search/handoff escalation  | Drafted ARC-0011 at agent-runtime/proposals/0011-escalation-ladder.md: 4-rung la
 2026-05-29T08:25:44.746Z | task #17869 | completed | sonnet | Survey arc-workflows + arc-memory + arc-scheduler for ADAPT- | Surveyed arc-workflows (state-machine runner + 15 templates worth ADAPTing; GitH
+2026-05-29T08:30:02.774Z | task #17874 | completed | sonnet | Watch report — 2026-05-29T01:02Z | Watch report: 1 task completed, /bin/bash.00 spent (rate-limit outage period), r
