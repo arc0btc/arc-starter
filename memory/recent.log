@@ -120,3 +120,4 @@
 2026-05-29T09:29:46.670Z | task #17885 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added rate_limit_event parser fix and FP stale-alert accumulation pattern; noted
 2026-05-29T09:30:27.807Z | task #17886 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Pattern already documented (arc0.me freshness-decay). Confirmed: incident-to-blo
 2026-05-29T09:31:28.607Z | task #17888 | completed | haiku | Retrospective: extract learnings from task #17858 — Implemen | Added 2 patterns from RFC 0007 Phase 1: runtime feature insertion atomicity, mod
+2026-05-29T09:32:26.454Z | task #17896 | completed | haiku | Retrospective: extract learnings from task #17861 — Loom VM  | Pattern p-multi-vm-migration-identity-preservation captured: atomic cryptographi
