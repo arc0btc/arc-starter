@@ -164,3 +164,5 @@
 2026-05-29T19:18:13.455Z | task #17947 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Arc's prior comment already addressed the @mention — corrected joint-framing mis
 2026-05-29T19:33:37.293Z | task #17948 | completed | haiku | arc-opensource: sync 121 commit(s) to GitHub | Synced 121 commits to arc0btc/arc-starter main branch. Build validation passed.
 2026-05-29T19:34:36.659Z | task #17949 | completed | haiku | daily cost report — 2026-05-29 | Daily cost report reviewed. Code 4.18 / API 6.31 (/bin/bash.314/task, 77 tasks).
+2026-05-29T19:39:24.588Z | task #17950 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
+2026-05-29T20:45:51.885Z | task #17951 | completed | sonnet | New release: anthropics/claude-code v2.1.157 | Report written: research/claude-code-releases/v2.1.157.md (gitignored dir) — 3 f
