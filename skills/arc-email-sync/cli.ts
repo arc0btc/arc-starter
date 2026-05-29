@@ -32,12 +32,73 @@ const APPROVED_SENDERS = new Set([
   "forge@agentslovebitcoin.com",
 ]);
 const DEFAULT_SENDER = "arc@arc0.me";
+const DEDUP_WINDOW_MS = 60 * 60 * 1000; // 60 minutes
+
+function normalizeSubject(subject: string): string {
+  return subject
+    .replace(/^(Re|Fwd|Fw):\s*/i, "")
+    .trim()
+    .toLowerCase();
+}
+
+interface SentMessage {
+  id: string;
+  to_address: string;
+  subject: string | null;
+  received_at: string;
+}
+
+interface SentApiResponse {
+  ok: boolean;
+  data?: { messages: SentMessage[]; total: number };
+  error?: { code: string; message: string };
+}
+
+async function findRecentSentDuplicate(
+  apiBaseUrl: string,
+  adminKey: string,
+  to: string,
+  subject: string,
+  windowMs: number,
+): Promise<SentMessage | null> {
+  const since = new Date(Date.now() - windowMs).toISOString();
+  const url = `${apiBaseUrl}/api/messages?folder=sent&since=${encodeURIComponent(since)}&limit=50`;
+
+  const res = await fetch(url, {
+    headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
+  });
+
+  if (!res.ok) {
+    log(`WARNING: sent-folder dedup check failed: HTTP ${res.status} — skipping dedup`);
+    return null;
+  }
+
+  const body = (await res.json()) as SentApiResponse;
+  if (!body.ok || !body.data) {
+    log(`WARNING: sent-folder dedup check returned unexpected shape — skipping dedup`);
+    return null;
+  }
+
+  const normalizedTarget = normalizeSubject(subject);
+  const toNorm = to.toLowerCase().trim();
+
+  for (const msg of body.data.messages) {
+    if (
+      msg.to_address.toLowerCase().trim() === toNorm &&
+      msg.subject !== null &&
+      normalizeSubject(msg.subject) === normalizedTarget
+    ) {
+      return msg;
+    }
+  }
+  return null;
+}
 
 async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || (!flags.body && !flags["body-html"])) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]\n");
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>] [--force]\n");
     process.exit(1);
   }
 
@@ -51,6 +112,24 @@ async function cmdSend(args: string[]): Promise<void> {
   }
 
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
+
+  // Dedup guard: skip send if an identical email was already sent within the dedup window
+  if (!flags.force) {
+    const duplicate = await findRecentSentDuplicate(
+      apiBaseUrl,
+      adminKey,
+      flags.to,
+      flags.subject,
+      DEDUP_WINDOW_MS,
+    );
+    if (duplicate) {
+      log(`deduped: already sent to ${flags.to} with subject "${flags.subject}" at ${duplicate.received_at} (id: ${duplicate.id}) — skipping. Use --force to override.`);
+      console.log(JSON.stringify({ success: true, deduped: true, existing_id: duplicate.id, sent_at: duplicate.received_at }, null, 2));
+      return;
+    }
+  } else {
+    log(`--force set: bypassing dedup check`);
+  }
 
   const payload: Record<string, string> = {
     to: flags.to,
@@ -89,7 +168,7 @@ async function cmdSend(args: string[]): Promise<void> {
   }
 
   log("send successful");
-  console.log(JSON.stringify({ success: true, ...result }, null, 2));
+  console.log(JSON.stringify({ success: true, deduped: false, ...result }, null, 2));
 }
 
 async function cmdMarkRead(args: string[]): Promise<void> {
@@ -194,9 +273,11 @@ USAGE
   arc skills run --name email -- <subcommand> [flags]
 
 SUBCOMMANDS
-  send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]
+  send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>] [--force]
     Send an email via the email worker API. Use --body-html for HTML emails.
     Use --in-reply-to to thread replies.
+    Dedup guard: skips send if an identical (same to + subject) email was sent within the last 60 minutes.
+    Use --force to bypass dedup and send regardless.
 
   mark-read --id <remote_id>
     Mark an email as read (local DB + remote worker).
