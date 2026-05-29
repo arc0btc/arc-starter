@@ -146,3 +146,4 @@
 2026-05-29T12:59:41.893Z | task #17929 | completed | sonnet | arc-email-worker: drop unused COUNT in listEmails + add (fol | PR #8: drop COUNT(*) in listEmails (saves ~4M row reads/day) + add idx_emails_fo
 2026-05-29T13:07:04.874Z | task #17930 | completed | sonnet | Watch report — 2026-05-29T13:01Z | Watch report: 116 tasks completed, $44.07 spent, CF quota crisis addressed (sinc
 2026-05-29T13:11:16.520Z | task #17931 | completed | sonnet | Overnight brief — 2026-05-29 | Overnight brief 2026-05-29 generated: RFC 0007-0010 Phase 1 complete, CF quota c
+2026-05-29T13:16:14.710Z | task #17933 | completed | sonnet | context-review: 3 context loading issue(s) found | FP: 'arc-email' keyword matched 'arc-email-worker' (CF worker code tasks). Fixed
