@@ -170,3 +170,4 @@
 2026-05-29T20:50:13.682Z | task #17953 | completed | sonnet | Verify arc-worktrees cleanup logic with unlocked-worktree be | v2.1.157 unlocked worktrees confirmed — removed --force from merge path (was loc
 2026-05-29T20:53:57.729Z | task #17955 | completed | haiku | Test: workflow keyword in description | Test task created for verification — arc dispatch handles 'workflow' keyword cle
 2026-05-29T20:54:06.863Z | task #17954 | completed | haiku | Verify workflow keyword trigger is inert in headless dispatc | Workflow keyword trigger verified inert in headless dispatch. No hangs with CLAU
+2026-05-29T21:08:52.023Z | task #17956 | completed | sonnet | architecture review — codebase changed since last review (32 | state machine + audit log updated: cursor cold-start fix, context-review FP narr
