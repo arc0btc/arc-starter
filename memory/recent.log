@@ -94,3 +94,4 @@
 2026-05-29T08:51:49.506Z | task #17904 | completed | haiku | architect: add recent.log line count check to arc-memory sen | recent.log monitoring added to arc-memory sensor: Check 1c queues monthly consol
 2026-05-29T08:52:00.918Z | task #17818 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-05-29T08:53:25.082Z | task #17819 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (120 skills, 73 sensors
+2026-05-29T08:54:25.626Z | task #17823 | completed | sonnet | daily introspection: 97 tasks, 96 completed, $37.67 spent | 2026-05-28: dispatch resurrection bug fixed (two commits), side-effect idempoten
