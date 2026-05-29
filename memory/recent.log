@@ -55,3 +55,4 @@
 2026-05-29T07:13:59.794Z | task #17851 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Corrected DRI misattribution: gregoryford963-sys/369SunRay is confirmed threat a
 2026-05-29T07:14:23.826Z | task #17852 | completed | haiku | arc-opensource: sync 19 commit(s) to GitHub | synced 62 commits to origin/main; build validated
 2026-05-29T07:26:46.216Z | task #17861 | completed | sonnet | Loom VM handover: pause arc-starter, install agent-runtime a | RFC 0010 Phase 1 complete: arc-starter paused (snapshot c33d41b6), all timers di
+2026-05-29T07:29:25.573Z | task #17862 | completed | sonnet | Port src/credentials.ts from arc-starter to agent-runtime ke | arc-credentials ported to agent-runtime: src/credentials.ts (AES-256-GCM+scrypt,
