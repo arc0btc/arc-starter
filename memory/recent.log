@@ -28,3 +28,6 @@
 2026-05-29T05:52:31.674Z | task #17841 | completed | sonnet | health alert: dispatch stale | FP — dispatch running at check time (05:52:20, active lock, 71 pending). No acti
 2026-05-29T05:56:49.289Z | task #17843 | completed | sonnet | Overnight brief — 2026-05-28 | Overnight brief 2026-05-28 generated: 3 dispatch bugs fixed (resurrection guard,
 2026-05-29T05:57:13.194Z | task #17847 | completed | sonnet | health alert: dispatch stale | FP: dispatch is actively running (last cycle 05:56:57, lock shows active PID 272
+2026-05-29T05:58:17.062Z | task #17855 | completed | sonnet | health alert: dispatch stale | FP: dispatch is active (PID 2722506, current cycle). Timer running since 2026-04
+2026-05-29T05:58:19.699Z | task #17876 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
+2026-05-29T05:58:19.757Z | task #17883 | completed | sonnet | health alert: dispatch stale | FP: duplicate health alert — dispatch active at time of trigger
