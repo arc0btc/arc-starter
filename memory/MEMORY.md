@@ -1,27 +1,23 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-05-26T03:25:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-05-29T09:02:00Z*
 *Token estimate: ~18t*
 
 ---
 
 ## [A] Active Items
 
-**amber-otter-credential-exposure** [SECURITY INCIDENT 2026-05-18, ESCALATED 2026-05-22, 9 DAYS STALE 2026-05-27] PR #389 on aibtcdev/skills (`gregoryford963-sys`) added 39 scripts containing amber-otter's Stacks private key (`9922d5bc...ffbab`) and full wallet mnemonic in plaintext. Scripts called `aibtc.com/api/challenge` with `action: "update-owner"` targeting `owner: "369sunray"` — a credential-based identity takeover attempt. Credentials are now public via GitHub PR diff. Escalation to whoabuddy sent 2026-05-22 via task #17266 — amber-otter must rotate credentials and investigate `369sunray`. CI also added unvetted `pip install skills-ref==0.1.1` (supply chain risk). **Cross-repo confirmed 2026-05-23**: `gregoryford963-sys` = `369sunray` behind aibtcdev/skills PRs #389/#394/#395 AND 1btc-news#33. Flag: persistent threat actor, not one-off.
-
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
-**payout-disputes** [ESCALATING, 30+ days stale] 11 disputes; no response since 2026-04-26. Editor payout funded; correspondent distribution blocked platform-side. Cannot escalate autonomously — requires whoabuddy direct outreach to aibtc.news platform team.
-
-**wallet-rotation-vulnerability** [CONFIRMED 2026-04-24] No safe rotation path after key compromise. Awaiting whoabuddy policy decision.
-
-**loom-spiral** [ESCALATED] Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No runs until resolved.
-
-**zest-borrow-broken** [RESOLVED 2026-05-26] PRs #512 + #513 merged to main at 14:09/14:10 UTC. MCP server 1.56.1 release PR #552 pending merge (release-please). Zest borrow, collateral-add, and collateral-remove-redeem now use fresh Pyth VAAs with vaaInFlight dedup.
-
-**pr-511-open-source-concern** [FLAGGED 2026-05-11] aibtc-mcp-server PR #511: package rename + proprietary license + IPI blocklist. 3 blocking issues flagged. Awaiting author response.
-
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] Pause and disable ALL signal filing. aibtc.news EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Quantum bounty (1btc-news#33) dead-letter. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
+
+**amber-otter** [DEAD-END, dead-ends.md:amber-otter] Credential exposure 2026-05-18 (gregoryford963-sys/369sunray threat actor). Escalated whoabuddy 2026-05-22. No autonomous path — owner must rotate keys. Awaiting human action.
+**payout-disputes** [DEAD-END, dead-ends.md:payout-disputes] 11 disputes, 30+d stale since 2026-04-26. No autonomous path. Requires whoabuddy direct outreach to aibtc.news platform team.
+**wallet-rotation** [DEAD-END, dead-ends.md:wallet-rotation] No safe rotation path after compromise. Awaiting whoabuddy policy decision since 2026-04-24.
+**loom-spiral** [DEAD-END, dead-ends.md:loom-spiral] Workflow 23 token spiral (1.1–1.2M/night). No runs until whoabuddy resolves root cause.
+**pr-511** [DEAD-END, dead-ends.md:pr-511] aibtc-mcp-server PR #511 flagged 2026-05-11: package rename + proprietary license + IPI blocklist. 3 blocking issues. Awaiting author response.
+
+→ Dead-end items above: no autonomous Arc action. See dead-ends.md for approach detail. Migration rule: [[dead-ends-convention]]
 
 ---
 
@@ -182,3 +178,4 @@ Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews`
 - [content-publish-verify-deploy](memory/shared/entries/content-publish-verify-deploy.md) — build success ≠ deploy success; verify deploy step ran after any content publish workflow
 - [agent-eval-volume-taxonomy](memory/shared/entries/agent-eval-volume-taxonomy.md) — Hylak's Stumbles→Issues→Signals→Experiments volume tiering; floor-raising vs benchmark-maxxing; golden cases; 3-month case retention
 - [file-inbox-hcom-pattern](memory/shared/entries/file-inbox-hcom-pattern.md) — Stop hook → inbox/<peer>/<ts>.md + sensor on inbox/arc/; local IPC, not cross-machine; SubagentStop ≠ Stop in Arc's Bun.spawn dispatch
+- [dead-ends-convention](memory/shared/entries/dead-ends-convention.md) — When to use dead-ends.md (approach-level) vs MEMORY.md [A] (situation-level); 14-day stale threshold for migration
