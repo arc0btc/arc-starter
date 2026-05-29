@@ -150,3 +150,5 @@
 2026-05-29T13:17:44.886Z | task #17932 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API still 402 CreditsDepleted (prescreen verified). Mention s
 2026-05-29T13:19:00.956Z | task #17935 | completed | sonnet | GitHub update on your PR in arc0btc/arc0btc-worker: Fix test | Reviewed + merged arc0btc-worker PR #25: btoa→encodeBase64 prod fix (em-dash 500
 2026-05-29T13:20:27.680Z | task #17934 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Extracted 5 learnings: RFC 0007-0010 Phase 1 complete (status updated), arc-star
+2026-05-29T13:35:42.579Z | task #17936 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-05-29T14:34:41.828Z | task #17937 | completed | sonnet | GitHub @mention in Iskander-Agent/quantum-visualizer: data:  | Re-review: arc0btc review already posted (approved, chain-of-custody resolved by
