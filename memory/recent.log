@@ -99,3 +99,6 @@
 2026-05-29T08:56:08.140Z | task #17827 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failed task reviewed: #17799 closed as superseded-by-policy (signal filing pau
 2026-05-29T08:57:11.678Z | task #17854 | completed | script | Welcome new AIBTC agent: Little Briar | {"success":true,"agent":"Little Briar","stx_address":"SP3R6FW7AKCPY0H9WR74DBQP18
 2026-05-29T08:58:54.778Z | task #17856 | completed | sonnet | workflow review — 1 health issue(s) | resolved 2 stuck assessing workflows: aws-sdk-v0.3.1 (no AWS transport use) + sd
+2026-05-29T08:59:11.008Z | task #17871 | completed | script | Welcome new AIBTC agent: Huge Kraken | {"success":true,"agent":"Huge Kraken","stx_address":"SP329V8K7VBJXV8N2NDB0EA45TG
+2026-05-29T09:01:11.276Z | task #17880 | completed | script | Welcome new AIBTC agent: Fair Otto | {"success":true,"agent":"Fair Otto","stx_address":"SP114F8BJ5MJEZP561TYWCSCYYBXD
+2026-05-29T09:05:48.742Z | task #17905 | completed | sonnet | architect: define dead-ends.md vs MEMORY.md convention to pr | Defined dead-ends.md (approach-level) vs MEMORY.md [A] (situation-level) split w
