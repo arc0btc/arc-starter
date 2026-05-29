@@ -608,18 +608,32 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
       return;
     }
 
-    // Structural rate-limit signal — unambiguous, takes priority over stderr text fallback
+    // Structural rate-limit signal — unambiguous, takes priority over stderr text fallback.
+    // Claude Code v2.1.x emits rate_limit_event for both denied requests (must abort) AND
+    // informational warnings about bucket state (request succeeded). Prior code treated all
+    // events as denial → discarded successful responses → unnecessary gate stops.
     if (parsed["type"] === "rate_limit_event") {
-      // Diagnostic: capture full payload. Prior versions discarded everything except reset fields,
-      // making it impossible to distinguish 5-hour-window / request-rate / concurrent-session / plan-tier limits.
       const payloadStr = JSON.stringify(parsed);
       log(`dispatch: rate_limit_event payload (task=${taskId ?? "n/a"}): ${payloadStr}`);
-      insertServiceLog("error", "dispatch", `rate_limit_event payload: ${payloadStr.slice(0, 2000)}`, taskId);
-      const reset = parsed["reset_at"] ?? parsed["retry_after"] ?? parsed["retryAfterMs"];
-      if (typeof reset === "string") {
-        rateLimitResetAt = reset;
-      } else if (typeof reset === "number") {
-        rateLimitResetAt = new Date(Date.now() + reset).toISOString();
+      const info = parsed["rate_limit_info"] as Record<string, unknown> | undefined;
+      const status = info?.["status"];
+      const rateLimitType = info?.["rateLimitType"];
+      // Informational: the API call was allowed through. Do not classify as failure.
+      if (status === "allowed") {
+        log(`dispatch: rate_limit_event informational (status=allowed, type=${rateLimitType ?? "unknown"}) — request not blocked`);
+        return;
+      }
+      // Denial path: persist and mark for failure throw after stream drain.
+      insertServiceLog("error", "dispatch", `rate_limit_event denial (status=${status ?? "?"}, type=${rateLimitType ?? "?"}): ${payloadStr.slice(0, 1800)}`, taskId);
+      // v2.1.x: resetsAt nested under rate_limit_info as Unix epoch seconds. Legacy fallback: top-level fields.
+      const resetsAtSec = info?.["resetsAt"];
+      const legacyReset = parsed["reset_at"] ?? parsed["retry_after"] ?? parsed["retryAfterMs"];
+      if (typeof resetsAtSec === "number") {
+        rateLimitResetAt = new Date(resetsAtSec * 1000).toISOString();
+      } else if (typeof legacyReset === "string") {
+        rateLimitResetAt = legacyReset;
+      } else if (typeof legacyReset === "number") {
+        rateLimitResetAt = new Date(Date.now() + legacyReset).toISOString();
       } else {
         rateLimitResetAt = "unknown";
       }
