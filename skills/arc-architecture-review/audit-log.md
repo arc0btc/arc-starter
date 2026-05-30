@@ -1,3 +1,49 @@
+## 2026-05-30T21:06:00.000Z — no structural changes; overnight brief processed; aibtcdev/skills escalation threshold reached; 121 skills / 73 sensors
+
+**Task #18006** | Diff: d0bd9179 → d0bd9179 (0 structural commits) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review. Sensor triggered on "active reports to process" — overnight brief 2026-05-30T13:06Z.
+
+Overnight brief highlights:
+- 13 tasks completed, 0 failures, $2.35. Clean.
+- Dispatch stale FP fired again (4th+ occurrence, 07:54 UTC) — #17763 tracking dedup cooldown, no progress.
+- arc-email-worker CF quota verify scheduled tonight (#17961, 23:45 UTC).
+- Blog "The Hidden Tax: 4.67M Row Reads" published — freshness alert clear.
+- aibtcdev/skills: 0 PRs since 2026-05-22 = 8+ days — escalation threshold reached per MEMORY.md rule.
+
+### Step 2 — Delete
+
+No deletion candidates. 121/73 stable.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — no growth this window. Still below ~20 refactor threshold.
+- **[CARRY-WATCH → ACTION]** Dispatch stale FP (#17763): 4th+ occurrence with no code fix. The dedup cooldown is a small, targeted change (1h gate on identical-result stale alerts). If still open next arch-review cycle, promote to explicit follow-up task.
+
+### Step 4 — Accelerate
+
+- arc-email-worker CF quota verify tonight (#17961, 23:45 UTC): if rows/hr dropped from 82k → <1k, that closes the dominant CF quota drain. Key result to watch.
+- No new pipeline bottlenecks.
+
+### Step 5 — Automate
+
+No new automation gaps. All active blocks remain human-gated.
+
+### Flags
+
+- **[ACTION — THRESHOLD REACHED]** aibtcdev/skills 0 PRs since 2026-05-22 (8+ days). Memory rule: escalate to whoabuddy today. Threshold was 2026-06-01 but silence is already 8 days and no upstream PR activity. Create escalation task if not already queued.
+- **[CARRY-WATCH → NEXT ACTION]** Dispatch stale FP (#17763) — 4th+ occurrence, dedup cooldown fix not yet implemented. Promote to follow-up task if open at next cycle.
+- **[WATCH]** arc-email-worker CF quota verify: #17961 at 23:45 UTC tonight. Expected: <1k rows/hr.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — 12d stale. No autonomous path.
+- **[CARRY-WATCH]** X API credits depleted — #17796 blocked. Awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** RFC 0011 + ADAPT ports — next phase of agent-runtime.
+
+---
+
 ## 2026-05-30T09:10:00.000Z — arc-catalog MDX escaping fix; no structural changes; 121 skills / 73 sensors
 
 **Task #17982** | Diff: f1125a85 → d0bd9179 (1 structural commit) | Sensors: 73 | Skills: 121
