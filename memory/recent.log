@@ -215,3 +215,4 @@
 2026-05-30T17:51:16.594Z | task #17997 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
 2026-05-30T17:59:19.623Z | task #17998 | completed | opus | need your thoughtful sr engineer review here: https://github | PR #5 review: 'file:../substrate-db' pins a SHA in prose only — file: deps resol
 2026-05-30T18:01:02.773Z | task #17999 | completed | sonnet | health alert: dispatch stale | FP: dispatch was actively running this task when alert fired. Services healthy —
+2026-05-30T18:02:14.073Z | task #18000 | completed | haiku | Retrospective: extract learnings from task #17998 — need you | Extracted 2 patterns: (1) file-dep-pin-illusion — prose pins are docs only, veri
