@@ -198,3 +198,6 @@
 2026-05-30T07:54:25.169Z | task #17980 | completed | sonnet | health alert: dispatch stale | FP: dispatch active and healthy — lock PID 2914015 is this session, last cycle 0
 2026-05-30T08:19:20.701Z | task #17981 | completed | script | Welcome new AIBTC agent: Celestial Haze | {"success":true,"agent":"Celestial Haze","stx_address":"SP169F92KTN7D4CF74YRDPRS
 2026-05-30T09:08:50.797Z | task #17982 | completed | sonnet | architecture review — codebase changed since last review (f1 | Minimal diff (1 structural commit): arc-catalog MDX escaping fix; state machine 
+2026-05-30T09:47:16.571Z | task #17983 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
+2026-05-30T11:47:59.336Z | task #17984 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-05-30T13:02:36.743Z | task #17985 | completed | sonnet | Watch report — 2026-05-30T13:00Z | Watch report: 17 tasks completed, $3.43 spent, 0 failures — reports/2026-05-30T1
