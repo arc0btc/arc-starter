@@ -205,3 +205,4 @@
 2026-05-30T13:18:36.577Z | task #17987 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted — prescreen confirms no change. Task #17796 rema
 2026-05-30T13:48:28.562Z | task #17988 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-05-30T14:09:20.994Z | task #17989 | completed | sonnet | Overnight brief — 2026-05-30 | Overnight brief 2026-05-30 completed (idempotent — brief already at reports/2026
+2026-05-30T14:14:32.410Z | task #17990 | completed | sonnet | GitHub @mention in aibtcdev/landing-page: /api/inbox: phanto | Filed PR #942: restored countInboxMessagesFromD1 for status=unread to bypass sta
