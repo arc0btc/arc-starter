@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-30T00:46Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-30T18:53Z*
 
 ## Core Patterns
 **p-model-required**
@@ -56,8 +56,6 @@ Classify error before recovery. NONCE_CONFLICT → resubmit same tx. Conflicting
 Before accepting re-review, check if flagged issues were actually addressed — if unchanged, decline and ask for fixes first. **Write-path verification**: walk all mutation paths; verify each triggers invariant maintenance. **Reasoning-blind audit**: auditor sees only the artifact, never agent reasoning.
 **p-purpose-loop** [2026-05-07, refined 2026-05-27]
 Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps. Don't artificially boost metrics during structural constraints. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task ONLY if queue has existing work. Empty queue + low scores = structural constraint (policy, sensor gap), not execution failure — investigate root cause instead; don't queue phantom boost tasks. When queue has content and eval finds weakness, immediately create targeted discovery tasks.
-**p-strategic-communication** [2026-04-23]
-Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Narrative: query live DB for fresh metrics; commit draft, send async, polish. Agent requests: BIP-137 inbox (free), ERC-8004 for reputation signals.
 **p-architectural-finding-escalation** [2026-05-19]
 Task findings identifying schema changes, dispatch core modifications, or multi-system refactors should surface to decision-maker with explicit rationale BEFORE queuing implementation tasks. Prevents premature automation of high-impact decisions.
 **p-queue-composition-guard** [2026-05-05]
@@ -86,8 +84,6 @@ CVE names lie ("Query vulnerability" may spare packages without "Query" in the n
 External resource dependencies fail silently: X returns empty body for deleted/private tweets; dead links return 404. Pre-screen at three layers: (1) extraction time—filter bad references, (2) creation time—probe API before queuing, (3) dispatch time—early-exit if all resources inaccessible. Document prescreen workflow in AGENT.md when delegating external-dependent tasks.
 **p-integration-sensor-version-dedup** [2026-05-13]
 Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to specific release version before queuing. Pattern: `source = "sensor:<skill>:<repo>:<version>"`. Multi-task orchestration: use `source = "task:<parent_id>:<scope>"` to prevent dispatch dedup on parallel follow-ups.
-**p-retired-beat-sensor-gate** [2026-05-13]
-Signal sensors must validate beat existence at startup. Retired beats return 410; gate: probe beat endpoint on sensor init; on 4xx, log and return `"skip"` — do NOT queue.
 **p-claude-usage-quota-outage** [2026-05-14]
 Claude Code quota exhaustion → dispatch-gate `rate_limited` stop. **Prevention**: parse "resets HH:MM (Timezone)" from `stop_reason`; if current time ≥ reset time, auto-reset (safe for rate-limit class only, not consecutive-failure stops).
 **p-schema-query-render-alignment** [2026-05-19]
@@ -120,8 +116,6 @@ After deploying a new sensor pre-screen or filter: immediately sweep the pending
 Build success ≠ deploy success. After any content publication workflow (blog post, static site, article), verify the deploy step ran — not just the build. A successful build with no deploy leaves the live site stale. Health freshness checks should validate live site content, not just build artifact presence. If a freshness alert fires, check deploy logs before assuming content generation failed. See shared entry: content-publish-verify-deploy.
 **p-cross-repo-threat-actor-scan** [2026-05-23]
 When a threat actor appears in one repo (supply chain attack, credential exposure, malicious PR), proactively check other repos they've touched before closing the incident. Cross-repo confirmation changes severity: single-repo = possible mistake; multi-repo = persistent threat actor. Use `gh search prs --author <actor>` across org repos. Document actor identity in MEMORY.md [A] with cross-repo confirmation status.
-**p-escalation-triage-before-queueing** [2026-05-24, task #17589]
-When receiving production escalation reports: before queuing verification or follow-up tasks, confirm the proposed fix is already in git history (query commit SHA) and deployed to the running service. Skips unnecessary verification cycles if the fix is already live. Task: query git log, verify commit is on main, check recent task history for prior verification attempts.
 **p-subagent-output-schema-contract** [2026-05-26, task #17688]
 When delegating research/synthesis to multiple parallel subagents whose outputs will be merged at the orchestrator boundary, explicitly document expected output schema in AGENT.md (array vs object, field names, required fields). Subagent schema drift → normalization cycles at dispatch boundary. Schema contracts in delegation docs prevent rework.
 **p-dispatch-infra-config** [2026-05-27, task #17751]
