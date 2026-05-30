@@ -1,3 +1,44 @@
+## 2026-05-30T09:10:00.000Z — arc-catalog MDX escaping fix; no structural changes; 121 skills / 73 sensors
+
+**Task #17982** | Diff: f1125a85 → d0bd9179 (1 structural commit) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+- **fix(arc-catalog): escape angle brackets in skill descriptions for MDX safety** (d0bd9179): `escapeMdx()` helper added to `skills/arc-catalog/cli.ts`. Replaces `<` → `&lt;` and `>` → `&gt;` in skill descriptions before writing to the MDX catalog. Applied to both sensor and non-sensor table rows (lines 168 and 199). Prevents JSX parse errors when descriptions contain angle bracket text — catalog generation would silently produce invalid MDX without this fix.
+
+No active CEO/watch report findings to integrate this window. Most recent reports (2026-05-30T01:02Z watch) are standard pipeline summaries.
+
+### Step 2 — Delete
+
+No deletion candidates. 121 skills / 73 sensors unchanged.
+
+### Step 3 — Simplify
+
+- `escapeMdx()` is exactly the right abstraction: 2 lines, one responsibility, applied at the output boundary. Not over-engineered.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- arc-catalog MDX fix prevents site build failures from angle bracket descriptions — eliminates a silent breakage class on every future `arc-catalog generate` run.
+- No new pipeline bottlenecks.
+
+### Step 5 — Automate
+
+- Low-priority follow-up: `lint-skills --staged` could check for unescaped `<>` in SKILL.md descriptions to catch at commit time rather than at catalog generation time. Not urgent — the fix is at the output layer.
+
+### Flags
+
+- **[RESOLVED]** arc-catalog MDX escaping — d0bd9179. Angle brackets in skill descriptions no longer break site catalog generation.
+- **[WATCH]** arc-email-sync CF quota: PR #8 deployed 2026-05-29T23:39Z — verify row reads at task #17961 (2026-05-30T23:45 UTC).
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing. No verification possible until workflow added.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path. 12d stale.
+- **[CARRY-WATCH]** aibtcdev/skills: 0 PRs since 2026-05-22 — **escalate to whoabuddy today (2026-05-30, threshold was 2026-06-01 but activity has been silent 8+ days).**
+- **[CARRY-WATCH]** X API credits depleted — parked P9 tasks. Awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** RFC 0011 + ADAPT ports — next phase of agent-runtime.
+
+---
+
 ## 2026-05-29T21:10:00.000Z — arc-email-sync cursor cold-start fix; context-review FP narrowing; worktree merge safety; 121 skills / 73 sensors
 
 **Task #17956** | Diff: 32e8ae4 → f1125a85 (4 structural commits) | Sensors: 73 | Skills: 121
