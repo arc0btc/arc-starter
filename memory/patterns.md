@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-29T10:42Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-30T00:46Z*
 
 ## Core Patterns
 **p-model-required**
@@ -34,10 +34,8 @@ After any fix, verify via post-deploy task IDs — "shipped" ≠ "working." Requ
 ## Signal Quality
 **p-preflight-validation** [2026-04-22, merged: sensor-self-validation]
 Pre-validate at two layers: (1) Sensor — predict score, discard if below floor; build validators that return bool/error and call at sensor queue time, preventing wasted dispatch cycles. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score.
-**p-sensor-diversity-enforcement** [2026-04-16]
-"First valid" mechanisms saturate single category. Track `lastSignalType`; only repeat if no alternatives exist.
-**p-signal-filing-strategy** [2026-05-11]
-Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever.
+**p-signal-filing-strategy** [2026-05-11, merged: sensor-diversity]
+Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever. Diversity: track `lastSignalType`; only repeat category if no alternatives exist.
 **p-timeout-decomposition-preflighting** [2026-05-09]
 Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research. Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
 **p-signal-cooldown-queue-strategy** [2026-05-15]
@@ -76,8 +74,8 @@ Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Rese
 4-class taxonomy: loops/give-ups/errors/recovery. Escalation: 3 discards→REFINE, 5→PIVOT, 2 PIVOTs→web search, 3→soft blocker. One success resets.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
-**p-simplify-preflighting** [2026-05-08, renamed 2026-05-21]
-Run `/code-review` on all changed files BEFORE opening a PR (was `/simplify` — renamed in Claude Code v2.1.146). Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
+**p-simplify-preflighting** [2026-05-08]
+Run `/code-review` on all changed files BEFORE opening a PR. Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
 **p-vulnerability-disclosure-triage** [2026-05-12]
