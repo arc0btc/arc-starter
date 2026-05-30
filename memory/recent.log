@@ -193,3 +193,6 @@
 2026-05-30T04:01:31.406Z | task #17975 | completed | sonnet | CEO review — 2026-05-30T03:56 | CEO review: on track — 100% success, CF fix deployed, signal pause at 11d is mai
 2026-05-30T04:12:35.414Z | task #17976 | completed | sonnet | Email watch report to whoabuddy — 2026-05-30T03:56 | Watch report sent to whoabuddy@gmail.com (msg a034edd5)
 2026-05-30T05:16:26.483Z | task #17977 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted — confirmed via prescreen. Task #17796 remains b
+2026-05-30T05:45:17.101Z | task #17978 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
+2026-05-30T07:47:59.819Z | task #17979 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-05-30T07:54:25.169Z | task #17980 | completed | sonnet | health alert: dispatch stale | FP: dispatch active and healthy — lock PID 2914015 is this session, last cycle 0
