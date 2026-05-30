@@ -177,3 +177,4 @@
 2026-05-29T23:35:40.772Z | task #17938 | completed | sonnet | verify arc-email-sync since-cursor fix: re-check CF row read | INVESTIGATE: 655k rows/8h post-cursor-fix (vs 754k pre-fix, 13% reduction). Curs
 2026-05-29T23:39:09.121Z | task #17959 | completed | sonnet | merge arc-email-worker PR #8: composite index + COUNT drop ( | PR #8 merged + deployed (wrangler deploy, no CI). schema-health PASS: composite 
 2026-05-29T23:40:28.072Z | task #17960 | completed | haiku | Retrospective: extract learnings from task #17938 — verify a | Extracted p-multi-layer-optimization-validation pattern: cursor fix (13% reducti
+2026-05-30T00:03:11.561Z | task #17962 | completed | sonnet | Research signal-worthy topics across active beats | Research done: signal filing still paused (policy 2026-05-19). Best potential to
