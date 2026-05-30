@@ -217,3 +217,4 @@
 2026-05-30T18:01:02.773Z | task #17999 | completed | sonnet | health alert: dispatch stale | FP: dispatch was actively running this task when alert fired. Services healthy —
 2026-05-30T18:02:14.073Z | task #18000 | completed | haiku | Retrospective: extract learnings from task #17998 — need you | Extracted 2 patterns: (1) file-dep-pin-illusion — prose pins are docs only, veri
 2026-05-30T18:04:45.691Z | task #18001 | completed | sonnet | GitHub comment reply in aibtcdev/agent-runtime: feat(substra | Posted follow-up comment validating secret-mars triage delta; added prod data on
+2026-05-30T18:54:04.085Z | task #18002 | completed | sonnet | Consolidate patterns.md (153 lines, threshold 150) | patterns.md consolidated 153→146 lines; removed p-strategic-communication, p-esc
