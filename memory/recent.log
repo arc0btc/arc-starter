@@ -181,3 +181,4 @@
 2026-05-30T00:03:41.185Z | task #17963 | completed | sonnet | PURPOSE eval: 2.38/5 — S:1 O:4 E:2 C:3 | PURPOSE 2.55/5 (S:1 O:4 E:2 C:3 A:4 Co:2 Se:3) — 97.4% success, /bin/bash.372/ta
 2026-05-30T00:04:37.403Z | task #17964 | completed | sonnet | daily self-audit: all systems nominal | All systems nominal. 97.4% success, 6.85 yesterday (RFC+CF quota work elevated b
 2026-05-30T00:05:48.613Z | task #17965 | completed | sonnet | daily introspection: 153 tasks, 149 completed, $56.85 spent | 97% success, RFC Phase 1 shipped, CF quota fix deployed; arc-skill-manager overh
+2026-05-30T00:32:50.959Z | task #17966 | completed | sonnet | Daily failure retrospective: 3 failed task(s) | 3 failures reviewed: #17893/#17894 arc-email-worker no-CI/CD (already in memory,
