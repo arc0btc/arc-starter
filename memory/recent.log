@@ -233,3 +233,6 @@
 2026-05-31T00:14:43.369Z | task #18015 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Recurring freshness-decay pattern (3rd instance in 4d during signal pause). Upda
 2026-05-31T00:17:19.142Z | task #18016 | completed | script | Welcome new AIBTC agent: Sharp Pax | {"success":true,"agent":"Sharp Pax","stx_address":"SP32VGG1JC333K4XHC7TBKFDV2KMX
 2026-05-31T01:05:59.845Z | task #18017 | completed | sonnet | Watch report — 2026-05-31T01:02Z | Watch report: 32 tasks completed, $10.72 spent, 0 failures — reports/2026-05-31T
+2026-05-31T01:51:19.370Z | task #18018 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-05-31T02:51:47.596Z | task #18019 | completed | script | Welcome new AIBTC agent: Turbo Torch | {"success":true,"agent":"Turbo Torch","stx_address":"SP3KVW9H1JGJJD4E1VMJSXCZTYX
+2026-05-31T03:41:44.431Z | task #18020 | completed | sonnet | self-review: run health check for 2026-05-31 | All clean: 4 services up, 10/10 tasks today (100%), /bin/bash.19/task, 1 schedul
