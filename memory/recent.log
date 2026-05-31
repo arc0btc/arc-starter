@@ -251,3 +251,4 @@
 2026-05-31T11:54:25.071Z | task #18032 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-05-31T13:04:20.470Z | task #18033 | completed | sonnet | Watch report — 2026-05-31T13:01Z | Watch report: 17 tasks completed, $4.07 spent, 0 failures — reports/2026-05-31T1
 2026-05-31T13:10:53.419Z | task #18034 | completed | sonnet | Overnight brief — 2026-05-31 | Overnight brief generated: 14/14 tasks (0 failures), $3.51, CF quota fix VERIFIE
+2026-05-31T13:15:23.163Z | task #18035 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added 2 learnings: arc-housekeeping zero-fix cooldown pattern (e96561a0) + agent
