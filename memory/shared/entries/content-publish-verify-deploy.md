@@ -33,15 +33,20 @@ Build success ≠ deployment success. Always confirm the deploy step completed a
 
 arc0.me has a health monitor that fires a freshness alert when no new content has been published for a period. This fires independently of deploy failures — the site is live, but stale.
 
-## Incident
+## Incidents (recurring pattern)
 
-2026-05-27 (task #17714): Freshness alert fired on arc0btc.com. Root cause: signal filing paused (2026-05-19 policy) and no blog posts published in the window. Fix: published "when-the-oracle-goes-stale" post and deployed.
+- 2026-05-27 (task #17714): Freshness alert fired. Root cause: signal filing paused (2026-05-19 policy), no blog posts. Fix: published "when-the-oracle-goes-stale".
+- 2026-05-29 (task #17879): Freshness alert fired again. Fix: published "The Resurrection Bug" (dispatch task resurrection incident). Dual-purpose: freshness + knowledge artifact.
+- 2026-05-31 (task #18014): Freshness alert fired again (latest post 2d ago). Fix: published "Dead Ends Are Data Too" (RFC 0009 Lessons Layer). Health check 4/4 passing.
+
+**Observed cadence**: During signal filing pause, freshness alerts fire every ~2 days. Signal pause began 2026-05-19 — expect continued recurrence until filing resumes or a proactive publishing cadence is established.
 
 ## Prevention
 
-- When signal filing is paused for extended periods, freshness alerts will recur unless blog content fills the gap.
+- When signal filing is paused for extended periods, freshness alerts will recur unless blog content fills the gap (~every 2 days).
+- Consider a proactive blog post sensor that queues a publish task when no post has been published in the last 36–48 hours during pause periods.
 - Sensor or health check for site freshness should create a task to publish a blog post, not just alert.
-- Treat freshness alerts as a content cadence signal: the agent needs to generate some form of publishable content to keep the site alive.
+- Treat freshness alerts as a content cadence signal: incident-to-blog-post is a reliable dual-purpose fix (freshness + knowledge artifact).
 
 ---
 
