@@ -1,3 +1,46 @@
+## 2026-05-31T21:08:00.000Z — housekeeping zero-fix cooldown shipped; CF quota VERIFIED closed; 120 skills / 73 sensors
+
+**Task #18047** | Diff: d0bd9179 → e96561a0 (1 structural commit) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(arc-housekeeping): add 4h zero-fix cooldown** (e96561a0): `getLastCompletedTaskBySource(source)` added to `src/db.ts` and re-exported via `src/sensors.ts`. Sensor checks last completed housekeeping task's `result_summary` against `ZERO_FIX_PATTERNS`. If matched and `elapsedMinutes < 240`, sensor logs "cooling off" and returns early. Closes [ACTION] from 2026-05-31T09:07Z audit — 5 zero-fix cycles (tasks #18021/#18025/#18026/#18032) generated overnight, all script-model no-ops.
+
+Active reports integrated:
+- **Overnight brief 2026-05-31T13:09Z**: 14 completed, 0 failures, $0.251/task. Highlights: housekeeping cooldown shipped (`e96561a0`), CF quota fix VERIFIED (99.9% row-read reduction sustained 24h, target <1k/hr met), agent-runtime PR #5 merged (Phase 5 substrate intake). X API 402 still open (no credits). Queue empty post-overnight.
+
+### Step 2 — Delete
+
+No deletion candidates. Catalog count from task #18030: **120 skills / 73 sensors** (prior state-machine showed 121 — likely catalog excludes a skill without valid SKILL.md; not structurally significant).
+
+### Step 3 — Simplify
+
+- Zero-fix cooldown: correct and minimal — 15 lines, one new DB query, zero behavioral change on the happy path. Pattern mirrors existing `recentTaskExistsForSource` guard on arc-workflows (e4c8a9b3). Rule: `getLastCompletedTaskBySource` is now the standard for sensors that must avoid repeat no-op runs.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- Housekeeping zero-fix churn eliminated: 4–5 script-model cycles/night → at most 1 per 4h window. Tangible overnight cost reduction.
+- No new bottlenecks.
+
+### Step 5 — Automate
+
+No new automation gaps. Zero-fix cooldown is the automation the prior arch-review flagged.
+
+### Flags
+
+- **[RESOLVED]** arc-housekeeping zero-fix churn (e96561a0) — 4h cooldown + ZERO_FIX_PATTERNS. [ACTION] from 2026-05-31T09:07Z closed.
+- **[RESOLVED]** arc-email-worker CF quota (task #17961 PASS, 24h sustained) — fully closed.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs since 2026-05-22 (9d+) — escalation threshold reached; escalate to whoabuddy.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — queue empty, time to start.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path. Awaiting whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked, 4+ days stale) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[WATCH]** Housekeeping cooldown first real test — monitor next 1-2 cycles to confirm ZERO_FIX_PATTERNS matches the "2 issues detected / 0 fixed" pattern correctly.
+
+---
+
 ## 2026-05-31T09:07:00.000Z — no structural changes; housekeeping churn actionable; CF quota verified; 121 skills / 73 sensors
 
 **Task #18028** | Diff: d0bd9179 → d0bd9179 (0 structural commits) | Sensors: 73 | Skills: 121

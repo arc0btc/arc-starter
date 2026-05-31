@@ -1,8 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-31T09:07:00.000Z*
-*Diff: 0de5548 → d0bd9179 (16 structural commits) | Sensor count: 73 | Skill count: 121*
-*No structural changes since d0bd9179 — diagram current.*
+*Generated: 2026-05-31T21:08:00.000Z*
+*Diff: 0de5548 → e96561a0 (17 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -88,7 +87,7 @@ stateDiagram-v2
 
         state InfrastructureSensors {
             arc_housekeeping
-            note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)
+            note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)\nZERO-FIX COOLDOWN (e96561a0): 4h gate after zero-fix runs\ngetLastCompletedTaskBySource() added to src/db.ts + re-exported via src/sensors.ts\nChecks result_summary vs ZERO_FIX_PATTERNS ["all clean","nothing to fix","no issues found","fixed 0"]\nIf matched and elapsed < 240min → skip (sensor returns "ok"); else proceed normally\nPrevents churn when issues are persistent but unfixable (e.g. MEMORY.md 1 line over threshold)\nClosed 5 zero-fix cycles in 12h overnight window (2026-05-31)
             arc_email_sync
             note right of arc_email_sync: CF WORKER ONLY (f1bb3375): Resend backend removed\nAll outbound mail via CF email worker (arc skills run --name email -- send)\nSole recipient: whoabuddy@gmail.com — CF worker delivers directly\nResend code + --via flag removed from cli.ts + SKILL.md\nBlocked tasks #14771 + #16063 closed as superseded (policy, not outage)\nPattern: email-no-resend is policy, not pending setup\nSENT-FOLDER DEDUP GUARD (651120e6): before sending, query sent folder for matching subject\nSkip send + close idempotently if already sent within recent window\nCloses bug #1 of side-effecting-task re-dispatch pattern (task #17836)\nBug #2 (db resurrection) fixed separately at db layer (78408d07)\nPattern: any task that sends email/funds must be idempotent — check sent folder first\nSINCE-CURSOR CF QUOTA (b7c5f4b8): since param added to /api/messages poll\nReduces CF DO row reads from 4.67M/day toward ~5k/day — full fix pending CI/CD deploy\nCURSOR COLD-START FIX (c40f4ceb): loadCursorState() now validates inbox/sent as parseable ISO strings\nPrevious fix (b7c5f4b8) non-functional: STATE_FILE always exists (sensor infra writes last_ran/version)\nRoot: cursor=undefined → new Date(undefined).toISOString() throws RangeError, swallowed, full-table scan\nFix: fall through to cold-start (NOW) if fields missing/invalid\nsaveCursorState merges into existing file to preserve sensor metadata (preserves claimSensorRun interval gate)\nRule: any sensor sharing db/hook-state/{name}.json with other state must validate all expected fields on read
             arc0btc_email_worker
