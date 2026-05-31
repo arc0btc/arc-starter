@@ -653,6 +653,16 @@ export function completedTaskExistsForSourceSubstring(substring: string): boolea
   return row !== null;
 }
 
+export function getLastCompletedTaskBySource(source: string): { result_summary: string | null; completed_at: string | null } | null {
+  const db = getDatabase();
+  const row = db
+    .query(
+      "SELECT result_summary, completed_at FROM tasks WHERE source = ? AND status = 'completed' ORDER BY completed_at DESC LIMIT 1"
+    )
+    .get(source) as { result_summary: string | null; completed_at: string | null } | null;
+  return row ?? null;
+}
+
 export function recentTaskExistsForSource(source: string, withinMinutes: number): boolean {
   const db = getDatabase();
   const row = db

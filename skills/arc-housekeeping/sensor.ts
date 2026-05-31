@@ -1,4 +1,4 @@
-import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask, getLastCompletedTaskBySource } from "../../src/sensors.ts";
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -16,6 +16,9 @@ const LOCK_STALE_MINUTES = 60;
 const WAL_MAX_MB = 10;
 const MEMORY_MAX_LINES = 200;
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
+// After a zero-fix run, skip 2 sensor cycles before retrying (4h with 120min interval).
+const ZERO_FIX_COOLDOWN_MINUTES = 240;
+const ZERO_FIX_PATTERNS = ["all clean", "nothing to fix", "no issues found", "fixed 0"];
 const WORKTREES_DIR = join(ROOT, ".worktrees");
 const STALE_WORKTREE_HOURS = 6;
 
@@ -117,6 +120,22 @@ export default async function housekeepingSensor(): Promise<string> {
   if (issues.length === 0) return "ok";
 
   if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
+
+  // Zero-fix cooldown: if the last completed task fixed nothing, skip for ZERO_FIX_COOLDOWN_MINUTES.
+  // Prevents churn when issues are persistent but unfixable (e.g. MEMORY.md 1 line over threshold).
+  const lastCompleted = getLastCompletedTaskBySource(TASK_SOURCE);
+  if (lastCompleted?.result_summary && lastCompleted.completed_at) {
+    const summary = lastCompleted.result_summary.toLowerCase();
+    const wasZeroFix = ZERO_FIX_PATTERNS.some((p) => summary.includes(p));
+    if (wasZeroFix) {
+      const completedMs = new Date(lastCompleted.completed_at + "Z").getTime();
+      const elapsedMinutes = (Date.now() - completedMs) / 60_000;
+      if (elapsedMinutes < ZERO_FIX_COOLDOWN_MINUTES) {
+        log(`last run fixed nothing (${Math.round(elapsedMinutes)}min ago) — cooling off for ${ZERO_FIX_COOLDOWN_MINUTES}min`);
+        return "ok";
+      }
+    }
+  }
 
   insertTask({
     subject: `housekeeping: ${issues.length} issue(s) detected`,

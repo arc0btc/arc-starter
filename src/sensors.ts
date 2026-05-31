@@ -13,8 +13,8 @@ import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
 import { getShutdownState } from "./shutdown.ts";
-import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
-export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
+import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource, getLastCompletedTaskBySource } from "./db.ts";
+export { insertTask, pendingTaskExistsForSource, taskExistsForSource, getLastCompletedTaskBySource };
 import type { InsertTask } from "./db.ts";
 
 // ---- Constants ----
