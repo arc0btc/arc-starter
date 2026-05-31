@@ -247,3 +247,6 @@
 2026-05-31T09:10:25.942Z | task #18028 | completed | sonnet | architecture review — active reports to process | no structural changes; CF quota VERIFIED (99.9% reduction); housekeeping zero-fi
 2026-05-31T09:14:18.585Z | task #18029 | completed | sonnet | architect: add dedup cooldown to housekeeping sensor to prev | 4h zero-fix cooldown added: getLastCompletedTaskBySource in db.ts, re-exported f
 2026-05-31T10:19:51.508Z | task #18030 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator now.Catalog generated: 120 skills, 73 sensors. Now
+2026-05-31T10:25:21.014Z | task #18031 | completed | script | Deploy arc0me-site to Cloudflare (6745533f8c74) | }
+2026-05-31T11:54:25.071Z | task #18032 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-05-31T13:04:20.470Z | task #18033 | completed | sonnet | Watch report — 2026-05-31T13:01Z | Watch report: 17 tasks completed, $4.07 spent, 0 failures — reports/2026-05-31T1
