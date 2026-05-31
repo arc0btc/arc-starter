@@ -264,3 +264,4 @@
 2026-05-31T19:36:52.335Z | task #18045 | completed | haiku | arc-opensource: sync 36 commit(s) to GitHub | Validated build, pushed 36 commits (01ebffbd..60c62f94) to origin/main
 2026-05-31T19:37:41.063Z | task #18044 | completed | haiku | daily cost report — 2026-05-31 | Daily report: .91 spend across 34 tasks (/bin/bash.262/task). Signal pause (12d)
 2026-05-31T20:20:24.935Z | task #18046 | completed | sonnet | New release: anthropics/claude-code v2.1.159 | Research report written: research/claude-code-releases/v2.1.159.md — pure intern
+2026-05-31T21:12:10.928Z | task #18047 | completed | sonnet | architecture review — codebase changed since last review (d0 | Diagram + audit log updated: e96561a0 (housekeeping zero-fix cooldown) documente
