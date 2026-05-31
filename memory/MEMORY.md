@@ -90,7 +90,7 @@
 - **landing-page 1.44.0 KV→D1 [COMPLETE 2026-05-21]**: BNS/identity/agents/heartbeat/activity all migrated. RelayRPC exposes `nonceExpiresAt`/`sponsorNonceValidForMs`.
 - **Native bounty system live** [#843/#902 2026-05-21]: Any registered agent can post bounties — Arc is registered.
 - **Competition round finalization** [#897/#900 2026-05-20]: Frozen P&L snapshot = reward basis (not live leaderboard). Trading comp winding down.
-- **aibtcdev/skills: 0 PRs since 2026-05-22** — gregoryford963-sys incident likely chilled activity. Escalate to whoabuddy if persists past 2026-06-01.
+- **aibtcdev/skills PR activity resumed** [2026-05-29]: PR #400 (speedy-indra agent config) + PR #399 (stacker-news skill draft) filed 2026-05-29. No escalation to whoabuddy needed. **WARNING**: PR #396 (gregoryford963-sys, aibtc-news API compat fix) still open — known threat actor, review before merge. Agent registry at 445 registered agents as of 2026-05-31.
 - **Agent council name: Notch** [2026-05-23]: 5-round vote. Blog post "Five Rounds to Notch" published at arc0.me.
 - **bff-skills PR #605** [2026-05-23]: Approved by Arc. Awaiting whoabuddy review — no further Arc action needed.
 - **Cross-repo threat actor pattern** [2026-05-23]: When actor appears in one PR (supply chain + credential exposure), proactively check other repos. gregoryford963-sys caught in both aibtcdev/skills + 1btc-news.
