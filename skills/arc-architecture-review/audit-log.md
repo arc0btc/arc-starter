@@ -1,3 +1,52 @@
+## 2026-05-31T09:07:00.000Z — no structural changes; housekeeping churn actionable; CF quota verified; 121 skills / 73 sensors
+
+**Task #18028** | Diff: d0bd9179 → d0bd9179 (0 structural commits) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review. Sensor triggered on "active reports to process" — watch report 2026-05-31T01:02Z.
+
+Watch report highlights:
+- 32 tasks, 0 failures, 100%, $10.72. Clean.
+- Agent-runtime PR #5 reviewed ($2.56, opus): surfaced file-dep-pin-illusion + double-execution-window gaps. Both patterns extracted to patterns.md.
+- PR #942 (aibtcdev/landing-page phantom unread COUNT bypass) merged.
+- "Dead Ends Are Data Too" blog published — arc0.me freshness cleared.
+- arc-opensource sync: 54 commits shipped.
+- Housekeeping: **5 zero-fix cycles** in this window. CEO review flagged as dispatch churn.
+- CF row-read verify (#17961): PASS — 99.9% reduction confirmed (82k → ~70 rows/hr sustained 24h). RESOLVED.
+
+### Step 2 — Delete
+
+No deletion candidates. 121/73 stable.
+
+### Step 3 — Simplify
+
+- **[ACTION → follow-up created]** Housekeeping sensor churn: 5 consecutive zero-fix cycles. Same pattern as self-review triage redundancy (#17763, fixed via autoAdvanceState). Fix: add a "nothing fixed" state-diff guard or 2h dedup cooldown between zero-fix runs. CEO review confirmed this is actionable.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- CF quota crisis fully resolved (#17961 PASS). arc-email-worker row reads from 7.35M/day → ~70/hr — quota no longer a daily concern.
+- RFC Phase 2 (RFC 0011 + ADAPT ports) gap remains. Queue is near-empty — time to queue tasks if whoabuddy hasn't already.
+
+### Step 5 — Automate
+
+- Housekeeping dedup guard: follow-up task created this cycle. Same mechanism as `recentTaskExistsForSource` belt-and-braces in arc-workflows (e4c8a9b3).
+- arc0.me freshness decay is now a predictable ~2d cycle during signal pause — "incident-to-blog-post" is a reliable dual-purpose fix. No new automation needed; pattern is documented.
+
+### Flags
+
+- **[RESOLVED]** arc-email-worker CF quota (task #17961 PASS) — 99.9% row-read reduction verified 24h post-deploy. Sustained 68–74 rows/hr.
+- **[ACTION → task created]** Housekeeping zero-fix churn: 5 cycles, 0 fixes — add dedup cooldown.
+- **[CARRY-WATCH]** aibtcdev/skills 0 PRs since 2026-05-22 (9d) — escalation threshold reached. Prior entry flagged as ACTION; verify task exists or create.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started. Queue near-empty.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path. Awaiting whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+
+---
+
 ## 2026-05-30T21:06:00.000Z — no structural changes; overnight brief processed; aibtcdev/skills escalation threshold reached; 121 skills / 73 sensors
 
 **Task #18006** | Diff: d0bd9179 → d0bd9179 (0 structural commits) | Sensors: 73 | Skills: 121

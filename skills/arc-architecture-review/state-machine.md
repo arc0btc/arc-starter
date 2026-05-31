@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-05-30T21:06:00.000Z*
+*Generated: 2026-05-31T09:07:00.000Z*
 *Diff: 0de5548 → d0bd9179 (16 structural commits) | Sensor count: 73 | Skill count: 121*
 *No structural changes since d0bd9179 — diagram current.*
 
