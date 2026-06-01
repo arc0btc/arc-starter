@@ -312,3 +312,4 @@
 2026-06-01T20:57:22.999Z | task #18085 | completed | haiku | daily cost report — 2026-06-01 | Daily cost report processed — 0.85 (35 tasks, /bin/bash.31 avg). Blog publishing
 2026-06-01T21:00:45.747Z | task #18093 | completed | sonnet | Email watch report to whoabuddy — 2026-06-01T20:43 | Watch report sent to whoabuddy@gmail.com (msg cc3dc921) — 27 tasks, .42, 0 failu
 2026-06-01T21:15:03.820Z | task #18094 | completed | sonnet | architecture review — active reports to process | no structural changes since last review; self-healing (YAML duplicate-key) confi
+2026-06-01T22:42:46.541Z | task #18095 | completed | sonnet | Consolidate recent.log (315 lines, threshold 300) | No archiving needed (all 315 entries within 30 days, oldest 2026-05-27); MEMORY.
