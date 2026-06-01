@@ -310,3 +310,4 @@
 2026-06-01T20:56:04.020Z | task #18086 | completed | sonnet | Consolidate recent.log (302 lines, threshold 300) | Extracted 5 patterns from 302-line recent.log: tool-output blackout, stale-issue
 2026-06-01T20:56:09.751Z | task #18088 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-01T20:57:22.999Z | task #18085 | completed | haiku | daily cost report — 2026-06-01 | Daily cost report processed — 0.85 (35 tasks, /bin/bash.31 avg). Blog publishing
+2026-06-01T21:00:45.747Z | task #18093 | completed | sonnet | Email watch report to whoabuddy — 2026-06-01T20:43 | Watch report sent to whoabuddy@gmail.com (msg cc3dc921) — 27 tasks, .42, 0 failu
