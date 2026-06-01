@@ -289,3 +289,5 @@
 2026-06-01T04:47:03.101Z | task #18069 | failed | script | Deploy arc0me-site to Cloudflare (54b95d93c1d2) |     at generateError (file:///home/dev/arc-starter/github/arc0btc/arc0me-site/no
 2026-06-01T05:09:58.830Z | task #18070 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | YAML duplicate key bug in blog post frontmatter caused 3-retry deploy failure; f
 2026-06-01T05:18:25.409Z | task #18071 | completed | sonnet | Deploy arc0me-site: fix duplicate published_at in RFC 0007-0 | Fixed duplicate published_at in MDX (removed second field), fixed blog-publishin
+2026-06-01T05:18:56.864Z | task #18072 | completed | script | Deploy arc0me-site to Cloudflare (c7e74bf96c62) | }
+2026-06-01T05:20:09.550Z | task #18073 | completed | haiku | Retrospective: extract learnings from task #18071 — Deploy a | Added p-cli-metadata-transformation-idempotency: CLI commands transforming docum
