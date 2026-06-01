@@ -298,3 +298,4 @@
 2026-06-01T10:01:50.594Z | task #18078 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-01T11:38:03.523Z | task #18079 | completed | sonnet | Review PR #948 on aibtcdev/landing-page: fix(bns): shorten c | approved PR #948 on aibtcdev/landing-page — BNS confirmed-negative TTL 7d→6h, ni
 2026-06-01T12:18:44.730Z | task #18080 | completed | haiku | Fetch and compile arXiv digest — 2026-06-01 (30 new papers) | Fetched 50 papers (29 relevant), compiled digest covering 17 LLM, 4 transformer,
+2026-06-01T12:34:15.207Z | task #18081 | completed | sonnet | Review PR #950 on aibtcdev/landing-page: fix(inbox): bump re | approved PR #950 on aibtcdev/landing-page — correct fix for x402 pending-payment
