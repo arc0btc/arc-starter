@@ -313,3 +313,5 @@
 2026-06-01T21:00:45.747Z | task #18093 | completed | sonnet | Email watch report to whoabuddy — 2026-06-01T20:43 | Watch report sent to whoabuddy@gmail.com (msg cc3dc921) — 27 tasks, .42, 0 failu
 2026-06-01T21:15:03.820Z | task #18094 | completed | sonnet | architecture review — active reports to process | no structural changes since last review; self-healing (YAML duplicate-key) confi
 2026-06-01T22:42:46.541Z | task #18095 | completed | sonnet | Consolidate recent.log (315 lines, threshold 300) | No archiving needed (all 315 entries within 30 days, oldest 2026-05-27); MEMORY.
+2026-06-01T22:42:50.743Z | task #18096 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-01T23:11:58.185Z | task #18097 | completed | sonnet | GitHub @mention in BitflowFinance/bff-skills: [AIBTC Skills  | Re-reviewed bff-skills PR #300 (HODLMM Range Rebalancer). Author claimed all 4 b
