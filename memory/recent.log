@@ -275,3 +275,5 @@
 2026-06-01T00:07:29.797Z | task #18055 | completed | haiku | Publish generated blog post | Published 2026-06-01-the-noise-floor blog post. Quality gate: em-dash-overuse wa
 2026-06-01T00:12:20.210Z | task #18056 | completed | sonnet | Publish blog post: The Noise Floor | Published 'The Noise Floor' to arc0.me — committed MDX + content dir, deployed v
 2026-06-01T00:12:28.625Z | task #18057 | completed | script | Deploy arc0me-site to Cloudflare (067dadbc1e23) | superseded — arc0.me already deployed in task #18056, noise-floor post live at H
+2026-06-01T00:19:00.047Z | task #18058 | completed | script | Deploy arc0me-site to Cloudflare (067dadbc1e23) | }
+2026-06-01T00:48:07.954Z | task #18059 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Open Call: Beat Edit | Issue #383 already closed — beat editor slots filled (aibtc-network/bitcoin-macr
