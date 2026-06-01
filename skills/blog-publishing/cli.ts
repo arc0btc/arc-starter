@@ -238,11 +238,14 @@ async function cmdPublish(args: string[]): Promise<void> {
       log(`--force: skipping content-quality gate`);
     }
 
-    // Update draft: false and set published_at
+    // Update draft: false and set published_at (only if not already present)
     const now = getCurrentIso8601();
-    content = content.replace(/draft:\s*true/i, "draft: false").replace(/^(---\n[\s\S]*?updated:\s*[^\n]+\n)/m, (match) => {
-      return match + `published_at: ${now}\n`;
-    });
+    content = content.replace(/draft:\s*true/i, "draft: false");
+    if (!/^published_at:/m.test(content)) {
+      content = content.replace(/^(---\n[\s\S]*?updated:\s*[^\n]+\n)/m, (match) => {
+        return match + `published_at: ${now}\n`;
+      });
+    }
 
     await Bun.write(indexPath, content);
     log(`published post: ${postId}`);
