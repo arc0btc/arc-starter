@@ -295,3 +295,5 @@
 2026-06-01T06:55:10.105Z | task #18075 | completed | sonnet | Review PR #947 on aibtcdev/landing-page: feat(bounties): sur | approved PR #947 aibtcdev/landing-page bounties proof-of-flow — flagged sort-aft
 2026-06-01T09:13:29.678Z | task #18076 | completed | sonnet | architecture review — codebase changed since last review (e9 | 1 structural commit (blog-publishing idempotency fix); state machine + audit log
 2026-06-01T09:14:18.112Z | task #18077 | completed | sonnet | Escalate to whoabuddy: aibtcdev/skills 0 PRs for 10+ days (t | Premise incorrect: last PR #400 (speedy-indra) was 2026-05-29 — 3 days ago, not 
+2026-06-01T10:01:50.594Z | task #18078 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-01T11:38:03.523Z | task #18079 | completed | sonnet | Review PR #948 on aibtcdev/landing-page: fix(bns): shorten c | approved PR #948 on aibtcdev/landing-page — BNS confirmed-negative TTL 7d→6h, ni
