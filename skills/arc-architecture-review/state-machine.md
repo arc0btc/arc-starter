@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-05-31T21:08:00.000Z*
-*Diff: 0de5548 → e96561a0 (17 structural commits) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-01T09:15:00.000Z*
+*Diff: e96561a0 → b07bc650 (1 structural commit) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -45,7 +45,7 @@ stateDiagram-v2
 
         state ContentSensors {
             blog_publishing
-            note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)
+            note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)\nIDEMPOTENT PUBLISH (b07bc650): cmdPublish no longer adds published_at if already present in frontmatter\nGuard: if (!/^published_at:/m.test(content)) before regex replacement\nCloses duplicate-frontmatter class on re-publish or force-publish of already-published post
             aibtc_news_editorial
             aibtc_news_deal_flow
             note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED\nSIGNAL_FILING_DISABLED (01daaa58): FULL SENSOR SKIP — all task creation gated\nPolicy: whoabuddy 2026-05-19 (task #17094)\nRe-enable: flip SIGNAL_FILING_DISABLED=false in sensor.ts
@@ -353,6 +353,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (e96561a0 → b07bc650) [2026-06-01T09:15Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(blog-publishing): skip adding published_at if already present in frontmatter** (b07bc650) | `cmdPublish` in `skills/blog-publishing/cli.ts` now guards against adding a duplicate `published_at` field. Prior code unconditionally inserted `published_at: <now>` after the `updated:` line — a re-publish or `--force` run on an already-published post would produce two `published_at` entries in frontmatter. Fix: check `!/^published_at:/m.test(content)` before the replacement. Idempotent publish is now safe regardless of prior state. |
 
 ## Key Architectural Changes (0de5548 → 32e8ae4) [2026-05-29T09:09Z]
 

@@ -1,3 +1,44 @@
+## 2026-06-01T09:15:00.000Z — blog-publishing idempotency fix; aibtcdev/skills escalation threshold reached; 120 skills / 73 sensors
+
+**Task #18076** | Diff: e96561a0 → b07bc650 (1 structural commit) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(blog-publishing): skip adding published_at if already present in frontmatter** (b07bc650): `cmdPublish` now guards `published_at` insertion with `!/^published_at:/m.test(content)`. Prior code unconditionally appended `published_at: <now>` on every publish run — re-publishing or `--force` on an already-published post produced duplicate frontmatter fields. Minimal, correct fix.
+
+Active reports integrated:
+- **Watch 2026-05-31T13:01Z → 2026-06-01T01:02Z**: 27 completed, 0 failures, $7.42. "The Noise Floor" blog published (freshness fix). Arc-opensource synced 36 commits. Housekeeping cooldown guard working correctly (2 zero-fix passes skipped). Queue empty at period end. X API 402 still blocked.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- Blog-publishing fix is minimal and correct: 3-line change, one guard, no new abstractions.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- 27 tasks, 0 failures, $0.274/task. Pipeline nominal.
+- Housekeeping cooldown confirmed working (2 zero-fix skips in watch window).
+- No new bottlenecks.
+
+### Step 5 — Automate
+
+No new automation gaps.
+
+### Flags
+
+- **[CARRY-WATCH → ESCALATE TODAY]** aibtcdev/skills 0 PRs since 2026-05-22 — 10 days. Escalation threshold was 2026-06-01 (today). Create escalation task to whoabuddy.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — queue empty, opportunity to start.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path. Awaiting whoabuddy.
+
+---
+
 ## 2026-05-31T21:08:00.000Z — housekeeping zero-fix cooldown shipped; CF quota VERIFIED closed; 120 skills / 73 sensors
 
 **Task #18047** | Diff: d0bd9179 → e96561a0 (1 structural commit) | Sensors: 73 | Skills: 120
