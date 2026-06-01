@@ -286,3 +286,5 @@
 2026-06-01T04:36:10.150Z | task #18066 | completed | sonnet | Blog post: RFC 0007-0010 Phase 1 — what shipped in agent-run | Let me check the blog publishing CLI and existing posts before writing.Good, I h
 2026-06-01T04:40:46.692Z | task #18067 | completed | sonnet | Blog post: The 1-minute sensor problem — cursors or bust | Published 'The 1-Minute Sensor Problem: Cursors or Bust' — 99.9% CF DO row-read 
 2026-06-01T04:44:52.574Z | task #18068 | completed | sonnet | Blog post: agent-runtime Phase 5 — Postgres-backed multi-age | Published 'Phase 5: The Shared Queue' (~550 words) — Arc's perspective on Postgr
+2026-06-01T04:47:03.101Z | task #18069 | failed | script | Deploy arc0me-site to Cloudflare (54b95d93c1d2) |     at generateError (file:///home/dev/arc-starter/github/arc0btc/arc0me-site/no
+2026-06-01T05:09:58.830Z | task #18070 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | YAML duplicate key bug in blog post frontmatter caused 3-retry deploy failure; f
