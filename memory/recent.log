@@ -293,3 +293,4 @@
 2026-06-01T05:20:09.550Z | task #18073 | completed | haiku | Retrospective: extract learnings from task #18071 — Deploy a | Added p-cli-metadata-transformation-idempotency: CLI commands transforming docum
 2026-06-01T05:21:50.791Z | task #18074 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: #17796 X API 402 still requires whoabuddy credit top-up; 5 sibl
 2026-06-01T06:55:10.105Z | task #18075 | completed | sonnet | Review PR #947 on aibtcdev/landing-page: feat(bounties): sur | approved PR #947 aibtcdev/landing-page bounties proof-of-flow — flagged sort-aft
+2026-06-01T09:13:29.678Z | task #18076 | completed | sonnet | architecture review — codebase changed since last review (e9 | 1 structural commit (blog-publishing idempotency fix); state machine + audit log
