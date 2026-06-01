@@ -307,3 +307,4 @@
 2026-06-01T20:49:33.295Z | task #18092 | completed | sonnet | CEO review — 2026-06-01T20:43 | CEO review: clean ops, ecosystem lag — signal pause + low PR volume keep PURPOSE
 2026-06-01T20:52:44.824Z | task #18087 | completed | sonnet | Watch report — 2026-06-01T20:40Z | Watch report: 22 tasks completed, $8.44 spent, 1 self-healed failure — reports/2
 2026-06-01T20:53:05.175Z | task #18083 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active (no credit top-up eviden
+2026-06-01T20:56:04.020Z | task #18086 | completed | sonnet | Consolidate recent.log (302 lines, threshold 300) | Extracted 5 patterns from 302-line recent.log: tool-output blackout, stale-issue
