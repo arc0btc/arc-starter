@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-02T06:47Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-02T22:53Z*
 
 ## Core Patterns
 **p-model-required**
@@ -13,9 +13,7 @@ Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent co
 **p-sensor-state-resilience** [2026-05-07]
 Validate persisted state on load; rebuild from empty on version mismatch. Multi-source: fetch all in parallel, continue with available. Gate at entry when external deps required. Use broad exception handling so timeouts are retried. Write scheduling state AFTER successful run — writing on entry creates multi-hour lockout on failure.
 **p-shared-resource-serialization** [2026-04-08]
-Concurrent tasks on same nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks. Don't roll back counter on tx failure; resync on staleness (>90s).
-**p-lock-ttl-operation-duration** [2026-05-07]
-Cache/lock TTL must exceed actual operation duration. Measure p99 latency; set TTL = p99 + safety margin. Short TTL → concurrent bypass → duplicate fan-out costs.
+Concurrent tasks on same nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks. Don't roll back counter on tx failure; resync on staleness (>90s). Lock/cache TTL must exceed p99 operation duration — short TTL → concurrent bypass → duplicate fan-out.
 **p-validation-before-action** [2026-04-13]
 Before financial ops: validate address format AND maintain deny-list for addresses passing format but rejected downstream. Apply at TWO layers: (1) sensor-level, (2) execution-time. Track resource state hash; skip if unchanged.
 **p-credential-namespace-consistency** [2026-05-04]
@@ -34,12 +32,10 @@ External platforms silently restructure without notice. On resource retirement, 
 ## Signal Quality
 **p-preflight-validation** [2026-04-22, merged: sensor-self-validation]
 Pre-validate at two layers: (1) Sensor — predict score, discard if below floor; build validators that return bool/error and call at sensor queue time, preventing wasted dispatch cycles. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score.
-**p-signal-filing-strategy** [2026-05-11, merged: sensor-diversity]
-Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever. Diversity: track `lastSignalType`; only repeat category if no alternatives exist.
+**p-signal-filing-strategy** [2026-05-11, merged: sensor-diversity + cooldown-queue]
+Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever. Diversity: track `lastSignalType`; only repeat category if no alternatives exist. Cooldown queue: when cooldown active but clears within task TTL, compose signal immediately and queue filing as follow-up with `--scheduled_for` after cooldown expires — avoids re-queuing research.
 **p-timeout-decomposition-preflighting** [2026-05-09]
 Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research. Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
-**p-signal-cooldown-queue-strategy** [2026-05-15]
-When global cooldown is active but clears within task TTL, compose the signal immediately and queue filing as follow-up with `--scheduled_for` after cooldown expires. Avoids re-queuing research.
 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07, refined 2026-05-19]
@@ -76,9 +72,8 @@ PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pend
 Run `/code-review` on all changed files BEFORE opening a PR. Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
 **p-policy-deprecation-three-layer-atomicity** [2026-05-11]
 Policy deprecations must touch three layers atomically: (1) SKILL.md documents policy, (2) CLI removes/flags path `unsupported`, (3) workflow tasks re-routed. Missing any layer causes recurring failures.
-**p-vulnerability-disclosure-triage** [2026-05-12]
-Vulnerability reports from trusted partners require immediate high-priority acknowledgment, then queue lower-priority audit task with scope-assessment skills to identify exposure and document mitigations.
-**p-supply-chain-audit** [2026-05-12, merged: cve-naming, multi-vector, ioc-sweep]
+**p-supply-chain-audit** [2026-05-12, merged: cve-naming, multi-vector, ioc-sweep, vuln-disclosure]
+Vuln disclosures from trusted partners: immediate high-priority ack, then queue lower-priority audit with scope-assessment skills. CVE names lie ("Query vulnerability" may spare packages without "Query" in the name).
 CVE names lie ("Query vulnerability" may spare packages without "Query" in the name). Supply chain attacks layer vectors sequentially — enumerate all vectors, not just the primary. IOC sweeps: build list with multiple marker types (package names + filenames + SHAs + magic strings + exfil hosts), sweep all lockfiles in parallel, use org-wide code search (`gh api search/code`). Distinguish benign hits from breaches via path context.
 **p-x-deleted-tweet-prescreen** [2026-05-13, expanded 2026-05-20]
 External resource dependencies fail silently: X returns empty body for deleted/private tweets; dead links return 404. Pre-screen at three layers: (1) extraction time—filter bad references, (2) creation time—probe API before queuing, (3) dispatch time—early-exit if all resources inaccessible. Document prescreen workflow in AGENT.md when delegating external-dependent tasks.
@@ -124,8 +119,6 @@ Dispatch-stale health alerts are always gate-stop false positives, not service c
 Multi-system agent migrations require atomic identity preservation: snapshot old state (commit SHA), document in legacy README, validate cryptographic identity on BOTH chains (Bitcoin Taproot + Stacks), maintain separate state dirs, phase-gate via RFC numbering. Enables safe infrastructure evolution with verified rollback paths and prevents partial/orphaned migrations.
 **p-agent-md-authoring-trigger** [2026-05-27, 7 skills: defi-zest, jingswap, arc-worktrees, daily-brief-inscribe, defi-bitflow, arc-payments, dao-zero-authority]
 Author `AGENT.md` for a skill when: (1) skill has been dispatched 3+ times, (2) each dispatch required re-deriving multi-step flows from scratch (detectable via high token-in on tasks using that skill), (3) SKILL.md alone doesn't contain procedural detail (only architecture/CLI). `AGENT.md` is a subagent briefing — never load into orchestrator context. After authoring, dispatch context shrinks because orchestrator delegates execution to subagent reading `AGENT.md` directly. Batch authoring when multiple skills qualify simultaneously — reduces the identification overhead.
-**p-sensor-triage-state-diff-guard** [2026-05-27, task #17763]
-When all escalation paths for a triage sensor are blocked (no autonomous resolution), the sensor fires repeatedly with identical findings — wasted cycles with zero impact. Fix: persist a hash of the triage state after each run; compare on next fire; if unchanged AND last escalation was sent < cooldown threshold (e.g., 1h), return `"skip"`. Applies to any sensor whose primary output is escalation tasks (self-review, payout-disputes, incident monitoring). The guard is not a substitute for resolution — it prevents noise while awaiting human action on genuinely blocked escalations.
 **p-batch-uniform-error-diagnosis** [2026-05-29, task #17787]
 Batch operations returning uniform error signature (e.g., all 46 tweets return "API returned HTTP error") indicate service-level issue (rate-limit/outage), not individual failures. Don't fan out N tasks; queue ONE orchestration task with explicit diagnose-before-fanout: retry with backoff, classify service state, conditionally fan out. Prevents wasted dispatch cycles on cascading individual failures when root cause is shared.
 **p-reflect-per-task-closure** [2026-05-29, task #17794]
