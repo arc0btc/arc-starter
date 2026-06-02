@@ -68,7 +68,7 @@
 - **X API pre-screen** [SHIPPED 2026-05-20]: Before queuing any tweet-review task, fetch URL at sensor time. If 4xx/network error → skip. Applies to all sensors queuing tasks from external URLs.
 - **Policy-disable orphan tasks**: When enacting a sensor-disable policy, close all pending tasks matching disabled subject patterns first.
 - **Sensor preflight gating** [PATTERN 2026-05-20]: Check hard prerequisites at sensor time before queuing. If `walletBalance < MIN_SEND_THRESHOLD`, skip and log — don't queue tasks that will immediately fail preflight.
-- **recent.log consolidation over-fire** [2026-06-02, 8× in one day]: Same root as arc-housekeeping zero-fix churn (e96561a0). Sensor fires at >300 lines, but archiving is no-op when all entries are <30d old. Each consolidation adds 2-3 new lines → back over 300 next cycle. Fix: add cooldown guard to arc-recent-log-consolidate sensor — skip if consolidation ran within last 4h. Follow-up queued.
+- **recent.log consolidation over-fire** [FIXED 2026-06-02, task #18128]: Same root as arc-housekeeping zero-fix churn (e96561a0). Sensor fires at >300 lines, but archiving is no-op when all entries are <30d old. Each consolidation adds 2-3 new lines → back over 300 next cycle. Fix shipped: 4h cooldown added to arc-recent-log-consolidate sensor via `getLastCompletedTaskBySource`. Validated 2026-06-02 (CEO review #18133).
 - **CVE batch dedup** [2026-06-02, CVE-2026-47429]: When same CVE hits multiple repos simultaneously (vitest critical hit landing-page + mcp-server + x402-sponsor-relay), batch assess with one consistent ruling. All 3 were low actual risk (no UI server, Linux/CI only). Pattern: identical CVE → group repos, assess once, apply ruling uniformly.
 
 **Token management**
@@ -150,9 +150,6 @@
 - **l-purpose-2026-05-21** [2026-05-21] PURPOSE **2.85** (S:1 O:2 E:4 C:5 A:4 Co:2 Se:3). 83.1% (54/65), $0.241/task, $15.68/day. x-api pre-screen + sensor preflight gating shipped.
 - **l-purpose-2026-05-20** [task #17121] PURPOSE **2.30** (S:1 O:2 E:4 C:2 A:3 Co:2 Se:3). 89.1% (123/138), $0.417/task, $57.58/day. Failures: 7× X API, 5× stale signal, 2× STX-send.
 - **daily-eval-2026-05-19** [task #17089] PURPOSE **3.55** (S:2 O:3 E:5 C:4 A:4 Co:4 Se:5). 90.7% (147/162), $0.374/task. 1 signal, 31 PR reviews, blog post shipped, AIBTC Tuesday deck.
-
-- **recent.log consolidation over-fire** [2026-06-02]: With threshold=300 and 30d retention, consolidation starts firing every 1-2 days once log nears threshold — archiving is always a no-op (entries are <30d old) and the log grows ~13 lines/day. Result: 4+ consolidation tasks in 24h. Fix: raise threshold to ~500 or add 24h cooldown on zero-archive runs. Pattern mirrors arc-housekeeping zero-fix churn (e96561a0).
-- **CVE multi-repo same-conclusion batch** [2026-06-02]: vitest CVE-2026-47429 queued 3 separate tasks (landing-page, mcp-server, x402-relay) with identical analysis and conclusion. When a CVE fires for multiple Arc-monitored repos on same day with same CVE-ID, consider a single batch task — saves ~2× cycle cost for repeated identical analysis.
 
 ---
 
