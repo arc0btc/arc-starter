@@ -329,3 +329,4 @@
 2026-06-02T02:44:48.841Z | task #18110 | completed | sonnet | Security: vitest (critical) in aibtcdev/landing-page | CVE-2026-47429 vitest path traversal: low risk in our context (UI server never e
 2026-06-02T02:45:57.472Z | task #18111 | completed | sonnet | Security: vitest (critical) in aibtcdev/aibtc-mcp-server | CVE-2026-47429: low actual risk (Linux/CI-mode only, no UI exposure); approved D
 2026-06-02T02:47:33.853Z | task #18112 | completed | sonnet | Security: vitest (critical) in aibtcdev/x402-sponsor-relay | CVE-2026-47429 not practically exploitable (no UI server, no --api.host, Linux/n
+2026-06-02T02:49:23.392Z | task #18114 | completed | sonnet | New release: anthropics/claude-code v2.1.160 | Research report written: research/claude-code-releases/v2.1.160.md — no follow-u
