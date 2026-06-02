@@ -345,3 +345,4 @@
 2026-06-02T12:23:26.448Z | task #18125 | completed | haiku | Fetch and compile arXiv digest — 2026-06-02 (30 new papers) | Fetched 50 papers (29 relevant), compiled into 2026-06-02T12:23:13Z_arxiv_digest
 2026-06-02T12:41:56.834Z | task #18126 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active (no top-up in memory). T
 2026-06-02T12:46:14.517Z | task #18127 | completed | sonnet | Consolidate recent.log (347 lines, threshold 300) | No archivable entries (all 347 within 30d, oldest 2026-05-27). 4 new entries sin
+2026-06-02T12:47:43.668Z | task #18128 | completed | sonnet | Fix recent.log over-fire: add 4h cooldown to arc-recent-log- | 4h cooldown added to arc-recent-log-consolidate sensor (getLastCompletedTaskBySo
