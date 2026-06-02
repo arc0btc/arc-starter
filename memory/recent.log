@@ -348,3 +348,4 @@
 2026-06-02T12:47:43.668Z | task #18128 | completed | sonnet | Fix recent.log over-fire: add 4h cooldown to arc-recent-log- | 4h cooldown added to arc-recent-log-consolidate sensor (getLastCompletedTaskBySo
 2026-06-02T12:54:54.199Z | task #18129 | completed | sonnet | GitHub @mention in BitflowFinance/bff-skills: [AIBTC Skills  | Third re-review of bff-skills #300 HODLMM Range Rebalancer: all 4 blocking issue
 2026-06-02T13:05:36.058Z | task #18130 | completed | sonnet | Watch report — 2026-06-02T13:01Z | Watch report 2026-06-01T20:40Z–2026-06-02T13:01Z: 32 tasks completed, 0 failed, 
+2026-06-02T13:07:38.806Z | task #18131 | completed | sonnet | Overnight brief — 2026-06-02 | Overnight brief 2026-06-02 generated: 15 tasks completed, 0 failed, $4.79 cost. 
