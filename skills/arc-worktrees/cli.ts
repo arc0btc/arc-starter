@@ -12,7 +12,7 @@
  *   remove --name NAME        Discard worktree and its branch
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { captureBaseline, evaluateExperiment } from "../../src/experiment.ts";
 
@@ -97,13 +97,14 @@ async function cmdCreate(name: string): Promise<void> {
   }
 
   for (const [target, link] of symlinks) {
-    try { unlinkSync(link); } catch { /* doesn't exist */ }
     try {
-      const entries = readdirSync(link);
-      if (entries.length === 0 || (entries.length === 1 && entries[0] === "arc.db")) {
+      const stat = lstatSync(link);
+      if (stat.isDirectory()) {
         await run("rm", ["-rf", link]);
+      } else {
+        unlinkSync(link);
       }
-    } catch { /* not a directory */ }
+    } catch { /* doesn't exist, safe to proceed */ }
     symlinkSync(target, link);
   }
 

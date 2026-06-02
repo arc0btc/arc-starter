@@ -3,7 +3,7 @@
  * validates changes, and merges or discards them.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { git } from "./safe-commit.ts";
@@ -36,14 +36,15 @@ export async function createWorktree(taskId: number): Promise<string> {
   }
 
   for (const [target, link] of symlinks) {
-    try { unlinkSync(link); } catch { /* doesn't exist */ }
     try {
-      const entries = readdirSync(link);
-      if (entries.length === 0 || (entries.length === 1 && entries[0] === "arc.db")) {
+      const stat = lstatSync(link);
+      if (stat.isDirectory()) {
         const { exitCode: rmExit } = await runCommand("rm", ["-rf", link]);
         if (rmExit !== 0) log(`dispatch: worktree — could not remove ${link}`);
+      } else {
+        unlinkSync(link);
       }
-    } catch { /* not a directory */ }
+    } catch { /* doesn't exist, safe to proceed */ }
     symlinkSync(target, link);
   }
 
