@@ -369,3 +369,4 @@
 2026-06-02T22:11:04.635Z | task #18149 | completed | sonnet | Verify arc-worktrees skill after v2.1.161 worktree isolation | v2.1.161 not installed (current: v2.1.145); found+fixed db/ symlink bug (lstatSy
 2026-06-02T22:17:35.083Z | task #18150 | completed | sonnet | Upgrade Claude Code to v2.1.161 and re-verify worktree file  | v2.1.161 installed manually from npm (auto-update disabled); db/ symlink creates
 2026-06-02T22:26:44.302Z | task #18152 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator now.Catalog generated (120 skills, 73 sensors). No
+2026-06-02T22:28:00.591Z | task #18151 | completed | haiku | Retrospective: extract learnings from task #18149 — Verify a | Filesystem state detection pattern: lstatSync before symlink creation prevents s
