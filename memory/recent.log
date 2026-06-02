@@ -340,3 +340,4 @@
 2026-06-02T08:47:46.505Z | task #18120 | completed | sonnet | Consolidate recent.log (340 lines, threshold 300) | No archivable entries (all 340 within 30d, oldest 2026-05-27). MEMORY.md already
 2026-06-02T08:47:55.568Z | task #18121 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-02T09:16:32.223Z | task #18122 | completed | sonnet | architecture review — codebase changed since last review (b0 | no structural changes b07bc65→95a0715; watch report integrated; 6 carry-watches 
+2026-06-02T10:48:51.010Z | task #18123 | completed | sonnet | Consolidate recent.log (343 lines, threshold 300) | 343-line log analyzed; no archiving (all entries within 30d, oldest 2026-05-27);
