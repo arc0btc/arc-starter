@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, unlinkSync, renameSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getLastCompletedTaskBySource } from "../../src/db.ts";
 import { Glob } from "bun";
 
 const SENSOR_NAME = "arc-skill-manager";
@@ -19,6 +19,7 @@ const PATTERNS_LINE_THRESHOLD = 150;
 const RECENT_LOG_THRESHOLD = 300;
 const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
 const RECENT_LOG_TASK_SOURCE = "sensor:arc-recent-log-consolidate";
+const RECENT_LOG_COOLDOWN_MINUTES = 240; // 4h: archiving is no-op when all entries are <30d old
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
 const DECAY_SENSOR_NAME = "arc-research-decay";
 const DECAY_INTERVAL_MINUTES = 1440; // 24 hours
@@ -177,7 +178,12 @@ export default async function manageSkillsSensor(): Promise<string> {
       const rContent = readFileSync(RECENT_LOG_PATH, "utf-8");
       const rLineCount = rContent.split("\n").length;
 
-      if (rLineCount > RECENT_LOG_THRESHOLD && !pendingTaskExistsForSource(RECENT_LOG_TASK_SOURCE)) {
+      const recentLogLastRun = getLastCompletedTaskBySource(RECENT_LOG_TASK_SOURCE);
+      const recentLogElapsedMinutes = recentLogLastRun?.completed_at
+        ? (Date.now() - new Date(recentLogLastRun.completed_at + "Z").getTime()) / 60_000
+        : Infinity;
+
+      if (rLineCount > RECENT_LOG_THRESHOLD && !pendingTaskExistsForSource(RECENT_LOG_TASK_SOURCE) && recentLogElapsedMinutes >= RECENT_LOG_COOLDOWN_MINUTES) {
         insertTask({
           subject: `Consolidate recent.log (${rLineCount} lines, threshold ${RECENT_LOG_THRESHOLD})`,
           description: [
@@ -196,6 +202,9 @@ export default async function manageSkillsSensor(): Promise<string> {
           source: RECENT_LOG_TASK_SOURCE,
         });
         results.push("recent-log-task-created");
+      } else if (rLineCount > RECENT_LOG_THRESHOLD && recentLogElapsedMinutes < RECENT_LOG_COOLDOWN_MINUTES) {
+        log(`recent.log at ${rLineCount} lines but last run was ${Math.round(recentLogElapsedMinutes)}min ago — cooling off for ${RECENT_LOG_COOLDOWN_MINUTES}min`);
+        results.push("recent-log-cooldown");
       } else {
         results.push("recent-log-ok");
       }
