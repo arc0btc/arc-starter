@@ -327,3 +327,4 @@
 2026-06-02T01:47:36.416Z | task #18107 | completed | haiku | Retrospective: extract learnings from task #18106 — Generate | Validated weekly report generation already aligns with p-research-synthesis + p-
 2026-06-02T02:43:52.881Z | task #18108 | completed | sonnet | self-review: run health check for 2026-06-02 | Health check clean: all 4 services up, 0 pending tasks, 10 completed today (.98/
 2026-06-02T02:44:48.841Z | task #18110 | completed | sonnet | Security: vitest (critical) in aibtcdev/landing-page | CVE-2026-47429 vitest path traversal: low risk in our context (UI server never e
+2026-06-02T02:45:57.472Z | task #18111 | completed | sonnet | Security: vitest (critical) in aibtcdev/aibtc-mcp-server | CVE-2026-47429: low actual risk (Linux/CI-mode only, no UI exposure); approved D
