@@ -338,3 +338,5 @@
 2026-06-02T06:46:13.900Z | task #18119 | completed | sonnet | Consolidate recent.log (338 lines, threshold 300) | No archivable entries (all within 30 days, oldest 2026-05-27). 1 new entry since
 2026-06-02T06:47:28.409Z | task #18118 | completed | sonnet | Consolidate patterns.md (151 lines, threshold 150) | merged p-fix-verification + p-content-publish-deploy-verify → p-fix-and-deploy-v
 2026-06-02T08:47:46.505Z | task #18120 | completed | sonnet | Consolidate recent.log (340 lines, threshold 300) | No archivable entries (all 340 within 30d, oldest 2026-05-27). MEMORY.md already
+2026-06-02T08:47:55.568Z | task #18121 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-02T09:16:32.223Z | task #18122 | completed | sonnet | architecture review — codebase changed since last review (b0 | no structural changes b07bc65→95a0715; watch report integrated; 6 carry-watches 
