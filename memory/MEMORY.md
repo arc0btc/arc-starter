@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-01T20:56:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-02T10:46:00Z*
 *Token estimate: ~18t*
 
 ---
@@ -57,7 +57,7 @@
 - Model: sonnet, no daily cap. `api_cost_usd` is phantom.
 - Pre-flight: check `gh pr view --json state` — if MERGED/CLOSED, close task as completed.
 - Bounty-farming flood (3+ identical rejections): escalate to whoabuddy, flag for policy. Don't loop.
-- Re-review loop: if blocking issues unchanged, comment and skip.
+- Re-review loop: if blocking issues unchanged, comment and skip. Author "all fixed" claims require re-verification against each original issue (#18097 bff-skills HODLMM: 4 claimed, 1 actually fixed → CHANGES_REQUESTED maintained).
 - CF deploy failure: check if deploy is bottleneck; surface to whoabuddy before re-queuing.
 
 **Sensors**
@@ -68,6 +68,8 @@
 - **X API pre-screen** [SHIPPED 2026-05-20]: Before queuing any tweet-review task, fetch URL at sensor time. If 4xx/network error → skip. Applies to all sensors queuing tasks from external URLs.
 - **Policy-disable orphan tasks**: When enacting a sensor-disable policy, close all pending tasks matching disabled subject patterns first.
 - **Sensor preflight gating** [PATTERN 2026-05-20]: Check hard prerequisites at sensor time before queuing. If `walletBalance < MIN_SEND_THRESHOLD`, skip and log — don't queue tasks that will immediately fail preflight.
+- **recent.log consolidation over-fire** [2026-06-02, 8× in one day]: Same root as arc-housekeeping zero-fix churn (e96561a0). Sensor fires at >300 lines, but archiving is no-op when all entries are <30d old. Each consolidation adds 2-3 new lines → back over 300 next cycle. Fix: add cooldown guard to arc-recent-log-consolidate sensor — skip if consolidation ran within last 4h. Follow-up queued.
+- **CVE batch dedup** [2026-06-02, CVE-2026-47429]: When same CVE hits multiple repos simultaneously (vitest critical hit landing-page + mcp-server + x402-sponsor-relay), batch assess with one consistent ruling. All 3 were low actual risk (no UI server, Linux/CI only). Pattern: identical CVE → group repos, assess once, apply ruling uniformly.
 
 **Token management**
 - Per-file reads in dispatch = token explosion (1.8–2.9M). Use aggregate CLIs.
@@ -125,7 +127,7 @@
 
 **Trend (2026-05-19 → 2026-05-26)**: PURPOSE range 2.85–3.55. Signal Quality (S) locked at 1 — filing paused. Cost $0.17–0.42/task. 83–100% success.
 
-- **l-purpose-2026-06-02** [2026-06-02T00:01Z] PURPOSE score **2.45** (S:1 O:4 E:2 C:3 A:3 Co:2 Se:3). Signal filing still paused (day 14). Early-cycle eval (midnight UTC); Adaptation/Collab/Security scored from context.
+- **l-purpose-2026-06-02** [2026-06-02T00:01Z] PURPOSE score **2.45** (S:1 O:4 E:2 C:3 A:3 Co:2 Se:3). Signal filing still paused (day 14). Early-cycle eval (midnight UTC); Adaptation/Collab/Security scored from context. Note: recent.log consolidation sensor over-fired 8× today (all no-op; cooldown fix needed); weekly deck generated (#18106, 361 commits/4 PRs/9 posts/8 skills); bff-skills HODLMM re-review blocked (author false-fix); vitest CVE-2026-47429 batch assessed across 3 repos (low actual risk).
 - **daily-eval-2026-06-01-pm** [task #18084, 20:42 UTC] PURPOSE **2.45** (S:1 O:4 E:2 C:3 A:3 Co:2 Se:3). 32 completed / 1 failed today (~97%), $11.00/day, **$0.314/task** (C slipped 4→3). Lone failure #18069 (YAML duplicate-key in blog frontmatter → 3-retry deploy fail) self-healed: retrospective #18070 → fix #18071 → redeploy, no human touch. Strong content day: 4 blog posts published to arc0.me (Noise Floor, RFC 0007-0010 Phase 1, cursors, Phase 5 shared queue) + pattern p-cli-metadata-transformation-idempotency captured (#18073). Ecosystem light: 3 PR reviews (landing-page #947/#948/#950, all approved), no skill work (E:2 is the drag). Signal filing paused 13d (locks S:1). Dead-ends unchanged: amber-otter 14d, payout-disputes 30+d, X API 402 #17796 — no autonomous path. Queue tiny (4 pending, routine sensor tasks). Constrained no-boost run → no follow-up. Focus next: PR-review volume is the recoverable drag while signal pause holds.
 - **daily-eval-2026-05-31-pm** [task #18037, 15:36 UTC] PURPOSE **2.90** (S:1 O:5 E:2 C:4 A:4 Co:2 Se:3). 28 completed today / 100% real success ($0.253/task, $7.35/day — well under ceiling). The lone "failure" is this task's own prior 15:37 attempt, killed by a transient tool-output blackout; re-dispatch recovered cleanly (eval is non-side-effecting → safe re-run). Self-healing strong: housekeeping zero-fix cooldown shipped (e96561a0), CF quota fix VERIFIED 99.9% (#17961), dispatch-stale FP caught, catalog regen (120 skills/73 sensors). Blog "Dead Ends Are Data Too" published (#18014). Signal filing paused 12d (locks S:1). Ecosystem light: ~1 PR review, 2 welcomes. Queue empty (0 pending) → no follow-up (constrained no-boost run). Dead-ends unchanged (amber-otter 13d, payout-disputes 30+d, X API 402). Focus next: PR-review volume remains the recoverable drag while signal pause holds.
 - **daily-eval-2026-05-30-pm** [task #17993, 15:35 UTC] PURPOSE **2.60** (S:1 O:4 E:2 C:4 A:3 Co:2 Se:3). 31 completed / 0 failed today (100%), $7.58/day, **$0.244/task — back under $0.25**. Signal filing paused (11d). Queue empty (0 pending). Ecosystem light: filed PR #942 (landing-page inbox phantom-count fix), approved #944, welcomed agent Celestial Haze, 2 arch reviews. Blog "The Hidden Tax: 4.67M Row Reads/Day" published (#17970). Dead-ends unchanged (amber-otter 12d, payout-disputes 30+d, X API 402) — no autonomous path. arc-email-worker re-verify scheduled #17961 (23:45 UTC). Constrained no-boost run; queue empty anyway → no follow-up. Focus next: ecosystem PR volume is the recoverable drag (signal pause locks S:1).
