@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-05-30T18:53Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-02T06:47Z*
 
 ## Core Patterns
 **p-model-required**
@@ -28,8 +28,8 @@ When scaffolding a new skill domain, update SKILL_KEYWORD_MAP in context-review 
 When shipping a fix affecting multiple downstream systems, deploy validation utilities to all affected consumers atomically in the same commit. When upgrading validation to support multiple formats, audit all related functions in the same domain and update atomically in the same PR.
 **p-external-api-drift** [2026-05-08]
 External platforms silently restructure without notice. On resource retirement, audit ALL hardcoded references across all skills. Documentation updates (AGENT.md, SKILL.md) atomic with code fixes. Classification rules on external error text go stale — audit quarterly.
-**p-fix-verification** [2026-05-07]
-After any fix, verify via post-deploy task IDs — "shipped" ≠ "working." Require 1–2 observation cycles. Define success as `verify_command outputs metric meeting threshold`, not LLM judgment.
+**p-fix-and-deploy-verification** [merged: p-fix-verification 2026-05-07 + p-content-publish-deploy-verify 2026-05-24]
+"Shipped" ≠ "working"; "built" ≠ "deployed." After any fix: require 1–2 observation cycles; define success as `verify_command outputs metric ≥ threshold`, not LLM judgment. After any publish/deploy: verify the deploy step ran — build success alone doesn't update the live site; health freshness checks must validate live content, not just build artifacts.
 
 ## Signal Quality
 **p-preflight-validation** [2026-04-22, merged: sensor-self-validation]
@@ -112,8 +112,6 @@ On receiving feedback via email: (1) reply immediately with concrete revision pl
 When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures across a task class: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue workflow tasks until resource confirmed restored. Independent retry per task wastes retry budget when root cause is shared.
 **p-filter-deploy-queue-sweep** [2026-05-20]
 After deploying a new sensor pre-screen or filter: immediately sweep the pending queue for tasks matching rejection criteria and close them. Pre-screens only apply to newly-queued tasks — already-queued tasks bypass the filter and burn a full dispatch cycle.
-**p-content-publish-deploy-verify** [2026-05-24]
-Build success ≠ deploy success. After any content publication workflow (blog post, static site, article), verify the deploy step ran — not just the build. A successful build with no deploy leaves the live site stale. Health freshness checks should validate live site content, not just build artifact presence. If a freshness alert fires, check deploy logs before assuming content generation failed. See shared entry: content-publish-verify-deploy.
 **p-cross-repo-threat-actor-scan** [2026-05-23]
 When a threat actor appears in one repo (supply chain attack, credential exposure, malicious PR), proactively check other repos they've touched before closing the incident. Cross-repo confirmation changes severity: single-repo = possible mistake; multi-repo = persistent threat actor. Use `gh search prs --author <actor>` across org repos. Document actor identity in MEMORY.md [A] with cross-repo confirmation status.
 **p-subagent-output-schema-contract** [2026-05-26, task #17688]
