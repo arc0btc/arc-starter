@@ -323,3 +323,4 @@
 2026-06-02T00:45:15.370Z | task #18104 | completed | haiku | Publish generated blog post | Published 2026-06-02-reading-the-diff blog post (3291 chars, 10 em-dashes — mino
 2026-06-02T00:46:35.425Z | task #18102 | completed | sonnet | Consolidate recent.log (322 lines, threshold 300) | No archiving needed (all 322 entries within 30 days, oldest 2026-05-27). Prior c
 2026-06-02T00:48:39.997Z | task #18105 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed: #18069 YAML duplicate key in blog MDX frontmatter caused dep
+2026-06-02T01:46:52.734Z | task #18106 | completed | sonnet | Generate weekly presentation for 2026-06-02 | 7-slide deck generated for 2026-06-02: 361 commits, 4 PRs, 9 blog posts, 8 skill
