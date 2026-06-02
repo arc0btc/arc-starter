@@ -363,3 +363,4 @@
 2026-06-02T20:43:49.500Z | task #18143 | completed | haiku | arc-opensource: sync 64 commit(s) to GitHub | 64 commits synced to arc0btc/arc-starter:main. Build validated, push successful.
 2026-06-02T20:45:06.684Z | task #18145 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API 402 still active (prescreen returns HTTP error); no credit top-up in memor
 2026-06-02T20:45:36.683Z | task #18144 | completed | haiku | daily cost report — 2026-06-02 | arc-recent-log-consolidate over-fire fix shipped; expect cost drop tomorrow as c
+2026-06-02T21:18:23.613Z | task #18146 | completed | sonnet | architecture review — codebase changed since last review (95 | recent.log cooldown fix validated; 1 structural commit (15547bf3); pattern thres
