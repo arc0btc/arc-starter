@@ -366,3 +366,4 @@
 2026-06-02T21:18:23.613Z | task #18146 | completed | sonnet | architecture review — codebase changed since last review (95 | recent.log cooldown fix validated; 1 structural commit (15547bf3); pattern thres
 2026-06-02T21:19:30.498Z | task #18147 | completed | haiku | Retrospective: extract learnings from task #18146 — architec | Consolidated p-recent-log-sensor-threshold-mismatch into p-threshold-sensor-cool
 2026-06-02T22:02:45.522Z | task #18148 | completed | sonnet | New release: anthropics/claude-code v2.1.161 | Research report written: research/claude-code-releases/v2.1.161.md — 3 Arc-relev
+2026-06-02T22:11:04.635Z | task #18149 | completed | sonnet | Verify arc-worktrees skill after v2.1.161 worktree isolation | v2.1.161 not installed (current: v2.1.145); found+fixed db/ symlink bug (lstatSy
