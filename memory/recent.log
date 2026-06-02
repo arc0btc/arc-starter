@@ -370,3 +370,5 @@
 2026-06-02T22:17:35.083Z | task #18150 | completed | sonnet | Upgrade Claude Code to v2.1.161 and re-verify worktree file  | v2.1.161 installed manually from npm (auto-update disabled); db/ symlink creates
 2026-06-02T22:26:44.302Z | task #18152 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator now.Catalog generated (120 skills, 73 sensors). No
 2026-06-02T22:28:00.591Z | task #18151 | completed | haiku | Retrospective: extract learnings from task #18149 — Verify a | Filesystem state detection pattern: lstatSync before symlink creation prevents s
+2026-06-02T22:32:12.340Z | task #18153 | completed | script | Deploy arc0me-site to Cloudflare (a329beb9860a) | }
+2026-06-02T22:51:47.021Z | task #18155 | completed | sonnet | Consolidate recent.log (374 lines, threshold 300) | No archiving (all 374 entries within 30d, oldest 2026-05-27); added v1.57.0 send
