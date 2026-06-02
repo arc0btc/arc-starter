@@ -356,3 +356,5 @@
 2026-06-02T16:04:01.199Z | task #18136 | completed | sonnet | Review PR #556 on aibtcdev/aibtc-mcp-server: Deprecate spons | approved PR #556 aibtcdev/aibtc-mcp-server — sponsored inbox deprecation is corr
 2026-06-02T16:34:36.345Z | task #18137 | completed | script | Welcome new AIBTC agent: Turbo Ivo | {"success":true,"agent":"Turbo Ivo","stx_address":"SP1TCFRBC7TWEFDRJHFCNK7CKTFTB
 2026-06-02T16:49:25.992Z | task #18138 | completed | sonnet | Consolidate recent.log (358 lines, threshold 300) | No archivable entries (all 358 within 30d, oldest 2026-05-27). Marked recent.log
+2026-06-02T16:50:33.601Z | task #18139 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-02T17:07:28.744Z | task #18140 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.57.0 | v1.57.0 formally deprecates send_inbox_message; Arc already on direct path (v1.5
