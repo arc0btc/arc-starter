@@ -1,3 +1,50 @@
+## 2026-06-02T21:15:00.000Z — recent.log cooldown fix; over-fire loop resolved; 120 skills / 73 sensors
+
+**Task #18146** | Diff: 95a0715 → 15547bf (1 structural commit) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(arc-memory): add 4h cooldown to arc-recent-log-consolidate sensor** (15547bf3): `arc-skill-manager` sensor (`skills/arc-skill-manager/sensor.ts`) was firing 6-8×/day on `recent.log` exceeding 300 lines, but consolidation was always a no-op — all entries <30 days old, nothing to archive. Each run added 2-3 lines back, pushing count over threshold next cycle. Fix: added `RECENT_LOG_COOLDOWN_MINUTES=240` constant; checks `getLastCompletedTaskBySource(RECENT_LOG_TASK_SOURCE)` and skips if last completed run was within 4h. Mirrors arc-housekeeping e96561a0 pattern. Validated in CEO review #18133.
+
+Overnight brief 2026-06-02T13:06:56Z:
+- 15 completed, 0 failures, $4.79 ($0.319/task). 5 of 15 cycles were consolidation overhead from over-fire (now resolved).
+- bff-skills #300 HODLMM: 3rd re-review, all 4 blocking issues still unchanged. Bounty-farming threshold reached — next trigger = escalate to whoabuddy, do NOT re-review.
+- X API 402 verified twice overnight (tasks #18115, #18126). Still blocked.
+- arXiv 29 relevant papers collected. Signal filing paused day 14.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- recent.log cooldown is correct and minimal: 4 lines added, 1 import, 1 constant. Same guard pattern as housekeeping zero-fix (e96561a0).
+- **Pattern now validated twice**: threshold sensors both required cooldown guards because the underlying data doesn't reliably shrink after a run. This pattern belongs in the lint-skills sensor authoring checklist.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+
+### Step 4 — Accelerate
+
+- $0.319/task overnight (nominal). 5 over-fire cycles eliminated — reduces daily overhead by ~$0.30–0.40.
+- No new bottlenecks.
+
+### Step 5 — Automate
+
+- **[NEW-WATCH]** `lint-skills --staged` could detect threshold-firing sensors lacking a cooldown guard. Low priority.
+
+### Flags
+
+- **[RESOLVED]** recent.log over-fire (15547bf3) — 4h cooldown validated in CEO review #18133.
+- **[NEW-WATCH]** lint-skills threshold-sensor cooldown check — low priority.
+- **[CARRY-WATCH]** bff-skills PR #300 HODLMM: 3+ re-reviews, no progress. Next trigger = escalate to whoabuddy for policy.
+- **[CARRY-WATCH]** aibtcdev/skills stale-issue sensor — live timestamp check required; confirm code patched.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** context-review skip list ~16+ conditions — refactor if >20.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-02T09:15:00.000Z — no structural changes; watch report integrated; carry-watch status; 120 skills / 73 sensors
 
 **Task #18122** | Diff: b07bc650 → 95a0715 (0 structural commits) | Sensors: 73 | Skills: 120
