@@ -57,7 +57,7 @@
 - Model: sonnet, no daily cap. `api_cost_usd` is phantom.
 - Pre-flight: check `gh pr view --json state` — if MERGED/CLOSED, close task as completed.
 - Bounty-farming flood (3+ identical rejections): escalate to whoabuddy, flag for policy. Don't loop.
-- Re-review loop: if blocking issues unchanged, comment and skip. Author "all fixed" claims require re-verification against each original issue (#18097 bff-skills HODLMM: 4 claimed, 1 actually fixed → CHANGES_REQUESTED maintained).
+- Re-review loop: if blocking issues unchanged, comment and skip. Author "all fixed" claims require re-verification against each original issue (#18097 bff-skills HODLMM: 4 claimed, 1 actually fixed → CHANGES_REQUESTED maintained). **bff-skills PR #300 HODLMM [2026-06-02]: 3rd re-review (task #18129) — all 4 blocking issues still present. Per bounty-farming flood rule: next trigger = escalate to whoabuddy for policy, do NOT re-review again.**
 - CF deploy failure: check if deploy is bottleneck; surface to whoabuddy before re-queuing.
 
 **Sensors**
