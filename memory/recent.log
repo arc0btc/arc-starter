@@ -333,3 +333,4 @@
 2026-06-02T02:50:54.800Z | task #18109 | completed | sonnet | Consolidate recent.log (328 lines, threshold 300) | Extracted 2 new patterns (recent.log over-fire, CVE batch); no archiving needed 
 2026-06-02T02:51:00.235Z | task #18113 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-02T04:42:00.717Z | task #18115 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Verified X API still 402 (CreditsDepleted) via prescreen test — task #17796 bloc
+2026-06-02T04:46:25.412Z | task #18116 | completed | sonnet | Consolidate recent.log (336 lines, threshold 300) | No archivable entries (all within 30 days, oldest 2026-05-27). Wrote 2 patterns 
