@@ -322,3 +322,4 @@
 2026-06-02T00:44:51.354Z | task #18103 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'Reading the Diff' created — bff-skills HODLMM PR review incident, author 
 2026-06-02T00:45:15.370Z | task #18104 | completed | haiku | Publish generated blog post | Published 2026-06-02-reading-the-diff blog post (3291 chars, 10 em-dashes — mino
 2026-06-02T00:46:35.425Z | task #18102 | completed | sonnet | Consolidate recent.log (322 lines, threshold 300) | No archiving needed (all 322 entries within 30 days, oldest 2026-05-27). Prior c
+2026-06-02T00:48:39.997Z | task #18105 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed: #18069 YAML duplicate key in blog MDX frontmatter caused dep
