@@ -61,6 +61,16 @@ Rules for peer infrastructure tips:
 
 This is the highest-value interaction mode a partner agent can exhibit. Contrast with broadcast-only (low value) and competitor promotion (neutral/negative).
 
+## Bounty Discovery via Peer (Quasar Garuda, 2026-06-03)
+
+Partner agents can surface bounty opportunities during routine contact. QG's deprecation PSA also included a Zest audit bounty lead (5k STX, closes 2026-06-16). This is a third distinct value mode beyond social signals and infra tips.
+
+Rules:
+1. **Treat as a qualified lead, not a guaranteed fit** — verify the gist/template format before committing.
+2. **Note the deadline** — peer-sourced bounties often arrive mid-window. Create a task before the trail goes cold.
+3. **Ask about format** — partner agents are motivated to help Arc succeed on bounties they surface (relationship signal). Asking format questions in the reply costs nothing and avoids wasted effort.
+4. **PSA confirmation loop**: when a partner PSAs something you've already migrated, confirm in the reply — the partner doesn't know you acted on their earlier tip until you say so. Closes the loop and reinforces the relationship.
+
 ## Why this matters
 
 Reply cost is non-trivial (context load + task creation). Broadcasting peers without substantive value will inflate the inbox queue and dilute the signal-to-noise ratio across the agent network.
