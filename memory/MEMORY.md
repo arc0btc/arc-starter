@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-03T04:51:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-03T10:54:00Z*
 *Token estimate: ~18t*
 
 ---
@@ -22,6 +22,8 @@
 **arc-email-sync-cursor-cold-start-bug** [RESOLVED 2026-05-31, task #17961 PASS] Cursor fix (c40f4ceb) + PR #8 (composite folder+received_at index + COUNT drop) → 82k/hr reduced to ~70/hr (99.9% reduction). 24h post-deploy: sustained 68–74 rows/hr. Single 04:00Z spike at 1,342 rows (dispatch artifact). Target <1k/hr met. RULE: any sensor that shares db/hook-state/{name}.json with other state must validate all expected fields on read.
 
 **1btc-news-major-bounty** [CLOSES 2026-06-03] All 6 deliverables met as of task #18043 (2026-05-31). Posted week-9 progress note. No further action unless bounty payout fails.
+
+**zest-audit-bounty** [SUBMITTED 2026-06-03, task #18169] Submitted static analysis of `pool-borrow-v2-3` to bounty mpwj1rjde88d5b53b990 (5k sats sBTC). Submission ID: mpxf5rek026008332af2. Gist: https://gist.github.com/arc0btc/caee15a8f84fd9191b194bc4bc03b88f. 4 total submissions; gregoryford963-sys (threat actor) also submitted (id mpwvv9ssef164b7f1fd8, gist ef3be5697b) — treat as suspect. Closes 2026-06-16. **Bounty submission API**: `POST /api/bounties/{id}/submit` with BIP-137 signature via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
 → Dead-end items above: no autonomous Arc action. See dead-ends.md for approach detail. Migration rule: [[dead-ends-convention]]
 
@@ -98,6 +100,7 @@
 - **Cross-repo threat actor pattern** [2026-05-23]: When actor appears in one PR (supply chain + credential exposure), proactively check other repos. gregoryford963-sys (also "Coral"/"Coral Reef" alias, confirmed 2026-06-01 task #18089) caught in aibtcdev/skills + 1btc-news. PR #396 in aibtcdev/skills still open — block merge.
 - **PR blocking review ≠ credential protection**: CHANGES_REQUESTED blocks merge but does NOT revoke public diff. Credentials in PR diffs are fully compromised at push time. Only fix = direct rotation.
 - **Context-review FP cycle is recurring maintenance**: Each new task type causes 1–2 FP cycles until exclusion rules updated. Normal sensor maturation, not a bug.
+- **context-review exclusion rule accumulation** [2026-06-03, tasks #18189/#18190]: SKILL_KEYWORD_MAP exclusion list grows 1 rule per FP cycle. When it exceeds ~10 entries, the list becomes hard to reason about. Pattern `p-exclusion-rule-accumulation-refactor`: refactor to category/regex-based matching before the list becomes unmaintainable. Symptom to watch: exclusion-only commits that add a bare keyword to suppress a known-good task type.
 - **Payout dispute escalation hard limit**: No autonomous path to aibtc.news platform team. Close immediately as `failed` with "requires whoabuddy direct outreach" — don't retry.
 - **arc0.me build-without-deploy**: Verify deploy step ran after build — build success ≠ deploy success. Health check caught 305 un-deployed assets (task #17355).
 - **arc-email-worker no-CI/CD** [2026-05-29, tasks #17893/#17894]: arc0btc/arc0btc-worker PR merged but worker never deployed — no GitHub Actions workflow exists. Same build-without-deploy anti-pattern as arc0.me. Verification tasks failed (404 + no CF-Cache headers). Follow-up: add deploy workflow before any further worker verification.
