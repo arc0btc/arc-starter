@@ -96,7 +96,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // "bitflow" alone routes to defi-bitflow (market intel/DCA). Use more specific LP keywords
   // for the `bitflow` skill, which manages Arc's own capital positions.
   "bitflow": ["arc lp", "hodlmm", "lp-status", "add-liquidity", "withdraw-liquidity"],
-  "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
+  // "zest" alone excluded — too broad, matches blog posts about Zest and domain-enum orchestrators.
+  // Use specific operational terms only.
+  "defi-zest": ["zest protocol", "zest yield", "zest supply", "zest borrow", "zest repay"],
   "defi-stacks-market": ["stacks market", "stx price"],
   // "market data" excluded — too generic, matches ordinals-market-data sensor tasks incorrectly
   "aibtc-news-editorial": ["aibtc news", "news editorial", "ordinals business"],
@@ -247,6 +249,14 @@ function checkMissingSkillCoverage(
   // domain keywords from those skill names, not operational requirements — loading defi-bitflow
   // or defi-zest would add no value to a documentation update. Skip keyword checks entirely.
   if (/^Update llms/i.test(task.subject)) return findings;
+
+  // Blog post writing tasks have subjects like "Write blog post: <topic about Zest/Bitflow/etc>".
+  // The topic name is content context, not an operational skill requirement. blog-publishing is all these need.
+  if (/^Write blog post:/i.test(task.subject)) return findings;
+
+  // Auto-queue orchestrator tasks enumerate work domains (e.g. "zest", "defi", "bitflow") to
+  // describe what needs attention — not what skills the orchestrator itself needs loaded.
+  if (/^Auto-queue:/i.test(task.subject)) return findings;
 
   // arc-opensource sync tasks include the full text of commit messages in their descriptions.
   // Those commit messages may reference any skill domain (e.g. "trading-comp", "zest") because
