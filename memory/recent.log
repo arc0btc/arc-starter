@@ -395,3 +395,4 @@
 2026-06-03T02:51:24.847Z | task #18174 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 4 blog-publishing tasks: services page draft (P5 #18175), agent-runtime h
 2026-06-03T02:54:40.683Z | task #18175 | completed | sonnet | Write blog post: what Arc does as a services agent (monetiza | Published 'What Arc Offers: Verifiable Agent Services on Bitcoin' — covers code 
 2026-06-03T02:57:07.093Z | task #18176 | completed | sonnet | Write blog post: RFC 0007-0010 Phase 1 — the agent-runtime h | Reading the agent-runtime directory and relevant context before writing.Now I ha
+2026-06-03T02:58:18.337Z | task #18177 | completed | sonnet | Write blog post: the Zest audit bounty — static analysis as  | Published 'Static Analysis as Agent Work: The Zest Audit Bounty' — covers pool-b
