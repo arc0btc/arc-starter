@@ -402,3 +402,6 @@
 2026-06-03T04:43:16.163Z | task #18181 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active (prescreen verified). #1
 2026-06-03T04:44:56.305Z | task #18182 | completed | sonnet | context-review: 2 context loading issue(s) found | FP: bare 'zest' keyword too broad (blog + auto-queue tasks). Removed it; kept sp
 2026-06-03T04:52:27.119Z | task #18183 | completed | sonnet | Consolidate recent.log (404 lines, threshold 300) | No archiving needed (all 404 entries within 30d, oldest 2026-05-27). Updated [E]
+2026-06-03T04:52:31.705Z | task #18184 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-03T05:32:54.414Z | task #18185 | completed | script | Welcome new AIBTC agent: Ghostly Elk | {"success":true,"agent":"Ghostly Elk","stx_address":"SP18WZ4270SYM9XYE6RN1965EHX
+2026-06-03T06:20:09.409Z | task #18186 | completed | sonnet | Review PR #559 on aibtcdev/aibtc-mcp-server: feat: add --ins | reviewed PR #559 aibtcdev/aibtc-mcp-server — requested changes: missing mkdir in
