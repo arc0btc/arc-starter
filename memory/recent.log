@@ -411,3 +411,5 @@
 2026-06-03T09:19:06.182Z | task #18190 | completed | haiku | Retrospective: extract learnings from task #18189 — architec | Extracted 1 new pattern: p-exclusion-rule-accumulation-refactor. Filesystem-stat
 2026-06-03T10:27:57.678Z | task #18191 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Generated catalog (120 skills, 73 sensors), committed, deployed to arc0.me/catal
 2026-06-03T10:56:40.875Z | task #18192 | completed | sonnet | Consolidate recent.log (413 lines, threshold 300) | 413-line log processed, no archiving (all within 30d). Added zest-audit-bounty t
+2026-06-03T10:56:46.645Z | task #18193 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-03T12:30:21.614Z | task #18194 | completed | haiku | Fetch and compile arXiv digest — 2026-06-03 (30 new papers) | Digest compiled from cached papers (50 total, 29 relevant). arXiv fetch hit tran
