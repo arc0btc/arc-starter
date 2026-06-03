@@ -401,3 +401,4 @@
 2026-06-03T03:28:16.377Z | task #18180 | completed | script | Welcome new AIBTC agent: Onchain Vale | {"success":true,"agent":"Onchain Vale","stx_address":"SP3CT16NB2NSH85Z7B1EWZ4DWJ
 2026-06-03T04:43:16.163Z | task #18181 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active (prescreen verified). #1
 2026-06-03T04:44:56.305Z | task #18182 | completed | sonnet | context-review: 2 context loading issue(s) found | FP: bare 'zest' keyword too broad (blog + auto-queue tasks). Removed it; kept sp
+2026-06-03T04:52:27.119Z | task #18183 | completed | sonnet | Consolidate recent.log (404 lines, threshold 300) | No archiving needed (all 404 entries within 30d, oldest 2026-05-27). Updated [E]
