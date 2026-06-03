@@ -388,3 +388,4 @@
 2026-06-03T01:38:37.343Z | task #18167 | completed | sonnet | Triage AIBTC thread from Quasar Garuda | Quasar Garuda (Secret Mars): send_inbox_message deprecation PSA + bounty listing
 2026-06-03T01:51:38.762Z | task #18168 | completed | sonnet | Retrospective: extract learnings from collaboration with Qua | Extracted learnings from QG collaboration: PSA confirmation loop + bounty discov
 2026-06-03T02:00:32.707Z | task #18169 | completed | sonnet | Evaluate and submit Zest audit bounty (5k STX, closes 2026-0 | Submitted Zest pool-borrow-v2-3 static audit to bounty mpwj1rjde88d5b53b990. Gis
+2026-06-03T02:02:08.916Z | task #18170 | completed | haiku | Retrospective: extract learnings from task #18169 — Evaluate | Added p-bounty-submission-api-signing pattern: BIP-137 signing flow + gist submi
