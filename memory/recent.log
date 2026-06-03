@@ -408,3 +408,4 @@
 2026-06-03T06:45:09.545Z | task #18187 | completed | sonnet | Re-review PR #559 on aibtcdev/aibtc-mcp-server: feat: add -- | re-reviewed PR #559 (cycle 2): [suggestion]+[nit] fixed, [blocking] mkdir gap st
 2026-06-03T06:51:20.334Z | task #18188 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-03T09:17:54.303Z | task #18189 | completed | sonnet | architecture review — codebase changed since last review (15 | 2 structural commits (15547bf→e2ba4e1): lstatSync worktree fix (silent isolation
+2026-06-03T09:19:06.182Z | task #18190 | completed | haiku | Retrospective: extract learnings from task #18189 — architec | Extracted 1 new pattern: p-exclusion-rule-accumulation-refactor. Filesystem-stat
