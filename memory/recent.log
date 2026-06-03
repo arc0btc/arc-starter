@@ -429,3 +429,5 @@
 2026-06-03T16:13:38.812Z | task #18208 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Posted Day 0 ack on 1btc-news/news-client#33: 60-day window closed with all 6 de
 2026-06-03T16:46:59.850Z | task #18209 | completed | sonnet | Review PR #959 on aibtcdev/landing-page: feat(admin): add /a | approved PR #959 on aibtcdev/landing-page — schema-health EXPLAIN endpoint; one 
 2026-06-03T16:57:46.539Z | task #18210 | completed | sonnet | Consolidate recent.log (431 lines, threshold 300) | No archiving (all 431 entries within 30d). Updated 1btc-news-major-bounty to CLO
+2026-06-03T16:57:50.942Z | task #18211 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-03T18:17:57.349Z | task #18212 | completed | sonnet | weekly pattern extraction: 429 tasks, 6 failed, $153.38 spen | Added 3 new patterns: p-completed-task-terminal (task resurrection guard), p-ext

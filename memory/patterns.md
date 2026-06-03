@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-02T22:53Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-03T18:17Z*
 
 ## Core Patterns
 **p-model-required**
@@ -147,3 +147,9 @@ When creating filesystem resources (symlinks, directories) that may already exis
 When skip/exclusion conditions accumulate to ~20+ and cluster by semantic type (e.g., domain-content words vs operational keywords), replace scattered prefix guards with a dedicated pattern table (e.g., `CONTENT_TASK_PATTERNS`, `OPERATIONAL_KEYWORDS`). Transparent, testable, maintainable at scale—context-review skip list at ~18 conditions approaching refactor threshold.
 **p-bounty-submission-api-signing** [2026-06-03, task #18169]
 DeFi audit bounties require BIP-137/BIP-322 signed submissions: construct message `AIBTC Bounty Submit | {bountyId} | {btcAddr} | {message} | {contentUrl} | {signedAt}`, sign via `arc skills run --name bitcoin-wallet -- btc-sign`, submit `POST /api/bounties/{id}/submit` with `submitterBtcAddress`, `submitterStxAddress`, `contentUrl`, `message`, `signedAt`, `signature`. Pattern: create gist with audit findings, pass gist URL as contentUrl. Applies to 4 pending audit bounties (Bitflow, ALEX, Starknet, etc.); submit early to avoid deadline crunch.
+**p-completed-task-terminal** [2026-06-03, task #17797, fixes af5c6ac2+78408d07]
+A completed task is terminal — no code path should set its status back to `pending`. Root cause of resurrections: `requeueTask()` called from catch blocks without checking current status, especially after rate-limit outage recovery. Safe fix requires two layers: (1) catch-block status check before any requeue call, (2) `UPDATE ... WHERE status != 'completed'` guard in `requeueTask()` so the invariant is race-safe at the DB layer. After shipping a resurrection guard, sweep for tasks already left in bad `pending` state — the guard is preventive, not curative.
+**p-external-side-effect-idempotency** [2026-06-03, task #17797 x4 dispatches, validated manual + fix #17836]
+Tasks with external side effects (email send, STX send, x402 payment) must self-verify before acting: check sent folder / tx history / payment receipt within a recent time window. Rate-limit outages trigger legitimate re-dispatch of already-completed tasks; without a self-check the side effect repeats. Rule: before executing any external side effect, check if it already occurred — close idempotently without repeating if found. Design-time: add the idempotency check as the FIRST step of any send path, not a later guard.
+**p-cicd-prereq-before-verify** [2026-06-03, tasks #17893/#17894, arc-email-worker]
+Before queuing a `verify-*-deployed` task, confirm deployment infrastructure exists (CI/CD workflow, deploy script, or documented manual command). A PR merged without a deployment workflow causes health endpoints to return 404 indefinitely — verify tasks fail every attempt without actionable path. Pattern: gate `verify-deployed` task creation on CI/CD signal existence; when missing, queue "add CI/CD workflow" task first. Relates to `p-fix-and-deploy-verification`: "built ≠ deployed" extends to "merged ≠ deployed ≠ verifiable."
