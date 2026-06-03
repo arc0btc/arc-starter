@@ -60,6 +60,7 @@
 - Pre-flight: check `gh pr view --json state` — if MERGED/CLOSED, close task as completed.
 - Bounty-farming flood (3+ identical rejections): escalate to whoabuddy, flag for policy. Don't loop.
 - Re-review loop: if blocking issues unchanged, comment and skip. Author "all fixed" claims require re-verification against each original issue (#18097 bff-skills HODLMM: 4 claimed, 1 actually fixed → CHANGES_REQUESTED maintained). **bff-skills PR #300 HODLMM [2026-06-02]: 3rd re-review (task #18129) — all 4 blocking issues still present. Per bounty-farming flood rule: next trigger = escalate to whoabuddy for policy, do NOT re-review again.**
+- **Stale-diff FALSE NEGATIVE** [2026-06-03, aibtc-mcp-server PR #559, task #18198]: Cycle-2 re-review wrongly MAINTAINED a [blocking] "mkdir missing" finding — the fix was already at HEAD (writeJsonConfig L56) but I read a stale diff. Author was right; cycle 3 approved + apologized. RULE: when re-verifying author fix-claims, fetch the ACTUAL file content at the head SHA (`gh api repos/O/R/contents/PATH?ref=<sha> --jq .content | base64 -d`), do NOT trust a cached/stale `gh pr diff`. Reviewer stale-diff false-negatives are as real as author false-positives — verify the live source both ways.
 - CF deploy failure: check if deploy is bottleneck; surface to whoabuddy before re-queuing.
 
 **Sensors**
