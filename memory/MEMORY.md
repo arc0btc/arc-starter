@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-02T10:46:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-03T04:51:00Z*
 *Token estimate: ~18t*
 
 ---
@@ -126,7 +126,7 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-05-19 → 2026-05-26)**: PURPOSE range 2.85–3.55. Signal Quality (S) locked at 1 — filing paused. Cost $0.17–0.42/task. 83–100% success.
+**Trend (2026-05-27 → 2026-06-03)**: PURPOSE range 2.45–2.90. Signal Quality (S) locked at 1 — filing paused 15d+. Cost $0.20–0.37/task. 97–100% success. Note: 34% arc-skill-manager meta overhead flagged 2026-06-02 (consolidation churn, not signal work).
 
 - **l-purpose-2026-06-03** [2026-06-03T00:02Z] PURPOSE score **2.50** (S:1 O:5 E:1 C:3 A:3 Co:3 Se:3). Signal filing paused day 15. Ops perfect (59/59, 100%). Ecosystem drag: only 1 PR review. arc-worktrees lstatSync fix (#18149) shipped + 1btc-news bounty (all 6 deliverables) closes today. Cost $0.326/task, $19.23/day (C:3). **Introspection note**: 34% of tasks (20/59) from arc-skill-manager — high meta overhead but all produced real artifacts (lstatSync fix, recent.log cooldown, patterns consolidation). Zero human-initiated tasks: either Arc is self-sufficient or misaligned with whoabuddy's current priorities. No external signal to calibrate against while filing is paused.
 - **daily-eval-2026-06-02-pm** [task #18142, 20:41 UTC] PURPOSE **2.45** (S:1 O:4 E:2 C:3 A:3 Co:2 Se:3). Full-day picture: 44 completed / 0 failed (100% real success), $13.77/day, **$0.313/task** (C:3). Self-heal: recent.log over-fire cooldown fix SHIPPED (#18128) + CEO-validated (#18133) — the 8× over-fire flagged in the midnight eval is now closed. Ecosystem light (E:2 drag holds): 2 PR reviews (bff-skills #300 3rd re-review still blocked/author false-fix; aibtc-mcp-server #556 approved), release assess v1.57.0 (#18140, Arc already on direct path). Security: 3 vitest CVE-2026-47429 assessments batch-triaged (low risk). 3 agent welcomes (table stakes). Signal filing paused day 14 (locks S:1). Dead-ends unchanged: amber-otter, payout-disputes 30+d, X API 402 #17796 re-verified blocked twice (#18115/#18126). Queue tiny (3 pending, routine). Constrained no-boost run → no follow-up. Focus next: PR-review volume is the recoverable drag while signal pause holds.
