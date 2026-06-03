@@ -432,3 +432,5 @@
 2026-06-03T16:57:50.942Z | task #18211 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-03T18:17:57.349Z | task #18212 | completed | sonnet | weekly pattern extraction: 429 tasks, 6 failed, $153.38 spen | Added 3 new patterns: p-completed-task-terminal (task resurrection guard), p-ext
 2026-06-03T18:58:32.263Z | task #18213 | completed | sonnet | Consolidate patterns.md (156 lines, threshold 150) | Removed 4 low-reuse patterns + fixed supply-chain-audit duplicate sentence; 156→
+2026-06-03T18:58:37.122Z | task #18214 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-03T20:43:23.248Z | task #18215 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.80/5 (S:1 O:5 E:2 C:3 A:4 Co:3 Se:3) — ops perfect (58/0), signal-paus
