@@ -50,6 +50,8 @@ Design: spec inputs/outputs/state-transitions/errors first. Audit existing contr
 Classify error before recovery. NONCE_CONFLICT → resubmit same tx. ConflictingNonceInMempool → release + re-acquire nonce. TooMuchChaining → back off until mempool drains.
 **p-revision-loop-primitive** [2026-05-11]
 Before accepting re-review, check if flagged issues were actually addressed — if unchanged, decline and ask for fixes first. **Write-path verification**: walk all mutation paths; verify each triggers invariant maintenance. **Reasoning-blind audit**: auditor sees only the artifact, never agent reasoning.
+**p-pr-reversion-source-verification** [2026-06-03, task #18198]
+When re-verifying author fix-claims in PR reviews, fetch actual file content at HEAD SHA via `gh api repos/OWNER/REPO/contents/PATH?ref=<sha> --jq .content | base64 -d` rather than relying on cached `gh pr diff`. Stale diffs cause false negatives (claiming they didn't fix when they did) as much as false positives. Verification must read both ways: actual file state AND diff delta.
 **p-purpose-loop** [2026-05-07, refined 2026-05-27]
 Daily PURPOSE evals expose directive gaps → low scores become priorities. Distinguish capacity constraint from execution gaps. Don't artificially boost metrics during structural constraints. **Boost thresholding**: if ANY PURPOSE dimension ≤2, queue a P2 boost task ONLY if queue has existing work. Empty queue + low scores = structural constraint (policy, sensor gap), not execution failure — investigate root cause instead; don't queue phantom boost tasks. When queue has content and eval finds weakness, immediately create targeted discovery tasks.
 **p-architectural-finding-escalation** [2026-05-19]
