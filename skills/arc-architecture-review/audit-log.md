@@ -1,3 +1,54 @@
+## 2026-06-03T21:15:00.000Z — no structural changes; overnight brief processed; Hiro circuit-breaker gap identified; 120 skills / 73 sensors
+
+**Task #18220** | Diff: e2ba4e1 → bd2749bb (0 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review. `bd2749bb` is the prior arch-review docs commit itself.
+
+**Overnight brief 2026-06-03T13:06Z highlights:**
+- 40 completed, 0 failed. $0.367/task average. Clean pipeline.
+- 4 blog posts published in one burst (arc services, RFC handover, Zest audit, CF DO row reads) — freshness resolved efficiently.
+- Zest audit bounty submitted (task #18169). Submission ID: mpxf5rek026008332af2.
+- PR #559 (aibtc-mcp-server) resolved: cycle-3 review approved + apologized after stale-diff false negative caught (task #18198). See MEMORY.md stale-diff FALSE NEGATIVE entry.
+- Context-review: 2 FP cycles overnight (bare "zest" + auto-queue). Both fixed in e2ba4e1. Skip list at ~18 entries.
+- 1btc-news major bounty closed 2026-06-03 (task #18208) — all 6 deliverables confirmed.
+- `aibtc-mcp-server v1.58.0` adds `--install` flags for IDE integrations. Arc uses dispatch subprocess path — no config change needed.
+- `aibtcdev/landing-page PR #958` merged: Hiro circuit-breaker added to prevent budget storms from cascading.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH → ACTION]** context-review skip list at ~18 entries. Prior audits set the refactor threshold at >20. Overnight had 2 more FP fixes. The pattern is structural: domain-content words in task subjects (blog topics, auto-queue enumeration) are systematically different from operational-intent keywords. Fix: `CONTENT_TASK_PATTERNS: RegExp[]` table replacing the growing exclusion string list. **Next FP fix = trigger refactor.**
+- **[NEW-WATCH]** Hiro circuit-breaker gap: aibtcdev/landing-page added a circuit-breaker to Hiro API calls (PR #958). Arc's Hiro-dependent sensors (defi-zest, zest-yield-manager, arc-payments, mempool-watch, stacks-stackspot, defi-stacks-market) make Hiro API calls with no circuit-breaker equivalent. Under budget-storm conditions (e.g. BNS cascade, balance polling surge), Arc's sensors could amplify the storm rather than absorb it. Low urgency but worth tracking — pattern is now documented on the ecosystem side.
+
+### Step 4 — Accelerate
+
+- 0% failure rate. $0.367/task overnight. Pipeline nominal.
+- Batch blog deployment pattern validated: 4 posts + deploy in one cycle was more efficient than 1-at-a-time. Pattern captured in MEMORY.md.
+- No new pipeline bottlenecks.
+
+### Step 5 — Automate
+
+No new automation gaps. All active blocks remain human-gated.
+
+### Flags
+
+- **[RESOLVED]** 1btc-news major bounty — all 6 deliverables met, closed 2026-06-03 (task #18208).
+- **[RESOLVED]** PR #559 stale-diff false negative — cycle-3 approved + corrected (task #18198). Stale-diff rule now in MEMORY.md.
+- **[CARRY-WATCH → ACTION]** context-review skip list ~18 — structural refactor warranted at >20. **Next FP fix = trigger refactor.**
+- **[NEW-WATCH]** Hiro circuit-breaker gap in Arc's own Hiro-dependent sensors (no current risk, but pattern is documented on ecosystem side).
+- **[CARRY-WATCH]** bff-skills PR #300 HODLMM: 3rd re-review done, all 4 blocking issues unchanged. Next trigger = escalate to whoabuddy for policy, do NOT re-review.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-03T09:15:00.000Z — worktree lstatSync fix; context-review skip list at ~18; 120 skills / 73 sensors
 
 **Task #18189** | Diff: 15547bf → e2ba4e1 (2 structural commits) | Sensors: 73 | Skills: 120
