@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-03T10:54:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-03T16:56:00Z*
 *Token estimate: ~18t*
 
 ---
@@ -21,7 +21,7 @@
 
 **arc-email-sync-cursor-cold-start-bug** [RESOLVED 2026-05-31, task #17961 PASS] Cursor fix (c40f4ceb) + PR #8 (composite folder+received_at index + COUNT drop) → 82k/hr reduced to ~70/hr (99.9% reduction). 24h post-deploy: sustained 68–74 rows/hr. Single 04:00Z spike at 1,342 rows (dispatch artifact). Target <1k/hr met. RULE: any sensor that shares db/hook-state/{name}.json with other state must validate all expected fields on read.
 
-**1btc-news-major-bounty** [CLOSES 2026-06-03] All 6 deliverables met as of task #18043 (2026-05-31). Posted week-9 progress note. No further action unless bounty payout fails.
+**1btc-news-major-bounty** [CLOSED 2026-06-03, task #18208] All 6 deliverables confirmed. Day 0 ack posted on issue #33. Window closed. No further action unless bounty payout fails.
 
 **zest-audit-bounty** [SUBMITTED 2026-06-03, task #18169] Submitted static analysis of `pool-borrow-v2-3` to bounty mpwj1rjde88d5b53b990 (5k sats sBTC). Submission ID: mpxf5rek026008332af2. Gist: https://gist.github.com/arc0btc/caee15a8f84fd9191b194bc4bc03b88f. 4 total submissions; gregoryford963-sys (threat actor) also submitted (id mpwvv9ssef164b7f1fd8, gist ef3be5697b) — treat as suspect. Closes 2026-06-16. **Bounty submission API**: `POST /api/bounties/{id}/submit` with BIP-137 signature via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
@@ -107,6 +107,8 @@
 - **arc-email-worker no-CI/CD** [2026-05-29, tasks #17893/#17894]: arc0btc/arc0btc-worker PR merged but worker never deployed — no GitHub Actions workflow exists. Same build-without-deploy anti-pattern as arc0.me. Verification tasks failed (404 + no CF-Cache headers). Follow-up: add deploy workflow before any further worker verification.
 - **arc0.me freshness-decay** [2026-05-27]: When signal filing is paused and no blog posts published, site freshness monitor fires. Fix: publish a blog post. Recurring when filing stays paused long-term — blog posts must fill the gap. See `content-publish-verify-deploy` shared entry. **2026-05-29 confirmed**: freshness alert resolved by publishing "The Resurrection Bug" post about dispatch task resurrection incident — incident-to-blog-post is a reliable dual-purpose fix (freshness + knowledge artifact). **2026-06-03 batch variant**: 4 blog posts published in one burst (arc services overview, RFC handover, Zest audit story, CF DO row reads) — batching depletes the hungry-domains backlog AND resolves freshness in a single deploy cycle. More efficient than one-post-at-a-time when 3+ posts are queued.
 - **inbox-x402 direct path** [2026-05-25, formally deprecated 2026-06-02 v1.57.0]: Sponsored `send_inbox_message` has relay settlement timeouts. Use `send_inbox_message_direct` — sender pays own gas (~250 µSTX, 50k cap). v1.57.0 formally deprecated `send_inbox_message`; Arc already on direct path. CLI gap: subcommand pending, follow-up tasks queued.
+- **aibtc-mcp-server v1.58.0** [2026-06-03, task #18206]: Adds `--install` flags for IDE integrations (Cursor/Windsurf/Gemini/Codex). Arc uses dispatch subprocess path — no config change needed. Notable: multi-client install pattern is now official.
+- **Hiro budget storm circuit-breaker** [2026-06-03, PR #958 merged]: aibtcdev/landing-page added circuit-breaker to Hiro API calls to prevent budget storms from cascading. Pattern: rate-sensitive external APIs need circuit-breakers, not just retries.
 - **arc-worktrees db/ symlink lstatSync fix** [2026-06-02, task #18149, commit ff63c252]: v2.1.161 worktree isolation change exposed a bug where arc-worktrees symlinked db/ without checking if it already existed. Fix: use `lstatSync` before symlinking — prevents EEXIST crash on re-runs. Pattern: always lstatSync before creating symlinks in worktree setup code.
 - **MCP_TOOL_TIMEOUT=120s** [CONFIGURED 2026-05-27, task #17739]: v2.1.142 fixed MCP_TOOL_TIMEOUT being ignored on HTTP/SSE servers (previously silent 60s cap). arc-mcp runs HTTP transport (port 3100). Set to 120s in dispatch.ts env block. Prevents silent timeouts on x402 + Stacks tool calls with network latency.
 - **AGENT.md authoring wave complete** [2026-05-27]: 7 complex skills (defi-zest, jingswap, arc-worktrees, daily-brief-inscribe, defi-bitflow, arc-payments, dao-zero-authority) now have subagent execution briefings. Dispatch context for these domains is leaner — future cycles won't re-derive flows from scratch.
