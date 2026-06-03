@@ -1,3 +1,53 @@
+## 2026-06-03T09:15:00.000Z — worktree lstatSync fix; context-review skip list at ~18; 120 skills / 73 sensors
+
+**Task #18189** | Diff: 15547bf → e2ba4e1 (2 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(arc-worktrees): replace fragile db/ dir check with lstatSync before symlinking** (ff63c252): `src/worktree.ts` `createWorktree()` — previous code used `readdirSync()` entry count to decide whether to remove db/ before symlinking. Root cause: db/ contains tracked SVG files, so count was always >1. `unlinkSync` first failed (dir, not file); `readdirSync` returned >1 entries → skipped `rm -rf`; `symlinkSync` threw EEXIST. Dispatch silently fell back to main tree — **worktree isolation was silently bypassed on every run**. Fix: `lstatSync` detects dir vs file/symlink correctly regardless of entry count. Pattern: always `lstatSync` before symlink creation in worktree setup.
+
+- **fix(context-review): remove bare "zest" keyword and add blog/auto-queue exclusions** (e2ba4e1): Bare `"zest"` in `defi-zest` keywords matched blog posts (task #18177) and auto-queue domain-enumeration tasks (task #18174). Fix: replaced with operational-only terms; added `^Write blog post:` and `^Auto-queue:` subject exclusions. Skip list grows to ~18 conditions.
+
+Watch report 2026-06-03T01:02Z highlights:
+- 31 completed, 0 failed, $0.325/task. 100% success.
+- arc-worktrees lstatSync fix deployed and verified (v2.1.161).
+- patterns.md consolidated 151→143 lines; recent.log cooldown confirmed stable.
+- Signal filing paused day 15; PURPOSE 2.45/5 (S:1 locked).
+- 34% arc-skill-manager overhead noted in introspection (task #18157).
+- Zero human-initiated tasks → alignment uncertainty flagged by CEO review.
+
+### Step 2 — Delete
+
+- `readdirSync` import removed from `src/worktree.ts` — replaced by `lstatSync`. Clean.
+- No other deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- lstatSync fix is minimal and correct — 5 lines changed, removes a fragile entry-count assumption. The prior code was trying to detect "is this a directory" by counting its entries rather than checking its type directly. Now reads filesystem state directly.
+- **[CARRY-WATCH → APPROACHING ACTION]** context-review skip list at ~18 conditions. Prior audits set refactor threshold at >20. If one more FP-reduction commit arrives, that threshold is crossed. The accumulation pattern is structural: domain-content words in task subjects (blog topics, auto-queue enumeration) are systematically different from operational-intent keywords that indicate which skills to load. Consider `CONTENT_TASK_PATTERNS: RegExp[]` structural exclusion table rather than adding individual subject-prefix guards.
+
+### Step 4 — Accelerate
+
+- lstatSync fix restores intended worktree isolation for arc-worktrees skill tasks. Prior silent fallback to main tree was an invisible correctness regression — changes that should have been isolated were running against the live codebase.
+- No new pipeline bottlenecks. $0.325/task average nominal.
+
+### Step 5 — Automate
+
+- No new automation gaps this window.
+
+### Flags
+
+- **[RESOLVED]** arc-worktrees lstatSync EEXIST crash (ff63c252) — worktree isolation now correctly handles db/ with any number of tracked files. Pattern added to state-machine WorktreeCheck note.
+- **[RESOLVED]** context-review defi-zest FP on blog/auto-queue tasks (e2ba4e1) — bare "zest" keyword removed; subject exclusions added.
+- **[CARRY-WATCH → APPROACHING ACTION]** context-review skip list ~18 conditions — structural refactor warranted at >20. Next FP fix = trigger refactor.
+- **[CARRY-WATCH]** bff-skills PR #300 HODLMM: 3rd re-review, all 4 blocking issues unchanged. Per bounty-farming flood rule: next trigger = escalate to whoabuddy for policy.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-02T21:15:00.000Z — recent.log cooldown fix; over-fire loop resolved; 120 skills / 73 sensors
 
 **Task #18146** | Diff: 95a0715 → 15547bf (1 structural commit) | Sensors: 73 | Skills: 120
