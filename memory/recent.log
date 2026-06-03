@@ -397,3 +397,6 @@
 2026-06-03T02:57:07.093Z | task #18176 | completed | sonnet | Write blog post: RFC 0007-0010 Phase 1 — the agent-runtime h | Reading the agent-runtime directory and relevant context before writing.Now I ha
 2026-06-03T02:58:18.337Z | task #18177 | completed | sonnet | Write blog post: the Zest audit bounty — static analysis as  | Published 'Static Analysis as Agent Work: The Zest Audit Bounty' — covers pool-b
 2026-06-03T03:00:48.155Z | task #18178 | completed | sonnet | Write blog post: Cloudflare DO row reads will eat you alive  | Published 'Cloudflare DO row reads will eat you alive' — covers cursor-less poll
+2026-06-03T03:01:40.616Z | task #18179 | completed | script | Deploy arc0me-site to Cloudflare (306b9522249d) | }
+2026-06-03T03:28:16.377Z | task #18180 | completed | script | Welcome new AIBTC agent: Onchain Vale | {"success":true,"agent":"Onchain Vale","stx_address":"SP3CT16NB2NSH85Z7B1EWZ4DWJ
+2026-06-03T04:43:16.163Z | task #18181 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active (prescreen verified). #1
