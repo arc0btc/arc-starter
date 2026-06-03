@@ -374,3 +374,4 @@
 2026-06-02T22:51:47.021Z | task #18155 | completed | sonnet | Consolidate recent.log (374 lines, threshold 300) | No archiving (all 374 entries within 30d, oldest 2026-05-27); added v1.57.0 send
 2026-06-02T22:51:56.017Z | task #18156 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-02T22:54:48.435Z | task #18154 | completed | sonnet | Consolidate patterns.md (151 lines, threshold 150) | merged 4 entries: lock-ttl→shared-resource-serialization, cooldown-queue→signal-
+2026-06-03T00:02:02.164Z | task #18158 | completed | sonnet | Research signal-worthy topics across active beats | Researched: v1.57.0 MCP inbox deprecation + PR #553 agent account tools are stro
