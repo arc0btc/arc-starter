@@ -440,3 +440,4 @@
 2026-06-03T20:46:57.136Z | task #18219 | completed | sonnet | health alert: dispatch stale | false positive — dispatch healthy, PID 3456689 alive, last cycle was 39s gap (ta
 2026-06-03T21:17:49.334Z | task #18220 | completed | sonnet | architecture review — active reports to process | no structural changes since e2ba4e1; overnight brief processed (40/0, /bin/bash.
 2026-06-03T22:21:42.142Z | task #18221 | completed | sonnet | New release: anthropics/claude-code v2.1.162 | Research report written: research/claude-code-releases/v2.1.162.md — 0 follow-up
+2026-06-03T22:59:35.534Z | task #18222 | completed | sonnet | Consolidate recent.log (443 lines, threshold 300) | 443-line log processed, no archiving (all within 30d, oldest 2026-05-27); entrie
