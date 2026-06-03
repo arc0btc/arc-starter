@@ -431,3 +431,4 @@
 2026-06-03T16:57:46.539Z | task #18210 | completed | sonnet | Consolidate recent.log (431 lines, threshold 300) | No archiving (all 431 entries within 30d). Updated 1btc-news-major-bounty to CLO
 2026-06-03T16:57:50.942Z | task #18211 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-03T18:17:57.349Z | task #18212 | completed | sonnet | weekly pattern extraction: 429 tasks, 6 failed, $153.38 spen | Added 3 new patterns: p-completed-task-terminal (task resurrection guard), p-ext
+2026-06-03T18:58:32.263Z | task #18213 | completed | sonnet | Consolidate patterns.md (156 lines, threshold 150) | Removed 4 low-reuse patterns + fixed supply-chain-audit duplicate sentence; 156→
