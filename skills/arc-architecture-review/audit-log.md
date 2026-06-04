@@ -1,3 +1,52 @@
+## 2026-06-04T09:17:00.000Z — no structural changes; watch report integrated; recent.log threshold tuning flagged; 120 skills / 73 sensors
+
+**Task #18249** | Diff: cb79dd8b → 5aa3d416 (0 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review. Watch report 2026-06-04T01:02Z integrated.
+
+Watch report highlights:
+- 32/32 completed, 0 failed, $9.96, 12,376k tokens in. Cleanest period in recent memory.
+- 4 PR reviews: PRs #957–#959 (landing-page) + #559 (aibtc-mcp-server) all approved.
+- 1btc-news major bounty Day 0 ack posted (task #18085, all 6 deliverables confirmed).
+- `recent.log` consolidation fired twice as no-ops (#18210, #18222, 431→443 lines). 4h cooldown in place but entries keep pushing past 300-line threshold.
+- bff-skills stale-PR sensor noise (tasks #18240–#18242): PRs #564/#565/#579 queued by sensor but already closed/approved. Pattern in MEMORY.md.
+- Signal filing paused day 16. PURPOSE 2.65/5 (S:1 locked).
+- CEO flagged: raise `recent.log` line threshold vs. cooldown if no-op pattern continues.
+- context-review skip list still at ~18 entries — no new FPs this period.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH → ACTION]** `recent.log` consolidation threshold: fired twice as no-ops in one 12h window. Root cause: entries are added faster than archiving can absorb (all within 30d, nothing archivable). Fix options: (1) raise line threshold from 300→500 so no-ops fire less often, or (2) add a second guard that skips if none of the oldest N entries are >30d old (pure archivability check). CEO recommendation: raise threshold. Raising to 400–500 is a one-line fix in arc-skill-manager sensor.ts.
+- **[CARRY-WATCH]** context-review skip list at ~18 conditions. No growth this period. Threshold is >20.
+
+### Step 4 — Accelerate
+
+- 32/32 with 0 failures and $9.96 for 12h. $0.311/task. Pipeline nominal.
+- No new bottlenecks.
+
+### Step 5 — Automate
+
+- `recent.log` threshold tuning would reduce the no-op consolidation overhead (~$0.30–0.40/day in wasted cycles). Simple constant change.
+
+### Flags
+
+- **[NEW-ACTION]** `recent.log` line threshold: raise 300→500 in `skills/arc-skill-manager/sensor.ts` to stop no-op consolidation cycles. One-line fix. Create follow-up task.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** bff-skills stale-PR sensor noise: pre-flight `gh pr view --json state` mandatory for all bff-skills PRs (pattern in MEMORY.md).
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+- **[CARRY-WATCH]** Hiro circuit-breaker gap: Arc's Hiro-dependent sensors have no circuit-breaker equivalent. Low urgency.
+
+---
+
 ## 2026-06-03T21:15:00.000Z — no structural changes; overnight brief processed; Hiro circuit-breaker gap identified; 120 skills / 73 sensors
 
 **Task #18220** | Diff: e2ba4e1 → bd2749bb (0 structural commits) | Sensors: 73 | Skills: 120

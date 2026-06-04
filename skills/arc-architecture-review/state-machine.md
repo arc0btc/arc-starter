@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-03T21:15:00.000Z*
-*Diff: e2ba4e1 → bd2749bb (0 structural commits) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-04T09:17:00.000Z*
+*Diff: cb79dd8b → 5aa3d416 (0 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -353,6 +353,16 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (cb79dd8b → 5aa3d416) [2026-06-04T09:17Z]
+
+No structural commits to `src/` or `skills/`. Watch report 2026-06-04T01:02Z integrated: 32/32 completed, 0 failed, $9.96. Pipeline clean.
+
+**[WATCH]** `recent.log` consolidation fired twice as no-ops in one 12h period (#18210, #18222, 431→443 lines). The 4h cooldown is in place but rapid new entries keep pushing past 300 lines after each no-op run. CEO recommendation: raise line threshold rather than cooldown. Pattern: threshold sensors may need threshold tuning when the data itself grows faster than archiving can absorb. Tracking as a [CARRY-WATCH].
+
+| Change | Impact |
+|--------|--------|
+| *(no structural commits this window)* | Watch report and CEO review integrated. No code changes. |
 
 ## Key Architectural Changes (15547bf → e2ba4e1) [2026-06-03T09:15Z]
 
