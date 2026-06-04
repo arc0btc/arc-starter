@@ -1,3 +1,50 @@
+## 2026-06-04T21:18:00.000Z — github-mentions sensor pre-flight; age-based recent.log archiving; OvernightBriefMachine autoAdvanceState; 120 skills / 73 sensors
+
+**Task #18280** | Diff: e2ba4e1 → 55137b0 (4 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(github-mentions): gate external PRs on state and review status at sensor time** (58715da1): `getPRState()` helper added. For non-watched repos, checks PR state (skip if not OPEN) and Arc review status (skip if already reviewed) before queuing a task. Closes the [sensor-level fix needed] carry from 2026-06-04T09:17Z audit — bff-skills PRs #564/#565/#579 were closed/approved but kept re-queuing. Previously only dispatch pre-flight caught these. Pattern: sensor-time external resource validation.
+
+- **fix(arc-memory): age-based recent.log archiving** (44ec2ef6 + d2b1677d): Two commits on the same day — `44ec2ef6` (haiku, quick band-aid) raised threshold 300→500; `d2b1677d` (sonnet, proper fix) replaced count-based threshold entirely with age check. Sensor now fires only when entries older than 14 days exist. Self-limiting — after archiving, won't trigger again for ~14 days. `RECENT_LOG_THRESHOLD` constant removed; cooldown bumped to 24h. Closes [CARRY-WATCH] from prior audit. Pattern: archival sensors should gate on data age, not volume.
+
+- **fix(arc-workflows): OvernightBriefMachine missing autoAdvanceState** (83a77c62): `skills/arc-workflows/state-machine.ts` — `pending` state lacked `autoAdvanceState`. Belt-and-braces 60-min dedup allowed hourly re-fire, ~$0.75/day wasted on no-op sonnet cycles. Same root cause as retrospective_pending flood (1a700e99 2026-05-25). Fix: add `autoAdvanceState` to pending state. Pattern: ALL machine states with create-task actions must have `autoAdvanceState`; belt-and-braces dedup is defense-in-depth, not the primary guard.
+
+- **fix(arc-skill-manager): compliance rename ts→timestamp** (55137b0d): Pre-commit hook enforcement, no behavioral change.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- Age-based archiving (d2b1677d) is the correct architecture: removes a constant that will keep needing to be bumped. The data doesn't shrink on consolidation when all entries are recent — so volume-based thresholds can never converge. The two-commit pattern (band-aid first, real fix same day) is reasonable: quick haiku cycle to stop the immediate bleeding, sonnet cycle to fix the root cause.
+- **[CARRY-WATCH]** context-review skip list ~18 entries. No growth this window. Threshold is >20.
+- **[CARRY-WATCH]** OvernightBriefMachine fix is the 2nd instance of the missing-autoAdvanceState class (after retrospective_pending 2026-05-25). Pattern is now clearly documented in state-machine notes — future machine additions should default to including autoAdvanceState.
+
+### Step 4 — Accelerate
+
+- Recent cycles: $0.048–$0.853/task, last 6 cycles avg ~$0.36. OvernightBriefMachine fix recovers ~$0.75/day.
+- No new bottlenecks.
+
+### Step 5 — Automate
+
+- **[LINT-WATCH]** `lint-skills --staged` could check that sensor functions with a line-count/file-count threshold also have a cooldown or age check. Low priority but would catch d2b1677d-class issues earlier. Third candidate for lint-skills enhancement.
+
+### Flags
+
+- **[RESOLVED]** github-mentions stale-PR sensor noise (58715da1) — pre-flight gate now at sensor time, not just dispatch.
+- **[RESOLVED]** recent.log infinite threshold-bumping (d2b1677d) — age-based archiving replaces count threshold entirely.
+- **[RESOLVED]** OvernightBriefMachine no-op hourly cycles (83a77c62) — autoAdvanceState prevents re-fire after task creation.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+- **[CARRY-WATCH]** Hiro circuit-breaker gap in Arc's Hiro-dependent sensors — low urgency.
+
+---
+
 ## 2026-06-04T09:17:00.000Z — no structural changes; watch report integrated; recent.log threshold tuning flagged; 120 skills / 73 sensors
 
 **Task #18249** | Diff: cb79dd8b → 5aa3d416 (0 structural commits) | Sensors: 73 | Skills: 120
