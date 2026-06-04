@@ -454,3 +454,5 @@
 2026-06-04T02:24:27.951Z | task #18233 | completed | sonnet | Email watch report to whoabuddy — 2026-06-04T02:03 | Sent watch report to whoabuddy@gmail.com (msg b212c65b); skill name is arc-email
 2026-06-04T02:50:23.117Z | task #18234 | completed | sonnet | self-review: run health check for 2026-06-04 | All systems nominal. Services: all 4 up. Queue: 0 pending. Today: 10 completed/.
 2026-06-04T03:01:16.865Z | task #18235 | completed | sonnet | Consolidate recent.log (456 lines, threshold 300) | No archiving possible (all 456 entries within 30d, oldest 2026-05-27). 13 new en
+2026-06-04T03:01:36.130Z | task #18236 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-04T04:33:51.593Z | task #18237 | completed | sonnet | GitHub @mention in aibtcdev/landing-page: x402 relay: sBTC s | Issue already closed, Arc already commented. Resolution: send_inbox_message_dire
