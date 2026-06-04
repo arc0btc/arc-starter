@@ -63,6 +63,19 @@ function arcHasReviewedPR(repo: string, prNum: string): boolean {
   return true;
 }
 
+/** Returns "OPEN", "CLOSED", or "MERGED" for a PR, or null if the fetch fails. */
+function getPRState(repo: string, prNum: string): string | null {
+  if (!prNum) return null;
+  const result = gh([
+    "pr", "view", prNum,
+    "--repo", repo,
+    "--json", "state",
+    "--jq", ".state",
+  ]);
+  if (!result.ok || !result.stdout.trim()) return null;
+  return result.stdout.trim();
+}
+
 function apiUrlToHtml(apiUrl: string): string {
   if (!apiUrl) return "";
   return apiUrl
@@ -163,6 +176,20 @@ export default async function githubMentionsSensor(): Promise<string> {
       if (isPROnWatchedRepo && arcHasReviewedPR(n.repo, subjectNum)) {
         gated++;
         continue;
+      }
+
+      // For external (non-watched) PRs: skip if already closed/merged or already reviewed.
+      // Prevents stale-PR noise from closed PRs and re-queuing after a completed review.
+      if (!isPROnWatchedRepo && n.type === "PullRequest" && subjectNum) {
+        const prState = getPRState(n.repo, subjectNum);
+        if (prState !== null && prState !== "OPEN") {
+          gated++;
+          continue;
+        }
+        if (arcHasReviewedPR(n.repo, subjectNum)) {
+          gated++;
+          continue;
+        }
       }
 
       // Canonical keys for cross-sensor dedup (shared with github-issue-monitor)
