@@ -474,3 +474,4 @@
 2026-06-04T10:47:07.028Z | task #18253 | completed | sonnet | Review PR #966 on aibtcdev/landing-page: chore(security): bu | reviewed PR #966 aibtcdev/landing-page: axios override 1.15.0→1.17.0 security bu
 2026-06-04T11:04:24.326Z | task #18254 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-04T12:35:14.312Z | task #18255 | failed | haiku | Fetch and compile arXiv digest — 2026-06-04 (30 new papers) | arXiv API unavailable: 429 rate limit then timeout after 3 retry attempts
+2026-06-04T12:44:44.772Z | task #18257 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still unresolved (no top-up signal). 
