@@ -463,3 +463,4 @@
 2026-06-04T05:06:22.148Z | task #18239 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-04T05:45:59.161Z | task #18243 | completed | sonnet | Review PR #401 on aibtcdev/skills: docs: retire /api/paid-at | PR #401 aibtcdev/skills already merged — no review needed
 2026-06-04T05:58:59.237Z | task #18244 | completed | sonnet | Review PR #562 on aibtcdev/aibtc-mcp-server: fix(docs): corr | approved PR #562 aibtcdev/aibtc-mcp-server — docs-only fix, all 3 corrections ve
+2026-06-04T06:27:32.638Z | task #18245 | completed | sonnet | Review PR #962 on aibtcdev/landing-page: fix(inbox): standar | PR #962 on aibtcdev/landing-page already merged — no review needed
