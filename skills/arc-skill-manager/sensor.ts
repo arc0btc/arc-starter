@@ -16,10 +16,10 @@ const PATTERNS_PATH = join(import.meta.dir, "../../memory/patterns.md");
 const RECENT_LOG_PATH = join(import.meta.dir, "../../memory/recent.log");
 const LINE_THRESHOLD = 500;
 const PATTERNS_LINE_THRESHOLD = 150;
-const RECENT_LOG_THRESHOLD = 500;
+const RECENT_LOG_ARCHIVE_AGE_DAYS = 14;
 const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
 const RECENT_LOG_TASK_SOURCE = "sensor:arc-recent-log-consolidate";
-const RECENT_LOG_COOLDOWN_MINUTES = 240; // 4h: archiving is no-op when all entries are <30d old
+const RECENT_LOG_COOLDOWN_MINUTES = 1440; // 24h safety net to prevent same-cycle re-fire after archiving
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
 const DECAY_SENSOR_NAME = "arc-research-decay";
 const DECAY_INTERVAL_MINUTES = 1440; // 24 hours
@@ -172,28 +172,37 @@ export default async function manageSkillsSensor(): Promise<string> {
     }
   }
 
-  // Check 1c: recent.log consolidation (monthly reflection processing)
+  // Check 1c: recent.log consolidation — age-based (only fires when entries >14d old exist)
   if (memoryClaimed) {
     if (existsSync(RECENT_LOG_PATH)) {
       const rContent = readFileSync(RECENT_LOG_PATH, "utf-8");
-      const rLineCount = rContent.split("\n").length;
+      const cutoffMs = Date.now() - RECENT_LOG_ARCHIVE_AGE_DAYS * 24 * 60 * 60 * 1000;
+      const oldEntryCount = rContent
+        .split("\n")
+        .filter((line) => line.trim())
+        .filter((line) => {
+          const ts = line.split("|")[0]?.trim();
+          if (!ts) return false;
+          const parsed = new Date(ts).getTime();
+          return !isNaN(parsed) && parsed < cutoffMs;
+        }).length;
 
       const recentLogLastRun = getLastCompletedTaskBySource(RECENT_LOG_TASK_SOURCE);
       const recentLogElapsedMinutes = recentLogLastRun?.completed_at
         ? (Date.now() - new Date(recentLogLastRun.completed_at + "Z").getTime()) / 60_000
         : Infinity;
 
-      if (rLineCount > RECENT_LOG_THRESHOLD && !pendingTaskExistsForSource(RECENT_LOG_TASK_SOURCE) && recentLogElapsedMinutes >= RECENT_LOG_COOLDOWN_MINUTES) {
+      if (oldEntryCount > 0 && !pendingTaskExistsForSource(RECENT_LOG_TASK_SOURCE) && recentLogElapsedMinutes >= RECENT_LOG_COOLDOWN_MINUTES) {
         insertTask({
-          subject: `Consolidate recent.log (${rLineCount} lines, threshold ${RECENT_LOG_THRESHOLD})`,
+          subject: `Consolidate recent.log (${oldEntryCount} entries older than ${RECENT_LOG_ARCHIVE_AGE_DAYS}d)`,
           description: [
-            "memory/recent.log has accumulated ~monthly reflection entries.",
+            `memory/recent.log has ${oldEntryCount} entries older than ${RECENT_LOG_ARCHIVE_AGE_DAYS} days ready to archive.`,
             "",
             "Steps:",
             "1. Read memory/recent.log — one line per task close (ISO timestamp | task ID | status | model | subject | summary)",
             "2. Extract patterns: cluster by source (sensor, task), status trends, cost outliers, and operational learnings",
             "3. Append significant patterns to memory/MEMORY.md under [E] Recent Evaluations or thematic sections",
-            "4. Archive recent.log: move entries older than 30 days to memory/archive/recent-log-<date>.bak",
+            `4. Archive recent.log: move entries older than ${RECENT_LOG_ARCHIVE_AGE_DAYS} days to memory/archive/recent-log-<date>.bak`,
             "5. Commit MEMORY.md updates",
           ].join("\n"),
           skills: '["arc-skill-manager"]',
@@ -202,8 +211,8 @@ export default async function manageSkillsSensor(): Promise<string> {
           source: RECENT_LOG_TASK_SOURCE,
         });
         results.push("recent-log-task-created");
-      } else if (rLineCount > RECENT_LOG_THRESHOLD && recentLogElapsedMinutes < RECENT_LOG_COOLDOWN_MINUTES) {
-        log(`recent.log at ${rLineCount} lines but last run was ${Math.round(recentLogElapsedMinutes)}min ago — cooling off for ${RECENT_LOG_COOLDOWN_MINUTES}min`);
+      } else if (oldEntryCount > 0 && recentLogElapsedMinutes < RECENT_LOG_COOLDOWN_MINUTES) {
+        log(`recent.log has ${oldEntryCount} old entries but last run was ${Math.round(recentLogElapsedMinutes)}min ago — cooling off`);
         results.push("recent-log-cooldown");
       } else {
         results.push("recent-log-ok");
