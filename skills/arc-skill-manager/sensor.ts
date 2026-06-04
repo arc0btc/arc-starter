@@ -181,9 +181,9 @@ export default async function manageSkillsSensor(): Promise<string> {
         .split("\n")
         .filter((line) => line.trim())
         .filter((line) => {
-          const ts = line.split("|")[0]?.trim();
-          if (!ts) return false;
-          const parsed = new Date(ts).getTime();
+          const timestamp = line.split("|")[0]?.trim();
+          if (!timestamp) return false;
+          const parsed = new Date(timestamp).getTime();
           return !isNaN(parsed) && parsed < cutoffMs;
         }).length;
 
