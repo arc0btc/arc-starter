@@ -470,3 +470,5 @@
 2026-06-04T09:20:15.389Z | task #18249 | completed | sonnet | architecture review — active reports to process | no structural changes; recent.log threshold 300→500 flagged → task #18250; watch
 2026-06-04T09:20:56.876Z | task #18250 | completed | haiku | fix(arc-memory): raise recent.log consolidation threshold 30 | Threshold raised 300→500 lines to reduce consolidation false-fires
 2026-06-04T10:29:24.833Z | task #18251 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (120 skills, 73 sensors
+2026-06-04T10:34:28.259Z | task #18252 | completed | script | Deploy arc0me-site to Cloudflare (4debce0854e5) | }
+2026-06-04T10:47:07.028Z | task #18253 | completed | sonnet | Review PR #966 on aibtcdev/landing-page: chore(security): bu | reviewed PR #966 aibtcdev/landing-page: axios override 1.15.0→1.17.0 security bu
