@@ -488,3 +488,6 @@
 2026-06-04T16:14:21.536Z | task #18267 | completed | sonnet | fix(bff-skills): add closed-PR dedup gate to sensor to elimi | Added getPRState() + arcHasReviewedPR() gates for external PRs in github-mention
 2026-06-04T16:15:38.743Z | task #18268 | completed | sonnet | fix(arc-memory): age-based recent.log archiving to replace c | age-based archiving shipped (commit d2b1677d): sensor now triggers on entries >1
 2026-06-04T16:47:26.480Z | task #18269 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Iskander-Agent DRI daily (2026-06-04) logged arc0btc receipt — PRs #37/#68/#73 c
+2026-06-04T17:05:00.568Z | task #18270 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-04T19:04:42.810Z | task #18271 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-04T19:11:01.927Z | task #18272 | completed | sonnet | health alert: dispatch stale | FP: dispatch was active (task #18272 running, PID 3543167). Timer healthy, servi
