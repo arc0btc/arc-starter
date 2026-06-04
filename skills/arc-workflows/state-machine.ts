@@ -1559,6 +1559,7 @@ export const OvernightBriefMachine: StateMachine<{
           subject: `Overnight brief — ${date}`,
           priority: 2,
           skills: ["arc-reporting"],
+          autoAdvanceState: "briefing",
           description: `Generate the overnight brief for ${date}.
 
 Steps:
