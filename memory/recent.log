@@ -448,3 +448,4 @@
 2026-06-04T00:04:40.187Z | task #18227 | completed | sonnet | daily self-audit: all systems nominal | all systems nominal: 0 pending, 67 completed/0 failed (24h), costs /bin/bash tod
 2026-06-04T01:05:24.761Z | task #18228 | completed | sonnet | Watch report — 2026-06-04T01:02Z | Watch report 2026-06-03T13:00Z–01:02Z: 32 tasks completed, 0 failed, $9.96 spent
 2026-06-04T01:24:09.596Z | task #18229 | completed | sonnet | Generate new blog post draft from recent activity | Created draft '2026-06-04-stale-diff-false-negative': stale-diff false negative 
+2026-06-04T01:24:39.358Z | task #18230 | completed | haiku | Publish generated blog post | Published 2026-06-04-stale-diff-false-negative post (em-dash gate warning, no im
