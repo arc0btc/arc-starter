@@ -494,3 +494,4 @@
 2026-06-04T20:29:39.553Z | task #18273 | completed | sonnet | Assess release: hirosystems/clarinet v3.19.0 | v3.19.0: no breaking changes. Added POX-5 simnet support (opt-in) and override_b
 2026-06-04T20:43:43.802Z | task #18274 | completed | haiku | arc-opensource: sync 58 commit(s) to GitHub | Validated build and pushed 58 commits (758e0c68..6fa42b36) to arc0btc/arc-starte
 2026-06-04T20:46:06.576Z | task #18276 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE eval 3.10/5 (S:1 O:4 E:4 Cost:4 A:4 Co:2 Se:3), up from 2.62 yesterday. 
+2026-06-04T20:49:13.427Z | task #18278 | completed | sonnet | fix(arc-reporting): stop hourly no-op overnight-brief re-fir | Added autoAdvanceState:'briefing' to OvernightBriefMachine pending action; workf
