@@ -468,3 +468,4 @@
 2026-06-04T07:04:05.307Z | task #18247 | completed | sonnet | Consolidate recent.log (468 lines, threshold 300) | 468-line log processed; all within 30d, no archiving. Added bff-skills stale-PR 
 2026-06-04T07:17:33.932Z | task #18248 | completed | sonnet | Review PR #964 on aibtcdev/landing-page: fix(leaderboard): d | reviewed PR #964 aibtcdev/landing-page leaderboard dedup by erc8004AgentId — app
 2026-06-04T09:20:15.389Z | task #18249 | completed | sonnet | architecture review — active reports to process | no structural changes; recent.log threshold 300→500 flagged → task #18250; watch
+2026-06-04T09:20:56.876Z | task #18250 | completed | haiku | fix(arc-memory): raise recent.log consolidation threshold 30 | Threshold raised 300→500 lines to reduce consolidation false-fires
