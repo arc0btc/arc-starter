@@ -1,6 +1,7 @@
 import {
   claimSensorRun,
   createSensorLogger,
+  getLastCompletedTaskBySource,
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
@@ -15,6 +16,11 @@ const log = createSensorLogger(SENSOR_NAME);
 
 /** Hours after which a blocked task always gets flagged for review. */
 const STALE_BLOCKED_HOURS = 48;
+/**
+ * Hours between re-reviews for stale-only blocked tasks (dead-ends with no new signals).
+ * Prevents churn on tasks like X-API-402 that cannot be unblocked autonomously.
+ */
+const DEAD_END_REVIEW_COOLDOWN_HOURS = 168; // 7 days
 
 export default async function blockedReviewSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -119,8 +125,41 @@ export default async function blockedReviewSensor(): Promise<string> {
     return "ok";
   }
 
+  // Split into signal-triggered (new context) vs stale-only (dead-ends with no new signals).
+  // Stale-only candidates are suppressed if a review already ran within DEAD_END_REVIEW_COOLDOWN_HOURS.
+  const signaledCandidates = candidates.filter((c) =>
+    c.reasons.some((r) => !r.startsWith("blocked for "))
+  );
+  const staleOnlyCandidates = candidates.filter((c) =>
+    c.reasons.every((r) => r.startsWith("blocked for "))
+  );
+
+  let activeStaleOnly = staleOnlyCandidates;
+  if (staleOnlyCandidates.length > 0) {
+    const last = getLastCompletedTaskBySource(TASK_SOURCE);
+    if (last?.completed_at) {
+      const ageHours =
+        (Date.now() - new Date(last.completed_at + "Z").getTime()) / 3_600_000;
+      if (ageHours < DEAD_END_REVIEW_COOLDOWN_HOURS) {
+        log(
+          `${staleOnlyCandidates.length} stale-only candidate(s) reviewed ${Math.round(ageHours)}h ago — skipping until ${DEAD_END_REVIEW_COOLDOWN_HOURS}h cooldown clears`
+        );
+        activeStaleOnly = [];
+      }
+    }
+  }
+
+  const reviewCandidates = [...signaledCandidates, ...activeStaleOnly];
+
+  if (reviewCandidates.length === 0) {
+    log(
+      `${blockedTasks.length} blocked task(s): all stale-only candidates within cooldown window`
+    );
+    return "ok";
+  }
+
   // Build a single review task listing all candidates
-  const description = candidates
+  const description = reviewCandidates
     .map(
       ({ task, reasons }) =>
         `### Task #${task.id} (P${task.priority}): ${task.subject}\n` +
@@ -134,7 +173,7 @@ export default async function blockedReviewSensor(): Promise<string> {
 
   // Collect skills from candidate blocked tasks so reviewer has relevant context
   const skillSet = new Set<string>(["arc-blocked-review"]);
-  for (const { task } of candidates) {
+  for (const { task } of reviewCandidates) {
     if (task.skills) {
       for (const s of JSON.parse(task.skills) as string[]) {
         if (validSkillNames.has(s)) skillSet.add(s);
@@ -145,7 +184,7 @@ export default async function blockedReviewSensor(): Promise<string> {
   const reviewSkills = [...skillSet].slice(0, 6);
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Review ${candidates.length} blocked task(s) for possible unblock`,
+    subject: `Review ${reviewCandidates.length} blocked task(s) for possible unblock`,
     description,
     skills: JSON.stringify(reviewSkills),
     priority: 7,
@@ -153,7 +192,7 @@ export default async function blockedReviewSensor(): Promise<string> {
   });
 
   if (id !== null) {
-    log(`created review task #${id} for ${candidates.length} candidate(s)`);
+    log(`created review task #${id} for ${reviewCandidates.length} candidate(s)`);
   } else {
     log("review task already exists, skipping");
   }
