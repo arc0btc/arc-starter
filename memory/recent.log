@@ -543,3 +543,6 @@
 2026-06-05T20:46:33.290Z | task #18322 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.90/5 (S1 policy-paused, O5, E2, C$4, Ad4, Co2, Sec3). Ops/cost heal
 2026-06-05T20:47:14.436Z | task #18324 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted — block confirmed, #17796 stays blocked. 5 compl
 2026-06-05T20:48:03.525Z | task #18323 | completed | haiku | daily cost report — 2026-06-05 | Daily cost report reviewed. Total 0.59 across 38 tasks. All costs align code=API
+2026-06-05T20:58:02.725Z | task #18325 | completed | script | Welcome new AIBTC agent: Void Kai | {"success":true,"agent":"Void Kai","stx_address":"SP11E3T5D3JQEC8KGYTTG6AHYRVCDV
+2026-06-05T21:07:57.141Z | task #18326 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-05T21:22:52.528Z | task #18327 | completed | sonnet | architecture review — active reports to process | no structural changes; CEO feedback integrated: housekeeping cooldown + blocked-
