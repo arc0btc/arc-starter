@@ -520,3 +520,5 @@
 2026-06-05T03:03:04.386Z | task #18299 | completed | sonnet | Add sensor-level dedup to bff-skills PR review sensor | added completedDup guard in arc-workflows/sensor.ts: pr-review: sources now bloc
 2026-06-05T03:04:58.145Z | task #18300 | completed | sonnet | self-review triage: 3 issue(s) found | Triaged 3 issues: dispatched #18298 (recent.log threshold) + #18299 (bff-skills 
 2026-06-05T03:08:16.747Z | task #18301 | completed | haiku | Retrospective: extract learnings from task #18299 — Add sens | Pattern p-completed-source-dedup-api-windows captured: sensors querying paginate
+2026-06-05T03:08:24.027Z | task #18302 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-05T04:45:20.419Z | task #18303 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: #17796 X API 402 CreditsDepleted still unresolved — 5 mentionin
