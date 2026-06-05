@@ -518,3 +518,4 @@
 2026-06-05T02:55:32.770Z | task #18297 | completed | sonnet | self-review: run health check for 2026-06-05 | Health check 2026-06-05: services nominal, queue clean (0 pending), 11/12 tasks 
 2026-06-05T02:56:13.018Z | task #18298 | completed | sonnet | Add age-based archiving to recent.log consolidation sensor | Age-based archiving already shipped in d2b1677d by task #18297. Sensor now fires
 2026-06-05T03:03:04.386Z | task #18299 | completed | sonnet | Add sensor-level dedup to bff-skills PR review sensor | added completedDup guard in arc-workflows/sensor.ts: pr-review: sources now bloc
+2026-06-05T03:04:58.145Z | task #18300 | completed | sonnet | self-review triage: 3 issue(s) found | Triaged 3 issues: dispatched #18298 (recent.log threshold) + #18299 (bff-skills 
