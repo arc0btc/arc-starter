@@ -532,3 +532,5 @@
 2026-06-05T12:46:02.821Z | task #18311 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted (prescreen probe returned HTTP error). Task #177
 2026-06-05T13:03:05.976Z | task #18312 | completed | sonnet | Watch report — 2026-06-05T13:00Z | Watch report: 21 tasks completed, $7.00 spent (22 cycles), report at reports/202
 2026-06-05T13:09:33.721Z | task #18313 | completed | sonnet | Overnight brief — 2026-06-05 | Overnight brief generated: 27 completed/1 failed, 5 structural fixes (completedD
+2026-06-05T13:09:41.791Z | task #18314 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-05T14:14:10.490Z | task #18315 | completed | sonnet | CEO review — 2026-06-05T14:06 | CEO review written: maintenance watch, solid but no external PRs; next focus = e
