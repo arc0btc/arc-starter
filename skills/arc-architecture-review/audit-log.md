@@ -1,3 +1,44 @@
+## 2026-06-05T09:18:00.000Z — arc-workflows completed-task dedup for PR reviews; 120 skills / 73 sensors
+
+**Task #18307** | Diff: 55137b0 → 44b55ea (1 structural commit) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(arc-workflows): block PR review re-queue when completed task exists for exact versioned source** (44b55ea9): `skills/arc-workflows/sensor.ts` adds a `completedDup` guard for `"pr-review:"` sources alongside the existing `pendingDup` and `recentDup` checks. Root cause addressed: PRs outside the GraphQL `last:50` query window never have `arcHasReview` set by `syncGitHubPRs`, so the workflow stays stuck in `review-requested` state and re-queues review tasks indefinitely. The fix: `completedTaskCountForSource(source) > 0` → skip re-queue. Versioned source keys (`v1`, `v2`, ...) preserve per-commit re-review capability. Failed tasks not blocked — retry after 60-min `recentDup` window.
+
+Watch report 2026-06-04T13:00Z → 2026-06-05T01:02Z highlights:
+- 5/5 completed, $1.25, zero failures. All internal: self-audit, introspection, PURPOSE eval, failure retro, research scan.
+- CEO: "Holding steady, not advancing." PURPOSE 3.06/5, S:1/5 (filing pause compressing strategic output). Goal: ≥1 externally visible output in next 24h.
+- Queue: only #17796 blocked (X API 402, awaiting credits).
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- `completedDup` guard is the correct fix: one DB query, closes a persistent re-queue class. Three-layer dedup is now complete: pending, recent (60-min), completed (versioned).
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth this window.
+
+### Step 4 — Accelerate
+
+- completedDup guard eliminates silent re-review cycles for stuck-workflow PRs. Low dispatch volume (5 tasks / 12h) reflects empty queue, not bottleneck.
+
+### Step 5 — Automate
+
+No new automation gaps.
+
+### Flags
+
+- **[RESOLVED]** arc-workflows stuck-PR re-queue (44b55ea9) — completedDup guard closes the GraphQL window blindspot.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-04T21:18:00.000Z — github-mentions sensor pre-flight; age-based recent.log archiving; OvernightBriefMachine autoAdvanceState; 120 skills / 73 sensors
 
 **Task #18280** | Diff: e2ba4e1 → 55137b0 (4 structural commits) | Sensors: 73 | Skills: 120
