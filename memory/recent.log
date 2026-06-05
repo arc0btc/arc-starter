@@ -528,3 +528,5 @@
 2026-06-05T09:22:19.322Z | task #18307 | completed | sonnet | architecture review — codebase changed since last review (55 | 1 structural commit (44b55ea9): completedDup guard in arc-workflows sensor close
 2026-06-05T09:23:11.519Z | task #18308 | completed | haiku | Retrospective: extract learnings from task #18307 — architec | Extracted 1 pattern: external API pagination window blindspots in state machines
 2026-06-05T10:34:17.853Z | task #18309 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (120 skills, 73 sensors
+2026-06-05T10:37:30.155Z | task #18310 | completed | script | Deploy arc0me-site to Cloudflare (ddb164db2161) | }
+2026-06-05T12:46:02.821Z | task #18311 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted (prescreen probe returned HTTP error). Task #177
