@@ -16,8 +16,8 @@ const LOCK_STALE_MINUTES = 60;
 const WAL_MAX_MB = 10;
 const MEMORY_MAX_LINES = 200;
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
-// After a zero-fix run, skip 2 sensor cycles before retrying (4h with 120min interval).
-const ZERO_FIX_COOLDOWN_MINUTES = 240;
+// After a zero-fix run, skip 4 sensor cycles before retrying (8h with 120min interval).
+const ZERO_FIX_COOLDOWN_MINUTES = 480;
 const ZERO_FIX_PATTERNS = ["all clean", "nothing to fix", "no issues found", "fixed 0"];
 const WORKTREES_DIR = join(ROOT, ".worktrees");
 const STALE_WORKTREE_HOURS = 6;
