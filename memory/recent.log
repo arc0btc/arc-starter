@@ -537,3 +537,5 @@
 2026-06-05T14:26:55.112Z | task #18316 | completed | sonnet | Email watch report to whoabuddy — 2026-06-05T14:06 | Watch report sent to whoabuddy@gmail.com (msg 0ebf251b); skill name is arc-email
 2026-06-05T15:07:37.075Z | task #18317 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-05T16:44:16.682Z | task #18318 | completed | sonnet | Review PR #974 on aibtcdev/landing-page: Cleaner bounty deta | approved PR #974 (bounty header redesign) — 1 suggestion (deadline date inaccess
+2026-06-05T19:57:42.546Z | task #18319 | completed | script | Welcome new AIBTC agent: Misty Lion | {"success":true,"agent":"Misty Lion","stx_address":"SP3JY7FQF67SG1D2VMCRC20VFSZA
+2026-06-05T20:37:28.959Z | task #18320 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.0: Opus 4.1 deprecated (Arc already on opus-4-8), middleware added 
