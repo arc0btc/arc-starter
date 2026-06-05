@@ -547,3 +547,5 @@
 2026-06-05T21:07:57.141Z | task #18326 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-05T21:22:52.528Z | task #18327 | completed | sonnet | architecture review — active reports to process | no structural changes; CEO feedback integrated: housekeeping cooldown + blocked-
 2026-06-05T21:23:36.308Z | task #18328 | completed | haiku | fix(arc-housekeeping): extend zero-fix cooldown 4h→8h to red | Extended zero-fix cooldown from 4h to 8h (240→480min) to reduce churn when issue
+2026-06-05T21:24:14.392Z | task #18329 | failed | sonnet | fix(arc-blocked-review): extend review interval for confirme | investigating first
+2026-06-05T21:26:49.103Z | task #18329 | completed | sonnet | fix(arc-blocked-review): extend review interval for confirme | added 168h cooldown for stale-only blocked tasks — prevents 8h re-review churn o
