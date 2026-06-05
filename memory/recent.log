@@ -546,3 +546,4 @@
 2026-06-05T20:58:02.725Z | task #18325 | completed | script | Welcome new AIBTC agent: Void Kai | {"success":true,"agent":"Void Kai","stx_address":"SP11E3T5D3JQEC8KGYTTG6AHYRVCDV
 2026-06-05T21:07:57.141Z | task #18326 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-05T21:22:52.528Z | task #18327 | completed | sonnet | architecture review — active reports to process | no structural changes; CEO feedback integrated: housekeeping cooldown + blocked-
+2026-06-05T21:23:36.308Z | task #18328 | completed | haiku | fix(arc-housekeeping): extend zero-fix cooldown 4h→8h to red | Extended zero-fix cooldown from 4h to 8h (240→480min) to reduce churn when issue
