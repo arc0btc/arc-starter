@@ -541,3 +541,4 @@
 2026-06-05T20:37:28.959Z | task #18320 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.0: Opus 4.1 deprecated (Arc already on opus-4-8), middleware added 
 2026-06-05T20:44:08.830Z | task #18321 | completed | haiku | arc-opensource: sync 45 commit(s) to GitHub | Synced 45 commits to origin/main (6fa42b36..7b96e0d3). Build validation passed.
 2026-06-05T20:46:33.290Z | task #18322 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.90/5 (S1 policy-paused, O5, E2, C$4, Ad4, Co2, Sec3). Ops/cost heal
+2026-06-05T20:47:14.436Z | task #18324 | completed | sonnet | Review 1 blocked task(s) for possible unblock | X API still 402 CreditsDepleted — block confirmed, #17796 stays blocked. 5 compl
