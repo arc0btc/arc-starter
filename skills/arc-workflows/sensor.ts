@@ -1,9 +1,9 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
-  taskExistsForSource,
   pendingTaskExistsForSource,
   recentTaskExistsForSource,
+  completedTaskCountForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   updateWorkflowContext,
@@ -429,7 +429,14 @@ export default async function workflowsSensor(): Promise<string> {
         // (catches stuck-in-state workflow loops where autoAdvanceState was missing — see
         // retrospective flood 2026-05-24, task #17585/#17590).
         const recentDup = recentTaskExistsForSource(source, 60);
-        if (!crossSensorDup && !pendingTaskExistsForSource(source) && !recentDup) {
+        // For PR review sources: block re-queue if a completed task already exists for this
+        // exact versioned source. Prevents re-review noise when the workflow state hasn't
+        // been updated yet (e.g., PR outside the GraphQL last-50 window so syncGitHubPRs
+        // never sees the arcHasReview flag and never advances the workflow to "approved").
+        // Failed tasks are not blocked — they will retry after the 60-min recentDup window.
+        // Safe for re-reviews: each review cycle uses a distinct source (v1, v2, ...).
+        const completedDup = source.startsWith("pr-review:") && completedTaskCountForSource(source) > 0;
+        if (!crossSensorDup && !pendingTaskExistsForSource(source) && !recentDup && !completedDup) {
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
