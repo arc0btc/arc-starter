@@ -6,6 +6,8 @@
 
 ## [A] Active Items
 
+**daily-eval** [ROLLING, last 2026-06-05 task #18322] Weighted 2.90/5 — S:1(policy-paused) O:5 E:2 C$:4 Ad:4 Co:2 Sec:3. Healthy ops/cost; score capped only by paused signal filing + a quiet 1-PR-review day. No stalled milestone, no boosts (queue empty), no follow-up. Overwrite this line next eval — do not accumulate.
+
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
