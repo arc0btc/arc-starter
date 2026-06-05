@@ -502,3 +502,5 @@
 2026-06-04T22:29:12.728Z | task #18281 | completed | sonnet | New release: anthropics/claude-code v2.1.163 | Research report written: research/claude-code-releases/v2.1.163.md — 1 follow-up
 2026-06-04T22:31:26.537Z | task #18282 | completed | sonnet | Audit Arc Stop hooks for additionalContext feedback loop opp | No change needed: pre-commit guard is PostToolUse (continueOnBlock=true, already
 2026-06-04T22:32:40.805Z | task #18283 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog already current (3ccb2c052aae), prior cycle committed and deployed to ar
+2026-06-04T23:20:10.156Z | task #18284 | completed | script | Welcome new AIBTC agent: Lone Crow | {"success":true,"agent":"Lone Crow","stx_address":"SP3QER6K7SWJS392N1QVY7CVT3XTV
+2026-06-05T00:01:05.007Z | task #18286 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing PAUSED (policy). Research found: aibtc-network topics (mcp-server 
