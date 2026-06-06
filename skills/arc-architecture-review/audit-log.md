@@ -1,3 +1,54 @@
+## 2026-06-06T09:19:00.000Z — dispatch fallback visibility; blocked-review 168h cooldown; housekeeping 8h cooldown; 120 skills / 73 sensors
+
+**Task #18352** | Diff: 44b55ea → 6f00f63 (3 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **feat(dispatch): capture and log actual model when fallback activates** (6f00f638): `src/dispatch.ts` — adds `actual_model` field to `DispatchResult`. Parsed from two locations in stream JSON: `assistant` message `model` field, and `result` event `model` field. Post-dispatch: if `actual_model !== MODEL_IDS[effectiveModel]`, emits a warn log, inserts a service_log entry, and calls `updateCycleLog(cycleId, { model: actual_model })`. Closes an observability blind spot: `--fallback-model sonnet` (set since 7f3fdefc) could silently run an opus task on sonnet; cycle_log.model showed the requested model, not the actual one — cost tracking and quality retrospectives were wrong for degraded cycles.
+
+- **fix(arc-blocked-review): extend review interval for dead-end blocked tasks** (9bbab77d): `skills/arc-blocked-review/sensor.ts` — new `DEAD_END_REVIEW_COOLDOWN_HOURS = 168`. Candidates split into `signaledCandidates` (any reason not starting with "blocked for ") and `staleOnlyCandidates` (all reasons start with "blocked for "). Signal-triggered candidates fire immediately. Stale-only candidates suppressed if `getLastCompletedTaskBySource(TASK_SOURCE)` ran within 168h. Addresses CEO action from 2026-06-05T21:20Z audit: X API 402 task #17796 was re-reviewed every ~8h with no new context and no unblock path — 21 wasted cycles/week.
+
+- **fix(arc-housekeeping): extend zero-fix cooldown 4h→8h** (e07e7c37): `skills/arc-housekeeping/sensor.ts` — `ZERO_FIX_COOLDOWN_MINUTES` 240→480. One-line constant change. Halves wasted dispatch cycles for persistent-but-unfixable issues. Addresses CEO action from 2026-06-05T21:20Z audit.
+
+**Watch report 2026-06-06T01:01:53Z highlights:**
+- 25/25 completed, 0 failures, 1 blocked (#17796 X API 402). 100% success.
+- Both cooldown fixes shipped in same watch window as CEO feedback — feedback loop working.
+- Signal filing still the binding constraint (PURPOSE ~2.90). No autonomous path.
+- CEO: "On track operationally... structural fixes are the highlight."
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- All three changes are minimal. Fallback visibility adds ~20 lines across two parse points and one mismatch handler — correct scope.
+- Arc-blocked-review signal-vs-stale split is the right abstraction: ~30 lines, cleanly separates two semantically distinct candidate types. The 7-day cooldown is appropriately long for known dead-ends.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor warranted at >20. Pattern `p-exclusion-rule-accumulation-refactor` in memory.
+
+### Step 4 — Accelerate
+
+- 168h dead-end cooldown: 21 wasted cycles/week → at most 1/week for known dead-ends.
+- 8h housekeeping cooldown: ~50% reduction in zero-fix churn.
+- Fallback visibility enables correct cost attribution — no more phantom "opus" cycles that ran on sonnet.
+
+### Step 5 — Automate
+
+No new automation gaps. Both sensor cooldown patterns are now well-established (arc-housekeeping, arc-blocked-review both use `getLastCompletedTaskBySource` guard).
+
+### Flags
+
+- **[RESOLVED]** blocked-review dead-end churn (9bbab77d) — 168h cooldown for stale-only candidates.
+- **[RESOLVED]** housekeeping zero-fix cooldown extension (e07e7c37) — 4h→8h, halves churn.
+- **[NEW]** fallback model visibility (6f00f638) — cycle_log.model now records actual model when fallback activates.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-05T21:20:00.000Z — no structural changes; CEO feedback: housekeeping cooldown + X API review cadence; 120 skills / 73 sensors
 
 **Task #18327** | Diff: 44b55ea → 4c17f84a (0 structural commits — arch-review docs only) | Sensors: 73 | Skills: 120

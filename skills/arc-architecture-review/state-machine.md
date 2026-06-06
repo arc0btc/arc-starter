@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-05T21:20:00.000Z*
-*Diff: 44b55ea → 4c17f84a (0 structural commits) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-06T09:19:00.000Z*
+*Diff: 44b55ea → 6f00f63 (3 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -87,7 +87,7 @@ stateDiagram-v2
 
         state InfrastructureSensors {
             arc_housekeeping
-            note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)\nZERO-FIX COOLDOWN (e96561a0): 4h gate after zero-fix runs\ngetLastCompletedTaskBySource() added to src/db.ts + re-exported via src/sensors.ts\nChecks result_summary vs ZERO_FIX_PATTERNS ["all clean","nothing to fix","no issues found","fixed 0"]\nIf matched and elapsed < 240min → skip (sensor returns "ok"); else proceed normally\nPrevents churn when issues are persistent but unfixable (e.g. MEMORY.md 1 line over threshold)\nClosed 5 zero-fix cycles in 12h overnight window (2026-05-31)
+            note right of arc_housekeeping: SCRIPT DISPATCH (90df07f6): model="script"\nRuns arc skills run --name arc-housekeeping -- fix\nZero LLM cost per execution; 5-min script timeout\nNote: LLM model-upgrade (bbf36f1a) also exists for complex housekeeping:\nhaiku→sonnet when >2 staged .ts files (lint overhead mitigation)\nZERO-FIX COOLDOWN (e96561a0): 4h gate after zero-fix runs\ngetLastCompletedTaskBySource() added to src/db.ts + re-exported via src/sensors.ts\nChecks result_summary vs ZERO_FIX_PATTERNS ["all clean","nothing to fix","no issues found","fixed 0"]\nIf matched and elapsed < 240min → skip (sensor returns "ok"); else proceed normally\nPrevents churn when issues are persistent but unfixable (e.g. MEMORY.md 1 line over threshold)\nClosed 5 zero-fix cycles in 12h overnight window (2026-05-31)\nCOOLDOWN EXTENDED 4h→8h (e07e7c37): ZERO_FIX_COOLDOWN_MINUTES 240→480\nHalves wasted cycles for persistent-but-unfixable issues\nCEO-flagged action from 2026-06-05T21:20Z audit
             arc_email_sync
             note right of arc_email_sync: CF WORKER ONLY (f1bb3375): Resend backend removed\nAll outbound mail via CF email worker (arc skills run --name email -- send)\nSole recipient: whoabuddy@gmail.com — CF worker delivers directly\nResend code + --via flag removed from cli.ts + SKILL.md\nBlocked tasks #14771 + #16063 closed as superseded (policy, not outage)\nPattern: email-no-resend is policy, not pending setup\nSENT-FOLDER DEDUP GUARD (651120e6): before sending, query sent folder for matching subject\nSkip send + close idempotently if already sent within recent window\nCloses bug #1 of side-effecting-task re-dispatch pattern (task #17836)\nBug #2 (db resurrection) fixed separately at db layer (78408d07)\nPattern: any task that sends email/funds must be idempotent — check sent folder first\nSINCE-CURSOR CF QUOTA (b7c5f4b8): since param added to /api/messages poll\nReduces CF DO row reads from 4.67M/day toward ~5k/day — full fix pending CI/CD deploy\nCURSOR COLD-START FIX (c40f4ceb): loadCursorState() now validates inbox/sent as parseable ISO strings\nPrevious fix (b7c5f4b8) non-functional: STATE_FILE always exists (sensor infra writes last_ran/version)\nRoot: cursor=undefined → new Date(undefined).toISOString() throws RangeError, swallowed, full-table scan\nFix: fall through to cold-start (NOW) if fields missing/invalid\nsaveCursorState merges into existing file to preserve sensor metadata (preserves claimSensorRun interval gate)\nRule: any sensor sharing db/hook-state/{name}.json with other state must validate all expected fields on read
             arc0btc_email_worker
@@ -118,6 +118,7 @@ stateDiagram-v2
             arc_architecture_review
             note right of arc_architecture_review: SHA-GATE (b5907974): gates on code SHA change vs last review\nDiagram mtime NOT used — unchanged code means diagram is still accurate\nPrevents daily re-reviews when no structural changes have occurred\nTOKEN-EXPLOSION FIX (c6a82d76): AGENT.md scoped to git diff since last SHA\nNever reads all 119+ SKILL.md/AGENT.md files — only changed files per diff\nPattern: arch-review reads changed files only; sensor-health uses aggregate CLI
             arc_blocked_review
+            note right of arc_blocked_review: DEAD-END COOLDOWN (9bbab77d): DEAD_END_REVIEW_COOLDOWN_HOURS=168 (7 days)\nCandidates split into signal-triggered (reason NOT "blocked for X") vs stale-only\nSignal-triggered: fire immediately regardless of cooldown\nStale-only: suppressed if review ran within 168h (getLastCompletedTaskBySource)\nFixes X API 402 dead-end (#17796) re-reviewing every 8h with no unblock path\nPattern: known dead-ends need a long cooldown, not a short one
             arc_catalog
             arc_cost_reporting
             arc_failure_triage
@@ -264,7 +265,7 @@ stateDiagram-v2
         state PostDispatch {
             [*] --> RecordCycleLog
             RecordCycleLog --> RecordQuality
-            note right of RecordCycleLog: TOOL_CALLS (f51a7ec2): cycle_log.tool_calls JSON array\nCaptures tool name sequence per dispatch cycle\nEnables golden case assertions for vitest-evals-style harness eval\nPer Hylak eval guidance (agent-eval-volume-taxonomy.md)
+            note right of RecordCycleLog: TOOL_CALLS (f51a7ec2): cycle_log.tool_calls JSON array\nCaptures tool name sequence per dispatch cycle\nEnables golden case assertions for vitest-evals-style harness eval\nPer Hylak eval guidance (agent-eval-volume-taxonomy.md)\nFALLBACK MODEL VISIBILITY (6f00f638): actual_model extracted from stream JSON\nChecks assistant message + result event for model field\nOn mismatch vs MODEL_IDS[effectiveModel]: warn log + service_log entry + updateCycleLog(model=actual)\nCloses observability gap: opus→sonnet fallback was invisible in cycle_log\nEnables cost/quality retrospectives on degraded cycles
             note right of RecordQuality: DISPATCH CATCH-BLOCK GUARD (af5c6ac2): at top of catch, check if LLM already self-closed\nif task.status !== 'active' → preserve status, log, skip requeueTask\nFixes subprocess error during teardown overwriting completed→pending\nDEATH-PROOF AT DB LAYER (78408d07): requeueTask WHERE status!='completed'\nDB-layer invariant: a completed task can NEVER be set to pending\nRace-safe: UPDATE 0-row no-op on already-completed task\nCloses dispatch resurrection bug class (task #17845)
             RecordQuality --> ExtractContributionTag
             ExtractContributionTag --> SafeCommit
