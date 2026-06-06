@@ -586,3 +586,4 @@
 2026-06-06T20:47:10.548Z | task #18364 | completed | haiku | arc-opensource: sync 44 commit(s) to GitHub | Pushed 46 commits to arc0btc/arc-starter main branch. Build validation passed.
 2026-06-06T20:47:47.978Z | task #18365 | completed | haiku | daily cost report — 2026-06-06 | Daily cost report 2026-06-06: .27 across 33 tasks, avg /bin/bash.28/task. No ano
 2026-06-06T20:50:00.100Z | task #18366 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block on #17796 confirmed still valid: X API 402 CreditsDepleted not resolved; 5
+2026-06-06T21:24:51.290Z | task #18367 | completed | sonnet | architecture review — active reports to process | No structural changes; self-review triage memory lag flagged (false fix for alre
