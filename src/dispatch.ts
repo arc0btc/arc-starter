@@ -477,6 +477,7 @@ interface DispatchResult {
   input_tokens: number;
   output_tokens: number;
   tool_calls?: string[];
+  actual_model?: string;
 }
 
 async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string, taskId?: number, taskSubject?: string): Promise<DispatchResult> {
@@ -592,6 +593,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   let output_tokens = 0;
   let cache_read_tokens = 0;
   let cache_creation_tokens = 0;
+  let actualModel: string | null = null;
   const toolCallNames: string[] = [];
   const decoder = new TextDecoder();
   let lineBuffer = "";
@@ -652,6 +654,9 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
 
     if (parsed["type"] === "assistant") {
       const message = parsed["message"] as Record<string, unknown> | undefined;
+      if (!actualModel && typeof message?.["model"] === "string") {
+        actualModel = message["model"] as string;
+      }
       const content = message?.["content"] as Array<Record<string, unknown>> | undefined;
       if (content) {
         for (const block of content) {
@@ -686,6 +691,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
 
       if (!result && typeof parsed["result"] === "string") {
         result = parsed["result"];
+      }
+
+      if (!actualModel && typeof parsed["model"] === "string") {
+        actualModel = parsed["model"] as string;
       }
     }
   }
@@ -723,7 +732,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     throw new Error("stream-JSON incomplete: subprocess exited 0 but produced no result and no cost data (likely crashed mid-stream)");
   }
 
-  return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens, tool_calls: toolCallNames };
+  return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens, tool_calls: toolCallNames, actual_model: actualModel ?? undefined };
 }
 
 // ---- Script dispatch (LLM-bypass) ----
@@ -1266,11 +1275,18 @@ export async function runDispatch(): Promise<void> {
 
     recordGateSuccess();
 
-    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens, tool_calls } = dispatchResult;
+    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens, tool_calls, actual_model } = dispatchResult;
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
     );
+
+    // Detect and record fallback model activation
+    if (actual_model && actual_model !== MODEL_IDS[effectiveModel]) {
+      log(`dispatch: fallback activated — requested ${MODEL_IDS[effectiveModel]} (${effectiveModel}), ran on ${actual_model} (task #${task.id})`);
+      insertServiceLog("warn", "dispatch", `fallback activated: requested ${cycleModelLabel} (${MODEL_IDS[effectiveModel]}), ran on ${actual_model}`, task.id);
+      updateCycleLog(cycleId, { model: actual_model });
+    }
 
     // Sandbox-failure guard: if the subagent reported it couldn't run tools, force failure.
     // Why: v2.1.108 Bash sandbox can block every command; LLM still produces clean prose and
