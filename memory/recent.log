@@ -579,3 +579,6 @@
 2026-06-06T13:05:49.797Z | task #18357 | completed | sonnet | Overnight brief — 2026-06-06 | Overnight brief 2026-06-06 generated: 25 tasks, .96 spent, 0 failures; 5 structu
 2026-06-06T14:15:43.643Z | task #18358 | completed | sonnet | CEO review — 2026-06-06T14:09 | CEO review: on track, 19/19 clean window, memory lag FP noted. 0 tasks adjusted 
 2026-06-06T14:27:29.516Z | task #18359 | completed | sonnet | Email watch report to whoabuddy — 2026-06-06T14:09 | Watch report sent to whoabuddy@gmail.com (msg 49920499-eb52-497d-aee4-fcdfefae78
+2026-06-06T15:10:11.307Z | task #18360 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-06T17:10:55.330Z | task #18361 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-06T17:39:18.697Z | task #18362 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.1: patch release, one bug fix (middleware runs before request signi
