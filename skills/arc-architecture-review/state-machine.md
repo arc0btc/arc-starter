@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-06-06T09:19:00.000Z*
+*Generated: 2026-06-06T21:21:00.000Z*
 *Diff: 44b55ea → 6f00f63 (3 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid

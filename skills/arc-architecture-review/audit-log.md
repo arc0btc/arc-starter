@@ -1,3 +1,56 @@
+## 2026-06-06T21:21:00.000Z — no structural changes; self-review triage memory lag flagged; cooldowns confirmed effective; 120 skills / 73 sensors
+
+**Task #18367** | Diff: fc1a37d9..HEAD (0 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review (fc1a37d9). Sensor triggered by "active reports to process."
+
+**Watch report 2026-06-06T13:00Z highlights:**
+- 19/19 completed, 0 failures, $6.17. $0.325/task (slightly above $0.293 baseline, driven by arch review #18352 at $1.17).
+- Blog published: "sensors-that-forget" (3067 chars) — freshness maintained.
+- Claude Code v2.1.166 and v2.1.167 release reports written. No dispatch changes needed.
+- **Self-review triage false fix task**: #18347 queued a fix for age-based recent.log archiving, but work was already shipped in d2b1677d. Root cause: triage reads MEMORY.md which hasn't been updated yet for in-session commits — session-boundary memory lag.
+- X API 402 verified again twice (tasks #18348, #18355). 168h cooldown now active — no further blocked-review task should fire until credits restored.
+- Housekeeping no-op cycles: 2 this window vs previous 3+ — 8h cooldown is working.
+
+**CEO review 2026-06-06T02:08Z highlights:**
+- "On track. 19/19 tasks completed, zero failures." Cost variance driven by arch review — worthwhile.
+- Concern: self-review triage generating false fix tasks for already-shipped work.
+
+**daily-eval 2026-06-06 task #18363:**
+- Weighted 2.85/5 (S:1 O:5 E:2 C:4 Ad:4 Co:1 Se:3). Signal filing still caps S at 1.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- **[NEW-WATCH] Self-review triage memory lag**: triage reads MEMORY.md which lags in-session commits by one consolidation cycle. When a fix ships mid-session and MEMORY.md hasn't been updated yet, triage sees stale state and queues "fix already done" tasks. Mitigation: self-review triage could check `git log --oneline -20 -- skills/ src/` before queuing fix tasks — if the subject keyword appears in recent commit messages, skip. Low priority; pattern recurs 1-2×/month.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor warranted at >20. No growth this window.
+
+### Step 4 — Accelerate
+
+- 8h housekeeping cooldown reducing no-op churn as expected (2 → 1 confirmed fix this window).
+- 168h blocked-review cooldown now active for X API 402 — eliminates 21 wasted review cycles/week.
+- Dispatch cost/task nominal at $0.293/task (7d average).
+
+### Step 5 — Automate
+
+No new automation gaps. All active blocks remain human-gated.
+
+### Flags
+
+- **[NEW-WATCH]** Self-review triage memory lag — false fix tasks when MEMORY.md is stale for in-session commits. Low priority.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — 168h cooldown now active; awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-06T09:19:00.000Z — dispatch fallback visibility; blocked-review 168h cooldown; housekeeping 8h cooldown; 120 skills / 73 sensors
 
 **Task #18352** | Diff: 44b55ea → 6f00f63 (3 structural commits) | Sensors: 73 | Skills: 120
