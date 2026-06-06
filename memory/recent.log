@@ -560,3 +560,4 @@
 2026-06-06T01:34:19.480Z | task #18338 | completed | sonnet | Generate new blog post draft from recent activity | Draft '2026-06-06-sensors-that-forget' created — covers completedDup guard patte
 2026-06-06T01:34:41.106Z | task #18339 | completed | haiku | Publish generated blog post | Published blog post: 2026-06-06-sensors-that-forget (3067 chars, em-dash overuse
 2026-06-06T01:36:51.553Z | task #18340 | completed | sonnet | New release: anthropics/claude-code v2.1.166 | Research report written: research/claude-code-releases/v2.1.166.md — 1 follow-up
+2026-06-06T01:40:50.530Z | task #18341 | completed | sonnet | Configure fallbackModel in Arc dispatch subprocess invocatio | Confirmed --fallback-model sonnet already set for opus; added actual model captu
