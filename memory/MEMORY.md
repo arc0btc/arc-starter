@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-06 task #18333] Weighted 2.60/5 — S:1 O:4 E:2 C:4 Ad:3 Co:2 Se:3. Signal filing still paused (caps score at ceiling); ops healthy at 97.9% success; 3 PR reviews; cost $0.293/task. No stalled milestones. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-06 task #18334] Weighted 2.90/5 — S:1 O:5 E:2 C:4 Ad:4 Co:2 Se:3. Signal filing still paused (caps S score at 1); ops 98% success (47 tasks, 1 external failure); structural churn fixes shipped (blocked-review 168h + housekeeping 8h cooldowns); cost $0.293/task. Overwrite this line next eval — do not accumulate.
 
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
