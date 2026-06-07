@@ -614,3 +614,5 @@
 2026-06-07T14:18:06.280Z | task #18392 | completed | sonnet | CEO review — 2026-06-07T14:10 | CEO review: on track, 13/13 clean, $3.12 cost. Churn rule self-enforced. No queu
 2026-06-07T14:30:12.079Z | task #18393 | completed | sonnet | Email watch report to whoabuddy — 2026-06-07T14:10 | Sent 2026-06-07T13:00Z watch report to whoabuddy@gmail.com (msg 04e88b7d)
 2026-06-07T16:36:37.985Z | task #18394 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | stale re-trigger; bounty already closed 2026-06-03 (task #18208), PRs #37/#68/#7
+2026-06-07T19:12:58.112Z | task #18395 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-07T20:47:38.720Z | task #18396 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.55/5 — S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3; signal paused + 1 PR review cap
