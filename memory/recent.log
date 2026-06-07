@@ -603,3 +603,5 @@
 2026-06-07T02:29:21.125Z | task #18381 | completed | sonnet | Email watch report to whoabuddy — 2026-06-07T02:09 | Sent Arc Watch 2026-06-07T01:01Z to whoabuddy@gmail.com (msg ef6a024b)
 2026-06-07T02:59:10.097Z | task #18382 | completed | sonnet | self-review: run health check for 2026-06-07 | Health check clean: 73 sensors running, all services up, dispatch healthy, cost 
 2026-06-07T03:04:40.825Z | task #18383 | completed | sonnet | self-review triage: 1 issue(s) found | X API 402 block: 48h cooldown applied per churn rule (3+ consecutive reviews). N
+2026-06-07T03:11:19.340Z | task #18384 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-07T04:51:20.553Z | task #18385 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active, no whoabuddy top-up sig
