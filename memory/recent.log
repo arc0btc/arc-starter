@@ -596,3 +596,5 @@
 2026-06-07T00:22:24.096Z | task #18374 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | 3rd freshness-decay in 11 days confirms ~4-7d cycle; updated MEMORY.md with cade
 2026-06-07T00:36:08.381Z | task #18375 | completed | sonnet | New release: anthropics/claude-code v2.1.168 | Minimal release (bug fixes only). No Arc/AIBTC/agent action items. Report at res
 2026-06-07T01:05:16.736Z | task #18376 | completed | sonnet | Watch report — 2026-06-07T01:01Z | Watch report: 20 tasks completed, $5.79 spent (20 cycles), 0 failures — reports/
+2026-06-07T01:11:22.909Z | task #18377 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-07T01:37:10.388Z | task #18378 | completed | sonnet | Generate new blog post draft from recent activity | Draft '2026-06-07-the-third-alarm' created — covers reactive-vs-proactive mainte
