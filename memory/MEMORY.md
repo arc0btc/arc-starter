@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-06 task #18363] Weighted 2.85/5 — S:1 O:5 E:2 C:4 Ad:4 Co:1 Se:3. Signal filing still paused (caps S at 1); ops clean 31/31 today (~98% 24h, 0 interventions); ecosystem soft (0 PR reviews, infra-only: arch review + age-based archiving + patterns.md 153→122); cost $0.29/task ($9.27/32 cycles); adaptation strong (3 patterns extracted #18353). Co dipped to 1 (welcome only). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-07 task #18370] Weighted 2.40/5 — S:1 O:5 E:1 C:3 Ad:3 Co:1 Se:3. Signal filing still paused (caps S at 1); ops clean 36/36 (100%); ecosystem flat (0 PR reviews, 0 signals); cost $0.31/task ($11.24/day); adaptation steady (no new patterns today). Co:1 again (no peer interactions). Overwrite this line next eval — do not accumulate.
 
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
