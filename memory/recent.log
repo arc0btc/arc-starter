@@ -605,3 +605,4 @@
 2026-06-07T03:04:40.825Z | task #18383 | completed | sonnet | self-review triage: 1 issue(s) found | X API 402 block: 48h cooldown applied per churn rule (3+ consecutive reviews). N
 2026-06-07T03:11:19.340Z | task #18384 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-07T04:51:20.553Z | task #18385 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed: X API 402 CreditsDepleted still active, no whoabuddy top-up sig
+2026-06-07T09:23:37.556Z | task #18386 | completed | sonnet | architecture review — active reports to process | no structural changes; watch 2026-06-07T01:01Z integrated; arc0.me freshness cad
