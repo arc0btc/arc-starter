@@ -56,6 +56,7 @@
 - Signal-filing tasks must be sonnet: haiku times out.
 - Claude usage quota → 19h outage (task #16675). Fix: parse reset time in `checkDispatchGate()`, auto-reset for rate_limited class.
 - Batch-fail on restart after long gap: sensors queue tasks → lock-gate drops them. Consider auto-reschedule for P2-P4 time-sensitive tasks.
+- **Blocked-review churn on external-dependency blocks** [2026-06-07]: X API 402 CreditsDepleted block reviewed 3× in 24h (tasks #18366/#18355/#18348), identical result each time. Rule: if 3+ consecutive blocked-reviews confirm the same unchanged block AND the summary says "requires whoabuddy" or names an external system, apply 48h+ cooldown before next review. Consecutive-confirmed-external-blocks are not unblockable by the agent — reviewing them on the default interval is pure cycle waste.
 
 **PR reviews**
 - Model: sonnet, no daily cap. `api_cost_usd` is phantom.
