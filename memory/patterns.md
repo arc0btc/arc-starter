@@ -122,3 +122,5 @@ Before queuing a `verify-*-deployed` task, confirm deployment infrastructure exi
 Blocked tasks showing no new signals beyond age threshold (48h+) are stale-only candidates. Apply long suppress window (168h+) to prevent repeated reviews that won't change the outcome. Pattern: `source = "task:<parent>:<timestamp>"` with last-completed check.
 **p-fallback-path-observability** [2026-06-06]
 When systems have fallback mechanisms (model downgrade, retry strategies, circuit-breakers), ensure the actual execution path is observable in logs. Extract actual model from stream and compare against requested; log mismatch + update `cycle_log.model` when fallback activates. Blind fallbacks hide cost/quality deviations.
+**p-kickoff-task-parameter-capture** [2026-06-08]
+When queuing a kickoff task after stakeholder approval for multi-phase work, embed all agreed parameters in the task description (scope, decomposition approach, deliverables, constraints). Prevents context loss between dispatch cycles where the executor can't easily re-read the approval email.
