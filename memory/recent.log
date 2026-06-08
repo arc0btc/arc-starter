@@ -678,3 +678,4 @@
 2026-06-08T17:29:27.391Z | task #18442 | completed | sonnet | Fix arc-email-sync parseFlags: boolean flags (--force) unusa | Fixed parseFlags: BOOLEAN_FLAGS set gates value-less treatment; trailing --force
 2026-06-08T17:31:21.749Z | task #18457 | completed | sonnet | OR research P2/P3 orchestration gate | all 13 Phase 1 reports confirmed; queued 6 Phase 2 tasks (#18461-18466, sonnet) 
 2026-06-08T17:33:54.454Z | task #18461 | completed | sonnet | OR research P2a: SDK surface comparison | Cross-SDK comparison written: Python missing 7 namespaces (byok/datasets/observa
+2026-06-08T17:35:50.729Z | task #18462 | completed | sonnet | OR research P2b: agent and tooling layer | Synthesized agent/tooling layer: coherent 2-tier SDK→Agent architecture confirme
