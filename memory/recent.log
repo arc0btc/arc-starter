@@ -662,3 +662,4 @@
 2026-06-08T16:24:13.690Z | task #18439 | completed | haiku | Retrospective: extract learnings from task #18438 — Email fr | Added p-multi-repo-research-planning pattern: enumerate scope before choosing de
 2026-06-08T16:36:42.863Z | task #18440 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: openrouter tec | whoabuddy green-lit OpenRouter research; replied confirming approach + queued ki
 2026-06-08T16:43:41.708Z | task #18441 | completed | opus | OpenRouter tech-stack deep research: kickoff (clone repos to | Kickoff done: cloned 14 OR repos to /home/dev/research-clones/openrouter, create
+2026-06-08T16:47:49.094Z | task #18444 | completed | sonnet | OR research P1: typescript-sdk | typescript-sdk: Speakeasy-generated ESM SDK, 1 dep (zod), Matt Apperson 61% comm
