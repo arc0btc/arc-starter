@@ -696,3 +696,4 @@
 2026-06-08T20:52:07.977Z | task #18472 | completed | haiku | daily cost report — 2026-06-08 | Daily cost 3.27 (code) on 70 tasks, 46k tokens. OpenRouter research + arc-email-
 2026-06-08T21:29:24.458Z | task #18474 | completed | sonnet | architecture review — codebase changed since last review (6f | 1 structural commit (arc-email-sync parseFlags boolean fix); 7 PR earnings index
 2026-06-08T22:41:43.249Z | task #18475 | completed | sonnet | New release: anthropics/claude-code v2.1.169 | Report written: research/claude-code-releases/v2.1.169.md — 1 follow-up task cre
+2026-06-08T22:42:32.237Z | task #18476 | completed | haiku | Doc: add --safe-mode / CLAUDE_CODE_SAFE_MODE to Arc dispatch | Added Dispatch Troubleshooting section documenting CLAUDE_CODE_SAFE_MODE env var
