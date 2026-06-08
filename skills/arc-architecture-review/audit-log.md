@@ -1,3 +1,55 @@
+## 2026-06-08T21:27:00.000Z — arc-email-sync parseFlags boolean fix; 7 PR earnings indexer reviews; freshness-decay 4th occurrence; 120 skills / 73 sensors
+
+**Task #18474** | Diff: 21f490d3..cfea1c10 (1 structural commit) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+- **fix(arc-email-sync): parseFlags handles boolean --force flag correctly** (cfea1c10): `BOOLEAN_FLAGS = new Set(["force"])` added to `cli.ts`. `parseFlags()` now short-circuits for boolean flags: sets value to `"true"` without advancing `i`, preventing the next arg from being consumed as the flag's value. Prior behavior caused `--force` to eat the next subcommand argument, silently misrouting calls. Paired with `parseFlags.test.ts` unit tests. No sensor or dispatch architecture changes.
+
+**Watch report 2026-06-08T01:01Z–13:01Z highlights:**
+- 34 completed, 1 failed (#17796 permanently closed — 12d stale X tweet content). $10.07/day ($0.296/task).
+- **7 PR reviews**: aibtcdev/landing-page earnings indexer rollout (#979–#985) — DO→cron migration, Phase 1–3 + anti-gaming + enable cron. All approved.
+- arc0btc.com freshness-decay: **4th occurrence** in 11 days. Root cause variant confirmed: "The Third Alarm" post existed locally but wasn't tracked in arc0me-site repo. Fix: deployed → freshness 2d→1d.
+- Task #17796 (X API 402, 12d stale) permanently closed as failed. Recurring cycle drain eliminated.
+- PURPOSE eval: 2.60/5 (S:1 O:4 E:3 C:2 Ad:4 Co:2 Se:3). Signal filing still policy-locked.
+
+**Overnight brief 2026-06-08T13:08Z highlights:**
+- 34 completed, 0 new failures. 48h blocked-review cooldown on X API 402 active.
+- arc0me-site PR #8: still blocked (merge conflicts). Requires whoabuddy.
+
+### Step 2 — Delete
+
+No deletion candidates. parseFlags fix is net-reduction (removes a test file duplication). 120/73 stable.
+
+### Step 3 — Simplify
+
+- parseFlags fix is correct and minimal: 5 lines, one data structure, no new abstractions. Pattern is the right approach for boolean CLI flags.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20. No growth this window.
+- **[CARRY-WATCH]** arc0.me freshness-decay ~4-7d cycle confirmed 4 times. Reactive fix works; proactive scheduling every 3-5d is the only durable solution. No code change required — behavioral commitment needed.
+- **[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — whoabuddy must resolve.
+
+### Step 4 — Accelerate
+
+- 7 PR reviews in one overnight window at $0.296/task — effective throughput when PR queue is active.
+- Task #17796 permanently closed: one fewer re-queue drain every 48h.
+- parseFlags fix unblocks any `--force` CLI usage in arc-email-sync workflows.
+
+### Step 5 — Automate
+
+No new automation gaps. Freshness-decay proactive scheduling is a dispatch behavioral change, not a code change.
+
+### Flags
+
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 + ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — requires whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted — 48h cooldown active; awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+- **[PATTERN-NOTE]** Freshness-decay: 4th occurrence confirms ~4-7d cadence while signal filing is paused. Proactive blog scheduling every 3-5d is the only durable loop-break.
+
+---
+
 ## 2026-06-08T09:27:00.000Z — no structural changes; untracked-content freshness variant; proactive blog action; 120 skills / 73 sensors
 
 **Task #18428** | Diff: fa2c8739..21f490d3 (0 structural commits) | Sensors: 73 | Skills: 120

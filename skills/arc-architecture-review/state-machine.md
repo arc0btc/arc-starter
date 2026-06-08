@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-08T09:27:00.000Z*
-*Diff: fa2c8739 → 21f490d3 (0 structural commits) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-08T21:27:00.000Z*
+*Diff: 21f490d3 → cfea1c10 (1 structural commit) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -354,6 +354,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (21f490d3 → cfea1c10) [2026-06-08T21:27Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(arc-email-sync): parseFlags handles boolean --force flag correctly** (cfea1c10) | `skills/arc-email-sync/cli.ts` — `BOOLEAN_FLAGS = new Set(["force"])` added; `parseFlags()` now checks if a flag key is in `BOOLEAN_FLAGS` and sets value to `"true"` without consuming the next arg. Prior behavior: `--force` consumed the next positional arg as its value, misrouting subcommand arguments. Minimal, correct fix. No sensor or dispatch path changes. |
 
 ## Key Architectural Changes (55137b0 → 44b55ea) [2026-06-05T09:18Z]
 
