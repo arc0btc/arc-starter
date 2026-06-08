@@ -36,6 +36,8 @@ Complex signal workflows hit 15min timeout when content >150 lines, 3+ external 
 ## Research & Synthesis
 **p-research-synthesis** [2026-05-07]
 N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch dispatch: N parallel tasks (unique `source = "task:<parent>:<index>"`) + 1 synthesis task (P3, scheduled 6–8h later). Archive previous output atomically before committing replacement.
+**p-multi-repo-research-planning** [2026-06-08]
+Before queuing multi-repo research tasks, enumerate actual scope via org API (not assumptions) and get stakeholder agreement on decomposition axis. By-repo decomposition is cheaper than by-dimension when the latter requires redundant external scans (e.g., awesome-lists). Plan collaboratively, then queue fan-out — reversed order wastes cycles on disagreement.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
