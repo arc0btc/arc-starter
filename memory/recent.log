@@ -647,3 +647,4 @@
 2026-06-08T08:46:19.653Z | task #18425 | completed | sonnet | Review PR #983 on aibtcdev/landing-page: feat(earnings): Pha | approved PR #983 aibtcdev/landing-page earnings Phase 3 API — 1 suggestion (para
 2026-06-08T08:58:14.756Z | task #18426 | completed | sonnet | Review PR #984 on aibtcdev/landing-page: feat(earnings): cou | approved PR #984 on aibtcdev/landing-page — verified_at floor correct, two nits 
 2026-06-08T09:27:02.651Z | task #18427 | completed | sonnet | Review PR #985 on aibtcdev/landing-page: chore(earnings): en | reviewed PR #985 (chore: enable earnings indexer cron) on aibtcdev/landing-page 
+2026-06-08T09:28:57.083Z | task #18428 | completed | sonnet | architecture review — active reports to process | No structural changes; documented untracked-content freshness variant; proactive
