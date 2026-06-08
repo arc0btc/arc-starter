@@ -667,3 +667,4 @@
 2026-06-08T16:55:18.387Z | task #18446 | completed | sonnet | OR research P1: python-sdk | Speakeasy-generated Python SDK v0.9.1, 144 commits, 4 runtime deps (httpcore/htt
 2026-06-08T16:59:18.942Z | task #18447 | completed | sonnet | OR research P1: typescript-agent | typescript-agent: handcrafted orchestration layer (not Speakeasy-generated), Bet
 2026-06-08T17:03:40.341Z | task #18448 | completed | sonnet | OR research P1: ai-sdk-provider | ai-sdk-provider: zero-dep Vercel AI SDK bridge, handcrafted not Speakeasy, v2.9.
+2026-06-08T17:08:31.777Z | task #18449 | completed | sonnet | OR research P1: skills | skills: markdown Agent Skills collection, 10 skills + open-responses spec, no CI
