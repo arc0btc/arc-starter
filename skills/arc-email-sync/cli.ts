@@ -12,11 +12,17 @@ function log(message: string): void {
   console.log(`[${new Date().toISOString()}] [email/cli] ${message}`);
 }
 
+const BOOLEAN_FLAGS = new Set(["force"]);
+
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
   for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith("--") && i + 1 < args.length) {
-      flags[args[i].slice(2)] = args[i + 1];
+    if (!args[i].startsWith("--")) continue;
+    const key = args[i].slice(2);
+    if (BOOLEAN_FLAGS.has(key)) {
+      flags[key] = "true";
+    } else if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
+      flags[key] = args[i + 1];
       i++;
     }
   }
