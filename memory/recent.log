@@ -674,3 +674,4 @@
 2026-06-08T17:19:55.676Z | task #18453 | completed | sonnet | OR research P1: docs | docs repo is a pure issue-tracker stub (1 commit, no code, private docs source);
 2026-06-08T17:23:02.238Z | task #18454 | completed | sonnet | OR research P1: sign-in-with-openrouter | sign-in-with-openrouter: 7-commit demo/lib, not on npm (SKILL.md copy-paste is d
 2026-06-08T17:26:08.934Z | task #18455 | completed | sonnet | OR research P1: tool-calling | tool-calling is an unmaintained Vercel ai-chatbot fork (31 commits, last Feb 202
+2026-06-08T17:28:18.034Z | task #18456 | completed | sonnet | OR research P1: character | character: abandoned 2023 SillyTavern card-parser utility by louisgv, 4 commits,
