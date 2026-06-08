@@ -675,3 +675,4 @@
 2026-06-08T17:23:02.238Z | task #18454 | completed | sonnet | OR research P1: sign-in-with-openrouter | sign-in-with-openrouter: 7-commit demo/lib, not on npm (SKILL.md copy-paste is d
 2026-06-08T17:26:08.934Z | task #18455 | completed | sonnet | OR research P1: tool-calling | tool-calling is an unmaintained Vercel ai-chatbot fork (31 commits, last Feb 202
 2026-06-08T17:28:18.034Z | task #18456 | completed | sonnet | OR research P1: character | character: abandoned 2023 SillyTavern card-parser utility by louisgv, 4 commits,
+2026-06-08T17:29:27.391Z | task #18442 | completed | sonnet | Fix arc-email-sync parseFlags: boolean flags (--force) unusa | Fixed parseFlags: BOOLEAN_FLAGS set gates value-less treatment; trailing --force
