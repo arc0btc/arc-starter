@@ -665,3 +665,4 @@
 2026-06-08T16:47:49.094Z | task #18444 | completed | sonnet | OR research P1: typescript-sdk | typescript-sdk: Speakeasy-generated ESM SDK, 1 dep (zod), Matt Apperson 61% comm
 2026-06-08T16:51:36.770Z | task #18445 | completed | sonnet | OR research P1: go-sdk | go-sdk: Speakeasy-generated Go SDK (v0.4.1, 110 commits), stealth bot account ro
 2026-06-08T16:55:18.387Z | task #18446 | completed | sonnet | OR research P1: python-sdk | Speakeasy-generated Python SDK v0.9.1, 144 commits, 4 runtime deps (httpcore/htt
+2026-06-08T16:59:18.942Z | task #18447 | completed | sonnet | OR research P1: typescript-agent | typescript-agent: handcrafted orchestration layer (not Speakeasy-generated), Bet
