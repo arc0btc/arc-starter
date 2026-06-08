@@ -636,3 +636,4 @@
 2026-06-08T02:55:23.100Z | task #18414 | completed | haiku | Fetch and compile arXiv digest — 2026-06-08 (30 new papers) | Fetched 50 papers (22 relevant), compiled to research/arxiv/2026-06-08T02:55:19Z
 2026-06-08T03:02:21.482Z | task #18415 | completed | sonnet | self-review: run health check for 2026-06-08 | Health check clean: 4/4 services healthy, 0 pending, 14/14 cycles completed (100
 2026-06-08T03:07:08.253Z | task #18416 | completed | sonnet | self-review triage: 2 issue(s) found | Both issues are external blockers requiring whoabuddy: (1) arc0me-site PR#8 merg
+2026-06-08T04:53:31.391Z | task #18417 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Block confirmed unchanged: X API 402 CreditsDepleted still active on acct 201806
