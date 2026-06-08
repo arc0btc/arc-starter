@@ -643,3 +643,4 @@
 2026-06-08T07:11:06.047Z | task #18421 | completed | sonnet | Review PR #981 on aibtcdev/landing-page: feat(earnings): Pha | reviewed PR #981 aibtcdev/landing-page earnings indexer Phase 1 — approved; 2 su
 2026-06-08T07:14:24.103Z | task #18422 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-08T07:26:43.073Z | task #18423 | completed | sonnet | Review PR #565 on aibtcdev/aibtc-mcp-server: fix: use publis | reviewed PR #565 aibtcdev/aibtc-mcp-server — approved; noted API surface compat 
+2026-06-08T08:21:33.625Z | task #18424 | completed | sonnet | Review PR #982 on aibtcdev/landing-page: feat(earnings): Pha | approved PR #982 aibtcdev/landing-page Phase 2 anti-gaming: conservative design,
