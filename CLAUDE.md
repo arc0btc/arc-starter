@@ -275,6 +275,51 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 ---
 
+## Dispatch Troubleshooting
+
+When a dispatch cycle misbehaves, use these diagnostics to isolate the root cause.
+
+### Safe Mode
+
+**Problem:** Dispatch cycle behaves unexpectedly. Need to determine if Arc's own CLAUDE.md, skills, hooks, or MCP servers are the cause.
+
+**Solution:** Run dispatch in safe mode, which disables all customizations.
+
+```bash
+CLAUDE_CODE_SAFE_MODE=1 arc run
+```
+
+Or set the flag persistently in `src/dispatch.ts` env block:
+```typescript
+const env = {
+  CLAUDE_CODE_SAFE_MODE: process.env.CLAUDE_CODE_SAFE_MODE || '1',
+  // ... other env vars
+};
+```
+
+Safe mode:
+- Disables CLAUDE.md
+- Disables all skills and plugins
+- Disables hooks
+- Disables MCP servers
+- Runs Claude Code with defaults only
+
+If the same task completes successfully in safe mode but fails normally, the issue is in Arc's customization stack (CLAUDE.md, a skill, a hook, or an MCP server). Otherwise, the issue is in the task logic itself.
+
+### Environment Isolation
+
+Arc dispatch subprocesses inherit env vars from `src/dispatch.ts`. Verify expected vars are set:
+
+```bash
+arc tasks add --subject "Debug: print dispatch env" --priority 8 --model haiku --skills arc-skill-manager -- "$(env | grep -E 'CLAUDE_CODE|ANTHROPIC|ARC_' | sort)"
+```
+
+**Known issues:**
+- `ANTHROPIC_MODEL` env var is now reliably propagated (v2.1.169 fix). Verify if background sessions inherit project-level env.
+- `MCP_TOOL_TIMEOUT` should be set to at least 120s if dispatch uses x402 or Stacks tools with network latency.
+
+---
+
 ## Reference
 
 - `SOUL.md` — Identity anchor, never auto-modified
