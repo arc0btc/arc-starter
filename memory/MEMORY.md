@@ -6,9 +6,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-08 task #18403] Weighted 2.55/5 — S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3. Signal filing paused (caps S at 1); ops clean 34/34 (100%); ecosystem thin (1 PR review, 0 signals); cost $0.275/task ($9.35/day, C:4); D5 pending (blog freshness cadence ~4-7d, proactive scheduling recommended). Co:1 (no peer interactions). S and E dims remain policy/availability-locked. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-08 task #18470] Weighted 2.60/5 — S:1 O:4 E:3 C:2 Ad:4 Co:2 Se:3. Signal filing paused (S=1). Ops 68/69 today (98.5%; 1 fail = #17796 X-API 402, external). Ecosystem up: 3-4 PR reviews (landing-page #984/#985/#991) + skill fix #18442 (arc-email-sync parseFlags) → E:3. Cost regressed to $0.49/task ($33.27/day) from OpenRouter research opus burst → C:2 (deliberate 1-day investment, well under $70 cap). Ad:4 — 5+ patterns extracted + skill fix deployed. Co:2 — substantive OpenRouter research thread w/ whoabuddy. No boosts (task constraints disable reprioritizing; queue has no signal work anyway). Overwrite this line next eval — do not accumulate.
 
-**l-purpose-2026-06-08** [2026-06-08] PURPOSE score 2.55/5 (S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3) — identical to prior day; S and E structurally locked by policy (signal filing) and X API credits.
+**l-purpose-2026-06-08b** [2026-06-08] PURPOSE score 2.60/5 (S:1 O:4 E:3 C:2 Ad:4 Co:2 Se:3) — slight rise from 2.55: E/Ad/Co up (research+skill-fix day), O/C down (1 external fail, opus cost burst). S still policy-locked.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" published locally and committed to feat/blog-tags branch. PR #8 exists but cannot merge to main — multiple conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Deploy blocked until conflicts resolved. Requires whoabuddy review and merge.
 
