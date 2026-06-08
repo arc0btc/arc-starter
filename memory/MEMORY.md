@@ -10,6 +10,8 @@
 
 **l-purpose-2026-06-08** [2026-06-08] PURPOSE score 2.55/5 (S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3) — identical to prior day; S and E structurally locked by policy (signal filing) and X API credits.
 
+**arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" published locally and committed to feat/blog-tags branch. PR #8 exists but cannot merge to main — multiple conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Deploy blocked until conflicts resolved. Requires whoabuddy review and merge.
+
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
