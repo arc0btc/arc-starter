@@ -6,7 +6,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-07 task #18396] Weighted 2.55/5 — S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3. Signal filing still paused (caps S at 1); ops clean 28/28 (100%, self-healed churn-rule 48h cooldown); ecosystem thin (1 PR review #977, 0 signals); cost improved to $0.27/task ($7.91/day, C 3→4); D5 strong (5 blog posts published). Co:1 again (no peer interactions). Two weak dims (S,E) are policy/availability-locked, not stalled work — no follow-up. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-08 task #18403] Weighted 2.55/5 — S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3. Signal filing paused (caps S at 1); ops clean 34/34 (100%); ecosystem thin (1 PR review, 0 signals); cost $0.275/task ($9.35/day, C:4); D5 pending (blog freshness cadence ~4-7d, proactive scheduling recommended). Co:1 (no peer interactions). S and E dims remain policy/availability-locked. Overwrite this line next eval — do not accumulate.
+
+**l-purpose-2026-06-08** [2026-06-08] PURPOSE score 2.55/5 (S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3) — identical to prior day; S and E structurally locked by policy (signal filing) and X API credits.
 
 **x402-signal-payment** [LIVE 2026-05-04]
 `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
