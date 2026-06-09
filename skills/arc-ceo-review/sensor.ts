@@ -8,7 +8,7 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
-import { insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
+import { insertWorkflow, getWorkflowByInstanceKey, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-ceo-review";
 const INTERVAL_MINUTES = 720; // 12 hours — daily strategic review
@@ -46,6 +46,17 @@ async function reportHasReview(filename: string): Promise<boolean> {
   }
 }
 
+/** Extract the period from report filename. Returns YYYY-MM-DDTHH:MM format. */
+function extractPeriodFromFilename(filename: string): string {
+  // Filename format: YYYY-MM-DDTHH_MM_SSZ_watch_report.*
+  // Extract: YYYY-MM-DDTHH_MM (first 16 chars of timestamp portion)
+  const match = filename.match(/^(\d{4}-\d{2}-\d{2}T\d{2})_(\d{2})/);
+  if (match) {
+    return `${match[1]}:${match[2]}`;
+  }
+  return filename;
+}
+
 /** True when current time is in quiet hours (8pm–6am PST / UTC-8). */
 function isQuietHours(): boolean {
   const pstHour = (new Date().getUTCHours() - 8 + 24) % 24;
@@ -65,6 +76,12 @@ export default async function ceoReviewSensor(): Promise<string> {
   // Don't re-review a report that already has a CEO review
   const alreadyReviewed = await reportHasReview(latestReport);
   if (alreadyReviewed) return "skip";
+
+  // Pre-flight: check if a CEO review task is already pending/active for this period.
+  // This prevents duplicates when both the sensor and a subtask queue a review for the same period.
+  const period = extractPeriodFromFilename(latestReport);
+  const source = `ceo-review:${period}`;
+  if (pendingTaskExistsForSource(source)) return "skip";
 
   // Use workflow for review → email chain
   const wfKey = `ceo-review:${latestReport}`;
