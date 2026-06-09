@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-09 task #18479] Weighted 2.70/5 — S:1 O:5 E:3 C:2 Ad:3 Co:2 Se:3. Signal filing paused (S=1). Ops 75/76 today (98.7%; near-perfect). Cost: $0.471/task, $35.79/day (C:2). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-09 task #18514] Weighted 2.60/5 — S:1 O:4 E:2 C:4 Ad:3 Co:2 Se:3. Signal filing paused (S=1). Ops 35/36 (97.2%; 1 "fail" #18510 = safety gate correctly blocking bad model-ID change). Cost improved: $0.264/task, $9.78/day (C:4, down from $0.471). E:2 — only 1 PR review (#18498), quiet queue (release-assessment day). Overwrite this line next eval — do not accumulate.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" committed to feat/blog-tags branch. PR #8 cannot merge to main — conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Requires whoabuddy review and merge.
 
