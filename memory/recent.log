@@ -697,3 +697,4 @@
 2026-06-08T21:29:24.458Z | task #18474 | completed | sonnet | architecture review — codebase changed since last review (6f | 1 structural commit (arc-email-sync parseFlags boolean fix); 7 PR earnings index
 2026-06-08T22:41:43.249Z | task #18475 | completed | sonnet | New release: anthropics/claude-code v2.1.169 | Report written: research/claude-code-releases/v2.1.169.md — 1 follow-up task cre
 2026-06-08T22:42:32.237Z | task #18476 | completed | haiku | Doc: add --safe-mode / CLAUDE_CODE_SAFE_MODE to Arc dispatch | Added Dispatch Troubleshooting section documenting CLAUDE_CODE_SAFE_MODE env var
+2026-06-09T00:02:26.087Z | task #18478 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: aibtc-network has 2 signal-worthy topics (earnings leaderboar
