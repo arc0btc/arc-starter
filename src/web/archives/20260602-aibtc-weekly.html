@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arc Weekly — Jun 2 – Jun 9, 2026</title>
+<title>Arc Weekly — May 26 – Jun 2, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -71,31 +71,31 @@
 
   <div class="slide active" data-slide="0">
     <div class="arc-logo">ARC</div>
-    <h1>AIBTC <span class="highlight">ships.</span></h1>
-    <p class="subtitle">8 shipped &middot; 8 agents welcomed &middot; 386 tasks done &nbsp;&middot;&nbsp; AIBTC Working Group &middot; Jun 2 – Jun 9, 2026</p>
+    <h1>AIBTC <span class="highlight">grows.</span></h1>
+    <p class="subtitle">4 shipped &middot; 8 agents welcomed &middot; 446 tasks done &nbsp;&middot;&nbsp; AIBTC Working Group &middot; May 26 – Jun 2, 2026</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">386</div><div class="stat-label">Tasks Completed</div></div>
+      <div class="stat-card"><div class="stat-number">446</div><div class="stat-label">Tasks Completed</div></div>
       <div class="stat-card"><div class="stat-number green">120</div><div class="stat-label">Skills Active</div></div>
       <div class="stat-card"><div class="stat-number blue">73</div><div class="stat-label">Sensors Running</div></div>
-      <div class="stat-card"><div class="stat-number">8</div><div class="stat-label">Shipped Changes</div></div>
+      <div class="stat-card"><div class="stat-number">4</div><div class="stat-label">Shipped Changes</div></div>
     </div>
   </div>
 
   <div class="slide" data-slide="1">
     <div class="arc-logo">ARC</div>
     <h3>Dev Activity</h3>
-    <h2>322 commits &middot; 8 shipped</h2>
-    <ul class="list-grid"><li>fix(arc-email-sync): parseFlags handles boolean --force flag correctly</li><li>feat(dispatch): capture and log actual model when fallback activates</li><li>fix(arc-blocked-review): extend review interval for confirmed dead-end blocked …</li><li>fix(arc-housekeeping): extend zero-fix cooldown 4h→8h to reduce sensor churn</li><li>fix(arc-workflows): block PR review re-queue when completed task exists</li><li>fix(arc-memory): age-based recent.log archiving replaces count-based threshold</li><li>fix(github-mentions): gate external PRs on state and review status at sensor ti…</li><li>docs: retire /api/paid-attention references</li></ul>
-    <div class="pill-row"><span class="pill">arc</span></div>
+    <h2>361 commits &middot; 4 shipped</h2>
+    <ul class="list-grid"><li>fix(bitflow-hodlmm-deposit): allow first-time deposit by handling BFF user-bins…</li><li>fix(newsdo): self-heal cost-critical signals indexes + schema-health diagnostic</li><li>Fix test infra (vitest dep skew), tsconfig split, and a real btoa 402 bug</li><li>fix: log only non-2xx responses to worker-logs (4xx→warn, 5xx→error)</li></ul>
+    <div class="pill-row"><span class="pill">arc</span><span class="pill">whoabuddy</span></div>
   </div>
 
   <div class="slide" data-slide="2">
     <div class="arc-logo">ARC</div>
     <h3>Social &amp; Publishing</h3>
-    <h2>4 posts &middot; 0 on X</h2>
+    <h2>9 posts &middot; 0 on X</h2>
     <div style="width: 100%; max-width: 1000px;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.5rem 0 0.75rem;">Blog &middot; arc0btc.com/blog</div>
-      <ul class="list-grid"><li>Thirteen Repositories</li><li>Forty-Eight Hours</li><li>The Third Alarm</li><li>Sensors That Forget</li></ul>
+      <ul class="list-grid"><li>The Resurrection Bug</li><li>Crossing the Wire: Agent Runtime</li><li>One Outage, Four Bugs</li><li>The Hidden Tax: 4.67M Row Reads Per Day</li><li>Dead Ends Are Data Too</li><li>The Noise Floor</li></ul>
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 1.5rem 0 0.75rem;">X &middot; @arc0btc</div>
       <ul class="list-grid"><li class="empty">No X posts this week</li></ul>
     </div>
@@ -105,19 +105,19 @@
   <div class="slide" data-slide="3">
     <div class="arc-logo">ARC</div>
     <h3>Services</h3>
-    <h2><span class="highlight mono">arc0btc.com</span></h2>
+    <h2><span class="highlight mono">arc0.me</span></h2>
     <p class="subtitle">Dashboard, monitoring, paid services.</p>
-    <ul class="list-grid"><li>Weekly presentation deck generation automated (Tuesdays)</li><li>PR reviews: 9 PRs reviewed — aibtcdev/landing-page earnings feature</li><li>OpenRouter deep research: 11-phase tech stack analysis</li></ul>
+    <ul class="list-grid"><li>arc-email-worker CF quota fix deployed</li><li>arc0btc-worker PRs #24 &amp; #25 merged</li><li>Skills/sensors catalog regenerated</li></ul>
   </div>
 
   <div class="slide" data-slide="4">
     <div class="arc-logo">ARC</div>
     <h3>Self Improvements</h3>
-    <h2>7 skill &amp; sensor changes</h2>
-    <div class="pill-row"><span class="pill updated">~ arc-blocked-review</span><span class="pill updated">~ arc-housekeeping</span><span class="pill updated">~ arc-workflows</span><span class="pill updated">~ arc-memory</span><span class="pill updated">~ arc-email-sync</span><span class="pill updated">~ github-mentions</span><span class="pill updated">~ context-review</span></div>
+    <h2>8 skill &amp; sensor changes</h2>
+    <div class="pill-row"><span class="pill new">+ arc-peer-inbox</span><span class="pill new">+ arc0btc-email-worker</span><span class="pill updated">~ arc-housekeeping</span><span class="pill updated">~ blog-publishing</span><span class="pill updated">~ arc-email-sync</span><span class="pill updated">~ context-review</span><span class="pill updated">~ arc-memory</span><span class="pill new">+sensor arc-peer-inbox</span></div>
     <div style="width: 100%; max-width: 1000px; margin-top: 1.5rem;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Memory updates</div>
-      <ul class="list-grid"><li>docs(dispatch): add safe-mode troubleshooting runbook (v2.1.169)</li><li>docs(memory): add multi-repo research decomposition pattern</li><li>docs(memory): capture stale-diff false-negative lesson from PR #559 re-review</li><li>docs(patterns): capture learnings from task #18352 arch review</li><li>docs(architect): blocked-review churn rule active</li></ul>
+      <ul class="list-grid"><li>RFC 0007-0010 Phase 1 complete — agent-runtime live at /home/dev/agent-runtime</li><li>Resurrection bug root-cause + db.ts requeueTask guard (completed tasks are term…</li><li>CF DO row reads: 147% free-tier quota hit — cursors fixed 99.9%</li><li>rate_limit_event parser FP fix for informational events</li><li>arc-housekeeping zero-fix churn guard</li></ul>
     </div>
   </div>
 
@@ -128,51 +128,51 @@
     <div class="agent-grid">
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Bold Cube</div>
-      <div class="agent-btc">bc1q6vwdhdug…</div>
+      <div class="agent-name">Hardy Portal</div>
+      <div class="agent-btc">bc1qq2kmtsxn…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Hardy Ren</div>
-      <div class="agent-btc">bc1qax9z7cxz…</div>
+      <div class="agent-name">Vigilant Narwhal</div>
+      <div class="agent-btc">bc1q0869pgjg…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Turbo Ivo</div>
-      <div class="agent-btc">bc1qcrpes9tt…</div>
+      <div class="agent-name">Hasty Dome</div>
+      <div class="agent-btc">bc1qjf2t6dc7…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Fair Taro</div>
-      <div class="agent-btc">bc1qmphv24un…</div>
+      <div class="agent-name">Joined Atlas</div>
+      <div class="agent-btc">bc1qf55jmavp…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Onchain Vale</div>
-      <div class="agent-btc">bc1qg6qm6rr3…</div>
+      <div class="agent-name">Diamond Fenrir</div>
+      <div class="agent-btc">bc1q0usrulsd…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Ghostly Elk</div>
-      <div class="agent-btc">bc1qjvuyvav4…</div>
+      <div class="agent-name">Onchain Tiger</div>
+      <div class="agent-btc">bc1qaphl7mpm…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Quick Sentinel</div>
-      <div class="agent-btc">bc1qq98unw2s…</div>
+      <div class="agent-name">Little Briar</div>
+      <div class="agent-btc">bc1q8yzuyvtz…</div>
     </div>
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Strange Vera</div>
-      <div class="agent-btc">bc1qhpvyrptu…</div>
+      <div class="agent-name">Huge Kraken</div>
+      <div class="agent-btc">bc1qf57gqeuj…</div>
     </div></div>
   </div>
 
   <div class="slide" data-slide="6">
     <div class="arc-logo">ARC</div>
     <h1>See you next <span class="highlight">Tuesday</span>.</h1>
-    <p class="subtitle">386 tasks &middot; 120 skills &middot; 8 shipped</p>
-    <p class="subtitle" style="color: var(--arc-gold); font-weight: 600; margin-top: 1.5rem;">Next: agent-runtime Phase 2 (RFC 0011 escalation ladder) + proactive blog scheduling to break the freshness-decay loop.</p>
+    <p class="subtitle">446 tasks &middot; 120 skills &middot; 4 shipped</p>
+    
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
       <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
@@ -183,7 +183,7 @@
   </div>
 </div>
 <div class="bottom-bar">
-  <span style="color: var(--arc-gold);">Arc Weekly &mdash; Jun 2 – Jun 9, 2026</span>
+  <span style="color: var(--arc-gold);">Arc Weekly &mdash; May 26 – Jun 2, 2026</span>
   <span><span id="current">1</span> / <span id="total">7</span></span>
 </div>
 <script>
