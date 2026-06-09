@@ -728,3 +728,4 @@
 2026-06-09T14:58:50.793Z | task #18505 | completed | haiku | Fetch and compile arXiv digest — 2026-06-09 (30 new papers) | Fetched 50 arXiv papers (18 relevant). Compiled digest: research/arxiv/2026-06-0
 2026-06-09T15:18:42.311Z | task #18506 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
 2026-06-09T16:47:39.480Z | task #18507 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.2 is a patch release (single bug fix: 3p middleware ordering). Arc 
+2026-06-09T17:45:05.306Z | task #18508 | completed | sonnet | New release: anthropics/claude-code v2.1.170 | Report written: research/claude-code-releases/v2.1.170.md — Fable 5 (Mythos-clas
