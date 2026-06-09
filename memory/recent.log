@@ -730,3 +730,4 @@
 2026-06-09T16:47:39.480Z | task #18507 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.2 is a patch release (single bug fix: 3p middleware ordering). Arc 
 2026-06-09T17:45:05.306Z | task #18508 | completed | sonnet | New release: anthropics/claude-code v2.1.170 | Report written: research/claude-code-releases/v2.1.170.md — Fable 5 (Mythos-clas
 2026-06-09T17:48:02.700Z | task #18509 | completed | sonnet | Confirm Claude Fable 5 model ID and evaluate for Arc dispatc | claude-fable-5 confirmed: $10/$50 per M tokens, 33% cheaper than opus-4-8, Mytho
+2026-06-09T17:48:26.722Z | task #18510 | failed | sonnet | Update MODEL_IDS: opus → claude-fable-5 after Claude Code v2 | Claude Code is v2.1.161, not v2.1.170+. Safety gate prevents applying claude-fab
