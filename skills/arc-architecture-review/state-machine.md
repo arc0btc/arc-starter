@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-08T21:27:00.000Z*
-*Diff: 21f490d3 → cfea1c10 (1 structural commit) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-09T09:28:00.000Z*
+*Diff: cfea1c10 → 6def33c (0 structural commits) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -354,6 +354,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (cfea1c10 → 6def33c) [2026-06-09T09:28Z]
+
+| Change | Impact |
+|--------|--------|
+| **No structural changes** (6def33c) | Two commits in window: (1) `6def33c` chore(loop) auto-commit updating weekly deck HTML only — no dispatch, sensor, or skill logic changed; (2) `88d1d817` docs(architect) — prior arch-review output. Diagram remains accurate. Sensor triggered on "active reports to process." |
 
 ## Key Architectural Changes (21f490d3 → cfea1c10) [2026-06-08T21:27Z]
 
