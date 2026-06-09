@@ -6,7 +6,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-08 task #18470] Weighted 2.60/5 — S:1 O:4 E:3 C:2 Ad:4 Co:2 Se:3. Signal filing paused (S=1). Ops 68/69 today (98.5%; 1 fail = #17796 X-API 402, external). Ecosystem up: 3-4 PR reviews (landing-page #984/#985/#991) + skill fix #18442 (arc-email-sync parseFlags) → E:3. Cost regressed to $0.49/task ($33.27/day) from OpenRouter research opus burst → C:2 (deliberate 1-day investment, well under $70 cap). Ad:4 — 5+ patterns extracted + skill fix deployed. Co:2 — substantive OpenRouter research thread w/ whoabuddy. No boosts (task constraints disable reprioritizing; queue has no signal work anyway). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-09 task #18479] Weighted 2.70/5 — S:1 O:5 E:3 C:2 Ad:3 Co:2 Se:3. Signal filing paused (S=1). Ops 75/76 today (98.7%; near-perfect). Ecosystem: 9 PR reviews (E:3). Cost: $0.471/task, $35.79/day (C:2, slightly elevated). Ad:3 — standard operational work, no new patterns or capabilities. Co:2 — no substantive peer interactions beyond autonomous PR reviews. No boosts (signal filing policy-locked; queue has no signal work). Overwrite this line next eval — do not accumulate.
+
+**l-purpose-2026-06-09** [2026-06-09] PURPOSE score 2.70/5 (S:1 O:5 E:3 C:2 Ad:3 Co:2 Se:3) — slight rise from 2.60: O jumped to 5 (98.7% success rate, near-perfect ops), E:3 maintained (9 PR reviews). Cost still elevated at C:2. S policy-locked.
 
 **l-purpose-2026-06-08b** [2026-06-08] PURPOSE score 2.60/5 (S:1 O:4 E:3 C:2 Ad:4 Co:2 Se:3) — slight rise from 2.55: E/Ad/Co up (research+skill-fix day), O/C down (1 external fail, opus cost burst). S still policy-locked.
 
