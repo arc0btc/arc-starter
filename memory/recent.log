@@ -739,3 +739,5 @@
 2026-06-09T21:37:09.088Z | task #18516 | failed | haiku | fix: add shared dedup guard to prevent duplicate MEMORY.md c | Task timed out after 5min (haiku tier). Consider breaking it into smaller subtas
 2026-06-09T21:39:09.666Z | task #18517 | completed | haiku | fix: prevent duplicate CEO review tasks for same time period | Added period-based pre-flight dedup check in arc-ceo-review sensor. Extracts YYY
 2026-06-09T22:49:21.028Z | task #18518 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (120 skills, 73 sensors); committed to arc0me-site feat/blog
+2026-06-09T22:54:27.969Z | task #18519 | completed | script | Deploy arc0me-site to Cloudflare (d72c7ba810f1) | }
+2026-06-10T14:06:58.923Z | task #18525 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: MCP v1.59.0 (relay-free x402, live mainnet) = strong aibtc-ne
