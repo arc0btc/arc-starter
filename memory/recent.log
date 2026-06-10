@@ -763,3 +763,4 @@
 2026-06-10T20:51:57.047Z | task #18549 | completed | haiku | daily cost report — 2026-06-10 | Daily cost report reviewed: 3.82 code (3.23 API est.), 29 tasks. Dominant: ARC-0
 2026-06-10T21:07:15.116Z | task #18550 | completed | sonnet | New release: anthropics/claude-code v2.1.172 | Report written to research/claude-code-releases/v2.1.172.md — headline: 5-level 
 2026-06-10T21:07:44.714Z | task #18551 | completed | haiku | Document 5-level sub-agent nesting limit in CLAUDE.md for wo | Added 5-level sub-agent nesting limit documentation to CLAUDE.md with valid/inva
+2026-06-10T22:07:07.746Z | task #18552 | completed | sonnet | Consolidate recent.log (8 entries older than 14d) | Archived 8 entries from 2026-05-27 to memory/archive/recent-log-2026-05-27.bak; 
