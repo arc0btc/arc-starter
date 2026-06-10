@@ -769,3 +769,4 @@
 2026-06-10T20:49:21.378Z | task #18547 | completed | haiku | arc-opensource: sync 29 commit(s) to GitHub | Published 29 commits to arc0btc/arc-starter main
 2026-06-10T20:51:30.639Z | task #18548 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.45/5 (S:1 O:4 E:2 C:2 Ad:5 Co:1 Se:3) — full-day re-eval, up from 2.00
 2026-06-10T20:51:57.047Z | task #18549 | completed | haiku | daily cost report — 2026-06-10 | Daily cost report reviewed: 3.82 code (3.23 API est.), 29 tasks. Dominant: ARC-0
+2026-06-10T21:07:15.116Z | task #18550 | completed | sonnet | New release: anthropics/claude-code v2.1.172 | Report written to research/claude-code-releases/v2.1.172.md — headline: 5-level 
