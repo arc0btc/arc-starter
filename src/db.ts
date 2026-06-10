@@ -31,6 +31,9 @@ export interface Task {
   model: string | null;
   assigned_to: string | null;
   script: string | null;
+  escalation_rung: string;       // ARC-0011: REFINE|PIVOT|WEB-SEARCH|HANDOFF
+  pivot_count: number;           // ARC-0011: number of PIVOT transitions
+  dead_ends: string | null;      // ARC-0011: JSON array of {approach, reason, attempt}
 }
 
 export interface InsertTask {
@@ -46,6 +49,7 @@ export interface InsertTask {
   model?: string | null;
   assigned_to?: string | null;
   script?: string | null;
+  max_retries?: number;          // ARC-0011: HANDOFF threshold (default 3 in schema, 7 for new CLI tasks)
 }
 
 export interface CycleLog {
@@ -319,6 +323,11 @@ export function initDatabase(): Database {
   addColumn("tasks", "assigned_to", "TEXT");
   addColumn("tasks", "result_quality", "INTEGER");
   addColumn("tasks", "script", "TEXT");
+  // ARC-0011 escalation ladder. Additive — existing tasks inherit defaults and enter
+  // the ladder at REFINE, behaving identically to the flat model until attempt_count >= 2.
+  addColumn("tasks", "escalation_rung", "TEXT DEFAULT 'REFINE'");
+  addColumn("tasks", "pivot_count", "INTEGER DEFAULT 0");
+  addColumn("tasks", "dead_ends", "TEXT");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -943,7 +952,7 @@ export function insertTask(fields: InsertTask): number {
 
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
-    "source", "parent_id", "template", "model", "assigned_to", "script",
+    "source", "parent_id", "template", "model", "assigned_to", "script", "max_retries",
   ];
 
   for (const col of optionalColumns) {
@@ -998,10 +1007,40 @@ function appendTaskReflection(id: number, status: string, summary: string): void
 
 export function markTaskCompleted(id: number, summary: string, detail?: string, quality?: number): void {
   const db = getDatabase();
+  // ARC-0011: success at any rung resets the escalation ladder back to REFINE.
   db.query(
-    "UPDATE tasks SET status = 'completed', completed_at = datetime('now'), result_summary = ?, result_detail = ?, result_quality = ? WHERE id = ?"
+    "UPDATE tasks SET status = 'completed', completed_at = datetime('now'), result_summary = ?, result_detail = ?, result_quality = ?, escalation_rung = 'REFINE', pivot_count = 0 WHERE id = ?"
   ).run(summary, detail ?? null, quality ?? null, id);
   appendTaskReflection(id, "completed", summary);
+}
+
+/**
+ * ARC-0011: persist the escalation state after a failed attempt. Skips undefined fields.
+ * Called by dispatch before requeuing a task so the next attempt enters at the right rung.
+ */
+export function updateTaskEscalation(
+  id: number,
+  fields: { escalation_rung?: string; pivot_count?: number; dead_ends?: string | null },
+): void {
+  updateRow("tasks", id, fields as Record<string, unknown>);
+}
+
+/**
+ * ARC-0011 structural-failure detector ("errors" class): count tasks with the same
+ * subject that failed or blocked within the last `days` days. >= 3 is treated as a
+ * recurring error signature, which skips the REFINE rung at the next transition.
+ */
+export function countRecentFailuresForSubject(subject: string, days: number = 7): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE subject = ?
+         AND status IN ('failed', 'blocked')
+         AND completed_at >= datetime('now', '-' || ? || ' days')`
+    )
+    .get(subject, days) as { count: number } | null;
+  return row?.count ?? 0;
 }
 
 export function markTaskFailed(id: number, summary: string, detail?: string, quality?: number): void {

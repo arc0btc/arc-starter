@@ -38,6 +38,7 @@ const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT --model MODEL [--description TEXT] [--priority N] [--source TEXT]\n' +
     '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"]\n' +
+    '              [--max-retries N (HANDOFF threshold, default 7)]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
@@ -231,6 +232,13 @@ function cmdTasksAdd(args: string[]): void {
     : undefined;
   const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
+  // ARC-0011: max_retries is the HANDOFF threshold. New tasks default to 7
+  // (2 REFINE + 2 PIVOT + 1 WEB-SEARCH + 2 post-web REFINE).
+  const maxRetries = flags["max-retries"] ? parseInt(flags["max-retries"], 10) : 7;
+  if (Number.isNaN(maxRetries) || maxRetries < 1) {
+    process.stderr.write(`Error: --max-retries must be a positive integer\n`);
+    process.exit(1);
+  }
 
   // Resolve scheduled_for from --defer or --scheduled-for
   let scheduledFor: string | undefined;
@@ -276,6 +284,7 @@ function cmdTasksAdd(args: string[]): void {
     model: modelFlag,
     scheduled_for: scheduledFor,
     script: scriptFlag,
+    max_retries: maxRetries,
   });
 
   if (scheduledFor) {

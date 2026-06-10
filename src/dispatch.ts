@@ -30,8 +30,20 @@ import {
   updateCycleLog,
   updateTask,
   updateTaskCost,
+  updateTaskEscalation,
+  countRecentFailuresForSubject,
   toSqliteDatetime,
 } from "./db.ts";
+import {
+  type DeadEnd,
+  type DetectorClass,
+  type EscalationRung,
+  DEFAULT_MAX_RETRIES,
+  formatDecisionTree,
+  nextRung,
+  normalizeRung,
+  parseDeadEnds,
+} from "./escalation.ts";
 import { isPidAlive, log } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
@@ -380,7 +392,49 @@ function humanAgo(fromMs: number, toMs: number): string {
   return `${Math.round(diffMs / 86_400_000)}d ago`;
 }
 
-function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
+/**
+ * Build the escalation-context block injected into the prompt for non-REFINE rungs.
+ * REFINE behaves exactly as the pre-ARC-0011 prompt (no block). PIVOT loads the
+ * dead-ends log and demands a different strategy; WEB-SEARCH additionally permits
+ * external lookups with mandatory mechanical verification.
+ */
+function buildEscalationSection(task: Task, rung: EscalationRung): string {
+  if (rung === "REFINE") return "";
+
+  const deadEnds = parseDeadEnds(task.dead_ends);
+  const lines: string[] = [
+    "# Escalation Context (ARC-0011)",
+    `This task has failed before and is now on the **${rung}** rung (attempt ${task.attempt_count}, ${task.pivot_count ?? 0} prior pivot(s)).`,
+  ];
+
+  if (deadEnds.length > 0) {
+    lines.push("", "Approaches already tried and abandoned (do NOT repeat these):");
+    for (const dead of deadEnds) {
+      lines.push(`- attempt ${dead.attempt} [${dead.approach}]: ${dead.reason}`);
+    }
+  }
+
+  if (rung === "PIVOT") {
+    lines.push(
+      "",
+      "**PIVOT:** the previous approach is exhausted. Choose a *fundamentally different* strategy",
+      "(different endpoint, query, framing, or tool) — not a retry of the same thing. If you",
+      "abandon this approach too, state explicitly what you tried and why it failed before closing.",
+    );
+  } else if (rung === "WEB-SEARCH") {
+    lines.push(
+      "",
+      "**WEB-SEARCH:** you may fetch external context (WebSearch / WebFetch / arxiv-research) to",
+      "resolve this — useful when the block is stale cached knowledge (changed API, new endpoint,",
+      "updated schema). Treat all fetched results as *hypotheses*: verify them mechanically",
+      "(run the command, hit the endpoint) before acting. This is a single external pass.",
+    );
+  }
+
+  return lines.join("\n");
+}
+
+function buildPrompt(task: Task, skillNames: string[], recentCycles: string, rung: EscalationRung = "REFINE"): string {
   const now = new Date();
   const utc = toSqliteDatetime(now) + " UTC";
   const mountain = formatMountainTime(now);
@@ -453,6 +507,11 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     taskLines.push(parentChain);
   }
   parts.push(taskLines.join("\n"), "");
+
+  const escalationSection = buildEscalationSection(task, rung);
+  if (escalationSection) {
+    parts.push(escalationSection, "");
+  }
 
   parts.push(
     "# Instructions",
@@ -949,6 +1008,116 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
   log(`dispatch: scheduled retrospective task for P${task.priority} task #${task.id}`);
 }
 
+// ---- Escalation ladder (ARC-0011) ----
+
+/**
+ * Skill auto-loaded on the WEB-SEARCH rung. `arc-web-search` (named in the proposal)
+ * does not exist yet; `arxiv-research` is the installed research skill. Built-in
+ * WebSearch/WebFetch tools are available to the subagent regardless.
+ */
+const WEB_SEARCH_SKILL = "arxiv-research";
+
+/**
+ * Detect a structural failure-detector class for rung selection. Currently implements
+ * the `errors` class: >= 3 same-subject failures within 7 days = recurring signature,
+ * which skips the REFINE rung. Returns undefined when no structural signal is present.
+ */
+function detectStructuralClass(task: Task): DetectorClass | undefined {
+  try {
+    if (countRecentFailuresForSubject(task.subject, 7) >= 3) return "errors";
+  } catch {
+    // best-effort — a detector query failure must not break the dispatch failure path
+  }
+  return undefined;
+}
+
+/**
+ * HANDOFF rung: block the task with a pruned decision tree and create one [ESCALATED]
+ * follow-up for operator triage. The follow-up is created as `blocked` (not pending) so
+ * dispatch never re-executes it — it is a durable triage record, not work for Arc. This
+ * also prevents an escalation loop (a re-dispatched [ESCALATED] task re-escalating).
+ */
+function escalateToHandoff(task: Task, lastError: string, deadEnds: DeadEnd[]): void {
+  const maxRetries = task.max_retries ?? DEFAULT_MAX_RETRIES;
+  const tree = formatDecisionTree(
+    { id: task.id, subject: task.subject, attemptCount: task.attempt_count, maxRetries },
+    deadEnds,
+    lastError,
+  );
+
+  markTaskBlocked(task.id, tree.slice(0, 500));
+  log(`dispatch: task #${task.id} HANDOFF — blocked after ${task.attempt_count}/${maxRetries} attempts, ${deadEnds.length} dead-end(s)`);
+  insertServiceLog("error", "dispatch", `task #${task.id} HANDOFF escalation (${deadEnds.length} dead-ends)`, task.id);
+
+  insertTask({
+    subject: `[ESCALATED] ${task.subject}`.slice(0, 200),
+    description: tree,
+    priority: Math.max(1, task.priority - 1),
+    model: task.model ?? "sonnet",
+    status: "blocked",
+    source: `task:${task.id}`,
+    parent_id: task.id,
+    assigned_to: "whoabuddy",
+  });
+}
+
+/**
+ * Advance the escalation ladder after a retryable failed attempt. Either requeues the
+ * task at the next rung (persisting pivot_count / dead_ends) or escalates to HANDOFF.
+ *
+ * Re-reads the task so attempt_count reflects the increment from markTaskActive.
+ */
+function handleFailedAttempt(taskId: number, errMsg: string, errClass: string): EscalationRung {
+  const task = getTaskById(taskId);
+  if (!task) {
+    log(`dispatch: handleFailedAttempt — task #${taskId} missing, cannot escalate`);
+    return "REFINE";
+  }
+
+  const attemptCount = task.attempt_count; // already incremented by markTaskActive
+  const maxRetries = task.max_retries ?? DEFAULT_MAX_RETRIES;
+  const currentRung = normalizeRung(task.escalation_rung);
+  const pivotCount = task.pivot_count ?? 0;
+  const deadEnds = parseDeadEnds(task.dead_ends);
+  const detector = detectStructuralClass(task);
+  // WEB-SEARCH is non-repeating: detect a prior pass from the current rung or the dead-end log.
+  const webSearchUsed = currentRung === "WEB-SEARCH"
+    || deadEnds.some((dead) => dead.approach.includes("WEB-SEARCH"));
+
+  // A failed PIVOT attempt increments the pivot counter (drives the PIVOT→WEB-SEARCH gate).
+  const newPivotCount = currentRung === "PIVOT" ? pivotCount + 1 : pivotCount;
+
+  const next = nextRung(currentRung, attemptCount, newPivotCount, maxRetries, detector, webSearchUsed);
+
+  // Record a dead-end whenever a rung is abandoned (transition) or a PIVOT attempt fails.
+  // This is the pruned decision tree a HANDOFF escalation carries to the operator.
+  if (next !== currentRung || currentRung === "PIVOT") {
+    deadEnds.push({
+      approach: `rung=${currentRung}${detector ? `,detector=${detector}` : ""}`,
+      reason: `${errClass}: ${errMsg.slice(0, 180)}`,
+      attempt: attemptCount,
+    });
+  }
+
+  if (next === "HANDOFF") {
+    escalateToHandoff(task, errMsg, deadEnds);
+    return "HANDOFF";
+  }
+
+  updateTaskEscalation(taskId, {
+    escalation_rung: next,
+    pivot_count: newPivotCount,
+    dead_ends: deadEnds.length > 0 ? JSON.stringify(deadEnds) : null,
+  });
+  requeueTask(taskId);
+  log(
+    `dispatch: task #${taskId} failed (attempt ${attemptCount}/${maxRetries}, ${errClass}) — ` +
+    `escalation ${currentRung}→${next} (pivots=${newPivotCount}), requeued`
+  );
+  insertServiceLog("warn", "dispatch", `task #${taskId} ${currentRung}→${next} (attempt ${attemptCount}/${maxRetries}, ${errClass}), requeued`, taskId);
+  return next;
+}
+
 // ---- Main entry point ----
 
 /**
@@ -1077,17 +1246,11 @@ export async function runDispatch(): Promise<void> {
         log(`dispatch/script: task #${task.id} blocked — ${scriptResult.result_summary.slice(0, 160)}`);
         insertServiceLog("warn", "dispatch", `script task #${task.id} blocked: ${scriptResult.result_summary.slice(0, 160)}`, task.id);
       } else {
-        // Check retries
-        const attemptNumber = task.attempt_count + 1;
-        if (attemptNumber < task.max_retries) {
-          requeueTask(task.id);
-          log(`dispatch/script: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — requeuing`);
-          insertServiceLog("warn", "dispatch", `script task #${task.id} failed attempt ${attemptNumber}/${task.max_retries}, requeued`, task.id);
-        } else {
-          markTaskFailed(task.id, scriptResult.result_summary, scriptResult.result_detail);
+        // ARC-0011 escalation ladder: advance the rung (REFINE→PIVOT→WEB-SEARCH) and
+        // requeue, or HANDOFF on threshold. Replaces the flat attempt_count < max_retries check.
+        const rung = handleFailedAttempt(task.id, scriptResult.result_summary, "script");
+        if (rung === "HANDOFF") {
           recordGateFailure(scriptResult.result_summary, "unknown");
-          log(`dispatch/script: task #${task.id} failed — max retries exhausted`);
-          insertServiceLog("error", "dispatch", `script task #${task.id} max retries exhausted`, task.id);
         }
       }
 
@@ -1151,6 +1314,18 @@ export async function runDispatch(): Promise<void> {
     effectiveModel = "sonnet";
   }
 
+  // ARC-0011: resolve the escalation rung for this attempt. On WEB-SEARCH, auto-include
+  // the research skill (for this attempt only) so external-lookup context is available.
+  const rung = normalizeRung(task.escalation_rung);
+  if (rung === "WEB-SEARCH" && !skillNames.includes(WEB_SEARCH_SKILL)
+      && existsSync(join(SKILLS_DIR, WEB_SEARCH_SKILL, "SKILL.md"))) {
+    skillNames.push(WEB_SEARCH_SKILL);
+    log(`dispatch: WEB-SEARCH rung — auto-loading ${WEB_SEARCH_SKILL} for task #${task.id}`);
+  }
+  if (rung !== "REFINE") {
+    log(`dispatch: task #${task.id} on escalation rung ${rung} (attempt ${task.attempt_count}, pivots ${task.pivot_count ?? 0})`);
+  }
+
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
@@ -1163,7 +1338,7 @@ export async function runDispatch(): Promise<void> {
     )
     .join("\n");
 
-  const prompt = buildPrompt(task, skillNames, recentCycles);
+  const prompt = buildPrompt(task, skillNames, recentCycles, rung);
 
   markTaskActive(task.id);
   writeDispatchLock(task.id);
@@ -1387,20 +1562,10 @@ export async function runDispatch(): Promise<void> {
       log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, dispatch gate will block until manual reset)`);
       insertServiceLog("warn", "dispatch", `task #${task.id} rate-limited, requeued`, task.id);
     } else {
-      const attemptNumber = task.attempt_count + 1;
-      if (attemptNumber < task.max_retries) {
-        requeueTask(task.id);
-        log(
-          `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}, ${errClass}) — requeuing: ${errMsg.slice(0, 200)}`
-        );
-        insertServiceLog("warn", "dispatch", `task #${task.id} failed attempt ${attemptNumber}/${task.max_retries} (${errClass}), requeued`, task.id);
-      } else {
-        markTaskFailed(task.id, `Max retries exhausted (${errClass}): ${errMsg.slice(0, 400)}`);
-        log(
-          `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — max retries exhausted`
-        );
-        insertServiceLog("error", "dispatch", `task #${task.id} max retries exhausted (${errClass})`, task.id);
-      }
+      // ARC-0011 escalation ladder for retryable failures (transient/unknown): advance
+      // the rung and requeue, or HANDOFF (block + [ESCALATED] follow-up) at threshold.
+      // recordGateFailure already fired at the top of this catch block.
+      handleFailedAttempt(task.id, errMsg, errClass);
     }
 
     if (!cycleUpdated) {

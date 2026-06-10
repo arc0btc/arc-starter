@@ -69,7 +69,7 @@ The CLI is the tool boundary. If a capability doesn't have a CLI command, create
 ```
 arc status                                    # task counts, last cycle, cost today
 arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
-arc tasks add --subject TEXT --model MODEL [--priority N]  # create a task (model required)
+arc tasks add --subject TEXT --model MODEL [--priority N] [--max-retries N]  # create a task (model required; max-retries = HANDOFF threshold, default 7)
 arc tasks update --id N [--subject TEXT] [--priority N] [--description TEXT] [--model MODEL] [--status pending]  # update a task
 arc tasks close --id N --status completed|failed --summary TEXT [--quality 1-5]
 arc skills                                    # list installed skills
@@ -129,7 +129,10 @@ CREATE TABLE tasks (
   tokens_in INTEGER DEFAULT 0,
   tokens_out INTEGER DEFAULT 0,
   attempt_count INTEGER DEFAULT 0,
-  max_retries INTEGER DEFAULT 3,
+  max_retries INTEGER DEFAULT 3,          -- ARC-0011: HANDOFF threshold (new CLI tasks default to 7)
+  escalation_rung TEXT DEFAULT 'REFINE',  -- ARC-0011: REFINE|PIVOT|WEB-SEARCH|HANDOFF
+  pivot_count INTEGER DEFAULT 0,          -- ARC-0011: number of PIVOT attempts made
+  dead_ends TEXT,                         -- ARC-0011: JSON [{approach, reason, attempt}]
   FOREIGN KEY (parent_id) REFERENCES tasks(id)
 );
 
@@ -221,8 +224,25 @@ Arc handles all GitHub operations directly — `git push`, PRs via `gh` CLI, Git
 - `blocked` status — Task cannot proceed. Set it and explain in `result_summary`.
 - Escalate if: irreversible action, >100 STX spend, uncertain consequences
 - Never retry: 403/401/permission denied — fail immediately
-- Max 3 retries for transient errors (network, timeouts)
 - One escalation per failure type per day — don't spam
+
+### Escalation Ladder (ARC-0011)
+
+Retryable failures (transient/unknown) no longer fail flat at `max_retries`. Dispatch advances
+a four-rung ladder, persisted on the task (`escalation_rung`, `pivot_count`, `dead_ends`):
+
+1. **REFINE** (attempts 1–2) — same approach, adjusted prompt/params/timing.
+2. **PIVOT** (attempts 3–4) — fundamentally different approach; the prompt loads the `dead_ends`
+   log and demands a strategy you haven't tried. A recurring error signature (≥3 same-subject
+   failures in 7d) skips REFINE and enters here directly.
+3. **WEB-SEARCH** (one pass) — `arxiv-research` + WebSearch/WebFetch auto-permitted to resolve
+   stale cached knowledge; verify results mechanically before acting, then fold back into PIVOT.
+4. **HANDOFF** (`attempt_count >= max_retries`) — block the task with a pruned decision tree and
+   create one `[ESCALATED]` follow-up (status `blocked`, assigned to whoabuddy) for triage.
+
+One success at any rung resets the ladder to REFINE. `max_retries` is now the HANDOFF threshold —
+new CLI tasks default to 7; existing tasks keep their value and HANDOFF earlier. The auth /
+subprocess-timeout / rate-limit short-circuits are unchanged (they bypass the ladder).
 
 ### Exhaust Your Own Tools First
 

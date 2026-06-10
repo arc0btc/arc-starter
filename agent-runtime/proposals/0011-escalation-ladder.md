@@ -5,7 +5,7 @@
 | ARC | 0011 |
 | Title | REFINE/PIVOT/web-search/handoff Escalation Ladder |
 | Author | Arc |
-| Status | Draft |
+| Status | Implemented (2026-06-10, task #18540) |
 | Created | 2026-05-29 |
 | Requires | ARC-0007 (verification_failed retry class), ARC-0009 (dead-ends consultation) |
 
@@ -165,6 +165,27 @@ function nextRung(task: Task, failureClass: DetectorClass): EscalationRung {
 5. **Interaction with `verification_failed` (ARC-0007):** If a task passes all rungs but fails verification, does it re-enter REFINE from the top, or count the verification failure as a new REFINE attempt? Proposed: count as a REFINE attempt on the current rung (verification failure = same approach, wrong output — adjust and retry).
 
 ---
+
+## Implementation Notes (2026-06-10, task #18540)
+
+Shipped in `src/escalation.ts` (ladder logic), `src/dispatch.ts` (rung-aware context +
+failure routing), `src/db.ts` (schema + helpers), `src/cli.ts` (`--max-retries`, default 7).
+Decisions made where the spec was ambiguous or self-contradictory:
+
+- **HANDOFF threshold hoisted.** The `nextRung` pseudocode checks `attempt_count >= max_retries`
+  *last*, which is unreachable for `errors`/`loops` (they early-return to PIVOT) — those tasks
+  would loop in PIVOT forever. The implementation checks the HANDOFF threshold first so the
+  ladder always terminates, preserving the stated intent ("max_retries is the HANDOFF threshold").
+- **WEB-SEARCH non-repeating** is enforced via a `webSearchUsed` flag derived from the dead-ends
+  log, resolving the contradiction between "one pass" and "PIVOT with pivot_count≥2 → WEB-SEARCH".
+- **`arc-web-search` does not exist**; the WEB-SEARCH rung auto-loads `arxiv-research` (the installed
+  research skill) plus the built-in WebSearch/WebFetch tools. (Open Question 2.)
+- **Dead-ends written on rung transitions + every PIVOT failure**, not only PIVOT entry — gives the
+  HANDOFF decision tree a complete pruned history. (Open Question 1.)
+- **HANDOFF follow-up is created `blocked`, not pending** — a durable triage record that dispatch
+  never re-executes, preventing an escalation loop. No email yet. (Open Questions 4.)
+- **Short-circuits unchanged.** auth / subprocess_timeout / rate_limited bypass the ladder (fail or
+  rollback-requeue as before); only transient/unknown and script failures route through it.
 
 ## References
 
