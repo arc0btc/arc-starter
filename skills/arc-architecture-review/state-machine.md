@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-09T09:28:00.000Z*
-*Diff: cfea1c10 → 6def33c (0 structural commits) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-10T14:54:00.000Z*
+*Diff: 6def33c → HEAD (2 structural commits in src/ + skills/) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
 stateDiagram-v2
@@ -306,6 +306,7 @@ stateDiagram-v2
         active --> blocked: unresolvable dependency
         failed --> pending: retry (max 3)
         blocked --> [*]: human intervention
+        note right of failed: ARC-0011 ESCALATION LADDER (e94a430c):\nRetryable failures advance rung, not flat fail:\nREFINE (attempts 1-2): same approach\nPIVOT (attempts 3-4): buildEscalationContext() injects dead_ends log,\n  demands fundamentally different strategy\nWEB-SEARCH (one pass): WebSearch/WebFetch auto-permitted\nHANDOFF (attempt_count >= max_retries): blocks task, creates [ESCALATED]\nfields: escalation_rung, pivot_count, dead_ends (JSON array)\nRecurring error signature (>=3 same-subject fails in 7d): skips REFINE\nbuildPrompt() accepts rung param; REFINE = pre-ARC-0011 behavior\nAuth/timeout/rate-limit short-circuits bypass ladder unchanged
     }
 
     state SignalAllocation {
@@ -354,6 +355,14 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (6def33c → HEAD) [2026-06-10T14:54Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(dispatch): ARC-0011 escalation ladder** (e94a430c) | `src/dispatch.ts` — replaces flat retry-then-fail with four-rung ladder. `escalationRung()` reads `task.escalation_rung` + `pivot_count` + `dead_ends` JSON to compute current rung. `buildEscalationContext()` injects rung-specific prompt context (empty for REFINE; dead-ends log for PIVOT; web-permission block for WEB-SEARCH). HANDOFF calls `markTaskBlocked()` and creates `[ESCALATED]` follow-up task. `max_retries` is now the HANDOFF threshold (new CLI tasks default to 7). Recurring error signature (≥3 same-subject failures in 7d) skips REFINE and enters PIVOT directly. Auth/timeout/rate-limit short-circuits bypass ladder. One success resets ladder to REFINE. |
+| **fix(arc-ceo-review): pre-flight dedup by period** (54eebe04) | `skills/arc-ceo-review/sensor.ts` — `extractPeriodFromFilename()` parses `YYYY-MM-DDTHH:MM` from report filename; `pendingTaskExistsForSource("ceo-review:{period}")` checked before workflow creation. Resolves `[NEW-ACTION]` from 2026-06-09T21:29Z audit: tasks #18485/#18493 duplicated the same period at ~$0.64 redundant cost. Sensor-sensor and sensor-subtask dedup now consistent. |
+| **chore: recentTaskExistsForSource import in arc-skill-manager** (52775e83) | `skills/arc-skill-manager/sensor.ts` — import added; no visible usage in diff. Dead import — potential cleanup candidate. |
 
 ## Key Architectural Changes (cfea1c10 → 6def33c) [2026-06-09T09:28Z]
 

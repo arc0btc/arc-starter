@@ -1,3 +1,62 @@
+## 2026-06-10T14:54:00.000Z — ARC-0011 escalation ladder shipped; CEO-review dedup fix; 120 skills / 73 sensors
+
+**Task #18530** | Diff: 6def33c → HEAD (3 structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+**Structural commits this window:**
+- **feat(dispatch): implement ARC-0011 escalation ladder** (e94a430c): Replaces flat retry-then-fail with REFINE→PIVOT→WEB-SEARCH→HANDOFF. `escalationRung()` computes rung from `escalation_rung`, `pivot_count`, `dead_ends` on the task row. `buildEscalationContext()` injects rung-specific prompt block — empty for REFINE (backward compatible), dead-ends log for PIVOT, web-search permissions for WEB-SEARCH. HANDOFF blocks task and creates `[ESCALATED]` follow-up assigned to whoabuddy. `max_retries` is now the HANDOFF threshold (new tasks default to 7). Recurring-error detection (≥3 same-subject failures in 7d) skips REFINE and enters PIVOT. Auth/timeout/rate-limit short-circuits unchanged. Major dispatch behavioral change.
+- **fix(arc-ceo-review): pre-flight dedup check by period** (54eebe04): `extractPeriodFromFilename()` + `pendingTaskExistsForSource("ceo-review:{period}")` added before workflow creation. Resolves duplicate CEO review from 2026-06-09T21:29Z audit. ~$0.64/event recovered.
+- **chore: add recentTaskExistsForSource import to arc-skill-manager/sensor.ts** (52775e83): Import added but not visibly used in the diff — dead import.
+
+**Watch report 2026-06-10T14:03Z highlights:**
+- 19 completed, 2 failed, 0 blocked. Total $5.03. $0.265/task (good).
+- ARC-0011 escalation ladder shipped to dispatch.
+- Claude Fable 5 assessed: $10/$50/M tokens (vs opus-4-8 $15/$75/M) — cost reduction option.
+- Safety gate correctly blocked premature model-ID migration — two-layer defense working.
+- Haiku timeout on MEMORY dedup fix — one-off; pattern known (haiku = bounded tasks only).
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+**Dead import** (`recentTaskExistsForSource` in arc-skill-manager/sensor.ts, 52775e83): imported but not used. Minor cleanup candidate — not blocking.
+
+### Step 3 — Simplify
+
+- **[RESOLVED]** Duplicate CEO review dedup (54eebe04) — pre-flight period check closes the [NEW-ACTION] from last audit.
+- **[RESOLVED]** ARC-0011 replaces the flat retry loop — dispatch now has principled failure progression. The HANDOFF threshold being `max_retries` is correct; CLI default of 7 gives more runway than prior 3.
+- **[DEAD-IMPORT-WATCH]** `recentTaskExistsForSource` unused in arc-skill-manager sensor — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth this window.
+- **[CARRY-WATCH]** Arch-review model downgrade for no-structural-change cycles — still low priority.
+
+### Step 4 — Accelerate
+
+- 19 tasks, 2 failures (both benign: safety gate + haiku timeout). $0.265/task — below $0.40 target.
+- ARC-0011 reduces wasted retry cycles on known-dead-end approaches — less dispatch time burned on hopeless retries.
+- Claude Fable 5 at $10/$50/M could reduce costs 33% vs opus-4-8. Worth evaluating MODEL_IDS update after more signals on quality.
+
+### Step 5 — Automate
+
+- HANDOFF creates `[ESCALATED]` tasks automatically — no manual escalation needed for REFINE/PIVOT/WEB-SEARCH failures.
+- Dead import cleanup (`recentTaskExistsForSource`) could be caught by a lint-skills rule for unused imports. Low priority.
+
+### Flags
+
+- **[RESOLVED]** Duplicate CEO review dedup (54eebe04) — pre-flight period check.
+- **[RESOLVED]** Duplicate MEMORY consolidation dedup — see last audit; follow-up task was queued.
+- **[NEW]** ARC-0011 escalation ladder live (e94a430c) — state machine updated. Monitor first PIVOT/WEB-SEARCH/HANDOFF cycles for correctness.
+- **[NEW-WATCH]** Claude Fable 5 ($10/$50/M): 33% cost reduction vs opus-4-8 possible. Evaluate after quality signals accumulate.
+- **[NEW-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — requires whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-09T21:29:00.000Z — no structural changes; duplicate-sensor dedup pattern flagged; 120 skills / 73 sensors
 
 **Task #18515** | Diff: 0f46d2b5..HEAD (0 structural commits) | Sensors: 73 | Skills: 120
