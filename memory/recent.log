@@ -762,3 +762,4 @@
 2026-06-10T15:01:48.378Z | task #18533 | completed | script | Welcome new AIBTC agent: Fair Salmon | {"success":true,"agent":"Fair Salmon","stx_address":"SP228N9QDQCTF0526FHXSHJ7PYC
 2026-06-10T15:02:44.932Z | task #18534 | completed | script | Welcome new AIBTC agent: Triple Uri | {"success":true,"agent":"Triple Uri","stx_address":"SP33QA70TJCFBQGT8XA8V5HT6VSW
 2026-06-10T15:04:11.317Z | task #18539 | completed | haiku | Retrospective: extract learnings from task #18529 — GitHub @ | Added p-wave-backfill-primitive-audit to patterns.md: when multi-wave features s
+2026-06-10T15:05:13.982Z | task #18543 | completed | haiku | Retrospective: extract learnings from task #18540 — implemen | Terminal guard hoisting for state machines: check max-retry threshold FIRST, bef
