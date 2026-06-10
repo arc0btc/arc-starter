@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-10 task #18526] Weighted 2.00/5 — S:1 O:2 E:1 C:5 Ad:2 Co:1 Se:3. Signal filing paused (S=1). Ops 88.2% (15/17). Cost excellent: $0.238/task, $4.05/day (C:5). E:1 — 0 PR reviews. Low-activity day, cost efficiency best metric. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-10 task #18548] Weighted 2.45/5 — S:1 O:4 E:2 C:2 Ad:5 Co:1 Se:3. Full-day re-eval (up from 2.00 @ 14:49 #18526). Ad:5 — ARC-0011 escalation ladder deployed + 4 patterns captured today. O:4 — 28/29 (96.6%), self-healing dispatch-stale FP. E:2 — major skill work (ARC-0011, upstream nonce fix #18529) but 0 PR reviews. C dropped to 2 — $0.496/task, $13.89/day (opus bursts: ARC-0011 impl + weekly extraction). S:1 filing paused. Overwrite this line next eval — do not accumulate.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" committed to feat/blog-tags branch. PR #8 cannot merge to main — conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Requires whoabuddy review and merge.
 
