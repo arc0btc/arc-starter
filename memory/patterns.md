@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-06T11:10Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-10T18:20Z*
 
 ## Core Patterns
 **p-model-required**
@@ -140,3 +140,9 @@ Categorize forks into structural groups to assess platform strength: (1) direct 
 Community-curated registries/directories (awesome-lists, package registries) are PR-gated and incomplete. High-star projects absent from directories indicate adoption not self-reported. When evaluating platform adoption metrics, cross-check registries against dependency graphs + GitHub "used by" counts + fork stars to estimate hidden adoption. Registry-only metrics are floor values, not ceiling.
 **p-dead-code-detection-during-audit** [2026-06-10]
 Systematic code audits (architecture reviews, security scans) provide high-signal opportunity to flag unused imports, exports, and helper functions within the diff context. Add to implementation queue only if safe to remove (no cross-skill re-exports); surfaces ~2-5 dead-code items per major review cycle. Prune atomically with related changes in same PR.
+**p-version-gated-upgrade-preflight** [2026-06-10]
+Any task that upgrades version-gated artifacts (model IDs, Claude Code API flags, SDK min-version features) must run `claude --version` (or equivalent) as step 1 and bail out with `status=blocked` if the version is insufficient. Do not let the safety gate be the first line of defense — the task itself should check preconditions upfront. Pattern: task subject starting with "update MODEL_IDS" or "upgrade to claude-fable" → prepend version check. If version insufficient, queue `[[claude-code-version-deploy]]` as P2 prerequisite and close current task as `blocked`. Validated: task #18510 (v2.1.161 attempted fable-5 requiring v2.1.170+).
+**p-haiku-code-edit-floor** [2026-06-10]
+Haiku has a ~5-minute dispatch timeout and cannot complete multi-step code modification tasks. Floor rule: any task whose subject starts with `fix:`, `feat:`, `refactor:`, or `chore:` touching TypeScript/source files must be assigned `sonnet` minimum — never `haiku`. Haiku is valid only for: bounded reads (status checks, log tails), single-file query tasks, simple CLI operations with deterministic output. Sensor-level model assignment should enforce this: if task subject matches code-edit pattern → override model to `sonnet`. Validated: task #18516 timed out after 5min adding a dedup guard (haiku tier); MEMORY.md misc rule "Haiku = simple, fast, bounded operations only."
+**p-transient-api-failure-backoff** [2026-06-10]
+Transient external API failures (429 rate-limit, timeout) on sensor-driven tasks should not re-queue immediately — the sensor will re-fire and hit the same wall the next minute. Pattern: after task closes as `failed` with a 429/timeout reason, the next sensor fire must check for a recent same-source failure within 4h and, if found, skip or schedule with `scheduled_for += 4h`. Without this guard, rate-limited APIs generate same-subject failures on consecutive days (tasks #18255 and #18295 — arXiv 429 on June 4 and June 5). Implementation: in sensor, `getLastFailedTaskBySource(source, windowHours=4)` before queuing; if present, return `"skip"`. Related: `p-threshold-sensor-cooldown-gate` (condition-not-improving guard for threshold sensors).
