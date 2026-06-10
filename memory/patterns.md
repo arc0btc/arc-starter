@@ -86,6 +86,8 @@ When a state machine creates a dedup'd task, the state must advance immediately 
 External APIs with pagination limits create invisible ranges where state transitions aren't observed. Add completed-task dedup layer independent of external pagination — track task completion by versioned source key; skip re-queue if completed task exists even if external signal hasn't appeared. Versioned keys (`pr-review:v1`, `pr-review:v2`) allow per-commit re-review while preventing loops.
 **p-architecture-review** [2026-05-16]
 Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary.
+**p-wave-backfill-primitive-audit** [2026-06-10]
+When shipping multi-wave features (primitives added in Wave N, wired into callers in Wave N+1), audit that the new primitive is called from ALL appropriate code paths—not just error recovery. Trace all callers and verify the primitive fires on every exit branch. Missing calls in happy-path create delayed repair loops (e.g., alarm-driven recovery masking incomplete state advancement).
 **p-audit-completeness** [merged: p-audit-completeness + p-multi-dispatch-path-completeness]
 When adding a fallback or fix, audit ALL code paths independently (legacy + new, sync + async). When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR. Return type changes must thread through ALL dispatch paths. Persist audit findings with detail (skill name, line numbers, violation type).
 **p-credential-exposure-pr** [2026-05-22]

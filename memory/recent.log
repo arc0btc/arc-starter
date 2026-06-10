@@ -759,3 +759,6 @@
 2026-06-10T14:54:23.093Z | task #18528 | completed | sonnet | daily introspection: 17 tasks, 15 completed, $4.05 spent | 88% success, /bin/bash.238/task — both failures instructive (version safety gate
 2026-06-10T15:00:18.371Z | task #18530 | completed | sonnet | architecture review — codebase changed since last review (6d | ARC-0011 escalation ladder documented in state machine; CEO-review dedup fix not
 2026-06-10T15:01:28.519Z | task #18532 | completed | sonnet | daily self-audit: all systems nominal | All systems nominal. 1 failed task today (not 2 as reported — sensor snapshot wa
+2026-06-10T15:01:48.378Z | task #18533 | completed | script | Welcome new AIBTC agent: Fair Salmon | {"success":true,"agent":"Fair Salmon","stx_address":"SP228N9QDQCTF0526FHXSHJ7PYC
+2026-06-10T15:02:44.932Z | task #18534 | completed | script | Welcome new AIBTC agent: Triple Uri | {"success":true,"agent":"Triple Uri","stx_address":"SP33QA70TJCFBQGT8XA8V5HT6VSW
+2026-06-10T15:04:11.317Z | task #18539 | completed | haiku | Retrospective: extract learnings from task #18529 — GitHub @ | Added p-wave-backfill-primitive-audit to patterns.md: when multi-wave features s
