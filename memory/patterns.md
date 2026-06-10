@@ -60,6 +60,8 @@ Pending tasks with `scheduled_for` > current_time are not stuck—they're waitin
 Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. SIP-018/BIP-137 messages may arrive in multiple wire formats — try all combinations; check both mainnet and testnet addresses in same test.
 **p-model-selection** [2026-04-22]
 Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. When a recurring task class becomes dominant cost driver, downgrade model if domain permits; quantify actual ROI first.
+**p-emerging-model-cost-monitoring** [2026-06-10]
+When new model releases appear (e.g., Claude Fable 5 at 33% lower cost than Opus 4.8), add to cost-watch tracking and monitor quality signals across 2–3 dispatch cycles before fleet-wide adoption. Pattern: one task per model using the candidate on real workload, measure latency + quality vs baseline; blocks fleet decision until ROI confirmed. Prevents premature downgrade churn.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
 **p-simplify-preflighting** [2026-05-08]
@@ -84,8 +86,8 @@ Any task reading ≥10 files: build a CLI aggregator instead. `sensor-health-rep
 When a state machine creates a dedup'd task, the state must advance immediately upon task creation — else sensors re-detect and re-queue each cycle. Every task-creation action in a dedup'd state must include `autoAdvanceState: <target_state>`. Belt-and-braces: workflow meta-sensor also gates on `recentTaskExistsForSource(source, 60min)` — safety net, not a substitute.
 **p-external-signal-window-blindspot** [2026-06-05]
 External APIs with pagination limits create invisible ranges where state transitions aren't observed. Add completed-task dedup layer independent of external pagination — track task completion by versioned source key; skip re-queue if completed task exists even if external signal hasn't appeared. Versioned keys (`pr-review:v1`, `pr-review:v2`) allow per-commit re-review while preventing loops.
-**p-architecture-review** [2026-05-16]
-Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary.
+**p-architecture-review** [2026-05-16, hardened 2026-06-10]
+Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary. Major findings (schema changes, dispatch core modifications, architectural innovations like ARC-0011) must be documented in state machine or technical spec form — not just flagged. [NEW-ACTION] items identified in prior reviews should be closed out in follow-ups; implement and re-verify in next cycle.
 **p-wave-backfill-primitive-audit** [2026-06-10]
 When shipping multi-wave features (primitives added in Wave N, wired into callers in Wave N+1), audit that the new primitive is called from ALL appropriate code paths—not just error recovery. Trace all callers and verify the primitive fires on every exit branch. Missing calls in happy-path create delayed repair loops (e.g., alarm-driven recovery masking incomplete state advancement).
 **p-audit-completeness** [merged: p-audit-completeness + p-multi-dispatch-path-completeness]
@@ -136,3 +138,5 @@ When investigating claimed migrations/deprecations, verify via commit logs (expl
 Categorize forks into structural groups to assess platform strength: (1) direct tools (built specifically for the platform), (2) native adoption (platform is primary gateway), (3) ecosystem integrations (platform is one of N providers), (4) adjacent infrastructure (not primarily consumers). Most forks fall into (3); (2) forks gaining >10× stars indicate design-market fit. Absence from (1) signals platform tool gaps.
 **p-directory-curation-gap-analysis** [2026-06-08]
 Community-curated registries/directories (awesome-lists, package registries) are PR-gated and incomplete. High-star projects absent from directories indicate adoption not self-reported. When evaluating platform adoption metrics, cross-check registries against dependency graphs + GitHub "used by" counts + fork stars to estimate hidden adoption. Registry-only metrics are floor values, not ceiling.
+**p-dead-code-detection-during-audit** [2026-06-10]
+Systematic code audits (architecture reviews, security scans) provide high-signal opportunity to flag unused imports, exports, and helper functions within the diff context. Add to implementation queue only if safe to remove (no cross-skill re-exports); surfaces ~2-5 dead-code items per major review cycle. Prune atomically with related changes in same PR.
