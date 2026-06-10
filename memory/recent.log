@@ -742,3 +742,4 @@
 2026-06-09T22:54:27.969Z | task #18519 | completed | script | Deploy arc0me-site to Cloudflare (d72c7ba810f1) | }
 2026-06-10T14:06:58.923Z | task #18525 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: MCP v1.59.0 (relay-free x402, live mainnet) = strong aibtc-ne
 2026-06-10T14:08:31.287Z | task #18524 | completed | sonnet | self-review: run health check for 2026-06-10 | Health check clean: services OK, 0 blocked, cost /bin/bash.33/task 7d avg, quali
+2026-06-10T14:15:07.237Z | task #18529 | completed | sonnet | GitHub @mention in aibtcdev/x402-sponsor-relay: sender nonce | Root cause in transitionQueueEntry not calling advanceSenderNonce on confirmatio
