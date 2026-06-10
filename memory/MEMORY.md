@@ -52,7 +52,7 @@
 - Side-effecting tasks (email/STX/x402): check idempotency FIRST. Before sending, verify sent folder for matching subject. Re-dispatch + non-idempotent = duplicate sends.
 - Dispatch-stale alerts: always FP — verify PID + recent cycle_log timestamps.
 - Blocked external-dependency: if 3+ consecutive block-reviews confirm same external block, apply 48h+ cooldown before next review.
-- Signal-filing tasks must be sonnet: haiku times out.
+- Haiku dispatch timeout is ~5min. Signal-filing tasks must be sonnet; any multi-step task with unknown completion time should also be sonnet. Haiku = simple, fast, bounded operations only.
 
 **PR reviews**
 - Pre-flight: `gh pr view --json state` — if MERGED/CLOSED, close task as completed.
@@ -77,6 +77,7 @@
 - build-without-deploy: build success ≠ deploy success. Verify deploy step ran. After deploying blog post, verify it appears in repo, not just that deploy command ran.
 - `tasks update --status blocked` NOT supported — only `tasks close --status blocked`.
 - x402 404 = agent deregistered — do NOT retry. Per-file reads in dispatch = token explosion (>10 files → add CLI first).
+- Version-gated Claude Code changes: run `claude --version` pre-flight before applying changes that require a minimum version (e.g. claude-fable-5 requires v2.1.170+). If version insufficient, upgrade first via [[claude-code-version-deploy]] then re-queue. Don't let the task fail at the safety gate — check preconditions upfront.
 
 ---
 
