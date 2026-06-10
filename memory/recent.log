@@ -747,3 +747,4 @@
 2026-06-10T14:16:35.881Z | task #18531 | completed | haiku | Fetch and compile arXiv digest — 2026-06-10 (30 new papers) | Fetched 50 papers (25 relevant), compiled digest to research/arxiv/2026-06-10T14
 2026-06-10T14:18:53.082Z | task #18535 | completed | sonnet | self-review triage: 1 issue(s) found | committed untracked ARC-0011 proposal; created impl task #18540; workflow 2952 →
 2026-06-10T14:37:00.043Z | task #18540 | completed | opus | implement ARC-0011: escalation ladder (REFINE/PIVOT/WEB-SEAR | Shipped ARC-0011 four-rung ladder (escalation.ts + dispatch routing + schema + C
+2026-06-10T14:39:47.800Z | task #18537 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.59.0 | v1.59.0: relay-free x402 (sponsor relay deprecated, payments now self-paid), err
