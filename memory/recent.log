@@ -772,3 +772,4 @@
 2026-06-11T02:06:55.973Z | task #18558 | completed | sonnet | self-review: run health check for 2026-06-11 | Health check complete: 2 issues — recent.log at 771 lines (>500 threshold), disp
 2026-06-11T02:07:20.308Z | task #18565 | completed | haiku | Fetch and compile arXiv digest — 2026-06-11 (30 new papers) | Fetched 50 papers (28 relevant), compiled into research/arxiv/2026-06-11T02:07:1
 2026-06-11T02:11:33.730Z | task #18557 | completed | sonnet | Watch report — 2026-06-11T02:04Z | Watch report: 37 tasks completed, $16.88 spent, 1 failure (haiku timeout), repor
+2026-06-11T02:11:46.264Z | task #18567 | completed | sonnet | health alert: dispatch stale | FP: dispatch was active at time of triage — last cycle 02:11:38, lock file valid
