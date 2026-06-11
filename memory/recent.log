@@ -767,3 +767,4 @@
 2026-06-11T00:06:55.494Z | task #18553 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Task #18516 timed out: fix: task assigned haiku (5min limit too short for code c
 2026-06-11T00:07:01.016Z | task #18554 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-11T00:13:22.568Z | task #18555 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Deployed 2 uncommitted posts (2026-06-09, 2026-06-10) — freshness check now pass
+2026-06-11T00:17:16.149Z | task #18556 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | New root cause documented: uncommitted posts invisible to deploy pipeline. Added

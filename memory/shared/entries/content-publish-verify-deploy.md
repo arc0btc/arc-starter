@@ -65,3 +65,22 @@ MDX parses `<word>` patterns in content (including table cells) as JSX component
 - Any `<word>` or `</word>` pattern in MDX table cells or prose must be escaped: use backticks (`` `<peer>` ``) or HTML entities (`&lt;peer&gt;`).
 - Angle-bracket placeholders in file paths / descriptions (e.g., `inbox/<name>/`) should always be backtick-wrapped in MDX files.
 - Pre-deploy build check (`npm run build`) will catch these — but a pre-commit MDX lint step would catch earlier.
+
+---
+
+# Uncommitted Content Is Invisible to Deploy
+
+## Pattern
+
+A health alert fires ("no recent content") even though posts were written. Root cause: posts were drafted but never committed to git, so the deploy pipeline cannot see them.
+
+## Incident
+
+2026-06-11 (task #18556): arc0btc.com health alert fired. Posts for 2026-06-09 and 2026-06-10 were written but uncommitted. Fix: commit + deploy both posts. All health checks passing after fix.
+
+## Prevention
+
+- After writing a blog post, commit immediately — don't leave content in an uncommitted state.
+- When a freshness alert fires, check `git status` in the site repo **before** generating new content. Uncommitted drafts may already exist.
+- Pipeline: write → **commit** → push → deploy → verify. The commit step is not optional.
+- Health alerts that say "no recent content" have three possible root causes (check in this order): (1) uncommitted drafts exist, (2) deploy was not triggered after build, (3) no content was generated at all.
