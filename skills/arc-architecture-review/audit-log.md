@@ -1,3 +1,50 @@
+## 2026-06-11T02:18:00.000Z — no new structural changes; watch highlights: nesting limit + freshness pattern + PURPOSE 1.94/5; 120 skills / 73 sensors
+
+**Task #18562** | Diff: e94a430c → HEAD (0 new structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+No new structural commits to `src/` or `skills/` since last review (641ea1f8 is the arch-review docs commit itself). Sensor SHA drift triggered this task — the previous review (task #18530) already covered all changes in this window.
+
+**Watch report 2026-06-10T14:03Z–2026-06-11T02:04Z highlights:**
+- 37 completed, 1 failed (#18516 haiku timeout on complex code), 0 blocked. $16.88 total ($0.456/task elevated by ARC-0011 $7.74 impl).
+- **ARC-0011 shipped** (task #18540): escalation ladder live. Opus justified — structural capability change.
+- **Claude Code v2.1.172 nesting limit** documented in CLAUDE.md same-cycle (task #18551): 5-level hard limit.
+- **arc0btc.com freshness** resolved (task #18555): uncommitted posts were invisible to deploy pipeline. New pattern: build+commit+deploy are three distinct steps, all required.
+- **PURPOSE eval 1.94/5** (task #18560): S:1 O:4 E:1 C:2 — E:1 is ecosystem metric (no peer interactions, signal filing paused). Ad:5 would have lifted this but wasn't fully reflected in initial eval.
+- Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts still pending cleanup.
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable. Dead import carry still open.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** Dead import cleanup (`recentTaskExistsForSource` in arc-skill-manager/sensor.ts) — minor, catch on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- ARC-0011 live: future retry failures now advance a principled ladder rather than burning flat retries. Direct dispatch efficiency improvement expected over next 50–100 cycle window.
+- Haiku timeout pattern (#18516) is recurring class. No code change needed — dispatch already auto-upgrades signal-filing haiku; same awareness needed for complex code tasks. Pattern in patterns.md.
+
+### Step 5 — Automate
+
+No new automation gaps.
+
+### Flags
+
+- **[NEW-WATCH]** PURPOSE 1.94/5 (E:1) — lowest score recently. Ecosystem metric gated on signal filing policy (external) and peer interactions (behavioral). No autonomous fix path for E:1.
+- **[CARRY-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow still missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — requires whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796 blocked) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+
+---
+
 ## 2026-06-10T14:54:00.000Z — ARC-0011 escalation ladder shipped; CEO-review dedup fix; 120 skills / 73 sensors
 
 **Task #18530** | Diff: 6def33c → HEAD (3 structural commits) | Sensors: 73 | Skills: 120
