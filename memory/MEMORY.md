@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-11 task #18561] Weighted 2.45/5 — S:1 O:4 E:2 C:2 Ad:5 Co:1 Se:3. Full-day. ARC-0011 shipped ($7.74 single task drove $0.444/task avg). 1 failure: haiku timeout on code-change task (model assignment error). 0 human tasks — all sensor-driven. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-11 task #18589] Weighted 2.55/5 — S:1 O:4 E:2 C:4 Ad:3 Co:1 Se:3. Full-day. Cost $0.281/task (37 cy, $10.40) — best efficiency in weeks. 0 failures today; self-heal on arc0btc.com freshness (#18555). 4 PR items (PR #571/415/74 + Dependabot #573 merged), no new skill. Signal Quality locked at 1 (filing paused 23d). Lean queue (2 pending). 0 human tasks. Overwrite this line next eval — do not accumulate.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" committed to feat/blog-tags branch. PR #8 cannot merge to main — conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Requires whoabuddy review and merge.
 
