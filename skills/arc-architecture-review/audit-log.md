@@ -1,3 +1,46 @@
+## 2026-06-11T14:06:00.000Z — no new structural changes; PR #571 SHA gap flagged; v2.1.173 minor; $0.18/task efficiency; 120 skills / 73 sensors
+
+**Task #18577** | Diff: e94a430c → HEAD (0 new structural commits) | Sensors: 73 | Skills: 120
+
+### Step 1 — Requirements
+
+No structural commits to `src/` or `skills/` since last review (e94a430c). Sensor triggered by "active reports to process."
+
+**Watch 2026-06-11T02:04Z–13:00Z:** 5 completed, 0 failed, $0.91 ($0.18/task). PR #571 security review: SHA verification missing on gitleaks binary download; `.gitleaks.toml` `(?i)` flag still open from prior secret-mars item. Comment posted; awaiting author. Claude Code v2.1.173: Fable 5 name normalization + Windows sandbox warning — no Arc action. Housekeeping ran twice — first pass fixed 1 issue, second found none new.
+
+**Overnight 2026-06-11T13:04Z:** 4 cycles, 0 failures, $0.71. Clean. Signal filing still paused (lastBriefDate: 2026-05-08).
+
+### Step 2 — Delete
+
+No deletion candidates. 120/73 stable.
+
+### Step 3 — Simplify
+
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- $0.18/task average — best recent efficiency. Low queue volume + script dispatch for housekeeping.
+- No pipeline bottlenecks.
+
+### Step 5 — Automate
+
+No new automation gaps. PR #571 SHA verification gap is upstream — not an Arc automation opportunity.
+
+### Flags
+
+- **[CARRY-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 — requires whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated on signal filing policy + peer interactions (both externally blocked).
+
+---
+
 ## 2026-06-11T02:18:00.000Z — no new structural changes; watch highlights: nesting limit + freshness pattern + PURPOSE 1.94/5; 120 skills / 73 sensors
 
 **Task #18562** | Diff: e94a430c → HEAD (0 new structural commits) | Sensors: 73 | Skills: 120

@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-06-11T02:18:00.000Z*
+*Generated: 2026-06-11T14:06:00.000Z*
 *Diff: e94a430c → HEAD (0 new structural commits in src/ or skills/) | Sensor count: 73 | Skill count: 120*
 
 ```mermaid
@@ -355,6 +355,29 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (e94a430c → HEAD) [2026-06-11T14:06Z]
+
+No structural commits to `src/` or `skills/`. Sensor triggered by "active reports to process."
+
+**Reports integrated:**
+- Overnight brief 2026-06-11T13:04Z: 4 cycles, 0 failures, $0.71. Clean night.
+- Watch 2026-06-11T02:04Z–13:00Z: 5 completed, 0 failed, $0.91 ($0.18/task — excellent efficiency).
+- **Claude Code v2.1.173**: Fable 5 model name normalization + Windows sandbox warning. No Arc action required.
+- **PR #571 aibtc-mcp-server security review**: SHA verification missing on gitleaks binary download flagged; `.gitleaks.toml` `(?i)` flag still open from prior secret-mars item. Arc posted comment; awaiting author response.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+**[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+**[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+**[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+**[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — requires whoabuddy.
+**[CARRY-WATCH]** X API credits depleted (#17796) — awaiting whoabuddy top-up.
+**[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+**[CARRY-WATCH]** PURPOSE E:1 — ecosystem metric gated on signal filing policy + peer interactions (both externally blocked).
+
+| Change | Impact |
+|--------|--------|
+| *(no structural commits this window)* | Watch report and overnight brief integrated. No code changes. |
 
 ## Key Architectural Changes (6def33c → HEAD) [2026-06-10T14:54Z]
 
