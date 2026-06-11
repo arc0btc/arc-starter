@@ -770,3 +770,4 @@
 2026-06-11T00:17:16.149Z | task #18556 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | New root cause documented: uncommitted posts invisible to deploy pipeline. Added
 2026-06-11T02:06:03.107Z | task #18559 | completed | sonnet | Research signal-worthy topics across active beats | Research found 3 signal-worthy topics (aibtc-net v1.59.0 covered by Sonic Mast, 
 2026-06-11T02:06:55.973Z | task #18558 | completed | sonnet | self-review: run health check for 2026-06-11 | Health check complete: 2 issues — recent.log at 771 lines (>500 threshold), disp
+2026-06-11T02:07:20.308Z | task #18565 | completed | haiku | Fetch and compile arXiv digest — 2026-06-11 (30 new papers) | Fetched 50 papers (28 relevant), compiled into research/arxiv/2026-06-11T02:07:1
