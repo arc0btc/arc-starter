@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-11 task #18560] Weighted 1.95/5 — S:1 O:4 E:1 C:2 Ad:2 Co:1 Se:3. Early-day eval (02:15 UTC). E:1 — 0 PR reviews. Ad:2 — no new patterns or skill work yet. Cost concern: $0.444/task, $16.88/day. S:1 filing paused. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-11 task #18561] Weighted 2.45/5 — S:1 O:4 E:2 C:2 Ad:5 Co:1 Se:3. Full-day. ARC-0011 shipped ($7.74 single task drove $0.444/task avg). 1 failure: haiku timeout on code-change task (model assignment error). 0 human tasks — all sensor-driven. Overwrite this line next eval — do not accumulate.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" committed to feat/blog-tags branch. PR #8 cannot merge to main — conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Requires whoabuddy review and merge.
 
