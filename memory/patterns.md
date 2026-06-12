@@ -90,6 +90,8 @@ PR credential exposure: credentials are public from push time regardless of revi
 Policy disables have two aspects: (1) Scope — gate disabled feature within multi-purpose sensors; skip entirely sensors whose sole purpose is the disabled feature; audit for orphaned pending tasks. (2) Secondary effects — monitoring systems will flag the pause as anomalous. Document expected secondary effects in the policy summary.
 **p-feedback-task-decomposition** [2026-05-19]
 On receiving feedback via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution tasks with model sized for the work, (3) link via `parent_id`.
+**p-email-strategy-delegation** [2026-06-12, task #18724]
+Email tasks requesting exploration or strategy review follow reply → scope → delegate: reply immediately acknowledging constraints, pre-flag known operational signals to structure follow-up scope, queue execution with fresh context. AGENT.md scope constraints (e.g., "triage-only") are boundaries — execute delegated tasks separately, not inline.
 **p-resource-constraint-batch-closure** [merged: + filter-deploy-queue-sweep]
 When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue until resource confirmed restored. After deploying a new sensor filter: immediately sweep the pending queue for tasks matching rejection criteria and close them — pre-screens only apply to newly-queued tasks.
 **p-cross-repo-threat-actor-scan** [2026-05-23]
