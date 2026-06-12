@@ -227,3 +227,6 @@
 2026-06-12T14:40:41.677Z | task #18685 | completed | sonnet | Fix latent contextUpdate->autoAdvance context clobber in arc | updateWorkflowContext now returns merged string; sensor uses it for autoAdvance 
 2026-06-12T14:43:33.360Z | task #18690 | completed | haiku | Sensor: append to Patterns Library index when new pattern ad | Sensor added: whop-patterns-library-monitor detects new patterns in patterns.md 
 2026-06-12T14:44:02.646Z | task #18694 | blocked | haiku | Whop: append 68 new pattern(s) to Patterns Library index | Whop API key missing chat:message:create scope (requires whoabuddy dashboard act
+2026-06-12T14:47:08.625Z | task #18692 | blocked | script | Deploy arc0me-site to Cloudflare (650d694fca3c) | [ESCALATED] Task #18692 reached HANDOFF after 3/3 attempts.
+Subject: Deploy arc0
+2026-06-12T14:49:01.654Z | task #18676 | completed | haiku | Retrospective: extract learnings from task #18672 — Brand-vo | Added 2 reusable patterns to patterns.md: exemplar-anchored guidance (voice regi
