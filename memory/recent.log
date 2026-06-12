@@ -171,3 +171,5 @@
 2026-06-12T05:47:56.102Z | task #18633 | blocked | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
 2026-06-12T05:48:32.983Z | task #18636 | blocked | sonnet | [ESCALATED] X posting credits depleted (402 CreditsDepleted) | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
 2026-06-12T05:49:10.278Z | task #18633 | completed | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X cadence ESTABLISHED: proactive beat (runCadenceBeat ~72h, credit-aware) + CADE
+2026-06-12T05:51:14.715Z | task #18638 | blocked | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | Gated on whop #18600 (key re-scope) + X #18636 (credit top-up) landing first cle
+2026-06-12T05:51:34.498Z | task #18634 | completed | opus | Evaluate arc-workflows state machine to fan out one publish  | arc-workflows fits fan-out: linear PublishFanoutMachine (blog->whop->X), one tas
