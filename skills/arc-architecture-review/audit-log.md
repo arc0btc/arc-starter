@@ -1,3 +1,57 @@
+## 2026-06-12T14:40:00.000Z — whop sensor live; BlogToXMachine + ContentCalendarMachine shipped; 121 skills / 74 sensors
+
+**Task #18678** | Diff: 9d3edbc → 738a9cd (21 commits) | Sensors: 74 | Skills: 121
+
+### Step 1 — Requirements
+
+**Structural commits this window:**
+- **feat(whop): sensor.ts added** (9396dc13): whop-state-writer (60min, writes db/whop-state.json) + gated blog→chat cadence (WHOP_SENSOR_ENABLED=false). Sensor count 73→74.
+- **fix(whop): app_api_key model** (d3d704a9 + bca250d1 + 655523d4): `post-chat` uses `app_api_key` (actor identity), mgmt uses `company_api_key`. v1 endpoint confirmed. rename-experience CLI added. Blocker: App must be installed on the experience + granted `chat:message:create` at App permission level.
+- **feat(arc-workflows): BlogToXMachine** (368d7341): 3-state machine (blog_published→x_pending→completed). syncBlogPublishes() creates one workflow per freshly published post (1-day window, instance-key dedup). Gated: WORKFLOWS_BLOG_TO_X_ENABLED=false.
+- **feat(arc-workflows): ContentCalendarMachine** (bebf650b + d34ffa12 + aa133475): 17 Tier A instances pre-seeded from memory/shared/entries/*.md. T+0 anchor gate prevents simultaneous publish on enable. --context flag added to CLI create. Eval-gate added to sensor meta-loop. Gated: WORKFLOWS_CONTENT_CALENDAR_ENABLED=false.
+- **fix(dispatch): mention-reply staleness guard** (121678c6): Mentions >7d closed gracefully (fixes #18649, a 25d-old mention causing spurious failures).
+- **chore(social-x-posting): cadence paused** (e908ffae): 12h X cadence paused for strategy pivot. Credits restored by whoabuddy 2026-06-12.
+- **fix(compliance-review): catch param fix** (031928b8): Abbreviated-naming check skips catch parameters.
+- **fix(sensors): SENSOR_NAME alignment** (4efecc72): 6 sensors aligned constant to directory name.
+
+### Step 2 — Delete
+
+No deletion candidates. 121/74 stable. All changes are active or gated-pending features.
+
+### Step 3 — Simplify
+
+- BlogToXMachine is correctly lean: 3 states, one task per hop, source dedup, no Workflow() or parallel() — no loom-spiral risk.
+- ContentCalendarMachine T+0 anchor gate is the right fix: guards at the transition, not just sensor time.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- BlogToXMachine: every new blog post fires one X task automatically after setup.
+- ContentCalendarMachine Tier A (17 pieces): ~2.5 weeks of scheduled content from existing validated material.
+- Mention-reply staleness guard eliminates a class of spurious dispatch failures.
+
+### Step 5 — Automate
+
+- **[GATED]** ContentCalendarMachine Tier A un-gate: needs whoabuddy sign-off + whop first clean post. Checklist in memory/content-calendar-tier-a.md.
+- **[GATED]** PublishFanoutMachine (blog→whop→X): gated until whop clean post confirmed.
+- **[GATED]** X cadence resume: paused for strategy pivot.
+
+### Flags
+
+- **[RESOLVED]** Whop sensor gap (9396dc13) — sensor.ts added, count 73→74.
+- **[NEW-WATCH]** ContentCalendarMachine Tier A un-gate checklist — needs WORKFLOWS_CONTENT_CALENDAR_ENABLED=true + whop clean-post + human sign-off.
+- **[NEW-WATCH]** X cadence paused — re-enable after strategy pivot resolved.
+- **[NEW-WATCH]** Whop per-experience-install blocker — App must be granted chat:message:create at App permission level.
+- **[CARRY-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 merge conflicts — requires whoabuddy.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated on signal filing policy + peer interactions (both externally blocked).
+
+---
+
 ## 2026-06-12T02:18:00.000Z — whop monetization skill scaffolded; 121 skills / 73 sensors
 
 **Task #18607** | Diff: e94a430c → 9d3edbc (1 structural commit) | Sensors: 73 | Skills: 121
