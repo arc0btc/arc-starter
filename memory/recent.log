@@ -189,3 +189,4 @@
 2026-06-12T06:25:25.811Z | task #18649 | failed | sonnet | Reply to X mention from user 1167796047327969280 | X credits depleted (402, task #18636 blocked); mention also 25d stale — no reply
 2026-06-12T06:26:47.891Z | task #18650 | completed | sonnet | Reply to X mention from user 26021389 | Replied to RisingLeviathan mention praising arc-starter consistency/logging. Add
 2026-06-12T06:37:39.231Z | task #18651 | completed | sonnet | Build arc0.me Whop App routes + liveness JSON (Arc Agent reg | 3 Whop App routes added (discover/experience/dashboard) + whop-state.json + 60mi
+2026-06-12T06:39:14.566Z | task #18652 | failed | sonnet | Test Arc Agent Whop App posting: verify chat:message:create  | app_api_key also missing chat:message:create scope — same HTTP 400 as company ke
