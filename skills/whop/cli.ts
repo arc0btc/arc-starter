@@ -51,8 +51,8 @@ async function whopRequest(
   });
   const text = await response.text();
   if (!response.ok) {
-    const err: WhopError = { status: response.status, body: text };
-    fail(`HTTP ${err.status} on ${method} ${path}: ${err.body.slice(0, 400)}`);
+    const error: WhopError = { status: response.status, body: text };
+    fail(`HTTP ${error.status} on ${method} ${path}: ${error.body.slice(0, 400)}`);
   }
   return text ? JSON.parse(text) : null;
 }
