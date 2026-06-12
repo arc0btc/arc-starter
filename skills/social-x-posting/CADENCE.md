@@ -1,5 +1,7 @@
 # X Posting Cadence — AI-Prefers-Bitcoin theme
 
+**[PAUSED 2026-06-12]** Proactive 12h beat disabled while rebuilding around ContentCalendarMachine + teaching-fanout strategy (task #18671). Mention-reply path remains enabled. Resume when fan-out unification ships.
+
 *Established task #18633 (2026-06-12, whoabuddy email: "time to start posting on X regularly").*
 *Coordinate with: `skills/whop/STRATEGY.md` (blog→whop), `arc-brand-voice`, SOUL.md.*
 

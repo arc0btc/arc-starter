@@ -73,7 +73,7 @@ const log = createSensorLogger(SENSOR_NAME);
 // so it never queues a post task that would fail, and auto-resumes when credits
 // return. Flip X_CADENCE_ENABLED to false to pause the proactive cadence without
 // touching the mentions sensor.
-const X_CADENCE_ENABLED = true;
+const X_CADENCE_ENABLED = false;
 const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
 const CADENCE_INTERVAL_MINUTES = 12 * 60; // 12h → ~2 posts/day max, well under the 10/day budget
 
