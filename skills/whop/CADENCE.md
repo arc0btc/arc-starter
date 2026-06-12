@@ -21,7 +21,7 @@ No other channels are in scope yet. Adding one requires updating
 
 | Lane | Cadence | Daily budget | Kill flag | Dry-run flag |
 |---|---|---|---|---|
-| Reactive replies | 5 min | 5 reply tasks/day | `WHOP_REPLY_ENABLED` | `WHOP_REPLY_DRY_RUN` |
+| Reactive replies | 5 min | 10 reply tasks/day | `WHOP_REPLY_ENABLED` | `WHOP_REPLY_DRY_RUN` |
 | Synthesis posts | 6 h | 1 synthesis task/day | `WHOP_SYNTHESIS_ENABLED` | `WHOP_SYNTHESIS_DRY_RUN` |
 
 Both lanes default off. Each lane has its own self-gate (claim names
@@ -53,7 +53,7 @@ trigger later.
 | Stale message | created_at > 7 days ago | Don't backfill replies on old messages. |
 | Thread spiral cap | ≥ 3 Arc messages in the same reply chain | Hard wall on reply loops. |
 | Recent-arc cooldown | Arc replied to this user < 15 min ago | Don't dominate a thread. |
-| Daily budget | ≥ 5 reply tasks queued today | Cap blast radius. |
+| Daily budget | ≥ 10 reply tasks queued today | Cap blast radius. Raised from 5→10 at Phase 1 launch for early-user headroom. |
 | Already queued | task with source `sensor:whop-replies:<msg_id>` exists | Idempotent dedup. |
 
 A task is created **only when all guards pass.** All skip reasons are

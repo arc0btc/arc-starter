@@ -345,7 +345,10 @@ const WHOP_SYNTHESIS_DRY_RUN = true;
 const CHAT_CHANNEL_ID = "chat_feed_1CbxMbfsj2yvpGqNnMcuCg";
 
 // whyReply tunables — match POLLING-DESIGN.md "Locked tradeoffs".
-const REPLY_DAILY_BUDGET = 5;
+// Daily reply cap raised from 5→10 at Phase 1 launch (2026-06-12) — leaves
+// headroom while we onboard early users; artifacts still capture trends so
+// we can dial back if 10/day proves too loose.
+const REPLY_DAILY_BUDGET = 10;
 const THREAD_SPIRAL_CAP = 3;
 const RECENT_ARC_COOLDOWN_MIN = 15;
 const LENGTH_FLOOR_CHARS = 15;

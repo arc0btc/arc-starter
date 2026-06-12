@@ -36,7 +36,7 @@ Rejected alternatives:
 | Cadence | **5 min** (matches `github-mentions`) |
 | Kill flag | `WHOP_REPLY_ENABLED = false` (master) |
 | Audit flag | `WHOP_REPLY_DRY_RUN = true` (queues dry-run tasks that compose but don't post) |
-| Daily reply budget | **5** |
+| Daily reply budget | **10** (raised from 5 at Phase 1 launch for early-user headroom) |
 | Source-dedup key | `sensor:whop-replies:<message_id>` (one task per chat message, ever) |
 | Subject-dedup | inherited from `insertTaskIfNew` |
 | Task model | `sonnet` |
@@ -247,8 +247,9 @@ Phased, mirroring the X cadence pre-launch we already proved:
 
 1. **Reactive cadence: 5 min.** Matches `github-mentions`. Reconsider if 12 GETs/hr
    start to bite on the Whop rate-limit (undocumented; back off on 429).
-2. **Daily reply budget: 5.** Generous for current member volume — adjust if we
-   ever hit the cap.
+2. **Daily reply budget: 10** (raised from initial 5 at Phase 1 launch 2026-06-12).
+   Leaves headroom for bursty hours as early users come online; artifacts
+   capture trends so we can dial back if we drown the room.
 3. **Thread spiral cap: 3.** Adjustable later from the artifacts log if we see
    substantive 4-exchange convos being clipped.
 4. **Synthesis cadence: 6 h.** "Smart presence is key" — four ticks/day, ≥3 defer
