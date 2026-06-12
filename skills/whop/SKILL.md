@@ -59,9 +59,16 @@ arc skills run --name whop -- create-lesson --chapter cha_xxx --title "Title" --
 ## Discovered IDs (hash-it-out, verified 2026-06-12 — API-driven, this session)
 
 - **Company:** `biz_zQbfh5SnRnAF5Y` ("hash it out"). `whoami` hits `/v5/company` (a company key 403s on `/v5/me`).
-- **arc0btc App:** `app_VSfoFN0h5UWdCV`, status `hidden`, owned by hash-it-out (creator: whoabuddy).
-  App's `requested_permissions` includes `chat:message:create` (verified — UI mislabels it as
-  "Read chat messages", that's a Whop dashboard string bug, the underlying `action` is correct).
+- **arc-the-agent App:** `app_2800dX1s1c0ul0`, status `hidden`, owned by hash-it-out (creator: whoabuddy).
+  Replaces the original `app_VSfoFN0h5UWdCV` arc0btc App, which was orphaned 2026-06-12 when its
+  auto-generated install access pass (`prod_CvDEeSPhRLLp1` / `plan_joVsg8haU8Mgt` notes: "App Access")
+  was manually deleted from the products list — that pass is the install link and must NOT be deleted.
+  All 12 permissions declared on the new App, all required: `chat:message:create`, `chat:read`,
+  `chat:moderate`, `chat:manage_webhook`, `forum:read`, `forum:post:create`, `forum:moderate`,
+  `courses:read`, `courses:update`, `course_lesson_interaction:read`, `course_analytics:read`,
+  `webhook_receive:courses`. Auto-install record: `prod_M6LD5bS1EkNwD` + `plan_ML3AaWeYrLqU4`.
+  Agent user: `user_cd5Q1fTcrgua1` (`arc-the-agents-agent`) — Whop's bot identity for the App.
+  (Old `app_VSfoFN0h5UWdCV` still in registry but uninstalled; whoabuddy can't access it to delete.)
 - **Products** (`GET /v2/products`):
   - `prod_TJknsIOzPDlQS` — "hash it out — Membership" (**paid**, $49/mo, plan `plan_axYMvJ4cBnq8v`).
     4 experiences: AI Prefers Bitcoin, Forums, Courses, Updates & Resources.
@@ -108,46 +115,41 @@ and app-key auth.
 | List plans | `GET /api/v2/plans` | All plans across all products in the company. |
 | List experiences | `GET /api/v2/experiences` | `/v5/experiences` 404s. |
 
-## Status (2026-06-12, this session)
+## Status (2026-06-12 — wedge live)
 
-The strategy-level dashboard pass is **done via API**:
+🟢 **First post landed**: `post_1Cbyx1rvswwug3eCH27nnz` at `2026-06-12T19:52:18Z` in `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`
+(AI Prefers Bitcoin). Posted as `arc-the-agents-agent` (`user_cd5Q1fTcrgua1`) — the App's auto-generated
+Whop bot user. Content was the "Reading the Quiet" double-fire-pattern draft (see `drafts/`).
+
+Dashboard pass done via API this session:
 
 1. ✅ Free product `prod_4liMVXKGP4E4L` ("hash it out - Public") created.
 2. ✅ Public forum `exp_YRtS3kgMVeBGzu` attached to the free product.
 3. ✅ Free plan `plan_eABmkrD8PU7Yf` (one_time $0, visible) created on it.
 4. ✅ Paid plan `plan_axYMvJ4cBnq8v` flipped from first-month-free → **$49 day-one** (initial=49, renewal=49).
-5. ✅ arc0btc App confirmed `status: hidden` (was already configured).
+5. ✅ Both product titles use hyphen (`-`), not em-dash.
+6. ✅ `exp_bbQpqIAEToAweQ` renamed "Updates & Resources" → "Patterns Library".
+7. ✅ New App `app_2800dX1s1c0ul0` registered and installed (replaces orphaned `app_VSfoFN0h5UWdCV`).
+8. ✅ App API key carries all 12 declared actions (verified by enumeration; raw-key Bearer auth
+   to `POST /v1/messages` works directly — no two-step access-token mint needed).
 
-**Remaining blocker for first whop post — narrowed and locked in:**
+`sensor.ts` remains gated off (`WHOP_SENSOR_ENABLED = false`) until whoabuddy signs off on a recurring
+cadence — first post was manually triggered with explicit in-session OK.
 
-The blocker is **NOT the App-level permission** (the App's `requested_permissions` already includes
-`chat:message:create`, verified via `GET /v1/apps/app_VSfoFN0h5UWdCV`). The blocker is the **issued App
-API key's own action scope**. Exact error path:
+## Original-blocker history (kept for future reference)
 
-```
-POST /v1/access_tokens  {company_id, scoped_actions: ["chat:message:create"]}
-  → 400 "This API key is not authorized to scope to the following action:
-      chat:message:create. Update your API key permissions to include this action."
-```
+The original blocker was diagnosed and locked in this session, then dissolved when a fresh App was
+registered:
 
-API-key management is **not exposed via the public API** (all probed `/v1/api_keys`, `/v1/apps/:id/api_keys`
-paths 404). This must be done in the Whop dashboard:
-
-**Whop dashboard → arc0btc App → API Keys → edit the issued key → add `chat:message:create` (and
-`chat:read` for completeness) → save (or rotate if Whop forces it). Then re-run `arc skills run --name whop
--- post-chat ...`.**
-
-(Earlier MEMORY guidance to add the scope at the App-level Permissions tab was inverted — the App tab
-already has it; it's the API key's own action set that's deficient.)
-
-`sensor.ts` remains gated off (`WHOP_SENSOR_ENABLED = false`) until the first post lands and whoabuddy
-signs off on a recurring cadence.
-
-## How `post-chat` will actually work once the key is re-scoped
-
-`cli.ts` currently passes the raw app key as a Bearer token. With proper scopes, that path may work
-directly — but the documented chat-auth flow is a two-step: mint a company-scoped access token via
-`POST /v1/access_tokens {company_id}` (with the app key), then post with that token. The probe in this
-session confirmed the mint endpoint already works (returns a JWT with `resource_bot_tag = biz_xxx`); only
-the embedded `actions: []` is empty because the key lacks scopes. The cli will be updated to use this
-two-step flow if the raw-key path still 400s after the key is re-scoped. (Tracked: tasks #6 / #7.)
+- The App's `requested_permissions` declares what the App wants; the **issued API key has its own
+  separate action set**. The Whop UI surfaces these in two different tabs.
+- Original arc0btc App API key carried **zero of 12 declared actions** (`actions: []` in minted tokens).
+  Probable cause: the key was issued before the App's permissions were declared, and Whop doesn't
+  auto-include newly-declared permissions on existing keys.
+- API-key management isn't exposed via the public API (`/v1/api_keys` and `/v1/apps/:id/api_keys` 404).
+- Fix path that worked: register a fresh App with permissions pre-declared. Fresh API key issuance
+  auto-includes the App's declared permissions. (Trying to edit the old key in the dashboard never
+  panned out — the install record had also been deleted, so the App's dashboard page was empty.)
+- Lesson: **the auto-generated "App Access" product + plan that appears when an App is installed on a
+  company is the install link. NEVER delete it.** Identify by `internal_notes: "App Access"`,
+  `accepted_payment_methods: ["free"]`, title matches the App name.
