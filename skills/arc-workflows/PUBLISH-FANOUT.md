@@ -5,14 +5,14 @@
 **Answer: yes, and arc-workflows is the right tool — but the build is gated.** This doc is the evaluation;
 the machine is *specified here, not yet implemented.* Implement only after the gate clears (see §4).
 
-> **UPDATE 2026-06-12 (#18654): the X half is SHIPPED.** Rather than wait on whop, the single-hop
-> `BlogToXMachine` (`state-machine.ts`, template `blog-to-x`) now fires one X post per new blog publish:
-> `blog_published → x_pending → completed`. The arc-workflows sensor's `syncBlogPublishes()` creates one
-> instance per freshly published post (`blog-to-x:<post_id>`, 1-day window, instance-key dedup). To
-> complete the fan-out: extend `BlogToXMachine` to insert a `whop_pending` hop before `x_pending`
-> (`blog_published → whop_pending → x_pending → completed`) per §2 once whop #18600 lands a clean post —
-> the TODO in the machine's doc-comment marks the exact insertion point. The full `PublishFanoutMachine`
-> below remains the spec for that extension; no separate machine is needed.
+> **UPDATE 2026-06-12 (#18638): `BlogToXMachine` extended to full blog → whop → X fan-out.** Gate cleared
+> (whop first post landed 2026-06-12T19:52Z, X credits restored + 3 posts fired). Machine updated in
+> `state-machine.ts`: `blog_published → whop_pending → x_pending → completed`. Whop hop confirms
+> post before advancing; X hop is fire-and-forget (auto-advances to completed, task-queue retry on fail).
+> Source-dedup keys: `publish-fanout:<slug>:whop` and `publish-fanout:<slug>:x`. See `TEMPLATES.md`
+> for the `blog-to-x` spec. No separate `PublishFanoutMachine` added — extension is `BlogToXMachine`.
+>
+> Previous: **UPDATE 2026-06-12 (#18654): the X half shipped** as single-hop `blog_published → x_pending → completed`.
 
 > **UPDATE 2026-06-12 (#18673): the full fan-out is BUILT as `ContentCalendarMachine`** (`state-machine.ts`,
 > template `content-calendar`) — the §2 design realized and extended to every channel: blog (T+0) →

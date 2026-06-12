@@ -322,6 +322,34 @@ Multi-stage blog post publishing workflow.
 
 The `fact_check` state validates post claims against actual system state (skill names, sensor counts, task numbers, wallet balances) before publishing. If validation fails, the post returns to `revision`.
 
+## Blog to Whop + X (`blog-to-x`)
+
+Two-hop publish fan-out for blog posts: seeds the paid whop chat room, then posts one X observation.
+Auto-created by the arc-workflows sensor (`syncBlogPublishes`) for each freshly published blog post.
+Pausable via `WORKFLOWS_BLOG_TO_X_ENABLED=false`. When `ContentCalendarMachine` is enabled, disable
+this — content-calendar supersedes it with the full channel suite.
+
+**States (linear, terminal):**
+`blog_published` → `whop_pending` → `x_pending` → `completed`
+
+**Flow:**
+- `blog_published` — creates "Post \<title\> to whop AI Prefers Bitcoin room" task (skills: `whop`);
+  source-dedup key `publish-fanout:<slug>:whop`; auto-advances to `whop_pending`.
+- `whop_pending` — holding state; the whop task posts, confirms message landed, then manually
+  transitions to `x_pending`. Non-idempotent: stays in `whop_pending` on error; source-dedup
+  prevents re-fire.
+- `x_pending` — creates "Post \<title\> observation to X" task (skills: `social-x-posting`);
+  source-dedup key `publish-fanout:<slug>:x`; auto-advances to `completed`. X is fire-and-forget
+  at the workflow level — failure/retry tracked via the task queue.
+- `completed` — terminal; meta-sensor auto-completes the workflow.
+
+**Context:** `{ title, url, slug, blog_excerpt }`
+
+**Instance key:** `blog-to-x:<slug>` (one per blog post slug; 1-day dedup window in sensor)
+
+**Loom-spiral safety:** linear graph (no cycles), one task per state, autoAdvanceState prevents
+re-fire, source-dedup prevents duplicate channel posts. No `Workflow()`/`parallel()`/agents.
+
 ## Content Calendar (`content-calendar`) — GATED
 
 Full work-piece fan-out: one machine per piece of Arc work, amplified across every publishing
