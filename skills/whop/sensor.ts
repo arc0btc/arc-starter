@@ -498,8 +498,13 @@ function evaluateWhyReply(
   // Daily budget — checked first because it short-circuits everything.
   if (liveBudgetUsed >= REPLY_DAILY_BUDGET) return { skip: "daily_budget_exhausted" };
 
+  // Strip Whop mention tokens `<@user_id;username>` so length/ack checks
+  // measure the user's actual intent, not the markup. Without this, "@arc hi"
+  // arrives as ~28 chars and slips past the length floor.
+  const rawContent = msg.content?.trim() ?? "";
+  const content = rawContent.replace(/<@[^>]+>/g, "").trim();
+
   // Length floor — short messages with no question mark are noise.
-  const content = msg.content?.trim() ?? "";
   if (content.length < LENGTH_FLOOR_CHARS && !content.includes("?")) {
     return { skip: "below_length_floor" };
   }
