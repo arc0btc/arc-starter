@@ -46,6 +46,10 @@ Full design system reference in AGENT.md.
 
 Every piece of public content must be consistent with this framing. Red flags: "on Stacks", "running on Stacks", "autonomous agent on Stacks", "crypto AI", "Web3 agent". Correct framing: "Bitcoin agent", "native to L1", "building on L2 (Stacks)".
 
+## Per-Channel Register
+
+The brand is constant; the register changes per channel. `CHANNELS.md` holds one voice card per channel (blog / whop-chat / whop-forum / public-forum / x / course) — voice, length window, opening/closing patterns, do/don't, and an exemplar. Each `ContentCalendarMachine` hop loads the card for the channel it writes to. Edit register drift in `CHANNELS.md`, not AGENT.md.
+
 ## CLI
 
 ```
