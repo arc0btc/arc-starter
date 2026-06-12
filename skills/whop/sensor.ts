@@ -31,7 +31,7 @@ import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 
 import { resolve, dirname } from "node:path";
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, taskExistsForSource, getDatabase } from "../../src/db.ts";
+import { insertTask, taskExistsForSource, getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import {
   loadRelationships,
   saveRelationships,
@@ -704,24 +704,62 @@ export async function pollWhopSynthesis(): Promise<void> {
     ? "DRY-RUN: do NOT call post-chat. Compose the post in result_detail and close completed with --summary describing your read-the-room decision (post vs defer + reason)."
     : `Post via:\n  arc skills run --name whop -- post-chat --content "<markdown>"`;
 
+  // Q1: fanout-aware deferral pre-bias. If Arc already shipped a teaching beat
+  // to this room recently, the answer is almost always DEFER. We don't hard-skip
+  // — the dispatched session still gets to read — but we surface the signal so
+  // the rubric can do its job.
+  const recentTeachingBeat = recentTaskExistsForSourcePrefix("publish-fanout:", 6 * 60);
+  const recentPatternsDigest = recentTaskExistsForSourcePrefix("sensor:whop:patterns-library:", 6 * 60);
+  const recentReactivePost = recentTaskExistsForSourcePrefix("sensor:whop-replies:", 60);
+  const recentArcSignals: string[] = [];
+  if (recentTeachingBeat) recentArcSignals.push("publish-fanout (≤6h)");
+  if (recentPatternsDigest) recentArcSignals.push("patterns-library digest (≤6h)");
+  if (recentReactivePost) recentArcSignals.push("reactive reply (≤1h)");
+
   const taskId = insertTask({
     subject: `${dryRunPrefix}Whop synthesis [${bucket}]: read the room, defer or post`,
     description: [
       "Read the last 24h of the AI Prefers Bitcoin chat room and decide:",
-      "is there a teaching beat worth adding right now, or do you DEFER?",
-      "DEFER is the right answer on most ticks. Voice: arc-brand-voice + SOUL.",
-      "Reference voice: skills/whop/drafts/2026-06-12-reading-the-quiet.md.",
+      "is there a teaching beat worth adding right now, or DEFER?",
+      "DEFER is the right answer on most ticks. Daily budget: 1 post. Cadence:",
+      "6h × 4 ticks/day. ≥3 defers/day is the healthy bar.",
+      "",
+      "## What counts as a teaching beat",
+      "Exactly one of:",
+      "  • a pattern observation — something you noticed across cycles/agents",
+      "  • an honest failure — a thing you did wrong, what surfaced it, the fix",
+      "  • an open question — a real question (not rhetorical) you want answers to",
+      "Anything else → DEFER. No filler, no recaps, no \"hello room\" energy.",
+      "",
+      "## DEFER if any of:",
+      "  • Arc already shipped a teaching beat in the window (see RECENT_ARC_POSTS below)",
+      "  • Members are debugging together — interrupting breaks their flow",
+      "  • The window is quiet (few messages, few speakers) — silence is fine",
+      "  • Only one human speaker in the window — synthesis is for rooms, not DMs",
+      "  • You'd be paraphrasing your own recent post — the room already heard it",
+      "",
+      "## Voice anchor (don't deviate)",
+      "From drafts/2026-06-12-reading-the-quiet.md — this is the bar:",
+      "  > The cause is a blind spot, not a bug: a sensor queues a task, the task fixes",
+      "  > something, but the sensor's next tick has no memory the first task ran.",
+      "  > That's what a clean night surfaces: not new failures, but familiar patterns",
+      "  > you haven't paid down yet.",
+      "Plain language. One concrete thing. End with a real question to the room or a",
+      "blog backlink. Never AI-corporate. Never \"as an agent...\".",
       "",
       `Channel: ${CHAT_CHANNEL_ID}`,
       `Window: last 24h | messages in window: ${windowMessages.length}`,
+      `RECENT_ARC_POSTS in window: ${recentArcSignals.length > 0 ? recentArcSignals.join(", ") : "(none)"}`,
+      recentArcSignals.length > 0
+        ? "→ Pre-bias: DEFER unless your beat is meaningfully new on a different axis."
+        : "→ No recent Arc posts; standard rubric applies.",
       "",
       "Transcript (oldest first):",
       "```",
       transcript || "(no messages in window)",
       "```",
       "",
-      "Relationships of speakers are in db/whop-relationships.json — read it",
-      "for context on who's been in the room and what they've said.",
+      "Relationships of speakers: db/whop-relationships.json (read for context).",
       "",
       postCommand,
     ].join("\n"),
@@ -737,6 +775,7 @@ export async function pollWhopSynthesis(): Promise<void> {
     bucket,
     window_hours: 24,
     messages_in_window: windowMessages.length,
+    recent_arc_signals: recentArcSignals,
     dry_run: WHOP_SYNTHESIS_DRY_RUN,
     task_id: taskId,
     transcript_excerpt: transcript.slice(0, 4000),
