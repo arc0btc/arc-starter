@@ -485,6 +485,87 @@ function syncBlogPublishes(): number {
   return created;
 }
 
+/**
+ * Detect freshly published blog posts and create one ContentCalendarMachine workflow per new
+ * slug — the full blog → whop-chat → X → whop-forum → public-forum → course fan-out
+ * (state-machine.ts ContentCalendarMachine, PUBLISH-FANOUT.md §2).
+ *
+ * GATED OFF by default. Unlike syncBlogPublishes (blog-to-x, default ON), this returns early
+ * unless WORKFLOWS_CONTENT_CALENDAR_ENABLED === "true". Do NOT enable until: (1) CHANNELS.md
+ * exists [done], (2) the first whop chat post has landed cleanly, (3) human sign-off. When you
+ * DO enable it, set WORKFLOWS_BLOG_TO_X_ENABLED=false so X isn't double-posted — the content
+ * calendar's x_thread hop supersedes blog-to-x's single post.
+ *
+ * Instances are created at state blog_published (the blog is already live) with cadence_anchor
+ * = publish time (T+0); downstream hops self-space off that anchor (see ContentCalendarMachine
+ * TIMING note). Per-slug instance keys ("content-calendar:<post_id>") guarantee exactly once.
+ */
+function syncContentCalendar(): number {
+  if (Bun.env.WORKFLOWS_CONTENT_CALENDAR_ENABLED !== "true") return 0;
+
+  const blogDir = getBlogDir();
+  if (!existsSync(blogDir)) return 0;
+
+  let created = 0;
+  const now = Date.now();
+  const nowIso = new Date().toISOString();
+  const windowMs = BLOG_PUBLISH_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
+  let files: string[];
+  try {
+    files = readdirSync(blogDir).filter((f) => f.endsWith(".mdx") && f !== "index.mdx");
+  } catch (e) {
+    log(`content-calendar: error scanning blog dir: ${e instanceof Error ? e.message : String(e)}`);
+    return 0;
+  }
+
+  for (const file of files) {
+    const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-/);
+    if (!dateMatch) continue;
+    const postId = file.replace(/\.mdx$/, ""); // YYYY-MM-DD-slug — stable unique slug
+
+    const instanceKey = `content-calendar:${postId}`;
+    if (getWorkflowByInstanceKey(instanceKey)) continue; // already handled this slug
+
+    let fm: BlogFrontmatter;
+    let excerpt = "";
+    try {
+      const content = readFileSync(join(blogDir, file), "utf-8");
+      fm = parseBlogFrontmatter(content);
+      excerpt = extractExcerpt(content);
+    } catch {
+      continue;
+    }
+
+    if (fm.draft === true) continue; // not published
+    if (fm.scheduled_for && fm.scheduled_for > nowIso) continue; // scheduled in the future
+
+    // Published recently? Prefer published_at, fall back to date, then the filename date.
+    const stamp = fm.published_at || fm.date || dateMatch[1];
+    const publishedAt = new Date(stamp).getTime();
+    if (isNaN(publishedAt) || now - publishedAt > windowMs) continue; // stale or unparseable
+
+    insertWorkflow({
+      template: "content-calendar",
+      instance_key: instanceKey,
+      current_state: "blog_published", // blog is already live; downstream hops fan out from T+0
+      context: JSON.stringify({
+        title: fm.title || postId,
+        url: `https://arc0.me/blog/${postId}/`,
+        slug: postId,
+        source_artifact_path: join("github/arc0btc/arc0me-site/src/content/docs/blog", file),
+        blog_excerpt: excerpt || undefined,
+        tier: "standard",
+        cadence_anchor: new Date(publishedAt).toISOString(), // T+0
+      }),
+    });
+    created++;
+    log(`content-calendar: created workflow for "${fm.title || postId}" (${postId})`);
+  }
+
+  return created;
+}
+
 export default async function workflowsSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -521,6 +602,9 @@ export default async function workflowsSensor(): Promise<string> {
 
     // Detect freshly published blog posts → create one BlogToXMachine per new slug
     totalActions += syncBlogPublishes();
+
+    // Full content-calendar fan-out (gated off by default; supersedes blog-to-x when enabled)
+    totalActions += syncContentCalendar();
 
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();

@@ -223,6 +223,290 @@ Steps:
   },
 };
 
+/**
+ * ContentCalendarMachine — one machine per piece of Arc work, fanned out across every
+ * publishing channel on a spaced cadence. This is the full extension of BlogToXMachine
+ * (PUBLISH-FANOUT.md §2): blog is the canonical T+0 artifact, and each downstream channel
+ * is the *same* work-piece re-registered for its own voice (arc-brand-voice/CHANNELS.md).
+ *
+ * GATED — DO NOT ENABLE without all three:
+ *   (1) skills/arc-brand-voice/CHANNELS.md exists  [DONE, task #18672]
+ *   (2) the first muscle-rep whop chat post has landed cleanly (whop #18600 key re-scope)
+ *   (3) human sign-off on the recurring cadence.
+ * Instance creation is gated off by default — the arc-workflows sensor's syncContentCalendar()
+ * returns early unless WORKFLOWS_CONTENT_CALENDAR_ENABLED === "true". When enabled, disable
+ * blog-to-x (WORKFLOWS_BLOG_TO_X_ENABLED=false) so X isn't double-posted — ContentCalendar
+ * supersedes it (its x_thread hop is the richer 2–3 tweet version of blog-to-x's single post).
+ *
+ * instance_key: "content-calendar:<slug>" (one per work-piece; the dedup gate).
+ *
+ * States (linear, no cycle — terminal `completed` auto-completes; loom-spiral-proof by the
+ * same construction as PUBLISH-FANOUT.md §3: no Workflow()/parallel()/nested agent, one task
+ * per hop, source-deduped, time-gated, bounded length):
+ *
+ *   source_drafted        → publish the canonical signed blog artifact          (T+0)
+ *   blog_published        → seed whop chat: pull-quote + open question           (T+2h, voice=whop-chat)
+ *   whop_chat_seeded      → post X thread: 2–3 tweets w/ blog link               (T+1d, voice=x)
+ *   x_thread_posted       → thread whop forum: teardown w/ code/prompts/numbers  (T+2d, voice=whop-forum)
+ *   whop_forum_threaded   → public forum teaser: hook + paid CTA                 (T+4d, voice=public-forum)
+ *   public_forum_teaser   → assess course candidacy (only if cluster of 3+)      (T+30d, voice=course)
+ *   course_candidate      → terminal; meta-sensor auto-completes
+ *
+ * Each state's action launches the hop annotated on its OUTGOING arrow, scoped to that
+ * channel's skill, source `content-calendar:<slug>:<channel>`, and `autoAdvanceState` to the
+ * next state. The channel skill loads its CHANNELS.md voice card; the through-line/identity is
+ * constant (AGENT.md), only the register changes.
+ *
+ * TIMING. The runner has no native scheduler, and the meta-sensor advances autoAdvance states
+ * immediately — so spacing is enforced inside each action via cadenceGateOpen(): a hop returns
+ * noop until Date.now() ≥ cadence_anchor + cumulative-offset. The anchor (T+0 = blog publish)
+ * is set ONCE in context at workflow creation and never mutated mid-flow. This is deliberate:
+ * the sensor applies contextUpdate then autoAdvanceState, and updateWorkflowState rewrites
+ * context with the PRE-patch copy (db.ts) — so a mid-flow timestamp write would be clobbered.
+ * Anchoring once at creation sidesteps that entirely; timing never depends on a context write.
+ * Offsets are cumulative from T+0, so a late hop never fires earlier than its slot — delays
+ * only ever push the tail later, which is the correct calendar behavior.
+ *
+ * CONFIRM-THEN-ADVANCE. Every hop is side-effecting (it publishes). autoAdvanceState is the
+ * primary safety property — the calendar never stalls/floods (a stuck state that re-creates a
+ * task every 60min is itself a mild spiral). Confirmation is enforced in the task body instead:
+ * each hop is told to be idempotent (check the channel for an existing post before posting; the
+ * source-dedup key blocks re-creation) and to verify the post landed. The paid whop hops route
+ * through the human-review gate (skills/whop guardrails) until voice is trusted. If a failed
+ * paid-room post must HARD-BLOCK downstream hops, adopt BlogToXMachine's holding-state pattern
+ * (autoAdvance to a `<channel>_pending` state, task transitions out of it on confirm) — noted
+ * here so the reviewer can make that call at un-gate time without re-deriving the tradeoff.
+ *
+ * Context: { title, url, slug, source_artifact_path, blog_excerpt, tier, cadence_anchor }.
+ *   tier          — work-piece tier; feeds the course-candidacy cluster check.
+ *   cadence_anchor — ISO T+0 (blog publish). Missing/invalid → gates fail OPEN (no spacing).
+ *
+ * TODO (feedback loop → course escalation): wire engagement signals back into context so the
+ * T+30d course-candidacy assessment is data-driven rather than time-only:
+ *   - whop chat replies on the seeded hot-topic (skills/whop)
+ *   - whop forum posts / replies on the teardown thread (skills/whop)
+ *   - X engagement (likes/replies/quotes) on the thread (skills/social-x-posting)
+ * A future clustering sensor would tally these per `tier`/topic and set ctx.cluster_size +
+ * ctx.engagement_score; the course hop would then gate on real signal, not just elapsed time.
+ */
+export interface ContentCalendarContext {
+  title?: string;
+  url?: string;
+  slug?: string;
+  source_artifact_path?: string;
+  blog_excerpt?: string;
+  tier?: string;
+  /** ISO T+0 (blog publish). Cumulative cadence offsets are measured from here. */
+  cadence_anchor?: string;
+  /** Optional: set by a future clustering sensor — number of related work-pieces (course gate). */
+  cluster_size?: number;
+}
+
+/** Cumulative cadence offsets from T+0 (blog publish), in ms, per ContentCalendarMachine hop. */
+const CONTENT_CALENDAR_OFFSETS_MS = {
+  whop_chat: 2 * 60 * 60 * 1000, // T+2h
+  x_thread: 24 * 60 * 60 * 1000, // T+1d
+  whop_forum: 2 * 24 * 60 * 60 * 1000, // T+2d
+  public_forum: 4 * 24 * 60 * 60 * 1000, // T+4d
+  course: 30 * 24 * 60 * 60 * 1000, // T+30d
+} as const;
+
+/**
+ * True when enough wall-clock has elapsed since the cadence anchor (T+0 = blog publish) for a
+ * hop to fire. Missing/invalid anchor → open (fail-open: a manually created instance with no
+ * anchor still progresses, just without spacing). Runs in the sensor process, so Date.now() is
+ * available (the no-Date restriction applies to Workflow() scripts, not sensor TypeScript).
+ */
+function cadenceGateOpen(anchorIso: string | undefined, offsetMs: number): boolean {
+  if (!anchorIso) return true;
+  const anchor = new Date(anchorIso).getTime();
+  if (isNaN(anchor)) return true;
+  return Date.now() >= anchor + offsetMs;
+}
+
+/** Shared blog context lines appended to every downstream hop's task description. */
+function contentCalendarBlogRef(ctx: ContentCalendarContext): string {
+  const urlLine = ctx.url ? `\nBlog: ${ctx.url}` : "";
+  const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
+  return `${urlLine}${excerptLine}`;
+}
+
+export const ContentCalendarMachine: StateMachine<ContentCalendarContext> = {
+  name: "content-calendar",
+  initialState: "source_drafted",
+  states: {
+    // T+0 — canonical signed blog artifact. If the instance was created from an already-live
+    // post (sensor path: context has url), skip straight to blog_published.
+    source_drafted: {
+      on: { publish_blog: "blog_published" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (ctx.url) return { type: "transition", nextState: "blog_published" };
+        if (!ctx.source_artifact_path) return null;
+        return {
+          type: "create-task",
+          subject: `Publish blog work-piece: ${ctx.title || ctx.slug}`,
+          priority: 4,
+          model: "sonnet",
+          skills: ["blog-publishing", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:blog`,
+          autoAdvanceState: "blog_published",
+          description: `Publish the canonical, signed blog artifact for this work-piece — the T+0 source of truth the rest of the content calendar amplifies.
+
+Source artifact: ${ctx.source_artifact_path}
+Voice: read skills/arc-brand-voice/CHANNELS.md §blog before publishing.
+
+Steps:
+1. Finalize and publish the post (blog-publishing skill). Verify it is live (build success ≠ deploy success — confirm the URL resolves, see MEMORY [P] content-publish-verify-deploy).
+2. Sign the artifact per Arc's publishing convention.
+3. The workflow auto-advances to blog_published; downstream channel hops fire on the cadence anchor.`,
+        };
+      },
+    },
+    // T+2h — seed the paid whop chat room with a pull-quote + one open question.
+    blog_published: {
+      on: { seed_whop_chat: "whop_chat_seeded" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.whop_chat)) {
+          return { type: "noop" };
+        }
+        return {
+          type: "create-task",
+          subject: `Seed whop chat: "${ctx.title || ctx.slug}"`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["whop", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:whop-chat`,
+          autoAdvanceState: "whop_chat_seeded",
+          description: `Distill this work-piece into ONE punchy hot-topic for the paid whop chat room (hash-it-out, "AI Prefers Bitcoin").${contentCalendarBlogRef(ctx)}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §whop-chat. 120–250 words: bold the hook, give the real mechanism (not a teaser), end on ONE genuine open question to the room, then link the blog.
+
+Guardrails (members pay real money):
+1. IDEMPOTENCY — before posting, check the channel for an existing message on this topic (MEMORY [P] idempotency). The source key content-calendar:${ctx.slug}:whop-chat blocks a duplicate task, but the post itself is non-idempotent.
+2. Until voice is trusted, route through the human-review gate (skills/whop SKILL.md guardrails). Do NOT auto-post to a paying room without sign-off.
+3. Post: arc skills run --name whop -- post-chat --content "<markdown>" (uses the approved chat channel).
+4. Verify the message landed. The workflow has already auto-advanced; if the post failed (e.g. whop 400 missing scope), leave it — source-dedup + the cadence gate prevent a double-post, and the next hop is gated T+1d out.`,
+        };
+      },
+    },
+    // T+1d — X thread (2–3 tweets) with the blog link.
+    whop_chat_seeded: {
+      on: { post_x_thread: "x_thread_posted" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.x_thread)) {
+          return { type: "noop" };
+        }
+        return {
+          type: "create-task",
+          subject: `Post X thread: "${ctx.title || ctx.slug}"`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["social-x-posting", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:x`,
+          autoAdvanceState: "x_thread_posted",
+          description: `Compose a 2–3 tweet X thread developing this work-piece, with the blog link in the final tweet.${contentCalendarBlogRef(ctx)}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/CADENCE.md. Each tweet ≤280 chars and must stand on its own — structural observations, not a "new post" announcement. Open on a sharp inversion; only thread because the idea genuinely needs sequential development.
+
+Steps:
+1. Compose the thread (2–3 posts).
+2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up. The workflow has auto-advanced; source-dedup prevents a double-post, so it fires once credits return.
+3. Post the first tweet, then reply-chain the rest: arc skills run --name social-x-posting -- post --text "<text>" then reply --tweet-id <id> --text "<text>".
+4. Verify the thread is live.`,
+        };
+      },
+    },
+    // T+2d — whop forum teardown: the build-log a paying member can't get elsewhere.
+    x_thread_posted: {
+      on: { thread_whop_forum: "whop_forum_threaded" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.whop_forum)) {
+          return { type: "noop" };
+        }
+        return {
+          type: "create-task",
+          subject: `Thread whop forum teardown: "${ctx.title || ctx.slug}"`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["whop", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:whop-forum`,
+          autoAdvanceState: "whop_forum_threaded",
+          description: `Write the teardown for the paid whop forum — the most generous channel. Real code, real prompts, real cost numbers, real error strings, the dead-ends included.${contentCalendarBlogRef(ctx)}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §whop-forum. 300–800 words: open with what broke/shipped + the artifact (the actual error, diff, or dollar figure), show the wrong approach before the right one, close with the lesson as a reusable rule + an invite to compare notes. Do NOT sanitize into a press release.
+
+Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-review gate until voice is trusted. Post via skills/whop, then verify it landed. The workflow has auto-advanced.`,
+        };
+      },
+    },
+    // T+4d — free public-forum teaser: hook + paid CTA, must stand alone.
+    whop_forum_threaded: {
+      on: { post_public_teaser: "public_forum_teaser" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.public_forum)) {
+          return { type: "noop" };
+        }
+        return {
+          type: "create-task",
+          subject: `Post public-forum teaser: "${ctx.title || ctx.slug}"`,
+          priority: 6,
+          model: "sonnet",
+          skills: ["whop", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:public-forum`,
+          autoAdvanceState: "public_forum_teaser",
+          description: `Post a teaser to the FREE public forum (discovery) — one real insight given away, deliberately incomplete on the payoff, with a clear paid-room CTA.${contentCalendarBlogRef(ctx)}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, close with a one-line CTA framed as "the full teardown lives here" — never bait-and-switch, the free part must stand alone. No hype CTAs.
+
+Post to the public forum experience via skills/whop, then verify it landed. The workflow has auto-advanced.`,
+        };
+      },
+    },
+    // T+30d — assess course candidacy; only escalate if this clusters with 3+ related pieces.
+    public_forum_teaser: {
+      on: { assess_course: "course_candidate" },
+      action: (ctx) => {
+        if (!ctx.slug) return null;
+        if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.course)) {
+          return { type: "noop" };
+        }
+        const tierLine = ctx.tier ? `\nTier: ${ctx.tier}` : "";
+        const clusterLine =
+          typeof ctx.cluster_size === "number" ? `\nKnown cluster size: ${ctx.cluster_size}` : "";
+        return {
+          type: "create-task",
+          subject: `Assess course candidacy: "${ctx.title || ctx.slug}"`,
+          priority: 8,
+          model: "sonnet",
+          skills: ["whop", "arc-brand-voice"],
+          source: `content-calendar:${ctx.slug}:course`,
+          autoAdvanceState: "course_candidate",
+          description: `Decide whether this work-piece should be escalated to the whop course track. Escalate ONLY if it clusters with 3+ related work-pieces (a course is a sequence of lessons, not a one-off).${contentCalendarBlogRef(ctx)}${tierLine}${clusterLine}
+
+Voice (if you build a lesson): skills/arc-brand-voice/CHANNELS.md §course — instructional, examples-first, narrate the dev-council reasoning behind each component.
+
+Steps:
+1. Identify related work-pieces: other content-calendar workflows of the same tier/topic (arc skills run --name workflows -- list-by-template content-calendar) plus engagement signal if available in context.
+2. If fewer than 3 related pieces, do NOT create a course — close this task noting "no cluster yet"; the workflow auto-completes.
+3. If 3+ related pieces, create a course / chapters / lessons from the cluster (skills/whop create-course/create-chapter/create-lesson) — or queue a follow-up task to do so.
+
+TODO: this assessment is currently time-only (T+30d). When the engagement feedback loop lands (whop chat replies, whop forum posts, X engagement → ctx.cluster_size / ctx.engagement_score), gate escalation on real signal, not just elapsed time. See the machine doc-comment.`,
+        };
+      },
+    },
+    // Terminal — the meta-sensor auto-completes (no outgoing transitions).
+    course_candidate: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 export const SignalFilingMachine: StateMachine<{
   beat?: string;
   evidence?: string;
@@ -3319,6 +3603,7 @@ export function getTemplateByName(name: string): StateMachine | null {
   const templates: Record<string, StateMachine<any>> = {
     "blog-posting": BlogPostingMachine,
     "blog-to-x": BlogToXMachine,
+    "content-calendar": ContentCalendarMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,

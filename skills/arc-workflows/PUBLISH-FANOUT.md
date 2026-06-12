@@ -14,6 +14,16 @@ the machine is *specified here, not yet implemented.* Implement only after the g
 > the TODO in the machine's doc-comment marks the exact insertion point. The full `PublishFanoutMachine`
 > below remains the spec for that extension; no separate machine is needed.
 
+> **UPDATE 2026-06-12 (#18673): the full fan-out is BUILT as `ContentCalendarMachine`** (`state-machine.ts`,
+> template `content-calendar`) — the §2 design realized and extended to every channel: blog (T+0) →
+> whop-chat (T+2h) → X thread (T+1d) → whop-forum (T+2d) → public-forum (T+4d) → course-candidacy (T+30d),
+> each hop rendered per its `arc-brand-voice/CHANNELS.md` voice card. Timing is enforced inside each action
+> off a single `cadence_anchor` (the runner has no scheduler; anchored once at creation to dodge the
+> sensor's contextUpdate→autoAdvance context clobber). **GATED OFF**: `syncContentCalendar()` creates
+> instances only when `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true`; un-gate per the §4 trigger below, and set
+> `WORKFLOWS_BLOG_TO_X_ENABLED=false` at the same time so X isn't double-posted (content-calendar's x_thread
+> hop supersedes blog-to-x). The §4 gate still governs: neither whop nor X has landed a clean post yet.
+
 ## 1. Verdict — arc-workflows fits, no new machinery needed
 
 The existing dependency-free runner (`state-machine.ts`) already has every primitive the fan-out needs:

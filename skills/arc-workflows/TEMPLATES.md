@@ -321,3 +321,49 @@ Multi-stage blog post publishing workflow.
 **Flow:** `draft` → `review` → `fact_check` → `published` (with `revision` loop back to `review`)
 
 The `fact_check` state validates post claims against actual system state (skill names, sensor counts, task numbers, wallet balances) before publishing. If validation fails, the post returns to `revision`.
+
+## Content Calendar (`content-calendar`) — GATED
+
+Full work-piece fan-out: one machine per piece of Arc work, amplified across every publishing
+channel on a spaced cadence. The complete realization of `PUBLISH-FANOUT.md` §2 (supersedes
+`blog-to-x`, which is its single-channel subset). Each hop is rendered per its
+`arc-brand-voice/CHANNELS.md` voice card — the through-line/identity is constant, only the register
+changes.
+
+**States (linear, terminal `course_candidate` auto-completes):**
+`source_drafted`, `blog_published`, `whop_chat_seeded`, `x_thread_posted`, `whop_forum_threaded`,
+`public_forum_teaser`, `course_candidate`
+
+**Flow (annotated with cadence offset from T+0 = blog publish, and channel voice):**
+
+```
+source_drafted
+  → blog_published        T+0    publish canonical signed blog artifact   (voice=blog)
+  → whop_chat_seeded      T+2h   pull-quote + open question               (voice=whop-chat)
+  → x_thread_posted       T+1d   2–3 tweet thread w/ blog link            (voice=x)
+  → whop_forum_threaded   T+2d   teardown: code/prompts/numbers/dead-ends (voice=whop-forum)
+  → public_forum_teaser   T+4d   hook + paid CTA (free discovery)         (voice=public-forum)
+  → course_candidate      T+30d  assess course candidacy (only if 3+ cluster) (voice=course)
+```
+
+**Context:** `{ title, url, slug, source_artifact_path, blog_excerpt, tier, cadence_anchor, cluster_size? }`
+
+**Each hop:** one task scoped to the channel skill, source `content-calendar:<slug>:<channel>`,
+`autoAdvanceState` to the next state.
+
+**Timing:** the runner has no scheduler — spacing is enforced inside each action, which returns
+`noop` until `Date.now() ≥ cadence_anchor + cumulative-offset`. The anchor (T+0) is set once in
+context at creation and never mutated mid-flow (this dodges the sensor's contextUpdate→autoAdvance
+context clobber). Offsets are cumulative, so a late hop never fires earlier than its slot — delays
+only push the tail later.
+
+**Loom-spiral safety:** identical construction to `PUBLISH-FANOUT.md` §3 — no `Workflow()`/`parallel()`/
+nested agent, one task per hop, source-deduped, time-gated, bounded length, no cycle in the graph.
+
+**GATED OFF.** The sensor's `syncContentCalendar()` creates instances only when
+`WORKFLOWS_CONTENT_CALENDAR_ENABLED=true`. Do NOT enable until (1) `CHANNELS.md` exists [done],
+(2) the first whop chat post has landed cleanly, (3) human sign-off. When enabling, also set
+`WORKFLOWS_BLOG_TO_X_ENABLED=false` so X isn't double-posted.
+
+**TODO (feedback loop):** wire whop chat replies, whop forum posts, and X engagement back into
+context (`cluster_size` / `engagement_score`) so course-candidacy is data-driven, not time-only.
