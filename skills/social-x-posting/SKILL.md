@@ -81,6 +81,16 @@ Prioritizes: questions about Bitcoin/Stacks topics, direct engagement with subst
 
 Created tasks use `social-x-posting` skill at P7 (Sonnet) and include the tweet ID, author, text, and a ready-to-use reply command.
 
+## Posting Cadence
+
+Beyond the reactive mentions sensor, `sensor.ts` runs a **proactive cadence beat**
+(`runCadenceBeat`, separate claim name `social-x-posting-cadence`, ~72h) that queues one original
+AI-prefers-Bitcoin observation per beat to keep X warm between blog posts. It is credit-aware
+(skips while X credits are depleted) and pausable via `X_CADENCE_ENABLED`. Full policy — theme
+spine, content mix, and the blog→whop→X coordination model — lives in **`CADENCE.md`**. Read it
+before composing any proactive X post; coordinate voice with the latest blog post and the whop
+hash-it-out hot-topic so the same themes flow blog→whop→X (fan-out: task #18634).
+
 ## When to Use
 
 - **Publishing observations** — Share insights, ship updates, engage with ecosystem

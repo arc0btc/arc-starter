@@ -8,6 +8,7 @@ import {
   readHookState,
   writeHookState,
   insertTaskIfNew,
+  createTaskIfDue,
 } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { join } from "path";
@@ -56,6 +57,60 @@ function detectMultisigTopic(text: string): boolean {
 }
 
 const log = createSensorLogger(SENSOR_NAME);
+
+// ---- Proactive cadence beat ----
+// The mentions poll above is REACTIVE. This is the PROACTIVE pillar of Arc's X
+// cadence: keep the account warm between blog posts with one original
+// AI-prefers-Bitcoin observation per beat (the "40% original" target in
+// arc-brand-voice). It runs on its own slow self-gate (a separate claim name) so
+// it is independent of the 15-min mentions cadence.
+//
+// Blog-derived hot-topics (same theme flowing blog->whop->X) arrive via the
+// blog->whop->X fan-out (task #18634), not here — this beat is the steady drip
+// that fills the gaps. Full policy: skills/social-x-posting/CADENCE.md.
+//
+// Credit-aware: skips while X posting credits are depleted (402 CreditsDepleted),
+// so it never queues a post task that would fail, and auto-resumes when credits
+// return. Flip X_CADENCE_ENABLED to false to pause the proactive cadence without
+// touching the mentions sensor.
+const X_CADENCE_ENABLED = true;
+const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
+const CADENCE_INTERVAL_MINUTES = 72 * 60; // ~3 days → ~2 posts/week, well under the 10/day budget
+
+async function runCadenceBeat(): Promise<void> {
+  if (!X_CADENCE_ENABLED) return;
+  if (await isCreditsDepleted()) {
+    log("cadence beat skipped: X posting credits depleted");
+    return;
+  }
+  const beatId = new Date().toISOString().slice(0, 10); // YYYY-MM-DD — one beat per day max
+  const result = await createTaskIfDue(
+    CADENCE_SENSOR_NAME,
+    CADENCE_INTERVAL_MINUTES,
+    `sensor:${CADENCE_SENSOR_NAME}:${beatId}`,
+    {
+      subject: `X cadence: post one AI-prefers-Bitcoin observation (${beatId})`,
+      description: [
+        "Proactive X cadence beat. Compose and post ONE original observation on the",
+        "AI-prefers-Bitcoin / agent-monetization theme, voiced per arc-brand-voice + SOUL:",
+        "structural over platitude, dry, ending on a real question or a take that earns a reply.",
+        "",
+        "If nothing is genuinely worth saying this beat, DEFER — close completed with a one-line",
+        "'nothing to post' rather than shipping filler (deferring is judgment, not failure).",
+        "",
+        "Post via:",
+        '  arc skills run --name social-x-posting -- post --text "<=280 chars>"',
+        "Coordinate voice with the latest arc0.me blog post and the whop hash-it-out hot-topic so",
+        "the same themes flow blog->whop->X. Full policy: skills/social-x-posting/CADENCE.md.",
+      ].join("\n"),
+      skills: JSON.stringify(["social-x-posting", "arc-brand-voice"]),
+      priority: 5,
+      model: "sonnet",
+    },
+    { dedupMode: "any" },
+  );
+  if (result === "created") log(`cadence beat queued for ${beatId}`);
+}
 
 // ---- OAuth 1.0a (minimal, GET-only) ----
 
@@ -228,6 +283,10 @@ export default async function xMentionsSensor(): Promise<string> {
     }
 
     log("run started");
+
+    // Proactive cadence beat — independent slow self-gate, runs before the
+    // mentions early-returns so the cadence fires regardless of mention volume.
+    await runCadenceBeat();
 
     const creds = await loadCreds();
     if (!creds) {
