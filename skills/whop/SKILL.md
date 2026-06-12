@@ -121,7 +121,10 @@ and app-key auth.
 | Update plan | `PATCH /api/v1/plans/{id}` `{initial_price, renewal_price, ...}` | — |
 | Attach experience | `POST /api/v1/experiences/{id}/attach` `{accessPassId}` | **Body field is `accessPassId` (camelCase)**, NOT `product_id` as docs say. Docs and reality diverge here. |
 | Rename experience | `PATCH /api/v1/experiences/{id}` `{name}` | **Field is `name`, NOT `title`** — title is rejected with parameter_invalid. |
-| Update product | `PATCH /api/v1/products/{id}` `{title, description, visibility, ...}` | — |
+| Update product | `PATCH /api/v1/products/{id}` `{title, description, headline, visibility, ...}` | Requires `access_pass:update` scope — **company key has it; app key does NOT** (the 12-scope app key returns 403). For `gallery_images`, pass `[{id: "file_xxx"}]` (object form, not string-id array). |
+| Create file (upload slot) | `POST /api/v1/files` `{filename: "x.jpg"}` | Returns `{id, upload_url, upload_status: "pending"}`. **Content-type is INFERRED from the filename extension** — passing `content_type` or `mime_type` returns parameter_invalid. |
+| Upload file bytes | `PUT <upload_url>` (presigned S3) `Content-Type: image/<ext>` `--data-binary @file` | Whop returns a presigned S3 URL. After PUT, file flips to `upload_status: "ready"` within ~3s. |
+| Files are resource-scoped | — | An existing file from one product can't be reused on another — PATCH errors with `"Attachment does not belong to this resource"`. To copy an image across products, **re-upload it** (new `file_id` per product). |
 | Detach experience | `POST /api/v1/experiences/{id}/detach` | Untested in this skill yet. |
 | Update app | `PATCH /api/v1/apps/{id}` | `required_scopes` field accepts only `read_user` per docs — App-level permissions are configured in dashboard. |
 | List apps | `GET /api/v1/apps?company_id=biz_xxx` | Find arc0btc App. |
