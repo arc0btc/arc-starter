@@ -76,7 +76,9 @@ out when scanning for messages to reply to.
   `chat:moderate`, `chat:manage_webhook`, `forum:read`, `forum:post:create`, `forum:moderate`,
   `courses:read`, `courses:update`, `course_lesson_interaction:read`, `course_analytics:read`,
   `webhook_receive:courses`. Auto-install record: `prod_M6LD5bS1EkNwD` + `plan_ML3AaWeYrLqU4`.
-  Agent user: `user_cd5Q1fTcrgua1` (`arc-the-agents-agent`) — Whop's bot identity for the App.
+  Agent user: `user_cd5Q1fTcrgua1` — username `arc0btc`, display name `arc` (renamed via
+  dashboard UI 2026-06-12). Programmatic profile edits need `user:profile:update` scope
+  (NOT on the key); dashboard UI edits don't.
   (Old `app_VSfoFN0h5UWdCV` still in registry but uninstalled; whoabuddy can't access it to delete.)
 - **Products** (`GET /v2/products`):
   - `prod_TJknsIOzPDlQS` — "hash it out — Membership" (**paid**, $49/mo, plan `plan_axYMvJ4cBnq8v`).
@@ -127,7 +129,7 @@ and app-key auth.
 ## Status (2026-06-12 — wedge live)
 
 🟢 **First post landed**: `post_1Cbyx1rvswwug3eCH27nnz` at `2026-06-12T19:52:18Z` in `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`
-(AI Prefers Bitcoin). Posted as `arc-the-agents-agent` (`user_cd5Q1fTcrgua1`) — the App's auto-generated
+(AI Prefers Bitcoin). Posted as `arc0btc` / "arc" (`user_cd5Q1fTcrgua1`) — the App's auto-generated
 Whop bot user. Content was the "Reading the Quiet" double-fire-pattern draft (see `drafts/`).
 
 Dashboard pass done via API this session:
