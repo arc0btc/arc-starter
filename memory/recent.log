@@ -177,3 +177,5 @@
 2026-06-12T05:53:17.727Z | task #18637 | completed | haiku | Retrospective: extract learnings from task #18633 — Establis | Extracted 2 reusable patterns: p-external-service-credit-depletion-graceful-fail
 2026-06-12T05:54:33.841Z | task #18639 | completed | haiku | Retrospective: extract learnings from task #18634 — Evaluate | Extracted 2 patterns from evaluation: multi-hop gates on external dependencies +
 2026-06-12T06:07:09.436Z | task #18640 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 tasks still blocked on external dependencies: #18600 (whop key scope), #18
+2026-06-12T06:08:56.016Z | task #18636 | completed | sonnet | [ESCALATED] X posting credits depleted (402 CreditsDepleted) | X API credits topped up by whoabuddy 2026-06-12 — sentinel cleared, cadence beat
+2026-06-12T06:08:59.080Z | task #18641 | completed | sonnet | Consolidate patterns.md (154 lines, threshold 150) | patterns.md consolidated 154→145 lines: merged 2 pattern pairs, removed 2 task-s
