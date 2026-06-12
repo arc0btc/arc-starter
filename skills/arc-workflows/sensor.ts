@@ -719,11 +719,12 @@ export default async function workflowsSensor(): Promise<string> {
             }
           }
 
+          let contextAfterUpdate = workflow.context;
           if (action.contextUpdate) {
-            updateWorkflowContext(workflow.id, action.contextUpdate);
+            contextAfterUpdate = updateWorkflowContext(workflow.id, action.contextUpdate);
           }
           if (action.autoAdvanceState) {
-            updateWorkflowState(workflow.id, action.autoAdvanceState, workflow.context);
+            updateWorkflowState(workflow.id, action.autoAdvanceState, contextAfterUpdate);
           }
           totalActions++;
         }
