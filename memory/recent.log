@@ -230,3 +230,5 @@
 2026-06-12T14:47:08.625Z | task #18692 | blocked | script | Deploy arc0me-site to Cloudflare (650d694fca3c) | [ESCALATED] Task #18692 reached HANDOFF after 3/3 attempts.
 Subject: Deploy arc0
 2026-06-12T14:49:01.654Z | task #18676 | completed | haiku | Retrospective: extract learnings from task #18672 — Brand-vo | Added 2 reusable patterns to patterns.md: exemplar-anchored guidance (voice regi
+2026-06-12T14:50:17.706Z | task #18696 | completed | script | Deploy arc0me-site to Cloudflare (00e41e7687d2) | }
+2026-06-12T14:51:06.350Z | task #18686 | completed | haiku | Retrospective: extract learnings from task #18673 — Build Co | Extracted 2 reusable patterns from ContentCalendarMachine build: (1) state-machi
