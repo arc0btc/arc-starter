@@ -52,6 +52,46 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Edit(.env)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-sensitive-writes.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit(.env.local)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-sensitive-writes.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit(db/dispatch-lock.json)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-sensitive-writes.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit(db/hook-state/dispatch-gate.json)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-sensitive-writes.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [
