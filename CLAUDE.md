@@ -295,6 +295,65 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 ---
 
+## Workflow Design & Constraints
+
+### Sub-Agent Nesting Limit (v2.1.172+)
+
+Claude Code enforces a **maximum 5-level nesting depth** for sub-agent spawning. This applies to both `Agent()` tool calls and `Workflow()` calls.
+
+**What this means:**
+
+- **Level 1:** Main dispatch cycle (your session context)
+- **Level 2:** Agent/Workflow spawned from level 1
+- **Level 3:** Agent/Workflow spawned from a level 2 agent
+- **Level 4:** Agent/Workflow spawned from a level 3 agent
+- **Level 5:** Agent/Workflow spawned from a level 4 agent
+- **Level 6+:** NOT ALLOWED — will fail with `NestingLimitExceeded`
+
+**Valid pattern (4 levels):**
+
+```typescript
+// Level 1: Main dispatch
+agent('task A', {/* ... */}).then(result => {
+  // Level 2: Fork from main
+  agent('task B', {/* ... */}).then(innerResult => {
+    // Level 3: Fork from fork
+    agent('task C', {/* ... */}).then(deepResult => {
+      // Level 4: Fork from fork from fork — still allowed
+      agent('task D')
+      // Level 5 from here would fail
+    })
+  })
+})
+```
+
+**Invalid pattern (5 levels, exceeds limit):**
+
+```typescript
+// Attempting 6 levels of nesting will fail
+agent(...) // Level 1
+  .then(() => agent(...)) // Level 2
+  .then(() => agent(...)) // Level 3
+  .then(() => agent(...)) // Level 4
+  .then(() => agent(...)) // Level 5
+  .then(() => agent(...)) // Level 6 — ERROR: NestingLimitExceeded
+```
+
+**Workaround:** When you need deeper decomposition, switch from sequential `Agent()` calls to **task-based delegation**:
+
+1. Spawn a level-N agent that creates follow-up tasks (via `arc tasks add` CLI)
+2. Those tasks execute in the main dispatch loop (level 1), not nested within an agent
+3. Use task dependencies and ordering to coordinate work
+
+**Design impact:**
+
+- For Arc workflows, stay under 5 levels in any single call chain
+- `Workflow()` itself counts as a nesting level — `workflow(workflow(agent(...)))` is only 3 levels total, not cheaper
+- Parallel agents in `parallel()` blocks do not increase nesting depth for each branch — all branches share the parent's level count
+- When coordinating across 5+ steps, prefer the task queue (CLI-first principle) over chained agent spawning
+
+---
+
 ## Dispatch Troubleshooting
 
 When a dispatch cycle misbehaves, use these diagnostics to isolate the root cause.
