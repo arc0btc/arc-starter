@@ -710,7 +710,13 @@ export async function pollWhopSynthesis(): Promise<void> {
   // to this room recently, the answer is almost always DEFER. We don't hard-skip
   // — the dispatched session still gets to read — but we surface the signal so
   // the rubric can do its job.
-  const recentTeachingBeat = recentTaskExistsForSourcePrefix("publish-fanout:", 6 * 60);
+  // Match `publish-fanout:<slug>:whop` only — not `:x` (X going off doesn't crowd
+  // the whop room). Inline LIKE because prefix/substring helpers don't compose.
+  const recentTeachingBeat = (getDatabase()
+    .query(
+      "SELECT 1 FROM tasks WHERE source LIKE 'publish-fanout:%:whop' AND created_at > datetime('now', '-360 minutes') LIMIT 1"
+    )
+    .get() !== null);
   const recentPatternsDigest = recentTaskExistsForSourcePrefix("sensor:whop:patterns-library:", 6 * 60);
   const recentReactivePost = recentTaskExistsForSourcePrefix("sensor:whop-replies:", 60);
   const recentArcSignals: string[] = [];
