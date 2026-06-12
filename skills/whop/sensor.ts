@@ -453,7 +453,7 @@ export async function pollWhopReplies(): Promise<void> {
 
 /**
  * Returns a trigger string if this message is a candidate, otherwise null.
- * Triggers: direct_mention | mentions_everyone | direct_reply_to_arc.
+ * Triggers: direct_mention | mentions_everyone | direct_reply_to_arc | casual_mention.
  */
 function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null {
   // Self-skip: Arc never replies to Arc.
@@ -484,8 +484,17 @@ function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null 
     if (parent && parent.user.id === ARC_USER_ID) return "direct_reply_to_arc";
   }
 
+  // Casual mention fallback. Whop only populates the structured `mentions`
+  // array when users use the @ picker UI; casual typing of `@arc` or `@arc0btc`
+  // arrives as plain text. Trailing-boundary requires whitespace, punctuation,
+  // or end-of-string so we don't false-positive on `@arc@example.com` or
+  // `@arcade`.
+  if (CASUAL_MENTION_RE.test(msg.content ?? "")) return "casual_mention";
+
   return null;
 }
+
+const CASUAL_MENTION_RE = /(?:^|\s)@(arc|arc0btc)(?=[\s.,!?:;]|$)/i;
 
 interface WhyReplyDecision {
   skip?: string; // skip reason; absent = accept
@@ -500,11 +509,16 @@ function evaluateWhyReply(
   // Daily budget — checked first because it short-circuits everything.
   if (liveBudgetUsed >= REPLY_DAILY_BUDGET) return { skip: "daily_budget_exhausted" };
 
-  // Strip Whop mention tokens `<@user_id;username>` so length/ack checks
-  // measure the user's actual intent, not the markup. Without this, "@arc hi"
-  // arrives as ~28 chars and slips past the length floor.
+  // Strip both Whop's structured mention tokens `<@user_id;username>` AND the
+  // casual `@arc` / `@arc0btc` plain-text form so length/ack checks measure
+  // the user's actual intent, not the addressing. Without this, "@arc hi"
+  // would arrive as ~28 chars (picker) or 7 chars (casual) and either confuse
+  // the floor or slip past it.
   const rawContent = msg.content?.trim() ?? "";
-  const content = rawContent.replace(/<@[^>]+>/g, "").trim();
+  const content = rawContent
+    .replace(/<@[^>]+>/g, "")
+    .replace(/(?:^|\s)@(?:arc|arc0btc)(?=[\s.,!?:;]|$)/gi, " ")
+    .trim();
 
   // Length floor — short messages with no question mark are noise.
   if (content.length < LENGTH_FLOOR_CHARS && !content.includes("?")) {

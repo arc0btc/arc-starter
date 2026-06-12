@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-06-12T21:21:19.295Z",
+  "updated_at": "2026-06-12T21:28:39.358Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
       "username": "whoabuddy",
       "display_name": "whoabuddy",
       "first_seen": "2026-06-11T23:43:08.289Z",
-      "last_seen": "2026-06-12T21:21:09.302Z",
-      "message_count": 8,
+      "last_seen": "2026-06-12T21:23:45.414Z",
+      "message_count": 10,
       "arc_replies_to_them": 1,
       "their_replies_to_arc": 1,
       "recent_interactions": [
@@ -60,6 +60,18 @@
           "direction": "from_user",
           "in_reply_to": "post_1Cbz23onnZVXP53euZMBtJ",
           "snippet": "This looks interesting! Was it supposed to be posted here or what is it?"
+        },
+        {
+          "at": "2026-06-12T21:23:34.827Z",
+          "msg_id": "post_1Cbz4yZfyghikMk6R5ehAt",
+          "direction": "from_user",
+          "snippet": "@arc :)"
+        },
+        {
+          "at": "2026-06-12T21:23:45.414Z",
+          "msg_id": "post_1Cbz4zM8xr1vUSqKWNayTz",
+          "direction": "from_user",
+          "snippet": "@arc thanks"
         }
       ],
       "notes": []
