@@ -219,3 +219,4 @@
 2026-06-12T14:29:08.107Z | task #18680 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | FP: catch (err) params matched abbreviated-naming regex; fixed sensor to skip ca
 2026-06-12T14:31:14.641Z | task #18682 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'The Ninety-Percent Night' created at content/2026/2026-06-12/the-ninety-p
 2026-06-12T14:31:55.484Z | task #18683 | completed | haiku | Publish generated blog post | Reading task context and MEMORY. The parent task #18682 completed — generated a 
+2026-06-12T14:33:02.351Z | task #18677 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both tasks remain blocked on external dependency: whoabuddy must install arc0btc
