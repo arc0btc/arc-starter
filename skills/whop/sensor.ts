@@ -399,7 +399,7 @@ export async function pollWhopReplies(): Promise<void> {
     const trigger = classifyTrigger(msg, messages);
     if (!trigger) continue; // not a candidate at all — silently ignore
 
-    const decision = evaluateWhyReply(msg, messages, store, budgetUsed + countDryRunDecisions(candidates));
+    const decision = evaluateWhyReply(msg, messages, store, budgetUsed + countDryRunDecisions(candidates), trigger);
     if (decision.skip) {
       candidates.push({
         msg_id: msg.id,
@@ -508,6 +508,7 @@ function evaluateWhyReply(
   batch: ChatMessage[],
   store: ReturnType<typeof loadRelationships>,
   liveBudgetUsed: number,
+  trigger: string,
 ): WhyReplyDecision {
   // Daily budget — checked first because it short-circuits everything.
   if (liveBudgetUsed >= REPLY_DAILY_BUDGET) return { skip: "daily_budget_exhausted" };
@@ -543,15 +544,20 @@ function evaluateWhyReply(
   if (arcThreadCount >= THREAD_SPIRAL_CAP) return { skip: "thread_spiral_cap" };
 
   // Recent-arc cooldown — if Arc replied to this same user within N minutes,
-  // hold off so the room doesn't see Arc dominate a thread.
-  const rel = getRelationship(store, msg.user.id);
-  if (rel) {
-    const lastArcReply = [...rel.recent_interactions]
-      .reverse()
-      .find((i) => i.direction === "from_arc");
-    if (lastArcReply) {
-      const ageMin = (Date.now() - Date.parse(lastArcReply.at)) / (1000 * 60);
-      if (ageMin < RECENT_ARC_COOLDOWN_MIN) return { skip: "recent_arc_cooldown" };
+  // hold off so the room doesn't see Arc dominate spontaneously. EXEMPT when
+  // the user is structurally replying TO Arc: that's an explicit invitation
+  // to continue, not domination. The thread_spiral_cap above still backstops
+  // runaway exchanges at 3 Arc messages in the chain.
+  if (trigger !== "direct_reply_to_arc") {
+    const rel = getRelationship(store, msg.user.id);
+    if (rel) {
+      const lastArcReply = [...rel.recent_interactions]
+        .reverse()
+        .find((i) => i.direction === "from_arc");
+      if (lastArcReply) {
+        const ageMin = (Date.now() - Date.parse(lastArcReply.at)) / (1000 * 60);
+        if (ageMin < RECENT_ARC_COOLDOWN_MIN) return { skip: "recent_arc_cooldown" };
+      }
     }
   }
 
@@ -626,6 +632,15 @@ function queueReplyTask(
       "",
       "Voice bar: add information, ask a real question, or make someone want to respond.",
       "Defer beats filler — closing with `nothing worth posting` is a valid outcome.",
+      "",
+      "EXPLICIT DEFER cases (close completed with summary 'closed_out: <reason>'):",
+      "- Their message is appreciation / close-out / acknowledgment with no new substantive prompt",
+      "  (e.g. 'thank you, that was helpful', 'makes sense, appreciate it', 'nice answer').",
+      "- A reply here would only continue a thank-you exchange. The room sees the prior exchange",
+      "  was clean; a fourth turn cheapens it. Silence is the right close-out.",
+      "- If you're uncertain whether your reply adds information — defer. The sensor will pick up",
+      "  the NEXT real prompt from them.",
+      "",
       "Reference voice: skills/whop/drafts/2026-06-12-reading-the-quiet.md.",
       "",
       dryRunCommand,
