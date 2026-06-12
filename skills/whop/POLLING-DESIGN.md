@@ -2,7 +2,8 @@
 
 *Locks the reactive-vs-synthesis question for `skills/whop/sensor.ts`. Read before building.*
 
-Status: **PROPOSED 2026-06-12** — awaiting whoabuddy sign-off before code lands.
+Status: **LOCKED 2026-06-12** — whoabuddy signed off on the five close calls
+(see "Locked tradeoffs" at the bottom for the chosen values).
 Prior art read: `social-x-posting/sensor.ts`, `github-mentions/sensor.ts`,
 `github-issue-monitor/sensor.ts`, `arc-workflows/state-machine.ts`, MEMORY [P] critical patterns.
 
@@ -50,8 +51,6 @@ each message through `whyReply()`. A message is a candidate iff **any** of:
    OR `mentions_everyone: true` (treat @everyone as opt-in invitation, not noise).
 2. **Direct reply to Arc** — `replying_to_message_id` resolves (in last 100 msgs)
    to a message authored by `user_cd5Q1fTcrgua1`.
-3. **Owner address** — content addresses `arc` / `arc0btc` / `arc-the-agent` by name
-   in first 100 chars (covers the case where Whop's mention object is malformed).
 
 ### `whyReply()` filter — anti-spiral guards
 
@@ -86,7 +85,7 @@ positive is "Arc spirals into filler in a paid room."
 | Field | Value |
 |---|---|
 | Sensor name (claim) | `whop-synthesis` |
-| Cadence | **12 h** (matches `social-x-posting-cadence`) |
+| Cadence | **6 h** (faster than X's 12h — chat presence target is "smart, not loud") |
 | Kill flag | `WHOP_SYNTHESIS_ENABLED = false` |
 | Audit flag | `WHOP_SYNTHESIS_DRY_RUN = true` |
 | Daily synthesis budget | **1** |
@@ -94,10 +93,12 @@ positive is "Arc spirals into filler in a paid room."
 | Task model | `sonnet` |
 | Task priority | `5` |
 
-Every 12h, queue **one** task with the last 24h of messages dumped into the
+Every 6h, queue **one** task with the last 24h of messages dumped into the
 description and a clear instruction: *"Read the room. Is there a teaching beat
 worth adding right now, or do you DEFER? Defer is the right answer on most
-ticks."* Mirrors the X cadence "DEFER if nothing worth saying" pattern.
+ticks."* Mirrors the X cadence "DEFER if nothing worth saying" pattern. The
+6h cadence is paired with the daily budget of 1 — four ticks/day, ≥3 defer
+to hold the bar.
 
 The task description includes:
 - The synthesized chat transcript (chronological, with usernames)
@@ -242,29 +243,16 @@ Phased, mirroring the X cadence pre-launch we already proved:
 
 ---
 
-## Open tradeoffs to confirm with whoabuddy
+## Locked tradeoffs (whoabuddy 2026-06-12)
 
-These are the calls that feel close — flag before code lands:
-
-1. **5min reactive cadence** — fast enough for "feels live," but 5min × 12 ticks/hour
-   means we burn 12 GETs/hour even when nothing's happening. Alternative: 15min
-   (matches X mentions). Recommendation: start at 5min during Phase 0, slow to
-   15min once we see baseline traffic. Defer until Phase 1.
-2. **Daily reply budget 5** — feels generous for a paid room with single-digit
-   active members. Could be 3. Recommend 5 with the understanding that we'll
-   lower it if we ever hit the cap in real use.
-3. **Thread spiral cap 3** — covers the "thanks → cool → nice" decay. Aggressive
-   members could legit have 4+ exchanges with Arc on a substantive topic.
-   Tradeoff: rare false-negative vs reliable safety. Recommend 3 for Phase 0–1,
-   reconsider only if we see real false-negatives in logs.
-4. **Synthesis cadence 12h** — matches X. Could be 6h for more presence. Recommend
-   12h for the same reason X is 12h: respect daily-budget realities and the
-   "defer is the default" principle.
-5. **Direct address detection** — should `arc` / `arc0btc` / `arc-the-agent`
-   trigger without a formal `@-mention`? Recommend yes — chat rooms are casual,
-   members will say "what does arc think" without typing `@`. The length-floor
-   and ack-pattern guards still defend against false positives.
-
-If any of these land closed, write the chosen value into CADENCE.md and proceed.
-If any feel like coin-flips, surface the choice in the PR description before
-flipping the live flag.
+1. **Reactive cadence: 5 min.** Matches `github-mentions`. Reconsider if 12 GETs/hr
+   start to bite on the Whop rate-limit (undocumented; back off on 429).
+2. **Daily reply budget: 5.** Generous for current member volume — adjust if we
+   ever hit the cap.
+3. **Thread spiral cap: 3.** Adjustable later from the artifacts log if we see
+   substantive 4-exchange convos being clipped.
+4. **Synthesis cadence: 6 h.** "Smart presence is key" — four ticks/day, ≥3 defer
+   to hold the bar.
+5. **Direct-address detection: not in scope yet.** Trigger only on the verified
+   `mentions[]`/`mentions_everyone`/`replying_to_message_id` paths. If we learn
+   the mention object misses cases, add a name-pattern trigger then.

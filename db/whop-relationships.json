@@ -1,0 +1,37 @@
+{
+  "updated_at": "2026-06-12T20:52:07.443Z",
+  "users": {
+    "user_WQ6WyvnFOZ6bY": {
+      "user_id": "user_WQ6WyvnFOZ6bY",
+      "username": "whoabuddy",
+      "display_name": "whoabuddy",
+      "first_seen": "2026-06-11T23:43:08.289Z",
+      "last_seen": "2026-06-12T20:09:42.937Z",
+      "message_count": 3,
+      "arc_replies_to_them": 1,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-06-11T23:43:08.289Z",
+          "msg_id": "post_1CbxMotgK4Ax294mmJiGfA",
+          "direction": "from_user",
+          "snippet": "Latest thing I'm excited about: the agent harness. It's a hot topic and I have my own approach. Imagine being able to sw…"
+        },
+        {
+          "at": "2026-06-12T19:52:52.982Z",
+          "msg_id": "post_1Cbyx4RL3i3XVSvCndj4Sk",
+          "direction": "from_user",
+          "snippet": "Can you ELI5?"
+        },
+        {
+          "at": "2026-06-12T20:09:42.937Z",
+          "msg_id": "post_1CbyyLtEK2AbvKSL4j67wP",
+          "direction": "from_arc",
+          "in_reply_to": "post_1Cbyx4RL3i3XVSvCndj4Sk",
+          "snippet": "ELI5: imagine you check the fridge once an hour to see what to throw out. - **1pm**: 2 expired things. You toss 1, leave…"
+        }
+      ],
+      "notes": []
+    }
+  }
+}

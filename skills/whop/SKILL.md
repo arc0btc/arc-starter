@@ -126,6 +126,28 @@ and app-key auth.
 | List plans | `GET /api/v2/plans` | All plans across all products in the company. |
 | List experiences | `GET /api/v2/experiences` | `/v5/experiences` 404s. |
 
+## Polling & reply (reactive + synthesis lanes)
+
+Two new self-gated lanes live in `sensor.ts` alongside the state-writer and
+patterns-monitor lanes:
+
+- **`whop-replies`** — 5min cadence, reactive. Triggers on direct mentions /
+  reply-to-Arc only. `whyReply()` filters via length floor, ack pattern,
+  thread spiral cap, recent-arc cooldown, daily budget (5/day), stale-message
+  guard. Dry-run by default; produces an audit artifact per tick.
+- **`whop-synthesis`** — 6h cadence. Reads last 24h of room activity, queues
+  one defer-or-post task. Dry-run by default; 1 task/day budget.
+
+Counterparty context lives in `db/whop-relationships.json` (updated every
+reactive tick). Audit artifacts at `skills/whop/artifacts/<lane>/`.
+
+Master kill flags (both default off): `WHOP_REPLY_ENABLED`,
+`WHOP_SYNTHESIS_ENABLED`. Dry-run flags (both default on):
+`WHOP_REPLY_DRY_RUN`, `WHOP_SYNTHESIS_DRY_RUN`.
+
+Full design and locked tradeoffs: `skills/whop/POLLING-DESIGN.md`.
+Operating policy and rollout phases: `skills/whop/CADENCE.md`.
+
 ## Status (2026-06-12 — wedge live)
 
 🟢 **First post landed**: `post_1Cbyx1rvswwug3eCH27nnz` at `2026-06-12T19:52:18Z` in `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`

@@ -1,6 +1,7 @@
 // skills/whop/sensor.ts
 //
-// Two responsibilities:
+// Four independent self-gated lanes, each claims its own cadence and never
+// blocks the others. Design rationale: skills/whop/POLLING-DESIGN.md.
 //
 // 1. WHOP-STATE WRITER (always on, 60min cadence)
 //    Writes src/data/whop-state.json in arc0me-site with live agent stats so the
@@ -14,12 +15,34 @@
 //      a. the company API key is scoped `chat:message:create` (POST /v1/messages),
 //      b. the first hot-topic has landed and whoabuddy approved the voice, and
 //      c. whoabuddy signed off on a recurring auto-post cadence.
+//
+// 3. REACTIVE REPLY LANE (gated, 5min cadence)  →  pollWhopReplies()
+//    Polls /api/v1/messages, runs whyReply() with anti-spiral guards, queues
+//    one reply task per qualifying message. Updates whop-relationships.json.
+//    Writes a dated audit artifact per tick. Dry-run by default until the
+//    audit clears.
+//
+// 4. SYNTHESIS LANE (gated, 6h cadence)  →  pollWhopSynthesis()
+//    Reads the last 24h of room activity and queues ONE "read-the-room" task
+//    per cadence tick. The dispatched session decides defer vs post. Dry-run
+//    by default.
 
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource, getDatabase } from "../../src/db.ts";
+import {
+  loadRelationships,
+  saveRelationships,
+  updateFromMessages,
+  getRelationship,
+  renderRelationshipForTask,
+  ARC_USER_ID,
+  type ChatMessage,
+} from "./lib/relationships.ts";
+import { writeArtifact } from "./lib/artifacts.ts";
+import { listMessages, getAppApiKey } from "./lib/whop-api.ts";
 
 const SENSOR_NAME = "whop";
 // Check on a ~6h cadence; actual posting is naturally throttled by new blog
@@ -297,6 +320,385 @@ async function monitorPatternsLibrary(): Promise<void> {
   log(`queued task ${taskId} — ${newPatterns.length} new pattern(s): ${patternNames}`);
 }
 
+// ====================================================================
+// Reactive reply lane + synthesis lane (POLLING-DESIGN.md)
+// ====================================================================
+
+const REPLIES_SENSOR_NAME = "whop-replies";
+const REPLIES_INTERVAL_MINUTES = 5;
+const SYNTHESIS_SENSOR_NAME = "whop-synthesis";
+const SYNTHESIS_INTERVAL_MINUTES = 6 * 60;
+
+// Master kill flags — both default off. Flip after Phase 0 dry-run audit.
+const WHOP_REPLY_ENABLED = false;
+const WHOP_SYNTHESIS_ENABLED = false;
+
+// Dry-run flags. Even when enabled, default to dry_run=true: sensor queues
+// compose-only tasks whose description carries [DRY-RUN] so the dispatched
+// session prepares text but DOES NOT call post-chat / reply-chat. Flip to
+// false only after auditing artifacts confirms whyReply behaves as designed.
+const WHOP_REPLY_DRY_RUN = true;
+const WHOP_SYNTHESIS_DRY_RUN = true;
+
+// Channel under management. Verified in SKILL.md.
+const CHAT_CHANNEL_ID = "chat_feed_1CbxMbfsj2yvpGqNnMcuCg";
+
+// whyReply tunables — match POLLING-DESIGN.md "Locked tradeoffs".
+const REPLY_DAILY_BUDGET = 5;
+const THREAD_SPIRAL_CAP = 3;
+const RECENT_ARC_COOLDOWN_MIN = 15;
+const LENGTH_FLOOR_CHARS = 15;
+const MESSAGE_STALE_DAYS = 7;
+const ACK_PATTERN = /^(thx|thanks|ty|tysm|🔥|💯|❤️|nice|cool|\+1|ack)[\s.!?]*$/i;
+
+const repliesLog = createSensorLogger(REPLIES_SENSOR_NAME);
+const synthesisLog = createSensorLogger(SYNTHESIS_SENSOR_NAME);
+
+interface CandidateDecision {
+  msg_id: string;
+  from: string;
+  outcome: "task_created" | "skip" | "dry_run_task";
+  trigger?: string;
+  reason?: string;
+  task_id?: number | null;
+}
+
+/** Newest-first fetch + per-message whyReply evaluation + relationship update. */
+async function pollWhopReplies(): Promise<void> {
+  if (!WHOP_REPLY_ENABLED) {
+    repliesLog("disabled (WHOP_REPLY_ENABLED=false) — awaiting Phase 0 audit + sign-off");
+    return;
+  }
+  const apiKey = await getAppApiKey();
+  if (!apiKey) {
+    repliesLog("skip: no app_api_key credential — run `arc creds set --service whop --key app_api_key`");
+    return;
+  }
+
+  const response = await listMessages(CHAT_CHANNEL_ID, apiKey, 50);
+  if (!response) {
+    repliesLog("warn: listMessages failed (timeout or non-2xx) — skip tick");
+    return;
+  }
+
+  const messages = response.data;
+  // Update the relationship store before we evaluate candidates — that way
+  // whyReply sees up-to-date counters for thread-spiral checks.
+  const store = loadRelationships();
+  const touched = updateFromMessages(store, messages);
+  saveRelationships(store);
+
+  const budgetUsed = countRepliesQueuedToday();
+  const candidates: CandidateDecision[] = [];
+
+  for (const msg of messages) {
+    const trigger = classifyTrigger(msg, messages);
+    if (!trigger) continue; // not a candidate at all — silently ignore
+
+    const decision = evaluateWhyReply(msg, messages, store, budgetUsed + countDryRunDecisions(candidates));
+    if (decision.skip) {
+      candidates.push({
+        msg_id: msg.id,
+        from: msg.user.username ?? msg.user.id,
+        outcome: "skip",
+        trigger,
+        reason: decision.skip,
+      });
+      continue;
+    }
+
+    // Source dedup — one task per chat message, ever.
+    const source = `sensor:whop-replies:${msg.id}`;
+    if (taskExistsForSource(source)) {
+      candidates.push({
+        msg_id: msg.id,
+        from: msg.user.username ?? msg.user.id,
+        outcome: "skip",
+        trigger,
+        reason: "already_queued",
+      });
+      continue;
+    }
+
+    const taskId = queueReplyTask(msg, trigger, store);
+    candidates.push({
+      msg_id: msg.id,
+      from: msg.user.username ?? msg.user.id,
+      outcome: WHOP_REPLY_DRY_RUN ? "dry_run_task" : "task_created",
+      trigger,
+      task_id: taskId,
+    });
+  }
+
+  // Audit artifact — one per tick, even when nothing happened, so the
+  // cadence is auditable.
+  const artifactPath = writeArtifact("replies", {
+    tick_at: new Date().toISOString(),
+    channel_id: CHAT_CHANNEL_ID,
+    messages_seen: messages.length,
+    dry_run: WHOP_REPLY_DRY_RUN,
+    daily_budget_used_before_tick: budgetUsed,
+    daily_budget: REPLY_DAILY_BUDGET,
+    candidates,
+    relationships_updated: touched,
+  });
+
+  const created = candidates.filter((c) => c.outcome !== "skip").length;
+  const skipped = candidates.filter((c) => c.outcome === "skip").length;
+  repliesLog(
+    `tick: seen=${messages.length} candidates=${candidates.length} created=${created} skipped=${skipped} dry_run=${WHOP_REPLY_DRY_RUN} artifact=${artifactPath}`
+  );
+}
+
+/**
+ * Returns a trigger string if this message is a candidate, otherwise null.
+ * Triggers: direct_mention | mentions_everyone | direct_reply_to_arc.
+ */
+function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null {
+  // Self-skip: Arc never replies to Arc.
+  if (msg.user.id === ARC_USER_ID) return null;
+
+  // Direct mention via the structured mentions array. The API's mention object
+  // shape is unverified at scale — accept either {user_id} or {id} forms.
+  const mentions = (msg as unknown as { mentions?: Array<{ user_id?: string; id?: string }> }).mentions;
+  if (Array.isArray(mentions)) {
+    for (const m of mentions) {
+      if (m.user_id === ARC_USER_ID || m.id === ARC_USER_ID) return "direct_mention";
+    }
+  }
+  const mentionsEveryone = (msg as unknown as { mentions_everyone?: boolean }).mentions_everyone;
+  if (mentionsEveryone) return "mentions_everyone";
+
+  // Reply-to-Arc: parent message is in our batch and authored by Arc.
+  if (msg.replying_to_message_id) {
+    const parent = batch.find((m) => m.id === msg.replying_to_message_id);
+    if (parent && parent.user.id === ARC_USER_ID) return "direct_reply_to_arc";
+  }
+
+  return null;
+}
+
+interface WhyReplyDecision {
+  skip?: string; // skip reason; absent = accept
+}
+
+function evaluateWhyReply(
+  msg: ChatMessage,
+  batch: ChatMessage[],
+  store: ReturnType<typeof loadRelationships>,
+  liveBudgetUsed: number,
+): WhyReplyDecision {
+  // Daily budget — checked first because it short-circuits everything.
+  if (liveBudgetUsed >= REPLY_DAILY_BUDGET) return { skip: "daily_budget_exhausted" };
+
+  // Length floor — short messages with no question mark are noise.
+  const content = msg.content?.trim() ?? "";
+  if (content.length < LENGTH_FLOOR_CHARS && !content.includes("?")) {
+    return { skip: "below_length_floor" };
+  }
+
+  // Ack pattern — pure "thanks", "🔥", etc.
+  if (ACK_PATTERN.test(content)) return { skip: "ack_pattern" };
+
+  // Mention age — stale messages from a re-scan get closed gracefully.
+  const createdAtMs = Date.parse(msg.created_at);
+  if (!Number.isNaN(createdAtMs)) {
+    const ageDays = (Date.now() - createdAtMs) / (1000 * 60 * 60 * 24);
+    if (ageDays > MESSAGE_STALE_DAYS) return { skip: "stale_message" };
+  }
+
+  // Thread spiral cap — count Arc messages in the same conversation chain.
+  const arcThreadCount = countArcMessagesInThread(msg, batch);
+  if (arcThreadCount >= THREAD_SPIRAL_CAP) return { skip: "thread_spiral_cap" };
+
+  // Recent-arc cooldown — if Arc replied to this same user within N minutes,
+  // hold off so the room doesn't see Arc dominate a thread.
+  const rel = getRelationship(store, msg.user.id);
+  if (rel) {
+    const lastArcReply = [...rel.recent_interactions]
+      .reverse()
+      .find((i) => i.direction === "from_arc");
+    if (lastArcReply) {
+      const ageMin = (Date.now() - Date.parse(lastArcReply.at)) / (1000 * 60);
+      if (ageMin < RECENT_ARC_COOLDOWN_MIN) return { skip: "recent_arc_cooldown" };
+    }
+  }
+
+  return {};
+}
+
+/**
+ * Walk the reply chain from `msg` upward and count how many of the ancestor
+ * messages were Arc-authored. This is the conversation chain spiral cap.
+ */
+function countArcMessagesInThread(msg: ChatMessage, batch: ChatMessage[]): number {
+  let count = 0;
+  let cursor: string | null | undefined = msg.replying_to_message_id;
+  const seen = new Set<string>();
+  while (cursor && !seen.has(cursor)) {
+    seen.add(cursor);
+    const parent = batch.find((m) => m.id === cursor);
+    if (!parent) break;
+    if (parent.user.id === ARC_USER_ID) count += 1;
+    cursor = parent.replying_to_message_id;
+  }
+  return count;
+}
+
+/** Count today's queued reply tasks (any status). */
+function countRepliesQueuedToday(): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE source LIKE 'sensor:whop-replies:%'
+         AND DATE(created_at) = DATE('now')`
+    )
+    .get() as { count: number };
+  return row.count;
+}
+
+/** Decisions in the current tick that will burn from today's budget. */
+function countDryRunDecisions(decisions: CandidateDecision[]): number {
+  return decisions.filter((d) => d.outcome === "task_created" || d.outcome === "dry_run_task").length;
+}
+
+function queueReplyTask(
+  msg: ChatMessage,
+  trigger: string,
+  store: ReturnType<typeof loadRelationships>,
+): number {
+  const rel = getRelationship(store, msg.user.id);
+  const relationshipBlock = rel
+    ? renderRelationshipForTask(rel)
+    : `**Counterparty:** ${msg.user.username ?? msg.user.id} (new — no prior interactions on record).`;
+
+  const dryRunPrefix = WHOP_REPLY_DRY_RUN ? "[DRY-RUN] " : "";
+  const dryRunCommand = WHOP_REPLY_DRY_RUN
+    ? "DRY-RUN: do NOT call reply-chat. Compose the reply in result_detail so the artifact captures it, then close completed with --summary describing what you would have said and why."
+    : `Post via:\n  arc skills run --name whop -- reply-chat --to ${msg.id} --content "<markdown>"`;
+
+  return insertTask({
+    subject: `${dryRunPrefix}Whop reply to ${msg.user.username ?? msg.user.id}: ${msg.content.slice(0, 60)}`,
+    description: [
+      `Trigger: ${trigger}`,
+      `Channel: ${CHAT_CHANNEL_ID}`,
+      `Message: ${msg.id} @ ${msg.created_at}`,
+      msg.replying_to_message_id ? `In reply to: ${msg.replying_to_message_id}` : "",
+      "",
+      "Their message:",
+      "```",
+      msg.content,
+      "```",
+      "",
+      relationshipBlock,
+      "",
+      "Voice bar: add information, ask a real question, or make someone want to respond.",
+      "Defer beats filler — closing with `nothing worth posting` is a valid outcome.",
+      "Reference voice: skills/whop/drafts/2026-06-12-reading-the-quiet.md.",
+      "",
+      dryRunCommand,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    priority: 5,
+    model: "sonnet",
+    source: `sensor:whop-replies:${msg.id}`,
+  });
+}
+
+/** 6h synthesis lane — read the room, queue one defer-or-post task. */
+async function pollWhopSynthesis(): Promise<void> {
+  if (!WHOP_SYNTHESIS_ENABLED) {
+    synthesisLog("disabled (WHOP_SYNTHESIS_ENABLED=false) — awaiting Phase 0 audit + sign-off");
+    return;
+  }
+  const apiKey = await getAppApiKey();
+  if (!apiKey) {
+    synthesisLog("skip: no app_api_key credential");
+    return;
+  }
+
+  // Pull a wider window — 100 messages tends to span well over 24h in this room.
+  const response = await listMessages(CHAT_CHANNEL_ID, apiKey, 100);
+  if (!response) {
+    synthesisLog("warn: listMessages failed — skip tick");
+    return;
+  }
+
+  const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+  const windowMessages = response.data.filter((m) => {
+    const t = Date.parse(m.created_at);
+    return !Number.isNaN(t) && t >= cutoffMs;
+  });
+
+  // Update relationships so the dispatched session has fresh context — this
+  // is the same store the reactive lane writes to.
+  const store = loadRelationships();
+  updateFromMessages(store, response.data);
+  saveRelationships(store);
+
+  // Cadence-bucket dedup key. Hour granularity matches the artifact basename.
+  const bucket = new Date().toISOString().slice(0, 13).replace("T", "T"); // YYYY-MM-DDTHH
+  const source = `sensor:whop-synthesis:${bucket}`;
+  if (taskExistsForSource(source)) {
+    synthesisLog(`already queued a synthesis task for ${bucket} — skip`);
+    return;
+  }
+
+  const transcript = windowMessages
+    .slice()
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
+    .map((m) => `[${m.created_at}] ${m.user.username ?? m.user.id}${m.replying_to_message_id ? ` (→ ${m.replying_to_message_id})` : ""}: ${m.content}`)
+    .join("\n");
+
+  const dryRunPrefix = WHOP_SYNTHESIS_DRY_RUN ? "[DRY-RUN] " : "";
+  const postCommand = WHOP_SYNTHESIS_DRY_RUN
+    ? "DRY-RUN: do NOT call post-chat. Compose the post in result_detail and close completed with --summary describing your read-the-room decision (post vs defer + reason)."
+    : `Post via:\n  arc skills run --name whop -- post-chat --content "<markdown>"`;
+
+  const taskId = insertTask({
+    subject: `${dryRunPrefix}Whop synthesis [${bucket}]: read the room, defer or post`,
+    description: [
+      "Read the last 24h of the AI Prefers Bitcoin chat room and decide:",
+      "is there a teaching beat worth adding right now, or do you DEFER?",
+      "DEFER is the right answer on most ticks. Voice: arc-brand-voice + SOUL.",
+      "Reference voice: skills/whop/drafts/2026-06-12-reading-the-quiet.md.",
+      "",
+      `Channel: ${CHAT_CHANNEL_ID}`,
+      `Window: last 24h | messages in window: ${windowMessages.length}`,
+      "",
+      "Transcript (oldest first):",
+      "```",
+      transcript || "(no messages in window)",
+      "```",
+      "",
+      "Relationships of speakers are in db/whop-relationships.json — read it",
+      "for context on who's been in the room and what they've said.",
+      "",
+      postCommand,
+    ].join("\n"),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    priority: 5,
+    model: "sonnet",
+    source,
+  });
+
+  const artifactPath = writeArtifact("synthesis", {
+    tick_at: new Date().toISOString(),
+    channel_id: CHAT_CHANNEL_ID,
+    bucket,
+    window_hours: 24,
+    messages_in_window: windowMessages.length,
+    dry_run: WHOP_SYNTHESIS_DRY_RUN,
+    task_id: taskId,
+    transcript_excerpt: transcript.slice(0, 4000),
+  });
+
+  synthesisLog(`queued task ${taskId} (dry_run=${WHOP_SYNTHESIS_DRY_RUN}) artifact=${artifactPath}`);
+}
+
 export default async function whopSensor(): Promise<string> {
   let result: "ok" | "skip" = "skip";
 
@@ -319,6 +721,28 @@ export default async function whopSensor(): Promise<string> {
       result = "ok";
     } catch (err) {
       log(`patterns monitor error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // --- Part 4: reactive reply lane (5min self-gate, gated by WHOP_REPLY_ENABLED) ---
+  const repliesClaimed = await claimSensorRun(REPLIES_SENSOR_NAME, REPLIES_INTERVAL_MINUTES);
+  if (repliesClaimed) {
+    try {
+      await pollWhopReplies();
+      result = "ok";
+    } catch (err) {
+      repliesLog(`reply lane error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // --- Part 5: synthesis lane (6h self-gate, gated by WHOP_SYNTHESIS_ENABLED) ---
+  const synthesisClaimed = await claimSensorRun(SYNTHESIS_SENSOR_NAME, SYNTHESIS_INTERVAL_MINUTES);
+  if (synthesisClaimed) {
+    try {
+      await pollWhopSynthesis();
+      result = "ok";
+    } catch (err) {
+      synthesisLog(`synthesis lane error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
