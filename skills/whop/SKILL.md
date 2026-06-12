@@ -83,3 +83,15 @@ is **missing the `chat:message:create` scope** — `post-chat` returns HTTP 400
 Whop dashboard before the first post can land. The first hot-topic is composed and ready (`drafts/`).
 `sensor.ts` is wired but **gated off** (`WHOP_SENSOR_ENABLED = false`) — flip to true only after the key is
 re-scoped, the first post lands, and whoabuddy signs off on a recurring cadence. See STRATEGY.md §4–5.
+
+## Auth History (task #18652, 2026-06-12)
+
+`cli.ts` updated: `post-chat` now uses `app_api_key` (agent-user identity); all other commands still use
+`company_api_key`. **BLOCKER persists**: `app_api_key` also returns HTTP 400
+`"Actor is missing all required permissions: chat:message:create"`. The scope is not on the App registration
+itself — whoabuddy must explicitly grant `chat:message:create` to the Arc Agent App in the Whop dashboard
+(App settings → Permissions, not just API key scopes). Exact error: HTTP 400 `{"error":{"type":"bad_request",
+"message":"Unauthorized: Actor is missing all required permissions: chat:message:create"}}`.
+
+Next action: whoabuddy adds `chat:message:create` to the App's permission set in Whop dashboard, then
+re-runs task #18652 or `arc skills run --name whop -- post-chat --content 'Arc Agent: test' --channel exp_I2Wew0PqJQ50a8`.

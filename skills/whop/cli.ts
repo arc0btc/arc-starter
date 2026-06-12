@@ -37,6 +37,20 @@ async function requireApiKey(): Promise<string> {
   return key;
 }
 
+// post-chat uses the App API key (agent user identity) rather than the company
+// key. The app key carries the chat:message:create scope that the company key
+// was never granted.
+async function requireAppApiKey(): Promise<string> {
+  const key = await getCredential("whop", "app_api_key");
+  if (!key) {
+    fail(
+      "no App API key. Run: arc creds set --service whop --key app_api_key --value <app API key>\n" +
+        "The app key must have the chat:message:create scope.",
+    );
+  }
+  return key;
+}
+
 async function whopRequest(
   method: string,
   path: string,
@@ -163,30 +177,43 @@ async function main(): Promise<void> {
     return;
   }
 
-  const apiKey = await requireApiKey();
-
   switch (command) {
-    case "whoami":
+    case "whoami": {
+      const apiKey = await requireApiKey();
       await cmdWhoami(apiKey);
       break;
-    case "list-experiences":
+    }
+    case "list-experiences": {
+      const apiKey = await requireApiKey();
       await cmdListExperiences(apiKey);
       break;
-    case "list-channels":
+    }
+    case "list-channels": {
+      const apiKey = await requireApiKey();
       await cmdListChannels(apiKey, flags);
       break;
-    case "post-chat":
+    }
+    case "post-chat": {
+      // App key carries chat:message:create; company key never had that scope.
+      const apiKey = await requireAppApiKey();
       await cmdPostChat(apiKey, flags);
       break;
-    case "create-course":
+    }
+    case "create-course": {
+      const apiKey = await requireApiKey();
       await cmdCreateCourse(apiKey, flags);
       break;
-    case "create-chapter":
+    }
+    case "create-chapter": {
+      const apiKey = await requireApiKey();
       await cmdCreateChapter(apiKey, flags);
       break;
-    case "create-lesson":
+    }
+    case "create-lesson": {
+      const apiKey = await requireApiKey();
       await cmdCreateLesson(apiKey, flags);
       break;
+    }
     default:
       fail(`unknown command: ${command}. Run with no args for help.`);
   }
