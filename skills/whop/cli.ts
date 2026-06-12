@@ -87,6 +87,13 @@ function printHelp(): void {
       "                                         post a hot-topic into a chat experience",
       "  reply-chat --to <message_id> --content <md> [--channel exp_xxx]",
       "                                         post a threaded reply to a specific message",
+      "  list-forums [--company biz_xxx]        list forum feeds (find the forum_feed_xxx id)",
+      "  list-forum-posts --experience exp_xxx [--limit N]",
+      "                                         read recent forum posts in an experience",
+      "  post-forum --experience exp_xxx --content <md> [--title <t>]",
+      "                                         publish a forum post (e.g. digest into Public forum)",
+      "  edit-forum-post --id post_xxx --content <md> [--title <t>]",
+      "                                         edit a forum post (no DELETE endpoint exists; PATCH to blank)",
       "  rename-experience --id exp_xxx --title <new title>",
       "  create-course --experience exp_xxx --title <t>",
       "  create-chapter --course cou_xxx --title <t> [--order N]",
@@ -96,6 +103,7 @@ function printHelp(): void {
       "Audit:",
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
+      "  tick-free-forum                        run pollWhopFreeForumDigest() once, bypassing the 24h self-gate",
       "",
     ].join("\n"),
   );
@@ -168,6 +176,62 @@ async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Prom
     replying_to_message_id: flags.to,
   });
   process.stdout.write(`reply posted to ${channel} (thread: ${flags.to})\n` + JSON.stringify(result, null, 2) + "\n");
+}
+
+async function cmdListForums(apiKey: string, flags: Record<string, string>): Promise<void> {
+  const companyId = flags.company ?? (await getCredential("whop", "company_id"));
+  if (!companyId) fail("list-forums requires --company biz_xxx (or set creds key company_id)");
+  const forums = await whopRequest(
+    "GET",
+    `/v1/forums?company_id=${encodeURIComponent(companyId)}`,
+    apiKey,
+  );
+  process.stdout.write(JSON.stringify(forums, null, 2) + "\n");
+}
+
+async function cmdListForumPosts(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.experience) fail("list-forum-posts requires --experience exp_xxx");
+  const limit = flags.limit ? Number(flags.limit) : 20;
+  // Forum posts live on /v1/forum_posts keyed by experience_id (NOT forum_feed_id).
+  // Empirically verified: forum_feed_id and channel_id are both rejected; experience_id works.
+  const result = await whopRequest(
+    "GET",
+    `/v1/forum_posts?experience_id=${encodeURIComponent(flags.experience)}&limit=${limit}`,
+    apiKey,
+  );
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+}
+
+async function cmdPostForum(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.experience) fail("post-forum requires --experience exp_xxx");
+  if (!flags.content) fail("post-forum requires --content <markdown>");
+  // POST /v1/forum_posts with {experience_id, content, title?}. Title is optional;
+  // app key with forum:post:create scope succeeds even when forum's who_can_post=admins.
+  const body: Record<string, unknown> = {
+    experience_id: flags.experience,
+    content: flags.content,
+  };
+  if (flags.title) body.title = flags.title;
+  const result = await whopRequest("POST", "/v1/forum_posts", apiKey, body);
+  process.stdout.write(
+    `posted to forum (experience: ${flags.experience})\n` + JSON.stringify(result, null, 2) + "\n",
+  );
+}
+
+async function cmdEditForumPost(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.id) fail("edit-forum-post requires --id post_xxx");
+  if (!flags.content) fail("edit-forum-post requires --content <markdown>");
+  // PATCH /v1/forum_posts/<id> — the soft-delete path (Whop v1 has no DELETE for forum posts).
+  // Patch sets is_edited: true; the original post slot stays in the timeline.
+  const body: Record<string, unknown> = { content: flags.content };
+  if (flags.title) body.title = flags.title;
+  const result = await whopRequest(
+    "PATCH",
+    `/v1/forum_posts/${encodeURIComponent(flags.id)}`,
+    apiKey,
+    body,
+  );
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
 }
 
 async function cmdRenameExperience(apiKey: string, flags: Record<string, string>): Promise<void> {
@@ -252,6 +316,27 @@ async function main(): Promise<void> {
       await cmdReplyChat(apiKey, flags);
       break;
     }
+    case "list-forums": {
+      const apiKey = await requireApiKey();
+      await cmdListForums(apiKey, flags);
+      break;
+    }
+    case "list-forum-posts": {
+      const apiKey = await requireApiKey();
+      await cmdListForumPosts(apiKey, flags);
+      break;
+    }
+    case "post-forum": {
+      // App key carries forum:post:create; required even when forum allows everyone.
+      const apiKey = await requireAppApiKey();
+      await cmdPostForum(apiKey, flags);
+      break;
+    }
+    case "edit-forum-post": {
+      const apiKey = await requireAppApiKey();
+      await cmdEditForumPost(apiKey, flags);
+      break;
+    }
     case "rename-experience": {
       const apiKey = await requireApiKey();
       await cmdRenameExperience(apiKey, flags);
@@ -284,6 +369,13 @@ async function main(): Promise<void> {
       initDatabase();
       const { pollWhopSynthesis } = await import("./sensor.ts");
       await pollWhopSynthesis();
+      break;
+    }
+    case "tick-free-forum": {
+      const { initDatabase } = await import("../../src/db.ts");
+      initDatabase();
+      const { pollWhopFreeForumDigest } = await import("./sensor.ts");
+      await pollWhopFreeForumDigest();
       break;
     }
     default:

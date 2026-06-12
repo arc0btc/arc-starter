@@ -26,6 +26,13 @@
 //    Reads the last 24h of room activity and queues ONE "read-the-room" task
 //    per cadence tick. The dispatched session decides defer vs post. Dry-run
 //    by default.
+//
+// 5. FREE FORUM DIGEST LANE (gated, 24h cadence)  →  pollWhopFreeForumDigest()
+//    Static-content digest into the free Public forum. Syndicates the latest
+//    watch report — Arc status snapshot + paid-room activity summary + 1-2
+//    relationship notes — into ONE forum thread per day. Posts via the forum
+//    write API (POST /v1/forum_posts), NOT chat. The dispatched session
+//    composes from the snapshot data the sensor captures; dry-run by default.
 
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -325,6 +332,14 @@ const REPLIES_SENSOR_NAME = "whop-replies";
 const REPLIES_INTERVAL_MINUTES = 5;
 const SYNTHESIS_SENSOR_NAME = "whop-synthesis";
 const SYNTHESIS_INTERVAL_MINUTES = 6 * 60;
+const FREE_FORUM_SENSOR_NAME = "whop-free-forum";
+const FREE_FORUM_INTERVAL_MINUTES = 24 * 60; // one digest per day
+
+// Free Public forum — destination for the digest lane. The forum's
+// who_can_post=admins is satisfied at the API layer by the App's
+// forum:post:create scope (verified empirically 2026-06-12).
+const FREE_FORUM_EXPERIENCE_ID = "exp_YRtS3kgMVeBGzu";
+const FREE_FORUM_FEED_ID = "forum_feed_1CbxLWoGaQJva9hYUz7tLj";
 
 // Master kill flags. Reactive lane is LIVE as of 2026-06-12 after Phase 0
 // dry-run audit verified the trigger surface end-to-end (5 of 5 structured
@@ -343,6 +358,16 @@ const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
 const WHOP_REPLY_DRY_RUN = false;
 const WHOP_SYNTHESIS_DRY_RUN = true;
 
+// Phase 4 free-room digest lane. Gated OFF by default (sign-off required before
+// the first post lands in the free Public forum). Dry-run ON by default so the
+// dispatched session composes-not-posts when force-ticked under
+// ARC_WHOP_FORCE=1 during audit. Override via env:
+//   WHOP_FREE_FORUM_ENABLED=true   — opt-in cadence
+//   WHOP_FREE_FORUM_DRY_RUN=false  — opt-in live posting (after voice review)
+const WHOP_FREE_FORUM_ENABLED =
+  Bun.env.WHOP_FREE_FORUM_ENABLED === "true" || process.env.ARC_WHOP_FORCE === "1";
+const WHOP_FREE_FORUM_DRY_RUN = Bun.env.WHOP_FREE_FORUM_DRY_RUN !== "false";
+
 // Channel under management. Verified in SKILL.md.
 const CHAT_CHANNEL_ID = "chat_feed_1CbxMbfsj2yvpGqNnMcuCg";
 
@@ -359,6 +384,7 @@ const ACK_PATTERN = /^(thx|thanks|ty|tysm|🔥|💯|❤️|nice|cool|\+1|ack)[\s
 
 const repliesLog = createSensorLogger(REPLIES_SENSOR_NAME);
 const synthesisLog = createSensorLogger(SYNTHESIS_SENSOR_NAME);
+const freeForumLog = createSensorLogger(FREE_FORUM_SENSOR_NAME);
 
 interface CandidateDecision {
   msg_id: string;
@@ -792,6 +818,259 @@ export async function pollWhopSynthesis(): Promise<void> {
   synthesisLog(`queued task ${taskId} (dry_run=${WHOP_SYNTHESIS_DRY_RUN}) artifact=${artifactPath}`);
 }
 
+// --------------------------------------------------------------------
+// Phase 4 — Free Public forum digest lane (24h cadence)
+// --------------------------------------------------------------------
+
+interface ForumPost {
+  id: string;
+  title?: string | null;
+  content?: string | null;
+  created_at: string;
+  user?: { id?: string; username?: string; name?: string } | null;
+}
+
+interface ForumPostsResponse {
+  data: ForumPost[];
+}
+
+/** Quietly fetches last N posts of a forum experience. null on failure. */
+async function listForumPosts(
+  experienceId: string,
+  apiKey: string,
+  limit = 20,
+): Promise<ForumPostsResponse | null> {
+  try {
+    const response = await fetch(
+      `https://api.whop.com/api/v1/forum_posts?experience_id=${encodeURIComponent(experienceId)}&limit=${limit}`,
+      { headers: { Authorization: `Bearer ${apiKey}` } },
+    );
+    if (!response.ok) return null;
+    return (await response.json()) as ForumPostsResponse;
+  } catch {
+    return null;
+  }
+}
+
+/** Newest watch report path (HTML or markdown) + ISO ts parsed from filename, if any. */
+function latestWatchReport(): { path: string; ts: string } | null {
+  const reportsDir = resolve(process.cwd(), "reports");
+  if (!existsSync(reportsDir)) return null;
+  const files = readdirSync(reportsDir)
+    .filter((f) => /_watch_report\.(html|md)$/.test(f))
+    .sort();
+  const newest = files.at(-1);
+  if (!newest) return null;
+  const tsMatch = newest.match(/^(\d{4}-\d{2}-\d{2}T\d{2}_\d{2}_\d{2}Z)/);
+  return {
+    path: `reports/${newest}`,
+    ts: tsMatch ? tsMatch[1].replace(/_/g, ":") : "",
+  };
+}
+
+/** Arc daily activity snapshot — tasks completed in last 24h, gross cost estimate. */
+function arcDailySnapshot(): { tasks_completed_24h: number; tasks_failed_24h: number; cost_usd_24h: number } {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed,
+        COALESCE(SUM(cost_usd), 0) AS cost
+       FROM tasks
+       WHERE completed_at > datetime('now', '-1 day')`,
+    )
+    .get() as { completed: number | null; failed: number | null; cost: number | null } | undefined;
+  return {
+    tasks_completed_24h: row?.completed ?? 0,
+    tasks_failed_24h: row?.failed ?? 0,
+    cost_usd_24h: Number((row?.cost ?? 0).toFixed(2)),
+  };
+}
+
+/** Top non-arc counterparty by message_count across the relationship store. */
+function topRelationship(): { username: string; message_count: number } | null {
+  const store = loadRelationships();
+  let best: { username: string; message_count: number } | null = null;
+  for (const userId of Object.keys(store.users)) {
+    if (userId === ARC_USER_ID) continue;
+    const relationship = store.users[userId];
+    const count = relationship.message_count ?? 0;
+    if (!best || count > best.message_count) {
+      best = { username: relationship.username ?? userId, message_count: count };
+    }
+  }
+  return best;
+}
+
+/**
+ * 24h Public-forum digest lane — syndicates Arc status + paid-room activity into
+ * the free forum as a forum thread. Static content, daily cadence, dry-run by
+ * default. The sensor snapshots data; the dispatched session composes and posts.
+ *
+ * Bucket key = `sensor:whop-free-forum:<YYYY-MM-DD>` (one digest/day). Cross-lane
+ * awareness: skips if a paid-room digest from the synthesis lane fired in the
+ * last 12h, so the free forum never echoes what the paid room just got.
+ */
+export async function pollWhopFreeForumDigest(): Promise<void> {
+  if (!WHOP_FREE_FORUM_ENABLED) {
+    freeForumLog("disabled (WHOP_FREE_FORUM_ENABLED=false) — awaiting Phase 4 audit + sign-off");
+    return;
+  }
+
+  const bucket = new Date().toISOString().slice(0, 10); // YYYY-MM-DD — one per day
+  const source = `sensor:whop-free-forum:${bucket}`;
+  if (taskExistsForSource(source)) {
+    freeForumLog(`already queued a digest for ${bucket} — skip`);
+    return;
+  }
+
+  const apiKey = await getAppApiKey();
+  if (!apiKey) {
+    freeForumLog("skip: no app_api_key credential");
+    return;
+  }
+
+  // --- Snapshot: paid-room recent activity (last 24h) ---
+  const paidRoom = await listMessages(CHAT_CHANNEL_ID, apiKey, 50);
+  const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+  const paidMessages24h = (paidRoom?.data ?? []).filter((m) => {
+    const t = Date.parse(m.created_at);
+    return !Number.isNaN(t) && t >= cutoffMs;
+  });
+  const paidSpeakers = new Set(paidMessages24h.map((m) => m.user.id));
+
+  // --- Snapshot: recent public-forum activity (Arc's own posts, for content-level dedup awareness) ---
+  const forumPosts = await listForumPosts(FREE_FORUM_EXPERIENCE_ID, apiKey, 10);
+  const recentArcForumPosts = (forumPosts?.data ?? []).filter(
+    (p) => p.user?.id === ARC_USER_ID,
+  );
+  const lastArcForumPostIso = recentArcForumPosts[0]?.created_at;
+
+  // --- Snapshot: arc operational state ---
+  const dailyStats = arcDailySnapshot();
+  const watchReport = latestWatchReport();
+  const topRel = topRelationship();
+
+  // --- Cross-lane awareness: prevent free-forum echoing a paid-room beat from
+  // the synthesis lane that fired in the same window. ---
+  const recentSynthesisPost = recentTaskExistsForSourcePrefix("sensor:whop-synthesis:", 12 * 60);
+
+  const dryRunPrefix = WHOP_FREE_FORUM_DRY_RUN ? "[DRY-RUN] " : "";
+  const postCommand = WHOP_FREE_FORUM_DRY_RUN
+    ? `DRY-RUN: do NOT call post-forum. Compose the title + markdown body in result_detail so the artifact captures it, then close completed with --summary describing the digest decision (post vs defer + reason).`
+    : `Post via:
+  arc skills run --name whop -- post-forum --experience ${FREE_FORUM_EXPERIENCE_ID} --title "<title>" --content "<markdown>"
+post-forum is non-idempotent — if re-dispatched, confirm the latest forum thread isn't this same digest before re-posting (list-forum-posts --experience ${FREE_FORUM_EXPERIENCE_ID} --limit 3).`;
+
+  const watchReportLine = watchReport
+    ? `Latest watch report: ${watchReport.path} (period end ${watchReport.ts}) — read this first, lean on it.`
+    : `No watch report on disk — fall back to live counts only.`;
+
+  const recentForumLine = lastArcForumPostIso
+    ? `Arc's last forum post: ${lastArcForumPostIso} (id: ${recentArcForumPosts[0].id}, title: ${recentArcForumPosts[0].title ?? "(none)"}).`
+    : `No prior Arc posts in the Public forum — this would be the first.`;
+
+  const synthesisCrossLine = recentSynthesisPost
+    ? "Cross-lane: a paid-room synthesis post fired in the last 12h. STRONGLY consider a DEFER — the free forum should not echo the paid room same-day."
+    : "Cross-lane: no recent paid-room synthesis post in the last 12h. Standard digest rubric applies.";
+
+  const topRelLine = topRel
+    ? `Most active counterparty: ${topRel.username} (${topRel.message_count} msgs tracked).`
+    : `No tracked counterparty messages yet — early days for the relationship store.`;
+
+  const taskId = insertTask({
+    subject: `${dryRunPrefix}Whop free-forum digest [${bucket}]: syndicate Arc status into the Public forum`,
+    description: [
+      `Compose ONE daily digest forum thread for the FREE Public forum on Whop.`,
+      `Destination: experience ${FREE_FORUM_EXPERIENCE_ID} (forum feed ${FREE_FORUM_FEED_ID}).`,
+      "",
+      "## What this digest is",
+      "Static, substantive content — NOT a tease, NOT chat-style. The free forum",
+      "should feel like a real public window into Arc's operating state: what's been",
+      "happening, what's interesting, what's worth following. People decide whether",
+      "to subscribe to the paid room by seeing real signal here, not marketing.",
+      "",
+      "## What it MUST cover (in this order, or a sensible variation)",
+      "  1. **Arc status** — the last 24h, drawing primarily from the watch report.",
+      "     Tasks completed, surprising or instructive cycles, current focus.",
+      "     Numbers should be concrete, not vague.",
+      "  2. **Whop activity** — the paid-room speakers / msg count window summary,",
+      "     and a short, voice-respecting note on what's coming through Arc's lanes",
+      "     (reactive replies, synthesis cadence) — high-level, never quoting paid",
+      "     content verbatim or naming members without their visible-from-free intent.",
+      "  3. **One or two notes from data on hand** — a relationship signal, a",
+      "     pattern the recent log surfaced, a question Arc is sitting with. Pick",
+      "     what's actually live, not filler.",
+      "  4. **Pointer back to arc0.me / paid room** — natural, not a CTA. The point",
+      "     is to show, not sell.",
+      "",
+      "## What DEFER looks like (close as completed, source-dedup holds the slot)",
+      "Defer if any of:",
+      "  - The watch report is missing AND the operating stats are uninteresting",
+      "  - A paid-room synthesis post fired in the last 12h (the cross-lane signal",
+      "    below makes this explicit) — echoing it in the free forum is filler",
+      "  - The Public forum already has an Arc post in the last 24h that covers",
+      "    the same ground (see latest-arc-forum-post below — if title/content",
+      "    overlap is high, DEFER)",
+      "  - You can't honestly say something substantive — silence beats filler",
+      "",
+      "## Voice",
+      "Read SOUL.md + skills/arc-brand-voice/SKILL.md before composing.",
+      "  - Plain language, concrete numbers, one structural observation as the spine.",
+      "  - Title: 3–7 words, factual, not clickbait (e.g. \"Operating notes — 2026-06-12\"",
+      "    or \"What 76 cycles looked like today\"). Title is OPTIONAL in the API; if you",
+      "    pick a title, make it earn its place.",
+      "  - Body: ≤900 chars target. Markdown OK. Headings/bullets sparingly.",
+      "  - End with a single anchor: a link to arc0.me OR an honest question for",
+      "    forum readers. Not both, not a CTA.",
+      "  - No \"as an agent...\", no AI-corporate platitudes, no growth-marketing tone.",
+      "",
+      `Bucket: ${bucket} (one digest per day; source-dedup ${source})`,
+      watchReportLine,
+      `Arc 24h: ${dailyStats.tasks_completed_24h} completed, ${dailyStats.tasks_failed_24h} failed, est cost $${dailyStats.cost_usd_24h.toFixed(2)}.`,
+      `Paid room 24h: ${paidMessages24h.length} messages from ${paidSpeakers.size} speakers in ${CHAT_CHANNEL_ID}.`,
+      topRelLine,
+      recentForumLine,
+      synthesisCrossLine,
+      "",
+      "Relationships store for additional context: db/whop-relationships.json",
+      "",
+      postCommand,
+    ].join("\n"),
+    skills: JSON.stringify(["whop", "arc-brand-voice", "arc-reporting"]),
+    priority: 5,
+    model: "sonnet",
+    source,
+  });
+
+  const artifactPath = writeArtifact("free-forum", {
+    tick_at: new Date().toISOString(),
+    bucket,
+    experience_id: FREE_FORUM_EXPERIENCE_ID,
+    forum_feed_id: FREE_FORUM_FEED_ID,
+    dry_run: WHOP_FREE_FORUM_DRY_RUN,
+    task_id: taskId,
+    watch_report: watchReport,
+    arc_daily: dailyStats,
+    paid_room_24h: {
+      channel_id: CHAT_CHANNEL_ID,
+      message_count: paidMessages24h.length,
+      speaker_count: paidSpeakers.size,
+    },
+    free_forum_recent: {
+      arc_posts_seen: recentArcForumPosts.length,
+      last_arc_post_at: lastArcForumPostIso ?? null,
+    },
+    top_relationship: topRel,
+    cross_lane_signals: {
+      recent_synthesis_post_12h: recentSynthesisPost,
+    },
+  });
+
+  freeForumLog(`queued task ${taskId} (dry_run=${WHOP_FREE_FORUM_DRY_RUN}) artifact=${artifactPath}`);
+}
+
 export default async function whopSensor(): Promise<string> {
   let result: "ok" | "skip" = "skip";
 
@@ -836,6 +1115,17 @@ export default async function whopSensor(): Promise<string> {
       result = "ok";
     } catch (err) {
       synthesisLog(`synthesis lane error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // --- Part 6: free-forum digest lane (24h self-gate, gated by WHOP_FREE_FORUM_ENABLED) ---
+  const freeForumClaimed = await claimSensorRun(FREE_FORUM_SENSOR_NAME, FREE_FORUM_INTERVAL_MINUTES);
+  if (freeForumClaimed) {
+    try {
+      await pollWhopFreeForumDigest();
+      result = "ok";
+    } catch (err) {
+      freeForumLog(`free-forum lane error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

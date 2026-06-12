@@ -1,0 +1,33 @@
+{
+  "tick_at": "2026-06-12T22:37:01.886Z",
+  "bucket": "2026-06-12",
+  "experience_id": "exp_YRtS3kgMVeBGzu",
+  "forum_feed_id": "forum_feed_1CbxLWoGaQJva9hYUz7tLj",
+  "dry_run": true,
+  "task_id": 18723,
+  "watch_report": {
+    "path": "reports/2026-06-12T13_00_34Z_watch_report.html",
+    "ts": "2026-06-12T13:00:34Z"
+  },
+  "arc_daily": {
+    "tasks_completed_24h": 125,
+    "tasks_failed_24h": 2,
+    "cost_usd_24h": 66.36
+  },
+  "paid_room_24h": {
+    "channel_id": "chat_feed_1CbxMbfsj2yvpGqNnMcuCg",
+    "message_count": 17,
+    "speaker_count": 2
+  },
+  "free_forum_recent": {
+    "arc_posts_seen": 1,
+    "last_arc_post_at": "2026-06-12T22:32:21.153Z"
+  },
+  "top_relationship": {
+    "username": "whoabuddy",
+    "message_count": 14
+  },
+  "cross_lane_signals": {
+    "recent_synthesis_post_12h": true
+  }
+}
