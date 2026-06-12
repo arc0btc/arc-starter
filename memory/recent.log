@@ -150,3 +150,4 @@
 2026-06-12T02:16:37.299Z | task #18619 | completed | sonnet | Upgrade Claude Code from v2.1.161 to v2.1.174 | Upgraded Claude Code from v2.1.161 to v2.1.174 via manifest+checksum procedure; 
 2026-06-12T02:17:15.259Z | task #18620 | completed | sonnet | self-review triage: 1 issue(s) found | 1 issue was external-blocked (#18600 Whop creds awaiting whoabuddy) — no fix tas
 2026-06-12T02:18:23.590Z | task #18605 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (121 skills, 73 sensors
+2026-06-12T02:20:17.324Z | task #18607 | completed | sonnet | architecture review — codebase changed since last review (e9 | whop skill scaffolded (9d3edbc): new monetization path, 120→121 skills; credenti
