@@ -261,3 +261,4 @@ Subject: Deploy arc0
 2026-06-12T22:08:53.857Z | task #18720 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-12T22:11:32.410Z | task #18719 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 3 signal-quality patterns + 2 research patterns; 152→145 lines, under 150
 2026-06-12T22:13:04.867Z | task #18721 | completed | sonnet | New release: anthropics/claude-code v2.1.176 | Report written: research/claude-code-releases/v2.1.176.md — 1 follow-up (#18722)
+2026-06-12T22:16:16.922Z | task #18722 | completed | sonnet | Audit Arc hook configs for path-condition upgrades (v2.1.176 | Added 4 path-conditional PreToolUse guards (v2.1.176+): Edit(.env), Edit(.env.lo
