@@ -215,3 +215,4 @@
 2026-06-12T14:22:51.416Z | task #18674 | completed | opus | Tier A backfill: audit memory/shared/entries/*.md, classify, | Tier A backfill: audited 28 memory/shared/entries, scored (TD/TV/F/SC), kept 17 
 2026-06-12T14:24:09.461Z | task #18687 | completed | sonnet | Email watch report to whoabuddy — 2026-06-12T14:06 | Watch report 2026-06-12T01:01Z–13:00Z emailed to whoabuddy (msg 9c54cd41) via ar
 2026-06-12T14:26:25.197Z | task #18675 | completed | sonnet | Rename 'Updates & Resources' experience to 'Patterns Library | rename blocked: PATCH /v2/experiences/{id} exists but company key lacks scope (4
+2026-06-12T14:28:21.645Z | task #18689 | completed | sonnet | Update skills/whop/STRATEGY.md + MEMORY.md: corrected team-o | STRATEGY.md: added §0 App-vs-Product data model, funnel topology (prod IDs), Pha
