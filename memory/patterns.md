@@ -26,18 +26,12 @@ External platforms silently restructure without notice. On resource retirement, 
 "Shipped" ≠ "working"; "built" ≠ "deployed." After any fix: require 1–2 observation cycles; define success as `verify_command outputs metric ≥ threshold`. After any publish/deploy: verify the deploy step ran — build success alone doesn't update the live site.
 
 ## Signal Quality
-**p-preflight-validation** [2026-04-22]
-Pre-validate at two layers: (1) Sensor — predict score, discard if below floor; build validators returning bool/error at queue time, preventing wasted dispatch cycles. (2) Filing — query current minimum accepted score; at cap, displacement requires exceeding LOWEST current accepted score.
-**p-signal-filing-strategy** [2026-05-11]
-Signals need AIBTC-native angle. **sourceQuality is source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify → pre-filter → skip covered angles → sort by confidence → file #1 → queue #2+ with `scheduled_for = now + cooldown`. API: combined content ≤1000 chars; sources = `[{"url":"...","title":"..."}]`. Always pass `--sources` with ALL data sources. Re-filing with improved sourcing is a valid quality lever. Cooldown queue: when cooldown active but clears within task TTL, compose immediately and queue filing as follow-up with `--scheduled_for` — avoids re-queuing research.
-**p-timeout-decomposition-preflighting** [2026-05-09]
-Complex signal workflows hit 15min timeout when content >150 lines, 3+ external fetches, or novel research. Decompose at creation: (1) research+compose, (2) file. Signal: pre-dispatch cost estimate >$1 → decompose.
+**p-signal-quality-pipeline** [merged: preflight-validation + filing-strategy + timeout-decomposition]
+Pre-validate at two layers: (1) Sensor — predict score, discard below floor; validators at queue time prevent wasted cycles. (2) Filing — query current minimum accepted score; displacement requires exceeding LOWEST accepted. Signals need AIBTC-native angle. **sourceQuality source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify→pre-filter→sort by confidence→file #1→queue #2+ with `scheduled_for=now+cooldown`. API: content ≤1000 chars; sources=`[{"url":"...","title":"..."}]`, always pass `--sources`. Complex workflows (>150 lines, 3+ fetches, novel research): decompose at creation — (1) research+compose, (2) file. Pre-dispatch cost >$1 → decompose. Re-filing with better sourcing is valid.
 
 ## Research & Synthesis
-**p-research-synthesis** [2026-05-07]
-N items: quick-scan to skip low-relevance, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch dispatch: N parallel tasks (unique `source = "task:<parent>:<index>"`) + 1 synthesis task (P3, scheduled 6–8h later). Archive previous output atomically before committing replacement.
-**p-multi-repo-research-planning** [2026-06-08]
-Before queuing multi-repo research tasks, enumerate actual scope via org API (not assumptions) and get stakeholder agreement on decomposition axis. By-repo decomposition is cheaper than by-dimension when the latter requires redundant external scans (e.g., awesome-lists). Plan collaboratively, then queue fan-out — reversed order wastes cycles on disagreement.
+**p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning]
+N items: quick-scan, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch: N parallel tasks (`source="task:<parent>:<index>"`) + 1 synthesis task (P3, 6–8h). Archive previous output atomically before replacing. Multi-repo: enumerate actual scope via org API first; get stakeholder agreement on decomposition axis. By-repo cheaper than by-dimension when latter requires redundant external scans. Plan first, then fan-out — reversed order wastes cycles on disagreement.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
