@@ -174,3 +174,4 @@
 2026-06-12T05:51:14.715Z | task #18638 | blocked | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | Gated on whop #18600 (key re-scope) + X #18636 (credit top-up) landing first cle
 2026-06-12T05:51:34.498Z | task #18634 | completed | opus | Evaluate arc-workflows state machine to fan out one publish  | arc-workflows fits fan-out: linear PublishFanoutMachine (blog->whop->X), one tas
 2026-06-12T05:52:20.271Z | task #18635 | completed | haiku | Retrospective: extract learnings from task #18632 — Email fr | No learnings to capture — all patterns already documented
+2026-06-12T05:53:17.727Z | task #18637 | completed | haiku | Retrospective: extract learnings from task #18633 — Establis | Extracted 2 reusable patterns: p-external-service-credit-depletion-graceful-fail
