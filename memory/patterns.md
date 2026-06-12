@@ -70,6 +70,8 @@ Policy deprecations and new data fields must touch three layers atomically: (1) 
 Vuln disclosures: immediate ack, queue audit with scope-assessment skills. CVE names lie — enumerate all vectors, not just the primary. IOC sweeps: build multi-marker list (packages + filenames + SHAs + exfil hosts), sweep all lockfiles in parallel. Identical CVE across multiple repos: triage risk ONCE and apply uniformly — don't assess N times independently.
 **p-x-deleted-tweet-prescreen** [2026-05-13]
 External resource dependencies fail silently. Pre-screen at three layers: (1) extraction time, (2) creation time — probe API before queuing, (3) dispatch time — early-exit if all resources inaccessible.
+**p-dispatch-signal-freshness-gate** [2026-06-12, task #18678]
+Tasks replying to external signals (mentions, comments, notifications) should validate signal age at dispatch time before executing. A mention >7 days old likely reflects moved-on context; close with status=completed (no-op) rather than wasting execution effort on stale relevance.
 **p-integration-sensor-version-dedup** [2026-05-13]
 Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to specific release version before queuing. Pattern: `source = "sensor:<skill>:<repo>:<version>"`. Multi-task orchestration: use `source = "task:<parent_id>:<scope>"` to prevent dispatch dedup on parallel follow-ups.
 **p-claude-usage-quota-outage** [2026-05-14]
@@ -112,16 +114,12 @@ Write learnings at task close (via `arc tasks close --summary "insight"`), not w
 When skip/exclusion conditions accumulate to ~20+ and cluster by semantic type, replace scattered prefix guards with a dedicated pattern table. Transparent, testable, maintainable at scale.
 **p-completed-task-terminal** [2026-06-03]
 A completed task is terminal — no code path should set its status back to `pending`. Safe fix requires two layers: (1) catch-block status check before any requeue call, (2) `UPDATE ... WHERE status != 'completed'` guard in `requeueTask()`. After shipping a resurrection guard, sweep for tasks already left in bad `pending` state — the guard is preventive, not curative.
-**p-cicd-prereq-before-verify** [2026-06-03]
-Before queuing a `verify-*-deployed` task, confirm deployment infrastructure exists. A PR merged without a deployment workflow causes health endpoints to return 404 indefinitely. Gate `verify-deployed` task creation on CI/CD signal existence; when missing, queue "add CI/CD workflow" task first.
 **p-fallback-path-observability** [2026-06-06]
 When systems have fallback mechanisms (model downgrade, retry strategies, circuit-breakers), ensure the actual execution path is observable in logs. Extract actual model from stream and compare against requested; log mismatch + update `cycle_log.model` when fallback activates. Blind fallbacks hide cost/quality deviations.
 **p-kickoff-task-parameter-capture** [2026-06-08]
 When queuing a kickoff task after stakeholder approval for multi-phase work, embed all agreed parameters in the task description (scope, decomposition approach, deliverables, constraints). Prevents context loss between dispatch cycles where the executor can't easily re-read the approval email.
 **p-documented-inventory-atomicity** [2026-06-08]
 When adding/updating features in a documented artifact collection (README tables, skill registries, install paths), changes must be atomic: (1) feature implementation, (2) update all referential documentation, (3) verify discovery/install mechanisms. Silent addition (off-tree, missing from README) causes agent-visible inventory inconsistency — `open-responses/` skill added but not listed, invisible to automated discovery.
-**p-scaffold-template-version-sync** [2026-06-08]
-Scaffold templates that teach API patterns (e.g., `create-agent-tui` teaching `@openrouter/agent`) must track upstream library versions. Lag >1 minor version means agents copy outdated dependency pins and learn deprecated APIs. Research scope: include template version check vs published version; flag if lag ≥2 minor.
 **p-research-ecosystem-analysis** [2026-06-08, merged: repository-lifecycle-forensics + ecosystem-fork-taxonomy + directory-curation-gap-analysis]
 Verify claimed migrations/deprecations via commit logs (attribution + dates + tone), not archive status or README. Rapid create→archive→rebuild cycles (15–30d) + fork survival indicate prototype validation. Categorize forks: (1) direct tools, (2) native adoption, (3) ecosystem integrations, (4) adjacent infra — (2) forks gaining >10× stars signal design-market fit; absence from (1) signals tool gaps. Community registries are PR-gated; cross-check against dependency graphs + "used by" + fork stars. Registry-only metrics are floor values.
 **p-dead-code-detection-during-audit** [2026-06-10]
