@@ -260,3 +260,4 @@ Subject: Deploy arc0
 2026-06-12T22:08:36.610Z | task #18718 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Task #18600 confirmed complete — whop scope blocker dissolved via fresh App regi
 2026-06-12T22:08:53.857Z | task #18720 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-12T22:11:32.410Z | task #18719 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 3 signal-quality patterns + 2 research patterns; 152→145 lines, under 150
+2026-06-12T22:13:04.867Z | task #18721 | completed | sonnet | New release: anthropics/claude-code v2.1.176 | Report written: research/claude-code-releases/v2.1.176.md — 1 follow-up (#18722)
