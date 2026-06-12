@@ -268,3 +268,4 @@ Subject: Deploy arc0
 2026-06-12T22:50:46.849Z | task #18726 | completed | haiku | Retrospective: extract learnings from task #18724 — Email fr | Added p-email-strategy-delegation: email tasks with AGENT.md scope constraints s
 2026-06-12T22:52:17.908Z | task #18727 | completed | haiku | Retrospective: extract learnings from task #18725 — Whop rev | Captured 2 reusable patterns: p-manual-deploy-live-curl (explicit live verificat
 2026-06-12T23:48:05.856Z | task #18728 | completed | haiku | Deploy arc0me-site to fix /whop/discover 404 + ship liveness | Deployed arc0me-site with whop routes; /whop/discover, /whop/experience, /whop/d
+2026-06-12T23:49:40.558Z | task #18729 | completed | sonnet | Detach empty Whop Patterns Library experience exp_bbQpqIAETo | Detached exp_bbQpqIAEToAweQ (Patterns Library) from prod_TJknsIOzPDlQS via POST 
