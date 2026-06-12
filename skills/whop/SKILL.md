@@ -113,7 +113,7 @@ and app-key auth.
 | List forums | `GET /api/v1/forums?company_id=biz_xxx` | Returns one `forum_feed_xxx` per forum experience, with `who_can_post` (`admins`/`everyone`). |
 | List forum posts | `GET /api/v1/forum_posts?experience_id=exp_xxx&limit=N` | **Keyed by `experience_id`, NOT `forum_feed_id`** — forum_feed_id and channel_id are both rejected. |
 | Post forum thread | `POST /api/v1/forum_posts` `{experience_id, content, title?}` | App scope `forum:post:create`. Posts as the app's bot user (`is_poster_admin: false`) even when `who_can_post: "admins"` — the App scope satisfies the gate. |
-| Edit forum post | `PATCH /api/v1/forum_posts/{id}` `{content, title?}` | Sets `is_edited: true`. **No DELETE endpoint exists on v1**; PATCH-to-blank is the only soft-delete path. |
+| Edit forum post | `PATCH /api/v1/forum_posts/{id}` `{content, title?}` | Sets `is_edited: true`. **No DELETE endpoint exists on v1**; PATCH-to-blank (or to a neutral redaction string) is the only soft-delete path. Policy 2026-06-12: redaction is the accepted cleanup — the original post slot stays in the timeline with `is_edited: true`. Full removal requires the Whop dashboard. |
 | Mint access token | `POST /api/v1/access_tokens` `{company_id}` | App key + company_id alone returns a company-scoped bot token (`resource_bot_tag` = company). |
 | List chat feeds | `GET /api/v1/chat_channels?company_id=biz_xxx` | — |
 | Create product | `POST /api/v1/products` `{company_id, title, ...}` | Optional `plan_options` is silently ignored — create plan explicitly. |
