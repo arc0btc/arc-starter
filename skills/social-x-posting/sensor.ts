@@ -31,7 +31,7 @@ async function isCreditsDepleted(): Promise<boolean> {
   }
 }
 
-const SENSOR_NAME = "social-x-mentions";
+const SENSOR_NAME = "social-x-posting";
 const INTERVAL_MINUTES = 15;
 const API_BASE = "https://api.x.com/2";
 

@@ -20,7 +20,7 @@ import {
 } from "./schema.ts";
 import type { Contact } from "./schema.ts";
 
-const SENSOR_NAME = "contacts-aibtc-discovery";
+const SENSOR_NAME = "contacts";
 const INTERVAL_MINUTES = 60;
 const API_BASE = "https://aibtc.com/api";
 const PAGE_LIMIT = 50;

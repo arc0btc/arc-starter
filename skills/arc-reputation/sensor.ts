@@ -24,7 +24,7 @@ import { getDatabase, recentTaskExistsForSource, insertTask } from "../../src/db
 import { initContactsSchema, type Contact } from "../contacts/schema.ts";
 
 
-const SENSOR_NAME = "reputation-tracker";
+const SENSOR_NAME = "arc-reputation";
 const INTERVAL_MINUTES = 30;
 const TASK_SOURCE_PREFIX = "sensor:reputation-tracker";
 const LOOKBACK_HOURS = 2; // scan window — overlaps slightly with interval for safety

@@ -20,7 +20,7 @@ import {
 } from "../../src/sensors.ts";
 import { resolve } from "node:path";
 
-const SENSOR_NAME = "erc8004-reputation-monitor";
+const SENSOR_NAME = "erc8004-reputation";
 const INTERVAL_MINUTES = 60;
 const ARC_AGENT_ID = 1;
 

@@ -18,7 +18,7 @@ import {
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 
-const SENSOR_NAME = "security-audit-attestation";
+const SENSOR_NAME = "arc0btc-security-audit";
 const INTERVAL_MINUTES = 10;
 const LOOKBACK_HOURS = 2;
 const TASK_SOURCE_PREFIX = "sensor:security-audit-attestation";

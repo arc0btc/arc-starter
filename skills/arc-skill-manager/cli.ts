@@ -453,30 +453,46 @@ function cmdSensorHealthReport(): void {
   const alerts: string[] = [];
 
   for (const sensor of sensors) {
-    const stateFile = join(hookStateDir, `${sensor.name}.json`);
+    // Collect candidate state files: exact match first, then sub-sensor files (e.g. arc-reporting-watch.json)
+    const exactFile = join(hookStateDir, `${sensor.name}.json`);
+    const candidateFiles: string[] = existsSync(exactFile) ? [exactFile] : [];
+    if (candidateFiles.length === 0 && existsSync(hookStateDir)) {
+      for (const f of readdirSync(hookStateDir)) {
+        if (f.startsWith(`${sensor.name}-`) && f.endsWith(".json")) {
+          candidateFiles.push(join(hookStateDir, f));
+        }
+      }
+    }
+
     let lastRun = "never";
     let consecutiveFailures = 0;
     let intervalMinutes: number | null = null;
 
-    if (existsSync(stateFile)) {
+    for (const stateFile of candidateFiles) {
       try {
         const raw = JSON.parse(readFileSync(stateFile, "utf-8"));
         if (raw.last_ran) {
-          lastRun = raw.last_ran as string;
-          const ageMin = Math.round((now - new Date(lastRun).getTime()) / 60_000);
-          if (ageMin < 60) lastRun = `${ageMin}m ago`;
-          else if (ageMin < 1440) lastRun = `${Math.round(ageMin / 60)}h ago`;
-          else lastRun = `${Math.round(ageMin / 1440)}d ago`;
+          // Keep the most recent last_ran across all candidate files
+          if (lastRun === "never" || new Date(raw.last_ran) > new Date(lastRun)) {
+            lastRun = raw.last_ran as string;
+          }
         }
-        if (typeof raw.consecutive_failures === "number") {
+        if (typeof raw.consecutive_failures === "number" && raw.consecutive_failures > consecutiveFailures) {
           consecutiveFailures = raw.consecutive_failures;
         }
-        if (typeof raw.interval_minutes === "number") {
+        if (typeof raw.interval_minutes === "number" && intervalMinutes === null) {
           intervalMinutes = raw.interval_minutes;
         }
       } catch {
         // unreadable state
       }
+    }
+
+    if (lastRun !== "never") {
+      const ageMin = Math.round((now - new Date(lastRun).getTime()) / 60_000);
+      if (ageMin < 60) lastRun = `${ageMin}m ago`;
+      else if (ageMin < 1440) lastRun = `${Math.round(ageMin / 60)}h ago`;
+      else lastRun = `${Math.round(ageMin / 1440)}d ago`;
     }
 
     // Find most recent task from this sensor

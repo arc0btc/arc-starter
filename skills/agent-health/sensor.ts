@@ -27,7 +27,7 @@ import { initDatabase } from "../../src/db.ts";
 
 // ---- Constants ----
 
-const SENSOR_NAME = "agent-health-loom";
+const SENSOR_NAME = "agent-health";
 const INTERVAL_MINUTES = 120;
 const TASK_SOURCE = "sensor:agent-health:loom";
 // Check the last 4 hours (2x interval for overlap — catches any cycles we might have missed)
