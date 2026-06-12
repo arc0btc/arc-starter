@@ -1,158 +1,154 @@
-# Next-session prompt — Whop chat polling + reply sensors
+# Next-session prompt — Phase 2: flip synthesis lane
 
 *Drop this into a fresh Claude Code session after /clear. Self-contained.*
 
 ---
 
-Pick up Whop chat polling/reply build. Read these first, in order:
+Pick up the Whop synthesis lane (Phase 2). Phase 1 reactive replies have been
+live since 2026-06-12T21:28Z; this session decides whether the marination has
+held cleanly enough to flip `WHOP_SYNTHESIS_ENABLED=true` (still in dry-run),
+and then walks the same audit ladder we used for Phase 1.
 
-- memory/MEMORY.md  → [A] whop-wedge (the wedge is now LIVE — first post + threaded reply both landed 2026-06-12)
-- skills/whop/SKILL.md  → updated topology, all 12 actions on key, raw-key auth confirmed, original-blocker history
-- skills/whop/cli.ts  → current commands: whoami, list-experiences, list-channels, post-chat, rename-experience, create-course/chapter/lesson
-- skills/whop/sensor.ts  → current gated stub; `WHOP_SENSOR_ENABLED=false`
-- skills/whop/drafts/2026-06-12-reading-the-quiet.md  → first post (landed `post_1Cbyx1rvswwug3eCH27nnz`); whoabuddy then asked "Can you ELI5?" (`post_1Cbyx4RL3i3XVSvCndj4Sk`); Arc threaded reply landed (`post_1CbyyLtEK2AbvKSL4j67wP`). Voice for the reply is in the file — that's the bar.
-- skills/social-x-posting/sensor.ts  → **proven mentions-reply pattern**. Mirror the staleness guard, recentDup dedup, daily-budget hooks.
-- skills/social-x-posting/CADENCE.md  → cadence policy (12h beat, 4 beat types, defer test, brand-gate). Whop chat needs a parallel doc.
-- skills/github-mentions/  → direct-mention reactive pattern. Read sensor.ts + SKILL.md.
-- skills/github-issue-monitor/  → periodic state polling pattern.
-- skills/github-ci-status/  → status polling cadence.
-- skills/arc-workflows/state-machine.ts  → BlogToXMachine template; #18638 (reopened) is about extending it with a whop hop.
-- memory/MEMORY.md [P] critical patterns  → especially "side-effecting tasks: check idempotency FIRST", "X API HTTP 402 = CreditsDepleted (not rate limit)", and the loom-spiral safety class.
+## Read first, in order
 
-## Strategic context (locked 2026-06-12 in prior session)
+- `memory/MEMORY.md` → [A] whop-wedge for current room state and phase status
+- `skills/whop/POLLING-DESIGN.md` → full ADR, especially the "Synthesis lane"
+  section (6h cadence, 1 task/day budget, 24h read window, defer-or-post task)
+- `skills/whop/CADENCE.md` → rollout phases table — phase 2 is the synthesis
+  flip
+- `skills/whop/sensor.ts` → `pollWhopSynthesis()` is already implemented,
+  gated by `WHOP_SYNTHESIS_ENABLED` (false) and `WHOP_SYNTHESIS_DRY_RUN` (true)
+- `skills/whop/drafts/2026-06-12-reading-the-quiet.md` → voice bar for what a
+  synthesis post should look like in practice
+- `skills/social-x-posting/CADENCE.md` → analogous 4-beat cadence policy for X
+  — synthesis can borrow the "4 beat types, defer test, daily budget 1" frame
+- `skills/whop/artifacts/replies/` → Phase 1 reactive lane artifacts; read the
+  last 24-48h to confirm reactive marination held clean
 
-The unit is a **piece of Arc's work**, not a channel cadence. Substantive work pieces fan out across six
-channels with channel-specific voices (blog / whop chat / whop forum / public forum / X / course). Audience
-is agent-operators building production agents — they want tactical specifics, real prompts, real failures.
-Pivot is: stop posting observations *about* Arc; start posting teachings *from* Arc.
+## Phase 1 health check (run first, before flipping anything)
 
-The whop chat post and ELI5 reply both fit that frame — the original was a teaching about the double-fire
-pattern, and the ELI5 reply continued the teaching with a counter-question. The next thing Arc does in chat
-should hold that same bar.
+```bash
+# How many real reply tasks queued in the last 24h?
+arc tasks --limit 100 | grep -E "Whop reply|whop-replies" | head -20
 
-## The open design question — answer this before building
+# Budget burn — is anyone close to 10/day?
+ls -1 skills/whop/artifacts/replies/ | tail -20 | \
+  xargs -I{} jq '{tick: .tick_at, used: .daily_budget_used_before_tick, candidates: (.candidates|length)}' skills/whop/artifacts/replies/{}
 
-whoabuddy's framing (verbatim):
+# Has thread_spiral_cap ever fired? daily_budget_exhausted?
+grep -l "thread_spiral_cap\|daily_budget_exhausted" skills/whop/artifacts/replies/*.json | head
 
-> I'm torn between a time-based approach where Arc looks at what's there and synthesizes a reply, which
-> might be better for full chat experience, and things like direct mentions where it's worth looking at
-> it right away (but if caught in a reply chain can burn compute on nothing). Our github sensors and
-> workflows handle some of this already would be good to follow patterns we have and see where we can
-> improve.
+# Counterparty growth — how many users in the relationship store?
+jq '.users | keys | length' db/whop-relationships.json
+jq '.users | to_entries | map({user: .value.username, msgs: .value.message_count, theirReplies: .value.their_replies_to_arc, arcReplies: .value.arc_replies_to_them})' db/whop-relationships.json
 
-**Two designs in tension:**
-
-A. **Direct-trigger / reactive** (like `github-mentions`, `social-x-posting` mentions polling)
-   - Fires when a specific event happens: @-mention of arc-the-agents-agent, OR a reply targeting Arc's
-     prior post, OR an explicit signal phrase.
-   - Pro: fast response time, members feel heard.
-   - Con: reply chains can spiral — Arc replies, member responds with "thanks", Arc treats it as another
-     trigger, replies again, repeat. *This is the compute-burn-on-nothing scenario whoabuddy flagged.*
-   - Mitigation: trigger function must distinguish "real prompt" from "ack/close-out." `whyReply()` should
-     downgrade triggers when the message is <N chars, contains only thanks/emoji, or is from Arc's own
-     last reply's recipient within X minutes of Arc's last post in this thread.
-
-B. **Time-based synthesis / digest** (closer to `runCadenceBeat()` in social-x-posting)
-   - Every N hours, Arc reads the room's last M messages, synthesizes the active threads, and posts
-     either: a thoughtful summary, an answer to an open question, or stays silent (the "defer test").
-   - Pro: avoids reply-chain spirals by design; reads the room as a whole; quality > latency.
-   - Con: members may have moved on by the time Arc shows up; feels like "the agent we hired never
-     shows up in real time."
-
-**Pattern from arc-workflows / state-machine.ts**: `autoAdvanceState`, source-dedup, and the
-meta-sensor's 5-min cadence — that's the proven loom-spiral-safe spine. Polling design should slot into
-the same shape: one task queued per evaluation, never two outstanding for the same source.
-
-**Recommended hybrid (sketch — refine before implementing):**
-
-- **Reactive lane** (cadence: 5 min): direct-mention OR direct-reply-to-arc only. Strict whyReply()
-  filter. Daily budget 5 replies.
-- **Synthesis lane** (cadence: 6–12 hr): time-based digest evaluator. Reads last 24h of room activity,
-  synthesizes "is there a teaching beat I should add?" — most cycles return "nothing to add" (defer test).
-  Daily budget 1 synthesis post.
-- **Hard kill**: master flag `WHOP_REPLY_ENABLED = false` until trust earned. Even after flip, daily
-  budgets cap blast radius.
-
-Read the github sensor implementations before locking the design — they've already solved the spiral
-problem and the trigger-classifier problem in their domains. Look specifically at:
-- How github-mentions filters reply chains (whatever it does, mirror it).
-- How github-issue-monitor handles "is this a new thing or the same thing 30 min later" (probably a
-  recent-task source check — same as we want).
-- How social-x-posting handles bot-vs-human last-message tracking (claim hook state).
-
-## What's already verified about the Whop API for this work
-
-- Read: `GET /api/v1/messages?channel_id=chat_feed_xxx&limit=20`. Works with app key (chat:read granted).
-- Pagination: opaque cursors from `page_info.end_cursor` / `start_cursor`. **Raw post IDs as before/after
-  return 400** — must use the cursor string. Default = newest-first, so `limit=N` is fine for "what's
-  new" polling.
-- Reply: `POST /api/v1/messages {channel_id, content, replying_to_message_id}` — VERIFIED working in
-  prior session (the ELI5 reply was posted this way via raw curl).
-- Self-ID: Arc's agent user is `user_cd5Q1fTcrgua1` (`arc-the-agents-agent`). Use this to skip self-reply.
-- Mentions structure: `mentions: []` array on each message, `mentions_everyone: bool`. Schema for entries
-  unverified — probably `{user_id, username}`. Confirm empirically with one `@arc-the-agents-agent` test
-  ping before writing the mention filter.
-- Target channel: `chat_feed_1CbxMbfsj2yvpGqNnMcuCg` (AI Prefers Bitcoin, paid room).
-
-## CLI work needed (cli.ts extension)
-
-```
-arc skills run --name whop -- list-messages --channel chat_feed_xxx [--limit N] [--cursor <opaque>]
-arc skills run --name whop -- reply-chat --to <message_id> --channel chat_feed_xxx --content <md>
+# Any Arc posts in the room that didn't go through the reactive lane?
+arc skills run --name whop -- list-messages --channel chat_feed_1CbxMbfsj2yvpGqNnMcuCg --limit 50 | jq '[.data[] | select(.user.id == "user_cd5Q1fTcrgua1") | {id, at: .created_at, content: (.content | .[0:80])}]'
 ```
 
-`reply-chat` is `post-chat` + `replying_to_message_id` field — five-line change.
+If reactive lane shows clean traffic, no spirals, no unexpected posts, no
+budget exhaustion → ready for the synthesis flip.
 
-## Tasks already queued / status
+If anything looks off (e.g., budget hitting cap, members complaining,
+unexpected reply chains) → DO NOT flip. Triage first.
 
-- #18638 — Build PublishFanoutMachine (extend BlogToXMachine with whop hop). **REOPENED** from blocked
-  → pending in the prior session (whop is now a proven channel). Hold for this design work to land
-  first so the fanout knows what the whop hop calls into.
-- #18672 — brand-voice audit + write skills/arc-brand-voice/CHANNELS.md (per-channel voice cards).
-  Pending. The whop chat voice card will inform reply tone.
-- #18673 — ContentCalendarMachine build (gated on CHANNELS.md). Pending.
-- #18671 — pause 12h X cadence beat. Active.
+## The synthesis lane recap
 
-## Suggested tasks to queue (decide after design lock)
+`pollWhopSynthesis()` runs every 6h. On each tick it:
 
-1. **Implement `list-messages` + `reply-chat` CLI commands** — small, foundational. Should ship first.
-2. **Implement `pollWhopReplies()` + `pollWhopSynthesis()` in skills/whop/sensor.ts** — gated by
-   `WHOP_REPLY_ENABLED=false` AND `WHOP_SYNTHESIS_ENABLED=false` until trust earned.
-3. **Log-only audit mode** — run the sensor for 24-48h with replies queued as `dry_run` tasks that
-   compose but don't post. Inspect what would have been sent. (Mirrors the watch-only approach we used
-   for X cadence pre-launch.)
-4. **Write skills/whop/CADENCE.md** — chat cadence policy parallel to social-x-posting/CADENCE.md.
+1. Fetches the last 100 messages from `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`.
+2. Filters to a 24h window.
+3. Updates the relationship store (shared with reactive lane).
+4. Source-dedups via `sensor:whop-synthesis:<YYYY-MM-DDTHH>` so the same
+   cadence bucket can't double-fire.
+5. Queues ONE task: "read the room, decide defer vs post."
+6. Writes an artifact at `skills/whop/artifacts/synthesis/<ISO>.json`.
 
-Queue with `--priority 4 --model sonnet --skills whop,arc-brand-voice --source task:<this_id>`.
+The dispatched session decides:
+- **POST** → a teaching beat the room hasn't heard yet → calls `post-chat`.
+- **DEFER** → no teaching worth adding right now → close `completed` with
+  summary `nothing worth posting`. Most ticks should defer.
+
+Daily budget: 1 synthesis post. Cadence 6h × 4 ticks/day → ≥3 defer is the
+healthy bar. If we ever ship >1 synthesis post/day, the bar isn't holding.
+
+## Open design questions for Phase 2
+
+These were deferred during Phase 0; now's the time to answer them.
+
+1. **Fanout overlap**. The `BlogToXMachine` fanout posts a whop chat hot-topic
+   on every new blog publish. If a blog landed in the last 24h, the room
+   already got a teaching beat. Should synthesis auto-defer when a
+   `publish-fanout:*:whop` task completed in the window? Likely yes — saves
+   the synthesis budget for off-blog beats. Spec it before flipping.
+
+2. **Cross-channel coordination**. The X cadence beat (`runCadenceBeat`) is
+   currently disabled (`X_CADENCE_ENABLED=false`). When it comes back on,
+   should the whop synthesis check whether X just shipped the same theme?
+   Probably overkill for Phase 2 — note it and revisit when X cadence
+   resumes.
+
+3. **Synthesis prompt voice**. The current task description tells the
+   dispatched session to "read the room, decide defer or post" with a
+   transcript dump. That's bare-bones. Worth adding:
+   - A short "what makes a teaching beat" rubric (info / question / pattern)
+   - Examples of when to DEFER (e.g., recent fanout post on same theme, the
+     room is in a debugging-help mode, members are talking to each other)
+   - The `drafts/` voice bar explicitly referenced
+4. **Beat-type structure**. Should synthesis pick from a small set of beat
+   types (e.g., "pattern observation", "honest failure", "open question") to
+   keep variety? Or keep it free-form and let voice carry it? Recommendation:
+   free-form for Phase 2, observe what dispatched sessions naturally produce,
+   add structure only if the same shape keeps showing up.
+
+5. **First-flip safety**. Recommend the same Phase 0 discipline:
+   `WHOP_SYNTHESIS_ENABLED=true`, `WHOP_SYNTHESIS_DRY_RUN=true` for the first
+   24-48h. Sensor produces tasks; dispatch composes-only, no posts.
+   Audit artifacts. Then flip dry-run off only after voice quality + defer
+   discipline both clear.
+
+## Rollout sequence (compressed, achievement-gated)
+
+1. **Phase 1 health check** (above) — pass/fail gate before doing anything.
+2. **Address open questions 1 and 3** — fanout-aware deferral + prompt
+   refinement. Small code change in `pollWhopSynthesis()` task description.
+3. **Manual trigger** — `arc skills run --name whop -- tick-synthesis` with
+   `ARC_WHOP_FORCE=1`. Inspect artifact + queued task description. Verify the
+   transcript dump renders cleanly and the rubric/voice bar comes through.
+4. **Flip dry-run audit**: `WHOP_SYNTHESIS_ENABLED=true`,
+   `WHOP_SYNTHESIS_DRY_RUN=true`. Let it run 24-48h. Tasks queue dry-run only
+   (composed result_summary, no post-chat).
+5. **Audit pass**: read every synthesis artifact + every dry-run task's
+   result_summary. Count defer vs post decisions. Spot-check voice. Adjust
+   the synthesis prompt if anything misfires.
+6. **Phase 2 live**: flip `WHOP_SYNTHESIS_DRY_RUN=false`. The next tick may
+   produce a real post — surface to whoabuddy before the flip.
+7. **Phase 3 trigger** (later): once Phase 2 holds clean, revisit the
+   `PublishFanoutMachine` `whop_pending` hop end-to-end on a real blog
+   publish. The chain should be: blog publish → whop fanout post → maybe a
+   synthesis post 6h later if it adds something new → X post.
+
+## Process hygiene (carry forward from Phase 1)
+
+- **Commit often** (every meaningful diff). If you don't, dispatch will
+  auto-commit your work into `chore(loop):` noise.
+- **Never auto-post** to the paying room without sign-off until trust is
+  earned. Default-off all gates.
+- **Slow is smooth, smooth is fast** — one verify loop at a time.
+- **Defer beats filler** — this rule applies to synthesis posts AS WELL AS
+  reactive replies. A "deferred" task close is a successful outcome.
+- **Audit > assumption** — every Phase 1 bug was caught by reading actual
+  artifacts against actual messages. Same discipline for Phase 2.
 
 ## First action this session
 
-1. **Look at the chat** — confirm the ELI5 reply rendered correctly and check if whoabuddy or anyone
-   else responded since. The state of the room shapes the design.
-   ```
-   arc skills run --name whop -- list-channels  # to confirm channel id (optional)
-   ```
-   (Or curl directly until `list-messages` exists:)
-   ```
-   APPKEY=$(arc creds get --service whop --key app_api_key); curl -s -H "Authorization: Bearer $APPKEY" \
-     "https://api.whop.com/api/v1/messages?channel_id=chat_feed_1CbxMbfsj2yvpGqNnMcuCg&limit=10" \
-     | python3 -m json.tool
-   ```
+1. Run the Phase 1 health check queries above. Read the artifacts.
+2. Report what you find — health gate pass/fail, anything surprising in the
+   marination period.
+3. Surface answers to open questions 1 and 3 (fanout deferral, prompt voice
+   refinement) before any code change.
+4. Wait for whoabuddy sign-off on the design refinements before flipping any
+   flag.
 
-2. **Read the GitHub sensor patterns** — github-mentions, github-issue-monitor, github-ci-status. Note
-   how each handles cadence, dedup, and chain-spiral avoidance. This shapes the design choice.
-
-3. **Lock the design** — write a short ADR-style doc at `skills/whop/POLLING-DESIGN.md` (~1 page) that
-   answers: reactive-only vs synthesis-only vs hybrid; cadences; daily budgets; whyReply() rules;
-   anti-spiral guards. Surface tradeoffs to whoabuddy if any decisions feel close.
-
-4. **Implement** in this order: cli (list-messages + reply-chat) → sensor (log-only mode) → audit
-   review → flip enable flag → live.
-
-## Process hygiene whoabuddy locked in this cycle
-
-- Move fast and iterate. Trust the test → flip flag pattern. Don't over-design.
-- NEVER auto-post to the paying room without sign-off until trust is earned. Default-off all gates.
-- Keep the bar: SOUL voice — replies add information, ask a real question, or make someone want to
-  respond. Defer beats filler. (See `drafts/2026-06-12-reading-the-quiet.md` for the bar in practice.)
-- Slow is smooth, smooth is fast. One lane at a time.
+The trust earned in Phase 1 came from the audit catching bugs early. Honor
+that pattern for Phase 2.
