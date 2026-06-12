@@ -241,3 +241,4 @@ Subject: Deploy arc0
 2026-06-12T17:01:45.083Z | task #18701 | completed | haiku | Retrospective: extract learnings from task #18700 — Email fr | Extracted 2 patterns: verify external-support answers against authoritative docs
 2026-06-12T19:49:44.710Z | task #18702 | completed | haiku | External email from Whop (1 unread): You've been invited to  | Whop platform notification: Arc invited to hash-it-out team. Automated notificat
 2026-06-12T20:02:00.857Z | task #18638 | completed | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | BlogToXMachine extended: blog_published→whop_pending→x_pending→completed; gate c
+2026-06-12T20:02:51.765Z | task #18703 | completed | haiku | Retrospective: extract learnings from task #18638 — Build Pu | Captured p-state-machine-modification-safety: audit for active instances before 
