@@ -66,6 +66,7 @@ function printHelp(): void {
       "",
       "  whoami                                 verify the API key and show the company",
       "  list-experiences                       list experiences (find chat/course ids)",
+      "  list-channels [--company biz_xxx]      list chat feeds (find the chat_feed_xxx channel id)",
       "  post-chat --content <md> [--channel exp_xxx]",
       "                                         post a hot-topic into a chat experience",
       "  create-course --experience exp_xxx --title <t>",
@@ -90,14 +91,30 @@ async function cmdListExperiences(apiKey: string): Promise<void> {
   process.stdout.write(JSON.stringify(experiences, null, 2) + "\n");
 }
 
+async function cmdListChannels(apiKey: string, flags: Record<string, string>): Promise<void> {
+  // Chat feeds live on v1; each carries the canonical channel_id (chat_feed_xxx)
+  // and the experience it backs. company_id defaults to the stored credential.
+  const companyId = flags.company ?? (await getCredential("whop", "company_id"));
+  if (!companyId) fail("list-channels requires --company biz_xxx (or set creds key company_id)");
+  const channels = await whopRequest(
+    "GET",
+    `/v1/chat_channels?company_id=${encodeURIComponent(companyId)}`,
+    apiKey,
+  );
+  process.stdout.write(JSON.stringify(channels, null, 2) + "\n");
+}
+
 async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promise<void> {
   const content = flags.content;
   if (!content) fail("post-chat requires --content <markdown>");
   const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
   if (!channel) {
-    fail("post-chat requires --channel exp_xxx (or set creds key chat_channel_id)");
+    fail("post-chat requires --channel (or set creds key chat_channel_id)");
   }
-  const result = await whopRequest("POST", "/v5/messages", apiKey, {
+  // Messages live on v1, not v5 (/api/v5/messages 404s). channel_id accepts an
+  // exp_xxx experience id or a chat_feed_xxx feed id — list feeds via
+  // GET /api/v1/chat_channels?company_id=biz_xxx.
+  const result = await whopRequest("POST", "/v1/messages", apiKey, {
     channel_id: channel,
     content,
   });
@@ -154,6 +171,9 @@ async function main(): Promise<void> {
       break;
     case "list-experiences":
       await cmdListExperiences(apiKey);
+      break;
+    case "list-channels":
+      await cmdListChannels(apiKey, flags);
       break;
     case "post-chat":
       await cmdPostChat(apiKey, flags);

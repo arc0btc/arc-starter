@@ -40,7 +40,8 @@ Scope the API key to: `chat:message:create`, `experience:create`, `course:*`, `m
 ```
 arc skills run --name whop -- whoami
 arc skills run --name whop -- list-experiences
-arc skills run --name whop -- post-chat --channel exp_xxx --content "<markdown>"
+arc skills run --name whop -- list-channels                             # chat feeds -> chat_feed_xxx channel id
+arc skills run --name whop -- post-chat --channel chat_feed_xxx --content "<markdown>"
 arc skills run --name whop -- post-chat --content "<markdown>"          # uses stored chat_channel_id
 arc skills run --name whop -- create-course --experience exp_xxx --title "Title"
 arc skills run --name whop -- create-chapter --course cou_xxx --title "Title" --order 1
@@ -55,19 +56,30 @@ arc skills run --name whop -- create-lesson --chapter cha_xxx --title "Title" --
   channel for a matching message — re-dispatch can duplicate. (See MEMORY [P] idempotency rule.)
 - Whop rate limits are undocumented; on HTTP 429 back off, do not hammer.
 
-## Discovered IDs (hash-it-out, verified 2026-06-12 task #18625)
+## Discovered IDs (hash-it-out, verified 2026-06-12 tasks #18625, #18600)
 
 - **Company:** `biz_zQbfh5SnRnAF5Y` ("hash it out"). `whoami` hits `/v5/company` (a company key 403s on `/v5/me`).
 - **Experiences** (via `/v2/experiences` — `/v5/experiences` 404s), all typed `has_interface`:
-  - `exp_I2Wew0PqJQ50a8` — "AI Prefers Bitcoin" (paid; current `chat_channel_id` candidate)
+  - `exp_I2Wew0PqJQ50a8` — "AI Prefers Bitcoin" (paid; **approved chat channel** per whoabuddy 2026-06-12)
   - `exp_bbQpqIAEToAweQ` — "Updates & Resources" (paid)
   - `exp_YRtS3kgMVeBGzu` — "Public forum" (free)
-- The API doesn't expose which experience is the chat feed; whoabuddy must confirm the channel before the
-  first post. Don't test-post to a paying room to find out.
+- **Chat feed (canonical channel id):** `chat_feed_1CbxMbfsj2yvpGqNnMcuCg` — backs `exp_I2Wew0PqJQ50a8`.
+  Discover via `list-channels` (`GET /api/v1/chat_channels?company_id=biz_xxx`). `channel_id` accepts the
+  `exp_` or the `chat_feed_` id; stored `chat_channel_id` cred = `exp_I2Wew0PqJQ50a8`.
+
+## API endpoints (verified empirically, task #18600)
+
+- **Send message:** `POST /api/v1/messages` `{channel_id, content}` — **v1, not v5** (`/v5/messages` 404s).
+  Requires the key scope `chat:message:create`.
+- **List chat feeds:** `GET /api/v1/chat_channels?company_id=biz_xxx`.
+- Company on `/v5/company`, experiences on `/v2/experiences` (see above).
 
 ## Status
 
-`cli.ts` live and authenticating (task #18625): `company_api_key`/`company_id` provisioned, `whoami` +
-`list-experiences` verified, `chat_channel_id` candidate stored. First hot-topic drafted under
-`drafts/` behind the human-review gate (awaiting whoabuddy channel + content sign-off). Pending: a
-`sensor.ts` to drive the blog→hot-topic cadence once the gate clears. See STRATEGY.md §4–5.
+`cli.ts` live, authenticating, and pointed at the correct endpoints (task #18600). `post-chat` reaches
+`POST /api/v1/messages` and the approved chat feed resolves. **BLOCKER:** the provisioned company API key
+is **missing the `chat:message:create` scope** — `post-chat` returns HTTP 400
+`"Actor is missing all required permissions: chat:message:create"`. whoabuddy must re-scope the key in the
+Whop dashboard before the first post can land. The first hot-topic is composed and ready (`drafts/`).
+`sensor.ts` is wired but **gated off** (`WHOP_SENSOR_ENABLED = false`) — flip to true only after the key is
+re-scoped, the first post lands, and whoabuddy signs off on a recurring cadence. See STRATEGY.md §4–5.
