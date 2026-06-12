@@ -133,3 +133,4 @@
 2026-06-12T00:31:20.256Z | task #18597 | completed | opus | Email from whoabuddy (1 unread): monetization through whop | whoabuddy Whop monetization ask: replied + queued deep-dive task #18598 (P2/Opus
 2026-06-12T00:36:18.423Z | task #18598 | completed | opus | Whop monetization deep dive: API/docs research + strategic p | Whop API verified automatable: POST /messages seeds paid chat (the wedge), cours
 2026-06-12T00:36:42.560Z | task #18600 | blocked | sonnet | Wire whop sensor + first hot-topic post (blog->paid chat) on | Whop credentials not provisioned — awaiting whoabuddy to run: arc creds set --se
+2026-06-12T00:38:23.696Z | task #18599 | completed | haiku | Retrospective: extract learnings from task #18597 — Email fr | Updated p-feedback-task-decomposition to cover strategic asks (not just feedback
