@@ -1196,6 +1196,33 @@ export async function runDispatch(): Promise<void> {
     return;
   }
 
+  // Mention-reply staleness gate — mention-reply tasks queued before credit depletion
+  // survive the queue. When credits restore and dispatch resumes, mentions may be >7d old.
+  // Check mention.created_at from task description. If stale, close as completed.
+  const MENTION_REPLY_RE = /^Reply to X mention/i;
+  if (MENTION_REPLY_RE.test(task.subject) && task.description) {
+    const dateMatch = task.description.match(/^Date:\s*(.+)$/m);
+    if (dateMatch && dateMatch[1]) {
+      try {
+        const mentionCreatedAt = new Date(dateMatch[1]);
+        const now = new Date();
+        const ageMs = now.getTime() - mentionCreatedAt.getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+        if (ageDays > 7) {
+          const summary = `mention too stale to reply (${ageDays.toFixed(1)}d old)`;
+          log(`dispatch: MENTION-STALENESS GATE — task #${task.id} mention from ${dateMatch[1]} is ${ageDays.toFixed(1)}d old. Closing.`);
+          insertServiceLog("info", "dispatch", `mention-staleness gate: auto-closed task #${task.id} (${ageDays.toFixed(1)}d old)`, task.id);
+          markTaskCompleted(task.id, summary);
+          clearDispatchLock();
+          return;
+        }
+      } catch (err) {
+        log(`dispatch: mention-staleness gate — failed to parse date from task #${task.id}: ${err}`);
+        // Continue with dispatch if parsing fails
+      }
+    }
+  }
+
   // ---- Phase 3: Execute ----
 
   // Load ANTHROPIC_API_KEY from credentials store as OAuth fallback
