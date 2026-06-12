@@ -5,12 +5,23 @@
 **Answer: yes, and arc-workflows is the right tool — but the build is gated.** This doc is the evaluation;
 the machine is *specified here, not yet implemented.* Implement only after the gate clears (see §4).
 
-> **UPDATE 2026-06-12 (#18638): `BlogToXMachine` extended to full blog → whop → X fan-out.** Gate cleared
+> **UPDATE 2026-06-12 (Phase 3): renamed `BlogToXMachine` → `PublishFanoutMachine` and gated the whop hop.**
+> Template name `blog-to-x` → `publish-fanout`; instance keys now `publish-fanout:<slug>` (legacy `blog-to-x:<slug>`
+> still honored read-only in `syncBlogPublishes()`). Two new env flags govern the whop hop:
+> - `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED` — default OFF. When unset, `blog_published` skips whop and
+>   emits the X task directly with `autoAdvanceState: completed` (regression-safe X-only fallback,
+>   identical to the pre-whop flow).
+> - `WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN` — default ON when the whop hop is enabled. Task description
+>   instructs compose-not-post + unconditional transition to `x_pending` so the X hop fires for audit.
+> Fall-through policy: in live mode, persistent 4xx failure on `post-chat` STILL transitions the workflow
+> to `x_pending` so the X hop is never held hostage by a stuck whop hop. The legacy alias `BlogToXMachine`
+> is exported as a deprecated re-export. See `TEMPLATES.md` for the `publish-fanout` spec.
+>
+> Previous: **UPDATE 2026-06-12 (#18638): `BlogToXMachine` extended to full blog → whop → X fan-out.** Gate cleared
 > (whop first post landed 2026-06-12T19:52Z, X credits restored + 3 posts fired). Machine updated in
 > `state-machine.ts`: `blog_published → whop_pending → x_pending → completed`. Whop hop confirms
 > post before advancing; X hop is fire-and-forget (auto-advances to completed, task-queue retry on fail).
-> Source-dedup keys: `publish-fanout:<slug>:whop` and `publish-fanout:<slug>:x`. See `TEMPLATES.md`
-> for the `blog-to-x` spec. No separate `PublishFanoutMachine` added — extension is `BlogToXMachine`.
+> Source-dedup keys: `publish-fanout:<slug>:whop` and `publish-fanout:<slug>:x`.
 >
 > Previous: **UPDATE 2026-06-12 (#18654): the X half shipped** as single-hop `blog_published → x_pending → completed`.
 

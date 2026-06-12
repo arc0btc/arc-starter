@@ -22,11 +22,11 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `BlogToXMachine`, `ContentCalendarMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`
+**Built-in templates:** `BlogPostingMachine`, `PublishFanoutMachine` (was `BlogToXMachine`), `ContentCalendarMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`
 
-**Auto-created workflows:** `pr-lifecycle` (from GitHub PRs) and `blog-to-x` (one per freshly published blog post — two-hop fan-out: whop chat room first, then X observation; see `PUBLISH-FANOUT.md` and `TEMPLATES.md`) are created automatically by the arc-workflows sensor; you don't `create` them by hand.
+**Auto-created workflows:** `pr-lifecycle` (from GitHub PRs) and `publish-fanout` (one per freshly published blog post — two-hop fan-out: optional whop chat room then X observation; whop hop gated by `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED` default OFF; see `PUBLISH-FANOUT.md` and `TEMPLATES.md`) are created automatically by the arc-workflows sensor; you don't `create` them by hand.
 
-**`content-calendar` (GATED, off by default):** `ContentCalendarMachine` is the full work-piece fan-out — blog → whop-chat (T+2h) → X thread (T+1d) → whop-forum (T+2d) → public-forum (T+4d) → course-candidacy (T+30d) — each hop rendered per its `arc-brand-voice/CHANNELS.md` voice card, time-gated off a single `cadence_anchor`, source-deduped, autoAdvanced (loom-spiral-proof by the same construction as `PUBLISH-FANOUT.md` §3). The sensor's `syncContentCalendar()` is gated off: it creates instances only when `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true`. Do NOT enable until (1) `CHANNELS.md` exists [done], (2) the first whop chat post has landed cleanly, (3) human sign-off — and when enabling, set `WORKFLOWS_BLOG_TO_X_ENABLED=false` so X isn't double-posted (content-calendar supersedes blog-to-x).
+**`content-calendar` (GATED, off by default):** `ContentCalendarMachine` is the full work-piece fan-out — blog → whop-chat (T+2h) → X thread (T+1d) → whop-forum (T+2d) → public-forum (T+4d) → course-candidacy (T+30d) — each hop rendered per its `arc-brand-voice/CHANNELS.md` voice card, time-gated off a single `cadence_anchor`, source-deduped, autoAdvanced (loom-spiral-proof by the same construction as `PUBLISH-FANOUT.md` §3). The sensor's `syncContentCalendar()` is gated off: it creates instances only when `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true`. Do NOT enable until (1) `CHANNELS.md` exists [done], (2) the first whop chat post has landed cleanly, (3) human sign-off — and when enabling, set `WORKFLOWS_BLOG_TO_X_ENABLED=false` so X isn't double-posted (content-calendar supersedes publish-fanout).
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -116,7 +116,7 @@ Load when: creating a new workflow instance for multi-step work (blog post, sign
 
 ## Built-in Templates
 
-**Available templates:** `blog-posting`, `blog-to-x`, `content-calendar`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`
+**Available templates:** `blog-posting`, `publish-fanout` (legacy alias `blog-to-x`), `content-calendar`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`
 
 See `TEMPLATES.md` for detailed state diagrams, context schemas, and usage examples.
 

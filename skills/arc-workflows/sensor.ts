@@ -361,17 +361,22 @@ function syncGitHubPRs(): number {
 }
 
 /**
- * Detect freshly published blog posts and create one BlogToXMachine workflow per new slug.
+ * Detect freshly published blog posts and create one PublishFanoutMachine workflow per new slug.
  *
  * Blog posts live as flat .mdx files: github/arc0btc/arc0me-site/src/content/docs/blog/
  * YYYY-MM-DD-slug.mdx. A post is "newly published" when it is not a draft, not scheduled in
  * the future, and was published within BLOG_PUBLISH_WINDOW_DAYS. The recency window prevents
  * a backfill flood across the whole blog history the first time this runs; per-slug instance
- * keys ("blog-to-x:<post_id>") guarantee each post fires exactly once thereafter. The window
- * is deliberately tight (1 day) — a fresh publish is detected within the 5-min sensor cadence,
- * so a day is an ample safety margin while keeping first-activation backfill to the newest post.
+ * keys ("publish-fanout:<post_id>") guarantee each post fires exactly once thereafter. The
+ * window is deliberately tight (1 day) — a fresh publish is detected within the 5-min sensor
+ * cadence, so a day is an ample safety margin while keeping first-activation backfill to the
+ * newest post.
  *
- * Pausable via WORKFLOWS_BLOG_TO_X_ENABLED=false (default enabled).
+ * Legacy: posts handled before the rename carry the "blog-to-x:<post_id>" instance key; both
+ * prefixes are checked so a renamed lookup never re-fires a post that already ran.
+ *
+ * Pausable via WORKFLOWS_BLOG_TO_X_ENABLED=false (default enabled — env var name preserved for
+ * backward compat with memory/content-calendar manifest references).
  */
 const BLOG_PUBLISH_WINDOW_DAYS = 1;
 
@@ -437,7 +442,7 @@ function syncBlogPublishes(): number {
   try {
     files = readdirSync(blogDir).filter((f) => f.endsWith(".mdx") && f !== "index.mdx");
   } catch (e) {
-    log(`blog-to-x: error scanning blog dir: ${e instanceof Error ? e.message : String(e)}`);
+    log(`publish-fanout: error scanning blog dir: ${e instanceof Error ? e.message : String(e)}`);
     return 0;
   }
 
@@ -446,8 +451,12 @@ function syncBlogPublishes(): number {
     if (!dateMatch) continue;
     const postId = file.replace(/\.mdx$/, ""); // YYYY-MM-DD-slug — the stable, unique slug
 
-    const instanceKey = `blog-to-x:${postId}`;
-    if (getWorkflowByInstanceKey(instanceKey)) continue; // already handled this slug
+    const instanceKey = `publish-fanout:${postId}`;
+    // Honor both new and legacy keys so renamed lookup never re-fires a post that already ran.
+    if (
+      getWorkflowByInstanceKey(instanceKey) ||
+      getWorkflowByInstanceKey(`blog-to-x:${postId}`)
+    ) continue;
 
     let fm: BlogFrontmatter;
     let excerpt = "";
@@ -468,7 +477,7 @@ function syncBlogPublishes(): number {
     if (isNaN(publishedAt) || now - publishedAt > windowMs) continue; // stale or unparseable
 
     insertWorkflow({
-      template: "blog-to-x",
+      template: "publish-fanout",
       instance_key: instanceKey,
       current_state: "blog_published",
       context: JSON.stringify({
@@ -479,7 +488,7 @@ function syncBlogPublishes(): number {
       }),
     });
     created++;
-    log(`blog-to-x: created workflow for "${fm.title || postId}" (${postId})`);
+    log(`publish-fanout: created workflow for "${fm.title || postId}" (${postId})`);
   }
 
   return created;
@@ -600,7 +609,7 @@ export default async function workflowsSensor(): Promise<string> {
     const prActionsCount = syncGitHubPRs();
     totalActions += prActionsCount;
 
-    // Detect freshly published blog posts → create one BlogToXMachine per new slug
+    // Detect freshly published blog posts → create one PublishFanoutMachine per new slug
     totalActions += syncBlogPublishes();
 
     // Full content-calendar fan-out (gated off by default; supersedes blog-to-x when enabled)

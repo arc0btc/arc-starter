@@ -322,22 +322,39 @@ Multi-stage blog post publishing workflow.
 
 The `fact_check` state validates post claims against actual system state (skill names, sensor counts, task numbers, wallet balances) before publishing. If validation fails, the post returns to `revision`.
 
-## Blog to Whop + X (`blog-to-x`)
+## Publish Fan-out: Blog → Whop → X (`publish-fanout`)
 
-Two-hop publish fan-out for blog posts: seeds the paid whop chat room, then posts one X observation.
-Auto-created by the arc-workflows sensor (`syncBlogPublishes`) for each freshly published blog post.
-Pausable via `WORKFLOWS_BLOG_TO_X_ENABLED=false`. When `ContentCalendarMachine` is enabled, disable
-this — content-calendar supersedes it with the full channel suite.
+Two-hop publish fan-out for blog posts: optionally seeds the paid whop chat room, then posts one X
+observation. Auto-created by the arc-workflows sensor (`syncBlogPublishes`) for each freshly
+published blog post. Pausable via `WORKFLOWS_BLOG_TO_X_ENABLED=false` (env var name preserved
+for backward compat with memory/content-calendar manifest references). When `ContentCalendarMachine`
+is enabled, disable this — content-calendar supersedes it with the full channel suite.
+
+Renamed from `BlogToXMachine`/`blog-to-x` in Phase 3. The legacy template name `blog-to-x` is
+aliased in the registry, and the sensor honors both `publish-fanout:<slug>` and `blog-to-x:<slug>`
+instance keys, so previously-handled posts never re-fire.
+
+**Whop hop gates (both default OFF/dry-run):**
+- `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED` — when `"true"`, runs the full three-hop flow. When
+  unset/`false` (default), `blog_published` skips whop entirely and emits the X task directly with
+  `autoAdvanceState: completed`. This is the regression-safe fallback identical to the pre-whop
+  X-only flow.
+- `WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN` — default `"true"` when the whop hop is enabled. The
+  dispatched whop task composes markdown into `result_detail` but does NOT call `post-chat`; it
+  always transitions the workflow to `x_pending` so the X hop fires for audit. Flip to `"false"`
+  only after voice review on composed dry-run posts.
 
 **States (linear, terminal):**
-`blog_published` → `whop_pending` → `x_pending` → `completed`
+- Gate OFF (default): `blog_published` → `completed` (one task — X only)
+- Gate ON: `blog_published` → `whop_pending` → `x_pending` → `completed`
 
-**Flow:**
+**Flow (gate ON):**
 - `blog_published` — creates "Post \<title\> to whop AI Prefers Bitcoin room" task (skills: `whop`);
-  source-dedup key `publish-fanout:<slug>:whop`; auto-advances to `whop_pending`.
-- `whop_pending` — holding state; the whop task posts, confirms message landed, then manually
-  transitions to `x_pending`. Non-idempotent: stays in `whop_pending` on error; source-dedup
-  prevents re-fire.
+  source-dedup key `publish-fanout:<slug>:whop`; auto-advances to `whop_pending`. In dry-run mode
+  the subject is prefixed `[DRY-RUN]`.
+- `whop_pending` — holding state; the whop task posts (or composes-only in dry-run), then transitions
+  to `x_pending`. In dry-run, transition is unconditional. In live, transition fires on success OR
+  on persistent 4xx failure (fall-through, so the X hop is never held hostage by a stuck whop hop).
 - `x_pending` — creates "Post \<title\> observation to X" task (skills: `social-x-posting`);
   source-dedup key `publish-fanout:<slug>:x`; auto-advances to `completed`. X is fire-and-forget
   at the workflow level — failure/retry tracked via the task queue.
@@ -345,7 +362,7 @@ this — content-calendar supersedes it with the full channel suite.
 
 **Context:** `{ title, url, slug, blog_excerpt }`
 
-**Instance key:** `blog-to-x:<slug>` (one per blog post slug; 1-day dedup window in sensor)
+**Instance key:** `publish-fanout:<slug>` (new); `blog-to-x:<slug>` (legacy — checked read-only)
 
 **Loom-spiral safety:** linear graph (no cycles), one task per state, autoAdvanceState prevents
 re-fire, source-dedup prevents duplicate channel posts. No `Workflow()`/`parallel()`/agents.
@@ -354,7 +371,7 @@ re-fire, source-dedup prevents duplicate channel posts. No `Workflow()`/`paralle
 
 Full work-piece fan-out: one machine per piece of Arc work, amplified across every publishing
 channel on a spaced cadence. The complete realization of `PUBLISH-FANOUT.md` §2 (supersedes
-`blog-to-x`, which is its single-channel subset). Each hop is rendered per its
+`publish-fanout`, which is its single-channel subset). Each hop is rendered per its
 `arc-brand-voice/CHANNELS.md` voice card — the through-line/identity is constant, only the register
 changes.
 

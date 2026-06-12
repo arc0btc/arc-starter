@@ -148,19 +148,34 @@ export const BlogPostingMachine: StateMachine<{
 };
 
 /**
- * BlogToXMachine — two-hop publish fan-out: every new blog publish seeds the paid whop chat
+ * PublishFanoutMachine — two-hop publish fan-out: every new blog publish seeds the paid whop chat
  * room, then fires one X post. Linear, no cycles, no Workflow()/parallel()/nested agent —
  * structurally loom-spiral-proof (PUBLISH-FANOUT.md §3). One task per hop, source-deduped,
  * auto-advanced.
  *
- * instance_key: "blog-to-x:<slug>" (one per blog slug; created by the arc-workflows sensor's
- * syncBlogPublishes() when a freshly published post is detected).
+ * instance_key: "publish-fanout:<slug>" (one per blog slug; created by the arc-workflows sensor's
+ * syncBlogPublishes() when a freshly published post is detected). The historical "blog-to-x:<slug>"
+ * prefix is honored read-only in syncBlogPublishes() so previously-handled posts don't re-fire.
+ *
+ * Whop hop gate (`WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED`, default OFF):
+ *   - OFF (default): `blog_published` skips whop entirely — emits the X task and auto-advances to
+ *     `completed`. Identical to the pre-whop X-only flow. Safe fallback / regression guard.
+ *   - ON: full three-hop flow. The whop task posts, confirms, then transitions to x_pending. If
+ *     the whop API persistently fails, the task still transitions to x_pending (fall-through) so
+ *     the X hop is never held hostage by a stuck whop hop.
+ *
+ * Whop hop dry-run (`WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN`, default ON when whop hop is enabled):
+ *   - The dispatched whop task composes markdown into result_detail but does NOT call post-chat;
+ *     transition to x_pending fires unconditionally so the rest of the pipeline keeps moving.
+ *   - Flip to "false" only after a voice review on composed dry-run posts. See NEXT-SESSION.md.
  *
  * States:
- *   blog_published → creates "Post <title> to whop" task, auto-advances to whop_pending.
- *   whop_pending   → noop; the whop task posts, confirms the message landed, then manually
- *                    transitions to x_pending. Non-idempotent: no URL = stay in whop_pending
- *                    and source-dedup (publish-fanout:<slug>:whop) prevents re-fire.
+ *   blog_published → gate ON  : creates "Post <title> to whop" task, auto-advances to whop_pending
+ *                   gate OFF : creates the X task directly, auto-advances to completed
+ *   whop_pending   → noop; the whop task posts (or composes-only in dry-run), confirms the
+ *                    message landed (or skips the post in dry-run), then transitions to x_pending.
+ *                    Non-idempotent: live path with no URL stays in whop_pending and source-dedup
+ *                    (publish-fanout:<slug>:whop) prevents re-fire. Dry-run path always advances.
  *   x_pending      → creates "Post <title> to X" task, auto-advances to completed.
  *                    X is fire-and-forget at the workflow level; failure/retry tracked via the
  *                    task queue. Source-dedup (publish-fanout:<slug>:x) prevents duplicate X posts.
@@ -169,26 +184,70 @@ export const BlogPostingMachine: StateMachine<{
  * Context: { title, url, slug, blog_excerpt }
  *
  * NOTE: When ContentCalendarMachine is enabled, set WORKFLOWS_BLOG_TO_X_ENABLED=false —
- * content-calendar supersedes this machine (blog-to-x is its 2-channel subset).
+ * content-calendar supersedes this machine (publish-fanout is its 2-channel subset).
  */
-export const BlogToXMachine: StateMachine<{
+export const PublishFanoutMachine: StateMachine<{
   title?: string;
   url?: string;
   slug?: string;
   blog_excerpt?: string;
 }> = {
-  name: "blog-to-x",
+  name: "publish-fanout",
   initialState: "blog_published",
   states: {
     blog_published: {
-      on: { post_whop: "whop_pending" },
+      on: { post_whop: "whop_pending", skip_whop: "x_pending" },
       action: (ctx) => {
         if (!ctx.slug || !ctx.title) return null;
         const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
         const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
+        const whopEnabled = Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED === "true";
+
+        // Gate OFF (default): skip whop entirely, emit the X task and auto-advance to completed.
+        // Same shape as x_pending.action — kept inline rather than chained to avoid a one-tick
+        // delay between blog publish and X post when the whop hop is disabled.
+        if (!whopEnabled) {
+          return {
+            type: "create-task",
+            subject: `Post "${ctx.title}" observation to X`,
+            priority: 5,
+            model: "sonnet",
+            skills: ["social-x-posting"],
+            source: `publish-fanout:${ctx.slug}:x`,
+            autoAdvanceState: "completed",
+            description: `A new blog post is live — compose and post ONE original X observation inspired by it.${urlLine}${excerptLine}
+
+Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) and SOUL.md before composing. Keep it ≤280 chars. Make it a real structural observation that stands on its own — not a "new post" announcement or bare link-drop. The blog link is optional context, not the point.
+
+Steps:
+1. Compose the post.
+2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
+3. Post: arc skills run --name social-x-posting -- post --text "<text>"`,
+          };
+        }
+
+        // Gate ON: emit the whop task. Dry-run controls whether the task actually posts.
+        const dryRun = Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN !== "false";
+        const dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
+        const dryRunBody = dryRun
+          ? `DRY-RUN MODE (WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN=true): do NOT call post-chat. Compose the markdown post in result_detail so the artifact captures it, then ALWAYS transition the workflow forward — the goal is to flush the pipeline so the X hop fires for audit:
+   arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending
+Close completed with --summary describing what you would have posted and the read-the-room decision.`
+          : `LIVE MODE: post to whop, confirm, then advance.
+
+Steps:
+1. Read the blog post at the URL above. Identify the sharpest structural observation or pattern.
+2. Compose a Whop chat post (markdown, ≤600 chars recommended). Start with the observation, not the blog title.
+3. Idempotency check: verify this post has not already been sent (check recent messages in the channel).
+4. Post: arc skills run --name whop -- post-chat --content "<markdown>"
+5. Confirm-then-advance:
+   - On success (post ID returned): transition this workflow to x_pending:
+     arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending
+   - On persistent failure (HTTP 4xx after one retry, or auth scope missing): STILL transition to x_pending so the X hop is not blocked by a stuck whop hop. Close this task as failed with --summary describing the failure mode. Source-dedup (publish-fanout:${ctx.slug}:whop) prevents a duplicate re-fire next cycle.`;
+
         return {
           type: "create-task",
-          subject: `Post "${ctx.title}" to whop AI Prefers Bitcoin room`,
+          subject: `${dryRunPrefix}Post "${ctx.title}" to whop AI Prefers Bitcoin room`,
           priority: 5,
           model: "sonnet",
           skills: ["whop"],
@@ -196,16 +255,9 @@ export const BlogToXMachine: StateMachine<{
           autoAdvanceState: "whop_pending",
           description: `A new blog post is live — distill it into a hot-topic post for the AI Prefers Bitcoin paid chat room.${urlLine}${excerptLine}
 
-Voice: read SOUL.md and skills/whop/SKILL.md before composing. Write in Arc's voice (structural observation, not a "new post" announcement). Whop members pay for insight — make it worth reading on its own, even without clicking the link.
+Voice: read SOUL.md and skills/whop/SKILL.md before composing. Voice anchor: skills/whop/drafts/2026-06-12-reading-the-quiet.md. Write in Arc's voice (structural observation, not a "new post" announcement). Whop members pay for insight — make it worth reading on its own, even without clicking the link.
 
-Steps:
-1. Read the blog post at the URL above. Identify the sharpest structural observation or pattern.
-2. Compose a Whop chat post (markdown, ≤600 chars recommended). Start with the observation, not the blog title.
-3. Idempotency check: verify this post has not already been sent (check recent messages in the channel).
-4. Post: arc skills run --name whop -- post-chat --content "<markdown>"
-5. Confirm-then-advance: only on success (you get a post ID back), transition this workflow to x_pending:
-   arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending
-   If the API returns an error (HTTP 400, 401, etc.), do NOT transition — leave in whop_pending. Source-dedup (publish-fanout:${ctx.slug}:whop) prevents a duplicate re-fire next cycle.`,
+${dryRunBody}`,
         };
       },
     },
@@ -244,6 +296,9 @@ Steps:
     },
   },
 };
+
+/** @deprecated Renamed to PublishFanoutMachine. Kept only so external imports don't break mid-refactor. */
+export const BlogToXMachine = PublishFanoutMachine;
 
 /**
  * ContentCalendarMachine — one machine per piece of Arc work, fanned out across every
@@ -3631,7 +3686,8 @@ Steps:
 export function getTemplateByName(name: string): StateMachine | null {
   const templates: Record<string, StateMachine<any>> = {
     "blog-posting": BlogPostingMachine,
-    "blog-to-x": BlogToXMachine,
+    "publish-fanout": PublishFanoutMachine,
+    "blog-to-x": PublishFanoutMachine, // legacy alias — completed workflows in DB carry this template name
     "content-calendar": ContentCalendarMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
