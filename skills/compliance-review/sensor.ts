@@ -230,6 +230,8 @@ async function checkVerboseNaming(skill: SkillInfo): Promise<ComplianceFinding[]
       // Skip comments and imports
       if (line.trimStart().startsWith("//") || line.trimStart().startsWith("*")) continue;
       if (line.trimStart().startsWith("import ")) continue;
+      // Skip catch parameters — catch (err) is idiomatic TypeScript, not a naming violation
+      if (/\bcatch\s*\(/.test(line)) continue;
 
       // Reset lastIndex for global regex
       ABBREVIATED_PATTERN.lastIndex = 0;
