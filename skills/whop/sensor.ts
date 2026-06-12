@@ -1,29 +1,41 @@
 // skills/whop/sensor.ts
 //
-// Blog -> paid-chat hot-topic cadence. Detects the newest published arc0.me blog
-// post and queues ONE sonnet dispatch task to distill it into a hot-topic and
-// post it into the hash-it-out chat room via `arc skills run --name whop -- post-chat`.
+// Two responsibilities:
 //
-// No LLM here — pure file scan + durable dedup. The compose+post judgment lives
-// in the queued dispatch task (skills: whop + arc-brand-voice).
+// 1. WHOP-STATE WRITER (always on, 60min cadence)
+//    Writes src/data/whop-state.json in arc0me-site with live agent stats so the
+//    Whop App routes (/whop/discover, /whop/experience/*, /whop/dashboard/*) show
+//    a liveness footer without requiring SSR.
 //
-// GATE: disabled by default. Members pay real money; the first posts go through a
-// human-review gate (SOUL: a post must add information, ask a real question, or
-// make someone want to respond). Flip WHOP_SENSOR_ENABLED to true only after:
-//   1. the company API key is scoped `chat:message:create` (POST /v1/messages),
-//   2. the first hot-topic has landed and whoabuddy approved the voice, and
-//   3. whoabuddy signed off on a recurring auto-post cadence.
+// 2. BLOG → PAID-CHAT HOT-TOPIC (gated, 360min cadence)
+//    Detects the newest published arc0.me blog post and queues ONE sonnet dispatch
+//    task to distill it into a hot-topic for the hash-it-out chat room.
+//    GATE: disabled by default. Flip WHOP_SENSOR_ENABLED to true only after:
+//      a. the company API key is scoped `chat:message:create` (POST /v1/messages),
+//      b. the first hot-topic has landed and whoabuddy approved the voice, and
+//      c. whoabuddy signed off on a recurring auto-post cadence.
 
-import { readdirSync, existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { resolve, dirname } from "node:path";
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, taskExistsForSource } from "../../src/db.ts";
+import { insertTask, taskExistsForSource, getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "whop";
 // Check on a ~6h cadence; actual posting is naturally throttled by new blog
 // posts plus durable per-slug dedup, matching arc0.me's 3-7d freshness.
 const INTERVAL_MINUTES = 360;
+
+const STATE_WRITER_SENSOR_NAME = "whop-state-writer";
+const STATE_WRITER_INTERVAL_MINUTES = 60;
+
+// Candidate paths for the arc0me-site working copy (arc-starter-relative first,
+// then the development checkout as fallback).
+const ARC0ME_SITE_CANDIDATES = [
+  resolve(import.meta.dir, "../../github/arc0btc/arc0me-site"),
+  "/home/dev/arc0me-site",
+];
+const WHOP_STATE_REL = "src/data/whop-state.json";
 
 // Human-review gate. See header. Until true, the sensor self-logs and skips.
 const WHOP_SENSOR_ENABLED = false;
@@ -94,11 +106,64 @@ function withinFreshWindow(publishedAt: string | null): boolean {
   return ageDays >= 0 && ageDays <= FRESH_WINDOW_DAYS;
 }
 
+/** Write arc0me-site/src/data/whop-state.json with live agent stats. */
+async function writeWhopState(): Promise<void> {
+  const siteRoot = ARC0ME_SITE_CANDIDATES.find(existsSync);
+  if (!siteRoot) {
+    log(`arc0me-site not found at any candidate path — skipping state write`);
+    return;
+  }
+
+  const db = getDatabase();
+  const row = db
+    .prepare(
+      `SELECT COUNT(*) as total,
+              MAX(completed_at) as last_completed
+       FROM tasks WHERE status = 'completed'`
+    )
+    .get() as { total: number; last_completed: string | null };
+
+  const cycleRow = db
+    .prepare(
+      `SELECT completed_at FROM cycle_log ORDER BY id DESC LIMIT 1`
+    )
+    .get() as { completed_at: string | null } | null;
+
+  const newestPost = newestPublishedPost();
+  const slug = newestPost?.slug ?? null;
+  const recentPostUrl = slug ? `https://arc0.me/blog/${slug}/` : null;
+
+  const state = {
+    last_cycle_at: cycleRow?.completed_at
+      ? new Date(cycleRow.completed_at + "Z").toISOString()
+      : new Date().toISOString(),
+    total_tasks_completed: row.total,
+    recent_post_title: newestPost?.title ?? null,
+    recent_post_url: recentPostUrl,
+  };
+
+  const outPath = resolve(siteRoot, WHOP_STATE_REL);
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, JSON.stringify(state, null, 2) + "\n", "utf8");
+  log(`wrote whop-state.json → ${outPath} (tasks: ${row.total})`);
+}
+
 export default async function whopSensor(): Promise<string> {
+  // --- Part 1: whop-state.json writer (always on, 60min cadence) ---
+  const stateClaimed = await claimSensorRun(STATE_WRITER_SENSOR_NAME, STATE_WRITER_INTERVAL_MINUTES);
+  if (stateClaimed) {
+    try {
+      await writeWhopState();
+    } catch (err) {
+      log(`whop-state write error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // --- Part 2: blog → chat hot-topic (gated) ---
   if (!WHOP_SENSOR_ENABLED) {
     // Self-gate so the line is visible in sensor logs without burning a claim.
     log("disabled (WHOP_SENSOR_ENABLED=false) — awaiting key scope + voice sign-off");
-    return "skip";
+    return stateClaimed ? "ok" : "skip";
   }
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
