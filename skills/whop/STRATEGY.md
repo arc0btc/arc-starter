@@ -5,6 +5,42 @@
 
 ---
 
+## 0. App vs Product — Whop Data Model
+
+**These are separate entities. Future Arc: do not conflate them.**
+
+- **App** — a developer registration. `arc0btc` is our App. Apps are installed on experiences as the posting
+  actor. An App can hold permissions (e.g. `chat:message:create`) but it is NOT a product you sell.
+- **Product** — what members buy. hash-it-out has two products:
+  - `prod_TJknsIOzPDlQS` — "hash it out — Membership" ($49/mo, **paid**). Experiences: AI Prefers Bitcoin
+    (chat, `exp_I2Wew0PqJQ50a8`), Forums, Courses, Updates & Resources (→ "Patterns Library" rename target).
+  - `prod_CvDEeSPhRLLp1` — "hash it out - Public" ($0, **free**). Experience: Public Forum — teasers and
+    funnel hooks live here.
+- **Experience** — a chat feed, course, or app attached to a product. Arc posts into experiences.
+- **arc0btc App** — installed on each posting experience as the actor; private/unlisted. Permissions must
+  be granted at the App level in the Whop dashboard (App settings → Permissions), not just the API key.
+
+**Funnel topology:**
+
+```
+Free tier:   hash it out - Public  (prod_CvDEeSPhRLLp1, $0)
+               └── Public Forum  ← teasers, funnel hooks
+
+Paid tier:   hash it out — Membership  (prod_TJknsIOzPDlQS, $49/mo)
+               ├── AI Prefers Bitcoin  (chat, exp_I2Wew0PqJQ50a8)  ← Arc posts here
+               ├── Forums
+               ├── Courses
+               └── Updates & Resources  (→ "Patterns Library" rename target)
+
+Arc actor:   arc0btc App  ← installed on each posting experience; needs chat:message:create scope
+```
+
+**Active gate (2026-06-12):** arc0btc App must be installed on the AI Prefers Bitcoin experience and
+`chat:message:create` must be granted at the App permission level. Dashboard linkage for Public Forum
+(free funnel) is a follow-up step once paid posting is clean.
+
+---
+
 ## 1. What Whop Actually Exposes (verified against docs.whop.com)
 
 Whop is a "Shopify for digital memberships." A **company** sells **products** (access passes / plans); each
@@ -22,9 +58,9 @@ Whop handles billing + payouts. The developer surface is genuinely automatable:
 | Payments / payouts | `/api/v1/payments`, payouts, sub-merchant | company | Recurring income flows here; KYC via account links. |
 
 **Auth model:** Bearer token. Two key types — **Company API key** (our own shop: hash-it-out) and **App API
-key** (multi-tenant, if we ever ship a Whop app others install). For Arc's near-term needs a single
-**Company API key** scoped to `chat:message:create`, `experience:create`, `course:*`, `membership:read` is
-sufficient. Base URL `https://api.whop.com/api/v5` (payments on `/api/v1`).
+key** (arc0btc App identity — used for posting). `post-chat` uses `app_api_key`; all other management
+commands use `company_api_key`. Permissions are granted at the App level in Whop dashboard, not just the
+key scopes. Base URL `https://api.whop.com/api/v5` (payments and chat on `/api/v1` — `/v5/messages` 404s).
 
 **SDKs:** `@whop/sdk` (TS), `whop-sdk` (Python), Ruby gem. There is also an official `@whop/mcp` MCP server and
 a community `whop-expert` agent skill — but for Arc's CLI-first architecture a thin `fetch()` wrapper is
@@ -36,25 +72,40 @@ empirically once we have a key.
 
 ---
 
-## 2. Evaluating the Two Proposed Arcs
+## 2. Roadmap Phases
 
-### (a) Blog → higher-value content (courses + hot-topics seeded into chat)
-**Verdict: SHIP THIS FIRST — but split it.** It maps perfectly onto Arc's existing loop. The blog is already
-markdown; Arc already composes prose every cycle. Two sub-arcs at very different effort levels:
+### Phase 1 — Hot-topics → AI Prefers Bitcoin chat (the wedge)
+*Minimal, automate now.* Take a fresh/notable blog post, distill 1 pull-quote + 1 open question, `POST /messages`
+into the AI Prefers Bitcoin room. 1-command pipeline, zero new infra, gives paying members a steady pulse.
+**Gate: first posts require human review.** Automate fully only once voice is trusted. See sensor guard
+`WHOP_SENSOR_ENABLED=false`.
 
-- **(a1) Hot-topics → chat** — *minimal, automate now.* Take a fresh/notable blog post, distill 1 pull-quote +
-  1 open question, `POST /messages` into the hash-it-out room. This is a 1-command pipeline, zero new infra,
-  and gives paying members a steady pulse. **This is the wedge.**
-- **(a2) Blog clusters → course** — *heavier, phase 2.* Authoring a coherent course needs editorial judgment
-  (sequencing, dedup, a through-line) — the automation is in *publishing* (course/chapter/lesson CLI), not in
-  *authoring* (still a dispatch task with a human-reviewable draft). Worth it, but after a1 proves the channel.
+### Phase 2 — Blog clusters → evergreen courses
+*Heavier, phase 2.* Authoring a coherent course needs editorial judgment (sequencing, dedup, a through-line)
+— the automation is in *publishing* (course/chapter/lesson CLI), not in *authoring* (still a dispatch task with
+a human-reviewable draft). Sequence after phase 1 proves the channel.
 
-### (b) Courses teaching *agents* the aibtcdev stack (1-hr explainers + dev-council process)
-**Verdict: HIGH VALUE, content-backlog not automation.** This is the differentiated product — nobody else can
-narrate the dev-council decision process behind each component. But it's a *content production roadmap*: each
-"1-hour explainer" is a real authoring task, not something a sensor emits for free. Treat it as a backlog where
-each component = one course module, drafted by a dispatch task, human-reviewed, then published via the same
-course CLI built in (a2). Sequence it *after* the pipeline exists so publishing is one command.
+### Phase 3 — Agent-stack courses (dev-council explainers)
+*High value, content-backlog.* Nobody else can narrate the dev-council decision process behind each aibtcdev
+component. Each "1-hour explainer" is a real authoring task, not sensor-emitted. Treat as a backlog: one
+course module per component, drafted by dispatch, human-reviewed, published via the phase 2 course CLI.
+
+### Phase 4 — Free funnel (Public Forum teasers)
+Post teaser excerpts into the Public Forum (`prod_CvDEeSPhRLLp1`) to drive paid conversions. Gated until
+paid posting is stable and Public Forum dashboard linkage is confirmed by whoabuddy.
+
+---
+
+## 2a. Team of 7 — Coordination Context
+
+The dev council is **7 individual agents on individual VMs**: arc, spark, iris, lumen, cairn, forge, loom.
+
+**Important distinction** — this team is NOT the AIBTC peer-contact list (quasar-garuda, vivid-manticore,
+deep-tess, fractal-swift, crystal-engine, amber-otter). Those are **external peers in the AIBTC network**,
+a completely separate relationship. Do not conflate the two groups when authoring team-named content.
+
+AIBTC names per dev-council teammate are TBD — ask whoabuddy before publishing any content that names or
+implies a specific teammate's AIBTC identity.
 
 ---
 
