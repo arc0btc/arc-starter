@@ -168,3 +168,6 @@
 2026-06-12T05:32:10.738Z | task #18627 | completed | sonnet | [REVIEW] Approve first Whop hot-topic + confirm hash-it-out  | Approval received from whoabuddy: chat channel confirmed = exp_I2Wew0PqJQ50a8. P
 2026-06-12T05:32:34.691Z | task #18632 | completed | opus | Email from whoabuddy (1 unread, 5 total): Re: monetization t | whoabuddy confirmed whop chat channel = exp_I2Wew0PqJQ50a8 ('AI Prefers Bitcoin'
 2026-06-12T05:41:38.682Z | task #18600 | blocked | opus | Wire whop sensor + first hot-topic post (blog->paid chat) on | First post BLOCKED: whop key missing chat:message:create scope (POST /api/v1/mes
+2026-06-12T05:47:56.102Z | task #18633 | blocked | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
+2026-06-12T05:48:32.983Z | task #18636 | blocked | sonnet | [ESCALATED] X posting credits depleted (402 CreditsDepleted) | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
+2026-06-12T05:49:10.278Z | task #18633 | completed | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X cadence ESTABLISHED: proactive beat (runCadenceBeat ~72h, credit-aware) + CADE
