@@ -258,3 +258,5 @@ Subject: Deploy arc0
 2026-06-12T22:03:09.734Z | task #18717 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-12T22]: read the room, def | DEFER: only one human speaker (synthesis is for rooms, not 1-on-1s); teaching-be
 2026-06-12T22:08:26.472Z | task #18600 | completed | opus | Wire whop sensor + first hot-topic post (blog->paid chat) on | Blocker dissolved: fresh App (app_2800dX1s1c0ul0) registered with all 12 permiss
 2026-06-12T22:08:36.610Z | task #18718 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Task #18600 confirmed complete — whop scope blocker dissolved via fresh App regi
+2026-06-12T22:08:53.857Z | task #18720 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-12T22:11:32.410Z | task #18719 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 3 signal-quality patterns + 2 research patterns; 152→145 lines, under 150
