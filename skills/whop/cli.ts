@@ -12,7 +12,9 @@
 import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 
-const API_BASE = "https://api.whop.com/api/v5";
+// Host root — each call carries its own API version. The v5 surface covers
+// company/messages/course endpoints; experience listing only lives on v2.
+const API_BASE = "https://api.whop.com/api";
 
 interface WhopError {
   status: number;
@@ -25,10 +27,10 @@ function fail(message: string): never {
 }
 
 async function requireApiKey(): Promise<string> {
-  const key = await getCredential("whop", "api_key");
+  const key = await getCredential("whop", "company_api_key");
   if (!key) {
     fail(
-      "no API key. Run: arc creds set --service whop --key api_key --value <company API key>\n" +
+      "no API key. Run: arc creds set --service whop --key company_api_key --value <company API key>\n" +
         "Scope it: chat:message:create, experience:create, course:*, membership:read",
     );
   }
@@ -76,12 +78,15 @@ function printHelp(): void {
 }
 
 async function cmdWhoami(apiKey: string): Promise<void> {
-  const me = await whopRequest("GET", "/me", apiKey);
-  process.stdout.write(JSON.stringify(me, null, 2) + "\n");
+  // Company API keys authenticate against /v5/company, not /v5/me (the latter
+  // requires a user token and returns 403 for a company key).
+  const company = await whopRequest("GET", "/v5/company", apiKey);
+  process.stdout.write(JSON.stringify(company, null, 2) + "\n");
 }
 
 async function cmdListExperiences(apiKey: string): Promise<void> {
-  const experiences = await whopRequest("GET", "/experiences", apiKey);
+  // Experience listing only exists on v2; /v5/experiences 404s.
+  const experiences = await whopRequest("GET", "/v2/experiences", apiKey);
   process.stdout.write(JSON.stringify(experiences, null, 2) + "\n");
 }
 
@@ -92,7 +97,7 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
   if (!channel) {
     fail("post-chat requires --channel exp_xxx (or set creds key chat_channel_id)");
   }
-  const result = await whopRequest("POST", "/messages", apiKey, {
+  const result = await whopRequest("POST", "/v5/messages", apiKey, {
     channel_id: channel,
     content,
   });
@@ -101,7 +106,7 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
 
 async function cmdCreateCourse(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.experience || !flags.title) fail("create-course requires --experience and --title");
-  const result = await whopRequest("POST", "/courses", apiKey, {
+  const result = await whopRequest("POST", "/v5/courses", apiKey, {
     experience_id: flags.experience,
     title: flags.title,
   });
@@ -110,7 +115,7 @@ async function cmdCreateCourse(apiKey: string, flags: Record<string, string>): P
 
 async function cmdCreateChapter(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.course || !flags.title) fail("create-chapter requires --course and --title");
-  const result = await whopRequest("POST", "/course-chapters", apiKey, {
+  const result = await whopRequest("POST", "/v5/course-chapters", apiKey, {
     course_id: flags.course,
     title: flags.title,
     order: flags.order ? Number(flags.order) : undefined,
@@ -120,7 +125,7 @@ async function cmdCreateChapter(apiKey: string, flags: Record<string, string>): 
 
 async function cmdCreateLesson(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.chapter || !flags.title) fail("create-lesson requires --chapter and --title");
-  const result = await whopRequest("POST", "/course-lessons", apiKey, {
+  const result = await whopRequest("POST", "/v5/course-lessons", apiKey, {
     chapter_id: flags.chapter,
     title: flags.title,
     type: flags.type ?? "text",
