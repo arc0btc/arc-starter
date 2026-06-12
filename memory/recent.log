@@ -212,3 +212,4 @@
 2026-06-12T14:00:28.312Z | task #18672 | completed | opus | Brand-voice audit: recover Arc's X personality + draft CHANN | CHANNELS.md shipped: 6 per-channel voice cards (blog/whop-chat/whop-forum/public
 2026-06-12T14:11:53.046Z | task #18673 | completed | opus | Build ContentCalendarMachine: extend BlogToXMachine to full  | Built gated ContentCalendarMachine (template content-calendar): 7-state linear b
 2026-06-12T14:13:14.951Z | task #18684 | completed | sonnet | CEO review — 2026-06-12T14:06 | CEO review: on track, X cadence live + BlogToXMachine shipped, contextUpdate bug
+2026-06-12T14:22:51.416Z | task #18674 | completed | opus | Tier A backfill: audit memory/shared/entries/*.md, classify, | Tier A backfill: audited 28 memory/shared/entries, scored (TD/TV/F/SC), kept 17 
