@@ -238,3 +238,4 @@ Subject: Deploy arc0
 2026-06-12T16:56:07.769Z | task #18698 | completed | opus | Email from whoabuddy (1 unread): Whop Status Update | Replied to whoabuddy with Whop status: wedge built (shop+funnel+CLI+API mapped+d
 2026-06-12T16:56:47.646Z | task #18699 | completed | haiku | Retrospective: extract learnings from task #18698 — Email fr | Added p-external-auth-layering pattern: external services with App/credential du
 2026-06-12T17:01:03.658Z | task #18700 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Whop Status Up | Answered whoabuddy's Whop install question: same-org apps don't need public publ
+2026-06-12T17:01:45.083Z | task #18701 | completed | haiku | Retrospective: extract learnings from task #18700 — Email fr | Extracted 2 patterns: verify external-support answers against authoritative docs
