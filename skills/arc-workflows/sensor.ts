@@ -616,6 +616,18 @@ export default async function workflowsSensor(): Promise<string> {
         continue;
       }
 
+      // Content-calendar instances stay DORMANT until explicitly enabled. The enable flag must
+      // gate EVALUATION here, not just creation (syncContentCalendar) — pre-filled Tier-A backfill
+      // slots (task #18674) sit as dormant calendar rows and must fire no hop until the flag flips
+      // AND human sign-off lands. Without this guard the un-gated source_drafted action would fire
+      // a blog-publish task on the next tick, defeating the dormancy the backfill depends on.
+      if (
+        workflow.template === "content-calendar" &&
+        Bun.env.WORKFLOWS_CONTENT_CALENDAR_ENABLED !== "true"
+      ) {
+        continue;
+      }
+
       // Evaluate the workflow state machine
       const action = evaluateWorkflow(workflow, template);
 
