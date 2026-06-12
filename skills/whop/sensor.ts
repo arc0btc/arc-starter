@@ -332,7 +332,9 @@ const SYNTHESIS_INTERVAL_MINUTES = 6 * 60;
 // e73fa8a3 fix commit). Synthesis still off; flip after Phase 2 sign-off.
 // ARC_WHOP_FORCE=1 still overrides synthesis for manual audit ticks.
 const WHOP_REPLY_ENABLED = true;
-const WHOP_SYNTHESIS_ENABLED = false || process.env.ARC_WHOP_FORCE === "1";
+// Phase 2 dry-run enabled 2026-06-12. WHOP_SYNTHESIS_DRY_RUN still true —
+// sensor queues tasks on the 6h cadence; dispatch composes-only, no post-chat.
+const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
 
 // Dry-run flags. Reactive flipped to live concurrently with WHOP_REPLY_ENABLED
 // — the dry-run audit already exercised every cheaply-testable guard. The
