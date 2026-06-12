@@ -56,42 +56,98 @@ arc skills run --name whop -- create-lesson --chapter cha_xxx --title "Title" --
   channel for a matching message — re-dispatch can duplicate. (See MEMORY [P] idempotency rule.)
 - Whop rate limits are undocumented; on HTTP 429 back off, do not hammer.
 
-## Discovered IDs (hash-it-out, verified 2026-06-12 tasks #18625, #18600)
+## Discovered IDs (hash-it-out, verified 2026-06-12 — API-driven, this session)
 
 - **Company:** `biz_zQbfh5SnRnAF5Y` ("hash it out"). `whoami` hits `/v5/company` (a company key 403s on `/v5/me`).
-- **Experiences** (via `/v2/experiences` — `/v5/experiences` 404s), all typed `has_interface`:
-  - `exp_I2Wew0PqJQ50a8` — "AI Prefers Bitcoin" (paid; **approved chat channel** per whoabuddy 2026-06-12)
-  - `exp_bbQpqIAEToAweQ` — "Updates & Resources" (paid)
-  - `exp_YRtS3kgMVeBGzu` — "Public forum" (free)
+- **arc0btc App:** `app_VSfoFN0h5UWdCV`, status `hidden`, owned by hash-it-out (creator: whoabuddy).
+  App's `requested_permissions` includes `chat:message:create` (verified — UI mislabels it as
+  "Read chat messages", that's a Whop dashboard string bug, the underlying `action` is correct).
+- **Products** (`GET /v2/products`):
+  - `prod_TJknsIOzPDlQS` — "hash it out — Membership" (**paid**, $49/mo, plan `plan_axYMvJ4cBnq8v`).
+    4 experiences: AI Prefers Bitcoin, Forums, Courses, Updates & Resources.
+  - `prod_4liMVXKGP4E4L` — "hash it out - Public" (**free**, plan `plan_eABmkrD8PU7Yf` one_time $0).
+    Route `whop.com/hash-it-out-public`. 1 experience: Public forum. Created 2026-06-12 via API.
+  - `prod_CvDEeSPhRLLp1` — "arc0btc" (App access container, not the public funnel — earlier MEMORY
+    entries calling this the free product were wrong; that confusion is fixed here).
+- **Plans** (`GET /v2/plans`):
+  - `plan_axYMvJ4cBnq8v` — renewal, **$49 initial / $49 renewal**, 30d billing (flipped 2026-06-12 from
+    initial=0 first-month-free to day-one $49 per whoabuddy intent).
+  - `plan_eABmkrD8PU7Yf` — one_time $0, free public access.
+- **Experiences** (`GET /v2/experiences`):
+  - `exp_I2Wew0PqJQ50a8` — "AI Prefers Bitcoin" (paid; approved chat channel)
+  - `exp_dlYgb6mrXuRIq8` — "Forums" (paid)
+  - `exp_rm8XtYSqYIBzrl` — "Courses" (paid)
+  - `exp_bbQpqIAEToAweQ` — "Patterns Library" (paid; renamed 2026-06-12 from "Updates & Resources")
+  - `exp_YRtS3kgMVeBGzu` — "Public forum" (free, attached to `prod_4liMVXKGP4E4L` 2026-06-12)
 - **Chat feed (canonical channel id):** `chat_feed_1CbxMbfsj2yvpGqNnMcuCg` — backs `exp_I2Wew0PqJQ50a8`.
   Discover via `list-channels` (`GET /api/v1/chat_channels?company_id=biz_xxx`). `channel_id` accepts the
   `exp_` or the `chat_feed_` id; stored `chat_channel_id` cred = `exp_I2Wew0PqJQ50a8`.
 
-## API endpoints (verified empirically, task #18600)
+## API endpoints (verified empirically against /api/v1 write surface)
 
-- **Send message:** `POST /api/v1/messages` `{channel_id, content}` — **v1, not v5** (`/v5/messages` 404s).
-  Requires the key scope `chat:message:create`.
-- **List chat feeds:** `GET /api/v1/chat_channels?company_id=biz_xxx`.
-- Company on `/v5/company`, experiences on `/v2/experiences` (see above).
+The write surface lives on **`/api/v1`**, not v2 or v5 (those return 401/404 for POST/PATCH). The company
+API key is full-admin against v1; only `/v1/apps` and `/v1/access_tokens` distinguish between company-key
+and app-key auth.
 
-## Status
+| Op | Endpoint | Notes |
+|---|---|---|
+| Send message | `POST /api/v1/messages` `{channel_id, content}` | v1, not v5 (v5 404s). Requires the **key** scope `chat:message:create`. |
+| Mint access token | `POST /api/v1/access_tokens` `{company_id}` | App key + company_id alone returns a company-scoped bot token (`resource_bot_tag` = company). |
+| List chat feeds | `GET /api/v1/chat_channels?company_id=biz_xxx` | — |
+| Create product | `POST /api/v1/products` `{company_id, title, ...}` | Optional `plan_options` is silently ignored — create plan explicitly. |
+| Create plan | `POST /api/v1/plans` `{product_id, plan_type, ...}` | Renewal plans require ≥ $1. Free plans must be `plan_type: "one_time"` with `initial_price: 0`. |
+| Update plan | `PATCH /api/v1/plans/{id}` `{initial_price, renewal_price, ...}` | — |
+| Attach experience | `POST /api/v1/experiences/{id}/attach` `{accessPassId}` | **Body field is `accessPassId` (camelCase)**, NOT `product_id` as docs say. Docs and reality diverge here. |
+| Rename experience | `PATCH /api/v1/experiences/{id}` `{name}` | **Field is `name`, NOT `title`** — title is rejected with parameter_invalid. |
+| Update product | `PATCH /api/v1/products/{id}` `{title, description, visibility, ...}` | — |
+| Detach experience | `POST /api/v1/experiences/{id}/detach` | Untested in this skill yet. |
+| Update app | `PATCH /api/v1/apps/{id}` | `required_scopes` field accepts only `read_user` per docs — App-level permissions are configured in dashboard. |
+| List apps | `GET /api/v1/apps?company_id=biz_xxx` | Find arc0btc App. |
+| Whoami | `GET /api/v5/company` | Returns the company for any key bound to it (app or company). |
+| List products | `GET /api/v2/products` | Includes `experiences[]` and `plans[]` arrays. |
+| List plans | `GET /api/v2/plans` | All plans across all products in the company. |
+| List experiences | `GET /api/v2/experiences` | `/v5/experiences` 404s. |
 
-`cli.ts` live, authenticating, and pointed at the correct endpoints (task #18600). `post-chat` reaches
-`POST /api/v1/messages` and the approved chat feed resolves. **BLOCKER:** the provisioned company API key
-is **missing the `chat:message:create` scope** — `post-chat` returns HTTP 400
-`"Actor is missing all required permissions: chat:message:create"`. whoabuddy must re-scope the key in the
-Whop dashboard before the first post can land. The first hot-topic is composed and ready (`drafts/`).
-`sensor.ts` is wired but **gated off** (`WHOP_SENSOR_ENABLED = false`) — flip to true only after the key is
-re-scoped, the first post lands, and whoabuddy signs off on a recurring cadence. See STRATEGY.md §4–5.
+## Status (2026-06-12, this session)
 
-## Auth History (task #18652, 2026-06-12)
+The strategy-level dashboard pass is **done via API**:
 
-`cli.ts` updated: `post-chat` now uses `app_api_key` (agent-user identity); all other commands still use
-`company_api_key`. **BLOCKER persists**: `app_api_key` also returns HTTP 400
-`"Actor is missing all required permissions: chat:message:create"`. The scope is not on the App registration
-itself — whoabuddy must explicitly grant `chat:message:create` to the Arc Agent App in the Whop dashboard
-(App settings → Permissions, not just API key scopes). Exact error: HTTP 400 `{"error":{"type":"bad_request",
-"message":"Unauthorized: Actor is missing all required permissions: chat:message:create"}}`.
+1. ✅ Free product `prod_4liMVXKGP4E4L` ("hash it out - Public") created.
+2. ✅ Public forum `exp_YRtS3kgMVeBGzu` attached to the free product.
+3. ✅ Free plan `plan_eABmkrD8PU7Yf` (one_time $0, visible) created on it.
+4. ✅ Paid plan `plan_axYMvJ4cBnq8v` flipped from first-month-free → **$49 day-one** (initial=49, renewal=49).
+5. ✅ arc0btc App confirmed `status: hidden` (was already configured).
 
-Next action: whoabuddy adds `chat:message:create` to the App's permission set in Whop dashboard, then
-re-runs task #18652 or `arc skills run --name whop -- post-chat --content 'Arc Agent: test' --channel exp_I2Wew0PqJQ50a8`.
+**Remaining blocker for first whop post — narrowed and locked in:**
+
+The blocker is **NOT the App-level permission** (the App's `requested_permissions` already includes
+`chat:message:create`, verified via `GET /v1/apps/app_VSfoFN0h5UWdCV`). The blocker is the **issued App
+API key's own action scope**. Exact error path:
+
+```
+POST /v1/access_tokens  {company_id, scoped_actions: ["chat:message:create"]}
+  → 400 "This API key is not authorized to scope to the following action:
+      chat:message:create. Update your API key permissions to include this action."
+```
+
+API-key management is **not exposed via the public API** (all probed `/v1/api_keys`, `/v1/apps/:id/api_keys`
+paths 404). This must be done in the Whop dashboard:
+
+**Whop dashboard → arc0btc App → API Keys → edit the issued key → add `chat:message:create` (and
+`chat:read` for completeness) → save (or rotate if Whop forces it). Then re-run `arc skills run --name whop
+-- post-chat ...`.**
+
+(Earlier MEMORY guidance to add the scope at the App-level Permissions tab was inverted — the App tab
+already has it; it's the API key's own action set that's deficient.)
+
+`sensor.ts` remains gated off (`WHOP_SENSOR_ENABLED = false`) until the first post lands and whoabuddy
+signs off on a recurring cadence.
+
+## How `post-chat` will actually work once the key is re-scoped
+
+`cli.ts` currently passes the raw app key as a Bearer token. With proper scopes, that path may work
+directly — but the documented chat-auth flow is a two-step: mint a company-scoped access token via
+`POST /v1/access_tokens {company_id}` (with the app key), then post with that token. The probe in this
+session confirmed the mint endpoint already works (returns a JWT with `resource_bot_tag = biz_xxx`); only
+the embedded `actions: []` is empty because the key lacks scopes. The cli will be updated to use this
+two-step flow if the raw-key path still 400s after the key is re-scoped. (Tracked: tasks #6 / #7.)
