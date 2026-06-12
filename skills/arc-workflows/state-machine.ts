@@ -343,6 +343,13 @@ export const ContentCalendarMachine: StateMachine<ContentCalendarContext> = {
         if (!ctx.slug) return null;
         if (ctx.url) return { type: "transition", nextState: "blog_published" };
         if (!ctx.source_artifact_path) return null;
+        // T+0 gate: a manually pre-filled instance (e.g. Tier-A backfill, task #18674) publishes
+        // its blog only once the cadence anchor is reached. Anchors staggered 1/day therefore
+        // stagger the blog-publish step itself — without this, every dormant instance would fire
+        // its publish task simultaneously the moment the calendar is enabled. Offset 0 = anchor
+        // time. Missing/invalid anchor → fails open (publishes immediately), matching the
+        // sensor path where blog instances carry a url and short-circuit above.
+        if (!cadenceGateOpen(ctx.cadence_anchor, 0)) return { type: "noop" };
         return {
           type: "create-task",
           subject: `Publish blog work-piece: ${ctx.title || ctx.slug}`,

@@ -98,12 +98,29 @@ function listByTemplate(template: string): CommandResult {
   }
 }
 
-function create(template: string, instanceKey: string, initialState: string): CommandResult {
+function create(
+  template: string,
+  instanceKey: string,
+  initialState: string,
+  contextJson?: string,
+): CommandResult {
   if (!template || !instanceKey || !initialState) {
     return {
       success: false,
       message: "template, instance_key, and initial_state arguments required",
     };
+  }
+
+  // Optional initial context (JSON). Lets callers seed a workflow with context at
+  // creation (e.g. cadence_anchor, source_artifact_path) instead of forcing a transition.
+  let context: string | null = null;
+  if (contextJson) {
+    try {
+      JSON.parse(contextJson);
+      context = contextJson;
+    } catch {
+      return { success: false, message: "Invalid JSON in --context" };
+    }
   }
 
   try {
@@ -122,7 +139,7 @@ function create(template: string, instanceKey: string, initialState: string): Co
       template,
       instance_key: instanceKey,
       current_state: initialState,
-      context: null,
+      context,
     });
 
     return {
@@ -390,7 +407,7 @@ function main(): void {
       break;
 
     case "create":
-      result = create(args[1] ?? "", args[2] ?? "", args[3] ?? "");
+      result = create(args[1] ?? "", args[2] ?? "", args[3] ?? "", params.context);
       break;
 
     case "show":
