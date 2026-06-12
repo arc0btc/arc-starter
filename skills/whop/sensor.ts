@@ -457,12 +457,20 @@ function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null 
   // Self-skip: Arc never replies to Arc.
   if (msg.user.id === ARC_USER_ID) return null;
 
-  // Direct mention via the structured mentions array. The API's mention object
-  // shape is unverified at scale — accept either {user_id} or {id} forms.
-  const mentions = (msg as unknown as { mentions?: Array<{ user_id?: string; id?: string }> }).mentions;
+  // Direct mention. Whop returns `mentions` as a bare array of user_id strings
+  // (verified empirically 2026-06-12 against chat_feed_1CbxMbfsj2yvpGqNnMcuCg).
+  // Accept the string form first, fall back to object forms in case the API
+  // ever returns the richer shape the OpenAPI docs sketched.
+  const mentions = (msg as unknown as {
+    mentions?: Array<string | { user_id?: string; id?: string }>;
+  }).mentions;
   if (Array.isArray(mentions)) {
     for (const m of mentions) {
-      if (m.user_id === ARC_USER_ID || m.id === ARC_USER_ID) return "direct_mention";
+      if (typeof m === "string") {
+        if (m === ARC_USER_ID) return "direct_mention";
+      } else if (m.user_id === ARC_USER_ID || m.id === ARC_USER_ID) {
+        return "direct_mention";
+      }
     }
   }
   const mentionsEveryone = (msg as unknown as { mentions_everyone?: boolean }).mentions_everyone;

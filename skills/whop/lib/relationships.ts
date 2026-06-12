@@ -101,9 +101,10 @@ function ensureUser(store: RelationshipStore, msg: ChatMessage): Relationship {
   return fresh;
 }
 
-function appendInteraction(rel: Relationship, interaction: Interaction): void {
+/** Returns true if this interaction was newly appended (i.e., not a duplicate). */
+function appendInteraction(rel: Relationship, interaction: Interaction): boolean {
   // Idempotent: don't double-count a message we already saw on a prior tick.
-  if (rel.recent_interactions.some((i) => i.msg_id === interaction.msg_id)) return;
+  if (rel.recent_interactions.some((i) => i.msg_id === interaction.msg_id)) return false;
   rel.recent_interactions.push(interaction);
   rel.recent_interactions.sort((a, b) => a.at.localeCompare(b.at));
   if (rel.recent_interactions.length > MAX_RECENT_INTERACTIONS) {
@@ -116,6 +117,10 @@ function appendInteraction(rel: Relationship, interaction: Interaction): void {
       rel.their_replies_to_arc += 1;
     }
   }
+  if (interaction.direction === "from_arc") {
+    rel.arc_replies_to_them += 1;
+  }
+  return true;
 }
 
 // Per-tick scratch: which message IDs in the current window were authored by Arc.
@@ -161,7 +166,6 @@ export function updateFromMessages(
         in_reply_to: msg.replying_to_message_id,
         snippet: snippet(msg.content),
       });
-      rel.arc_replies_to_them += 1;
       touched.add(parent.user.id);
       continue;
     }

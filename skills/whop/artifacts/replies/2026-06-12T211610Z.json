@@ -1,0 +1,12 @@
+{
+  "tick_at": "2026-06-12T21:16:10.731Z",
+  "channel_id": "chat_feed_1CbxMbfsj2yvpGqNnMcuCg",
+  "messages_seen": 7,
+  "dry_run": true,
+  "daily_budget_used_before_tick": 0,
+  "daily_budget": 5,
+  "candidates": [],
+  "relationships_updated": [
+    "user_WQ6WyvnFOZ6bY"
+  ]
+}
