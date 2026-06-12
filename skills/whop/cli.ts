@@ -81,10 +81,14 @@ function printHelp(): void {
       "  whoami                                 verify the API key and show the company",
       "  list-experiences                       list experiences (find chat/course ids)",
       "  list-channels [--company biz_xxx]      list chat feeds (find the chat_feed_xxx channel id)",
+      "  list-messages --channel chat_feed_xxx [--limit N] [--cursor <opaque>]",
+      "                                         read recent messages (newest-first; use page_info cursors)",
       "  post-chat --content <md> [--channel exp_xxx]",
       "                                         post a hot-topic into a chat experience",
+      "  reply-chat --to <message_id> --content <md> [--channel exp_xxx]",
+      "                                         post a threaded reply to a specific message",
       "  rename-experience --id exp_xxx --title <new title>",
-  "  create-course --experience exp_xxx --title <t>",
+      "  create-course --experience exp_xxx --title <t>",
       "  create-chapter --course cou_xxx --title <t> [--order N]",
       "  create-lesson --chapter cha_xxx --title <t> [--type text|video|quiz|assignment]",
       "                [--content <md>] [--video-url <url>] [--order N]",
@@ -119,6 +123,18 @@ async function cmdListChannels(apiKey: string, flags: Record<string, string>): P
   process.stdout.write(JSON.stringify(channels, null, 2) + "\n");
 }
 
+async function cmdListMessages(apiKey: string, flags: Record<string, string>): Promise<void> {
+  const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
+  if (!channel) fail("list-messages requires --channel (or set creds key chat_channel_id)");
+  const limit = flags.limit ? Number(flags.limit) : 20;
+  let path = `/v1/messages?channel_id=${encodeURIComponent(channel)}&limit=${limit}`;
+  // Pagination uses opaque cursor strings from page_info.end_cursor / start_cursor.
+  // Raw post IDs as before/after params return 400.
+  if (flags.cursor) path += `&cursor=${encodeURIComponent(flags.cursor)}`;
+  const result = await whopRequest("GET", path, apiKey);
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+}
+
 async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promise<void> {
   const content = flags.content;
   if (!content) fail("post-chat requires --content <markdown>");
@@ -134,6 +150,20 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
     content,
   });
   process.stdout.write(`posted to ${channel}\n` + JSON.stringify(result, null, 2) + "\n");
+}
+
+async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.to) fail("reply-chat requires --to <message_id>");
+  const content = flags.content;
+  if (!content) fail("reply-chat requires --content <markdown>");
+  const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
+  if (!channel) fail("reply-chat requires --channel (or set creds key chat_channel_id)");
+  const result = await whopRequest("POST", "/v1/messages", apiKey, {
+    channel_id: channel,
+    content,
+    replying_to_message_id: flags.to,
+  });
+  process.stdout.write(`reply posted to ${channel} (thread: ${flags.to})\n` + JSON.stringify(result, null, 2) + "\n");
 }
 
 async function cmdRenameExperience(apiKey: string, flags: Record<string, string>): Promise<void> {
@@ -202,10 +232,20 @@ async function main(): Promise<void> {
       await cmdListChannels(apiKey, flags);
       break;
     }
+    case "list-messages": {
+      const apiKey = await requireAppApiKey();
+      await cmdListMessages(apiKey, flags);
+      break;
+    }
     case "post-chat": {
       // App key carries chat:message:create; company key never had that scope.
       const apiKey = await requireAppApiKey();
       await cmdPostChat(apiKey, flags);
+      break;
+    }
+    case "reply-chat": {
+      const apiKey = await requireAppApiKey();
+      await cmdReplyChat(apiKey, flags);
       break;
     }
     case "rename-experience": {

@@ -41,12 +41,21 @@ Scope the API key to: `chat:message:create`, `experience:create`, `course:*`, `m
 arc skills run --name whop -- whoami
 arc skills run --name whop -- list-experiences
 arc skills run --name whop -- list-channels                             # chat feeds -> chat_feed_xxx channel id
+arc skills run --name whop -- list-messages --channel chat_feed_xxx [--limit N] [--cursor <opaque>]
 arc skills run --name whop -- post-chat --channel chat_feed_xxx --content "<markdown>"
 arc skills run --name whop -- post-chat --content "<markdown>"          # uses stored chat_channel_id
+arc skills run --name whop -- reply-chat --to <message_id> --content "<markdown>" [--channel chat_feed_xxx]
 arc skills run --name whop -- create-course --experience exp_xxx --title "Title"
 arc skills run --name whop -- create-chapter --course cou_xxx --title "Title" --order 1
 arc skills run --name whop -- create-lesson --chapter cha_xxx --title "Title" --type text --content "<md>" --order 1
 ```
+
+`list-messages` returns newest-first (default limit 20). Pagination: use the opaque cursor string from
+`page_info.end_cursor` — raw post IDs as before/after params return 400.
+
+`reply-chat` posts a threaded reply. Both `list-messages` and `reply-chat` use the App API key
+(`chat:read` + `chat:message:create` scopes). Arc's agent user id is `user_cd5Q1fTcrgua1` — filter it
+out when scanning for messages to reply to.
 
 ## Guardrails
 
