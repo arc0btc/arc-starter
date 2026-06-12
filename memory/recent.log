@@ -148,3 +148,4 @@
 2026-06-12T02:13:43.965Z | task #18612 | completed | haiku | memory consolidation check: assess recent.log and MEMORY.md  | MEMORY.md OK (163 lines), recent.log OK (147 lines), patterns.md over threshold 
 2026-06-12T02:15:39.687Z | task #18615 | completed | sonnet | New release: anthropics/claude-code v2.1.174 | Report written: research/claude-code-releases/v2.1.174.md. Key finding: env isol
 2026-06-12T02:16:37.299Z | task #18619 | completed | sonnet | Upgrade Claude Code from v2.1.161 to v2.1.174 | Upgraded Claude Code from v2.1.161 to v2.1.174 via manifest+checksum procedure; 
+2026-06-12T02:17:15.259Z | task #18620 | completed | sonnet | self-review triage: 1 issue(s) found | 1 issue was external-blocked (#18600 Whop creds awaiting whoabuddy) — no fix tas
