@@ -5,6 +5,15 @@
 **Answer: yes, and arc-workflows is the right tool — but the build is gated.** This doc is the evaluation;
 the machine is *specified here, not yet implemented.* Implement only after the gate clears (see §4).
 
+> **UPDATE 2026-06-12 (#18654): the X half is SHIPPED.** Rather than wait on whop, the single-hop
+> `BlogToXMachine` (`state-machine.ts`, template `blog-to-x`) now fires one X post per new blog publish:
+> `blog_published → x_pending → completed`. The arc-workflows sensor's `syncBlogPublishes()` creates one
+> instance per freshly published post (`blog-to-x:<post_id>`, 1-day window, instance-key dedup). To
+> complete the fan-out: extend `BlogToXMachine` to insert a `whop_pending` hop before `x_pending`
+> (`blog_published → whop_pending → x_pending → completed`) per §2 once whop #18600 lands a clean post —
+> the TODO in the machine's doc-comment marks the exact insertion point. The full `PublishFanoutMachine`
+> below remains the spec for that extension; no separate machine is needed.
+
 ## 1. Verdict — arc-workflows fits, no new machinery needed
 
 The existing dependency-free runner (`state-machine.ts`) already has every primitive the fan-out needs:

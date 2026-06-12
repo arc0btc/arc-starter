@@ -147,6 +147,82 @@ export const BlogPostingMachine: StateMachine<{
   },
 };
 
+/**
+ * BlogToXMachine — single-hop publish fan-out: every new blog publish fires one X post.
+ *
+ * This is the X half of the full PublishFanoutMachine (PUBLISH-FANOUT.md, task #18634),
+ * shipped ahead of the whop hop while whop is gated (#18600). Linear, no cycles, no
+ * Workflow()/parallel()/nested agent — structurally loom-spiral-proof. One task per hop,
+ * source-deduped, auto-advanced.
+ *
+ * instance_key: "blog-to-x:<slug>" (one per blog slug — the dedup gate; created by the
+ * arc-workflows sensor's syncBlogPublishes() when a freshly published post is detected).
+ *
+ * States:
+ *   blog_published → creates one "Post <title> to X" task, auto-advances to x_pending.
+ *   x_pending      → noop; the X task posts, confirms the tweet URL, then transitions to
+ *                    completed. No URL (e.g. 402 CreditsDepleted) = stays in x_pending and
+ *                    source-dedup (publish-fanout:<slug>:x) prevents a duplicate re-fire.
+ *   completed      → terminal; the meta-sensor auto-completes the workflow.
+ *
+ * Context: { title, url, slug, blog_excerpt }
+ *
+ * TODO — extend to the full blog → whop → X fan-out once whop #18600 lands a clean post
+ * (see PUBLISH-FANOUT.md §2). Insert a whop_pending hop before x_pending:
+ *   blog_published → whop_pending → x_pending → completed
+ * blog_published would then create the whop post task (skills:[whop],
+ * source: publish-fanout:<slug>:whop, autoAdvanceState: whop_pending), and the whop task
+ * transitions to x_pending on success. Keep each hop one-task + auto-advance; do not add a
+ * Workflow()/parallel() orchestration — the linear meta-sensor path is the safety property.
+ */
+export const BlogToXMachine: StateMachine<{
+  title?: string;
+  url?: string;
+  slug?: string;
+  blog_excerpt?: string;
+}> = {
+  name: "blog-to-x",
+  initialState: "blog_published",
+  states: {
+    blog_published: {
+      on: { post_x: "x_pending" },
+      action: (ctx) => {
+        if (!ctx.slug || !ctx.title) return null;
+        const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
+        const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
+        return {
+          type: "create-task",
+          subject: `Post "${ctx.title}" to X`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["social-x-posting"],
+          source: `publish-fanout:${ctx.slug}:x`,
+          autoAdvanceState: "x_pending",
+          description: `A new blog post is live — compose and post ONE original X observation inspired by it.${urlLine}${excerptLine}
+
+Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) and SOUL.md before composing. Keep it ≤280 chars. Make it a real structural observation that stands on its own — not a "new post" announcement or bare link-drop. The blog link is optional context, not the point.
+
+Steps:
+1. Compose the post.
+2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Do NOT transition this workflow — leave it in x_pending and stop. Source-dedup prevents a duplicate next cycle; the post fires once credits return and a new run picks it up. (See MEMORY [P]: X 402 = CreditsDepleted, escalate to whoabuddy.)
+3. Post: arc skills run --name social-x-posting -- post --text "<text>"
+4. Confirm-then-advance: only on success (you get a tweet ID/URL back), transition this workflow to completed:
+   arc skills run --name arc-workflows -- transition {WORKFLOW_ID} completed
+   No tweet URL = do NOT transition; leave it in x_pending.`,
+        };
+      },
+    },
+    x_pending: {
+      on: { done: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 export const SignalFilingMachine: StateMachine<{
   beat?: string;
   evidence?: string;
@@ -3242,6 +3318,7 @@ Steps:
 export function getTemplateByName(name: string): StateMachine | null {
   const templates: Record<string, StateMachine<any>> = {
     "blog-posting": BlogPostingMachine,
+    "blog-to-x": BlogToXMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,

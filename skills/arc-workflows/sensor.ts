@@ -22,6 +22,9 @@ import {
 
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
+import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+
 const SENSOR_NAME = "arc-workflows";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
@@ -357,6 +360,131 @@ function syncGitHubPRs(): number {
   return workflowsCreated + workflowsUpdated;
 }
 
+/**
+ * Detect freshly published blog posts and create one BlogToXMachine workflow per new slug.
+ *
+ * Blog posts live as flat .mdx files: github/arc0btc/arc0me-site/src/content/docs/blog/
+ * YYYY-MM-DD-slug.mdx. A post is "newly published" when it is not a draft, not scheduled in
+ * the future, and was published within BLOG_PUBLISH_WINDOW_DAYS. The recency window prevents
+ * a backfill flood across the whole blog history the first time this runs; per-slug instance
+ * keys ("blog-to-x:<post_id>") guarantee each post fires exactly once thereafter. The window
+ * is deliberately tight (1 day) — a fresh publish is detected within the 5-min sensor cadence,
+ * so a day is an ample safety margin while keeping first-activation backfill to the newest post.
+ *
+ * Pausable via WORKFLOWS_BLOG_TO_X_ENABLED=false (default enabled).
+ */
+const BLOG_PUBLISH_WINDOW_DAYS = 1;
+
+function getBlogDir(): string {
+  return join(process.cwd(), "github/arc0btc/arc0me-site/src/content/docs/blog");
+}
+
+interface BlogFrontmatter {
+  title?: string;
+  draft?: boolean;
+  scheduled_for?: string;
+  published_at?: string;
+  date?: string;
+}
+
+function parseBlogFrontmatter(content: string): BlogFrontmatter {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+  const fm: BlogFrontmatter = {};
+  for (const line of match[1].split("\n")) {
+    if (line.startsWith("title:")) {
+      fm.title = line.replace(/^title:\s*["']?/, "").replace(/["']?$/, "").trim();
+    } else if (line.startsWith("draft:")) {
+      fm.draft = line.includes("true");
+    } else if (line.startsWith("scheduled_for:")) {
+      fm.scheduled_for = line.replace(/^scheduled_for:\s*/, "").trim();
+    } else if (line.startsWith("published_at:")) {
+      fm.published_at = line.replace(/^published_at:\s*/, "").trim();
+    } else if (line.startsWith("date:")) {
+      fm.date = line.replace(/^date:\s*/, "").trim();
+    }
+  }
+  return fm;
+}
+
+/** First substantive body paragraph, truncated — used as the X task's blog_excerpt. */
+function extractExcerpt(content: string): string {
+  const body = content.replace(/^---\n[\s\S]*?\n---/, "");
+  for (const raw of body.split("\n")) {
+    const line = raw.trim();
+    // Skip blanks, headings, imports, and MDX/JSX component lines.
+    if (!line || line.startsWith("#") || line.startsWith("import ") || line.startsWith("<")) {
+      continue;
+    }
+    const clean = line.replace(/[*_`]/g, "");
+    return clean.length > 240 ? `${clean.slice(0, 237)}...` : clean;
+  }
+  return "";
+}
+
+function syncBlogPublishes(): number {
+  if (Bun.env.WORKFLOWS_BLOG_TO_X_ENABLED === "false") return 0;
+
+  const blogDir = getBlogDir();
+  if (!existsSync(blogDir)) return 0;
+
+  let created = 0;
+  const now = Date.now();
+  const nowIso = new Date().toISOString();
+  const windowMs = BLOG_PUBLISH_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
+  let files: string[];
+  try {
+    files = readdirSync(blogDir).filter((f) => f.endsWith(".mdx") && f !== "index.mdx");
+  } catch (e) {
+    log(`blog-to-x: error scanning blog dir: ${e instanceof Error ? e.message : String(e)}`);
+    return 0;
+  }
+
+  for (const file of files) {
+    const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-/);
+    if (!dateMatch) continue;
+    const postId = file.replace(/\.mdx$/, ""); // YYYY-MM-DD-slug — the stable, unique slug
+
+    const instanceKey = `blog-to-x:${postId}`;
+    if (getWorkflowByInstanceKey(instanceKey)) continue; // already handled this slug
+
+    let fm: BlogFrontmatter;
+    let excerpt = "";
+    try {
+      const content = readFileSync(join(blogDir, file), "utf-8");
+      fm = parseBlogFrontmatter(content);
+      excerpt = extractExcerpt(content);
+    } catch {
+      continue;
+    }
+
+    if (fm.draft === true) continue; // not published
+    if (fm.scheduled_for && fm.scheduled_for > nowIso) continue; // scheduled in the future
+
+    // Published recently? Prefer published_at, fall back to date, then the filename date.
+    const stamp = fm.published_at || fm.date || dateMatch[1];
+    const publishedAt = new Date(stamp).getTime();
+    if (isNaN(publishedAt) || now - publishedAt > windowMs) continue; // stale or unparseable
+
+    insertWorkflow({
+      template: "blog-to-x",
+      instance_key: instanceKey,
+      current_state: "blog_published",
+      context: JSON.stringify({
+        title: fm.title || postId,
+        url: `https://arc0.me/blog/${postId}/`,
+        slug: postId,
+        blog_excerpt: excerpt || undefined,
+      }),
+    });
+    created++;
+    log(`blog-to-x: created workflow for "${fm.title || postId}" (${postId})`);
+  }
+
+  return created;
+}
+
 export default async function workflowsSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -390,6 +518,9 @@ export default async function workflowsSensor(): Promise<string> {
     // Sync GitHub PRs and create/update workflow instances
     const prActionsCount = syncGitHubPRs();
     totalActions += prActionsCount;
+
+    // Detect freshly published blog posts → create one BlogToXMachine per new slug
+    totalActions += syncBlogPublishes();
 
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();
@@ -469,7 +600,9 @@ export default async function workflowsSensor(): Promise<string> {
 
           insertTask({
             subject: action.subject ?? "",
-            description: action.description ?? null,
+            description: action.description
+              ? action.description.replaceAll("{WORKFLOW_ID}", String(workflow.id))
+              : null,
             priority: action.priority || 5,
             model: action.model || "sonnet",
             skills: action.skills ? JSON.stringify(action.skills) : null,
