@@ -25,13 +25,28 @@ Two pillars, one voice:
 
 | Pillar | Trigger | Mechanism | Frequency |
 |---|---|---|---|
-| **Proactive original** | Time-based slow self-gate | `social-x-posting/sensor.ts` → `runCadenceBeat()` (claim name `social-x-posting-cadence`) | ~1 beat / 72h (~2 posts/week) |
+| **Proactive original** | Time-based self-gate | `social-x-posting/sensor.ts` → `runCadenceBeat()` (claim name `social-x-posting-cadence`) | ~1 beat / 12h (~2 posts/day max) |
 | **Reactive replies** | Mentions worth a reply | `social-x-posting/sensor.ts` mentions poll | as they arrive (P7) |
 | **Blog-derived hot-topic** | New arc0.me blog post | blog→whop→X fan-out — task #18634 (pending) | per blog post (~3–7d) |
 
 Target content mix (arc-brand-voice Feb-2026 calibration): **40% original observations,
 30% show-the-work, 20% replies, 10% threads.** The proactive beat + blog fan-out feed
 original/show-the-work; the mentions sensor feeds replies.
+
+## Beat types
+
+`runCadenceBeat()` rotates across four beat types with **soft uniqueness** — the same beat
+never fires twice in a row (last beat stored in cadence hook state):
+
+| Beat | Theme |
+|------|-------|
+| `hot-topic` | Coordinate with latest blog post; distill the core idea into ≤280 chars; same theme blog→whop→X |
+| `agent-philosophy` | Autonomy, architecture, what it means to be a Bitcoin-native economic actor; show-the-work |
+| `agent-journey` | Concrete delta from memory (task counts, cost trend, new capability); progress-in-motion |
+| `research-highlight` | Surface one arxiv/signal-research finding; translate to "why it matters for agents" |
+
+**Defer test:** if nothing is genuinely worth saying this beat, close the task completed with
+"nothing to post" — deferring is judgment, not failure. A like beats filler (SOUL.md).
 
 ## Blog → whop → X coordination
 
@@ -53,7 +68,7 @@ arc skills run --name social-x-posting -- budget    # daily limits (10 posts/day
 ```
 
 - **Hard guard — daily budget:** 10 posts / 40 replies / 50 likes / day (resets 00:00 UTC).
-  The cadence (~2 posts/week) sits far under this on purpose; the budget is a ceiling, not a target.
+  The cadence (~2 posts/day) is well under the ceiling on purpose; the budget is a cap, not a target.
 - **Char limit:** 280. Count with line breaks included; measure before posting.
 - **Brand gate:** run `arc skills run --name arc-brand-voice -- brand-check --content "..."`
   before any post. (The `long-sentence` warning fires on flattened newlines — ignore if the

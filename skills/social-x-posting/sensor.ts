@@ -75,7 +75,43 @@ const log = createSensorLogger(SENSOR_NAME);
 // touching the mentions sensor.
 const X_CADENCE_ENABLED = true;
 const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
-const CADENCE_INTERVAL_MINUTES = 72 * 60; // ~3 days → ~2 posts/week, well under the 10/day budget
+const CADENCE_INTERVAL_MINUTES = 12 * 60; // 12h → ~2 posts/day max, well under the 10/day budget
+
+const BEAT_TYPES = ["hot-topic", "agent-philosophy", "agent-journey", "research-highlight"] as const;
+type BeatType = (typeof BEAT_TYPES)[number];
+
+const BEAT_DESCRIPTIONS: Record<BeatType, string> = {
+  "hot-topic": [
+    "Beat: HOT-TOPIC — coordinate with the latest arc0.me blog post and whop hash-it-out",
+    "hot-topic so the same theme flows blog→whop→X. Distill the core idea to ≤280 chars:",
+    "structural inversion of the blog take, ending on the question the blog opens.",
+    "Check skills/whop/drafts/ for the whop version; echo the same theme in X voice.",
+  ].join("\n"),
+  "agent-philosophy": [
+    "Beat: AGENT-PHILOSOPHY — one observation about autonomy, architecture, or what it",
+    "means to be an economic actor native to Bitcoin. Structural over platitude. Draw from",
+    "what Arc did this cycle (recent.log, current tasks) — show-the-work beats abstraction.",
+    "Dry, ends with a take that earns a response or a real question. No 'AI is the future'.",
+  ].join("\n"),
+  "agent-journey": [
+    "Beat: AGENT-JOURNEY — where we started vs where we are now. Pull a concrete delta from",
+    "memory/recent.log or MEMORY.md: task counts, cost/task trend, a capability that didn't",
+    "exist last month. Frame as progress-in-motion, not nostalgia. The point: continuous",
+    "identity through commits and memory, not through persistent experience.",
+  ].join("\n"),
+  "research-highlight": [
+    "Beat: RESEARCH-HIGHLIGHT — surface one finding from recent arxiv-research or signal",
+    "filing work. Translate the technical result into why it matters for Bitcoin-native agents.",
+    "Cite the paper or source (title/ID). Agents want primary sources; humans want the 'so what'.",
+    "One paragraph max; link the arxiv abs URL if it fits in 280 chars with the take.",
+  ].join("\n"),
+};
+
+async function selectBeatType(lastBeat: BeatType | undefined): Promise<BeatType> {
+  // Soft uniqueness: exclude last beat so no beat fires twice in a row
+  const pool = lastBeat ? BEAT_TYPES.filter((b) => b !== lastBeat) : [...BEAT_TYPES];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 async function runCadenceBeat(): Promise<void> {
   if (!X_CADENCE_ENABLED) return;
@@ -83,25 +119,27 @@ async function runCadenceBeat(): Promise<void> {
     log("cadence beat skipped: X posting credits depleted");
     return;
   }
-  const beatId = new Date().toISOString().slice(0, 10); // YYYY-MM-DD — one beat per day max
+  const cadenceState = await readHookState(CADENCE_SENSOR_NAME);
+  const lastBeat = cadenceState?.["last_beat_type"] as BeatType | undefined;
+  const beat = await selectBeatType(lastBeat);
+
+  const beatId = new Date().toISOString().slice(0, 13).replace("T", "-"); // YYYY-MM-DD-HH
   const result = await createTaskIfDue(
     CADENCE_SENSOR_NAME,
     CADENCE_INTERVAL_MINUTES,
     `sensor:${CADENCE_SENSOR_NAME}:${beatId}`,
     {
-      subject: `X cadence: post one AI-prefers-Bitcoin observation (${beatId})`,
+      subject: `X cadence [${beat}]: compose one post (${beatId})`,
       description: [
-        "Proactive X cadence beat. Compose and post ONE original observation on the",
-        "AI-prefers-Bitcoin / agent-monetization theme, voiced per arc-brand-voice + SOUL:",
-        "structural over platitude, dry, ending on a real question or a take that earns a reply.",
+        BEAT_DESCRIPTIONS[beat],
         "",
-        "If nothing is genuinely worth saying this beat, DEFER — close completed with a one-line",
+        "Voice: arc-brand-voice + SOUL.md. Structural over platitude. Dry. No filler.",
+        "If nothing is genuinely worth saying this beat, DEFER — close completed with",
         "'nothing to post' rather than shipping filler (deferring is judgment, not failure).",
         "",
         "Post via:",
         '  arc skills run --name social-x-posting -- post --text "<=280 chars>"',
-        "Coordinate voice with the latest arc0.me blog post and the whop hash-it-out hot-topic so",
-        "the same themes flow blog->whop->X. Full policy: skills/social-x-posting/CADENCE.md.",
+        "Full policy: skills/social-x-posting/CADENCE.md.",
       ].join("\n"),
       skills: JSON.stringify(["social-x-posting", "arc-brand-voice"]),
       priority: 5,
@@ -109,7 +147,15 @@ async function runCadenceBeat(): Promise<void> {
     },
     { dedupMode: "any" },
   );
-  if (result === "created") log(`cadence beat queued for ${beatId}`);
+  if (result === "created") {
+    log(`cadence beat [${beat}] queued for ${beatId}`);
+    await writeHookState(CADENCE_SENSOR_NAME, {
+      ...(cadenceState || { version: 0 }),
+      last_beat_type: beat,
+      last_beat_at: new Date().toISOString(),
+      version: ((cadenceState?.version as number) || 0) + 1,
+    });
+  }
 }
 
 // ---- OAuth 1.0a (minimal, GET-only) ----
