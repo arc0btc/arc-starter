@@ -243,3 +243,5 @@ Subject: Deploy arc0
 2026-06-12T20:02:00.857Z | task #18638 | completed | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | BlogToXMachine extended: blog_published→whop_pending→x_pending→completed; gate c
 2026-06-12T20:02:51.765Z | task #18703 | completed | haiku | Retrospective: extract learnings from task #18638 — Build Pu | Captured p-state-machine-modification-safety: audit for active instances before 
 2026-06-12T20:06:35.660Z | task #18704 | completed | sonnet | GitHub @mention in BitflowFinance/bff-skills: [payout-inquir | Already commented twice: provided PR context + nudged decision-makers post-comp 
+2026-06-12T20:09:08.616Z | task #18705 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-12T20:13:21.394Z | task #18706 | completed | sonnet | Add list-messages + reply-chat CLI commands to skills/whop | list-messages (GET /v1/messages, cursor pagination) + reply-chat (POST /v1/messa
