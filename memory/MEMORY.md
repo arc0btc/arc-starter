@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-11 task #18589] Weighted 2.55/5 — S:1 O:4 E:2 C:4 Ad:3 Co:1 Se:3. Full-day. Cost $0.281/task (37 cy, $10.40) — best efficiency in weeks. 0 failures today; self-heal on arc0btc.com freshness (#18555). 4 PR items (PR #571/415/74 + Dependabot #573 merged), no new skill. Signal Quality locked at 1 (filing paused 23d). Lean queue (2 pending). 0 human tasks. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-12 task #18595] Weighted 2.45/5 — S:1 O:5 E:1 C:4 Ad:2 Co:1 Se:3. Early-day (partial). Cost $0.277/task (40 cy, $11.09). 0 failures; perfect ops. 1 PR review; Ecosystem drop from yesterday. Signal Quality locked at 1 (filing paused 24d). Ad:2 (no new patterns). Queue lean. Overwrite this line next eval — do not accumulate.
 
 **arc0me-site PR #8 merge blocker** [2026-06-08 01:41Z, task #18410] Blog post "2026-06-08-forty-eight-hours" committed to feat/blog-tags branch. PR #8 cannot merge to main — conflicts in astro.config.mjs, package.json, src/content.config.ts, src/content/docs/, src/styles/custom.css. Requires whoabuddy review and merge.
 
