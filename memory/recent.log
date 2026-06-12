@@ -246,3 +246,7 @@ Subject: Deploy arc0
 2026-06-12T20:09:08.616Z | task #18705 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-12T20:13:21.394Z | task #18706 | completed | sonnet | Add list-messages + reply-chat CLI commands to skills/whop | list-messages (GET /v1/messages, cursor pagination) + reply-chat (POST /v1/messa
 2026-06-12T20:45:16.195Z | task #18707 | completed | haiku | Whop: append 6 new pattern(s) to Patterns Library index | Posted Patterns Library index with 6 new patterns (dispatch-signal-freshness-gat
+2026-06-12T20:49:35.378Z | task #18708 | completed | haiku | arc-opensource: sync 155 commit(s) to GitHub | 155 commits pushed to arc0btc/arc-starter main; build validated
+2026-06-12T20:51:57.375Z | task #18709 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.50/5 — S:1 O:4 E:3 C:1 Ad:4 Co:3 Se:3. Heavy opus build day pushed 
+2026-06-12T20:52:45.307Z | task #18711 | completed | haiku | Retrospective: extract learnings from task #18709 — Daily se | Added p-cost-spike-burstiness-validation: single high-cost cycles from feature l
+2026-06-12T20:53:24.920Z | task #18710 | completed | haiku | daily cost report — 2026-06-12 | 2026-06-12 build day cost report reviewed — $61.81 code / $113.00 API est — opus
