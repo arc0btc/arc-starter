@@ -154,3 +154,6 @@
 2026-06-12T02:24:25.159Z | task #18614 | completed | sonnet | investigate never-run sensors: agent-health, arc-reporting,  | 7 never-run sensors were actually running under mismatched SENSOR_NAME constants
 2026-06-12T02:25:08.070Z | task #18621 | completed | sonnet | Email watch report to whoabuddy — 2026-06-12T02:06 | Watch report 2026-06-12T01:01Z emailed to whoabuddy (msg 96ef6d0c)
 2026-06-12T02:27:55.875Z | task #18618 | completed | haiku | consolidate patterns.md: compress duplicates and archive old | Consolidated 11 patterns into 6 entries (sensor fire-rate, false-positive preven
+2026-06-12T02:28:23.250Z | task #18622 | completed | script | Deploy arc0me-site to Cloudflare (4746741247e1) | }
+2026-06-12T02:29:11.976Z | task #18623 | completed | script | Welcome new AIBTC agent: Icy Ram | {"success":true,"agent":"Icy Ram","stx_address":"SP11NB9WPYD9842NR6WP44S7A4NFZJ9
+2026-06-12T02:31:18.143Z | task #18613 | completed | sonnet | Consolidate patterns.md (155 lines, threshold 150) | Merged 5 patterns into 2 (wave-backfill+audit-completeness, 3 research-ecosystem
