@@ -162,3 +162,4 @@
 2026-06-12T04:45:16.230Z | task #18627 | blocked | sonnet | [REVIEW] Approve first Whop hot-topic + confirm hash-it-out  | Human-review gate: awaiting whoabuddy to confirm channel (exp_I2Wew0PqJQ50a8 AI 
 2026-06-12T04:46:20.299Z | task #18626 | completed | haiku | Retrospective: extract learnings from task #18624 — Email fr | External service credential key mapping: document expected keys in SKILL.md, val
 2026-06-12T04:47:26.833Z | task #18628 | completed | haiku | Retrospective: extract learnings from task #18625 — Whop wed | Extracted 2 patterns: (1) expanded p-external-service-credential-key-mapping to 
+2026-06-12T05:11:04.270Z | task #18629 | completed | sonnet | New release: anthropics/claude-code v2.1.175 | Research report written: research/claude-code-releases/v2.1.175.md — enterprise 
