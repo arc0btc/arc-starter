@@ -83,7 +83,8 @@ function printHelp(): void {
       "  list-channels [--company biz_xxx]      list chat feeds (find the chat_feed_xxx channel id)",
       "  post-chat --content <md> [--channel exp_xxx]",
       "                                         post a hot-topic into a chat experience",
-      "  create-course --experience exp_xxx --title <t>",
+      "  rename-experience --id exp_xxx --title <new title>",
+  "  create-course --experience exp_xxx --title <t>",
       "  create-chapter --course cou_xxx --title <t> [--order N]",
       "  create-lesson --chapter cha_xxx --title <t> [--type text|video|quiz|assignment]",
       "                [--content <md>] [--video-url <url>] [--order N]",
@@ -133,6 +134,14 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
     content,
   });
   process.stdout.write(`posted to ${channel}\n` + JSON.stringify(result, null, 2) + "\n");
+}
+
+async function cmdRenameExperience(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.id || !flags.title) fail("rename-experience requires --id exp_xxx and --title <new title>");
+  const result = await whopRequest("PATCH", `/v2/experiences/${encodeURIComponent(flags.id)}`, apiKey, {
+    title: flags.title,
+  });
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
 }
 
 async function cmdCreateCourse(apiKey: string, flags: Record<string, string>): Promise<void> {
@@ -197,6 +206,11 @@ async function main(): Promise<void> {
       // App key carries chat:message:create; company key never had that scope.
       const apiKey = await requireAppApiKey();
       await cmdPostChat(apiKey, flags);
+      break;
+    }
+    case "rename-experience": {
+      const apiKey = await requireApiKey();
+      await cmdRenameExperience(apiKey, flags);
       break;
     }
     case "create-course": {
