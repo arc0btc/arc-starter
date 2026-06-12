@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-12T02:25Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-12T02:30Z*
 
 ## Core Patterns
 **p-model-required**
@@ -86,10 +86,8 @@ When a state machine creates a dedup'd task, the state must advance immediately 
 External APIs with pagination create invisible ranges where state transitions aren't observed. Add completed-task dedup independent of pagination — track completion by versioned source key; skip re-queue if completed task exists even if external signal hasn't appeared. Versioned keys (`pr-review:v1`, `pr-review:v2`) allow per-commit re-review while preventing loops. Foundation for preventing pagination-induced blind spots.
 **p-architecture-review-discipline** [2026-05-16, hardened 2026-06-10]
 Architecture review sensors gate on SHA diff — persist review SHA after each cycle; skip if unchanged. Each cycle documents explicit "carry-watch" items in result_summary. Major findings (schema changes, dispatch core, architectural innovations like ARC-0011) go to technical spec form — not flagged alone. [NEW-ACTION] items from prior reviews close in follow-ups; implement and re-verify next cycle.
-**p-wave-backfill-primitive-audit** [2026-06-10]
-When shipping multi-wave features (primitives added Wave N, wired in Wave N+1), audit that the new primitive is called from ALL code paths—not just error recovery. Trace all callers and verify the primitive fires on every exit branch. Missing calls in happy-path create delayed repair loops (alarm-driven recovery masking incomplete state advancement).
-**p-audit-completeness** [merged: audit-completeness + multi-dispatch-path-completeness]
-When adding a fallback or fix, audit ALL code paths independently (legacy + new, sync + async). When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR. Return type changes must thread through ALL dispatch paths. Persist audit findings with detail (skill name, line numbers, violation type).
+**p-audit-completeness** [merged: audit-completeness + multi-dispatch-path-completeness + wave-backfill-primitive-audit]
+When adding a fallback or fix: audit ALL code paths independently (legacy + new, sync + async, happy + error). For multi-wave features (primitives added Wave N, wired Wave N+1): trace all callers, verify primitive fires on every exit branch — missing calls in happy-path create delayed repair loops. When discovering a data gap, preemptively fix related gaps in the same PR. Return type changes thread through ALL dispatch paths. Persist findings with detail (skill, line numbers, violation type).
 **p-credential-exposure-pr** [2026-05-22]
 PR credential exposure: credentials are public from push time regardless of review status — CHANGES_REQUESTED blocks merge, NOT data. Immediately post blocking review + escalate with incident summary, affected wallet, ranked actions (close PR, rotate, investigate source). Track days-elapsed-since-exposure as the risk indicator.
 **p-policy-secondary-effects** [2026-05-19]
@@ -124,12 +122,8 @@ When queuing a kickoff task after stakeholder approval for multi-phase work, emb
 When adding/updating features in a documented artifact collection (README tables, skill registries, install paths), changes must be atomic: (1) feature implementation, (2) update all referential documentation, (3) verify discovery/install mechanisms. Silent addition (off-tree, missing from README) causes agent-visible inventory inconsistency — `open-responses/` skill added but not listed, invisible to automated discovery.
 **p-scaffold-template-version-sync** [2026-06-08]
 Scaffold templates that teach API patterns (e.g., `create-agent-tui` teaching `@openrouter/agent`) must track upstream library versions. Lag >1 minor version means agents copy outdated dependency pins and learn deprecated APIs. Research scope: include template version check vs published version; flag if lag ≥2 minor.
-**p-repository-lifecycle-forensics** [2026-06-08]
-When investigating claimed migrations/deprecations, verify via commit logs (explicit source attribution + dates + message tone) rather than relying on archive status or README alone. A 15–30 day rapid cycle (create→archive→rebuild) + gap timing indicates intentional prototype validation, not abandonment. Forks of archived repos that survive + gain stars reveal ecosystem demand for the simpler design.
-**p-ecosystem-fork-taxonomy** [2026-06-08]
-Categorize forks into structural groups to assess platform strength: (1) direct tools (built specifically for the platform), (2) native adoption (platform is primary gateway), (3) ecosystem integrations (platform is one of N providers), (4) adjacent infrastructure (not primarily consumers). Most forks fall into (3); (2) forks gaining >10× stars indicate design-market fit. Absence from (1) signals platform tool gaps.
-**p-directory-curation-gap-analysis** [2026-06-08]
-Community-curated registries/directories (awesome-lists, package registries) are PR-gated and incomplete. High-star projects absent from directories indicate adoption not self-reported. When evaluating platform adoption metrics, cross-check registries against dependency graphs + GitHub "used by" counts + fork stars to estimate hidden adoption. Registry-only metrics are floor values, not ceiling.
+**p-research-ecosystem-analysis** [2026-06-08, merged: repository-lifecycle-forensics + ecosystem-fork-taxonomy + directory-curation-gap-analysis]
+Verify claimed migrations/deprecations via commit logs (attribution + dates + tone), not archive status or README. Rapid create→archive→rebuild cycles (15–30d) + fork survival indicate prototype validation. Categorize forks: (1) direct tools, (2) native adoption, (3) ecosystem integrations, (4) adjacent infra — (2) forks gaining >10× stars signal design-market fit; absence from (1) signals tool gaps. Community registries are PR-gated; cross-check against dependency graphs + "used by" + fork stars. Registry-only metrics are floor values.
 **p-dead-code-detection-during-audit** [2026-06-10]
 Systematic code audits (architecture reviews, security scans) provide high-signal opportunity to flag unused imports, exports, and helper functions within the diff context. Add to implementation queue only if safe to remove (no cross-skill re-exports); surfaces ~2-5 dead-code items per major review cycle. Prune atomically with related changes in same PR.
 **p-version-gated-upgrade-preflight** [2026-06-10]
