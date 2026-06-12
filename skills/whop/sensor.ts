@@ -326,17 +326,19 @@ const REPLIES_INTERVAL_MINUTES = 5;
 const SYNTHESIS_SENSOR_NAME = "whop-synthesis";
 const SYNTHESIS_INTERVAL_MINUTES = 6 * 60;
 
-// Master kill flags — both default off. Flip after Phase 0 dry-run audit.
-// ARC_WHOP_FORCE=1 overrides BOTH gates for the manual audit path. Sensor
-// service does NOT pass this through; only the CLI tick commands honor it.
-const WHOP_REPLY_ENABLED = false || process.env.ARC_WHOP_FORCE === "1";
+// Master kill flags. Reactive lane is LIVE as of 2026-06-12 after Phase 0
+// dry-run audit verified the trigger surface end-to-end (5 of 5 structured
+// paths green, see skills/whop/artifacts/replies/*.json + the
+// e73fa8a3 fix commit). Synthesis still off; flip after Phase 2 sign-off.
+// ARC_WHOP_FORCE=1 still overrides synthesis for manual audit ticks.
+const WHOP_REPLY_ENABLED = true;
 const WHOP_SYNTHESIS_ENABLED = false || process.env.ARC_WHOP_FORCE === "1";
 
-// Dry-run flags. Even when enabled, default to dry_run=true: sensor queues
-// compose-only tasks whose description carries [DRY-RUN] so the dispatched
-// session prepares text but DOES NOT call post-chat / reply-chat. Flip to
-// false only after auditing artifacts confirms whyReply behaves as designed.
-const WHOP_REPLY_DRY_RUN = true;
+// Dry-run flags. Reactive flipped to live concurrently with WHOP_REPLY_ENABLED
+// — the dry-run audit already exercised every cheaply-testable guard. The
+// remaining two (recent_arc_cooldown, thread_spiral_cap) are state-dependent
+// and only observable in production. Synthesis stays dry-run until Phase 2.
+const WHOP_REPLY_DRY_RUN = false;
 const WHOP_SYNTHESIS_DRY_RUN = true;
 
 // Channel under management. Verified in SKILL.md.
