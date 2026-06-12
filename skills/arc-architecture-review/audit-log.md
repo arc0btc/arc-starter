@@ -1,3 +1,44 @@
+## 2026-06-12T02:18:00.000Z — whop monetization skill scaffolded; 121 skills / 73 sensors
+
+**Task #18607** | Diff: e94a430c → 9d3edbc (1 structural commit) | Sensors: 73 | Skills: 121
+
+### Step 1 — Requirements
+
+- **feat(whop): scaffold Whop monetization skill + strategy** (9d3edbc): `skills/whop/` — SKILL.md, STRATEGY.md, cli.ts. Monetization channel: Arc's blog/research → Whop paid chat ($50/mo, hash-it-out) and future courses. CLI: `whoami`, `list-experiences`, `post-chat`, `create-course`, `create-chapter`, `create-lesson`. Uses `getCredential("whop", "api_key")` with fail-safe if absent. Human-review gate required for first posts. No sensor yet. Skill count 120→121.
+
+### Step 2 — Delete
+
+No deletion candidates. 121/73. Whop scaffold is net-new, no dead code.
+
+### Step 3 — Simplify
+
+- Whop scaffold is well-scoped: thin `fetch()` wrapper (no SDK), 172 lines, all commands fail-gracefully without credentials. Correct call — lighter than pulling `@whop/sdk` or `@whop/mcp` into dispatch context.
+- No sensor yet. Correct sequencing: sensor after credentials confirmed working, not before.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- Blog→Whop pipeline is the next dispatch cycle after credentials land. Sensor design: fire on fresh blog post (or 3–5d cadence), queue sonnet task with `skills:[whop]`, post-chat call. Minimal delta from current blog-publishing flow.
+
+### Step 5 — Automate
+
+- **[ACTION]** Wire `sensor.ts` for blog→hot-topic cadence after whoabuddy provisions credentials (`api_key`, `company_id`, `chat_channel_id`). Task to create once creds confirmed.
+
+### Flags
+
+- **[NEW-WATCH]** Whop credentials pending — skill inoperable until `arc creds set --service whop` keys provisioned. Create follow-up task once credentials received from whoabuddy.
+- **[CARRY-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** arc0me-site PR #8 — requires whoabuddy.
+- **[CARRY-WATCH]** X API credits depleted (#17796) — awaiting whoabuddy top-up.
+- **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated on signal filing policy + peer interactions (both externally blocked).
+
+---
+
 ## 2026-06-11T14:06:00.000Z — no new structural changes; PR #571 SHA gap flagged; v2.1.173 minor; $0.18/task efficiency; 120 skills / 73 sensors
 
 **Task #18577** | Diff: e94a430c → HEAD (0 new structural commits) | Sensors: 73 | Skills: 120

@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-11T14:06:00.000Z*
-*Diff: e94a430c → HEAD (0 new structural commits in src/ or skills/) | Sensor count: 73 | Skill count: 120*
+*Generated: 2026-06-12T02:18:00.000Z*
+*Diff: e94a430c → 9d3edbc (1 structural commit in skills/) | Sensor count: 73 | Skill count: 121*
 
 ```mermaid
 stateDiagram-v2
@@ -44,6 +44,8 @@ stateDiagram-v2
         }
 
         state ContentSensors {
+            whop
+            note right of whop: SCAFFOLDED (9d3edbc): new monetization skill\ncli.ts: whoami, list-experiences, post-chat, create-course, create-chapter, create-lesson\nReads api_key via getCredential("whop", "api_key"); fails gracefully if absent\nGuardrail: first posts require human-review gate — members pay real money\nPending: credentials from whoabuddy + sensor.ts for blog→hot-topic cadence\nNo sensor yet — skill count 120→121 but sensor count unchanged (73)
             blog_publishing
             note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)\nIDEMPOTENT PUBLISH (b07bc650): cmdPublish no longer adds published_at if already present in frontmatter\nGuard: if (!/^published_at:/m.test(content)) before regex replacement\nCloses duplicate-frontmatter class on re-publish or force-publish of already-published post
             aibtc_news_editorial
@@ -356,15 +358,10 @@ New skills added (v0.40.0):
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
 
-## Key Architectural Changes (e94a430c → HEAD) [2026-06-11T14:06Z]
+## Key Architectural Changes (e94a430c → 9d3edbc) [2026-06-12T02:18Z]
 
-No structural commits to `src/` or `skills/`. Sensor triggered by "active reports to process."
-
-**Reports integrated:**
-- Overnight brief 2026-06-11T13:04Z: 4 cycles, 0 failures, $0.71. Clean night.
-- Watch 2026-06-11T02:04Z–13:00Z: 5 completed, 0 failed, $0.91 ($0.18/task — excellent efficiency).
-- **Claude Code v2.1.173**: Fable 5 model name normalization + Windows sandbox warning. No Arc action required.
-- **PR #571 aibtc-mcp-server security review**: SHA verification missing on gitleaks binary download flagged; `.gitleaks.toml` `(?i)` flag still open from prior secret-mars item. Arc posted comment; awaiting author response.
+**Structural commit:**
+- **feat(whop): scaffold Whop monetization skill + strategy** (9d3edbc): `skills/whop/` added — `SKILL.md`, `STRATEGY.md`, `cli.ts`. New monetization channel: Arc's blog/research output → Whop paid chat/courses. CLI commands: `whoami`, `list-experiences`, `post-chat`, `create-course/chapter/lesson`. Reads credentials via `getCredential("whop", ...)` with graceful fail-if-absent. Human-review gate required before full automation. No sensor yet. Skill count 120→121.
 
 **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
 **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
@@ -374,10 +371,11 @@ No structural commits to `src/` or `skills/`. Sensor triggered by "active report
 **[CARRY-WATCH]** X API credits depleted (#17796) — awaiting whoabuddy top-up.
 **[CARRY-WATCH]** amber-otter credential exposure — no autonomous path.
 **[CARRY-WATCH]** PURPOSE E:1 — ecosystem metric gated on signal filing policy + peer interactions (both externally blocked).
+**[NEW-WATCH]** Whop credentials pending from whoabuddy — skill scaffolded but inoperable until `api_key`, `company_id`, `chat_channel_id` stored. Follow-up: wire sensor after credentials land.
 
 | Change | Impact |
 |--------|--------|
-| *(no structural commits this window)* | Watch report and overnight brief integrated. No code changes. |
+| feat(whop): scaffold Whop skill + strategy (9d3edbc) | New monetization pathway. No behavioral change until credentials provisioned. Skill count 120→121. |
 
 ## Key Architectural Changes (6def33c → HEAD) [2026-06-10T14:54Z]
 
