@@ -261,63 +261,60 @@ function findNewPatterns(
   return allPatterns.filter((p) => !state.postedPatterns.includes(p.name));
 }
 
-/** Monitor patterns.md and queue a task when new patterns are detected. */
+/**
+ * Publish the patterns library as a static JSON file consumed by the
+ * arc-the-agent Whop App's experience route for exp_bbQpqIAEToAweQ. This
+ * replaces the prior approach of queueing a chat post — the Patterns Library
+ * experience is `experience_type: "has_interface"`, NOT a chat or forum, so
+ * no message API exists for it. Same shape as whop-state.json.
+ *
+ * Idempotent: writes the full pattern list every tick. `postedPatterns` in
+ * state continues to track what's been published so the log records additions.
+ */
+const PATTERNS_LIBRARY_REL = "src/data/patterns-library.json";
+
 async function monitorPatternsLibrary(): Promise<void> {
   const patterns = extractPatterns();
   if (patterns.length === 0) {
-    log("no patterns found in patterns.md");
+    log("no patterns found in patterns.md — skip");
     return;
   }
 
-  let state = loadPatternsState();
-
-  // First run: initialize state with all current patterns (avoid flooding on sensor startup)
-  if (state.postedPatterns.length === 0 && patterns.length > 0) {
-    log(`first run — initializing state with ${patterns.length} existing patterns`);
-    state.postedPatterns = patterns.map((p) => p.name);
-    state.lastScannedAt = new Date().toISOString();
-    savePatternsState(state);
+  const siteRoot = ARC0ME_SITE_CANDIDATES.find(existsSync);
+  if (!siteRoot) {
+    log("arc0me-site not found at any candidate path — skip patterns publish");
     return;
   }
 
-  const newPatterns = findNewPatterns(patterns, state);
+  const state = loadPatternsState();
+  const knownNames = new Set(state.postedPatterns);
+  const newNames = patterns.map((p) => p.name).filter((n) => !knownNames.has(n));
 
-  if (newPatterns.length === 0) {
-    log(`all ${patterns.length} patterns indexed — skip`);
-    return;
-  }
+  const payload = {
+    updated_at: new Date().toISOString(),
+    source: "memory/patterns.md",
+    patterns_count: patterns.length,
+    patterns: patterns.map((p) => ({
+      name: p.name,
+      description: p.description,
+    })),
+  };
 
-  // Create dedup source key based on first new pattern name
-  const source = `sensor:whop:patterns-library:${newPatterns[0].name}`;
-  if (taskExistsForSource(source)) {
-    log(`already queued a patterns-library task for first new pattern '${newPatterns[0].name}' — skip`);
-    return;
-  }
+  const outPath = resolve(siteRoot, PATTERNS_LIBRARY_REL);
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
 
-  const patternNames = newPatterns.map((p) => p.name).join(", ");
-  const taskId = insertTask({
-    subject: `Whop: append ${newPatterns.length} new pattern(s) to Patterns Library index`,
-    description: [
-      `Detected ${newPatterns.length} new pattern(s) in patterns.md:`,
-      "",
-      newPatterns.map((p) => `- **${p.name}**: ${p.description}`).join("\n"),
-      "",
-      "Append these to the Patterns Library index post in the hash-it-out Patterns Library experience.",
-      "Use the post-chat command to update the index with the new entries.",
-      "Include brief description for each new pattern.",
-    ].join("\n"),
-    skills: JSON.stringify(["whop"]),
-    priority: 6,
-    model: "haiku",
-    source,
-  });
-
-  // Update state to mark these patterns as indexed
-  state.postedPatterns.push(...newPatterns.map((p) => p.name));
-  state.lastScannedAt = new Date().toISOString();
+  // Update tracker so a subsequent tick can log additions accurately. Note
+  // the file is published regardless — postedPatterns is purely for logs.
+  state.postedPatterns = patterns.map((p) => p.name);
+  state.lastScannedAt = payload.updated_at;
   savePatternsState(state);
 
-  log(`queued task ${taskId} — ${newPatterns.length} new pattern(s): ${patternNames}`);
+  if (newNames.length > 0) {
+    log(`published ${patterns.length} patterns to ${outPath} (+${newNames.length} new: ${newNames.join(", ")})`);
+  } else {
+    log(`published ${patterns.length} patterns to ${outPath} (no new entries)`);
+  }
 }
 
 // ====================================================================
@@ -330,8 +327,10 @@ const SYNTHESIS_SENSOR_NAME = "whop-synthesis";
 const SYNTHESIS_INTERVAL_MINUTES = 6 * 60;
 
 // Master kill flags — both default off. Flip after Phase 0 dry-run audit.
-const WHOP_REPLY_ENABLED = false;
-const WHOP_SYNTHESIS_ENABLED = false;
+// ARC_WHOP_FORCE=1 overrides BOTH gates for the manual audit path. Sensor
+// service does NOT pass this through; only the CLI tick commands honor it.
+const WHOP_REPLY_ENABLED = false || process.env.ARC_WHOP_FORCE === "1";
+const WHOP_SYNTHESIS_ENABLED = false || process.env.ARC_WHOP_FORCE === "1";
 
 // Dry-run flags. Even when enabled, default to dry_run=true: sensor queues
 // compose-only tasks whose description carries [DRY-RUN] so the dispatched
@@ -364,7 +363,7 @@ interface CandidateDecision {
 }
 
 /** Newest-first fetch + per-message whyReply evaluation + relationship update. */
-async function pollWhopReplies(): Promise<void> {
+export async function pollWhopReplies(): Promise<void> {
   if (!WHOP_REPLY_ENABLED) {
     repliesLog("disabled (WHOP_REPLY_ENABLED=false) — awaiting Phase 0 audit + sign-off");
     return;
@@ -609,7 +608,7 @@ function queueReplyTask(
 }
 
 /** 6h synthesis lane — read the room, queue one defer-or-post task. */
-async function pollWhopSynthesis(): Promise<void> {
+export async function pollWhopSynthesis(): Promise<void> {
   if (!WHOP_SYNTHESIS_ENABLED) {
     synthesisLog("disabled (WHOP_SYNTHESIS_ENABLED=false) — awaiting Phase 0 audit + sign-off");
     return;

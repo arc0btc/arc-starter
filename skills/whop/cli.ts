@@ -93,6 +93,10 @@ function printHelp(): void {
       "  create-lesson --chapter cha_xxx --title <t> [--type text|video|quiz|assignment]",
       "                [--content <md>] [--video-url <url>] [--order N]",
       "",
+      "Audit:",
+      "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
+      "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
+      "",
     ].join("\n"),
   );
 }
@@ -266,6 +270,20 @@ async function main(): Promise<void> {
     case "create-lesson": {
       const apiKey = await requireApiKey();
       await cmdCreateLesson(apiKey, flags);
+      break;
+    }
+    case "tick-replies": {
+      const { initDatabase } = await import("../../src/db.ts");
+      initDatabase();
+      const { pollWhopReplies } = await import("./sensor.ts");
+      await pollWhopReplies();
+      break;
+    }
+    case "tick-synthesis": {
+      const { initDatabase } = await import("../../src/db.ts");
+      initDatabase();
+      const { pollWhopSynthesis } = await import("./sensor.ts");
+      await pollWhopSynthesis();
       break;
     }
     default:

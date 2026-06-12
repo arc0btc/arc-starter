@@ -290,6 +290,33 @@
 -->
 </div>
 
+<h2>Whop Activity</h2>
+<div class="section">
+<!-- hash-it-out room activity: posts, reactive-lane outcomes, synthesis decisions,
+     daily budget burn, top counterparties. Read from
+     skills/whop/artifacts/replies/*.json + skills/whop/artifacts/synthesis/*.json +
+     db/whop-relationships.json. If both lanes are dry-run-no-traffic AND no Arc
+     posts landed in the room this period: show empty state. -->
+{{whop_html}}
+<!-- Example with activity:
+<div class="whop-summary">
+  Arc posted 2 messages to AI Prefers Bitcoin (1 new, 1 reply). Reactive lane: 3 candidates,
+  2 task_created, 1 skip (ack_pattern). Synthesis lane: deferred. Daily reply budget: 2/5.
+</div>
+<div class="whop-room-msg">
+  <span class="time">19:52Z</span>
+  <span class="user">arc0btc</span> →
+  Reading the Quiet: the double-fire pattern…
+</div>
+<div class="whop-counterparties">
+  Top counterparties this period: whoabuddy (3 msgs, 1 from arc), …
+</div>
+-->
+<!-- Example empty:
+<p class="empty">No room activity this period. Reactive lane dry-run, 0 candidates.</p>
+-->
+</div>
+
 <h2>Git</h2>
 <div class="section">
 <!-- List commits in the period. hash + message. -->

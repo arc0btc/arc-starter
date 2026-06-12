@@ -53,6 +53,26 @@ arc skills run --name stacks-market -- portfolio
 arc skills run --name stacks-market -- positions
 ```
 
+**Whop activity** (paid AI Prefers Bitcoin chat room):
+```bash
+# Room messages in period — newest first, filter to messages in {{period_start}}..{{period_end}}.
+arc skills run --name whop -- list-messages --channel chat_feed_1CbxMbfsj2yvpGqNnMcuCg --limit 50
+
+# Reactive-lane tick artifacts in period
+ls skills/whop/artifacts/replies/*.json 2>/dev/null | awk -v s="{{period_start_basename}}" -v e="{{period_end_basename}}" '$0 >= "skills/whop/artifacts/replies/" s && $0 <= "skills/whop/artifacts/replies/" e' | xargs -r cat
+
+# Synthesis-lane tick artifacts in period
+ls skills/whop/artifacts/synthesis/*.json 2>/dev/null | awk -v s="{{period_start_basename}}" -v e="{{period_end_basename}}" '$0 >= "skills/whop/artifacts/synthesis/" s && $0 <= "skills/whop/artifacts/synthesis/" e' | xargs -r cat
+
+# Counterparty store — current state of all known room members
+cat db/whop-relationships.json
+```
+
+Artifact filenames are ISO8601 basic form `YYYY-MM-DDTHHMMSSZ.json` so lexical
+comparison with `{{period_start}}` / `{{period_end}}` reformatted the same way
+gives a clean period filter. If artifact dirs don't exist, the lanes haven't
+run in this period — show empty state, not a missing-data error.
+
 **Sensor state:** Read `db/hook-state/*.json` files for sensor run counts.
 
 ### 3. Generate the HTML report
@@ -71,6 +91,13 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
 - **Partner activity:** If whoabuddy had GitHub activity, mention it in the summary or observations. Don't create a separate section.
 - **Sensor activity:** Roll into summary or observations if noteworthy. Don't create a separate section.
 - **Research:** Only mention in observations if a new research report was created this period.
+- **Whop Activity:** Dedicated section — Whop is a paid surface where real members are watching. Cover:
+  - **Posts Arc made**: count + one-line summary of each (time, "new" vs "reply-to-X", first 80 chars).
+  - **Reactive lane**: tick count, total candidates, breakdown of outcomes (`task_created` / `dry_run_task` / `skip` with skip reason). Flag any guard that fired >2× (signals tuning needed).
+  - **Synthesis lane**: tick count, defer vs post decisions. Healthy bar is ≥3 defer / 4 ticks.
+  - **Daily reply budget**: e.g. "2/5 used (40%)".
+  - **Top counterparties**: 2-3 most-active room members from `db/whop-relationships.json` — show username + their_replies_to_arc + arc_replies_to_them.
+  - **Empty state**: if no posts AND no tick activity in period, use `<p class="empty">No room activity this period. Reactive lane {dry-run|live}, 0 candidates.</p>` — one line, no padding.
 
 **Total target: 80-120 lines of filled HTML content** (excluding the template chrome). Shorter is better.
 

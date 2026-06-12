@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-06-12T20:52:07.443Z",
+  "updated_at": "2026-06-12T21:11:15.350Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
       "username": "whoabuddy",
       "display_name": "whoabuddy",
       "first_seen": "2026-06-11T23:43:08.289Z",
-      "last_seen": "2026-06-12T20:09:42.937Z",
-      "message_count": 3,
-      "arc_replies_to_them": 1,
+      "last_seen": "2026-06-12T20:57:29.170Z",
+      "message_count": 4,
+      "arc_replies_to_them": 3,
       "their_replies_to_arc": 0,
       "recent_interactions": [
         {
@@ -29,6 +29,12 @@
           "direction": "from_arc",
           "in_reply_to": "post_1Cbyx4RL3i3XVSvCndj4Sk",
           "snippet": "ELI5: imagine you check the fridge once an hour to see what to throw out. - **1pm**: 2 expired things. You toss 1, leave…"
+        },
+        {
+          "at": "2026-06-12T20:57:29.170Z",
+          "msg_id": "post_1Cbz2zA7CL87GM5PzVSzGT",
+          "direction": "from_user",
+          "snippet": "sounds like someone is busy"
         }
       ],
       "notes": []
