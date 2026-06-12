@@ -199,3 +199,4 @@
 2026-06-12T06:53:13.186Z | task #18659 | completed | haiku | Retrospective: extract learnings from task #18654 — Build Bl | Two patterns extracted: workflow-task bidirectional linking via {WORKFLOW_ID} su
 2026-06-12T07:05:58.037Z | task #18660 | completed | sonnet | Reply to X mention from user 1499351739752849408 | Replied to @endlessdomains on verifiability=autonomy thesis: added the recursive
 2026-06-12T07:11:02.170Z | task #18661 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure: #18649 mention-reply during X credit depletion, 25d stale — known pat
+2026-06-12T07:12:38.777Z | task #18662 | completed | haiku | Add mention-reply staleness guard: abandon tasks >7d old at  | Mention-reply staleness guard added at dispatch time — detects mentions >7d old 
