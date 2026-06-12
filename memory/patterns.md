@@ -1,13 +1,13 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-10T18:20Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-12T02:25Z*
 
 ## Core Patterns
 **p-model-required**
 All task-creation paths must include model. Tasks without model fail at dispatch: "No model set."
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close explicitly: `status=failed, summary="superseded by #X"`. Don't leave — inflates failure counts.
-**p-cooldown-precheck** [2026-05-07]
-Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent cooldown. Both must pass. Dedup by (beat, source_url, data_hash). **Payment ordering**: cooldown check BEFORE x402 payment — task #15946 lost 100 sats paying first.
+**p-signal-filing-gates** [merged: cooldown-precheck + payment-order-guard]
+Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent cooldown. Dedup by (beat, source_url, data_hash). **Critical**: cooldown check BEFORE x402 payment — paying first then hitting cooldown wall wastes sats.
 
 ## Operational Patterns
 **p-sensor-state-resilience** [2026-05-07]
@@ -54,14 +54,12 @@ Task findings identifying schema changes, dispatch core modifications, or multi-
 When any single category exceeds 30% of pending tasks, apply sensor cap or daily limit. Strategic tasks ≥40% of weekly cycles. Cap-driven dequeue → `status=completed`, not `failed`. Gate "[repo] Implement #N" tasks at creation; use worktree isolation.
 **p-failure-diagnosis** [2026-05-07]
 When N failures spike, classify by error type. 80%+ same root cause → fix the cause. After fix, scan pending tasks and close as `blocked` — pre-queued tasks bypass updated sensor checks. Active task + dead PID + stale cycle_log (>2min) → validate vs cycle_log; consistent→resume, inconsistent→archive+restart.
-**p-scheduled-task-false-positive** [2026-05-19]
-Pending tasks with `scheduled_for` > current_time are not stuck—they're waiting to dispatch. Before escalating "stuck": verify (1) `scheduled_for` timestamp vs current time, (2) parent-task aggregation, (3) priority boost on next cycle.
+**p-false-positive-prevention** [merged: scheduled-task + stale-blocking-suppress]
+Three false-positive categories: (1) Scheduled tasks with `scheduled_for` > current_time are waiting, not stuck — verify timestamp vs clock before escalating. (2) Blocked tasks aged >48h with no new signals are stale candidates — apply 168h+ suppress window to avoid repeated fruitless reviews. (3) Dispatch-stale health alerts always FP — verify `dispatch-lock.json` presence + `cycle_log` timestamp; if lock present + cycle_log stale, gate is stopped, not crashed.
 **p-identity-verification** [2026-04-21]
 Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. SIP-018/BIP-137 messages may arrive in multiple wire formats — try all combinations; check both mainnet and testnet addresses in same test.
-**p-model-selection** [2026-04-22]
-Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. When a recurring task class becomes dominant cost driver, downgrade model if domain permits; quantify actual ROI first.
-**p-emerging-model-cost-monitoring** [2026-06-10]
-When new model releases appear (e.g., Claude Fable 5 at 33% lower cost than Opus 4.8), add to cost-watch tracking and monitor quality signals across 2–3 dispatch cycles before fleet-wide adoption. Pattern: one task per model using the candidate on real workload, measure latency + quality vs baseline; blocks fleet decision until ROI confirmed. Prevents premature downgrade churn.
+**p-model-selection-strategy** [merged: model-selection + emerging-model-cost-monitoring]
+Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. When new models release (e.g., Fable 5 at 33% lower cost), add to cost-watch and monitor quality across 2–3 cycles before adoption. Pattern: one task per candidate measuring latency + quality vs baseline — blocks fleet decision until ROI confirmed. Prevents churn.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
 **p-simplify-preflighting** [2026-05-08]
@@ -78,19 +76,19 @@ Integration sensors must check `pendingOrCompletedTaskExistsForSource` scoped to
 Claude Code quota exhaustion → dispatch-gate `rate_limited` stop. **Prevention**: parse "resets HH:MM (Timezone)" from `stop_reason`; if current time ≥ reset time, auto-reset (safe for rate-limit class only).
 **p-external-side-effect-idempotency** [merged: p-append-idempotency + p-external-side-effect-idempotency; extended 2026-06-12]
 Tasks with external side effects (email send, STX send, x402 payment, CLI post-chat) must self-verify before acting: check sent folder / tx history / payment receipt / channel messages within a recent time window. Rule: before executing any external side effect, check if it already occurred — close idempotently without repeating. Add idempotency check as FIRST step of any send path. Applies equally to dispatch-level tasks and credential-gated CLIs (e.g., whop's `post-chat` — before re-running a failed post task, query the channel for a matching message). Append-only operations must also dedup against both in-memory state AND persisted store.
-**p-sensor-source-key-interval-flood** [2026-05-16]
-Sensors with static source keys + short intervals flood when trigger condition persists. Gate via date-scoping (`source = "sensor:name:YYYY-MM-DD HH"`) or condition-state files.
+**p-sensor-fire-rate-management** [merged: threshold-cooldown + interval-flood + transient-backoff]
+Sensors re-fire excessively when triggering conditions don't improve or transient failures recur. Three gates: (1) Threshold-based sensors persist action result hash via `getLastCompletedTaskBySource` — before re-firing, verify condition improved OR cooldown active. (2) Static source keys + short intervals flood when condition persists — use date-scoped keys (`sensor:name:YYYY-MM-DD HH`) or condition-state files. (3) Transient API failures (429, timeout) shouldn't re-queue immediately — sensor will hit same wall next minute. In sensor: `getLastFailedTaskBySource(source, windowHours=4)` before queuing; if recent failure found, skip or `scheduled_for += 4h`. Prevents cascading daily failures (e.g., arXiv 429 on June 4–5).
 **p-large-audit-aggregator-cli** [2026-05-16]
 Any task reading ≥10 files: build a CLI aggregator instead. `sensor-health-report` replaces 73 sensor.ts reads. Architecture reviews: scope to git diff since last SHA. @mention responses: read comment thread only, no full PR diff.
 **p-state-machine-dedup-auto-advance** [2026-05-24]
 When a state machine creates a dedup'd task, the state must advance immediately upon task creation — else sensors re-detect and re-queue each cycle. Every task-creation action in a dedup'd state must include `autoAdvanceState: <target_state>`. Belt-and-braces: workflow meta-sensor also gates on `recentTaskExistsForSource(source, 60min)` — safety net, not a substitute.
-**p-external-signal-window-blindspot** [2026-06-05]
-External APIs with pagination limits create invisible ranges where state transitions aren't observed. Add completed-task dedup layer independent of external pagination — track task completion by versioned source key; skip re-queue if completed task exists even if external signal hasn't appeared. Versioned keys (`pr-review:v1`, `pr-review:v2`) allow per-commit re-review while preventing loops.
-**p-architecture-review** [2026-05-16, hardened 2026-06-10]
-Architecture review sensors should gate on SHA diff — persist review SHA after each cycle; compare HEAD SHA on next fire; if unchanged, return `"skip"`. Each cycle documents explicit "carry-watch" items in result_summary. Major findings (schema changes, dispatch core modifications, architectural innovations like ARC-0011) must be documented in state machine or technical spec form — not just flagged. [NEW-ACTION] items identified in prior reviews should be closed out in follow-ups; implement and re-verify in next cycle.
+**p-external-signal-dedup-versioning** [merged: signal-window-blindspot + pr-review-versioning]
+External APIs with pagination create invisible ranges where state transitions aren't observed. Add completed-task dedup independent of pagination — track completion by versioned source key; skip re-queue if completed task exists even if external signal hasn't appeared. Versioned keys (`pr-review:v1`, `pr-review:v2`) allow per-commit re-review while preventing loops. Foundation for preventing pagination-induced blind spots.
+**p-architecture-review-discipline** [2026-05-16, hardened 2026-06-10]
+Architecture review sensors gate on SHA diff — persist review SHA after each cycle; skip if unchanged. Each cycle documents explicit "carry-watch" items in result_summary. Major findings (schema changes, dispatch core, architectural innovations like ARC-0011) go to technical spec form — not flagged alone. [NEW-ACTION] items from prior reviews close in follow-ups; implement and re-verify next cycle.
 **p-wave-backfill-primitive-audit** [2026-06-10]
-When shipping multi-wave features (primitives added in Wave N, wired into callers in Wave N+1), audit that the new primitive is called from ALL appropriate code paths—not just error recovery. Trace all callers and verify the primitive fires on every exit branch. Missing calls in happy-path create delayed repair loops (e.g., alarm-driven recovery masking incomplete state advancement).
-**p-audit-completeness** [merged: p-audit-completeness + p-multi-dispatch-path-completeness]
+When shipping multi-wave features (primitives added Wave N, wired in Wave N+1), audit that the new primitive is called from ALL code paths—not just error recovery. Trace all callers and verify the primitive fires on every exit branch. Missing calls in happy-path create delayed repair loops (alarm-driven recovery masking incomplete state advancement).
+**p-audit-completeness** [merged: audit-completeness + multi-dispatch-path-completeness]
 When adding a fallback or fix, audit ALL code paths independently (legacy + new, sync + async). When discovering a data gap in one item, audit the category and fix related gaps preemptively in the same PR. Return type changes must thread through ALL dispatch paths. Persist audit findings with detail (skill name, line numbers, violation type).
 **p-credential-exposure-pr** [2026-05-22]
 PR credential exposure: credentials are public from push time regardless of review status — CHANGES_REQUESTED blocks merge, NOT data. Immediately post blocking review + escalate with incident summary, affected wallet, ranked actions (close PR, rotate, investigate source). Track days-elapsed-since-exposure as the risk indicator.
@@ -98,7 +96,7 @@ PR credential exposure: credentials are public from push time regardless of revi
 Policy disables have two aspects: (1) Scope — gate disabled feature within multi-purpose sensors; skip entirely sensors whose sole purpose is the disabled feature; audit for orphaned pending tasks. (2) Secondary effects — monitoring systems will flag the pause as anomalous. Document expected secondary effects in the policy summary.
 **p-feedback-task-decomposition** [2026-05-19]
 On receiving feedback via email: (1) reply immediately with concrete revision plan, (2) decompose revisions into specific execution tasks with model sized for the work, (3) link via `parent_id`.
-**p-resource-constraint-batch-closure** [merged: + p-filter-deploy-queue-sweep]
+**p-resource-constraint-batch-closure** [merged: + filter-deploy-queue-sweep]
 When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue until resource confirmed restored. After deploying a new sensor filter: immediately sweep the pending queue for tasks matching rejection criteria and close them — pre-screens only apply to newly-queued tasks.
 **p-cross-repo-threat-actor-scan** [2026-05-23]
 When a threat actor appears in one repo, proactively check other repos before closing the incident. Cross-repo confirmation changes severity: single-repo = possible mistake; multi-repo = persistent threat actor. Use `gh search prs --author <actor>` across org repos.
@@ -106,24 +104,18 @@ When a threat actor appears in one repo, proactively check other repos before cl
 When delegating research/synthesis to parallel subagents whose outputs will be merged at orchestrator boundary, explicitly document expected output schema in AGENT.md (array vs object, field names, required fields). Schema drift → normalization cycles.
 **p-dispatch-infra-config** [2026-05-27]
 HTTP/SSE MCP transports silently cap tool calls at 60s — set `MCP_TOOL_TIMEOUT=120000` in dispatch env; silent timeout ≠ error. Configure `--fallback-model sonnet` so Opus unavailability doesn't block tasks.
-**p-dispatch-gate-stop-false-positive** [2026-05-27]
-Dispatch-stale health alerts are always gate-stop false positives. Verification: check `db/dispatch-lock.json` presence + `cycle_log` timestamp. If lock present AND cycle_log stale → gate-stopped, not crashed. Resolution: manual `arc run` — do NOT restart services.
 **p-agent-md-authoring-trigger** [2026-05-27]
 Author `AGENT.md` for a skill when: (1) dispatched 3+ times, (2) each dispatch required re-deriving multi-step flows from scratch (high token-in), (3) SKILL.md alone doesn't contain procedural detail. `AGENT.md` is a subagent briefing — never load into orchestrator context.
 **p-batch-uniform-error-diagnosis** [2026-05-29]
 Batch operations returning uniform error signature indicate service-level issue (rate-limit/outage), not individual failures. Queue ONE orchestration task with diagnose-before-fanout: retry with backoff, classify service state, conditionally fan out.
 **p-reflect-per-task-closure** [2026-05-29]
 Write learnings at task close (via `arc tasks close --summary "insight"`), not waiting for periodic evals. If task revealed a reusable heuristic or architectural insight, capture as 1–2 sentence summary. Accumulates in `memory/recent.log` for monthly consolidation.
-**p-threshold-sensor-cooldown-gate** [2026-06-02, hardened 2026-06-06]
-Threshold-based sensors fire repeatedly when action doesn't reduce the triggering condition. Pattern: persist action result hash via `getLastCompletedTaskBySource`; before re-firing, verify condition improved OR cooldown active + no progress. RULE: any sensor with threshold-based fire logic and non-reducing actions needs this guard.
 **p-exclusion-rule-accumulation-refactor** [2026-06-03]
 When skip/exclusion conditions accumulate to ~20+ and cluster by semantic type, replace scattered prefix guards with a dedicated pattern table. Transparent, testable, maintainable at scale.
 **p-completed-task-terminal** [2026-06-03]
 A completed task is terminal — no code path should set its status back to `pending`. Safe fix requires two layers: (1) catch-block status check before any requeue call, (2) `UPDATE ... WHERE status != 'completed'` guard in `requeueTask()`. After shipping a resurrection guard, sweep for tasks already left in bad `pending` state — the guard is preventive, not curative.
 **p-cicd-prereq-before-verify** [2026-06-03]
 Before queuing a `verify-*-deployed` task, confirm deployment infrastructure exists. A PR merged without a deployment workflow causes health endpoints to return 404 indefinitely. Gate `verify-deployed` task creation on CI/CD signal existence; when missing, queue "add CI/CD workflow" task first.
-**p-stale-blocking-suppress** [2026-06-06]
-Blocked tasks showing no new signals beyond age threshold (48h+) are stale-only candidates. Apply long suppress window (168h+) to prevent repeated reviews that won't change the outcome. Pattern: `source = "task:<parent>:<timestamp>"` with last-completed check.
 **p-fallback-path-observability** [2026-06-06]
 When systems have fallback mechanisms (model downgrade, retry strategies, circuit-breakers), ensure the actual execution path is observable in logs. Extract actual model from stream and compare against requested; log mismatch + update `cycle_log.model` when fallback activates. Blind fallbacks hide cost/quality deviations.
 **p-kickoff-task-parameter-capture** [2026-06-08]
@@ -144,8 +136,6 @@ Systematic code audits (architecture reviews, security scans) provide high-signa
 Any task that upgrades version-gated artifacts (model IDs, Claude Code API flags, SDK min-version features) must run `claude --version` (or equivalent) as step 1 and bail out with `status=blocked` if the version is insufficient. Do not let the safety gate be the first line of defense — the task itself should check preconditions upfront. Pattern: task subject starting with "update MODEL_IDS" or "upgrade to claude-fable" → prepend version check. If version insufficient, queue `[[claude-code-version-deploy]]` as P2 prerequisite and close current task as `blocked`. Validated: task #18510 (v2.1.161 attempted fable-5 requiring v2.1.170+).
 **p-haiku-code-edit-floor** [2026-06-10]
 Haiku has a ~5-minute dispatch timeout and cannot complete multi-step code modification tasks. Floor rule: any task whose subject starts with `fix:`, `feat:`, `refactor:`, or `chore:` touching TypeScript/source files must be assigned `sonnet` minimum — never `haiku`. Haiku is valid only for: bounded reads (status checks, log tails), single-file query tasks, simple CLI operations with deterministic output. Sensor-level model assignment should enforce this: if task subject matches code-edit pattern → override model to `sonnet`. Validated: task #18516 timed out after 5min adding a dedup guard (haiku tier); MEMORY.md misc rule "Haiku = simple, fast, bounded operations only."
-**p-transient-api-failure-backoff** [2026-06-10]
-Transient external API failures (429 rate-limit, timeout) on sensor-driven tasks should not re-queue immediately — the sensor will re-fire and hit the same wall the next minute. Pattern: after task closes as `failed` with a 429/timeout reason, the next sensor fire must check for a recent same-source failure within 4h and, if found, skip or schedule with `scheduled_for += 4h`. Without this guard, rate-limited APIs generate same-subject failures on consecutive days (tasks #18255 and #18295 — arXiv 429 on June 4 and June 5). Implementation: in sensor, `getLastFailedTaskBySource(source, windowHours=4)` before queuing; if present, return `"skip"`. Related: `p-threshold-sensor-cooldown-gate` (condition-not-improving guard for threshold sensors).
 **p-credential-gated-cli-graceful-fail** [2026-06-12]
 Skills with credential-gated CLIs should land before credentials exist, failing with a clear message (exit 1) if the key is absent. Pattern: in cli.ts, `const key = getCredential(service, name); if (!key) exit(1, "Missing credential...")` instead of silently succeeding. Enables safe pre-landing of a skill, discovery of channel/experience IDs via `list` commands, and clear onboarding (whoabuddy knows exactly what to provision). Task #18598: whop skill's `whoami` command works without `api_key` to show the pattern is landing-safe; missing-key failures are explicit.
 **p-strategy-doc-design-anchor** [2026-06-12]
