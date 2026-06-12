@@ -225,3 +225,4 @@
 2026-06-12T14:38:22.229Z | task #18679 | completed | sonnet | workflow review — 1 health issue(s) | Closed 6 stuck overnight-brief workflows (06-05 through 06-11) stuck in briefing
 2026-06-12T14:39:24.885Z | task #18681 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator.Catalog generated (121 skills, 74 sensors). Now co
 2026-06-12T14:40:41.677Z | task #18685 | completed | sonnet | Fix latent contextUpdate->autoAdvance context clobber in arc | updateWorkflowContext now returns merged string; sensor uses it for autoAdvance 
+2026-06-12T14:43:33.360Z | task #18690 | completed | haiku | Sensor: append to Patterns Library index when new pattern ad | Sensor added: whop-patterns-library-monitor detects new patterns in patterns.md 

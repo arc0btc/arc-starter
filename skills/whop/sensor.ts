@@ -29,6 +29,9 @@ const INTERVAL_MINUTES = 360;
 const STATE_WRITER_SENSOR_NAME = "whop-state-writer";
 const STATE_WRITER_INTERVAL_MINUTES = 60;
 
+const PATTERNS_MONITOR_SENSOR_NAME = "whop-patterns-library-monitor";
+const PATTERNS_MONITOR_INTERVAL_MINUTES = 360;
+
 // Candidate paths for the arc0me-site working copy (arc-starter-relative first,
 // then the development checkout as fallback).
 const ARC0ME_SITE_CANDIDATES = [
@@ -47,6 +50,9 @@ const FRESH_WINDOW_DAYS = 7;
 const BLOG_DIR = resolve(import.meta.dir, "../../github/arc0btc/arc0me-site/src/content/docs/blog");
 const BLOG_BASE_URL = "https://arc0.me/blog";
 
+const PATTERNS_FILE = resolve(import.meta.dir, "../../memory/patterns.md");
+const PATTERNS_STATE_FILE = resolve(import.meta.dir, "../../db/patterns-library-state.json");
+
 const log = createSensorLogger(SENSOR_NAME);
 
 interface BlogPost {
@@ -54,6 +60,17 @@ interface BlogPost {
   title: string;
   publishedAt: string | null;
   draft: boolean;
+}
+
+interface PatternEntry {
+  name: string;
+  description: string;
+  tags?: string[];
+}
+
+interface PatternsLibraryState {
+  lastScannedAt: string;
+  postedPatterns: string[]; // pattern names that have been posted
 }
 
 /**
@@ -148,14 +165,160 @@ async function writeWhopState(): Promise<void> {
   log(`wrote whop-state.json → ${outPath} (tasks: ${row.total})`);
 }
 
+/** Load patterns library state, or return default empty state. */
+function loadPatternsState(): PatternsLibraryState {
+  if (!existsSync(PATTERNS_STATE_FILE)) {
+    return {
+      lastScannedAt: new Date().toISOString(),
+      postedPatterns: [],
+    };
+  }
+  try {
+    const content = readFileSync(PATTERNS_STATE_FILE, "utf8");
+    return JSON.parse(content);
+  } catch (err) {
+    log(`error loading patterns state: ${err instanceof Error ? err.message : String(err)}`);
+    return {
+      lastScannedAt: new Date().toISOString(),
+      postedPatterns: [],
+    };
+  }
+}
+
+/** Save patterns library state. */
+function savePatternsState(state: PatternsLibraryState): void {
+  try {
+    mkdirSync(dirname(PATTERNS_STATE_FILE), { recursive: true });
+    writeFileSync(PATTERNS_STATE_FILE, JSON.stringify(state, null, 2) + "\n", "utf8");
+  } catch (err) {
+    log(`error saving patterns state: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+/** Extract all patterns from patterns.md. Returns pattern names in order of appearance. */
+function extractPatterns(): PatternEntry[] {
+  if (!existsSync(PATTERNS_FILE)) {
+    log(`patterns file not found: ${PATTERNS_FILE}`);
+    return [];
+  }
+
+  const content = readFileSync(PATTERNS_FILE, "utf8");
+  const patterns: PatternEntry[] = [];
+  const lines = content.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    // Match pattern definition line: **p-<name>**
+    const match = line.match(/^\*\*p-([a-z0-9\-]+)\*\*(.*)$/);
+    if (match) {
+      const name = match[1];
+      // Extract metadata and description from the same line (e.g., " [2026-05-07]")
+      const metadata = match[2].trim();
+
+      // Get the next line as the description (usually starts with the pattern explanation)
+      const nextLine = i + 1 < lines.length ? lines[i + 1] : "";
+      const description = nextLine.trim();
+
+      patterns.push({
+        name,
+        description,
+        tags: [], // Could parse tags from metadata if needed
+      });
+    }
+  }
+
+  return patterns;
+}
+
+/** Find new patterns not yet posted to the library. */
+function findNewPatterns(
+  allPatterns: PatternEntry[],
+  state: PatternsLibraryState
+): PatternEntry[] {
+  return allPatterns.filter((p) => !state.postedPatterns.includes(p.name));
+}
+
+/** Monitor patterns.md and queue a task when new patterns are detected. */
+async function monitorPatternsLibrary(): Promise<void> {
+  const patterns = extractPatterns();
+  if (patterns.length === 0) {
+    log("no patterns found in patterns.md");
+    return;
+  }
+
+  let state = loadPatternsState();
+
+  // First run: initialize state with all current patterns (avoid flooding on sensor startup)
+  if (state.postedPatterns.length === 0 && patterns.length > 0) {
+    log(`first run — initializing state with ${patterns.length} existing patterns`);
+    state.postedPatterns = patterns.map((p) => p.name);
+    state.lastScannedAt = new Date().toISOString();
+    savePatternsState(state);
+    return;
+  }
+
+  const newPatterns = findNewPatterns(patterns, state);
+
+  if (newPatterns.length === 0) {
+    log(`all ${patterns.length} patterns indexed — skip`);
+    return;
+  }
+
+  // Create dedup source key based on first new pattern name
+  const source = `sensor:whop:patterns-library:${newPatterns[0].name}`;
+  if (taskExistsForSource(source)) {
+    log(`already queued a patterns-library task for first new pattern '${newPatterns[0].name}' — skip`);
+    return;
+  }
+
+  const patternNames = newPatterns.map((p) => p.name).join(", ");
+  const taskId = insertTask({
+    subject: `Whop: append ${newPatterns.length} new pattern(s) to Patterns Library index`,
+    description: [
+      `Detected ${newPatterns.length} new pattern(s) in patterns.md:`,
+      "",
+      newPatterns.map((p) => `- **${p.name}**: ${p.description}`).join("\n"),
+      "",
+      "Append these to the Patterns Library index post in the hash-it-out Patterns Library experience.",
+      "Use the post-chat command to update the index with the new entries.",
+      "Include brief description for each new pattern.",
+    ].join("\n"),
+    skills: JSON.stringify(["whop"]),
+    priority: 6,
+    model: "haiku",
+    source,
+  });
+
+  // Update state to mark these patterns as indexed
+  state.postedPatterns.push(...newPatterns.map((p) => p.name));
+  state.lastScannedAt = new Date().toISOString();
+  savePatternsState(state);
+
+  log(`queued task ${taskId} — ${newPatterns.length} new pattern(s): ${patternNames}`);
+}
+
 export default async function whopSensor(): Promise<string> {
+  let result: "ok" | "skip" = "skip";
+
   // --- Part 1: whop-state.json writer (always on, 60min cadence) ---
   const stateClaimed = await claimSensorRun(STATE_WRITER_SENSOR_NAME, STATE_WRITER_INTERVAL_MINUTES);
   if (stateClaimed) {
     try {
       await writeWhopState();
+      result = "ok";
     } catch (err) {
       log(`whop-state write error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // --- Part 3: patterns library monitor (independent, always runs if claimed) ---
+  const patternsClaimed = await claimSensorRun(PATTERNS_MONITOR_SENSOR_NAME, PATTERNS_MONITOR_INTERVAL_MINUTES);
+  if (patternsClaimed) {
+    try {
+      await monitorPatternsLibrary();
+      result = "ok";
+    } catch (err) {
+      log(`patterns monitor error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -163,28 +326,28 @@ export default async function whopSensor(): Promise<string> {
   if (!WHOP_SENSOR_ENABLED) {
     // Self-gate so the line is visible in sensor logs without burning a claim.
     log("disabled (WHOP_SENSOR_ENABLED=false) — awaiting key scope + voice sign-off");
-    return stateClaimed ? "ok" : "skip";
+    return result;
   }
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
+  if (!claimed) return result;
 
   const post = newestPublishedPost();
   if (!post) {
     log("no published blog post found");
-    return "skip";
+    return result;
   }
 
   if (!withinFreshWindow(post.publishedAt)) {
     log(`newest post '${post.slug}' is outside the ${FRESH_WINDOW_DAYS}d fresh window — skip`);
-    return "skip";
+    return result;
   }
 
   // Durable dedup: one hot-topic per blog slug, ever (checks all task statuses).
   const source = `sensor:whop:${post.slug}`;
   if (taskExistsForSource(source)) {
     log(`already queued/posted a hot-topic for '${post.slug}' — skip`);
-    return "skip";
+    return result;
   }
 
   const url = `${BLOG_BASE_URL}/${post.slug}`;
