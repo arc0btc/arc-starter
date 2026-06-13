@@ -11,9 +11,11 @@
 
 import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { whopClient } from "./lib/whop-api.ts";
 
-// Host root — each call carries its own API version. The v5 surface covers
-// company/messages/course endpoints; experience listing only lives on v2.
+// Host root — used only by the WRITE commands still on the hand-rolled client
+// (post-chat/forum, edits, courses). Read commands run on @whop/sdk via
+// whopClient(); the remaining raw fetch paths are removed in P5.
 const API_BASE = "https://api.whop.com/api";
 
 interface WhopError {
@@ -73,6 +75,14 @@ async function whopRequest(
   return text ? JSON.parse(text) : null;
 }
 
+// SDK list calls return a CursorPage; callers expect the legacy
+// { data, page_info } JSON shape. One place keeps every read command consistent.
+function printPage(page: { data: unknown; page_info: unknown }): void {
+  process.stdout.write(
+    JSON.stringify({ data: page.data, page_info: page.page_info }, null, 2) + "\n",
+  );
+}
+
 function printHelp(): void {
   process.stdout.write(
     [
@@ -110,41 +120,44 @@ function printHelp(): void {
 }
 
 async function cmdWhoami(apiKey: string): Promise<void> {
-  // Company API keys authenticate against /v5/company, not /v5/me (the latter
-  // requires a user token and returns 403 for a company key).
-  const company = await whopRequest("GET", "/v5/company", apiKey);
+  // SDK companies.retrieve takes the company id explicitly (the legacy
+  // /v5/company inferred it from the key). company_id lives in the cred store.
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("whoami requires creds key company_id (biz_xxx)");
+  const company = await whopClient(apiKey).companies.retrieve(companyId);
   process.stdout.write(JSON.stringify(company, null, 2) + "\n");
 }
 
 async function cmdListExperiences(apiKey: string): Promise<void> {
-  // Experience listing only exists on v2; /v5/experiences 404s.
-  const experiences = await whopRequest("GET", "/v2/experiences", apiKey);
-  process.stdout.write(JSON.stringify(experiences, null, 2) + "\n");
+  // SDK experiences.list requires company_id (the legacy v2 listing inferred it
+  // from the key). The v1/v2/v5 routing is gone — the SDK abstracts it.
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-experiences requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).experiences.list({ company_id: companyId, first: 50 });
+  printPage(page);
 }
 
 async function cmdListChannels(apiKey: string, flags: Record<string, string>): Promise<void> {
-  // Chat feeds live on v1; each carries the canonical channel_id (chat_feed_xxx)
-  // and the experience it backs. company_id defaults to the stored credential.
+  // Chat feeds carry the canonical channel_id (chat_feed_xxx) and the experience
+  // they back. company_id defaults to the stored credential.
   const companyId = flags.company ?? (await getCredential("whop", "company_id"));
   if (!companyId) fail("list-channels requires --company biz_xxx (or set creds key company_id)");
-  const channels = await whopRequest(
-    "GET",
-    `/v1/chat_channels?company_id=${encodeURIComponent(companyId)}`,
-    apiKey,
-  );
-  process.stdout.write(JSON.stringify(channels, null, 2) + "\n");
+  const page = await whopClient(apiKey).chatChannels.list({ company_id: companyId, first: 50 });
+  printPage(page);
 }
 
 async function cmdListMessages(apiKey: string, flags: Record<string, string>): Promise<void> {
   const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
   if (!channel) fail("list-messages requires --channel (or set creds key chat_channel_id)");
   const limit = flags.limit ? Number(flags.limit) : 20;
-  let path = `/v1/messages?channel_id=${encodeURIComponent(channel)}&limit=${limit}`;
-  // Pagination uses opaque cursor strings from page_info.end_cursor / start_cursor.
-  // Raw post IDs as before/after params return 400.
-  if (flags.cursor) path += `&cursor=${encodeURIComponent(flags.cursor)}`;
-  const result = await whopRequest("GET", path, apiKey);
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  // SDK pagination: first:N preserves the legacy newest-first order; the opaque
+  // --cursor maps to the SDK `after` param (forward page past page_info.end_cursor).
+  // Two typed call sites keep inference instead of casting the query object.
+  const messages = whopClient(apiKey).messages;
+  const page = flags.cursor
+    ? await messages.list({ channel_id: channel, first: limit, after: flags.cursor })
+    : await messages.list({ channel_id: channel, first: limit });
+  printPage(page);
 }
 
 async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promise<void> {
@@ -181,25 +194,20 @@ async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Prom
 async function cmdListForums(apiKey: string, flags: Record<string, string>): Promise<void> {
   const companyId = flags.company ?? (await getCredential("whop", "company_id"));
   if (!companyId) fail("list-forums requires --company biz_xxx (or set creds key company_id)");
-  const forums = await whopRequest(
-    "GET",
-    `/v1/forums?company_id=${encodeURIComponent(companyId)}`,
-    apiKey,
-  );
-  process.stdout.write(JSON.stringify(forums, null, 2) + "\n");
+  const page = await whopClient(apiKey).forums.list({ company_id: companyId, first: 50 });
+  printPage(page);
 }
 
 async function cmdListForumPosts(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.experience) fail("list-forum-posts requires --experience exp_xxx");
   const limit = flags.limit ? Number(flags.limit) : 20;
-  // Forum posts live on /v1/forum_posts keyed by experience_id (NOT forum_feed_id).
-  // Empirically verified: forum_feed_id and channel_id are both rejected; experience_id works.
-  const result = await whopRequest(
-    "GET",
-    `/v1/forum_posts?experience_id=${encodeURIComponent(flags.experience)}&limit=${limit}`,
-    apiKey,
-  );
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  // Forum posts are keyed by experience_id (NOT forum_feed_id) — the SDK enforces
+  // this; the empirical v1 quirk is now the documented param.
+  const page = await whopClient(apiKey).forumPosts.list({
+    experience_id: flags.experience,
+    first: limit,
+  });
+  printPage(page);
 }
 
 async function cmdPostForum(apiKey: string, flags: Record<string, string>): Promise<void> {
