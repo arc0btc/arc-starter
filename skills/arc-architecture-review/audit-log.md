@@ -1,3 +1,60 @@
+## 2026-06-13T02:20:00.000Z — PublishFanoutMachine; whop Phase 1 live + Phase 2 dry-run; whop-sales scaffolded; 122 skills / 74 sensors
+
+**Task #18746** | Diff: 738a9cd → ac97599 (37 commits) | Sensors: 74 | Skills: 122
+
+### Step 1 — Requirements
+
+All 37 commits in window are in `skills/whop/` and `skills/arc-workflows/`. No `src/` changes.
+
+**Structural commits this window:**
+- **refactor(arc-workflows): BlogToXMachine → PublishFanoutMachine** (b3e2fefb): Full blog→whop→x pipeline design in state-machine.ts. Whop hop gated by `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED` (flipped true 2026-06-12T22:51Z). X hop by `WORKFLOWS_BLOG_TO_X_ENABLED`. Updated SKILL.md, TEMPLATES.md, PUBLISH-FANOUT.md, sensor.ts, state-machine.ts.
+- **feat(whop): Phase 1 reactive lane live** (cb562025): `WHOP_REPLY_ENABLED=true, WHOP_REPLY_DRY_RUN=false`. sensor.ts operational; first real reply #18716 clean. 5/10 budget headroom across ~50min overnight soak. Only counterparty = whoabuddy.
+- **feat(whop): Phase 2 synthesis dry-run** (bb334953): `WHOP_SYNTHESIS_ENABLED=true, WHOP_SYNTHESIS_DRY_RUN=true`; 6h cadence. Forced-tick #18717 deferred correctly (hit 3/5 rubric triggers).
+- **fix(whop): fanout-aware deferral** (bf4bbff8 + dbb08079): Pre-biases DEFER when publish-fanout:*/ sensor:whop:patterns-library:* (6h) / sensor:whop-replies:* (1h) ran recently. Narrowed to :whop hops only — avoids suppressing unrelated fanout events.
+- **docs(whop): detach endpoint verified** (24a2ac98): exp_bbQpqIAEToAweQ confirmed removed.
+- **feat(whop-sales): scaffold** (15667a11): Skill count 121→122. hash-it-out funnel sales primitives (SKILL.md only).
+- **docs(whop): council content well** (8a9eebb2): 5 substrate patterns from genesis-works/agent-coordination.
+
+### Step 2 — Delete
+
+No deletion candidates. 122/74 stable. The 37 commits include many whop reply artifacts (skills/whop/artifacts/replies/*.json) — these are operational logs, not dead code.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+### Step 3 — Simplify
+
+- PublishFanoutMachine rename is correct: the machine now describes blog→whop→X, not just blog→X. Linear design (one task/hop, autoAdvanceState, source dedup) — no loom-spiral risk per PUBLISH-FANOUT.md spec.
+- Fanout-aware deferral narrowing (dbb08079) is the right scope reduction — pre-biasing DEFER on all fanout events (not just :whop hops) was over-suppressive. Narrowing makes the gate more precise without removing safety.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+- **[WATCH]** whop-sales is SKILL.md only — no cli.ts or sensor.ts yet. The skill exists structurally but has no executable surface. Next cycle should wire funnel actions.
+
+### Step 4 — Accelerate
+
+- Whop Phase 1 overnight soak clean (Phase 1 reactive lane → no budget caps, no spirals). Pipeline working as designed.
+- PublishFanoutMachine enables automated blog→whop→X on each publish — significant throughput gain when Content Calendar Tier A un-gates.
+- whop Phase 2 dry-run voice review gate is the correct sequencing — never auto-post to paying room without sign-off.
+
+### Step 5 — Automate
+
+- **[GATED]** PublishFanoutMachine whop hop → live: needs ≥1 dry-run POST passing voice review + overnight soak + whoabuddy sign-off → `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[GATED]** ContentCalendarMachine Tier A un-gate: checklist in memory/content-calendar-tier-a.md.
+- **[TODO]** whop-sales cli.ts + sensor.ts: skill scaffolded but no executable surface yet.
+
+### Flags
+
+- **[NEW-WATCH]** Whop Phase 2 → live gate pending whoabuddy sign-off. Monitor dry-run posts for voice quality.
+- **[NEW-WATCH]** whop-sales SKILL.md only — no cli.ts or sensor.ts. Needs follow-up to wire funnel actions.
+- **[RESOLVED]** arc0me-site PR #8 — MERGED (55dd284, 2026-06-13T00:00Z). arc0.me fully live.
+- **[CARRY-WATCH]** Dead import: `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** PURPOSE E:1 — ecosystem metric gated on signal filing policy + peer interactions (both externally blocked).
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: 17 instances ready, gated.
+- **[CARRY-WATCH]** X cadence paused — re-enable pending strategy sign-off.
+
+---
+
 ## 2026-06-12T14:40:00.000Z — whop sensor live; BlogToXMachine + ContentCalendarMachine shipped; 121 skills / 74 sensors
 
 **Task #18678** | Diff: 9d3edbc → 738a9cd (21 commits) | Sensors: 74 | Skills: 121
