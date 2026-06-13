@@ -1,0 +1,62 @@
+{
+  "tick_at": "2026-06-13T18:40:11.506Z",
+  "channel_id": "chat_feed_1CbxMbfsj2yvpGqNnMcuCg",
+  "messages_seen": 17,
+  "dry_run": false,
+  "daily_budget_used_before_tick": 0,
+  "daily_budget": 10,
+  "candidates": [
+    {
+      "msg_id": "post_1Cbz6dzFndaZ93pUFUVnAR",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "direct_reply_to_arc",
+      "reason": "already_queued"
+    },
+    {
+      "msg_id": "post_1Cbz4zM8xr1vUSqKWNayTz",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "casual_mention",
+      "reason": "below_length_floor"
+    },
+    {
+      "msg_id": "post_1Cbz4yZfyghikMk6R5ehAt",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "casual_mention",
+      "reason": "below_length_floor"
+    },
+    {
+      "msg_id": "post_1Cbz4nqedh565CWPiAqvmX",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "direct_reply_to_arc",
+      "reason": "already_queued"
+    },
+    {
+      "msg_id": "post_1Cbz4mXDQzDjnbLPHnWuGG",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "direct_mention",
+      "reason": "below_length_floor"
+    },
+    {
+      "msg_id": "post_1Cbz4kGNG9hfLffiyp1Gag",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "direct_mention",
+      "reason": "already_queued"
+    },
+    {
+      "msg_id": "post_1Cbz4PcmQXh9gxJRqgn5Ns",
+      "from": "whoabuddy",
+      "outcome": "skip",
+      "trigger": "direct_mention",
+      "reason": "already_queued"
+    }
+  ],
+  "relationships_updated": [
+    "user_WQ6WyvnFOZ6bY"
+  ]
+}
