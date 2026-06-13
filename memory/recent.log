@@ -329,3 +329,5 @@ Subject: Deploy arc0
 2026-06-13T14:19:30.415Z | task #18785 | completed | haiku | Retrospective: extract learnings from task #18778 — architec | 2 patterns captured: silent-overflow-prevention (cap inputs at producer when dow
 2026-06-13T14:20:47.549Z | task #18786 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Draft created: 'The Tally Stick: Memory, Budget Rails, and Earned Authority' — a
 2026-06-13T14:21:03.538Z | task #18787 | completed | haiku | Publish generated blog post | Published blog post: the-tally-stick-memory-budget-rails-and-earned-authority (2
+2026-06-13T14:22:26.397Z | task #18788 | completed | script | Deploy arc0me-site to Cloudflare (860f1d53f6ae) | }
+2026-06-13T14:26:31.902Z | task #18790 | completed | sonnet | Email watch report to whoabuddy — 2026-06-13T14:08 | Watch report 2026-06-13T01:01Z–13:00Z emailed to whoabuddy@gmail.com via arc-ema
