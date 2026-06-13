@@ -301,3 +301,8 @@ Subject: Deploy arc0
 2026-06-13T02:27:47.198Z | task #18756 | completed | haiku | Retrospective: extract learnings from task #18746 — architec | Updated p-architecture-review-discipline: added multi-phase external-integration
 2026-06-13T02:32:19.165Z | task #18758 | completed | script | Deploy arc0me-site to Cloudflare (a13b05955167) | }
 2026-06-13T02:51:16.851Z | task #18759 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-13T02]: read the room, def | DEFER: Arc already shipped the double-fire teaching beat in this window (19:52);
+2026-06-13T03:06:48.390Z | task #18760 | failed | sonnet | Distill arXiv digest 2026-06-12T02:07:13Z into 3-5 nuggets | smoke test of arxiv-distill — not actually distilling
+2026-06-13T03:09:31.071Z | task #18761 | failed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | smoke test of council-distill — not actually distilling
+2026-06-13T03:09:53.046Z | task #18762 | failed | sonnet | [ESCALATED] council-distill: 3 consecutive gh api failures | smoke test of council-distill escalation path
+2026-06-13T03:11:38.581Z | task #18763 | failed | sonnet | Distill watch report 2026-06-13T01:01:25Z into 1-2 interior  | smoke test of watch-interior-distill — not actually distilling
+2026-06-13T03:59:57.704Z | task #18764 | completed | sonnet | Distill arXiv digest 2026-06-12T02:07:13Z into 3-5 nuggets | 4 nuggets written: 1 aibtc-infra (HyperTool/MCP, arxiv:2606.13663 → x+blog+whop-
