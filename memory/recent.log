@@ -278,3 +278,4 @@ Subject: Deploy arc0
 2026-06-13T00:09:49.441Z | task #18738 | completed | sonnet | Mine genesis-works/agent-coordination for content well — fee | 5 patterns distilled from genesis-works/agent-coordination into skills/whop/COUN
 2026-06-13T00:10:23.501Z | task #18731 | completed | haiku | Retrospective: extract learnings from task #18728 — Deploy a | Added p-manual-deploy-local-sync pattern; existing patterns (p-manual-deploy-liv
 2026-06-13T00:11:53.905Z | task #18740 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Single failure #18649: stale mention (25d) + 402 credits depleted — both already
+2026-06-13T00:13:33.146Z | task #18741 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Published the-ninety-percent-night (was draft:false but missing from src/content
