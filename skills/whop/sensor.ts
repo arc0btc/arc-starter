@@ -206,8 +206,8 @@ function loadPatternsState(): PatternsLibraryState {
   try {
     const content = readFileSync(PATTERNS_STATE_FILE, "utf8");
     return JSON.parse(content);
-  } catch (err) {
-    log(`error loading patterns state: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error loading patterns state: ${error instanceof Error ? error.message : String(error)}`);
     return {
       lastScannedAt: new Date().toISOString(),
       postedPatterns: [],
@@ -220,8 +220,8 @@ function savePatternsState(state: PatternsLibraryState): void {
   try {
     mkdirSync(dirname(PATTERNS_STATE_FILE), { recursive: true });
     writeFileSync(PATTERNS_STATE_FILE, JSON.stringify(state, null, 2) + "\n", "utf8");
-  } catch (err) {
-    log(`error saving patterns state: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error saving patterns state: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -423,15 +423,15 @@ export async function pollWhopReplies(): Promise<void> {
   const budgetUsed = countRepliesQueuedToday();
   const candidates: CandidateDecision[] = [];
 
-  for (const msg of messages) {
-    const trigger = classifyTrigger(msg, messages);
+  for (const message of messages) {
+    const trigger = classifyTrigger(message, messages);
     if (!trigger) continue; // not a candidate at all — silently ignore
 
-    const decision = evaluateWhyReply(msg, messages, store, budgetUsed + countDryRunDecisions(candidates), trigger);
+    const decision = evaluateWhyReply(message, messages, store, budgetUsed + countDryRunDecisions(candidates), trigger);
     if (decision.skip) {
       candidates.push({
-        msg_id: msg.id,
-        from: msg.user.username ?? msg.user.id,
+        msg_id: message.id,
+        from: message.user.username ?? message.user.id,
         outcome: "skip",
         trigger,
         reason: decision.skip,
@@ -440,11 +440,11 @@ export async function pollWhopReplies(): Promise<void> {
     }
 
     // Source dedup — one task per chat message, ever.
-    const source = `sensor:whop-replies:${msg.id}`;
+    const source = `sensor:whop-replies:${message.id}`;
     if (taskExistsForSource(source)) {
       candidates.push({
-        msg_id: msg.id,
-        from: msg.user.username ?? msg.user.id,
+        msg_id: message.id,
+        from: message.user.username ?? message.user.id,
         outcome: "skip",
         trigger,
         reason: "already_queued",
@@ -452,10 +452,10 @@ export async function pollWhopReplies(): Promise<void> {
       continue;
     }
 
-    const taskId = queueReplyTask(msg, trigger, store);
+    const taskId = queueReplyTask(message, trigger, store);
     candidates.push({
-      msg_id: msg.id,
-      from: msg.user.username ?? msg.user.id,
+      msg_id: message.id,
+      from: message.user.username ?? message.user.id,
       outcome: WHOP_REPLY_DRY_RUN ? "dry_run_task" : "task_created",
       trigger,
       task_id: taskId,
@@ -486,15 +486,15 @@ export async function pollWhopReplies(): Promise<void> {
  * Returns a trigger string if this message is a candidate, otherwise null.
  * Triggers: direct_mention | mentions_everyone | direct_reply_to_arc | casual_mention.
  */
-function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null {
+function classifyTrigger(message: ChatMessage, batch: ChatMessage[]): string | null {
   // Self-skip: Arc never replies to Arc.
-  if (msg.user.id === ARC_USER_ID) return null;
+  if (message.user.id === ARC_USER_ID) return null;
 
   // Direct mention. Whop returns `mentions` as a bare array of user_id strings
   // (verified empirically 2026-06-12 against chat_feed_1CbxMbfsj2yvpGqNnMcuCg).
   // Accept the string form first, fall back to object forms in case the API
   // ever returns the richer shape the OpenAPI docs sketched.
-  const mentions = (msg as unknown as {
+  const mentions = (message as unknown as {
     mentions?: Array<string | { user_id?: string; id?: string }>;
   }).mentions;
   if (Array.isArray(mentions)) {
@@ -506,12 +506,12 @@ function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null 
       }
     }
   }
-  const mentionsEveryone = (msg as unknown as { mentions_everyone?: boolean }).mentions_everyone;
+  const mentionsEveryone = (message as unknown as { mentions_everyone?: boolean }).mentions_everyone;
   if (mentionsEveryone) return "mentions_everyone";
 
   // Reply-to-Arc: parent message is in our batch and authored by Arc.
-  if (msg.replying_to_message_id) {
-    const parent = batch.find((m) => m.id === msg.replying_to_message_id);
+  if (message.replying_to_message_id) {
+    const parent = batch.find((m) => m.id === message.replying_to_message_id);
     if (parent && parent.user.id === ARC_USER_ID) return "direct_reply_to_arc";
   }
 
@@ -520,7 +520,7 @@ function classifyTrigger(msg: ChatMessage, batch: ChatMessage[]): string | null 
   // arrives as plain text. Trailing-boundary requires whitespace, punctuation,
   // or end-of-string so we don't false-positive on `@arc@example.com` or
   // `@arcade`.
-  if (CASUAL_MENTION_RE.test(msg.content ?? "")) return "casual_mention";
+  if (CASUAL_MENTION_RE.test(message.content ?? "")) return "casual_mention";
 
   return null;
 }
@@ -532,7 +532,7 @@ interface WhyReplyDecision {
 }
 
 function evaluateWhyReply(
-  msg: ChatMessage,
+  message: ChatMessage,
   batch: ChatMessage[],
   store: ReturnType<typeof loadRelationships>,
   liveBudgetUsed: number,
@@ -546,7 +546,7 @@ function evaluateWhyReply(
   // the user's actual intent, not the addressing. Without this, "@arc hi"
   // would arrive as ~28 chars (picker) or 7 chars (casual) and either confuse
   // the floor or slip past it.
-  const rawContent = msg.content?.trim() ?? "";
+  const rawContent = message.content?.trim() ?? "";
   const content = rawContent
     .replace(/<@[^>]+>/g, "")
     .replace(/(?:^|\s)@(?:arc|arc0btc)(?=[\s.,!?:;]|$)/gi, " ")
@@ -561,14 +561,14 @@ function evaluateWhyReply(
   if (ACK_PATTERN.test(content)) return { skip: "ack_pattern" };
 
   // Mention age — stale messages from a re-scan get closed gracefully.
-  const createdAtMs = Date.parse(msg.created_at);
+  const createdAtMs = Date.parse(message.created_at);
   if (!Number.isNaN(createdAtMs)) {
     const ageDays = (Date.now() - createdAtMs) / (1000 * 60 * 60 * 24);
     if (ageDays > MESSAGE_STALE_DAYS) return { skip: "stale_message" };
   }
 
   // Thread spiral cap — count Arc messages in the same conversation chain.
-  const arcThreadCount = countArcMessagesInThread(msg, batch);
+  const arcThreadCount = countArcMessagesInThread(message, batch);
   if (arcThreadCount >= THREAD_SPIRAL_CAP) return { skip: "thread_spiral_cap" };
 
   // Recent-arc cooldown — if Arc replied to this same user within N minutes,
@@ -577,7 +577,7 @@ function evaluateWhyReply(
   // to continue, not domination. The thread_spiral_cap above still backstops
   // runaway exchanges at 3 Arc messages in the chain.
   if (trigger !== "direct_reply_to_arc") {
-    const rel = getRelationship(store, msg.user.id);
+    const rel = getRelationship(store, message.user.id);
     if (rel) {
       const lastArcReply = [...rel.recent_interactions]
         .reverse()
@@ -596,9 +596,9 @@ function evaluateWhyReply(
  * Walk the reply chain from `msg` upward and count how many of the ancestor
  * messages were Arc-authored. This is the conversation chain spiral cap.
  */
-function countArcMessagesInThread(msg: ChatMessage, batch: ChatMessage[]): number {
+function countArcMessagesInThread(message: ChatMessage, batch: ChatMessage[]): number {
   let count = 0;
-  let cursor: string | null | undefined = msg.replying_to_message_id;
+  let cursor: string | null | undefined = message.replying_to_message_id;
   const seen = new Set<string>();
   while (cursor && !seen.has(cursor)) {
     seen.add(cursor);
@@ -1080,8 +1080,8 @@ export default async function whopSensor(): Promise<string> {
     try {
       await writeWhopState();
       result = "ok";
-    } catch (err) {
-      log(`whop-state write error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      log(`whop-state write error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1091,8 +1091,8 @@ export default async function whopSensor(): Promise<string> {
     try {
       await monitorPatternsLibrary();
       result = "ok";
-    } catch (err) {
-      log(`patterns monitor error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      log(`patterns monitor error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1102,8 +1102,8 @@ export default async function whopSensor(): Promise<string> {
     try {
       await pollWhopReplies();
       result = "ok";
-    } catch (err) {
-      repliesLog(`reply lane error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      repliesLog(`reply lane error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1113,8 +1113,8 @@ export default async function whopSensor(): Promise<string> {
     try {
       await pollWhopSynthesis();
       result = "ok";
-    } catch (err) {
-      synthesisLog(`synthesis lane error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      synthesisLog(`synthesis lane error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1124,8 +1124,8 @@ export default async function whopSensor(): Promise<string> {
     try {
       await pollWhopFreeForumDigest();
       result = "ok";
-    } catch (err) {
-      freeForumLog(`free-forum lane error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      freeForumLog(`free-forum lane error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
