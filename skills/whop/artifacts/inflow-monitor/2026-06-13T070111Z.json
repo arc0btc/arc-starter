@@ -1,0 +1,41 @@
+{
+  "tick_at": "2026-06-13T07:01:11Z",
+  "monitor": "inflow-monitor",
+  "tick_kind": "loop-tick-6",
+  "window_hours": 24,
+  "verdict": "PASS",
+  "compact": "[INFLOW-MONITOR 2026-06-13T07:01:11Z] PASS | dispatch: 0 cycles since last tick (idle) | producers: 4/5/2 (no new) | consumers (24h): all 0 | asymmetry: ok | reactive: 5 more identical ticks (06:33→06:57) | workflows: 0 | NOTE: landed ~15s before expected watch-report fire (~07:01:25Z) — embed verification deferred to tick #7",
+  "delta_from_previous_tick": "Pure idle. 0 dispatch cycles since 06:29. 5 more whop-replies firings, identical profile. Watch-report task expected at ~07:01:25Z (6h offset from 01:01:25Z); landed 14s early so the new task isn't visible yet — verify on tick #7.",
+  "dispatch": {
+    "lock_file_present": false,
+    "active_tasks": 0,
+    "pending_tasks": 0,
+    "cycles_since_last_tick": 0,
+    "verdict": "ok"
+  },
+  "producers": {
+    "produced_24h": { "arxiv": 4, "council": 5, "watch-interior": 2 },
+    "stuck_check": "OK",
+    "verdict": "ok"
+  },
+  "consumers": {
+    "consumed_24h": { "blog": 0, "whop-chat": 0, "whop-forum": 0, "public-forum": 0, "x": 0, "reactive": 0 },
+    "consumption_rows_total_ever": 0,
+    "verdict": "still 0"
+  },
+  "asymmetry_guarantee": { "verdict": "ok" },
+  "reactive_lane": {
+    "last_tick": "2026-06-13T06:57:20Z",
+    "last_tick_outcome": { "seen": 17, "candidates": 7, "created": 0, "skip_reasons": { "already_queued": 4, "below_length_floor": 3 } },
+    "spirals_or_budget_caps": "none",
+    "verdict": "ok"
+  },
+  "workflows": { "publish_fanout_instances_post_commit": 0, "verdict": "ok" },
+  "watch_report_inflow_embed": {
+    "checked": false,
+    "note": "Landed 14s before expected fire. Will verify on tick #7 after sleeping 270s (in-cache wake, no cache miss)."
+  },
+  "next_actions": ["ScheduleWakeup 270s — short jump to catch watch-report task creation and verify its '## Inflow pool' embed. If embed is clean, this becomes tick #7 → sign off."],
+  "consecutive_pass_count": 6,
+  "termination_progress": "6 / 7 PASS toward sign-off — tick #7 is sign-off contingent on watch-report embed verification"
+}

@@ -1,0 +1,42 @@
+{
+  "tick_at": "2026-06-13T06:29:09Z",
+  "monitor": "inflow-monitor",
+  "tick_kind": "loop-tick-5",
+  "window_hours": 24,
+  "verdict": "PASS",
+  "compact": "[INFLOW-MONITOR 2026-06-13T06:29:09Z] PASS | dispatch: 1 cycle (16195, housekeeping, $0, non-inflow) | producers: 4/5/2 (no new) | consumers (24h): all 0 | asymmetry: ok | reactive: 5 more 6m ticks (06:03→06:27), identical | workflows: 0",
+  "delta_from_previous_tick": "One non-inflow housekeeping cycle (task 18768, subject 'housekeeping: 4 issue(s) detected' — uncommitted changes / untracked files / archival / stale worktrees; auto-fixed 2 issues, no artifact-pool impact). Five more whop-replies firings, identical skip profile. No producer rows. consumption_rows_total_ever still 0.",
+  "dispatch": {
+    "lock_file_present": false,
+    "active_tasks": 0,
+    "pending_tasks": 0,
+    "cycles_since_last_tick": 1,
+    "last_cycle": { "id": 16195, "source": "sensor:arc-housekeeping", "cost_usd": 0, "duration_ms": 105 },
+    "verdict": "ok"
+  },
+  "producers": {
+    "produced_24h": { "arxiv": 4, "council": 5, "watch-interior": 2 },
+    "stuck_check": "OK",
+    "verdict": "ok"
+  },
+  "consumers": {
+    "consumed_24h": { "blog": 0, "whop-chat": 0, "whop-forum": 0, "public-forum": 0, "x": 0, "reactive": 0 },
+    "consumption_rows_total_ever": 0,
+    "verdict": "still 0"
+  },
+  "asymmetry_guarantee": { "verdict": "ok" },
+  "reactive_lane": {
+    "last_tick": "2026-06-13T06:27:18Z",
+    "last_tick_outcome": { "seen": 17, "candidates": 7, "created": 0, "skip_reasons": { "already_queued": 4, "below_length_floor": 3 } },
+    "spirals_or_budget_caps": "none",
+    "verdict": "ok"
+  },
+  "workflows": { "publish_fanout_instances_post_commit": 0, "verdict": "ok" },
+  "watch_report_inflow_embed": {
+    "checked": false,
+    "note": "Next watch-report ~07:01Z, ~32 min out. Tick #6 lands ~06:59Z (just pre-fire); tick #7 ~07:29Z catches the embed for verification."
+  },
+  "next_actions": ["ScheduleWakeup 1800s — naturally aligns to catch watch-report embed on tick #7."],
+  "consecutive_pass_count": 5,
+  "termination_progress": "5 / 7 PASS toward sign-off"
+}
