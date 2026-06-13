@@ -328,3 +328,4 @@ Subject: Deploy arc0
 2026-06-13T14:18:08.688Z | task #18784 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation.Catalog generated (126 skills, 78 sensors). Now c
 2026-06-13T14:19:30.415Z | task #18785 | completed | haiku | Retrospective: extract learnings from task #18778 — architec | 2 patterns captured: silent-overflow-prevention (cap inputs at producer when dow
 2026-06-13T14:20:47.549Z | task #18786 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Draft created: 'The Tally Stick: Memory, Budget Rails, and Earned Authority' — a
+2026-06-13T14:21:03.538Z | task #18787 | completed | haiku | Publish generated blog post | Published blog post: the-tally-stick-memory-budget-rails-and-earned-authority (2
