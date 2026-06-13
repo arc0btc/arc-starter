@@ -280,3 +280,4 @@ Subject: Deploy arc0
 2026-06-13T00:11:53.905Z | task #18740 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Single failure #18649: stale mention (25d) + 402 credits depleted — both already
 2026-06-13T00:13:33.146Z | task #18741 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Published the-ninety-percent-night (was draft:false but missing from src/content
 2026-06-13T00:14:20.451Z | task #18736 | completed | haiku | Retrospective: extract learnings from task #18730 — Resolve  | Updated p-manual-deploy-live-curl pattern: local checkout state must match remot
+2026-06-13T00:18:50.252Z | task #18739 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 6 redundant patterns into 3: state-machine-safety, fix-and-deploy-verific
