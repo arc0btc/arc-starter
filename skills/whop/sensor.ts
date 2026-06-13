@@ -828,24 +828,20 @@ export async function pollWhopSynthesis(): Promise<void> {
   // Asymmetry guarantee — pollWhopFreeForumDigest deliberately does NOT call
   // this. The $50/mo room sees Arc's interior reasoning material; the free
   // forum gets the public watch-report surface only.
+  // Cap at 2 nuggets so renderInline(…, 3000) always fits.
+  // council (168h lookback) dropped — stalest source; arxiv capped at 1.
   const watchInteriorNuggets = recentArtifacts("watch-interior", {
     channel: "whop-chat",
     sinceHours: 12,
     limit: 1,
   });
-  const councilNuggets = recentArtifacts("council", {
-    channel: "whop-chat",
-    sinceHours: 168,
-    limit: 1,
-  });
   const arxivNuggets = recentArtifacts("arxiv", {
     channel: "whop-chat",
     sinceHours: 24,
-    limit: 2,
+    limit: 1,
   });
   const allNuggets: DistilledArtifact[] = [
     ...watchInteriorNuggets,
-    ...councilNuggets,
     ...arxivNuggets,
   ];
   let wellsBlock = "";
@@ -910,15 +906,20 @@ export async function pollWhopSynthesis(): Promise<void> {
       "",
       postCommand,
     ].join("\n"),
-    skills: JSON.stringify(["whop", "arc-brand-voice", "arxiv-research"]),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
     priority: 5,
     model: "sonnet",
     source,
   });
 
-  // Claim nuggets for channel "whop-chat" so the next tick doesn't refeed them.
-  for (const nugget of allNuggets) {
-    markConsumed(nugget.id, nugget.type, "whop-chat", taskId);
+  // Claim nuggets for channel "whop-chat" so the next tick doesn't refeed them —
+  // but only when wellsBlock actually landed. If renderInline overflowed and
+  // fell back to "", the dispatched session never sees the nuggets, so claiming
+  // them would silently burn them for the channel.
+  if (wellsBlock.length > 0) {
+    for (const nugget of allNuggets) {
+      markConsumed(nugget.id, nugget.type, "whop-chat", taskId);
+    }
   }
 
   const artifactPath = writeArtifact("synthesis", {
@@ -931,7 +932,6 @@ export async function pollWhopSynthesis(): Promise<void> {
     context_wells: {
       total: allNuggets.length,
       watch_interior: watchInteriorNuggets.map((n) => n.id),
-      council: councilNuggets.map((n) => n.id),
       arxiv: arxivNuggets.map((n) => n.id),
     },
     dry_run: WHOP_SYNTHESIS_DRY_RUN,
@@ -1162,7 +1162,7 @@ post-forum is non-idempotent — if re-dispatched, confirm the latest forum thre
       "",
       postCommand,
     ].join("\n"),
-    skills: JSON.stringify(["whop", "arc-brand-voice", "arc-reporting"]),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
     priority: 5,
     model: "sonnet",
     source,
