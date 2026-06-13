@@ -55,17 +55,8 @@ function pickCategory(last: BlogCategory | undefined): BlogCategory {
 }
 
 /** Skills array per category — controls what context the dispatched session auto-loads. */
-function skillsForCategory(cat: BlogCategory): string[] {
-  switch (cat) {
-    case "research":
-      return ["blog-publishing", "arxiv-research"];
-    case "council":
-      return ["blog-publishing", "whop"];
-    case "operating":
-      return ["blog-publishing", "arc-reporting"];
-    case "philosophical":
-      return ["blog-publishing"];
-  }
+function skillsForCategory(_cat: BlogCategory): string[] {
+  return ["blog-publishing"];
 }
 
 /**
