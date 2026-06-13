@@ -11,6 +11,14 @@ import {
   createTaskIfDue,
 } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
+import {
+  recentArtifacts,
+  renderInline,
+  markConsumed,
+  type ArtifactType,
+  type DistilledArtifact,
+} from "../../src/artifacts.ts";
+import { getDatabase } from "../../src/db.ts";
 import { join } from "path";
 
 const CREDITS_DEPLETED_PATH = join(import.meta.dir, "../../db/x-credits-depleted.json");
@@ -113,6 +121,32 @@ async function selectBeatType(lastBeat: BeatType | undefined): Promise<BeatType>
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+/**
+ * Pull one source-artifact nugget for the matching beat (research-highlight →
+ * arxiv, agent-philosophy → council). Returns null if the beat doesn't read
+ * artifacts or if the pool is empty. The dispatched session reads the inlined
+ * nugget instead of hunting for the source manually.
+ */
+function pullBeatNugget(beat: BeatType): DistilledArtifact | null {
+  let type: ArtifactType;
+  let sinceHours: number;
+  switch (beat) {
+    case "research-highlight":
+      type = "arxiv";
+      sinceHours = 36;
+      break;
+    case "agent-philosophy":
+      type = "council";
+      sinceHours = 24 * 14; // 14 days — council moves slower
+      break;
+    case "hot-topic":
+    case "agent-journey":
+      return null;
+  }
+  const items = recentArtifacts(type, { channel: "x", sinceHours, limit: 1 });
+  return items[0] ?? null;
+}
+
 async function runCadenceBeat(): Promise<void> {
   if (!X_CADENCE_ENABLED) return;
   if (await isCreditsDepleted()) {
@@ -123,15 +157,31 @@ async function runCadenceBeat(): Promise<void> {
   const lastBeat = cadenceState?.["last_beat_type"] as BeatType | undefined;
   const beat = await selectBeatType(lastBeat);
 
+  // Pull artifact for beats that read from the inflow pool. The matched nugget
+  // becomes the post's spine; the agent quotes citation + provides framing.
+  const nugget = pullBeatNugget(beat);
+  let nuggetBlock = "";
+  if (nugget) {
+    try {
+      nuggetBlock =
+        "\n## Source nugget\nReady-to-quote distillation. Use it as the spine of the post; cite the source.\n\n" +
+        renderInline([nugget], 1200);
+    } catch (err) {
+      log(`x beat nugget render failed: ${err instanceof Error ? err.message : String(err)}`);
+      nuggetBlock = "";
+    }
+  }
+
   const beatId = new Date().toISOString().slice(0, 13).replace("T", "-"); // YYYY-MM-DD-HH
   const result = await createTaskIfDue(
     CADENCE_SENSOR_NAME,
     CADENCE_INTERVAL_MINUTES,
     `sensor:${CADENCE_SENSOR_NAME}:${beatId}`,
     {
-      subject: `X cadence [${beat}]: compose one post (${beatId})`,
+      subject: `X cadence [${beat}]: compose one post (${beatId})${nugget ? " — nugget-fed" : ""}`,
       description: [
         BEAT_DESCRIPTIONS[beat],
+        nuggetBlock,
         "",
         "Voice: arc-brand-voice + SOUL.md. Structural over platitude. Dry. No filler.",
         "If nothing is genuinely worth saying this beat, DEFER — close completed with",
@@ -148,7 +198,15 @@ async function runCadenceBeat(): Promise<void> {
     { dedupMode: "any" },
   );
   if (result === "created") {
-    log(`cadence beat [${beat}] queued for ${beatId}`);
+    log(`cadence beat [${beat}] queued for ${beatId}${nugget ? ` (nugget: ${nugget.id})` : ""}`);
+    if (nugget) {
+      // Find the just-inserted task id so markConsumed records the consumption.
+      const db = getDatabase();
+      const row = db
+        .query("SELECT id FROM tasks WHERE source = ? ORDER BY id DESC LIMIT 1")
+        .get(`sensor:${CADENCE_SENSOR_NAME}:${beatId}`) as { id: number } | undefined;
+      if (row) markConsumed(nugget.id, nugget.type, "x", row.id);
+    }
     await writeHookState(CADENCE_SENSOR_NAME, {
       ...(cadenceState || { version: 0 }),
       last_beat_type: beat,

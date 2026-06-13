@@ -253,17 +253,25 @@ export function recentArtifacts(
 
   let sql: string;
   if (opts.channel) {
-    // Anti-join: only artifacts NOT yet consumed by this channel.
+    // Two filters on the channel:
+    //   (a) anti-join — exclude rows already consumed by this channel
+    //   (b) suggested_channels must include this channel (asymmetry guarantee:
+    //       a watch-interior nugget tagged [whop-chat, reactive] never leaks
+    //       into a blog or public-forum query). Quoted-LIKE is index-unfriendly
+    //       at this scale but the row volume is ≤ 15/day so it's fine; revisit
+    //       if the pool grows beyond ~1000 rows.
     sql = `
       SELECT a.*
       FROM distilled_artifacts a
       LEFT JOIN distilled_consumption c
         ON c.artifact_id = a.id AND c.channel = ?
-      WHERE c.artifact_id IS NULL AND ${where.join(" AND ")}
+      WHERE c.artifact_id IS NULL
+        AND a.suggested_channels LIKE ?
+        AND ${where.join(" AND ")}
       ORDER BY a.produced_at DESC
       LIMIT ?
     `;
-    params.unshift(opts.channel);
+    params.unshift(opts.channel, `%"${opts.channel}"%`);
   } else {
     sql = `
       SELECT a.*

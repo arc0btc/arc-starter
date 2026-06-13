@@ -1,8 +1,20 @@
 // skills/blog-publishing/sensor.ts
 // Auto-detect weekly cadence gaps and scheduled posts ready for publishing
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import {
+  claimSensorRun,
+  createSensorLogger,
+  readHookState,
+  writeHookState,
+} from "../../src/sensors.ts";
 import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
+import {
+  recentArtifacts,
+  renderInline,
+  markConsumed,
+  type ArtifactType,
+  type DistilledArtifact,
+} from "../../src/artifacts.ts";
 import { join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 
@@ -11,6 +23,147 @@ const INTERVAL_MINUTES = 60;
 const CADENCE_DAYS_THRESHOLD = 1; // days between blog posts
 
 const log = createSensorLogger(SENSOR_NAME);
+
+/**
+ * Draft categories. Three pull from the source-artifact pool; `philosophical`
+ * is voice-driven (no artifact feed). Excluding `lastCategory` prevents same-
+ * topic streaks; the artifact pool acts as the curation gate.
+ */
+const CATEGORIES = ["research", "council", "operating", "philosophical"] as const;
+type BlogCategory = (typeof CATEGORIES)[number];
+
+/** Map a category to the artifact type it pulls from. `philosophical` returns null. */
+function categoryToArtifactType(cat: BlogCategory): ArtifactType | null {
+  switch (cat) {
+    case "research":
+      return "arxiv";
+    case "council":
+      return "council";
+    case "operating":
+      return "watch-interior";
+    case "philosophical":
+      return null;
+  }
+}
+
+/** Pick the next category, excluding the last one fired. Deterministic-ish rotation. */
+function pickCategory(last: BlogCategory | undefined): BlogCategory {
+  const pool = CATEGORIES.filter((c) => c !== last);
+  // Simple round-robin: deterministic within a single boot, but advances each call.
+  // Weighted-random was the v1 plan; round-robin is simpler + tests cleanly.
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/** Skills array per category — controls what context the dispatched session auto-loads. */
+function skillsForCategory(cat: BlogCategory): string[] {
+  switch (cat) {
+    case "research":
+      return ["blog-publishing", "arxiv-research"];
+    case "council":
+      return ["blog-publishing", "whop"];
+    case "operating":
+      return ["blog-publishing", "arc-reporting"];
+    case "philosophical":
+      return ["blog-publishing"];
+  }
+}
+
+/**
+ * Queue an artifact-fed draft task. Returns true iff a task was queued.
+ * Used by the cadence branch — separate from the publish branch. Exported
+ * so the smoke test can exercise it without time-shifting the cadence gate.
+ */
+export async function queueArtifactFedDraft(source: string): Promise<boolean> {
+  const state = await readHookState(SENSOR_NAME);
+  const lastCategory = state?.last_blog_category as BlogCategory | undefined;
+  const category = pickCategory(lastCategory);
+  const artifactType = categoryToArtifactType(category);
+
+  let artifacts: DistilledArtifact[] = [];
+  let nuggetsBlock = "";
+
+  if (artifactType) {
+    artifacts = recentArtifacts(artifactType, {
+      channel: "blog",
+      sinceHours: 72,
+      limit: 3,
+    });
+    if (artifacts.length > 0) {
+      try {
+        nuggetsBlock = renderInline(artifacts, 4000);
+      } catch (err) {
+        // Single nugget over-budget shouldn't happen (writeDistilled caps at 1200 chars).
+        // If it does, surface it and fall back to no-nuggets.
+        log(`renderInline budget overflow: ${err instanceof Error ? err.message : String(err)}`);
+        artifacts = [];
+      }
+    }
+  }
+
+  const fallbackPrompt =
+    category === "philosophical"
+      ? "Draft a philosophical post — what you're sitting with right now. SOUL-anchored voice. No metric recap, no \"and then we shipped X\" — the meditative register Arc's blog uses for register #4. ≤ 900 words target."
+      : `Daily blog cadence. No fresh ${artifactType ?? category} artifacts in the last 72h, so this draft is voice-driven (same as today's pre-inflows behavior). Survey recent watch reports, recent.log, and your own memory for the spine. Skip if there's nothing genuine to say.`;
+
+  const generateDescription = [
+    `## Draft category: ${category}`,
+    "",
+    artifacts.length > 0
+      ? `${artifacts.length} fresh ${artifactType} nugget${artifacts.length === 1 ? "" : "s"} below — use them as the spine of the post. Quote what's quote-worthy; don't try to use every one. The category-rotation rule means you don't have to pick the most generally interesting thing; you have to do *this category* well.`
+      : fallbackPrompt,
+    "",
+    artifacts.length > 0 ? "## Nuggets\n\n" + nuggetsBlock : "",
+    "",
+    "## Writing constraints",
+    "- 600-900 words; tag the post per existing convention.",
+    "- Cite each nugget (arxiv ID / council pattern / watch-report timestamp).",
+    "- Selection over invention — the nuggets above are direct quotes from sources you can re-verify.",
+    "- Do NOT publish. A follow-up task handles publication.",
+    "",
+    "## Steps",
+    "1. `arc skills run --name blog-publishing -- create --title \"...\" --tags <category>,<more>`",
+    "2. Open the draft file (`github/arc0btc/arc0me-site/content/YYYY/...`) and write the body.",
+    "3. Close completed with summary mentioning category + which nuggets you used.",
+  ].join("\n");
+
+  const generateId = insertTask({
+    subject: `Generate ${category} blog post draft${artifacts.length > 0 ? ` (${artifacts.length} fresh ${artifactType} nuggets)` : ""}`,
+    description: generateDescription,
+    source,
+    priority: 6,
+    model: "sonnet",
+    skills: JSON.stringify(skillsForCategory(category)),
+  });
+
+  insertTask({
+    subject: "Publish generated blog post",
+    description: "Publish the blog post draft generated by the parent task. Run: arc skills run --name blog-publishing -- publish --id <post-id> (find the most recent draft).",
+    source: `task:${generateId}`,
+    parent_id: generateId,
+    priority: 6,
+    model: "haiku",
+    skills: JSON.stringify(["blog-publishing"]),
+  });
+
+  // Claim artifacts for channel "blog" so they don't re-feed next tick.
+  for (const a of artifacts) {
+    markConsumed(a.id, a.type, "blog", generateId);
+  }
+
+  // Persist last_blog_category for rotation.
+  await writeHookState(SENSOR_NAME, {
+    ...state,
+    last_ran: state?.last_ran ?? new Date().toISOString(),
+    last_result: "ok",
+    version: (state?.version ?? 0) + 1,
+    last_blog_category: category,
+  } as Parameters<typeof writeHookState>[1]);
+
+  log(
+    `queued ${category} draft (${artifacts.length} nuggets) + publish subtask — generateId=${generateId}`,
+  );
+  return true;
+}
 
 /** Blog posts live as flat .mdx files: src/content/docs/blog/YYYY-MM-DD-slug.mdx */
 function getBlogDir(): string {
@@ -195,29 +348,18 @@ export default async function blogPublishingSensor(): Promise<string> {
       }
     }
 
-    // Queue content generation if daily cadence reached (decomposed: generate then publish)
+    // Queue content generation if daily cadence reached.
+    //
+    // Category rotation: research / council / operating / philosophical. The
+    // first three pull 2-3 fresh nuggets from the source-artifact pool;
+    // philosophical falls back to "recent activity" framing (voice-driven, not
+    // artifact-fed). Whichever category last fired is excluded from this tick's
+    // pool — round-robin variety without lock-in.
     if (timeForNewContent) {
       const source = "sensor:blog-publishing:content-generation";
       if (!recentTaskExistsForSource(source, 24 * 60)) {
-        const generateId = insertTask({
-          subject: "Generate new blog post draft from recent activity",
-          description: "Daily blog cadence: create a draft post from recent watch reports and work summary. Do NOT publish — a follow-up task handles publication.",
-          source,
-          priority: 6,
-          model: "sonnet",
-          skills: JSON.stringify(["blog-publishing"]),
-        });
-        insertTask({
-          subject: "Publish generated blog post",
-          description: "Publish the blog post draft generated by the parent task. Run: arc skills run --name blog-publishing -- publish --id <post-id> (find the most recent draft).",
-          source: `task:${generateId}`,
-          parent_id: generateId,
-          priority: 6,
-          model: "haiku",
-          skills: JSON.stringify(["blog-publishing"]),
-        });
-        log("queued content generation + publish subtask");
-        return "ok";
+        const queued = await queueArtifactFedDraft(source);
+        if (queued) return "ok";
       }
     }
 

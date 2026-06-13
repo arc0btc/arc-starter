@@ -59,7 +59,7 @@ const id = writeDistilled({
   title: "<short title — what the pattern teaches>",
   nugget: `"<direct quote from the source file, ≤ 1000 chars>"\n\n— council:<short-citation>\n\nWhy it matters: <1 sentence on the operational implication>.`,
   citation: "council:<short ref like 'substrate-phase-9'>",
-  suggested_channels: ["whop-chat", "blog", "reactive"],
+  suggested_channels: ["whop-chat", "blog", "reactive", "x"],
 });
 console.log("wrote", id);
 ```

@@ -35,11 +35,14 @@ and returns. `ARC_DISTILL_FORCE=1` bypasses the gate for manual ticks.
 Three buckets (see `skills/arxiv-research/lib/keywords.ts::DISTILL_TOPICS`):
 
 - `quantum-pqc` — post-quantum / Bitcoin-quantum threats. Suggested channels:
-  `["x", "blog", "whop-chat"]`.
+  `["x", "blog", "whop-chat", "reactive"]`.
 - `aibtc-infra` — MCP, agent payments, Bitcoin tooling, x402. Suggested channels:
-  `["x", "blog", "whop-chat"]`.
+  `["x", "blog", "whop-chat", "reactive"]`.
 - `agent-architecture` — multi-agent orchestration, autonomous reasoning, no
-  Bitcoin tie. Suggested channels: `["blog", "whop-chat"]` (skip X — too dense).
+  Bitcoin tie. Suggested channels: `["blog", "whop-chat", "reactive"]` (skip X — too dense).
+
+`reactive` is in every set so a topic-match in the whop reply lane can surface
+the nugget when a member asks about it.
 
 The dispatched session uses `classifyTopic(title, abstract)` to pick the bucket.
 Papers that don't fit any bucket are dropped.

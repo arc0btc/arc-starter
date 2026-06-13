@@ -65,3 +65,10 @@ no fresh quote in the repo). 0-5 nuggets per tick; quality over quota.
 - Direct quotes from the source repo + 1-sentence framing. Selection, not paraphrase.
 - Citation: short pattern name + source ref (e.g. `council:substrate-phase-9`).
 - Voice review on the first composed paid-room post BEFORE flipping dry-run off.
+
+## Channels
+
+Each nugget routes to: `["whop-chat", "blog", "reactive", "x"]`. The X
+`agent-philosophy` beat reads council on a 14-day window — slower than arxiv
+but slower-moving content. Reactive lane surfaces a nugget when a member's
+question topically matches.

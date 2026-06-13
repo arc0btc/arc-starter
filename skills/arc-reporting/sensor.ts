@@ -9,6 +9,13 @@
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, recentTaskExistsForSource, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
+import {
+  ARTIFACT_TYPES,
+  countByType,
+  countConsumedByChannel,
+  type ArtifactType,
+  type ArtifactChannel,
+} from "../../src/artifacts.ts";
 
 // ---- Shared helpers ----
 
@@ -40,6 +47,50 @@ const WATCH_INTERVAL = 360; // 6 hours
 const WATCH_SOURCE = "sensor:arc-reporting-watch";
 const WATCH_PRIORITY = 6;
 
+/**
+ * Compute a quick text summary of the inflow pool over the past N hours.
+ * Embedded into the watch-report task description so the dispatched session
+ * can drop it under "## Inflow pool" verbatim. Pure DB query; safe to call
+ * even when the pool is empty.
+ */
+function buildInflowSummary(sinceHours: number): string {
+  const produced = countByType(sinceHours);
+  const consumed = countConsumedByChannel(sinceHours);
+  const lines: string[] = [];
+  lines.push(`Inflow pool — last ${sinceHours}h`);
+  lines.push("");
+  lines.push("Produced (source-artifact pool):");
+  let totalProduced = 0;
+  for (const type of ARTIFACT_TYPES) {
+    lines.push(`  ${type}: ${produced[type]}`);
+    totalProduced += produced[type];
+  }
+  lines.push(`  total: ${totalProduced}`);
+  lines.push("");
+  lines.push("Consumed (by channel):");
+  let totalConsumed = 0;
+  for (const channel of Object.keys(consumed) as ArtifactChannel[]) {
+    lines.push(`  ${channel}: ${consumed[channel]}`);
+    totalConsumed += consumed[channel];
+  }
+  lines.push(`  total: ${totalConsumed}`);
+
+  // Stuck-distill alert: any type with 0 produced in 36h while gates are ON.
+  const STUCK_HOURS = 36;
+  const stuckProduced = countByType(STUCK_HOURS);
+  const stuckTypes: ArtifactType[] = [];
+  for (const type of ARTIFACT_TYPES) {
+    if (stuckProduced[type] === 0) stuckTypes.push(type);
+  }
+  if (stuckTypes.length > 0) {
+    lines.push("");
+    lines.push(`⚠️  No fresh artifacts in ${STUCK_HOURS}h: ${stuckTypes.join(", ")}`);
+    lines.push("    (gates off, sensor stalled, or upstream source is quiet)");
+  }
+
+  return lines.join("\n");
+}
+
 async function watchReportSensor(): Promise<string> {
   if (isQuietHours()) return "skip";
 
@@ -50,6 +101,7 @@ async function watchReportSensor(): Promise<string> {
   if (recentTaskExistsForSource(WATCH_SOURCE, 480)) return "skip";
 
   const now = new Date().toISOString();
+  const inflowSummary = buildInflowSummary(24);
 
   insertTask({
     subject: `Watch report — ${now.slice(0, 16)}Z`,
@@ -59,7 +111,14 @@ async function watchReportSensor(): Promise<string> {
       "Use the template at templates/status-report.html.\n" +
       "Include prediction market positions from stacks-market skill.\n" +
       "Write output to reports/ directory as .html.\n\n" +
-      `Report period ends: ${now}`,
+      `Report period ends: ${now}\n\n` +
+      "## Inflow pool (embed this verbatim under its own section in the report)\n\n" +
+      "```\n" +
+      inflowSummary +
+      "\n```\n\n" +
+      "Add a one-line interpretive cap to the section: comment on the producer/consumer ratio " +
+      "(healthy ≈ 1:1 over time; if produced >> consumed, consumers are starved; if consumed >> produced, producers are stalled) " +
+      "and call out any stuck-distill alerts above.",
     skills: '["arc-reporting"]',
     source: WATCH_SOURCE,
     priority: WATCH_PRIORITY,

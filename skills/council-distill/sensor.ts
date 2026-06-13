@@ -191,7 +191,8 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
       "- nugget: ≤ 1200 chars. Format: `\"<direct quote from source>\" — <citation>` plus a",
       "  one-sentence framing line. Selection, not paraphrase. Never invent.",
       "- citation: short pattern name + source ref (e.g. \"council:substrate-phase-9\")",
-      "- suggested_channels: [\"whop-chat\", \"blog\", \"reactive\"]",
+      "- suggested_channels: [\"whop-chat\", \"blog\", \"reactive\", \"x\"]",
+      "  (the X agent-philosophy beat reads council nuggets on a 14d window)",
       "",
       dryRun
         ? "## DRY-RUN MODE (default)\nWrite the 5 nuggets via writeDistilled normally — the pool itself is dry-run-safe.\nBut do NOT update skills/whop/COUNCIL-CONTENT-WELL.md until human voice review.\nClose completed with --summary describing each pattern's source quote + any gaps you saw in the repo."

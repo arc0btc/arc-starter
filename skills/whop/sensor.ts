@@ -50,6 +50,12 @@ import {
 } from "./lib/relationships.ts";
 import { writeArtifact } from "./lib/artifacts.ts";
 import { listMessages, getAppApiKey } from "./lib/whop-api.ts";
+import {
+  recentArtifacts,
+  renderInline,
+  markConsumed,
+  type DistilledArtifact,
+} from "../../src/artifacts.ts";
 
 const SENSOR_NAME = "whop";
 // Check on a ~6h cadence; actual posting is naturally throttled by new blog
@@ -628,6 +634,51 @@ function countDryRunDecisions(decisions: CandidateDecision[]): number {
   return decisions.filter((d) => d.outcome === "task_created" || d.outcome === "dry_run_task").length;
 }
 
+/**
+ * Lightweight 2+token topic match between a reply-candidate message and the
+ * available source artifacts. Returns at most one nugget (sized to fit the
+ * 1.5KB inline budget); null when nothing matches.
+ *
+ * Once an artifact is matched + consumed for channel "reactive", the anti-join
+ * in recentArtifacts excludes it from future reactive ticks — so each artifact
+ * gets one shot per refresh cycle. Refreshes (next distill task) reset the pool.
+ */
+function matchReactiveNugget(messageContent: string): DistilledArtifact | null {
+  const tokens = messageContent
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 3);
+  if (tokens.length < 2) return null;
+  const tokenSet = new Set(tokens);
+
+  // Pull from each artifact type with channel="reactive" — anti-join already
+  // skips claimed rows. Take the most recent matching nugget across types.
+  for (const type of ["watch-interior", "council", "arxiv"] as const) {
+    const recent = recentArtifacts(type, {
+      channel: "reactive",
+      sinceHours: 168,
+      limit: 5,
+    });
+    for (const nugget of recent) {
+      const topicTokens = nugget.topic.toLowerCase().split("-").filter((t) => t.length >= 3);
+      const overlap = topicTokens.filter((t) => tokenSet.has(t)).length;
+      if (overlap >= 2 || (overlap === 1 && topicTokens.length === 1)) {
+        return nugget;
+      }
+      // Also scan title for a single high-signal token match
+      const titleTokens = nugget.title
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, " ")
+        .split(/\s+/)
+        .filter((t) => t.length >= 4);
+      const titleOverlap = titleTokens.filter((t) => tokenSet.has(t)).length;
+      if (titleOverlap >= 2) return nugget;
+    }
+  }
+  return null;
+}
+
 function queueReplyTask(
   msg: ChatMessage,
   trigger: string,
@@ -643,7 +694,22 @@ function queueReplyTask(
     ? "DRY-RUN: do NOT call reply-chat. Compose the reply in result_detail so the artifact captures it, then close completed with --summary describing what you would have said and why."
     : `Post via:\n  arc skills run --name whop -- reply-chat --to ${msg.id} --content "<markdown>"`;
 
-  return insertTask({
+  // Topic-matched artifact — single nugget, 1.5KB hard cap. None if no overlap.
+  const matchedNugget = matchReactiveNugget(msg.content);
+  let topicContextBlock = "";
+  if (matchedNugget) {
+    try {
+      topicContextBlock =
+        "\n## Topic context\n" +
+        "Source-artifact brief that matches their topic. Cite if you use it; never paraphrase.\n\n" +
+        renderInline([matchedNugget], 1500);
+    } catch (err) {
+      repliesLog(`topic-context budget overflow: ${err instanceof Error ? err.message : String(err)}`);
+      topicContextBlock = "";
+    }
+  }
+
+  const taskId = insertTask({
     subject: `${dryRunPrefix}Whop reply to ${msg.user.username ?? msg.user.id}: ${msg.content.slice(0, 60)}`,
     description: [
       `Trigger: ${trigger}`,
@@ -670,6 +736,7 @@ function queueReplyTask(
       "  the NEXT real prompt from them.",
       "",
       "Reference voice: skills/whop/drafts/2026-06-12-reading-the-quiet.md.",
+      topicContextBlock,
       "",
       dryRunCommand,
     ]
@@ -680,6 +747,13 @@ function queueReplyTask(
     model: "sonnet",
     source: `sensor:whop-replies:${msg.id}`,
   });
+
+  // Claim the matched nugget for channel "reactive" — anti-join skips it next tick.
+  if (matchedNugget) {
+    markConsumed(matchedNugget.id, matchedNugget.type, "reactive", taskId);
+  }
+
+  return taskId;
 }
 
 /** 6h synthesis lane — read the room, queue one defer-or-post task. */
@@ -750,6 +824,44 @@ export async function pollWhopSynthesis(): Promise<void> {
   if (recentPatternsDigest) recentArcSignals.push("patterns-library digest (≤6h)");
   if (recentReactivePost) recentArcSignals.push("reactive reply (≤1h)");
 
+  // Premium context wells: pull fresh source artifacts for the paid room.
+  // Asymmetry guarantee — pollWhopFreeForumDigest deliberately does NOT call
+  // this. The $50/mo room sees Arc's interior reasoning material; the free
+  // forum gets the public watch-report surface only.
+  const watchInteriorNuggets = recentArtifacts("watch-interior", {
+    channel: "whop-chat",
+    sinceHours: 12,
+    limit: 1,
+  });
+  const councilNuggets = recentArtifacts("council", {
+    channel: "whop-chat",
+    sinceHours: 168,
+    limit: 1,
+  });
+  const arxivNuggets = recentArtifacts("arxiv", {
+    channel: "whop-chat",
+    sinceHours: 24,
+    limit: 2,
+  });
+  const allNuggets: DistilledArtifact[] = [
+    ...watchInteriorNuggets,
+    ...councilNuggets,
+    ...arxivNuggets,
+  ];
+  let wellsBlock = "";
+  if (allNuggets.length > 0) {
+    try {
+      wellsBlock =
+        "\n\n## Context wells\n" +
+        "Source-artifact briefs — pulled fresh from Arc's reading and operating state.\n" +
+        "Members pay for this read. Quote / cite when you use them; don't paraphrase.\n\n" +
+        renderInline(allNuggets, 3000);
+    } catch (err) {
+      synthesisLog(`context wells over budget — falling back to no wells: ${err instanceof Error ? err.message : String(err)}`);
+      wellsBlock = "";
+    }
+  }
+
   const taskId = insertTask({
     subject: `${dryRunPrefix}Whop synthesis [${bucket}]: read the room, defer or post`,
     description: [
@@ -794,14 +906,20 @@ export async function pollWhopSynthesis(): Promise<void> {
       "```",
       "",
       "Relationships of speakers: db/whop-relationships.json (read for context).",
+      wellsBlock,
       "",
       postCommand,
     ].join("\n"),
-    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    skills: JSON.stringify(["whop", "arc-brand-voice", "arxiv-research"]),
     priority: 5,
     model: "sonnet",
     source,
   });
+
+  // Claim nuggets for channel "whop-chat" so the next tick doesn't refeed them.
+  for (const nugget of allNuggets) {
+    markConsumed(nugget.id, nugget.type, "whop-chat", taskId);
+  }
 
   const artifactPath = writeArtifact("synthesis", {
     tick_at: new Date().toISOString(),
@@ -810,6 +928,12 @@ export async function pollWhopSynthesis(): Promise<void> {
     window_hours: 24,
     messages_in_window: windowMessages.length,
     recent_arc_signals: recentArcSignals,
+    context_wells: {
+      total: allNuggets.length,
+      watch_interior: watchInteriorNuggets.map((n) => n.id),
+      council: councilNuggets.map((n) => n.id),
+      arxiv: arxivNuggets.map((n) => n.id),
+    },
     dry_run: WHOP_SYNTHESIS_DRY_RUN,
     task_id: taskId,
     transcript_excerpt: transcript.slice(0, 4000),
