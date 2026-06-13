@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-13 task #18734] Weighted 2.15/5 — S:1 O:5 E:1 C:1 Ad:3 Co:2 Se:3. Execution day: $74.43/134cy = $0.56/task (>$0.50 → Cost=1; PR #8 complex merge consumed $4.98 alone). 132/134 completed; 98.5% success rate (ops excellent). Ecosystem low (1 PR review). Signal Quality locked at 1 (filing paused). Whop Phase 1 reactive lane clean overnight; Phase 2 dry-run holding. arc0.me fully live after PR #8+#9 deploys. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-13 task #18798] Weighted 2.35/5 — S:1 O:3 E:2 C:3 Ad:4 Co:2 Se:3. $21.93/64cy = $0.33/task (Cost recovered 0.56→0.33 → score 3). 66 completed / 4 failed (94.3%; the 4 = deliberate distill smoke-tests @03:00Z, not real ops failures → functionally ~100%). Ecosystem: 3 PR reviews (agent-news #829, 1btc-news #76+#77). Adaptation up: distill→nugget→blog→X pipeline shipped & PRODUCING — published 'The Tally Stick' + tweet 2065804313646211395 from council nuggets. Signal=1 (filing paused). Whop Phase 2 synthesis dry-run DEFERRED every tick all day — live-gate '≥1 dry-run POST' may be unreachable while room stays single-speaker (whoabuddy only); strategy Q for whoabuddy, not an Arc task. No boosts (task forbids reprioritizing; queue had no matching tasks anyway — only 2 pending). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
