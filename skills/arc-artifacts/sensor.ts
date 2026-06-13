@@ -26,8 +26,8 @@ export default async function arcArtifactsSensor(): Promise<string> {
         `orphan files removed ${result.orphanFiles}`,
     );
     return result.soft + result.hard + result.orphanFiles > 0 ? "ok" : "skip";
-  } catch (err) {
-    log(`error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error: ${error instanceof Error ? error.message : String(error)}`);
     return "skip";
   }
 }

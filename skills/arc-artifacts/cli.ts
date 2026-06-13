@@ -16,8 +16,8 @@ import {
   type ArtifactChannel,
 } from "../../src/artifacts.ts";
 
-function fail(msg: string): never {
-  process.stderr.write(`arc-artifacts: ${msg}\n`);
+function fail(message: string): never {
+  process.stderr.write(`arc-artifacts: ${message}\n`);
   process.exit(1);
 }
 
@@ -141,14 +141,14 @@ export function inflowSummary(sinceHours = 24): {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const cmd = args[0];
-  if (!cmd || cmd === "help" || cmd === "--help") {
+  const command = args[0];
+  if (!command || command === "help" || command === "--help") {
     printHelp();
     return;
   }
   initDatabase();
   const { positional, flags } = parseFlags(args.slice(1));
-  switch (cmd) {
+  switch (command) {
     case "audit": {
       const sinceHours = Number(flags.since ?? 24);
       audit(sinceHours);
@@ -171,8 +171,8 @@ async function main(): Promise<void> {
       break;
     }
     default:
-      fail(`unknown command: ${cmd}. Run with no args for help.`);
+      fail(`unknown command: ${command}. Run with no args for help.`);
   }
 }
 
-main().catch((err) => fail(err instanceof Error ? err.message : String(err)));
+main().catch((error) => fail(error instanceof Error ? error.message : String(error)));

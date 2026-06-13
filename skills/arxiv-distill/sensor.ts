@@ -133,8 +133,8 @@ export default async function arxivDistillSensor(): Promise<string> {
 
   try {
     return await pollArxivDistill();
-  } catch (err) {
-    log(`error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error: ${error instanceof Error ? error.message : String(error)}`);
     return "skip";
   }
 }

@@ -166,8 +166,8 @@ async function runCadenceBeat(): Promise<void> {
       nuggetBlock =
         "\n## Source nugget\nReady-to-quote distillation. Use it as the spine of the post; cite the source.\n\n" +
         renderInline([nugget], 1200);
-    } catch (err) {
-      log(`x beat nugget render failed: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      log(`x beat nugget render failed: ${error instanceof Error ? error.message : String(error)}`);
       nuggetBlock = "";
     }
   }

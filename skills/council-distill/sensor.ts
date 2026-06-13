@@ -237,8 +237,8 @@ export default async function councilDistillSensor(): Promise<string> {
 
   try {
     return await pollCouncilDistill();
-  } catch (err) {
-    log(`error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error: ${error instanceof Error ? error.message : String(error)}`);
     return "skip";
   }
 }

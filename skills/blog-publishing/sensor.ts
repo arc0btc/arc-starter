@@ -82,10 +82,10 @@ export async function queueArtifactFedDraft(source: string): Promise<boolean> {
     if (artifacts.length > 0) {
       try {
         nuggetsBlock = renderInline(artifacts, 4000);
-      } catch (err) {
+      } catch (error) {
         // Single nugget over-budget shouldn't happen (writeDistilled caps at 1200 chars).
         // If it does, surface it and fall back to no-nuggets.
-        log(`renderInline budget overflow: ${err instanceof Error ? err.message : String(err)}`);
+        log(`renderInline budget overflow: ${error instanceof Error ? error.message : String(error)}`);
         artifacts = [];
       }
     }
