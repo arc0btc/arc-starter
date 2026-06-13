@@ -296,3 +296,4 @@ Subject: Deploy arc0
 2026-06-13T02:22:42.322Z | task #18746 | completed | sonnet | architecture review — codebase changed since last review (73 | State machine + audit log updated: BlogToXMachine→PublishFanoutMachine rename, w
 2026-06-13T02:23:00.249Z | task #18747 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected — 17 instances dormant by design, gated on 
 2026-06-13T02:24:49.299Z | task #18752 | completed | haiku | Skills disallowed-tools audit: add read-only guards to resea | All 28 read-only skills properly configured with disallowed-tools guards. Resear
+2026-06-13T02:25:28.047Z | task #18757 | completed | sonnet | Email watch report to whoabuddy — 2026-06-13T02:07 | Watch report 2026-06-13T01:01Z emailed to whoabuddy@gmail.com via arc-email-sync
