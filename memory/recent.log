@@ -298,3 +298,4 @@ Subject: Deploy arc0
 2026-06-13T02:24:49.299Z | task #18752 | completed | haiku | Skills disallowed-tools audit: add read-only guards to resea | All 28 read-only skills properly configured with disallowed-tools guards. Resear
 2026-06-13T02:25:28.047Z | task #18757 | completed | sonnet | Email watch report to whoabuddy — 2026-06-13T02:07 | Watch report 2026-06-13T01:01Z emailed to whoabuddy@gmail.com via arc-email-sync
 2026-06-13T02:26:11.853Z | task #18753 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (122 skills, 74 sensors). Now committing arc0me-site to trigge
+2026-06-13T02:27:47.198Z | task #18756 | completed | haiku | Retrospective: extract learnings from task #18746 — architec | Updated p-architecture-review-discipline: added multi-phase external-integration
