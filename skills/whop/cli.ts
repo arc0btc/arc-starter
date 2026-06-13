@@ -90,7 +90,7 @@ function printHelp(): void {
       "  list-forums [--company biz_xxx]        list forum feeds (find the forum_feed_xxx id)",
       "  list-forum-posts --experience exp_xxx [--limit N]",
       "                                         read recent forum posts in an experience",
-      "  post-forum --experience exp_xxx --content <md> [--title <t>]",
+      "  post-forum --experience exp_xxx --content <md> [--title <t>] [--parent post_xxx]",
       "                                         publish a forum post (e.g. digest into Public forum)",
       "  edit-forum-post --id post_xxx --content <md> [--title <t>]",
       "                                         edit a forum post (no DELETE endpoint exists; PATCH to blank)",
@@ -212,6 +212,7 @@ async function cmdPostForum(apiKey: string, flags: Record<string, string>): Prom
     content: flags.content,
   };
   if (flags.title) body.title = flags.title;
+  if (flags.parent) body.parent_id = flags.parent;
   const result = await whopRequest("POST", "/v1/forum_posts", apiKey, body);
   process.stdout.write(
     `posted to forum (experience: ${flags.experience})\n` + JSON.stringify(result, null, 2) + "\n",
