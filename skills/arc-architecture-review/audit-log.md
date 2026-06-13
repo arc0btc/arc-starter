@@ -1,3 +1,53 @@
+## 2026-06-13T14:15:00.000Z — whop synthesis context cap; blog-publishing skills flattened; whop artifacts accumulation; 122 skills / 74 sensors
+
+**Task #18778** | Diff: ac97599 → 4a42408 (2 structural commits) | Sensors: 74 | Skills: 122
+
+### Step 1 — Requirements
+
+2 structural commits + ~40 whop artifact auto-commits (operational logs):
+
+- **fix(whop): synthesis context cap** (5fd5ea78): `pollWhopSynthesis()` was silently overflowing the `renderInline(…, 3000)` byte cap. Fix: cap at 2 nuggets total — drop council source (168h lookback, stalest), cap arxiv 2→1. Max 2 × ~1200 bytes + headers ≈ 2600 bytes. Also removed `arxiv-research` from synthesis task skills array (leaner dispatch context).
+- **fix(blog-publishing): skillsForCategory() flattened** (fe488174): Per-category skill routing removed — all categories now return `["blog-publishing"]`. Previous routing: research→arxiv-research, council→whop, operating→arc-reporting. Reduces context overhead per blog-publish task.
+
+### Step 2 — Delete
+
+No deletion candidates. Artifact files are operational state, not dead code.
+
+**[NEW-WATCH]** `skills/whop/artifacts/replies/` accumulating ~40 files per review window. No git cleanup job exists. These files are auto-committed via the loop auto-commit hook. Over weeks this will produce thousands of files and slow git operations (clone, log, blame over the path).
+
+### Step 3 — Simplify
+
+- Synthesis context cap is correct — 2-nugget limit is a firm design constraint, not a workaround. Council source (168h) was the stalest input and the right one to drop.
+- `skillsForCategory()` flattening is net-positive if the added skills were providing marginal value. **[WATCH]**: research-category blog posts no longer auto-load `arxiv-research` skill. If the dispatched session needs to look up papers for a research post, it won't have that context. Monitor quality on next research-category publish.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- Synthesis lane: context cap fix means synthesis tasks now get their nuggets reliably (no silent overflow). Direct improvement to whop Phase 2 throughput.
+- Blog-publishing: fewer skills per task = marginally lower context load per dispatch cycle.
+
+### Step 5 — Automate
+
+- **[ACTION-CANDIDATE]** Whop artifact cleanup: add a `.gitignore` entry for `skills/whop/artifacts/replies/*.json` (keep synthesis for quality review), or add a housekeeping step to archive reply artifacts >7d old. Neither is urgent today but will matter at 1000+ files.
+
+### Flags
+
+- **[NEW]** Whop synthesis context cap (5fd5ea78) — council source dropped, arxiv capped at 1, max 2 nuggets. Synthesis lane should now post cleanly in dry-run.
+- **[NEW]** Blog-publishing skills flattened (fe488174) — all categories return `["blog-publishing"]`. Monitor research-category post quality.
+- **[NEW-WATCH]** Whop artifact accumulation — ~40 files/review-window auto-committed. No cleanup. Create follow-up if count exceeds 500.
+- **[CARRY-WATCH]** Whop Phase 2 → live gate pending whoabuddy sign-off.
+- **[CARRY-WATCH]** whop-sales SKILL.md only — no cli.ts or sensor.ts.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated externally.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: 17 instances ready, gated.
+- **[CARRY-WATCH]** X cadence paused.
+
+---
+
 ## 2026-06-13T02:20:00.000Z — PublishFanoutMachine; whop Phase 1 live + Phase 2 dry-run; whop-sales scaffolded; 122 skills / 74 sensors
 
 **Task #18746** | Diff: 738a9cd → ac97599 (37 commits) | Sensors: 74 | Skills: 122
