@@ -1,7 +1,7 @@
 # Goals
 
 *Shared roadmap for whoabuddy and Arc. Review monthly. Update as decisions land.*
-*Last reviewed: 2026-03-08*
+*Last reviewed: 2026-06-13*
 
 ---
 
@@ -25,21 +25,24 @@ Concrete outcomes we're working toward. Move to "Done" when complete.
 
 ### Active
 
-- [ ] **Revenue: first paid service.** Define, price, and deliver at least one service via arc0btc.com. Prove the model works.
-- [ ] **Zest V2 integration.** DeFi skill for Zest Protocol lending/borrowing on Stacks.
+- [ ] **Revenue: Whop monetization.** hash-it-out shop live. Phase 1 (reactive lane) active since 2026-06-12. Phase 2 (synthesis) in dry-run — awaiting voice review + whoabuddy sign-off before go-live. Goal: prove $50/mo subscription value.
+- [ ] **Content calendar.** 17 ContentCalendarMachine instances ready, staggered 1/day from 2026-06-13. Dormant — awaiting `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true` + whop clean-post + sign-off.
+- [ ] **Zest V2 integration.** Bounty submission active (closes 2026-06-16). DeFi skill for Zest Protocol lending/borrowing.
 - [ ] **Bitflow integration.** DEX skill for Bitflow swaps and liquidity.
 - [ ] **Zero Authority DAO.** Design and deploy Arc's governance structure.
-- [ ] **ERC-8004 complete.** Set URI, link wallet, deploy reputation sensor. Arc's on-chain identity should be fully operational.
-- [x] **MCP server (Phase 1).** Local HTTP server exposing task queue + skill tree. Foundation for external integrations.
+- [ ] **ERC-8004 complete.** Set URI, link wallet, deploy reputation sensor.
+- [x] **MCP server (Phase 1).** Local HTTP server exposing task queue + skill tree.
 
 ### Done
 
+- [x] arc0me-site live — PR #8 (blog content branch) + PR #9 (whop routes) merged and deployed (2026-06-13)
 - [x] 3-tier model routing (P1-4 Opus, P5-7 Sonnet, P8+ Haiku)
 - [x] Multisig capability (BIP-340/342, 2-of-2 and 3-of-3 proven)
 - [x] Brand voice audit and X comeback
 - [x] ERC-8004 agent registration (agent 1 on mainnet)
-- [x] 43 sensors active, 63 skills installed
+- [x] 68+ sensors, 100+ skills installed
 - [x] Safety layers (syntax guard + post-commit health + worktree isolation)
+- [x] X cadence active (@arc0btc, 12h beat, AI-prefers-Bitcoin theme)
 
 ---
 
@@ -47,10 +50,11 @@ Concrete outcomes we're working toward. Move to "Done" when complete.
 
 What to focus on *right now*, in rough order. Dispatch should prefer tasks aligned with these.
 
-1. **Monetization.** Services page content, pricing, delivery pipeline. D1 depends on this.
-2. **DeFi integrations.** Zest V2 and Bitflow skills unblock on-chain activity beyond stacking.
-3. **AIBTC contributions.** Skills sync, PR reviews, Ordinals Business beat, ecosystem engagement.
-4. **Stack reliability.** Cost optimization, sensor health, dispatch resilience.
+1. **Whop monetization.** Phase 1 live, Phase 2 dry-run. Get first clean synthesis post through voice review → flip dry-run off. Laser focus on $50/mo value.
+2. **Content calendar.** 17 instances ready. Un-gate after whop clean-post confirmed + sign-off.
+3. **DeFi integrations.** Zest V2 (bounty closes 2026-06-16) + Bitflow skills.
+4. **AIBTC contributions.** PR reviews, ecosystem engagement, signal filing (paused — re-enable when policy lifts).
+5. **Stack reliability.** Cost optimization (target <$0.40/task), sensor health, dispatch resilience.
 
 ---
 
@@ -58,7 +62,8 @@ What to focus on *right now*, in rough order. Dispatch should prefer tasks align
 
 | Item | Blocker | Since |
 |------|---------|-------|
-| Spark GitHub presence | GitHub restriction permanent. Awaiting whoabuddy decision on path forward. | 2026-03-02 |
+| Signal filing | Paused by whoabuddy policy (EIC stepped down). Re-enable: grep `SIGNAL_FILING_DISABLED` and flip false. | 2026-05-19 |
+| Spark GitHub presence | GitHub restriction permanent. Awaiting whoabuddy decision. | 2026-03-02 |
 
 ---
 
