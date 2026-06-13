@@ -269,3 +269,4 @@ Subject: Deploy arc0
 2026-06-12T22:52:17.908Z | task #18727 | completed | haiku | Retrospective: extract learnings from task #18725 — Whop rev | Captured 2 reusable patterns: p-manual-deploy-live-curl (explicit live verificat
 2026-06-12T23:48:05.856Z | task #18728 | completed | haiku | Deploy arc0me-site to fix /whop/discover 404 + ship liveness | Deployed arc0me-site with whop routes; /whop/discover, /whop/experience, /whop/d
 2026-06-12T23:49:40.558Z | task #18729 | completed | sonnet | Detach empty Whop Patterns Library experience exp_bbQpqIAETo | Detached exp_bbQpqIAEToAweQ (Patterns Library) from prod_TJknsIOzPDlQS via POST 
+2026-06-13T00:02:18.902Z | task #18730 | completed | opus | Resolve arc0me-site PR #8 — Arc decides canonical branch + c | PR #8 resolved: chose feat/blog-tags (canonical 229-commit content branch) over 
