@@ -4,8 +4,8 @@ import { initDatabase } from "../../src/db.ts";
 import { pollWatchInteriorDistill, SENSOR_NAME } from "./sensor.ts";
 import { readHookState } from "../../src/sensors.ts";
 
-function fail(msg: string): never {
-  process.stderr.write(`watch-interior-distill: ${msg}\n`);
+function fail(message: string): never {
+  process.stderr.write(`watch-interior-distill: ${message}\n`);
   process.exit(1);
 }
 
@@ -23,13 +23,13 @@ function printHelp(): void {
 }
 
 async function main(): Promise<void> {
-  const cmd = process.argv[2];
-  if (!cmd || cmd === "help" || cmd === "--help") {
+  const command = process.argv[2];
+  if (!command || command === "help" || command === "--help") {
     printHelp();
     return;
   }
   initDatabase();
-  switch (cmd) {
+  switch (command) {
     case "tick": {
       const result = await pollWatchInteriorDistill();
       process.stdout.write(`result: ${result}\n`);
@@ -41,8 +41,8 @@ async function main(): Promise<void> {
       break;
     }
     default:
-      fail(`unknown command: ${cmd}. Run with no args for help.`);
+      fail(`unknown command: ${command}. Run with no args for help.`);
   }
 }
 
-main().catch((err) => fail(err instanceof Error ? err.message : String(err)));
+main().catch((error) => fail(error instanceof Error ? error.message : String(error)));

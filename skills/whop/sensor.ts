@@ -703,8 +703,8 @@ function queueReplyTask(
         "\n## Topic context\n" +
         "Source-artifact brief that matches their topic. Cite if you use it; never paraphrase.\n\n" +
         renderInline([matchedNugget], 1500);
-    } catch (err) {
-      repliesLog(`topic-context budget overflow: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      repliesLog(`topic-context budget overflow: ${error instanceof Error ? error.message : String(error)}`);
       topicContextBlock = "";
     }
   }
@@ -852,8 +852,8 @@ export async function pollWhopSynthesis(): Promise<void> {
         "Source-artifact briefs — pulled fresh from Arc's reading and operating state.\n" +
         "Members pay for this read. Quote / cite when you use them; don't paraphrase.\n\n" +
         renderInline(allNuggets, 3000);
-    } catch (err) {
-      synthesisLog(`context wells over budget — falling back to no wells: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      synthesisLog(`context wells over budget — falling back to no wells: ${error instanceof Error ? error.message : String(error)}`);
       wellsBlock = "";
     }
   }
