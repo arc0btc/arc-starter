@@ -1,0 +1,86 @@
+{
+  "tick_at": "2026-06-13T04:21:40Z",
+  "monitor": "inflow-monitor",
+  "tick_kind": "bootstrap-baseline",
+  "window_hours": 24,
+  "verdict": "PASS_WITH_NOTE",
+  "summary": "Producers healthy; zero consumption rows yet. Not a wiring bug — consumer cadences/conditions just haven't created a markConsumed code path since inflow commits (d0e1651d, ~57 min ago).",
+  "since_commits": {
+    "feat_inflows_consumers": "d0e1651d (2026-06-13T03:24:22Z, ~57m ago)",
+    "feat_inflows_producers": "3c5a15f2 (2026-06-13T03:13:14Z, ~68m ago)"
+  },
+  "dispatch": {
+    "lock_file_present": false,
+    "active_tasks": 0,
+    "timer_state": "active (waiting), next trigger 2026-06-13T04:21:32Z",
+    "verdict": "ok"
+  },
+  "producers": {
+    "produced_48h": { "arxiv": 4, "council": 5, "watch-interior": 2 },
+    "stuck_check": "OK — every type has a fresh artifact in last 36h",
+    "latest_distill_tasks_since_commit": [
+      { "id": 18764, "source": "sensor:arxiv-research:distill-2026-06-12T02:07:13Z", "status": "completed" },
+      { "id": 18765, "source": "sensor:arc-reporting-watch:interior-2026-06-13T01:01:25Z", "status": "completed" },
+      { "id": 18766, "source": "sensor:council-distill:46d2ec5", "status": "completed" }
+    ],
+    "verdict": "ok"
+  },
+  "consumers": {
+    "consumed_24h": { "blog": 0, "whop-chat": 0, "whop-forum": 0, "public-forum": 0, "x": 0, "reactive": 0 },
+    "consumption_rows_total_ever": 0,
+    "verdict": "no rows yet — see per-channel triage below",
+    "per_channel": {
+      "reactive": {
+        "expected_cadence": "1h (whop-replies)",
+        "fired_since_commit": true,
+        "last_tick": "2026-06-13T04:21:10Z",
+        "tick_outcome": "seen=17 candidates=7 created=0 skipped=7",
+        "skip_reasons": { "already_queued": 4, "below_length_floor": 3 },
+        "diagnosis": "Sensor running correctly. All 7 candidates had legitimate skip reasons; matchReactiveNugget never ran because no task was created. Will exercise markConsumed when a fresh, length-qualifying, non-duplicate inbound arrives that overlaps tokens with a `reactive`-tagged artifact."
+      },
+      "whop-chat": {
+        "expected_cadence": "6h (whop-synthesis)",
+        "fired_since_commit": false,
+        "diagnosis": "Cadence not yet elapsed since commit; next tick will pull watch-interior + council + arxiv per pollWhopSynthesis wiring. Watch for this in next ~5h."
+      },
+      "blog": {
+        "expected_cadence": "12h+ (blog-publishing queueArtifactFedDraft)",
+        "fired_since_commit": false,
+        "last_log_lines": ["skip (interval not ready)"],
+        "diagnosis": "Self-gated claim hasn't elapsed. Will exercise markConsumed on next firing when nugget pool non-empty."
+      },
+      "x": {
+        "expected_cadence": "12h (4 beats) — BUT X_CADENCE_ENABLED=false hardcoded",
+        "fired_since_commit": false,
+        "diagnosis": "Cadence beat code currently gated off in skills/social-x-posting/sensor.ts:84 due to credit state. No consumption expected until flipped back on. NOT a wiring fault."
+      }
+    }
+  },
+  "asymmetry_guarantee": {
+    "watch_interior_leak_into_blog_or_public_forum": "ok — 0 rows",
+    "verdict": "ok"
+  },
+  "workflows": {
+    "publish_fanout_instances_7d": 0,
+    "blog_to_x_instances_7d": 0,
+    "fanout_tasks_7d": 0,
+    "note": "No fanout instances yet; next blog publish should create one (WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true in .env)."
+  },
+  "watch_report_inflow_embed": {
+    "checked": false,
+    "note": "Skipped this tick — verify on next watch-report cycle (6h cadence, P6)."
+  },
+  "user_questions_raised": {
+    "tz_interpretation": {
+      "hypothesis": "Commits weren't in UTC, so 24h window calc was off",
+      "result": "rejected",
+      "evidence": "distilled_consumption has 0 rows ever (not just 0 in last 24h). produced_at uses ISO-Z UTC and consumed_at default datetime('now') also UTC — both align. The 0-consumption reading is real, not a window artifact."
+    }
+  },
+  "next_actions": [
+    "Continue monitoring on /loop cadence (next tick at default 1800s)",
+    "Re-check at ~04:51Z (next whop-replies tick window) — verify if a qualifying inbound has arrived",
+    "Re-check at ~10:00Z+ (first whop-synthesis tick post-commit should land then) — verify markConsumed('whop-chat') fires",
+    "If consumed_24h stays at 0 across all channels for >48h with non-empty pool, escalate as real wiring bug"
+  ]
+}

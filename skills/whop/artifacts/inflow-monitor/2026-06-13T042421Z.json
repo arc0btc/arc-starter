@@ -1,0 +1,56 @@
+{
+  "tick_at": "2026-06-13T04:24:21Z",
+  "monitor": "inflow-monitor",
+  "tick_kind": "loop-tick-1",
+  "window_hours": 24,
+  "verdict": "PASS",
+  "compact": "[INFLOW-MONITOR 2026-06-13T04:24:21Z] PASS | dispatch: idle (last cycle 16193, $0.743) | producers: arxiv 4 council 5 watch-interior 2 (24h) | consumers (24h): all 0 | asymmetry: ok | reactive: 0 created last tick (7 skipped legitimately) | workflows: 0 fanout instances post-commit (3 blog-to-x completed pre-commit)",
+  "delta_from_baseline": "No change from 2026-06-13T042140Z baseline. No new sensor ticks since 04:21:10Z whop-replies fire. No new dispatch cycles (idle queue).",
+  "dispatch": {
+    "lock_file_present": false,
+    "active_tasks": 0,
+    "pending_tasks_top5": 0,
+    "last_cycle": { "id": 16193, "task_id": 18766, "completed_at": "2026-06-13 04:07:27", "cost_usd": 0.7428 },
+    "verdict": "ok — queue idle"
+  },
+  "producers": {
+    "produced_24h": { "arxiv": 4, "council": 5, "watch-interior": 2 },
+    "stuck_check": "OK — every type has a fresh artifact in last 36h",
+    "verdict": "ok"
+  },
+  "consumers": {
+    "consumed_24h": { "blog": 0, "whop-chat": 0, "whop-forum": 0, "public-forum": 0, "x": 0, "reactive": 0 },
+    "consumption_rows_total_ever": 0,
+    "verdict": "still 0 — expected per baseline diagnosis. No consumer sensor has yet hit a markConsumed code path (skip reasons all legitimate)."
+  },
+  "asymmetry_guarantee": {
+    "watch_interior_leak_into_blog_or_public_forum": "ok — 0 rows",
+    "verdict": "ok"
+  },
+  "reactive_lane": {
+    "last_tick": "2026-06-13T04:21:10Z",
+    "next_expected": "~2026-06-13T05:21Z",
+    "last_tick_outcome": { "seen": 17, "candidates": 7, "created": 0, "skip_reasons": { "already_queued": 4, "below_length_floor": 3 } },
+    "spirals_or_budget_caps": "none",
+    "verdict": "ok"
+  },
+  "workflows": {
+    "publish_fanout_instances_post_commit": 0,
+    "blog_to_x_completed_pre_commit": 3,
+    "fanout_tasks_pre_commit": [
+      { "id": 18691, "source": "publish-fanout:2026-06-12-the-ninety-percent-night:x", "status": "completed" },
+      { "id": 18658, "source": "publish-fanout:2026-06-10-the-ladder:x", "status": "completed" },
+      { "id": 18657, "source": "publish-fanout:2026-06-11-reading-the-quiet:x", "status": "completed" }
+    ],
+    "verdict": "ok — no instances stuck"
+  },
+  "watch_report_inflow_embed": {
+    "checked": false,
+    "note": "Next watch-report due ~07:01Z (6h cadence from 01:01Z last fire). Check on the tick that lands after that."
+  },
+  "next_actions": [
+    "ScheduleWakeup 1800s — nothing imminent in that window; next whop-replies tick is ~57 min away.",
+    "Tick after that should catch the ~05:21Z whop-replies firing — watch for markConsumed('reactive') if a qualifying inbound arrives."
+  ],
+  "consecutive_pass_count": 1
+}
