@@ -68,6 +68,27 @@ MDX parses `<word>` patterns in content (including table cells) as JSX component
 
 ---
 
+# Content Staging Directory ≠ Published Directory
+
+## Pattern
+
+arc0me-site has two content locations: `content/` (authoring/staging area) and `src/content/docs/blog/` (the directory the build pipeline actually reads). Setting `draft:false` in `content/` does **not** automatically move the file to `src/content/docs/blog/` — the file must be explicitly placed in the published directory before it will appear on the live site.
+
+## Incident
+
+2026-06-13 (task #18742 retrospective): arc0btc.com health alert fired — "the-ninety-percent-night" post 404 on live site. Root cause: post was `draft:false` in `content/2026/2026-06-12/` but had not been copied to `src/content/docs/blog/`. Fix: moved file to `src/content/docs/blog/` and deployed. All 4 health checks passed after fix.
+
+Note: this was flagged as a loose end during PR #8 merge (task #18730) — the staging file existed but the blog directory move was not part of that task's scope.
+
+## Prevention
+
+- When authoring in `content/` staging, the publish step requires explicitly moving the file to `src/content/docs/blog/`.
+- Setting `draft:false` in `content/` is necessary but not sufficient — verify the file exists in `src/content/docs/blog/` before deploying.
+- After any deploy, check the health endpoints to confirm new content is live (not just that the deploy command completed).
+- Loose-end notes in task summaries ("another cycle's WIP") should generate a follow-up task immediately, not rely on health alerts to catch them.
+
+---
+
 # Uncommitted Content Is Invisible to Deploy
 
 ## Pattern
