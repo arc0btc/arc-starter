@@ -453,6 +453,42 @@ export function initDatabase(): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_from ON task_deps(from_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_to ON task_deps(to_id)");
 
+  // Source-artifact pool index. Disk under artifacts/distilled/ is source of truth;
+  // this index makes "give me the N most recent artifacts of type X not yet consumed
+  // by channel Y" a fast query. Composite PK (type, id) avoids same-second basename
+  // collisions when a producer emits 3-5 nuggets in one run. deleted_at supports
+  // soft-delete grace (14 days between TTL expiry and hard rm).
+  db.run(`
+    CREATE TABLE IF NOT EXISTS distilled_artifacts (
+      id TEXT NOT NULL,
+      type TEXT NOT NULL,
+      topic TEXT NOT NULL,
+      produced_at TEXT NOT NULL,
+      path TEXT NOT NULL,
+      title TEXT NOT NULL,
+      citation TEXT NOT NULL,
+      suggested_channels TEXT NOT NULL,
+      deleted_at TEXT,
+      PRIMARY KEY (type, id)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_distilled_type_recent ON distilled_artifacts(type, produced_at)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_distilled_topic ON distilled_artifacts(topic)");
+
+  // Consumption claims — relational, race-safe via (artifact_id, channel) PK.
+  // Replaces a JSON consumed_by blob; channel-filter queries become anti-joins.
+  db.run(`
+    CREATE TABLE IF NOT EXISTS distilled_consumption (
+      artifact_id TEXT NOT NULL,
+      artifact_type TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      task_id INTEGER NOT NULL,
+      consumed_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (artifact_id, channel)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_consumption_channel ON distilled_consumption(channel, artifact_id)");
+
   db.run(`
     CREATE TABLE IF NOT EXISTS service_logs (
       id INTEGER PRIMARY KEY,

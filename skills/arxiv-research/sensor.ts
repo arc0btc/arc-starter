@@ -26,71 +26,16 @@ const log = createSensorLogger(SENSOR_NAME);
 // Tier 2 — compound match: at least one AGENT keyword AND one CRYPTO keyword.
 // Papers that only match generic agent/LLM terms (e.g. "deception in Among Us") are excluded.
 
-const AIBTC_SPECIFIC_KEYWORDS = [
-  /\bMCP\b/,
-  /\bmodel context protocol/i,
-  /\bMCP[-\s]?server/i,
-  /\bHTTP[-\s]?402\b/,
-  /\bx402\b/,
-  /\bstacks\b/i,
-  /\bclarity[-\s]?(language|vm|contract)/i,
-  /\bsBTC\b/,
-  /\bBRC-20\b/,
-  /\bbitcoin.*relay/i,
-  /\brelay.*bitcoin/i,
-  /\bnonce.*manag.*agent/i,
-];
-
-// Quantum beat: papers relevant to quantum computing's impact on Bitcoin security.
-// Matches quantum hardware/algorithm advances, ECDSA/SHA-256 threats, post-quantum BIPs,
-// and quantum-resistant cryptography proposals.
-const QUANTUM_KEYWORDS = [
-  /\bpost[-\s]?quantum/i,
-  /\bquantum[-\s]?(attack|threat|resist|safe|secur)/i,
-  /\b(break|break.*ECDSA|attack.*ECDSA|ECDSA.*break)/i,
-  /\bquantum.*bitcoin/i,
-  /\bbitcoin.*quantum/i,
-  /\bquantum.*cryptocurren/i,
-  /\bShor'?s algorithm/i,
-  /\bGrover'?s algorithm/i,
-  /\bquantum.*key.*distribut/i,
-  /\bquantum[-\s]?resistant/i,
-  /\bquantum[-\s]?proof/i,
-  /\blattice[-\s]?based.*crypt/i,
-  /\bNIST.*post[-\s]?quantum/i,
-  /\bP2QRH\b/,
-  /\bBIP[-\s]?360\b/,
-  /\bquantum.*hash/i,
-  /\bquantum.*elliptic/i,
-];
+import {
+  AIBTC_SPECIFIC_KEYWORDS,
+  QUANTUM_KEYWORDS,
+  AGENT_KEYWORDS,
+  CRYPTO_INFRA_KEYWORDS,
+} from "./lib/keywords.ts";
 
 function isQuantumBeatPaper(title: string): boolean {
   return QUANTUM_KEYWORDS.some((re) => re.test(title));
 }
-
-const AGENT_KEYWORDS = [
-  /\bautonomous agent/i,
-  /\bLLM[-\s]?agent/i,
-  /\bagent[-\s]?framework/i,
-  /\bagent[-\s]?infra/i,
-  /\borchestrat/i,
-  /\bagent[-\s]?to[-\s]?agent/i,
-  /\bAI[-\s]?agent/i,
-  /\bmulti[-\s]?agent/i,
-];
-
-const CRYPTO_INFRA_KEYWORDS = [
-  /\bbitcoin/i,
-  /\bblockchain/i,
-  /\bon[-\s]?chain/i,
-  /\bsmart[-\s]?contract/i,
-  /\bmicropayment/i,
-  /\bpayment[-\s]?channel/i,
-  /\bdecentralized.*finance/i,
-  /\bDeFi\b/,
-  /\bweb3\b/i,
-  /\bcryptocurren/i,
-];
 
 function isAibtcInfraPaper(title: string): boolean {
   // Tier 1: specific aibtc keywords always qualify

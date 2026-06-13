@@ -10,17 +10,14 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { isoBasic } from "../../../src/iso8601.ts";
+
 const ARTIFACT_ROOT = resolve(import.meta.dir, "../artifacts");
 
-export type Lane = "replies" | "synthesis";
+export type Lane = "replies" | "synthesis" | "free-forum";
 
 /** ISO8601 basic-form basename with trailing Z (2026-06-12T201500Z). */
-export function artifactBasename(date = new Date()): string {
-  // toISOString → 2026-06-12T20:15:00.123Z; strip ms and colons for a
-  // filesystem-safe basename. The HHMMSS resolution is enough — two ticks in
-  // the same second are impossible at our 5-min / 6-hr cadences.
-  return date.toISOString().replace(/\.\d+Z$/, "Z").replace(/:/g, "");
-}
+export const artifactBasename = isoBasic;
 
 export function writeArtifact(lane: Lane, payload: unknown): string {
   const dir = resolve(ARTIFACT_ROOT, lane);

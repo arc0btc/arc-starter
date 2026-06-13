@@ -6,6 +6,7 @@
 import { existsSync, readdirSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
+import { isoSeconds } from "../../src/iso8601.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const ARXIV_DIR = join(ROOT, "research", "arxiv");
@@ -181,27 +182,8 @@ function scorePaper(paper: ArxivPaper): ScoredPaper {
 }
 
 // ---- Quantum beat keyword matching (title + abstract) ----
-// Mirrors sensor.ts QUANTUM_KEYWORDS but applied to full paper content after fetch.
 
-const QUANTUM_KEYWORDS = [
-  /\bpost[-\s]?quantum/i,
-  /\bquantum[-\s]?(attack|threat|resist|safe|secur)/i,
-  /\b(break|break.*ECDSA|attack.*ECDSA|ECDSA.*break)/i,
-  /\bquantum.*bitcoin/i,
-  /\bbitcoin.*quantum/i,
-  /\bquantum.*cryptocurren/i,
-  /\bShor'?s algorithm/i,
-  /\bGrover'?s algorithm/i,
-  /\bquantum.*key.*distribut/i,
-  /\bquantum[-\s]?resistant/i,
-  /\bquantum[-\s]?proof/i,
-  /\blattice[-\s]?based.*crypt/i,
-  /\bNIST.*post[-\s]?quantum/i,
-  /\bP2QRH\b/,
-  /\bBIP[-\s]?360\b/,
-  /\bquantum.*hash/i,
-  /\bquantum.*elliptic/i,
-];
+import { QUANTUM_KEYWORDS } from "./lib/keywords.ts";
 
 function isQuantumBeatPaper(title: string, abstract: string): boolean {
   return QUANTUM_KEYWORDS.some((re) => re.test(title) || re.test(abstract));
@@ -295,7 +277,7 @@ async function cmdCompile(args: string[]): Promise<void> {
 
   // Determine date for the digest
   const dateStr = flags.date ?? new Date().toISOString().split("T")[0];
-  const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+  const timestamp = isoSeconds();
   const filename = `${timestamp}_arxiv_digest.md`;
   const filepath = join(ARXIV_DIR, filename);
 
