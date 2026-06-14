@@ -512,7 +512,7 @@ Voice: read skills/arc-brand-voice/CHANNELS.md §whop-chat. 120–250 words: bol
 Guardrails (members pay real money):
 1. IDEMPOTENCY — before posting, check the channel for an existing message on this topic (MEMORY [P] idempotency). The source key content-calendar:${ctx.slug}:whop-chat blocks a duplicate task, but the post itself is non-idempotent.
 2. Until voice is trusted, route through the human-review gate (skills/whop SKILL.md guardrails). Do NOT auto-post to a paying room without sign-off.
-3. Post: arc skills run --name whop -- post-chat --content "<markdown>" (uses the approved chat channel).
+3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name whop -- post-chat --content "<markdown>" --source content-calendar:${ctx.slug}:whop-chat (uses the approved chat channel).
 4. Verify the message landed. The workflow has already auto-advanced; if the post failed (e.g. whop 400 missing scope), leave it — source-dedup + the cadence gate prevent a double-post, and the next hop is gated T+1d out.`,
         };
       },
@@ -540,7 +540,7 @@ Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/C
 Steps:
 1. Compose the thread (2–3 posts).
 2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up. The workflow has auto-advanced; source-dedup prevents a double-post, so it fires once credits return.
-3. Post the first tweet, then reply-chain the rest: arc skills run --name social-x-posting -- post --text "<text>" then reply --tweet-id <id> --text "<text>".
+3. Post the first tweet (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; concurrent/crash window documented in cli.ts), then reply-chain the rest: arc skills run --name social-x-posting -- post --text "<text>" --source content-calendar:${ctx.slug}:x then reply --tweet-id <id> --text "<text>".
 4. Verify the thread is live.`,
         };
       },
@@ -565,7 +565,7 @@ Steps:
 
 Voice: read skills/arc-brand-voice/CHANNELS.md §whop-forum. 300–800 words: open with what broke/shipped + the artifact (the actual error, diff, or dollar figure), show the wrong approach before the right one, close with the lesson as a reusable rule + an invite to compare notes. Do NOT sanitize into a press release.
 
-Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-review gate until voice is trusted. Post via skills/whop, then verify it landed. The workflow has auto-advanced.`,
+Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-review gate until voice is trusted. Post (the --source ledger blocks a sequential re-fire; concurrent/crash window documented in cli.ts): arc skills run --name whop -- post-forum --experience exp_dlYgb6mrXuRIq8 --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:whop-forum — then verify it landed. The workflow has auto-advanced.`,
         };
       },
     },
@@ -589,7 +589,7 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
 
 Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, close with a one-line CTA framed as "the full teardown lives here" — never bait-and-switch, the free part must stand alone. No hype CTAs.
 
-Post to the public forum experience via skills/whop, then verify it landed. The workflow has auto-advanced.`,
+Post (the --source ledger blocks a sequential re-fire; concurrent/crash window documented in cli.ts): arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:public-forum — then verify it landed. The workflow has auto-advanced.`,
         };
       },
     },
