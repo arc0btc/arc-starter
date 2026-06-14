@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/_vmlops/status/2059207888393138556",
+  "fetchedAt": "2026-06-14T08:29:44.750Z",
+  "contentType": "tweet",
+  "title": "@_vmlops: MICROSOFT OPEN-SOURCED A GOVERNANCE LAYER FOR YOUR AI AGENTS\n\nand it's exactly w...",
+  "rawContent": "Tweet by @_vmlops (Vaishnavi)\nAuthor bio: Devops Engineer | Mlops Enthusiast\nText: MICROSOFT OPEN-SOURCED A GOVERNANCE LAYER FOR YOUR AI AGENTS\n\nand it's exactly what agentic ai has been missing\n\nhere's what agent governance toolkit does:\n\n▫️ intercepts every tool call in deterministic code before it hits the wire denied actions aren't unlikely, they're structurally impossible\n▫️ yaml policy engine lets you allow, deny, or require human approval per action\n▫️ zero-trust identity via spiffe/did/mtls no more 5 agents sharing one api key\n▫️ 4-level execution sandbox with privilege rings so agents can't escape their scope\n▫️ tamper-evident merkle audit logs for compliance and incident response\n▫️ covers all 10/10 owasp agentic top 10 risks\n▫️ works with langchain, crewai, autogen, openai agents sdk, semantic kernel, and more\n\none pip install...any framework...python, typescript, go, rust, .net all supported\n\nbecause \"please follow the rules\" in a system prompt is not a guardrail...it's a suggestion\n\nhttps://t.co/bwW7iVMNdE\nCreated: 2026-05-26T09:39:53.000Z\nMetrics: {\"retweet_count\":187,\"reply_count\":47,\"like_count\":1287,\"quote_count\":13,\"bookmark_count\":2475,\"impression_count\":145582}",
+  "embeddedUrls": []
+}
