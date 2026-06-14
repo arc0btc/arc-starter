@@ -266,14 +266,6 @@ function extractPatterns(): PatternEntry[] {
   return patterns;
 }
 
-/** Find new patterns not yet posted to the library. */
-function findNewPatterns(
-  allPatterns: PatternEntry[],
-  state: PatternsLibraryState
-): PatternEntry[] {
-  return allPatterns.filter((p) => !state.postedPatterns.includes(p.name));
-}
-
 /**
  * Publish the patterns library as a static JSON file consumed by the
  * arc-the-agent Whop App's experience route for exp_bbQpqIAEToAweQ. This
@@ -817,11 +809,9 @@ export async function pollWhopSynthesis(): Promise<void> {
       "SELECT 1 FROM tasks WHERE source LIKE 'publish-fanout:%:whop' AND created_at > datetime('now', '-360 minutes') LIMIT 1"
     )
     .get() !== null);
-  const recentPatternsDigest = recentTaskExistsForSourcePrefix("sensor:whop:patterns-library:", 6 * 60);
   const recentReactivePost = recentTaskExistsForSourcePrefix("sensor:whop-replies:", 60);
   const recentArcSignals: string[] = [];
   if (recentTeachingBeat) recentArcSignals.push("publish-fanout (≤6h)");
-  if (recentPatternsDigest) recentArcSignals.push("patterns-library digest (≤6h)");
   if (recentReactivePost) recentArcSignals.push("reactive reply (≤1h)");
 
   // Premium context wells: pull fresh source artifacts for the paid room.
