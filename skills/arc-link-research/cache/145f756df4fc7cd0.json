@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2059338915023393161",
+  "fetchedAt": "2026-06-14T07:42:33.107Z",
+  "contentType": "tweet",
+  "title": "@zarazhangrui: Frontend Slides skill now has 19k stars on GitHub ✨\n\nI upgraded it with a new de...",
+  "rawContent": "Tweet by @zarazhangrui (Zara Zhang)\nAuthor bio: Builder. Dangerously skips permissions. Harvard’17. GitHub: https://t.co/KCuEajezlL YouTube: https://t.co/8xzbGWtf6w\nText: Frontend Slides skill now has 19k stars on GitHub ✨\n\nI upgraded it with a new design brain: it can now pull from my Beautiful HTML Templates library, pick a visual direction, and generate slides using that template’s design language\n\nAlso new: \n- Works better with coding agents beyond Claude Code - Export to webpage or PDF for easy sharing \n- Inline slide editing \n- Fixed 16:9 deck stage to avoid overflow, cropping, and weird responsive chaos\n\nTry now: https://t.co/CiQpficxcD\nCreated: 2026-05-26T18:20:32.000Z\nMetrics: {\"retweet_count\":26,\"reply_count\":17,\"like_count\":301,\"quote_count\":2,\"bookmark_count\":311,\"impression_count\":32927}",
+  "embeddedUrls": [
+    "https://t.co/Ugi2IUbxRN"
+  ]
+}
