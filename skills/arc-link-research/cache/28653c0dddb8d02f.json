@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/Marie_Haynes/status/2065531158356717721",
+  "fetchedAt": "2026-06-14T07:02:25.627Z",
+  "contentType": "tweet",
+  "title": "@Marie_Haynes: This is really big news. Google introduced the Open Knowledge Format (OKF) - a s...",
+  "rawContent": "Tweet by @Marie_Haynes (Marie Haynes)\nAuthor bio: SEO & AI Consultant\n\nBuilding agents & other cool things with \n\n🤖Antigravity \n🦾Workspace CLI\n📙NotebookLM  \n\nAI & SEO News: https://t.co/zdw5sWdbKq\nText: This is really big news. Google introduced the Open Knowledge Format (OKF) - a standardized way to store information in a directory of markdown files. Makes it really easy to make a digital brain that agents can use.\n\nThese files can serve as a living wiki. You can give agents the ability to query them or edit them. They can interlink. \n\nSeems to me this could replace Notion or Obsidian. I can think of so many uses for this. \n\nGoogle's blog post: https://t.co/DqSjg4UpvH\n\nAn easier to understand explanation is the SPEC.md file:\nhttps://t.co/A3qSz3Tfas\n\nI gave those two links to Antigravity and asked how we could use it for any of the projects we're working on. It came up with so many ideas. I would imagine Claude Fable 5 would whip up some pretty amazing things based on this system. \n\nCurrently creating an OKF library of our pepper garden. It's going to be a fun weekend.\nCreated: 2026-06-12T20:26:18.000Z\nMetrics: {\"retweet_count\":672,\"reply_count\":146,\"like_count\":5560,\"quote_count\":79,\"bookmark_count\":10800,\"impression_count\":707513}",
+  "embeddedUrls": [
+    "https://t.co/O8HSkoTiUF"
+  ]
+}
