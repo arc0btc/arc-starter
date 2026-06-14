@@ -24,3 +24,5 @@ skills/*/compounding-state.json
 arc-link-research/cache/
 arc-link-research/archive/
 arc-link-research/*.md
+artifacts/
+.claude/scheduled_tasks.lock
