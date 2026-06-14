@@ -406,3 +406,4 @@ Subject: Deploy arc0
 2026-06-14T07:26:02.685Z | task #18864 | completed | opus | Re-run research: x.com/cyrilXBT tweet — surface JS-walled em | Re-run surfaced hidden content: tweet 2065984221756219807 is an X article '300 C
 2026-06-14T07:27:04.119Z | task #18865 | completed | opus | Re-run research: x.com/_avichawla tweet — surface JS-walled  | JS-wall fix verified: t.co/Yu9zR0hgYK now routes through X API instead of 493b s
 2026-06-14T07:27:50.827Z | task #18866 | completed | opus | Re-run research: x.com/JafarNajafov tweet — surface JS-walle | JS-wall fix verified: t.co re-route through X API works (no more 493-byte splash
+2026-06-14T07:30:07.292Z | task #18868 | completed | sonnet | Research: Omnigent meta-harness architecture (Databricks) —  | Omnigent: gateway/proxy model, no task queue — Arc's sensor→queue→dispatch is st

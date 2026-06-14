@@ -1,0 +1,12 @@
+{
+  "url": "https://github.com/omnigent-ai/homebrew-tap",
+  "fetchedAt": "2026-06-14T07:28:36.824Z",
+  "contentType": "github",
+  "title": "homebrew-tap",
+  "rawContent": "Repo: omnigent-ai/homebrew-tap\nDescription: \nTopics: \nStars: 0\n\nREADME:\n# Omnigent Homebrew Tap\n\nHomebrew formulae for [Omnigent](https://github.com/omnigent-ai/omnigent).\n\n## Formulae\n\n### omnigents\n\nInstalls the [Omnigent](https://github.com/omnigent-ai/omnigent) CLI\n(`omnigent` and its `omni` alias) into a self-contained virtualenv built\nwith Homebrew's Python, plus shell completions for bash, zsh, and fish.\nNo `uv` or pre-existing Python setup required.\n\nThe upstream repository has no tagged releases yet, so the formula is\nHEAD-only and builds from the latest `main`:\n\n```sh\nbrew install --HEAD omnigent-ai/tap/omnigent\n```\n\nTo pick up new upstream commits later:\n\n```sh\nbrew upgrade --fetch-HEAD omnigent\n```\n\nCloning the private source repository uses your existing git credentials\n(`gh auth setup-git` configures them if needed).\n\n#### Building behind a registry mirror\n\nThe build downloads Python packages from PyPI and (for the bundled web UI)\nnpm packages from the npm registry. Homebrew builds run with a scrubbed\n`HOME`, so `~/.pip/pip.conf` and `~/.npmrc` are not visible to them. If\nyour network requires registry mirrors, export them before installing:\n\n```sh\nexport HOMEBREW_PIP_INDEX_URL=https://<your-pypi-mirror>/simple\nexport HOMEBREW_NPM_REGISTRY=https://<your-npm-mirror>/\n```\n\n## Documentation\n\n`brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).\n",
+  "embeddedUrls": [
+    "https://github.com/omnigent-ai/omnigent",
+    "https://github.com/omnigent-ai/omnigent",
+    "https://docs.brew.sh"
+  ]
+}

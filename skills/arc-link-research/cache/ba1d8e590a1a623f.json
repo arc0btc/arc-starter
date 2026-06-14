@@ -1,0 +1,10 @@
+{
+  "url": "https://omnigent.ai/",
+  "fetchedAt": "2026-06-14T07:28:39.460Z",
+  "contentType": "html",
+  "title": "Omnigent — a meta-harness for building and running AI agents",
+  "rawContent": "Omnigent — a meta-harness for building and running AI agents Get Started Docs A common layer over Claude Code, Codex, Pi, and the agents you write yourself: swap or combine harnesses without rewriting, keep them in check with policies and sandboxing, and collaborate in real time on the same live session, from any device. installer uv pip homebrew $ curl -fsSL https://omnigent.ai/install.sh | sh copy Get Started Join Discord Features Polly &amp; Debby : built-in multi-AI agents (a coding orchestrator and a model debate). Build your own in YAML. Contextual Policies : stateful spend caps, model routing, and risk-based escalation. Secure OS Sandbox : restrict filesystem and network access. Hide credentials from the agent, and broker access to them. Run YOLO mode safely. What Omnigent gives you Composition Control Collaboration Composition Combine multiple models, harnesses, and techniques without rewriting code. Switch between Claude Code, Codex, Pi, and your own agents with one-line changes. Control Stateful, data-centric policies that track agent actions and enforce guardrails like cost budgets and access controls at the meta-harness layer, not via prompts. Collaboration Share live agent sessions via URL with full history, so teammates can review, comment, and steer together in real time. Architecture A runner wraps any agent in a sandboxed, uniform session. A server adds policies and shared history, and exposes every session over the terminal, the web, a native app, mobile, and a REST API. Omnigent is alpha and built in the open. Try it and give us feedback on Discord. Join the Discord Built by the Databricks AI team and Neon . Get Started Docs Discord GitHub Apache 2.0 · Alpha",
+  "embeddedUrls": [
+    "https://omnigent.ai/install.sh"
+  ]
+}
