@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/bibryam/status/2065918635709763627",
+  "fetchedAt": "2026-06-14T07:08:36.175Z",
+  "contentType": "tweet",
+  "title": "@bibryam: Claude Code and Codex Can Have Real-Time Conversation via Git\n\nUses a lightweigh...",
+  "rawContent": "Tweet by @bibryam (Bilgin Ibryam)\nAuthor bio: PM at Diagrid | Ex-Red Hat Architect | Author Kubernetes Patterns \n→ All in distributed systems; agentic apps; AI-assisted coding;\nText: Claude Code and Codex Can Have Real-Time Conversation via Git\n\nUses a lightweight protocol called i5h (Inter-Agent Information & Interaction Handshake). Messages are stored as immutable JSON objects in a Git ref, creating a conflict-free append-only log. Agents can exchange tasks, context, and feedback while every interaction is automatically versioned and auditable.\nhttps://t.co/LbEQ0fgEUj\nCreated: 2026-06-13T22:06:00.000Z\nMetrics: {\"retweet_count\":8,\"reply_count\":1,\"like_count\":64,\"quote_count\":0,\"bookmark_count\":69,\"impression_count\":3666}",
+  "embeddedUrls": [
+    "https://t.co/IGmPHNSvXw"
+  ]
+}
