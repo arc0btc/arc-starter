@@ -806,6 +806,56 @@ interface ScriptResult {
 }
 
 /**
+ * Scan text for top-level `{...}` spans (respecting strings/escapes) and return
+ * the last one that parses to a plain object. Handles CLIs that emit log lines
+ * followed by pretty-printed JSON — a naive last-line tail would grab a bare `}`.
+ */
+function extractLastJsonObject(text: string): Record<string, unknown> | null {
+  let depth = 0;
+  let start = -1;
+  let inStr = false;
+  let esc = false;
+  let last: string | null = null;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      if (depth > 0) {
+        depth--;
+        if (depth === 0 && start !== -1) last = text.slice(start, i + 1);
+      }
+    }
+  }
+  if (last === null) return null;
+  try {
+    const parsed = JSON.parse(last) as unknown;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Derive a human-readable one-line summary from a parsed result object. */
+function summarizeResultObject(parsed: Record<string, unknown>): string {
+  for (const key of ["message", "summary"] as const) {
+    const v = parsed[key];
+    if (typeof v === "string" && v.trim()) return v.trim().slice(0, 500);
+  }
+  return JSON.stringify(parsed).slice(0, 500);
+}
+
+/**
  * Execute a pre-baked shell command from task.script without spawning an LLM.
  * - Runs via bash -c with 5-min timeout (SIGTERM, then SIGKILL after 5s)
  * - On exit 0: tries to parse stdout as JSON for {message, status}, falls back to last non-empty line
@@ -868,18 +918,31 @@ async function dispatchScript(script: string, skillNames: string[]): Promise<Scr
   const detail = `$ ${script}\n\n[exit ${exitCode}]\nstdout:\n${stdout}\nstderr:\n${stderr}`.trim();
 
   if (exitCode === 0) {
-    // Try JSON parsing for structured result
     const trimmed = stdout.trim();
+    // Fast path: the whole stdout is a single JSON value.
     try {
       const parsed = JSON.parse(trimmed) as Record<string, unknown>;
-      const message = typeof parsed.message === "string" ? parsed.message : trimmed.slice(0, 500);
       const status = parsed.status === "failed" ? "failed" as const : "completed" as const;
-      return { result_summary: message, result_detail: detail, status };
+      return { result_summary: summarizeResultObject(parsed), result_detail: detail, status };
     } catch {
-      // Fall back to last non-empty line
-      const lines = trimmed.split("\n").filter(Boolean);
-      const summary = lines.length > 0 ? lines[lines.length - 1].slice(0, 500) : "Script completed (no output)";
-      return { result_summary: summary, result_detail: detail, status: "completed" };
+      // Mixed log + JSON output: pull the last embedded JSON object (e.g. blog-deploy
+      // emits progress lines then a final {success, sha, site} block). A naive last-line
+      // tail would grab the closing `}` and surface a useless one-char summary.
+      const lastJson = extractLastJsonObject(trimmed);
+      if (lastJson) {
+        const failed = lastJson.success === false || lastJson.status === "failed";
+        return {
+          result_summary: summarizeResultObject(lastJson),
+          result_detail: detail,
+          status: failed ? "failed" : "completed",
+        };
+      }
+      // No JSON at all: last meaningful line, skipping bare structural fragments.
+      const lines = trimmed.split("\n").map((l) => l.trim()).filter(Boolean);
+      const summary =
+        [...lines].reverse().find((l) => !/^[{}[\],]+$/.test(l)) ??
+        (lines.length > 0 ? lines[lines.length - 1] : "Script completed (no output)");
+      return { result_summary: summary.slice(0, 500), result_detail: detail, status: "completed" };
     }
   } else {
     // Prefer the last structured-error line (JSON with success:false or an "error" field) —
