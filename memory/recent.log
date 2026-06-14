@@ -515,3 +515,4 @@ Subject: Deploy arc0
 2026-06-14T18:23:29.456Z | task #18972 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-14T18:27:21.989Z | task #18974 | completed | sonnet | Triage AIBTC thread from Frosty Narwhal | Iskander RFC on agent registry (ERC-8004+A2A+MCP); reply already sent by task #1
 2026-06-14T18:40:44.479Z | task #18975 | completed | sonnet | Retrospective: extract learnings from collaboration with Fro | Extracted 2 learnings: (1) AIBTC display name ≠ BNS/self-name (Frosty Narwhal = 
+2026-06-14T20:12:33.611Z | task #18976 | completed | sonnet | Sensor validation: 2 sensor(s) need export pattern fix | Added claimSensorRun(SENSOR_NAME, 5) to nostr/sensor.ts and aibtc-news-distribut
