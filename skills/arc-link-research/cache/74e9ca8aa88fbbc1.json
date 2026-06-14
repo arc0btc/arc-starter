@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2059010009292480849",
+  "fetchedAt": "2026-06-14T07:43:32.207Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: This Meta + Stanford + Illinois survey paper argues that AI agents work better w...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: This Meta + Stanford + Illinois survey paper argues that AI agents work better when code becomes their main working layer.\n\nThe problem is that an LLM by itself is mostly a text predictor, so long tasks can lose state, hide mistakes, and turn plans into actions in fragile ways.\n\nThe real advance is not “AI writes code,” but “AI uses code as the environment it thinks inside.”\n\nThe authors call the surrounding system an agent harness, meaning the tools, memory, sandboxes, checks, and feedback loops that turn a model into an agent.\n\nTheir core idea is that code should sit at the center of that harness, because code can be run, inspected, checked, saved, edited, and shared.\n\nTests become sensors.\n\nRepositories become memory.\n\nLogs become history.\n\nSandboxes become boundaries.\n\nA generated script is no longer merely an answer; it is a handle the system can run, check, revise, share, and roll back.\n\nThe main finding is a pattern across many fields: code helps agents reason through executable steps, act through tool calls or control programs, and model environments through tests, traces, logs, repositories, and simulators.\n\n----\n\nPaper Link – arxiv. org/abs/2605.18747\n\nPaper Title: \"Code as Agent Harness\"\nCreated: 2026-05-25T20:33:35.000Z\nMetrics: {\"retweet_count\":41,\"reply_count\":20,\"like_count\":169,\"quote_count\":5,\"bookmark_count\":157,\"impression_count\":9916}",
+  "embeddedUrls": [
+    "https://t.co/3KKPgkZw3A"
+  ]
+}
