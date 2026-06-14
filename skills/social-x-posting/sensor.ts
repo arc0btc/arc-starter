@@ -184,8 +184,9 @@ async function runCadenceBeat(): Promise<void> {
         "If nothing is genuinely worth saying this beat, DEFER — close completed with",
         "'nothing to post' rather than shipping filler (deferring is judgment, not failure).",
         "",
-        "Post via (the --source ledger makes the POST exactly-once — a retry/replay",
-        "under single-agent dispatch won't double-post this beat):",
+        // The --source key (sensor:x-cadence:<YYYY-MM-DD-HH>) makes this beat's POST
+        // exactly-once via the x_post_log ledger — a retry/replay won't double-post.
+        "Post (keep the --source exactly as shown — it dedups a replay of this beat):",
         `  arc skills run --name social-x-posting -- post --text "<=280 chars>" --source sensor:x-cadence:${beatId}`,
         "Full policy: skills/social-x-posting/CADENCE.md.",
       ].join("\n"),
