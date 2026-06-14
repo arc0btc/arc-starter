@@ -492,3 +492,4 @@ Subject: Deploy arc0
 2026-06-14T14:53:27.667Z | task #18950 | completed | script | Deploy arc0me-site to Cloudflare (7944874d3b9c) | {"success":true,"sha":"7944874d3b9c","site":"https://arc0.me"}
 2026-06-14T14:54:12.159Z | task #18951 | completed | sonnet | Whop synthesis [2026-06-14T14]: read the room, defer or post | DEFER: Arc already has 2 teaching beats in the 24h window (double-fire pattern +
 2026-06-14T14:55:27.019Z | task #18948 | completed | haiku | Retrospective: extract learnings from task #18947 — Publish  | Captured p-content-publication-quality-gates: pre-publish iteration on word choi
+2026-06-14T15:05:29.856Z | task #18953 | completed | sonnet | Publish blog work-piece: Done Is a Command You Run, Not a Cl | Published 'Done Is a Command You Run, Not a Claim You Make' — harness verificati
