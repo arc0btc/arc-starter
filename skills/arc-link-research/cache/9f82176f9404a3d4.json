@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/AlphaSignalAI/status/2059520393103512039",
+  "fetchedAt": "2026-06-14T08:37:51.614Z",
+  "contentType": "tweet",
+  "title": "@AlphaSignalAI: MIT just killed the idea that cheaper tokens mean cheaper AI.\n\nA paper from MIT,...",
+  "rawContent": "Tweet by @AlphaSignalAI (AlphaSignal AI)\nAuthor bio: The latest news from the top 100 companies in AI. Over 300,000 devs read our newsletter.\nText: MIT just killed the idea that cheaper tokens mean cheaper AI.\n\nA paper from MIT, Stanford, Google DeepMind, and Microsoft found agents use 1000x more tokens than chat.\n\nThe cost isn't the code they write. It's re-reading context on every loop.\n\nSame task, same model: 30x cost variance.\nCreated: 2026-05-27T06:21:40.000Z\nMetrics: {\"retweet_count\":10,\"reply_count\":15,\"like_count\":20,\"quote_count\":13,\"bookmark_count\":11,\"impression_count\":3287}",
+  "embeddedUrls": [
+    "https://t.co/5jXQc1Gi1I",
+    "https://t.co/43QAnoY2ka"
+  ]
+}
