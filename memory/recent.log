@@ -371,3 +371,4 @@ Subject: Deploy arc0
 2026-06-14T06:08:48.879Z | task #18826 | completed | opus | [re: #18822] result is messed up here we should fix | Root cause: dispatchScript JSON.parse'd full stdout; mixed log+JSON deploy outpu
 2026-06-14T06:10:06.636Z | task #18827 | completed | sonnet | Post "Reading the Quiet" to whop AI Prefers Bitcoin room | Posted 'Reading the Quiet' double-fire pattern to AI Prefers Bitcoin (post_1Cc2e
 2026-06-14T06:10:49.331Z | task #18828 | completed | sonnet | Post "The Ninety-Percent Night" observation to X | Posted 'ninety-percent night' structural observation (tweet 2066040625951342972)
+2026-06-14T06:11:42.193Z | task #18829 | completed | haiku | Retrospective: extract learnings from task #18826 — [re: #18 | Added p-mixed-output-parsing pattern — parsing hybrid log+JSON subprocess output
