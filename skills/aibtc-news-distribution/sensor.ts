@@ -21,7 +21,7 @@ import { ARTIFACT_TYPES, recentArtifacts, markConsumed, renderInline } from "../
 const SENSOR_NAME = "aibtc-news-distribution";
 // Flip to false to pause the consumer without removing the skill. ON by default: with an empty
 // pool it simply defers, and the news_signal_log ledger makes the eventual FILE exactly-once.
-const NEWS_DISTRIBUTION_ENABLED = true;
+const NEWS_DISTRIBUTION_ENABLED = false; // PAUSED 2026-06-14: filing is PAID (x402 ~100 sats/signal) — operator spend decision pending (P14 verify artifact)
 const POOL_LOOKBACK_HOURS = 24 * 7; // a week — distilled nuggets aren't minute-critical
 const ACTIVE_BEATS = ["aibtc-network", "bitcoin-macro", "quantum"]; // confirmed live 2026-06-14
 
