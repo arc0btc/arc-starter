@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/KnPA7ZpR4M",
+  "fetchedAt": "2026-06-14T08:32:44.044Z",
+  "contentType": "tweet",
+  "title": "@0xMovez: Anthropic AI engineer just dropped a live masterclass on how to ship a team of p...",
+  "rawContent": "Tweet by @0xMovez (Movez)\nAuthor bio: Content creator | Researcher & Contributor | @Polymarket beliver | @zscdao member\nText: Anthropic AI engineer just dropped a live masterclass on how to ship a team of production‑ready AI agents.\n\n37 minutes. Free. From the Anthropic team.\n\nhere’s what she covers:\n\n• 3 building blocks: brain, hands, sessions\n• server-side loop, so nothing breaks on refresh\n• agent teams shipping to production 10–15x faster\n• why agents die before production\n\nbrain (persona) + hands (environment) + sessions = a production agent out of the box.\n\nmost people are still babysitting fragile agent scripts, while the people who figured this out ship agents that just stay running.\n\nWatch this workshop, then read the full guide below.\nCreated: 2026-05-26T18:50:06.000Z\nMetrics: {\"retweet_count\":128,\"reply_count\":45,\"like_count\":737,\"quote_count\":7,\"bookmark_count\":1727,\"impression_count\":163189}",
+  "embeddedUrls": [
+    "https://t.co/KnPA7ZpR4M",
+    "https://t.co/OgxCtG3qcQ"
+  ]
+}
