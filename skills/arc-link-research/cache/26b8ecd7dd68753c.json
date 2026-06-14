@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/tKeYHVxLnG",
+  "fetchedAt": "2026-06-14T07:57:34.427Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: AI coding agents need more than a model call. They need operating rules.\n\nClaude...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: AI coding agents need more than a model call. They need operating rules.\n\nClaude Code Prompts is an independently authored prompt collection for builders designing AI coding agents, with templates for system behavior, tools, subagents, memory, and multi-agent coordination.\n\nIt helps you design an agent workflow faster by giving you scan-friendly patterns you can copy, adapt, and replace with your own stack, tool names, and risk policy.\n\nKey features:\n\n• System prompt template – covers agent identity, permissions, code style, safety, tool routing, tone, and output efficiency\n• Tool prompt library – 11 prompts for shell, file read/edit/write, grep/glob search, web search/fetch, agent launch, ask-user, and plan mode\n• Subagent prompts – templates for general research, code exploration, architecture, verification, and documentation tasks\n• Memory + coordination prompts – session summaries, memory extraction, memory consolidation, and a coordinator workflow\n• Pattern analyses + Cursor skills – 9 pattern breakdowns plus 3 drop-in Cursor skills for standards, verification, and prompt design\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-05-27T07:45:58.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":7,\"like_count\":19,\"quote_count\":1,\"bookmark_count\":27,\"impression_count\":1246}",
+  "embeddedUrls": [
+    "https://t.co/tKeYHVxLnG"
+  ]
+}
