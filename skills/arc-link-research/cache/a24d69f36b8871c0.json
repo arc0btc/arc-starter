@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/JafarNajafov/status/2065746780697035035",
+  "fetchedAt": "2026-06-14T07:10:31.316Z",
+  "contentType": "tweet",
+  "title": "@JafarNajafov: Supertonic just killed ElevenLabs.\n\nA text-to-speech model that runs entirely on...",
+  "rawContent": "Tweet by @JafarNajafov (Jafar Najafov)\nAuthor bio: Follow for daily insights on AI, tech, and business growth. Co-founder of Nextool AI & Reel Agency. DM for collaborations 📧\nText: Supertonic just killed ElevenLabs.\n\nA text-to-speech model that runs entirely on your device. No cloud. No API key. No per-character pricing.\n\n2,700 GitHub stars. 100% open source. MIT licensed.\n\nThe numbers are wild:\n\n→ 167x faster than real-time on an M4 Pro\n→ Only 66M parameters\n→ 1,263 chars/sec vs ElevenLabs Flash at 287\n→ 1,048 chars/sec vs OpenAI TTS-1 at 55\n→ Runs on a Raspberry Pi. Runs on an e-reader in airplane mode.\n\nReads currency, dates, phone numbers, and technical units correctly without preprocessing. ElevenLabs fails these. OpenAI fails these. Gemini fails these.\n\nSupports 11 platforms and 5 languages. Chrome extension turns any webpage into audio in under a second.\n\nI've watched on-device models lose to cloud APIs for years. This one doesn't lose.\n\nThe cloud TTS business just got cooked.\nCreated: 2026-06-13T10:43:06.000Z\nMetrics: {\"retweet_count\":54,\"reply_count\":12,\"like_count\":363,\"quote_count\":0,\"bookmark_count\":555,\"impression_count\":21259}",
+  "embeddedUrls": [
+    "https://t.co/0Stz0YuyxA"
+  ]
+}

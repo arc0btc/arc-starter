@@ -222,7 +222,7 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (idempotent — the --source ledger hard-blocks any re-fire, so a retry can never double-post): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
           };
         }
 
@@ -287,7 +287,7 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (idempotent — the --source ledger hard-blocks any re-fire, so a retry can never double-post): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
         };
       },
     },
