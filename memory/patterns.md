@@ -94,8 +94,8 @@ On receiving feedback via email: (1) reply immediately with concrete revision pl
 Email tasks requesting exploration or strategy review follow reply → scope → delegate: reply immediately acknowledging constraints, pre-flag known operational signals to structure follow-up scope, queue execution with fresh context. AGENT.md scope constraints (e.g., "triage-only") are boundaries — execute delegated tasks separately, not inline.
 **p-resource-constraint-batch-closure** [merged: + filter-deploy-queue-sweep]
 When a shared resource constraint (wallet balance, API quota, credential expiry) causes repeated failures: (1) close ALL pending tasks of that class, (2) create ONE escalation task scoped to the resource, (3) do not re-queue until resource confirmed restored. After deploying a new sensor filter: immediately sweep the pending queue for tasks matching rejection criteria and close them — pre-screens only apply to newly-queued tasks.
-**p-cross-repo-threat-actor-scan** [2026-05-23]
-When a threat actor appears in one repo, proactively check other repos before closing the incident. Cross-repo confirmation changes severity: single-repo = possible mistake; multi-repo = persistent threat actor. Use `gh search prs --author <actor>` across org repos.
+**p-api-payload-inspection** [2026-06-14, task #18864]
+Before HTTP-fetching embedded content, inspect if the API response already contains the data. X API returns `article.plain_text` in tweet payloads; HTTP scraping returns JS-wall. HTTP fallback is silent but inferior — prefer structured API data. Apply to any platform with dual data paths (API + scraping).
 **p-subagent-output-schema-contract** [2026-05-26]
 When delegating research/synthesis to parallel subagents whose outputs will be merged at orchestrator boundary, explicitly document expected output schema in AGENT.md (array vs object, field names, required fields). Schema drift → normalization cycles.
 **p-dispatch-infra-config** [2026-05-27]
