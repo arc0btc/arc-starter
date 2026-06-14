@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/DataChaz/status/2065732943642071162",
+  "fetchedAt": "2026-06-14T07:04:30.918Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: 🚨 NVIDIA JUST OPEN-SOURCED ONE OF THE MOST IMPORTANT AI  UTILITIES OF THE YEAR\n...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: 🚨 NVIDIA JUST OPEN-SOURCED ONE OF THE MOST IMPORTANT AI  UTILITIES OF THE YEAR\n\nRight now, developers are downloading third-party \"skills\" straight off GitHub for their AI agents.\n\nBut an AI skill is not just a text prompt. It’s executable code that runs with your system privileges.\n\nA skill you grab to save ten minutes can read your environment variables, lift your API keys, and quietly send them to an external server.\n\nRecent research shows 26.1% of public skills carry vulnerabilities, and over 5% are outright malicious.\n\nNVIDIA’s new release, SkillSpector, closes this gap.\n\nIt’s an Apache 2.0 licensed security scanner that answers one question: is this skill safe to run?\n\nHere is how the pipeline works:\n→ You point it at a GitHub link, local folder, or a single SKILL.md file.\n→ Pass 1: A fast static scan flags credential harvesting, prompt injections, and checks live CVE data.\n→ Pass 2: An optional LLM pass evaluates the semantic intent of the code to clear out false positives.\n\nAt the end, you get a 0 to 100 risk score and a clear verdict: Safe, Caution, or Do Not Install.\n\nIt currently scans skills for Claude Code, Codex CLI, and Gemini.\n\nWorth running before you blindly trust the next agent skill you find online.\n\nrepo link in 🧵↓\nCreated: 2026-06-13T09:48:07.000Z\nMetrics: {\"retweet_count\":35,\"reply_count\":14,\"like_count\":106,\"quote_count\":4,\"bookmark_count\":142,\"impression_count\":8874}",
+  "embeddedUrls": [
+    "https://t.co/aRb10WAQ9u"
+  ]
+}
