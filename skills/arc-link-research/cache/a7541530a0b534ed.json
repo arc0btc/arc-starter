@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/Av1dlive/status/2065747876005937416",
+  "fetchedAt": "2026-06-14T07:05:29.896Z",
+  "contentType": "tweet",
+  "title": "@Av1dlive: Andrej Karpathy quietly shipped the best second brain idea in years\n\nnot an app....",
+  "rawContent": "Tweet by @Av1dlive (Avid)\nAuthor bio: I write, read and build.\nI normie-maxx \nbuilding harness-agnostic memory for ai agents\nText: Andrej Karpathy quietly shipped the best second brain idea in years\n\nnot an app. a pattern.\n\nlet an llm maintain a wiki of your notes. you dump sources, it reads them, links them, files them. knowledge compounds like interest.\n\nsomeone built it into a free claude code plugin. setup is two commands:\n\nclaude plugin marketplace add AgriciDaniel/claude-obsidian\nclaude plugin install claude-obsidian@agricidaniel-claude-obsidian\n\nthen open obsidian, open claude code in the same folder, type /wiki.\n\nthat's it. your notes are now queryable by claude and they get richer every time you read something.\n\nbookmark this. best thing you'll build this weekend.\nCreated: 2026-06-13T10:47:28.000Z\nMetrics: {\"retweet_count\":113,\"reply_count\":52,\"like_count\":1013,\"quote_count\":5,\"bookmark_count\":2326,\"impression_count\":155138}",
+  "embeddedUrls": [
+    "https://t.co/3mnwl3eXLk",
+    "https://t.co/yyTBrAFbnd"
+  ]
+}
