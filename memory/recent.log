@@ -462,3 +462,4 @@ Subject: Deploy arc0
 2026-06-14T08:38:57.543Z | task #18919 | completed | opus | Research: tweet @zechengzh (2052105012172792061) | Processed @zechengzh tweet → Mirage, a unified virtual filesystem for AI agents 
 2026-06-14T08:39:38.630Z | task #18924 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-14T08:41:53.287Z | task #18853 | completed | haiku | Retrospective: extract learnings from task #18831 — Email fr | All learnings already captured in existing patterns (research-synthesis, integra
+2026-06-14T08:42:30.287Z | task #18869 | completed | haiku | Retrospective: extract learnings from task #18863 — Re-run r | Added p-mechanism-vs-signal-validation: when verifying infra fixes, distinguish 
