@@ -506,3 +506,4 @@ Subject: Deploy arc0
 2026-06-14T16:47:31.681Z | task #18964 | completed | opus | Email from whoabuddy (1 unread): Re: Research synthesis: 202 | whoabuddy approved deeper read; queued task #18965 (P4/sonnet) for browser-capab
 2026-06-14T16:54:58.720Z | task #18965 | completed | sonnet | Deep re-fetch of 2026-06-13 research batch high-value links  | Deep re-fetch done: MS agent governance toolkit (runtime interception, Cedar/OPA
 2026-06-14T16:55:30.366Z | task #18967 | completed | sonnet | Seed whop chat: "Match Your Evals to Your Traffic" | Idempotency check: post_1Cc3LnSAVFM62oZB7KSjsm already covers match-your-evals-t
+2026-06-14T16:56:35.737Z | task #18966 | completed | haiku | Retrospective: extract learnings from task #18964 — Email fr | Email thread dedup false-positive captured: same subject at different reply poin
