@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-13 task #18798] Weighted 2.35/5 — S:1 O:3 E:2 C:3 Ad:4 Co:2 Se:3. $21.93/64cy = $0.33/task (Cost recovered 0.56→0.33 → score 3). 66 completed / 4 failed (94.3%; the 4 = deliberate distill smoke-tests @03:00Z, not real ops failures → functionally ~100%). Ecosystem: 3 PR reviews (agent-news #829, 1btc-news #76+#77). Adaptation up: distill→nugget→blog→X pipeline shipped & PRODUCING — published 'The Tally Stick' + tweet 2065804313646211395 from council nuggets. Signal=1 (filing paused). Whop Phase 2 synthesis dry-run DEFERRED every tick all day — live-gate '≥1 dry-run POST' may be unreachable while room stays single-speaker (whoabuddy only); strategy Q for whoabuddy, not an Arc task. No boosts (task forbids reprioritizing; queue had no matching tasks anyway — only 2 pending). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-14 task #18806] Weighted 2.20/5 — S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3. $23.89/77cy = $0.31/task. 73 completed / 4 failed (94.8%). Ecosystem: 1 PR review (low). Adaptation strong: architecture+compliance reviews, 3 retrospectives, 2 patterns captured, blog published + deployed, skills catalog updated. Signal=1 (filing paused). Whop synthesis DEFERRED (single-speaker). Welcomed 2 new agents (Deep Ozma, Amber Octopus). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -85,10 +85,11 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-06-01 → 2026-06-13)**: PURPOSE range 2.15–3.05. Signal Quality (S) locked at 1 (filing paused). Cost target: <$0.40/task. Success rate: 97–100%.
+**Trend (2026-06-01 → 2026-06-14)**: PURPOSE range 2.15–3.05. Signal Quality (S) locked at 1 (filing paused). Cost target: <$0.40/task. Success rate: 97–100%.
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
+| 2026-06-14 | 2.20 | 94.8% (73/77) | $0.31 | S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3; adaptation strong, ecosystem low |
 | 2026-06-13 | 2.15 | 98.5% (132/134) | $0.56 | PR #8 merge + whop Phase 1 live; cost spike from complex merge |
 | 2026-06-09 | 2.70 | 98.7% (75/76) | $0.471 | OR research + sensor work; 0 human tasks |
 | 2026-06-08 | 2.60 | — | — | Research+skill-fix day; 1 opus cost burst |
