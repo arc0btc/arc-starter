@@ -83,6 +83,55 @@ function printPage(page: { data: unknown; page_info: unknown }): void {
   );
 }
 
+// --- Source-dedup for the non-idempotent POST /messages write path. ---
+// post-chat/reply-chat hit `messages.create`, which is non-idempotent. An
+// optional --source key gives LAYERED replay protection:
+//   1. local ledger (whop_post_log): a recorded source short-circuits BEFORE any
+//      API call — covers the dominant case, a sequential re-run (a dispatch
+//      retry or re-fire on the next cycle).
+//   2. SDK idempotencyKey = source: sent to the server on every sourced create,
+//      so a concurrent same-source post, OR a post-succeeds-then-recordPost-fails
+//      window, is also de-duplicated server-side (when Whop honors the key — the
+//      gated live double-fire confirms this).
+// The local ledger alone is check-then-act (NOT race-proof, NOT
+// partial-failure-proof); the idempotency key is what actually closes those
+// windows. No --source = legacy raw post (callers that dedup at the dispatch-task
+// layer are unaffected). Table is lazily created in the shared db/arc.sqlite.
+async function whopPostLog() {
+  const { initDatabase, getDatabase } = await import("../../src/db.ts");
+  initDatabase();
+  const db = getDatabase();
+  db.run(
+    `CREATE TABLE IF NOT EXISTS whop_post_log (
+       source TEXT PRIMARY KEY,
+       channel_id TEXT NOT NULL,
+       message_id TEXT,
+       posted_at TEXT NOT NULL
+     )`,
+  );
+  return db;
+}
+
+// True if this source already posted (prints a skip line so the caller returns
+// early without touching the API). A no-op when no --source is given.
+async function dedupSkip(source: string | undefined): Promise<boolean> {
+  if (!source) return false;
+  const db = await whopPostLog();
+  const prior = db.query("SELECT message_id FROM whop_post_log WHERE source = ?").get(source) as
+    | { message_id: string | null }
+    | null;
+  if (!prior) return false;
+  process.stdout.write(`already posted: ${source} (message ${prior.message_id ?? "?"}) — skipping\n`);
+  return true;
+}
+
+async function recordPost(source: string, channelId: string, messageId: string | null): Promise<void> {
+  const db = await whopPostLog();
+  db.query(
+    "INSERT OR IGNORE INTO whop_post_log (source, channel_id, message_id, posted_at) VALUES (?, ?, ?, ?)",
+  ).run(source, channelId, messageId, new Date().toISOString());
+}
+
 function printHelp(): void {
   process.stdout.write(
     [
@@ -93,9 +142,11 @@ function printHelp(): void {
       "  list-channels [--company biz_xxx]      list chat feeds (find the chat_feed_xxx channel id)",
       "  list-messages --channel chat_feed_xxx [--limit N] [--cursor <opaque>]",
       "                                         read recent messages (newest-first; use page_info cursors)",
-      "  post-chat --content <md> [--channel exp_xxx]",
+      "  post-chat --content <md> [--channel exp_xxx] [--source <key>]",
       "                                         post a hot-topic into a chat experience",
-      "  reply-chat --to <message_id> --content <md> [--channel exp_xxx]",
+      "                                         (--source = idempotency key: a re-run with the same key is",
+      "                                          suppressed locally AND de-duplicated server-side)",
+      "  reply-chat --to <message_id> --content <md> [--channel exp_xxx] [--source <key>]",
       "                                         post a threaded reply to a specific message",
       "  list-forums [--company biz_xxx]        list forum feeds (find the forum_feed_xxx id)",
       "  list-forum-posts --experience exp_xxx [--limit N]",
@@ -167,14 +218,17 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
   if (!channel) {
     fail("post-chat requires --channel (or set creds key chat_channel_id)");
   }
-  // Messages live on v1, not v5 (/api/v5/messages 404s). channel_id accepts an
-  // exp_xxx experience id or a chat_feed_xxx feed id — list feeds via
-  // GET /api/v1/chat_channels?company_id=biz_xxx.
-  const result = await whopRequest("POST", "/v1/messages", apiKey, {
-    channel_id: channel,
-    content,
-  });
-  process.stdout.write(`posted to ${channel}\n` + JSON.stringify(result, null, 2) + "\n");
+  // Local ledger short-circuit BEFORE any API call (sequential re-run case).
+  if (await dedupSkip(flags.source)) return;
+  // channel_id accepts an exp_xxx experience id or a chat_feed_xxx feed id. The
+  // source doubles as the server idempotency key — closing the concurrent-race
+  // and post-then-record-fails windows the local ledger can't.
+  const message = await whopClient(apiKey).messages.create(
+    { channel_id: channel, content },
+    flags.source ? { idempotencyKey: flags.source } : undefined,
+  );
+  if (flags.source) await recordPost(flags.source, channel, (message as { id?: string }).id ?? null);
+  process.stdout.write(`posted to ${channel}\n` + JSON.stringify(message, null, 2) + "\n");
 }
 
 async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Promise<void> {
@@ -183,12 +237,13 @@ async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Prom
   if (!content) fail("reply-chat requires --content <markdown>");
   const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
   if (!channel) fail("reply-chat requires --channel (or set creds key chat_channel_id)");
-  const result = await whopRequest("POST", "/v1/messages", apiKey, {
-    channel_id: channel,
-    content,
-    replying_to_message_id: flags.to,
-  });
-  process.stdout.write(`reply posted to ${channel} (thread: ${flags.to})\n` + JSON.stringify(result, null, 2) + "\n");
+  if (await dedupSkip(flags.source)) return;
+  const message = await whopClient(apiKey).messages.create(
+    { channel_id: channel, content, replying_to_message_id: flags.to },
+    flags.source ? { idempotencyKey: flags.source } : undefined,
+  );
+  if (flags.source) await recordPost(flags.source, channel, (message as { id?: string }).id ?? null);
+  process.stdout.write(`reply posted to ${channel} (thread: ${flags.to})\n` + JSON.stringify(message, null, 2) + "\n");
 }
 
 async function cmdListForums(apiKey: string, flags: Record<string, string>): Promise<void> {
