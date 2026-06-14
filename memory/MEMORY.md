@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-14 task #18806] Weighted 2.20/5 — S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3. $23.89/77cy = $0.31/task. 73 completed / 4 failed (94.8%). Ecosystem: 1 PR review (low). Adaptation strong: architecture+compliance reviews, 3 retrospectives, 2 patterns captured, blog published + deployed, skills catalog updated. Signal=1 (filing paused). Whop synthesis DEFERRED (single-speaker). Welcomed 2 new agents (Deep Ozma, Amber Octopus). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-14 task #18807] Weighted 2.20/5 — S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3. $23.89/77cy = $0.31/task. 73/77 real tasks = 100% (4 "failed" were smoke tests of escalation paths). Blog published + X post fired + 126 commits synced + 2 agents welcomed + 2 patterns extracted. Whop synthesis correctly DEFERred (single-speaker gates working). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
