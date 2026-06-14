@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/mfpiccolo/status/2065740354364620968",
+  "fetchedAt": "2026-06-14T07:13:31.078Z",
+  "contentType": "tweet",
+  "title": "@mfpiccolo: Most AI agent stack diagrams treat the harness as a special layer.\n\nIt sits betw...",
+  "rawContent": "Tweet by @mfpiccolo (Mike Piccolo)\nAuthor bio: Founder of @iiidevs Co-founder and board member of https://t.co/imPpSoV4Gu\nText: Most AI agent stack diagrams treat the harness as a special layer.\n\nIt sits between the model, memory, tools, orchestration, observability, and the rest of the backend. That looks clean in a diagram. In practice every connection becomes integration code. Adapters. SDKs. Queues. State. Retries. Permissions. Logging. Tracing. Deployment. Versioning.\n\nThe difference with iii is not that the harness is a better layer.\n\nThe harness is not a layer.\n\nOn iii, the harness is workers. Context management, session state, LLM routing, tool discovery, agent loops, sandboxing, observability. Each one is a worker. They use the same model as the rest of the system.\n\nA queue is a worker. An API is a worker. A cron scheduler is a worker. An agent is a worker. A browser can be a worker. A Raspberry Pi can be a worker. Your application code can be a worker.\n\nAnything that connects to iii exposes its capabilities to the rest of the system in real time. Workers expose functions. Triggers activate functions. The engine routes between them.\n\nAdding a capability is not adding another service and integrating it with every other layer. It is adding a worker whose functions are discoverable and callable by the system.\n\nThe diagram on the left treats the agent harness as the center of a separate AI stack.\nThe diagram on the right treats the harness as a composition of workers inside the same execution system as everything else.\nCreated: 2026-06-13T10:17:34.000Z\nMetrics: {\"retweet_count\":4,\"reply_count\":3,\"like_count\":66,\"quote_count\":2,\"bookmark_count\":69,\"impression_count\":5261}",
+  "embeddedUrls": [
+    "https://t.co/uVaiu0RtMI",
+    "https://t.co/cJKQ1Mgd2f"
+  ]
+}
