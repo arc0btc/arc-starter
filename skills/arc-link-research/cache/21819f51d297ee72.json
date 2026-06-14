@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/K91Ymn0z0H",
+  "fetchedAt": "2026-06-14T08:36:47.413Z",
+  "contentType": "tweet",
+  "title": "@0xDeliriumm: ANDREJ KARPATHY JUST DESCRIBED THE EXACT SYSTEM THIS SILICON VALLEY PROFESSOR HA...",
+  "rawContent": "Tweet by @0xDeliriumm (Deliriumm)\nAuthor bio: Building AI products\nTesting ideas\nShipping fast\nText: ANDREJ KARPATHY JUST DESCRIBED THE EXACT SYSTEM THIS SILICON VALLEY PROFESSOR HAS ALREADY BEEN BUILDING FOR CLIENTS\n\nKarpathy coined vibe coding - and just laid out a second brain pattern where documents go into an AI that builds a structured wiki that grows over time.\n\nNot RAG - RAG rediscovers the same info with every query - this system compounds and gets smarter with every new document.\n\nYou drop any file in - and a dedicated librarian agent structures it and adds it to the knowledge vault automatically - zero manual work.\n\nThe entire base then shows up as a 3D mind graph where every node is a concept and every connection shows how things relate.\n\nKarpathy described the theory - this is the production version.\nCreated: 2026-05-27T11:49:36.000Z\nMetrics: {\"retweet_count\":15,\"reply_count\":15,\"like_count\":168,\"quote_count\":0,\"bookmark_count\":291,\"impression_count\":31203}",
+  "embeddedUrls": [
+    "https://t.co/K91Ymn0z0H",
+    "https://t.co/gEbGF3a8ll"
+  ]
+}
