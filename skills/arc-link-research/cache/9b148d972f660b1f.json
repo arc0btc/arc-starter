@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/manthanguptaa/status/2065803361216340031",
+  "fetchedAt": "2026-06-14T07:09:30.853Z",
+  "contentType": "tweet",
+  "title": "@manthanguptaa: I actually disagree slightly with the framing. The article says \"the log is the ...",
+  "rawContent": "Tweet by @manthanguptaa (Manthan Gupta)\nAuthor bio: ai research engineer• designing agent runtimes, memory, evals & retrieval systems for autonomous agents • dms open\nText: I actually disagree slightly with the framing. The article says \"the log is the agent.\" I would argue the log is a durable record of what happened. It's incredibly important because it allows agent state to be reconstructed, replayed, forked, and audited.\n\nBut an agent doesn't exist in a vacuum.\n\nIts behavior depends on files, databases, external systems, permissions, memories, and a constantly changing world that often lives outside the log.\n\nThe log is the source of truth. The agent is the state derived from it.\nCreated: 2026-06-13T14:27:56.000Z\nMetrics: {\"retweet_count\":0,\"reply_count\":2,\"like_count\":11,\"quote_count\":0,\"bookmark_count\":19,\"impression_count\":2700}",
+  "embeddedUrls": [
+    "https://t.co/KJW6DbBZPK"
+  ]
+}
