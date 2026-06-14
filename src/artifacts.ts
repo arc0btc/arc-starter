@@ -49,6 +49,7 @@ export const ARTIFACT_CHANNELS = [
   "whop-forum",
   "public-forum",
   "x",
+  "nostr",
   "reactive",
 ] as const;
 export type ArtifactChannel = (typeof ARTIFACT_CHANNELS)[number];
