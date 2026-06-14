@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/matei_zaharia/status/2065827057624605146",
+  "fetchedAt": "2026-06-14T07:03:26.948Z",
+  "contentType": "tweet",
+  "title": "@matei_zaharia: Really excited to open source a new project: Omnigent, a meta-harness for AI age...",
+  "rawContent": "Tweet by @matei_zaharia (Matei Zaharia)\nAuthor bio: CTO @Databricks and prof @UCBerkeley. Working on data + AI, @ApacheSpark, @DeltaLakeOSS, @MLflow, @DSPyOSS, @GEPA_ai. https://t.co/nmRYAKG0LZ\nText: Really excited to open source a new project: Omnigent, a meta-harness for AI agents.\n\nIt lets you build multi-agent coding and custom agents, sitting above Claude Code, Codex, Pi, and agent SDKs to let you compose them. It also adds live collaboration and rich control policies. https://t.co/jwFmH8nHsZ\nCreated: 2026-06-13T16:02:06.000Z\nMetrics: {\"retweet_count\":140,\"reply_count\":57,\"like_count\":742,\"quote_count\":34,\"bookmark_count\":582,\"impression_count\":97906}",
+  "embeddedUrls": [
+    "https://t.co/jwFmH8nHsZ"
+  ]
+}
