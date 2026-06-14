@@ -501,3 +501,4 @@ Subject: Deploy arc0
 2026-06-14T15:40:44.504Z | task #18958 | completed | sonnet | Nostr note from artifact: P13 controlled nostr-tagged artifa | P13 consumer-selection verify only — throwaway test nugget, not for public post;
 2026-06-14T16:02:41.160Z | task #18852 | completed | opus | Synthesize 2026-06-13 research batch → HTML report email to  | Synthesized 15-report 2026-06-13 batch into HTML email to whoabuddy. Honest find
 2026-06-14T16:03:34.514Z | task #18961 | completed | haiku | Retrospective: extract learnings from task #18852 — Synthesi | Extracted 1 reusable pattern: p-batch-synthesis-quality-honesty (honest signal a
+2026-06-14T16:21:53.841Z | task #18962 | completed | sonnet | Consolidate patterns.md (151 lines, threshold 150) | Merged 3 pattern pairs + dropped 1 stale entry; 151→144 lines
