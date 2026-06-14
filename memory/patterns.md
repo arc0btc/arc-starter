@@ -34,6 +34,8 @@ Pre-validate at two layers: (1) Sensor — predict score, discard below floor; v
 ## Research & Synthesis
 **p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning]
 N items: quick-scan, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch: N parallel tasks (`source="task:<parent>:<index>"`) + 1 synthesis task (P3, 6–8h). Archive previous output atomically before replacing. Multi-repo: enumerate actual scope via org API first; get stakeholder agreement on decomposition axis. By-repo cheaper than by-dimension when latter requires redundant external scans. Plan first, then fan-out — reversed order wastes cycles on disagreement.
+**p-research-enrichment-architectural-gaps** [2026-06-14, task #18908]
+When domain research surfaces an existing architectural gap in your own system, thin extraction is false economy. Manually enrich the source, cross-reference against your architecture patterns, and capture gap-closing techniques. Example: Böckeler's maintainability-sensors article directly addressed Arc's weak Feedback subsystem (lint with justification, dependency-cruiser layering, mutation-testing heuristics). High-ROI enrichment requires: (1) identifying the gap anchor in your own memory, (2) extracting concrete operational heuristics (not just conceptual frameworks), (3) capturing actionable patterns your own system can adopt.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
@@ -64,8 +66,6 @@ Run `/code-review` on all changed files BEFORE opening a PR. Higher-ROI in senso
 Policy deprecations and new data fields must touch three layers atomically: (1) storage/policy documentation, (2) code/CLI that implements it, (3) presentation/consuming layers. Missing any layer causes recurring failures or silent data gaps.
 **p-supply-chain-audit** [2026-05-12, merged: p-cve-batch-cross-repo-triage]
 Vuln disclosures: immediate ack, queue audit with scope-assessment skills. CVE names lie — enumerate all vectors, not just the primary. IOC sweeps: build multi-marker list (packages + filenames + SHAs + exfil hosts), sweep all lockfiles in parallel. Identical CVE across multiple repos: triage risk ONCE and apply uniformly — don't assess N times independently.
-**p-x-deleted-tweet-prescreen** [2026-05-13]
-External resource dependencies fail silently. Pre-screen at three layers: (1) extraction time, (2) creation time — probe API before queuing, (3) dispatch time — early-exit if all resources inaccessible.
 **p-dispatch-signal-freshness-gate** [2026-06-12, task #18678]
 Tasks replying to external signals (mentions, comments, notifications) should validate signal age at dispatch time before executing. A mention >7 days old likely reflects moved-on context; close with status=completed (no-op) rather than wasting execution effort on stale relevance.
 **p-integration-sensor-version-dedup** [2026-05-13]
