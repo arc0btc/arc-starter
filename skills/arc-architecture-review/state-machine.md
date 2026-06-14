@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-14T02:10:00.000Z*
-*Diff: 4a42408 → 74b397c (11 structural commits since last diagram) | Sensor count: 78 | Skill count: 126*
+*Generated: 2026-06-14T14:15:00.000Z*
+*Diff: 74b397c → e14ac95 (1 structural commit since last diagram) | Sensor count: 78 | Skill count: 126*
 
 ```mermaid
 stateDiagram-v2

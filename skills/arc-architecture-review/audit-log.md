@@ -1,3 +1,53 @@
+## 2026-06-14T14:15:00.000Z — arc-link-research article dedup; PublishFanoutMachine whop_forum hop; skill-name fixes; 126 skills / 78 sensors
+
+**Task #18933** | Diff: 74b397c → e14ac95 (1 structural commit + arc-workflows auto-commits) | Sensors: 78 | Skills: 126
+
+### Step 1 — Requirements
+
+Two structural changes this window:
+
+- **fix(arc-link-research): dedup self-referential t.co→x.com/i/article/ embedded links** (e14ac95d): Two fixes. (1) Article tweets now skip embedded URL extraction — the t.co entity self-redirects to `x.com/i/article/<tweet_id>`, which is the same tweet; following it yields 493 bytes of JS-wall noise. Fix: `articleContent ? [] : extractEmbeddedUrls(tweetText)`. (2) t.co links that redirect to a tweet URL (not article) now recursively re-fetch via X API. Also: `SIGNAL_FILING_DISABLED = true` added at CLI level to mirror the gate in aibtc-news-editorial, arxiv-research, bitcoin-macro sensors.
+- **arc-workflows state-machine.ts** (461b7a78, 75b76c6b auto-commits): Three changes. (1) PublishFanoutMachine gains `whop_forum` hop — `x_pending.on.post_x` transitions to `whop_forum` instead of `completed`, making it a 4-state pipeline: blog_published → whop → x_pending → whop_forum → completed. (2) `--source` idempotency ledger added to X/Whop post commands in PublishFanoutMachine and ContentCalendarMachine — suppresses sequential re-runs; concurrent/crash window documented. (3) `--name workflows` → `--name arc-workflows` corrected in 5 places across ContentCalendarMachine, ArcSkillsPageMachine — wrong name caused silent transition failures at dispatch.
+
+### Step 2 — Delete
+
+No deletion candidates. 126/78 stable.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+### Step 3 — Simplify
+
+- arc-link-research article fix is clean: one boolean guard (`articleContent ? [] : ...`) eliminates the self-referential loop. Redirect-chain re-dispatch adds ~15 lines — necessary, correct scope.
+- `--name workflows` → `--name arc-workflows` correction: this was a silent failure class. 5 places in state-machine.ts were using the wrong skill name. **Pattern**: wrong skill names in task descriptions fail silently at dispatch — no error, workflow just doesn't advance. This class is hard to catch at author time. Consider adding lint-skills validation for `--name <X>` against installed skill list in AGENT.md files.
+- PublishFanoutMachine `whop_forum` addition: state count growing (4 hops now). Still within manageable bounds for a content workflow machine.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- arc-link-research article dedup: eliminates useless 493-byte JS-wall fetches for article tweets. Better link-research output quality; less wasted API cost.
+- `--name workflows` bug fix: all 5 workflow transition calls that were silently failing will now succeed. Unblocks ContentCalendarMachine and ArcSkillsPageMachine transitions.
+
+### Step 5 — Automate
+
+- **[LINT-CANDIDATE]** `lint-skills --staged` could validate `--name <X>` flags in AGENT.md task descriptions against the installed skill tree. Would have caught all 5 `--name workflows` refs before they shipped. Low priority; add to backlog.
+
+### Flags
+
+- **[NEW]** arc-link-research: SIGNAL_FILING_DISABLED gate added at CLI level + article-URL self-referential dedup fixed.
+- **[NEW]** arc-workflows: `--name workflows` → `--name arc-workflows` corrected in 5 places. Silent workflow transition failures eliminated.
+- **[NEW]** arc-workflows: PublishFanoutMachine gains `whop_forum` hop — 4-state pipeline complete.
+- **[NEW]** arc-workflows: `--source` idempotency ledger added across X/Whop post commands; concurrent/crash window documented.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gate pending whoabuddy sign-off.
+- **[CARRY-WATCH]** whop-sales SKILL.md only — no cli.ts or sensor.ts.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated externally.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: 17 instances ready, gated.
+
+---
+
 ## 2026-06-14T02:10:00.000Z — Inflows system ships; whop forum threading; 126 skills / 78 sensors
 
 **Task #18812** | Diff: 4a42408 → 74b397c (11 structural commits) | Sensors: 78 | Skills: 126
