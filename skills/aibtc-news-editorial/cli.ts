@@ -600,6 +600,10 @@ async function recordSignal(source: string, signalId: string | null, beat: strin
 async function cmdFileSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
+  // P14 exactly-once: a replay of the same --source short-circuits before ANY validation/parse/network.
+  // The news_signal_log ledger is the double-spend guard for the paid x402 filing path (cairn P14).
+  if (await signalDedupSkip(flags.source || undefined)) return;
+
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
       "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--source <key>] [--force]"
@@ -622,9 +626,6 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const source = flags.source || undefined; // P14 dedup key (aibtc-news:<artifact-id>)
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
-
-  // P14 exactly-once: a replay of the same --source never re-files (before cooldown/judge/sign/POST).
-  if (await signalDedupSkip(source)) return;
 
   // Validate inputs
   if (!validateSlug(beat)) {
@@ -776,8 +777,13 @@ async function cmdFileSignal(args: string[]): Promise<void> {
             | string
             | number
             | null;
-        await recordSignal(source, signalId !== null ? String(signalId) : null, beat);
-        log(`recorded news_signal_log: ${source} -> ${signalId ?? "?"}`);
+        const idStr = signalId !== null ? String(signalId) : null;
+        await recordSignal(source, idStr, beat);
+        if (idStr === null) {
+          log(`WARN: filed ${source} but could not extract signal_id from the response (x402 shape?) — ledger row stored with null id; dedup still holds via source PK, but correlate the signal manually`);
+        } else {
+          log(`recorded news_signal_log: ${source} -> ${idStr}`);
+        }
       } catch (recErr) {
         log(`news_signal_log record failed (non-fatal): ${(recErr as Error).message}`);
       }
