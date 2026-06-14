@@ -214,7 +214,7 @@ export const PublishFanoutMachine: StateMachine<{
             model: "sonnet",
             skills: ["social-x-posting"],
             source: `publish-fanout:${ctx.slug}:x`,
-            autoAdvanceState: "completed",
+            autoAdvanceState: "whop_forum",
             description: `A new blog post is live — compose and post ONE original X observation inspired by it.${urlLine}${excerptLine}
 
 Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) and SOUL.md before composing. Keep it ≤280 chars. Make it a real structural observation that stands on its own — not a "new post" announcement or bare link-drop. The blog link is optional context, not the point.
@@ -267,7 +267,7 @@ ${dryRunBody}`,
       action: () => null,
     },
     x_pending: {
-      on: { post_x: "completed" },
+      on: { post_x: "whop_forum" },
       action: (ctx) => {
         if (!ctx.slug || !ctx.title) return null;
         const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
@@ -279,7 +279,7 @@ ${dryRunBody}`,
           model: "sonnet",
           skills: ["social-x-posting"],
           source: `publish-fanout:${ctx.slug}:x`,
-          autoAdvanceState: "completed",
+          autoAdvanceState: "whop_forum",
           description: `A new blog post is live — compose and post ONE original X observation inspired by it.${urlLine}${excerptLine}
 
 Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) and SOUL.md before composing. Keep it ≤280 chars. Make it a real structural observation that stands on its own — not a "new post" announcement or bare link-drop. The blog link is optional context, not the point.
@@ -288,6 +288,47 @@ Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
 3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+        };
+      },
+    },
+    // After X — teardown into the PAID whop forum (exp_dlYgb6mrXuRIq8). Gated OFF by
+    // default (WORKFLOWS_PUBLISH_FANOUT_WHOP_FORUM_ENABLED): when off the hop skips
+    // straight to completed so no surprise paid-forum posts. Dry-run controls whether
+    // the dispatched session actually calls post-forum. Mirrors the whop-chat hop.
+    whop_forum: {
+      on: { post_whop_forum: "completed" },
+      action: (ctx) => {
+        if (!ctx.slug || !ctx.title) return null;
+        if (Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_FORUM_ENABLED !== "true") {
+          // Hop disabled → advance without posting (keeps the pipeline moving).
+          return { type: "transition", nextState: "completed" };
+        }
+        const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
+        const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
+        const dryRun = Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_FORUM_DRY_RUN !== "false";
+        const dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
+        const dryRunBody = dryRun
+          ? `DRY-RUN MODE (WORKFLOWS_PUBLISH_FANOUT_WHOP_FORUM_DRY_RUN=true): do NOT call post-forum. Compose the title + teardown markdown in result_detail so the artifact captures it, then close completed with --summary describing what you would have posted.`
+          : `LIVE MODE: write the teardown, post it to the paid whop forum, then the workflow auto-advances.
+
+Steps:
+1. Read the blog post at the URL above. Pull the sharpest build-log artifact — the real error string, diff, cost figure, or dead-end.
+2. Compose the teardown (markdown, 300–800 words) per §whop-forum: open with what broke/shipped + the artifact, show the wrong approach before the right one, close with the lesson as a reusable rule + an invite to compare notes. Pick a sharp teardown headline as the title.
+3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post): arc skills run --name whop -- post-forum --experience exp_dlYgb6mrXuRIq8 --title "<title>" --content "<markdown>" --source publish-fanout:${ctx.slug}:whop-forum
+The workflow has auto-advanced to completed; if post-forum fails 4xx, close this task failed with --summary (source-dedup prevents a duplicate next cycle).`;
+        return {
+          type: "create-task",
+          subject: `${dryRunPrefix}Thread whop forum teardown: "${ctx.title}"`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["whop", "arc-brand-voice"],
+          source: `publish-fanout:${ctx.slug}:whop-forum`,
+          autoAdvanceState: "completed",
+          description: `A new blog post is live — write the teardown for the PAID whop forum (the most generous channel: real receipts, not a press release).${urlLine}${excerptLine}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §whop-forum (paid teardown register) and SOUL.md before composing.
+
+${dryRunBody}`,
         };
       },
     },
