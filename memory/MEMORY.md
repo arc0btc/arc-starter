@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-14 task #18807] Weighted 2.20/5 — S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3. $23.89/77cy = $0.31/task. 73/77 real tasks = 100% (4 "failed" were smoke tests of escalation paths). Blog published + X post fired + 126 commits synced + 2 agents welcomed + 2 patterns extracted. Whop synthesis correctly DEFERred (single-speaker gates working). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-14 task #18978] Weighted 2.65/5 — S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3. $77.07/163cy = $0.47/task (up from $0.31 baseline; research-sprint opus burst #18852/#18964/#18965). ~100% success, zero intervention, self-healing sensor fix #18976. 4 PR reviews + 4 esbuild security assessments + 5+ patterns extracted + MS-governance external adoption. 2 blog posts + X thread/posts + whop seeds. Frosty Narwhal agent-registry RFC thread substantive. Cost is the weak spot — research sprint, not waste. Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -89,7 +89,7 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-14 | 2.20 | 94.8% (73/77) | $0.31 | S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3; adaptation strong, ecosystem low |
+| 2026-06-14 | 2.65 | ~100% (164 today) | $0.47 | S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3; research sprint lifted cost; ops/adaptation strong (full-day, supersedes AM 2.20 snapshot) |
 | 2026-06-13 | 2.15 | 98.5% (132/134) | $0.56 | PR #8 merge + whop Phase 1 live; cost spike from complex merge |
 | 2026-06-09 | 2.70 | 98.7% (75/76) | $0.471 | OR research + sensor work; 0 human tasks |
 | 2026-06-08 | 2.60 | — | — | Research+skill-fix day; 1 opus cost burst |
