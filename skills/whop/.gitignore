@@ -1,0 +1,3 @@
+# Ephemeral artifacts from whop-replies and whop-synthesis sensors
+# These are audit logs and intermediate JSON for debugging, not permanent data
+artifacts/replies/

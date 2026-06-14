@@ -155,6 +155,13 @@ Master kill flags (both default off): `WHOP_REPLY_ENABLED`,
 Full design and locked tradeoffs: `skills/whop/POLLING-DESIGN.md`.
 Operating policy and rollout phases: `skills/whop/CADENCE.md`.
 
+## Artifact Retention Policy
+
+- **`artifacts/synthesis/`** — Retained for quality review. Timestamped JSON snapshots of synthesis decisions (room context, synthesis output, decision to post or defer). No cleanup.
+- **`artifacts/replies/`** — Ephemeral audit logs. Timestamped JSON from reply synthesis runs. Gitignored and not tracked. These accumulate during operation but do not affect function — safe to delete periodically or via filesystem cleanup. No active housekeeping job needed.
+
+The `.gitignore` prevents accidental commits of reply artifacts; synthesis artifacts remain visible in git for quality audits.
+
 ## Status (2026-06-12 — wedge live)
 
 🟢 **First post landed**: `post_1Cbyx1rvswwug3eCH27nnz` at `2026-06-12T19:52:18Z` in `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`
