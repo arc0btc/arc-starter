@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/wOALsRbEbx",
+  "fetchedAt": "2026-06-14T07:46:33.354Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: AI system design interviews are messy. This repo gives you a map.\n\nAI System Des...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: AI system design interviews are messy. This repo gives you a map.\n\nAI System Design Guide is a practical GitHub reference for engineers preparing for AI system design interviews and building production AI systems.\n\nIt helps you avoid random tutorial-hopping by organizing the path around interview prep, RAG, agents, model selection, evaluation, security, reliability, and case studies.\n\nKey features:\n\n• Goal-based navigation – jump straight to interview prep, RAG, agents, model picking, evals, role transition, or the glossary\n• Production AI coverage – chapters span retrieval systems, agentic systems, MLOps, security, reliability, safety, and observability\n• Interview prep included – README points to a 110-question bank, answer frameworks, and whiteboard exercises\n• Case-study library – architecture prompts cover search, coding agents, multi-tenant SaaS, support automation, document intelligence, and more\n• Bonus eval guides – companion guides cover Phoenix, Langfuse, LangWatch, judges, RAG evals, tracing, and drift detection\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-05-27T04:45:56.000Z\nMetrics: {\"retweet_count\":84,\"reply_count\":7,\"like_count\":420,\"quote_count\":2,\"bookmark_count\":546,\"impression_count\":14691}",
+  "embeddedUrls": [
+    "https://t.co/wOALsRbEbx"
+  ]
+}
