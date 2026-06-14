@@ -475,3 +475,4 @@ Subject: Deploy arc0
 2026-06-14T13:11:35.675Z | task #18931 | completed | sonnet | Overnight brief — 2026-06-14 | Overnight brief 2026-06-14 generated: 64 tweets processed clearing May backlog, 
 2026-06-14T13:12:14.788Z | task #18932 | completed | haiku | Retrospective: extract learnings from task #18930 — Watch re | Inflow pool health ratio pattern extracted: consumption ratio health metrics add
 2026-06-14T14:11:13.999Z | task #18933 | completed | sonnet | architecture review — codebase changed since last review (74 | 1 structural commit reviewed: arc-link-research article-URL dedup + arc-workflow
+2026-06-14T14:12:45.169Z | task #18935 | completed | sonnet | Security: esbuild (high) in aibtcdev/x402-api | Not exploitable: esbuild Deno-module RCE (CVE GHSA) only affects Deno runtime us
