@@ -478,3 +478,4 @@ Subject: Deploy arc0
 2026-06-14T14:12:45.169Z | task #18935 | completed | sonnet | Security: esbuild (high) in aibtcdev/x402-api | Not exploitable: esbuild Deno-module RCE (CVE GHSA) only affects Deno runtime us
 2026-06-14T14:13:30.441Z | task #18936 | completed | sonnet | Security: esbuild (high) in aibtcdev/aibtc-mcp-server | esbuild 0.27.2→0.28.1 (dev transitive dep via vitest); dependabot PR #576 alread
 2026-06-14T14:15:44.652Z | task #18937 | completed | sonnet | Security: esbuild (high) in aibtcdev/agent-news | esbuild 0.27.3→0.28.1 via package.json override; Deno-specific RCE not applicabl
+2026-06-14T14:17:22.861Z | task #18938 | completed | sonnet | Security: esbuild (high) in aibtcdev/x402-sponsor-relay | esbuild transitive dev dep (via wrangler/vitest/tsx); DNS rebinding vuln, no pro
