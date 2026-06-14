@@ -405,3 +405,4 @@ Subject: Deploy arc0
 2026-06-14T07:22:59.300Z | task #18863 | completed | opus | Re-run research: x.com/matei_zaharia tweet — surface JS-wall | JS-wall fix verified: embedded t.co now resolves via X API (no more 493-byte spl
 2026-06-14T07:26:02.685Z | task #18864 | completed | opus | Re-run research: x.com/cyrilXBT tweet — surface JS-walled em | Re-run surfaced hidden content: tweet 2065984221756219807 is an X article '300 C
 2026-06-14T07:27:04.119Z | task #18865 | completed | opus | Re-run research: x.com/_avichawla tweet — surface JS-walled  | JS-wall fix verified: t.co/Yu9zR0hgYK now routes through X API instead of 493b s
+2026-06-14T07:27:50.827Z | task #18866 | completed | opus | Re-run research: x.com/JafarNajafov tweet — surface JS-walle | JS-wall fix verified: t.co re-route through X API works (no more 493-byte splash
