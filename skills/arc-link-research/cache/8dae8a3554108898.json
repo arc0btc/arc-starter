@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/omarsar0/status/2059689897523642510",
+  "fetchedAt": "2026-06-14T08:10:29.348Z",
+  "contentType": "tweet",
+  "title": "@omarsar0: // Your Agents are Aging Too //\n\nHuh!? They need \"sleep,\" and now they are aging...",
+  "rawContent": "Tweet by @omarsar0 (elvis)\nAuthor bio: Building self-improving AI @dair_ai • Prev: Meta AI | PhD • Learn about AI Agents for FREE here: https://t.co/P5SA9u54xO\nText: // Your Agents are Aging Too //\n\nHuh!? They need \"sleep,\" and now they are aging?\n\nJoke aside, great write-up on reliable agentic engineering.\n\nThis new research introduces AgingBench, a longitudinal reliability benchmark. It organizes agent aging into four mechanisms, including compression aging and interference aging, and measures not just whether deployed agents degrade but what form the degradation takes and where repair should target.\n\nWe benchmark agents on day one and then deploy them for months. That gap hides a basic systems question. How long does an agent stay reliable after deployment?\n\nEven with frozen model weights, an agent's effective state keeps shifting. It compresses interaction history, retrieves from a growing memory store, revises facts after updates, and goes through routine maintenance. Reliability becomes a lifespan property of the full harness, not a snapshot of the base model.\n\nPaper: https://t.co/v4IzsODoiJ\n\nLearn to build effective AI agents in our academy: https://t.co/1e8RZKs4uX\nCreated: 2026-05-27T17:35:13.000Z\nMetrics: {\"retweet_count\":40,\"reply_count\":18,\"like_count\":181,\"quote_count\":3,\"bookmark_count\":172,\"impression_count\":17093}",
+  "embeddedUrls": [
+    "https://t.co/5zyVmzGIBP"
+  ]
+}
