@@ -11,6 +11,11 @@ const ROOT = join(import.meta.dir, "..", "..");
 const RESEARCH_DIR = join(ROOT, "research");
 const CACHE_DIR = join(import.meta.dir, "cache");
 
+// Signal filing paused 2026-05-19 per whoabuddy policy (task #17094).
+// Mirrors the gate in aibtc-news-editorial, arxiv-research, bitcoin-macro sensors.
+// Re-enable: flip to false (grep `SIGNAL_FILING_DISABLED` to find all gates).
+const SIGNAL_FILING_DISABLED = true;
+
 // ---- Helpers ----
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -508,6 +513,14 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     throw new Error(`HTTP ${response.status}`);
   }
 
+  // Re-route to X API if the redirect chain (e.g. t.co → x.com) lands on a tweet.
+  // Without this, the response body is just the "JavaScript is not available" splash.
+  const redirectedTweetId = parseTweetUrl(response.url);
+  if (redirectedTweetId && response.url !== url) {
+    const tweet = await fetchRawContent(response.url);
+    return { ...tweet, url };
+  }
+
   const html = await response.text();
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
   const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
@@ -834,7 +847,11 @@ async function cmdProcess(args: string[]): Promise<void> {
       && !r.takeaways[0]?.includes("review manually")
   );
   if (devToolHighLinks.length > 0) {
-    routeAibtcNetworkSignal(devToolHighLinks, filename);
+    if (SIGNAL_FILING_DISABLED) {
+      process.stdout.write(`Signal routing: skipped ${devToolHighLinks.length} link(s) — SIGNAL_FILING_DISABLED\n`);
+    } else {
+      routeAibtcNetworkSignal(devToolHighLinks, filename);
+    }
   }
 }
 

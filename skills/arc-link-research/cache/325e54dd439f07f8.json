@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/DanKornas/status/2065917380253921362",
+  "fetchedAt": "2026-06-14T07:14:34.322Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Startup ideas often get too much enthusiasm and not enough structured validation...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Startup ideas often get too much enthusiasm and not enough structured validation.\n\nStartup Skill is an open-source set of startup-analysis skills for Claude Code and other agents that support skills.\n\nIt helps you pressure-test a startup idea by turning a prompt into structured research, strategy, competitor analysis, positioning, financial planning, validation experiments, and pitch prep.\n\nKey features:\n• Startup design workflow – 8 phases from intake to validation, with progress tracking for interrupted sessions.\n• Competitor intelligence – battle cards, pricing landscape, feature matrix, and strategic report.\n• Positioning support – April Dunford-style positioning, alternatives map, market category analysis, and messaging implications.\n• Pitch preparation – 10-min, 5-min, 2-min, 1-min elevator, and email formats, plus scoring and Q&A prep.\n• Flexible installation – Claude Code plugin, https://t.co/pETP5BCGyT skill files, npx, SkillKit, clone/copy, or Git submodule.\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-06-13T22:01:00.000Z\nMetrics: {\"retweet_count\":3,\"reply_count\":1,\"like_count\":12,\"quote_count\":0,\"bookmark_count\":17,\"impression_count\":811}",
+  "embeddedUrls": [
+    "https://t.co/FW9nIjcgKV"
+  ]
+}
