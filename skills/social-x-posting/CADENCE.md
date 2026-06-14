@@ -1,6 +1,12 @@
 # X Posting Cadence — AI-Prefers-Bitcoin theme
 
-**[PAUSED 2026-06-12]** Proactive 12h beat disabled while rebuilding around ContentCalendarMachine + teaching-fanout strategy (task #18671). Mention-reply path remains enabled. Resume when fan-out unification ships.
+**[RESUMED 2026-06-14]** The fan-out unification shipped (ContentCalendarMachine is LIVE — quest P11),
+so the pause condition is met and the proactive beat is back on (`X_CADENCE_ENABLED = true`). Its role
+changed: blog-derived X now flows through **ContentCalendar's `x` hop** (T+1d, 2–3 tweet thread,
+`--source content-calendar:<slug>:x`), so the proactive beat is no longer the blog echo — it's the
+**connective "learning-together" tissue** between blog-thread drops (journey / philosophy / research
+register). `hot-topic` is retired from the proactive rotation to avoid a same-topic-within-24h echo of
+the ContentCalendar thread (X card: never post the same topic twice in 24h). Mention-reply path stays on.
 
 *Established task #18633 (2026-06-12, whoabuddy email: "time to start posting on X regularly").*
 *Coordinate with: `skills/whop/STRATEGY.md` (blog→whop), `arc-brand-voice`, SOUL.md.*
@@ -65,7 +71,7 @@ fans to all three. Until then: the proactive beat keeps X warm; blog→X is comp
 ## Posting
 
 ```
-arc skills run --name social-x-posting -- post --text "<=280 chars>"
+arc skills run --name social-x-posting -- post --text "<=280 chars>" --source sensor:x-cadence:<YYYY-MM-DD-HH>
 arc skills run --name social-x-posting -- budget    # daily limits (10 posts/day)
 ```
 
@@ -76,7 +82,14 @@ arc skills run --name social-x-posting -- budget    # daily limits (10 posts/day
   before any post. (The `long-sentence` warning fires on flattened newlines — ignore if the
   live post is short stanzas.)
 
-## Known blocker (2026-06-12)
+## Credit state — 402 history (CLEARED 2026-06-14)
+
+**Update 2026-06-14:** posting credits are present again — there is no `db/x-credits-depleted.json`
+guard file and the daily budget shows posts available, so both the proactive beat and the
+ContentCalendar `x` hop post live. The credit-aware guard below stays in force (it simply isn't tripped
+today); if a 402 returns it re-arms automatically.
+
+### Original blocker (2026-06-12)
 
 **X API HTTP 402 `CreditsDepleted`** — posting credits are exhausted. This is *not* a rate
 limit and will not auto-recover; it needs a credit top-up from whoabuddy. The cadence beat is

@@ -494,3 +494,5 @@ Subject: Deploy arc0
 2026-06-14T14:55:27.019Z | task #18948 | completed | haiku | Retrospective: extract learnings from task #18947 — Publish  | Captured p-content-publication-quality-gates: pre-publish iteration on word choi
 2026-06-14T15:05:29.856Z | task #18953 | completed | sonnet | Publish blog work-piece: Done Is a Command You Run, Not a Cl | Published 'Done Is a Command You Run, Not a Claim You Make' — harness verificati
 2026-06-14T15:07:38.821Z | task #18952 | completed | sonnet | Post X thread: "Match Your Evals to Your Traffic" | Posted 3-tweet thread on eval volume taxonomy: inversion hook → tier table → flo
+2026-06-14T15:10:18.877Z | task #18954 | completed | script | Deploy arc0me-site to Cloudflare (f91453d6cc7a) | {"success":true,"sha":"f91453d6cc7a","site":"https://arc0.me"}
+2026-06-14T15:16:02.699Z | task #18955 | completed | sonnet | Distill watch report 2026-06-14T13:00:59Z into 1-2 interior  | 2 nuggets: cost (research sprint /bin/bash.49/task vs /bin/bash.31 baseline, 58%

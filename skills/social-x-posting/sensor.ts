@@ -73,28 +73,23 @@ const log = createSensorLogger(SENSOR_NAME);
 // arc-brand-voice). It runs on its own slow self-gate (a separate claim name) so
 // it is independent of the 15-min mentions cadence.
 //
-// Blog-derived hot-topics (same theme flowing blog->whop->X) arrive via the
-// blog->whop->X fan-out (task #18634), not here — this beat is the steady drip
-// that fills the gaps. Full policy: skills/social-x-posting/CADENCE.md.
+// Blog-derived X now flows through ContentCalendarMachine's `x` hop (T+1d thread,
+// quest P11), NOT here — so this beat is the connective "learning-together" tissue
+// between those blog-thread drops, never a second blog echo. Full policy +
+// register: skills/social-x-posting/CADENCE.md and arc-brand-voice/CHANNELS.md §x.
 //
 // Credit-aware: skips while X posting credits are depleted (402 CreditsDepleted),
 // so it never queues a post task that would fail, and auto-resumes when credits
 // return. Flip X_CADENCE_ENABLED to false to pause the proactive cadence without
 // touching the mentions sensor.
-const X_CADENCE_ENABLED = false;
+const X_CADENCE_ENABLED = true;
 const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
 const CADENCE_INTERVAL_MINUTES = 12 * 60; // 12h → ~2 posts/day max, well under the 10/day budget
 
-const BEAT_TYPES = ["hot-topic", "agent-philosophy", "agent-journey", "research-highlight"] as const;
+const BEAT_TYPES = ["agent-philosophy", "agent-journey", "research-highlight"] as const;
 type BeatType = (typeof BEAT_TYPES)[number];
 
 const BEAT_DESCRIPTIONS: Record<BeatType, string> = {
-  "hot-topic": [
-    "Beat: HOT-TOPIC — coordinate with the latest arc0.me blog post and whop hash-it-out",
-    "hot-topic so the same theme flows blog→whop→X. Distill the core idea to ≤280 chars:",
-    "structural inversion of the blog take, ending on the question the blog opens.",
-    "Check skills/whop/drafts/ for the whop version; echo the same theme in X voice.",
-  ].join("\n"),
   "agent-philosophy": [
     "Beat: AGENT-PHILOSOPHY — one observation about autonomy, architecture, or what it",
     "means to be an economic actor native to Bitcoin. Structural over platitude. Draw from",
@@ -139,7 +134,6 @@ function pullBeatNugget(beat: BeatType): DistilledArtifact | null {
       type = "council";
       sinceHours = 24 * 14; // 14 days — council moves slower
       break;
-    case "hot-topic":
     case "agent-journey":
       return null;
   }
@@ -184,11 +178,15 @@ async function runCadenceBeat(): Promise<void> {
         nuggetBlock,
         "",
         "Voice: arc-brand-voice + SOUL.md. Structural over platitude. Dry. No filler.",
+        "Register: skills/arc-brand-voice/CHANNELS.md §x — the learning-together arc.",
+        "Each post is a CHAPTER: pick up a prior thread / admit what's unsolved / invite",
+        "the reader along; reference the journey, don't announce a conclusion.",
         "If nothing is genuinely worth saying this beat, DEFER — close completed with",
         "'nothing to post' rather than shipping filler (deferring is judgment, not failure).",
         "",
-        "Post via:",
-        '  arc skills run --name social-x-posting -- post --text "<=280 chars>"',
+        "Post via (the --source ledger makes the POST exactly-once — a retry/replay",
+        "under single-agent dispatch won't double-post this beat):",
+        `  arc skills run --name social-x-posting -- post --text "<=280 chars>" --source sensor:x-cadence:${beatId}`,
         "Full policy: skills/social-x-posting/CADENCE.md.",
       ].join("\n"),
       skills: JSON.stringify(["social-x-posting", "arc-brand-voice"]),
