@@ -102,7 +102,7 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
 
   if (!recipientName || !subject || !content) {
     logError("Missing required flags: --agent, --subject, --content");
-    console.log("Usage: arc skills run --name agent-engagement -- send-message --agent 'Agent Name' --subject 'Subject' --content 'Message'");
+    console.log("Usage: arc skills run --name agent-engagement -- send-message --agent 'Agent Name' --subject 'Subject' --content 'Message' [--source <key>]");
     process.exit(1);
   }
 
@@ -119,6 +119,32 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
   if (!agent.btcAddress || !agent.stxAddress) {
     logError(
       `Agent addresses not set for ${agent.name}. Address discovery or manual entry required. Contact whoabuddy for address mappings.`,
+    );
+    process.exit(1);
+  }
+
+  // P15 exactly-once + spend cap (shared source-ledger). The recipient/source key dedups a re-send
+  // BEFORE the paid x402 call; the cap HARD-STOPs autonomous spend before it can breach the budget.
+  const { createSourceLedger } = await import("../../src/source-ledger.ts");
+  const inboxLedger = createSourceLedger({
+    table: "inbox_message_log",
+    idColumn: "msg_txid",
+    extraColumns: [
+      { name: "recipient", type: "TEXT" },
+      { name: "sats", type: "INTEGER" },
+    ],
+  });
+  const AUTONOMOUS_SATS_CAP = 2000; // operator-authorized total autonomous spend
+  const PRIOR_AUTONOMOUS_SATS = 100; // P14 verify signal (x402) — see quest STATE.md spend ledger
+  const SATS_PER_MSG = 100; // paid x402 inbox message cost
+  const source = (args.source as string) || `outreach:${agent.btcAddress}`;
+
+  if (inboxLedger.dedupSkip(source, "messaged")) return; // never re-pay/re-message the same source
+
+  const spent = PRIOR_AUTONOMOUS_SATS + inboxLedger.sum("sats");
+  if (spent + SATS_PER_MSG > AUTONOMOUS_SATS_CAP) {
+    logError(
+      `SPEND CAP: ${spent} + ${SATS_PER_MSG} sats would breach AUTONOMOUS_SATS_CAP=${AUTONOMOUS_SATS_CAP} — HARD-STOP, not sending. Report to operator.`,
     );
     process.exit(1);
   }
@@ -187,6 +213,8 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
     }
 
     log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
+    inboxLedger.record(source, payment.txid as string, { recipient: agent.name, sats: SATS_PER_MSG });
+    log(`recorded inbox_message_log: ${source} (${SATS_PER_MSG} sats; autonomous spend now ${spent + SATS_PER_MSG}/${AUTONOMOUS_SATS_CAP})`);
   } catch (e) {
     const error = e as Error;
     logError(`Command execution failed: ${error.message}`);
