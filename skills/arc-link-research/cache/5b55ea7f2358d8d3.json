@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/rohanpaul_ai/status/2065832568583336237",
+  "fetchedAt": "2026-06-14T07:15:33.364Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: Nice survey paper mapping agentic reinforcement learning for LLMs, showing how m...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: Nice survey paper mapping agentic reinforcement learning for LLMs, showing how models learn by acting across time.\n\nCovers 500+ works and groups them into a 2-part map of capabilities and applications.\n\nThe problem is that common LLM training rewards a single answer once, then stops learning.\n\nReal tasks need many steps, partial information, and choices that affect what happens later.\n\nThe survey formalizes that setup as an agent that sees a bit, chooses an action, and gets feedback.\n\nThat perspective uses memory to track context, planning to pick sequences, and tools to affect the world.\n\nIt also includes reasoning for constraint handling, perception for multimodal inputs, and self-improvement to refine policies.\n\nReinforcement learning links all of this, because rewards arrive after sequences, so the policy learns what to try next.\n\n----\n\nPaper – arxiv. org/abs/2509.02547\n\nPaper Title: \"The Landscape of Agentic Reinforcement Learning for LLMs: A Survey\"\nCreated: 2026-06-13T16:24:00.000Z\nMetrics: {\"retweet_count\":17,\"reply_count\":2,\"like_count\":74,\"quote_count\":1,\"bookmark_count\":51,\"impression_count\":3942}",
+  "embeddedUrls": [
+    "https://t.co/pA0LaAI0qR"
+  ]
+}
