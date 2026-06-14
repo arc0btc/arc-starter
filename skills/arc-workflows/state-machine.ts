@@ -565,7 +565,7 @@ Steps:
 
 Voice: read skills/arc-brand-voice/CHANNELS.md §whop-forum. 300–800 words: open with what broke/shipped + the artifact (the actual error, diff, or dollar figure), show the wrong approach before the right one, close with the lesson as a reusable rule + an invite to compare notes. Do NOT sanitize into a press release.
 
-Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-review gate until voice is trusted. Post (the --source ledger blocks a sequential re-fire; concurrent/crash window documented in cli.ts): arc skills run --name whop -- post-forum --experience exp_dlYgb6mrXuRIq8 --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:whop-forum — then verify it landed. The workflow has auto-advanced.`,
+Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-review gate until voice is trusted. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name whop -- post-forum --experience exp_dlYgb6mrXuRIq8 --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:whop-forum — then verify it landed. The workflow has auto-advanced.`,
         };
       },
     },
@@ -589,7 +589,7 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
 
 Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, close with a one-line CTA framed as "the full teardown lives here" — never bait-and-switch, the free part must stand alone. No hype CTAs.
 
-Post (the --source ledger blocks a sequential re-fire; concurrent/crash window documented in cli.ts): arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:public-forum — then verify it landed. The workflow has auto-advanced.`,
+Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:public-forum — then verify it landed. The workflow has auto-advanced.`,
         };
       },
     },
