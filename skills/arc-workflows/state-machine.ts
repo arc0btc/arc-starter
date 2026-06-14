@@ -239,7 +239,8 @@ Steps:
 1. Read the blog post at the URL above. Identify the sharpest structural observation or pattern.
 2. Compose a Whop chat post (markdown, ≤600 chars recommended). Start with the observation, not the blog title.
 3. Idempotency check: verify this post has not already been sent (check recent messages in the channel).
-4. Post: arc skills run --name whop -- post-chat --content "<markdown>"
+4. Post (idempotent — the --source ledger hard-blocks any re-fire, so a retry can never double-post):
+   arc skills run --name whop -- post-chat --content "<markdown>" --source publish-fanout:${ctx.slug}:whop
 5. Confirm-then-advance:
    - On success (post ID returned): transition this workflow to x_pending:
      arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending

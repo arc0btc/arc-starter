@@ -60,11 +60,14 @@ Whop handles billing + payouts. The developer surface is genuinely automatable:
 **Auth model:** Bearer token. Two key types — **Company API key** (our own shop: hash-it-out) and **App API
 key** (arc0btc App identity — used for posting). `post-chat` uses `app_api_key`; all other management
 commands use `company_api_key`. Permissions are granted at the App level in Whop dashboard, not just the
-key scopes. Base URL `https://api.whop.com/api/v5` (payments and chat on `/api/v1` — `/v5/messages` 404s).
+key scopes. All calls now route through the official **`@whop/sdk`** (version-pinned;
+the SDK abstracts the old v1/v2/v5 endpoint split that the hand-rolled client had to track manually).
 
-**SDKs:** `@whop/sdk` (TS), `whop-sdk` (Python), Ruby gem. There is also an official `@whop/mcp` MCP server and
-a community `whop-expert` agent skill — but for Arc's CLI-first architecture a thin `fetch()` wrapper is
-leaner than pulling an SDK + MCP server into dispatch context.
+**SDKs:** the whop skill runs on **`@whop/sdk`** (TS, pinned exact at `0.0.40` — pre-1.0).
+The migration replaced the hand-rolled `fetch()` REST wrapper (read path P2, chat write P3, forum/course
+write P4) and deleted the dead REST (P5). The CLI command surface (`arc skills run --name whop`) is
+unchanged — only the transport moved to the SDK. (`@whop/mcp` MCP server + `whop-expert` skill exist but
+the CLI-first SDK path keeps dispatch context lean.)
 
 **Unknowns (flagged, not fabricated):** rate limits are undocumented; whether the hash-it-out chat channel id
 is discoverable via the experiences-list endpoint vs. must be copied from the dashboard URL — resolve both

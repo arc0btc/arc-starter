@@ -49,7 +49,7 @@ import {
   type ChatMessage,
 } from "./lib/relationships.ts";
 import { writeArtifact } from "./lib/artifacts.ts";
-import { listMessages, getAppApiKey } from "./lib/whop-api.ts";
+import { listMessages, getAppApiKey, whopClient } from "./lib/whop-api.ts";
 import {
   recentArtifacts,
   renderInline,
@@ -948,19 +948,18 @@ interface ForumPostsResponse {
   data: ForumPost[];
 }
 
-/** Quietly fetches last N posts of a forum experience. null on failure. */
+/** Quietly fetches last N posts of a forum experience via @whop/sdk. null on failure. */
 async function listForumPosts(
   experienceId: string,
   apiKey: string,
   limit = 20,
 ): Promise<ForumPostsResponse | null> {
   try {
-    const response = await fetch(
-      `https://api.whop.com/api/v1/forum_posts?experience_id=${encodeURIComponent(experienceId)}&limit=${limit}`,
-      { headers: { Authorization: `Bearer ${apiKey}` } },
-    );
-    if (!response.ok) return null;
-    return (await response.json()) as ForumPostsResponse;
+    const page = await whopClient(apiKey).forumPosts.list({
+      experience_id: experienceId,
+      first: limit,
+    });
+    return { data: page.data as unknown as ForumPost[] };
   } catch {
     return null;
   }

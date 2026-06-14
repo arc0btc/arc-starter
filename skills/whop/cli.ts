@@ -13,15 +13,9 @@ import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { whopClient } from "./lib/whop-api.ts";
 
-// Host root — used only by the WRITE commands still on the hand-rolled client
-// (post-chat/forum, edits, courses). Read commands run on @whop/sdk via
-// whopClient(); the remaining raw fetch paths are removed in P5.
-const API_BASE = "https://api.whop.com/api";
-
-interface WhopError {
-  status: number;
-  body: string;
-}
+// Every Whop call routes through @whop/sdk (version-pinned in package.json) via
+// whopClient(); there is no hand-rolled REST left. Keys are still resolved from
+// the encrypted store per command (requireApiKey / requireAppApiKey below).
 
 function fail(message: string): never {
   process.stderr.write(`whop: ${message}\n`);
@@ -53,28 +47,6 @@ async function requireAppApiKey(): Promise<string> {
   return key;
 }
 
-async function whopRequest(
-  method: string,
-  path: string,
-  apiKey: string,
-  body?: Record<string, unknown>,
-): Promise<unknown> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await response.text();
-  if (!response.ok) {
-    const error: WhopError = { status: response.status, body: text };
-    fail(`HTTP ${error.status} on ${method} ${path}: ${error.body.slice(0, 400)}`);
-  }
-  return text ? JSON.parse(text) : null;
-}
-
 // SDK list calls return a CursorPage; callers expect the legacy
 // { data, page_info } JSON shape. One place keeps every read command consistent.
 function printPage(page: { data: unknown; page_info: unknown }): void {
@@ -85,18 +57,26 @@ function printPage(page: { data: unknown; page_info: unknown }): void {
 
 // --- Source-dedup for the non-idempotent POST /messages write path. ---
 // post-chat/reply-chat hit `messages.create`, which is non-idempotent. An
-// optional --source key gives LAYERED replay protection:
-//   1. local ledger (whop_post_log): a recorded source short-circuits BEFORE any
-//      API call — covers the dominant case, a sequential re-run (a dispatch
-//      retry or re-fire on the next cycle).
-//   2. SDK idempotencyKey = source: sent to the server on every sourced create,
-//      so a concurrent same-source post, OR a post-succeeds-then-recordPost-fails
-//      window, is also de-duplicated server-side (when Whop honors the key — the
-//      gated live double-fire confirms this).
-// The local ledger alone is check-then-act (NOT race-proof, NOT
-// partial-failure-proof); the idempotency key is what actually closes those
-// windows. No --source = legacy raw post (callers that dedup at the dispatch-task
-// layer are unaffected). Table is lazily created in the shared db/arc.sqlite.
+// optional --source key gives replay protection via a LOCAL ledger
+// (whop_post_log): a recorded source short-circuits BEFORE any API call, so a
+// sequential re-run (a dispatch retry or next-cycle re-fire — the actual
+// operational profile, since each agent dispatches one task at a time) never
+// double-posts. Proven live 2026-06-14 (fire twice → one message).
+//
+// We ALSO pass source as the SDK `idempotencyKey` — the correct header to send
+// for a non-idempotent write — but Whop does NOT currently honor it on
+// POST /messages: verified live (clear the ledger, re-fire the same key → a
+// DUPLICATE posted). So the local ledger is the SOLE guarantee today; the key is
+// harmless forward-compat that auto-upgrades if Whop adds server-side support.
+//
+// Known, accepted limitations (the server ignores the key, so these stay open):
+// concurrent same-source posts could both pass the check-then-act ledger, and a
+// post-succeeds-then-recordPost-throws window leaves the source unrecorded. Both
+// are practically unreachable under single-threaded per-agent dispatch + local
+// WAL sqlite; revisit if post-chat ever runs concurrently for one source.
+//
+// No --source = legacy raw post (callers that dedup at the dispatch-task layer
+// are unaffected). Table is lazily created in the shared db/arc.sqlite.
 async function whopPostLog() {
   const { initDatabase, getDatabase } = await import("../../src/db.ts");
   initDatabase();
@@ -132,6 +112,10 @@ async function recordPost(source: string, channelId: string, messageId: string |
   ).run(source, channelId, messageId, new Date().toISOString());
 }
 
+// The created message/forum-post id for the ledger. SDK create() return types
+// don't surface `.id` uniformly, so this localizes the one narrow cast.
+const createdId = (x: unknown): string | null => (x as { id?: string }).id ?? null;
+
 function printHelp(): void {
   process.stdout.write(
     [
@@ -144,22 +128,23 @@ function printHelp(): void {
       "                                         read recent messages (newest-first; use page_info cursors)",
       "  post-chat --content <md> [--channel exp_xxx] [--source <key>]",
       "                                         post a hot-topic into a chat experience",
-      "                                         (--source = idempotency key: a re-run with the same key is",
-      "                                          suppressed locally AND de-duplicated server-side)",
+      "                                         (--source: a re-run with the same key is suppressed by the",
+      "                                          local ledger — sequential-safe; idempotent retries never double-post)",
       "  reply-chat --to <message_id> --content <md> [--channel exp_xxx] [--source <key>]",
       "                                         post a threaded reply to a specific message",
       "  list-forums [--company biz_xxx]        list forum feeds (find the forum_feed_xxx id)",
       "  list-forum-posts --experience exp_xxx [--limit N]",
       "                                         read recent forum posts in an experience",
-      "  post-forum --experience exp_xxx --content <md> [--title <t>] [--parent post_xxx]",
+      "  post-forum --experience exp_xxx --content <md> [--title <t>] [--parent post_xxx] [--source <key>]",
       "                                         publish a forum post (e.g. digest into Public forum)",
+      "                                         (--source: idempotent re-run, like post-chat)",
       "  edit-forum-post --id post_xxx --content <md> [--title <t>]",
       "                                         edit a forum post (no DELETE endpoint exists; PATCH to blank)",
       "  rename-experience --id exp_xxx --title <new title>",
       "  create-course --experience exp_xxx --title <t>",
-      "  create-chapter --course cou_xxx --title <t> [--order N]",
-      "  create-lesson --chapter cha_xxx --title <t> [--type text|video|quiz|assignment]",
-      "                [--content <md>] [--video-url <url>] [--order N]",
+      "  create-chapter --course cou_xxx --title <t>",
+      "  create-lesson --chapter cha_xxx --title <t> [--type text|video|pdf|multi|quiz|knowledge_check]",
+      "                [--content <md>] [--video-url <embed_id>] [--embed-type youtube|loom]",
       "",
       "Audit:",
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
@@ -218,16 +203,16 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
   if (!channel) {
     fail("post-chat requires --channel (or set creds key chat_channel_id)");
   }
-  // Local ledger short-circuit BEFORE any API call (sequential re-run case).
+  // Local ledger short-circuit BEFORE any API call — the operative exactly-once
+  // guarantee for sequential re-runs. channel_id accepts an exp_xxx experience id
+  // or a chat_feed_xxx feed id. source is also sent as the SDK idempotencyKey
+  // (correct header, but currently ignored by Whop — see whopPostLog note).
   if (await dedupSkip(flags.source)) return;
-  // channel_id accepts an exp_xxx experience id or a chat_feed_xxx feed id. The
-  // source doubles as the server idempotency key — closing the concurrent-race
-  // and post-then-record-fails windows the local ledger can't.
   const message = await whopClient(apiKey).messages.create(
     { channel_id: channel, content },
     flags.source ? { idempotencyKey: flags.source } : undefined,
   );
-  if (flags.source) await recordPost(flags.source, channel, (message as { id?: string }).id ?? null);
+  if (flags.source) await recordPost(flags.source, channel, createdId(message));
   process.stdout.write(`posted to ${channel}\n` + JSON.stringify(message, null, 2) + "\n");
 }
 
@@ -242,7 +227,7 @@ async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Prom
     { channel_id: channel, content, replying_to_message_id: flags.to },
     flags.source ? { idempotencyKey: flags.source } : undefined,
   );
-  if (flags.source) await recordPost(flags.source, channel, (message as { id?: string }).id ?? null);
+  if (flags.source) await recordPost(flags.source, channel, createdId(message));
   process.stdout.write(`reply posted to ${channel} (thread: ${flags.to})\n` + JSON.stringify(message, null, 2) + "\n");
 }
 
@@ -268,74 +253,97 @@ async function cmdListForumPosts(apiKey: string, flags: Record<string, string>):
 async function cmdPostForum(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.experience) fail("post-forum requires --experience exp_xxx");
   if (!flags.content) fail("post-forum requires --content <markdown>");
-  // POST /v1/forum_posts with {experience_id, content, title?}. Title is optional;
-  // app key with forum:post:create scope succeeds even when forum's who_can_post=admins.
-  const body: Record<string, unknown> = {
+  // Forum posts key on experience_id (NOT forum_feed_id). Title is optional; the
+  // app key with forum:post:create scope succeeds even when who_can_post=admins.
+  // post-forum is the recurring fan-out hop (P9) and non-idempotent, so it takes
+  // the same --source dedup as post-chat (local-ledger short-circuit before any
+  // API call; see whopPostLog note for the guarantee's exact scope).
+  if (await dedupSkip(flags.source)) return;
+  const post = await whopClient(apiKey).forumPosts.create({
     experience_id: flags.experience,
     content: flags.content,
-  };
-  if (flags.title) body.title = flags.title;
-  if (flags.parent) body.parent_id = flags.parent;
-  const result = await whopRequest("POST", "/v1/forum_posts", apiKey, body);
+    ...(flags.title ? { title: flags.title } : {}),
+    ...(flags.parent ? { parent_id: flags.parent } : {}),
+  });
+  if (flags.source) await recordPost(flags.source, flags.experience, createdId(post));
   process.stdout.write(
-    `posted to forum (experience: ${flags.experience})\n` + JSON.stringify(result, null, 2) + "\n",
+    `posted to forum (experience: ${flags.experience})\n` + JSON.stringify(post, null, 2) + "\n",
   );
 }
 
 async function cmdEditForumPost(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.id) fail("edit-forum-post requires --id post_xxx");
   if (!flags.content) fail("edit-forum-post requires --content <markdown>");
-  // PATCH /v1/forum_posts/<id> — the soft-delete path (Whop v1 has no DELETE for forum posts).
-  // Patch sets is_edited: true; the original post slot stays in the timeline.
-  const body: Record<string, unknown> = { content: flags.content };
-  if (flags.title) body.title = flags.title;
-  const result = await whopRequest(
-    "PATCH",
-    `/v1/forum_posts/${encodeURIComponent(flags.id)}`,
-    apiKey,
-    body,
-  );
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  // forumPosts.update — the soft-delete path: forum posts have NO delete method on
+  // the SDK (confirmed P1), so blanking content via PATCH stays the withdrawal path.
+  const post = await whopClient(apiKey).forumPosts.update(flags.id, {
+    content: flags.content,
+    ...(flags.title ? { title: flags.title } : {}),
+  });
+  process.stdout.write(JSON.stringify(post, null, 2) + "\n");
 }
 
 async function cmdRenameExperience(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.id || !flags.title) fail("rename-experience requires --id exp_xxx and --title <new title>");
-  const result = await whopRequest("PATCH", `/v2/experiences/${encodeURIComponent(flags.id)}`, apiKey, {
-    title: flags.title,
-  });
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  // SDK field is `name`, not `title` (the legacy v2 PATCH used `title`). CLI flag stays --title.
+  const experience = await whopClient(apiKey).experiences.update(flags.id, { name: flags.title });
+  process.stdout.write(JSON.stringify(experience, null, 2) + "\n");
 }
 
 async function cmdCreateCourse(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.experience || !flags.title) fail("create-course requires --experience and --title");
-  const result = await whopRequest("POST", "/v5/courses", apiKey, {
+  const course = await whopClient(apiKey).courses.create({
     experience_id: flags.experience,
     title: flags.title,
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  process.stdout.write(JSON.stringify(course, null, 2) + "\n");
 }
 
 async function cmdCreateChapter(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.course || !flags.title) fail("create-chapter requires --course and --title");
-  const result = await whopRequest("POST", "/v5/course-chapters", apiKey, {
+  // SDK courseChapters.create takes only {course_id, title}; `order` is not a create
+  // param (ordering is managed elsewhere). Warn rather than silently drop --order.
+  if (flags.order) process.stderr.write("whop: note: --order is ignored by create-chapter (not an SDK create param)\n");
+  const chapter = await whopClient(apiKey).courseChapters.create({
     course_id: flags.course,
     title: flags.title,
-    order: flags.order ? Number(flags.order) : undefined,
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  process.stdout.write(JSON.stringify(chapter, null, 2) + "\n");
 }
+
+const LESSON_TYPES = ["text", "video", "pdf", "multi", "quiz", "knowledge_check"] as const;
+const EMBED_TYPES = ["youtube", "loom"] as const;
 
 async function cmdCreateLesson(apiKey: string, flags: Record<string, string>): Promise<void> {
   if (!flags.chapter || !flags.title) fail("create-lesson requires --chapter and --title");
-  const result = await whopRequest("POST", "/v5/course-lessons", apiKey, {
+  // --order is no longer an SDK create param (same as create-chapter) — warn, don't drop silently.
+  if (flags.order) process.stderr.write("whop: note: --order is ignored by create-lesson (not an SDK create param)\n");
+  // Param diffs vs legacy: --type -> lesson_type (enum; the old 'assignment' value is gone);
+  // --video-url -> embed_id (a provider video ID, NOT a full URL) + --embed-type. Validate the
+  // user-supplied enums up front so a bad value fails with a clear CLI message, not an opaque 4xx.
+  const lessonType = flags.type ?? "text";
+  if (!(LESSON_TYPES as readonly string[]).includes(lessonType)) {
+    fail(`--type must be one of: ${LESSON_TYPES.join(", ")}`);
+  }
+  const embedType = flags["embed-type"] ?? "youtube";
+  if (flags["video-url"]) {
+    if (flags["video-url"].includes("://")) {
+      process.stderr.write("whop: note: --video-url is an embed id (a provider video id), not a full URL\n");
+    }
+    if (!(EMBED_TYPES as readonly string[]).includes(embedType)) {
+      fail(`--embed-type must be one of: ${EMBED_TYPES.join(", ")}`);
+    }
+  }
+  const lesson = await whopClient(apiKey).courseLessons.create({
     chapter_id: flags.chapter,
     title: flags.title,
-    type: flags.type ?? "text",
-    content: flags.content,
-    video_url: flags["video-url"],
-    order: flags.order ? Number(flags.order) : undefined,
+    lesson_type: lessonType as (typeof LESSON_TYPES)[number],
+    ...(flags.content ? { content: flags.content } : {}),
+    ...(flags["video-url"]
+      ? { embed_id: flags["video-url"], embed_type: embedType as (typeof EMBED_TYPES)[number] }
+      : {}),
   });
-  process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+  process.stdout.write(JSON.stringify(lesson, null, 2) + "\n");
 }
 
 async function main(): Promise<void> {
