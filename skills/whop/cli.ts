@@ -145,6 +145,7 @@ function printHelp(): void {
       "  create-chapter --course cou_xxx --title <t>",
       "  create-lesson --chapter cha_xxx --title <t> [--type text|video|pdf|multi|quiz|knowledge_check]",
       "                [--content <md>] [--video-url <embed_id>] [--embed-type youtube|loom]",
+      "  list-courses [--course cou_xxx]         list courses; with --course, that course's ordered chapters",
       "",
       "Audit:",
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
@@ -170,6 +171,23 @@ async function cmdListExperiences(apiKey: string): Promise<void> {
   const companyId = await getCredential("whop", "company_id");
   if (!companyId) fail("list-experiences requires creds key company_id (biz_xxx)");
   const page = await whopClient(apiKey).experiences.list({ company_id: companyId, first: 50 });
+  printPage(page);
+}
+
+async function cmdListCourses(apiKey: string, flags: Record<string, string>): Promise<void> {
+  // Verify the course write path (P4/P10): courses.list needs company_id (like
+  // list-experiences); --course switches to courseChapters.list for that course,
+  // returned ordered by position with each chapter's lessons inlined — enough to
+  // confirm "draft course with >=3 ordered chapters" from the CLI.
+  const client = whopClient(apiKey);
+  if (flags.course) {
+    const page = await client.courseChapters.list({ course_id: flags.course, first: 50 });
+    printPage(page);
+    return;
+  }
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-courses requires creds key company_id (biz_xxx), or pass --course cou_xxx");
+  const page = await client.courses.list({ company_id: companyId, first: 50 });
   printPage(page);
 }
 
@@ -365,6 +383,11 @@ async function main(): Promise<void> {
     case "list-experiences": {
       const apiKey = await requireApiKey();
       await cmdListExperiences(apiKey);
+      break;
+    }
+    case "list-courses": {
+      const apiKey = await requireApiKey();
+      await cmdListCourses(apiKey, flags);
       break;
     }
     case "list-channels": {

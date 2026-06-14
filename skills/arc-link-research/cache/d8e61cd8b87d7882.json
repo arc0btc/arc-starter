@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/jerryjliu0/status/2059710330016817501",
+  "fetchedAt": "2026-06-14T08:00:40.498Z",
+  "contentType": "tweet",
+  "title": "@jerryjliu0: We've created the world's fastest PDF parser ⚡️\n\nAnd it's more accurate than any...",
+  "rawContent": "Tweet by @jerryjliu0 (Jerry Liu)\nAuthor bio: Parsing the world's hardest PDFs @llama_index. cofounder/CEO\n\nCareers: https://t.co/EUnMNmbCtx\nEnterprise: https://t.co/Ht5jwxSrQB\nText: We've created the world's fastest PDF parser ⚡️\n\nAnd it's more accurate than any other open-source, model-free PDF parser out there (pymupdf, pypdf, markitdown, pdftotext, opendataloader, pymupdf4llm) \n\nIntroducing LiteParse v2 - we rewrote the entire library into Rust and adapted it as native packages for Python and Node. \n\nIt supports 50+ different document types, can be triggered directly or installable directly within your favorite AI agent.\n\nBlog: https://t.co/ckb0G73ESs\n\nRepo: https://t.co/JNER0mVcB8\nCreated: 2026-05-27T18:56:24.000Z\nMetrics: {\"retweet_count\":359,\"reply_count\":99,\"like_count\":4111,\"quote_count\":31,\"bookmark_count\":4548,\"impression_count\":717683}",
+  "embeddedUrls": [
+    "https://t.co/QajXTrPdxa",
+    "https://t.co/xkDVwiBqkQ"
+  ]
+}

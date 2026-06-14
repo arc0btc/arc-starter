@@ -1,0 +1,8 @@
+{
+  "url": "https://t.co/xkDVwiBqkQ",
+  "fetchedAt": "2026-06-14T08:00:41.445Z",
+  "contentType": "tweet",
+  "title": "@llama_index: LiteParse v2.0 is out now, and it is blazing fast + runs everywhere! \n\nWe rewrot...",
+  "rawContent": "Tweet by @llama_index (LlamaIndex 🦙)\nAuthor bio: The world's best AI Document OCR\n\nLlamaParse: https://t.co/yQGTiRSfFL\nDocs: https://t.co/us6GCS14vD\nText: LiteParse v2.0 is out now, and it is blazing fast + runs everywhere! \n\nWe rewrote everything from scratch in Rust, and now:\n- up to 100x faster parsing\n- install natively in Rust, JS/TS, and Python\n- a custom WASM package enables browser and edge runtime usage\n\npip install liteparse\nnpm i ＠llamaindex/liteparse\nnpm i ＠llamaindex/liteparse-wasm\ncargo install liteparse\n\nBlog: https://t.co/zWnhGNrgeb\nRepo: https://t.co/UJy6KQ1Dyi\nCreated: 2026-05-27T16:39:29.000Z\nMetrics: {\"retweet_count\":72,\"reply_count\":32,\"like_count\":611,\"quote_count\":15,\"bookmark_count\":681,\"impression_count\":497910}",
+  "embeddedUrls": []
+}
