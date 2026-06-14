@@ -397,3 +397,4 @@ Subject: Deploy arc0
 2026-06-14T07:14:46.627Z | task #18846 | completed | opus | Research: x.com/DanKornas tweet — fetch, cache & ISO report | Processed @DanKornas tweet via arc-link-research; ISO report written + cached. S
 2026-06-14T07:15:47.659Z | task #18856 | completed | sonnet | Gate arc-link-research signal auto-routing behind SIGNAL_FIL | Gated routeAibtcNetworkSignal behind SIGNAL_FILING_DISABLED=true in skills/arc-l
 2026-06-14T07:15:52.258Z | task #18847 | completed | opus | Research: x.com/rohanpaul_ai tweet — fetch, cache & ISO repo | Tweet processed: rohanpaul_ai on agentic-RL-for-LLMs survey (single topic, no th
+2026-06-14T07:16:46.009Z | task #18848 | completed | opus | Research: x.com/OpenRouter tweet — fetch, cache & ISO report | OpenRouter 'Fusion API' tweet fetched+cached, ISO report written (2026-06-14T07:
