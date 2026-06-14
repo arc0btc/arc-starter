@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-13T14:15:00.000Z*
-*Diff: 738a9cd → 4a42408 (39 commits since last diagram) | Sensor count: 74 | Skill count: 122*
+*Generated: 2026-06-14T02:10:00.000Z*
+*Diff: 4a42408 → 74b397c (11 structural commits since last diagram) | Sensor count: 78 | Skill count: 126*
 
 ```mermaid
 stateDiagram-v2
@@ -116,6 +116,8 @@ stateDiagram-v2
             note right of compliance_review: CATCH PARAM FIX (031928b8): abbreviated-naming check\nskips catch(e)/catch(err) parameters — catch params are idiomatic JS, not sensor var abbreviations\nPrevents false-positive pre-commit hook failures on try/catch blocks
             arc_workflows
             note right of arc_workflows: drives workflow state machine\nBLOGTOXMACHINE (368d7341): originally blog_published→x_pending→completed\nRENAMED PUBLISHFANOUTMACHINE (b3e2fefb): BlogToXMachine → PublishFanoutMachine\nblog→whop→x pipeline design; whop hop gated WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED\nGate flipped true 2026-06-12T22:51Z (Phase 3 enabled dry-run)\nsyncBlogPublishes() creates one workflow per freshly published post\n1-day window, instance-key dedup, pausable WORKFLOWS_BLOG_TO_X_ENABLED=false\nX task source: publish-fanout:<slug>:x; 402 leaves in x_pending (no re-fire)\nCONTENTCALENDARMACHINE (bebf650b): 17 pre-filled instances from memory/shared/entries/*.md\nGated: WORKFLOWS_CONTENT_CALENDAR_ENABLED=false\nT+0 anchor gate in state-machine.ts prevents all 17 publishing simultaneously on enable\n--context flag added to arc-workflows create CLI command (d34ffa12)\ncontent-calendar eval-gate added to sensor.ts meta-loop (aa133475)\nPublishFanoutMachine (blog→whop→X) gated pending whop clean-post\ncheckPrExists HARDENED (486691cb): fetches 'state' field, validates === 'OPEN'\nMerged/closed PRs now correctly return false — exit-code-only check was insufficient\n(gh pr view exits 0 for merged/closed PRs — state check closes the gap)\nCAP-DEQUEUE CLEANUP (9aec6798): getPendingPrReviewTaskIdsToday() in db.ts\nExcess pending PR review tasks auto-closed as completed when 20/day cap hit\nPrevents failure metric inflation from tasks dispatch never executes\nSITE-HEALTH BLOG-PUBLISHING SKILL (0d9f5f7c): freshness-fix tasks now include blog-publishing skill\nPreviously only blog-deploy — insufficient context for content creation steps\nAUTO-ADVANCE STATE (e760b47e): autoAdvanceState field on WorkflowAction\nSensor transitions workflow immediately after inserting create-task action\nPrevents stuck-in-state loop: executing task forgets transition → dedup blocks fix tasks\nApplied to SiteHealthAlertMachine (alert → fixing auto-advances on task queue)\nPattern: create-task actions should own their own state transition\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)\nAUTO-CLOSE AUTOMATED PRs (46389bb8): buildReviewAction() returned null\nfor dependabot/release-please in 'opened' state → meta-sensor noop loop\nNow returns transition→closed for skipped PRs → auto-advances without human\nFixed 21 stuck automated PR workflows (pr-lifecycle completion 69%→normal)\nDAILY-BRIEF-INSCRIPTION MACHINE (f7e9124c): token spiral circuit breaker\nNew DailyBriefInscriptionMachine (8 states):\npending→brief_fetched→balance_ok→committed→commit_confirmed→revealed→confirmed→completed\nHard rules: one state per task, context <2KB, NO full brief text in workflow\nBrief stored as dataHash (SHA-256) + briefSummary (max 200 chars)\nConfirmation polling always spawns separate scheduled task (never inline)\nSCRIPT DISPATCH (b40ebe8e): ALL 6 DailyBriefInscriptionMachine workflow states\nconverted from sonnet/haiku to model="script" — inscription is fully deterministic\nWorkflowAction interface gains first-class `script` field (ddb63edf)\nSensor substitutes {WORKFLOW_ID} placeholder at task creation time\n~180 lines of LLM instruction strings replaced by single CLI commands\n7th skill using script dispatch pattern; pattern now native to state machine\nrevealAmount + feeRate context fields added (passed via CLI flags)\nLASTREVIEWEDCOMMIT SHA DEDUP (cad8fb5c): headCommitSha tracked per PR\nin workflow context (via headRefOid from GitHub GraphQL)\nBefore queuing pr-review task: skip if headCommitSha === lastReviewedCommit\nUpdate lastReviewedCommit when review task is created\nFixes bff-skills#494 storm (9 review cycles overnight per PR)\nEach distinct commit reviewed exactly once regardless of workflow state cycling\n[RESOLVED] Round-based PR dedup — 3rd-retrospective carry item CLOSED\nPENDING-TASK-DEDUP FIX (2482db11): taskExistsForSource checked ALL statuses\nBulk-cleaned tasks permanently blocked re-creation (workflows 1923/2038/2077/2127)\nFix: pendingTaskExistsForSource — deduplicates pending/active only\nEnables retry after failure; closes workflow-dedup ghost-row pattern\nDAILY PR REVIEW CAP (99779912): countPrReviewTasksToday() added to src/db.ts\n20/day cap gates arc-workflows sensor task creation\nPrLifecycleMachine model: sonnet→haiku for lower per-task cost\nFixes 600+/day PR review flood that exceeded $200/day cost cap\n76 excess tasks manually closed at fix deploy\nKEYWORD SKILL DETECTION (66aefa05): prReviewSkills() in state-machine.ts\nScans PR title for domain keywords (bitflow, zest, hodlmm/dlmm)\nAdds matching skill (defi-zest/defi-bitflow/hodlmm-move-liquidity) to task\nFixes context-review false negatives for domain-specific PR reviews\nPR EXISTENCE CHECK (4ea89d0e): checkPrExists() via gh pr view before insertTask\nPer-run Map caches results (same repo+number checked once per sensor cycle)\nIf exit non-zero: updateWorkflowState→closed + completeWorkflow + continue\nFixes stale-PR-queue contamination: #267, #291, #561 re-failing daily\nPattern: validate external resource existence before creating dependent task\nNEW-RELEASE AUTO-ADVANCE (639cc3f9): autoAdvanceState added to NewReleaseMachine\ndetected→assessing: task creation auto-advances state, prevents duplicate assessment tasks\nintegration_pending→integrating: task creation auto-advances state, prevents duplicate integration tasks\nRoot cause of 41-task flood (v1.52.0): sensor queued new task each cycle without state advance\nPattern: create-task actions must own their state transition — dedup alone is insufficient\nRETRO-DEDUP FIX (1a700e99): autoAdvanceState: "completed" added to all 9 retrospective_pending actions\nRoot cause of 2026-05-24 flood (116 dupes, $15.10/12h): workflow stuck in retrospective_pending\npendingTaskExistsForSource returned false (task completed, workflow never advanced) → re-created every 5min\nFix: state machine auto-advances on task creation; dispatched agents no longer need manual transition step\nAlso removed "Transition workflow to 'completed'" from 9 task description step lists (automated now)\nBELT-AND-BRACES (e4c8a9b3): recentTaskExistsForSource(source, 60) added before insertTask in meta-sensor\nCatches stuck-in-state loops where autoAdvanceState missing → duplicates capped 1/hour not 1/5min\nTwo-layer defense: (1) state machine auto-advance (2) time-based sensor fallback\nOVERNIGHTBRIEF AUTO-ADVANCE (83a77c62): autoAdvanceState added to OvernightBriefMachine pending state\nWorkflow stuck in 'pending' after task creation — meta-sensor 60-min dedup allowed hourly re-fire\n~$0.75/day wasted on no-op sonnet cycles\nFix: state machine self-advances on task creation — same pattern as retrospective_pending (1a700e99)\nPattern: ALL machine states with create-task actions must have autoAdvanceState; belt-and-braces alone is not enough\nCOMPLETED-TASK DEDUP (44b55ea9): completedTaskCountForSource(source) > 0 blocks re-queue for pr-review: sources\nPrevents re-review noise for PRs outside GraphQL last-50 window (arcHasReview never set → workflow stays stuck)\nFailed tasks NOT blocked — retry after the 60-min recentDup window\nVersioned source keys (v1, v2, ...) make this safe for re-reviews (each cycle is a distinct source)
+            arc_artifacts
+            note right of arc_artifacts: NEW (446fef38) — Vacuum + audit for source-artifact pool\n24h sensor (arc-artifacts-vacuum): soft-delete TTL-expired rows, hard-delete past grace, sweep orphan files\nNo LLM; no task creation — pure DB+FS maintenance\nCLI: audit [--since 24], list <type> [--limit N], vacuum, stuck-check\nRetention TTLs: arxiv=14d, council=90d, watch-interior=7d\nGrace period: 14d after soft-delete → hard-delete + file removal\nOrphan sweep: files on disk with no DB row, older than 24h
         }
 
         state MemoryMaintenanceSensors {
@@ -141,6 +143,12 @@ stateDiagram-v2
             note right of arc_purpose_eval: NEW (f1e0a1f6) — 720-min cadence + date dedup\n4 SQL-measurable dimensions: Signal (25%), Ops (20%), Eco (20%), Cost (15%)\nScores computed from tasks + cycle_log, no LLM\nAuto-creates follow-up tasks for low-score dimensions:\n  signal≤2 → research signal-worthy topics\n  ops≤2 → failure triage\n  cost=1 → cost optimization review\n  ecosystem≤1 → PR review sweep\nCreates eval summary task (sonnet) for 3 LLM dimensions\nSensor count 70→71, skill count 103→104
             auto_queue
             note right of auto_queue: STALE-BEAT FIX (0d84bf9e): briefing text told agents Arc owns\n'infrastructure, agent-trading, quantum' — all retired/wrong\nCorrected to active beats: aibtc-network, bitcoin-macro, quantum\nPattern: auto-queue context must be updated alongside every beat change
+            arxiv_distill
+            note right of arxiv_distill: NEW (446fef38) — Inflows bridge for arxiv-research digests\n12h sensor (INTERVAL_MINUTES=720)\nDetects new digest via hookState.lastDistilledDigest SHA compare\nQueues sonnet task: pick 3-5 best papers → writeDistilled() per pick\nTopics: quantum-pqc, aibtc-infra, agent-architecture\nGate: ARXIV_DISTILL_ENABLED=true (default OFF)\nTTL: 14d; channels per topic bucket\nSourceDedup: sensor:arxiv-research:distill-<digest-iso>
+            council_distill
+            note right of council_distill: NEW (446fef38) — Inflows bridge for Genesis-Works/agent-coordination\n24h sensor (INTERVAL_MINUTES=1440)\nFast-path: gh api HEAD SHA compare → skip if unchanged AND <7d old\n≥3 consecutive gh failures → [ESCALATED] blocked task + 48h cooldown\nTopics: coordination-primitive, mandate-loop, autonomy-tier, paired-artifact, budget-rail\nGate: COUNCIL_DISTILL_ENABLED=true (default OFF); DRY_RUN=true until voice review\nTTL: 90d; channels: whop-chat, blog, reactive, x
+            watch_interior_distill
+            note right of watch_interior_distill: NEW (446fef38) — Inflows bridge for arc-reporting watch reports\n12h sensor (INTERVAL_MINUTES=720)\nDetects fresh watch report via hookState.lastDistilledReport\nTopics: cost, failure-cluster, sensor-anomaly, relationship-delta, surprise\n1-2 nuggets; 0 on quiet day\nGate: WATCH_INTERIOR_ENABLED=true (default OFF)\nTTL: 7d; channels: whop-chat, reactive (paid premium ONLY — free forum excluded by design)\nSourceDedup: sensor:arc-reporting-watch:interior-<report-iso>
         }
 
         state OtherSensors {
@@ -334,29 +342,56 @@ NO-ORPHANS (2a4c1aff): bun v1.3.14 --no-orphans flag\nSystemd dispatch unit now 
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-06-12T14:40Z)
+## Sensor Count by Category (2026-06-14T02:10Z)
 
 | Category | Count |
 |----------|-------|
-| Memory/Maintenance | 15 |
+| Memory/Maintenance | 18 |
 | GitHub/PR | 10 |
 | Content/Publishing | 11 |
 | AIBTC/ERC-8004 | 7 |
-| Infrastructure | 14 |
+| Infrastructure | 15 |
 | DeFi | 6 |
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **74** |
+| **Total** | **78** |
 
-*no sensor count change this review*
+*+4 sensors this window: arxiv-distill, council-distill, watch-interior-distill (Memory/Maintenance), arc-artifacts (Infrastructure)*
 
-## Skill Count by Category (2026-06-13T02:20Z)
+## Skill Count by Category (2026-06-14T02:10Z)
 
-*Skills: 122 total (+1 vs last review: whop-sales scaffolded)*
+*Skills: 126 total (+4 vs last review)*
 
 New skills this window:
-- `whop-sales` (15667a11) — hash-it-out funnel sales primitives (SKILL.md only, no sensor/cli yet)
+- `arxiv-distill` (446fef38) — bridge arxiv-research digests → artifact pool
+- `council-distill` (446fef38) — bridge genesis-works/agent-coordination → artifact pool
+- `watch-interior-distill` (446fef38) — bridge watch reports → artifact pool (paid-premium only)
+- `arc-artifacts` (446fef38) — vacuum + audit CLI for artifact pool (no LLM)
+
+## Key Architectural Changes (4a42408 → 74b397c) [2026-06-14T02:10Z]
+
+**11 structural commits — key changes:**
+- **feat(inflows): source-artifact pool foundation + 3 distill producers + arc-artifacts vacuum** (7bbf3bef + 446fef38 + 9c4f6510): New intermediate layer between raw data sources and content channels. `src/artifacts.ts` manages `distilled_artifacts` DB table + `artifacts/distilled/` FS. Three new distill sensors queue sonnet tasks when fresh source content detected; dispatched sessions write nuggets via `writeDistilled()`. `arc-artifacts` sensor runs 24h vacuum (no LLM). Consumers (`recentArtifacts(type, {channel})`) reach into the pool — arxiv/council/watch-interior content precomputed once, consumed by X cadence, whop synthesis, whop reactive, blog drafts. All three distill gates are OFF by default.
+- **feat(whop): add --parent to post-forum** (40ca2b40): Threaded forum comments via `parent_id`. Enables AMA-style replies under a post. Minimal — 3-line change to cmdPostForum + printHelp.
+- **fix(compliance): abbreviated variable renames** (dced14f4 + d9dad2a4): Pre-commit hook enforcement — verbose names in sensor.ts files.
+
+**[NEW]** Inflows architecture: 3 distill sensors + 1 vacuum sensor + `src/artifacts.ts`. TTLs: arxiv=14d, council=90d, watch-interior=7d. All gated OFF. Enable: flip per-skill env var in .env.
+**[NEW]** Whop reply artifacts: 295 files in `skills/whop/artifacts/replies/` (growing ~40/review-window). No cleanup job. [ACTION-CANDIDATE] Gitignore or housekeeping before reaching 500+ files. Creating follow-up task.
+**[CARRY-WATCH]** whop Phase 2 → live gate pending whoabuddy sign-off.
+**[CARRY-WATCH]** whop-sales SKILL.md only — no cli.ts or sensor.ts.
+**[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+**[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+**[CARRY-WATCH]** arc-email-worker no-CI/CD — deploy workflow missing.
+**[CARRY-WATCH]** PURPOSE E:1 — gated externally.
+**[CARRY-WATCH]** ContentCalendarMachine Tier A: 17 instances ready, gated.
+**[CARRY-WATCH]** X cadence: credentials restored 2026-06-12, cadence active.
+
+| Change | Impact |
+|--------|--------|
+| feat(inflows): artifact pool + 3 distill sensors + vacuum (7bbf3bef+446fef38+9c4f6510) | New pre-computation layer: sources distilled once, consumed by X/whop/blog. All gated OFF. |
+| feat(whop): --parent on post-forum (40ca2b40) | Forum threading enabled; enables AMA-style engagement. |
+| fix(compliance): variable renames (dced14f4+d9dad2a4) | Pre-commit hook enforcement. No behavioral change. |
 
 ## Key Architectural Changes (738a9cd → 4a42408) [2026-06-13T14:15Z]
 

@@ -1,3 +1,54 @@
+## 2026-06-14T02:10:00.000Z — Inflows system ships; whop forum threading; 126 skills / 78 sensors
+
+**Task #18812** | Diff: 4a42408 → 74b397c (11 structural commits) | Sensors: 78 | Skills: 126
+
+### Step 1 — Requirements
+
+11 structural commits + ~100 whop artifact auto-commits (operational logs). Key structural additions:
+
+- **feat(inflows): source-artifact pool** (7bbf3bef + 446fef38 + 9c4f6510): New architectural layer. `src/artifacts.ts` manages a `distilled_artifacts` DB table + `artifacts/distilled/` filesystem. Three new distill skills (arxiv-distill, council-distill, watch-interior-distill) produce nuggets; `arc-artifacts` handles vacuum. The pool requirement is clear: multiple content channels (X cadence, whop synthesis, whop reactive, blog drafts) were independently re-fetching and re-classifying the same sources. Pre-computation amortizes the cost.
+- **feat(whop): --parent for post-forum** (40ca2b40): Threaded forum comments (AMA-style). Valid — engagement in paid forums requires thread-level replies, not just top-level posts.
+- **fix(compliance): abbreviated variable renames** (dced14f4 + d9dad2a4): Pre-commit hook enforcement.
+
+### Step 2 — Delete
+
+No deletion candidates in structural commits. All 3 distill sensors are gated OFF — they add no runtime cost until enabled.
+
+**[UPGRADE]** Whop reply artifacts: was `[NEW-WATCH]` at ~40 files/window, now 295 files. Time to act. Creating a follow-up task to add a cleanup policy.
+
+### Step 3 — Simplify
+
+- Inflows pool design is sound. The `recentArtifacts(type, {channel})` consumer API is a clean abstraction — consumers don't know where content came from, only which channel they need. The triple (DB row + FS file + TTL) is more complex than a simple table, but the FS-backed design is needed for context passing to dispatch.
+- `src/artifacts.ts` as a shared module is correct. The alternative (each skill managing its own artifact files) would fragment the vacuum logic across 3 sensors.
+- **[SIMPLIFY-CANDIDATE]** The distill AGENT.md files describe the same 1200-char nugget quality bar. A shared `artifacts/QUALITY.md` they reference could DRY this up — low priority.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- Inflows pool is the primary acceleration: arxiv digests processed once per 12h → consumed by X, whop, blog without re-fetching. The bottleneck shifts from fetch latency to distill quality.
+- The 3 distill sensors are gated OFF — the pool is dry until enabled. Enable order matters: arxiv-distill first (lowest risk), then watch-interior-distill (7d TTL, paid-only), then council-distill (needs voice review gate).
+- **[WATCH]** `stuck-check` CLI exits 0 even on warnings — callers must read stdout. Could cause silent failures in monitoring. Low priority.
+
+### Step 5 — Automate
+
+- **[ACTION-NOW]** Whop reply artifact cleanup: 295 files at ~40/review-window. Option A: `.gitignore` `skills/whop/artifacts/replies/*.json` (stop accumulating). Option B: housekeeping delete after 7d. Option A is simpler. Creating follow-up task.
+- Distill automation pattern is correct: sensor detects source freshness → queues dispatch task → task writes artifacts. The consume side (X cadence, whop synthesis, blog) already queries the pool. The gap is that all three distill gates are OFF — no upstream content flowing yet.
+
+### Flags
+
+- **[NEW]** Inflows system: arxiv-distill + council-distill + watch-interior-distill sensors + arc-artifacts vacuum. `src/artifacts.ts` pool management. All distill gates OFF by default. Enable in order: arxiv → watch-interior → council.
+- **[NEW]** Whop forum threading: `--parent post_xxx` on `post-forum` CLI. Threaded engagement now possible in paid rooms.
+- **[ACTION-NOW]** Whop reply artifacts: 295 files, growing fast. Follow-up task created.
+- **[CARRY-WATCH]** whop Phase 2 → live gate pending whoabuddy sign-off.
+- **[CARRY-WATCH]** whop-sales SKILL.md only.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** RFC Phase 2 (RFC 0011 ADAPT ports) — not yet started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** PURPOSE E:1 — gated externally.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: 17 instances ready, gated.
+
+---
+
 ## 2026-06-13T14:15:00.000Z — whop synthesis context cap; blog-publishing skills flattened; whop artifacts accumulation; 122 skills / 74 sensors
 
 **Task #18778** | Diff: ac97599 → 4a42408 (2 structural commits) | Sensors: 74 | Skills: 122
