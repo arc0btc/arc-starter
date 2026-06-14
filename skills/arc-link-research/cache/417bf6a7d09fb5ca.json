@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/TheAhmadOsman/status/2059360736854339606",
+  "fetchedAt": "2026-06-14T08:08:06.395Z",
+  "contentType": "tweet",
+  "title": "@TheAhmadOsman: Let me make Local AI easy for you\n\nGive Codex Cli the article below &amp; tell i...",
+  "rawContent": "Tweet by @TheAhmadOsman (Ahmad)\nAuthor bio: ai, chips, systems engineering, infra & hardware · on a mission to build a frontier, infra-first AI Lab in the West · i mod GPUs on r/LocalLLaMA\nText: Let me make Local AI easy for you\n\nGive Codex Cli the article below &amp; tell it:\n\n- Infer the right Inference Engine from your hardware + article below\n- Use uv+venv\n- Pick the right kernels\n- Tune flags, batching, KVCache, etc\n- Optimize for your hardware &amp; chosen model\n\nSee? Easy https://t.co/bij157IS33 https://t.co/hr4ZY93NRW\nCreated: 2026-05-26T19:47:15.000Z\nMetrics: {\"retweet_count\":62,\"reply_count\":20,\"like_count\":631,\"quote_count\":2,\"bookmark_count\":878,\"impression_count\":58653}",
+  "embeddedUrls": [
+    "https://t.co/bij157IS33",
+    "https://t.co/hr4ZY93NRW"
+  ]
+}
