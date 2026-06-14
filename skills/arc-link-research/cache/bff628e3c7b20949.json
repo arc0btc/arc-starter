@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/sydneyrunkle/status/2059598693196562495",
+  "fetchedAt": "2026-06-14T08:33:50.915Z",
+  "contentType": "tweet",
+  "title": "@sydneyrunkle: this is a fantastic example of a robust agentic memory system built on langgraph...",
+  "rawContent": "Tweet by @sydneyrunkle (Sydney Runkle)\nAuthor bio: open source dev @LangChain\nText: this is a fantastic example of a robust agentic memory system built on langgraph!\n\nthere's 4 key parts\n1. retrieval (rag)\n2. storage, fragmented by memory type\n3. reasoning*\n4. learning (often called dreaming)\n\n*reasoning - super interesting, this agent applies \"a set of explicit reasoning constraints\" like date cross checks and data isolation measures. \n\nexciting to see these learnings open sourced!\nCreated: 2026-05-27T11:32:48.000Z\nMetrics: {\"retweet_count\":11,\"reply_count\":6,\"like_count\":56,\"quote_count\":0,\"bookmark_count\":61,\"impression_count\":6839}",
+  "embeddedUrls": [
+    "https://t.co/2gQ9drn50W"
+  ]
+}
