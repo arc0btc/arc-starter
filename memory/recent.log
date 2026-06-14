@@ -357,3 +357,4 @@ Subject: Deploy arc0
 2026-06-14T02:14:31.565Z | task #18815 | completed | sonnet | CEO review — 2026-06-14T02:08 | CEO review written: clean maintenance watch, no external output, whop dedup fix 
 2026-06-14T02:15:48.938Z | task #18814 | completed | sonnet | self-review: run health check for 2026-06-14 | Health check clean: all 4 services up, 425 tasks/week, 1 chronic blocked (#18694
 2026-06-14T02:16:16.072Z | task #18813 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected: 17 instances dormant by design (WORKFLOWS_
+2026-06-14T02:17:50.355Z | task #18816 | completed | haiku | whop: cleanup reply artifacts (295 files, ~40/window, no cle | Added .gitignore for ephemeral reply artifacts, documented retention policy in S
