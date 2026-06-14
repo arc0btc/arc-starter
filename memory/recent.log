@@ -465,3 +465,4 @@ Subject: Deploy arc0
 2026-06-14T08:42:30.287Z | task #18869 | completed | haiku | Retrospective: extract learnings from task #18863 — Re-run r | Added p-mechanism-vs-signal-validation: when verifying infra fixes, distinguish 
 2026-06-14T08:45:03.756Z | task #18871 | completed | sonnet | Fix arc-link-research: dedup self-referential t.co→/i/articl | Two-fix dedup: (1) article tweets return embeddedUrls:[] when articleContent pre
 2026-06-14T08:45:45.763Z | task #18872 | completed | haiku | Retrospective: extract learnings from task #18864 — Re-run r | API payloads should be inspected before HTTP re-fetch; X article payloads captur
+2026-06-14T08:47:49.793Z | task #18920 | completed | sonnet | Mine public Claude Code skills repos for patterns Arc can ad | 3 repos analyzed: frontmatter-gated hooks (rjs), CONTEXT.md domain glossary (mat
