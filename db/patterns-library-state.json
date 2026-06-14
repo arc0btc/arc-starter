@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-13T20:45:43.596Z",
+  "lastScannedAt": "2026-06-14T02:47:02.042Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -66,6 +66,8 @@
     "external-auth-layering",
     "cost-spike-burstiness-validation",
     "silent-overflow-prevention",
-    "auto-artifact-cleanup-cadence"
+    "auto-artifact-cleanup-cadence",
+    "structural-blocker-escalation",
+    "pipeline-artifact-full-chain-validation"
   ]
 }

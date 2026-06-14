@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/dr_cintas/status/2059670624205746668",
+  "fetchedAt": "2026-06-14T08:09:07.031Z",
+  "contentType": "tweet",
+  "title": "@dr_cintas: This is the most complete AI engineering curriculum on GitHub and it’s 100% free...",
+  "rawContent": "Tweet by @dr_cintas (Alvaro Cintas)\nAuthor bio: Educating about AI, Cybersecurity and Technology | Professor | PhD in Computer Science & Engineering\nText: This is the most complete AI engineering curriculum on GitHub and it’s 100% free.\n\n435 lessons. 20 phases, ~320 hours.\n\nThe rule that sets it apart: you write backprop, the tokenizer, attention, and the agent loop by hand.\n\nThe curriculum covers the full stack:\n\n→ Linear algebra, backprop, tokenizers, attention\n→ Agent loops, multi-agent coordination\n→ Production infrastructure, AI safety\n→ Four languages: Python, TypeScript, Rust, Julia\n\nBy the end you have a portfolio of 435 components you understand because you built each one by hand.\nCreated: 2026-05-27T16:18:38.000Z\nMetrics: {\"retweet_count\":32,\"reply_count\":14,\"like_count\":195,\"quote_count\":0,\"bookmark_count\":294,\"impression_count\":12534}",
+  "embeddedUrls": [
+    "https://t.co/Je2bEZfMcr"
+  ]
+}

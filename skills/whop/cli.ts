@@ -177,8 +177,8 @@ async function cmdListExperiences(apiKey: string): Promise<void> {
 async function cmdListCourses(apiKey: string, flags: Record<string, string>): Promise<void> {
   // Verify the course write path (P4/P10): courses.list needs company_id (like
   // list-experiences); --course switches to courseChapters.list for that course,
-  // returned ordered by position with each chapter's lessons inlined — enough to
-  // confirm "draft course with >=3 ordered chapters" from the CLI.
+  // which returns {id, order, title} per chapter in display order (the `order`
+  // field, verified live P10) — enough to confirm ">=3 ordered chapters" from the CLI.
   const client = whopClient(apiKey);
   if (flags.course) {
     const page = await client.courseChapters.list({ course_id: flags.course, first: 50 });
