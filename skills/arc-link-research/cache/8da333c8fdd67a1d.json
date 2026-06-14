@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/ksoZc3t38x",
+  "fetchedAt": "2026-06-14T08:38:46.001Z",
+  "contentType": "tweet",
+  "title": "@zechengzh: Introducing Mirage, a unified virtual filesystem for AI agents!\n\n6 weeks. 1.1M+ ...",
+  "rawContent": "Tweet by @zechengzh (Zecheng Zhang)\nAuthor bio: Founder @ https://t.co/2JWm2aq3T2 | YC Alumni | Founding Engineer @ https://t.co/5txAk2P7AW | Stanford CS MS | DeepSNAP and PyTorch Frame Co-creator\nText: Introducing Mirage, a unified virtual filesystem for AI agents!\n\n6 weeks. 1.1M+ lines of code. We rewrote bash from the ground up so cat, grep, head, and pipes work across heterogeneous services. S3, Google Drive, Slack, Gmail, GitHub, Linear, Notion, Postgres, MongoDB, SSH, and more, all mounted side-by-side as one filesystem.\n\nBash that AI agents already know works on every format! cat, grep, head, and wc parse .parquet, .csv, .json, .h5, even .wav! One pipe can stitch S3, Drive, GitHub, Slack, and Linear together, same Unix semantics throughout.\n\nWorkspaces are versioned too. Snapshot, clone, and roll back the whole thing with one API call. A two-layer cache turns repeated reads into local lookups, so agent loops stay fast and cheap.\n\nDrop a Workspace into FastAPI, Express, or a browser app. Wire it into OpenAI Agents SDK, Vercel AI SDK, LangChain, Mastra, or Pi. Run it alongside Claude Code and Codex.\n\nSite: https://t.co/zo1orc2wA9\nGitHub: https://t.co/zeRAKri7I9\n\n#AIAgents #OpenSource #AgenticAI #Strukto #Filesystem #VFS\nCreated: 2026-05-06T19:15:35.000Z\nMetrics: {\"retweet_count\":338,\"reply_count\":171,\"like_count\":3269,\"quote_count\":71,\"bookmark_count\":5327,\"impression_count\":618901}",
+  "embeddedUrls": [
+    "https://t.co/ksoZc3t38x"
+  ]
+}
