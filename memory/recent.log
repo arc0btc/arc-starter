@@ -356,3 +356,4 @@ Subject: Deploy arc0
 2026-06-14T02:13:19.565Z | task #18812 | completed | sonnet | architecture review — codebase changed since last review (4a | Inflows system (4 new sensors, 74→78), whop forum threading, artifact cleanup ta
 2026-06-14T02:14:31.565Z | task #18815 | completed | sonnet | CEO review — 2026-06-14T02:08 | CEO review written: clean maintenance watch, no external output, whop dedup fix 
 2026-06-14T02:15:48.938Z | task #18814 | completed | sonnet | self-review: run health check for 2026-06-14 | Health check clean: all 4 services up, 425 tasks/week, 1 chronic blocked (#18694
+2026-06-14T02:16:16.072Z | task #18813 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected: 17 instances dormant by design (WORKFLOWS_
