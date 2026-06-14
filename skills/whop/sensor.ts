@@ -349,10 +349,10 @@ const WHOP_REPLY_ENABLED = true;
 // session reads the room and decides post-vs-defer.
 const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
 
-// Dry-run flags. Reactive flipped to live concurrently with WHOP_REPLY_ENABLED
-// — the dry-run audit already exercised every cheaply-testable guard. The
-// remaining two (recent_arc_cooldown, thread_spiral_cap) are state-dependent
-// and only observable in production. Synthesis stays dry-run until Phase 2.
+// Dry-run flags. Both the reactive reply lane (WHOP_REPLY_DRY_RUN) and the
+// synthesis lane (WHOP_SYNTHESIS_DRY_RUN) are now LIVE — the dry-run audits
+// exercised the guards; the session-level post-vs-defer judgment + per-bucket
+// --source dedup are the runtime safeguards.
 const WHOP_REPLY_DRY_RUN = false;
 // P7 (2026-06-14, operator voice-trust sign-off): synthesis lane live. The
 // dispatched session still decides post-vs-defer; live mode lets it actually

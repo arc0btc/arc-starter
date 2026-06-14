@@ -48,6 +48,54 @@ async function setCreditsDepleted(reason: string): Promise<void> {
   log(`Credits depleted flag written: ${reason}`);
 }
 
+// ---- Source-dedup for the non-idempotent POST /tweets write path. ----
+// `post`/`reply` hit POST /tweets, which is non-idempotent and has NO idempotency
+// header (unlike Whop's `idempotencyKey`). An optional --source key gives replay
+// protection via a LOCAL ledger (x_post_log): a recorded source short-circuits
+// BEFORE any API/budget call, so a sequential re-run (a dispatch retry or a
+// next-cycle fan-out re-fire — the real operational profile, since each agent
+// dispatches one task at a time) never double-posts. This mirrors the proven
+// whop_post_log ledger (skills/whop/cli.ts); the local ledger is the SOLE
+// exactly-once guarantee. Same accepted, practically-unreachable limits as whop:
+// concurrent same-source posts could both pass the check-then-act gate, and a
+// post-succeeds-then-record-throws window leaves a source unrecorded — both
+// unreachable under single-threaded per-agent dispatch + local WAL sqlite.
+// No --source = legacy raw post (callers that dedup at the dispatch-task layer
+// are unaffected). Table is lazily created in the shared db/arc.sqlite.
+async function xPostLog() {
+  const { initDatabase, getDatabase } = await import("../../src/db.ts");
+  initDatabase();
+  const db = getDatabase();
+  db.run(
+    `CREATE TABLE IF NOT EXISTS x_post_log (
+       source TEXT PRIMARY KEY,
+       tweet_id TEXT,
+       posted_at TEXT NOT NULL
+     )`,
+  );
+  return db;
+}
+
+// True if this source already posted (prints a skip line so the caller returns
+// early without touching the budget or the API). A no-op when no --source given.
+async function dedupSkip(source: string | undefined): Promise<boolean> {
+  if (!source) return false;
+  const db = await xPostLog();
+  const prior = db.query("SELECT tweet_id FROM x_post_log WHERE source = ?").get(source) as
+    | { tweet_id: string | null }
+    | null;
+  if (!prior) return false;
+  console.log(`already posted: ${source} (tweet ${prior.tweet_id ?? "?"}) — skipping`);
+  return true;
+}
+
+async function recordPost(source: string, tweetId: string | null): Promise<void> {
+  const db = await xPostLog();
+  db.query(
+    "INSERT OR IGNORE INTO x_post_log (source, tweet_id, posted_at) VALUES (?, ?, ?)",
+  ).run(source, tweetId, new Date().toISOString());
+}
+
 // ---- Cache ----
 
 interface CacheEntry {
@@ -323,6 +371,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  // Local ledger short-circuit BEFORE credits/budget/API — the operative
+  // exactly-once guarantee for sequential re-runs (see xPostLog note).
+  if (await dedupSkip(flags["source"])) return;
   await checkCreditsDepleted();
   await checkBudget("posts");
   const creds = await loadCreds();
@@ -338,6 +389,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
     await incrementBudget("posts");
+    if (flags["source"]) await recordPost(flags["source"], data["id"]);
     console.log(JSON.stringify({ id: data["id"], text: data["text"] }, null, 2));
     log(`Tweet posted: ${data["id"]}`);
   } else {
@@ -357,6 +409,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  if (await dedupSkip(flags["source"])) return;
   await checkCreditsDepleted();
   await checkBudget("replies");
   const creds = await loadCreds();
@@ -367,6 +420,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
     await incrementBudget("replies");
+    if (flags["source"]) await recordPost(flags["source"], data["id"]);
     console.log(JSON.stringify({ id: data["id"], text: data["text"], reply_to: tweetId }, null, 2));
     log(`Reply posted: ${data["id"]}`);
   } else {
@@ -745,8 +799,10 @@ async function main(): Promise<void> {
       console.log(`x-posting — Post and manage tweets via X API v2
 
 Commands:
-  post       --text <text>                     Post a tweet (max 280 chars)
-  reply      --text <text> --tweet-id <id>     Reply to a tweet
+  post       --text <text> [--source <key>]    Post a tweet (max 280 chars)
+                                               (--source: a re-run with the same key is suppressed
+                                                by the local x_post_log ledger — no double-post)
+  reply      --text <text> --tweet-id <id> [--source <key>]  Reply to a tweet (--source: idempotent re-run)
   delete     --tweet-id <id>                   Delete a tweet
   like       --tweet-id <id>                   Like a tweet
   unlike     --tweet-id <id>                   Unlike a tweet
