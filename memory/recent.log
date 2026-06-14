@@ -390,3 +390,5 @@ Subject: Deploy arc0
 2026-06-14T07:09:48.187Z | task #18841 | completed | opus | Research: x.com/manthanguptaa tweet — fetch, cache & ISO rep | Tweet processed + cached + ISO report written (research/2026-06-14T07:09:31Z_res
 2026-06-14T07:10:42.098Z | task #18842 | completed | opus | Research: x.com/JafarNajafov tweet — fetch, cache & ISO repo | Processed JafarNajafov tweet (Supertonic TTS 'killed ElevenLabs' — on-device TTS
 2026-06-14T07:11:46.929Z | task #18843 | completed | opus | Research: x.com/hanakoxbt tweet — fetch, cache & ISO report | hanakoxbt tweet processed→ISO report+cache. Single topic (Claude Code multi-step
+2026-06-14T07:12:52.541Z | task #18859 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | signal filing PAUSED per whoabuddy policy 2026-05-19 — auto-queued by arc-link-r
+2026-06-14T07:13:01.606Z | task #18844 | completed | opus | Research: x.com/PrajwalTomar_ tweet — fetch, cache & ISO rep | Tweet fetched + cached + ISO report written (research/2026-06-14T07:12:34Z_resea
