@@ -14,11 +14,12 @@
 // intelligence signals — a top-of-funnel touch driving toward the paid room, NOT competition
 // streak-gaming. The old flag stays untouched; this lane has its own gate below.
 
-import { createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 import { ARTIFACT_TYPES, recentArtifacts, markConsumed, renderInline } from "../../src/artifacts.ts";
 
 const SENSOR_NAME = "aibtc-news-distribution";
+const INTERVAL_MINUTES = 5;
 // Flip to false to pause the consumer without removing the skill. ON by default: with an empty
 // pool it simply defers, and the news_signal_log ledger makes the eventual FILE exactly-once.
 const NEWS_DISTRIBUTION_ENABLED = false; // PAUSED 2026-06-14: filing is PAID (x402 ~100 sats/signal) — operator spend decision pending (P14 verify artifact)
@@ -28,6 +29,8 @@ const ACTIVE_BEATS = ["aibtc-network", "bitcoin-macro", "quantum"]; // confirmed
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function run(): Promise<string> {
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
   if (!NEWS_DISTRIBUTION_ENABLED) return "skip";
   try {
     // Gather unconsumed aibtc-news-tagged artifacts across every type (recentArtifacts is per-type;

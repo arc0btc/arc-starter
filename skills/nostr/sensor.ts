@@ -9,11 +9,12 @@
 // is the likely producer) — the consumer DEFERS, it does not error. Mirrors the
 // suggested_channels consumer pattern (whop-forum/public-forum/x), keyed per artifact.
 
-import { createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
 import { taskExistsForSource, getDatabase } from "../../src/db.ts";
 import { ARTIFACT_TYPES, recentArtifacts, markConsumed, renderInline } from "../../src/artifacts.ts";
 
 const SENSOR_NAME = "nostr-consumer";
+const INTERVAL_MINUTES = 5;
 // Flip to false to pause the consumer without removing the skill. ON by default:
 // with an empty pool it simply defers, and the nostr_post_log ledger makes the
 // eventual POST exactly-once.
@@ -23,6 +24,8 @@ const POOL_LOOKBACK_HOURS = 24 * 7; // a week — Nostr notes aren't time-critic
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function run(): Promise<string> {
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
   if (!NOSTR_CONSUMER_ENABLED) return "skip";
   try {
     // Gather unconsumed nostr-tagged artifacts across every type (recentArtifacts
