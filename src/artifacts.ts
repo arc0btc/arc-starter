@@ -50,6 +50,7 @@ export const ARTIFACT_CHANNELS = [
   "public-forum",
   "x",
   "nostr",
+  "aibtc-news",
   "reactive",
 ] as const;
 export type ArtifactChannel = (typeof ARTIFACT_CHANNELS)[number];

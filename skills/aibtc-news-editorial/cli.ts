@@ -558,12 +558,51 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
   }
 }
 
+// ---- Source-dedup ledger (shared db/arc.sqlite), mirrors nostr_post_log / x_post_log. ----
+// --source is the exactly-once primitive for the news-distribution lane (P14): a deterministic
+// key (aibtc-news:<artifact-id>) short-circuits a replay BEFORE the cooldown/judge/sign/POST, so a
+// re-dispatch never files a duplicate signal. No --source = legacy raw filing (unchanged).
+async function newsSignalLog() {
+  const { initDatabase, getDatabase } = await import("../../src/db.ts");
+  initDatabase();
+  const db = getDatabase();
+  db.run(
+    `CREATE TABLE IF NOT EXISTS news_signal_log (
+       source TEXT PRIMARY KEY,
+       signal_id TEXT,
+       beat TEXT,
+       filed_at TEXT NOT NULL
+     )`,
+  );
+  return db;
+}
+
+async function signalDedupSkip(source: string | undefined): Promise<boolean> {
+  if (!source) return false;
+  const db = await newsSignalLog();
+  const prior = db.query("SELECT signal_id FROM news_signal_log WHERE source = ?").get(source) as
+    | { signal_id: string | null }
+    | null;
+  if (!prior) return false;
+  console.log(
+    JSON.stringify({ deduped: true, source, signalId: prior.signal_id ?? null, message: "already filed — skipping" }, null, 2),
+  );
+  return true;
+}
+
+async function recordSignal(source: string, signalId: string | null, beat: string): Promise<void> {
+  const db = await newsSignalLog();
+  db.query(
+    "INSERT OR IGNORE INTO news_signal_log (source, signal_id, beat, filed_at) VALUES (?, ?, ?, ?)",
+  ).run(source, signalId, beat, new Date().toISOString());
+}
+
 async function cmdFileSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--force]"
+      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--source <key>] [--force]"
     );
     process.exit(1);
   }
@@ -580,8 +619,12 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     flags.disclosure ||
     `${modelId}, https://aibtc.news/api/skills?slug=${beat}`;
   const force = flags.force !== undefined;
+  const source = flags.source || undefined; // P14 dedup key (aibtc-news:<artifact-id>)
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
+
+  // P14 exactly-once: a replay of the same --source never re-files (before cooldown/judge/sign/POST).
+  if (await signalDedupSkip(source)) return;
 
   // Validate inputs
   if (!validateSlug(beat)) {
@@ -724,6 +767,21 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     }
 
     console.log(JSON.stringify(result, null, 2));
+
+    // P14: record the filed signal so a same-source re-dispatch short-circuits next time.
+    if (source) {
+      try {
+        const signalId =
+          (result.id ?? result.signalId ?? (result as { signal?: { id?: unknown } })?.signal?.id ?? null) as
+            | string
+            | number
+            | null;
+        await recordSignal(source, signalId !== null ? String(signalId) : null, beat);
+        log(`recorded news_signal_log: ${source} -> ${signalId ?? "?"}`);
+      } catch (recErr) {
+        log(`news_signal_log record failed (non-fatal): ${(recErr as Error).message}`);
+      }
+    }
 
     // Post-filing: update narrative thread for the filed beat
     try {
