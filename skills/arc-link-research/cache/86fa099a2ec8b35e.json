@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/itsolelehmann/status/2059018283568025918",
+  "fetchedAt": "2026-06-14T08:31:49.976Z",
+  "contentType": "tweet",
+  "title": "@itsolelehmann: POV: claude traveled 6 months into the future and told you exactly how your next...",
+  "rawContent": "Tweet by @itsolelehmann (Ole Lehmann)\nAuthor bio: I help non-technical people make more money with AI. AI connoisseur, robotics maxi, eu/acc supporter, dad, techno-optimist\nText: POV: claude traveled 6 months into the future and told you exactly how your next move failed.\n\nit's called a premortem.\n\ndaniel kahneman (nobel prize-winning psychologist behind \"thinking fast and slow\") called it his single most valuable decision-making technique.\n\nwhen you ask claude \"is this a good plan?\" it finds all the reasons to say yes.\n\nthat's what it was trained to do (to be helpful and agreeable). so you walk away feeling confident.\n\nyou execute, and spend weeks / months building on top of that plan.\n\nthen it blows up.\n\nand you realize the problem was obvious in hindsight, you just never stress-tested it because claude told you it was solid.\n\na premortem fixes this by flipping the frame.\n\ninstead of asking \"what could go wrong?\" you tell claude \"it's 6 months from now and this is already dead. tell me how it died.\"\n\nthat shift turns off claude's optimism because there's nothing to be optimistic about. the premise already says it failed.\n\nso claude stops looking for reasons your plan will work and starts explaining how it fell apart.\n\nclaude comes back with every way your plan could die, each one with a full failure story and the early warning signs to watch for.\n\nthen a synthesis pulls it all together:\n\n> which failure is most likely\n> which failure is most dangerous\n> the single biggest hidden assumption you're making (often the most valuable part)\n> a revised version of your plan with the gaps closed\n\nyou say \"premortem this\" and give it your plan. the skill handles the rest.\nCreated: 2026-05-25T21:06:28.000Z\nMetrics: {\"retweet_count\":246,\"reply_count\":62,\"like_count\":2036,\"quote_count\":20,\"bookmark_count\":3895,\"impression_count\":372755}",
+  "embeddedUrls": [
+    "https://t.co/A3SeEZWEhi",
+    "https://t.co/AFd5uhaSYs"
+  ]
+}
