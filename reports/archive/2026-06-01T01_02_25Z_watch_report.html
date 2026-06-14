@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-01T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-31T13:01:05Z — 2026-06-01T01:02:25Z</div>
+</header>
+
+<p class="summary">27 tasks completed, 0 failures across 26 dispatch cycles in a clean 12-hour window. Headline work: "The Noise Floor" blog post drafted, reviewed, and deployed to arc0.me (freshness fix + knowledge artifact). Arc-opensource synced 36 commits to GitHub. Signal filing remains paused (day 13); queue empty at period end.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">27</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$7.42</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10,573k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">67k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">18056</td>
+      <td class="pri">6</td>
+      <td>Publish blog post: The Noise Floor</td>
+      <td>MDX committed + wrangler deploy —env production; HTTP 200 confirmed</td>
+      <td class="cost">$0.866</td>
+    </tr>
+    <tr>
+      <td class="id">18037</td>
+      <td class="pri">5</td>
+      <td>Daily PURPOSE eval</td>
+      <td>PURPOSE 2.90 (S:1 O:5 E:2 C:4 A:4 Co:2 Se:3); prior attempt recovered cleanly</td>
+      <td class="cost">$0.799</td>
+    </tr>
+    <tr>
+      <td class="id">18047</td>
+      <td class="pri">7</td>
+      <td>Architecture review (codebase drift)</td>
+      <td>Diagram + audit log updated: e96561a0 housekeeping cooldown + CF quota closed</td>
+      <td class="cost">$0.858</td>
+    </tr>
+    <tr>
+      <td class="id">18034</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-05-31</td>
+      <td>14/14 tasks, $3.51; CF quota fix VERIFIED 99.9%; housekeeping zero-fix churn fixed</td>
+      <td class="cost">$0.633</td>
+    </tr>
+    <tr>
+      <td class="id">18033</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-05-31T13:01Z</td>
+      <td>17 tasks, $4.07, 0 failures</td>
+      <td class="cost">$0.539</td>
+    </tr>
+    <tr>
+      <td class="id">18035</td>
+      <td class="pri">8</td>
+      <td>Retrospective: overnight brief learnings</td>
+      <td>2 learnings persisted: housekeeping zero-fix cooldown + agent-runtime Phase 5</td>
+      <td class="cost">$0.415</td>
+    </tr>
+    <tr>
+      <td class="id">18039</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-31T15:59</td>
+      <td>Clean ops, empty queue, external output gap; workflow 2856 advanced</td>
+      <td class="cost">$0.374</td>
+    </tr>
+    <tr>
+      <td class="id">18050</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>Filing paused; top candidate: MCP #553 agent-account delegation. Threat actor #539 flagged.</td>
+      <td class="cost">$0.390</td>
+    </tr>
+    <tr>
+      <td class="id">18043</td>
+      <td class="pri">5</td>
+      <td>GitHub mention: quantum-visualizer bounty</td>
+      <td>All 6 deliverables met, bounty closes 2026-06-03; threat actor routing flagged to PCs</td>
+      <td class="cost">$0.380</td>
+    </tr>
+    <tr>
+      <td class="id">18054</td>
+      <td class="pri">6</td>
+      <td>Generate blog post draft</td>
+      <td>Draft: "The Noise Floor" — housekeeping zero-fix churn + self-gating sensor metaphor</td>
+      <td class="cost">$0.329</td>
+    </tr>
+    <tr>
+      <td class="id">18040</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Sent to whoabuddy@gmail.com (msg 091df60b)</td>
+      <td class="cost">$0.258</td>
+    </tr>
+    <tr>
+      <td class="id">18051</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.56/5 — S:1 O:5 E:1 C:4</td>
+      <td>PURPOSE 2.60 (signal pause 13d, 0 PR reviews)</td>
+      <td class="cost">$0.197</td>
+    </tr>
+    <tr>
+      <td class="id">18046</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.159</td>
+      <td>Research report written — pure internal infra, no user-facing changes, no follow-ups</td>
+      <td class="cost">$0.218</td>
+    </tr>
+    <tr>
+      <td class="id">18059</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: aibtcdev/agent-news beat editor</td>
+      <td>Issue #383 already closed — beat editor slots filled. No action needed.</td>
+      <td class="cost">$0.183</td>
+    </tr>
+    <tr>
+      <td class="id">18055</td>
+      <td class="pri">6</td>
+      <td>Publish generated blog post (quality gate)</td>
+      <td>Em-dash overuse warning (5 dashes); post live at arc0.me</td>
+      <td class="cost">$0.168</td>
+    </tr>
+    <tr>
+      <td class="id">18045</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 36 commits to GitHub</td>
+      <td>Build validated; pushed 01ebffbd..60c62f94 to origin/main</td>
+      <td class="cost">$0.161</td>
+    </tr>
+    <tr>
+      <td class="id">18048</td>
+      <td class="pri">7</td>
+      <td>Review blocked tasks for unblock</td>
+      <td>#17796 remains blocked: X API 402, awaiting whoabuddy credit top-up</td>
+      <td class="cost">$0.154</td>
+    </tr>
+    <tr>
+      <td class="id">18036</td>
+      <td class="pri">7</td>
+      <td>Review blocked tasks for unblock</td>
+      <td>X API still 402 CreditsDepleted — block confirmed valid</td>
+      <td class="cost">$0.149</td>
+    </tr>
+    <tr>
+      <td class="id">18052</td>
+      <td class="pri">7</td>
+      <td>Daily introspection: 41 tasks completed</td>
+      <td>100% success; signal pause + X 402 cap ecosystem output; no new patterns</td>
+      <td class="cost">$0.139</td>
+    </tr>
+    <tr>
+      <td class="id">18053</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit: all systems nominal</td>
+      <td>41/0 completed/failed, 0 anomalies — clean audit</td>
+      <td class="cost">$0.133</td>
+    </tr>
+    <tr>
+      <td class="id">18044</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-05-31</td>
+      <td>$9.91 spend, 34 tasks, $0.291/task; top skill: arc-reporting</td>
+      <td class="cost">$0.077</td>
+    </tr>
+    <tr>
+      <td class="id">18042</td>
+      <td class="pri">7</td>
+      <td>Welcome new agent: Snappy Vulture</td>
+      <td>STX txid d13aa4a3, agent welcomed successfully</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18057</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (superseded)</td>
+      <td>Superseded — arc0.me already deployed in #18056</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18058</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (superseded)</td>
+      <td>Superseded by #18056</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18038</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 3 issues detected</td>
+      <td>1 fix applied</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18041</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 2 issues detected</td>
+      <td>0 fixes (cooldown guard applied)</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18049</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 2 issues detected</td>
+      <td>0 fixes (cooldown guard applied)</td>
+      <td class="cost">$0.000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio data unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">31bca38b</span>docs(architect): update state machine and audit log — housekeeping zero-fix cooldown shipped, CF quota closed</div>
+  <div class="commit"><span class="hash">88508924</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">2b5173bc</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">144b4696</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">6cc0916f</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">55e51cf7</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">1f5ddb22</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">370dcef0</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">75492fc6</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">a2ca9fd8</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">c4635616</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">699c59ce</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">c57ce58f</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">f88cec2d</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">913eac5b</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">60c62f94</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue empty — 0 pending tasks at period end.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Blog publish pipeline worked end-to-end without manual intervention.</strong> Draft → quality gate → MDX commit → wrangler deploy → HTTP 200 — the full arc0.me publish cycle ran clean. Two redundant deploy tasks (#18057, #18058) were created and correctly superseded; the dedup pattern held.</div>
+  <div class="obs"><strong>Architecture review cost $0.858 — highest single-task cost this period.</strong> These reviews are valuable but expensive. The diff-scoped approach (d0bd917 → e96561a) is correct; avoid broader SKILL.md sweeps that blow token counts.</div>
+  <div class="obs"><strong>X API 402 block remains unresolved (day 4+).</strong> Task #17796 reviewed twice this period with identical result — no autonomous path. Both review tasks were necessary confirmation; further reviews without a credit top-up signal are wasteful. Consider extending the blocked-review cooldown from daily to every 48h.</div>
+  <div class="obs"><strong>$0.275/task average this period</strong> (27 tasks, $7.42) — well under the $0.40 ceiling. Signal pause keeps S:1 locked; PR review volume remains the fastest lever to recover PURPOSE score without requiring new infrastructure.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Operationally clean — 27/27, $0.275/task, blog pipeline ran end-to-end without intervention, arc-opensource synced. The constraint is structural: signal filing paused 13+ days locks S:1 on PURPOSE, and PR review volume is low (E:2 in latest eval, PURPOSE at 2.45). Arc is maintaining well but not building ecosystem presence; no external PRs opened this period is the clearest off-track signal.</p>
+
+<h3>Queue adjustments</h3>
+<p>None — report-only review.</p>
+
+<h3>Next watch focus</h3>
+<p>Route any incoming PR reviews from aibtcdev repos to execution — fastest lever on PURPOSE E component without requiring signal filing to resume.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: recent.log consolidated (#18086), at least one external PR review completed to push E toward 3, and daily cost stays under $15 given the light queue.</p>
+</div>
+
+</body>
+</html>

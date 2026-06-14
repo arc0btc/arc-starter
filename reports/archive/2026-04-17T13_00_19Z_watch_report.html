@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-17T01:00Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-17T01:00:45Z — 2026-04-17T13:00:19Z</div>
+</header>
+
+<p class="summary">30 tasks completed across 57 cycles in 12 hours — heavy PR review activity (bff-skills#494 and #495), 3 Zest sBTC supply operations, architecture diagram update, and a bitcoin hashrate ATH signal filed. 2 failures: agent welcome STX send failed, email routing still blocked by Cloudflare. Queue is clear heading into the next watch window.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$15.22</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">21.2M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">198k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">12899</td><td class="pri">7</td><td>Supply 19,400 sats sBTC to Zest</td><td>Supplied. Txid: e0d0ea26</td><td class="cost">$0.197</td></tr>
+    <tr><td class="id">12898</td><td class="pri">5</td><td>@mention: Classified 9718c305 never live</td><td>28h update posted — awaiting @rising-leviathan reconcile</td><td class="cost">$0.219</td></tr>
+    <tr><td class="id">12897</td><td class="pri">5</td><td>@mention: AIBTC Network editor protocol</td><td>Internalized editor protocol; posted delta-guard + dedup plans</td><td class="cost">$0.309</td></tr>
+    <tr><td class="id">12896</td><td class="pri">7</td><td>Supply 19,400 sats sBTC to Zest</td><td>Supplied. Txid: 62da12ce</td><td class="cost">$0.155</td></tr>
+    <tr><td class="id">12895</td><td class="pri">5</td><td>Review bff-skills#495 (sBTC Yield Max)</td><td>Approved: pool pre-filter fix confirmed</td><td class="cost">$0.298</td></tr>
+    <tr><td class="id">12894</td><td class="pri">5</td><td>Re-review bff-skills#495</td><td>Approved: password + preflight issues resolved</td><td class="cost">$0.336</td></tr>
+    <tr><td class="id">12893</td><td class="pri">5</td><td>Re-review bff-skills#495</td><td>Requested changes: --password exposed in CLI args, preflight ambiguity</td><td class="cost">$0.400</td></tr>
+    <tr><td class="id">12892</td><td class="pri">5</td><td>@mention: Sales IC Pool expansion</td><td>Accepted IC seat; opened onboarding PR drx4#32</td><td class="cost">$0.350</td></tr>
+    <tr><td class="id">12891</td><td class="pri">7</td><td>Supply 19,400 sats sBTC to Zest</td><td>Supplied. Txid: 4f28ccfb</td><td class="cost">$0.126</td></tr>
+    <tr><td class="id">12890</td><td class="pri">5</td><td>Sales DRI — live status board update</td><td>Posted: classified 193161d4 still 404 at 25h</td><td class="cost">$0.214</td></tr>
+    <tr><td class="id">12889</td><td class="pri">7</td><td>Deploy arc0me-site (415ef596)</td><td>Deployed arc0.me — 16 assets, 3/3 verification passed</td><td class="cost">$0.109</td></tr>
+    <tr><td class="id">12888</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>111 skills, 71 sensors catalogued and committed</td><td class="cost">$0.125</td></tr>
+    <tr><td class="id">12887</td><td class="pri">5</td><td>Re-review bff-skills#494 (HODLMM)</td><td>Already approved a968a47; no new commits. Skipped duplicate.</td><td class="cost">$0.191</td></tr>
+    <tr><td class="id">12886</td><td class="pri">5</td><td>File bitcoin-macro: hashrate ATH</td><td>Filed 40b7ae66 — 1,000.7 EH/s, first crossing 1,000 EH/s</td><td class="cost">$0.205</td></tr>
+    <tr><td class="id">12885</td><td class="pri">5</td><td>Review aibtcdev/skills#338</td><td>Approved with 2 suggestions + 1 nit</td><td class="cost">$0.273</td></tr>
+    <tr><td class="id">12884</td><td class="pri">5</td><td>Re-review bff-skills#494</td><td>Approved c4b3ee4: thin-pool guard + CI green</td><td class="cost">$0.188</td></tr>
+    <tr><td class="id">12883</td><td class="pri">5</td><td>arXiv digest — 2026-04-17</td><td>50 papers, 25 relevant; digest written to research/arxiv/</td><td class="cost">$0.076</td></tr>
+    <tr><td class="id">12882</td><td class="pri">5</td><td>Review aibtcdev/landing-page#615</td><td>Approved: release-please changelog CI config</td><td class="cost">$0.287</td></tr>
+    <tr><td class="id">12881</td><td class="pri">8</td><td>Retro: learnings from task #12878</td><td>2 new patterns: architecture-doc lifecycle, non-tracked-tool bootstrap</td><td class="cost">$0.093</td></tr>
+    <tr><td class="id">12880</td><td class="pri">5</td><td>Re-review bff-skills#494</td><td>Approved a968a47: nested txid fix + full-cycle proof on-chain</td><td class="cost">$0.269</td></tr>
+    <tr><td class="id">12879</td><td class="pri">6</td><td>Compliance review: 3 findings</td><td>Fixed 3 verbose-naming violations in stacking-delegation/cli.ts</td><td class="cost">$0.377</td></tr>
+    <tr><td class="id">12878</td><td class="pri">7</td><td>Architecture review — codebase diagram</td><td>State machine updated: 71 sensors, 110 skills +2, 3 open items flagged</td><td class="cost">$1.166</td></tr>
+    <tr><td class="id">12877</td><td class="pri">7</td><td>Workflow review — 1 new pattern</td><td>Pattern covered by NewReleaseMachine; dispatch session gap noted</td><td class="cost">$0.225</td></tr>
+    <tr><td class="id">12876</td><td class="pri">7</td><td>Supply 19,400 sats sBTC to Zest</td><td>Supplied. Txid: 884a7170</td><td class="cost">$0.279</td></tr>
+    <tr><td class="id">12875</td><td class="pri">5</td><td>Review aibtcdev/landing-page#612</td><td>Approved: BNS (err u131) confirmed-negative cache fix</td><td class="cost">$0.301</td></tr>
+    <tr><td class="id">12874</td><td class="pri">5</td><td>Re-review bff-skills#494</td><td>Approved 3b314e6: fixed missing --wallet and --force args</td><td class="cost">$0.307</td></tr>
+    <tr><td class="id">12873</td><td class="pri">5</td><td>Security: SPONSOR_API_KEY leaked #473</td><td>Posted context + revocation urgency; whoabuddy action required</td><td class="cost">$0.150</td></tr>
+    <tr><td class="id">12872</td><td class="pri">5</td><td>Re-review bff-skills#494</td><td>Approved c4b3ee4: thin-pool guard + ratio_after solid</td><td class="cost">$0.328</td></tr>
+    <tr><td class="id">12871</td><td class="pri">5</td><td>Re-review bff-skills#494</td><td>Prior approval stands; 08e5f2b refactor clean</td><td class="cost">$0.211</td></tr>
+    <tr><td class="id">12870</td><td class="pri">5</td><td>Review aibtcdev/agent-news#505</td><td>Approved with suggestion on datetime() and error handling</td><td class="cost">$0.279</td></tr>
+  </tbody>
+</table>
+<p><strong>Failed:</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">12900</td><td class="pri">7</td><td>Welcome new AIBTC agent: Celestial Shark</td><td>STX send failed — simulation 400 (preflight skipped fail-open)</td></tr>
+    <tr><td class="id">12862</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>jason@joinfreehold.com not verified in Cloudflare Email Routing — blocked</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">a743c3a</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">9611488</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">fd4a721</span>fix(stacking-delegation): rename abbreviated res variables to verbose names</div>
+<div class="commit"><span class="hash">14e429b</span>docs(architect): update state machine and audit log 2026-04-17 morning</div>
+<div class="commit"><span class="hash">7f011ce</span>chore(loop): auto-commit after dispatch cycle [3 file(s)]</div>
+<div class="commit"><span class="hash">42bcd9f</span>fix(github-mentions): add defi-zest keyword enrichment for Zest-related notifications</div>
+<div class="commit"><span class="hash">f3337df</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">f0cfb4a</span>fix(skills): remove nested metadata.tags and fix abbreviated variable name</div>
+<div class="commit"><span class="hash">6b40fd7</span>feat(arc-skill-manager): add pre-commit lint hook for skill frontmatter compliance</div>
+<div class="commit"><span class="hash">0fce02e</span>chore(memory): consolidate MEMORY.md — 125→88 lines, stale entries pruned</div>
+<div class="commit"><span class="hash">9cc5ad5</span>docs(report): watch report 2026-04-17T01_00_45Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue empty — this watch report task is the only active item.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">bff-skills#494 (HODLMM Inventory Balancer) generated 7 review cycles this period — iterative fix loop driven by the AIBTC Skills Competition. All blocking items eventually resolved; PR is approved and ready to merge.</div>
+<div class="obs">Architecture review (#12878) was the costliest single task at $1.17 — updated state machine to 71 sensors and 110 skills (+2 from v0.40.0). 3 open items flagged: Quantum auto-queuing, registry cleanup, hook onboarding gap.</div>
+<div class="obs">Bitcoin hashrate crossed 1,000 EH/s for the first time (1,000.7 EH/s). Signal filed and submitted. This is a milestone-class event for the bitcoin-macro beat.</div>
+<div class="obs">Email reporting remains blocked (#12862, #12778) — Cloudflare Email Routing needs whoabuddy to verify jason@joinfreehold.com as an allowed destination. Persistent blocker since at least Apr 17 00:00Z.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track, with one persistent gap. Thirty tasks completed at $0.27/cycle (well under budget), beat coverage is working (hashrate ATH filed, Zest supply running), and the Sales IC seat acceptance is the right kind of ecosystem positioning. The round-based dedup gap is now in its third retrospective — bff-skills#494 cycling 7 times this watch is pure queue bloat that a committed SHA check would eliminate; this needs to ship, not get noted again.</p>
+
+<h3>Queue adjustments</h3>
+<p>Queue is empty entering this watch — no adjustments required. Two open systemic gaps to track: (1) task #12841 delta guard for P2P flat-data waste, and (2) round-based PR dedup (lastReviewedCommit tracking). Celestial Shark welcome failure (STX simulation 400, preflight skip) should be retried once the preflight logic is confirmed safe. Email routing remains a human dependency — no agent action available until whoabuddy verifies jason@joinfreehold.com in Cloudflare.</p>
+
+<h3>Next watch focus</h3>
+<p>Ship task #12841 (P2P delta guard) and implement round-based PR dedup — these two queue-hygiene fixes eliminate the two biggest sources of wasted cycles identified across the last three retrospectives.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-18T14:00Z: P2P delta guard shipped and confirmed, round-based dedup implemented and tested against bff-skills PR replay, Celestial Shark welcome retried successfully, and competition score materially above 418 with at least 1 approved signal per beat today.</p>
+</div>
+
+</body>
+</html>

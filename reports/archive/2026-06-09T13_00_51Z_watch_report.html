@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-09T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-09T01:02:35Z — 2026-06-09T13:00:51Z</div>
+</header>
+
+<p class="summary">Productive 12-hour window: 17 tasks completed across reporting, review, research, and ops work with zero failures. Highlights include the weekly deck generation (386 tasks, 322 commits), arXiv digest, a PR #992 approval on aibtcdev/landing-page, and MEMORY.md consolidation from 234 to 159 lines. All services healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">17</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$5.53</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">8,185k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">60k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">18482</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-06-09T01:02Z</td>
+      <td>52 tasks completed, $27.35 spent — watch report generated</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">18483</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post draft</td>
+      <td>'Thirteen Repositories' draft — OR multi-phase research fan-out</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">18484</td>
+      <td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Published '2026-06-09-thirteen-repositories' — content-quality gate passed</td>
+      <td class="cost">$0.10</td>
+    </tr>
+    <tr>
+      <td class="id">18485</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-06-09T02:14</td>
+      <td>On track: 52/0/0 watch, OR research delivered, parseFlags bug fixed</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">18486</td>
+      <td class="pri">5</td>
+      <td>Generate weekly presentation 2026-06-09</td>
+      <td>7-slide deck: 386 tasks, 322 commits, 8 changes shipped, 120 skills / 73 sensors</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">18487</td>
+      <td class="pri">5</td>
+      <td>Fetch arXiv digest — 2026-06-09</td>
+      <td>50 papers fetched, 21 relevant compiled into digest</td>
+      <td class="cost">$0.09</td>
+    </tr>
+    <tr>
+      <td class="id">18488</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-06-09</td>
+      <td>All services up, 98.7% success; MEMORY.md at 234 lines → queued consolidation</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">18489</td>
+      <td class="pri">6</td>
+      <td>consolidate MEMORY.md — 234 lines</td>
+      <td>Consolidated 234→159 lines: patterns compressed, evals trimmed, resolved items archived</td>
+      <td class="cost">$0.57</td>
+    </tr>
+    <tr>
+      <td class="id">18490</td>
+      <td class="pri">5</td>
+      <td>self-review triage: 1 issue found</td>
+      <td>Triaged MEMORY.md → created task #18491 (consolidate)</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">18491</td>
+      <td class="pri">5</td>
+      <td>consolidate MEMORY.md: 234 lines</td>
+      <td>No-op — already consolidated in prior cycle (18489). At 160 lines, under threshold.</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">18492</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 2 issues detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">18493</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-06-09T02:14 (2nd)</td>
+      <td>On track, OR research 52/0/0 at $7.35, queue empty heading into next window</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">18494</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Watch report sent to whoabuddy@gmail.com (msg 2280e4c5)</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">18495</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 1 issue detected</td>
+      <td>All clean, nothing to fix</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">18496</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention in 1btc-news/news-client</td>
+      <td>60-day window closed, already logged by Iskander-Agent. No response needed.</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">18497</td>
+      <td class="pri">7</td>
+      <td>architecture review — codebase changed</td>
+      <td>No structural changes; OR deep research window; 120 skills / 73 sensors stable</td>
+      <td class="cost">$0.83</td>
+    </tr>
+    <tr>
+      <td class="id">18498</td>
+      <td class="pri">5</td>
+      <td>Review PR #992 aibtcdev/landing-page</td>
+      <td>Approved — 1-line cadence relaxation 5min→30min, backfill complete (1005/1005)</td>
+      <td class="cost">$0.29</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget unavailable (stacks-market portfolio query returned no data).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">0438b83b</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">d1657d06</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">0f46d2b5</span>docs(architect): no structural changes; OR deep research window; 120 skills / 73 sensors</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#18499 Watch report — 2026-06-09T13:00Z (active — this report)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Duplicate consolidation cycle: health check (18488) queued a MEMORY.md consolidation task (18489), which ran and succeeded. Self-review triage (18490) then independently queued a second consolidation (18491), which found 18489 had already done the work. Both sensors fire on line-count threshold and have no shared dedup state — adding a recency guard at sensor time would prevent the wasted $0.13 cycle.</div>
+  <div class="obs">Two CEO review tasks (18485, 18493) ran for the same period "2026-06-09T02:14." One was queued by a task, the other by sensor — both completed without conflict, but the duplication adds ~$0.64 in redundant review cost. Pre-flight dedup on CEO review subject + period would eliminate this pattern.</div>
+  <div class="obs">Architecture review (18497) cost $0.83 for a "no structural changes" finding. This is the expected outcome when the codebase is stable, but the cost is non-trivial for a report-only cycle. Consider increasing the diff threshold or interval between arch reviews during quiet periods.</div>
+  <div class="obs">Weekly deck (18486) generated at $0.79 — highest single-task cost this window. Accurate: 386 tasks and 322 commits required real synthesis. No optimization target here.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Clean 12-hour window: 17/17 success, blog post published proactively, weekly deck shipped, arXiv digest delivered, PR #992 approved — all visible external output with zero failures. Cost at $7.59 for the day so far is well within the $30 target; the $126/week average is the figure to watch. Three recurring sensor-noise patterns persist (duplicate CEO reviews for the same period, duplicate MEMORY consolidation firing, $0.83 arch-review on a stable codebase) — none are blocking, but each burns real cycles. Queue is clean heading into next watch.</p>
+
+<h3>Queue adjustments</h3>
+<p>None — REPORT-ONLY review. No tasks modified or killed this cycle.</p>
+
+<h3>Next watch focus</h3>
+<p>Sensor-driven ops. If the queue stays light, advance arc0me-site PR #8 conflict resolution (currently blocked on whoabuddy review — at minimum, document the specific conflict files to make the merge review easier).</p>
+
+<h3>24-hour horizon</h3>
+<p>Blog freshness maintained (cadence met). Weekly cost on a path to stay under $30/day. CEO review dedup addressed — either sensor-level recency guard or subject-match dedup at queue time — so the $0.64 duplicate-review cost stops recurring. arc0me-site PR #8 conflict documented or resolved.</p>
+</div>
+
+</body>
+</html>

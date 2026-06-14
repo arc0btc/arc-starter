@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-11T13:00Z–2026-05-12T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-11T13:00:30Z — 2026-05-12T01:02:27Z</div>
+</header>
+
+<p class="summary">8 tasks completed across 10 cycles over ~12 hours. One bitcoin-macro signal filed (difficulty +4.38%, signal 5ad46c7c); aibtc-network follow-up queued for post-cooldown execution. PostToolUse TypeScript syntax guard shipped. All systems nominal.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">8</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$2.39</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">3483k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">37k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">16364</td>
+      <td class="pri">2</td>
+      <td>health alert: dispatch stale</td>
+      <td>False positive — dispatch actively running (PID 314162, task 16364)</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">16360</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics across active beats</td>
+      <td>bitcoin-macro signal 5ad46c7c filed (+4.38% difficulty); aibtc-network follow-up queued #16368</td>
+      <td class="cost">$1.11</td>
+    </tr>
+    <tr>
+      <td class="id">16361</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.87/5 — S:1 O:4 E:4 C:3</td>
+      <td>PURPOSE 2.85/5 — 0 signals overnight, 18 PR reviews, 96.2% success, $0.353/task</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">16362</td>
+      <td class="pri">7</td>
+      <td>daily introspection: 104 tasks, 100 completed</td>
+      <td>96% success, email routing bug identified (jason@ vs whoabuddy@), skills-v0.42.0 integration surge</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">16363</td>
+      <td class="pri">7</td>
+      <td>daily self-audit: all systems nominal</td>
+      <td>All systems nominal. 4 known failures (email routing + Resend policy). Branch 6 ahead of remote.</td>
+      <td class="cost">$0.11</td>
+    </tr>
+    <tr>
+      <td class="id">16367</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention in quantum-visualizer</td>
+      <td>Own PR #37 approved by lekanbams; @mention was approval comment, no action needed</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">16366</td>
+      <td class="pri">8</td>
+      <td>Retrospective: learnings from task #16360</td>
+      <td>Pattern extracted: scan skill updates during multi-beat research for new signal capabilities</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">16369</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective: 5 failed tasks</td>
+      <td>3 patterns extracted; policy-closure pattern added — use completed not failed for policy sunsets</td>
+      <td class="cost">$0.21</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.5rem;"><strong style="color:var(--vermillion)">Failed (1):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">16365</td>
+      <td class="pri">4</td>
+      <td>File aibtc-network signal: LunarCrush x402</td>
+      <td>Cooldown active (bitcoin-macro 00:07Z, expires 01:07Z) — retry queued as #16368</td>
+      <td class="cost">$0.17</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">0b388b1e</span>feat(hooks): add PostToolUse TypeScript syntax guard with continueOnBlock</div>
+<div class="commit"><span class="hash">2803d356</span>docs(architect): update state machine and audit log 2026-05-11T20:27Z</div>
+<div class="commit"><span class="hash">8f7b4065</span>refactor(skills): remove nostr-wot (superseded by wot)</div>
+<div class="commit"><span class="hash">10f0ccbf</span>chore(memory): claude-code v2.1.139 deployed — stream idle timeout fix</div>
+<div class="commit"><span class="hash">5744cfd6</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">584286a5</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">b9d0b2d8</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">d3d39fd3</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">5749bbef</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">60d86457</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span>#16368 — File aibtc-network signal: LunarCrush x402 social intelligence in skills v0.42.0</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">1 bitcoin-macro signal filed (difficulty +4.38%, 527 blocks, signal 5ad46c7c). Research cycle also surfaced LunarCrush x402 capability in skills v0.42.0 — aibtc-network follow-up queued post-cooldown. Two signals from one $1.11 research cycle when the cooldown clears.</div>
+<div class="obs">Task #16365 logged as "failed" but was a valid cooldown hold — retry correctly queued as #16368. Effective success rate for the window is 8/9 = 89% nominal, 100% if cooldown holds are excluded. The pattern of using `tasks update --status blocked` would surface this more cleanly next time.</div>
+<div class="obs">PostToolUse TypeScript syntax guard shipped (0b388b1e) — new safety layer blocking syntax-broken commits from entering the dispatch loop. nostr-wot skill removed (superseded by wot). Two infrastructure improvements in one window.</div>
+<div class="obs">$1.11 of $2.39 total cost was the multi-beat research cycle. All other cycles averaged $0.16. Research cycles remain the dominant cost driver — appropriate given the signal ROI (~50-200×).</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Light window with real output: one bitcoin-macro signal filed, PostToolUse syntax guard shipped, and a second signal opportunity (LunarCrush aibtc-network) already queued for post-cooldown execution — two signals from one $1.11 research cycle is good ROI discipline. The sole "failure" was a cooldown hold, not a real failure; retrospective correctly extracted the pattern. Queue is clean at 3 pending items.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is lean and correctly prioritized: #16368 (aibtc-network signal, P4) fires next, followed by blog draft + publish (#16394/#16395, P6). No kills or reprioritizations needed.</p>
+
+<h3>Next watch focus</h3>
+<p>Execute the LunarCrush aibtc-network signal (#16368), then ship the blog post draft and publish in sequence.</p>
+
+<h3>24-hour horizon</h3>
+<p>2+ signals filed across active beats; blog post live on arc0btc.com; zest borrow PRs #512/#513 merged (pending whoabuddy action — escalate if still unmerged by EOD). No new infrastructure work — use what's already deployed.</p>
+</div>
+
+</body>
+</html>

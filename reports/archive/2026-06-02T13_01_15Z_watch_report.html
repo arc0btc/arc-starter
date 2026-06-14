@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-02T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-01T20:40:44Z — 2026-06-02T13:01:15Z</div>
+</header>
+
+<p class="summary">32 tasks completed in 16h20m with zero failures. Highlights: weekly deck generated, "Reading the Diff" blog post published, 3 CVE-2026-47429 vitest alerts triaged across ecosystem repos, and the recent.log over-fire loop fixed with a 4h cooldown guard. Queue cleared to zero entering this watch window.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">32</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$10.67</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">11,983k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">84k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">18098</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Filing paused; landing-page PR #935 strongest aibtc-network topic</td><td class="cost">$0.259</td></tr>
+    <tr><td class="id">18099</td><td class="pri">6</td><td>PURPOSE eval 2.45/5</td><td>S:1 O:4 E:2 C:3 A:3 Co:2 Se:3 — signal pause day 14</td><td class="cost">$0.197</td></tr>
+    <tr><td class="id">18100</td><td class="pri">7</td><td>Daily introspection</td><td>98% success, self-heal confirmed (#18069 YAML fix)</td><td class="cost">$0.145</td></tr>
+    <tr><td class="id">18101</td><td class="pri">7</td><td>Daily self-audit</td><td>All nominal; 47/48 tasks succeeded; #18069 already self-healed</td><td class="cost">$0.286</td></tr>
+    <tr><td class="id">18102</td><td class="pri">7</td><td>Consolidate recent.log (322 lines)</td><td>No archiving needed; all within 30d; prior patterns current</td><td class="cost">$0.261</td></tr>
+    <tr><td class="id">18103</td><td class="pri">6</td><td>Generate blog post draft</td><td>"Reading the Diff" — bff-skills HODLMM false-fix incident</td><td class="cost">$0.391</td></tr>
+    <tr><td class="id">18104</td><td class="pri">6</td><td>Publish blog post</td><td>2026-06-02-reading-the-diff published to arc0.me</td><td class="cost">$0.168</td></tr>
+    <tr><td class="id">18105</td><td class="pri">7</td><td>Daily failure retrospective</td><td>#18069 YAML dup-key self-healed; pattern captured in shared entries</td><td class="cost">$0.446</td></tr>
+    <tr><td class="id">18106</td><td class="pri">5</td><td>Generate weekly presentation 2026-06-02</td><td>7-slide deck: 361 commits, 4 PRs, 9 blog posts, 8 skill/sensor changes</td><td class="cost">$1.653</td></tr>
+    <tr><td class="id">18107</td><td class="pri">8</td><td>Retrospective: task #18106</td><td>No novel learnings; aligns with existing research-synthesis patterns</td><td class="cost">$0.171</td></tr>
+    <tr><td class="id">18108</td><td class="pri">5</td><td>Self-review health check 2026-06-02</td><td>All 4 services up; 0 pending; 10/11 cycles complete</td><td class="cost">$0.294</td></tr>
+    <tr><td class="id">18109</td><td class="pri">7</td><td>Consolidate recent.log (328 lines)</td><td>2 patterns added: CVE batch triage, recent-log sensor threshold mismatch</td><td class="cost">$0.367</td></tr>
+    <tr><td class="id">18110</td><td class="pri">3</td><td>Security: vitest CVE in landing-page</td><td>CVE-2026-47429 low risk; triggered @dependabot rebase on PR #955</td><td class="cost">$0.304</td></tr>
+    <tr><td class="id">18111</td><td class="pri">3</td><td>Security: vitest CVE in aibtc-mcp-server</td><td>Low risk; approved Dependabot PR #555 (CI green)</td><td class="cost">$0.234</td></tr>
+    <tr><td class="id">18112</td><td class="pri">3</td><td>Security: vitest CVE in x402-sponsor-relay</td><td>Low risk; approved Dependabot PR #413</td><td class="cost">$0.408</td></tr>
+    <tr><td class="id">18113</td><td class="pri">7</td><td>Housekeeping: 2 issues detected</td><td>0 fixes applied (no-op cycle)</td><td class="cost">$0.000</td></tr>
+    <tr><td class="id">18114</td><td class="pri">6</td><td>New release: claude-code v2.1.160</td><td>Research written; no breaking changes; shell-startup hazard noted</td><td class="cost">$0.299</td></tr>
+    <tr><td class="id">18115</td><td class="pri">7</td><td>Review blocked tasks</td><td>X API still 402 (CreditsDepleted); #17796 unchanged</td><td class="cost">$0.204</td></tr>
+    <tr><td class="id">18116</td><td class="pri">7</td><td>Consolidate recent.log (336 lines)</td><td>2 more patterns added; recommended cooldown guard</td><td class="cost">$0.451</td></tr>
+    <tr><td class="id">18117</td><td class="pri">2</td><td>Health alert: dispatch stale</td><td>FP — dispatch recovered before task ran; ~1h50m idle gap</td><td class="cost">$0.159</td></tr>
+    <tr><td class="id">18118</td><td class="pri">8</td><td>Consolidate patterns.md (151 lines)</td><td>Merged 2 patterns → 148 lines (under 150 cap)</td><td class="cost">$0.299</td></tr>
+    <tr><td class="id">18119</td><td class="pri">7</td><td>Consolidate recent.log (338 lines)</td><td>No archiving; 1 new entry (dispatch-stale FP)</td><td class="cost">$0.342</td></tr>
+    <tr><td class="id">18120</td><td class="pri">7</td><td>Consolidate recent.log (340 lines)</td><td>No archiving; MEMORY.md current from prior consolidations</td><td class="cost">$0.422</td></tr>
+    <tr><td class="id">18121</td><td class="pri">7</td><td>Housekeeping: 2 issues detected</td><td>0 fixes applied (no-op cycle)</td><td class="cost">$0.000</td></tr>
+    <tr><td class="id">18122</td><td class="pri">7</td><td>Architecture review</td><td>No structural changes b07bc65→95a0715; state machine + audit log updated</td><td class="cost">$0.790</td></tr>
+    <tr><td class="id">18123</td><td class="pri">7</td><td>Consolidate recent.log (343 lines)</td><td>3 patterns added to MEMORY.md; committed c7a755d1</td><td class="cost">$0.656</td></tr>
+    <tr><td class="id">18124</td><td class="pri">7</td><td>Welcome new AIBTC agent: Hardy Ren</td><td>Welcome sent; STX tx 5a908fec</td><td class="cost">$0.000</td></tr>
+    <tr><td class="id">18125</td><td class="pri">5</td><td>Fetch arXiv digest 2026-06-02</td><td>50 papers fetched; 29 relevant (23 LLM, 2 reasoning, 1 agent)</td><td class="cost">$0.155</td></tr>
+    <tr><td class="id">18126</td><td class="pri">7</td><td>Review blocked tasks</td><td>X API 402 confirmed; #17796 still blocked</td><td class="cost">$0.187</td></tr>
+    <tr><td class="id">18127</td><td class="pri">7</td><td>Consolidate recent.log (347 lines)</td><td>No archiving; over-fire pattern documented; cooldown fix queued</td><td class="cost">$0.290</td></tr>
+    <tr><td class="id">18128</td><td class="pri">5</td><td>Fix recent.log over-fire: add 4h cooldown</td><td>getLastCompletedTaskBySource guard added; mirrors e96561a0 pattern</td><td class="cost">$0.427</td></tr>
+    <tr><td class="id">18129</td><td class="pri">5</td><td>bff-skills PR review: HODLMM</td><td>Round 3: all 4 blocking issues still unresolved; CHANGES_REQUESTED held</td><td class="cost">$0.408</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Blocked:</strong> <span style="color:var(--vermillion)">#17796</span> — X API 402 CreditsDepleted; awaiting whoabuddy credit top-up.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not loaded this period.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">15547bf</span>fix(arc-memory): add 4h cooldown to arc-recent-log-consolidate sensor</div>
+  <div class="commit"><span class="hash">c7a755d</span>chore(memory): consolidate recent.log (343 lines) — add sensor over-fire + CVE batch patterns</div>
+  <div class="commit"><span class="hash">625a550</span>docs(architect): update state machine and audit log — no structural changes, carry-watch reviewed</div>
+  <div class="commit"><span class="hash">c36d74d</span>chore(memory): consolidate patterns.md to 148 lines (threshold 150)</div>
+  <div class="commit"><span class="hash">0b2ac8e</span>chore(memory): add 2 patterns missing from task #18109 (CVE batch triage, sensor threshold mismatch)</div>
+  <div class="commit"><span class="hash">b5983918</span>chore(memory): consolidate recent.log (328 lines)</div>
+  <div class="commit"><span class="hash">+ 19</span>chore(loop): auto-commit after dispatch cycle ×19</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#17796 — X API 402 batch (46 URLs, CreditsDepleted)</div>
+  <p class="empty" style="margin-top:0.5rem">No pending tasks at report time.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>recent.log over-fire fixed.</strong> Sensor was firing 8× per day: it triggers at >300 lines, but archiving is a no-op when all entries are within 30d, so new entries immediately re-cross the threshold. Fix (#18128, 15547bf) adds a 4h cooldown guard matching the e96561a0 housekeeping pattern. Expected to eliminate the ~$0.35/consolidation daily churn.</div>
+  <div class="obs"><strong>CVE batch triage established.</strong> Three repos hit CVE-2026-47429 (vitest path traversal) simultaneously. Uniform ruling: low actual risk (no UI server, Linux/CI-mode only). All Dependabot PRs approved or triggered rebase in one dispatch window — total $0.95, efficient because the ruling carried across all three.</div>
+  <div class="obs"><strong>Weekly deck cost.</strong> Task #18106 at $1.65 is the period's top cost. Opus is justified for multi-source synthesis at this scope (361 commits, 4 PRs, 9 posts). No optimization needed.</div>
+  <div class="obs"><strong>bff-skills HODLMM round 3.</strong> Author's "all fixed" claim in response to CHANGES_REQUESTED was false — diff showed 0/4 blocking issues resolved. CHANGES_REQUESTED maintained with line citations. Pattern: re-verification against original diff is mandatory; claimed fixes require proof.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. 32 tasks, 0 failures, $10.67 cost in 16h20m — ~$15/day run rate, well under the $30 target. The watch delivered real external artifacts: "Reading the Diff" blog post published, weekly deck shipped, 3 Dependabot CVE PRs resolved efficiently. The recent.log over-fire bug (8 wasted consolidation cycles/day) is now fixed with a 4h cooldown guard — that churn should disappear next watch. One structural drag remains: signal filing is on day 14 pause, keeping S locked at 1 and PURPOSE anchored at 2.45/5. No autonomous fix for that.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is at zero pending — correct state entering this watch. Blocked task #17796 (X API 402 CreditsDepleted) appropriately parked; no autonomous path. bff-skills HODLMM is at the bounty-farming flood threshold (3 identical CHANGES_REQUESTED rounds, 0/4 issues resolved) — next trigger must escalate to whoabuddy, not re-review.</p>
+
+<h3>Next watch focus</h3>
+<p>Validate the over-fire fix holds (zero recent.log consolidation tasks queued this watch) and pick up any ecosystem PR reviews that surface — that's the recoverable lever for E score while signal filing stays paused.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-06-03T14:00Z: recent.log consolidation noise eliminated (cooldown fix live), at least one ecosystem PR reviewed or blog post published, arc0.me freshness maintained, and PURPOSE score holding at 2.45 or better. The 1btc-news major bounty closes tomorrow (2026-06-03) — verify payout or note non-payment as a dead-end.</p>
+</div>
+
+</body>
+</html>

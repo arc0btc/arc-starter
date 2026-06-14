@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-12T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-12T01:02:27Z — 2026-05-12T13:00:55Z</div>
+</header>
+
+<p class="summary">Active 12-hour window: 30 tasks completed across 35 dispatch cycles with zero failures or blocks. One aibtc-network signal filed (LunarCrush x402), the Bitflow DEX skill scaffolded, patterns.md consolidated, and the context-review SKILL_KEYWORD_MAP extended. Services healthy; queue is nearly clear.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$7.79</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">11,503k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">112k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">16403</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>Deployed 87303fdb6691</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">16402</td><td class="pri">7</td><td>Regenerate and deploy skills catalog</td><td>116 skills, 72 sensors committed and deployed</td><td class="cost">$0.1448</td></tr>
+    <tr><td class="id">16401</td><td class="pri">5</td><td>Fetch arXiv digest — 2026-05-12</td><td>50 papers fetched, 35 relevant, digest compiled</td><td class="cost">$0.0819</td></tr>
+    <tr><td class="id">16400</td><td class="pri">7</td><td>Architecture review — codebase changed</td><td>State machine updated (3f015a39→11c64e31, 116 skills)</td><td class="cost">$0.5584</td></tr>
+    <tr><td class="id">16368</td><td class="pri">4</td><td>File aibtc-network signal: LunarCrush</td><td>Signal f8c454f2 filed: LunarCrush x402 social data skill</td><td class="cost">$0.2846</td></tr>
+    <tr><td class="id">16399</td><td class="pri">5</td><td>Review PR #769 landing-page</td><td>Approved — KV-RMW fix for rate limiter</td><td class="cost">$0.3740</td></tr>
+    <tr><td class="id">16398</td><td class="pri">6</td><td>Context-review: 3 issues found</td><td>Bitflow PR review + email routing now correctly mapped</td><td class="cost">$0.7427</td></tr>
+    <tr><td class="id">16397</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Report 2026-05-11T13:00Z–2026-05-12T01:02Z sent</td><td class="cost">$0.1987</td></tr>
+    <tr><td class="id">16396</td><td class="pri">4</td><td>CEO review — 2026-05-12T03:25</td><td>On track; 1 signal filed, syntax guard active</td><td class="cost">$0.2499</td></tr>
+    <tr><td class="id">16395</td><td class="pri">6</td><td>Publish blog post</td><td>multi-beat-week published (5,882 chars)</td><td class="cost">$0.0601</td></tr>
+    <tr><td class="id">16394</td><td class="pri">6</td><td>Generate blog post draft</td><td>Draft: 2026-05-12-multi-beat-week — signals + Bitflow</td><td class="cost">$0.2653</td></tr>
+    <tr><td class="id">16393</td><td class="pri">5</td><td>Audit MEMORY.md active items</td><td>Pruned stale [A] entries; email-no-resend dedup removed</td><td class="cost">$0.1952</td></tr>
+    <tr><td class="id">16392</td><td class="pri">5</td><td>Lint full skill tree</td><td>116 SKILL.md + 56 AGENT.md + 72 sensor.ts — clean</td><td class="cost">$0.0405</td></tr>
+    <tr><td class="id">16391</td><td class="pri">3</td><td>Scaffold Bitflow DEX skill</td><td>skills/bitflow/ created: SKILL.md + AGENT.md + sensor.ts</td><td class="cost">$0.4519</td></tr>
+    <tr><td class="id">16390</td><td class="pri">5</td><td>Daily self-review cycle</td><td>All services healthy; sensors + dispatch timers active</td><td class="cost">$0.1599</td></tr>
+    <tr><td class="id">16389</td><td class="pri">3</td><td>Verify email routing credential</td><td>Confirmed: email/report_recipient = whoabuddy@gmail.com</td><td class="cost">$0.1788</td></tr>
+    <tr><td class="id">16388</td><td class="pri">4</td><td>Audit blocked task queue</td><td>Queue empty — no blocked tasks found</td><td class="cost">$0.1189</td></tr>
+    <tr><td class="id">16387</td><td class="pri">5</td><td>Review agent-news PR #824</td><td>Approved — hono 4.12.18 security bump</td><td class="cost">$0.0632</td></tr>
+    <tr><td class="id">16386</td><td class="pri">4</td><td>Review agent-news PR #825</td><td>Already reviewed (2026-05-11); skipped per safety rule</td><td class="cost">$0.1307</td></tr>
+    <tr><td class="id">16385</td><td class="pri">4</td><td>Review mcp-server PR #510</td><td>Reviewed: competition tools + Bitflow provider tag</td><td class="cost">$0.2709</td></tr>
+    <tr><td class="id">16384</td><td class="pri">3</td><td>Review mcp-server PR #509</td><td>Approved — fast-uri CVE-2026-6321 fix</td><td class="cost">$0.1789</td></tr>
+    <tr><td class="id">16383</td><td class="pri">5</td><td>Auto-queue: 3 hungry domains</td><td>10 tasks queued: 4 PR reviews + 6 domain work items</td><td class="cost">$0.3085</td></tr>
+    <tr><td class="id">16382</td><td class="pri">5</td><td>Self-review triage: 2 issues</td><td>Both pre-resolved before dispatch</td><td class="cost">$0.2675</td></tr>
+    <tr><td class="id">16381</td><td class="pri">5</td><td>Self-review triage: 2 issues</td><td>Both pre-resolved; MEMORY.md consolidated (122 lines)</td><td class="cost">$0.1308</td></tr>
+    <tr><td class="id">16380</td><td class="pri">4</td><td>patterns.md consolidation (2/2)</td><td>89 lines, 27 validated patterns committed</td><td class="cost">$0.0932</td></tr>
+    <tr><td class="id">16379</td><td class="pri">5</td><td>Self-review triage: 2 issues</td><td>Issues pre-resolved at 02:52Z</td><td class="cost">$0.1198</td></tr>
+    <tr><td class="id">16378</td><td class="pri">5</td><td>Review PR #766 landing-page</td><td>Already merged — skipped per safety rule</td><td class="cost">$0.2031</td></tr>
+    <tr><td class="id">16377</td><td class="pri">4</td><td>patterns.md consolidation (1/2)</td><td>Compressed 143→88 lines (-38%); 27 patterns preserved</td><td class="cost">$0.4313</td></tr>
+    <tr><td class="id">16376</td><td class="pri">5</td><td>GitHub @mention: 1btc-news/news-client</td><td>IC Daily Beat Writer claim posted to #371</td><td class="cost">$0.2243</td></tr>
+    <tr><td class="id">16375</td><td class="pri">5</td><td>GitHub @mention: landing-page</td><td>DO-alarm scheduler bridge issue reviewed</td><td class="cost">$0.1813</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">53438c4</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">11c64e3</span>fix(context-review): extend SKILL_KEYWORD_MAP for scaffold and email routing tasks</div>
+<div class="commit"><span class="hash">b35b8a5</span>chore(memory): audit and prune [A] active items</div>
+<div class="commit"><span class="hash">b2e4288</span>chore(loop): auto-commit after dispatch cycle [3 file(s)]</div>
+<div class="commit"><span class="hash">386184b</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">843dccd</span>docs(memory): consolidate MEMORY.md</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P2</span>#16405 — Overnight brief — 2026-05-12</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Zero failures across 35 cycles</strong> — cleanest 12-hour window in recent history. The self-review triage pattern (pre-resolving before dispatch) continues to hold; 3 triage tasks fired and all resolved before running.</div>
+<div class="obs"><strong>Context-review fixed</strong>: SKILL_KEYWORD_MAP now covers scaffold and email-routing task types (commit 11c64e3). Previously these triggered context loading failures for Bitflow and email tasks.</div>
+<div class="obs"><strong>Bitflow DEX skill scaffolded</strong> (#16391, $0.45): skills/bitflow/ is live with SKILL.md, AGENT.md, and sensor.ts. Catalog reflects 116 skills / 72 sensors. Good ecosystem expansion for the LP management use case.</div>
+<div class="obs"><strong>patterns.md 2-task split validated again</strong>: task #16377 (read+compress, $0.43) → #16380 (write+commit, $0.09) = clean success at 143→89 lines. Single-task consolidation would have hit the 15-min wall.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track operationally — zero failures across 35 cycles is the cleanest window in recent history, the context-review SKILL_KEYWORD_MAP fix shipped, and a blog post went out. The one flag: signal quality is low — only 1 beat hit this watch (aibtc-network), bitcoin-macro and quantum both missed, and daily PURPOSE landed at 3.00 with Signal score=1. The quantum triage task (#16415) fired post-eval, so the arXiv 35-relevant-paper rule is working; the queue is now clear and Arc is idle.</p>
+
+<h3>Queue adjustments</h3>
+<p>This is a REPORT-ONLY review cycle — no queue modifications per task instructions. Queue is empty; no actions required.</p>
+
+<h3>Next watch focus</h3>
+<p>Drive signal quality up: confirm quantum triage result (#16415) and queue bitcoin-macro signal research if hashrate or price conditions qualify — two beats with signals filed lifts PURPOSE from 3.00 to 4+.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: at least 2 of 3 beats with at least 1 signal each, zero-failure rate maintained, and PR review queue clear. If bitcoin-macro sensor conditions are met overnight, a hashrate signal should file cleanly using the 2-task decompose pattern.</p>
+</div>
+
+</body>
+</html>

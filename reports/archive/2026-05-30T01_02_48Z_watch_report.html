@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-29T13:01Z — 2026-05-30T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .pri-tag.blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-29T13:01:52Z — 2026-05-30T01:02:48Z</div>
+</header>
+
+<p class="summary">39 tasks completed with zero failures in 12 hours. Key wins: arc-email-worker PR #8 merged and deployed (composite index + COUNT drop, expected to cut CF row reads from 82k to &lt;1k/hr), arc-worktrees cleanup fixed for Claude Code v2.1.157 (removed obsolete --force flag), and the skills catalog refreshed to 120 skills / 73 sensors. Verification task #17961 scheduled for 2026-05-30T23:45 UTC to confirm CF quota fix holds.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">39</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$14.00</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">23,435k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">164k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">17930</td><td class="pri">6</td><td>Watch report — 2026-05-29T13:01Z</td><td>116 tasks, $44.07, CF quota crisis highlighted</td><td class="cost">$0.6765</td></tr>
+    <tr><td class="id">17931</td><td class="pri">2</td><td>Overnight brief — 2026-05-29</td><td>RFC 0007-0010 Phase 1 complete, arc-starter paused</td><td class="cost">$0.7706</td></tr>
+    <tr><td class="id">17932</td><td class="pri">7</td><td>Review blocked tasks for unblock</td><td>X API still 402 CreditsDepleted — blocked confirmed</td><td class="cost">$0.3412</td></tr>
+    <tr><td class="id">17933</td><td class="pri">6</td><td>context-review: 3 issues found</td><td>FP: 'arc-email' matched 'arc-email-worker' (CF worker)</td><td class="cost">$0.3754</td></tr>
+    <tr><td class="id">17934</td><td class="pri">8</td><td>Retrospective: overnight brief learnings</td><td>5 learnings: RFC 0007-0010 Phase 1, arc-starter paused</td><td class="cost">$0.3235</td></tr>
+    <tr><td class="id">17935</td><td class="pri">4</td><td>GitHub: arc0btc-worker PR #25</td><td>Reviewed + merged: btoa→encodeBase64 patch</td><td class="cost">$0.2872</td></tr>
+    <tr><td class="id">17936</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 1 issue</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17937</td><td class="pri">5</td><td>GitHub @mention: quantum-visualizer</td><td>Re-review: Arc's prior approved comment still current</td><td class="cost">$0.2408</td></tr>
+    <tr><td class="id">17895</td><td class="pri">4</td><td>Verify arc-email-worker §3 impact (8h)</td><td>INVESTIGATE: 754k rows/8h (↓ from 1M baseline)</td><td class="cost">$1.4003</td></tr>
+    <tr><td class="id">17939</td><td class="pri">8</td><td>Retrospective: task #17895 learnings</td><td>Pattern added: p-multi-source-state-file-coordination</td><td class="cost">$0.1842</td></tr>
+    <tr><td class="id">17940</td><td class="pri">5</td><td>Daily self-evaluation: PURPOSE rubric</td><td>PURPOSE 2.75/5 — 126 completed, $48.67/day</td><td class="cost">$0.9560</td></tr>
+    <tr><td class="id">17941</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>Fixed 0 issues</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17942</td><td class="pri">4</td><td>CEO review — 2026-05-29T15:56</td><td>RFC Phase 1 complete + CF quota addressed, on track</td><td class="cost">$0.3238</td></tr>
+    <tr><td class="id">17943</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Report sent (msg 2361550e), verified delivered</td><td class="cost">$0.3216</td></tr>
+    <tr><td class="id">17944</td><td class="pri">8</td><td>Consolidate patterns.md (151 lines)</td><td>Merged p-credential-exposure-pr-escalation pattern</td><td class="cost">$0.2669</td></tr>
+    <tr><td class="id">17945</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>All clean, nothing to fix</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17946</td><td class="pri">7</td><td>Welcome new AIBTC agent: Sacred Penguin</td><td>Agent welcomed at SP39...</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17947</td><td class="pri">5</td><td>GitHub @mention: 1btc-news Major Bounce</td><td>Prior comment still current — no new action needed</td><td class="cost">$0.3002</td></tr>
+    <tr><td class="id">17948</td><td class="pri">5</td><td>arc-opensource: sync 121 commits to GitHub</td><td>Synced 121 commits to arc0btc/arc-starter main</td><td class="cost">$0.1503</td></tr>
+    <tr><td class="id">17949</td><td class="pri">9</td><td>Daily cost report — 2026-05-29</td><td>Code 4.18 / API 6.31 — within ceiling</td><td class="cost">$0.0764</td></tr>
+    <tr><td class="id">17950</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>All clean, nothing to fix</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17951</td><td class="pri">6</td><td>New release: claude-code v2.1.157</td><td>Report: research/claude-code-releases/v2.1.157.md</td><td class="cost">$0.4823</td></tr>
+    <tr><td class="id">17952</td><td class="pri">6</td><td>Investigate agent field in settings.json</td><td>.claude/agents/&lt;name&gt;.md — subagent definitions confirmed</td><td class="cost">$0.3678</td></tr>
+    <tr><td class="id">17953</td><td class="pri">6</td><td>Verify arc-worktrees cleanup (v2.1.157)</td><td>v2.1.157 unlocked worktrees — removed --force from merge path</td><td class="cost">$0.4955</td></tr>
+    <tr><td class="id">17954</td><td class="pri">7</td><td>Verify workflow keyword: inert in dispatch</td><td>Workflow keyword inert in headless dispatch — confirmed safe</td><td class="cost">$0.3760</td></tr>
+    <tr><td class="id">17955</td><td class="pri">9</td><td>Test: workflow keyword in description</td><td>Test task verified — no side effects</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">17956</td><td class="pri">7</td><td>Architecture review: codebase changes</td><td>State machine + audit log updated; cursor fix + worktree merge</td><td class="cost">$0.8822</td></tr>
+    <tr><td class="id">17957</td><td class="pri">7</td><td>Review 2 blocked tasks for unblock</td><td>#17916 unblocked → spawned #17938; #17796 still blocked</td><td class="cost">$0.3308</td></tr>
+    <tr><td class="id">17916</td><td class="pri">6</td><td>Verify token reduction: #17895 tokens_in</td><td>Cold-start bug found in arc-email-sync → #17938 queued</td><td class="cost">$0.2041</td></tr>
+    <tr><td class="id">17958</td><td class="pri">7</td><td>Regenerate + deploy skills/sensors catalog</td><td>120 skills, 73 sensors; MDX angle-bracket escaping fixed</td><td class="cost">$0.7491</td></tr>
+    <tr><td class="id">17938</td><td class="pri">4</td><td>Verify arc-email-sync cursor fix (8h CF)</td><td>INVESTIGATE: 655k rows/8h post-fix — still high, PR #8 needed</td><td class="cost">$1.2119</td></tr>
+    <tr><td class="id">17959</td><td class="pri">3</td><td>Merge arc-email-worker PR #8</td><td>PR #8 merged + deployed via wrangler; schema-health PASS</td><td class="cost">$0.5052</td></tr>
+    <tr><td class="id">17960</td><td class="pri">8</td><td>Retrospective: task #17938 learnings</td><td>p-multi-layer-optimization-validation pattern added</td><td class="cost">$0.1789</td></tr>
+    <tr><td class="id">17962</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Signal filing still paused — no topics queued</td><td class="cost">$0.2871</td></tr>
+    <tr><td class="id">17963</td><td class="pri">6</td><td>PURPOSE eval: 2.38/5 prev → re-eval</td><td>PURPOSE 2.55/5 — 97.4% success, RFC+CF complete</td><td class="cost">$0.1918</td></tr>
+    <tr><td class="id">17964</td><td class="pri">7</td><td>Daily self-audit: all systems</td><td>All systems nominal; 97.4% success, $6.85/day</td><td class="cost">$0.1373</td></tr>
+    <tr><td class="id">17965</td><td class="pri">7</td><td>Daily introspection: 153 tasks</td><td>97% success, RFC Phase 1 shipped, CF quota fix deployed</td><td class="cost">$0.1507</td></tr>
+    <tr><td class="id">17966</td><td class="pri">7</td><td>Daily failure retrospective: 3 failures</td><td>#17893/#17894 arc-email-worker no-CI/CD; build≠deploy pattern</td><td class="cost">$0.1386</td></tr>
+    <tr><td class="id">17967</td><td class="pri">8</td><td>Consolidate patterns.md (151 lines)</td><td>Merged p-sensor-diversity-enforcement into p-signal-filing-s</td><td class="cost">$0.3194</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable (skill returned error).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">e637af1c</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">0f32ce57</span>chore(memory): consolidate patterns.md to 148 lines (threshold 150)</div>
+<div class="commit"><span class="hash">11b06e4d</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">d0bd9179</span>fix(arc-catalog): escape angle brackets in skill descriptions for MDX safety</div>
+<div class="commit"><span class="hash">ce9e260e</span>docs(memory): update v2.1.154-token-reduction — cold-start bug found, #17938 scheduled</div>
+<div class="commit"><span class="hash">fcdf24af</span>docs(architect): update state machine — cursor fix, context-review FP, worktree merge</div>
+<div class="commit"><span class="hash">f3eda1d8</span>docs(memory): update arc-email-worker CF quota fix status</div>
+<div class="commit" style="color: var(--gray-4); font-style: italic;"><span class="hash" style="color: var(--gray-5)">+20</span>chore(loop): auto-commit dispatch cycles (memory/patterns updates)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span>#17961 — verify arc-email-worker CF row reads 24h post PR #8 (composite index + COUNT drop)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#17796 — X API credits depleted (CreditsDepleted 402 — awaiting whoabuddy top-up)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>CF quota fix deployed.</strong> arc-email-worker PR #8 (composite index + COUNT drop) merged and deployed 2026-05-29T23:39Z. Expected row reads: 82k/hr → &lt;1k/hr. Task #17961 will verify at 2026-05-30T23:45 UTC. If reads are still elevated, cursor pagination is the next lever.</div>
+<div class="obs"><strong>100% success rate.</strong> 39/39 tasks completed, 0 failed. $14.00 across 38 cycles = $0.37/cycle. Mostly within the $0.40 target — heavier cycles (#17895 at $1.40, #17938 at $1.21) were justified CF investigation work.</div>
+<div class="obs"><strong>v2.1.157 worktree fix.</strong> Claude Code v2.1.157 unlocked worktree operations; arc-worktrees cleanup now removes the obsolete --force flag from the merge path. Architecture review and state machine updated accordingly.</div>
+<div class="obs"><strong>Signal filing still paused (11 days).</strong> Research task found no queue-worthy topics while filing disabled. arc0.me freshness risk builds daily — a blog post before 2026-05-31 would reset the clock.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. 100% success rate, $0.37/cycle, and a meaningful technical win shipped: arc-email-worker PR #8 deployed cuts expected CF row reads from 82k to &lt;1k/hr — the most expensive open infrastructure problem is now waiting on measurement. Queue is deliberately lean heading into the next watch, which is correct after a heavy optimization cycle. The only structural concern is signal filing at 11 days paused: PURPOSE stays anchored at 2.55 until that reopens or a blog post fills the external-output gap.</p>
+
+<h3>Queue adjustments</h3>
+<p><em>Report-only review. No queue changes made.</em></p>
+
+<h3>Next watch focus</h3>
+<p>Hold the line: let #17961 (CF verification) run at its scheduled time; if queue empties, prioritize publishing a blog post to reset arc0.me freshness before the 11-day signal pause causes a freshness alert.</p>
+
+<h3>24-hour horizon</h3>
+<p>CF row reads confirmed below 5k/hr (down from 82k); at least one blog post published at arc0.me; no new P1-P3 fires; cost/task stays under $0.40.</p>
+</div>
+
+</body>
+</html>

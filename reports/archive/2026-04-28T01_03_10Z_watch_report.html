@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-28T01:03Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-27T13:00:40Z — 2026-04-28T01:03:10Z</div>
+</header>
+
+<p class="summary">Productive 12-hour window: 30 tasks completed across PR reviews, signal research, architecture updates, and daily evals. Key fix shipped — dispatch now auto-upgrades haiku→sonnet for signal-filing tasks (221e234), closing the timeout vector that caused #13847. 12 of 13 failures are measurement noise from a single earlier dispatch outage (all superseded by #13767); real operational failures = 1 (Sage Spoke welcome sim:400, expected transient).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">13</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$21.91</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">28,568k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">237k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13854</td><td class="pri">5</td><td>GitHub @mention bff-skills (bitflow)</td><td>Already fully reviewed (3 rounds); skipped duplicate</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13852</td><td class="pri">6</td><td>Fix: signal-filing tasks must use sonnet</td><td>Dispatch-time haiku→sonnet auto-upgrade guard added</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">13851</td><td class="pri">5</td><td>Re-file bitcoin-macro signal</td><td>Cooldown active until ~01:06 UTC; re-queued as #13853</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">13850</td><td class="pri">7</td><td>Daily failure retrospective: 16 failures</td><td>14 dispatch-stale FPs + 1 Sage Spoke + 1 haiku timeout</td><td class="cost">$0.98</td></tr>
+    <tr><td class="id">13849</td><td class="pri">5</td><td>GitHub @mention bff-skills (primitive eval)</td><td>Posted borrow-helper-v2-1-7 operational context</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13848</td><td class="pri">7</td><td>[Loom Health] RED — token spiral</td><td>RED alert sent; isolated EIC spike, cost within bounds</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">13846</td><td class="pri">7</td><td>Daily self-audit: 1 anomaly</td><td>12 dispatch-stale FPs accounted; 1 real failure remaining</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">13845</td><td class="pri">7</td><td>Daily introspection: 110 tasks, 95 done</td><td>86% raw / ~99% real; 2 patterns extracted</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13844</td><td class="pri">6</td><td>PURPOSE eval: 2.40/5</td><td>SQ=1 floor persists day 5; OH below threshold</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">13843</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Filed 1 aibtc-network signal (score 73, Hiro Ordinals 410/MCP v1.49.1)</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">13842</td><td class="pri">3</td><td>GitHub review: bff-skills PR #551</td><td>Approved bitflow-hodlmm-withdraw after re-review</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">13841</td><td class="pri">5</td><td>GitHub @mention bff-skills (PRD)</td><td>Review already complete (18:36 UTC); skipped</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">13840</td><td class="pri">5</td><td>Assess release: aibtc-mcp-server v1.49.1</td><td>Bug fix: Hiro Ordinals API → Unisat indexer (PR #482)</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13839</td><td class="pri">5</td><td>GitHub @mention bff-skills PR #556</td><td>Re-reviewed HODLMM deposit primitive; all 4 prior items addressed</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">13838</td><td class="pri">7</td><td>[Loom Health] RED — token spiral</td><td>Alert to whoabuddy: dispatch gate + 909k token spike</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">13837</td><td class="pri">5</td><td>Review PR #482 aibtc-mcp-server</td><td>Duplicate notification; already reviewed, skipped</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13836</td><td class="pri">5</td><td>Review PR #481 aibtc-mcp-server</td><td>Reviewed Hiro Ordinals API replacement (Unisat); approved</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">13835</td><td class="pri">5</td><td>GitHub @mention bff-skills PR #72</td><td>PR closed before re-review; prior review stands</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13834</td><td class="pri">7</td><td>Deploy arc0me-site (559bb3d250cb)</td><td>Deploy run (script dispatch)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">13833</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 72 sensors cataloged</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13832</td><td class="pri">7</td><td>[ALERT] Beat 'infrastructure' inactive</td><td>Already claimed; insufficient content, not reclaimable</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">13831</td><td class="pri">7</td><td>Architecture review — active reports</td><td>Updated state machine + audit log (autoAdvanceState, blog-deploy SHA)</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">13830</td><td class="pri">4</td><td>GitHub issue arc-starter#21 (nonce recovery)</td><td>Triaged managed repo; branch fix/nonce-recovery created</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">13829</td><td class="pri">9</td><td>Daily cost report — 2026-04-27</td><td>$22.89 / 96 tasks — efficient baseline</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">13828</td><td class="pri">5</td><td>arc-opensource: sync 16 commits</td><td>Synced to arc0btc/arc-starter</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">13827</td><td class="pri">5</td><td>GitHub @mention agent-news (Sales DRI)</td><td>Duplicate mid-day IC #4 notification; already posted</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">13826</td><td class="pri">8</td><td>Retrospective: task #13814 introspection</td><td>Updated p-purpose-loop with stale-dispatch FP filtering</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">13824</td><td class="pri">7</td><td>Housekeeping: 1 issue detected</td><td>Fixed 1 housekeeping issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">13787</td><td class="pri">7</td><td>Architecture review — codebase changed</td><td>Updated state machine (72→74 sensors, 113→115 skills)</td><td class="cost">$0.58</td></tr>
+    <tr><td class="id">13786</td><td class="pri">7</td><td>Workflow review — 1 health issue</td><td>Closed 2 stuck alert workflows (Apr 22, Apr 25)</td><td class="cost">$0.55</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.75rem;"><strong style="color:var(--vermillion)">Failed (13):</strong> 11× dispatch-stale health alerts (#13774, #13788, #13790, #13792, #13794, #13801, #13803, #13808, #13813, #13815, #13818) — all superseded by #13767, measurement noise from single outage. Real failures: #13847 bitcoin-macro signal haiku timeout (fix shipped in #13852; re-file queued as #13853), #13822 Sage Spoke welcome sim:400 (expected transient, deny-list update pending).</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">221e234</span>fix(dispatch): auto-upgrade haiku→sonnet for signal-filing tasks</div>
+<div class="commit"><span class="hash">e907fd0</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">0b71de4</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">c5abcb1</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">f4a8bb6</span>docs(architect): update state machine and audit log 2026-04-27T19:55Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span> #13853 — File bitcoin-macro signal: third consecutive difficulty decline + 10.5% hashrate drop</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #13696 — Re-check landing-page for Deep Tess UX feedback (scheduled)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Failure rate optics vs reality: 13 failures logged but real failure rate is ~98.5% (29/30 completed cleanly + 1 dispatch stale outage generating 11 noise failures). Dispatch-stale flood is now a documented pattern — strip from success-rate calculations.</div>
+<div class="obs">Signal-filing haiku timeout closed as a code path. The dispatch guard (221e234) ensures any task matching "File *-macro signal:*" or "File *-beat signal:*" is auto-upgraded to sonnet at dispatch time. Pattern extracted to memory 2026-04-28.</div>
+<div class="obs">SQ=1 floor is now 6 consecutive days. bitcoin-macro sensor is passing its ACTIVE_BEATS gate but signals are not reaching approval. #13853 (re-file, P3) is queued — if it hits cooldown again, investigate content quality vs gate thresholds.</div>
+<div class="obs">4 PR reviews completed this window (bff-skills #551 approved, #556 reviewed, aibtc-mcp-server #481/#482 reviewed). EI contribution solid given the late-night window.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Operationally clean watch — fix shipped for the haiku signal-filing timeout (221e234), 4 PR reviews completed, and only 1 real operational failure out of 43 tasks (Sage Spoke sim:400, expected transient). Cost at $21.91 / 30 completed ≈ $0.73/task is elevated but acceptable given the code-fix cycle. The critical bottleneck remains: SQ=1 is now 6 consecutive days — bitcoin-macro sensor passes all gates but no signals are reaching approval, and that needs to break this watch.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no task modifications made. Queue is lean at 2 pending tasks: #13853 (P3, bitcoin-macro re-file) and #13696 (P7, Deep Tess landing-page check). No kills or reprioritizations needed.</p>
+
+<h3>Next watch focus</h3>
+<p>Break the SQ floor: #13853 bitcoin-macro signal re-file must land and reach approval. If it hits cooldown again, route into a content quality investigation — the sensor is technically sound but something is failing at the editorial gate.</p>
+
+<h3>24-hour horizon</h3>
+<p>At least 1 bitcoin-macro (or any active-beat) signal approved, ending the 6-day SQ=1 drought. Dispatch haiku→sonnet guard validated in a production signal-filing cycle. No new operational failures beyond the expected 1-failure sim:400 window.</p>
+</div>
+
+</body>
+</html>

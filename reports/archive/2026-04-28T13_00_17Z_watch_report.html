@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-28T01:03Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-28T01:03:10Z — 2026-04-28T13:00:17Z</div>
+</header>
+
+<p class="summary">35 tasks completed, zero failures — cleanest 12-hour window in weeks. The 6-day SQ=1 floor was fully resolved: three compounding root causes fixed (ACTIVE_BEATS empty, missing beat tag, sourceQuality=20→30), two bitcoin-macro signals filed and scored. Claude Code upgraded to v2.1.121, 4 PR reviews shipped, and the editorial sensor false-positive loop patched.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">35</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$12.37</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">15,153k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">138k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13853</td><td class="pri">3</td><td>File bitcoin-macro signal: difficulty decline</td><td>Filed signal ID 3573344b — difficulty decline + hashrate drop. Quality 73.</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">13855</td><td class="pri">6</td><td>Watch report — 2026-04-28T01:03Z</td><td>30 completed, 13 failed (12 FP noise), $21.91 — prior watch report</td><td class="cost">$0.81</td></tr>
+    <tr><td class="id">13856</td><td class="pri">6</td><td>New release: claude-code v2.1.121</td><td>Research written; follow-ups #13857 (upgrade) and #13858 (alwaysLoad eval) queued</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">13857</td><td class="pri">5</td><td>Upgrade Claude Code 2.1.119 → 2.1.121</td><td>Upgraded via GitHub release binary; memory leaks + PostToolUse hook expansion active</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">13858</td><td class="pri">7</td><td>Evaluate alwaysLoad:true for arc-mcp config</td><td>alwaysLoad irrelevant for dispatch; recommended in SKILL.md for external clients only</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">13859</td><td class="pri">5</td><td>Self-review: health check 2026-04-28</td><td>2 watches: arc-alive-check stale, MEMORY.md needs consolidation. Services clean.</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">13860</td><td class="pri">7</td><td>[ALERT] Beat 'infrastructure' inactive</td><td>Retired post-competition. Arc has all 3 active beats. No action needed.</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13861</td><td class="pri">7</td><td>Housekeeping: 1 issue</td><td>Fixed 1 issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">13862</td><td class="pri">5</td><td>Self-review triage: 2 issues found</td><td>arc-alive-check stale entry resolved; MEMORY consolidation task #13863 created</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13863</td><td class="pri">6</td><td>Consolidate MEMORY.md</td><td>180→148 lines; dropped resolved entries, archived 13 evals to trend summary</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">13864</td><td class="pri">5</td><td>Auto-queue: 2 hungry domains</td><td>Queued 5 follow-ups: signal filing, SQ investigation, research, 3rd source, skill patterns</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13865</td><td class="pri">4</td><td>File bitcoin-macro signal: BTC price/hash</td><td>Filed signal 59b2ffd6 — BTC $77,127, hashrate -18.6%, difficulty -2.785%. Quality 68, 3 sources.</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">13866</td><td class="pri">5</td><td>Investigate bitcoin-macro SQ=1 floor</td><td>Found 3 root causes: ACTIVE_BEATS=[], missing beat tag, sourceQuality=20. Fixed all (commit f28aeafb).</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">13867</td><td class="pri">6</td><td>Research claude-code releases</td><td>Analyzed v2.1.98 + v2.1.109; reports to research/claude-code-releases/. No action needed.</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13868</td><td class="pri">6</td><td>Add 3rd data source to bitcoin-macro sensor</td><td>blockstream.info added; sourceQuality 20→30, clears 65-point floor. PR #22 open.</td><td class="cost">$2.50</td></tr>
+    <tr><td class="id">13869</td><td class="pri">7</td><td>Document claude-code skill patterns</td><td>Wrote memory/shared/entries/claude-code-skill-patterns.md — 4 sections on permissions, context, cost, reliability</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">13870</td><td class="pri">8</td><td>Retrospective: #13868 learnings</td><td>Updated p-signal-filing-strategy: must pass --sources CLI arg explicitly</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">13871</td><td class="pri">5</td><td>Review PR #486 aibtc-mcp-server</td><td>Approved with suggestion to extract shared classification logic</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">13872</td><td class="pri">5</td><td>Review PR #486 aibtc-mcp-server (dup)</td><td>Already reviewed and approved — skipped duplicate</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13873</td><td class="pri">4</td><td>CEO review — 2026-04-28T03:01</td><td>Clean watch, SQ=1 floor critical — #13853 re-file queued. 0 queue adjustments.</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">13874</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (msg e843cd1a)</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">13875</td><td class="pri">5</td><td>Review PR #23 arc-starter: nonce fix</td><td>Approved — receipt-driven reconciler + bypass elimination; 1 question, 2 suggestions, 2 nits</td><td class="cost">$0.78</td></tr>
+    <tr><td class="id">13876</td><td class="pri">7</td><td>Loom Health: dispatch gate stopped</td><td>Gate stopped (unknown reason). Escalated to whoabuddy with logs.</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13877</td><td class="pri">6</td><td>File bitcoin-macro signal: hashrate drop</td><td>Filed signal d2237ab7 — 10% hashrate drop from ATH (923 vs 1026 EH/s). Quality 93.</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">13878</td><td class="pri">5</td><td>Review bff-skills hodlmm-deposit</td><td>All prior feedback addressed. PR already approved — no new review needed.</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13879</td><td class="pri">6</td><td>Blog post: Layers of Silence</td><td>Draft created covering 3-layer SQ=1 root cause and layered failure masking pattern</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">13880</td><td class="pri">5</td><td>Comment: EIC Quality Rubric (agent-news)</td><td>Documented beat tag gap, validated v4 forward-only application, supported CAP_DISPLACED</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13881</td><td class="pri">7</td><td>Architecture review: state machine update</td><td>Updated state machine + audit log for bitcoin-macro fixes + haiku→sonnet guard</td><td class="cost">$0.72</td></tr>
+    <tr><td class="id">13882</td><td class="pri">7</td><td>[ALERT] Infrastructure beat (FP)</td><td>Retired post-competition — false positive from stale sensor criteria</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13883</td><td class="pri">6</td><td>Fix editorial: filter retired beats</td><td>Added filter to skip retired beats in inactivity alerts — commit d7152b93</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">13884</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 72 sensors cataloged; committed to arc0me-site</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13885</td><td class="pri">7</td><td>Deploy arc0me-site</td><td>Script deploy triggered</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">13886</td><td class="pri">5</td><td>Review bff-skills hodlmm-advisor</td><td>Merge ping, not review request. Already approved — no action needed.</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13887</td><td class="pri">5</td><td>Review PR #354 skills: hodlmm-flow</td><td>Approved — SWAP_FUNCTIONS fix, liquidation detection; 2 suggestions, 1 nit</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">13888</td><td class="pri">5</td><td>Review PR #355 skills: bitflow-limit-order</td><td>Approved — fee, atomic writes, pair normalization; 1 suggestion, 1 nit, 1 question</td><td class="cost">$0.28</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">d7152b9</span>fix(aibtc-news-editorial): skip retired beats in inactivity check</div>
+<div class="commit"><span class="hash">5436b81</span>docs(architect): update state machine and audit log 2026-04-28T08:00Z</div>
+<div class="commit"><span class="hash">8742d0f</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">e1b623d</span>docs(memory): add claude-code-skill-patterns shared entry</div>
+<div class="commit"><span class="hash">94938b4</span>feat(bitcoin-macro): add blockstream.info as 3rd source to clear sourceQuality floor</div>
+<div class="commit"><span class="hash">f28aeaf</span>fix(bitcoin-macro): re-enable sensor and require beat tag in filing instructions</div>
+<div class="commit"><span class="hash">d7e684a</span>chore(memory): consolidate MEMORY.md — 180→148 lines, archive stale evals</div>
+<div class="commit"><span class="hash">5a4f6ba</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">2f0d151</span>docs(arc-mcp-server): recommend alwaysLoad:true for external clients, clarify dispatch boundary</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span> #13696 — Re-check landing-page for Deep Tess UX feedback</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">SQ=1 floor resolved after 6+ consecutive days — three compounding root causes fixed in a single window: ACTIVE_BEATS was empty (sensor short-circuiting every run), missing bitcoin-macro beat tag (all signals scored beatRelevance=0), and sourceQuality capped at 20 (only 2 sources). Two signals filed and scored (quality 68 and 93) within hours of the fix.</div>
+<div class="obs">Task #13868 (add 3rd source) was the highest-cost task at $2.50 — above average for sensor work. The PR workflow with simplify/ultrareview is appropriate here, but worth noting for future multi-file sensor changes.</div>
+<div class="obs">The editorial sensor false-positive loop (infrastructure beat inactive alerts) was root-caused and patched: sensor now skips retired beats in inactivity checks. Two identical false-positive alerts (#13860, #13882) fired before the fix.</div>
+<div class="obs">Zero failures this window, with only 1 pending task in queue (low-priority Deep Tess follow-up). Queue is effectively empty — next sensor cycle will repopulate with signals, PR reviews, or maintenance tasks.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — best window in weeks. 35 tasks, zero failures, $12.37 actual cost (well under the $30 daily target). The SQ=1 floor that persisted 6+ days is resolved: three compounding root causes fixed in a single cycle, two bitcoin-macro signals filed and scored (68, 93). Queue is nearly empty, signals are flowing, and the editorial false-positive loop is patched. The one unresolved blocker is dispatch-gate stopped — awaiting whoabuddy review before autonomous operation can resume.</p>
+
+<h3>Queue adjustments</h3>
+<p>None — queue is lean (2 pending tasks) and correctly prioritized. Report-only review per task instructions.</p>
+
+<h3>Next watch focus</h3>
+<p>Self-evaluation (#13898), then Deep Tess follow-up (#13696) — and monitor approval status of signals d2237ab7 and 3573344b.</p>
+
+<h3>24-hour horizon</h3>
+<p>Both filed signals approved. Blog post "Layers of Silence" published to arc0me. Dispatch-gate either resolved by whoabuddy or formally re-escalated with a clear deadline. Bitcoin-macro sensor running cleanly at 240-min cadence with no SQ=1 regression.</p>
+</div>
+
+</body>
+</html>

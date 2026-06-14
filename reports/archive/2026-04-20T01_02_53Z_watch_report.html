@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-20T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-19T13:01Z — 2026-04-20T01:02Z</div>
+</header>
+
+<p class="summary">Strong 12-hour window: 30 tasks completed, 1 failed (cooldown 429, self-healed), across 31 dispatch cycles. Signal quality recovered — 2 filed (aibtc-network ×2), research identified quantum + bitcoin-macro targets queued for next cooldown window. Architecture review, 7 PR reviews, and DRI standup check-in all shipped.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$11.17</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">12,553k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">124k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13114</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit</td>
+      <td>All systems nominal. 52/54 completed (96%), 2 cooldown 429s. Branch 2 ahead of remote.</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">13113</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.44/5</td>
+      <td>PURPOSE 2.60 (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4) — 0 signals critical, $80K + quantum arXiv priority</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">13112</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>2 targets: arXiv 2603.28846v2 (Google Quantum AI, Bitcoin ECDSA break); hashrate 1,035 EH/s ATH + May difficulty +5.48%. Both queued.</td>
+      <td class="cost">$0.67</td>
+    </tr>
+    <tr>
+      <td class="id">13111</td>
+      <td class="pri">7</td>
+      <td>Daily introspection: 54 tasks</td>
+      <td>96% success, 0 signals, cost outliers drove avg. Retro + purpose trend written; $80K milestone priority.</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">13110</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective</td>
+      <td>2 failures: both rate-limit 429 cooldown hits — same known pattern, reset to pending for retry.</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">13109</td>
+      <td class="pri">5</td>
+      <td>@mention: AIBTC Network editor daily review</td>
+      <td>Commented on #469: confirmed 10/10 approval, noted META_EDITORIAL+SELF_REFERENTIAL rejections, renewed rubric schema offer.</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">13108</td>
+      <td class="pri">5</td>
+      <td>@mention: DRI Standup 2026-04-17</td>
+      <td>Posted Apr 19 EOD check-in on #517: 4 signals/3 beats, hiro-400 fix v5, cooldown fix, 2 DRI applications.</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">13107</td>
+      <td class="pri">5</td>
+      <td>Review agent-news PR #552</td>
+      <td>Already reviewed — arc0btc review posted after latest commit, skipped duplicate.</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">13106</td>
+      <td class="pri">5</td>
+      <td>Review agent-news PR #551</td>
+      <td>Reviewed #552 (closes #551): CHANGES_REQUESTED — depth-limit counts per-node not per-root, shared root-walk logic suggestion.</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">13105</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>State machine + audit log updated. 7fb077c0 (AGENT.md skill-name validation) closes open gap. Compliance surface now complete.</td>
+      <td class="cost">$0.60</td>
+    </tr>
+    <tr>
+      <td class="id">13103</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 18 commits</td>
+      <td>Synced 18 commits to arc0btc/arc-starter.git main.</td>
+      <td class="cost">$0.08</td>
+    </tr>
+    <tr>
+      <td class="id">13102</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills PR #517</td>
+      <td>CHANGES_REQUESTED: SM testnet address in ROUTER_ADDR, APY scale ambiguity, Zest V1 vs V2 deployer.</td>
+      <td class="cost">$0.36</td>
+    </tr>
+    <tr>
+      <td class="id">13101</td>
+      <td class="pri">7</td>
+      <td>File agent-trading signal</td>
+      <td>Filed aibtc-network signal c592da9d: AIBTC P2P atomic PSBT swap + registry 424 agents.</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">13100</td>
+      <td class="pri">7</td>
+      <td>[Loom] RED — token spike</td>
+      <td>Single 862k-token cycle during DRI review. Classified as expected operational behavior; email sent to whoabuddy.</td>
+      <td class="cost">$0.08</td>
+    </tr>
+    <tr>
+      <td class="id">13099</td>
+      <td class="pri">5</td>
+      <td>Review landing-page PR #622</td>
+      <td>Approved — 1-line copy cleanup, remove "on Stacks".</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">13098</td>
+      <td class="pri">5</td>
+      <td>Review skills PR #342</td>
+      <td>Approved with suggestions: parallelize runWatcher fetches, validate --notify BTC addresses.</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">13096</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE</td>
+      <td>PURPOSE 3.35 (S:3 O:4 E:4 C:2 A:4 Co:3 Se:3). Cost efficiency self-correcting. Signal Quality back to 3.</td>
+      <td class="cost">$2.56</td>
+    </tr>
+    <tr>
+      <td class="id">13095</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-19T14:49</td>
+      <td>Signal quality recovering; $0.90 wasted on cooldown-blocked research. Quantum + $80K unfired with 3 days left.</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">13093</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Archived 2 old ISO 8601 reports; archival list now empty.</td>
+      <td class="cost">$0.10</td>
+    </tr>
+    <tr>
+      <td class="id">13092</td>
+      <td class="pri">5</td>
+      <td>Review landing-page PR #621</td>
+      <td>CHANGES_REQUESTED: truncated test vector, inline re-implementations of production code.</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">13091</td>
+      <td class="pri">5</td>
+      <td>@mention: Quantum Beat standards</td>
+      <td>Commented on #497 displacement feedback — noted operational impact, asked about displacement threshold calibration.</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">13090</td>
+      <td class="pri">5</td>
+      <td>Review landing-page PR #620</td>
+      <td>Approved with suggestions: truncated test vector, missing happy-path, misleading test name.</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">13089</td>
+      <td class="pri">5</td>
+      <td>@mention: DRI Performance Review</td>
+      <td>Classified 193161d4 still 404 at ~54h; confirmed Classifieds IC hold posture on #547.</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">13088</td>
+      <td class="pri">8</td>
+      <td>Retro: overnight brief learnings</td>
+      <td>Extracted: 4 signals/3 beats, cooldown-retry working, hiro-400 queue cleared. MEMORY.md updated.</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">13087</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-04-19</td>
+      <td>29 completed / 2 failed (cooldowns); 4 signals/3 beats; lint-skills + arc0me shipped.</td>
+      <td class="cost">$0.83</td>
+    </tr>
+    <tr>
+      <td class="id">13086</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-19T13:01Z</td>
+      <td>20 tasks completed, $14.09 spent, 21 cycles.</td>
+      <td class="cost">$0.55</td>
+    </tr>
+    <tr>
+      <td class="id">13073</td>
+      <td class="pri">3</td>
+      <td>File aibtc-network signal</td>
+      <td>Filed 6e8b9a0f — landing-page PR #604 Hiro 5-10x cut, ESLint wrapper enforcement.</td>
+      <td class="cost">$0.23</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.75rem;"><strong style="color:var(--vermillion)">Failed (1):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13061</td>
+      <td>File agent-trading signal: registry 8 new agents</td>
+      <td>Cooldown 429 — 60min global cooldown active. Retry queued as #13116.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable in dispatch env.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">1358be2d</span>docs(architect): update state machine and audit log 2026-04-19T19:00Z</div>
+  <div class="commit"><span class="hash">1f5cfe3c</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">c0b7cd29</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">37459809</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P2</span> #13115 — File quantum signal: arXiv 2603.28846v2 (Google Quantum AI, Bitcoin ECDSA break)</div>
+  <div class="queue-item"><span class="pri-tag">P4</span> #13116 — File aibtc-network signal: AIBTC agent registry growth (cooldown retry)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Signal quality recovering but $80K milestone still unfired.</strong> 2 aibtc-network signals filed (c592da9d, 6e8b9a0f). Research identified strong quantum target (arXiv 2603.28846v2 — Google Quantum AI, Bitcoin ECDSA break in minutes) and bitcoin-macro target (hashrate ATH 1,035 EH/s + May difficulty +5.48%). Both queued. Competition closes 2026-04-22 — 2 days left.</div>
+  <div class="obs"><strong>Cost outlier: task #13096 ($2.56).</strong> PURPOSE eval ran at full cost — pulled period average to $0.37/cycle vs $0.28–0.31 baseline. Remaining 29 tasks averaged ~$0.29. No intervention needed; outliers self-correct over rolling window.</div>
+  <div class="obs"><strong>Classified 193161d4 still unresolved at ~54h.</strong> Settlement confirmed on-chain; escalated to aibtcdev/agent-news#480 sales DRI. No new path forward — awaiting platform response. Whoabuddy awareness flag remains active.</div>
+  <div class="obs"><strong>PR review pace strong.</strong> 7 reviews filed this window across landing-page, bff-skills, agent-news, and aibtcdev/skills. Architecture review closed the AGENT.md skill-name validation gap (7fb077c0). Ecosystem engagement healthy.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track operationally — 30/31 completed (96.8%), lean queue, solid PR review pace. Signal quality is recovering but still precarious: 2 aibtc-network signals filed this window, quantum target (arXiv 2603.28846v2) correctly queued at P2, aibtc-network cooldown retry at P4. With 2 days until competition close, the queue is positioned correctly — the risk is execution delay, not planning gaps. The $80K bitcoin price milestone remains the only sensor-triggered target that hasn't fired; it requires price cooperation, not queue management.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is lean (2 pending tasks) and correctly prioritized. No kills, reprioritizations, or modifications needed. This is a report-only review.</p>
+
+<h3>Next watch focus</h3>
+<p>Execute quantum signal #13115 — arXiv 2603.28846v2 (Google Quantum AI, Bitcoin ECDSA break in minutes). P2, highest-value move in the queue. File it clean, verify gate compliance before sending.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-21T03:00Z: at least 3 signals filed across 2+ beats (quantum + aibtc-network), bitcoin-macro hashrate ATH signal filed (1,035 EH/s confirmed), $80K price milestone queued or fired if BTC cooperates. Competition score above 430. PR review pace maintained. Cost back below $0.35/task average as PURPOSE eval outlier ages off the window.</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-22T13:00Z → 2026-05-23T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-22T13:00:49Z — 2026-05-23T01:02:18Z</div>
+</header>
+
+<p class="summary">26 tasks completed over 12 hours with 0 failures — perfect success rate. Primary activity: Council naming vote resolved across 5 rounds (converged on Notch), 2 PR reviews on aibtcdev/skills (both blocked for gregoryford963-sys security concern), and scheduled maintenance. Signal filing remains paused by policy; queue is empty entering next period.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">26</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$7.41</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">8,562k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">83k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17292</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-05-22T13:00Z</td>
+      <td>48 tasks completed, $11.68 spent, 1 failure (payout-disputes)</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">17293</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-05-22</td>
+      <td>34/35 tasks succeeded, 1 structural failure (payout disputes)</td>
+      <td class="cost">$0.68</td>
+    </tr>
+    <tr>
+      <td class="id">17294</td>
+      <td class="pri">8</td>
+      <td>Retrospective: extract learnings</td>
+      <td>4 learnings extracted: PR blocking ≠ cred protection, context-review FP cycle, payout-disputes limit, skills repo monitoring</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">17295</td>
+      <td class="pri">7</td>
+      <td>Welcome new AIBTC agent: Wild Ember</td>
+      <td>STX + BTC welcome sent; txid 1f6d31e1</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">17296</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 1 issue(s) detected</td>
+      <td>1 issue fixed</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">17297</td>
+      <td class="pri">5</td>
+      <td>Review PR #394 on aibtcdev/skills</td>
+      <td>CHANGES_REQUESTED: fixes correct but CI adds unvetted skills-ref==0.1.1 (gregoryford963-sys); requested split PR</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">17298</td>
+      <td class="pri">5</td>
+      <td>@mention: aibtcdev/aibtc-mcp-server</td>
+      <td>Issue #487 already closed; PRs #504 (merged) + #518 (arc-approved, awaiting merge) covered all 3 gaps</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17299</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE.md</td>
+      <td>PURPOSE 3.00 — 84 tasks, 98.8% success, $0.281/task. 3 escalations waiting on whoabuddy.</td>
+      <td class="cost">$0.82</td>
+    </tr>
+    <tr>
+      <td class="id">17300</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-22T15:41</td>
+      <td>On track, 98% success, queue empty, escalations sent. 0 adjustments.</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">17301</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Watch report emailed via arc-email-sync (id: 4fa7b231)</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">17302</td>
+      <td class="pri">5</td>
+      <td>Review PR #395 on aibtcdev/skills</td>
+      <td>Commented: 4 fixes technically correct; gregoryford963-sys author flagged for whoabuddy decision</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">17303</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 15 commits</td>
+      <td>15 commits synced to arc0btc/arc-starter main branch</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">17304</td>
+      <td class="pri">9</td>
+      <td>daily cost report — 2026-05-22</td>
+      <td>Dual costs well-tracked, no anomalies; 65 tasks at $0.253/task avg</td>
+      <td class="cost">$0.07</td>
+    </tr>
+    <tr>
+      <td class="id">17305</td>
+      <td class="pri">7</td>
+      <td>architecture review</td>
+      <td>No structural changes. New watch: RileyCraig14 spam pattern (potential prompt injection). All escalations still human-gated.</td>
+      <td class="cost">$0.73</td>
+    </tr>
+    <tr>
+      <td class="id">17306</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.149</td>
+      <td>Research report written: worktree sandbox fix, stale PWD tracking fix, per-category /usage breakdown</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">17307</td>
+      <td class="pri">5</td>
+      <td>@mention: BitflowFinance/bff-skills</td>
+      <td>Phase 2 proof 3.5 days overdue; posted status comment — approve-ready, holding for @TheBigMacBTC to broadcast legs</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">17308</td>
+      <td class="pri">3</td>
+      <td>Council naming vote — Round 1</td>
+      <td>Voted: Tally (with Writ as alternative proposal)</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">17309</td>
+      <td class="pri">3</td>
+      <td>Council naming vote — Round 2</td>
+      <td>Voted: Writ. Shifted from Tally per round-1 commitment.</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">17310</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>aibtc-network: MCP 1.54.1, Codex loop, skills repo resumption — held by policy pause</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">17311</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval — mid-period</td>
+      <td>PURPOSE 3.30/5 — 98.6% success, 10 PR reviews, 0 signals</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17312</td>
+      <td class="pri">7</td>
+      <td>daily introspection: 71 tasks</td>
+      <td>98.6% success, $18.45/day, 1 structural failure (payout-disputes)</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">17313</td>
+      <td class="pri">7</td>
+      <td>daily self-audit</td>
+      <td>All systems nominal: 70/71 success, no new anomalies</td>
+      <td class="cost">$0.11</td>
+    </tr>
+    <tr>
+      <td class="id">17314</td>
+      <td class="pri">3</td>
+      <td>Council naming vote — Round 3</td>
+      <td>Voted: Writ. Held; engaged cairn's juridical dissent.</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">17315</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective</td>
+      <td>1 failure (#17264 payout-disputes) — blocked-on-human, no new patterns</td>
+      <td class="cost">$0.11</td>
+    </tr>
+    <tr>
+      <td class="id">17316</td>
+      <td class="pri">3</td>
+      <td>Council naming vote — Round 4</td>
+      <td>Shifted Writ → Notch; acceptance math clear, Notch is convergence path</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17317</td>
+      <td class="pri">3</td>
+      <td>Council naming vote — Round 5 (LAST)</td>
+      <td>Final vote: Notch (hold). Convergence path with lumen. Vote complete.</td>
+      <td class="cost">$0.21</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market skill not installed. No position data available.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">da1e6595</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">fc2cb43e</span>docs(architect): update state machine and audit log — no structural changes; RileyCraig14 spam pattern flagged</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">No pending tasks. Queue empty — sensor-driven only until next human input or scheduled trigger.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Council naming vote ran 5 rounds across this period ($1.11 total, avg $0.22/round). Converged on <strong>Notch</strong> — shifted from Writ in R4 when acceptance math became clear. Governance process complete.</div>
+<div class="obs">PR #394 and #395 on aibtcdev/skills both received CHANGES_REQUESTED. Root cause: gregoryford963-sys author continues adding unvetted <code>pip install skills-ref==0.1.1</code> to CI — same supply chain concern as #389. Skills repo contributor activity remains chilled 7 days post-incident.</div>
+<div class="obs">Research cycle (task #17310) identified 3 signal-worthy aibtc-network topics (MCP 1.54.1, Codex loop support, skills repo resumption). All held by policy pause — topics logged for when filing resumes.</div>
+<div class="obs">100% success rate this period (26/26). Three open escalations remain human-gated: amber-otter credential rotation, STX wallet refill, payout-disputes platform outreach. No autonomous path to resolution on any of these.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. 100% success rate (26/26), $7.41 for 12 hours (~$14.82/day run rate) — well under the $30 target. Council naming governance is complete (Notch, 5 rounds). Three open escalations remain human-gated with no autonomous resolution path; dispatch has exhausted its options and is correctly waiting. The skills repo gregoryford963-sys pattern (PRs #394, #395 repeating same supply chain CI injection) is a persistent threat — whoabuddy decision needed on whether to close that contributor's PRs preemptively rather than case-by-case review.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue empty — sensor-driven only. No tasks to reprioritize or kill.</p>
+
+<h3>Next watch focus</h3>
+<p>Hold position on stale escalations; process any sensor-generated tasks as they arrive; if whoabuddy responds on STX refill, prioritize re-enabling welcome-agent dispatch immediately.</p>
+
+<h3>24-hour horizon</h3>
+<p>STX wallet refilled and welcome-agent tasks flowing again; amber-otter credentials rotated or whoabuddy has escalated to them directly; a decision exists on the gregoryford963-sys contributor pattern (preemptive close vs. case-by-case); signal filing remains paused pending policy update from whoabuddy.</p>
+</div>
+
+</body>
+</html>

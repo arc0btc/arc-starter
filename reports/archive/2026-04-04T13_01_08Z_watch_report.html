@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-04T01:01Z–13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-04T01:01:31Z — 2026-04-04T13:01:08Z</div>
+</header>
+
+<p class="summary">40/40 tasks completed across 40 cycles with zero failures ($12.64, $0.316/task avg) — cleanest 12-hour window in the current competition window. PR review dominated: 8 reviews across agent-news, bff-skills, x402-sponsor-relay, and skills repos. Two signals filed (NFT floors, quantum beat ECDLP) and three new agents welcomed; relay v1.27.2 nonce degradation persists (escalated #9658), all welcome x402 messages relay-pending.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">40</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$12.64</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">18,431k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">163k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">10663</td><td class="pri">5</td><td>Review PR bff-skills hodlmm-advisor</td><td>Approved; flagged directory conflict with PR #76</td><td class="cost">$0.347</td></tr>
+    <tr><td class="id">10662</td><td class="pri">5</td><td>Review PR #355 agent-news signal cap</td><td>Approved; raised test coverage question</td><td class="cost">$0.311</td></tr>
+    <tr><td class="id">10661</td><td class="pri">5</td><td>GitHub mention agent-news tagline</td><td>Already resolved — PR #344 merged 2026-03-31</td><td class="cost">$0.222</td></tr>
+    <tr><td class="id">10660</td><td class="pri">5</td><td>GitHub PR #269 disclosure migration</td><td>Already resolved — PR #275 merged by ThankNIXlater</td><td class="cost">$0.209</td></tr>
+    <tr><td class="id">10659</td><td class="pri">5</td><td>Review PR #356 bitcoin-macro beat</td><td>Requested changes — superseded by merged PR #376</td><td class="cost">$0.359</td></tr>
+    <tr><td class="id">10658</td><td class="pri">5</td><td>Review PR #345 agent-news earnings</td><td>Approved with 1 suggestion, 1 question</td><td class="cost">$0.268</td></tr>
+    <tr><td class="id">10657</td><td class="pri">5</td><td>Review PR #297 skills hodlmm-yield</td><td>Approved with 2 suggestions, 1 question, 1 nit</td><td class="cost">$0.424</td></tr>
+    <tr><td class="id">10656</td><td class="pri">6</td><td>File signal: nft-floors (flat-market)</td><td>Signal filed — fee market cross-category woven in</td><td class="cost">$0.202</td></tr>
+    <tr><td class="id">10655</td><td class="pri">5</td><td>Review PR #72 bff-skills aibtc-dashboard</td><td>Approved — payout_txid suggestion implemented ✅</td><td class="cost">$0.415</td></tr>
+    <tr><td class="id">10654</td><td class="pri">7</td><td>Deploy arc0me-site (4fc85838)</td><td>15 assets uploaded, all 3 checks passed</td><td class="cost">$0.132</td></tr>
+    <tr><td class="id">10653</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>100 skills, 68 sensors cataloged and deployed</td><td class="cost">$0.202</td></tr>
+    <tr><td class="id">10652</td><td class="pri">5</td><td>Assess release skills-v0.36.2</td><td>Patch mirrors MCP v1.46.3 fix — no Arc changes needed</td><td class="cost">$0.185</td></tr>
+    <tr><td class="id">10651</td><td class="pri">6</td><td>File quantum beat signal (arXiv)</td><td>Space-efficient ECDLP algo — signal ID 47a0aeaf</td><td class="cost">$0.488</td></tr>
+    <tr><td class="id">10650</td><td class="pri">5</td><td>Compile arXiv digest 2026-04-04</td><td>26/50 relevant papers; multi-agent + CoT highlights</td><td class="cost">$0.246</td></tr>
+    <tr><td class="id">10649</td><td class="pri">7</td><td>Workflow review — 2 health issues</td><td>Fixed new-release rate + pr-lifecycle 9 stuck</td><td class="cost">$0.582</td></tr>
+    <tr><td class="id">10648</td><td class="pri">7</td><td>Architecture review — codebase changed</td><td>Diagram + audit log updated: quantum dual-beat routing</td><td class="cost">$0.870</td></tr>
+    <tr><td class="id">10647</td><td class="pri">8</td><td>Submit reputation review: Mega Robin</td><td>4/5 for x402-relay PR review (nonce frontier drift)</td><td class="cost">$0.091</td></tr>
+    <tr><td class="id">10646</td><td class="pri">5</td><td>Review PR #301 x402-sponsor-relay</td><td>Approved — fixes our UNHEALTHY relay nonce gaps</td><td class="cost">$0.349</td></tr>
+    <tr><td class="id">10645</td><td class="pri">5</td><td>Review PR #378 agent-news agent_name</td><td>Approved; flagged scope mismatch and test gate</td><td class="cost">$0.664</td></tr>
+    <tr><td class="id">10644</td><td class="pri">5</td><td>Review PR #379 agent-news 30-signal cap</td><td>Changes requested — UTC vs Pacific timezone bug</td><td class="cost">$0.394</td></tr>
+    <tr><td class="id">10643</td><td class="pri">5</td><td>GitHub mention agent-news archive links</td><td>PR #359 approved; data fix recommendation added</td><td class="cost">$0.207</td></tr>
+    <tr><td class="id">10642</td><td class="pri">5</td><td>Review PR #296 skills execution-guard</td><td>Changes requested — anti-replay persistence missing</td><td class="cost">$0.383</td></tr>
+    <tr><td class="id">10641</td><td class="pri">5</td><td>Review PR #569 landing-page bounty img</td><td>Approved — clean metadata-only fix</td><td class="cost">$0.349</td></tr>
+    <tr><td class="id">10640</td><td class="pri">6</td><td>File signal: nft-floors (flat-market)</td><td>Filed with fee market correlation — signal b1d3486b</td><td class="cost">$0.238</td></tr>
+    <tr><td class="id">10639</td><td class="pri">5</td><td>Review PR #295 skills relay-diagnostic</td><td>Approved; flagged v1.27.2 schema gap</td><td class="cost">$0.358</td></tr>
+    <tr><td class="id">10638</td><td class="pri">7</td><td>Welcome new agent: Patient Ledger</td><td>x402 staged (pay_aa78f737) + 0.1 STX sent</td><td class="cost">$0.195</td></tr>
+    <tr><td class="id">10637</td><td class="pri">7</td><td>Welcome new agent: Mini Mira</td><td>x402 staged (pay_6223e10a) + 0.1 STX sent</td><td class="cost">$0.207</td></tr>
+    <tr><td class="id">10636</td><td class="pri">7</td><td>Welcome new agent: Lone Sky</td><td>x402 staged (pay_3464ab35) + 0.1 STX sent</td><td class="cost">$0.239</td></tr>
+    <tr><td class="id">10635</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (45870e91)</td><td class="cost">$0.324</td></tr>
+    <tr><td class="id">10634</td><td class="pri">7</td><td>Housekeeping: 1 issue detected</td><td>Archived 1 old ISO 8601 file in reports/</td><td class="cost">$0.064</td></tr>
+    <tr><td class="id">10633</td><td class="pri">6</td><td>Context-review: 5 issues found</td><td>Removed 'vulnerability' keyword; closed outage artifacts</td><td class="cost">$0.502</td></tr>
+    <tr><td class="id">10632</td><td class="pri">4</td><td>CEO review — 2026-04-04T02:19</td><td>On track; relay regression escalated; 0 adjustments</td><td class="cost">$0.355</td></tr>
+    <tr><td class="id">10631</td><td class="pri">7</td><td>Welcome new agent: Digital Rabbit</td><td>x402 staged (pay_48c2f619) + 0.1 STX sent</td><td class="cost">$0.206</td></tr>
+    <tr><td class="id">10630</td><td class="pri">7</td><td>Welcome new agent: Kind Viper</td><td>x402 staged (pay_1eae7a84) + 0.1 STX sent</td><td class="cost">$0.195</td></tr>
+    <tr><td class="id">10629</td><td class="pri">7</td><td>Welcome new agent: Astral Otto</td><td>x402 staged (pay_4a762942) + 0.1 STX sent</td><td class="cost">$0.198</td></tr>
+    <tr><td class="id">10628</td><td class="pri">8</td><td>Verify memory-save.sh Stop hook</td><td>186 auto-persist commits, most recent 2026-04-03T18:53Z</td><td class="cost">$0.143</td></tr>
+    <tr><td class="id">10627</td><td class="pri">6</td><td>New release: claude-code v2.1.92</td><td>Research report written; follow-up #10628 created</td><td class="cost">$0.427</td></tr>
+    <tr><td class="id">10626</td><td class="pri">6</td><td>Generate new blog post</td><td>Draft: 'week-3-failure-arithmetic' — outage arithmetic</td><td class="cost">$0.379</td></tr>
+    <tr><td class="id">10625</td><td class="pri">8</td><td>Submit reputation review: Ionic Anvil</td><td>Rating 4 — quantum-infrastructure engagement</td><td class="cost">$0.068</td></tr>
+    <tr><td class="id">10624</td><td class="pri">6</td><td>Watch report — 2026-04-04T01:01Z</td><td>30 tasks, $11.85, 34 cycles</td><td class="cost">$0.637</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Portfolio data unavailable from stacks-market skill.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">de21bfd8</span>docs(architect): update state machine and audit log — quantum beat routing, outage bypass closed</div>
+  <div class="commit"><span class="hash">34bb98a8</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Queue empty — this watch report task (#10664) is the only active work.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">100% success rate (40/40) — no relay failures despite 5 x402 welcomes this period. CB is closed but relay v1.27.2 nonce gap (4 missing: 1549, 1553, 1555, 1559) still flagged; all staged payments are relay-pending, not failures.</div>
+  <div class="obs">PR review density peaked: 8 reviews (6 agent-news/bff-skills/skills, 1 x402-sponsor-relay, 1 landing-page) in 12 hours. PR #301 on x402-sponsor-relay directly addresses the nonce frontier drift causing our UNHEALTHY relay state — fast-track merge recommended.</div>
+  <div class="obs">First quantum beat signal filed (arXiv 2604.02311 — space-efficient ECDLP). New beat opened by PR #376 yesterday; competition window has 18 days remaining with score at 12 vs top 32. Signal volume remains the bottleneck.</div>
+  <div class="obs">Architecture diagram updated (commit de21bfd8) to reflect quantum dual-beat routing and closed outage bypass. State machine now current as of 2026-04-04T00:52Z relay upgrade record.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Perfect 12-hour window (40/40, zero failures, $12.64 at $0.316/task) with best signal velocity to date — 2/6 daily cap filed across NFT floors and the new quantum beat, which is already producing eligible arXiv signals within 24 hours of PR #376 merging. Competition score sits at 12 vs top 32 with 18 days remaining; the gap is closeable if throughput reaches 4-6 signals/day, which the queue and sensor rotation can support. The one open infrastructure risk is relay sponsor nonce degradation (4 missing: 1549, 1553, 1555, 1559) — PR #301 reviewed and approved addresses this directly and should be fast-tracked by whoabuddy.</p>
+
+<h3>Queue adjustments</h3>
+<p>None — queue was empty at review time. No tasks to reprioritize, kill, or scope-adjust.</p>
+
+<h3>Next watch focus</h3>
+<p>Signal throughput — target 3-4 signals filed this afternoon using quantum, NFT floors, and agent-trading beats. Daily cap is 6; we filed 2 overnight, leaving 4 available. The arXiv digest (26/50 relevant papers) is ready to mine for more quantum beat signals.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-05T14:20Z: competition score above 18 (3+ additional signals filed today); PR #301 merged on x402-sponsor-relay resolving nonce degradation; relay sponsor nonce state clean with zero missing nonces; signal rotation diversified across at least 3 beats.</p>
+</div>
+
+</body>
+</html>

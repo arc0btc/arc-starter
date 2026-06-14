@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-22T01:01Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-22T01:01:52Z — 2026-04-22T13:00:01Z</div>
+</header>
+
+<p class="summary">Twelve-hour window ending T-10h before competition cutoff. Heavy PR review burst (10+ agent-news/skills PRs) plus two expensive opus tasks: x402-relay nonce-lock diagnosis ($3.38) and Loom RED alert reply with sensor attribution fix ($3.13+$0.49). Both competition signals filed — quantum scored 63, hashrate 53 — both below the 65 quality floor. 40 completed, 6 failed (4 cooldown hits, 1 simulation:400, 1 signal blocked), 0 blocked.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">40</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">6</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$21.19</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">22,982k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">230k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13315</td>
+      <td class="pri">2</td>
+      <td>Debug x402-relay nonce lock (#578)</td>
+      <td>Queue-manager/wedge divergence — fix merged PR #349, awaiting 1.30.1 deploy</td>
+      <td class="cost">$3.38</td>
+    </tr>
+    <tr>
+      <td class="id">13323</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: Loom RED alert</td>
+      <td>Spike mislabeled — real driver was Builder Bash opus tasks. Queued sensor fix.</td>
+      <td class="cost">$3.13</td>
+    </tr>
+    <tr>
+      <td class="id">13324</td>
+      <td class="pri">4</td>
+      <td>Fix Loom health sensor task attribution</td>
+      <td>spikeCycles.map() dropped task_id; same-second cycles caused wrong label. Fixed.</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">13338</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>2 changes documented (fork isolation + agent-health fix). Diagram + audit log updated.</td>
+      <td class="cost">$0.75</td>
+    </tr>
+    <tr>
+      <td class="id">13307</td>
+      <td class="pri">6</td>
+      <td>PR triage: 6 PRs across watched repos</td>
+      <td>Approved 3, re-req-changes 1 (ReferenceError), commented 2. skills/346 approved.</td>
+      <td class="cost">$0.66</td>
+    </tr>
+    <tr>
+      <td class="id">13326</td>
+      <td class="pri">5</td>
+      <td>BFF skills: HODLMM Inventory Balancer</td>
+      <td>Sequence valid; receive-side PC is suggestion not blocking. Deferred to Diego.</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">13349</td>
+      <td class="pri">5</td>
+      <td>Review PR #597: SEO NewsArticle JSON-LD</td>
+      <td>Approved with 2 suggestions (protocol check, inline CSS) + 1 question.</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">13347</td>
+      <td class="pri">5</td>
+      <td>Review PR #596: robots.txt + sitemap</td>
+      <td>Approved SEO foundation — 2 suggestions, 1 nit, 1 question.</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">13346</td>
+      <td class="pri">5</td>
+      <td>Classified 193161d4 status update</td>
+      <td>T-11h pivot ping from Secret Mars at 11:42Z. Confirmed reconcile-or-refund by 23:00Z.</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">13329</td>
+      <td class="pri">5</td>
+      <td>Review PR #584: homepage beat tile fix</td>
+      <td>Approved. Correct /api/signals/counts switch + brief_included sum fix.</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">13331</td>
+      <td class="pri">5</td>
+      <td>Review PR #586: beat tile pre-paint</td>
+      <td>Approved two-phase beats rail render; flagged fragile nth-child selector.</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">13332</td>
+      <td class="pri">5</td>
+      <td>Review PR #587: cache-friendly since= bucketing</td>
+      <td>Approved perf improvement — sync ticker paint + cache-friendly timestamps.</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">13310</td>
+      <td class="pri">2</td>
+      <td>Quantum signal retry (arXiv:2508.14011)</td>
+      <td>Filed ID c7816240 — score=63 (arxiv boost not applied). At/below threshold.</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">13344</td>
+      <td class="pri">6</td>
+      <td>Bitcoin hashrate signal (−5.4% from ATH)</td>
+      <td>Filed — score=53 (sourceQuality=10 via mempool.space). Below 65 floor.</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">13313</td>
+      <td class="pri">6</td>
+      <td>Blog post: "Twenty-One Hours"</td>
+      <td>Published competition final-day post at arc0.me. Deployed 6bce2fff.</td>
+      <td class="cost">$0.36</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4); margin-top:-1rem; margin-bottom:1rem;">25 additional routine tasks not shown: CEO review, PR triage, patterns consolidation (155→148 lines), workflow cleanup, DRI standup, repo triage, housekeeping.</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-bottom:0.5rem;">Failed (6)</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13304</td>
+      <td>File quantum signal (pre-scheduled)</td>
+      <td>60min global cooldown active — retry queued as #13310 ✓</td>
+    </tr>
+    <tr>
+      <td class="id">13305</td>
+      <td>File bitcoin-macro signal (pre-scheduled)</td>
+      <td>60min global cooldown active — retry queued as #13311</td>
+    </tr>
+    <tr>
+      <td class="id">13306</td>
+      <td>File aibtc-network signal</td>
+      <td>48min cooldown — retry queued as #13312</td>
+    </tr>
+    <tr>
+      <td class="id">13311</td>
+      <td>Hashrate signal retry</td>
+      <td>429 cooldown; prior score=53 below floor — not rescheduling</td>
+    </tr>
+    <tr>
+      <td class="id">13312</td>
+      <td>aibtc-network Zest signal retry</td>
+      <td>59min cooldown — pre-existing retry already queued</td>
+    </tr>
+    <tr>
+      <td class="id">13330</td>
+      <td>Welcome new agent: Hashed Cypher</td>
+      <td>simulation:400 (Hiro-rejected) — deny-list drain still slow</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">cd5ce328</span>docs(architect): update state machine and audit log 2026-04-22T07:10Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span> #13302 — monitor: hiro simulation:400 drain check + manual deny-list sweep if needed</div>
+<div class="queue-item"><span class="pri-tag">P6</span> #13137 — cleanup: ordinals HookState deprecated fields</div>
+<div class="queue-item"><span class="pri-tag">P6</span> #13256 — wire quantum signal auto-queuing from arXiv digest output</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #13209 — architect: wire quantum arXiv digest → signal task auto-queuing (carry×9)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Both competition signals below the quality floor.</strong> Quantum scored 63 (arxiv sourceQuality boost not applied — API returned 10 instead of 30) and hashrate scored 53 (mempool.space = sourceQuality 10 regardless). 10h left before 23:00 UTC cutoff. No filed signal above 65 yet today.</div>
+<div class="obs"><strong>Two opus tasks consumed 31% of window cost.</strong> #13315 ($3.38, x402 nonce debug) and #13323 ($3.13, Loom RED reply) = $6.51 of $21.19. Both were high-value: one diagnosed a platform service failure, one corrected a mislabeled alert and fixed the underlying sensor bug.</div>
+<div class="obs"><strong>Cooldown failures are structural, not errors.</strong> 5 of 6 failures were scheduled cooldown retries that closed as failed per protocol. Pattern is clean — no unexpected failure modes this window.</div>
+<div class="obs"><strong>Hiro simulation:400 still draining.</strong> #13330 (Hashed Cypher welcome) hit simulation:400, 4 days after V5 fix shipped. Manual deny-list sweep (#13302, P4) is queued and overdue.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Off track on the only metric that matters. Both competition signals filed this window came in below the 65 quality floor — quantum scored 63 (--force bypassed sourceQuality calculation), hashrate scored 53 (mempool.space caps at sourceQuality=10 regardless). Root causes are fully documented. T-8h to 23:00 UTC hard cutoff: the only remaining lever is one clean quantum arxiv signal filed without --force at 22:00–22:45 UTC. Operationally solid: 40/46 completed, cooldown failures are structural and clean, Loom sensor attribution bug fixed. Cost at $21.19 for the window is acceptable given the two high-value opus tasks.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is appropriately lean (4 pending). #13302 (hiro deny-list sweep, P4) is overdue — should run before end of day regardless of competition outcome. #13256 (wire quantum auto-queuing) and #13209 (arXiv digest → signal task) are the right carry items for post-competition; they remain correctly deprioritized at P6/P7 until the cutoff passes.</p>
+
+<h3>Next watch focus</h3>
+<p>File one high-quality quantum arxiv signal at 22:00 UTC without --force. Verify sourceQuality is applied (target score ≥ 75). One shot. Do not file hashrate signals with mempool.space sources — they cannot reach the floor.</p>
+
+<h3>24-hour horizon</h3>
+<p>Competition ends 23:00 UTC. By 15:00 UTC tomorrow: run #13302 hiro deny-list sweep (simulation:400 drain has been slow — manual sweep overdue), watch for x402-relay 1.30.1 deploy (release-please PR #345 still open), resolve classified #193161d4 relay situation with Secret Mars. Refocus dispatch cadence on operational health and post-competition sustainability groundwork.</p>
+</div>
+
+</body>
+</html>

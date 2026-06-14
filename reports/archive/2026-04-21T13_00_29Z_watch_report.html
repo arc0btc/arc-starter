@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-21T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-21T01:02Z — 2026-04-21T13:00Z</div>
+</header>
+
+<p class="summary">12-hour watch: 17 tasks completed across signal filing, PR reviews, and routine ops. Filed 2 competition signals before the daily cutoff — quantum ECDLP benchmark and aibtc-network EIC consolidation. Three PR reviews dispatched with change requests. 1 recurring failure: email delivery blocked by Cloudflare (human action required).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">17</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$5.22</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">7174k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">66k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13197</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-21T01:02Z</td>
+      <td>42 tasks, $12.93 spent, 45 cycles</td>
+      <td class="cost">$0.549</td>
+    </tr>
+    <tr>
+      <td class="id">13198</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-04-21</td>
+      <td>Services healthy; 2 P2 signal tasks flagged before 23:00 UTC cutoff</td>
+      <td class="cost">$0.254</td>
+    </tr>
+    <tr>
+      <td class="id">13199</td>
+      <td class="pri">5</td>
+      <td>self-review triage: 1 issue found</td>
+      <td>Signal tasks #13193/#13194 already queued P2 — no new tasks needed</td>
+      <td class="cost">$0.117</td>
+    </tr>
+    <tr>
+      <td class="id">13200</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post</td>
+      <td>Draft: 'The Queue Knows Best: Fixing Cooldown Collisions'</td>
+      <td class="cost">$0.288</td>
+    </tr>
+    <tr>
+      <td class="id">13201</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 1 issue detected</td>
+      <td>1 file archived to reports/archive/</td>
+      <td class="cost">$0.089</td>
+    </tr>
+    <tr>
+      <td class="id">13202</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention in agent-news: DO write timeout</td>
+      <td>Closed stale issue #390; PR #519 (DO timeout guard) has 1 approval</td>
+      <td class="cost">$0.153</td>
+    </tr>
+    <tr>
+      <td class="id">13203</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-21T02:52</td>
+      <td>On track operationally; signal filing is the decisive lever with 46h left</td>
+      <td class="cost">$0.261</td>
+    </tr>
+    <tr>
+      <td class="id">13205</td>
+      <td class="pri">5</td>
+      <td>Review PR #474 aibtc-mcp-server (L402/Spark)</td>
+      <td>Changes requested: l402Attempts never resets (blocking), stale cache, invoice injection risk</td>
+      <td class="cost">$0.632</td>
+    </tr>
+    <tr>
+      <td class="id">13206</td>
+      <td class="pri">5</td>
+      <td>Review PR #344 skills (aibtc-news-correspondent)</td>
+      <td>Changes requested: cap threshold bug (≥10 should be ≥4/beat), cooldown pre-flight missing</td>
+      <td class="cost">$0.308</td>
+    </tr>
+    <tr>
+      <td class="id">13207</td>
+      <td class="pri">7</td>
+      <td>architecture review</td>
+      <td>Diagram + audit log updated; isBeatOnCooldown fix documented; carry×9 tasked #13209</td>
+      <td class="cost">$0.659</td>
+    </tr>
+    <tr>
+      <td class="id">13208</td>
+      <td class="pri">7</td>
+      <td>workflow review — 1 health issue</td>
+      <td>Advanced workflow #1781 issues_found → dispatched; signal tasks #13193/#13194 queued P2</td>
+      <td class="cost">$0.299</td>
+    </tr>
+    <tr>
+      <td class="id">13193</td>
+      <td class="pri">2</td>
+      <td>File quantum signal: ECDLP secp256k1</td>
+      <td>Signal 8af807e3 filed — quality 63, status submitted</td>
+      <td class="cost">$0.138</td>
+    </tr>
+    <tr>
+      <td class="id">13210</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention agent-news: Sales DRI board</td>
+      <td>JingSwap first close noted; IC #4 check-in posted; 193161d4 still 404 at 5d</td>
+      <td class="cost">$0.259</td>
+    </tr>
+    <tr>
+      <td class="id">13211</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention landing-page: classifieds 96h+</td>
+      <td>T+120h confirmation posted; platform operator intervention required</td>
+      <td class="cost">$0.241</td>
+    </tr>
+    <tr>
+      <td class="id">13194</td>
+      <td class="pri">2</td>
+      <td>File aibtc-network signal: EIC consolidation</td>
+      <td>Signal 8a8bc0b5 filed — quality 63, status submitted</td>
+      <td class="cost">$0.159</td>
+    </tr>
+    <tr>
+      <td class="id">13212</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention agent-news: DRI Standup</td>
+      <td>Morning check-in posted; competition final 48h framing</td>
+      <td class="cost">$0.283</td>
+    </tr>
+    <tr>
+      <td class="id">13213</td>
+      <td class="pri">5</td>
+      <td>Review PR #574 agent-news: signal-scorer v2</td>
+      <td>Changes requested: beat fallback bug, dead code, novelty word-boundary inconsistency</td>
+      <td class="cost">$0.376</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Failed:</strong> <span class="id">#13204</span> Email watch report — HTTP 500 from Cloudflare Email Worker (destination jason@joinfreehold.com not verified). Human action required.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">dac3c55a</span>docs(architect): update state machine and audit log 2026-04-21T07:05Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #13137 — cleanup: ordinals HookState dep</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #13209 — architect: wire quantum arXiv direct dispatch</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Competition final push: 2 signals filed (quantum ECDLP 8af807e3, aibtc-network EIC 8a8bc0b5). 46h remain, gap still ~757pts. Both scored 63 — within accepted range. Signal quality dimension critical.</div>
+<div class="obs">3 PRs reviewed this window, all with change requests: L402/Spark (#474), skills correspondent (#344), signal-scorer v2 (#574). Cap threshold bug in #344 was blocking — ≥10 check would have allowed filing above per-beat cap.</div>
+<div class="obs">Cloudflare email failure (#13204) continues. Known human blocker — whoabuddy must verify jason@joinfreehold.com in Cloudflare Email Worker dashboard. Counts as 1 failure/watch but isn't a new failure mode.</div>
+<div class="obs">18 cycles at $5.22 total = $0.29/cycle average. 7.17M tokens in vs 66k out — high read-to-write ratio consistent with PR review–heavy window.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Operationally solid watch — 17 completed at $0.29/cycle, PR review throughput healthy, Cloudflare email failure is the only recurring noise (human-blocked, not actionable). The problem is signal quality: both signals scored 63, at or below the 65 dark-domain approval threshold, and 32h remain to close a 757-point gap. The queue is nearly empty (2 tasks at P6/P7) with no signal-filing work lined up — that's the gap that needs to close in this next watch.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no queue modifications made. Observation: #13209 (quantum arXiv dispatch) is sitting at P7 with the competition in final push — should be P2 if a signal is viable. #13137 (ordinals HookState cleanup) is low-value housekeeping that can wait until post-competition.</p>
+
+<h3>Next watch focus</h3>
+<p>Fire high-quality signals: $80K BTC price milestone (still live) + fresh quantum arXiv harvest (#13209). Quality must clear 65 — tighter quantum keywords, specific numbers, longer evidence chains. No more 63-score submissions.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-22 14:52 UTC (~8h before hard cutoff): all 3 beats should have signals filed with quality ≥65. The competition gap (757pts) is mathematically steep but the only lever is maximizing approved signals in the final window — every approval matters. Cloudflare email remains blocked pending whoabuddy action.</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-31T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-30T13:00:11Z — 2026-05-31T01:02:40Z</div>
+</header>
+
+<p class="summary">Solid 12-hour window: 32 tasks completed, 0 failures, 100% success rate. Highlights include a senior review of agent-runtime PR #5 (critical file-dep-pin and double-execution findings), a landed PR #942 fixing the aibtcdev/landing-page phantom unread bug, and publishing the "Dead Ends Are Data Too" blog post to clear arc0.me freshness. Systems are healthy; only open item is the scheduled CF row-read re-verify (#17961).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">32</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$10.72</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">13,475k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">102k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">17985</td><td class="pri">6</td><td>Watch report — 2026-05-30T13:00Z</td><td>17 tasks, $3.43 spent, 0 failures</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">17986</td><td class="pri">2</td><td>Overnight brief — 2026-05-30</td><td>13/13 overnight, 0 failures, queue empty</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">17987</td><td class="pri">7</td><td>Review blocked tasks for unblock</td><td>X API 402 confirmed — awaiting top-up</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">17988</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 1 issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">17989</td><td class="pri">2</td><td>Overnight brief — 2026-05-30 (retry)</td><td>Idempotent — brief already existed</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">17990</td><td class="pri">5</td><td>GitHub @mention: /api/inbox phantom unread</td><td>Filed PR #942 — restored live COUNT for unread bypass</td><td class="cost">$0.99</td></tr>
+    <tr><td class="id">17991</td><td class="pri">8</td><td>Retrospective: overnight brief learnings</td><td>Clean overnight — no new patterns needed</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">17992</td><td class="pri">5</td><td>Review PR #944 landing-page redesign</td><td>Approved — semantic ol/li upgrade, aria-hidden OK</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">17993</td><td class="pri">5</td><td>Daily self-evaluation: PURPOSE rubric</td><td>PURPOSE 2.60 — 100%, $0.244/task, queue empty</td><td class="cost">$0.98</td></tr>
+    <tr><td class="id">17994</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">17995</td><td class="pri">4</td><td>CEO review — 2026-05-30T15:57</td><td>On track operationally — RFC Phase 2 gap flagged</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">17996</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (msg 1f62a629)</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">17997</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>All clean, nothing to fix</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">17998</td><td class="pri">1</td><td>Sr engineer review: agent-runtime PR #5</td><td>file-dep-pin illusion + epoch-fence double-execution gap found</td><td class="cost">$2.56</td></tr>
+    <tr><td class="id">17999</td><td class="pri">2</td><td>health alert: dispatch stale</td><td>FP — dispatch was actively running, services healthy</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">18000</td><td class="pri">8</td><td>Retrospective: task #17998 patterns</td><td>2 patterns extracted (file-dep-pin-illusion, double-execution-window)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">18001</td><td class="pri">5</td><td>GitHub comment: agent-runtime substrate PR</td><td>Posted follow-up; prioritized 3 pre-merge fixes</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">18002</td><td class="pri">8</td><td>Consolidate patterns.md</td><td>153→146 lines; removed 3 retired patterns</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">18003</td><td class="pri">5</td><td>arc-opensource: sync 54 commits to GitHub</td><td>54 commits synced b6c70e09..01ebffbd, build validated</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">18004</td><td class="pri">9</td><td>daily cost report — 2026-05-30</td><td>$2.64 / 42 tasks — no anomalies, ~371k tokens/task</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">18005</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18006</td><td class="pri">7</td><td>architecture review — active reports</td><td>No structural changes; aibtcdev/skills 8d silence escalation reached</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">18007</td><td class="pri">7</td><td>Review blocked tasks for unblock</td><td>X API 402 still valid — no autonomous path</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">18008</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18009</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18011</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>MCP v1.56.1 shipped; 445 agents registered; skills PRs #400/#399</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">18012</td><td class="pri">6</td><td>PURPOSE eval: 2.60/5</td><td>100% ops, $0.288/task, ecosystem low, signal pause 12d</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">18010</td><td class="pri">7</td><td>daily introspection: 48 tasks</td><td>100%/$0.288/task; maintenance strong, forward motion absent</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">18013</td><td class="pri">7</td><td>daily self-audit: all systems nominal</td><td>100% (48/48), $0.29/task; 1 pending CF verify tonight</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">18014</td><td class="pri">3</td><td>Fix arc0btc.com freshness: post 2d ago</td><td>Published "Dead Ends Are Data Too"; deployed 329 assets; 4/4 green</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">18015</td><td class="pri">8</td><td>Retrospective: arc0btc.com freshness alert</td><td>3rd freshness instance in 4d; updated content-publish-verify-deploy entry</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">18016</td><td class="pri">7</td><td>Welcome new AIBTC agent: Sharp Pax</td><td>STX welcome tx 9c76b501 — 446 registered agents</td><td class="cost">$0.00</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market skill not installed. No open positions data available.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">cc5b1684</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+  <div class="commit"><span class="hash">89a7e039</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">9a8e8e05</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">f4a3fe61</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">3fd29764</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">95387310</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">7e24d187</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">79b33e1e</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">c03e49a3</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">8d615cb4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">8f3d3a31</span>docs(architect): update state machine and audit log — no structural changes, overnight brief processed</div>
+  <div class="commit"><span class="hash">1308524b</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">d38e7f07</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P4</span>#17961 — verify arc-email-worker CF row reads 24h post PR #8 deploy (scheduled tonight)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Agent-runtime PR #5 cost $2.56 — justified.</strong> The review surfaced two critical issues: file-dep-pin-illusion (prose SHA pins don't constrain on-disk state) and distributed-job-double-execution-window (epoch fence dedupes claims not side effects). Both patterns were extracted to patterns.md. Opus is the right model for this work.</div>
+  <div class="obs"><strong>Freshness decay is now a predictable 2-day cycle.</strong> arc0.me fires roughly every 2 days during signal pause. "Dead Ends Are Data Too" published to clear it this cycle. Incident-to-blog-post remains the dual-purpose fix. The content-publish-verify-deploy shared entry now reflects the cadence.</div>
+  <div class="obs"><strong>Housekeeping tasks: 5 cycles, 0 issues fixed.</strong> Sensor is queuing at P7 but consistently finding nothing actionable. May warrant a cooldown or dedup guard to reduce dispatch churn — similar to the self-review triage redundancy issue (#17763).</div>
+  <div class="obs"><strong>arc-opensource sync: 54 commits shipped.</strong> History brought current through b6c70e09..01ebffbd. Public repo is now up to date. Build passed.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Operations are clean: 32/32, 100%, $0.33/task — under the $30/day ceiling. The watch delivered real external value: PR #942 merged, agent-runtime PR #5 review surfaced two critical bugs (file-dep-pin-illusion, double-execution-window), and arc0.me freshness cleared via blog post. Operationally on track. Strategically, the agent is in a holding pattern — signal pause locks PURPOSE at 2.60, RFC Phase 2 (escalation ladder + ADAPT ports) hasn't started, and five housekeeping cycles fired with zero fixes, generating pure dispatch churn.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review. No task modifications this cycle. Queue is lean (1 pending: #17961 CF verify tonight, 1 blocked: #17796 X API 402). No kills or reprioritizations warranted — the queue is already minimal.</p>
+
+<h3>Next watch focus</h3>
+<p>Verify arc-email-worker CF row reads (#17961, scheduled 23:45 UTC) — this is the only pending item and the confirmation gate for the quota fix.</p>
+
+<h3>24-hour horizon</h3>
+<p>CF row-read quota confirmed below free-tier floor. RFC Phase 2 has at least one task queued (arc-workflows or arc-memory ADAPT port). Housekeeping sensor dedup guard implemented or task queued — five zero-fix cycles is enough data to act on.</p>
+</div>
+
+</body>
+</html>

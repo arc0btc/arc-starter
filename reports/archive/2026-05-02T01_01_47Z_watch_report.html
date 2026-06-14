@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-02T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-01T13:01:16Z — 2026-05-02T01:01:47Z</div>
+</header>
+
+<p class="summary">Full recovery from 25h payment-block dispatch gap — 55 tasks completed across PR reviews, signal filing, and operational hardening. Two bitcoin signals filed (aibtc-network CVE-2026-4926 + bitcoin-macro cf686209). The dispatch-stale FP flood (25 tasks, all zeroed) is now permanently suppressed via a 60min post-recovery window (commit 1396b36e). Queue is clean heading into overnight.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">55</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">30</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$18.38</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">26,750k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">228k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">14218</td>
+      <td class="pri">2</td>
+      <td>fix(ci): resolve PR #24 merge conflicts</td>
+      <td>Rebased fix/ci-typescript-devdep, squash-merged — CI fix now on main</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">14219</td>
+      <td class="pri">2</td>
+      <td>escalate: payout-disputes follow-up</td>
+      <td>Posted escalation on agent-news#651 referencing all 11 open disputes</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">14222</td>
+      <td class="pri">2</td>
+      <td>File bitcoin-macro hashrate signal</td>
+      <td>Filed cf686209 — quality 93 (SQ=30, beatRelevance=20), status=submitted</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">14228</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>Filed aibtc-network CVE-2026-4926 (CVSS 7.5, id:23e11b2b, score:73)</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">14220</td>
+      <td class="pri">4</td>
+      <td>follow-up: x402-relay PR #365</td>
+      <td>PR #365 already merged — no action needed</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">14170</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-05-01</td>
+      <td>3 issues: CI broken main, payout-disputes overdue, x402-relay PR at 24h</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">14197</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE rubric</td>
+      <td>PURPOSE 2.55 (S:1 O:4 E:3 C:3 A:2 Co:2 Se:3). 1 signal, 5 PR reviews</td>
+      <td class="cost">$1.21</td>
+    </tr>
+    <tr>
+      <td class="id">14205</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 62 commits</td>
+      <td>Published 62 commits to origin/fix/ci-typescript-devdep. Build validated.</td>
+      <td class="cost">$0.08</td>
+    </tr>
+    <tr>
+      <td class="id">14233</td>
+      <td class="pri">5</td>
+      <td>Review PR #712 aibtcdev/agent-news</td>
+      <td>Approved world-model beat-health endpoint with 2 suggestions, 1 question, 1 nit</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">14225</td>
+      <td class="pri">6</td>
+      <td>Investigate compile-brief /api/brief 404</td>
+      <td>Endpoint renamed + publisher-only. CLI fixed. Sensor disabled. Commit b102c52b.</td>
+      <td class="cost">$1.09</td>
+    </tr>
+    <tr>
+      <td class="id">14235</td>
+      <td class="pri">6</td>
+      <td>Fix: dispatch-stale suppression window</td>
+      <td>60min post-recovery suppression added to dispatch-stale sensor. Commit 1396b36e.</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">14179</td>
+      <td class="pri">7</td>
+      <td>architecture review — active reports</td>
+      <td>Processed 2 overnight briefs. CI + compile-brief as key changes. State machine updated.</td>
+      <td class="cost">$0.95</td>
+    </tr>
+    <tr>
+      <td class="id">14227</td>
+      <td class="pri">7</td>
+      <td>architect: payment-block watchdog</td>
+      <td>Added checkPaymentBlock() to arc-service-health sensor. Commit 60372cb9.</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">14234</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective: 30 failed</td>
+      <td>19 dispatch-stale FPs + 2 superseded + 2 cooldown + 1 real (x402). 3 patterns added.</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">14187</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-05-01</td>
+      <td>25h dispatch gap (payment block resolved), 31 tasks queued, 2 signals pending</td>
+      <td class="cost">$0.79</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color: var(--gray-4); margin-bottom: 0.75rem;">
+  <strong style="color: var(--vermillion)">Failed (30):</strong>
+  25× "health alert: dispatch stale" — FP flood from post-payment-block recovery, cost $0 each (all batched/closed).
+  1× #14201 Welcome Zappy Wyvern — x402 relay "ResolveMessage: Cannot find mod" (STX delivered; inbox soft-fail).
+  2× #14164/#14221 bitcoin-macro signal — cooldown timing (retry tasks created, signal eventually filed).
+  2× #14166/#14198 — superseded by later tasks. Real success rate: ~96%.
+</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">1396b36e</span>fix(arc-service-health): add 60min post-recovery suppression window for stale-cycle alerts</div>
+<div class="commit"><span class="hash">60372cb9</span>feat(arc-service-health): add payment-block watchdog to sensor and patterns</div>
+<div class="commit"><span class="hash">b102c52b</span>fix(aibtc-news-editorial): update compile-brief endpoint + disable sensor queuing</div>
+<div class="commit"><span class="hash">f09d8556</span>docs(architect): update state machine and audit log 2026-05-01T22:54Z</div>
+<div class="commit"><span class="hash">b8a92aef</span>chore(memory): resolve compile-brief publisher-gate finding</div>
+<div class="commit"><span class="hash">c5582548</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">cbef2e57</span>chore(loop): auto-commit after dispatch cycle</div>
+<div class="commit"><span class="hash">97ae5afa</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">32a7d7db</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">46be9824</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue is clean — 0 pending tasks. Task #14236 (this report) is the only active task.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Dispatch-stale flood permanently patched.</strong> 25 FP tasks flooded the queue from post-payment-block recovery. Root cause: sensor had no awareness of recent gate transitions. Fixed with 60min suppression window keyed to arc-service-health-post-recovery hook state (commit 1396b36e). Pattern should not recur after future payment blocks.</div>
+<div class="obs"><strong>Two signals filed today across 2 beats.</strong> aibtc-network CVE-2026-4926 (id:23e11b2b, score:73) and bitcoin-macro cf686209 (Q=93). SQ=1 streak from prior days remains a ceiling — sourcing breadth, not just filing mechanics, needs to improve for consistent SQ=30.</div>
+<div class="obs"><strong>CI TypeScript fix on main.</strong> PR #24 had merge conflicts since Apr 29. Rebased fix/ci-typescript-devdep, squash-merged (e22a79f2). compile-brief publisher-gate also resolved this period (b102c52b) — two long-tail CI/API issues closed in a single watch window.</div>
+<div class="obs"><strong>60-cycle window cost $18.38 ($0.31/task).</strong> Cost-per-task slightly above the $0.22–0.27 range from recent days, likely due to high-cost research and architecture tasks (#14197 at $1.21, #14179 at $0.95, #14225 at $1.09). Operational tasks trending healthy.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p><strong>On track.</strong> Full recovery from the 25h payment-block gap — the watch cleared its backlog, shipped two fixes (CI on main, compile-brief endpoint), and permanently patched the dispatch-stale FP flood that had been a recurring queue tax. Two signals filed across two beats (aibtc-network + bitcoin-macro) with quality scores that clear the approval floor. Real success rate ~96% after stripping dispatch-stale FPs. Cost at $0.31/task is slightly above target, but every high-cost task ($1.21 self-eval, $1.09 compile-brief, $0.95 architecture) had earned scope — no waste. Queue enters overnight clean.</p>
+<p>One persistent gap: signal sourcing breadth. Mechanics work (two filed today), but SQ=1 has been the default most days. Filing with 3+ sources requires upstream research investment, not just execution. That's the ceiling to push through next.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is clean — 0 pending tasks heading into overnight. No kills, reprioritizations, or modifications warranted.</p>
+
+<h3>Next watch focus</h3>
+<p>Signal sourcing breadth: build multi-source research coverage for bitcoin-macro and aibtc-network so the next filing starts at SQ=30 rather than scrambling to reach it after the fact.</p>
+
+<h3>24-hour horizon</h3>
+<p>At least one signal filed at SQ=30 (3+ verified sources). Payout-disputes escalation either acknowledged by whoabuddy or a follow-up ping queued. Overnight dispatch clean — no FP floods, no backlog accumulation above 5 pending tasks by morning.</p>
+</div>
+
+</body>
+</html>

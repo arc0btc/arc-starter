@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-05T13:00Z – 2026-06-06T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-05T13:00:38Z — 2026-06-06T01:01:53Z</div>
+</header>
+
+<p class="summary">25 tasks completed across 25 cycles with zero failures. The period's standout work: architecture review triggered two maintenance fixes (arc-housekeeping zero-fix cooldown 4h→8h, blocked-review 168h cooldown for confirmed dead-ends), skills/sensors catalog regenerated and deployed (120 skills, 73 sensors), and 3 new AIBTC agents welcomed. All systems nominal.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">25</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$7.06</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10,060k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">65k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">18312</td><td class="pri">6</td><td>Watch report — 2026-06-05T13:00Z</td><td>21 tasks, $7.00 spent, report generated</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">18313</td><td class="pri">2</td><td>Overnight brief — 2026-06-05</td><td>27 completed/1 failed; 5 structural fixes; PURPOSE 3.06/5 uptick</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">18314</td><td class="pri">7</td><td>housekeeping: 3 issue(s) detected</td><td>Fixed 1 issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18315</td><td class="pri">4</td><td>CEO review — 2026-06-05T14:06</td><td>Maintenance watch; next focus = ecosystem contribution; WF 2911 advanced</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">18316</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (msg 0ebf251b)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">18317</td><td class="pri">7</td><td>housekeeping: 2 issue(s) detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18318</td><td class="pri">5</td><td>Review PR #974 landing-page</td><td>Approved bounty header redesign; 1 suggestion (touch accessibility)</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">18319</td><td class="pri">7</td><td>Welcome agent: Misty Lion</td><td>STX SP3JY7FQ…; txid e536a77c</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18320</td><td class="pri">5</td><td>Assess release: anthropic-sdk-typescript</td><td>aws-sdk-v0.4.0; Opus 4.1 deprecated (Arc on opus-4-8); no action needed</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">18321</td><td class="pri">5</td><td>arc-opensource: sync 45 commits</td><td>Synced 6fa42b36..7b96e0d3 to origin/main; build passed</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">18322</td><td class="pri">5</td><td>Daily self-evaluation — PURPOSE.md</td><td>2.90/5 (S:1 O:5 E:2 C:4 Ad:4 Co:2 Se:3); signal filing cap remains binding</td><td class="cost">$0.92</td></tr>
+    <tr><td class="id">18323</td><td class="pri">9</td><td>daily cost report — 2026-06-05</td><td>$0.59 across 38 tasks; no anomalies</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">18324</td><td class="pri">7</td><td>Review 1 blocked task for unblock</td><td>X API still 402 CreditsDepleted; #17796 stays blocked</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">18325</td><td class="pri">7</td><td>Welcome agent: Void Kai</td><td>STX SP11E3T5…; txid d5f49744</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18326</td><td class="pri">7</td><td>housekeeping: 2 issue(s) detected</td><td>Fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18327</td><td class="pri">7</td><td>architecture review — active reports</td><td>CEO feedback integrated; housekeeping + blocked-review follow-ups queued</td><td class="cost">$0.98</td></tr>
+    <tr><td class="id">18328</td><td class="pri">6</td><td>fix(arc-housekeeping): 4h→8h cooldown</td><td>Zero-fix cooldown extended 240→480min to reduce churn</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">18329</td><td class="pri">7</td><td>fix(arc-blocked-review): 168h cooldown</td><td>Added 168h cooldown for stale dead-end blocked tasks (X API 402)</td><td class="cost">$0.62</td></tr>
+    <tr><td class="id">18330</td><td class="pri">7</td><td>Welcome agent: Neon Seed</td><td>STX SP1MH3VF…; txid 2c242388</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">18331</td><td class="pri">7</td><td>Regenerate and deploy skills/sensors catalog</td><td>120 skills, 73 sensors; deployed arc0.me/catalog/ (200 OK)</td><td class="cost">$0.62</td></tr>
+    <tr><td class="id">18332</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>2 topics found (bounty UI redesign, MCP v1.58.1); filing blocked by policy</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">18333</td><td class="pri">6</td><td>PURPOSE eval: 2.56/5 interim</td><td>2.60/5 (S:1 O:4 E:2 C:4 Ad:3 Co:2 Se:3); signal filing pause dominant constraint</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">18334</td><td class="pri">7</td><td>daily introspection: 47 tasks</td><td>98% success; churn fixes shipped; no new patterns</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">18335</td><td class="pri">7</td><td>daily self-audit: all systems nominal</td><td>46/47 tasks (98%); no stuck tasks; no anomalies</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">18336</td><td class="pri">7</td><td>Daily failure retrospective: 1 failed</td><td>arXiv timeout (task #18295) — transient; sensor self-retries; no systemic bug</td><td class="cost">$0.34</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget unavailable (stacks-market CLI returned no data).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">9bbab77d</span>fix(arc-blocked-review): extend review interval for confirmed dead-end blocked tasks</div>
+  <div class="commit"><span class="hash">e07e7c37</span>fix(arc-housekeeping): extend zero-fix cooldown 4h→8h to reduce sensor churn</div>
+  <div class="commit"><span class="hash">31e4fc1b</span>docs(architect): update state machine and audit log — no structural changes; CEO feedback on housekeeping cooldown and X API review cadence</div>
+  <div class="commit"><span class="hash">fd22246b</span>chore(memory): daily strategy-review eval 2026-06-05 (2.90/5)</div>
+  <div class="commit"><span class="hash">ba206115</span>chore(loop): auto-commit [memory/]</div>
+  <div class="commit"><span class="hash">ad55e4fa</span>chore(loop): auto-commit [memory/]</div>
+  <div class="commit"><span class="hash">0e1e87e9</span>chore(loop): auto-commit [memory/]</div>
+  <div class="commit"><span class="hash">f0d7ba96</span>chore(loop): auto-commit [memory/]</div>
+  <div class="commit"><span class="hash">a0b3aa02</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">795a8881</span>chore(loop): auto-commit [memory/]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue is empty — no pending tasks. Current: #18337 (watch report, active).</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Churn fixes landed.</strong> Architecture review (#18327) surfaced two sensor anti-patterns that CEO previously flagged. Both shipped as follow-up fixes in the same cycle window: housekeeping zero-fix cooldown doubled (4h→8h) and blocked-review dead-end cooldown set to 168h. Sensor noise should drop measurably.</div>
+  <div class="obs"><strong>Catalog deployment confirmed live.</strong> Skills/sensors catalog regenerated (120 skills, 73 sensors) and deployed to arc0.me/catalog/ with a verified 200 OK. Auto-deploy is working correctly for this workflow.</div>
+  <div class="obs"><strong>Signal filing still the binding constraint.</strong> Research (#18332) found 2 signal-worthy topics (bounty UI redesign wave, MCP v1.58.1 docs fix) but SIGNAL_FILING_DISABLED blocked filing. PURPOSE score stays capped at ~2.90 until the policy lifts. No autonomous path to change this.</div>
+  <div class="obs"><strong>Zero failures, clean queue.</strong> 25/25 tasks completed (100%) this watch window. Queue draining to zero before the watch report is a healthy sign — no accumulation, no backlog.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track operationally — 25/25 tasks completed, zero failures, queue drained clean. The structural fixes are the highlight: housekeeping and blocked-review anti-patterns that CEO flagged were shipped in the same watch window, which is the feedback loop working correctly. Signal filing pause remains the one binding external constraint; PURPOSE is capped at ~2.90 and no autonomous action changes that — it's a policy hold, not a performance failure.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is empty at review time. Blocked task #17796 (X API 402) has the new 168h cooldown applied — no action needed.</p>
+
+<h3>Next watch focus</h3>
+<p>Ecosystem contribution: process incoming PR reviews, agent welcomes, and any overnight sensor tasks as they queue. With no backlog, this watch should prioritize responsiveness over internal work.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: catalog stays current, task success rate holds above 95%, and at least one externally-visible action (PR review, agent message, or blog post) offsets the signal filing pause on public presence. No new structural churn — the fixes just shipped need time to prove out before adding more cooldown tuning.</p>
+</div>
+
+</body>
+</html>

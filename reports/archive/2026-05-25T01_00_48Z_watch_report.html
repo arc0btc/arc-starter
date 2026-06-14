@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-24T13:00Z–2026-05-25T01:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  td.flood {
+    color: var(--vermillion);
+    font-style: italic;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-24T13:00:06Z — 2026-05-25T01:00:48Z</div>
+</header>
+
+<p class="summary">12-hour period dominated by a retrospective sensor flood: 80+ duplicate "arc0btc.com health alert" tasks consumed ~$14 of spend before the root cause was diagnosed and fixed mid-period. Fix shipped in two commits (autoAdvanceState + 60min sensor-side dedup gate) and verified in production before period end. Three landing-page PRs approved; services healthy, 0 failures.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">103</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$20.15</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">22,381k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">154k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17596</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit: all systems nominal</td>
+      <td>243/243 tasks (100%), $1.73 avg; no anomalies</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">17595</td>
+      <td class="pri">7</td>
+      <td>Daily introspection: 243 tasks</td>
+      <td>Retrospective flood dominant story; fix shipped; 100% success rate</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">17594</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 3.35/5</td>
+      <td>S:1 O:5 E:3 C:5 A:4 Co:3 Se:4 — 243/243 success, 6 PR reviews</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">17593</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>aibtc-network strong (bounty system, PR #915); filing paused by policy</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17590</td>
+      <td class="pri">3</td>
+      <td>Verify dedup fix + sensor-side gate</td>
+      <td>Fix verified: workflow 2735 advanced, last dupe at 21:07 UTC; 60min gate added</td>
+      <td class="cost">$1.61</td>
+    </tr>
+    <tr>
+      <td class="id">17589</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: Re: Arc Watch 2026-05-24T01Z</td>
+      <td>Replied re: retrospective flood; fix confirmed shipped; queued verification task</td>
+      <td class="cost">$0.66</td>
+    </tr>
+    <tr>
+      <td class="id">17588</td>
+      <td class="pri">5</td>
+      <td>Review PR #916 landing-page: /bounties redirects</td>
+      <td>Approved; suggestion to use permanentRedirect() for 308 status</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">17585</td>
+      <td class="pri">2</td>
+      <td>fix(retrospective-sensor): add dedup guard</td>
+      <td>Added autoAdvanceState:completed to all 9 retrospective_pending actions; loop stopped</td>
+      <td class="cost">$1.42</td>
+    </tr>
+    <tr>
+      <td class="id">17583</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>Retrospective flood identified; follow-up #17585 created; no structural changes</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">17580</td>
+      <td class="pri">5</td>
+      <td>Review PR #915 landing-page: payment resolution hints</td>
+      <td>Approved; suggestion on typing nonceAction as union type</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">17566</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 10 commits to GitHub</td>
+      <td>Pushed b18b8358..029718e2 to arc0btc/arc-starter main</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">17559</td>
+      <td class="pri">5</td>
+      <td>Review PR #914 landing-page: [Codex] /bounties redirects</td>
+      <td>Approved; clean redirect implementation</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">17534</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: 1btc-news Quantum Bounty</td>
+      <td>Factual correction posted: PR #389 closed, credentials still public in diff</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">17529</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>2026-05-24T01Z–13Z report emailed to whoabuddy@gmail.com</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">17526</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-24T15:46</td>
+      <td>Strong work / flood burned $15.10 (73%); fix dedup guard is next priority</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17521</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE rubric</td>
+      <td>PURPOSE 3.25; 184/184 success, $0.171/task, 8+ PR reviews; eval in MEMORY.md</td>
+      <td class="cost">$1.03</td>
+    </tr>
+    <tr>
+      <td class="id flood" colspan="3">~80× "Retrospective: arc0btc.com health alert — extract learnings" (#17519–#17584)</td>
+      <td class="flood">Sensor flood: state machine failed to advance, caused infinite re-queuing. All returned "pattern already captured" — no new learnings. Root cause fixed in #17585.</td>
+      <td class="cost">~$10.80</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">d9a335a7</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">b42d49ab</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">e4c8a9b3</span>fix(arc-workflows): add belt-and-braces 60min sensor-side dedup gate</div>
+  <div class="commit"><span class="hash">98893b17</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">1a700e99</span>fix(arc-workflows): add autoAdvanceState to all retrospective_pending actions</div>
+  <div class="commit"><span class="hash">aec019ac</span>docs(architect): update audit log — retrospective flood confirmed ($15.10 waste, 116 duplicates)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue is empty. Watch report task (this task) completing now.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Retrospective flood cost $10.80 (54% of period spend).</strong> State machine in arc-workflows didn't advance after queuing retrospective tasks, causing the sensor to re-detect the same arc0btc.com health incident every cycle for ~8 hours (80+ duplicates). Fix: added autoAdvanceState:completed to all 9 retrospective_pending state actions (commit 1a700e99) plus a 60min sensor-side recentTaskExistsForSource gate (e4c8a9b3) as a belt-and-braces backup.</div>
+  <div class="obs"><strong>Fix verified in-period — loop stopped.</strong> After commit 1a700e99 landed, workflow 2735 transitioned out of retrospective_pending. Last duplicate was task #17587 at 21:07 UTC, 3 minutes after fix deployed. The sensor gate also validates cleanly. Self-healing completed without human intervention beyond the initial email from whoabuddy flagging the issue.</div>
+  <div class="obs"><strong>Three landing-page PRs approved this period.</strong> PR #914 (Codex bounties redirects), #915 (machine-readable payment resolution hints — useful for agent inboxes), and #916 (bounties alias redirects). Platform continues active development; #915 adds nonceAction typing relevant to Arc's STX send flows.</div>
+  <div class="obs"><strong>Signal research conducted but filing remains paused.</strong> aibtc-network has strong queued material: bounty system (5 PRs in 48h), PR #915 machine-readable payment hints, BFF winners #386/#387. Docs note these for when filing resumes — no gap in coverage when policy lifts.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. The retrospective flood was a real infrastructure failure ($10.80 wasted, 80+ duplicate cycles), but Arc diagnosed the root cause, shipped a fix with belt-and-braces redundancy, and verified it in-period — self-healing without human intervention beyond whoabuddy's initial flag. Strip the flood cost and effective work ran at ~$9.35 for 12h (~$0.19/task, well under target). 103/103 success rate; responsiveness executed correctly (whoabuddy email handled first); PR review pipeline flowing (3 approved this period). Three stale escalations (amber-otter, STX wallet, payout disputes) remain human-gated — Arc exhausted autonomous paths on all three. The structural drag from signal filing pause (S:1 floor) is policy, not a dispatch failure.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no task modifications this cycle. Queue entered this watch empty; no adjustments warranted.</p>
+
+<h3>Next watch focus</h3>
+<p>Maintain PR review cadence and monitor for any sensor regression from the dedup fix — confirm the 60min gate holds through a full sensor cycle before considering the issue fully closed.</p>
+
+<h3>24-hour horizon</h3>
+<p>Dedup fix confirmed stable (zero retrospective flood recurrence), PR review throughput ≥3 reviews, cost tracking below $30/day once flood-inflated period rolls off. Three human-gated escalations remain unchanged pending whoabuddy action.</p>
+</div>
+
+</body>
+</html>

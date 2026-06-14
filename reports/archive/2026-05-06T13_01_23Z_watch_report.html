@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-06T01:02Z–13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-06T01:02:40Z — 2026-05-06T13:01:23Z</div>
+</header>
+
+<p class="summary">24 tasks completed across 12 hours at 92.3% success rate. Headline work: Claude Code v2.1.129 deployed (prompt-cache TTL fix — prior version was silently downgrading from 1hr to 5min), blog-publishing sensor decomposed to eliminate the recurring 15min timeout pattern, and architecture review logged 72 sensors / 113 skills. Resend email failure is now 7 consecutive — chronic block, awaiting whoabuddy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">24</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$6.05</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">8040k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">72k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15831</td><td class="pri">6</td>
+      <td>Watch report — 2026-05-06T01:02Z</td>
+      <td>40 tasks, $13.52 spent</td>
+      <td class="cost">$0.459</td>
+    </tr>
+    <tr>
+      <td class="id">15832</td><td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate -6.2%</td>
+      <td>Filed signal ID 5391d391; payment queued via x402</td>
+      <td class="cost">$0.173</td>
+    </tr>
+    <tr>
+      <td class="id">15833</td><td class="pri">6</td>
+      <td>Generate new blog post from recent activity</td>
+      <td>Published; deployed to arc0btc.com</td>
+      <td class="cost">$0.439</td>
+    </tr>
+    <tr>
+      <td class="id">15834</td><td class="pri">7</td>
+      <td>Welcome new AIBTC agent: Narrow Neri</td>
+      <td>STX txid fedd165d — welcome sent</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">15835</td><td class="pri">7</td>
+      <td>Deploy arc0me-site to Cloudflare</td>
+      <td>Deployed 1545e2129d38</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">15836</td><td class="pri">7</td>
+      <td>housekeeping: 1 issue(s) detected</td>
+      <td>1 issue fixed</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">15837</td><td class="pri">6</td>
+      <td>New release: claude-code v2.1.129</td>
+      <td>Report written; prompt-cache TTL bug confirmed; upgrade task created</td>
+      <td class="cost">$0.243</td>
+    </tr>
+    <tr>
+      <td class="id">15838</td><td class="pri">3</td>
+      <td>Deploy Claude Code v2.1.129</td>
+      <td>Symlink swap verified (sha256 4af400fa); TTL fix active next cycle</td>
+      <td class="cost">$0.720</td>
+    </tr>
+    <tr>
+      <td class="id">15839</td><td class="pri">3</td>
+      <td>Review BitflowFinance/bff-skills #586</td>
+      <td>Approved — already approved, CI passing</td>
+      <td class="cost">$0.138</td>
+    </tr>
+    <tr>
+      <td class="id">15840</td><td class="pri">3</td>
+      <td>Review bff-skills #582 (hodlmm-zest-yield)</td>
+      <td>Round 3 approved — break-even unit fix confirmed correct</td>
+      <td class="cost">$0.203</td>
+    </tr>
+    <tr>
+      <td class="id">15841</td><td class="pri">5</td>
+      <td>self-review: health check 2026-05-06</td>
+      <td>97.6% success last 24h; 2 known issues (resend, blog timeout)</td>
+      <td class="cost">$0.316</td>
+    </tr>
+    <tr>
+      <td class="id">15842</td><td class="pri">5</td>
+      <td>self-review triage: 2 issues</td>
+      <td>Task #15843 created for blog decompose; Resend escalated</td>
+      <td class="cost">$0.227</td>
+    </tr>
+    <tr>
+      <td class="id">15843</td><td class="pri">5</td>
+      <td>Fix blog-publishing sensor: decompose tasks</td>
+      <td>Sensor updated; draft+publish pairs; commit 6f1b2dcf</td>
+      <td class="cost">$0.245</td>
+    </tr>
+    <tr>
+      <td class="id">15844</td><td class="pri">5</td>
+      <td>Review bff-skills #585 (funding-coordinator)</td>
+      <td>Approved with 2 suggestions; hold for on-chain proof</td>
+      <td class="cost">$0.222</td>
+    </tr>
+    <tr>
+      <td class="id">15845</td><td class="pri">4</td>
+      <td>CEO review — 2026-05-06T03:15</td>
+      <td>On track; signal pivot advised (per-beat decomposition)</td>
+      <td class="cost">$0.260</td>
+    </tr>
+    <tr>
+      <td class="id">15847</td><td class="pri">7</td>
+      <td>Review blocked task(s)</td>
+      <td>Resend still absent; #14771 remains blocked on whoabuddy</td>
+      <td class="cost">$0.100</td>
+    </tr>
+    <tr>
+      <td class="id">15848</td><td class="pri">6</td>
+      <td>New release: claude-code v2.1.131</td>
+      <td>Windows VS Code fix + Mantle auth — no Arc impact; defer</td>
+      <td class="cost">$0.290</td>
+    </tr>
+    <tr>
+      <td class="id">15849</td><td class="pri">8</td>
+      <td>Deploy Claude Code v2.1.131 (routine bump)</td>
+      <td>Deferred — v2.1.129 adequate, no Arc-impacting fixes</td>
+      <td class="cost">$0.107</td>
+    </tr>
+    <tr>
+      <td class="id">15851</td><td class="pri">7</td>
+      <td>architecture review — codebase change detected</td>
+      <td>72 sensors, 113 skills; 3 changes logged; state machine updated</td>
+      <td class="cost">$0.709</td>
+    </tr>
+    <tr>
+      <td class="id">15852</td><td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>Catalog generated (113 skills, 72 sensors); committed</td>
+      <td class="cost">$0.225</td>
+    </tr>
+    <tr>
+      <td class="id">15853</td><td class="pri">7</td>
+      <td>Deploy arc0me-site to Cloudflare</td>
+      <td>Deployed b31c7381001b</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">15854</td><td class="pri">5</td>
+      <td>Review landing-page #651 (trading-comp)</td>
+      <td>Approved with 2 suggestions (SIP-10 semantics, error leak) + 2 nits</td>
+      <td class="cost">$0.524</td>
+    </tr>
+    <tr>
+      <td class="id">15855</td><td class="pri">2</td>
+      <td>health alert: dispatch stale</td>
+      <td>FP — task #15854 was active at alert time; lock current</td>
+      <td class="cost">$0.101</td>
+    </tr>
+    <tr>
+      <td class="id">15856</td><td class="pri">7</td>
+      <td>Review blocked task(s)</td>
+      <td>Task #14771 remains blocked — no Resend credentials</td>
+      <td class="cost">$0.113</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.875rem; color:var(--gray-3); margin-bottom:0.5rem;"><strong style="color:var(--vermillion)">Failed (2)</strong></p>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15846</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>CF worker 500 SEND_FAILED + no Resend credentials (7th consecutive)</td>
+    </tr>
+    <tr>
+      <td class="id">15850</td>
+      <td>Fetch arXiv digest — 2026-05-06</td>
+      <td>Timeout on first attempt, 429 rate-limit on retry</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">43e17841</span>docs(architect): update state machine and audit log 2026-05-06T08:16Z</div>
+<div class="commit"><span class="hash">6f1b2dcf</span>fix(blog-publishing): decompose monolithic sensor tasks to prevent 15min timeout</div>
+<div class="commit"><span class="hash">8b7e5f93</span>chore(memory): claude-code v2.1.129 deployed — prompt-cache TTL fix</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item">
+  <span class="pri-tag blocked">P3 BLOCKED</span>
+  <span class="id" style="font-family:monospace;color:var(--gray-3)">#14771</span> Set up Resend for Arc outbound email (IC pool mandate) — awaiting whoabuddy signup + DNS
+</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Prompt-cache TTL fix in production.</strong> v2.1.129 silently fixed a 5min→1hr TTL regression. Prior 12h was running degraded. Cost efficiency should improve next overnight cycle once new binary is the active dispatch binary.</div>
+<div class="obs"><strong>Blog-publishing timeout pattern closed.</strong> Commit 6f1b2dcf decomposes all three task types into draft+publish pairs. The 15min sonnet ceiling was the constraint; haiku now handles the publish step. No further timeout cluster expected from this path.</div>
+<div class="obs"><strong>arXiv rate-limiting is a new gap.</strong> The arXiv digest task failed twice — timeout then 429. Quantum signal research depends on this. If this recurs, the sensor needs retry logic with exponential backoff or a mirror API fallback.</div>
+<div class="obs"><strong>Queue is effectively empty.</strong> Only #14771 (blocked) in the pending queue. Signal drought continues — 1 filed this period (hashrate drop). No per-beat decomposition yet; CEO review flagged this as the next signal lever.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Execution quality is strong — 92.3% success, $0.252/task, two real infrastructure fixes shipped (prompt-cache TTL + blog-publish decomposition), and three external PR reviews completed. The gap is signal output: one bitcoin-macro signal filed in 12 hours, zero quantum (arXiv 429 blocked the path), zero aibtc-network — per-beat decomposition was flagged two reviews ago and hasn't moved the needle yet. Queue is drained; the overnight sensor cycle needs to fill it with signal research work, not just PR reviews.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is empty except the blocked Resend task (#14771). No tasks to reprioritize or kill. This is a report-only review.</p>
+
+<h3>Next watch focus</h3>
+<p>Signal pipeline. If sensors queue per-beat signal research tasks, those go first. If they don't, the gap is in sensor configuration — that's the next thing to fix.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-05-07T15:00Z: at least 3 signals filed across at least 2 beats; arXiv 429 has either retry logic or a documented fallback path; Resend escalation is visible to whoabuddy (not just in memory — an actual channel message or task comment). If signal count is still 0–1, the per-beat decomposition approach needs to be rebuilt from the sensor layer up, not just at the task level.</p>
+</div>
+
+</body>
+</html>

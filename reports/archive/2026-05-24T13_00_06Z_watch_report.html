@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-24T01:01Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .alert {
+    background: rgba(223, 45, 44, 0.08);
+    border: 1px solid rgba(223, 45, 44, 0.3);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--gray-2);
+  }
+  .alert strong { color: var(--vermillion); }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  td.warn {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--vermillion);
+    text-align: right;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-24T01:01:45Z — 2026-05-24T13:00:06Z</div>
+</header>
+
+<div class="alert">
+  <strong>Dispatch flood detected:</strong> 116 of 136 completed tasks were duplicate "Retrospective: arc0btc.com health alert" runs — all returning the same "pattern already captured" result. Estimated waste: ~$15.10 across ~116 redundant cycles. Root cause: retrospective sensor re-queuing a closed loop. Requires sensor dedup fix.
+</div>
+
+<p class="summary">136 tasks completed (0 failed) over 11.97 hours at $20.72 total — but 85% of that spend was a dispatch flood from a runaway retrospective sensor re-queuing the same already-documented pattern 116 times. Effective non-duplicate work cost ~$5.62 across 20 meaningful tasks. All 5 PR reviews approved; blog post published; sensor health clean at 72/72. Pending queue is empty.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">136</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$20.72</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">21,556k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">151k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks (Meaningful work — 20 tasks)</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17382</td><td class="pri">5</td>
+      <td>Self-review: health check 2026-05-24</td>
+      <td>100% success, 32/32 tasks, services nominal</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17388</td><td class="pri">4</td>
+      <td>CEO review — 2026-05-24T03:43</td>
+      <td>On track, 100% success, queue clean</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">17391</td><td class="pri">5</td>
+      <td>Auto-queue: 1 hungry domain</td>
+      <td>Queued 4 tasks: sensor health, skill lint, patterns review, pre-commit check</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">17392</td><td class="pri">5</td>
+      <td>Sensor health report: audit all sensors</td>
+      <td>72/72 sensors nominal; 8 never-run noted</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">17393</td><td class="pri">6</td>
+      <td>Skill lint audit</td>
+      <td>118 SKILL.md + 57 AGENT.md + 72 sensor.ts — 0 violations</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">17394</td><td class="pri">6</td>
+      <td>Patterns.md freshness review</td>
+      <td>Promoted 3 patterns: content-publish-deploy-verify + 2 others</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">17395</td><td class="pri">7</td>
+      <td>Pre-commit hook verification</td>
+      <td>lint-skills hook installed and verified</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">17396</td><td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>2026-05-24T01:01:45Z report emailed successfully</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17410</td><td class="pri">5</td>
+      <td>Review PR #911 landing-page: fix(bounty): redirect</td>
+      <td>Approved; suggested permanent redirect improvement</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">17419</td><td class="pri">5</td>
+      <td>Review PR #912 landing-page: feat(bounty): blockade</td>
+      <td>Approved with suggestions; bounty blocking feature</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">17427</td><td class="pri">5</td>
+      <td>GitHub @mention bff-skills: SKILL UN- re-review</td>
+      <td>Re-reviewed PR #605 at HEAD 0c6ac02f — collateral sentinel fix confirmed; approved</td>
+      <td class="cost">$0.54</td>
+    </tr>
+    <tr>
+      <td class="id">17435</td><td class="pri">6</td>
+      <td>Generate blog post from recent activity</td>
+      <td>"The Build-Without-Deploy Gap" draft created</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">17436</td><td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Blog post published to arc0.me</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">17439</td><td class="pri">7</td>
+      <td>Deploy arc0me-site to Cloudflare</td>
+      <td>Deploy triggered (fe0c3957a809)</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">17442</td><td class="pri">5</td>
+      <td>GitHub @mention bff-skills: payout-inquiry #581</td>
+      <td>Prior context provided in arc0btc comment — #4 acknowledges</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17450</td><td class="pri">5</td>
+      <td>Review PR #913 landing-page: fix(inbox): live COUNT</td>
+      <td>Approved — live COUNT(*) fix correct</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">17453</td><td class="pri">7</td>
+      <td>Architecture review — active reports</td>
+      <td>No structural changes since f6961f5d; watch report 27/27 (100%)</td>
+      <td class="cost">$0.84</td>
+    </tr>
+    <tr>
+      <td class="id">17491</td><td class="pri">5</td>
+      <td>GitHub @mention agent-contracts: fix treasury routing PR #3</td>
+      <td>Reviewed and approved PR #3 — treasury routing fix confirmed</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">17358</td><td class="pri">6</td>
+      <td>Watch report — 2026-05-24T01:01Z</td>
+      <td>27 tasks, $8.93 spent, emailed to whoabuddy</td>
+      <td class="cost">$0.51</td>
+    </tr>
+    <tr>
+      <td class="id">17374</td><td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Fixed 1 housekeeping issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr style="background: rgba(223,45,44,0.05);">
+      <td class="id" colspan="2" style="color:var(--vermillion)">×116</td>
+      <td style="color:var(--vermillion)">Retrospective: arc0btc.com health alert (duplicates)</td>
+      <td style="color:var(--gray-4); font-style:italic">Pattern already captured — all returned same result</td>
+      <td class="warn">~$15.10</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+  <p class="empty">stacks-market skill not available in this environment. No position data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">0d0808cd</span>docs(architect): update audit log — no structural changes; retrospective dedup FP noted</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Pending queue is empty — all tasks consumed this period.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Retrospective flood is the story of this period.</strong> 116 duplicate "Retrospective: arc0btc.com health alert" tasks ran and completed, each spending ~$0.13 to confirm the same already-documented pattern. Total waste: ~$15.10 of the $20.72 period spend. The sensor is re-queuing a retrospective for a task that has already been resolved and memorialized. This needs a dedup guard — either a <code>pendingOrCompletedTaskExistsForSource</code> check, or a TTL on retrospective generation per source task.</div>
+  <div class="obs"><strong>Non-duplicate work was strong.</strong> 20 meaningful tasks at 100% success, including 5 PR approvals (landing-page #911, #912, #913; bff-skills #605; agent-contracts #3), blog post published to arc0.me, sensor health confirmed at 72/72, and lint audit at 0 violations across 247 files. Effective cost per real task: ~$0.28.</div>
+  <div class="obs"><strong>Architecture review confirmed stability.</strong> No structural changes since f6961f5d — the codebase is clean and the last watch period's work (100% success, 27 tasks) was correctly validated.</div>
+  <div class="obs"><strong>Token ratio is skewed.</strong> 21,556k tokens in vs 151k out — a 143:1 ratio driven almost entirely by the 116 retro flood cycles loading full context (SOUL.md + CLAUDE.md + MEMORY.md) each time for a 2-sentence "already captured" response. Fixing the retro dedup will dramatically improve token efficiency.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>The 20 meaningful tasks were on track — 100% success, 5 PR approvals, blog post deployed, sensor health at 72/72 clean, lint audit zero violations. The problem is structural: a runaway retrospective sensor burned $15.10 (73% of period spend) running 116 identical "pattern already captured" cycles. This is not a one-off; task #17527 is already queued as another duplicate. Fix the retrospective sensor dedup before the next full watch period or this flood repeats.</p>
+
+<h3>Queue adjustments</h3>
+<p>REPORT-ONLY review — no queue modifications made. Note: task #17527 (P8, "Retrospective: arc0btc.com health alert") is another duplicate; the retrospective sensor dedup fix should close this pattern for good.</p>
+
+<h3>Next watch focus</h3>
+<p>Fix the retrospective sensor dedup guard (<code>pendingOrCompletedTaskExistsForSource</code> check or TTL) — this is the single highest-leverage action to protect cost efficiency going forward.</p>
+
+<h3>24-hour horizon</h3>
+<p>Retrospective flood resolved and sensor guard in place; daily cost back under $10 for a typical watch period; stale escalations (amber-otter credential rotation, STX wallet refill, payout disputes) still waiting on whoabuddy — no autonomous path, hold pattern.</p>
+</div>
+
+</body>
+</html>

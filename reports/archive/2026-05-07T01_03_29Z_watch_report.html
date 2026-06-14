@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-06T13:01Z — 2026-05-07T01:03Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-06T13:01:23Z — 2026-05-07T01:03:29Z</div>
+</header>
+
+<p class="summary">10 tasks completed, 0 failures across 40 cycles in this 12-hour window. Key outputs: 1 signal filed to aibtc-network (bitflow-zest-sbtc-leverage-unwind), arXiv 429 retry fix shipped, v2.1.132 assessed and skipped, and two BitflowFinance/bff-skills PR reviews completed. Queue is empty; Resend block persists (waiting on whoabuddy).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">10</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$11.78</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">15,545k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">143k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15895</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective</td>
+      <td>3 failures: 2× Resend (chronic), 1× arXiv 429 (fix shipped)</td>
+      <td class="cost">$0.1021</td>
+    </tr>
+    <tr>
+      <td class="id">15894</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: bff-skills#588</td>
+      <td>Reviewed sbtc-leverage-unwind PR; feedback posted</td>
+      <td class="cost">$0.5226</td>
+    </tr>
+    <tr>
+      <td class="id">15893</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit</td>
+      <td>All systems nominal; chronic externals noted</td>
+      <td class="cost">$0.1008</td>
+    </tr>
+    <tr>
+      <td class="id">15892</td>
+      <td class="pri">7</td>
+      <td>Daily introspection (65 tasks)</td>
+      <td>95% success; arXiv fix shipped; signal drought persists</td>
+      <td class="cost">$0.2194</td>
+    </tr>
+    <tr>
+      <td class="id">15891</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.40/5</td>
+      <td>S:1 O:4 E:1 C:4 A:3 Co:2 Se:3 — signal + PR diversity gaps</td>
+      <td class="cost">$0.1644</td>
+    </tr>
+    <tr>
+      <td class="id">15890</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>Filed 1 signal: aibtc-network / bitflow-zest-sbtc-leverage</td>
+      <td class="cost">$0.7417</td>
+    </tr>
+    <tr>
+      <td class="id">15889</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: bff-skills re-review</td>
+      <td>Re-reviewed post-merge at e44ed58; all feedback addressed</td>
+      <td class="cost">$0.1850</td>
+    </tr>
+    <tr>
+      <td class="id">15888</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: agent-news#607 RFC</td>
+      <td>Posted May 6 follow-up: /api/earnings 404 + relay concerns</td>
+      <td class="cost">$0.2528</td>
+    </tr>
+    <tr>
+      <td class="id">15887</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.132</td>
+      <td>Research report written; assessed, skipped — no Arc impact</td>
+      <td class="cost">$0.2411</td>
+    </tr>
+    <tr>
+      <td class="id">15886</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: agent-news x402-relay</td>
+      <td>On-chain scan confirmed; both stuck paymentIds resolved</td>
+      <td class="cost">$0.4148</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Blocked:</strong> <span class="id">#14771</span> Set up Resend for Arc outbound — waiting on whoabuddy to complete signup. Watch reports cannot be emailed until resolved.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable — portfolio data not retrieved.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">eaf67e25</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">285d8d9d</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">450a1a24</span>fix(arxiv-research): add 429 retry with backoff to prevent quantum signal drought</div>
+<div class="commit"><span class="hash">e06df167</span>docs(architect): update state machine and audit log 2026-05-06T20:17Z</div>
+<div class="commit"><span class="hash">3ad3da6c</span>chore(memory): consolidate patterns.md (158→148 lines)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue empty — all pending tasks consumed. Next sensor tick will populate.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">arXiv 429 retry fix shipped (commit 450a1a24) — 3 attempts with 5s/10s backoff and Retry-After header support. First overnight test pending. This is the primary lever for ending the quantum signal drought.</div>
+<div class="obs">1 signal filed this period (aibtc-network beat, 74 chars cost ~100 sats). Signal volume remains well below the 10/day cap — per-beat task decomposition and the arXiv fix together should close this gap in overnight.</div>
+<div class="obs">40 cycles / $11.78 = $0.29/cycle average, consistent with recent trend. Context loading is heavy: 15,545k tokens_in across 40 cycles (~388k avg/cycle). No budget pressure at current rate.</div>
+<div class="obs">No whoabuddy GitHub activity in this window. Resend block is now the loudest chronic failure — 6+ task failures logged, escalation noted, awaiting credential setup.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Execution mechanics are solid — 10/10, $0.29/cycle, responsiveness intact (GitHub mentions addressed same watch, x402-relay stuck paymentIds resolved, bff-skills PR reviewed). The arXiv 429 retry fix is the right move and its first live test window opens ~08:11Z today; if it holds, quantum signal drought ends tonight. Signal volume (1/10 cap, single beat) and PURPOSE score (2.40, S:1 EI:1) remain the primary gaps — queue depth and cost are not the problem, signal pipeline throughput is.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue was empty at review time; task #15906 (arXiv fix verification, pri 4) is the only pending item and is correctly scoped. Resend block (#14771) is appropriately staged — nothing to modify until whoabuddy provides credentials.</p>
+
+<h3>Next watch focus</h3>
+<p>arXiv fix validation: confirm the ~08:11Z sensor run completes without 429 and produces at least one quantum signal candidate. If it fails again, escalate the sensor interval or add a manual research task to bridge.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-05-08T03:00Z: quantum beat has filed at least one signal (arXiv fix verified live), aibtc-network and bitcoin-macro sensors each have a filed signal or a clear reason why threshold wasn't met, and Resend either has credentials from whoabuddy or a harder escalation is on record. Signal diversity across all three active beats — not just one — is what "on track" looks like by this time tomorrow.</p>
+</div>
+
+</body>
+</html>

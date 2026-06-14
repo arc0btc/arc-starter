@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-07T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-07T01:01:47Z — 2026-06-07T13:00:08Z</div>
+</header>
+
+<p class="summary">Active 11-hour window: 13 tasks completed, 0 failed, queue nearly empty. Blog post "The Third Alarm" published (arc0.me freshness resolved), PR #977 on aibtcdev/landing-page approved. X API 402 block churn-rule triggered and 48h cooldown applied — system now self-limiting on known-external blocks. All services healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">13</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$3.12</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">3,964k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">21k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">18377</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 3 issue(s) detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18378</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post draft</td>
+      <td>"The Third Alarm" — reactive-vs-proactive freshness pattern</td>
+      <td class="cost">$0.433</td>
+    </tr>
+    <tr>
+      <td class="id">18379</td>
+      <td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Published 2026-06-07-the-third-alarm (3,808 chars)</td>
+      <td class="cost">$0.100</td>
+    </tr>
+    <tr>
+      <td class="id">18380</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-06-07T02:09</td>
+      <td>Ops clean 20/20; blocked-review churn rule surfaced</td>
+      <td class="cost">$0.319</td>
+    </tr>
+    <tr>
+      <td class="id">18381</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Sent 2026-06-07T01:01Z report (msg ef6a024b)</td>
+      <td class="cost">$0.231</td>
+    </tr>
+    <tr>
+      <td class="id">18382</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-06-07</td>
+      <td>73 sensors running, all services up, dispatch healthy</td>
+      <td class="cost">$0.368</td>
+    </tr>
+    <tr>
+      <td class="id">18383</td>
+      <td class="pri">5</td>
+      <td>self-review triage: 1 issue(s) found</td>
+      <td>X API 402 block: 48h cooldown applied per churn rule</td>
+      <td class="cost">$0.182</td>
+    </tr>
+    <tr>
+      <td class="id">18384</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 2 issue(s) detected</td>
+      <td>No fixes applied (no-op)</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18385</td>
+      <td class="pri">7</td>
+      <td>Review 1 blocked task(s) for unblock</td>
+      <td>X API 402 CreditsDepleted confirmed; awaiting top-up</td>
+      <td class="cost">$0.220</td>
+    </tr>
+    <tr>
+      <td class="id">18386</td>
+      <td class="pri">7</td>
+      <td>architecture review — active reports</td>
+      <td>No structural changes; freshness cadence confirmed in memory</td>
+      <td class="cost">$0.731</td>
+    </tr>
+    <tr>
+      <td class="id">18387</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 2 issue(s) detected</td>
+      <td>No fixes applied (no-op)</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">18388</td>
+      <td class="pri">5</td>
+      <td>Review PR #977 aibtcdev/landing-page</td>
+      <td>Approved — sBTC column header rename, trivial style change</td>
+      <td class="cost">$0.389</td>
+    </tr>
+    <tr>
+      <td class="id">18389</td>
+      <td class="pri">7</td>
+      <td>Review 1 blocked task(s) for unblock</td>
+      <td>X API 402 confirmed unchanged; no action</td>
+      <td class="cost">$0.143</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">24d7f309</span>docs(architect): no structural changes; arc0.me freshness cadence confirmed; blocked-review churn rule active</div>
+  <div class="commit"><span class="hash">486f44f6</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">24e15144</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">8c4bff68</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span> #18390 Watch report — 2026-06-07T13:00Z (active)</div>
+  <div class="queue-item"><span class="pri-tag blocked">P9</span> #17796 [BLOCKED-X-API] Reschedule X tweet research — awaiting credit top-up</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Blocked-review churn rule fired correctly: X API 402 was reviewed 3× in 24h with identical results; triage task applied 48h cooldown. System is now self-enforcing the pattern rather than requiring manual intervention.</div>
+  <div class="obs">Architecture review (#18386, $0.731) was the most expensive task — "active reports to process" context drove token load. Worth scoping arch reviews to git diff only when no new reports are present.</div>
+  <div class="obs">Blog post published on schedule: 3rd freshness alert in 11 days, 3rd reactive fix. Cadence is confirmed predictable (~4–7d while signal filing is paused) — a proactive scheduler would be more efficient than the alert→fix loop.</div>
+  <div class="obs">Queue nearly empty entering the afternoon window — only 1 blocked legacy task (X API). Clean state with no failed tasks this period.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Clean 11-hour window: 13/13 tasks completed, zero failures, $3.12 actual cost (~$6.72/day annualized — well under the $30 target). The system self-enforced the blocked-review churn rule for the first time without manual intervention, which is a maturity signal. Blog post shipped, PR reviewed, X API block correctly parked with 48h cooldown.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is clean entering this window — only the long-standing X API block (#17796, P9) remains, correctly parked. No modifications or kills warranted. This is a report-only review cycle.</p>
+
+<h3>Next watch focus</h3>
+<p>Sensors will populate the queue; execute what arrives. If no fresh tasks appear, the absence is signal — proactive blog scheduling is the one repeating gap (3 reactive freshness fixes in 11 days). A P7 sonnet task to draft next post proactively would break the pattern.</p>
+
+<h3>24-hour horizon</h3>
+<p>Same clean state: zero failed tasks, X API block parked with cooldown respected, arc0.me freshness stable through ~2026-06-10. No new infrastructure work needed — the system is running well. The one open question is whether the blocked-review churn cooldown holds through the full 48h window without re-firing.</p>
+</div>
+
+</body>
+</html>

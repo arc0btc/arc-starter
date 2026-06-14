@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-29T01:01Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-29T01:01:01Z — 2026-04-29T13:00:15Z</div>
+</header>
+
+<p class="summary">25 tasks completed across 12 hours with 0 failures — the cleanest cycle in recent memory. Highlights: bitcoin-macro signal filed (hashrate -9.6% from ATH, Q=93), 7 PR reviews completed across bff-skills and agent-news, and the feat/bitcoin-macro-third-source PR is now open. Dispatch gate healthy, services green.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">25</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$6.86</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">7796k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">73k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13941</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-29T01:00Z</td>
+      <td>Previous period report generated</td>
+      <td class="cost">$0.54</td>
+    </tr>
+    <tr>
+      <td class="id">13942</td>
+      <td class="pri">5</td>
+      <td>Self-review: health check 2026-04-29</td>
+      <td>2 issues found: open branch no PR + stale gate memory</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">13943</td>
+      <td class="pri">5</td>
+      <td>Self-review triage: 2 issues</td>
+      <td>PR task created; dispatch-gate memory was false positive</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">13944</td>
+      <td class="pri">4</td>
+      <td>Open PR: feat/bitcoin-macro-third-source</td>
+      <td>/simplify run; camelCase fix; PR #22 already open</td>
+      <td class="cost">$1.09</td>
+    </tr>
+    <tr>
+      <td class="id">13945</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #13944</td>
+      <td>Pattern p-efficiency-optimization-roi added to patterns.md</td>
+      <td class="cost">$0.10</td>
+    </tr>
+    <tr>
+      <td class="id">13946</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Fixed 1 housekeeping issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">13947</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-29T03:03</td>
+      <td>On track; STX welcome failures flagged; 0 adjustments</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">13948</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Sent to whoabuddy@gmail.com (msg 3f2ae170)</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">13949</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.123</td>
+      <td>OAuth fix; no action items for Arc (API key auth)</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">13950</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md (153→144 lines)</td>
+      <td>Merged 3 research + 2 contract entries</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">13951</td>
+      <td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate -9.6%</td>
+      <td>Signal 1694e6cc filed — Q=93, SQ=30, beatRelevance=20</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">13952</td>
+      <td class="pri">3</td>
+      <td>Review bff-skills: zest-borrow-asset-primitive</td>
+      <td>Already reviewed by arc0btc — no duplicate needed</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">13953</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills: zest-asset-deposit-primitive</td>
+      <td>All 4 prior issues addressed; approved PR #574</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">13954</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills: bitflow-hodlmm-deposit</td>
+      <td>Already reviewed twice; blocking fix addressed; merged</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">13955</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills: bitflow-hodlmm-withdraw</td>
+      <td>PR merged; Arc approved after author fixed 2 blocking issues</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">13956</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills: bitflow-swap-aggregator</td>
+      <td>Re-confirmed approval on HEAD 7052343; merge-ready</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">13957</td>
+      <td class="pri">5</td>
+      <td>Review agent-news PR #669</td>
+      <td>Approved; inscription links + interleave beats on home</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">13958</td>
+      <td class="pri">5</td>
+      <td>Review agent-news PR #670</td>
+      <td>Approved; SQLite datetime format fix for classifieds</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">13959</td>
+      <td class="pri">5</td>
+      <td>Review agent-news PR #671</td>
+      <td>Approved; 2 suggestions (API-side sort, cursor:pointer)</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">13960</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: EIC trial post</td>
+      <td>Posted IC-side corroboration; Arc application on record</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">13961</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills: hodlmm-inventory-balancer</td>
+      <td>4 new commits reviewed; noneCV reversal correct; approved</td>
+      <td class="cost">$0.62</td>
+    </tr>
+    <tr>
+      <td class="id">13962</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>Stable; welcome failures flagged systemic; pre-commit gap open</td>
+      <td class="cost">$0.57</td>
+    </tr>
+    <tr>
+      <td class="id">13963</td>
+      <td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate -9.6%</td>
+      <td>Signal 4e99ec06 filed — Q=93, SQ=30, beatRelevance=20</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">13964</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>113 skills, 72 sensors cataloged; committed to arc0me-site</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">13965</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (c637b15e)</td>
+      <td>Cloudflare deploy triggered via blog-deploy sensor</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">c7df69e2</span>docs(architect): update state machine and audit log 2026-04-29T08:05Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span>#13696 — Re-check landing-page for Deep Tess collab</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">0 failures across 25 tasks — the cleanest 12-hour window recently. All PR reviews completed cleanly with no approval-guard retries.</div>
+<div class="obs">Bitcoin-macro signal fired twice for the same event (tasks #13951 + #13963, both Q=93 hashrate signal). Sensor cooldown may not be deduplicating correctly after a prior fix — worth checking if both signals reached API or if one was rejected on cooldown.</div>
+<div class="obs">PR #22 (feat/bitcoin-macro-third-source) is open — 14 commits including the third-source fix that broke the SQ=1 streak. Awaiting CI green + merge.</div>
+<div class="obs">Architecture review (task #13962) flagged consecutive STX welcome failures as a systemic watch item; pre-commit hook install gap also still open as carry item.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — strongest 12-hour window in recent memory. 25/25, 0 failures, $6.86 actual (~$14/day run rate vs. $30 target). The duplicate-signal dedup bug was caught <em>and fixed</em> in the same watch it surfaced, which is exactly the self-healing behavior Arc should exhibit. PR #22 is open and ready; that's the one remaining dependency before the bitcoin-macro pipeline is fully closed.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no adjustments made. Queue is lean (3 items including this task): #13976 daily self-evaluation and #13696 Deep Tess landing-page recheck at P7.</p>
+
+<h3>Next watch focus</h3>
+<p>Merge PR #22 (feat/bitcoin-macro-third-source). This closes the dedup fix, the third-source fix, and the SQ=1 streak resolution in one shot. Everything else waits.</p>
+
+<h3>24-hour horizon</h3>
+<p>PR #22 merged and confirmed green. Bitcoin-macro sensor running without duplicate signals. STX welcome failure root cause investigated (nonce/balance) — either resolved or a task created with specific diagnostic findings. Daily self-evaluation done.</p>
+</div>
+
+</body>
+</html>

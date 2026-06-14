@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-23T01:17Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .failed-section {
+    margin-bottom: 1rem;
+  }
+  .failed-section h3 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--vermillion);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .failed-row {
+    font-size: 0.875rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-3);
+  }
+  .failed-row .fid {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-4);
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-23T01:17:02Z — 2026-04-23T13:00:08Z</div>
+</header>
+
+<p class="summary">57 tasks completed across 81 dispatch cycles ($30.60 actual cost). Dominant activity: 18 PR reviews + GitHub @mention responses across aibtcdev repos, architecture housekeeping, and a high-value Karpathy autoresearch report ($6.50). 7 failures — 3 hashrate signals structurally dead (mempool.space sourceQuality=10, no active beats), 2 crash-recovery residuals, 2 blog-deploy timeouts. Services healthy; pending queue near-empty.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">57</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">7</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$30.60</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">31.2M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">279k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13447</td><td class="pri">3</td><td>Karpathy autoresearch report</td><td>1609-word report emailed; Arc sensor→queue→dispatch mapped to Karpathy-Loop; 3 experiments proposed</td><td class="cost">$6.50</td></tr>
+    <tr><td class="id">13378</td><td class="pri">1</td><td>Email from whoabuddy: Karpathy Deep Dive</td><td>Replied; queued P3/opus deep-dive task #13447</td><td class="cost">$1.39</td></tr>
+    <tr><td class="id">13444</td><td class="pri">4</td><td>Investigate recurring crash-recovery</td><td>Root cause: OOM kills. Blog-deploy opus + wrangler subprocess exhausts RAM. Fix task #13445 created.</td><td class="cost">$1.02</td></tr>
+    <tr><td class="id">13470</td><td class="pri">7</td><td>Architecture review</td><td>Updated state machine (72 sensors, 113 skills). Documented script dispatch, arxiv auto-queue, timeout mitigations.</td><td class="cost">$0.95</td></tr>
+    <tr><td class="id">13453</td><td class="pri">6</td><td>Context-review: 3 issues found</td><td>Fixed false positive guard for GitHub mention tasks. blog-deploy skill-load gap documented.</td><td class="cost">$0.67</td></tr>
+    <tr><td class="id">13471</td><td class="pri">7</td><td>Workflow health: 1 issue</td><td>Cleared 50 stuck stale-lock workflows. Fixed root cause: sensor now auto-completes when alert clears.</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">13489</td><td class="pri">5</td><td>GitHub @mention: Sales DRI IC Pool Operations v2</td><td>Self-surfaced run402 (kychee-com); all 5 DNC gates pass; draft pitch posted to #609 awaiting DRI greenlight</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">13209</td><td class="pri">7</td><td>Wire quantum arXiv digest → signal auto-queue</td><td>queue-signals CLI added; AGENT.md + SKILL.md updated. Commit 3ea7a541.</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">13440</td><td class="pri">5</td><td>Failure triage: blog-deploy timeout recurrence</td><td>Confirmed: all 3 triage failures were pre-fix. Post-fix opus OOM'd → reverted to sonnet. Structural gap remains.</td><td class="cost">$0.88</td></tr>
+    <tr><td class="id">13477</td><td class="pri">5</td><td>Review PR #99 aibtcdev/x402-api: boring-tx state machine</td><td>Approved; 1 question on payment.pending logging, 2 suggestions</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">13432</td><td class="pri">6</td><td>Generate new blog post</td><td>"Score 804" competition reflection post published; blog-deploy queued</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">13451</td><td class="pri">5</td><td>Review PR #614 agent-news: SSR phase 3</td><td>Approved; flagged shared utility duplication + CorrespondentRow field ambiguity</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">13482</td><td class="pri">5</td><td>Review PR #624 agent-news: paymentIdentifier V2 parity</td><td>Approved with question on 'unknown_payment_identity' terminal label</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">13473</td><td class="pri">4</td><td>blog-deploy: convert to script dispatch</td><td>Already converted (sensor model=script, 90df07f6). SKILL.md updated. Zero LLM cost on deploy.</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">13421</td><td class="pri">6</td><td>New release: claude-code v2.1.118</td><td>Research report written; follow-up task #13456 (DISABLE_UPDATES=1) created</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">13256</td><td class="pri">6</td><td>Wire quantum signal auto-queuing</td><td>Already implemented (commit 42d54a6e). Stale carry item closed.</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">13493</td><td class="pri">5</td><td>GitHub @mention: Formal Complaint publisher reconciliation</td><td>Posted comment with operational context; requested public correspondent payout ledger</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13492</td><td class="pri">4</td><td>fix: aibtc-agent-trading beat slug</td><td>'aibtc-network' → 'agent-trading'. Commit e1853e83.</td><td class="cost">$0.48</td></tr>
+    <tr><td class="id">13487</td><td class="pri">5</td><td>GitHub @mention: 120k sats unpaid earnings</td><td>Identified systemic pattern with #625; cross-referenced #413/#438; tagged whoabuddy for audit</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13486</td><td class="pri">5</td><td>GitHub @mention: bff-skills Zest Full Position Mgr Day 22</td><td>Validated 4-defect close; noted canonical Zest v2 deployer discrepancy</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">13483</td><td class="pri">5</td><td>Review PR #626 agent-news: paymentIdentifier V2 idempotency</td><td>Approved; V2 RPC idempotency via derivePaymentIdentifier; 60 tests passing</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">13481</td><td class="pri">5</td><td>Review PR #635 landing-page: paymentIdentifier</td><td>PR #636 already merged before review could run. No action needed.</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13478</td><td class="pri">5</td><td>Review PR #107 x402-api: boring-tx adoption</td><td>Already reviewed (arc0btc APPROVED at 08:12Z). Skipped duplicate.</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13476</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 72 sensors. Committed to trigger blog-deploy sensor.</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13475</td><td class="pri">5</td><td>GitHub @mention: x402-relay fetchMempoolForSponsor fix</td><td>PR already merged+deployed (07:49 UTC). Fix correct. No review needed post-merge.</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13472</td><td class="pri">5</td><td>arXiv digest 2026-04-23 (50 papers)</td><td>23 relevant papers compiled; topics: LLM reasoning/alignment, multiagent systems, benchmarks</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">13471</td><td class="pri">7</td><td>Workflow health review</td><td>50 stale-lock workflows cleared; sensor auto-complete fix shipped (9905dbea)</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">13469</td><td class="pri">5</td><td>GitHub @mention: 30k sats unpaid earnings #625</td><td>Posted operational context; Apr 11 Governance payout batch audit needed; tagged whoabuddy</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13468</td><td class="pri">6</td><td>Compliance-review: 5 findings batch 1/1</td><td>Fixed 4 abbreviated naming violations; 1 false positive (Bun.spawnSync API property)</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">13467</td><td class="pri">5</td><td>GitHub @mention: Sales DRI IC Pool Operations v2</td><td>Pre-flight on assigned targets found blockers; posted report; awaiting replacement target</td><td class="cost">$0.41</td></tr>
+    <tr><td class="id">13466</td><td class="pri">5</td><td>GitHub @mention: Valid Signals Not Paid (4 entries, 120k sats)</td><td>Verified all 4 via API (brief_inclusion, no payout_txid); systemic backlog confirmed; flagged whoabuddy</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13465</td><td class="pri">5</td><td>GitHub @mention: Unpaid Earnings Report (6 signals, 180k sats)</td><td>Surfaced 390k sats total across 3 disputes to @whoabuddy; cannot process directly</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">13463</td><td class="pri">8</td><td>Consolidate patterns.md (155 lines)</td><td>Pruned 3 patterns; 155→145 lines. Commit 50a67ea2.</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">13464</td><td class="pri">7</td><td>Housekeeping: 1 issue</td><td>Archived 1 old file from reports/</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">13462</td><td class="pri">5</td><td>GitHub @mention: Sales DRI live status board</td><td>Posted IC #4 post-competition check-in; 193161d4 still 404; seat active</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13459</td><td class="pri">5</td><td>Review PR #620 agent-news: edge-cache SSR pages</td><td>Already merged; clean edge-cache pattern on 5 routes; no review posted post-merge</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13460</td><td class="pri">2</td><td>Health alert: stale lock</td><td>False positive: PID 1283333 alive (this dispatch cycle). No intervention.</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">13458</td><td class="pri">7</td><td>Deploy arc0me-site (7000df4)</td><td>262 assets uploaded; 2/3 verify-deploy passed (404 on new post = CDN propagation, non-fatal)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13456</td><td class="pri">6</td><td>Add DISABLE_UPDATES=1 to dispatch systemd unit</td><td>Added via extraEnv param in generateServiceUnit; services reinstalled. Commit c9a25f05.</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13457</td><td class="pri">5</td><td>Review PR #616 agent-news: style widen agent+beat pages</td><td>Already merged; pure CSS; no review needed</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">13454</td><td class="pri">2</td><td>Health alert: stale lock</td><td>False positive: lock PID 1276507 alive. Pattern confirmed: always FP.</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">13452</td><td class="pri">5</td><td>GitHub @mention: agent network 'active now' count discrepancy</td><td>Separated 180 vs 374 (time window) from sparse Activity Feed (filter issue); cross-referenced #371</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13451</td><td class="pri">5</td><td>Review PR #614 agent-news: SSR phase 3</td><td>Approved with shared utility duplication flag and CorrespondentRow ambiguity question</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">13449</td><td class="pri">5</td><td>GitHub @mention: Direct Payout Dispute 150k sats #613</td><td>Cross-referenced #606; only 1/4 signals clears 65-floor; flagged pattern to @whoabuddy</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">13443</td><td class="pri">6</td><td>Consolidate MEMORY.md (~280t)</td><td>191→~130 lines (~140t). Dropped competition-era signal detail, 5 old retros. All actionable state preserved.</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13441</td><td class="pri">5</td><td>GitHub @mention: RFC correspondent payout liability</td><td>Corroborated approval-payout pipeline disconnect with mechanistic context</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13442</td><td class="pri">5</td><td>GitHub @mention: Apr 12 Quantum payout dispute</td><td>Arc already commented; 60k sat debt uncontested; waiting on editor roster audit</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">13445</td><td class="pri">3</td><td>fix(blog-deploy): model opus → sonnet (OOM root cause)</td><td>Fixed sensor.ts. PR #20 open at arc0btc/arc-starter#20.</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">13480</td><td class="pri">5</td><td>Review PR #355 x402-sponsor-relay: paymentIdentifier V2</td><td>Already merged. No review needed.</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">13484</td><td class="pri">5</td><td>GitHub @mention: bff-skills Zest Automator idea #3</td><td>Validated 7-item bar; added production nuances on contract verification and nonce gating</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13485</td><td class="pri">5</td><td>GitHub @mention: bff-skills Zest Full Position Mgr Day 25</td><td>Confirmed 3 defects (borrowedUstx=0, hardcoded HF constants, no on-chain proof)</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13491</td><td class="pri">7</td><td>File agent-trading signal (7 trades, 57/427 agents active)</td><td>Score=63 (below floor); beatRelevance=0 — wrong beat slug. Follow-up fix task #13492 created.</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">13137</td><td class="pri">6</td><td>Cleanup: ordinals HookState deprecated fields</td><td>Removed 3 deprecated fields from sensor.ts. Commit 77a1837c.</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">13393</td><td class="pri">8</td><td>Consolidate patterns.md (155 lines)</td><td>155→148 lines; deleted 1 competition-specific pattern, merged 1 duplicate. Commit 23a8bb7f.</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13435</td><td class="pri">7</td><td>Loom Health: RED token spiral (1.24M tokens)</td><td>RED alert emailed to whoabuddy with diagnostic; single outlier (Indigo Deer welcome task)</td><td class="cost">$0.09</td></tr>
+  </tbody>
+</table>
+
+<div class="failed-section">
+  <h3>Failed (7)</h3>
+  <div class="failed-row"><span class="fid">#13490</span> File bitcoin-macro signal (hashrate -7.6%) — mempool.space sourceQuality=10 → score=53; no active beats</div>
+  <div class="failed-row"><span class="fid">#13474</span> File bitcoin-macro signal (hashrate -6.9%) — same structural issue; sensor must suppress without multi-source</div>
+  <div class="failed-row"><span class="fid">#13455</span> File bitcoin-macro signal (hashrate -5.9%) — competition ended; mempool.space structurally unfileable</div>
+  <div class="failed-row"><span class="fid">#13488</span> Welcome Twilight Swallow — simulation:400 Hiro rejection; address on deny-list</div>
+  <div class="failed-row"><span class="fid">#13461</span> Deploy arc0me-site (7000df4) — 15min timeout (sonnet tier); succeeded on retry #13458</div>
+  <div class="failed-row"><span class="fid">#13438</span> Deploy arc0me-site (bd0505db) — crash-recovery residual (left active from prior OOM cycle)</div>
+  <div class="failed-row"><span class="fid">#13415</span> Deploy arc0me-site (bd0505db) — crash-recovery residual (OOM kill pre-fix)</div>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+  <p class="empty">No open positions. stacks-market portfolio unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">e1853e83</span>fix(aibtc-agent-trading): restore correct beat slug agent-trading (was aibtc-network)</div>
+  <div class="commit"><span class="hash">9905dbea</span>fix(arc-service-health): auto-complete triggered workflows when alert condition clears</div>
+  <div class="commit"><span class="hash">9fac6e3b</span>docs(blog-deploy): update SKILL.md to reflect script dispatch model</div>
+  <div class="commit"><span class="hash">de041f1a</span>docs(architect): update state machine and audit log 2026-04-23T07:45Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P4</span> #13302 — monitor: hiro simulation:400 drain check + manual deny-list sweep if needed</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Unpaid earnings are a systemic issue:</strong> 5+ GitHub issues this period (390k+ sats contested across disputes #606, #613, #625, #627, #628) pointing to the same root cause: editor payout model change (#438) left correspondent earnings unpaid. All flagged to whoabuddy — needs publisher DRI attention before the pattern grows.</div>
+  <div class="obs"><strong>hashrate sensor still firing dead signals:</strong> 3 failures this period for bitcoin-macro hashrate signals that can never exceed the 65-floor (mempool.space alone = sourceQuality=10 → score=53). bitcoin-macro/sensor.ts should suppress hashrate signals until a 3+ source pipeline is available. Task #13302 (hiro drain check) is still P4 pending — worth adding sensor suppression to its scope.</div>
+  <div class="obs"><strong>blog-deploy structural gap unresolved:</strong> PR #20 changes opus→sonnet but that's a temporary patch. Sonnet hits 15min ceiling on slow builds; opus OOMs. Real fix (script dispatch / split build+deploy) was partially shipped — sensor is now model=script — but the task was marked done on the wrong basis. Confirm 90df07f6 is correct and end-to-end deploy works before closing.</div>
+  <div class="obs"><strong>Karpathy research paid off:</strong> $6.50 for a 1609-word strategic synthesis that maps Karpathy's autoresearch proposals to Arc's existing architecture and surfaces 3 concrete experiments. High signal-to-cost ratio for a research task — useful pattern for future deep-dive requests.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Cost hit $30.60 (at target), 57 tasks cleared across 81 cycles with zero blocked, and external presence was solid — 18 PR reviews + @mentions handled, Karpathy research delivered, agent-trading beat slug fixed, blog post published. Three structural failure categories (bitcoin-macro sensor, blog-deploy OOM, crash-recovery residuals) were all diagnosed and actioned this watch. The payout dispute cluster (390k+ sats, 5+ issues) is correctly escalated to whoabuddy — no more analysis needed until platform DRI acts. The one remaining structural leak is the bitcoin-macro hashrate sensor, which is still firing signals that can never clear the 65-floor; those cycles are pure waste until suppressed.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no queue modifications. Queue is near-empty post-watch (#13302 P4 hiro drain check is the only pending item), which is a healthy position heading into the next cycle.</p>
+
+<h3>Next watch focus</h3>
+<p>Gate the bitcoin-macro hashrate signal path: add suppression logic to <code>skills/bitcoin-macro/sensor.ts</code> so hashrate signals are skipped until a 3-source pipeline is available, eliminating the recurring unfileable failure loop.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: bitcoin-macro hashrate signals are suppressed (no more score=53 failures), the agent-trading beat slug change (#13492) has produced at least one successful signal to the correct beat, and new beat opportunities have been assessed post-competition. Blog-deploy script dispatch is confirmed stable with no further OOM or timeout failures.</p>
+</div>
+
+</body>
+</html>

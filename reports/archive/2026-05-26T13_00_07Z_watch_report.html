@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-26T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-26T01:01:30Z — 2026-05-26T13:00:07Z</div>
+</header>
+
+<p class="summary">25 tasks completed over 12 hours with 0 failures — perfect success rate. Weekly deck generated, blog post "Hardening the Relay" written and published to arc0.me, 5 PR reviews across landing-page and mcp-server, MEMORY.md consolidated from 25.4KB to 15.5KB. $9.03 spent; above-average cost driven by weekly deck ($2.27) and architecture review ($0.88).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">25</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$9.03</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10,056k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">96k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17658</td>
+      <td class="pri">6</td>
+      <td>Watch report 2026-05-26T01:01Z</td>
+      <td>10 tasks completed, $2.48 spent, 0 failed</td>
+      <td class="cost">$0.71</td>
+    </tr>
+    <tr>
+      <td class="id">17659</td>
+      <td class="pri">5</td>
+      <td>Generate weekly presentation</td>
+      <td>May 26 deck: 8 slides, competition closed + inbox direct path + 5 blog posts</td>
+      <td class="cost">$2.27</td>
+    </tr>
+    <tr>
+      <td class="id">17660</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #17659</td>
+      <td>No learnings to capture — executed existing patterns correctly</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">17661</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">17662</td>
+      <td class="pri">5</td>
+      <td>@mention landing-page: /api/inbox phantom unread</td>
+      <td>Triaged #906; recommended merge #926, close #917, defer #913 re-review</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">17663</td>
+      <td class="pri">5</td>
+      <td>Self-review: health check 2026-05-26</td>
+      <td>Services healthy, 0 pending, 100% success; 2 issues found (MEMORY.md, 6 stale workflows)</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">17664</td>
+      <td class="pri">6</td>
+      <td>Memory: consolidate MEMORY.md</td>
+      <td>25.4KB → 15.5KB; removed resolved items, compressed verbose entries</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">17665</td>
+      <td class="pri">5</td>
+      <td>Self-review triage: 2 issues found</td>
+      <td>Created tasks #17666 (MEMORY.md) + #17667 (backfill completed_at)</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">17666</td>
+      <td class="pri">4</td>
+      <td>Consolidate MEMORY.md (25.4KB overlimit)</td>
+      <td>Already resolved before this task executed — no action needed</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">17667</td>
+      <td class="pri">6</td>
+      <td>Backfill completed_at: 6 pr-lifecycle workflows</td>
+      <td>Backfilled 6 workflows (ids: 2714, 2719, 2740, 2741, 2757, 2781)</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">17668</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-26T03:50</td>
+      <td>On track; x402-relay sprint approved; workflow 2782 → reviewing</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">17669</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Emailed to whoabuddy@gmail.com (msg: d9a40f27)</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17670</td>
+      <td class="pri">5</td>
+      <td>@mention landing-page: bounty board 404</td>
+      <td>Approved PR #927 as canonical fix; flagged bounty farming (9 PRs for 1 issue)</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">17671</td>
+      <td class="pri">5</td>
+      <td>Review PR #927 landing-page: /bounties rename</td>
+      <td>Already APPROVED at 05:42Z — no re-review needed</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17672</td>
+      <td class="pri">5</td>
+      <td>Comment reply: x402 payment flow</td>
+      <td>Issue #424 closed; prior 202-polling comment already posted</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">17673</td>
+      <td class="pri">5</td>
+      <td>Review PR #928 landing-page: bounty reject</td>
+      <td>Approved; 1 suggestion (duplicate hint naming), 1 nit (inline helper)</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17674</td>
+      <td class="pri">5</td>
+      <td>Review PR #551 mcp-server: Pyth VAA fix</td>
+      <td>Approved; Pyth VAA fix for zest borrow/collateral calls</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17675</td>
+      <td class="pri">5</td>
+      <td>Assess release: aibtc-mcp-server v1.56.0</td>
+      <td>Adds earning_opportunities tool + CLAUDE.md trim 42k→13k; no integration action</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">17676</td>
+      <td class="pri">5</td>
+      <td>@mention agent-contracts: pegged-dao ratchet</td>
+      <td>Re-reviewed and approved; path-b for ratchet-direct test; tracking issue recommended</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">17677</td>
+      <td class="pri">6</td>
+      <td>Generate blog post draft</td>
+      <td>Draft '2026-05-26-hardening-the-relay' from x402 nonce sprint story</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">17678</td>
+      <td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Published to arc0.me successfully</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">17679</td>
+      <td class="pri">7</td>
+      <td>Architecture review (e4c8a9b → 1af299a)</td>
+      <td>MIN_STX_SEND_THRESHOLD 100k→40k reviewed; x402-relay PRs #409/#411/#412 approved; 8 carry-watch items (human-gated)</td>
+      <td class="cost">$0.88</td>
+    </tr>
+    <tr>
+      <td class="id">17680</td>
+      <td class="pri">5</td>
+      <td>@mention agent-contracts: Phase 0 core contracts</td>
+      <td>Re-review not needed; PR blocked on whoabuddy lifting 2026-03-17 CHANGES_REQUESTED</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">17681</td>
+      <td class="pri">5</td>
+      <td>Fetch and compile arXiv digest</td>
+      <td>50 papers processed, 32 relevant (LLM=22, reasoning=2, transformer=3, agent=2)</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">17682</td>
+      <td class="pri">7</td>
+      <td>Welcome new AIBTC agent: Hardy Portal</td>
+      <td>Welcomed SP1JB9SQ7N6QKTZHV4G1B4ZKMH08JM6DWQAWFZBR6; STX txid: 21365e79...</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. (stacks-market skill not installed on this host)</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">43dbab9b</span>feat(arc-weekly-presentation): generate May 26 weekly deck</div>
+  <div class="commit"><span class="hash">1af299a0</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">ad1fbd97</span>chore(memory): consolidate MEMORY.md — 25.4KB → 15.5KB</div>
+  <div class="commit"><span class="hash">24848f0e</span>docs(architect): update state machine and audit log — MIN_STX_SEND_THRESHOLD recalibrated; x402-relay nonce sprint reviewed</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#17683 Watch report — 2026-05-26T13:00Z <em style="color:var(--gray-4)">(active — this task)</em></div>
+  <p class="empty" style="margin-top:0.5rem">Queue clear after this report completes.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">100% success rate (25/25) — zero failures this watch. Every task either completed or correctly identified as already-resolved (tasks #17666, #17671, #17672 saved cycles by catching pre-resolved state).</div>
+  <div class="obs">Above-average spend at $9.03 vs ~$4–5 typical. Two intentional heavy tasks: weekly deck ($2.27, scheduled cadence) and architecture review ($0.88, needed after threshold recalibration). Both expected; no waste.</div>
+  <div class="obs">Bounty farming detected on landing-page issue #907 — 9 competing PRs for a one-line route rename. Arc triaged and approved canonical fix (#927); flagged 6 others as partial/duplicate in a triage comment. Worth monitoring for repeat pattern.</div>
+  <div class="obs">x402-relay nonce sprint (PRs #409/#411/#412) fully approved and awaiting whoabuddy merge. Once merged, relay reliability improves — reduces sponsored path settlement timeouts that quasar-garuda flagged.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Cleanest watch in recent memory — 25/25 tasks, zero failures, every externally-visible deliverable shipped (weekly deck, blog post, 5 PR reviews, x402-relay sprint approved). Cost at $0.36/task is above-average but accounted for by two planned heavy tasks; no waste cycles. The queue cleared itself, which is good — Arc is executing faster than sensors are generating work.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is empty; no adjustments warranted. (Report-only review cycle.)</p>
+
+<h3>Next watch focus</h3>
+<p>PR reviews and inbox response as they arrive — stay responsive while waiting for whoabuddy to merge x402-relay PRs (#409/#411/#412) and Zest PRs (#512/#513).</p>
+
+<h3>24-hour horizon</h3>
+<p>x402-relay nonce sprint and Zest borrow fix merged and deployed; cost/task trend back below $0.40 ceiling; no new stale escalations beyond the existing amber-otter and payout-disputes items already awaiting whoabuddy.</p>
+</div>
+
+</body>
+</html>

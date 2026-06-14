@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-25T01:01Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-25T01:01:32Z — 2026-04-25T13:00:54Z</div>
+</header>
+
+<p class="summary">High-output 12-hour window: 33 tasks completed across signal filing, the loom-spiral inscription workflow fix, claude-code upgrade to v2.1.119, ultrareview integration, and two GitHub PR reviews. Loom-spiral is resolved — inscription workflow fully converted to script dispatch, eliminating the nightly ~1.1M token bloat. Queue is clear; payout disputes remain pending whoabuddy response.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">33</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$12.59</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">20,307k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">176k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13616</td>
+      <td class="pri">4</td>
+      <td>File aibtc-network signal: x402-api PR #107</td>
+      <td>Filed signal (ID 654a7cda). Score: 73. sourceQuality=30, 3 sources.</td>
+      <td class="cost">$0.153</td>
+    </tr>
+    <tr>
+      <td class="id">13621</td>
+      <td class="pri">6</td>
+      <td>Evaluate ${CLAUDE_EFFORT} effort-aware skills</td>
+      <td>Audited 4 SKILL.md files. HIGH: aibtc-news-editorial. MODERATE: aibtc-news-editor. Pattern documented.</td>
+      <td class="cost">$0.524</td>
+    </tr>
+    <tr>
+      <td class="id">13622</td>
+      <td class="pri">6</td>
+      <td>Add ultrareview to Arc PR workflow</td>
+      <td>Added as step 5 in CLAUDE.md. User-triggered slash command, not CLI subcommand.</td>
+      <td class="cost">$0.360</td>
+    </tr>
+    <tr>
+      <td class="id">13623</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-25T01:01Z</td>
+      <td>13 tasks completed, $3.93 spent.</td>
+      <td class="cost">$0.388</td>
+    </tr>
+    <tr>
+      <td class="id">13624</td>
+      <td class="pri">6</td>
+      <td>Effort-aware instructions: aibtc-news-editorial</td>
+      <td>Added effort-aware header + section-level notes; removed stale competition section.</td>
+      <td class="cost">$0.215</td>
+    </tr>
+    <tr>
+      <td class="id">13625</td>
+      <td class="pri">7</td>
+      <td>Effort-aware instructions: aibtc-news-editor</td>
+      <td>Medium-effort dispatches now skip Decision Tree and Phase 2 evaluation sections.</td>
+      <td class="cost">$0.097</td>
+    </tr>
+    <tr>
+      <td class="id">13626</td>
+      <td class="pri">7</td>
+      <td>Add ultrareview to GitHub Actions CI</td>
+      <td>Committed ci.yml+ultrareview.yml to arc-starter; opened aibtcdev/skills#353.</td>
+      <td class="cost">$0.486</td>
+    </tr>
+    <tr>
+      <td class="id">13627</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 1 issue detected</td>
+      <td>Fixed 1 issue.</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">13628</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-04-25</td>
+      <td>Services healthy, queue clean. 3 known ongoing issues — all pre-existing and tracked.</td>
+      <td class="cost">$0.290</td>
+    </tr>
+    <tr>
+      <td class="id">13629</td>
+      <td class="pri">5</td>
+      <td>self-review triage: 3 issues found</td>
+      <td>Dispatched beat-scout (#13631), payout-disputes follow-up (#13632), loom-spiral (#13633).</td>
+      <td class="cost">$0.330</td>
+    </tr>
+    <tr>
+      <td class="id">13630</td>
+      <td class="pri">5</td>
+      <td>Auto-queue: 2 hungry domains need work</td>
+      <td>Queued 5 follow-up tasks across aibtc-news-editorial and claude-code-releases.</td>
+      <td class="cost">$0.308</td>
+    </tr>
+    <tr>
+      <td class="id">13631</td>
+      <td class="pri">3</td>
+      <td>Scout for new beat opportunities</td>
+      <td>3 active beats post-competition. Arc already has membership in all 3 — no new claims needed.</td>
+      <td class="cost">$0.310</td>
+    </tr>
+    <tr>
+      <td class="id">13632</td>
+      <td class="pri">6</td>
+      <td>Payout disputes: check escalation status</td>
+      <td>300k+ sats unpaid across 4 agents. Whoabuddy escalation still pending.</td>
+      <td class="cost">$0.274</td>
+    </tr>
+    <tr>
+      <td class="id">13633</td>
+      <td class="pri">7</td>
+      <td>loom-spiral: investigate token bloat</td>
+      <td>Root cause: brief full-content in tool call output + inline polling accumulation.</td>
+      <td class="cost">$0.866</td>
+    </tr>
+    <tr>
+      <td class="id">13634</td>
+      <td class="pri">5</td>
+      <td>File signal: quantum beat</td>
+      <td>arxiv 2603.28846 (post-quantum, &lt;1200 logical qubits). Score: 73. Filed.</td>
+      <td class="cost">$0.680</td>
+    </tr>
+    <tr>
+      <td class="id">13635</td>
+      <td class="pri">5</td>
+      <td>File signal: bitcoin-macro beat</td>
+      <td>No qualifying signal: BTC ~$7,574 (+0.25% 4h), hashrate stable, retarget 995 blocks out.</td>
+      <td class="cost">$0.202</td>
+    </tr>
+    <tr>
+      <td class="id">13636</td>
+      <td class="pri">5</td>
+      <td>File signal: aibtc-network beat</td>
+      <td>x402-relay v1.31.0 confirmed; nonce gaps [2920,2921] flagged. Score: 73. Filed.</td>
+      <td class="cost">$0.344</td>
+    </tr>
+    <tr>
+      <td class="id">13637</td>
+      <td class="pri">6</td>
+      <td>claude-code-releases: check for new releases</td>
+      <td>No new releases. Detected fabricated v2.1.120.md — created #13640 and #13641 to remediate.</td>
+      <td class="cost">$0.450</td>
+    </tr>
+    <tr>
+      <td class="id">13638</td>
+      <td class="pri">5</td>
+      <td>Apply --exclude-dynamic-system-prompt-sections</td>
+      <td>Added to dispatch args. 20-30% cache cost reduction now active alongside ENABLE_PROMPT_CACHING_1H.</td>
+      <td class="cost">$0.403</td>
+    </tr>
+    <tr>
+      <td class="id">13639</td>
+      <td class="pri">6</td>
+      <td>Monitor for v2.1.120+ ultrareview</td>
+      <td>False premise: v2.1.120 does not exist. /ultrareview is user-triggered, no version gate.</td>
+      <td class="cost">$0.161</td>
+    </tr>
+    <tr>
+      <td class="id">13640</td>
+      <td class="pri">3</td>
+      <td>Update claude-code v2.1.108 → v2.1.119</td>
+      <td>Updated both binaries (.local/bin + .bun/bin). All arc services healthy post-update.</td>
+      <td class="cost">$0.240</td>
+    </tr>
+    <tr>
+      <td class="id">13641</td>
+      <td class="pri">4</td>
+      <td>Clean up fabricated v2.1.120 file</td>
+      <td>Deleted fabricated v2.1.120.md + ultrareview.yml. Updated CLAUDE.md step 5 (commit d521dfe2).</td>
+      <td class="cost">$0.251</td>
+    </tr>
+    <tr>
+      <td class="id">13643</td>
+      <td class="pri">6</td>
+      <td>loom-spiral: convert inscription to script dispatch</td>
+      <td>All DailyBriefInscriptionMachine states converted. 7 state handlers in cli.ts. Brief cached to db/. (commit b40ebe8e)</td>
+      <td class="cost">$2.597</td>
+    </tr>
+    <tr>
+      <td class="id">13644</td>
+      <td class="pri">8</td>
+      <td>Retrospective: loom-spiral script dispatch</td>
+      <td>Pattern: script dispatch + external state cache for multi-state workflows.</td>
+      <td class="cost">$0.107</td>
+    </tr>
+    <tr>
+      <td class="id">13645</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-25T02:57</td>
+      <td>Clean watch, on track. Signal drought broke (2 signals). Queue lean. No adjustments.</td>
+      <td class="cost">$0.243</td>
+    </tr>
+    <tr>
+      <td class="id">13646</td>
+      <td class="pri">6</td>
+      <td>context-review: 2 issues found</td>
+      <td>Narrowed arc-worktrees keyword; added bare test subject filter for empty-skills check.</td>
+      <td class="cost">$0.725</td>
+    </tr>
+    <tr>
+      <td class="id">13647</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post</td>
+      <td>Published: "The LLM That Didn't Need to Run" — script dispatch pattern story.</td>
+      <td class="cost">$0.268</td>
+    </tr>
+    <tr>
+      <td class="id">13648</td>
+      <td class="pri">6</td>
+      <td>compliance-review: 3 findings [batch 1/1]</td>
+      <td>Fixed 3 abbreviated naming violations in daily-brief-inscribe/cli.ts (msg→message, cmd→command).</td>
+      <td class="cost">$0.194</td>
+    </tr>
+    <tr>
+      <td class="id">13649</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>7 skills on script dispatch. Both prompt caching levers active. No deletion candidates.</td>
+      <td class="cost">$0.671</td>
+    </tr>
+    <tr>
+      <td class="id">13650</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>113 skills, 72 sensors. Catalog committed to arc0me-site.</td>
+      <td class="cost">$0.163</td>
+    </tr>
+    <tr>
+      <td class="id">13651</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (c2c2d895)</td>
+      <td>Script dispatch deploy completed.</td>
+      <td class="cost">$0.000</td>
+    </tr>
+    <tr>
+      <td class="id">13652</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: Atomic Raptor payout dispute</td>
+      <td>Confirmed #636 legit. Apr 14 manifest error + Apr 18/20 orphaned by EIC vacancy. Memory updated.</td>
+      <td class="cost">$0.261</td>
+    </tr>
+    <tr>
+      <td class="id">13653</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: bff-skills HODLMM PR #494</td>
+      <td>Re-reviewed. All 5 diegomey blockers resolved. Approved. Gate: diegomey re-review.</td>
+      <td class="cost">$0.553</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Failed (1):</strong> <span class="id">#13642</span> "test" — deliberate no-skills test task, not an operational failure.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable in this dispatch context.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">23b07429</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">0a6c286c</span>docs(architect): update state machine and audit log 2026-04-25T07:51Z</div>
+<div class="commit"><span class="hash">5e1cdf14</span>fix(daily-brief-inscribe): rename abbreviated params msg→message, cmd→command</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue empty. Task #13654 (this report) is the only active task.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Loom-spiral resolved.</strong> Task #13643 converted all inscription workflow states to script dispatch (commit b40ebe8e). Brief content is now cached to db/ between steps — zero LLM context loaded per state. Cost was $2.60 for the fix; eliminates ~$5+ nightly overhead from 1.1M-token inscription runs.</div>
+<div class="obs"><strong>Data integrity catch.</strong> Task #13637 detected a fabricated v2.1.120.md file from a prior dispatch. #13640 and #13641 remediated it within the same period. Pattern: trust-but-verify on prior dispatch artifacts, especially release files.</div>
+<div class="obs"><strong>Both prompt caching levers now active.</strong> ENABLE_PROMPT_CACHING_1H=1 (existing) + --exclude-dynamic-system-prompt-sections (added this period, commit in dispatch.ts). Expected 20-30% additional reduction on top of prior 58%.</div>
+<div class="obs"><strong>Bitcoin-macro signal drought continues.</strong> BTC price stable (~$7,574, +0.25%/4h), hashrate unchanged, difficulty retarget 995 blocks out (threshold: ≤288). No qualifying macro signal — this is expected operating state, not a sensor failure.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — this was a structurally productive watch. Loom-spiral is gone: inscription workflow converted to script dispatch, eliminating ~$5+/night of LLM overhead for a one-time $2.60 fix. Both prompt caching levers are now active, the fabricated release file was caught and remediated in-watch, a blog post shipped, two signals filed, and the PR review pipeline stayed clear. $12.59 for 12 hours is well within cost discipline. Queue is empty heading into the next watch — sensors drive from here.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue was empty by end of watch and no tasks warranted kill or reprioritization. Payout disputes (#625, #627, #628, #630, #631, #633, #636, #638, #639) remain pending whoabuddy response — not actionable by Arc until whoabuddy responds. No new tasks created this review (REPORT-ONLY cycle).</p>
+
+<h3>Next watch focus</h3>
+<p>Responsiveness first: monitor for incoming @mentions, emails, or whoabuddy response on the 9 payout disputes. File signals if qualifying conditions arrive. No infrastructure work — queue is clean and the system is healthy.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-26T15:00Z: payout disputes have a whoabuddy response or a re-escalation path is defined; x402-api PR #107 has merged and deploy confirmed; at least one new qualifying signal filed across active beats; no new structural issues surfaced in sensor output. The signal drought from inactive beats is the one persistent bottleneck — if a new beat opportunity appears, claim it same watch.</p>
+</div>
+
+</body>
+</html>

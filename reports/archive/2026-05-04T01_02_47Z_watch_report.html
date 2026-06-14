@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-03T13:00Z → 2026-05-04T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-03T13:00:31Z — 2026-05-04T01:02:47Z</div>
+</header>
+
+<p class="summary">The period was dominated by a PR review queue crisis: 76 tasks were superseded when the PR review sensor was capped at 20/day and switched from sonnet to haiku. Two signal sensor fixes shipped — arxiv-research had ACTIVE_BEATS=[] causing complete silence for aibtc-network and quantum beats. One blocked task (Resend DNS) awaits whoabuddy action.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">60</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">98</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$92.08</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">113,821k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">769k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15610</td>
+      <td class="pri">3</td>
+      <td>Throttle PR review sensor (cost driver)</td>
+      <td>20/day cap + haiku model; closed 76 excess tasks (commit 99779912)</td>
+      <td class="cost">$0.91</td>
+    </tr>
+    <tr>
+      <td class="id">15611</td>
+      <td class="pri">3</td>
+      <td>Investigate signal sensor silence</td>
+      <td>ACTIVE_BEATS=[] in arxiv-research early-exited before routing; fixed (commit fe615b45)</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">15612</td>
+      <td class="pri">4</td>
+      <td>Escalate Resend DNS to whoabuddy</td>
+      <td>drx4#34 still open; task #14771 blocked; updated with step-by-step instructions</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">15492</td>
+      <td class="pri">5</td>
+      <td>Self-review triage (3 issues)</td>
+      <td>Triaged to #15610, #15611, #15612 — workflow 2223 resolved</td>
+      <td class="cost">$0.48</td>
+    </tr>
+    <tr>
+      <td class="id">15491</td>
+      <td class="pri">5</td>
+      <td>Review PR #792 agent-news (DRI seats)</td>
+      <td>Requested changes: wrong file type, Solidity in .ts, wallet in source</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">15515</td>
+      <td class="pri">5</td>
+      <td>Review PR #592 landing-page</td>
+      <td>PR matched to #598 — already approved and merged 2026-04-16; no action</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">15536</td>
+      <td class="pri">4</td>
+      <td>Re-review PR #588 landing-page (cycle 2)</td>
+      <td>Already merged; arc0btc cycle-2 APPROVED posted 2026-05-03T13:54Z</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">15482</td>
+      <td class="pri">5</td>
+      <td>Review PR #348 skills (release blocker)</td>
+      <td>Issue #348, not a PR; PR #345 already reviewed+approved after all blockers merged</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">15479</td>
+      <td class="pri">5</td>
+      <td>Review PR #644 agent-news (EIC rubric)</td>
+      <td>Closed issue; arc0btc left 5 comments during Apr 24-28 discussion</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">15474</td>
+      <td class="pri">5</td>
+      <td>Review PR #481 aibtc-mcp-server</td>
+      <td>Superseded by PR #482 (already merged v1.49.1); no action needed</td>
+      <td class="cost">$0.22</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-4); margin-bottom:0.5rem;">
+  <strong style="color:var(--vermillion)">Failed (98 total):</strong> 77 explicitly superseded by PR review cap fix (task #15610 — expected); 21 stale PR references (404/already-merged). Real failure rate excluding supersessions: <strong>~28%</strong> (stale task sources).
+</p>
+<p style="font-size:0.85rem; color:var(--gold-dark); margin-top:0.3rem;">
+  <strong>Blocked (1):</strong> #14771 — Resend for Arc outbound email; waiting on whoabuddy DNS setup at Resend.
+</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market CLI unavailable (exit 1). No position data for this period.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">f6174d2f</span>fix(review): use gh pr view --json reviews for duplicate-review check</div>
+  <div class="commit"><span class="hash">501b38de</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">719d7c85</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">3840a809</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag blocked">P3</span>#14771 — Set up Resend for Arc outbound email (IC pool mandate) [BLOCKED]</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#14426 — Deploy arc0me-site to Cloudflare Workers</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#14427 — housekeeping: 1 issue(s) detected</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#14684 — architecture review — codebase scan</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#14825 — Welcome new AIBTC agent: Ruby Elan</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#15094 — Welcome new AIBTC agent: Crystal Engine</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#15275 — daily introspection: 828 tasks</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#15278 — daily self-audit: 2 anomaly(ies)</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#15292 — Daily failure retrospective: 26 failed tasks</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>8× Retrospective tasks (workflows 1940, 2145, 2223+)</div>
+  <div class="queue-item"><span class="pri-tag">P9</span>#15252 — daily cost report — 2026-05-03</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">PR review sensor was generating 600+/day tasks — the 20/day cap and haiku switch (task #15610) is the right corrective. Stale PR 404s still inflate "failed" counts; sensor should validate PR existence before queuing.</div>
+  <div class="obs">ACTIVE_BEATS=[] in <code>skills/arxiv-research/sensor.ts</code> was causing a silent early exit — aibtc-network and quantum were not receiving signals despite being active beats. Both now added to ACTIVE_BEATS (commit fe615b45).</div>
+  <div class="obs">The <code>gh pr reviews</code> vs <code>gh pr view --json reviews</code> discrepancy is now fixed (commit f6174d2f). This was causing silent exit-1 errors that masked duplicate reviews.</div>
+  <div class="obs">Resend email setup is the only P3 blocker — escalated with clear DNS instructions for whoabuddy. All other blockers resolved this period.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

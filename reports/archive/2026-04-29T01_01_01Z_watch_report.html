@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-29T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-28T13:00:17Z — 2026-04-29T01:01:00Z</div>
+</header>
+
+<p class="summary">Active 12-hour window: 50 tasks completed across PR reviews, signal research, blog publish, and ops housekeeping. Two consecutive STX welcome failures (sim:400) flagged as systemic — pattern logged. Bitcoin-macro cooldown blocked hashrate signal filing; retry queued for post-01:06Z. Dispatch gate remains STOPPED awaiting whoabuddy review.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$13.03</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">18,099k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">161k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13889</td><td class="pri">6</td><td>Watch report — 2026-04-28T13:00Z</td><td>35 completed, $12.37 spent</td><td class="cost">$0.60</td></tr>
+    <tr><td class="id">13890</td><td class="pri">2</td><td>Overnight brief — 2026-04-28</td><td>17 completed/0 failed, $5.24; hashrate signal d2237ab7 filed</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">13891</td><td class="pri">5</td><td>IC #4 Sales DRI — live status board</td><td>Posted Apr 28 PT watershed check-in; Deep Tess 43h+ silent</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13892</td><td class="pri">8</td><td>Retrospective: overnight brief learnings</td><td>SQ=1 root cause confirmed resolved; 2 new patterns added</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">13893</td><td class="pri">5</td><td>EIC Daily Sync — 2026-04-28</td><td>Posted on #659 (inscribedAt null confirmed) and #660</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">13894</td><td class="pri">7</td><td>[ALERT] Beat 'infrastructure' inactive</td><td>Retired beat, not reclaimable; sensor filter needed</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13895</td><td class="pri">6</td><td>Improve aibtc-news-editorial sensor</td><td>Added fetchBeatStatuses(); skips retired beats in inactivity checks (commit 29e3d208)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13897</td><td class="pri">4</td><td>CEO review — 2026-04-28T15:01</td><td>Clean window, SQ=1 resolved, on track. 0 adjustments.</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13898</td><td class="pri">5</td><td>Daily PURPOSE eval</td><td>2.30 — S:1 O:3 E:2 C:3 A:3 Co:3 Se:3</td><td class="cost">$0.79</td></tr>
+    <tr><td class="id">13899</td><td class="pri">5</td><td>PR review: bff-skills bitflow-swap-aggregator</td><td>Approved with suggestions; DEFAULT_MEMPOOL_DEPTH_LIMIT=0 too conservative</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">13900</td><td class="pri">5</td><td>PR review: sBTC Yield Maximizer</td><td>Re-review — both blocking items resolved, approved</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">13901</td><td class="pri">5</td><td>PR review: sbtc-leverage-cycle-controller</td><td>Approved; checkpoint state machine + PostConditionMode.Deny solid</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">13902</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent report 2026-04-28T01:03Z–13:00Z (msg 03e71d39)</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13903</td><td class="pri">5</td><td>Review PR #662 agent-news: classifieds middleware</td><td>Approved; 1 suggestion (remove /api/beats no-op), 1 perf, 1 question</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13904</td><td class="pri">5</td><td>PR review: bitflow-hodlmm-deposit-primitive</td><td>Re-reviewed; all 4 items addressed, approved</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">13906</td><td class="pri">5</td><td>PR review: zest-borrow-asset-primitive</td><td>Approved with 4 suggestions incl. oracle routing + scaledDebt doc gap</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">13907</td><td class="pri">5</td><td>PR review: zest-asset-deposit-primitive</td><td>Approved; 1 blocking (getPosition swallows network errors), 2 suggestions</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">13908</td><td class="pri">5</td><td>PR review: bitflow-hodlmm-withdraw-primitive</td><td>Re-reviewed; both blockers resolved, approved</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">13909</td><td class="pri">4</td><td>GitHub reply: arc-starter PR #23</td><td>Already approved; dirty merge state — requested rebase</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">13910</td><td class="pri">5</td><td>Fix beat-clumping in homepage signal feed</td><td>signalsToItems was calling groupByBeat — fixed; PR #668 opened</td><td class="cost">$0.78</td></tr>
+    <tr><td class="id">13912</td><td class="pri">5</td><td>arc-opensource: sync 17 commits to GitHub</td><td>Published 7 unpushed commits from feat/bitcoin-macro-third-source</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">13917</td><td class="pri">5</td><td>Review PR #356 skills: bitflow-hodlmm-withdraw</td><td>Approved with 2 suggestions + 1 question + 3 nits</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">13919</td><td class="pri">7</td><td>Architecture review</td><td>State machine + audit log updated; CONSIDER: ACTIVE_BEATS vs /api/beats cross-ref</td><td class="cost">$0.60</td></tr>
+    <tr><td class="id">13920</td><td class="pri">5</td><td>Review PR #357 skills: bitflow-hodlmm-deposit</td><td>Approved with 2 suggestions, 1 nit, 1 question</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">13921</td><td class="pri">5</td><td>Re-review bff-skills bitflow-swap-aggregator</td><td>Concurred with diegomey on 2 blocking findings; will re-approve after fix</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13924</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 72 sensors; catalog already committed (d39e872)</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">13926</td><td class="pri">5</td><td>Assess release: clarinet v3.17.0</td><td>Maintenance release; no action. Fixes: simnet, deterministic costs, rustls.</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13929</td><td class="pri">6</td><td>New release: claude-code v2.1.122</td><td>Research report written; 0 follow-ups, 2 passive improvements</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13932</td><td class="pri">3</td><td>Research signal-worthy topics</td><td>Filed 1 aibtc-network signal (Hiro Ordinals API 410 Gone → MCP v1.49.1). Quantum candidate identified.</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">13936</td><td class="pri">3</td><td>Fix arc0btc.com freshness alert</td><td>Published "Three Root Causes" post; freshness cleared (0d, was 2d)</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">13937</td><td class="pri">8</td><td>Retrospective: arc0btc.com health alert</td><td>Added blog-freshness-alert pattern to MEMORY.md</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">13938</td><td class="pri">6</td><td>File bitcoin-macro hashrate signal</td><td>Blocked by 60-min global cooldown; retry queued as #13939</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13939</td><td class="pri">6</td><td>Retry: File bitcoin-macro hashrate signal</td><td>Cooldown still active (48min); signal ready, retry will post-01:06Z</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13940</td><td class="pri">7</td><td>Daily failure retrospective</td><td>2 sim:400 welcome failures — systemic pattern already in memory</td><td class="cost">$0.10</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Failed:</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13930</td><td class="pri">7</td><td>Welcome new AIBTC agent: Flying Wasp</td><td>sim:400 — STX send failed (preflight skipped, fail-open)</td></tr>
+    <tr><td class="id">13931</td><td class="pri">7</td><td>Welcome new AIBTC agent: Patient Ledger</td><td>sim:400 — STX send failed (preflight skipped, fail-open)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 0 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">8ba6d824</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">af3cb5c3</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">b1731a7f</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">4a221a5f</span>feat(claude-code-releases): applicability report for v2.1.122</div>
+<div class="commit"><span class="hash">766f980d</span>docs(architect): update state machine and audit log 2026-04-28T20:00Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span>#13696 — Re-check landing-page for Deep Tess</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Two consecutive STX welcome failures (Flying Wasp + Patient Ledger, both sim:400) in this window. Pattern from memory: consecutive welcome failures = systemic root cause — wallet/nonce state should be checked before next welcome run. Cost to investigate: near zero; cost to ignore: repeat failures.</div>
+<div class="obs">Bitcoin-macro hashrate signal ready but cooldown blocked both filing attempts (tasks #13938, #13939). The 60-min global cooldown is working as designed — no bug, just timing. Signal will file post-01:06Z via existing retry task.</div>
+<div class="obs">10 BitflowFinance/bff-skills and aibtcdev/skills PRs reviewed this window. High EI volume — skills competition is generating meaningful review load. All reviews substantive with specific technical feedback.</div>
+<div class="obs">Blog freshness alert cleared by publishing "Three Root Causes" post documenting the bitcoin-macro SQ=1 investigation. Operational debugging converted to public content — pattern validated and added to memory.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. Clean 12-hour window: 50 completions, 2 failures, $13.03 (~$26/day rate, under $30 target). EI strong — 10+ substantive PR reviews across bitflow, zest, and agent-news primitives. Signal pipeline validated (hashrate d2237ab7 filed, cooldown handled correctly), blog freshness cleared via operational post. One flag: two consecutive STX welcome failures (Flying Wasp + Patient Ledger, both sim:400) triggered the systemic-pattern rule — wallet/nonce state must be diagnosed before the next welcome run.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no task modifications. Queue is lean (1 pending: #13696 Deep Tess landing-page re-check, P7). No kills, reprioritizations, or new tasks warranted at this time.</p>
+
+<h3>Next watch focus</h3>
+<p>Diagnose STX welcome failure root cause — check wallet balance and nonce state before Flying Wasp or Patient Ledger retry queues up.</p>
+
+<h3>24-hour horizon</h3>
+<p>Welcome failures resolved and STX sends confirmed working; bitcoin-macro hashrate signal d2237ab7 approved (or re-filed if rejected); Deep Tess landing-page check complete.</p>
+</div>
+
+</body>
+</html>

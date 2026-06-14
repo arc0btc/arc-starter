@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-20T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-19T13:00:40Z — 2026-05-20T01:02:35Z</div>
+</header>
+
+<p class="summary">Dense 12-hour window dominated by two major policy changes: signal filing disabled across 5 sensors per whoabuddy directive, and the AIBTC weekly deck revised end-to-end per slide-by-slide feedback. X API pre-screen fix shipped after 15 wasted cycles across two nights. 51 tasks completed across 54 cycles; 1 failure (STX wallet still below threshold).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$26.76</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">38,073k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">260k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17039</td>
+      <td class="pri">3</td>
+      <td>Compile 2026-05-18 research batch</td>
+      <td>HTML+plaintext synthesis emailed to whoabuddy; 16/23 usable; top 5 impl recs surfaced</td>
+      <td class="cost">$1.93</td>
+    </tr>
+    <tr>
+      <td class="id">17077</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-05-19T13:00Z</td>
+      <td>69 completed, 14 failed, $30.15</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">17078</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-05-19</td>
+      <td>73/85 (86%), $28.16, 70 cycles; AIBTC deck shipped, signal drought</td>
+      <td class="cost">$0.85</td>
+    </tr>
+    <tr>
+      <td class="id">17082</td>
+      <td class="pri">1</td>
+      <td>Show scheduled_for in web dashboard</td>
+      <td>⏰ pill added to feed + detail panel; API updated; live at localhost:3000</td>
+      <td class="cost">$1.52</td>
+    </tr>
+    <tr>
+      <td class="id">17089</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation</td>
+      <td>PURPOSE 3.55 (S:2 O:3 E:5 C:4 A:4 Co:4 Se:5); 90.7% success, 15 failures documented</td>
+      <td class="cost">$1.52</td>
+    </tr>
+    <tr>
+      <td class="id">17093</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: signal policy</td>
+      <td>Replied; queued #17094 to disable all signal sensors</td>
+      <td class="cost">$0.63</td>
+    </tr>
+    <tr>
+      <td class="id">17094</td>
+      <td class="pri">2</td>
+      <td>Disable signal filing sensors</td>
+      <td>SIGNAL_FILING_DISABLED gate added to 5 sensors; no orphaned tasks at enact time</td>
+      <td class="cost">$3.55</td>
+    </tr>
+    <tr>
+      <td class="id">17097</td>
+      <td class="pri">1</td>
+      <td>Email: AIBTC deck feedback</td>
+      <td>Replied; queued #17099 P3/opus for 8-slide revision</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">17099</td>
+      <td class="pri">3</td>
+      <td>Revise AIBTC weekly deck</td>
+      <td>8 slides per feedback; leaderboard P&amp;L; "sat out" context; trading-comp recap split</td>
+      <td class="cost">$4.06</td>
+    </tr>
+    <tr>
+      <td class="id">17108</td>
+      <td class="pri">5</td>
+      <td>Review PR #886 landing-page</td>
+      <td>Approved; KV mutex → caches.default single-flight; 2 nits, 1 question</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">17110</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>State machine updated: signal-disable policy + scheduled_for visibility; #17111 created</td>
+      <td class="cost">$0.94</td>
+    </tr>
+    <tr>
+      <td class="id">17111</td>
+      <td class="pri">6</td>
+      <td>Competition-end guard for trading-comp-mirror</td>
+      <td>COMP_END_TIMESTAMP=2026-05-20T19:30:00Z; sensor auto-disables at end</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">17116</td>
+      <td class="pri">6</td>
+      <td>Upgrade Claude Code to v2.1.145</td>
+      <td>Symlink swapped atomically; fixes context:fork loop + permission bypass hardening</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">17119</td>
+      <td class="pri">5</td>
+      <td>Review PR #888 landing-page</td>
+      <td>Approved; agents.last_check_in_at nullable TEXT column, zero-downtime migration</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">17124</td>
+      <td class="pri">5</td>
+      <td>Review PR #889 landing-page</td>
+      <td>Approved; heartbeat rate limit to ratelimits binding + D1 state; 1 question, 1 nit</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">17126</td>
+      <td class="pri">3</td>
+      <td>Fix X API sensor pre-screen</td>
+      <td>Three-layer validation: extraction, task creation, dispatch; AGENT.md + SKILL.md updated</td>
+      <td class="cost">$2.01</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Failed (1):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">17109</td>
+      <td>Welcome new AIBTC agent: Fierce Puma</td>
+      <td>STX-send preflight failed — balance 89,332 microSTX &lt; 100,000 needed. Wallet refill required.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">189af5a1</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">6418d431</span>fix(x-api): pre-screen tweets before queuing research tasks</div>
+  <div class="commit"><span class="hash">72b9f96f</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">02057eae</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">6b84067d</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">bbc24f29</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">727751a1</span>fix(trading-comp-mirror): add competition-end guard to auto-disable sensor</div>
+  <div class="commit"><span class="hash">d261d782</span>docs(architect): update state machine and audit log — signal filing disable; scheduled_for visibility</div>
+  <div class="commit"><span class="hash">2709582a</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Queue empty — only active task is this report (#17128).</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Signal filing disable was clean.</strong> 5 sensors gated in one task (#17094, $3.55). No orphaned tasks were in queue at enact time — this was the first policy enact that followed the cleanup-sweep pattern correctly. Future enacts should still run the sweep proactively.</div>
+  <div class="obs"><strong>Deck revision was the biggest spend at $4.06.</strong> 8 slides, whoabuddy slide-by-slide. The cycle confirmed a pattern: email feedback → immediate reply → decomposed P3/opus execution works cleanly. Prior approach (one big task) caused context overload.</div>
+  <div class="obs"><strong>X API pre-screen fix shipped after 15 wasted cycles.</strong> Three-layer validation (URL extraction, task creation, dispatch early-exit) covers the deleted/private tweet class. Will validate effectiveness tomorrow night.</div>
+  <div class="obs"><strong>STX wallet remains below threshold.</strong> One welcome-task failure this window (Fierce Puma). Balance ~89k microSTX, need 100k per send. Escalated to whoabuddy — no action until refilled.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Clean policy-execution watch. Signal filing disabled across 5 sensors cleanly, AIBTC deck revised slide-by-slide per feedback, X API pre-screen fix shipped after 15 wasted cycles — all high-leverage, directive work executed without drift. 98% success rate (51/52) and $26.76 over 12 hours is a ~$53/day run rate, above the $30 target; the deck revision cycle ($4.06) drove most of the overage and was justified by the stakeholder feedback loop. The queue is now nearly empty with only two welcome-agent tasks pending — both will fail due to STX wallet below threshold (89k microSTX, needs 100k). No external PRs opened this window; responsiveness was the priority and that was the right call given the email backlog.</p>
+
+<h3>Queue adjustments</h3>
+<p><em>Report-only review — no adjustments made.</em></p>
+<p>Note: Tasks #17135 and #17136 (welcome new AIBTC agents) will fail preflight due to STX wallet balance still at ~89k microSTX. No action available until whoabuddy refills the wallet. These are not actionable from dispatch.</p>
+
+<h3>Next watch focus</h3>
+<p>Wallet refill is the single blocker. With queue empty and signal filing paused, the next productive window opens when either (a) STX arrives and welcome tasks can execute, or (b) new sensor signals generate work. No tactical queue manipulation needed — let sensors do their job.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: X API pre-screen effectiveness validated (zero tweet-deletion failures overnight), STX wallet either refilled or escalation confirmed with whoabuddy, and at least one external PR opened or reviewed in the AIBTC ecosystem. Trading competition ends at 19:30 UTC today — competition-end guard should auto-disable the sensor cleanly; verify in next watch report.</p>
+</div>
+
+</body>
+</html>

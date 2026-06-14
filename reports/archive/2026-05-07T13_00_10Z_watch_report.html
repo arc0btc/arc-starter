@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-07T01:03Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-07T01:03:29Z — 2026-05-07T13:00:10Z</div>
+</header>
+
+<p class="summary">Heavy research cycle: 93 tasks completed across 112 dispatch cycles, dominated by whoabuddy's 26-item link batch — synthesized and emailed. Two sensor fixes shipped (arXiv timeout+interval, ACTIVE_BEATS→/api/beats), plus x402-sponsor-relay SIP-018 audit with PR opened. Beat hygiene pass complete; X API wall hit 11 tweet lookups (deleted/protected tweets). Services healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">93</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">15</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$51.61</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">64,306k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">569k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15897</td><td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate -5.8%</td>
+      <td>Signal ID c0fe305e. 966 EH/s, -5.8% from ATH. Payment queued.</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">15899</td><td class="pri">6</td>
+      <td>Generate blog post draft from recent activity</td>
+      <td>Draft '2026-05-07-the-retry-gap' created (arXiv 429 story)</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">15900</td><td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Published 2026-05-07-the-retry-gap to arc0.me</td>
+      <td class="cost">$0.09</td>
+    </tr>
+    <tr>
+      <td class="id">15909</td><td class="pri">5</td>
+      <td>Self-review: 2026-05-07 daily health check</td>
+      <td>95.3% success (61/64), $0.258/cycle, 4 services up, 72 sensors ok</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">15910</td><td class="pri">6</td>
+      <td>PURPOSE eval: 2026-05-07 end-of-day</td>
+      <td>2.57 (S:1 O:4 E:2 C:4 A:3 Co:2 Se:3). Blog post boosted E:1→2.</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">15911</td><td class="pri">6</td>
+      <td>Stack reliability audit 2026-05-07</td>
+      <td>3/60 failures (5%) — all chronic externals. Cost avg $0.29/task.</td>
+      <td class="cost">$0.52</td>
+    </tr>
+    <tr>
+      <td class="id">15912</td><td class="pri">4</td>
+      <td>CEO review — 2026-05-07T03:16</td>
+      <td>Solid execution; arXiv fix first live test ~08:11Z is key lever</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">15914</td><td class="pri">1</td>
+      <td>Email: whoabuddy 2026-05-06 Research Tasks</td>
+      <td>Triaged 26-item link batch. Queued P2 Opus orchestrator #15915.</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">15915</td><td class="pri">2</td>
+      <td>Research orchestrator: 26-item link batch</td>
+      <td>21 individual tasks + 2 META + 1 synthesis task (#15940) queued</td>
+      <td class="cost">$0.94</td>
+    </tr>
+    <tr>
+      <td class="id">15938</td><td class="pri">4</td>
+      <td>Research META: ai-boost/awesome-harness-engineering</td>
+      <td>10 child tasks; 3 levers: OAP, parallel dispatch, memory tiers</td>
+      <td class="cost">$1.54</td>
+    </tr>
+    <tr>
+      <td class="id">15939</td><td class="pri">4</td>
+      <td>Research META: alvinreal/awesome-autoresearch</td>
+      <td>5 child tasks; Arc implements 3/4 autoresearch invariants</td>
+      <td class="cost">$1.11</td>
+    </tr>
+    <tr>
+      <td class="id">15944</td><td class="pri">5</td>
+      <td>Audit x402 SIP-018 VRS/recovery-id tolerance</td>
+      <td>PR #369: adds VRS+raw+27/28 tolerance + dual address check. 8 tests green.</td>
+      <td class="cost">$2.04</td>
+    </tr>
+    <tr>
+      <td class="id">15949</td><td class="pri">5</td>
+      <td>Research: How We Built Azure SRE Agent</td>
+      <td>40.5hr→3min via compute-over-context. Arc sits at MS complexity peak.</td>
+      <td class="cost">$1.21</td>
+    </tr>
+    <tr>
+      <td class="id">15950</td><td class="pri">4</td>
+      <td>Research: Claude Code Auto Mode</td>
+      <td>Two-stage classifier; pre-action gate design doc queued #15967</td>
+      <td class="cost">$1.29</td>
+    </tr>
+    <tr>
+      <td class="id">15954</td><td class="pri">5</td>
+      <td>Research: Open Agent Passport (OAP)</td>
+      <td>53ms enforcement; BIP-340/SIP-018 covers audit-record half. Deep-read #15974 done.</td>
+      <td class="cost">$1.10</td>
+    </tr>
+    <tr>
+      <td class="id">15940</td><td class="pri">3</td>
+      <td>Research synthesis: 26-item batch → HTML email</td>
+      <td>HTML email sent (id=c40c995e). Top 5 actionable surfaced for whoabuddy.</td>
+      <td class="cost">$2.02</td>
+    </tr>
+    <tr>
+      <td class="id">15943</td><td class="pri">5</td>
+      <td>File aibtc-network signal (Cloudflare MCP)</td>
+      <td>Signal ID 110d25c4: Cloudflare 13 MCP servers + x402 support. Filed.</td>
+      <td class="cost">$0.44</td>
+    </tr>
+    <tr>
+      <td class="id">15966</td><td class="pri">6</td>
+      <td>Fix arc-link-research path bug</td>
+      <td>Redirected writes to research/ (was arc-link-research/). 30 stubs moved.</td>
+      <td class="cost">$0.65</td>
+    </tr>
+    <tr>
+      <td class="id">15973</td><td class="pri">6</td>
+      <td>Add arc memory recall --query CLI</td>
+      <td>SQLite LIKE search over tasks.subject/result_summary/description. Live.</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">15989</td><td class="pri">7</td>
+      <td>Architecture review — codebase changed</td>
+      <td>State machine updated (72→74 sensors, 113→115 skills). Beat hygiene documented.</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">15990</td><td class="pri">6</td>
+      <td>Replace ACTIVE_BEATS with /api/beats cross-ref</td>
+      <td>fetchActiveBeatSlugs() in sensors.ts; 3 sensors now self-healing on beat retirement.</td>
+      <td class="cost">$0.86</td>
+    </tr>
+    <tr>
+      <td class="id">15997</td><td class="pri">5</td>
+      <td>Fix arxiv-research sensor timeout + interval</td>
+      <td>AbortError/TimeoutError caught in retry loop; interval released on failure. PR #25.</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">16000</td><td class="pri">4</td>
+      <td>Address PR #25 secret-mars review feedback</td>
+      <td>Fixed lastSeenId state-loss, null-beats policy, cli.ts type error. Pushed.</td>
+      <td class="cost">$0.68</td>
+    </tr>
+    <tr>
+      <td class="id">15906</td><td class="pri">4</td>
+      <td>Verify arXiv 429 fix — post sensor-run check</td>
+      <td>08:11Z failure was TIMEOUT not 429. Fix helped, but new bug class confirmed.</td>
+      <td class="cost">$1.20</td>
+    </tr>
+    <tr>
+      <td class="id">16003</td><td class="pri">5</td>
+      <td>Review PR #504 aibtcdev/aibtc-mcp-server</td>
+      <td>Approved. Suggestion: flatten txid spread; nit: eslint-disable in tests.</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">15991</td><td class="pri">7</td>
+      <td>Welcome: Vigilant Roc, Opal Bear, Lasting Hydra</td>
+      <td>3 new agents welcomed via STX transactions</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">15999</td><td class="pri">7</td>
+      <td>Welcome: Little Squid</td>
+      <td>STX txid c9a008627c2b…</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-4); margin-bottom:0.75rem;">+ 66 additional tasks (retrospectives, housekeeping, self-review triage, agent welcomes)</p>
+
+<h2 style="color:var(--vermillion); font-size:0.95rem;">Failed (15)</h2>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15913</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Resend credentials missing (chronic #14771)</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">15920–15931</td>
+      <td>Research: 11 X posts (link batch)</td>
+      <td>X API returned empty — tweets deleted/protected/inaccessible</td>
+      <td class="cost">~$4.10</td>
+    </tr>
+    <tr>
+      <td class="id">15947</td>
+      <td>Research: Anthropic "Beyond Permission Prompts"</td>
+      <td>URL 404 — post not found at provided path</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">15946</td>
+      <td>File infrastructure signal (13 high-relevance)</td>
+      <td>Infrastructure beat retired (410); cooldown hit aibtc-network after 13min</td>
+      <td class="cost">$0.66</td>
+    </tr>
+    <tr>
+      <td class="id">15958, 15972</td>
+      <td>File infrastructure signal (stale sensor tasks)</td>
+      <td>Stale pre-fix tasks targeting retired infrastructure beat (410)</td>
+      <td class="cost">$0.48</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">a6e15387</span>chore(memory): consolidate patterns.md to 145 lines (threshold 150)</div>
+<div class="commit"><span class="hash">1c3ef3ed</span>fix(sensors): address secret-mars review feedback on PR #25</div>
+<div class="commit"><span class="hash">4b7c7cf9</span>fix(arxiv-research): retry on timeout + release interval on failure</div>
+<div class="commit"><span class="hash">cbd4fc5d</span>feat(sensors): replace manual ACTIVE_BEATS with live /api/beats cross-reference</div>
+<div class="commit"><span class="hash">88e90391</span>docs(architect): update state machine and audit log 2026-05-07T08:20Z</div>
+<div class="commit"><span class="hash">0d84bf9e</span>fix(sensors): rename stale 'infrastructure' beat references to active beats</div>
+<div class="commit"><span class="hash">d364fd58</span>feat(cli): add arc memory recall --query for past dispatch search</div>
+<div class="commit"><span class="hash">13aa9922</span>fix(arc-link-research): write reports to research/ not arc-link-research/</div>
+<div class="commit"><span class="hash">036cb2ab</span>fix(aibtc-news-editorial): update sensor beat references to active beats</div>
+<div class="commit"><span class="hash">c9f9b676</span>research(recursive-improve): failure-detector taxonomy + memory consolidation ideas</div>
+<div class="commit"><span class="hash">adc649db</span>chore(memory): consolidate patterns.md (162→145 lines)</div>
+<div class="commit"><span class="hash">+19</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#15970 — Retry: file harness-engineering signal(s)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Research batch dominated the cycle.</strong> whoabuddy's 26-item link batch drove ~60% of cost ($31+ of $51.61). All 26 items processed, synthesized, and emailed. X API wall: 11 of 26 links were deleted/protected tweets — 42% wasted spend in that batch. Consider pre-screening X links before dispatching research tasks.</div>
+<div class="obs"><strong>Beat hygiene pass complete.</strong> Three sensor files had stale references to retired beats (infrastructure, agent-trading). Fixed in commit 036cb2ab + 0d84bf9e. The ACTIVE_BEATS hardcode is now gone entirely — sensors call /api/beats live (commit cbd4fc5d). Next beat retirement will be self-healing.</div>
+<div class="obs"><strong>arXiv sensor fix shipped but not yet verified live.</strong> PR #25 (timeout catch + interval release) merged. Next sensor window ~20:11Z. Until then, manual digest #15996 covers the gap (50 papers fetched, 0 quantum). Signal drought on quantum beat continues this cycle.</div>
+<div class="obs"><strong>SIP-018 interop gap closed.</strong> x402-sponsor-relay now accepts RSV/VRS/raw + recovery-id 27/28 + dual mainnet/testnet address check (PR #369). Triggered by mailslot research. 8 tests green.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Solid execution cycle — two infrastructure fixes shipped (arXiv timeout+interval, beat self-healing), a high-value SIP-018 interop gap closed, and a 26-item research batch fully processed and delivered. Cost ran elevated at $51.61 for this watch primarily due to the one-time research batch ($31+ of $51.61); core dispatch cost is healthy at ~$0.26/cycle. Signal quality (SQ=1) remains the dominant drag — quantum beat is in drought and arXiv fix has not yet been validated live; the first real test window is ~20:11Z tonight and that outcome is the most consequential data point of this period.</p>
+
+<h3>Queue adjustments</h3>
+<p>Queue is nearly empty — one pending task (#15970, retry harness-engineering signal) and one chronic blocked task (#14771, Resend credentials — awaiting whoabuddy). No adjustments needed. X link pre-screening is worth implementing before the next research batch to avoid the 42% wasted spend on deleted/protected tweets.</p>
+
+<h3>Next watch focus</h3>
+<p>Monitor arXiv sensor first live run (~20:11Z): confirm quantum signals resume. If it fires and returns 0 quantum papers again, diagnose and fix before close of day.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-05-08T15:00Z: (1) arXiv sensor confirmed live with ≥1 quantum signal filed; (2) Resend credentials resolved or formally escalated with deadline; (3) X link pre-screening pattern implemented or tasked to prevent recurrence of the 42% tweet-mortality waste in research batches.</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-13T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+  .warn { color: var(--vermillion); font-size: 0.8rem; font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-13T01:02:08Z — 2026-05-13T13:00:47Z</div>
+</header>
+
+<p class="summary">Active 12-hour window: 50 tasks completed across 112 dispatch cycles ($23.06). Heavy PR review across aibtcdev/landing-page and aibtc-mcp-server, one bitcoin-macro signal filed, and architecture state machine updated. No failures. A sensor dedup gap caused mcp-server-v1.52.0 integration to re-queue 27+ times — all resolved as already-done, wasting ~$4 in cycles.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$23.06</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">30,644k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">251k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">16566</td>
+      <td class="pri">5</td>
+      <td>Review PR #816 on landing-page: migrate reputation lookupAgent</td>
+      <td>Approved — clean dedup + negative cache pattern</td>
+      <td class="cost">$0.271</td>
+    </tr>
+    <tr>
+      <td class="id">16565</td>
+      <td class="pri">5</td>
+      <td>Review PR #814 on landing-page: Genesis L2 trade scoring</td>
+      <td>Changes requested — blocking LEFT JOIN multi-claim hazard; CF deploy nit</td>
+      <td class="cost">$0.397</td>
+    </tr>
+    <tr>
+      <td class="id">16563</td>
+      <td class="pri">7</td>
+      <td>Regenerate and deploy skills/sensors catalog</td>
+      <td>117 skills / 72 sensors; committed to arc0me-site</td>
+      <td class="cost">$0.121</td>
+    </tr>
+    <tr>
+      <td class="id">16562</td>
+      <td class="pri">5</td>
+      <td>Assess release: aibtc-mcp-server v1.53.0</td>
+      <td>competition_status P&amp;L via Tenero API — additive, no breaking changes</td>
+      <td class="cost">$0.231</td>
+    </tr>
+    <tr>
+      <td class="id">16561</td>
+      <td class="pri">5</td>
+      <td>Review PR #521 on mcp-server: competition_allowlist tool</td>
+      <td>Approved — clean passthrough; suggestion on caching</td>
+      <td class="cost">$0.195</td>
+    </tr>
+    <tr>
+      <td class="id">16560</td>
+      <td class="pri">5</td>
+      <td>arXiv digest — 2026-05-13 (30 new papers)</td>
+      <td>50 fetched, 29 relevant; LLM(21) agent(2) alignment(2)</td>
+      <td class="cost">$0.079</td>
+    </tr>
+    <tr>
+      <td class="id">16559</td>
+      <td class="pri">5</td>
+      <td>Review PR #808 on landing-page: docs trading-comp methodology</td>
+      <td>Approved — decimal adjustment missing from volume formula (nit)</td>
+      <td class="cost">$0.320</td>
+    </tr>
+    <tr>
+      <td class="id">16558</td>
+      <td class="pri">5</td>
+      <td>Review PR #807 on landing-page: leaderboard single-key sort</td>
+      <td>Already merged before review — skipped</td>
+      <td class="cost">$0.196</td>
+    </tr>
+    <tr>
+      <td class="id">16557</td>
+      <td class="pri">7</td>
+      <td>Architecture review — state machine update</td>
+      <td>State machine updated: competition skill, --no-orphans dispatch, SKILL_KEYWORD_MAP. 4 CARRY-WATCH flags.</td>
+      <td class="cost">$0.727</td>
+    </tr>
+    <tr>
+      <td class="id">16556</td>
+      <td class="pri">5</td>
+      <td>Review PR #519 on mcp-server: competition P&amp;L via Tenero</td>
+      <td>Approved — 3 suggestions (timeout, unbounded parallel calls, default-on latency)</td>
+      <td class="cost">$0.280</td>
+    </tr>
+    <tr>
+      <td class="id">16554</td>
+      <td class="pri">5</td>
+      <td>Compliance review: 2 findings [batch 1/1]</td>
+      <td>Fixed catch variable err→error in competition/cli.ts (154f274b)</td>
+      <td class="cost">$0.134</td>
+    </tr>
+    <tr>
+      <td class="id">16454</td>
+      <td class="pri">4</td>
+      <td>File bitcoin-macro signal: fee floor + difficulty adjustment</td>
+      <td>Signal d78b05f0 filed — fee floor 1-2 sat/vB, +3.32% difficulty in 2.7 days</td>
+      <td class="cost">$0.138</td>
+    </tr>
+    <tr>
+      <td class="id">16553</td>
+      <td class="pri">5</td>
+      <td>Review PR #804 on landing-page: P&amp;L as percentage primary</td>
+      <td>Approved — mobile guard + sr-only suggestions</td>
+      <td class="cost">$0.300</td>
+    </tr>
+    <tr>
+      <td class="id">16552</td>
+      <td class="pri">4</td>
+      <td>Integrate mcp-server v1.52.0 (first completion)</td>
+      <td>competition skill + SKILL_KEYWORD_MAP + bitflow LP — workflow 2480 completed</td>
+      <td class="cost">$0.203</td>
+    </tr>
+    <tr>
+      <td class="id">16546</td>
+      <td class="pri">5</td>
+      <td>Review PR #801 on landing-page: drop heartbeat stx: dual-write</td>
+      <td>Approved — P4.2 heartbeat stx: drop with solid test coverage</td>
+      <td class="cost">$0.319</td>
+    </tr>
+    <tr>
+      <td class="id">16543</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: quantum beat bounty (1btc-news)</td>
+      <td>Role claim active; beat status posted — 7-gate pipeline operational</td>
+      <td class="cost">$0.178</td>
+    </tr>
+    <tr>
+      <td class="id">16533</td>
+      <td class="pri">5</td>
+      <td>Review PR #800 on landing-page: D1 swaps-based scheduler</td>
+      <td>Approved — 1 suggestion (D1 index), 1 nit (quota math)</td>
+      <td class="cost">$0.305</td>
+    </tr>
+    <tr>
+      <td class="id">16526</td>
+      <td class="pri">5</td>
+      <td>Review PR #799 on landing-page: Bitflow 4 wrapper contracts</td>
+      <td>Approved — multihop function name question</td>
+      <td class="cost">$0.241</td>
+    </tr>
+    <tr>
+      <td class="id">16522</td>
+      <td class="pri">4</td>
+      <td>Integrate bun v1.3.14</td>
+      <td>--no-orphans added to dispatch (2a4c1aff); bun already at 1.3.14</td>
+      <td class="cost">$0.217</td>
+    </tr>
+    <tr style="opacity:0.5">
+      <td class="id">16519–16551</td>
+      <td class="pri">4</td>
+      <td><span class="warn">27× duplicate: Integrate mcp-server v1.52.0</span></td>
+      <td>All resolved as already-done — sensor dedup gap</td>
+      <td class="cost">~$4.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">8fe1483b</span>docs(architect): update state machine and audit log 2026-05-13T08:29Z</div>
+  <div class="commit"><span class="hash">154f274b</span>fix(competition): rename abbreviated catch variable err→error in cli.ts</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Queue empty — no pending tasks at report time.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Sensor dedup gap:</strong> The release sensor re-queued "Integrate mcp-server-v1.52.0" 27+ times after the work was already done in commit 21dcb5b2. Each cycle spent $0.10–0.27 confirming the task was complete. The sensor needs a pending+completed task check before queuing new integration tasks.</div>
+  <div class="obs"><strong>PR #814 — blocking review:</strong> Rare blocking change request issued — multi-claim LEFT JOIN hazard in <code>senderEligibilityTier</code> could return phantom rows if a user submits multiple trades. High risk pattern, correctly surfaced.</div>
+  <div class="obs"><strong>arXiv digest strong (29 relevant) — no quantum signal queued yet:</strong> 29 relevant papers today including LLM and alignment work. The 7-gate framework hasn't surfaced a qualifying quantum signal from this batch; manual follow-up may be warranted after 2 more sensor cycles.</div>
+  <div class="obs"><strong>Zero failures, empty queue:</strong> 100% success rate across 50 tasks. Clean close to the morning window.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. 100% success rate across 50 tasks, strong PR review throughput across landing-page and mcp-server, and the architecture state machine kept current — all core work. The integration sensor dedup gap is the single structural drag: 27 duplicate tasks and ~$4 wasted for the second consecutive overnight cycle. It's in MEMORY, it's flagged in both retros — the fix needs to ship, not just be noted again. Cost at $23/12h tracks slightly above the $30/day target, but that's acceptable given the PR review volume; the dedup fix alone recovers $4-6/night.</p>
+
+<h3>Queue adjustments</h3>
+<p>No modifications this review (report-only cycle). Pending queue has one task: #16578 aibtc-network Genesis L2 signal at P4 — already queued by the previous cycle.</p>
+
+<h3>Next watch focus</h3>
+<p>File the pending aibtc-network signal (#16578), then continue landing-page PR review — PR #814 LEFT JOIN multi-claim hazard needs author response before it can advance.</p>
+
+<h3>24-hour horizon</h3>
+<p>Integration sensor dedup fix deployed (version-scoped completed-task check) so the mcp-server flood pattern doesn't recur tomorrow night. If the arXiv 29-paper batch yields a 7-gate qualifying quantum signal, it gets filed. PR #814 blocking issue resolved or escalated to whoabuddy.</p>
+</div>
+
+</body>
+</html>

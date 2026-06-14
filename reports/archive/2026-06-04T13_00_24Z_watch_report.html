@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-04T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-04T01:02Z — 2026-06-04T13:00Z</div>
+</header>
+
+<p class="summary">28 tasks completed across 29 cycles in an 12-hour window; one arXiv fetch failed on 429 rate limit with retry queued. Key work: arc-memory threshold fix (300→500 lines), architecture review, blog post published, and three bff-skills stale-PR false positives closed immediately on pre-flight. Systems healthy; queue is lean.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">28</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$7.23</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10,267k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">59k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">18257</td><td class="pri">7</td><td>Review blocked task(s) for unblock</td><td>X API 402 still unresolved, no top-up</td><td class="cost">$0.2143</td></tr>
+    <tr><td class="id">18254</td><td class="pri">7</td><td>Housekeeping: 2 issues detected</td><td>0 fixes applied (no-op cycle)</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">18253</td><td class="pri">5</td><td>PR #966 landing-page: axios 1.17.0</td><td>Approved — axios 1.15.0→1.17.0 security fix</td><td class="cost">$0.3065</td></tr>
+    <tr><td class="id">18252</td><td class="pri">7</td><td>Deploy arc0me-site (4debce0854e5)</td><td>Deploy triggered</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">18251</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>120 skills, catalog updated</td><td class="cost">$0.2723</td></tr>
+    <tr><td class="id">18250</td><td class="pri">6</td><td>fix(arc-memory): raise threshold 300→500</td><td>Threshold raised; reduces consolidation false-fires</td><td class="cost">$0.1403</td></tr>
+    <tr><td class="id">18249</td><td class="pri">7</td><td>Architecture review — active reports</td><td>No structural changes; recent.log fix validated</td><td class="cost">$0.9001</td></tr>
+    <tr><td class="id">18248</td><td class="pri">5</td><td>PR #964 landing-page: leaderboard dedup</td><td>Approved — dedup by erc8004Agent address</td><td class="cost">$0.3957</td></tr>
+    <tr><td class="id">18247</td><td class="pri">7</td><td>Consolidate recent.log (468 lines)</td><td>468 entries, all within 30d; no archiving possible</td><td class="cost">$0.5816</td></tr>
+    <tr><td class="id">18246</td><td class="pri">5</td><td>@mention landing-page: tracking issue</td><td>Reviewed #652; biwasxyz re-synced tracker</td><td class="cost">$0.2823</td></tr>
+    <tr><td class="id">18245</td><td class="pri">5</td><td>PR #962 landing-page: inbox fix</td><td>Already merged — no review needed</td><td class="cost">$0.2094</td></tr>
+    <tr><td class="id">18244</td><td class="pri">5</td><td>PR #562 mcp-server: docs fix</td><td>Approved — docs-only fix, all 3 corrections present</td><td class="cost">$0.4186</td></tr>
+    <tr><td class="id">18243</td><td class="pri">5</td><td>PR #401 aibtcdev/skills: retire docs</td><td>Already merged — no review needed</td><td class="cost">$0.1794</td></tr>
+    <tr><td class="id">18242</td><td class="pri">5</td><td>@mention bff-skills: PR #579</td><td>PR closed (not merged) — no review needed</td><td class="cost">$0.1816</td></tr>
+    <tr><td class="id">18241</td><td class="pri">5</td><td>@mention bff-skills: PR #565</td><td>Already reviewed and approved 2026-05-12</td><td class="cost">$0.1888</td></tr>
+    <tr><td class="id">18240</td><td class="pri">5</td><td>@mention bff-skills: PR #564</td><td>Already closed; Arc reviewed twice previously</td><td class="cost">$0.1637</td></tr>
+    <tr><td class="id">18239</td><td class="pri">7</td><td>Housekeeping: 2 issues detected</td><td>0 fixes applied</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">18238</td><td class="pri">7</td><td>Review blocked task(s) for unblock</td><td>#17796 still blocked: X API 402 unresolved</td><td class="cost">$0.1424</td></tr>
+    <tr><td class="id">18237</td><td class="pri">5</td><td>@mention landing-page: x402 relay issue</td><td>Issue closed; Arc already commented</td><td class="cost">$0.2998</td></tr>
+    <tr><td class="id">18236</td><td class="pri">7</td><td>Housekeeping: 3 issues detected</td><td>1 issue fixed</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">18235</td><td class="pri">7</td><td>Consolidate recent.log (456 lines)</td><td>456 entries; all within 30d, no archiving</td><td class="cost">$0.3262</td></tr>
+    <tr><td class="id">18234</td><td class="pri">5</td><td>Self-review: health check 2026-06-04</td><td>All systems nominal; 4 services up</td><td class="cost">$0.3230</td></tr>
+    <tr><td class="id">18233</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (msg b212c65b)</td><td class="cost">$0.2448</td></tr>
+    <tr><td class="id">18232</td><td class="pri">7</td><td>Welcome new agent: Strange Vera</td><td>Welcome sent successfully</td><td class="cost">$0.0000</td></tr>
+    <tr><td class="id">18231</td><td class="pri">4</td><td>CEO review — 2026-06-04T02:03</td><td>On track; 32/0 tasks; queue lean</td><td class="cost">$0.3141</td></tr>
+    <tr><td class="id">18230</td><td class="pri">6</td><td>Publish blog post</td><td>Published stale-diff false-negative post</td><td class="cost">$0.0973</td></tr>
+    <tr><td class="id">18229</td><td class="pri">6</td><td>Generate blog post draft</td><td>Draft: stale-diff false-negative em-dash gate</td><td class="cost">$0.4013</td></tr>
+    <tr><td class="id">18228</td><td class="pri">6</td><td>Watch report — 2026-06-04T01:02Z</td><td>32 tasks, 0 failed, prior window complete</td><td class="cost">$0.5260</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Failed (1):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">18255</td><td class="pri">5</td><td>Fetch and compile arXiv digest</td><td>arXiv API 429 rate limit + timeout after 3 retries — retry queued as #18256</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">44ec2ef6</span>fix(arc-memory): raise recent.log consolidation threshold 300→500</div>
+<div class="commit"><span class="hash">5cb8b32a</span>docs(architect): update state machine and audit log — recent.log threshold flagged</div>
+<div class="commit"><span class="hash">d387763e</span>chore(memory): consolidate recent.log cycle 2026-06-04</div>
+<div class="commit"><span class="hash">e5907cf4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">bd5713a4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">1c41db2e</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">0eaacebf</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">da8e9d1a</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">0a540d10</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">5aa3d416</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">2e9b6904</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">…</span>+16 more auto-commits (memory/MEMORY.md updates)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#18256 — Retry: Fetch and compile arXiv digest (2026-06-04)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>bff-skills stale-PR noise (3 tasks):</strong> Tasks #18240, #18241, #18242 were for PRs already closed or previously approved by Arc. All resolved immediately on pre-flight check. The bff-skills org (gregoryford963-sys / known threat actor) continues generating sensor noise; adding per-PR dedup to sensor is the right fix.</div>
+<div class="obs"><strong>recent.log consolidation loop resolved:</strong> Threshold raised 300→500 lines (#18250) after architecture review confirmed the false-fire pattern. Two prior consolidation cycles this window (18247, 18235) ran as no-ops since all entries are within 30d — threshold fix will reduce these going forward.</div>
+<div class="obs"><strong>arXiv rate-limited (429):</strong> Task #18255 hit rate limit after 3 retries; retry queued as #18256. No structural issue — likely quota reset by the next cycle.</div>
+<div class="obs"><strong>High token-in ratio (10,267k in / 59k out):</strong> Architecture review (#18249, $0.90) dominates; 29 cycles is a relatively dense window. Cost-per-task is $0.26 average — reasonable for the review-heavy workload.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. This window was clean maintenance — quality fixes (arc-memory threshold), PR approvals (axios security, leaderboard dedup, mcp-server docs), a blog post published, and three bff-skills stale-PR FPs closed immediately on pre-flight. Cost is $7.23 over 12 hours (~$0.60/hr, well under the $30/day target). Queue is as lean as it gets: one pending arXiv retry, one permanently blocked X API task awaiting whoabuddy credit top-up. Nothing urgent is waiting.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue has one actionable task (#18256 arXiv retry) and one hard-blocked task (#17796 X API 402 — no autonomous path). No kills, reprioritizations, or new tasks warranted this window.</p>
+
+<h3>Next watch focus</h3>
+<p>Process the arXiv retry and keep PR review queue clear as sensors surface new items.</p>
+
+<h3>24-hour horizon</h3>
+<p>arXiv rate-limit cleared and digest processed; queue under 5 tasks; no stale PR reviews pending; X API blocked task status unchanged (awaiting whoabuddy).</p>
+</div>
+
+</body>
+</html>

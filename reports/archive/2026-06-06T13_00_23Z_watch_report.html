@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-06T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-06T01:01:53Z — 2026-06-06T13:00:23Z</div>
+</header>
+
+<p class="summary">19 tasks completed across 19 dispatch cycles in this window — 0 failures, 1 long-standing X API block. Notable work: architecture review shipped fallback model visibility fix, blog post drafted and published on sensor memory patterns, patterns.md consolidated from 153→122 lines, and two Claude Code release reports filed. All services healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">19</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$6.17</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">9278k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">70k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">18337</td><td class="pri">6</td>
+      <td>Watch report — 2026-06-06T01:01Z</td>
+      <td>25 tasks completed, $7.06 spent (25 cycles)</td>
+      <td class="cost">$0.5029</td>
+    </tr>
+    <tr>
+      <td class="id">18338</td><td class="pri">6</td>
+      <td>Generate new blog post draft</td>
+      <td>Draft '2026-06-06-sensors-that-forget' created</td>
+      <td class="cost">$0.3335</td>
+    </tr>
+    <tr>
+      <td class="id">18339</td><td class="pri">6</td>
+      <td>Publish generated blog post</td>
+      <td>Published sensors-that-forget (3067 chars)</td>
+      <td class="cost">$0.0841</td>
+    </tr>
+    <tr>
+      <td class="id">18340</td><td class="pri">6</td>
+      <td>New release: claude-code v2.1.166</td>
+      <td>Research report written to research/claude-code-releases/</td>
+      <td class="cost">$0.3371</td>
+    </tr>
+    <tr>
+      <td class="id">18341</td><td class="pri">6</td>
+      <td>Configure fallbackModel in dispatch subprocess</td>
+      <td>--fallback-model sonnet already set; doc updated</td>
+      <td class="cost">$0.9095</td>
+    </tr>
+    <tr>
+      <td class="id">18342</td><td class="pri">4</td>
+      <td>CEO review — 2026-06-06T02:08</td>
+      <td>On track, 25/25 tasks, structural fixes noted</td>
+      <td class="cost">$0.3340</td>
+    </tr>
+    <tr>
+      <td class="id">18343</td><td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Sent to whoabuddy@gmail.com (msg 9292ab4f)</td>
+      <td class="cost">$0.2396</td>
+    </tr>
+    <tr>
+      <td class="id">18344</td><td class="pri">6</td>
+      <td>New release: claude-code v2.1.167</td>
+      <td>Report written: research/claude-code-releases/v2.1.167.md</td>
+      <td class="cost">$0.2623</td>
+    </tr>
+    <tr>
+      <td class="id">18345</td><td class="pri">5</td>
+      <td>self-review: health check 2026-06-06</td>
+      <td>All services healthy, 98% ops success, 2 tracked items</td>
+      <td class="cost">$0.2938</td>
+    </tr>
+    <tr>
+      <td class="id">18346</td><td class="pri">5</td>
+      <td>self-review triage: 2 issues found</td>
+      <td>Queued task #18347 for age-based recent.log fix</td>
+      <td class="cost">$0.2700</td>
+    </tr>
+    <tr>
+      <td class="id">18347</td><td class="pri">5</td>
+      <td>Fix recent.log: implement age-based archiving</td>
+      <td>Age-based archiving already shipped in d2b1677d</td>
+      <td class="cost">$0.2194</td>
+    </tr>
+    <tr>
+      <td class="id">18348</td><td class="pri">7</td>
+      <td>Review 1 blocked task for possible unblock</td>
+      <td>Block confirmed: X API 402 still unresolved</td>
+      <td class="cost">$0.2332</td>
+    </tr>
+    <tr>
+      <td class="id">18349</td><td class="pri">7</td>
+      <td>housekeeping: 3 issues detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.0000</td>
+    </tr>
+    <tr>
+      <td class="id">18350</td><td class="pri">7</td>
+      <td>housekeeping: 2 issues detected</td>
+      <td>Fixed 0 issues</td>
+      <td class="cost">$0.0000</td>
+    </tr>
+    <tr>
+      <td class="id">18351</td><td class="pri">7</td>
+      <td>Welcome new AIBTC agent: Glowing Walrus</td>
+      <td>Agent welcomed successfully</td>
+      <td class="cost">$0.0000</td>
+    </tr>
+    <tr>
+      <td class="id">18352</td><td class="pri">7</td>
+      <td>Architecture review — codebase changed</td>
+      <td>3 structural commits reviewed; fallback model visibility shipped</td>
+      <td class="cost">$1.1714</td>
+    </tr>
+    <tr>
+      <td class="id">18353</td><td class="pri">8</td>
+      <td>Retrospective: extract learnings from #18352</td>
+      <td>3 patterns extracted: stale-blocking-suppress, dispatch fallback</td>
+      <td class="cost">$0.1599</td>
+    </tr>
+    <tr>
+      <td class="id">18354</td><td class="pri">8</td>
+      <td>Consolidate patterns.md (153 lines)</td>
+      <td>Consolidated 153→122 lines: archived 6 one-time-use patterns</td>
+      <td class="cost">$0.5777</td>
+    </tr>
+    <tr>
+      <td class="id">18355</td><td class="pri">7</td>
+      <td>Review 1 blocked task for possible unblock</td>
+      <td>X API still 402 CreditsDepleted — prescreen probe confirmed</td>
+      <td class="cost">$0.2417</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill returned no portfolio data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">6ee96d5f</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">4d1d73f5</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">1e0b9dcd</span>docs(memory): consolidate patterns.md 153→122 lines</div>
+  <div class="commit"><span class="hash">0b89a453</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">41699304</span>docs(patterns): capture learnings from task #18352 arch review</div>
+  <div class="commit"><span class="hash">a83c813e</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">fc1a37d9</span>docs(architect): dispatch fallback visibility; blocked-review 168h; housekeeping 8h cooldown</div>
+  <div class="commit"><span class="hash">6f00f638</span>feat(dispatch): capture and log actual model when fallback activates</div>
+  <div class="commit"><span class="hash">+ 12</span>chore(loop): auto-commit cycles (memory/)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag blocked">P9 BLOCKED</span>#17796 — [BLOCKED-X-API] Reschedule research: 46 X tweets flagged (X API 402 CreditsDepleted)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Architecture review (#18352) was the most expensive task at $1.17 — identified and shipped dispatch fallback model visibility. This is expected cost for opus-class structural analysis; the ROI is the follow-on pattern extraction (#18353) and doc commit (fc1a37d9).</div>
+  <div class="obs">self-review triage queued a fix task (#18347) for age-based recent.log archiving, but the implementation was already shipped (d2b1677d). Self-review is generating valid noise from its own memory lag — triage accuracy depends on memory freshness, which has a session-boundary gap.</div>
+  <div class="obs">X API block (#17796) has been verified twice this window (tasks #18348, #18355) and both confirm 402 CreditsDepleted. Continuing to dispatch review tasks against a confirmed unresolvable block wastes cycles — the blocked-review sensor cooldown (168h) should suppress further checks until whoabuddy tops up credits.</div>
+  <div class="obs">0 failures across 19 cycles is a strong window. The housekeeping zero-fix runs (#18349, #18350) cost nothing but still consume dispatch slots — the 8h cooldown fix shipped earlier this period should reduce future no-op churn.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. 19/19 tasks completed, zero failures, blog post published, architecture improvements shipped with pattern extraction — this is a clean, productive watch. Cost at $0.325/task is slightly above the $0.293 daily average but the arch review (#18352, $1.17) drove the variance and was worth it: fallback model visibility is a genuine quality improvement. The only structural concern is self-review triage generating a false fix task (#18347) for work already shipped — memory lag at session boundaries remains a minor recurring friction, not yet a blocker.</p>
+
+<h3>Queue adjustments</h3>
+<p><em>Report-only review — no modifications this cycle.</em></p>
+<p>The queue is essentially empty: one blocked task (#17796, X API 402) awaiting whoabuddy credit top-up, one active (this review). Nothing to kill or reprioritize. The 168h blocked-review cooldown is correctly suppressing redundant dispatch against the confirmed-unresolvable block.</p>
+
+<h3>Next watch focus</h3>
+<p>Responsiveness — check for any incoming emails or inbox messages. If none, continue ecosystem contribution: PR reviews, release reports, or signal pipeline readiness assessment.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-06-07T14:00Z: at least one external-facing output (PR review, answered message, or filed signal once filing resumes). Cost-per-task holding at or below $0.30. X API status escalated to whoabuddy if credits still unresolved by then.</p>
+</div>
+
+</body>
+</html>

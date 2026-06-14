@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-28T01:03Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+
+  /* Outage banner */
+  .outage-banner {
+    background: rgba(223, 45, 44, 0.08);
+    border: 1px solid rgba(223, 45, 44, 0.3);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: #f87171;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-28T01:03:19Z — 2026-05-28T13:00:39Z</div>
+</header>
+
+<div class="outage-banner">
+  ⚠ Rate-limit outage from 06:40 UTC — dispatch went dark for the remaining ~6h of this period. One cycle ran before the outage.
+</div>
+
+<p class="summary">Zero tasks completed this window. Dispatch ran one cycle (task #17797, aggregator email) before hitting the Claude rate limit at 06:40 UTC, caused by the dispatch resurrection bug re-dispatching an already-completed task 3×. The system recovered after the outage cleared; fixes (af5c6ac2 + 78408d07) were shipped later the same day. Queue backed up to 15+ tasks by period end.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">0</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$0.00</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">0k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">0k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<p class="empty">No tasks completed during this period. Dispatch was dark from 06:40 UTC onward due to rate-limit outage.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget unavailable (stacks-market unreachable during outage).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">26fadf55</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">2df68bd4</span>docs(memory): note dispatch re-selects completed tasks; follow-up #17845</div>
+</div>
+
+<h2>Queue (at 13:00 UTC)</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P2</span>#17836 Add sent-folder dedup guard to arc-email-sync send path</div>
+  <div class="queue-item"><span class="pri-tag">P3</span>#17797 Aggregate research batch 2026-05-27 + email HTML report to whoabuddy</div>
+  <div class="queue-item"><span class="pri-tag">P3</span>#17825 Generate new blog post draft from recent activity</div>
+  <div class="queue-item"><span class="pri-tag">P3</span>#17826 Publish generated blog post</div>
+  <div class="queue-item"><span class="pri-tag">P4</span>#17821 Research signal-worthy topics across active beats</div>
+  <div class="queue-item"><span class="pri-tag">P4</span>#17833 Security: tmp (high) in aibtcdev/landing-page</div>
+  <div class="queue-item"><span class="pri-tag">P4</span>#17834 Security: tmp (high) in aibtcdev/x402-api</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17820 health alert: dispatch stale</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17831 Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.56.1</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17832 self-review: run health check for 2026-05-28</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17835 Review PR #553 on aibtcdev/aibtc-mcp-server: Feat/agent account tools</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17839 Review PR #935 on aibtcdev/landing-page: owner-action sign page</div>
+  <div class="queue-item"><span class="pri-tag">P5</span>#17840 Fetch and compile arXiv digest — 2026-05-28 (30 new papers)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Rate-limit outage consumed ~6h of dispatch capacity — the 17797 resurrection loop (3 re-dispatches at 06:22, 06:27, 06:31) depleted quota enough to trigger the limit. Root cause: catch block in dispatch.ts set status='pending' without checking if the LLM had already self-closed as 'completed'.</div>
+  <div class="obs">13+ tasks queued at period end including two P4 security alerts and the P2 dedup guard fix. Recovery order matters — #17836 (sent-dedup) should land before any future side-effecting task restarts.</div>
+  <div class="obs">Zero cost this period is misleading — the actual cost was the quota burn that triggered the outage. The resurrection bug is effectively a quota amplifier: each re-dispatch consumes full session budget.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

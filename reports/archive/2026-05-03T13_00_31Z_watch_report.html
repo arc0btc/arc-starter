@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-03T01:03Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-03T01:03:55Z — 2026-05-03T13:00:31Z</div>
+</header>
+
+<p class="summary">High-volume PR review cycle: 519 tasks completed across ~12 hours driven by aibtc-repo-maintenance sweep. Five commits shipped including the workflow-dedup fix and Resend email backend. One bitcoin-macro signal filed (hashrate -7.3%, Q=93). Operational health strong at 97%+ real success rate.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">519</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">17</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$129.90</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">175,532k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">1,092k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">14308</td>
+      <td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate drops 7.3%</td>
+      <td>Filed hashrate-record signal (951.2→1025.6 EH/s). Q=93, SQ=30. Signal ID: 5535adeb</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">14311</td>
+      <td class="pri">5</td>
+      <td>self-review: run health check for 2026-05-03</td>
+      <td>Services healthy, queue clean, 97% success rate. 3 workflow state issues found → #14312</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">14312</td>
+      <td class="pri">7</td>
+      <td>Clean up stale self-review and CEO-review workflows</td>
+      <td>Resolved 4 stale self-reviews, closed 16 CEO-review emailing workflows</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">14314</td>
+      <td class="pri">6</td>
+      <td>CEO review backlog: process 5 stale scheduled</td>
+      <td>CEO review backlog cleared; workflow 2140 completed; stale ones closed</td>
+      <td class="cost">$1.75</td>
+    </tr>
+    <tr>
+      <td class="id">14317</td>
+      <td class="pri">6</td>
+      <td>Investigate: ceo-review workflows stuck in scheduled</td>
+      <td>Root cause: taskExistsForSource ghost rows blocking re-creation. Fix: pendingTaskExistsForSource</td>
+      <td class="cost">$0.36</td>
+    </tr>
+    <tr>
+      <td class="id">14319</td>
+      <td class="pri">4</td>
+      <td>Review aibtcdev/skills #369: hodlmm liquidation fix</td>
+      <td>Approved; suggestions applied in 35bda06d; follow-up comment posted</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">14320</td>
+      <td class="pri">5</td>
+      <td>Review aibtcdev/skills #340: sbtc-yield-maximizer</td>
+      <td>Reviewed HODLMM leg — all 5 prior CHANGELOG items validated</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">14321</td>
+      <td class="pri">5</td>
+      <td>Review aibtcdev/aibtc-mcp-server #499: OKX data</td>
+      <td>Phase 2 additions reviewed: auth, DEX aggregator, Wallet API — approved</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">14363</td>
+      <td class="pri">4</td>
+      <td>Integrate: aibtcdev/skills skills-v0.40.0</td>
+      <td>v0.40.0 already complete: contract-preflight and stacking-delegation both integrated</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">14428</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-03T03:13</td>
+      <td>On track — 40 completed, 97%+ success, dispatch-stale suppression shipped</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">14436</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy — 2026-05-03T03:13</td>
+      <td>Watch report emailed to whoabuddy@gmail.com; workflow 2151 completed</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">14342</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-04-27</td>
+      <td>Generated overnight brief; report written to reports/2026-04-27T13_00_00Z_overnight_brief.md</td>
+      <td class="cost">$0.48</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color: var(--gray-4); margin-bottom:1rem;">Showing 12 of 519 completed tasks. Remaining 507 tasks: bulk PR review/re-review sweep (aibtc-repo-maintenance).</p>
+
+<h2 style="color:var(--vermillion); font-size:0.95rem; margin-top:1rem;">Failed (17)</h2>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">14343</td>
+      <td>Fix arc0btc.com health: freshness 2d old</td>
+      <td>Timed out after 15min — blog deploy complexity exceeded limit</td>
+    </tr>
+    <tr>
+      <td class="id">14776</td>
+      <td>Send IC email test via Resend</td>
+      <td>Resend credentials not set — human action required to provision API key</td>
+    </tr>
+    <tr>
+      <td class="id">14338, 14387, 14405, 14476, 14543, 14560, 14570, 14677, 14730, 14731, 14763, 14780, 14782, 14795, 14829</td>
+      <td>PR reviews (various repos)</td>
+      <td>Stale/incorrect PR numbers — PRs don't exist at referenced numbers (repos advanced past these)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market skill not installed. No position data available.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">cc22eb86</span>feat(email): add Resend backend for outbound email to external addresses</div>
+  <div class="commit"><span class="hash">583e938b</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">1ca35b7f</span>chore(memory): document workflow-dedup ghost row pattern</div>
+  <div class="commit"><span class="hash">2482db11</span>fix(arc-workflows): use pendingTaskExistsForSource to unblock stuck workflows</div>
+  <div class="commit"><span class="hash">3cd6cd79</span>fix(arc-ceo-review): add workflow context update step to AGENT.md</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>PURPOSE eval: 2.5/5 — signal diversity gap</div>
+  <div class="queue-item"><span class="pri-tag">P6</span>Generate new blog post from recent operational learnings</div>
+  <div class="queue-item"><span class="pri-tag">P6</span>Watch report — 2026-05-04T01:02Z</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Deploy arc0me-site to Cloudflare</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>housekeeping: 1 issue(s) detected</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>architecture review — codebase health</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Regenerate and deploy skills/sensor manifest</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Ruby Elan</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Crystal Engine</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>daily introspection (828 tasks)</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Daily failure retrospective: 26 failures reviewed</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Stale PR number problem is systemic.</strong> 15 of 17 failures were PRs that don't exist at the queued number. The aibtc-repo-maintenance sweep is generating tasks against issues and merged/old PRs. The sensor should validate PR existence before queuing, or the daily cap should filter harder on confirmed-open PRs only.</div>
+  <div class="obs"><strong>Workflow dedup fix shipped (2482db11).</strong> <code>pendingTaskExistsForSource</code> replaces <code>taskExistsForSource</code> — this was the root cause of CEO-review and other workflows staying stuck in scheduled state indefinitely. Expect scheduled-state backlogs to clear naturally over the next few cycles.</div>
+  <div class="obs"><strong>Resend email backend added (cc22eb86).</strong> Outbound external email now has an implementation path. Blocked on human provisioning Resend credentials and DNS setup before IC email confirmations can be sent.</div>
+  <div class="obs"><strong>Cost efficiency degraded by volume.</strong> $129.90 for this 12h window vs $0.24/task average — the PR review sweep is low-value-per-task work. Most tasks completed in under $0.30 but the sheer count inflates total spend. The daily PR review cap (20/day) from the recent fix should help contain future windows.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-25T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-24T13:00:24Z — 2026-04-25T01:01:32Z</div>
+</header>
+
+<p class="summary">13 tasks completed, 0 failed over 12 hours across 14 dispatch cycles. Signal activity returned: bitcoin-macro (hashrate -7.7%, difficulty -3.1%) and x402-api PR #107 filed on aibtc-network beat. claude-code v2.1.120 evaluated and ultrareview step added to Arc's PR workflow. All systems nominal.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">13</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$3.93</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">5141k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">55k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13610</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>Filed bitcoin-macro signal (hashrate -7.7%, difficulty -3.1%, score 73). Created follow-up for x402-api signal post-cooldown.</td>
+      <td class="cost">$0.559</td>
+    </tr>
+    <tr>
+      <td class="id">13611</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.13/5</td>
+      <td>PURPOSE 2.30/5 — signal/ecosystem bottleneck, no active beats. Memory updated.</td>
+      <td class="cost">$0.189</td>
+    </tr>
+    <tr>
+      <td class="id">13612</td>
+      <td class="pri">7</td>
+      <td>Daily introspection: 64 tasks</td>
+      <td>95% success (61/64); 3 failures = 2 expected sim:400 + 1 IC deferral misclassified.</td>
+      <td class="cost">$0.201</td>
+    </tr>
+    <tr>
+      <td class="id">13613</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit</td>
+      <td>All systems nominal. Added db/x-credits-depleted.json to .gitignore; removed stale planning docs.</td>
+      <td class="cost">$0.221</td>
+    </tr>
+    <tr>
+      <td class="id">13614</td>
+      <td class="pri">5</td>
+      <td>Assess release: anthropic-sdk-ts v0.91.1</td>
+      <td>Minor patch only — restrictive file mode fix + formatter chore. No breaking changes. Workflow 1917 → no_action.</td>
+      <td class="cost">$0.195</td>
+    </tr>
+    <tr>
+      <td class="id">13615</td>
+      <td class="pri">4</td>
+      <td>File aibtc-network signal (x402-api)</td>
+      <td>Cooldown active from bitcoin-macro signal; 60-min global cooldown expiring ~01:04 UTC. Follow-up scheduled.</td>
+      <td class="cost">$0.316</td>
+    </tr>
+    <tr>
+      <td class="id">13616</td>
+      <td class="pri">4</td>
+      <td>File aibtc-network signal: x402-api PR #107</td>
+      <td>Signal filed on aibtc-network beat. ID: 654a7cda. Quality score: 73 (sourceQuality=30, 3 sources).</td>
+      <td class="cost">$0.153</td>
+    </tr>
+    <tr>
+      <td class="id">13617</td>
+      <td class="pri">3</td>
+      <td>Fix arc0btc.com freshness issue</td>
+      <td>Published 'The Deploy That Killed Itself' post. All 4 health checks green. Freshness passes (1d ago).</td>
+      <td class="cost">$0.254</td>
+    </tr>
+    <tr>
+      <td class="id">13618</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective</td>
+      <td>2 failures both expected sim:400 (Savage Moose + Steel Yeti). Hiro auto-deny-list reactive — steady-state.</td>
+      <td class="cost">$0.310</td>
+    </tr>
+    <tr>
+      <td class="id">13619</td>
+      <td class="pri">5</td>
+      <td>Review PR #352 on aibtcdev/skills</td>
+      <td>Approved PR #352 with suggestions (intro count inconsistency, vague Path A Leg 2, dual-use run command).</td>
+      <td class="cost">$0.287</td>
+    </tr>
+    <tr>
+      <td class="id">13620</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.120</td>
+      <td>Research report written. 2 follow-up tasks created: CLAUDE_EFFORT eval (#13621) and ultrareview PR integration (#13622).</td>
+      <td class="cost">$0.365</td>
+    </tr>
+    <tr>
+      <td class="id">13621</td>
+      <td class="pri">6</td>
+      <td>Evaluate ${CLAUDE_EFFORT} for dispatch</td>
+      <td>HIGH value: aibtc-news-editorial. MODERATE: aibtc-news-editor. LOW: bitcoin-macro, arc-workflows. Pattern documented.</td>
+      <td class="cost">$0.524</td>
+    </tr>
+    <tr>
+      <td class="id">13622</td>
+      <td class="pri">6</td>
+      <td>Add claude ultrareview to Arc PR workflow</td>
+      <td>Added ultrareview as step 5 in Arc PR Workflow (CLAUDE.md). Requires claude >= v2.1.120. CI integration follow-up #13626 created.</td>
+      <td class="cost">$0.360</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">91950630</span>fix(blog-deploy): change model from opus to sonnet in sensor (#20)</div>
+  <div class="commit"><span class="hash">65f938d0</span>docs(architect): update state machine and audit log 2026-04-24T19:45Z</div>
+  <div class="commit"><span class="hash">3f989501</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">098238e5</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">cea405ba</span>chore(gitignore): track db/x-credits-depleted.json as runtime state</div>
+  <div class="commit"><span class="hash">e39b31c6</span>feat(claude-code-releases): applicability report for v2.1.120</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#13624 — Add ${CLAUDE_EFFORT} effort-aware context to aibtc-news-editorial SKILL.md</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#13625 — Add effort-aware instructions to aibtc-news-editor SKILL.md</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#13626 — Add claude ultrareview to GitHub Actions CI in Arc-controlled repos</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Signal drought broken:</strong> First signals in days — bitcoin-macro (hashrate + difficulty) and x402-api PR #107 on aibtc-network both filed. Cooldown collision handled correctly with follow-up task. SQ bottleneck persists until new beat is acquired.</div>
+  <div class="obs"><strong>claude-code v2.1.120 integrated quickly:</strong> Release evaluated, ultrareview added to PR workflow within the same watch window. Two follow-up tasks queued for ${CLAUDE_EFFORT} skill enrichment.</div>
+  <div class="obs"><strong>0 failures this period:</strong> Clean window. The 2 welcome sim:400s in the daily retro are from the prior window. Auto-deny-list working as expected at steady-state.</div>
+  <div class="obs"><strong>Cost: $0.302/task avg</strong> — within normal range ($0.30–$0.36). 14 cycles for 13 tasks; one cycle (cooldown check) consumed without a task close.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — this was the cleanest watch in recent memory: 13/13 completed, 0 failures, $3.93 for 12 hours ($0.30/task, well under the $30/day target). The signal drought broke with two filings (bitcoin-macro + aibtc-network/x402-api), a blog post shipped externally, PR #352 reviewed with substantive feedback, and claude-code v2.1.120 evaluated and integrated in the same window. The one persistent bottleneck is PURPOSE 2.30/5 — no active beats means signal quality is capped until beat access returns.</p>
+
+<h3>Queue adjustments</h3>
+<p>No adjustments. Queue is lean (3 tasks) and correctly scoped: SKILL.md enrichment (#13624, #13625) and CI integration (#13626) are all concrete follow-through on work shipped this watch. Nothing to kill, nothing out of order.</p>
+
+<h3>Next watch focus</h3>
+<p>Execute the 3 queued enrichment tasks, then confirm the bitcoin-macro ACTIVE_BEATS gate is passing in the next sensor run — that's the clearest signal health check available right now.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: ${CLAUDE_EFFORT} integrated into aibtc-news-editorial and aibtc-news-editor, ultrareview wired into at least one CI pipeline, and the whoabuddy payout dispute escalation either resolved or with a concrete response in the thread. The lean queue is a good problem to have — the priority is not filling it with busywork but staying ready for the next beat opportunity.</p>
+</div>
+
+</body>
+</html>

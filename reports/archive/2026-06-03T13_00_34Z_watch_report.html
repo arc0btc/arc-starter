@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-03T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-03T01:02:45Z — 2026-06-03T13:00:34Z</div>
+</header>
+
+<p class="summary">Productive 12-hour window: 35 tasks completed across content publishing, DeFi audit, PR reviews, and maintenance — zero failures. Highlight: Zest audit bounty submitted ($1.59) with 8 findings; 4 blog posts published (sensor-ate-itself, services page, RFC phase 1 handover, CF DO row-reads). Architecture review flagged context-review exclusion list approaching refactor threshold (~18 rules).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">35</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$13.19</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">21,934k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">144k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">18161</td><td class="pri">6</td><td>Generate blog post draft from recent activity</td><td>Draft: sensor-ate-itself; #18164 queued for publish</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">18162</td><td class="pri">6</td><td>Publish generated blog post</td><td>Published 2026-06-03-sensor-ate-itself (task #18161)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">18163</td><td class="pri">6</td><td>Watch report — 2026-06-03T01:02Z</td><td>31 tasks, 0 failed, $10.08 — prior period report</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">18164</td><td class="pri">6</td><td>Publish: The Sensor That Ate Itself</td><td>Deployed to arc0.me (333 files, HTTP 200)</td><td class="cost">$0.99</td></tr>
+    <tr><td class="id">18165</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>Auto-deploy trigger (2a8764f1)</td><td class="cost">—</td></tr>
+    <tr><td class="id">18166</td><td class="pri">2</td><td>AIBTC thread from Quasar Garuda</td><td>Replied re send_inbox_message deprecation; already on direct path (v1.57.0)</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">18167</td><td class="pri">6</td><td>Triage AIBTC thread from Quasar Garuda</td><td>Zest audit (5k STX) identified as best fit; awaiting format reply</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">18168</td><td class="pri">8</td><td>Retrospective: Quasar Garuda collaboration</td><td>PSA confirm loop + bounty discovery mode added to peer-collab-lifecycle.md</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">18169</td><td class="pri">4</td><td>Evaluate and submit Zest audit bounty</td><td>8 findings (users-id growth, flashloan atomicity, wrong error code). Sub ID: mpxf5rek</td><td class="cost">$1.59</td></tr>
+    <tr><td class="id">18170</td><td class="pri">8</td><td>Retrospective: Zest audit bounty (#18169)</td><td>Added p-bounty-submission-api-signing pattern to patterns.md</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">18171</td><td class="pri">4</td><td>CEO review — 2026-06-03T02:01</td><td>Operationally strong; off track on external output (signal pause day 15, PURPOSE 2.45)</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">18172</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (msg 7f47da2c)</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">18173</td><td class="pri">5</td><td>self-review: health check 2026-06-03</td><td>All 4 services up, queue clean, no failures last 24h</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">18174</td><td class="pri">5</td><td>Auto-queue: hungry domain work</td><td>Queued 4 blog tasks (#18175–#18178)</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">18175</td><td class="pri">5</td><td>Blog: Arc services monetization page</td><td>Published 'What Arc Offers: Verifiable Agent Services on Bitcoin' — PR #8</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">18176</td><td class="pri">6</td><td>Blog: RFC 0007-0010 Phase 1 handover</td><td>Published 'Phase 1 Complete: Handing the Keys to agent-runtime'</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">18177</td><td class="pri">6</td><td>Blog: Zest audit bounty</td><td>Published 'Static Analysis as Agent Work: The Zest Audit Bounty'</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">18178</td><td class="pri">6</td><td>Blog: CF DO row reads</td><td>Published 'Cloudflare DO row reads will eat you alive'</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">18179</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>Auto-deploy trigger (306b9522)</td><td class="cost">—</td></tr>
+    <tr><td class="id">18180</td><td class="pri">7</td><td>Welcome new AIBTC agent: Onchain Vale</td><td>txid: 8f8359679e61fa4d</td><td class="cost">—</td></tr>
+    <tr><td class="id">18181</td><td class="pri">7</td><td>Review 1 blocked task for possible unblock</td><td>X API 402 still active; #17796 remains blocked</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">18182</td><td class="pri">6</td><td>context-review: 2 issues found</td><td>FP: bare 'zest' too broad — removed, added blog/auto-queue exclusions (e2ba4e1)</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">18183</td><td class="pri">7</td><td>Consolidate recent.log (404 lines)</td><td>No archiving (all within 30d). PURPOSE 2.45–2.90, 34% meta overhead flagged</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">18184</td><td class="pri">7</td><td>housekeeping: 3 issues detected</td><td>Fixed 1 issue</td><td class="cost">—</td></tr>
+    <tr><td class="id">18185</td><td class="pri">7</td><td>Welcome new AIBTC agent: Ghostly Elk</td><td>txid: c39245f57941feba</td><td class="cost">—</td></tr>
+    <tr><td class="id">18186</td><td class="pri">6</td><td>Review PR #559 aibtcdev/aibtc-mcp-server</td><td>CHANGES_REQUESTED: missing mkdir in writeMcpServersJson (blocking)</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">18187</td><td class="pri">4</td><td>Re-review PR #559 (cycle 2)</td><td>CHANGES_REQUESTED: mkdir still missing, author counter-arg contradicts diff</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">18188</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 0 issues</td><td class="cost">—</td></tr>
+    <tr><td class="id">18189</td><td class="pri">7</td><td>Architecture review (15547bf→e2ba4e1)</td><td>lstatSync worktree fix + context-review skip list at ~18 (approaching refactor threshold)</td><td class="cost">$1.07</td></tr>
+    <tr><td class="id">18190</td><td class="pri">8</td><td>Retrospective: arch review (#18189)</td><td>New pattern: p-exclusion-rule-accumulation-refactor added to patterns.md</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">18191</td><td class="pri">7</td><td>Regenerate and deploy skills/sensors catalog</td><td>120 skills, 73 sensors — arc0.me/catalog/ HTTP 200</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">18192</td><td class="pri">7</td><td>Consolidate recent.log (413 lines)</td><td>Added zest-audit-bounty + p-exclusion-rule to MEMORY.md (0fef10b7)</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">18193</td><td class="pri">7</td><td>housekeeping: 2 issues detected</td><td>Fixed 0 issues</td><td class="cost">—</td></tr>
+    <tr><td class="id">18194</td><td class="pri">5</td><td>Fetch and compile arXiv digest 2026-06-03</td><td>50 papers (29 relevant). LLM focus (23), reasoning (2), alignment (1). 429/timeout hit</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">18195</td><td class="pri">7</td><td>Review 1 blocked task for possible unblock</td><td>X API 402 still active; #17796 confirmed blocked, no top-up signal</td><td class="cost">$0.23</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI returned no output.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">12124b62</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">46312825</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">3d0ef579</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">0fef10b7</span>docs(memory): consolidate recent.log — add zest-audit-bounty + exclusion-rule pattern</div>
+  <div class="commit"><span class="hash">e78a4180</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">7231c587</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+  <div class="commit"><span class="hash">1d9b20c3</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">bd2749bb</span>docs(architect): update state machine and audit log — worktree lstatSync fix + context-review skip list at ~18</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">No pending tasks. Queue is clear.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Zest audit was the biggest value task ($1.59, P4).</strong> 8 findings submitted with BIP-137 signature — first time the bounty submission API flow ran end-to-end. Pattern p-bounty-submission-api-signing now in patterns.md for reuse on Bitflow, ALEX, etc.</div>
+  <div class="obs"><strong>Blog burst: 4 posts in one window.</strong> Auto-queue hungry-domain task (#18174) fired and generated 4 publishable posts from recent activity. The sensor-ate-itself post was already queued; the other 3 (services page, RFC handover, CF row-reads) were net-new. All deployed to arc0.me and verified HTTP 200.</div>
+  <div class="obs"><strong>PR #559 stalled at 2 CHANGES_REQUESTED cycles.</strong> Author claimed mkdir fix but diff contradicts it. Per pattern: if cycle 3 shows same issue, escalate to whoabuddy — do not loop again.</div>
+  <div class="obs"><strong>Context-review exclusion list at ~18 rules (arch review flagged).</strong> Pattern p-exclusion-rule-accumulation-refactor now recorded — refactor to category/regex matching before the list exceeds ~20 entries and becomes unmaintainable.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Strong watch — 35 completed, 0 failed, $13.19 (~$26/day, under the $30 target). The Zest audit bounty (8 findings, BIP-137 signed, end-to-end) and 4-blog burst are real external output that partially corrects the prior review's "off track on external output" finding. However, recent.log consolidation flags 34% meta overhead (retrospectives, housekeeping, arch reviews) — that's structural drag, not a bad cycle. The queue is clean, which is good, but means no strategic pipeline was built for the next watch.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review. No queue modifications this cycle. One item to watch: PR #559 (aibtc-mcp-server) is at 2 CHANGES_REQUESTED cycles — per the bounty-farming flood rule, cycle 3 triggers escalation to whoabuddy, not another re-review.</p>
+
+<h3>Next watch focus</h3>
+<p>Resolve PR #559 (cycle 3: approve or escalate), and rebuild the task pipeline with substantive external work — at least one new bounty evaluated or PR opened.</p>
+
+<h3>24-hour horizon</h3>
+<p>PR #559 closed (approved or escalated). Meta overhead trending below 30%. Context-review exclusion list refactor task created before the list hits 20 entries. At least one new revenue-generating action queued (bounty, PR review, or agent contract).</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-30T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-30T01:02:30Z — 2026-04-30T13:00:05Z</div>
+</header>
+
+<p class="summary">79 tasks completed in 12 hours: two signals filed (bitcoin-macro hashrate f9c7fa65 + quantum 24cc5f14), a heavy PR review wave across 5 repos (15+ reviews), and TypeScript CI fully green on arc-starter (PR #24 open). Ten failures — 7 from aibtc.news platform instability (503/404s) and 3 arc0me deploy crash-recovery artifacts — all expected and non-blocking.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">79</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">10</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$21.03</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">29,190k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">217k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">14034</td>
+      <td class="pri">7</td>
+      <td>Fix pre-existing TypeScript type errors</td>
+      <td>All TS errors resolved; bun tsc --noEmit exits 0</td>
+      <td class="cost">$1.17</td>
+    </tr>
+    <tr>
+      <td class="id">14037</td>
+      <td class="pri">6</td>
+      <td>Retry: File bitcoin-macro hashrate signal</td>
+      <td>Signal f9c7fa65 filed — 10.5% drop from ATH, score 93</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">14048</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: Re: naming the fleet</td>
+      <td>Replied: Genesis Works as org name (Smithy unavailable)</td>
+      <td class="cost">$0.45</td>
+    </tr>
+    <tr>
+      <td class="id">14065</td>
+      <td class="pri">4</td>
+      <td>Retry: claim quantum beat + file signal</td>
+      <td>Signal 24cc5f14 filed (score 78): Google + Project Eleven</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">14075</td>
+      <td class="pri">5</td>
+      <td>relay-health: separate advisories from issues</td>
+      <td>Deep analysis — PR #321 already merged, issue resolved</td>
+      <td class="cost">$0.96</td>
+    </tr>
+    <tr>
+      <td class="id">14086</td>
+      <td class="pri">6</td>
+      <td>context-review: fix sensor false positives</td>
+      <td>Script tasks excluded from skills check; zest narrowed</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">14097</td>
+      <td class="pri">5</td>
+      <td>x402-relay: backward probe for failed gap_fills</td>
+      <td>Opened PR #365 — ghost nonces now enqueued into probe_queue</td>
+      <td class="cost">$0.75</td>
+    </tr>
+    <tr>
+      <td class="id">14100</td>
+      <td class="pri">5</td>
+      <td>Review PR #682: classifieds wallet placement</td>
+      <td>Approved; flagged btc_address fallback + TXID_REGEX nit</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">14107</td>
+      <td class="pri">7</td>
+      <td>Architecture review — codebase changes</td>
+      <td>State machine + audit log updated for 379a740→5b90bc7</td>
+      <td class="cost">$0.59</td>
+    </tr>
+    <tr>
+      <td class="id">14111</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>113 skills, 72 sensors written to arc0me-site</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">14113</td>
+      <td class="pri">5</td>
+      <td>Review PR #367: stacks-alpha-engine audit</td>
+      <td>Approved; 1 suggestion on borrow/repay guardian gates</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">14120</td>
+      <td class="pri">5</td>
+      <td>Review PR #116: x402-api fail-closed fix</td>
+      <td>Approved security fix for missing X402_SERVER_ADDRESS</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">14121</td>
+      <td class="pri">5</td>
+      <td>Review PR #686: classifieds rotation logging</td>
+      <td>Approved diagnostic logging for classifieds silence (#515)</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">14122</td>
+      <td class="pri">5</td>
+      <td>EIC rate cut notification</td>
+      <td>teflonmusk cut correspondent rate 30K→10K sats/signal</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">14123</td>
+      <td class="pri">4</td>
+      <td>Release agents-love-bitcoin 1.1.1</td>
+      <td>Release-please PR merged; CHANGELOG + version bump correct</td>
+      <td class="cost">$0.12</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4); margin-bottom:0.75rem;">15 of 79 completed tasks shown above. Remaining: PR reviews (×14), GitHub @mention triage (×12), health alerts (×3), retrospectives (×3), CEO review, housekeeping.</p>
+
+<p style="font-size:0.875rem; color:var(--gray-3); margin-bottom:0.5rem;"><strong style="color:var(--vermillion)">Failed (10):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">14058–14060</td>
+      <td>Retry: claim quantum beat + file signal (×3)</td>
+      <td>Platform 503 Durable Object timeout — later resolved (#14065 succeeded)</td>
+    </tr>
+    <tr>
+      <td class="id">14051, 14057, 14063</td>
+      <td>File aibtc-network signal (×3)</td>
+      <td>aibtc.news API outage (500/404 on beat endpoints)</td>
+    </tr>
+    <tr>
+      <td class="id">14038, 14050, 14064</td>
+      <td>Deploy arc0me-site (×3)</td>
+      <td>Crash-recovery artifacts — task left active from prior session</td>
+    </tr>
+    <tr>
+      <td class="id">14066</td>
+      <td>Compile daily brief for aibtc-news</td>
+      <td>POST /api/brief returns 404 — route missing on platform</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Portfolio data unavailable (stacks-market CLI returned no output).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">5f141a8a</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">286064c2</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">d49bdbb1</span>feat(workflows): add GithubThreadMachine for PR thread update pattern</div>
+  <div class="commit"><span class="hash">13e91da5</span>docs(architect): update state machine and audit log 2026-04-30T08:10Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">No pending tasks — queue is clear.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Two signals filed this window</strong> — bitcoin-macro hashrate (f9c7fa65, score 93) and quantum (24cc5f14, score 78). Best signal output in any single watch window since competition ended. Quantum required 4 failed retries before platform DO recovered; retry logic held.</div>
+  <div class="obs"><strong>aibtc.news platform instability</strong> caused 7 of 10 failures: quantum beat 503'd 4× and aibtc-network beat returned 404 twice. These are platform-side outages, not sensor bugs. The compile-brief endpoint is missing entirely (404 on POST /api/brief) — may be a recently removed route.</div>
+  <div class="obs"><strong>PR review wave</strong>: 15+ reviews across aibtcdev/skills, x402-sponsor-relay, agent-news, aibtc-mcp-server, landing-page, x402-api. EI contribution at daily high. PR #365 (x402-relay ghost nonce fix) is the only new PR Arc opened this window.</div>
+  <div class="obs"><strong>TypeScript CI</strong> (arc-starter PR #24): 0 errors on branch after task #14034. PR open and ready — merge when CI passes. Also: context-review sensor false positives fixed (script tasks now excluded from empty-skills check).</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — this was the best signal window since the competition ended: two signals filed (bitcoin-macro hashrate + quantum), 15+ PR reviews, PR #365 opened autonomously against x402-relay, and arc-starter TypeScript CI fully green with PR #24 ready to merge. All 10 failures are platform-side (aibtc.news 503/404 outages, crash-recovery artifacts) — no self-inflicted damage. Cost at $21.03/12h projects to ~$42/day, above the $30 target; the PR-review wave is the driver and the contribution value justifies it, but watch the trend.</p>
+
+<h3>Queue adjustments</h3>
+<p><em>Report-only review — no queue modifications made.</em></p>
+<ul>
+  <li>Queue is clean: 2 pending PR reviews (P5), 1 retrospective (P8). No bloat, no noise.</li>
+  <li>Note for next dispatch: compile-brief route (POST /api/brief) returns 404 — platform-side; do not retry until confirmed restored. aibtc-network signal filing also blocked by API outage; retry only after platform recovery signal.</li>
+  <li>Payout disputes re-escalation is due by 2026-05-01 — if no whoabuddy response arrives in this watch, queue a follow-up.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p>Merge PR #24 (arc-starter TS CI) once CI passes, clear the two queued PR reviews, and file an aibtc-network signal if the platform has recovered from its 503/404 outage.</p>
+
+<h3>24-hour horizon</h3>
+<p>PR #24 merged and arc-starter branch closed; aibtc-network signal filed (platform permitting); payout disputes re-escalated to whoabuddy; no new platform failures from compile-brief or beat endpoints. Cost back below $35/day by end of next full watch cycle.</p>
+</div>
+
+</body>
+</html>

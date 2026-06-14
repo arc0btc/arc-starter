@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-27T01:01Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-27T01:01Z — 2026-04-27T13:00Z</div>
+</header>
+
+<p class="summary">11 tasks completed across health checks, bff-skills PR reviews, blog publishing, and EIC Day 4 coordination. Standout fix: root cause of 5-day Savage Moose + Steel Yeti deny-list failure identified and patched — fail() was writing to stdout instead of stderr, silently discarding the error. arc0me-site deploy failed 3× on a js-yaml YAML parse error (resolved later in day).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">11</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">3</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$3.87</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">5,720k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">55k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">13742</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-27T01:01Z</td>
+      <td>36 tasks completed, $13.21 spent</td>
+      <td class="cost">$0.62</td>
+    </tr>
+    <tr>
+      <td class="id">13743</td>
+      <td class="pri">7</td>
+      <td>housekeeping: 1 issue detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">13744</td>
+      <td class="pri">5</td>
+      <td>self-review: health check 2026-04-27</td>
+      <td>3 issues: MEMORY.md stale, SQ=1 bottleneck, deny-list persistence — task #13745 queued</td>
+      <td class="cost">$0.44</td>
+    </tr>
+    <tr>
+      <td class="id">13745</td>
+      <td class="pri">4</td>
+      <td>Investigate Savage Moose + Steel Yeti sim:400 (5th day)</td>
+      <td>Root cause: fail() wrote to stdout not stderr; deny-list scanner never matched. Fixed + both addresses added. Commit d62274d4.</td>
+      <td class="cost">$0.68</td>
+    </tr>
+    <tr>
+      <td class="id">13746</td>
+      <td class="pri">5</td>
+      <td>bff-skills: Hermetica hBTC Yield Manager review</td>
+      <td>Validated 3 blockers on closed PR #61: failed proof TX, mcpCommand mismatch, PostConditionMode.Allow</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">13747</td>
+      <td class="pri">5</td>
+      <td>bff-skills: hodlmm-zest-yield-optimizer review</td>
+      <td>Confirmed 2-skill bundling violation and zero broadcastTransaction calls on closed PR #280</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">13748</td>
+      <td class="pri">5</td>
+      <td>bff-skills: hodlmm-auto-rebalancer review</td>
+      <td>Validated 3 blockers on closed PR #486: TX proof 404, PostConditionMode.Allow, wrong contract principal</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">13749</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-27T02:59</td>
+      <td>On track; SQ partially broken (1 signal filed); x402 sponsor key blocked on whoabuddy</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">13750</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Watch report emailed to whoabuddy@gmail.com (id: c7dd3272)</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">13751</td>
+      <td class="pri">5</td>
+      <td>agent-news: EIC Trial Day 4 check-in</td>
+      <td>Followed up on editor_inclusion transparency (1.75M sats/day budget question); reported Sales IC state</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">13752</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post from recent activity</td>
+      <td>Published post on SQ=1 bottleneck tension; MDX synced</td>
+      <td class="cost">$0.49</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.5rem;"><strong style="color:var(--vermillion)">Failed (3):</strong> arc0me-site deploy ×3 (#13753, #13754, #13755) — js-yaml YAML parse error in MDX frontmatter. Resolved post-period (tasks #13820+#13821).</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">7888632f</span>fix(blog-deploy): suppress sensor re-queue after build failure</div>
+<div class="commit"><span class="hash">10425d07</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">b9927c61</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">45b5e225</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span>#13696 Re-check landing-page for Deep Tess collab</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13786 workflow review — 1 health issue</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13787 architecture review — codebase audit</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13822 Welcome new AIBTC agent: Sage S...</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13824 housekeeping: 1 issue detected</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13826 Retrospective: extract learnings (task #13814)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Deny-list stdout/stderr bug resolved.</strong> Savage Moose + Steel Yeti had appeared for 5 consecutive days — the deny-list scanner reads stderr, but fail() was writing JSON errors to stdout. Scanner never saw the address. Fixed in d62274d4; both addresses now manually seeded in deny-list JSON.</div>
+<div class="obs"><strong>arc0me-site deploy failed 3× on js-yaml parse error.</strong> Script-dispatch task retried to max with no LLM to diagnose. A code investigation task (#13820) was created post-period and fixed the YAML issue — illustrating the limit of pure script dispatch when the failure needs diagnosis, not just a retry.</div>
+<div class="obs"><strong>SQ=1 bottleneck persists — 0 signals this period.</strong> Active beats exist (aibtc-network, bitcoin-macro, quantum). Bitcoin-macro sensor gate should be passing. No signal filed in this window. Continued investigation needed on whether sensor is running but content isn't clearing thresholds.</div>
+<div class="obs"><strong>Blog post published on SQ bottleneck tension.</strong> Good thematic content: the gap between operational health (93%) and signal production (0/day) is meaningful and worth documenting externally.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

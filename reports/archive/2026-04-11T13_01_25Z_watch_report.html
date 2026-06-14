@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-11T01:02Z–13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+  .failed-section { margin-top: 1rem; }
+  .failed-section h3 { font-size: 0.85rem; color: var(--vermillion); margin-bottom: 0.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-11T01:02:27Z — 2026-04-11T13:01:25Z</div>
+</header>
+
+<p class="summary">Productive 12-hour watch: blog post "One Fix, Five Days" deployed to arc0.me, 1 quantum signal filed (arXiv ECDLP resource estimates), 5 Zest sBTC supply ops executed, architecture diagram + catalog refreshed, and CEO review + email report sent. 30 of 32 failures are Hiro 400 address validation on welcome tasks — pre-validation fix #11484 remains the highest-leverage unshipped item (day 6). System otherwise healthy: 60 cycles, $15.68 spent.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">29</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">32</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$15.68</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">18,831k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">90k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">12142</td><td class="pri">7</td><td>housekeeping: MEMORY.md consolidation</td><td>Removed entries &gt;7 days old; 201→165 lines (~1100t→~800t)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">12146</td><td class="pri">5</td><td>Review PR #446: Zest v4 market fix</td><td>Already approved by Arc — ZEST_DATA contract pointer fix correct</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">12147</td><td class="pri">5</td><td>Review PRs in landing-page (#586,578,577)</td><td>All 3 previously reviewed and approved by arc0btc</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">12149</td><td class="pri">3</td><td>File competition signals: AIBTC + Quantum</td><td>1 quantum signal filed (arXiv 2604.02311 ECDLP estimates); cooldown blocked second</td><td class="cost">$1.02</td></tr>
+    <tr><td class="id">12150</td><td class="pri">6</td><td>Watch report — 2026-04-11T01:02Z</td><td>85 tasks completed, $47.46 spent, 2 signals filed</td><td class="cost">$0.77</td></tr>
+    <tr><td class="id">12152</td><td class="pri">8</td><td>Retrospective: task #12149</td><td>No new patterns — task followed established signal-filing strategy correctly</td><td class="cost">$0.10</td></tr>
+    <tr><td class="id">12153</td><td class="pri">3</td><td>File AIBTC Network signal (retry cooldown)</td><td>Cooldown still active (56 min remaining); signal queued for after 02:07 UTC</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">12155</td><td class="pri">5</td><td>bff-skills: hodlmm-arb-executor PR review</td><td>Re-review: all 18/18 items resolved, Parallel Owl registered, swap tx confirmed</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">12156</td><td class="pri">7</td><td>Supply 21,800 sats sBTC to Zest</td><td>Supplied 21,800 sats. txid: 3e9738…c12c5</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">12160</td><td class="pri">6</td><td>Generate new blog post</td><td>"One Fix, Five Days" — Hiro 400 operational debt post, published 02:02:39Z</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">12161</td><td class="pri">7</td><td>Deploy arc0me-site (f954eb01)</td><td>244 files uploaded, 3/3 verification checks passed — post live at arc0.me</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">12165</td><td class="pri">4</td><td>CEO review — 2026-04-11T02:33</td><td>On track. Hiro probe fix shipped, streak day 3, queue clean</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">12166</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Report emailed to whoabuddy@gmail.com (id: f1e81901)</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">12167</td><td class="pri">7</td><td>housekeeping: reports archival</td><td>Moved 1 old timestamped file to reports/archive/</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">12174</td><td class="pri">7</td><td>Supply 21,900 sats sBTC to Zest</td><td>Supplied 21,900 sats. txid: 79c560…91cd</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">12181</td><td class="pri">7</td><td>Supply 22,000 sats sBTC to Zest</td><td>Supplied 22,000 sats. txid: edc6aa…d36f</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">12183</td><td class="pri">7</td><td>workflow review — 2 new patterns</td><td>Neither arc-email-sync nor arc-purpose-eval patterns warrant new state machines</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">12184</td><td class="pri">7</td><td>architecture review — codebase changed</td><td>State machine updated: arc-alive-check deleted, Hiro probe layer 3 documented, 73→70 sensors</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">12185</td><td class="pri">7</td><td>Regenerate + deploy skills/sensors catalog</td><td>103 skills, 70 sensors written to arc0me-site, blog-deploy sensor triggered</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">12186</td><td class="pri">5</td><td>bff-skills: Bitflow Smart DCA review</td><td>PR closed and approved in prior review — stale @mention</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">12187</td><td class="pri">5</td><td>bff-skills: hodlmm-rebalancer review</td><td>PR #80 closed — MacBotMini review noted API endpoint discrepancy (non-blocking)</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">12188</td><td class="pri">7</td><td>Deploy arc0me-site (a9eab18f)</td><td>5 new assets uploaded, all 3 verification checks passed</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">12189</td><td class="pri">7</td><td>Supply 22,000 sats sBTC to Zest</td><td>Supplied 22,000 sats. txid: 1bf029…8ac6</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">12190</td><td class="pri">5</td><td>bff-skills: HODLMM Compounder review</td><td>Already reviewed+approved 2026-04-07T18:35Z — all blocking issues resolved</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">12191</td><td class="pri">5</td><td>bff-skills: HODLMM Compounder re-review</td><td>CI passes, author-agent fix correct — approved for merge</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">12193</td><td class="pri">7</td><td>[Loom Health] RED — Token spiral (1st)</td><td>1.25M tokens in inscription workflow; email sent to whoabuddy; spike isolated</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">12197</td><td class="pri">7</td><td>Supply 22,000 sats sBTC to Zest</td><td>Supplied 22,000 sats. txid: b244de…0bf5b</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">12201</td><td class="pri">7</td><td>[Loom Health] RED — Token spiral (2nd)</td><td>1.24M tokens same inscription workflow 22; alert sent; no cascade</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">12202</td><td class="pri">7</td><td>Supply 22,000 sats sBTC to Zest</td><td>Supplied 22,000 sats. txid: 6af4b1…000b</td><td class="cost">$0.27</td></tr>
+  </tbody>
+</table>
+
+<div class="failed-section">
+  <h3>Failed (32)</h3>
+  <p style="font-size:0.85rem; color:var(--gray-3);">30 × Welcome agent — Hiro 400 address validation (SP-addresses from registry fail principal pattern check; x402 skipped per protocol). 2 × Signal cooldown — expected operational failures (per-correspondent 1hr gate).</p>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+  <p class="empty">No open positions. stacks-market portfolio unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">2d99c46b</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">26d9475d</span>chore(memory): consolidate MEMORY.md, remove entries &gt;7 days old</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <p class="empty">Queue empty — no pending tasks at report time.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Hiro 400 flood persists (day 6 unshipped).</strong> 30 of 32 failures are the same address validation pattern. #11484 is the single highest-leverage fix in the system — each day it ships late burns ~25-35 welcome task failures and x402 pre-validation overhead.</div>
+  <div class="obs"><strong>Blog post "One Fix, Five Days" published.</strong> Converts the Hiro 400 operational saga into public content; deployed to arc0.me at 02:02Z. Directly addresses the D5 gap in PURPOSE scoring.</div>
+  <div class="obs"><strong>Loom token spiral fired twice (same cycle).</strong> Inscription workflow 22 hit ~1.25M tokens — Loom threshold is 1M. Both alerts sent to whoabuddy. No cascade detected; spike appears isolated to inscription task size, not a runaway loop.</div>
+  <div class="obs"><strong>5 Zest sBTC supply ops executed cleanly.</strong> Total ~109,700 sats supplied this watch window. TooMuchChaining fix (mempool-depth guard) holding — zero supply failures this period vs 15/day pre-fix.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track with one persistent exception. Core operations are healthy — Zest supply running clean (5/5 ops, TooMuchChaining fully resolved), cost excellent ($0.26/task), blog published, architecture current. The 30/32 failure count is entirely Hiro 400 address pre-validation (#11484), now day 6 unshipped — this single fix is the entire failure budget and is burning x402 credits on every cycle. Queue emptied cleanly with no blocked or stale items.</p>
+
+<h3>Queue adjustments</h3>
+<p>None — queue was empty at report time. No tasks to reprioritize or kill.</p>
+
+<h3>Next watch focus</h3>
+<p>Ship Hiro 400 pre-validation fix (#11484) and file competition signals. The fix has been deferred six days — it goes first.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: Hiro 400 welcome failures at zero (pre-validation guard merged and running); competition streak maintained with 2+ signals filed; daily cost stays under $35.</p>
+</div>
+
+</body>
+</html>

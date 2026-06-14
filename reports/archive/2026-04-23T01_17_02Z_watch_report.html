@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-22T13:00Z–2026-04-23T01:17Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-22T13:00:01Z — 2026-04-23T01:17:02Z</div>
+</header>
+
+<p class="summary">50 tasks completed across 67 dispatch cycles in 12.3 hours — 85% success rate. The final hours of the competition closed at 23:00 UTC with Arc finishing at score 804 / rank #47. Key fixes shipped: housekeeping haiku→sonnet upgrade (bbf36f1a), compliance-review chunking into ≤5-skill batches (da130851), and hiro-400 fully resolved (377-address deny-list confirmed self-healing). Blog-deploy remains structurally blocked — both sonnet (timeout) and opus (OOM) fail; workaround pending.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">9</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$20.55</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">27,783k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">237k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13418</td><td class="pri">5</td><td>Fix housekeeping timeout: bump model to sonnet</td><td>Dispatch-time haiku→sonnet upgrade for >2 staged .ts files. Commit bbf36f1a.</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">13417</td><td class="pri">5</td><td>Fix compliance-review timeout: chunk ≤5 skills/pass</td><td>Sensor now chunks findings into ≤5-skill batches. Commit da130851.</td><td class="cost">$0.69</td></tr>
+    <tr><td class="id">13416</td><td class="pri">3</td><td>hiro-400 deny-list: investigate V5 fix</td><td>RESOLVED. Zero failures 19h+. Deny-list self-healing (377 addresses).</td><td class="cost">$0.88</td></tr>
+    <tr><td class="id">13413</td><td class="pri">7</td><td>Daily failure retrospective: 11 failed tasks</td><td>4x timeout (fixes queued), 5x competition signal/cooldown, 1x email blocker.</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13411</td><td class="pri">7</td><td>Daily self-audit: 2 anomalies</td><td>Both FPs: known retro failures + healthy dispatch gate.</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">13410</td><td class="pri">7</td><td>Daily introspection: 120 tasks, 105 completed</td><td>88% success post-competition day 1. Timeout + hiro-400 as dominant patterns.</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">13409</td><td class="pri">6</td><td>PURPOSE eval: 2.38/5</td><td>PURPOSE 2.55/5 — ops 87.5%, 0 signals (competition over), 18 PR reviews.</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">13414</td><td class="pri">5</td><td>GitHub mention: editor payout automation (Zen Rocket)</td><td>Comment on #438 supporting Rev 3 corrections, flagging EIC retraction, relay blocker.</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">13406</td><td class="pri">5</td><td>GitHub mention: sunset per-beat editor roles</td><td>Issue #568: publisher keeping 3-editor status quo. Closing comment posted.</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13408</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Competition ended. BTC $78.4K, no trigger. Beat claims reset post-competition.</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">13405</td><td class="pri">3</td><td>Investigate recurring failure: timeout (4 occurrences)</td><td>Root causes found: lint overhead, blog-deploy presentation commit exceeded 15min.</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">13412</td><td class="pri">2</td><td>Health alert: dispatch stale</td><td>FP — PID 1244833 live, lock fresh.</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13403</td><td class="pri">2</td><td>Health alert: stale lock</td><td>FP — own running lock (task 13403).</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13401</td><td class="pri">5</td><td>PR review: btc-inheritance dead man's switch</td><td>Requested changes: off-chain state breaks guarantee, BLOCKS_PER_DAY wrong.</td><td class="cost">$0.42</td></tr>
+    <tr><td class="id">13398</td><td class="pri">5</td><td>PR review: btc-paystream sats streaming</td><td>Requested changes: blocking claim-atomicity bug (state before transfer confirmed).</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">13397</td><td class="pri">3</td><td>Investigate recurring failure: timeout (3 occurrences)</td><td>Root cause: lint hook overhead + compliance finding count. Fixes committed a12d7c3a.</td><td class="cost">$1.62</td></tr>
+    <tr><td class="id">13396</td><td class="pri">5</td><td>GitHub mention: RFC #607 correspondent payout liability</td><td>Supported publisher-side payout; added quantum beat + relay latency context.</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">13395</td><td class="pri">5</td><td>GitHub mention: payout dispute #606</td><td>Timing dispute acknowledged. No action on Arc side.</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">13392</td><td class="pri">5</td><td>GitHub mention: ZK correspondent OS open source</td><td>Issue locked — prior comment already posted. netmask255 submitted PR #344.</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">13391</td><td class="pri">5</td><td>GitHub mention: Agent Lounge off-topic</td><td>Issue migrated to Discussions. Arc's comment posted previously.</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13400</td><td class="pri">2</td><td>Health alert: dispatch stale</td><td>FP — PID 1231453 alive.</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13399</td><td class="pri">2</td><td>Health alert: dispatch stale</td><td>FP — dispatch running task 13399.</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13388</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 72 sensors written to arc0me-site. Commit bd0505d.</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">13386</td><td class="pri">8</td><td>Retro: architecture review learnings</td><td>2 patterns added: formula-correction-impact-audit, deadline-driven-architectural-defer.</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">13383</td><td class="pri">7</td><td>Workflow review: 1 health issue</td><td>Cleared 13 stuck ceo-review workflows (8 email, 5 scheduled). 100% completion.</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">13387</td><td class="pri">2</td><td>Health alert: stale lock</td><td>FP — own running lock.</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">13381</td><td class="pri">7</td><td>Architecture review: comp close T-3h</td><td>arc-weekly-presentation restored (686aeb9b). Diagram + audit log committed.</td><td class="cost">$1.04</td></tr>
+    <tr><td class="id">13384</td><td class="pri">6</td><td>Context review: 3 issues found</td><td>Fixed 2 FPs: META_TASK_SOURCES + test/human:audit exclusions added.</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">13382</td><td class="pri">5</td><td>Fetch arXiv digest 2026-04-22 (30 papers)</td><td>50 fetched, 20 relevant, digest written to research/arxiv/.</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">13380</td><td class="pri">5</td><td>PR review: hodlmm-dca-deployer</td><td>All 3 blocking issues fixed. CI green. Approved.</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">13379</td><td class="pri">5</td><td>Loom Health YELLOW: stale pending 11.9h</td><td>Alert sent: 5 agent-welcome tasks stale.</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">13377</td><td class="pri">5</td><td>PR review: bitcoin-furnace (re-review)</td><td>Already approved in prior cycle. @mention was status ping. Approval stands.</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">13373</td><td class="pri">8</td><td>Consolidate patterns.md (158→148 lines)</td><td>Merged 3 redundant patterns, folded signal-quality into filing-strategy.</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">13372</td><td class="pri">9</td><td>Daily cost report 2026-04-22</td><td>$4.86 Code / $5.83 API over 91 tasks. $0.38/task avg.</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">13371</td><td class="pri">5</td><td>arc-opensource: sync 33 commits to GitHub</td><td>Pushed 13141c09..e40951bb to origin/main. Build passed.</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13370</td><td class="pri">7</td><td>Weekly pattern extraction: 726 tasks</td><td>3 new patterns: capacity-preflight, signal-retry-routing, introspection-model-sizing.</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">13369</td><td class="pri">5</td><td>GitHub mention: DRI open call #439</td><td>Distribution DRI filled by Opal Gorilla. Classifieds Sales still open. No action.</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">13368</td><td class="pri">5</td><td>Loom Health YELLOW: stale pending 9.9h</td><td>Alert sent to whoabuddy. 5 agent-welcome tasks pending.</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">13367</td><td class="pri">5</td><td>PR review: agent-news #603 one-roundtrip init</td><td>Approved. 2 suggestions: clock skew guard, Beat type check.</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">13366</td><td class="pri">5</td><td>PR review: agent-news #602 bundled beatStats</td><td>Approved with suggestions on brief serialization, SQL DRY, type inconsistency.</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">13364</td><td class="pri">8</td><td>Retro: self-eval PURPOSE learnings</td><td>sourceQuality is count-based (1=10, 2=20, 3=30). --force doesn't affect it.</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">13362</td><td class="pri">5</td><td>Daily self-eval: PURPOSE rubric</td><td>PURPOSE 2.85/5. T-8h to 23:00Z. Both signals below 65 floor.</td><td class="cost">$2.50</td></tr>
+    <tr><td class="id">13361</td><td class="pri">4</td><td>CEO review 2026-04-22T14:53</td><td>Off track on signal quality. Queue lean. Next: quantum signal at 22:00 UTC.</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">13360</td><td class="pri">5</td><td>Loom Health YELLOW: stale pending 7.9h</td><td>Alert sent. 5 tasks stale, no cycles for 4h.</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">13359</td><td class="pri">7</td><td>Housekeeping: 1 issue</td><td>Archived 2 report files; committed presentation.html.</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">13358</td><td class="pri">5</td><td>GitHub mention: HODLMM Yield Router</td><td>Issue locked — prior comment stands. No action possible.</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13357</td><td class="pri">5</td><td>GitHub mention: #599 complaint score 83 rejected</td><td>Explained global brief cap vs beat-local cap. Flagged transparency gap as UX issue.</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">13356</td><td class="pri">5</td><td>PR review: agent-news #600 SSR HTMLRewriter</td><td>Approved. 2 suggestions: try/catch accuracy, title truncation cap.</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">13394</td><td class="pri">7</td><td>Loom Health RED: token spiral 817,399 tokens</td><td>RED alert sent to whoabuddy. Spike from Grim Seraph welcome task.</td><td class="cost">$0.09</td></tr>
+  </tbody>
+</table>
+
+<h3 style="color:var(--vermillion);font-size:0.95rem;margin-bottom:0.5rem;">Failed / Skipped</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">13404</td><td>Deploy arc0me-site (bd0505db7048)</td><td>OOM kill — crash recovery from prior cycle.</td></tr>
+    <tr><td class="id">13390</td><td>Deploy arc0me-site (bd0505db7048)</td><td>Timeout after 15min (sonnet tier).</td></tr>
+    <tr><td class="id">13389</td><td>Deploy arc0me-site (bd0505db7048)</td><td>Timeout after 15min (sonnet tier).</td></tr>
+    <tr><td class="id">13385</td><td>compliance-review: 10 findings across 113 skills</td><td>Timeout after 15min (sonnet tier). Fix queued.</td></tr>
+    <tr><td class="id">13374</td><td>Housekeeping: 1 issue detected</td><td>Timeout after 5min (haiku tier). Fix queued.</td></tr>
+    <tr><td class="id">13407</td><td>File bitcoin-macro signal: hashrate -5.6%</td><td>Competition ended 23:00 UTC. sourceQuality=10 floor anyway.</td></tr>
+    <tr><td class="id">13363</td><td>File quantum arXiv signal pre-23:00Z</td><td>Score=63; quantum beat at 10/10 cap, min=91. Competition closed.</td></tr>
+    <tr><td class="id">13365</td><td>Email watch report to whoabuddy</td><td>Cloudflare destination not verified (structural human blocker).</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">463e194a</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">acd55530</span>fix(blog-deploy): change model from opus to sonnet in sensor</div>
+<div class="commit"><span class="hash">bbf36f1a</span>fix(dispatch): upgrade haiku→sonnet when housekeeping has >2 modified .ts files</div>
+<div class="commit"><span class="hash">da130851</span>fix(compliance-review): chunk sensor into ≤5 skills per dispatch task</div>
+<div class="commit"><span class="hash">51d53a0c</span>docs(audit): add dispatch service operational audit 2026-04-22</div>
+<div class="commit"><span class="hash">49ec5d1a</span>fix(blog-deploy): upgrade deploy task model to opus for 30min timeout</div>
+<div class="commit"><span class="hash">a12d7c3a</span>fix(timeout): upgrade housekeeping to sonnet; scale compliance-review model by finding count</div>
+<div class="commit"><span class="hash">345138a9</span>docs(architect): update state machine and audit log 2026-04-22T19:45Z</div>
+<div class="commit"><span class="hash">686aeb9b</span>feat(arc-weekly-presentation): restore + rewrite skill for Monday AIBTC decks</div>
+<div class="commit"><span class="hash">4a38ec01</span>chore(loop): auto-commit + 8 chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span>#13302 — monitor: hiro simulation:400 drain check + manual deny-list sweep</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#13421 — New release: anthropics/claude-code v2.1.118</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#13432 — Generate new blog post from recent activity</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#13443 — Consolidate MEMORY.md (stale 3d, ~280t)</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#13137 — cleanup: ordinals HookState deprecated fields</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#13256 — wire quantum signal auto-queuing from arXiv digest output</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13434 — housekeeping: 1 issue detected</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13435 — [Loom Health] RED - Token spiral: 1,238,170 tokens (threshold 750k)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13438 — Deploy arc0me-site to Cloudflare (bd0505db7048)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#13209 — architect: wire quantum arXiv digest → signal auto-queuing (carry×9)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13393 — Consolidate patterns.md (155 lines)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13402 — Retro: extract learnings from task #13397</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13446 — Retro: extract learnings from task #13444 (OOM crash)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13448 — Retro: extract learnings from task #13378</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#13450 — Retro: extract learnings from task #13447</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Blog-deploy is structurally broken.</strong> Three failures this period (×2 sonnet timeout, ×1 opus OOM). The two fixes applied — opus upgrade (49ec5d1a) and sonnet revert (acd55530) — contradict each other and neither works reliably. Root cause: npm build + wrangler deploy subprocess exceeds both sonnet's 15min ceiling and available RAM with opus. Fix requires splitting into a shell-script-only deploy that doesn't consume LLM reasoning time.</div>
+<div class="obs"><strong>Health-alert FP rate is high.</strong> 5 of 5 health alerts this period (stale lock × 3, dispatch stale × 2) were false positives. The stale-lock sensor fires on the current dispatch's own running lock. Worth adding PID-alive check before alert creation rather than after.</div>
+<div class="obs"><strong>hiro-400 fully resolved.</strong> 377-address deny-list confirmed self-healing; zero simulation:400 failures since Apr 22 05:10. The extended drain (3d post-V5) was normal queue wind-down, not a fix failure. Task #13302 (manual sweep) can likely close as moot.</div>
+<div class="obs"><strong>Timeout fixes appear effective.</strong> bbf36f1a (haiku→sonnet for housekeeping) and da130851 (compliance-review chunking) are queued for first post-fix execution. No new timeout failures in late period — pre-fix tasks drained, post-fix tasks not yet run. Verification window is the next 4–8 hours.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-07T13:00Z – 2026-04-08T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-07T13:00:33Z — 2026-04-08T01:01:45Z</div>
+</header>
+
+<p class="summary">174 tasks completed in 185 cycles over 12 hours at $71.44 total cost. Key deliverables: STX nonce serialization fix shipped (eliminates Zest/welcome concurrency conflicts), contribution-tagging pipeline designed + Phase 1 schema implemented, and beat editor registration sent for Infrastructure beat. 11 failures — 8 are pre-fix nonce conflicts and Hiro API address validation errors, not new failure classes. System healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">174</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">11</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$71.44</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">93,579k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">658k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">11457</td>
+      <td class="pri">2</td>
+      <td>Fix STX sender nonce serialization</td>
+      <td>Zest txs serialized through nonce-tracker; stx-send-runner.ts + defi.ts + defi.service.ts updated; eliminates ConflictingNonceInMempool</td>
+      <td class="cost">$2.25</td>
+    </tr>
+    <tr>
+      <td class="id">11454</td>
+      <td class="pri">6</td>
+      <td>Implement contribution_tags schema + extraction</td>
+      <td>Phase 1 shipped: DB table, ContributionTag type, extraction helpers, dispatch emission step, cost backfill</td>
+      <td class="cost">$0.82</td>
+    </tr>
+    <tr>
+      <td class="id">11451</td>
+      <td class="pri">4</td>
+      <td>Design contribution-tagging pipeline</td>
+      <td>Spec at docs/contribution-tagging-pipeline.md — company/customer/agent lenses, /api/contributions endpoint, 4-phase plan</td>
+      <td class="cost">$1.48</td>
+    </tr>
+    <tr>
+      <td class="id">11450</td>
+      <td class="pri">1</td>
+      <td>Email: Re: 3 model world view</td>
+      <td>Replied to whoabuddy re: GitHub contribution lenses; queued pipeline design task</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">11443</td>
+      <td class="pri">3</td>
+      <td>Nonce-tracker in sponsor-builder.ts (Phase 1a+1b)</td>
+      <td>retry-strategy.ts + sponsoredContractCallWithRetry shipped; PR #312 opened on aibtcdev/skills</td>
+      <td class="cost">$1.09</td>
+    </tr>
+    <tr>
+      <td class="id">11442</td>
+      <td class="pri">3</td>
+      <td>Design STX nonce serializer</td>
+      <td>Nonce-tracker wired into stx-send-runner.ts for welcome STX sends; follow-up #11443 for Zest path</td>
+      <td class="cost">$1.01</td>
+    </tr>
+    <tr>
+      <td class="id">11458</td>
+      <td class="pri">4</td>
+      <td>Re-audit stale beat slug (dev-tools)</td>
+      <td>Fixed dev-tools→infrastructure in 3 sensors: aibtc-news-editorial, auto-queue, ordinals-market-data</td>
+      <td class="cost">$0.61</td>
+    </tr>
+    <tr>
+      <td class="id">11432</td>
+      <td class="pri">3</td>
+      <td>Request beat editor registration — Infrastructure</td>
+      <td>Registration request emailed; whoabuddy needs to run news_register_editor with Arc's BTC address</td>
+      <td class="cost">$0.51</td>
+    </tr>
+    <tr>
+      <td class="id">11418</td>
+      <td class="pri">5</td>
+      <td>Investigate effort level control (v2.1.94)</td>
+      <td>--effort flag confirmed working; pinned medium+10k cap for non-opus, high+30k for opus; committed 8dc10022</td>
+      <td class="cost">$0.61</td>
+    </tr>
+    <tr>
+      <td class="id">11417</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.94</td>
+      <td>Research report written; 2 follow-up tasks created (effort investigation, sessionTitle hook)</td>
+      <td class="cost">$0.70</td>
+    </tr>
+    <tr>
+      <td class="id">11420</td>
+      <td class="pri">8</td>
+      <td>Add sessionTitle to dispatch logs</td>
+      <td>ARC_TASK_ID + ARC_TASK_SUBJECT env vars passed to dispatch; readable log entries now</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">11433</td>
+      <td class="pri">4</td>
+      <td>Integrate skills-v0.37.0 (aibtc-news-editor)</td>
+      <td>Already installed from prior commit c7c03bec; all 3 files match upstream exactly</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">11465</td>
+      <td class="pri">5</td>
+      <td>Assess release: skills-v0.38.0</td>
+      <td>8 new BFF competition winner skills; all already approved by Arc pre-release; no integration action needed</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">11421</td>
+      <td class="pri">5</td>
+      <td>GitHub: Publisher integration for beat editor delegation</td>
+      <td>Posted operational context + implementation approach for issue #413; asked API clarification questions</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">11405</td>
+      <td class="pri">5</td>
+      <td>Review bff-skills PR #213: Stacks Alpha Engine</td>
+      <td>Approved: 4 new commits (APY annualization, DLMM swap fix, volatility slippage, postConditionMode docs)</td>
+      <td class="cost">$0.74</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-4); margin-bottom:0.75rem;">11 failures (8 pre-fix nonce conflicts, 2 Hiro API 400 address validation, 1 stale beat slug — all known causes):</p>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">11449</td><td>Welcome: Iron Griffin</td><td>Hiro API 400 — invalid recipient address format</td></tr>
+    <tr><td class="id">11448</td><td>Welcome: Stealthy Teal</td><td>Hiro API 400 — invalid recipient address format</td></tr>
+    <tr><td class="id">11410</td><td>Welcome: Pearl Vesper</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11409</td><td>Welcome: Proud Mirror</td><td>SENDER_NONCE_DUPLICATE (pre-fix)</td></tr>
+    <tr><td class="id">11408</td><td>Welcome: Wild Bobcat</td><td>NONCE_CONFLICT (pre-fix)</td></tr>
+    <tr><td class="id">11375</td><td>Zest supply</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11364</td><td>Zest supply</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11346</td><td>Welcome: Sleek Rocket</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11345</td><td>Welcome: Tiny Falcon</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11344</td><td>Welcome: Platinum Halo</td><td>ConflictingNonceInMempool (pre-fix)</td></tr>
+    <tr><td class="id">11282</td><td>File dev-tools signal</td><td>Stale beat slug + unresolvable source content</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 0 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">fe033d92</span>feat(contribution-tags): implement Phase 1 schema + extraction pipeline</div>
+  <div class="commit"><span class="hash">adac7389</span>fix(sensors): replace stale dev-tools beat slug with infrastructure</div>
+  <div class="commit"><span class="hash">34e058ab</span>fix(defi-zest): serialize Zest txs through shared nonce-tracker</div>
+  <div class="commit"><span class="hash">26886ff3</span>feat(docs): design contribution-tagging pipeline for GitHub PRs</div>
+  <div class="commit"><span class="hash">22e93116</span>feat(bitcoin-wallet): wire nonce-tracker into stx-send-runner</div>
+  <div class="commit"><span class="hash">c7c03bec</span>feat(aibtc-news-editor): install beat editor skill from skills-v0.37.0</div>
+  <div class="commit"><span class="hash">b1c051e0</span>feat(dispatch): add sessionTitle to UserPromptSubmit hook output</div>
+  <div class="commit"><span class="hash">8dc10022</span>fix(dispatch): pin explicit effort level and thinking token cap per model</div>
+  <div class="commit"><span class="hash">87966f00</span>feat(claude-code-releases): applicability report for v2.1.94</div>
+  <div class="commit"><span class="hash">f4b88223</span>feat(presentation): update Tuesday deck per whoabuddy feedback</div>
+  <div class="commit"><span class="hash">3ae91a18</span>feat(presentation): add research pipeline and ecosystem slides for Tuesday</div>
+  <div class="commit"><span class="hash">14a63288</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">78061031</span>chore(housekeeping): archive 44 old ISO 8601 files from reports/</div>
+  <div class="commit"><span class="hash">6a00aae1</span>feat(presentation): update Tuesday deck for 2026-04-07</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#11478 — Add SHORT_DESC entries for 8 skills-v0.38.0 skills in SkillsDirectory.tsx</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11455 — Add /api/contributions health endpoint to web dashboard</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11459 — Welcome new AIBTC agent: Ultraviolet Nova</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11460 — Welcome new AIBTC agent: Titanium Bear</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11461 — Welcome new AIBTC agent: Cool Shard</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11462 — Daily failure retrospective: 19 failed tasks</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11464 — Supply 21,700 sats idle sBTC to Zest yield pool</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11480 — Welcome new AIBTC agent: Wide Eden</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11481 — Welcome new AIBTC agent: Rising Crow</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#11482 — Welcome new AIBTC agent: Atomic Coda</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#11452, #11456, #11467, #11471, #11474 — Retrospectives (5 pending)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Nonce serialization shipped end-to-end.</strong> Both the welcome STX send path (stx-send-runner.ts) and the Zest supply path (defi-zest via tx-runner.ts) now flow through the shared nonce-tracker. 8 of 11 failures this window were pre-fix conflicts — expect near-zero nonce failures next window.</div>
+  <div class="obs"><strong>Contribution-tagging pipeline: 3-task sprint.</strong> whoabuddy email → spec (Opus, $1.48) → schema implementation (P6, $0.82) in a single overnight window. Phase 1 is in dispatch; /api/contributions endpoint is queued next (#11455).</div>
+  <div class="obs"><strong>Beat editor registration sent.</strong> Infrastructure beat editor status would unlock 9 MCP tools from v1.47.0. Pending whoabuddy running news_register_editor with Arc's BTC address. Stale beat slug audit also complete — 3 sensors fixed.</div>
+  <div class="obs"><strong>2 Hiro API 400 errors on welcome tasks.</strong> Iron Griffin and Stealthy Teal have invalid Stacks address formats per Hiro's validator. Unrelated to nonce fix — these are agent registry data quality issues. STX portion fails silently; x402 message still stages successfully.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — this watch closed the nonce serialization debt that has been the #1 failure driver for 3 days. Both STX send paths (welcome + Zest) now flow through the shared nonce-tracker, and the 8 pre-fix failures confirm the root cause is resolved rather than papered over. Contribution-tagging Phase 1 shipped cleanly from email to implementation in a single window, which is the right execution velocity. The cost ($71.44 / 12h = ~$143/day run rate) is elevated from the $30 daily target — acceptable during a sprint that resolved a multi-day blocker, but needs to compress back toward $50–60/day range once the queue normalizes. No competition signals filed this watch, which is the primary gap.</p>
+
+<h3>Queue adjustments</h3>
+<p>Report-only review — no queue modifications made. Queue is healthy: 11 pending items, all P6–P8, no blocked tasks. Retros and welcomes dominate; nonce fix means welcomes should succeed cleanly from here.</p>
+
+<h3>Next watch focus</h3>
+<p>File at least 2 competition signals — the queue is clear of infrastructure debt, so signal volume is the only lever left for competition score improvement.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-04-09T02:00Z: nonce failure rate at zero (confirmed by welcoming 5+ agents without conflicts), 4–6 signals filed across at least 2 beats, and /api/contributions endpoint shipped (#11455) to make the contribution-tagging pipeline externally visible.</p>
+</div>
+
+</body>
+</html>

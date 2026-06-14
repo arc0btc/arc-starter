@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-19T01:05Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-19T01:05Z — 2026-05-19T13:00Z</div>
+</header>
+
+<p class="summary">Heavy 12-hour window dominated by the AIBTC Tuesday presentation (~$8.7 across two draft/revision cycles) and a 23-task research batch from whoabuddy. Two signals filed (bitcoin-macro hashrate at -7.3% ATH, aibtc-network harness engineering curriculum). Claude Code upgraded to v2.1.144. Signal filing suspended per whoabuddy policy; 7 X API failures across research tasks from deleted/private tweets.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">69</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">14</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$30.15</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">28,800k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">250k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">16998</td>
+      <td class="pri">3</td>
+      <td>Upgrade Claude Code v2.1.141→v2.1.144</td>
+      <td>Atomic symlink swap; fixes Skill tool headless regression</td>
+      <td class="cost">$0.54</td>
+    </tr>
+    <tr>
+      <td class="id">16999</td>
+      <td class="pri">5</td>
+      <td>Review aibtcdev/x402-sponsor-relay PR #386</td>
+      <td>Approved docs-only nonce-conflict-attribution runbook</td>
+      <td class="cost">$0.36</td>
+    </tr>
+    <tr>
+      <td class="id">17003</td>
+      <td class="pri">5</td>
+      <td>File bitcoin-macro hashrate signal</td>
+      <td>Filed: -7.3% from ATH, 950.27 EH/s (signalId: 8d1...)</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">17005</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-19T03:37</td>
+      <td>On track: 14/14 tasks, 0 failures, 5 PR approvals</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">17009</td>
+      <td class="pri">4</td>
+      <td>Triage aibtc-mcp-server bounty-tools PR flood</td>
+      <td>Reviewed PRs #527–536; approved #532, CHANGES_REQUESTED on 9</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">17008</td>
+      <td class="pri">5</td>
+      <td>Review aibtcdev/skills PRs #386 #387</td>
+      <td>Approved bitflow-funding-coordinator + windleg-zestlend-hero</td>
+      <td class="cost">$0.66</td>
+    </tr>
+    <tr>
+      <td class="id">17014</td>
+      <td class="pri">6</td>
+      <td>context-review: 2 issues found</td>
+      <td>Both FP; expanded PR review exclusion list in sensor</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">17015</td>
+      <td class="pri">1</td>
+      <td>Email: whoabuddy research batch</td>
+      <td>Triaged; queued 23 individual research tasks (#17016–17038)</td>
+      <td class="cost">$1.52</td>
+    </tr>
+    <tr>
+      <td class="id">17041</td>
+      <td class="pri">5</td>
+      <td>File aibtc-network signal: harness engineering</td>
+      <td>Filed learn-harness-engineering signal (high-relevance research)</td>
+      <td class="cost">$0.48</td>
+    </tr>
+    <tr>
+      <td class="id">17042</td>
+      <td class="pri">5</td>
+      <td>Research: harness-engineering lectures 1–6</td>
+      <td>6 lectures analyzed; patterns: WIP=1, context-budget, E2E testing</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">17043</td>
+      <td class="pri">5</td>
+      <td>Research: harness-engineering lectures 7–12</td>
+      <td>Completion-verification, E2E testing, scope-control patterns</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">17054</td>
+      <td class="pri">6</td>
+      <td>Blog post: amber-otter security incident</td>
+      <td>Published 2026-05-19-private-key-review-queue</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">17059</td>
+      <td class="pri">2</td>
+      <td>Prep AIBTC Tuesday meeting presentation</td>
+      <td>7-slide Trustless Indra deck drafted at /presentation</td>
+      <td class="cost">$3.37</td>
+    </tr>
+    <tr>
+      <td class="id">17063</td>
+      <td class="pri">2</td>
+      <td>Revise AIBTC Tuesday deck per whoabuddy feedback</td>
+      <td>AIBTC-led title, trading-comp front-loaded, stats re-verified</td>
+      <td class="cost">$5.31</td>
+    </tr>
+    <tr>
+      <td class="id">17066</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md (157→144 lines)</td>
+      <td>Merged 6 patterns into 3; supply-chain + competitive-metric</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">17070</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>2 structural commits reviewed; context-review PR/welcome skip</td>
+      <td class="cost">$0.63</td>
+    </tr>
+    <tr>
+      <td class="id">17072</td>
+      <td class="pri">5</td>
+      <td>Review quantum-visualizer PR #63</td>
+      <td>CHANGES_REQUESTED: encoding regression in new normalization</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">17073</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>Catalog updated: 119 skills, 73 sensors</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">17076</td>
+      <td class="pri">5</td>
+      <td>Fetch arXiv digest — 2026-05-19</td>
+      <td>50 papers fetched, 24 relevant; digest at research/arxiv/</td>
+      <td class="cost">$0.14</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.75rem;"><em>14 failures:</em> 7× X API (deleted/private tweets), 3× signal tasks cancelled by policy ("dont need to file signals anymore"), 2× cooldown violations (rescheduled), 1× STX send failed (wallet low balance — Coral Sable welcome), 1× arXiv 429 rate-limit.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 0 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">f0e1adaa</span>docs(architect): update state machine and audit log — context-review PR/welcome skip; presentation title convention</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span>#17039 — Compile 2026-05-18 research batch</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">AIBTC Tuesday presentation consumed $8.68 across two iterations (draft + revision). The initial Trustless Indra title framing was rejected; deck now leads with "AIBTC" per standing convention. High cost but delivered on a P1 email within hours.</div>
+<div class="obs">X API failures accounted for 7 of 14 task failures — tweets deleted or behind auth walls. Pre-screen is working (failing fast), but the signal-to-noise ratio on whoabuddy's research batch was roughly 50% retrievable links.</div>
+<div class="obs">Signal filing policy changed mid-period: 3 queued signal tasks closed as failed with "dont need to file signals anymore." Sensors will need a gate update if this policy persists — otherwise they'll keep queuing.</div>
+<div class="obs">Claude Code v2.1.144 upgrade completed cleanly. Fixes Skill tool headless regression that affected prior dispatch cycles. 81 cycles run this period at $30.15 total — high cost driven by deck work.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Needs adjustment. 83% success ($30.15 cost, at the daily ceiling) with the right high-priority work delivered — P1 deck revised and shipped same-watch, 23 research tasks processed, 2 signals filed before policy suspension. But three unresolved structural failures are each costing cycles every night: X API pre-screening not shipped (7 wasted cycles this watch), signal filing policy ambiguity unresolved (3 more policy cancellations), and STX wallet below 100k microSTX blocking welcome sends. Queue is now empty — sensors need to replenish before dispatch can operate, and the open issues above will continue burning cycles until addressed.</p>
+
+<h3>Queue adjustments</h3>
+<p class="empty">Report-only review — no adjustments made.</p>
+
+<h3>Next watch focus</h3>
+<p>Complete task #17039 (compile research batch), then let sensors replenish the queue. Priority item if any human task arrives: clarify signal filing policy with whoabuddy — ambiguity is the highest-cost unresolved issue per cycle.</p>
+
+<h3>24-hour horizon</h3>
+<p>X API pre-screening fix shipped (sensor skips 404 tweets at queue time); signal filing policy confirmed or sensors gated; STX wallet escalated to whoabuddy. Queue at 5–10 tasks covering active ecosystem work.</p>
+</div>
+
+</body>
+</html>

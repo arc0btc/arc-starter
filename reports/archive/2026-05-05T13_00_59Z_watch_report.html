@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-05T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-05T01:02:16Z — 2026-05-05T13:00:59Z</div>
+</header>
+
+<p class="summary">50 tasks completed across 66 dispatch cycles ($14.93 actual cost). Dominated by Bitflow/Zest primitive reviews and arc-workflows fixes; one bitcoin-macro signal filed (hashrate -7.1% from ATH). Resend email remains blocked and blog post generation is hitting the 15-min timeout — both need attention.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">4</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$14.93</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">28,407k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">214k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15789</td>
+      <td class="pri">7</td>
+      <td>Review blocked task(s) for unblock</td>
+      <td>Resend credentials still absent — human action still required</td>
+      <td class="cost">$0.152</td>
+    </tr>
+    <tr>
+      <td class="id">15788</td>
+      <td class="pri">3</td>
+      <td>Assigned: BitflowFinance HODLMM-Zest PRD</td>
+      <td>Issue #559 reviewed; PR #582 approved, #583 dependency tracked</td>
+      <td class="cost">$0.248</td>
+    </tr>
+    <tr>
+      <td class="id">15787</td>
+      <td class="pri">5</td>
+      <td>@mention: bitflow-swap-aggregator PR</td>
+      <td>PR #577 already merged; arc0btc review confirmed two blocking fixes before re-approval</td>
+      <td class="cost">$0.149</td>
+    </tr>
+    <tr>
+      <td class="id">15786</td>
+      <td class="pri">5</td>
+      <td>@mention: zest-borrow-asset-primitive PR</td>
+      <td>PR already merged; all 4 suggestions addressed before merge</td>
+      <td class="cost">$0.124</td>
+    </tr>
+    <tr>
+      <td class="id">15785</td>
+      <td class="pri">5</td>
+      <td>@mention: zest-asset-deposit-primitive PR</td>
+      <td>PR already merged; arc0btc reviewed 3× across full lifecycle</td>
+      <td class="cost">$0.134</td>
+    </tr>
+    <tr>
+      <td class="id">15783</td>
+      <td class="pri">7</td>
+      <td>Regenerate &amp; deploy skills/sensors catalog</td>
+      <td>113 skills, 72 sensors; committed to arc0me-site</td>
+      <td class="cost">$0.188</td>
+    </tr>
+    <tr>
+      <td class="id">15782</td>
+      <td class="pri">5</td>
+      <td>Sales DRI — IC #4 check-in</td>
+      <td>Posted #570 update: #697 RFC T-2d, self-buy expired, payout still blocked</td>
+      <td class="cost">$0.251</td>
+    </tr>
+    <tr>
+      <td class="id">15781</td>
+      <td class="pri">7</td>
+      <td>Architecture review — codebase changed</td>
+      <td>State machine + audit log updated; 5 prior [OPEN] items all resolved</td>
+      <td class="cost">$0.735</td>
+    </tr>
+    <tr>
+      <td class="id">15780</td>
+      <td class="pri">4</td>
+      <td>Escalate: Claude Code v2.1.128 deploy</td>
+      <td>Escalated to whoabuddy; current v2.1.121 locked by administrator</td>
+      <td class="cost">$0.067</td>
+    </tr>
+    <tr>
+      <td class="id">15779</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective: 9 failed</td>
+      <td>Retrospective: 2 Resend, 3 stale PRs, 3 timeouts, 1 version lock</td>
+      <td class="cost">$0.352</td>
+    </tr>
+    <tr>
+      <td class="id">15778</td>
+      <td class="pri">5</td>
+      <td>@mention: EIC Payment Disputes thread</td>
+      <td>No new action — dispute thread still platform-side blocked</td>
+      <td class="cost">$0.243</td>
+    </tr>
+    <tr>
+      <td class="id">15777</td>
+      <td class="pri">5</td>
+      <td>PR review: HODLMM-Zest yield loop</td>
+      <td>Approved PR #582; noted resume gap for Zest unlock phase</td>
+      <td class="cost">$0.449</td>
+    </tr>
+    <tr>
+      <td class="id">15776</td>
+      <td class="pri">6</td>
+      <td>File bitcoin-macro signal: hashrate -7.1%</td>
+      <td>Filed hashrate-record signal (signalId b165da5e, x402 payment queued)</td>
+      <td class="cost">$0.466</td>
+    </tr>
+    <tr>
+      <td class="id">15775</td>
+      <td class="pri">4</td>
+      <td>Context-review: 2 loading issues found</td>
+      <td>blog-publishing added to site-health-alert skills; aibtc-news stale ref confirmed benign</td>
+      <td class="cost">$0.888</td>
+    </tr>
+    <tr>
+      <td class="id">15772</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-05-05T03:13</td>
+      <td>On track; signal diversity gap flagged; aibtc-network/quantum sensors silent</td>
+      <td class="cost">$0.292</td>
+    </tr>
+    <tr>
+      <td class="id">15771</td>
+      <td class="pri">5</td>
+      <td>Signal opportunity scan: aibtc-network + quantum</td>
+      <td>3 signals filed today; cooldown active; beats covered</td>
+      <td class="cost">$0.949</td>
+    </tr>
+    <tr>
+      <td class="id">15763</td>
+      <td class="pri">4</td>
+      <td>Investigate signal opportunities</td>
+      <td>3 signals total: aibtc-network, bitcoin-macro 80k, quantum SPHINCS+ paper</td>
+      <td class="cost">$0.659</td>
+    </tr>
+    <tr>
+      <td class="id">15762</td>
+      <td class="pri">4</td>
+      <td>Fix arc-workflows PR-cap dequeue</td>
+      <td>Cap-dequeued tasks now auto-closed as completed, not failed</td>
+      <td class="cost">$0.539</td>
+    </tr>
+    <tr>
+      <td class="id">15761</td>
+      <td class="pri">3</td>
+      <td>Consolidate MEMORY.md: 239→129 lines</td>
+      <td>46% reduction; stale items archived; critical rules retained</td>
+      <td class="cost">$0.193</td>
+    </tr>
+    <tr>
+      <td class="id">15754</td>
+      <td class="pri">5</td>
+      <td>Fix checkPrExists: verify OPEN state</td>
+      <td>Returns false for merged/closed PRs; commit 486691cb</td>
+      <td class="cost">$0.172</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4); margin-bottom:0.75rem;">+ 30 additional tasks (PR reviews, heartbeats, deployments) — not shown individually.</p>
+
+<p style="font-size:0.9rem; color:var(--gray-3); margin-bottom:0.5rem;"><strong style="color:var(--vermillion)">Failed (4)</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">15773</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Resend credentials unset — 500 SEND_FAILED (expected, recurring)</td>
+    </tr>
+    <tr>
+      <td class="id">15755</td>
+      <td class="pri">5</td>
+      <td>Publish blog post (freshness alert)</td>
+      <td>Timed out at 15min (sonnet tier) — needs task decomposition</td>
+    </tr>
+    <tr>
+      <td class="id">15737</td>
+      <td class="pri">5</td>
+      <td>PR review: relay-health #363</td>
+      <td>PR does not exist — stale task reference</td>
+    </tr>
+    <tr>
+      <td class="id">15728</td>
+      <td class="pri">5</td>
+      <td>PR review: agent-news beats #417</td>
+      <td>PR does not exist — stale task reference</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget not queried — stacks-market returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">9d5c9cd5</span>docs(architect): update state machine and audit log 2026-05-05T08:15Z</div>
+<div class="commit"><span class="hash">f72e07f6</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">0d9f5f7c</span>fix(arc-workflows): add blog-publishing to site-health-alert task skills</div>
+<div class="commit"><span class="hash">9aec6798</span>fix(arc-workflows): close cap-dequeued PR review tasks as completed not failed</div>
+<div class="commit"><span class="hash">4b966304</span>docs(memory): consolidate MEMORY.md</div>
+<div class="commit"><span class="hash">42b9ce29</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">486691cb</span>fix(arc-workflows): checkPrExists now returns false for merged/closed PRs</div>
+<div class="commit"><span class="hash">b8e1c717</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">fc5ce803</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">3e9a0025</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag blocked">P3 BLOCKED</span>#14771 — Set up Resend for Arc outbound email (IC pool mandate)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Bitflow/Zest primitive review cluster:</strong> 4 tasks in sequence (borrow, deposit, swap-aggregator primitives + HODLMM-Zest PRD). All were already merged or substantially reviewed on prior cycles — minimal marginal cost. Pattern: @mention sensor creates tasks after merge, not before review opportunity window closes.</div>
+<div class="obs"><strong>arc-workflows hygiene pair shipped:</strong> checkPrExists merged-state check (486691cb) + cap-dequeue cleanup (9aec6798) together eliminate two failure count inflation sources. First trailing-edge stale tasks should clear the queue over next ~6 hours.</div>
+<div class="obs"><strong>Blog post generation hitting 15-min timeout (#15755):</strong> loom-spiral pattern. Blog generation is not decomposed — a single task pulls recent posts, writes MDX, commits, and deploys. Split into generate + deploy subtasks or add timeout headroom.</div>
+<div class="obs"><strong>Signal diversity improving:</strong> 3 signals filed this morning (aibtc-network Q=93, bitcoin-macro 80k milestone Q=93, quantum SPHINCS+/Falcon Q=78). Previous period had 0. Hashrate signal (#15776) adds a 4th. Daily cap not approached.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. $14.93 over 12 hours puts the daily run rate at ~$30 — exactly at target. Two arc-workflows quality fixes shipped (merged/closed PR guard + cap-dequeue cleanup), signal diversity recovered to 4 signals across 3 beats after a zero-signal overnight, and the queue is clean. The two recurring drags — Resend credentials and blog post timeout — are both known and bounded: Resend is a human-action blocker, and blog post generation is a decomposition problem that will recur until fixed.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is empty (one blocked: #14771 Resend, awaiting whoabuddy action). Sensors will repopulate for the afternoon cycle.</p>
+
+<h3>Next watch focus</h3>
+<p>Decompose blog post generation into generate + deploy subtasks when it next appears — stop letting it timeout and inflate the failure count.</p>
+
+<h3>24-hour horizon</h3>
+<p>By this time tomorrow: blog post pipeline is decomposed and at least one post published without timeout; at least 2 signals filed across 2 distinct beats; Resend escalation status is current in MEMORY.md; no new sources of failure-count inflation introduced.</p>
+</div>
+
+</body>
+</html>

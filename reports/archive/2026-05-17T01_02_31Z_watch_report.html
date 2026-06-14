@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-05-16T13:00Z – 2026-05-17T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash { color: var(--gold-dark); margin-right: 0.5rem; }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li { margin-left: 1.25rem; margin-bottom: 0.3rem; }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-05-16T13:00:53Z — 2026-05-17T01:02:31Z</div>
+</header>
+
+<p class="summary">23 tasks completed in 12 hours including memory consolidation, PURPOSE eval (3.80), and 1 aibtc-network signal filed. One cooldown failure on quantum research (scheduled for 01:15Z). 25 dispatch cycles at $9.18 total — $0.37/task average.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">23</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$9.18</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">12,170k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">125k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">16837</td><td class="pri">6</td><td>Watch report — 2026-05-16T13:00Z</td><td>50 tasks, $20.81, 4 cooldown failures</td><td class="cost">$0.606</td></tr>
+    <tr><td class="id">16838</td><td class="pri">2</td><td>Overnight brief — 2026-05-16</td><td>33/35 completed (94%), $13.75 — 3 signals filed</td><td class="cost">$0.721</td></tr>
+    <tr><td class="id">16839</td><td class="pri">5</td><td>GitHub @mention: BFF #605 UN-windleg...</td><td>Both blockers fixed, CI green, phase 2 proof pending</td><td class="cost">$0.517</td></tr>
+    <tr><td class="id">16840</td><td class="pri">8</td><td>Retro: overnight brief 2026-05-16</td><td>1 new pattern (p-heavy-mention-decompose). Token explosion fix confirmed shipped.</td><td class="cost">$0.306</td></tr>
+    <tr><td class="id">16841</td><td class="pri">7</td><td>Housekeeping: 1 issue detected</td><td>Fixed 1 issue</td><td class="cost">$0.000</td></tr>
+    <tr><td class="id">16842</td><td class="pri">5</td><td>Review PR #871 landing-page: bounty...</td><td>Approved — 1 question, 1 suggestion, 1 nit</td><td class="cost">$0.295</td></tr>
+    <tr><td class="id">16843</td><td class="pri">5</td><td>Review PR #525 aibtc-mcp-server</td><td>Changes requested — signBip137 noble/curves API bug (blocking)</td><td class="cost">$0.490</td></tr>
+    <tr><td class="id">16844</td><td class="pri">5</td><td>Daily self-evaluation: PURPOSE rubric</td><td>PURPOSE 3.80 — 88/92 success, 4 signals, $0.378/task</td><td class="cost">$1.244</td></tr>
+    <tr><td class="id">16845</td><td class="pri">5</td><td>Review PR #526 aibtc-mcp-server</td><td>Approved — 2 questions, 2 suggestions</td><td class="cost">$0.392</td></tr>
+    <tr><td class="id">16846</td><td class="pri">5</td><td>Research quantum signal from arXiv digest</td><td>No gate candidate — quant-ph/cs.CR fetch: 50 papers, none Bitcoin-relevant</td><td class="cost">$0.463</td></tr>
+    <tr><td class="id">16847</td><td class="pri">8</td><td>Retro: task #16844 PURPOSE eval</td><td>No new learnings — p-purpose-loop correctly executed</td><td class="cost">$0.095</td></tr>
+    <tr><td class="id">16848</td><td class="pri">4</td><td>CEO review — 2026-05-16T15:32</td><td>On track — 3 signals, 3 x402-relay PRs, 2 systemic fixes</td><td class="cost">$0.312</td></tr>
+    <tr><td class="id">16849</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Sent to whoabuddy@gmail.com (a8ceceab)</td><td class="cost">$0.224</td></tr>
+    <tr><td class="id">16850</td><td class="pri">5</td><td>arc-opensource: sync 17 commits</td><td>17 commits synced to arc0btc/arc-starter</td><td class="cost">$0.081</td></tr>
+    <tr><td class="id">16851</td><td class="pri">9</td><td>Daily cost report — 2026-05-16</td><td>Nominal spend, balanced skill distribution, no anomalies</td><td class="cost">$0.044</td></tr>
+    <tr><td class="id">16852</td><td class="pri">7</td><td>Architecture review</td><td>No structural changes. x402-relay PRs #379/#380 opened. Audit log updated.</td><td class="cost">$0.552</td></tr>
+    <tr><td class="id">16853</td><td class="pri">7</td><td>Workflow review — 1 new pattern(s)</td><td>GithubMentionMachine covers pattern; no new template needed</td><td class="cost">$0.172</td></tr>
+    <tr><td class="id">16854</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>Filed aibtc-network signal (bounty tools drx4→aibtc.com). Today: 6 signals total.</td><td class="cost">$0.967</td></tr>
+    <tr><td class="id">16855</td><td class="pri">6</td><td>PURPOSE eval: 2.38/5</td><td>PURPOSE 2.45 — 94.9% success, 0 signals filed this period</td><td class="cost">$0.166</td></tr>
+    <tr><td class="id">16856</td><td class="pri">7</td><td>Daily introspection: 78 tasks</td><td>95% success, all 4 failures = cooldown violations, 0 signals</td><td class="cost">$0.227</td></tr>
+    <tr><td class="id">16857</td><td class="pri">7</td><td>Daily self-audit: all systems nominal</td><td>Nominal: 94.6% success, memory stale queued, stale reports removed</td><td class="cost">$0.223</td></tr>
+    <tr><td class="id">16860</td><td class="pri">7</td><td>Failure retrospective: 5 failed tasks</td><td>All 5 = cooldown violations at dispatch. Fix queued #16813.</td><td class="cost">$0.108</td></tr>
+    <tr><td class="id">16861</td><td class="pri">6</td><td>Consolidate MEMORY.md (5 days stale)</td><td>~48t → ~32t. Compressed evals, grouped patterns, new active item added.</td><td class="cost">$0.267</td></tr>
+  </tbody>
+</table>
+<p><strong>Failed:</strong> <span class="id">#16858</span> — Research/file quantum signal: cooldown active (58 min remaining). Quantum signal pre-composed, queued as task #16859 scheduled for 01:15Z. <span class="cost">$0.417</span></p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable — no portfolio data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">57b5ccac</span>chore(memory): consolidate MEMORY.md — 5 days stale</div>
+<div class="commit"><span class="hash">b6a1883c</span>chore(reports): remove stale watch report and overnight brief</div>
+<div class="commit"><span class="hash">f39ac154</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">a3365af5</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">bb5910d7</span>docs(architect): update state machine and audit log — sensor-time cooldown RESOLVED; x402-relay PRs opened; 119 skills / 73 sensors</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#16859 — File quantum signal: energy efficiency / arXiv:2605.15090 (scheduled 01:15Z)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">One failure this period — quantum signal hit a dispatch-time cooldown (58 min remaining). Pre-composed signal correctly queued as #16859 with scheduled_for 01:15Z. This is the expected recovery path; no wasted cycle.</div>
+<div class="obs">Memory consolidation shipped: MEMORY.md trimmed from ~48t to ~32t. 13 stale evaluations dropped, patterns reorganized into subsections. Context budget headroom recovered.</div>
+<div class="obs">Token throughput high this period (12.2M in / 125k out) — driven by PURPOSE eval (#16844, $1.24) and deep arXiv quantum research (#16846, $0.46). Both justified by task type; no decomposition signal.</div>
+<div class="obs">6 signals total filed today (aibtc-network ×3, bitcoin-macro ×3) — best multi-signal day in recent history. Quantum drought continues; #16859 is next candidate attempt.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — strongest signal day in recent history (6 total, 3 beats), memory consolidation shipped recovering context budget, and the signal-cooldown fix landed (task #16869, commit d07db40a). The single dispatch-time cooldown failure was handled correctly: pre-composed and rescheduled without wasted work. $0.37/task and clean 96% success rate while executing the full stack (evals, PR reviews, architecture review, signal filing) — this is what the operating model looks like when it's healthy.</p>
+
+<h3>Queue adjustments</h3>
+<p>None. Queue is lean and well-prioritized: #16880 (file aibtc-network signal) at P4 is correct urgency, #16874 (quantum research) at P5 is appropriate, PR review tasks at P5 are rightly ordered below signal work. No kills, no reprioritizations needed.</p>
+<p>Note on #16876/#16877 (PR reviews): bounty-farming flood policy applies to landing-page — if 3+ identical no-implementation PRs appear in a batch, escalate rather than loop. aibtc-mcp-server #525 blocker (signBip137 noble/curves API bug) should be followed up to verify author addressed it before re-reviewing.</p>
+
+<h3>Next watch focus</h3>
+<p>File the quantum signal (#16874). Quantum drought is the one remaining gap — 6 signals, 2 beats is strong but 3 beats would push PURPOSE Signal dimension above floor. Everything else is working; quantum is the unlock.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-05-18T03:30Z: first successful quantum signal filed (breaking the drought), PR review queue clear, signal cooldown fix verified holding across all 3 beat sensors, PURPOSE Signal dimension scores ≥2 for the day.</p>
+</div>
+
+</body>
+</html>

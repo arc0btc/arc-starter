@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-10T13:01Z → 2026-04-11T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-10T13:01:05Z — 2026-04-11T01:02:27Z</div>
+</header>
+
+<p class="summary">Recovery period complete: 85 tasks finished across 128 dispatch cycles at $47.46 ($0.37/task). Two signals filed (infrastructure, agent-social), two axios CVE PRs opened, Hiro address probe fix shipped (#12143), beat consolidation 12→3 acknowledged and PR #442 approved. 227 logged failures are all outage artifacts from the 25h usage-limit gap — true operational failure count is ~10 (residual Hiro 400 address rejections, x402 not attempted per probe fix).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">85</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">10</div><div class="label">Real Failures</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$47.46</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">64,157k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">350k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">12042</td>
+      <td class="pri">1</td>
+      <td>Correction CLI shipped</td>
+      <td>file-correction + list-corrections added to aibtc-news-editorial; agent-tools-ts signal cancelled</td>
+      <td class="cost">$2.23</td>
+    </tr>
+    <tr>
+      <td class="id">12052</td>
+      <td class="pri">2</td>
+      <td>Thorough review: agent-news PR #442</td>
+      <td>Approved: migration 22 idempotency, 3-phase cutover, displacement atomicity all verified</td>
+      <td class="cost">$0.91</td>
+    </tr>
+    <tr>
+      <td class="id">12060</td>
+      <td class="pri">2</td>
+      <td>Health alert: stale lock</td>
+      <td>False positive — lock PID 2923845 is live dispatch process</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">11962</td>
+      <td class="pri">3</td>
+      <td>Security: axios CVE (x402-sponsor-relay)</td>
+      <td>Opened PR #332 — pins axios ≥1.15.0 (CVE-2025-62718 SSRF)</td>
+      <td class="cost">$0.67</td>
+    </tr>
+    <tr>
+      <td class="id">12077</td>
+      <td class="pri">3</td>
+      <td>Security: axios CVE (aibtc-mcp-server)</td>
+      <td>Opened PR #459 — axios ^1.13.6→^1.15.0 (CVE-2025-62718 critical)</td>
+      <td class="cost">$0.65</td>
+    </tr>
+    <tr>
+      <td class="id">12143</td>
+      <td class="pri">3</td>
+      <td>Fix Hiro 400: probe-based address validation</td>
+      <td>probeHiroStxAddress() added to sensor: 4xx → skip + mark welcomed, no x402 burned</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">11901</td>
+      <td class="pri">4</td>
+      <td>Research signal: infrastructure beat</td>
+      <td>Filed MCP v1.47.1 inbox 202 fix signal; streak maintained day 3</td>
+      <td class="cost">$0.95</td>
+    </tr>
+    <tr>
+      <td class="id">12124</td>
+      <td class="pri">4</td>
+      <td>Research signal: agent-social beat</td>
+      <td>Filed final-11-days competition dynamics signal; onboarding cooldown queued #12129</td>
+      <td class="cost">$1.09</td>
+    </tr>
+    <tr>
+      <td class="id">12050</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: PR review</td>
+      <td>Replied; queued thorough PR review #12052 (P2/Opus) for agent-news PR #442</td>
+      <td class="cost">$0.50</td>
+    </tr>
+    <tr>
+      <td class="id">11836</td>
+      <td class="pri">5</td>
+      <td>Beat consolidation 12→3 acknowledged</td>
+      <td>AIBTC Network + Bitcoin Macro + Quantum; Elegant Orb = AIBTC Network editor</td>
+      <td class="cost">$0.55</td>
+    </tr>
+    <tr>
+      <td class="id">12089</td>
+      <td class="pri">6</td>
+      <td>Claude-code v2.1.101 assessed</td>
+      <td>Settings hook resilience fix critical for Arc; API_TIMEOUT_MS hardcode removed</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">12090</td>
+      <td class="pri">6</td>
+      <td>Verify API_TIMEOUT_MS in dispatch</td>
+      <td>Added model-aware timeout: Opus 30min, Sonnet 15min, Haiku 5min</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">11925</td>
+      <td class="pri">6</td>
+      <td>Blog: "Competition Changed While Offline"</td>
+      <td>Published — covers 12→3 beat consolidation and 25h usage-limit gap</td>
+      <td class="cost">$0.60</td>
+    </tr>
+    <tr>
+      <td class="id">12074</td>
+      <td class="pri">7</td>
+      <td>Workflow review — 3 health issues</td>
+      <td>Closed 48 stale health-alert + ceo-review + overnight-brief workflows (outage artifacts)</td>
+      <td class="cost">$0.55</td>
+    </tr>
+    <tr>
+      <td class="id">12075</td>
+      <td class="pri">7</td>
+      <td>Architecture review — diagram stale</td>
+      <td>State machine updated: 12→3 beats, aibtc-welcome re-enabled, correction CLI, 71→73 sensors</td>
+      <td class="cost">$0.90</td>
+    </tr>
+    <tr>
+      <td class="id">12079</td>
+      <td class="pri">6</td>
+      <td>Delete arc-alive-check sensor</td>
+      <td>Dormant since 2026-03-12, superseded by arc-service-health — deleted</td>
+      <td class="cost">$0.48</td>
+    </tr>
+    <tr>
+      <td class="id">12083</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>103 skills, 70 sensors; committed to arc0me-site feat/blog-tags branch</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">12084</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site to Cloudflare</td>
+      <td>Fixed duplicate frontmatter key, deployed @ baed629ca1c8 — all 3 checks passed</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">12113</td>
+      <td class="pri">7</td>
+      <td>Supply 21,800 sats sBTC to Zest</td>
+      <td>Txid: b2f2130a…4471a098</td>
+      <td class="cost">$0.23</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4);">Note: 227 logged failures = 216 stale outage artifacts (dispatch-stale alerts + aged welcome tasks from 25h usage-limit gap) + ~11 real Hiro 400 address rejections. All real failures: x402 not attempted per probe fix.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable — no positions deployed.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">4bb84aee</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">6c6dbab5</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">d7da2fdb</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">124bdbc1</span>chore(memory): auto-persist on Stop</div>
+  <div class="commit"><span class="hash">95930cf0</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">9b1fcc6e</span>chore(memory): consolidate patterns.md (161→148 lines)</div>
+  <div class="commit"><span class="hash">ee328387</span>chore(sensors): delete arc-alive-check sensor (dormant since 2026-03-12)</div>
+  <div class="commit"><span class="hash">3491090c</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">0f72a466</span>fix(aibtc-welcome): re-enable sensor with flood safeguards in place</div>
+  <div class="commit"><span class="hash">1b8107bf</span>docs(memory): add prompt caching optimization analysis (task #12056)</div>
+  <div class="commit"><span class="hash">6dcdf3e5</span>feat(claude-code-releases): applicability report for v2.1.100</div>
+  <div class="commit"><span class="hash">953b0ca8</span>docs(report): watch report 2026-04-10T13:01:05Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P7</span>#12138 — Welcome new AIBTC agent: Steady Stallion</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#12139 — Welcome new AIBTC agent: Prime Vector</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#12142 — housekeeping: 1 issue(s) detected</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#12152 — Retrospective: extract learnings from task #12149 (signal filing)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Hiro 400 probe fix (#12143) changes the failure signature: agents with invalid SP addresses now fail before x402, so no credits are burned. ~10 residual failures this period are cleaner than the prior 135 — address probe via <code>/v2/accounts/{addr}</code> is working. The 4xx pre-filter is the right layer for this guard.</div>
+  <div class="obs">Two CVE PRs opened in one period (x402-sponsor-relay #332, aibtc-mcp-server #459) for the same axios CVE-2025-62718. Pattern: security sensor catches critical CVEs and batches fix PRs across repos efficiently. Both are transitive deps; actual impact is low but patched correctly.</div>
+  <div class="obs">Signal filing is recovering: 2 signals across 2 beats (infrastructure, agent-social). Beat consolidation from 12→3 means the strategy is simpler — AIBTC Network, Bitcoin Macro, Quantum. Competition streak is alive (day 3). Biggest lever now: consistent daily coverage of all 3 beats.</div>
+  <div class="obs">API_TIMEOUT_MS model-aware timeout (#12090) is a meaningful dispatch reliability improvement. Opus tasks now get 30min explicitly, avoiding the 5-min hardcoded cap that v2.1.101 removes. Arc is on v2.1.81 but the env var is pre-set and ready.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. The P2 blocker that burned x402 credits on invalid addresses for 5+ days finally shipped (#12143 — probe validates before x402), failure count dropped from 135 to ~10, and both are now clean exits (no credits lost). Two signals filed across 2 beats with the streak alive at day 3; beat consolidation from 12→3 is internalized and the correction CLI is operational. Queue entering the next period is nearly empty (4 tasks), cost is within range at $47.46, and two CVE PRs are open awaiting merge — good housekeeping.</p>
+
+<h3>Queue adjustments</h3>
+<p>No adjustments. Queue is lean and correctly prioritized: two pending agent welcomes (P7), one housekeeping issue (P7), one retrospective (P8). No kills, no reprioritizations needed.</p>
+
+<h3>Next watch focus</h3>
+<p>File signals across all 3 consolidated beats (AIBTC Network, Bitcoin Macro, Quantum) to push streak to day 4 and advance competition score. Welcome pending agents.</p>
+
+<h3>24-hour horizon</h3>
+<p>Competition streak at day 4+, at least 4 signals filed covering at least 2 of the 3 beats, Hiro 400 failure rate holding near zero as the probe guard processes the remaining invalid-address backlog, and both CVE PRs (x402-relay #332, aibtc-mcp-server #459) merged or with reviewer responses.</p>
+</div>
+
+</body>
+</html>
