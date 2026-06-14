@@ -345,8 +345,8 @@ const FREE_FORUM_FEED_ID = "forum_feed_1CbxLWoGaQJva9hYUz7tLj";
 // e73fa8a3 fix commit). Synthesis still off; flip after Phase 2 sign-off.
 // ARC_WHOP_FORCE=1 still overrides synthesis for manual audit ticks.
 const WHOP_REPLY_ENABLED = true;
-// Phase 2 dry-run enabled 2026-06-12. WHOP_SYNTHESIS_DRY_RUN still true —
-// sensor queues tasks on the 6h cadence; dispatch composes-only, no post-chat.
+// Synthesis lane: queues one defer-or-post task per 6h bucket; the dispatched
+// session reads the room and decides post-vs-defer.
 const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
 
 // Dry-run flags. Reactive flipped to live concurrently with WHOP_REPLY_ENABLED
@@ -354,7 +354,10 @@ const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
 // remaining two (recent_arc_cooldown, thread_spiral_cap) are state-dependent
 // and only observable in production. Synthesis stays dry-run until Phase 2.
 const WHOP_REPLY_DRY_RUN = false;
-const WHOP_SYNTHESIS_DRY_RUN = true;
+// P7 (2026-06-14, operator voice-trust sign-off): synthesis lane live. The
+// dispatched session still decides post-vs-defer; live mode lets it actually
+// post-chat (idempotent via the per-bucket --source key) instead of compose-only.
+const WHOP_SYNTHESIS_DRY_RUN = false;
 
 // Phase 4 free-room digest lane. Gated OFF by default (sign-off required before
 // the first post lands in the free Public forum). Dry-run ON by default so the
@@ -796,7 +799,7 @@ export async function pollWhopSynthesis(): Promise<void> {
   const dryRunPrefix = WHOP_SYNTHESIS_DRY_RUN ? "[DRY-RUN] " : "";
   const postCommand = WHOP_SYNTHESIS_DRY_RUN
     ? "DRY-RUN: do NOT call post-chat. Compose the post in result_detail and close completed with --summary describing your read-the-room decision (post vs defer + reason)."
-    : `Post via:\n  arc skills run --name whop -- post-chat --content "<markdown>"`;
+    : `Post via (idempotent — the --source key is this bucket, so a re-dispatch can't double-post):\n  arc skills run --name whop -- post-chat --content "<markdown>" --source ${source}`;
 
   // Q1: fanout-aware deferral pre-bias. If Arc already shipped a teaching beat
   // to this room recently, the answer is almost always DEFER. We don't hard-skip

@@ -231,7 +231,7 @@ Steps:
         const dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
         const dryRunBody = dryRun
           ? `DRY-RUN MODE (WORKFLOWS_PUBLISH_FANOUT_WHOP_DRY_RUN=true): do NOT call post-chat. Compose the markdown post in result_detail so the artifact captures it, then ALWAYS transition the workflow forward — the goal is to flush the pipeline so the X hop fires for audit:
-   arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending
+   arc skills run --name arc-workflows -- transition {WORKFLOW_ID} x_pending
 Close completed with --summary describing what you would have posted and the read-the-room decision.`
           : `LIVE MODE: post to whop, confirm, then advance.
 
@@ -243,7 +243,7 @@ Steps:
    arc skills run --name whop -- post-chat --content "<markdown>" --source publish-fanout:${ctx.slug}:whop
 5. Confirm-then-advance:
    - On success (post ID returned): transition this workflow to x_pending:
-     arc skills run --name workflows -- transition {WORKFLOW_ID} x_pending
+     arc skills run --name arc-workflows -- transition {WORKFLOW_ID} x_pending
    - On persistent failure (HTTP 4xx after one retry, or auth scope missing): STILL transition to x_pending so the X hop is not blocked by a stuck whop hop. Close this task as failed with --summary describing the failure mode. Source-dedup (publish-fanout:${ctx.slug}:whop) prevents a duplicate re-fire next cycle.`;
 
         return {
@@ -576,7 +576,7 @@ Post to the public forum experience via skills/whop, then verify it landed. The 
 Voice (if you build a lesson): skills/arc-brand-voice/CHANNELS.md §course — instructional, examples-first, narrate the dev-council reasoning behind each component.
 
 Steps:
-1. Identify related work-pieces: other content-calendar workflows of the same tier/topic (arc skills run --name workflows -- list-by-template content-calendar) plus engagement signal if available in context.
+1. Identify related work-pieces: other content-calendar workflows of the same tier/topic (arc skills run --name arc-workflows -- list-by-template content-calendar) plus engagement signal if available in context.
 2. If fewer than 3 related pieces, do NOT create a course — close this task noting "no cluster yet"; the workflow auto-completes.
 3. If 3+ related pieces, create a course / chapters / lessons from the cluster (skills/whop create-course/create-chapter/create-lesson) — or queue a follow-up task to do so.
 
@@ -2915,8 +2915,8 @@ Steps:
 3. Record findings in workflow context as contentGaps (comma-separated)
 4. Record new skills to highlight as notableSkills (comma-separated)
 5. Transition workflow:
-   - If gaps found: arc skills run --name workflows -- transition <id> reviewing --context '{"contentGaps":"...","notableSkills":"..."}'
-   - If nothing needed: arc skills run --name workflows -- transition <id> no_gaps`,
+   - If gaps found: arc skills run --name arc-workflows -- transition <id> reviewing --context '{"contentGaps":"...","notableSkills":"..."}'
+   - If nothing needed: arc skills run --name arc-workflows -- transition <id> no_gaps`,
         };
       },
     },
@@ -2952,7 +2952,7 @@ Steps:
 2. Add the notable skills enumeration under the appropriate section
 3. Ensure descriptions are accurate and concise
 4. Hand off to Arc via PR workflow for the PR (GitHub is Arc-only)
-5. Transition workflow to completed: arc skills run --name workflows -- transition <id> done`,
+5. Transition workflow to completed: arc skills run --name arc-workflows -- transition <id> done`,
         };
       },
     },
