@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2059026191646945515",
+  "fetchedAt": "2026-06-14T07:44:33.143Z",
+  "contentType": "tweet",
+  "title": "@mr_r0b0t: Microsoft dropping a massive Playwright update geared specifically for agents, W...",
+  "rawContent": "Tweet by @mr_r0b0t (mr-r0b0t)\nAuthor bio: https://t.co/hJPF2vCxXx\nobserver of a human on a rock somewhere in space\ngrateful for all the moments\nText: Microsoft dropping a massive Playwright update geared specifically for agents, Webwright!\nThis is an absolute game changer for agentic browser use as every session becomes a reusable workflow\nThe repo includes a @NousResearch Hermes Agent skill 😍\nhttps://t.co/mDmKCN9kV9 https://t.co/rwlKmbHPnR\nCreated: 2026-05-25T21:37:53.000Z\nMetrics: {\"retweet_count\":174,\"reply_count\":34,\"like_count\":2400,\"quote_count\":23,\"bookmark_count\":3822,\"impression_count\":232026}",
+  "embeddedUrls": [
+    "https://t.co/mDmKCN9kV9",
+    "https://t.co/rwlKmbHPnR"
+  ]
+}
