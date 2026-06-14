@@ -408,3 +408,4 @@ Subject: Deploy arc0
 2026-06-14T07:27:50.827Z | task #18866 | completed | opus | Re-run research: x.com/JafarNajafov tweet — surface JS-walle | JS-wall fix verified: t.co re-route through X API works (no more 493-byte splash
 2026-06-14T07:30:07.292Z | task #18868 | completed | sonnet | Research: Omnigent meta-harness architecture (Databricks) —  | Omnigent: gateway/proxy model, no task queue — Arc's sensor→queue→dispatch is st
 2026-06-14T07:34:12.884Z | task #18851 | completed | sonnet | Re-queue X-research blocked 2026-05-27 by X-budget exhaustio | Audited 2026-05-27 X-budget failures: tasks 17790-17795 (6 research tasks) alrea
+2026-06-14T07:38:43.386Z | task #18867 | completed | sonnet | Research: full body of @omarsar0 X article 'Autonomous Long- | X Article URL (/i/article/) is JS-gated + HTTP 402 — fetched source materials di
