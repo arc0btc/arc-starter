@@ -496,8 +496,10 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     }
     const content = contentParts.join("\n");
 
-    // Extract embedded URLs from tweet text (t.co links, article URLs)
-    const embedded = extractEmbeddedUrls(tweetText);
+    // Article tweets: the t.co entity in tweet text self-redirects to x.com/i/article/<tweet_id>.
+    // Article body is already captured in contentParts above — skip embedded extraction to
+    // avoid following the self-referential link and fetching the JS-wall splash.
+    const embedded = articleContent ? [] : extractEmbeddedUrls(tweetText);
 
     return { url, fetchedAt: timestamp, contentType: "tweet", title, rawContent: content, embeddedUrls: embedded };
   }
@@ -513,12 +515,24 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     throw new Error(`HTTP ${response.status}`);
   }
 
-  // Re-route to X API if the redirect chain (e.g. t.co → x.com) lands on a tweet.
-  // Without this, the response body is just the "JavaScript is not available" splash.
-  const redirectedTweetId = parseTweetUrl(response.url);
-  if (redirectedTweetId && response.url !== url) {
-    const tweet = await fetchRawContent(response.url);
+  // Re-route to X API if the redirect chain (e.g. t.co → x.com) lands on a tweet or
+  // an article URL (x.com/i/article/<id>). Without this, the response body is just the
+  // "JavaScript is not available" splash (~493 bytes of useless noise).
+  const redirectedUrl = response.url;
+  const redirectedTweetId = parseTweetUrl(redirectedUrl);
+  const articleIdMatch = redirectedUrl !== url
+    ? redirectedUrl.match(/(?:x\.com|twitter\.com)\/i\/article\/(\d+)/)
+    : null;
+
+  if (redirectedTweetId && redirectedUrl !== url) {
+    const tweet = await fetchRawContent(redirectedUrl);
     return { ...tweet, url };
+  }
+  if (articleIdMatch) {
+    // t.co → x.com/i/article/<id>: article ID equals the source tweet ID.
+    // Re-fetch via X API using a synthetic /status/<id> URL so parseTweetUrl picks it up.
+    const tweetContent = await fetchRawContent(`https://x.com/i/status/${articleIdMatch[1]}`);
+    return { ...tweetContent, url };
   }
 
   const html = await response.text();
