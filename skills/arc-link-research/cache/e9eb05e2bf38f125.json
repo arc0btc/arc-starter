@@ -1,0 +1,30 @@
+{
+  "url": "https://github.com/humanlayer/12-factor-agents",
+  "fetchedAt": "2026-06-15T02:58:16.000Z",
+  "contentType": "github",
+  "title": "12-factor-agents",
+  "rawContent": "Repo: humanlayer/12-factor-agents\nDescription: What are the principles we can use to build LLM-powered software that is actually good enough to put in the hands of production customers?\nTopics: agents, ai, context-window, framework, llms, memory, orchestration, prompt-engineering, rag, 12-factor, 12-factor-agents\nStars: 23299\n\nREADME:\n# 12-Factor Agents - Principles for building reliable LLM applications\n\n<div align=\"center\">\n<a href=\"https://www.apache.org/licenses/LICENSE-2.0\">\n        <img src=\"https://img.shields.io/badge/Code-Apache%202.0-blue.svg\" alt=\"Code License: Apache 2.0\"></a>\n<a href=\"https://creativecommons.org/licenses/by-sa/4.0/\">\n        <img src=\"https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg\" alt=\"Content License: CC BY-SA 4.0\"></a>\n<a href=\"https://humanlayer.dev/discord\">\n    <img src=\"https://img.shields.io/badge/chat-discord-5865F2\" alt=\"Discord Server\"></a>\n<a href=\"https://www.youtube.com/watch?v=8kMaTybvDUw\">\n    <img src=\"https://img.shields.io/badge/aidotengineer-conf_talk_(17m)-white\" alt=\"YouTube\nDeep Dive\"></a>\n<a href=\"https://www.youtube.com/watch?v=yxJDyQ8v6P0\">\n    <img src=\"https://img.shields.io/badge/youtube-deep_dive-crimson\" alt=\"YouTube\nDeep Dive\"></a>\n    \n</div>\n\n<p></p>\n\n*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents, and I welcome your feedback and contributions. Let's figure this out together!*\n\n> [!TIP]\n> Missed the AI Engineer World's Fair? [Catch the talk here](https://www.youtube.com/watch?v=8kMaTybvDUw)\n>\n> Looking for Context Engineering? [Jump straight to factor 3](https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md)\n>\n> Want to contribute to `npx/uvx create-12-factor-agent` - check out [the discussion thread](https://github.com/humanlayer/12-factor-agents/discussions/61)\n\n\n<img referrerpolicy=\"no-referrer-when-downgrade\" src=\"https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9\" />\n\n<a href=\"#visual-nav\"><img width=\"907\" alt=\"Screenshot 2025-04-03 at 2 49 07â¯PM\" src=\"https://github.com/user-attachments/assets/23286ad8-7bef-4902-b371-88ff6a22e998\" /></a>\n\n\nHi, I'm Dex. I've been [hacking](https://youtu.be/8bIHcttkOTE) on [AI agents](https://theouterloop.substack.com) for [a while](https://humanlayer.dev). \n\n\n**I've tried every agent framework out there**, from the plug-and-play crew/langchains to the \"minimalist\" smolagents of the world to the \"production grade\" langraph, griptape, etc. \n\n**I've talked to a lot of really strong founders**, in and out of YC, who are all building really impressive things with AI. Most of them are rolling the stack themselves. I don't see a lot of frameworks in production customer-facing agents.\n\n**I've been surprised to find** that most of the products out there billing themselves as \"AI Agents\" are not all that agentic. A lot of them are mostly deterministic code, with LLM steps sprinkled in at just the right points to make the experience truly magical.\n\nAgents, at least the good ones, don't follow the [\"here's your prompt, here's a bag of tools, loop until you hit the goal\"](https://www.anthropic.com/engineering/building-effective-agents#agents) pattern. Rather, they are comprised of mostly just s",
+  "embeddedUrls": [
+    "https://www.apache.org/licenses/LICENSE-2.0",
+    "https://img.shields.io/badge/Code-Apache%202.0-blue.svg",
+    "https://creativecommons.org/licenses/by-sa/4.0/",
+    "https://img.shields.io/badge/Content-CC%20BY--SA%204.0-lightgrey.svg",
+    "https://humanlayer.dev/discord",
+    "https://img.shields.io/badge/chat-discord-5865F2",
+    "https://www.youtube.com/watch?v=8kMaTybvDUw",
+    "https://img.shields.io/badge/aidotengineer-conf_talk_(17m",
+    "https://www.youtube.com/watch?v=yxJDyQ8v6P0",
+    "https://img.shields.io/badge/youtube-deep_dive-crimson",
+    "https://12factor.net/",
+    "https://github.com/humanlayer/12-factor-agents,",
+    "https://www.youtube.com/watch?v=8kMaTybvDUw",
+    "https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md",
+    "https://github.com/humanlayer/12-factor-agents/discussions/61",
+    "https://static.scarf.sh/a.png?x-pxid=2acad99a-c2d9-48df-86f5-9ca8061b7bf9",
+    "https://github.com/user-attachments/assets/23286ad8-7bef-4902-b371-88ff6a22e998",
+    "https://youtu.be/8bIHcttkOTE",
+    "https://theouterloop.substack.com",
+    "https://humanlayer.dev",
+    "https://www.anthropic.com/engineering/building-effective-agents#agents"
+  ]
+}
