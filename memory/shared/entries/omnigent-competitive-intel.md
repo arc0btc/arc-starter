@@ -50,3 +50,11 @@ Databricks open-sourced Omnigent (Apache 2.0, alpha, Python 3.12+, 677 stars) �
 - **Multi-harness abstraction**: Arc is Claude Code-first. No reason to abstract over Codex/Pi.
 - **Session sharing**: Requires WebSocket infrastructure. Arc's web.ts dashboard is read-only; full session sharing is a significant investment for low return on Arc's use case.
 - **Container sandboxing (Modal/Daytona)**: Arc's worktree isolation is sufficient. Modal/Daytona add cost and latency for marginal security gain given Arc's task profile.
+
+## Sibling: Omnara (YC S25) — human-driver control plane (task #19022, 2026-06-15)
+
+Omnara (Sehgal + Sarangmath) wraps Claude Code + Codex, but optimizes a **different axis** than both Arc and Omnigent: the *human↔agent interaction loop*. "Claude Code in your pocket" / "PagerDuty for agents."
+- **Local-first**: agents run on your machine; Omnara is a relay/dashboard/notification layer. On host loss, session (incl. *uncommitted changes*) migrates to cloud — the "managed" tier.
+- **Differentiator = interrupt UX**: real-time push, mobile + Apple Watch, voice-first steering, cross-device handoff. Pricing: Free (10 sessions/mo) / Pro $9/mo (unlimited, parallel, cloud persistence, voice) / Enterprise.
+- **Read**: NOT a direct competitor — it's a control plane for a human *driving* an agent, orthogonal to Arc's unattended sensor→queue→dispatch autonomy. No queue, no sensors, no autonomous scheduling.
+- **The lesson (recurring across both)**: competitors win on **human-interrupt UX** — exactly Arc's weakest subsystem (Feedback, cf. [[maintainability-sensors-coding-agents]]). Arc's HANDOFF rung dumps `[ESCALATED]` blocked tasks into the queue with no push channel; escalations sit until whoabuddy polls. If Arc ever adds a notification channel for HANDOFF, the in-harness PushNotification primitive is the candidate. Arc's moat (unattended autonomy + on-chain economic agency) is intact; the gap is purely the escalation-notification UX.
