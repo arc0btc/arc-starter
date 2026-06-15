@@ -813,9 +813,15 @@ export async function pollWhopSynthesis(): Promise<void> {
     )
     .get() !== null);
   const recentReactivePost = recentTaskExistsForSourcePrefix("sensor:whop-replies:", 60);
+  // Arc's synthesis posts don't go through publish-fanout or reactive-reply — scan the
+  // transcript directly so all post paths are covered.
+  const arcPostsInWindow = windowMessages.filter((m) => m.user?.id === ARC_USER_ID);
   const recentArcSignals: string[] = [];
   if (recentTeachingBeat) recentArcSignals.push("publish-fanout (≤6h)");
   if (recentReactivePost) recentArcSignals.push("reactive reply (≤1h)");
+  if (arcPostsInWindow.length > 0) {
+    recentArcSignals.push(`${arcPostsInWindow.length} arc post(s) in transcript`);
+  }
 
   // Premium context wells: pull fresh source artifacts for the paid room.
   // Asymmetry guarantee — pollWhopFreeForumDigest deliberately does NOT call
