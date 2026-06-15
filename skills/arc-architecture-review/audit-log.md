@@ -1,3 +1,68 @@
+## 2026-06-15T14:15:00.000Z — Whop P17–P22 capstone + snippet-producer; 129 skills / 81 sensors
+
+**Task #19057** | Diff: 0d93d0e → 620ef4f (10 structural commits) | Sensors: 81 | Skills: 129
+
+### Step 1 — Requirements
+
+10 structural commits, all in `skills/whop/` + `skills/snippet-producer/` + `src/constants.ts` + `src/artifacts.ts` + `skills/arc-workflows/state-machine.ts`. No `src/dispatch.ts` or `src/sensors.ts` changes.
+
+Key structural additions:
+- **fix(whop): RECENT_ARC_POSTS detection** (363ebf27): sensor was missing Arc's own API-posted messages; now scans `windowMessages` for `ARC_USER_ID` directly. Synthesis deferral now covers all post paths.
+- **feat(whop) P17 affiliate** (d498dd7e): `PAID_ROOM_AFFILIATE`, `PAID_ROOM_PRODUCT_URL`, `PAID_ROOM_CHECKOUT_URL` in `src/constants.ts`. Attribution loop: click→subscribe increments affiliate's `total_referrals_count`/`total_revenue_usd` (`arc skills run --name whop -- list-affiliates` reads it live).
+- **feat(funnel) P18 CTA** (00602416): `PAID_ROOM_PRODUCT_URL` verbatim in PublishFanoutMachine public-forum teaser — attributable, arc-brand-voice/CHANNELS.md updated.
+- **feat(whop) P19 events** (0977a3e9): `skills/whop/lib/events.ts` (425 lines). POLL model, 15-min sub-lane, `WHOP_EVENTS_ENABLED` flag (default ON). Entity-state dedup key (`whop-evt:<entity>:<id>:<status>`). Push seam reserved for M0.
+- **feat(whop) P20 welcome** (44c90d99 + 620ef4f): `membership.activated` → `surfaceMemberWelcome()` → voice-carded reply. `WELCOME-TEMPLATE.md` finalized.
+- **feat(whop) P21 synthesis input** (14db8921): `whop-signal` artifact type added to `ARTIFACT_TYPES` (TTL 7d). Events write to the pool; synthesis consumes them.
+- **feat(whop) P22 revenue in CEO review** (7c6d0555): `arc-ceo-review/AGENT.md` + `arc-reporting/AGENT.md` read `whop_event_log` for member count/MRR. Feedback loop closes: member → welcome → synthesis → CEO visibility.
+- **chore lane-flag consistency** (677be5dd): `WHOP_SYNTHESIS_ENABLED`/`WHOP_SYNTHESIS_DRY_RUN` now env-gated (was hardcoded). Stale docs archived. Nostr + X cadence sensor flag-consistency fixes.
+- **feat(inflows) snippet-producer** (8a838447): new sensor + skill. Chops newest published blog post into 3-5 quote-card snippets via `writeDistilled(type:"snippet", ...)`. X cadence `blog-snippet` beat + Nostr sensor consume the pool. Fills the empty social artifact pool that existed since X/Nostr consumers shipped.
+- **src/artifacts.ts**: `ARTIFACT_TYPES` extended with `"snippet"` (14d TTL) and `"whop-signal"` (7d TTL).
+
+### Step 2 — Delete
+
+No deletion candidates this window.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+**[CARRY-WATCH]** Whop sensor growing complex: now 4 sub-lanes (state-writer, patterns-library-monitor, events, synthesis) + reply lane. Consider extracting each sub-lane into its own sensor file when the 5th sub-sensor is added.
+
+### Step 3 — Simplify
+
+- `skills/whop/lib/events.ts` as a separate module is correct factoring — 425-line domain logic belongs in a lib file, not inline in sensor.ts. Normalizers are clean; poll-vs-push tradeoff is operator-decided and documented.
+- Entity-state event-ID convention (`whop-evt:<entity>:<id>:<status>`) is the right dedup key: a status change produces a new event while a replay of the same state is idempotent. The push seam (webhooks.unwrap()) yields the same shape — drop-in ready.
+- `PAID_ROOM_PRODUCT_URL` in `src/constants.ts` as the single canonical URL is correct. The alternative (hardcoded copies across state-machine.ts and sensor descriptions) drifts and miscounts conversions.
+- `WHOP_SYNTHESIS_ENABLED`/`DRY_RUN` now consistent with all other `Bun.env.*` gates — no more `true ||` hardcoded override.
+- **[POLL COVERAGE LIMIT]** Status transitions of PRE-EXISTING memberships (canceled/expired) are NOT caught by the `created_after` cursor — documented in `events.ts` comments. Gap closes when push lane lands (M0). No action needed now.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- snippet-producer fills a structural gap: X/Nostr social pools were empty because all three distillers (arxiv/council/watch-interior) tag `blog`/`whop-chat`, not `x`/`nostr`. First produced snippets will unblock the drip immediately.
+- P22 closes the feedback loop: member count/MRR in CEO review replaces manual Whop portal checks.
+- Events at 15-min cadence appropriate for new-member detection. Not a throughput bottleneck.
+
+### Step 5 — Automate
+
+- **[PUSH-SEAM]** When M0 lands: webhook push handler drops into `events.ts` without touching P20–P22, because the normalized `WhopEvent` shape matches `webhooks.unwrap()`. No code archaeology needed.
+- **[CARRY-CARRY]** `lint-skills --staged` `--name <X>` validation. Low priority.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — catch on next edit.
+
+### Flags
+
+- **[RESOLVED]** RECENT_ARC_POSTS detection bug (363ebf27) — Arc's API-posted messages now visible to synthesis deferral.
+- **[NEW]** Whop P17–P22 capstone shipped. Attribution → events → welcome → synthesis → CEO review all wired.
+- **[NEW]** snippet-producer sensor live — social artifact pools now have a producer.
+- **[NEW-WATCH]** Whop events POLL-vs-PUSH gap: pre-existing membership status transitions not caught. Accept until M0.
+- **[CARRY-WATCH]** Whop sensor sub-lane proliferation — extract at 5th sub-sensor.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + reactive soaks overnight clean + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales SKILL.md only — no cli.ts or sensor.ts.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-15T02:20:00.000Z — source-ledger factory; nostr channel consumer; aibtc-news-distribution P14 lane; 128 skills / 80 sensors
 
 **Task #18998** | Diff: e14ac95 → 0d93d0e (3 structural commits) | Sensors: 80 | Skills: 128

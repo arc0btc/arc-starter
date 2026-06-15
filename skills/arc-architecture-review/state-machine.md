@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-15T02:20:00.000Z*
-*Diff: e14ac95 → 0d93d0e (3 structural commits since last diagram) | Sensor count: 80 | Skill count: 128*
+*Generated: 2026-06-15T14:15:00.000Z*
+*Diff: 0d93d0e → 620ef4f (10 structural commits since last diagram) | Sensor count: 81 | Skill count: 129*
 
 ```mermaid
 stateDiagram-v2
@@ -45,7 +45,7 @@ stateDiagram-v2
 
         state ContentSensors {
             whop
-            note right of whop: SCAFFOLDED (9d3edbc): new monetization skill\ncli.ts: whoami, list-experiences, post-chat, create-course, create-chapter, create-lesson\nReads api_key via getCredential("whop", "api_key"); fails gracefully if absent\nGuardrail: first posts require human-review gate — members pay real money\nSENSOR ADDED (9396dc13): sensor count 73→74. Two sub-sensors:\n  whop-state-writer (60min): writes db/whop-state.json with channel/experience state\n  whop (gated): blog→chat cadence; controlled by WHOP_SENSOR_ENABLED=false\nAPP_API_KEY MODEL (d3d704a9): post-chat uses app_api_key (actor identity); mgmt uses company_api_key\nv1 ENDPOINT (bca250d1): POST /api/v1/messages (NOT /v5 — returns 404)\nRENAME-EXPERIENCE (a7c4e099): rename-experience CLI command added\nChannel confirmed: exp_I2Wew0PqJQ50a8 ("AI Prefers Bitcoin"); feed: chat_feed_1CbxMbfsj2yvpGqNnMcuCg\nPHASE 1 LIVE (cb562025 2026-06-12T21:28Z): reactive reply lane live\nWHOP_REPLY_ENABLED=true, WHOP_REPLY_DRY_RUN=false\nFirst real reply #18716 (21:53Z) clean; only counterparty so far = whoabuddy\nPHASE 2 DRY-RUN (bb334953 2026-06-12T22:09Z): synthesis lane enabled in dry-run\nWHOP_SYNTHESIS_ENABLED=true, WHOP_SYNTHESIS_DRY_RUN=true; 6h cadence sensor\nForced-tick #18717 deferred cleanly — hit 3 of 5 rubric triggers\nFANOUT-AWARE DEFERRAL (bf4bbff8+dbb08079): pre-biases DEFER when publish-fanout:* (6h)\n  / sensor:whop:patterns-library:* (6h) / sensor:whop-replies:* (1h) recently ran\n  Narrowed to :whop hops only — avoids over-suppression on unrelated fanout events\nDETACH VERIFIED (24a2ac98): exp_bbQpqIAEToAweQ removed (empty Patterns Library detached)\nPHASE 3 GATE FLIPPED (2026-06-12T22:51Z): WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true in .env\nPatterns Library: no write path for experience doc body → serve arc0me-site/src/data/patterns-library.json\nVoice: arc-brand-voice/blog/x + SOUL.md; anchor draft skills/whop/drafts/2026-06-12-reading-the-quiet.md\nCOUNCIL-CONTENT-WELL (8a9eebb2): 5 substrate patterns from genesis-works/agent-coordination\nSALES: whop-sales skill scaffolded (15667a11) — hash-it-out funnel primitives (skills/whop-sales/SKILL.md)\nSYNTHESIS-CONTEXT-CAP (5fd5ea78): pollWhopSynthesis() capped at 2 nuggets total\ncouncil source (168h lookback, stalest) dropped; arxiv capped at 2→1\nMax 2 nuggets × ~1200 bytes + headers ≈ 2600 bytes — always fits renderInline 3000-byte limit\nFix: silent overflow was burning nuggets without landing them in task description\narc-brand-voice retained; arxiv-research removed from synthesis task skills (leaner context)
+            note right of whop: SCAFFOLDED (9d3edbc): new monetization skill\ncli.ts: whoami, list-experiences, post-chat, create-course, create-chapter, create-lesson\nReads api_key via getCredential("whop", "api_key"); fails gracefully if absent\nGuardrail: first posts require human-review gate — members pay real money\nSENSOR ADDED (9396dc13): sensor count 73→74. Two sub-sensors:\n  whop-state-writer (60min): writes db/whop-state.json with channel/experience state\n  whop (gated): blog→chat cadence; controlled by WHOP_SENSOR_ENABLED=false\nAPP_API_KEY MODEL (d3d704a9): post-chat uses app_api_key (actor identity); mgmt uses company_api_key\nv1 ENDPOINT (bca250d1): POST /api/v1/messages (NOT /v5 — returns 404)\nRENAME-EXPERIENCE (a7c4e099): rename-experience CLI command added\nChannel confirmed: exp_I2Wew0PqJQ50a8 ("AI Prefers Bitcoin"); feed: chat_feed_1CbxMbfsj2yvpGqNnMcuCg\nPHASE 1 LIVE (cb562025 2026-06-12T21:28Z): reactive reply lane live\nWHOP_REPLY_ENABLED=true, WHOP_REPLY_DRY_RUN=false\nFirst real reply #18716 (21:53Z) clean; only counterparty so far = whoabuddy\nPHASE 2 DRY-RUN (bb334953 2026-06-12T22:09Z): synthesis lane enabled in dry-run\nWHOP_SYNTHESIS_ENABLED=true, WHOP_SYNTHESIS_DRY_RUN=true; 6h cadence sensor\nForced-tick #18717 deferred cleanly — hit 3 of 5 rubric triggers\nFANOUT-AWARE DEFERRAL (bf4bbff8+dbb08079): pre-biases DEFER when publish-fanout:* (6h)\n  / sensor:whop:patterns-library:* (6h) / sensor:whop-replies:* (1h) recently ran\n  Narrowed to :whop hops only — avoids over-suppression on unrelated fanout events\nDETACH VERIFIED (24a2ac98): exp_bbQpqIAEToAweQ removed (empty Patterns Library detached)\nPHASE 3 GATE FLIPPED (2026-06-12T22:51Z): WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true in .env\nPatterns Library: no write path for experience doc body → serve arc0me-site/src/data/patterns-library.json\nVoice: arc-brand-voice/blog/x + SOUL.md; anchor draft skills/whop/drafts/2026-06-12-reading-the-quiet.md\nCOUNCIL-CONTENT-WELL (8a9eebb2): 5 substrate patterns from genesis-works/agent-coordination\nSALES: whop-sales skill scaffolded (15667a11) — hash-it-out funnel primitives (skills/whop-sales/SKILL.md)\nSYNTHESIS-CONTEXT-CAP (5fd5ea78): pollWhopSynthesis() capped at 2 nuggets total\ncouncil source (168h lookback, stalest) dropped; arxiv capped at 2→1\nMax 2 nuggets × ~1200 bytes + headers ≈ 2600 bytes — always fits renderInline 3000-byte limit\nFix: silent overflow was burning nuggets without landing them in task description\narc-brand-voice retained; arxiv-research removed from synthesis task skills (leaner context)\nRECENT_ARC_POSTS FIX (363ebf27): scan windowMessages for ARC_USER_ID directly\nArc's API-posted messages were invisible to its own sensor — missed from synthesis deferral logic\nFix: windowMessages.filter(m => m.user?.id === ARC_USER_ID) covers all post paths\nPattern: sensors that track "recent arc posts" must scan transcript, not just task history\nP17 AFFILIATE (d498dd7e): native Whop affiliate/referral program wired\nPAID_ROOM_AFFILIATE="arc0btc", PAID_ROOM_PRODUCT_URL, PAID_ROOM_CHECKOUT_URL in src/constants.ts\nCLI: get-affiliate-config, set-affiliate-percentage, list-affiliates, create-affiliate, create-affiliate-override\n?a=arc0btc param attributes paid-room conversions to Arc's affiliate record (aff_i9FNHW8i4sfjZi)\nP18 PAID-ROOM CTA (00602416): PAID_ROOM_PRODUCT_URL injected verbatim into PublishFanoutMachine\nPublic-forum teaser CTA now attributable; arc-brand-voice/CHANNELS.md updated with CTA phrasing\nP19 EVENTS INTAKE (0977a3e9): new skills/whop/lib/events.ts (425 lines)\nPOLL model (not push): 15-min sensor sub-lane, WHOP_EVENTS_ENABLED flag (default ON)\nnormalizeMembership() + normalizePayment() → ingestWhopEvent() → createSourceLedger dedup\nEvent-ID contract: entity-state identity (whop-evt:<entity>:<id>:<status>), not per-delivery webhook id\nPOLL COVERAGE LIMIT (documented in events.ts): created_at cursor misses status transitions of pre-existing members\nPush seam reserved (webhooks.unwrap() yields same WhopEvent shape) — activates when M0 lands\nP20 NEW-MEMBER WELCOME (44c90d99): membership.activated → surfaceMemberWelcome()\nWELCOME-TEMPLATE.md added; voice-carded onboarding action; wired 2026-06-15 (620ef4f)\nP21 EVENTS AS SYNTHESIS INPUT (14db8921): whop-signal artifact type, TTL=7d\nWhop event artifacts feed synthesis lane; writeDistilled() produces whop-signal pool entries\nP22 REVENUE IN CEO REVIEW (7c6d0555): capstone — reads whop_event_log for member count / MRR\narc-ceo-review/AGENT.md + arc-reporting/AGENT.md updated; closes whop integration feedback loop\nSYNTHESIS FLAGS ENV-GATED (677be5dd): WHOP_SYNTHESIS_ENABLED reads Bun.env (was hardcoded true)\nWHOP_SYNTHESIS_DRY_RUN reads Bun.env (live by default; set ="true" to revert to dry-run)
             blog_publishing
             note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)\nIDEMPOTENT PUBLISH (b07bc650): cmdPublish no longer adds published_at if already present in frontmatter\nGuard: if (!/^published_at:/m.test(content)) before regex replacement\nCloses duplicate-frontmatter class on re-publish or force-publish of already-published post\nSKILLS-FLAT (fe488174): skillsForCategory() simplified — all categories return ["blog-publishing"]\nPrevious: research→[blog-publishing,arxiv-research], council→[blog-publishing,whop], operating→[blog-publishing,arc-reporting]\nRationale: category-based skill injection added context overhead; blog-publishing SKILL.md sufficient for most generation tasks\n[WATCH]: research-category posts may lack arxiv context if generation requires it; monitor quality
             aibtc_news_editorial
@@ -54,7 +54,8 @@ stateDiagram-v2
             note right of aibtc_news_distribution: NEW (346d1e9d→73afa087 2026-06-14): artifact pool consumer for `aibtc-news` channel\nSeparate lane from SIGNAL_FILING_DISABLED (operator-disabled streak/market auto-filing)\nP14 strategy: distribute distilled Arc work as intelligence signals (top-of-funnel)\nCurrently PAUSED: NEWS_DISTRIBUTION_ENABLED=false (x402 ~100 sats/signal, spend decision pending)\n5-min cadence; empty pool defers cleanly; source-key dedup via news_signal_log ledger
             nostr
             note right of nostr: NEW (60295d44→73afa087 2026-06-14): kind:1 notes to Nostr relays (wss://relay.damus.io, wss://nos.lol)\nNIP-06 identity derived from Arc's bitcoin-wallet seed (m/44'/1237'/0'/0/0)\ncli.ts (stable surface + --source ledger) → spawns nostr-runner.ts (wallet unlock + sign + relay publish)\n5-min sensor: artifact pool consumer for `nostr` channel; NOSTR_CONSUMER_ENABLED=true\nEmpty pool defers cleanly (P16 quote-cards is likely first producer)\nSource-key convention: nostr:<artifact-id>; ledger: nostr_post_log
-            note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED\nSIGNAL_FILING_DISABLED (01daaa58): FULL SENSOR SKIP — all task creation gated\nPolicy: whoabuddy 2026-05-19 (task #17094)\nRe-enable: flip SIGNAL_FILING_DISABLED=false in sensor.ts
+            snippet_producer
+            note right of snippet_producer: NEW (8a838447, 2026-06-15): INFLOWS PRODUCER for social pools\nSensor detects newest PUBLISHED blog post not yet chopped (draft:false, unprocessed)\nDispatched session writes 3-5 snippets via writeDistilled() as type:"snippet", tagged x+nostr\nX cadence: blog-snippet beat reads recentArtifacts("snippet",{channel:"x"}) — deterministic drip\nNostr sensor: iterates ARTIFACT_TYPES for channel:"nostr" — snippet pool fills the gap\nContext: X/Nostr consumer pools were EMPTY (arxiv/council/watch-interior tag mostly blog/whop-chat)\nArtifact TTL: 14d; source-key: sensor:snippet-producer:<slug>; dedup prevents re-chop\n            note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED\nSIGNAL_FILING_DISABLED (01daaa58): FULL SENSOR SKIP — all task creation gated\nPolicy: whoabuddy 2026-05-19 (task #17094)\nRe-enable: flip SIGNAL_FILING_DISABLED=false in sensor.ts
             aibtc_agent_trading
             ordinals_market_data
             social_x_posting
@@ -346,30 +347,43 @@ NO-ORPHANS (2a4c1aff): bun v1.3.14 --no-orphans flag\nSystemd dispatch unit now 
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-06-15T02:20Z)
+## Sensor Count by Category (2026-06-15T14:15Z)
 
 | Category | Count |
 |----------|-------|
 | Memory/Maintenance | 18 |
 | GitHub/PR | 10 |
-| Content/Publishing | 13 |
+| Content/Publishing | 14 |
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 15 |
 | DeFi | 6 |
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **80** |
+| **Total** | **81** |
 
-*+2 sensors this window: nostr-consumer (Content/Publishing), aibtc-news-distribution (Content/Publishing)*
+*+1 sensor this window: snippet-producer (Content/Publishing)*
+*Note: whop-events sub-lane added to existing whop sensor (not counted separately)*
 
-## Skill Count by Category (2026-06-15T02:20Z)
+## Skill Count by Category (2026-06-15T14:15Z)
 
-*Skills: 128 total (+2 vs last review)*
+*Skills: 129 total (+1 vs last review)*
 
 New skills this window:
-- `nostr` (60295d44) — Nostr channel publisher (kind:1 notes, NIP-06, pool consumer)
-- `aibtc-news-distribution` (346d1e9d) — artifact pool consumer → aibtc.news signal filing lane
+- `snippet-producer` (8a838447) — blog-post chopper producing quote-card snippets for X/Nostr pools
+
+## Key Architectural Changes (0d93d0e → 620ef4f) [2026-06-15T14:15Z]
+
+Whop P17–P22 capstone (all 6 integration arms shipped):
+- **P17** Affiliate program wired; attributable CTA links in `src/constants.ts`
+- **P18** Paid-room CTA injected into PublishFanoutMachine public-forum teaser
+- **P19** Events intake lane: poll model with entity-state dedup (`whop-evt:<entity>:<id>:<status>`)
+- **P20** New-member welcome on `membership.activated`; WELCOME-TEMPLATE.md
+- **P21** Whop events feed synthesis as `whop-signal` artifact type (7d TTL)
+- **P22** Revenue/member count visible in CEO review + watch reports
+
+New artifact types: `snippet` (14d TTL), `whop-signal` (7d TTL).
+New sensor: `snippet-producer` — blog→quote-card snippets for X/Nostr pool consumers.
 
 ## Key Architectural Changes (e14ac95 → 0d93d0e) [2026-06-15T02:20Z]
 
