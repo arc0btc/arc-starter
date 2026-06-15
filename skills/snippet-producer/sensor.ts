@@ -15,6 +15,11 @@
 // blog-snippet beat — so snippets reach exactly the social channels without polluting
 // the arxiv research-highlight / council agent-philosophy beats with blog echoes.
 //
+// SCOPE — newest published post only (mirrors arxiv-distill's newest-digest-only): this
+// is a "chop new posts as they publish" producer, NOT a historical backfill tool — older
+// posts are intentionally NOT chopped (would flood the social drip). To chop a specific
+// older post, clear/seed its row in snippet_source_log.
+//
 // Per-blog dedup: createSourceLedger("snippet_source_log") keyed on
 // snippet-producer:<date-slug> — a published post is chopped exactly once (a re-run
 // won't re-chop). Recorded at dispatch (mirrors arxiv-distill's lastDistilledDigest);
@@ -26,8 +31,8 @@ import { resolve, join } from "node:path";
 import {
   claimSensorRun,
   createSensorLogger,
+  insertTaskIfNew,
 } from "../../src/sensors.ts";
-import { insertTask } from "../../src/db.ts";
 import { createSourceLedger } from "../../src/source-ledger.ts";
 
 export const SENSOR_NAME = "snippet-producer";
@@ -46,23 +51,27 @@ const ledger = createSourceLedger({
 interface PublishedPost {
   postId: string; // "YYYY-MM-DD-slug"
   date: string; // "YYYY-MM-DD"
+  publishedAt: string; // frontmatter published_at (ISO) || date — true recency, not the slug
   title: string;
   path: string;
 }
 
-/** Minimal frontmatter read — title + draft flag. */
-function readFrontmatter(content: string): { title?: string; draft?: boolean } {
+/** Minimal frontmatter read — title, draft flag, published_at. */
+function readFrontmatter(content: string): { title?: string; draft?: boolean; publishedAt?: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};
-  const out: { title?: string; draft?: boolean } = {};
+  const out: { title?: string; draft?: boolean; publishedAt?: string } = {};
   for (const line of match[1].split("\n")) {
     if (line.startsWith("title:")) out.title = line.replace(/^title:\s*["']?/, "").replace(/["']?\s*$/, "");
     if (line.startsWith("draft:")) out.draft = line.includes("true");
+    if (line.startsWith("published_at:")) {
+      out.publishedAt = line.replace(/^published_at:\s*["']?/, "").replace(/["']?\s*$/, "").trim();
+    }
   }
   return out;
 }
 
-/** Newest PUBLISHED (draft:false) blog post by filename date. null when none. */
+/** Newest PUBLISHED (draft:false) blog post by published_at (slug-date fallback). null when none. */
 function newestPublishedPost(): PublishedPost | null {
   if (!existsSync(BLOG_DIR)) return null;
   let newest: PublishedPost | null = null;
@@ -73,7 +82,7 @@ function newestPublishedPost(): PublishedPost | null {
     const date = m[1];
     const slug = m[2];
     const path = join(BLOG_DIR, file);
-    let fm: { title?: string; draft?: boolean };
+    let fm: { title?: string; draft?: boolean; publishedAt?: string };
     try {
       fm = readFrontmatter(readFileSync(path, "utf-8"));
     } catch {
@@ -81,8 +90,11 @@ function newestPublishedPost(): PublishedPost | null {
     }
     if (fm.draft !== false) continue; // only published posts
     const postId = `${date}-${slug}`;
-    if (!newest || date > newest.date || (date === newest.date && postId > newest.postId)) {
-      newest = { postId, date, title: fm.title ?? slug, path };
+    // Order by published_at (true publish time), falling back to the filename date.
+    // Avoids a lexical same-date tiebreak (cairn P16) picking a not-truly-newest post.
+    const publishedAt = fm.publishedAt ?? date;
+    if (!newest || publishedAt > newest.publishedAt) {
+      newest = { postId, date, publishedAt, title: fm.title ?? slug, path };
     }
   }
   return newest;
@@ -103,61 +115,72 @@ export async function pollSnippetProducer(): Promise<"ok" | "skip"> {
 
   const source = `snippet-producer:${post.postId}`;
   if (ledger.has(source)) {
+    // Newest already chopped → idle. Older posts are intentionally not chopped (newest-only scope).
     log(`newest published post ${post.postId} already chopped — skip`);
     return "skip";
   }
 
-  const taskId = insertTask({
-    subject: `Chop blog "${post.title}" into 3-5 quote-card snippets`,
-    description: [
-      `Source blog post (PUBLISHED): ${post.path}`,
-      `Blog id: ${post.postId}`,
-      "",
-      "## Goal",
-      "Read the post. Pull the 3-5 sharpest, most quote-worthy standalone ideas and write",
-      "each as ONE shareable quote-card snippet into the source-artifact pool via",
-      "`writeDistilled` (in src/artifacts.ts). These feed Arc's X cadence (blog-snippet beat)",
-      "and the Nostr outlet — the snippet you write IS what gets posted, near-verbatim.",
-      "",
-      "## writeDistilled fields (per snippet)",
-      "  type:               \"snippet\"",
-      "  topic:              a short slug for the idea (e.g. \"eval-theater\", \"floor-raising\")",
-      "  title:              a 3-6 word handle for the snippet",
-      "  nugget:             the FINISHED, postable quote-card text — ≤ 280 chars so it fits an",
-      "                      X post AND a Nostr kind:1 note. A standalone chapter, not \"I wrote",
-      "                      a blog about X\". One idea. Dry, structural, owns the screwup.",
-      "  citation:           `blog:" + post.postId + "`",
-      "  suggested_channels: [\"x\", \"nostr\"]",
-      "  produced_at:        new Date().toISOString()",
-      "",
-      "## Voice",
-      "Read skills/arc-brand-voice/CHANNELS.md §x (the learning-together register — each post a",
-      "chapter that picks up a thread / admits the unsolved / invites the reader). §nostr shares it.",
-      "",
-      "## Constraints (hard)",
-      "- Each nugget ≤ 280 chars (so the consumer posts it near-verbatim to X and Nostr).",
-      "- DISTINCT excerpts — do NOT reproduce the whole post; each is one sharp idea.",
-      "- Selection over invention — pull real lines/ideas from the post.",
-      "- 3-5 snippets. If the post only yields 1-2 genuinely shareable ideas, write those and",
-      "  document the rest skipped. Quality bar > quota.",
-      "",
-      "## Steps",
-      "1. Read the post at the path above.",
-      "2. For each snippet, call writeDistilled — run a one-off script via `bun -e '...'` or the",
-      "   Write tool (import { writeDistilled } from \"./src/artifacts.ts\").",
-      "3. Verify each writeDistilled returned an id; spot-check a JSON file landed in",
-      "   artifacts/distilled/snippet/.",
-      "4. Close completed with --summary: how many snippets, which ideas, any intentionally dropped.",
-    ].join("\n"),
-    skills: JSON.stringify(["snippet-producer", "arc-brand-voice"]),
-    priority: 5,
-    model: "sonnet",
-    status: "pending",
+  const taskId = insertTaskIfNew(
     source,
-  });
+    {
+      subject: `Chop blog "${post.title}" into 3-5 quote-card snippets`,
+      description: [
+        `Source blog post (PUBLISHED): ${post.path}`,
+        `Blog id: ${post.postId}`,
+        "",
+        "## Goal",
+        "Read the post. Pull the 3-5 sharpest, most quote-worthy standalone ideas and write",
+        "each as ONE shareable quote-card snippet into the source-artifact pool via",
+        "`writeDistilled` (in src/artifacts.ts). These feed Arc's X cadence (blog-snippet beat)",
+        "and the Nostr outlet — the snippet you write IS what gets posted, near-verbatim.",
+        "",
+        "## writeDistilled fields (per snippet)",
+        "  type:               \"snippet\"",
+        "  topic:              a short slug for the idea (e.g. \"eval-theater\", \"floor-raising\")",
+        "  title:              a 3-6 word handle for the snippet",
+        "  nugget:             the FINISHED, postable quote-card text — ≤ 280 chars so it fits an",
+        "                      X post AND a Nostr kind:1 note. A standalone chapter, not \"I wrote",
+        "                      a blog about X\". One idea. Dry, structural, owns the screwup.",
+        "  citation:           `blog:" + post.postId + "`",
+        "  suggested_channels: [\"x\", \"nostr\"]",
+        "  produced_at:        new Date().toISOString()",
+        "",
+        "## Voice",
+        "Read skills/arc-brand-voice/CHANNELS.md §x (the learning-together register — each post a",
+        "chapter that picks up a thread / admits the unsolved / invites the reader). §nostr shares it.",
+        "",
+        "## Constraints (hard)",
+        "- Each nugget ≤ 280 chars (so the consumer posts it near-verbatim to X and Nostr).",
+        "- DISTINCT excerpts — do NOT reproduce the whole post; each is one sharp idea.",
+        "- Selection over invention — pull real lines/ideas from the post.",
+        "- 3-5 snippets. If the post only yields 1-2 genuinely shareable ideas, write those and",
+        "  document the rest skipped. Quality bar > quota.",
+        "",
+        "## Steps",
+        "1. Read the post at the path above.",
+        "2. For each snippet, call writeDistilled — run a one-off script via `bun -e '...'` or the",
+        "   Write tool (import { writeDistilled } from \"./src/artifacts.ts\").",
+        "3. Verify each writeDistilled returned an id; spot-check a JSON file landed in",
+        "   artifacts/distilled/snippet/.",
+        "4. Close completed with --summary: how many snippets, which ideas, any intentionally dropped.",
+      ].join("\n"),
+      skills: JSON.stringify(["snippet-producer", "arc-brand-voice"]),
+      priority: 5,
+      model: "sonnet",
+    },
+    "any", // belt-and-suspenders with the ledger: never double-dispatch a chop for this blog
+  );
+  if (taskId === null) {
+    log(`chop task already dispatched for ${post.postId} — skip`);
+    return "skip";
+  }
 
-  // Record at dispatch so the post is chopped exactly once. The chop is cheap +
-  // reversible (clear the row to re-chop), so record-at-dispatch is safe here.
+  // Record at dispatch so the post is chopped exactly once. Chop is cheap + reversible
+  // (clear the ledger row to re-chop), so record-at-dispatch is safe here — unlike a paid
+  // send (P15 records AFTER the irreversible side-effect). Accepted limit (arxiv-distill
+  // precedent): if the dispatched task later FAILS, the row stays and the post isn't
+  // re-chopped until the row is cleared; the insert→record window is unreachable under
+  // single-threaded dispatch.
   ledger.record(source, post.postId, { snippet_count: 0 });
 
   log(`queued snippet chop task ${taskId} for ${post.postId}`);
