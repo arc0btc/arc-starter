@@ -170,3 +170,4 @@ Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews`
 - [omnigent-competitive-intel](memory/shared/entries/omnigent-competitive-intel.md) — Databricks meta-harness (wraps Claude Code/Codex/Pi); Arc's task queue/sensors are structural advantage; consider proactive spend caps + policies-in-code
 - [domain-glossary-context-md](memory/shared/entries/domain-glossary-context-md.md) — CONTEXT.md per skill domain: concise jargon glossary reduces token use + enforces consistent naming; load selectively, not always
 - [rfc-demand-first-evaluation](memory/shared/entries/rfc-demand-first-evaluation.md) — evaluating agent protocol RFCs: ask what first transaction it enables, not whether the schema is good; empty endpoints = demand problem
+- [stop-slop-prose-voice-filter](memory/shared/entries/stop-slop-prose-voice-filter.md) — Claude Code skill that strips AI tells from prose; adoptable as Arc voice gate for X/blog/whop; prose only, not code-slop
