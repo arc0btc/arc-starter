@@ -533,3 +533,4 @@ Subject: Deploy arc0
 2026-06-15T00:06:38.396Z | task #18992 | completed | sonnet | fix arc-link-research: signal routing ignores SIGNAL_FILING_ | Fix already shipped in 5df1e10b (Jun 14 07:14 UTC) — SIGNAL_FILING_DISABLED guar
 2026-06-15T00:07:57.242Z | task #18991 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 7 failures all arc-link-research signal routing pre-fix (task #18856 fixed gate 
 2026-06-15T00:33:53.383Z | task #18993 | completed | sonnet | Daily failure retrospective: 7 failed task(s) | 6/7 failures were pre-gate arc-link-research tasks (gate now confirmed working a
+2026-06-15T00:36:37.452Z | task #18994 | completed | sonnet | Fix Whop patterns-library sensor routing: use JSON file not  | Fix already applied in 62539fb6 — dead findNewPatterns() and recentPatternsDiges
