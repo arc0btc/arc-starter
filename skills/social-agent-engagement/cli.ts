@@ -11,42 +11,28 @@ interface Agent {
   notes?: string;
 }
 
-// Known agent network — addresses sourced from aibtc.dev/api/agents (2026-03-02)
+// Known agent network — refreshed from aibtc.com/api/agents + aibtc.news leaderboard (2026-06-14)
 const KNOWN_AGENTS: Agent[] = [
   {
-    name: "Topaz Centaur",
-    btcAddress: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
-    stxAddress: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
-    role: "GitHub coordination, AWS infrastructure",
-    notes: "spark0.btc. Dev Tools beat (score 74). Key collaborator on aibtcdev repos.",
+    name: "Sonic Mast",
+    btcAddress: "bc1qd0z0a8z8am9j84fk3lk5g2hutpxcreypnf2p47",
+    stxAddress: "SPG6VGJ5GTG5QKBV2ZV03219GSGH37PJGXQYXP47",
+    role: "AIBTC Network correspondent; DeFi skills + agent tooling on Stacks",
+    notes: "sonic-mast.btc, Genesis Agent #50. Operator @marshallmixing. aibtc.news score 339, streak 18, files across all 3 beats (active 2026-06-14).",
   },
   {
-    name: "Fluid Briar",
-    btcAddress: "bc1qv8dt3v9kx3l7r9mnz2gj9r9n9k63frn6w6zmrt",
-    stxAddress: "SP16H0KE0BPR4XNQ64115V5Y1V3XTPGMWG5YPC9TR",
-    role: "AIBTC network agent",
-    notes: "BNS: cocoa007.btc. Owner: cocoa007_bot. 2300 check-ins, Genesis level. No active AIBTC beat.",
+    name: "Prime Spoke",
+    btcAddress: "bc1qfx0m2sdsg0f6jkkuk49alljmrk8hju3vnug6a5",
+    stxAddress: "SP3TH5S631RYN7Z485TY0KPFVX24R7RW7P25HVZ73",
+    role: "LunarCrush social-intelligence agent (crypto/market sentiment)",
+    notes: "aibtc.news score 144, 229 signals, longest streak 38. Files on aibtc-network/bitcoin-macro/quantum (active 2026-06-14).",
   },
   {
-    name: "Stark Comet",
-    btcAddress: "bc1qq0uly9hhxe00s0c0hzp3hwtvyp0kp50r737euw",
-    stxAddress: "SP1JBH94STS4MHD61H3HA1ZN2R4G41EZGFG9SXP66",
-    role: "BTCFi yield scanner, x402 endpoints",
-    notes: "Owner: Gina__Abrams. DeFi Yields beat. Specializes in Zest/ALEX APY data, seeking bounties and collabs.",
-  },
-  {
-    name: "Secret Mars",
-    btcAddress: "bc1qqaxq5vxszt0lzmr9gskv4lcx7jzrg772s4vxpp",
-    stxAddress: "SP4DXVEC16FS6QR7RBKGWZYJKTXPC81W49W0ATJE",
-    role: "AIBTC network agent, DeFi and multisig",
-    notes: "Owner: biwas_. Protocol & Infra beat (score 29). QuorumClaw multisig participant (3-of-3 block 938,206).",
-  },
-  {
-    name: "Ionic Anvil",
-    btcAddress: "bc1q7zpy3kpxjzrfctz4en9k2h5sp8nwhctgz54sn5",
-    stxAddress: "SP13H2T1D1DS5MGP68GD6MEVRAW0RCJ3HBCMPX30Y",
-    role: "Ordinals escrow, smart contract audits, agent commerce",
-    notes: "Owner: cedarxyz. DAO Watch beat (5 signals, score 85). Specializes in Ordinals escrow infra on Stacks.",
+    name: "Graphite Elan",
+    btcAddress: "bc1qxn29uthvpsf8h0h7re0jhzf0tvqqcuuuux8w9f",
+    stxAddress: "SP1AK5ZKGDFAPXDVT6T9HZPW5D2R4DJ6Z40PZ7MKR",
+    role: "K9Dreamer: Guardian Copilot / execution engine",
+    notes: "aibtc.news score 40, 48 signals, aibtc-network beat (active 2026-06-12).",
   },
 ];
 
@@ -205,15 +191,24 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
       process.exit(1);
     }
 
-    // Require settlement txid as proof of delivery
+    // Settlement proof. The x402 inbox relay is ASYNCHRONOUS: a successful send returns a queued
+    // `paymentId` (the sender nonce is reserved at queue time → the spend is irreversible) and the
+    // tx settles later, rather than an immediate `txid`. Record at the moment the spend becomes
+    // irreversible (queued + paymentId) so a retry dedups and never double-pays; prefer a real
+    // `txid` when the relay does return one synchronously.
     const payment = parsed.payment as Record<string, unknown> | undefined;
-    if (!payment?.txid) {
-      logError("Message response missing payment txid — delivery not confirmed. Server may have returned 200 without settling the transaction.");
+    const settlementId = (payment?.txid as string | undefined) || (payment?.paymentId as string | undefined);
+    if (!settlementId) {
+      logError("Message response missing payment txid/paymentId — delivery not confirmed. Server may have returned 200 without staging the payment.");
       process.exit(1);
     }
 
-    log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
-    inboxLedger.record(source, payment.txid as string, { recipient: agent.name, sats: SATS_PER_MSG });
+    if (payment?.txid) {
+      log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
+    } else {
+      log(`✓ Payment staged for ${agent.name} (async x402 relay — paymentId ${settlementId}, status ${String(payment?.status ?? "queued")}; sats committed via reserved nonce). Poll for settlement: ${String(payment?.checkUrl ?? payment?.checkStatusUrl ?? "")}`);
+    }
+    inboxLedger.record(source, settlementId, { recipient: agent.name, sats: SATS_PER_MSG });
     log(`recorded inbox_message_log: ${source} (${SATS_PER_MSG} sats; autonomous spend now ${spent + SATS_PER_MSG}/${AUTONOMOUS_SATS_CAP})`);
   } catch (e) {
     const error = e as Error;
