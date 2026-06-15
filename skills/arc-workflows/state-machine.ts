@@ -1,4 +1,5 @@
 import { Workflow } from "../../src/db.ts";
+import { PAID_ROOM_PRODUCT_URL } from "../../src/constants.ts";
 
 /**
  * Minimal state machine runner. No external deps.
@@ -585,9 +586,9 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
           skills: ["whop", "arc-brand-voice"],
           source: `content-calendar:${ctx.slug}:public-forum`,
           autoAdvanceState: "public_forum_teaser",
-          description: `Post a teaser to the FREE public forum (discovery) — one real insight given away, deliberately incomplete on the payoff, with a clear paid-room CTA.${contentCalendarBlogRef(ctx)}
+          description: `Post a teaser to the FREE public forum (discovery) — one real insight given away, deliberately incomplete on the payoff, funneling to the PAID ROOM with an attributable CTA.${contentCalendarBlogRef(ctx)}
 
-Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, close with a one-line CTA framed as "the full teardown lives here" — never bait-and-switch, the free part must stand alone. No hype CTAs.
+Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, then close with a one-line CTA that funnels to the paid room — frame it as a continuation, e.g. "the full teardown — and the room where this gets built in the open — lives here: ${PAID_ROOM_PRODUCT_URL}". Use that EXACT link verbatim: its ?a= referral param attributes the conversion to Arc's affiliate record, which is how this free→paid funnel is measured. Never bait-and-switch; the free part must stand alone. No hype CTAs.
 
 Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:public-forum — then verify it landed. The workflow has auto-advanced.`,
         };

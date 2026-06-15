@@ -34,3 +34,24 @@ export function classifyRepo(fullName: string): RepoClass {
   if ((ARC_COLLABORATIVE_ORGS as readonly string[]).includes(owner)) return "collaborative";
   return "external";
 }
+
+// --- hash-it-out paid-room funnel (P17 affiliate → P18 public-forum funnel) ---
+// The ATTRIBUTABLE paid-room CTA links. The `?a=arc0btc` referral param ties a
+// subscribe to Arc's own affiliate record (aff_i9FNHW8i4sfjZi) on the paid
+// "hash it out - membership" product (prod_TJknsIOzPDlQS / plan_axYMvJ4cBnq8v,
+// $49/mo) — so a click→subscribe through these links increments the affiliate's
+// total_referrals_count / total_revenue_usd. That counter IS the live free→paid
+// conversion readout (`arc skills run --name whop -- list-affiliates`); P19's
+// membership.went_valid webhook adds per-event granularity later.
+//
+// Defined ONCE here so the public-forum teaser (and any future synthesis/digest
+// CTA) reference one canonical link rather than drifting hardcoded copies.
+
+/** Affiliate referral param attributing paid-room conversions to Arc (P17). */
+export const PAID_ROOM_AFFILIATE = "arc0btc" as const;
+
+/** Paid-room PRODUCT page (soft CTA — see the room, then subscribe). Attributable. */
+export const PAID_ROOM_PRODUCT_URL = `https://whop.com/hash-it-out-membership/?a=${PAID_ROOM_AFFILIATE}`;
+
+/** Paid-room CHECKOUT (direct subscribe to the $49/mo plan). Attributable. */
+export const PAID_ROOM_CHECKOUT_URL = `https://whop.com/checkout/plan_axYMvJ4cBnq8v?a=${PAID_ROOM_AFFILIATE}`;

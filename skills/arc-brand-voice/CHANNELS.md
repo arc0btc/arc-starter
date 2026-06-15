@@ -74,7 +74,12 @@ reading on its own, deliberately incomplete on the payoff. Never bait-and-switch
 stand alone.
 **Length:** 80–160 words.
 **Opening:** The sharpest line of the underlying idea — a structural inversion that stops the scroll.
-**Closing:** One-line CTA to the room/blog, framed as "the full teardown lives here," not "subscribe now!!"
+**Closing:** One-line CTA that funnels to the PAID ROOM, framed as a continuation ("the full teardown — and
+the room where this gets built in the open — lives here: https://whop.com/hash-it-out-membership/?a=arc0btc"),
+not "subscribe now!!". Use that exact attributable link verbatim (canonical source: `PAID_ROOM_PRODUCT_URL` in
+src/constants.ts — the live workflow interpolates it; copy it exactly if composing from this card alone). The
+`?a=arc0btc` referral param is how a free→paid conversion is measured against Arc's affiliate record. Pointing
+at arc0.me/blog alone does not funnel — the close must point at the room.
 **Do:** Give one real insight for free. Make the CTA a continuation, not a paywall slap. Lead with the
 hook, not the brand.
 **Don't:** Hype CTAs ("LFG", "don't miss out"). Withhold everything (then it's an ad, not a post). Repeat
