@@ -37,7 +37,7 @@
 // caught — closing that gap needs push (or a separate reconciliation lane). Carry-forward.
 
 import { createSourceLedger, type SourceLedger } from "../../../src/source-ledger.ts";
-import { insertTask, taskExistsForSource } from "../../../src/db.ts";
+import { insertTask, taskExistsForSource, getDatabase } from "../../../src/db.ts";
 import { writeDistilled, type ArtifactChannel } from "../../../src/artifacts.ts";
 
 // ---- Normalized event shape (mirrors SDK UnwrapWebhookEvent subset) ----
@@ -314,6 +314,90 @@ function signalCopy(event: WhopEvent): { topic: string; title: string; nugget: s
     default:
       return null; // other events surface as tasks only, not pool signals
   }
+}
+
+// ---- P22: revenue read over the event ledger (no separate sensor) ------
+
+const MEMBERSHIP_PRICE_CENTS = 4900; // hash-it-out single product: $49/mo
+const BREAK_EVEN_MEMBERS = 16; // ~16-member break-even (QUEST)
+
+export interface RevenueSummary {
+  activeMembers: number;
+  activatedEvents: number;
+  deactivatedEvents: number;
+  mrrCents: number;
+  paymentsCapturedCents: number;
+  paymentCount: number;
+  breakEvenTarget: number;
+  breakEvenPct: number;
+}
+
+/** Parse the membership entity id out of a `whop-evt:membership:<id>:<status>` source key. */
+function membershipEntityId(source: string): string {
+  // ids are `mem_…` (no colons), so positional split is safe; fall back to the whole key.
+  return source.split(":")[2] ?? source;
+}
+
+/**
+ * Compute venture revenue from the captured event ledger (`whop_event_log`) — the P22
+ * engine criterion: NO separate revenue sensor, just a read over P19's events. Active
+ * members = distinct memberships activated minus those later deactivated (note the P19
+ * poll-coverage caveat: deactivations of pre-existing members may be missed — this is a
+ * captured-events estimate). Returns zeros cleanly on an empty ledger.
+ */
+export function computeRevenue(): RevenueSummary {
+  whopEventLedger(); // ensure the table exists on a fresh DB
+  const db = getDatabase();
+  // Active members = the LATEST captured lifecycle event per membership is an activation
+  // (council/cairn: a set-difference activated−deactivated mis-handles reactivation
+  // activated→deactivated→activated). Order by recorded_at — the ledger's monotonic capture
+  // timestamp — NOT occurred_at, which is the membership's created_at and is identical across
+  // all of one membership's status events. Last-write-wins per entity.
+  const lifecycle = db
+    .query(
+      `SELECT source, type FROM whop_event_log
+       WHERE type IN ('membership.activated', 'membership.deactivated')
+       ORDER BY recorded_at ASC`,
+    )
+    .all() as Array<{ source: string; type: string }>;
+  const latestByEntity = new Map<string, string>();
+  for (const r of lifecycle) latestByEntity.set(membershipEntityId(r.source), r.type);
+  let activeMembers = 0;
+  for (const t of latestByEntity.values()) if (t === "membership.activated") activeMembers++;
+
+  const activated = lifecycle.filter((r) => r.type === "membership.activated");
+  const deactivated = lifecycle.filter((r) => r.type === "membership.deactivated");
+
+  const pay = db
+    .query(
+      `SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents), 0) AS s
+       FROM whop_event_log WHERE type = 'payment.succeeded'`,
+    )
+    .get() as { c: number; s: number };
+
+  return {
+    activeMembers,
+    activatedEvents: activated.length,
+    deactivatedEvents: deactivated.length,
+    mrrCents: activeMembers * MEMBERSHIP_PRICE_CENTS,
+    paymentsCapturedCents: pay.s,
+    paymentCount: pay.c,
+    breakEvenTarget: BREAK_EVEN_MEMBERS,
+    breakEvenPct: Math.round((activeMembers / BREAK_EVEN_MEMBERS) * 100),
+  };
+}
+
+const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+/** Human-readable revenue block for the whop CLI + watch-report / CEO-review surfaces. */
+export function formatRevenue(r: RevenueSummary = computeRevenue()): string {
+  return [
+    "hash-it-out revenue (from captured Whop events — whop_event_log):",
+    `  active members:     ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} events)`,
+    `  MRR:                ${usd(r.mrrCents)}  (${r.activeMembers} × $49/mo)`,
+    `  payments captured:  ${usd(r.paymentsCapturedCents)}  across ${r.paymentCount} payment.succeeded`,
+    `  break-even:         ${r.activeMembers}/${r.breakEvenTarget} members (${r.breakEvenPct}%)`,
+  ].join("\n");
 }
 
 /** Write a PII-free whop-signal artifact for representative events. Advisory; best-effort. */

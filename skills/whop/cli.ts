@@ -166,6 +166,7 @@ function printHelp(): void {
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
       "  tick-free-forum                        run pollWhopFreeForumDigest() once, bypassing the 24h self-gate",
+      "  revenue                                member count / MRR / break-even from captured Whop events",
       "",
     ].join("\n"),
   );
@@ -668,6 +669,14 @@ async function main(): Promise<void> {
       initDatabase();
       const { pollWhopFreeForumDigest } = await import("./sensor.ts");
       await pollWhopFreeForumDigest();
+      break;
+    }
+    case "revenue": {
+      // P22: revenue from captured Whop events (no separate sensor). DB read only.
+      const { initDatabase } = await import("../../src/db.ts");
+      initDatabase();
+      const { formatRevenue } = await import("./lib/events.ts");
+      console.log(formatRevenue());
       break;
     }
     default:

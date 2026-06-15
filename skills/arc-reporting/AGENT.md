@@ -66,6 +66,10 @@ ls skills/whop/artifacts/synthesis/*.json 2>/dev/null | awk -v s="{{period_start
 
 # Counterparty store — current state of all known room members
 cat db/whop-relationships.json
+
+# Revenue — member count / MRR / break-even from captured Whop events (whop_event_log).
+# No separate revenue sensor: this reads the P19 event ledger directly.
+arc skills run --name whop -- revenue
 ```
 
 Artifact filenames are ISO8601 basic form `YYYY-MM-DDTHHMMSSZ.json` so lexical
@@ -95,6 +99,9 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
   - **Posts Arc made**: count + one-line summary of each (time, "new" vs "reply-to-X", first 80 chars).
   - **Reactive lane**: tick count, total candidates, breakdown of outcomes (`task_created` / `dry_run_task` / `skip` with skip reason). Flag any guard that fired >2× (signals tuning needed).
   - **Synthesis lane**: tick count, defer vs post decisions. Healthy bar is ≥3 defer / 4 ticks.
+  - **Revenue**: from `arc skills run --name whop -- revenue` — active members, MRR, and
+    break-even progress (N/16). This is the venture's bottom line; lead the section with it
+    when there are paying members. Show even at 0 ("0/16 members, $0 MRR — pre-M0").
   - **Daily reply budget**: e.g. "2/5 used (40%)".
   - **Top counterparties**: 2-3 most-active room members from `db/whop-relationships.json` — show username + their_replies_to_arc + arc_replies_to_them.
   - **Empty state**: if no posts AND no tick activity in period, use `<p class="empty">No room activity this period. Reactive lane {dry-run|live}, 0 candidates.</p>` — one line, no padding.

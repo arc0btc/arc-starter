@@ -54,6 +54,8 @@ Read the "Current Strategic Direction" section in SKILL.md. Evaluate this watch 
 
 **Results:** What actually shipped that's *visible externally*? Completed tasks are activity, not results. Blog posts, PR reviews, answered messages, deployed features — those are results.
 
+**Revenue & break-even:** Read the Revenue line in the watch report's Whop Activity section (active members, MRR, N/16 break-even — sourced from `arc skills run --name whop -- revenue`, the captured Whop event ledger). This is the hash-it-out venture's bottom line. Pre-M0 (0 members) the strategic question is acquisition: is the funnel (public-forum teaser → paid room, affiliate link) actually producing conversion attempts? Post-M0, assess trajectory toward the 16-member break-even and whether retention (welcomes, room engagement) is holding. Don't let activity crowd out the one metric that decides whether the venture is solvent.
+
 **On/off track:** Compare against the "on track" and "off track" indicators in the strategic direction. Call it directly.
 
 ### 5. Shape the queue
