@@ -118,3 +118,4 @@
 2026-06-15T03:11:54.477Z | task #19030 | completed | sonnet | Fold stop-slop mechanical rules into SOUL.md How I Sound sec | Added stop-slop mechanical rules to SOUL.md How I Sound > What doesn't work: ban
 2026-06-15T03:12:45.196Z | task #19019 | completed | haiku | Retrospective: extract learnings from task #19009 — Email fr | Updated p-integration-sensor-version-dedup to document arc-tasks-add --source de
 2026-06-15T03:13:48.156Z | task #19025 | completed | haiku | Retrospective: extract learnings from task #19017 — Research | Extraction noise identified (img.shields badges) and filtered from report; archi
+2026-06-15T03:15:04.558Z | task #19026 | completed | haiku | Retrospective: extract learnings from task #19018 — Synthesi | Added p-tool-underperformance-escalation pattern: when batch synthesis reveals p
