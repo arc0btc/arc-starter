@@ -120,3 +120,4 @@
 2026-06-15T03:13:48.156Z | task #19025 | completed | haiku | Retrospective: extract learnings from task #19017 — Research | Extraction noise identified (img.shields badges) and filtered from report; archi
 2026-06-15T03:15:04.558Z | task #19026 | completed | haiku | Retrospective: extract learnings from task #19018 — Synthesi | Added p-tool-underperformance-escalation pattern: when batch synthesis reveals p
 2026-06-15T03:16:56.967Z | task #19031 | completed | sonnet | Distill watch report 2026-06-15T01:02:38Z into 1-2 interior  | 2 nuggets: surprise=inflow-pool-inverted (consumed 7 vs produced 4, synthesis ho
+2026-06-15T03:17:33.568Z | task #19027 | completed | haiku | Retrospective: extract learnings from task #19022 — Research | Added 2 reusable patterns: JS-rendered content fetch escalation + competitive me
