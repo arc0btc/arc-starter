@@ -176,11 +176,22 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" {
 }
 
 /**
- * Default surface: queue ONE internal dispatch task per event so the loop sees it.
- * No live external action here — P20 owns the voice-gated member greeting. The task
- * is deduped by source so a re-dispatch never double-queues.
+ * Surface an event to the dispatch loop. `membership.activated` routes to the P20
+ * member-welcome (the type-appropriate onboarding action — exactly one per member);
+ * every other event queues ONE generic internal task. All paths are deduped by source
+ * so a re-dispatch never double-queues. No live external action here — the live greeting
+ * is voice-gated inside the dispatched session (WHOP_WELCOME_DRY_RUN).
  */
 export function surfaceWhopEvent(event: WhopEvent): void {
+  if (event.type === "membership.activated") {
+    surfaceMemberWelcome(event);
+    return;
+  }
+  queueGenericEvent(event);
+}
+
+/** Queue the generic, deduped "the loop should see this event" task. */
+function queueGenericEvent(event: WhopEvent): void {
   const source = `whop-event:${event.id}`;
   if (taskExistsForSource(source)) return;
   insertTask({
@@ -200,6 +211,67 @@ export function surfaceWhopEvent(event: WhopEvent): void {
       .join("\n"),
     skills: JSON.stringify(["whop"]),
     priority: 6,
+    model: "sonnet",
+    source,
+  });
+}
+
+// ---- P20: new-member welcome / onboarding -------------------------------
+
+// Live greeting is gated: the dispatched session composes always, but only POSTS when
+// WHOP_WELCOME_DRY_RUN=false AND operator voice-trust is granted. Default = dry-run.
+const WHOP_WELCOME_DRY_RUN = process.env.WHOP_WELCOME_DRY_RUN !== "false";
+
+/** Identity fields read off a Membership entity for the welcome. */
+interface MembershipWelcomeData {
+  member?: { id?: string | null } | null;
+  user?: { id?: string | null; username?: string | null; name?: string | null } | null;
+}
+
+/**
+ * Queue EXACTLY ONE onboarding action per member for a `membership.activated` event.
+ * Dedup key is the MEMBER (not the event), so a re-subscribe / second activation never
+ * re-welcomes. The dispatched session composes a warm, voice-carded greeting + orientation
+ * (arc-brand-voice + SOUL); the live post is gated by WHOP_WELCOME_DRY_RUN + voice-trust.
+ */
+export function surfaceMemberWelcome(event: WhopEvent): void {
+  const data = (event.data ?? {}) as MembershipWelcomeData;
+  // No `?? event.id` fallback (council: cairn+forge+spark all flagged it). A welcome
+  // dedup key MUST be the durable member identity, or the per-member exactly-once
+  // guarantee silently degrades to per-event. If a malformed activation lacks a stable
+  // member/user id, don't fake a welcome — surface it generically so it's still visible.
+  const memberId = data.member?.id ?? data.user?.id;
+  if (!memberId) {
+    console.log(
+      JSON.stringify({ whop_welcome: "no stable member id — surfacing generically", event_id: event.id }),
+    );
+    queueGenericEvent(event);
+    return;
+  }
+  const handle = data.user?.username || data.user?.name || "the new member";
+  const source = `whop-welcome:${memberId}`;
+  if (taskExistsForSource(source)) return; // exactly-once per member
+
+  insertTask({
+    subject: `New hash-it-out member: welcome ${handle}`,
+    description: [
+      `A new member activated their hash-it-out membership (event ${event.id}).`,
+      `Handle: ${handle}${data.user?.name && data.user?.username ? ` (${data.user.name})` : ""}`,
+      "",
+      "Compose ONE warm, specific, voice-carded welcome + orientation (arc-brand-voice + SOUL):",
+      "- Greet them by name/handle; make it feel like a person noticed, not an autoresponder.",
+      "- Orient: what the 'AI Prefers Bitcoin' room is, how to reach Arc (@arc / reply), the",
+      "  cadence + self-imposed reply limits, and one genuine invitation to start a thread.",
+      "- No platitudes, no feature dump. Add signal, ask a real question, make them want to reply.",
+      "",
+      WHOP_WELCOME_DRY_RUN
+        ? "DRY-RUN (WHOP_WELCOME_DRY_RUN!=false): compose for operator review only — DO NOT post."
+        : "LIVE post (voice-trust required): post via " +
+          `arc skills run --name whop -- post-chat --content "<markdown>" --source "${source}"`,
+      `(--source "${source}" makes the post idempotent — a re-dispatch never double-greets.)`,
+    ].join("\n"),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    priority: 3,
     model: "sonnet",
     source,
   });
