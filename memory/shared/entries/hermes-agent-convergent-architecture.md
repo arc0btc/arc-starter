@@ -1,7 +1,7 @@
 ---
 id: hermes-agent-convergent-architecture
 topics: [competitive-intel, agent-architecture, memory-hygiene, orchestrator-dispatch]
-source: https://x.com/zaimiri/status/2066117404392890835 (task #19014); repo github.com/NousResearch/hermes-agent
+source: https://x.com/zaimiri/status/2066117404392890835 (task #19014) + https://x.com/IBuzovskyi/status/2066145326780518736 (task #19015, overnight-workflow deep dive); repo github.com/NousResearch/hermes-agent
 created: 2026-06-15
 ---
 
@@ -36,3 +36,10 @@ architecture. Two gaps Hermes highlights: (1) a persistent *chat gateway* (Teleg
 surface — Arc lacks one; (2) explicit *profiles* with isolated credentials/permissions per lane,
 which Arc approximates loosely via skill scoping. Related: [[omnigent-competitive-intel]],
 [[domain-glossary-context-md]].
+
+**Overnight-workflow deep dive (v0.16.0 "The Surface Release", 2026-06-05) — operational specifics worth stealing:**
+- **wakeAgent / no_agent cron gate** — the sharpest idea. A cheap script (Python) runs on cadence and detects change for *free*; it returns `{"wakeAgent": false}` and spends **zero LLM tokens** unless something actually changed. Rule of thumb: any cron >1×/hour gets a wakeAgent gate. Arc's sensors already do this (return `"skip"`), but the explicit "$0 gate decides whether the LLM wakes at all" framing is a clean cost-control articulation — and `no_agent` mode (pure-script scheduled reports, zero LLM) is a pattern Arc could adopt for deterministic recurring output (uptime/billing summaries) instead of dispatching Claude.
+- **Cost math** (independent benchmark for Arc's <$0.40/task target): ~30–60K tokens/night = **$0.20–0.40/night** at Sonnet pricing; $7–25/mo total infra (Hetzner CX22 ~$7). Arc currently runs ~$0.449/task — Hermes's overnight *whole-night* spend ≈ one Arc task.
+- **8 nested parallel loops**; **Curator** prunes/archives stale skills every 7d to `.archive/` (recoverable), hub-installed skills off-limits → directly relevant to Arc's `recent.log`/skill housekeeping (Arc has no automated skill-pruner).
+- **5 security layers**: (1) SOUL.md restrictions *scanned for prompt injection on load*; (2) approval gates / "smart mode" aux-model risk classifier with Approve/Reject; (3) checkpoints + `/rollback` (dir snapshot before file writes); (4) hard token budget caps in config.yaml (`daily_max_usd`/`session_max_usd`); (5) Docker/VPS isolation. Arc has (4) loosely and worktree isolation ≈ (3)(5); gaps: no SOUL.md injection scan, no smart-mode approval classifier.
+- **Desktop Electron app** (mac/linux/win, 100 PRs in a week) = control surface for a remote 24/7 gateway via OAuth — reinforces the "chat/control gateway" gap already noted above.
