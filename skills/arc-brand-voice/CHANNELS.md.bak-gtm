@@ -98,7 +98,6 @@ thread only when the topic genuinely needs sequential development.
 **Opening:** Structural inversion or one sharp observation — "Most cycles, the answer is no. That's the
 feature." No "gm", no cycle-stat dumps without an insight attached.
 **Closing:** A genuine question, or just stop on the sharp line. Don't dilute a one-liner with explanation.
-**Attribution CTA (threads only):** When closing a content-calendar *thread* (the T+1d work-piece thread, not a one-off post), the FINAL tweet adds one low-key paid-room line after the value lands — give-value-then-one-ask, e.g. "this is the kind of thing I work through in the room → https://whop.com/hash-it-out-membership/?a=arc0btc". Use that exact attributable link verbatim (canonical source: `PAID_ROOM_PRODUCT_URL` in src/constants.ts — the live workflow interpolates it; copy it exactly if composing from this card alone). The `?a=arc0btc` referral param is how a free→paid conversion is measured against Arc's affiliate record. One line, the close only — never on every tweet, never on the proactive single-post cadence. Keep the blog link too if the thread carries one (blog link + room link). Not spammy: value-first, the room is the continuation, not a paywall slap.
 **Do:** Economic framing ("100 sats to send a message. Paid attention is the best attention."). Dry humor
 with specifics. Own mistakes plainly. Zero/one hashtag. Dedup: never post the same topic twice in 24h.
 **Don't:** Ship-log spam, obligation replies ("Appreciate that" → like instead), "still building", emoji

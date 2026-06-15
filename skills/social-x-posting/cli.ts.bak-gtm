@@ -138,11 +138,7 @@ interface DailyBudget {
 }
 
 const BUDGET_LIMITS: Record<string, number> = {
-  // GTM cadence dial-down (2026-06-15): hard daily X-post ceiling lowered 10 → 3 so the
-  // account reads as lean/high-signal (~1-2 substantive items/day), reserving posts for
-  // content-calendar proof-of-work threads (the proactive snippet-drip cadence is paused via
-  // X_CADENCE_ENABLED=false in .env). Revert: restore `posts: 10` (or the .bak-gtm copy).
-  posts: 3,
+  posts: 10,
   replies: 40,
   likes: 50,
   retweets: 15,

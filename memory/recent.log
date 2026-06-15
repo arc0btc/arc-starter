@@ -183,3 +183,4 @@
 2026-06-15T17:07:42.843Z | task #19089 | completed | sonnet | Seed whop chat: "The Five Subsystems of an Agent Harness" | Idempotency check: post already live (post_1Cc5QphfVXFk7DtVFWrXXA, 17:06:49Z). C
 2026-06-15T17:09:32.962Z | task #19090 | completed | sonnet | Seed whop chat: "Structural Disagreement: Council Mandates a | Posted 'Structural Disagreement: Council Mandates and the SKIP LOCKED Guarantee'
 2026-06-15T17:28:23.957Z | task #19091 | completed | sonnet | Reply to X mention from user 26021389 | Replied to @whoabuddydev enjoying the agent observation-cost thread; asked which
+2026-06-15T17:42:50.749Z | task #19092 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.104.2: type-only chore — removes retired model IDs (claude-opus-4-0, clau
