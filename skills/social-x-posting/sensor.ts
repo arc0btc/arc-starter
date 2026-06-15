@@ -153,7 +153,7 @@ function pullBeatNugget(beat: BeatType): DistilledArtifact | null {
   return items[0] ?? null;
 }
 
-async function runCadenceBeat(): Promise<void> {
+export async function runCadenceBeat(): Promise<void> {
   if (!X_CADENCE_ENABLED) return;
   if (await isCreditsDepleted()) {
     log("cadence beat skipped: X posting credits depleted");
