@@ -197,16 +197,23 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
     // irreversible (queued + paymentId) so a retry dedups and never double-pays; prefer a real
     // `txid` when the relay does return one synchronously.
     const payment = parsed.payment as Record<string, unknown> | undefined;
-    const settlementId = (payment?.txid as string | undefined) || (payment?.paymentId as string | undefined);
+    const txid = payment?.txid as string | undefined;
+    const paymentStatus = String(payment?.status ?? "");
+    // `parsed.success === true` was already required above. Defense-in-depth: only treat a paymentId
+    // as proof-of-irreversible-spend when the relay did NOT report a terminal-failure status for it —
+    // so a success-shaped-but-unstaged response never records a non-spend or blocks a legitimate retry.
+    const FAILED_STATUS = new Set(["failed", "rejected", "error", "not_found", "expired", "cancelled", "canceled"]);
+    const staged = !txid && !!payment?.paymentId && !FAILED_STATUS.has(paymentStatus.toLowerCase());
+    const settlementId = txid ?? (staged ? (payment?.paymentId as string) : undefined);
     if (!settlementId) {
-      logError("Message response missing payment txid/paymentId — delivery not confirmed. Server may have returned 200 without staging the payment.");
+      logError(`Message response missing a settled txid or an accepted paymentId (payment.status=${paymentStatus || "none"}) — delivery not confirmed; not recording.`);
       process.exit(1);
     }
 
-    if (payment?.txid) {
-      log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
+    if (txid) {
+      log(`✓ Message delivered to ${agent.name} (txid: ${txid.slice(0, 16)}...)`);
     } else {
-      log(`✓ Payment staged for ${agent.name} (async x402 relay — paymentId ${settlementId}, status ${String(payment?.status ?? "queued")}; sats committed via reserved nonce). Poll for settlement: ${String(payment?.checkUrl ?? payment?.checkStatusUrl ?? "")}`);
+      log(`✓ Payment staged for ${agent.name} (async x402 relay — paymentId ${settlementId}, status ${paymentStatus || "queued"}; sats committed via reserved nonce). Poll for settlement: ${String(payment?.checkUrl ?? payment?.checkStatusUrl ?? "")}`);
     }
     inboxLedger.record(source, settlementId, { recipient: agent.name, sats: SATS_PER_MSG });
     log(`recorded inbox_message_log: ${source} (${SATS_PER_MSG} sats; autonomous spend now ${spent + SATS_PER_MSG}/${AUTONOMOUS_SATS_CAP})`);
