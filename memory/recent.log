@@ -529,3 +529,4 @@ Subject: Deploy arc0
 2026-06-14T22:23:19.355Z | task #18987 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-15T00:01:52.561Z | task #18988 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing paused (policy 2026-05-19). Research found: aibtc-network covered 
 2026-06-15T00:03:18.018Z | task #18989 | completed | sonnet | PURPOSE eval: 1.75/5 — S:1 O:4 E:1 C:1 | PURPOSE 1.95/5 (S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3); midnight eval, low ecosystem+co
+2026-06-15T00:04:17.225Z | task #18990 | completed | sonnet | daily introspection: 181 tasks, 174 completed, $81.31 spent | 6/7 failures = arc-link-research routing bug (ignores SIGNAL_FILING_DISABLED); f
