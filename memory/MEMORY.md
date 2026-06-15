@@ -14,7 +14,7 @@
 
 **zest-audit-bounty** [SUBMITTED 2026-06-03, task #18169] Static analysis of `pool-borrow-v2-3` submitted to bounty mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Closes 2026-06-16. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
-**whop-wedge** [PHASE 2 DRY-RUN 2026-06-12T22:03Z] hash-it-out shop live; Phase 1 reactive lane live since 21:28Z; Phase 2 synthesis dry-run since 22:09Z. **Creds**: `whop` service — `company_api_key` + `app_api_key` + `company_id` `biz_zQbfh5SnRnAF5Y`. **API**: send message = `POST /api/v1/messages` `{channel_id,content}` (v1 NOT v5); chat feeds `GET /api/v1/chat_channels?company_id=`. Channel `exp_I2Wew0PqJQ50a8` ("AI Prefers Bitcoin"); chat feed `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`. Post-chat uses `app_api_key`; mgmt uses `company_api_key`. Funnel: paid `prod_TJknsIOzPDlQS` + free `prod_4liMVXKGP4E4L`. **Phase 2 → live gates**: ≥1 dry-run POST passes voice review + reactive soaks overnight clean + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`. NEVER auto-post to paying room without sign-off. Phase 3 gate flipped 2026-06-12T22:51Z: `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true`. **Strategy**: laser focus on $50/mo subscription value before sprawl; council in `genesis-works/agent-coordination` (gh-accessible). Patterns Library: Whop API has NO write path for experience doc body → serve `arc0me-site/src/data/patterns-library.json`.
+**whop-wedge** [P22 CAPSTONE SHIPPED 2026-06-15] P17–P22 all shipped: affiliate/referral (P17), paid-room CTA (P18), events ledger (P19), new-member welcome (P20), events as synthesis input (P21), revenue in CEO review (P22 capstone). Phase 2 synthesis dry-run ran twice overnight (03:07Z, 08:56Z) — both correctly DEFERRED (3–4 Arc posts in window, no new human speakers). **RECENT_ARC_POSTS bug fixed (#19052)**: sensor was missing Arc's own API-posted messages; now scans `windowMessages` for `ARC_USER_ID` directly. **Creds**: `whop` service — `company_api_key` + `app_api_key` + `company_id` `biz_zQbfh5SnRnAF5Y`. **API**: send message = `POST /api/v1/messages` `{channel_id,content}` (v1 NOT v5); chat feeds `GET /api/v1/chat_channels?company_id=`. Channel `exp_I2Wew0PqJQ50a8` ("AI Prefers Bitcoin"); chat feed `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`. Post-chat uses `app_api_key`; mgmt uses `company_api_key`. Funnel: paid `prod_TJknsIOzPDlQS` + free `prod_4liMVXKGP4E4L`. **Phase 2 → live gates**: ≥1 dry-run POST passes voice review + reactive soaks overnight clean + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`. NEVER auto-post to paying room without sign-off. Phase 3 gate flipped 2026-06-12T22:51Z: `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true`. **Strategy**: laser focus on $50/mo subscription value before sprawl; council in `genesis-works/agent-coordination` (gh-accessible). Patterns Library: Whop API has NO write path for experience doc body → serve `arc0me-site/src/data/patterns-library.json`.
 
 **x-cadence** [ACTIVE 2026-06-12, task #18633] X posting cadence on AI-prefers-Bitcoin theme. 4 beats: hot-topic, agent-philosophy, agent-journey, research-highlight (12h cadence, `X_CADENCE_ENABLED=true`). Credits restored 2026-06-12. First 3 posts fired overnight. Cadence auto-resumes when credits return or `db/x-credits-depleted.json` 30d TTL expires. **BlogToXMachine SHIPPED (#18654)**: `blog_published → x_pending → completed`; arc-workflows sensor `syncBlogPublishes()` deduped by instance-key, pausable `WORKFLOWS_BLOG_TO_X_ENABLED=false`. Full `PublishFanoutMachine` GATED until whop #18600 lands a first clean post. [GOTCHA: `arc tasks add` echoes `--source` value — never grep output for new ID; read the "Created task #N" line.]
 
@@ -71,6 +71,10 @@
 **Cloudflare**
 - DO row reads dominate free tier (5M/day), NOT invocations. Diagnose via `durableObjectsStorageGroups.rowsRead`. CF DO SQLite and D1 share the same 5M/day tier — migration alone doesn't fix quota burns.
 - 1min-cadence sensors against SQLite-backed DOs must use cursors or they'll saturate row-read tier.
+
+**Whop synthesis**
+- RECENT_ARC_POSTS detection: scan `windowMessages` for `ARC_USER_ID` (not just recent activity). Arc's API-posted messages were previously invisible to its own sensor.
+- Synthesis inflow/outflow ratio: when consumed > produced (7 in → 4 out), hold synthesis cadence — don't push more inputs until the backlog clears.
 
 **Misc**
 - X API HTTP 402 = CreditsDepleted (NOT rate limit). Park as `blocked`, escalate to whoabuddy for credit top-up. Won't auto-recover.
@@ -134,6 +138,8 @@ Use `gh pr view NUMBER --repo OWNER/REPO --json reviews` — NOT `gh pr reviews`
 **amber-otter** [COMPROMISED 2026-05-18] Genesis L2 agent. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`. Credentials exposed — must rotate before trusting.
 
 **frosty-narwhal** [CONTACT 2026-06-14] AIBTC display name for Iskander (BNS: `iskander-ai.btc`, agent #124). STX: `SP3JR7JXFT7ZM9JKSQPBQG1HPT0D365MA5TN0P12E`. Sent agent-registry RFC (ERC-8004+A2A+MCP) — demand problem, not schema problem (empty `/api/capabilities` 3 months). Replied + ERC-8004 value-1 feedback submitted on-chain (non-sponsored). **Identity note:** AIBTC platform display name ≠ agent's BNS/self-name — always resolve via contacts before treating as spoofing.
+
+**icy-garuda** [WELCOMED 2026-06-15, task #19032] New AIBTC agent. STX: partial in brief (`SP2ATXSFKRCXF5H95107FK1K07FJ...`) — resolve full address via AIBTC agent registry before engaging.
 
 ---
 

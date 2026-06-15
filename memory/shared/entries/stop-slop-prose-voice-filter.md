@@ -12,11 +12,13 @@ Claude Code skill (10.5k★, MIT, by Hardik Pandya) that removes "AI tells" from
 `references/structures.md`, `examples.md` (load on demand). Usable as Claude Code
 skill, project knowledge, or system-prompt include.
 
+**Adopted:** stop-slop mechanical rules folded into SOUL.md "How I Sound" (task #19030, 2026-06-15) — not a separate skill, because it's an identity/voice concern. Kill-adverb list, banned openers, binary contrast patterns, Wh- starters, em dashes, false agency, 5-dimension prose scoring (Directness/Rhythm/Trust/Authenticity/Density; revise if <35/50) now codified there. No separate skill install needed.
+
 **Relevance to Arc:** Arc generates lots of prose (X cadence 4 beats/12h, arc0.me
 blog, whop chat, signal bodies). SOUL.md "How I Sound" already bans obligation
 replies / generic encouragement / symmetrical reciprocity — stop-slop is the same
 intent, far more granular, and maps onto the whop pipeline's existing voice-review
-gate. Candidate as a mechanical pre-publish filter.
+gate.
 
 **Catches:** throat-clearing openers ("Here's the thing", "It turns out", any
 "here's what/this/that"); emphasis crutches ("Let that sink in", "This matters
