@@ -15,10 +15,10 @@ import { ARTIFACT_TYPES, recentArtifacts, markConsumed, renderInline } from "../
 
 const SENSOR_NAME = "nostr-consumer";
 const INTERVAL_MINUTES = 5;
-// Flip to false to pause the consumer without removing the skill. ON by default:
-// with an empty pool it simply defers, and the nostr_post_log ledger makes the
-// eventual POST exactly-once.
-const NOSTR_CONSUMER_ENABLED = true;
+// Set NOSTR_CONSUMER_ENABLED=false in .env to pause the consumer without removing
+// the skill. ON by default (P13 live): with an empty pool it simply defers, and
+// the nostr_post_log ledger makes the eventual POST exactly-once.
+const NOSTR_CONSUMER_ENABLED = Bun.env.NOSTR_CONSUMER_ENABLED !== "false";
 const POOL_LOOKBACK_HOURS = 24 * 7; // a week — Nostr notes aren't time-critical
 
 const log = createSensorLogger(SENSOR_NAME);

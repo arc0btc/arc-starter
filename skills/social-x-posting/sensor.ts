@@ -80,9 +80,9 @@ const log = createSensorLogger(SENSOR_NAME);
 //
 // Credit-aware: skips while X posting credits are depleted (402 CreditsDepleted),
 // so it never queues a post task that would fail, and auto-resumes when credits
-// return. Flip X_CADENCE_ENABLED to false to pause the proactive cadence without
-// touching the mentions sensor.
-const X_CADENCE_ENABLED = true;
+// return. Set X_CADENCE_ENABLED=false in .env to pause the proactive cadence
+// without touching the mentions sensor. Default ON (P12 live).
+const X_CADENCE_ENABLED = Bun.env.X_CADENCE_ENABLED !== "false";
 const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
 const CADENCE_INTERVAL_MINUTES = 12 * 60; // 12h → ~2 posts/day max, well under the 10/day budget
 

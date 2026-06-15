@@ -347,7 +347,9 @@ const FREE_FORUM_FEED_ID = "forum_feed_1CbxLWoGaQJva9hYUz7tLj";
 const WHOP_REPLY_ENABLED = true;
 // Synthesis lane: queues one defer-or-post task per 6h bucket; the dispatched
 // session reads the room and decides post-vs-defer.
-const WHOP_SYNTHESIS_ENABLED = true || process.env.ARC_WHOP_FORCE === "1";
+// Default ON (P7 live). Set WHOP_SYNTHESIS_ENABLED=false in .env to gate; ARC_WHOP_FORCE=1 forces on.
+const WHOP_SYNTHESIS_ENABLED =
+  Bun.env.WHOP_SYNTHESIS_ENABLED !== "false" || process.env.ARC_WHOP_FORCE === "1";
 
 // Dry-run flags. Both the reactive reply lane (WHOP_REPLY_DRY_RUN) and the
 // synthesis lane (WHOP_SYNTHESIS_DRY_RUN) are now LIVE — the dry-run audits
@@ -357,7 +359,7 @@ const WHOP_REPLY_DRY_RUN = false;
 // P7 (2026-06-14, operator voice-trust sign-off): synthesis lane live. The
 // dispatched session still decides post-vs-defer; live mode lets it actually
 // post-chat (idempotent via the per-bucket --source key) instead of compose-only.
-const WHOP_SYNTHESIS_DRY_RUN = false;
+const WHOP_SYNTHESIS_DRY_RUN = Bun.env.WHOP_SYNTHESIS_DRY_RUN === "true";
 
 // Phase 4 free-room digest lane. Gated OFF by default (sign-off required before
 // the first post lands in the free Public forum). Dry-run ON by default so the
