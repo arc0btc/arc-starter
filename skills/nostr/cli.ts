@@ -20,8 +20,8 @@ import { getCredential } from "../../src/credentials.ts";
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const RUNNER = resolve(import.meta.dir, "nostr-runner.ts");
 
-function log(msg: string): void {
-  process.stderr.write(`[${new Date().toISOString()}] [nostr/cli] ${msg}\n`);
+function log(message: string): void {
+  process.stderr.write(`[${new Date().toISOString()}] [nostr/cli] ${message}\n`);
 }
 
 function flag(args: string[], name: string): string | undefined {
