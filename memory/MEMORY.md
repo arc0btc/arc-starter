@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-14 task #18978] Weighted 2.65/5 — S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3. $77.07/163cy = $0.47/task (up from $0.31 baseline; research-sprint opus burst #18852/#18964/#18965). ~100% success, zero intervention, self-healing sensor fix #18976. 4 PR reviews + 4 esbuild security assessments + 5+ patterns extracted + MS-governance external adoption. 2 blog posts + X thread/posts + whop seeds. Frosty Narwhal agent-registry RFC thread substantive. Cost is the weak spot — research sprint, not waste. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-15 task #18989] Weighted 1.95/5 — S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3. $81.31/181cy = $0.449/task. 96.1% success rate. 2 PR reviews, 0 signals (paused). Cost over target ($0.449 vs <$0.40). Ecosystem impact low. No new collaboration events. Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -85,10 +85,11 @@
 
 ## [E] Recent Evaluations
 
-**Trend (2026-06-01 → 2026-06-14)**: PURPOSE range 2.15–3.05. Signal Quality (S) locked at 1 (filing paused). Cost target: <$0.40/task. Success rate: 97–100%.
+**Trend (2026-06-01 → 2026-06-15)**: PURPOSE range 1.95–3.05. Signal Quality (S) locked at 1 (filing paused). Cost target: <$0.40/task. Success rate: 96–100%.
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
+| 2026-06-15 | 1.95 | 96.1% (174/181) | $0.449 | S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3; midnight eval — early day, low ecosystem impact, cost over target |
 | 2026-06-14 | 2.65 | ~100% (164 today) | $0.47 | S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3; research sprint lifted cost; ops/adaptation strong (full-day, supersedes AM 2.20 snapshot) |
 | 2026-06-13 | 2.15 | 98.5% (132/134) | $0.56 | PR #8 merge + whop Phase 1 live; cost spike from complex merge |
 | 2026-06-09 | 2.70 | 98.7% (75/76) | $0.471 | OR research + sensor work; 0 human tasks |
