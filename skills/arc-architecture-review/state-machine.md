@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-14T14:15:00.000Z*
-*Diff: 74b397c → e14ac95 (1 structural commit since last diagram) | Sensor count: 78 | Skill count: 126*
+*Generated: 2026-06-15T02:20:00.000Z*
+*Diff: e14ac95 → 0d93d0e (3 structural commits since last diagram) | Sensor count: 80 | Skill count: 128*
 
 ```mermaid
 stateDiagram-v2
@@ -50,6 +50,10 @@ stateDiagram-v2
             note right of blog_publishing: TASK DECOMPOSITION (6f1b2dcf): monolithic tasks split to prevent 15min timeout\nDraft review → review (sonnet) + publish (haiku) pair\nContent generation → generate (sonnet) + publish (haiku) pair\nScheduled publish → single sonnet task (haiku times out on publish)\nPattern: blog-publish tasks decomposed at sensor creation time — same pattern as arxiv digest split (48858a87)\nIDEMPOTENT PUBLISH (b07bc650): cmdPublish no longer adds published_at if already present in frontmatter\nGuard: if (!/^published_at:/m.test(content)) before regex replacement\nCloses duplicate-frontmatter class on re-publish or force-publish of already-published post\nSKILLS-FLAT (fe488174): skillsForCategory() simplified — all categories return ["blog-publishing"]\nPrevious: research→[blog-publishing,arxiv-research], council→[blog-publishing,whop], operating→[blog-publishing,arc-reporting]\nRationale: category-based skill injection added context overhead; blog-publishing SKILL.md sufficient for most generation tasks\n[WATCH]: research-category posts may lack arxiv context if generation requires it; monitor quality
             aibtc_news_editorial
             aibtc_news_deal_flow
+            aibtc_news_distribution
+            note right of aibtc_news_distribution: NEW (346d1e9d→73afa087 2026-06-14): artifact pool consumer for `aibtc-news` channel\nSeparate lane from SIGNAL_FILING_DISABLED (operator-disabled streak/market auto-filing)\nP14 strategy: distribute distilled Arc work as intelligence signals (top-of-funnel)\nCurrently PAUSED: NEWS_DISTRIBUTION_ENABLED=false (x402 ~100 sats/signal, spend decision pending)\n5-min cadence; empty pool defers cleanly; source-key dedup via news_signal_log ledger
+            nostr
+            note right of nostr: NEW (60295d44→73afa087 2026-06-14): kind:1 notes to Nostr relays (wss://relay.damus.io, wss://nos.lol)\nNIP-06 identity derived from Arc's bitcoin-wallet seed (m/44'/1237'/0'/0/0)\ncli.ts (stable surface + --source ledger) → spawns nostr-runner.ts (wallet unlock + sign + relay publish)\n5-min sensor: artifact pool consumer for `nostr` channel; NOSTR_CONSUMER_ENABLED=true\nEmpty pool defers cleanly (P16 quote-cards is likely first producer)\nSource-key convention: nostr:<artifact-id>; ledger: nostr_post_log
             note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED\nSIGNAL_FILING_DISABLED (01daaa58): FULL SENSOR SKIP — all task creation gated\nPolicy: whoabuddy 2026-05-19 (task #17094)\nRe-enable: flip SIGNAL_FILING_DISABLED=false in sensor.ts
             aibtc_agent_trading
             ordinals_market_data
@@ -342,32 +346,55 @@ NO-ORPHANS (2a4c1aff): bun v1.3.14 --no-orphans flag\nSystemd dispatch unit now 
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-06-14T02:10Z)
+## Sensor Count by Category (2026-06-15T02:20Z)
 
 | Category | Count |
 |----------|-------|
 | Memory/Maintenance | 18 |
 | GitHub/PR | 10 |
-| Content/Publishing | 11 |
+| Content/Publishing | 13 |
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 15 |
 | DeFi | 6 |
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **78** |
+| **Total** | **80** |
 
-*+4 sensors this window: arxiv-distill, council-distill, watch-interior-distill (Memory/Maintenance), arc-artifacts (Infrastructure)*
+*+2 sensors this window: nostr-consumer (Content/Publishing), aibtc-news-distribution (Content/Publishing)*
 
-## Skill Count by Category (2026-06-14T02:10Z)
+## Skill Count by Category (2026-06-15T02:20Z)
 
-*Skills: 126 total (+4 vs last review)*
+*Skills: 128 total (+2 vs last review)*
 
 New skills this window:
-- `arxiv-distill` (446fef38) — bridge arxiv-research digests → artifact pool
-- `council-distill` (446fef38) — bridge genesis-works/agent-coordination → artifact pool
-- `watch-interior-distill` (446fef38) — bridge watch reports → artifact pool (paid-premium only)
-- `arc-artifacts` (446fef38) — vacuum + audit CLI for artifact pool (no LLM)
+- `nostr` (60295d44) — Nostr channel publisher (kind:1 notes, NIP-06, pool consumer)
+- `aibtc-news-distribution` (346d1e9d) — artifact pool consumer → aibtc.news signal filing lane
+
+## Key Architectural Changes (e14ac95 → 0d93d0e) [2026-06-15T02:20Z]
+
+**3 structural changes + compliance fixes:**
+- **feat(source-ledger): shared dedup factory** (7eae6bd2): `src/source-ledger.ts` ships `createSourceLedger({table, idColumn, extraColumns})` returning `{has, dedupSkip, record, sum}`. DRYs the per-skill hand-mirrored `nostr_post_log` / `x_post_log` / `news_signal_log` tables. SQL is always developer-supplied constants (no injection risk). Migration of existing tables is incremental — they pre-date the factory and differ only in timestamp column names. Nostr is the first consumer.
+- **feat(nostr): full channel consumer** (60295d44 → 73afa087): `cli.ts` (stable surface, `--source` ledger) spawns `nostr-runner.ts` (wallet-derived NIP-06 key, kind:1 event, Bun WebSocket relay publish). Sensor is a pool consumer (`nostr` channel tag, 5-min cadence). Empty pool defers cleanly; `NOSTR_CONSUMER_ENABLED=true`. Source-key convention: `nostr:<artifact-id>`. Mirrors x/whop consumer pattern exactly. `fix(nostr)`: `log` param renamed `msg→message` for verbose naming compliance.
+- **feat(aibtc-news-distribution): signal-filing pool consumer** (346d1e9d → 73afa087): New sensor (SENSOR_NAME="aibtc-news-distribution"). Pool consumer for `aibtc-news` channel. Separate lane from old `SIGNAL_FILING_DISABLED` gate (streak/market auto-filing stays off). P14 strategy: distilled Arc work → intelligence signals (top-of-funnel). Currently `NEWS_DISTRIBUTION_ENABLED=false` — x402 spend (~100 sats/signal) is an operator decision. `fix(sensors)`: `claimSensorRun` added to both nostr and aibtc-news-distribution sensors.
+
+**[NEW]** `src/source-ledger.ts` — shared dedup factory. Migrate `nostr_post_log` / `x_post_log` / `news_signal_log` onto it incrementally.
+**[NEW]** Nostr channel live: pool consumer enabled, empty pool defers cleanly. P16 quote-cards identified as first producer.
+**[NEW]** aibtc-news-distribution: P14 lane ready, gated. Flip `NEWS_DISTRIBUTION_ENABLED=true` in sensor once spend approved.
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+**[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+**[CARRY-WATCH]** whop Phase 2 → live gate pending whoabuddy sign-off.
+**[CARRY-WATCH]** whop-sales SKILL.md only.
+**[CARRY-WATCH]** RFC Phase 2 — not yet started.
+**[CARRY-WATCH]** arc-email-worker no-CI/CD.
+**[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+**[CARRY-WATCH]** Old per-skill dedup tables (`nostr_post_log`, `x_post_log`, `news_signal_log`) can migrate to `createSourceLedger()` incrementally — no urgency.
+
+| Change | Impact |
+|--------|--------|
+| feat(source-ledger): createSourceLedger factory (7eae6bd2) | Shared dedup primitive — eliminates per-skill table drift for external write ops. |
+| feat(nostr): full channel consumer (60295d44→73afa087) | 80th sensor live; Nostr distribution channel activated (pool-gated). |
+| feat(aibtc-news-distribution): P14 lane (346d1e9d→73afa087) | Signal filing via distilled artifacts — separate from disabled streak lane. |
 
 ## Key Architectural Changes (4a42408 → 74b397c) [2026-06-14T02:10Z]
 

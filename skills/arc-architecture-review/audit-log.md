@@ -1,3 +1,55 @@
+## 2026-06-15T02:20:00.000Z — source-ledger factory; nostr channel consumer; aibtc-news-distribution P14 lane; 128 skills / 80 sensors
+
+**Task #18998** | Diff: e14ac95 → 0d93d0e (3 structural commits) | Sensors: 80 | Skills: 128
+
+### Step 1 — Requirements
+
+Three structural changes this window:
+
+- **feat(source-ledger)** (7eae6bd2): `src/source-ledger.ts` — shared dedup factory. `createSourceLedger({table, idColumn, extraColumns})` returns `{has, dedupSkip, record, sum}`. Replaces hand-mirrored per-skill tables. New primitive for all non-idempotent external writes (whop / x / nostr / news / paid inbox). Existing tables (`nostr_post_log`, `x_post_log`, `news_signal_log`) pre-date it and can migrate incrementally.
+- **feat(nostr): full channel consumer** (60295d44 → 73afa087): Nostr skill expanded to full distribution channel. `cli.ts` stable surface → `nostr-runner.ts` (wallet-derived NIP-06 key, kind:1 event, Bun WebSocket). Sensor is pool consumer for `nostr` channel (5-min cadence, NOSTR_CONSUMER_ENABLED=true). Empty pool defers cleanly — P16 quote-cards is identified first producer.
+- **feat(aibtc-news-distribution)** (346d1e9d → 73afa087): New sensor (P14 strategy). Pool consumer for `aibtc-news` channel. Separate from the disabled `SIGNAL_FILING_DISABLED` streak lane. Filing costs ~100 sats/signal via x402. Currently PAUSED — spend decision pending from operator.
+- **fix(sensors)**: `claimSensorRun` added to both nostr and aibtc-news-distribution (73afa087). `fix(nostr)`: `msg→message` verbose naming compliance (2563e54f).
+
+### Step 2 — Delete
+
+No deletion candidates this window.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — cleanup on next sensor edit.
+**[MIGRATE-CANDIDATE]** Three per-skill dedup tables (`nostr_post_log`, `x_post_log`, `news_signal_log`) are now superseded by `createSourceLedger()`. No urgency — they work — but migration closes the drift risk.
+
+### Step 3 — Simplify
+
+- `createSourceLedger()` is correct abstraction: one factory call replaces 30+ lines of hand-written schema + query boilerplate per skill. The `sum()` method is a bonus (tracks sats spent across all nostr_post_log rows, etc.).
+- Nostr consumer mirrors x/whop consumers structurally — the pattern is now standard across all pool consumers.
+- **[SIMPLIFY-CANDIDATE]** 3 pool consumer sensors (nostr, aibtc-news-distribution, and likely more) share nearly identical structure: `claimSensorRun` → `ENABLED` gate → iterate `ARTIFACT_TYPES` → pick top candidate → create task. Could extract a `createArtifactConsumerSensor()` factory in `src/artifacts.ts`. Low priority — each has minor variations.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — structural refactor at >20.
+
+### Step 4 — Accelerate
+
+- Nostr sensor empty-pool path is a tight 5-min no-op (claimSensorRun → ENABLED check → ARTIFACT_TYPES iteration → no candidates → return "ok"). Acceptable until P16 produces content.
+- aibtc-news-distribution: PAUSED = zero cost. Ready to flip.
+
+### Step 5 — Automate
+
+- **[CARRY-CARRY]** `lint-skills --staged` `--name <X>` validation against installed skill tree. Low priority.
+- **[MIGRATION-PATH]** `nostr_post_log` → `createSourceLedger({table:'nostr_post_log', idColumn:'event_id'})`. Add migration follow-up if/when the table diverges from factory pattern.
+
+### Flags
+
+- **[NEW]** `src/source-ledger.ts` — shared dedup factory; first consumer is nostr. Existing tables can migrate incrementally.
+- **[NEW]** Nostr channel live: pool consumer active (NOSTR_CONSUMER_ENABLED=true), empty pool defers. P16 quote-cards = first producer candidate.
+- **[NEW]** aibtc-news-distribution: P14 lane built, PAUSED. Flip `NEWS_DISTRIBUTION_ENABLED=true` on spend approval.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries.
+- **[CARRY-WATCH]** whop Phase 2 → live gate pending whoabuddy sign-off.
+- **[CARRY-WATCH]** whop-sales SKILL.md only.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-14T14:15:00.000Z — arc-link-research article dedup; PublishFanoutMachine whop_forum hop; skill-name fixes; 126 skills / 78 sensors
 
 **Task #18933** | Diff: 74b397c → e14ac95 (1 structural commit + arc-workflows auto-commits) | Sensors: 78 | Skills: 126
