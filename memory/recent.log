@@ -1,453 +1,4 @@
-2026-06-08T18:06:59.576Z | task #18460 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-08T18:08:41.209Z | task #18443 | completed | haiku | Retrospective: extract learnings from task #18440 — Email fr | Added p-kickoff-task-parameter-capture pattern: embed all agreed parameters (sco
-2026-06-08T18:09:36.576Z | task #18458 | completed | haiku | Retrospective: extract learnings from task #18441 — OpenRout | Extracted 2 reusable patterns: p-research-scale-fan-out (task-queue vs Workflow 
-2026-06-08T18:10:45.291Z | task #18459 | completed | haiku | Retrospective: extract learnings from task #18449 — OR resea | Extracted 2 reusable patterns: documented-inventory-atomicity (silent feature ad
-2026-06-08T18:11:42.212Z | task #18468 | completed | haiku | Retrospective: extract learnings from task #18464 — OR resea | Extracted 3 reusable patterns from OR ecosystem research: repository-lifecycle-f
-2026-06-08T18:12:45.964Z | task #18469 | completed | haiku | Retrospective: extract learnings from task #18467 — OR resea | Extracted 2 learnings from Phase 3 synthesis: (1) multi-phase research uses _WOR
-2026-06-08T20:49:42.089Z | task #18470 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2026-06-08: weighted 2.60/5 (S1 O4 E3 C2 Ad4 Co2 Se3), up from 2.55. 
-2026-06-08T20:50:19.289Z | task #18471 | completed | haiku | arc-opensource: sync 58 commit(s) to GitHub | 58 commits pushed to origin/main (13e7cfde..14b0ca6d). Build validated. arc-star
-2026-06-08T20:51:06.469Z | task #18473 | completed | sonnet | health alert: dispatch stale | FP — dispatch running normally, last cycle 1min ago, active task in flight
-2026-06-08T20:52:07.977Z | task #18472 | completed | haiku | daily cost report — 2026-06-08 | Daily cost 3.27 (code) on 70 tasks, 46k tokens. OpenRouter research + arc-email-
-2026-06-08T21:29:24.458Z | task #18474 | completed | sonnet | architecture review — codebase changed since last review (6f | 1 structural commit (arc-email-sync parseFlags boolean fix); 7 PR earnings index
-2026-06-08T22:41:43.249Z | task #18475 | completed | sonnet | New release: anthropics/claude-code v2.1.169 | Report written: research/claude-code-releases/v2.1.169.md — 1 follow-up task cre
-2026-06-08T22:42:32.237Z | task #18476 | completed | haiku | Doc: add --safe-mode / CLAUDE_CODE_SAFE_MODE to Arc dispatch | Added Dispatch Troubleshooting section documenting CLAUDE_CODE_SAFE_MODE env var
-2026-06-09T00:02:26.087Z | task #18478 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: aibtc-network has 2 signal-worthy topics (earnings leaderboar
-2026-06-09T00:03:17.870Z | task #18479 | completed | sonnet | PURPOSE eval: 2.69/5 — S:1 O:5 E:3 C:2 | PURPOSE 2.70/5 (S:1 O:5 E:3 C:2 Ad:3 Co:2 Se:3) — ops near-perfect at 98.7%; S p
-2026-06-09T00:03:55.576Z | task #18477 | completed | sonnet | daily introspection: 76 tasks, 75 completed, $35.79 spent | 99% success day (75/76); OR research dominated high cost; 1 external block (X AP
-2026-06-09T00:04:57.213Z | task #18480 | completed | sonnet | daily self-audit: all systems nominal | All systems nominal: 98.7% success (75/76), 5.79 yesterday, 120 skills/73 sensor
-2026-06-09T00:40:57.919Z | task #18481 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | No new patterns: #17796 X API 402 block is 12d stale, already documented in MEMO
-2026-06-09T01:06:56.045Z | task #18482 | completed | sonnet | Watch report — 2026-06-09T01:02Z | Watch report: 52 tasks completed, $27.35 spent — reports/2026-06-09T01_02_35Z_wa
-2026-06-09T01:42:26.919Z | task #18483 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'Thirteen Repositories' created at content/2026/2026-06-09/thirteen-reposi
-2026-06-09T01:42:54.586Z | task #18484 | completed | haiku | Publish generated blog post | Published blog post '2026-06-09-thirteen-repositories' — passed content-quality 
-2026-06-09T02:22:47.960Z | task #18485 | completed | sonnet | CEO review — 2026-06-09T02:14 | On track: 52/0/0 watch, OR research delivered to whoabuddy, parseFlags bug fixed
-2026-06-09T02:45:02.066Z | task #18486 | completed | sonnet | Generate weekly presentation for 2026-06-09 | Generated 7-slide deck for week ending 2026-06-09: 386 tasks, 322 commits, 8 cha
-2026-06-09T02:57:34.118Z | task #18487 | completed | haiku | Fetch and compile arXiv digest — 2026-06-09 (30 new papers) | Fetched 50 papers, compiled 21 relevant into digest: 2026-06-09T02:57:27Z_arxiv_
-2026-06-09T03:04:31.834Z | task #18488 | completed | sonnet | self-review: run health check for 2026-06-09 | Health check clean: all services up, 98.7% success yesterday, queue empty. 1 iss
-2026-06-09T03:07:48.526Z | task #18489 | completed | sonnet | consolidate MEMORY.md — 234 lines, context-load warning trig | Consolidated MEMORY.md from 234→159 lines: compressed [P] patterns to headlines 
-2026-06-09T03:10:22.490Z | task #18490 | completed | sonnet | self-review triage: 1 issue(s) found | 1 issue triaged: MEMORY.md at 234 lines → created task #18491 (consolidate). Wor
-2026-06-09T03:11:15.337Z | task #18491 | completed | sonnet | consolidate MEMORY.md: 234 lines over threshold | Already consolidated in prior cycle (234→158 lines, commit e2d1bf53). At 160 lin
-2026-06-09T03:16:59.839Z | task #18492 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-09T03:23:01.273Z | task #18493 | completed | sonnet | CEO review — 2026-06-09T02:14 | CEO review: on track, OR research 52/0/0 at 7.35, queue empty heading into next 
-2026-06-09T03:33:46.110Z | task #18494 | completed | sonnet | Email watch report to whoabuddy — 2026-06-09T02:14 | Watch report sent to whoabuddy@gmail.com (msg 2280e4c5)
-2026-06-09T05:16:50.810Z | task #18495 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
-2026-06-09T05:47:07.269Z | task #18496 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | 60-day window closed, Arc receipt already logged by Iskander-Agent (PRs #37/#68/
-2026-06-09T09:30:23.385Z | task #18497 | completed | sonnet | architecture review — codebase changed since last review (cf | No structural changes since cfea1c10; OR deep research window (7.35, 52 tasks); 
-2026-06-09T09:47:42.659Z | task #18498 | completed | sonnet | Review PR #992 on aibtcdev/landing-page: chore(earnings): re | approved PR #992 aibtcdev/landing-page — 1-line constant change relaxing earning
-2026-06-09T13:03:56.263Z | task #18499 | completed | sonnet | Watch report — 2026-06-09T13:00Z | Watch report: 17 tasks completed, $5.53 spent — reports/2026-06-09T13_00_51Z_wat
-2026-06-09T13:05:21.708Z | task #18500 | completed | sonnet | Overnight brief — 2026-06-09 | Overnight brief generated: 27 tasks completed, 100% success, PURPOSE 2.70/5; blo
-2026-06-09T13:05:39.111Z | task #18501 | completed | sonnet | health alert: dispatch stale | False positive — dispatch ran at 13:05:26 (current cycle active). Lock file belo
-2026-06-09T13:18:30.082Z | task #18502 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-09T14:24:15.954Z | task #18503 | completed | sonnet | CEO review — 2026-06-09T14:16 | CEO review: on track, 17/17 clean window. Sensor noise patterns noted (dup CEO r
-2026-06-09T14:34:54.430Z | task #18504 | completed | sonnet | Email watch report to whoabuddy — 2026-06-09T14:16 | Watch report sent to whoabuddy@gmail.com via arc-email-sync (msg fce35406)
-2026-06-09T14:58:50.793Z | task #18505 | completed | haiku | Fetch and compile arXiv digest — 2026-06-09 (30 new papers) | Fetched 50 arXiv papers (18 relevant). Compiled digest: research/arxiv/2026-06-0
-2026-06-09T15:18:42.311Z | task #18506 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
-2026-06-09T16:47:39.480Z | task #18507 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.4.2 is a patch release (single bug fix: 3p middleware ordering). Arc 
-2026-06-09T17:45:05.306Z | task #18508 | completed | sonnet | New release: anthropics/claude-code v2.1.170 | Report written: research/claude-code-releases/v2.1.170.md — Fable 5 (Mythos-clas
-2026-06-09T17:48:02.700Z | task #18509 | completed | sonnet | Confirm Claude Fable 5 model ID and evaluate for Arc dispatc | claude-fable-5 confirmed: $10/$50 per M tokens, 33% cheaper than opus-4-8, Mytho
-2026-06-09T17:48:26.722Z | task #18510 | failed | sonnet | Update MODEL_IDS: opus → claude-fable-5 after Claude Code v2 | Claude Code is v2.1.161, not v2.1.170+. Safety gate prevents applying claude-fab
-2026-06-09T20:48:11.821Z | task #18511 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.104.0 adds Managed Agents deployments+vaults beta API (managed-agents-202
-2026-06-09T20:48:34.876Z | task #18512 | completed | haiku | arc-opensource: sync 44 commit(s) to GitHub | 44 commits synced to arc0btc/arc-starter main via git push
-2026-06-09T20:50:52.637Z | task #18514 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2026-06-09: weighted 2.60/5 (S1 O4 E2 C4 Ad3 Co2 Se3), down from 2.70
-2026-06-09T20:51:18.186Z | task #18513 | completed | haiku | daily cost report — 2026-06-09 | Daily cost review: $9.40 total, 36 tasks, $0.261/task avg — cost tracking clean,
-2026-06-09T21:31:56.545Z | task #18515 | completed | sonnet | architecture review — active reports to process | no structural changes; flagged duplicate-sensor dedup pattern (consolidation + C
-2026-06-09T21:37:09.088Z | task #18516 | failed | haiku | fix: add shared dedup guard to prevent duplicate MEMORY.md c | Task timed out after 5min (haiku tier). Consider breaking it into smaller subtas
-2026-06-09T21:39:09.666Z | task #18517 | completed | haiku | fix: prevent duplicate CEO review tasks for same time period | Added period-based pre-flight dedup check in arc-ceo-review sensor. Extracts YYY
-2026-06-09T22:49:21.028Z | task #18518 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (120 skills, 73 sensors); committed to arc0me-site feat/blog
-2026-06-09T22:54:27.969Z | task #18519 | completed | script | Deploy arc0me-site to Cloudflare (d72c7ba810f1) | }
-2026-06-10T14:06:58.923Z | task #18525 | completed | sonnet | Research signal-worthy topics across active beats | Research complete: MCP v1.59.0 (relay-free x402, live mainnet) = strong aibtc-ne
-2026-06-10T14:08:31.287Z | task #18524 | completed | sonnet | self-review: run health check for 2026-06-10 | Health check clean: services OK, 0 blocked, cost /bin/bash.33/task 7d avg, quali
-2026-06-10T14:15:07.237Z | task #18529 | completed | sonnet | GitHub @mention in aibtcdev/x402-sponsor-relay: sender nonce | Root cause in transitionQueueEntry not calling advanceSenderNonce on confirmatio
-2026-06-10T14:16:02.422Z | task #18536 | completed | sonnet | health alert: dispatch stale | false positive — dispatch active at triage time; lock PID 4071 alive, timer runn
-2026-06-10T14:16:35.881Z | task #18531 | completed | haiku | Fetch and compile arXiv digest — 2026-06-10 (30 new papers) | Fetched 50 papers (25 relevant), compiled digest to research/arxiv/2026-06-10T14
-2026-06-10T14:18:53.082Z | task #18535 | completed | sonnet | self-review triage: 1 issue(s) found | committed untracked ARC-0011 proposal; created impl task #18540; workflow 2952 →
-2026-06-10T14:37:00.043Z | task #18540 | completed | opus | implement ARC-0011: escalation ladder (REFINE/PIVOT/WEB-SEAR | Shipped ARC-0011 four-rung ladder (escalation.ts + dispatch routing + schema + C
-2026-06-10T14:39:47.800Z | task #18537 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.59.0 | v1.59.0: relay-free x402 (sponsor relay deprecated, payments now self-paid), err
-2026-06-10T14:40:21.088Z | task #18538 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.104.1: patch only — adds frontier_llm refusal category type. No breaking 
-2026-06-10T14:44:39.849Z | task #18520 | completed | sonnet | Watch report — 2026-06-10T14:03Z | Watch report: 19 tasks completed, $5.03 spent, 2 failures (1 safety gate + 1 hai
-2026-06-10T14:47:05.365Z | task #18522 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'The Ladder' created (2026-06-10-the-ladder): ARC-0011 escalation ladder i
-2026-06-10T14:48:41.741Z | task #18523 | completed | haiku | Publish generated blog post | Published 2026-06-10-the-ladder blog post after editing to pass content-quality 
-2026-06-10T14:49:22.514Z | task #18526 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:2 E:1 C:5 | PURPOSE 2.00/5 (S:1 O:2 E:1 C:5 Ad:2 Co:1 Se:3) — low-activity day; cost efficie
-2026-06-10T14:50:10.917Z | task #18516 | failed | haiku | fix: add shared dedup guard to prevent duplicate MEMORY.md c | Task timed out after 5min (haiku tier). Consider breaking into smaller subtasks 
-2026-06-10T14:52:08.476Z | task #18521 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Extracted 2 learnings: (1) haiku timeout is ~5min — generalized from signal-fili
-2026-06-10T14:52:13.409Z | task #18527 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-10T14:54:23.093Z | task #18528 | completed | sonnet | daily introspection: 17 tasks, 15 completed, $4.05 spent | 88% success, /bin/bash.238/task — both failures instructive (version safety gate
-2026-06-10T15:00:18.371Z | task #18530 | completed | sonnet | architecture review — codebase changed since last review (6d | ARC-0011 escalation ladder documented in state machine; CEO-review dedup fix not
-2026-06-10T15:01:28.519Z | task #18532 | completed | sonnet | daily self-audit: all systems nominal | All systems nominal. 1 failed task today (not 2 as reported — sensor snapshot wa
-2026-06-10T15:01:48.378Z | task #18533 | completed | script | Welcome new AIBTC agent: Fair Salmon | {"success":true,"agent":"Fair Salmon","stx_address":"SP228N9QDQCTF0526FHXSHJ7PYC
-2026-06-10T15:02:44.932Z | task #18534 | completed | script | Welcome new AIBTC agent: Triple Uri | {"success":true,"agent":"Triple Uri","stx_address":"SP33QA70TJCFBQGT8XA8V5HT6VSW
-2026-06-10T15:04:11.317Z | task #18539 | completed | haiku | Retrospective: extract learnings from task #18529 — GitHub @ | Added p-wave-backfill-primitive-audit to patterns.md: when multi-wave features s
-2026-06-10T15:05:13.982Z | task #18543 | completed | haiku | Retrospective: extract learnings from task #18540 — implemen | Terminal guard hoisting for state machines: check max-retry threshold FIRST, bef
-2026-06-10T15:07:14.259Z | task #18544 | completed | haiku | Retrospective: extract learnings from task #18530 — architec | Patterns updated: p-architecture-review (document findings + implement [NEW-ACTI
-2026-06-10T16:03:41.623Z | task #18545 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: all clean, nothing to fix
-2026-06-10T18:19:11.168Z | task #18546 | completed | sonnet | weekly pattern extraction: 335 tasks, 5 failed, $118.04 spen | Added 3 new patterns: p-version-gated-upgrade-preflight (version check before ap
-2026-06-10T20:49:21.378Z | task #18547 | completed | haiku | arc-opensource: sync 29 commit(s) to GitHub | Published 29 commits to arc0btc/arc-starter main
-2026-06-10T20:51:30.639Z | task #18548 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.45/5 (S:1 O:4 E:2 C:2 Ad:5 Co:1 Se:3) — full-day re-eval, up from 2.00
-2026-06-10T20:51:57.047Z | task #18549 | completed | haiku | daily cost report — 2026-06-10 | Daily cost report reviewed: 3.82 code (3.23 API est.), 29 tasks. Dominant: ARC-0
-2026-06-10T21:07:15.116Z | task #18550 | completed | sonnet | New release: anthropics/claude-code v2.1.172 | Report written to research/claude-code-releases/v2.1.172.md — headline: 5-level 
-2026-06-10T21:07:44.714Z | task #18551 | completed | haiku | Document 5-level sub-agent nesting limit in CLAUDE.md for wo | Added 5-level sub-agent nesting limit documentation to CLAUDE.md with valid/inva
-2026-06-10T22:07:07.746Z | task #18552 | completed | sonnet | Consolidate recent.log (8 entries older than 14d) | Archived 8 entries from 2026-05-27 to memory/archive/recent-log-2026-05-27.bak; 
-2026-06-11T00:06:55.494Z | task #18553 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Task #18516 timed out: fix: task assigned haiku (5min limit too short for code c
-2026-06-11T00:07:01.016Z | task #18554 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-11T00:13:22.568Z | task #18555 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Deployed 2 uncommitted posts (2026-06-09, 2026-06-10) — freshness check now pass
-2026-06-11T00:17:16.149Z | task #18556 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | New root cause documented: uncommitted posts invisible to deploy pipeline. Added
-2026-06-11T02:06:03.107Z | task #18559 | completed | sonnet | Research signal-worthy topics across active beats | Research found 3 signal-worthy topics (aibtc-net v1.59.0 covered by Sonic Mast, 
-2026-06-11T02:06:55.973Z | task #18558 | completed | sonnet | self-review: run health check for 2026-06-11 | Health check complete: 2 issues — recent.log at 771 lines (>500 threshold), disp
-2026-06-11T02:07:20.308Z | task #18565 | completed | haiku | Fetch and compile arXiv digest — 2026-06-11 (30 new papers) | Fetched 50 papers (28 relevant), compiled into research/arxiv/2026-06-11T02:07:1
-2026-06-11T02:11:33.730Z | task #18557 | completed | sonnet | Watch report — 2026-06-11T02:04Z | Watch report: 37 tasks completed, $16.88 spent, 1 failure (haiku timeout), repor
-2026-06-11T02:11:46.264Z | task #18567 | completed | sonnet | health alert: dispatch stale | FP: dispatch was active at time of triage — last cycle 02:11:38, lock file valid
-2026-06-11T02:13:57.446Z | task #18568 | completed | sonnet | CEO review — 2026-06-11T02:04 | CEO review written: on track, ARC-0011 ladder live, blog post identified as next
-2026-06-11T02:14:38.766Z | task #18566 | completed | sonnet | self-review triage: 2 issue(s) found | triaged 2 issues: created #18569 (recent.log consolidation, 776 lines), confirme
-2026-06-11T02:15:36.594Z | task #18560 | completed | sonnet | PURPOSE eval: 1.94/5 — S:1 O:4 E:1 C:2 | PURPOSE 1.95/5: S:1 O:4 E:1 C:2 Ad:2 Co:1 Se:3 — early-day eval, 0 PR reviews, n
-2026-06-11T02:16:14.847Z | task #18569 | completed | haiku | consolidate memory/recent.log (776 lines, threshold 500) | Truncated recent.log from 778 to 100 entries; MEMORY.md consolidation check foun
-2026-06-11T02:17:37.216Z | task #18561 | completed | sonnet | daily introspection: 38 tasks, 37 completed, $16.88 spent | ARC-0011 day: Ad:5 from feature ship offset by 0 human tasks + haiku timeout fai
-2026-06-11T02:20:42.468Z | task #18562 | completed | sonnet | architecture review — codebase changed since last review (54 | No new structural changes (SHA drift triggered); watch highlights documented: AR
-2026-06-11T02:21:42.103Z | task #18563 | completed | sonnet | workflow review — 1 health issue(s) | Resolved 4 stuck new-release workflows for anthropics/anthropic-sdk-typescript (
-2026-06-11T02:22:09.671Z | task #18564 | completed | sonnet | daily self-audit: all systems nominal | all systems nominal; 37 completed/1 failed (haiku timeout, already logged); yest
-2026-06-11T02:23:22.428Z | task #18570 | completed | sonnet | Email watch report to whoabuddy — 2026-06-11T02:04 | Watch report 2026-06-10T14:03Z emailed to whoabuddy@gmail.com via arc-email-sync
-2026-06-11T06:06:59.082Z | task #18571 | completed | sonnet | New release: anthropics/claude-code v2.1.173 | Research report written: research/claude-code-releases/v2.1.173.md — no follow-u
-2026-06-11T09:53:37.897Z | task #18572 | completed | sonnet | Review PR #571 on aibtcdev/aibtc-mcp-server: security: secre | reviewed PR #571 on aibtcdev/aibtc-mcp-server — commented: SHA verification miss
-2026-06-11T10:06:55.636Z | task #18573 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-11T12:06:35.361Z | task #18574 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-11T13:04:20.234Z | task #18575 | completed | sonnet | Watch report — 2026-06-11T13:00Z | Watch report: 5 tasks completed, $0.91 spent, 0 failures — reports/2026-06-11T13
-2026-06-11T13:06:20.498Z | task #18576 | completed | sonnet | Overnight brief — 2026-06-11 | Overnight brief: 4 tasks completed, 0 failed, $0.705 spent — reports/2026-06-11T
-2026-06-11T14:08:25.244Z | task #18577 | completed | sonnet | architecture review — active reports to process | no structural changes; PR #571 SHA gap flagged (awaiting author); v2.1.173 minor
-2026-06-11T14:10:22.037Z | task #18579 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'Reading the Quiet' created at content/2026/2026-06-11/reading-the-quiet/i
-2026-06-11T14:11:30.313Z | task #18581 | completed | sonnet | CEO review — 2026-06-11T14:05 | CEO review: on track, /bin/bash.18/task, lean queue. 0 tasks adjusted, 0 created
-2026-06-11T14:15:17.787Z | task #18582 | completed | sonnet | GitHub @mention in aibtcdev/x402-sponsor-relay: sender nonce | PR #415 already open (my fix, approved by secret-mars). Wrote regression tests i
-2026-06-11T14:16:31.389Z | task #18580 | completed | haiku | Publish generated blog post | I'll find the most recent draft and publish it.Most recent draft: `2026-06-11-re
-2026-06-11T14:17:56.392Z | task #18578 | completed | sonnet | workflow review — 1 health issue(s) | Resolved 2 stuck 'assessing' workflows: clarinet v3.19.0 (dev-tooling only, no A
-2026-06-11T14:18:37.046Z | task #18583 | completed | script | Deploy arc0me-site to Cloudflare (dd124dcdf056) | }
-2026-06-11T14:22:35.113Z | task #18584 | completed | sonnet | Email watch report to whoabuddy — 2026-06-11T14:05 | Watch report 2026-06-11T13:00Z emailed to whoabuddy@gmail.com (msg id: 2111df42)
-2026-06-11T16:20:15.545Z | task #18585 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Code-correctness review of quantum-visualizer PR #74 (normalizeReadiness fallbac
-2026-06-11T19:11:51.297Z | task #18586 | completed | sonnet | Assess release: hirosystems/clarinet v3.20.0 | clarinet v3.20.0: no action — Arc doesn't use clarinet (clarity-check is custom)
-2026-06-11T20:07:39.908Z | task #18587 | completed | sonnet | Security: @grpc/grpc-js (high) in aibtcdev/aibtc-mcp-server  | Dependabot PR #573 approved and merged — @grpc/grpc-js bumped 1.14.3→1.14.4 (tra
-2026-06-11T20:07:47.359Z | task #18588 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-11T20:50:02.995Z | task #18589 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE 2.55/5 (S:1 O:4 E:2 C:4 Ad:3 Co:1 Se:3) — full-day. Cost $0.281/task (be
-2026-06-11T20:50:27.153Z | task #18590 | completed | haiku | arc-opensource: sync 45 commit(s) to GitHub | Published 45 commits to arc0btc/arc-starter main. Build validation passed. Range
-2026-06-11T20:51:23.925Z | task #18591 | completed | haiku | daily cost report — 2026-06-11 | Daily report: 38 tasks, $10.40, 0.27/task avg. Cost distribution normal. No anom
-2026-06-11T22:07:43.390Z | task #18592 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-12T00:02:19.387Z | task #18594 | completed | sonnet | Research signal-worthy topics across active beats | Researched 3 active beats; filing paused per policy. Findings: (1) aibtc-network
-2026-06-12T00:02:52.320Z | task #18595 | completed | sonnet | PURPOSE eval: 2.56/5 — S:1 O:5 E:1 C:4 | PURPOSE 2.45/5 (S:1 O:5 E:1 C:4 Ad:2 Co:1 Se:3) — perfect ops day, ecosystem lig
-2026-06-12T00:04:05.957Z | task #18593 | completed | sonnet | daily introspection: 40 tasks, 40 completed, $11.09 spent | 100% success, /bin/bash.277/task, all sensor-driven — sensors execute well but d
-2026-06-12T00:04:51.087Z | task #18596 | completed | sonnet | daily self-audit: all systems nominal | All nominal: 40/40 tasks, 0 failures, cost 1.09 yesterday (/bin/bash.277/task). 
-2026-06-12T00:31:20.256Z | task #18597 | completed | opus | Email from whoabuddy (1 unread): monetization through whop | whoabuddy Whop monetization ask: replied + queued deep-dive task #18598 (P2/Opus
-2026-06-12T00:36:18.423Z | task #18598 | completed | opus | Whop monetization deep dive: API/docs research + strategic p | Whop API verified automatable: POST /messages seeds paid chat (the wedge), cours
-2026-06-12T00:36:42.560Z | task #18600 | blocked | sonnet | Wire whop sensor + first hot-topic post (blog->paid chat) on | Whop credentials not provisioned — awaiting whoabuddy to run: arc creds set --se
-2026-06-12T00:38:23.696Z | task #18599 | completed | haiku | Retrospective: extract learnings from task #18597 — Email fr | Updated p-feedback-task-decomposition to cover strategic asks (not just feedback
-2026-06-12T00:39:24.968Z | task #18601 | completed | haiku | Retrospective: extract learnings from task #18598 — Whop mon | Extracted 3 reusable patterns from Whop API research: credential-gated CLI grace
-2026-06-12T00:52:55.726Z | task #18602 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: monetization t | Replied to whoabuddy's 'What's the result?' on Whop monetization (#18598): shipp
-2026-06-12T00:53:50.433Z | task #18603 | completed | haiku | Retrospective: extract learnings from task #18602 — Email fr | No learnings to capture — substantive patterns from task #18598 (whop skill work
-2026-06-12T01:05:32.417Z | task #18604 | completed | sonnet | Watch report — 2026-06-12T01:01Z | Watch report: 28 tasks completed, $9.78 spent, 0 failures — reports/2026-06-12T0
-2026-06-12T02:07:01.692Z | task #18606 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 3 arc-skill-manager tasks: sensor health audit (#18610), skills complianc
-2026-06-12T02:07:16.450Z | task #18609 | completed | haiku | Fetch and compile arXiv digest — 2026-06-12 (30 new papers) | Fetched 50 papers (32 relevant) and compiled into digest research/arxiv/2026-06-
-2026-06-12T02:08:47.339Z | task #18610 | completed | sonnet | sensor health audit: check for unhealthy or stale sensors | All 73 sensors nominal: 0 consecutive failures. Flagged 7 never-run sensors (age
-2026-06-12T02:09:19.172Z | task #18608 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated 'err' → 'error' in skills/whop/cli.ts:54
-2026-06-12T02:10:14.247Z | task #18611 | completed | haiku | skills compliance lint: check all SKILL.md files for frontma | Skills compliance lint: 121 SKILL.md + 64 AGENT.md + 73 sensor.ts checked, 0 vio
-2026-06-12T02:12:21.249Z | task #18617 | completed | sonnet | CEO review — 2026-06-12T02:06 | CEO review: on track; Whop responsiveness excellent, 0 failures, queue clean. 0 
-2026-06-12T02:13:10.969Z | task #18616 | completed | sonnet | self-review: run health check for 2026-06-12 | Health check 2026-06-12: 1 issue (blocked #18600 Whop creds, external). All serv
-2026-06-12T02:13:43.965Z | task #18612 | completed | haiku | memory consolidation check: assess recent.log and MEMORY.md  | MEMORY.md OK (163 lines), recent.log OK (147 lines), patterns.md over threshold 
-2026-06-12T02:15:39.687Z | task #18615 | completed | sonnet | New release: anthropics/claude-code v2.1.174 | Report written: research/claude-code-releases/v2.1.174.md. Key finding: env isol
-2026-06-12T02:16:37.299Z | task #18619 | completed | sonnet | Upgrade Claude Code from v2.1.161 to v2.1.174 | Upgraded Claude Code from v2.1.161 to v2.1.174 via manifest+checksum procedure; 
-2026-06-12T02:17:15.259Z | task #18620 | completed | sonnet | self-review triage: 1 issue(s) found | 1 issue was external-blocked (#18600 Whop creds awaiting whoabuddy) — no fix tas
-2026-06-12T02:18:23.590Z | task #18605 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (121 skills, 73 sensors
-2026-06-12T02:20:17.324Z | task #18607 | completed | sonnet | architecture review — codebase changed since last review (e9 | whop skill scaffolded (9d3edbc): new monetization path, 120→121 skills; credenti
-2026-06-12T02:24:25.159Z | task #18614 | completed | sonnet | investigate never-run sensors: agent-health, arc-reporting,  | 7 never-run sensors were actually running under mismatched SENSOR_NAME constants
-2026-06-12T02:25:08.070Z | task #18621 | completed | sonnet | Email watch report to whoabuddy — 2026-06-12T02:06 | Watch report 2026-06-12T01:01Z emailed to whoabuddy (msg 96ef6d0c)
-2026-06-12T02:27:55.875Z | task #18618 | completed | haiku | consolidate patterns.md: compress duplicates and archive old | Consolidated 11 patterns into 6 entries (sensor fire-rate, false-positive preven
-2026-06-12T02:28:23.250Z | task #18622 | completed | script | Deploy arc0me-site to Cloudflare (4746741247e1) | }
-2026-06-12T02:29:11.976Z | task #18623 | completed | script | Welcome new AIBTC agent: Icy Ram | {"success":true,"agent":"Icy Ram","stx_address":"SP11NB9WPYD9842NR6WP44S7A4NFZJ9
-2026-06-12T02:31:18.143Z | task #18613 | completed | sonnet | Consolidate patterns.md (155 lines, threshold 150) | Merged 5 patterns into 2 (wave-backfill+audit-completeness, 3 research-ecosystem
-2026-06-12T04:39:08.038Z | task #18624 | completed | opus | Email from whoabuddy (1 unread, 3 total): Re: monetization t | whoabuddy provisioned whop creds (company_api_key+company_id) & said continue; r
-2026-06-12T04:44:41.336Z | task #18625 | completed | opus | Whop wedge: align cred keys, verify auth, ship blog->chat ho | Whop auth verified: company keys auth via /v5/company not /v5/me; experiences on
-2026-06-12T04:45:16.230Z | task #18627 | blocked | sonnet | [REVIEW] Approve first Whop hot-topic + confirm hash-it-out  | Human-review gate: awaiting whoabuddy to confirm channel (exp_I2Wew0PqJQ50a8 AI 
-2026-06-12T04:46:20.299Z | task #18626 | completed | haiku | Retrospective: extract learnings from task #18624 — Email fr | External service credential key mapping: document expected keys in SKILL.md, val
-2026-06-12T04:47:26.833Z | task #18628 | completed | haiku | Retrospective: extract learnings from task #18625 — Whop wed | Extracted 2 patterns: (1) expanded p-external-service-credential-key-mapping to 
-2026-06-12T05:11:04.270Z | task #18629 | completed | sonnet | New release: anthropics/claude-code v2.1.175 | Research report written: research/claude-code-releases/v2.1.175.md — enterprise 
-2026-06-12T05:27:14.327Z | task #18630 | completed | opus | Email from whoabuddy (1 unread, 4 total): Re: monetization t | Replied to whoabuddy's 'Status?' on whop: auth verified + creds aligned + shop l
-2026-06-12T05:27:49.963Z | task #18631 | completed | haiku | Retrospective: extract learnings from task #18630 — Email fr | Email dedup false-positive pattern captured: subject-only dedup blocks legitimat
-2026-06-12T05:32:10.738Z | task #18627 | completed | sonnet | [REVIEW] Approve first Whop hot-topic + confirm hash-it-out  | Approval received from whoabuddy: chat channel confirmed = exp_I2Wew0PqJQ50a8. P
-2026-06-12T05:32:34.691Z | task #18632 | completed | opus | Email from whoabuddy (1 unread, 5 total): Re: monetization t | whoabuddy confirmed whop chat channel = exp_I2Wew0PqJQ50a8 ('AI Prefers Bitcoin'
-2026-06-12T05:41:38.682Z | task #18600 | blocked | opus | Wire whop sensor + first hot-topic post (blog->paid chat) on | First post BLOCKED: whop key missing chat:message:create scope (POST /api/v1/mes
-2026-06-12T05:47:56.102Z | task #18633 | blocked | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
-2026-06-12T05:48:32.983Z | task #18636 | blocked | sonnet | [ESCALATED] X posting credits depleted (402 CreditsDepleted) | X API returns 402 CreditsDepleted on POST /tweets — posting credits exhausted (N
-2026-06-12T05:49:10.278Z | task #18633 | completed | opus | Establish consistent X posting cadence for AI-prefers-Bitcoi | X cadence ESTABLISHED: proactive beat (runCadenceBeat ~72h, credit-aware) + CADE
-2026-06-12T05:51:14.715Z | task #18638 | blocked | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | Gated on whop #18600 (key re-scope) + X #18636 (credit top-up) landing first cle
-2026-06-12T05:51:34.498Z | task #18634 | completed | opus | Evaluate arc-workflows state machine to fan out one publish  | arc-workflows fits fan-out: linear PublishFanoutMachine (blog->whop->X), one tas
-2026-06-12T05:52:20.271Z | task #18635 | completed | haiku | Retrospective: extract learnings from task #18632 — Email fr | No learnings to capture — all patterns already documented
-2026-06-12T05:53:17.727Z | task #18637 | completed | haiku | Retrospective: extract learnings from task #18633 — Establis | Extracted 2 reusable patterns: p-external-service-credit-depletion-graceful-fail
-2026-06-12T05:54:33.841Z | task #18639 | completed | haiku | Retrospective: extract learnings from task #18634 — Evaluate | Extracted 2 patterns from evaluation: multi-hop gates on external dependencies +
-2026-06-12T06:07:09.436Z | task #18640 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 tasks still blocked on external dependencies: #18600 (whop key scope), #18
-2026-06-12T06:08:56.016Z | task #18636 | completed | sonnet | [ESCALATED] X posting credits depleted (402 CreditsDepleted) | X API credits topped up by whoabuddy 2026-06-12 — sentinel cleared, cadence beat
-2026-06-12T06:08:59.080Z | task #18641 | completed | sonnet | Consolidate patterns.md (154 lines, threshold 150) | patterns.md consolidated 154→145 lines: merged 2 pattern pairs, removed 2 task-s
-2026-06-12T06:18:57.198Z | task #18642 | completed | sonnet | X cadence: post one AI-prefers-Bitcoin observation (2026-06- | Posted 'clean cycle / double-fire pattern' tweet (ID 2065317894901338194) — blog
-2026-06-12T06:19:22.070Z | task #18643 | completed | sonnet | Reply to X mention from user 1868376696119767041 | Skipped: 3-week-old group mention with 7 other tags, no direct engagement, gener
-2026-06-12T06:20:16.514Z | task #18644 | completed | sonnet | Reply to X mention from user 1720665183188922368 | Mass-tag mention about Grok Premium — not addressed to Arc, no substance. No rep
-2026-06-12T06:21:27.082Z | task #18645 | completed | sonnet | Reply to X mention from user 878205059963772928 | deferred: generic ecosystem appreciation with no hook for substantive reply; X c
-2026-06-12T06:22:22.183Z | task #18646 | completed | sonnet | Reply to X mention from user 1481375188503703560 | No reply — 'LFG' with link, multi-tagged, 3wk old, no substance; X credits deple
-2026-06-12T06:23:22.401Z | task #18647 | completed | sonnet | Reply to X mention from user 1483576325428367361 | Group tag in low-substance thanks exchange; no meaningful reply to add — defer o
-2026-06-12T06:24:26.261Z | task #18648 | completed | sonnet | Reply to X mention from user 1682921754946162689 | Low-substance agreement in multi-party thread, no direct question to Arc, no rep
-2026-06-12T06:25:25.811Z | task #18649 | failed | sonnet | Reply to X mention from user 1167796047327969280 | X credits depleted (402, task #18636 blocked); mention also 25d stale — no reply
-2026-06-12T06:26:47.891Z | task #18650 | completed | sonnet | Reply to X mention from user 26021389 | Replied to RisingLeviathan mention praising arc-starter consistency/logging. Add
-2026-06-12T06:37:39.231Z | task #18651 | completed | sonnet | Build arc0.me Whop App routes + liveness JSON (Arc Agent reg | 3 Whop App routes added (discover/experience/dashboard) + whop-state.json + 60mi
-2026-06-12T06:39:14.566Z | task #18652 | failed | sonnet | Test Arc Agent Whop App posting: verify chat:message:create  | app_api_key also missing chat:message:create scope — same HTTP 400 as company ke
-2026-06-12T06:41:35.857Z | task #18653 | completed | sonnet | Compress X cadence (72h→12h) + add 3 content beats + draft f | Cadence compressed 72h→12h; 4 beats added (hot-topic, agent-philosophy, agent-jo
-2026-06-12T06:42:04.577Z | task #18656 | completed | haiku | Post first X tweet (human review) | First X post fired: agent-journey beat on autonomy architecture (225 chars, twee
-2026-06-12T06:48:56.550Z | task #18654 | completed | opus | Build BlogToXMachine: single-hop workflow fires X post on ev | BlogToXMachine shipped: single-hop blog_published→x_pending→completed, sensor sy
-2026-06-12T06:50:02.060Z | task #18657 | completed | sonnet | Post "Reading the Quiet" to X | Posted tweet ID 2065325706289312091 — structural observation on invisible agent 
-2026-06-12T06:51:15.660Z | task #18658 | completed | sonnet | Post "The Ladder" to X | Posted 'The Ladder' hot-topic: escalation ladders vs retry loops structural obse
-2026-06-12T06:52:05.891Z | task #18655 | completed | haiku | Retrospective: extract learnings from task #18651 — Build ar | Extracted 2 patterns from task #18651: cross-repo state writer resilience + inte
-2026-06-12T06:53:13.186Z | task #18659 | completed | haiku | Retrospective: extract learnings from task #18654 — Build Bl | Two patterns extracted: workflow-task bidirectional linking via {WORKFLOW_ID} su
-2026-06-12T07:05:58.037Z | task #18660 | completed | sonnet | Reply to X mention from user 1499351739752849408 | Replied to @endlessdomains on verifiability=autonomy thesis: added the recursive
-2026-06-12T07:11:02.170Z | task #18661 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure: #18649 mention-reply during X credit depletion, 25d stale — known pat
-2026-06-12T07:12:38.777Z | task #18662 | completed | haiku | Add mention-reply staleness guard: abandon tasks >7d old at  | Mention-reply staleness guard added at dispatch time — detects mentions >7d old 
-2026-06-12T08:08:04.913Z | task #18663 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-12T10:08:50.861Z | task #18664 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-12T10:18:32.834Z | task #18665 | completed | sonnet | GitHub update on your PR in arc0btc/arc0me-site: feat(whop): | PR #9 (Whop App routes + whop-state.json) merged. secret-mars approved with 5 no
-2026-06-12T11:07:13.472Z | task #18666 | completed | sonnet | Review PR #996 on aibtcdev/landing-page: feat(inbox): add PO | reviewed PR #996 on aibtcdev/landing-page — approved; flagged SQL filter alignme
-2026-06-12T13:05:24.874Z | task #18667 | completed | sonnet | Watch report — 2026-06-12T13:00Z | Watch report: 60 tasks completed, $31.58 spent, 2 failures — reports/2026-06-12T
-2026-06-12T13:08:25.967Z | task #18668 | completed | sonnet | Overnight brief — 2026-06-12 | Overnight brief generated: reports/2026-06-12T04_00_00Z_overnight_brief.md — 40 
-2026-06-12T13:09:36.444Z | task #18669 | completed | sonnet | health alert: dispatch stale | False positive — dispatch running normally (PID 158091, timer active). Workflow 
-2026-06-12T13:13:03.676Z | task #18670 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Updated x-cadence (12h/4-beat compression), arc0me PR #9 merged; no new patterns
-2026-06-12T13:57:44.293Z | task #18671 | completed | haiku | Pause 12h X cadence beat — rebuilding around teaching-fanout | 12h X cadence beat disabled (X_CADENCE_ENABLED=false). Mention-reply path remain
-2026-06-12T14:00:28.312Z | task #18672 | completed | opus | Brand-voice audit: recover Arc's X personality + draft CHANN | CHANNELS.md shipped: 6 per-channel voice cards (blog/whop-chat/whop-forum/public
-2026-06-12T14:11:53.046Z | task #18673 | completed | opus | Build ContentCalendarMachine: extend BlogToXMachine to full  | Built gated ContentCalendarMachine (template content-calendar): 7-state linear b
-2026-06-12T14:13:14.951Z | task #18684 | completed | sonnet | CEO review — 2026-06-12T14:06 | CEO review: on track, X cadence live + BlogToXMachine shipped, contextUpdate bug
-2026-06-12T14:22:51.416Z | task #18674 | completed | opus | Tier A backfill: audit memory/shared/entries/*.md, classify, | Tier A backfill: audited 28 memory/shared/entries, scored (TD/TV/F/SC), kept 17 
-2026-06-12T14:24:09.461Z | task #18687 | completed | sonnet | Email watch report to whoabuddy — 2026-06-12T14:06 | Watch report 2026-06-12T01:01Z–13:00Z emailed to whoabuddy (msg 9c54cd41) via ar
-2026-06-12T14:26:25.197Z | task #18675 | completed | sonnet | Rename 'Updates & Resources' experience to 'Patterns Library | rename blocked: PATCH /v2/experiences/{id} exists but company key lacks scope (4
-2026-06-12T14:28:21.645Z | task #18689 | completed | sonnet | Update skills/whop/STRATEGY.md + MEMORY.md: corrected team-o | STRATEGY.md: added §0 App-vs-Product data model, funnel topology (prod IDs), Pha
-2026-06-12T14:29:08.107Z | task #18680 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | FP: catch (err) params matched abbreviated-naming regex; fixed sensor to skip ca
-2026-06-12T14:31:14.641Z | task #18682 | completed | sonnet | Generate new blog post draft from recent activity | Draft 'The Ninety-Percent Night' created at content/2026/2026-06-12/the-ninety-p
-2026-06-12T14:31:55.484Z | task #18683 | completed | haiku | Publish generated blog post | Reading task context and MEMORY. The parent task #18682 completed — generated a 
-2026-06-12T14:33:02.351Z | task #18677 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both tasks remain blocked on external dependency: whoabuddy must install arc0btc
-2026-06-12T14:36:47.762Z | task #18678 | completed | sonnet | architecture review — codebase changed since last review (9d | State machine + audit log updated: 9d3edbc→738a9cd; sensor count 73→74 (whop); B
-2026-06-12T14:37:38.456Z | task #18691 | completed | sonnet | Post "The Ninety-Percent Night" to X | Posted tweet 2065443392319041732 — trust boundaries vs capability ceilings obser
-2026-06-12T14:38:22.229Z | task #18679 | completed | sonnet | workflow review — 1 health issue(s) | Closed 6 stuck overnight-brief workflows (06-05 through 06-11) stuck in briefing
-2026-06-12T14:39:24.885Z | task #18681 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator.Catalog generated (121 skills, 74 sensors). Now co
-2026-06-12T14:40:41.677Z | task #18685 | completed | sonnet | Fix latent contextUpdate->autoAdvance context clobber in arc | updateWorkflowContext now returns merged string; sensor uses it for autoAdvance 
-2026-06-12T14:43:33.360Z | task #18690 | completed | haiku | Sensor: append to Patterns Library index when new pattern ad | Sensor added: whop-patterns-library-monitor detects new patterns in patterns.md 
-2026-06-12T14:44:02.646Z | task #18694 | blocked | haiku | Whop: append 68 new pattern(s) to Patterns Library index | Whop API key missing chat:message:create scope (requires whoabuddy dashboard act
-2026-06-12T14:47:08.625Z | task #18692 | blocked | script | Deploy arc0me-site to Cloudflare (650d694fca3c) | [ESCALATED] Task #18692 reached HANDOFF after 3/3 attempts.
-Subject: Deploy arc0
-2026-06-12T14:49:01.654Z | task #18676 | completed | haiku | Retrospective: extract learnings from task #18672 — Brand-vo | Added 2 reusable patterns to patterns.md: exemplar-anchored guidance (voice regi
-2026-06-12T14:50:17.706Z | task #18696 | completed | script | Deploy arc0me-site to Cloudflare (00e41e7687d2) | }
-2026-06-12T14:51:06.350Z | task #18686 | completed | haiku | Retrospective: extract learnings from task #18673 — Build Co | Extracted 2 reusable patterns from ContentCalendarMachine build: (1) state-machi
-2026-06-12T14:51:57.684Z | task #18688 | completed | haiku | Retrospective: extract learnings from task #18674 — Tier A b | Captured 3 new patterns: feature-gate-scope-completeness (flags must cover creat
-2026-06-12T14:53:17.477Z | task #18693 | completed | haiku | Retrospective: extract learnings from task #18678 — architec | Added p-dispatch-signal-freshness-gate pattern for signal staleness validation a
-2026-06-12T16:10:08.762Z | task #18697 | completed | sonnet | Consolidate patterns.md (154 lines, threshold 150) | Merged 5 patterns into 3; 154→145 lines. Groups: #18674 gate patterns, skill-lau
-2026-06-12T16:56:07.769Z | task #18698 | completed | opus | Email from whoabuddy (1 unread): Whop Status Update | Replied to whoabuddy with Whop status: wedge built (shop+funnel+CLI+API mapped+d
-2026-06-12T16:56:47.646Z | task #18699 | completed | haiku | Retrospective: extract learnings from task #18698 — Email fr | Added p-external-auth-layering pattern: external services with App/credential du
-2026-06-12T17:01:03.658Z | task #18700 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Whop Status Up | Answered whoabuddy's Whop install question: same-org apps don't need public publ
-2026-06-12T17:01:45.083Z | task #18701 | completed | haiku | Retrospective: extract learnings from task #18700 — Email fr | Extracted 2 patterns: verify external-support answers against authoritative docs
-2026-06-12T19:49:44.710Z | task #18702 | completed | haiku | External email from Whop (1 unread): You've been invited to  | Whop platform notification: Arc invited to hash-it-out team. Automated notificat
-2026-06-12T20:02:00.857Z | task #18638 | completed | sonnet | Build PublishFanoutMachine (blog->whop->X) per skills/arc-wo | BlogToXMachine extended: blog_published→whop_pending→x_pending→completed; gate c
-2026-06-12T20:02:51.765Z | task #18703 | completed | haiku | Retrospective: extract learnings from task #18638 — Build Pu | Captured p-state-machine-modification-safety: audit for active instances before 
-2026-06-12T20:06:35.660Z | task #18704 | completed | sonnet | GitHub @mention in BitflowFinance/bff-skills: [payout-inquir | Already commented twice: provided PR context + nudged decision-makers post-comp 
-2026-06-12T20:09:08.616Z | task #18705 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-12T20:13:21.394Z | task #18706 | completed | sonnet | Add list-messages + reply-chat CLI commands to skills/whop | list-messages (GET /v1/messages, cursor pagination) + reply-chat (POST /v1/messa
-2026-06-12T20:45:16.195Z | task #18707 | completed | haiku | Whop: append 6 new pattern(s) to Patterns Library index | Posted Patterns Library index with 6 new patterns (dispatch-signal-freshness-gat
-2026-06-12T20:49:35.378Z | task #18708 | completed | haiku | arc-opensource: sync 155 commit(s) to GitHub | 155 commits pushed to arc0btc/arc-starter main; build validated
-2026-06-12T20:51:57.375Z | task #18709 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.50/5 — S:1 O:4 E:3 C:1 Ad:4 Co:3 Se:3. Heavy opus build day pushed 
-2026-06-12T20:52:45.307Z | task #18711 | completed | haiku | Retrospective: extract learnings from task #18709 — Daily se | Added p-cost-spike-burstiness-validation: single high-cost cycles from feature l
-2026-06-12T20:53:24.920Z | task #18710 | completed | haiku | daily cost report — 2026-06-12 | 2026-06-12 build day cost report reviewed — $61.81 code / $113.00 API est — opus
-2026-06-12T21:18:19.433Z | task #18712 | completed | sonnet | [DRY-RUN] Whop reply to whoabuddy: <@user_cd5Q1fTcrgua1;arc> | DRY-RUN: would reply with Bun+SQLite+Claude Code stack breakdown — sensors detec
-2026-06-12T21:21:45.996Z | task #18713 | completed | sonnet | [DRY-RUN] Whop reply to whoabuddy: This looks interesting! W | DRY-RUN: Would have replied confirming the post was intentional — first automate
-2026-06-12T21:22:51.986Z | task #18714 | completed | sonnet | [DRY-RUN] Whop reply to whoabuddy: <@user_cd5Q1fTcrgua1;arc> | dry-run: composed 'hi. still running — different task, same loop.' — brief, ties
-2026-06-12T21:24:10.518Z | task #18715 | completed | sonnet | [DRY-RUN] Whop reply to whoabuddy: the reply was great (even | DRY-RUN: would have replied 'Dry run held. Ready when you are.' — acknowledges w
-2026-06-12T21:53:04.774Z | task #18716 | completed | sonnet | Whop reply to whoabuddy: My job lately is more operational a | replied: arc-starter=live runtime, agent-runtime=newer RFC impl not fully migrat
-2026-06-12T22:03:09.734Z | task #18717 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-12T22]: read the room, def | DEFER: only one human speaker (synthesis is for rooms, not 1-on-1s); teaching-be
-2026-06-12T22:08:26.472Z | task #18600 | completed | opus | Wire whop sensor + first hot-topic post (blog->paid chat) on | Blocker dissolved: fresh App (app_2800dX1s1c0ul0) registered with all 12 permiss
-2026-06-12T22:08:36.610Z | task #18718 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Task #18600 confirmed complete — whop scope blocker dissolved via fresh App regi
-2026-06-12T22:08:53.857Z | task #18720 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-12T22:11:32.410Z | task #18719 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 3 signal-quality patterns + 2 research patterns; 152→145 lines, under 150
-2026-06-12T22:13:04.867Z | task #18721 | completed | sonnet | New release: anthropics/claude-code v2.1.176 | Report written: research/claude-code-releases/v2.1.176.md — 1 follow-up (#18722)
-2026-06-12T22:16:16.922Z | task #18722 | completed | sonnet | Audit Arc hook configs for path-condition upgrades (v2.1.176 | Added 4 path-conditional PreToolUse guards (v2.1.176+): Edit(.env), Edit(.env.lo
-2026-06-12T22:37:53.928Z | task #18723 | completed | sonnet | [DRY-RUN] Whop free-forum digest [2026-06-12]: syndicate Arc | DEFER: two hard gates hit — paid-room synthesis post fired in last 12h (cross-la
-2026-06-12T22:44:44.498Z | task #18724 | completed | opus | Email from whoabuddy (1 unread): whop at a high level | Whoabuddy whop-strategy email: replied + queued #18725 (P2/Opus, sonnet-subagent
-2026-06-12T22:49:55.634Z | task #18725 | completed | opus | Whop revenue maximization: explore latest code + whop state, | Whop revenue review compiled (skills/whop/REVENUE-REVIEW-2026-06-12.md): 3-sonne
-2026-06-12T22:50:46.849Z | task #18726 | completed | haiku | Retrospective: extract learnings from task #18724 — Email fr | Added p-email-strategy-delegation: email tasks with AGENT.md scope constraints s
-2026-06-12T22:52:17.908Z | task #18727 | completed | haiku | Retrospective: extract learnings from task #18725 — Whop rev | Captured 2 reusable patterns: p-manual-deploy-live-curl (explicit live verificat
-2026-06-12T23:48:05.856Z | task #18728 | completed | haiku | Deploy arc0me-site to fix /whop/discover 404 + ship liveness | Deployed arc0me-site with whop routes; /whop/discover, /whop/experience, /whop/d
-2026-06-12T23:49:40.558Z | task #18729 | completed | sonnet | Detach empty Whop Patterns Library experience exp_bbQpqIAETo | Detached exp_bbQpqIAEToAweQ (Patterns Library) from prod_TJknsIOzPDlQS via POST 
-2026-06-13T00:02:18.902Z | task #18730 | completed | opus | Resolve arc0me-site PR #8 — Arc decides canonical branch + c | PR #8 resolved: chose feat/blog-tags (canonical 229-commit content branch) over 
-2026-06-13T00:03:29.391Z | task #18733 | completed | sonnet | Research signal-worthy topics across active beats | Filing paused; identified 1 strong aibtc-network candidate (mcp-server v1.59.0 +
-2026-06-13T00:04:10.305Z | task #18734 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE 2.15/5 (S:1 O:5 E:1 C:1 Ad:3 Co:2 Se:3) — ops excellent, cost above targ
-2026-06-13T00:05:01.006Z | task #18732 | completed | sonnet | daily introspection: 134 tasks, 132 completed, $74.43 spent | Build day: whop Phase1 live, arc0.me deployed, BlogToX+ContentCalendar shipped; 
-2026-06-13T00:06:00.690Z | task #18735 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 1 stuck-task anomaly self-resolved (was this audit task); cost tracking healthy 
-2026-06-13T00:08:01.318Z | task #18737 | completed | sonnet | Adapt aibtc-news-sales skill into skills/whop-sales for $50/ | Authored skills/whop-sales/SKILL.md — 5 primitives adapted from aibtc-news-sales
-2026-06-13T00:09:49.441Z | task #18738 | completed | sonnet | Mine genesis-works/agent-coordination for content well — fee | 5 patterns distilled from genesis-works/agent-coordination into skills/whop/COUN
-2026-06-13T00:10:23.501Z | task #18731 | completed | haiku | Retrospective: extract learnings from task #18728 — Deploy a | Added p-manual-deploy-local-sync pattern; existing patterns (p-manual-deploy-liv
-2026-06-13T00:11:53.905Z | task #18740 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Single failure #18649: stale mention (25d) + 402 credits depleted — both already
-2026-06-13T00:13:33.146Z | task #18741 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Published the-ninety-percent-night (was draft:false but missing from src/content
-2026-06-13T00:14:20.451Z | task #18736 | completed | haiku | Retrospective: extract learnings from task #18730 — Resolve  | Updated p-manual-deploy-live-curl pattern: local checkout state must match remot
-2026-06-13T00:18:50.252Z | task #18739 | completed | sonnet | Consolidate patterns.md (152 lines, threshold 150) | Merged 6 redundant patterns into 3: state-machine-safety, fix-and-deploy-verific
-2026-06-13T00:19:17.489Z | task #18742 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | dummy
-2026-06-13T01:08:24.052Z | task #18743 | completed | sonnet | Watch report — 2026-06-13T01:01Z | Watch report 2026-06-12T13:00Z–2026-06-13T01:01Z: 60 tasks completed, 0 failed, 
-2026-06-13T01:09:15.950Z | task #18744 | completed | haiku | Retrospective: extract learnings from task #18743 — Watch re | No learnings to capture; task #18743 validated existing patterns (cost-spike-bur
-2026-06-13T02:09:18.898Z | task #18745 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 4 arc-skill-manager tasks: sensor health audit (#18749), memory consolida
-2026-06-13T02:10:13.284Z | task #18749 | completed | sonnet | Sensor health audit: run sensor-health-report, identify fail | Fleet healthy: 74 sensors, 0 consecutive failures. Two known stale sensors (aibt
-2026-06-13T02:12:46.817Z | task #18748 | completed | sonnet | compliance-review: 14 finding(s) [batch 1/1] | renamed err→error (7 catch blocks) and msg→message (3 function params + 1 for lo
-2026-06-13T02:13:57.232Z | task #18754 | completed | sonnet | CEO review — 2026-06-13T02:07 | CEO review written: on track, build day. Whop P1 live, arc0.me deployed, 0 failu
-2026-06-13T02:14:57.466Z | task #18692 | completed | script | Deploy arc0me-site to Cloudflare (650d694fca3c) | Superseded by successful arc0me-site deploy (PR #8, sha 55dd284, task #18728/187
-2026-06-13T02:15:00.217Z | task #18695 | completed | script | [ESCALATED] Deploy arc0me-site to Cloudflare (650d694fca3c) | Superseded by successful arc0me-site deploy (PR #8); escalation no longer needed
-2026-06-13T02:15:12.645Z | task #18755 | completed | sonnet | self-review: run health check for 2026-06-13 | Health check clean: services healthy, cost /bin/bash.39/task, 0 failures. Closed
-2026-06-13T02:18:15.441Z | task #18750 | completed | sonnet | Memory consolidation: MEMORY.md is stale (last consolidated  | Compressed MEMORY.md from 174→~145 lines: dropped resolved arc0me-site PR #8 ent
-2026-06-13T02:18:55.073Z | task #18751 | completed | sonnet | GOALS.md refresh: last reviewed 2026-03-08, now 3 months sta | GOALS.md refreshed: arc0me-site moved to Done, Whop Phase 1/2 status captured, c
-2026-06-13T02:22:42.322Z | task #18746 | completed | sonnet | architecture review — codebase changed since last review (73 | State machine + audit log updated: BlogToXMachine→PublishFanoutMachine rename, w
-2026-06-13T02:23:00.249Z | task #18747 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected — 17 instances dormant by design, gated on 
-2026-06-13T02:24:49.299Z | task #18752 | completed | haiku | Skills disallowed-tools audit: add read-only guards to resea | All 28 read-only skills properly configured with disallowed-tools guards. Resear
-2026-06-13T02:25:28.047Z | task #18757 | completed | sonnet | Email watch report to whoabuddy — 2026-06-13T02:07 | Watch report 2026-06-13T01:01Z emailed to whoabuddy@gmail.com via arc-email-sync
-2026-06-13T02:26:11.853Z | task #18753 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (122 skills, 74 sensors). Now committing arc0me-site to trigge
-2026-06-13T02:27:47.198Z | task #18756 | completed | haiku | Retrospective: extract learnings from task #18746 — architec | Updated p-architecture-review-discipline: added multi-phase external-integration
-2026-06-13T02:32:19.165Z | task #18758 | completed | script | Deploy arc0me-site to Cloudflare (a13b05955167) | }
-2026-06-13T02:51:16.851Z | task #18759 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-13T02]: read the room, def | DEFER: Arc already shipped the double-fire teaching beat in this window (19:52);
-2026-06-13T03:06:48.390Z | task #18760 | failed | sonnet | Distill arXiv digest 2026-06-12T02:07:13Z into 3-5 nuggets | smoke test of arxiv-distill — not actually distilling
-2026-06-13T03:09:31.071Z | task #18761 | failed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | smoke test of council-distill — not actually distilling
-2026-06-13T03:09:53.046Z | task #18762 | failed | sonnet | [ESCALATED] council-distill: 3 consecutive gh api failures | smoke test of council-distill escalation path
-2026-06-13T03:11:38.581Z | task #18763 | failed | sonnet | Distill watch report 2026-06-13T01:01:25Z into 1-2 interior  | smoke test of watch-interior-distill — not actually distilling
-2026-06-13T03:59:57.704Z | task #18764 | completed | sonnet | Distill arXiv digest 2026-06-12T02:07:13Z into 3-5 nuggets | 4 nuggets written: 1 aibtc-infra (HyperTool/MCP, arxiv:2606.13663 → x+blog+whop-
-2026-06-13T04:04:10.546Z | task #18765 | completed | sonnet | Distill watch report 2026-06-13T01:01:25Z into 1-2 interior  | 2 nuggets written: 'cost' (opus build-day anatomy, /bin/bash.80/task vs target, 
-2026-06-13T04:07:19.449Z | task #18766 | completed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | 5/5 council nuggets written to artifacts/distilled/council/ @ 2026-06-13T040704Z
-2026-06-13T05:08:58.103Z | task #18767 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Reviewed PRs #76 (opus-lux P2WOTS) and #77 (Pieter Wuille P2MR) on quantum-visua
-2026-06-13T06:09:24.408Z | task #18768 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-06-13T08:10:09.407Z | task #18769 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T08:52:59.189Z | task #18770 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-13T08]: read the room, def | DEFER: single human speaker (whoabuddy only), Arc already dense in window (5 pos
-2026-06-13T10:09:54.905Z | task #18771 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T12:10:37.942Z | task #18772 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T12:33:00.797Z | task #18773 | completed | sonnet | Review PR #829 on aibtcdev/agent-news: fix(identity-gate): c | reviewed PR #829 aibtcdev/agent-news — approved identity-gate shouldBlock cache 
-2026-06-13T12:58:14.506Z | task #18774 | completed | sonnet | whop synthesis: tighten Context wells budget vs nugget count | Capped synthesis wells at 2 nuggets (1 watch-interior + 1 arxiv): dropped counci
-2026-06-13T13:07:42.725Z | task #18775 | completed | sonnet | Watch report — 2026-06-13T13:00Z | Watch report 2026-06-13T13:00Z: 13 completed, 4 failed (03:00Z distill cluster),
-2026-06-13T13:11:26.415Z | task #18776 | completed | sonnet | Overnight brief — 2026-06-13 | Overnight brief generated: inflow pipeline built (11 artifacts in pool, 0 consum
-2026-06-13T13:12:38.881Z | task #18777 | completed | haiku | Retrospective: extract learnings from task #18775 — Watch re | Extracted 3 learnings: time-correlated transient failure clustering diagnostic (
-2026-06-13T14:10:19.125Z | task #18780 | completed | sonnet | compliance-review: 14 finding(s) [batch 1/2] | Renamed 14 abbreviated vars across 5 skills: err→error, msg→message, cmd→command
-2026-06-13T14:11:33.278Z | task #18781 | completed | sonnet | compliance-review: 6 finding(s) [batch 2/2] | Fixed 6 abbreviated-name violations: err→error in watch-interior-distill sensor 
-2026-06-13T14:14:18.211Z | task #18778 | completed | sonnet | architecture review — codebase changed since last review (ac | 2 structural changes: whop synthesis context cap (council dropped, arxiv 2→1, ma
-2026-06-13T14:15:44.384Z | task #18783 | completed | sonnet | CEO review — 2026-06-13T14:08 | CEO review complete: on track on cost, inflow pipeline built but consumers need 
-2026-06-13T14:16:08.887Z | task #18779 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected — 17 instances dormant in source_drafted pe
-2026-06-13T14:16:50.377Z | task #18782 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T14:18:08.688Z | task #18784 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation.Catalog generated (126 skills, 78 sensors). Now c
-2026-06-13T14:19:30.415Z | task #18785 | completed | haiku | Retrospective: extract learnings from task #18778 — architec | 2 patterns captured: silent-overflow-prevention (cap inputs at producer when dow
-2026-06-13T14:20:47.549Z | task #18786 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Draft created: 'The Tally Stick: Memory, Budget Rails, and Earned Authority' — a
-2026-06-13T14:21:03.538Z | task #18787 | completed | haiku | Publish generated blog post | Published blog post: the-tally-stick-memory-budget-rails-and-earned-authority (2
-2026-06-13T14:22:26.397Z | task #18788 | completed | script | Deploy arc0me-site to Cloudflare (860f1d53f6ae) | }
-2026-06-13T14:26:31.902Z | task #18790 | completed | sonnet | Email watch report to whoabuddy — 2026-06-13T14:08 | Watch report 2026-06-13T01:01Z–13:00Z emailed to whoabuddy@gmail.com via arc-ema
-2026-06-13T14:27:53.092Z | task #18789 | completed | sonnet | [DRY-RUN] Post "The Tally Stick: Memory, Budget Rails, and E | DRY-RUN: composed whop post for 'The Tally Stick' — structural-observation take 
-2026-06-13T14:31:47.339Z | task #18791 | completed | sonnet | Post "The Tally Stick: Memory, Budget Rails, and Earned Auth | Posted tweet 2065804313646211395: structural inversion on budget rails as creden
-2026-06-13T14:52:51.874Z | task #18792 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-13T14]: read the room, def | DEFER: single human speaker (whoabuddy only), publish-fanout post ≤6h ago, Arc a
-2026-06-13T15:14:34.984Z | task #18793 | completed | sonnet | Distill watch report 2026-06-13T13:00:55Z into 1-2 interior  | 2 nuggets: surprise (11:0 inflow ratio — producers active, consumers silent, poo
-2026-06-13T16:11:01.936Z | task #18794 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T18:10:42.670Z | task #18795 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T19:47:26.225Z | task #18796 | completed | script | Welcome new AIBTC agent: Deep Ozma | {"success":true,"agent":"Deep Ozma","stx_address":"SP162ZCZFQ8JNYQ6JBP56Y7HJTE4Q
-2026-06-13T20:11:25.671Z | task #18797 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T20:52:22.083Z | task #18798 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE eval 2.35/5 — S:1 O:3 E:2 C:3 Ad:4 Co:2 Se:3. Cost recovered $0.56→$0.33
-2026-06-13T20:54:21.796Z | task #18799 | completed | haiku | arc-opensource: sync 123 commit(s) to GitHub | 126 commits synced to arc0btc/arc-starter (49b8ee59..90d45f90); resolved whop-de
-2026-06-13T20:55:04.893Z | task #18801 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-13T20]: read the room, def | DEFER: single-speaker window (whoabuddy only) + Arc already delivered stack/arch
-2026-06-13T20:56:01.944Z | task #18802 | completed | haiku | Retrospective: extract learnings from task #18798 — Daily se | Extracted 2 reusable patterns: (1) structural-blocker-escalation — when daily mo
-2026-06-13T20:56:39.943Z | task #18800 | completed | haiku | daily cost report — 2026-06-13 | Daily cost report 2026-06-13: $0.32/task avg (target <$0.40); 68 tasks; arc-repo
-2026-06-13T22:11:56.911Z | task #18803 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-13T22:21:08.000Z | task #18804 | completed | script | Welcome new AIBTC agent: Amber Octopus | {"success":true,"agent":"Amber Octopus","stx_address":"SP36C5EGQHF3SP4MKPZ8SRDP0
-2026-06-14T00:01:39.909Z | task #18805 | completed | sonnet | Research signal-worthy topics across active beats | FILING PAUSED — 2 strong aibtc-network candidates found: (1) OKX MCP tools PR#49
-2026-06-14T00:02:51.683Z | task #18806 | completed | sonnet | PURPOSE eval: 1.88/5 — S:1 O:3 E:1 C:3 | PURPOSE 2.20/5 (S:1 O:3 E:1 C:3 Ad:4 Co:3 Se:3); adaptation strongest dim, ecosy
-2026-06-14T00:03:49.521Z | task #18807 | completed | sonnet | daily introspection: 77 tasks, 73 completed, $23.89 spent | 4 failures were smoke tests (0% real failure rate); Whop synthesis gates working
-2026-06-14T00:05:20.803Z | task #18808 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 29 uncommitted files were artifacts/ + lock file drift; gitignored both, committ
-2026-06-14T00:12:28.637Z | task #18809 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-14T00:18:41.601Z | task #18810 | completed | sonnet | Daily failure retrospective: 4 failed task(s) | All 4 failures were intentional smoke tests of distill pipelines (arxiv-distill,
-2026-06-14T01:06:22.197Z | task #18811 | completed | sonnet | Watch report — 2026-06-14T01:02Z | Watch report: 6 tasks completed, $2.04 spent, 7 cycles — reports/2026-06-14T01_0
-2026-06-14T02:13:19.565Z | task #18812 | completed | sonnet | architecture review — codebase changed since last review (4a | Inflows system (4 new sensors, 74→78), whop forum threading, artifact cleanup ta
-2026-06-14T02:14:31.565Z | task #18815 | completed | sonnet | CEO review — 2026-06-14T02:08 | CEO review written: clean maintenance watch, no external output, whop dedup fix 
-2026-06-14T02:15:48.938Z | task #18814 | completed | sonnet | self-review: run health check for 2026-06-14 | Health check clean: all 4 services up, 425 tasks/week, 1 chronic blocked (#18694
-2026-06-14T02:16:16.072Z | task #18813 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 0% rate is expected: 17 instances dormant by design (WORKFLOWS_
-2026-06-14T02:17:50.355Z | task #18816 | completed | haiku | whop: cleanup reply artifacts (295 files, ~40/window, no cle | Added .gitignore for ephemeral reply artifacts, documented retention policy in S
-2026-06-14T02:18:54.147Z | task #18694 | failed | haiku | Whop: append 68 new pattern(s) to Patterns Library index | Known dead-end: Whop API has no write path for experience doc body. Pattern appe
-2026-06-14T02:19:13.611Z | task #18819 | completed | sonnet | self-review triage: 2 issue(s) found | Triaged 2 issues: #18694 (Whop pattern append) closed as dead-end, fix task #188
-2026-06-14T02:21:35.073Z | task #18820 | completed | sonnet | Fix whop sensor: route pattern appends to arc0me-site JSON f | Removed dead findNewPatterns() function and stale recentPatternsDigest check — m
-2026-06-14T02:22:07.769Z | task #18818 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Generated catalog (126 skills, 78 sensors), committed to arc0me-site — blog-depl
-2026-06-14T02:23:10.262Z | task #18817 | completed | haiku | Retrospective: extract learnings from task #18812 — architec | Validated p-auto-artifact-cleanup-cadence (295 files confirmed) and p-architectu
-2026-06-14T02:25:16.896Z | task #18821 | completed | sonnet | Email watch report to whoabuddy — 2026-06-14T02:08 | Watch report emailed to whoabuddy@gmail.com (msg f1bbd82e); skill name is arc-em
-2026-06-14T02:25:59.861Z | task #18822 | completed | script | Deploy arc0me-site to Cloudflare (011122cd337a) | }
-2026-06-14T02:54:00.922Z | task #18823 | completed | sonnet | [DRY-RUN] Whop synthesis [2026-06-14T02]: read the room, def | DEFER: 0 messages in 24h window — room silent, posting would be 'hello room' ene
-2026-06-14T03:15:23.175Z | task #18824 | completed | sonnet | Distill watch report 2026-06-14T01:02:02Z into 1-2 interior  | 2 nuggets written: sensor-anomaly (reactive lane 57% already_queued churn on sta
-2026-06-14T06:01:12.456Z | task #18825 | completed | sonnet | [DRY-RUN] Post "The Ninety-Percent Night" to whop AI Prefers | DRY-RUN: composed hot-topic post for AI Prefers Bitcoin room ('The ninety-percen
-2026-06-14T06:08:48.879Z | task #18826 | completed | opus | [re: #18822] result is messed up here we should fix | Root cause: dispatchScript JSON.parse'd full stdout; mixed log+JSON deploy outpu
-2026-06-14T06:10:06.636Z | task #18827 | completed | sonnet | Post "Reading the Quiet" to whop AI Prefers Bitcoin room | Posted 'Reading the Quiet' double-fire pattern to AI Prefers Bitcoin (post_1Cc2e
-2026-06-14T06:10:49.331Z | task #18828 | completed | sonnet | Post "The Ninety-Percent Night" observation to X | Posted 'ninety-percent night' structural observation (tweet 2066040625951342972)
-2026-06-14T06:11:42.193Z | task #18829 | completed | haiku | Retrospective: extract learnings from task #18826 — [re: #18 | Added p-mixed-output-parsing pattern — parsing hybrid log+JSON subprocess output
-2026-06-14T06:30:31.145Z | task #18830 | completed | sonnet | Whop synthesis [2026-06-14T06]: read the room, defer or post | DEFER: teaching beat already landed (double-fire pattern, 06:09Z), zero human sp
-2026-06-14T07:00:11.325Z | task #18831 | completed | opus | Email from whoabuddy (1 unread): 2026-06-13 Research Tasks | Triaged whoabuddy 2026-06-13 research batch: 18/18 X links prescreened OK -> 18 
-2026-06-14T07:00:57.611Z | task #18854 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | Signal filing paused since 2026-05-19 (whoabuddy policy); link-research auto-rou
-2026-06-14T07:01:07.125Z | task #18832 | completed | opus | Research: x.com/shushant_l tweet — fetch, cache & ISO report | Tweet fetched & cached, ISO report written (2026-06-14T07:00:27Z). @shushant_l =
-2026-06-14T07:01:41.921Z | task #18833 | completed | opus | Research: x.com/omarsar0 tweet — fetch, cache & ISO report | Processed omarsar0 tweet on autonomous long-running coding agents (loop engineer
-2026-06-14T07:02:40.393Z | task #18834 | completed | opus | Research: x.com/Marie_Haynes tweet — fetch, cache & ISO repo | Marie_Haynes tweet processed → 2026-06-14T07:02:27Z_research.md. Topic: Google O
-2026-06-14T07:03:57.631Z | task #18855 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | Signal filing paused per 2026-05-19 whoabuddy policy; arc-link-research auto-rou
-2026-06-14T07:04:15.554Z | task #18835 | completed | opus | Research: x.com/matei_zaharia tweet — fetch, cache & ISO rep | Omnigent = meta-harness for AI agents, open-sourced by Matei Zaharia (CTO Databr
-2026-06-14T07:05:03.344Z | task #18836 | completed | opus | Research: x.com/DataChaz tweet — fetch, cache & ISO report | DataChaz tweet cached + ISO report written (research/2026-06-14T07:04:34Z_resear
-2026-06-14T07:06:00.889Z | task #18857 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | Signal filing PAUSED (2026-05-19 policy). arc-link-research auto-route ignores p
-2026-06-14T07:06:07.371Z | task #18837 | completed | opus | Research: x.com/Av1dlive tweet — fetch, cache & ISO report | Av1dlive tweet researched: Karpathy 'let an LLM maintain a wiki of your notes' s
-2026-06-14T07:06:53.425Z | task #18838 | completed | opus | Research: x.com/cyrilXBT tweet — fetch, cache & ISO report | Processed @cyrilXBT tweet (Claude Fable 5 usage take) → research/2026-06-14T07:0
-2026-06-14T07:07:47.902Z | task #18839 | completed | opus | Research: x.com/_avichawla tweet — fetch, cache & ISO report | Processed @_avichawla tweet (Karpathy 'loop engineering' quote) → ISO report; si
-2026-06-14T07:09:04.660Z | task #18858 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | Signal filing PAUSED per whoabuddy 2026-05-19 policy; auto-queued by arc-link-re
-2026-06-14T07:09:04.701Z | task #18840 | completed | opus | Research: x.com/bibryam tweet — fetch, cache & ISO report | bibryam tweet fetched+cached, ISO report written (1 high: git-ref agent-to-agent
-2026-06-14T07:09:48.187Z | task #18841 | completed | opus | Research: x.com/manthanguptaa tweet — fetch, cache & ISO rep | Tweet processed + cached + ISO report written (research/2026-06-14T07:09:31Z_res
-2026-06-14T07:10:42.098Z | task #18842 | completed | opus | Research: x.com/JafarNajafov tweet — fetch, cache & ISO repo | Processed JafarNajafov tweet (Supertonic TTS 'killed ElevenLabs' — on-device TTS
-2026-06-14T07:11:46.929Z | task #18843 | completed | opus | Research: x.com/hanakoxbt tweet — fetch, cache & ISO report | hanakoxbt tweet processed→ISO report+cache. Single topic (Claude Code multi-step
-2026-06-14T07:12:52.541Z | task #18859 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | signal filing PAUSED per whoabuddy policy 2026-05-19 — auto-queued by arc-link-r
-2026-06-14T07:13:01.606Z | task #18844 | completed | opus | Research: x.com/PrajwalTomar_ tweet — fetch, cache & ISO rep | Tweet fetched + cached + ISO report written (research/2026-06-14T07:12:34Z_resea
-2026-06-14T07:14:09.612Z | task #18860 | failed | sonnet | File aibtc-network signal from research (1 high-relevance li | Auto-queued by arc-link-research signal routing, but ALL signal filing is PAUSED
-2026-06-14T07:14:15.169Z | task #18845 | completed | opus | Research: x.com/mfpiccolo tweet — fetch, cache & ISO report | Fetched @mfpiccolo tweet on AI-agent harness-as-a-layer + 2 embedded links (Alex
-2026-06-14T07:14:46.627Z | task #18846 | completed | opus | Research: x.com/DanKornas tweet — fetch, cache & ISO report | Processed @DanKornas tweet via arc-link-research; ISO report written + cached. S
-2026-06-14T07:15:47.659Z | task #18856 | completed | sonnet | Gate arc-link-research signal auto-routing behind SIGNAL_FIL | Gated routeAibtcNetworkSignal behind SIGNAL_FILING_DISABLED=true in skills/arc-l
-2026-06-14T07:15:52.258Z | task #18847 | completed | opus | Research: x.com/rohanpaul_ai tweet — fetch, cache & ISO repo | Tweet processed: rohanpaul_ai on agentic-RL-for-LLMs survey (single topic, no th
-2026-06-14T07:16:46.009Z | task #18848 | completed | opus | Research: x.com/OpenRouter tweet — fetch, cache & ISO report | OpenRouter 'Fusion API' tweet fetched+cached, ISO report written (2026-06-14T07:
-2026-06-14T07:17:45.847Z | task #18849 | completed | opus | Research: x.com/HowToPrompt__ tweet — fetch, cache & ISO rep | Fetched @HowToPrompt__ tweet (DeepMind 'most important AI paper of 2026' teaser,
-2026-06-14T07:18:47.486Z | task #18850 | completed | opus | Research: yegge.ai/listings/services-and-complexity — fetch, | Processed Yegge listing → research/2026-06-14T07:18:34Z_research.md. Single essa
-2026-06-14T07:20:11.746Z | task #18861 | completed | opus | Re-run research: x.com/omarsar0 tweet — surface JS-walled em | t.co->x.com redirect fix works: embedded JS-walled link now surfaces real X arti
-2026-06-14T07:21:23.179Z | task #18862 | completed | opus | Re-run research: x.com/Marie_Haynes tweet — surface JS-walle | JS-wall fix verified: embedded t.co/O8HSkoTiUF went from 493-byte splash (1st pa
-2026-06-14T07:22:59.300Z | task #18863 | completed | opus | Re-run research: x.com/matei_zaharia tweet — surface JS-wall | JS-wall fix verified: embedded t.co now resolves via X API (no more 493-byte spl
-2026-06-14T07:26:02.685Z | task #18864 | completed | opus | Re-run research: x.com/cyrilXBT tweet — surface JS-walled em | Re-run surfaced hidden content: tweet 2065984221756219807 is an X article '300 C
-2026-06-14T07:27:04.119Z | task #18865 | completed | opus | Re-run research: x.com/_avichawla tweet — surface JS-walled  | JS-wall fix verified: t.co/Yu9zR0hgYK now routes through X API instead of 493b s
-2026-06-14T07:27:50.827Z | task #18866 | completed | opus | Re-run research: x.com/JafarNajafov tweet — surface JS-walle | JS-wall fix verified: t.co re-route through X API works (no more 493-byte splash
-2026-06-14T07:30:07.292Z | task #18868 | completed | sonnet | Research: Omnigent meta-harness architecture (Databricks) —  | Omnigent: gateway/proxy model, no task queue — Arc's sensor→queue→dispatch is st
-2026-06-14T07:34:12.884Z | task #18851 | completed | sonnet | Re-queue X-research blocked 2026-05-27 by X-budget exhaustio | Audited 2026-05-27 X-budget failures: tasks 17790-17795 (6 research tasks) alrea
-2026-06-14T07:38:43.386Z | task #18867 | completed | sonnet | Research: full body of @omarsar0 X article 'Autonomous Long- | X Article URL (/i/article/) is JS-gated + HTTP 402 — fetched source materials di
-2026-06-14T07:40:35.836Z | task #18870 | completed | sonnet | Thread whop forum teardown: "The Tally Stick: budget rails a | Posted forum teardown 'The Ceiling That Fires One Step Late' (post_1Cc2mpyYmoLwJ
-2026-06-14T07:42:12.535Z | task #18873 | completed | opus | Re-process 46 X tweets blocked 2026-05-27 (X-budget restored | Re-queued 46/46 tweets from 2026-05-27 batch (email fa90fc6a) as opus research t
-2026-06-14T07:42:43.017Z | task #18874 | completed | opus | Research: tweet 2059338915023393161 (2059338915023393161) | Re-processed X-blocked tweet (credits restored): @zarazhangrui Claude Code Front
-2026-06-14T07:43:50.867Z | task #18875 | completed | opus | Research: tweet 2059010009292480849 (2059010009292480849) | Tweet by @rohanpaul_ai: Meta+Stanford+Illinois survey argues AI agents work bett
-2026-06-14T07:44:53.251Z | task #18876 | completed | opus | Research: tweet 2059026191646945515 (2059026191646945515) | Webwright (MSR/HKU): terminal-native web agents — model gets terminal+workspace,
-2026-06-14T07:45:44.729Z | task #18877 | completed | opus | Research: tweet 2059273095970738264 (2059273095970738264) | Tweet 2059273095970738264 = @Av1dlive promoting Anthropic 'Claude for finance' q
-2026-06-14T07:46:48.256Z | task #18878 | completed | opus | Research: tweet 2059496299351732414 (2059496299351732414) | Tweet @DanKornas AI System Design interview repo — medium relevance (adjacent ag
-2026-06-14T07:47:49.653Z | task #18879 | completed | opus | Research: tweet 2059576093493891446 (2059576093493891446) | Processed @coreyganim tweet on dual-memory (private role-specific + shared) mult
-2026-06-14T07:48:59.810Z | task #18880 | completed | opus | Research: tweet 2059319662597611914 (2059319662597611914) | Tweet = @nurijanian listing 3 public Claude Code skills repos (compound-engineer
-2026-06-14T07:49:50.250Z | task #18881 | completed | opus | Research: tweet 2058129659963843071 (2058129659963843071) | Tweet = @sharbel listicle of fastest-growing GH repos; only mission-relevant ite
-2026-06-14T07:50:49.359Z | task #18882 | completed | opus | Research: tweet @alokbishoyi97 (2059610305408462898) | Re-processed @alokbishoyi97 tweet after X-budget restore; thin content (author b
-2026-06-14T07:51:54.734Z | task #18883 | completed | opus | Research: tweet @pauliusztin_ (2059613089260003387) | Tweet @pauliusztin_ on Neo4j agent memory (3-layer connected graph vs conversati
-2026-06-14T07:52:44.465Z | task #18884 | completed | opus | Research: tweet @omarsar0 (2059657791141212186) | Processed @omarsar0 tweet on composable AI (medium relevance). Thesis: LLMs/eval
-2026-06-14T07:54:03.131Z | task #18885 | completed | opus | Research: tweet @bibryam (2059359166188208142) | Processed @bibryam tweet (2059356450686894080 article): 'Large codebases expose 
-2026-06-14T07:54:53.109Z | task #18886 | completed | opus | Research: tweet @ttunguz (2059679028324524187) | Processed @ttunguz 'harness era' tweet → research/2026-06-14T07:54:35Z. Auto-rat
-2026-06-14T07:55:46.917Z | task #18887 | completed | opus | Research: tweet @NainsiDwiv50980 (2059555402036150285) | Processed @NainsiDwiv50980 tweet (Karpathy/future-of-SWE thread teaser). Keyword
-2026-06-14T07:56:52.092Z | task #18888 | completed | opus | Research: tweet @Suryanshti777 (2059530168054792617) | Processed @Suryanshti777 tweet: hype post framing Claude Code as an 'operating s
-2026-06-14T07:57:44.876Z | task #18889 | completed | opus | Research: tweet @DanKornas (2059541609532789235) | DanKornas tweet: AI coding agents need operating rules beyond model calls — para
-2026-06-14T07:58:43.059Z | task #18890 | completed | opus | Research: tweet @rohanpaul_ai (2059283613620011457) | Re-processed @rohanpaul_ai tweet (Meta/CMU coding-agents paper) after X-budget r
-2026-06-14T07:59:51.917Z | task #18891 | completed | opus | Research: tweet @RampLabs (2059678575939273091) | Ramp ran 10k coding agents against their backend to hunt security vulns — agent-
-2026-06-14T08:00:51.849Z | task #18892 | completed | opus | Research: tweet @jerryjliu0 (2059710330016817501) | Tweet = LlamaIndex LiteParse v2.0 PDF-parser launch (Jerry Liu). AI doc-OCR tool
-2026-06-14T08:05:49.683Z | task #18921 | completed | sonnet | P10: author beginner "become a better agent operator" course | Authored 5-chapter beginner course as p10-course-outline.json — dispatch loop, s
-2026-06-14T08:06:18.247Z | task #18893 | completed | opus | Research: tweet @hnshah (2059421071116529965) | Processed @hnshah tweet (re-run after X-budget restore): SaaS best-practices, lo
-2026-06-14T08:07:21.841Z | task #18894 | completed | opus | Research: tweet @Sumanth_077 (2059627798676079086) | Alook = open-source collab platform for AI coding agents (@Sumanth_077). Orchest
-2026-06-14T08:08:22.994Z | task #18895 | completed | opus | Research: tweet @TheAhmadOsman (2059360736854339606) | Tweet = @TheAhmadOsman local-AI/Codex-CLI hardware guide (workload shape + servi
-2026-06-14T08:09:20.255Z | task #18896 | completed | opus | Research: tweet @dr_cintas (2059670624205746668) | Processed @dr_cintas tweet (re-run after X-budget restore): promotes free AI-eng
-2026-06-14T08:10:50.133Z | task #18897 | completed | opus | Research: tweet @omarsar0 (2059689897523642510) | Processed @omarsar0 tweet on agent 'aging'/context-degradation; thin source — em
-2026-06-14T08:13:23.649Z | task #18923 | completed | sonnet | Security: esbuild (high) in aibtcdev/landing-page | Added esbuild >=0.28.1 override to package.json; Deno-only vuln (no actual risk 
-2026-06-14T08:13:52.233Z | task #18898 | completed | opus | Research: tweet @sarahcat21 (2059660361242910991) | Processed @sarahcat21 (Sarah Catanzaro, GP Amplify) tweet: filesystems > DBs/obj
-2026-06-14T08:14:57.850Z | task #18899 | completed | opus | Research: tweet @mem0ai (2059662044224475280) | mem0ai tweet (2026-05-27) re memory-layer for AI agents, links openclaw/openclaw
-2026-06-14T08:15:53.207Z | task #18900 | completed | opus | Research: tweet @itsolelehmann (2059538995269279912) | Tweet @itsolelehmann: Claude skill simulating 5 buyer personas browsing a landin
-2026-06-14T08:16:43.883Z | task #18901 | completed | opus | Research: tweet @pederaaby (2059534583217967320) | Processed @pederaaby tweet: AI coding-agent companion promo. Tangential AI-agent
-2026-06-14T08:17:57.159Z | task #18902 | completed | opus | Research: tweet @ericosiu (2059680690728517895) | Processed @ericosiu tweet; thin content — body is a t.co redirect to JS-gated x.
-2026-06-14T08:18:57.158Z | task #18903 | completed | opus | Research: tweet @__sishir (2059696012466217220) | Processed @__sishir tweet (TheGrid/Spectral_Labs sharing 'Services: The New Soft
-2026-06-14T08:19:44.328Z | task #18904 | completed | opus | Research: tweet @Pavan_Belagatti (2059508092996669667) | Tweet processed: @Pavan_Belagatti generic agentic-eng take (AI empowers, not rep
-2026-06-14T08:20:55.116Z | task #18905 | completed | opus | Research: tweet @0xDepressionn (2059645573787943349) | Processed @0xDepressionn tweet: Kimi 'Agent Swarm' marketing (300 agents/one pro
-2026-06-14T08:22:44.408Z | task #18906 | completed | opus | Research: tweet @DamiDefi (2059565223980183587) | DamiDefi tweet = long-form 'Obsidian crypto research autopilot' build; human man
-2026-06-14T08:23:15.613Z | task #18907 | completed | opus | Research: tweet @raunakdoesdev (2059675807858274394) | Processed @raunakdoesdev tweet (re-run after X-budget restore). 1 medium signal:
-2026-06-14T08:26:16.056Z | task #18908 | completed | opus | Research: tweet @bibryam (2059642782839447895) | Processed @bibryam tweet → Böckeler 'maintainability sensors for coding agents' 
+2026-06-14T08:26:16.056Z | task #18908 | completed | opus | Research: tweet @bibryam (2059642782839447895) | Processed @bibryam tweet → Böckeler 'maintainability sensors for coding agents'
 2026-06-14T08:27:08.077Z | task #18909 | completed | opus | Research: tweet @neil_xbt (2059660789468811771) | Link-only tweet (text = bare t.co URL); embedded link dead-ends at JS-gated x.co
 2026-06-14T08:29:24.739Z | task #18926 | completed | sonnet | Review PR #575 on aibtcdev/aibtc-mcp-server: fix(lightning_p | approved PR #575 aibtc-mcp-server: spend-limiter enforcement for lightning_pay_i
 2026-06-14T08:29:54.928Z | task #18910 | completed | opus | Research: tweet @_vmlops (2059207888393138556) | Processed @_vmlops tweet (Microsoft open-sourced an AI-agent governance/guardrai
@@ -459,10 +10,10 @@ Subject: Deploy arc0
 2026-06-14T08:36:05.532Z | task #18916 | completed | opus | Research: tweet @InduTripat82427 (2059576348696539382) | Processed @InduTripat82427 tweet (re-run from 2026-05-27 batch after X-budget re
 2026-06-14T08:36:59.459Z | task #18917 | completed | opus | Research: tweet @0xDeliriumm (2059602919507316935) | Tweet = @0xDeliriumm 'knowledge vault' hype thread (librarian-agent structures d
 2026-06-14T08:38:05.350Z | task #18918 | completed | opus | Research: tweet @AlphaSignalAI (2059520393103512039) | Re-processed @AlphaSignalAI tweet (MIT 'cheaper tokens != cheaper AI' newsletter
-2026-06-14T08:38:57.543Z | task #18919 | completed | opus | Research: tweet @zechengzh (2052105012172792061) | Processed @zechengzh tweet → Mirage, a unified virtual filesystem for AI agents 
+2026-06-14T08:38:57.543Z | task #18919 | completed | opus | Research: tweet @zechengzh (2052105012172792061) | Processed @zechengzh tweet → Mirage, a unified virtual filesystem for AI agents
 2026-06-14T08:39:38.630Z | task #18924 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-14T08:41:53.287Z | task #18853 | completed | haiku | Retrospective: extract learnings from task #18831 — Email fr | All learnings already captured in existing patterns (research-synthesis, integra
-2026-06-14T08:42:30.287Z | task #18869 | completed | haiku | Retrospective: extract learnings from task #18863 — Re-run r | Added p-mechanism-vs-signal-validation: when verifying infra fixes, distinguish 
+2026-06-14T08:42:30.287Z | task #18869 | completed | haiku | Retrospective: extract learnings from task #18863 — Re-run r | Added p-mechanism-vs-signal-validation: when verifying infra fixes, distinguish
 2026-06-14T08:45:03.756Z | task #18871 | completed | sonnet | Fix arc-link-research: dedup self-referential t.co→/i/articl | Two-fix dedup: (1) article tweets return embeddedUrls:[] when articleContent pre
 2026-06-14T08:45:45.763Z | task #18872 | completed | haiku | Retrospective: extract learnings from task #18864 — Re-run r | API payloads should be inspected before HTTP re-fetch; X article payloads captur
 2026-06-14T08:47:49.793Z | task #18920 | completed | sonnet | Mine public Claude Code skills repos for patterns Arc can ad | 3 repos analyzed: frontmatter-gated hooks (rjs), CONTEXT.md domain glossary (mat
@@ -472,7 +23,7 @@ Subject: Deploy arc0
 2026-06-14T10:16:42.871Z | task #18929 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-14T10:26:10.100Z | task #18928 | completed | sonnet | Consolidate patterns.md (151 lines, threshold 150) | merged 4 isolated entries into parent patterns; 151→142 lines
 2026-06-14T13:07:25.055Z | task #18930 | completed | sonnet | Watch report — 2026-06-14T13:00Z | Watch report: 112 tasks completed, $55.19 spent, 111 cycles — reports/2026-06-14
-2026-06-14T13:11:35.675Z | task #18931 | completed | sonnet | Overnight brief — 2026-06-14 | Overnight brief 2026-06-14 generated: 64 tweets processed clearing May backlog, 
+2026-06-14T13:11:35.675Z | task #18931 | completed | sonnet | Overnight brief — 2026-06-14 | Overnight brief 2026-06-14 generated: 64 tweets processed clearing May backlog,
 2026-06-14T13:12:14.788Z | task #18932 | completed | haiku | Retrospective: extract learnings from task #18930 — Watch re | Inflow pool health ratio pattern extracted: consumption ratio health metrics add
 2026-06-14T14:11:13.999Z | task #18933 | completed | sonnet | architecture review — codebase changed since last review (74 | 1 structural commit reviewed: arc-link-research article-URL dedup + arc-workflow
 2026-06-14T14:12:45.169Z | task #18935 | completed | sonnet | Security: esbuild (high) in aibtcdev/x402-api | Not exploitable: esbuild Deno-module RCE (CVE GHSA) only affects Deno runtime us
@@ -507,31 +58,31 @@ Subject: Deploy arc0
 2026-06-14T16:54:58.720Z | task #18965 | completed | sonnet | Deep re-fetch of 2026-06-13 research batch high-value links  | Deep re-fetch done: MS agent governance toolkit (runtime interception, Cedar/OPA
 2026-06-14T16:55:30.366Z | task #18967 | completed | sonnet | Seed whop chat: "Match Your Evals to Your Traffic" | Idempotency check: post_1Cc3LnSAVFM62oZB7KSjsm already covers match-your-evals-t
 2026-06-14T16:56:35.737Z | task #18966 | completed | haiku | Retrospective: extract learnings from task #18964 — Email fr | Email thread dedup false-positive captured: same subject at different reply poin
-2026-06-14T16:58:30.296Z | task #18968 | completed | haiku | Retrospective: extract learnings from task #18965 — Deep re- | Pattern extracted: p-architecture-mechanism-extraction. Reusable learning: deep 
+2026-06-14T16:58:30.296Z | task #18968 | completed | haiku | Retrospective: extract learnings from task #18965 — Deep re- | Pattern extracted: p-architecture-mechanism-extraction. Reusable learning: deep
 2026-06-14T17:01:48.984Z | task #18969 | completed | sonnet | aibtc.news signal from artifact: Recursive Agent Harnesses:  | Filed aibtc-network signal on arxiv:2606.13643 RAH paper; signal ID 1c2a5fb0, pa
 2026-06-14T17:05:44.648Z | task #18970 | completed | sonnet | Seed whop chat: "Done Is a Command You Run, Not a Claim You  | Reading the voice register and checking for existing messages in parallel.No exi
 2026-06-14T17:07:14.516Z | task #18971 | completed | sonnet | Seed whop chat: "Done Is a Command You Run, Not a Claim You  | Posted completion-verification hot-topic to whop chat (post_1Cc3X3Gmbiq2tq3DAsLw
 2026-06-14T18:23:20.078Z | task #18973 | completed | opus | AIBTC thread from Frosty Narwhal (1 messages) | Replied to Iskander (#124, AIBTC name 'Frosty Narwhal') re: agent-registry RFC —
 2026-06-14T18:23:29.456Z | task #18972 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-14T18:27:21.989Z | task #18974 | completed | sonnet | Triage AIBTC thread from Frosty Narwhal | Iskander RFC on agent registry (ERC-8004+A2A+MCP); reply already sent by task #1
-2026-06-14T18:40:44.479Z | task #18975 | completed | sonnet | Retrospective: extract learnings from collaboration with Fro | Extracted 2 learnings: (1) AIBTC display name ≠ BNS/self-name (Frosty Narwhal = 
+2026-06-14T18:40:44.479Z | task #18975 | completed | sonnet | Retrospective: extract learnings from collaboration with Fro | Extracted 2 learnings: (1) AIBTC display name ≠ BNS/self-name (Frosty Narwhal =
 2026-06-14T20:12:33.611Z | task #18976 | completed | sonnet | Sensor validation: 2 sensor(s) need export pattern fix | Added claimSensorRun(SENSOR_NAME, 5) to nostr/sensor.ts and aibtc-news-distribut
 2026-06-14T20:22:41.400Z | task #18977 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-14T20:53:35.575Z | task #18978 | completed | opus | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2026-06-14 full-day: weighted 2.65/5 (S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3)
 2026-06-14T20:53:58.465Z | task #18979 | completed | haiku | arc-opensource: sync 183 commit(s) to GitHub | Synced 183 commits to arc0btc/arc-starter; build validated; origin/main updated
 2026-06-14T21:00:43.714Z | task #18982 | completed | sonnet | Review PR #998 on aibtcdev/landing-page: feat: multi-winner  | reviewed PR #998 aibtcdev/landing-page multi-winner bounties — requested changes
 2026-06-14T21:01:19.765Z | task #18983 | completed | sonnet | Whop synthesis [2026-06-14T20]: read the room, defer or post | DEFER: all 5 window messages are arc0btc — no human speakers, synthesis is for r
-2026-06-14T21:02:48.381Z | task #18981 | completed | haiku | Retrospective: extract learnings from task #18978 — Daily se | Extracted 2 pattern refinements: purpose equilibrium (no boosts when ops health 
-2026-06-14T21:03:13.397Z | task #18980 | completed | haiku | daily cost report — 2026-06-14 | Daily report: 7.07 code, 32.56 API est, 175 tasks. arc-link-research 54% cost — 
+2026-06-14T21:02:48.381Z | task #18981 | completed | haiku | Retrospective: extract learnings from task #18978 — Daily se | Extracted 2 pattern refinements: purpose equilibrium (no boosts when ops health
+2026-06-14T21:03:13.397Z | task #18980 | completed | haiku | daily cost report — 2026-06-14 | Daily report: 7.07 code, 32.56 API est, 175 tasks. arc-link-research 54% cost —
 2026-06-14T21:13:05.185Z | task #18984 | completed | sonnet | Re-review PR #998 on aibtcdev/landing-page: feat: multi-winn | cycle 2 review: 3/3 prior items fixed; new [blocking] found — setWinnerPaid D1 b
-2026-06-14T21:13:53.570Z | task #18985 | completed | haiku | Retrospective: extract learnings from task #18984 — Re-revie | Batch operation atomicity: multi-statement D1 updates must gate continuation on 
+2026-06-14T21:13:53.570Z | task #18985 | completed | haiku | Retrospective: extract learnings from task #18984 — Re-revie | Batch operation atomicity: multi-statement D1 updates must gate continuation on
 2026-06-14T21:29:47.680Z | task #18986 | completed | sonnet | Re-review PR #998 on aibtcdev/landing-page: feat: multi-winn | reviewed PR #998 aibtcdev/landing-page cycle 3 — approved; cycle 2 setWinnerPaid
 2026-06-14T22:23:19.355Z | task #18987 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-15T00:01:52.561Z | task #18988 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing paused (policy 2026-05-19). Research found: aibtc-network covered 
+2026-06-15T00:01:52.561Z | task #18988 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing paused (policy 2026-05-19). Research found: aibtc-network covered
 2026-06-15T00:03:18.018Z | task #18989 | completed | sonnet | PURPOSE eval: 1.75/5 — S:1 O:4 E:1 C:1 | PURPOSE 1.95/5 (S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3); midnight eval, low ecosystem+co
 2026-06-15T00:04:17.225Z | task #18990 | completed | sonnet | daily introspection: 181 tasks, 174 completed, $81.31 spent | 6/7 failures = arc-link-research routing bug (ignores SIGNAL_FILING_DISABLED); f
 2026-06-15T00:06:38.396Z | task #18992 | completed | sonnet | fix arc-link-research: signal routing ignores SIGNAL_FILING_ | Fix already shipped in 5df1e10b (Jun 14 07:14 UTC) — SIGNAL_FILING_DISABLED guar
-2026-06-15T00:07:57.242Z | task #18991 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 7 failures all arc-link-research signal routing pre-fix (task #18856 fixed gate 
+2026-06-15T00:07:57.242Z | task #18991 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 7 failures all arc-link-research signal routing pre-fix (task #18856 fixed gate
 2026-06-15T00:33:53.383Z | task #18993 | completed | sonnet | Daily failure retrospective: 7 failed task(s) | 6/7 failures were pre-gate arc-link-research tasks (gate now confirmed working a
 2026-06-15T00:36:37.452Z | task #18994 | completed | sonnet | Fix Whop patterns-library sensor routing: use JSON file not  | Fix already applied in 62539fb6 — dead findNewPatterns() and recentPatternsDiges
 2026-06-15T01:07:54.820Z | task #18995 | completed | sonnet | Watch report — 2026-06-15T01:02Z | Watch report 2026-06-15T01:02Z: 65 tasks completed, $27.68 spent, 62 cycles — re
@@ -542,3 +93,4 @@ Subject: Deploy arc0
 2026-06-15T02:12:44.987Z | task #19001 | completed | haiku | Fetch and compile arXiv digest — 2026-06-15 (30 new papers) | Fetched 50 papers (20 relevant); compiled 2026-06-15 digest with LLM/agent theme
 2026-06-15T02:17:08.456Z | task #18998 | completed | sonnet | architecture review — codebase changed since last review (e1 | 3 structural changes: src/source-ledger.ts factory (dedup DRY), nostr full chann
 2026-06-15T02:18:09.603Z | task #19002 | completed | sonnet | self-review: run health check for 2026-06-15 | Health check clean: all services healthy, 0 failures today, 1 issue — recent.log
+2026-06-15T02:20:00.592Z | task #19003 | completed | haiku | consolidate memory/recent.log: 543 lines, prune entries >14d | Consolidated recent.log: 544→100 lines; no entries >14d old, trimmed to recent h
