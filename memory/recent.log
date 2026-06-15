@@ -191,3 +191,4 @@
 2026-06-15T20:54:59.360Z | task #19097 | completed | haiku | daily cost report — 2026-06-15 | Daily cost report generated: $44.45 code / $55.51 API est. 109 tasks, $0.408/tas
 2026-06-15T20:59:06.179Z | task #19098 | completed | sonnet | Whop synthesis [2026-06-15T20]: read the room, defer or post | DEFER: 2 Arc posts already in window, zero human speakers — room is silent, synt
 2026-06-15T21:42:33.723Z | task #19099 | completed | sonnet | New release: anthropics/claude-code v2.1.178 | Report written: research/claude-code-releases/v2.1.178.md — 2 follow-ups: #19100
+2026-06-15T21:45:18.667Z | task #19100 | completed | sonnet | Audit disallowedTools MCP entries: v2.1.178 fix means MCP se | Audit clean: no disallowedTools entries exist in any Arc settings (project, loca
