@@ -86,8 +86,11 @@ const X_CADENCE_ENABLED = true;
 const CADENCE_SENSOR_NAME = "social-x-posting-cadence";
 const CADENCE_INTERVAL_MINUTES = 12 * 60; // 12h → ~2 posts/day max, well under the 10/day budget
 
-const BEAT_TYPES = ["agent-philosophy", "agent-journey", "research-highlight"] as const;
+const BEAT_TYPES = ["agent-philosophy", "agent-journey", "research-highlight", "blog-snippet"] as const;
 type BeatType = (typeof BEAT_TYPES)[number];
+// blog-snippet (P16) is a PRIORITY beat — fired only when a pooled quote-card snippet is
+// waiting for X, never in the random rotation (it has no spine without a snippet).
+const ROTATION_BEATS = ["agent-philosophy", "agent-journey", "research-highlight"] as const;
 
 const BEAT_DESCRIPTIONS: Record<BeatType, string> = {
   "agent-philosophy": [
@@ -108,11 +111,17 @@ const BEAT_DESCRIPTIONS: Record<BeatType, string> = {
     "Cite the paper or source (title/ID). Agents want primary sources; humans want the 'so what'.",
     "One paragraph max; link the arxiv abs URL if it fits in 280 chars with the take.",
   ].join("\n"),
+  "blog-snippet": [
+    "Beat: BLOG-SNIPPET — a ready-to-post quote-card distilled from a recent blog post.",
+    "The nugget below IS the spine and is already tight: post it close to verbatim, trimmed",
+    "to ≤280 chars, reading as a standalone chapter (not 'I wrote a blog'). No link-drop;",
+    "let the idea stand. One sharp excerpt in the learning-together arc.",
+  ].join("\n"),
 };
 
 async function selectBeatType(lastBeat: BeatType | undefined): Promise<BeatType> {
   // Soft uniqueness: exclude last beat so no beat fires twice in a row
-  const pool = lastBeat ? BEAT_TYPES.filter((b) => b !== lastBeat) : [...BEAT_TYPES];
+  const pool = lastBeat ? ROTATION_BEATS.filter((b) => b !== lastBeat) : [...ROTATION_BEATS];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -136,6 +145,9 @@ function pullBeatNugget(beat: BeatType): DistilledArtifact | null {
       break;
     case "agent-journey":
       return null;
+    case "blog-snippet":
+      // Supplied directly by runCadenceBeat (priority path) — never pulled here.
+      return null;
   }
   const items = recentArtifacts(type, { channel: "x", sinceHours, limit: 1 });
   return items[0] ?? null;
@@ -149,11 +161,18 @@ async function runCadenceBeat(): Promise<void> {
   }
   const cadenceState = await readHookState(CADENCE_SENSOR_NAME);
   const lastBeat = cadenceState?.["last_beat_type"] as BeatType | undefined;
-  const beat = await selectBeatType(lastBeat);
+
+  // P16: a pooled blog-snippet quote-card takes PRIORITY over the random rotation — it's
+  // higher-value + time-sensitive, and gives the snippet producer a deterministic X drip.
+  // Empty snippet pool (the common case) → fall back to the rotation (zero behavior change).
+  const pooledSnippet =
+    recentArtifacts("snippet", { channel: "x", sinceHours: 24 * 14, limit: 1 })[0] ?? null;
+  const beat: BeatType = pooledSnippet ? "blog-snippet" : await selectBeatType(lastBeat);
 
   // Pull artifact for beats that read from the inflow pool. The matched nugget
-  // becomes the post's spine; the agent quotes citation + provides framing.
-  const nugget = pullBeatNugget(beat);
+  // becomes the post's spine; the agent quotes citation + provides framing. For
+  // blog-snippet the pooled snippet IS the spine (already postable).
+  const nugget = pooledSnippet ?? pullBeatNugget(beat);
   let nuggetBlock = "";
   if (nugget) {
     try {
