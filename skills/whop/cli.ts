@@ -147,6 +147,21 @@ function printHelp(): void {
       "                [--content <md>] [--video-url <embed_id>] [--embed-type youtube|loom]",
       "  list-courses [--course cou_xxx]         list courses; with --course, that course's ordered chapters",
       "",
+      "Affiliate / referral (Whop native program — % of revenue for referrers; reversible config, no sats):",
+      "  get-affiliate-config --product prod_xxx  read a product's global/member affiliate percentage + status",
+      "  set-affiliate-percentage --product prod_xxx --percent N [--member] [--disable]",
+      "                                         enable (default) the affiliate program at N% (0-100). --member",
+      "                                         targets the member-referral program; --disable turns it off (idempotent)",
+      "  list-affiliates [--query <username>]    list the company's affiliates (optionally search by username)",
+      "  create-affiliate --user <username|email|user_id> [--product prod_xxx]",
+      "                                         create-or-find an affiliate (idempotent) and print attributable",
+      "                                         ?a=<username> referral links (company + product page)",
+      "  list-affiliate-overrides --affiliate aff_xxx",
+      "                                         list an affiliate's per-plan overrides (carry checkout/product direct links)",
+      "  create-affiliate-override --affiliate aff_xxx --plan plan_xxx --percent N",
+      "                                         create-or-find a standard per-plan override (idempotent); prints the",
+      "                                         SDK-canonical attributable checkout_direct_link / product_direct_link",
+      "",
       "Audit:",
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
@@ -364,6 +379,158 @@ async function cmdCreateLesson(apiKey: string, flags: Record<string, string>): P
   process.stdout.write(JSON.stringify(lesson, null, 2) + "\n");
 }
 
+// --- Affiliate / referral program (Whop native: % of revenue for referrers) ---
+// All of these are reversible company/product CONFIG writes — no sats. The paid
+// product carries the global program (`global_affiliate_percentage` +
+// `global_affiliate_status`, which the SDK enum spells 'enabled'/'disabled').
+// Per-affiliate per-plan standard overrides carry the SDK-canonical attributable
+// links (`checkout_direct_link`/`product_direct_link`); the global program also
+// makes a `?a=<username>` referral link work for any affiliate.
+
+// Flatten the affiliate-relevant fields of a product into a stable summary. Typed
+// structurally so the SDK Product (whose status is the 'enabled'|'disabled' enum)
+// passes without a cast.
+function affiliateConfig(p: {
+  id: string;
+  route: string;
+  title: string;
+  global_affiliate_percentage: number | null;
+  global_affiliate_status: string;
+  member_affiliate_percentage: number | null;
+  member_affiliate_status: string;
+}) {
+  return {
+    product_id: p.id,
+    route: p.route,
+    title: p.title,
+    global_affiliate_percentage: p.global_affiliate_percentage,
+    global_affiliate_status: p.global_affiliate_status,
+    member_affiliate_percentage: p.member_affiliate_percentage,
+    member_affiliate_status: p.member_affiliate_status,
+  };
+}
+
+async function cmdGetAffiliateConfig(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("get-affiliate-config requires --product prod_xxx");
+  const product = await whopClient(apiKey).products.retrieve(flags.product);
+  process.stdout.write(JSON.stringify(affiliateConfig(product), null, 2) + "\n");
+}
+
+async function cmdSetAffiliatePercentage(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("set-affiliate-percentage requires --product prod_xxx");
+  const disable = flags.disable === "true";
+  const status: "enabled" | "disabled" = disable ? "disabled" : "enabled";
+  let percent: number | undefined;
+  if (!disable) {
+    if (!flags.percent) fail("set-affiliate-percentage requires --percent N (0-100), or pass --disable");
+    percent = Number(flags.percent);
+    if (!Number.isFinite(percent) || percent < 0 || percent > 100) fail("--percent must be a number 0-100");
+  }
+  // --member targets the member-referral program (members refer members); default
+  // is the global marketplace program. products.update is idempotent — re-applying
+  // the same %/status is a no-op write, so no --source ledger is needed.
+  const member = flags.member === "true";
+  const body = member
+    ? { member_affiliate_status: status, ...(percent !== undefined ? { member_affiliate_percentage: percent } : {}) }
+    : { global_affiliate_status: status, ...(percent !== undefined ? { global_affiliate_percentage: percent } : {}) };
+  const product = await whopClient(apiKey).products.update(flags.product, body);
+  process.stdout.write(JSON.stringify(affiliateConfig(product), null, 2) + "\n");
+}
+
+async function cmdListAffiliates(apiKey: string, flags: Record<string, string>): Promise<void> {
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-affiliates requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).affiliates.list({
+    company_id: companyId,
+    first: 50,
+    ...(flags.query ? { query: flags.query } : {}),
+  });
+  printPage(page);
+}
+
+async function cmdCreateAffiliate(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.user) fail("create-affiliate requires --user <username|email|user_id>");
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("create-affiliate requires creds key company_id (biz_xxx)");
+  const client = whopClient(apiKey);
+  // affiliates.create is create-OR-FIND per the SDK: re-running for the same user
+  // returns the existing affiliate, so it is idempotent with no --source ledger.
+  const affiliate = await client.affiliates.create({ company_id: companyId, user_identifier: flags.user });
+  const username = affiliate.user.username;
+  // Attributable referral links use Whop's `?a=<username>` param: the company-page
+  // form always works; the product-page form needs the product route (--product).
+  const links: Record<string, string> = {};
+  if (username) {
+    const company = await client.companies.retrieve(companyId);
+    links.company_referral_link = `https://whop.com/${company.route}/?a=${username}`;
+    if (flags.product) {
+      const product = await client.products.retrieve(flags.product);
+      // Guard cross-company misattribution: a --product from another company would
+      // mint a link to THAT product carrying THIS company's affiliate username.
+      if (product.company.id !== companyId) {
+        fail(`--product ${flags.product} belongs to company ${product.company.id}, not ${companyId}`);
+      }
+      links.product_referral_link = `https://whop.com/${product.route}/?a=${username}`;
+    }
+  }
+  process.stdout.write(
+    JSON.stringify(
+      {
+        affiliate_id: affiliate.id,
+        user: affiliate.user,
+        status: affiliate.status,
+        total_referrals_count: affiliate.total_referrals_count,
+        attributable_links: links,
+        note: username
+          ? undefined
+          : "user has no Whop username set — ?a= links unavailable; use create-affiliate-override for SDK direct links",
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
+async function cmdListAffiliateOverrides(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.affiliate) fail("list-affiliate-overrides requires --affiliate aff_xxx");
+  const page = await whopClient(apiKey).affiliates.overrides.list(flags.affiliate, { first: 50 });
+  printPage(page);
+}
+
+async function cmdCreateAffiliateOverride(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.affiliate) fail("create-affiliate-override requires --affiliate aff_xxx");
+  if (!flags.plan) fail("create-affiliate-override requires --plan plan_xxx");
+  if (!flags.percent) fail("create-affiliate-override requires --percent N (1-100)");
+  const percent = Number(flags.percent);
+  if (!Number.isFinite(percent) || percent < 1 || percent > 100) fail("--percent must be a number 1-100");
+  const overrides = whopClient(apiKey).affiliates.overrides;
+  // overrides.create is a non-idempotent POST, so check-then-act: if a standard
+  // override already exists for this plan, return it rather than stacking a
+  // duplicate (total_overrides_count would otherwise climb on every re-run). This
+  // covers the operative profile — sequential, operator-driven CLI invocation.
+  // Accepted limits, same class as post-chat's local ledger: the dedup scan reads
+  // only the first page (first:50 standard overrides — one per plan, far above the
+  // few plans in play), and two truly-concurrent runs could both pass the check.
+  // Both are practically unreachable here; revisit if overrides are minted at scale.
+  const existingPage = await overrides.list(flags.affiliate, { first: 50, override_type: "standard" });
+  const existing = existingPage.data.find((o) => o.plan_id === flags.plan && o.override_type === "standard");
+  if (existing) {
+    // Keep stdout a pure-JSON contract on BOTH paths (first-run and re-run) so a
+    // machine consumer parses them identically; the human note goes to stderr.
+    process.stderr.write("whop: override already exists for this affiliate+plan — returning existing\n");
+    process.stdout.write(JSON.stringify(existing, null, 2) + "\n");
+    return;
+  }
+  // The SDK puts the affiliate id in BOTH the path and the body (Stainless quirk).
+  const override = await overrides.create(flags.affiliate, {
+    id: flags.affiliate,
+    override_type: "standard",
+    plan_id: flags.plan,
+    commission_value: percent,
+  });
+  process.stdout.write(JSON.stringify(override, null, 2) + "\n");
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -450,6 +617,36 @@ async function main(): Promise<void> {
     case "create-lesson": {
       const apiKey = await requireApiKey();
       await cmdCreateLesson(apiKey, flags);
+      break;
+    }
+    case "get-affiliate-config": {
+      const apiKey = await requireApiKey();
+      await cmdGetAffiliateConfig(apiKey, flags);
+      break;
+    }
+    case "set-affiliate-percentage": {
+      const apiKey = await requireApiKey();
+      await cmdSetAffiliatePercentage(apiKey, flags);
+      break;
+    }
+    case "list-affiliates": {
+      const apiKey = await requireApiKey();
+      await cmdListAffiliates(apiKey, flags);
+      break;
+    }
+    case "create-affiliate": {
+      const apiKey = await requireApiKey();
+      await cmdCreateAffiliate(apiKey, flags);
+      break;
+    }
+    case "list-affiliate-overrides": {
+      const apiKey = await requireApiKey();
+      await cmdListAffiliateOverrides(apiKey, flags);
+      break;
+    }
+    case "create-affiliate-override": {
+      const apiKey = await requireApiKey();
+      await cmdCreateAffiliateOverride(apiKey, flags);
       break;
     }
     case "tick-replies": {
