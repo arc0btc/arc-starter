@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/RYub275Spj",
+  "fetchedAt": "2026-06-15T02:55:26.488Z",
+  "contentType": "tweet",
+  "title": "@boringmarketer: if you want Fable level performance NOW, the answer is to build your own coding ...",
+  "rawContent": "Tweet by @boringmarketer (The Boring Marketer)\nAuthor bio: Automating marketing with AI workflows & agents. Building products & community. Get my Claude Skills: https://t.co/a6VnNvuSpX\nText: if you want Fable level performance NOW, the answer is to build your own coding harness \n\nhere's how I'm doing it \n\n(in a lightweight Pi-native way rather than a heavy Superpowers/Compound clone)\n\nfirst, I think we're going to see PERSONAL HARNESSES that derisk single model reliance, help users save money, and squeeze top frontier performance out of homegrown systems\n\nThe best engineers I know already do this...\n\n1) Use Pi, the open source coding harness that you can make your own and access any model from\n\n2) Set 5.5 codex as your default model\n\n3) Deeply analyze publicly available system prompts (guess which model I looked at?)\n\n4) Feed Codex context on Loop Engineering and other engineering skill repos\n\n5) As it to improve efficiency as a lot of engineering repos are super heavy and bloated/slow\n\n6) Ask it to use FUSION via Openrouter for planning, logic, and review tasks\n\n7) Ask it to use Kimi k2.7 code for subagents/execution\n\n8) Have it dog food the harness until it's dialed in then unleash it on a repo for a deep analysis\nCreated: 2026-06-14T15:47:33.000Z\nMetrics: {\"retweet_count\":40,\"reply_count\":39,\"like_count\":604,\"quote_count\":5,\"bookmark_count\":1092,\"impression_count\":41393}",
+  "embeddedUrls": [
+    "https://t.co/RYub275Spj"
+  ]
+}
