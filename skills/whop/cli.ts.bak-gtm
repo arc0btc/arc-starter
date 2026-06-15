@@ -166,7 +166,7 @@ function printHelp(): void {
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
       "  tick-free-forum                        run pollWhopFreeForumDigest() once, bypassing the 24h self-gate",
-      "  revenue                                members / MRR / break-even + weekly net-new + MRR-ladder + leading indicators (captured Whop events)",
+      "  revenue                                member count / MRR / break-even from captured Whop events",
       "",
     ].join("\n"),
   );
@@ -672,12 +672,11 @@ async function main(): Promise<void> {
       break;
     }
     case "revenue": {
-      // P22 + P7: revenue + weekly net-new + MRR-ladder + leading indicators, from the
-      // captured Whop events (no separate sensor). DB read only.
+      // P22: revenue from captured Whop events (no separate sensor). DB read only.
       const { initDatabase } = await import("../../src/db.ts");
       initDatabase();
-      const { formatReadout } = await import("./lib/events.ts");
-      console.log(formatReadout());
+      const { formatRevenue } = await import("./lib/events.ts");
+      console.log(formatRevenue());
       break;
     }
     default:
