@@ -37,8 +37,17 @@
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource, getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { getCredential } from "../../src/credentials.ts";
+import {
+  normalizeMembership,
+  normalizePayment,
+  ingestWhopEvent,
+  type WhopEvent,
+  type MembershipLike,
+  type PaymentLike,
+} from "./lib/events.ts";
 import {
   loadRelationships,
   saveRelationships,
@@ -67,6 +76,21 @@ const STATE_WRITER_INTERVAL_MINUTES = 60;
 
 const PATTERNS_MONITOR_SENSOR_NAME = "whop-patterns-library-monitor";
 const PATTERNS_MONITOR_INTERVAL_MINUTES = 360;
+
+// --- P19: events intake lane (poll memberships/payments → idempotent ledger) ---
+const EVENTS_SENSOR_NAME = "whop-events";
+const EVENTS_INTERVAL_MINUTES = 15;
+// Kill switch (default ON). Side-effect profile (council/cairn+forge — be precise):
+//   external: READ-ONLY Whop SDK polling (no posts, no spend);
+//   internal: writes whop_event_log rows + queues ONE dispatch task per NEW event;
+//   downstream live action: NONE until P20 (greeting) / P22 (revenue) consume it.
+// Inert at 0 members (nothing to list). Set WHOP_EVENTS_ENABLED=false to silence it.
+const WHOP_EVENTS_ENABLED = process.env.WHOP_EVENTS_ENABLED !== "false";
+// Cursor floor on first run — only ingest entities created within this window so the
+// first poll after enabling does not replay the entire account history.
+const EVENTS_LOOKBACK_DAYS = 7;
+const EVENTS_PAGE_SIZE = 50;
+const eventsLog = createSensorLogger(EVENTS_SENSOR_NAME);
 
 // Candidate paths for the arc0me-site working copy (arc-starter-relative first,
 // then the development checkout as fallback).
@@ -1195,6 +1219,113 @@ post-forum is non-idempotent — if re-dispatched, confirm the latest forum thre
   freeForumLog(`queued task ${taskId} (dry_run=${WHOP_FREE_FORUM_DRY_RUN}) artifact=${artifactPath}`);
 }
 
+// --- P19: events intake lane ---------------------------------------------
+//
+// Poll memberships + payments created since the last cursor, normalize each to a
+// WhopEvent, and feed through ingestWhopEvent() (exactly-once ledger + surface).
+// Cursor lives in its own hook-state file so it never clobbers the claim cadence.
+// Read-only against the SDK; whopClient uses maxRetries:0; any failure no-ops the
+// stream (the ledger makes a re-poll safe regardless of where we stopped).
+const EVENTS_CURSOR_STATE = "whop-events-cursor";
+
+// One stream's worth of polling: list a page, ingest each item exactly-once, and
+// track the high-water created_at for the next cursor. A failed list no-ops the
+// stream (the ledger makes a re-poll safe regardless of where we stopped).
+async function pollEventStream<T extends { created_at: string }>(
+  label: string,
+  fetchPage: () => Promise<{ data?: T[] | null }>,
+  normalize: (item: T) => WhopEvent,
+  after: string,
+): Promise<{ recorded: number; maxAt: string }> {
+  let recorded = 0;
+  let maxAt = after;
+  try {
+    const page = await fetchPage();
+    const items = page.data ?? [];
+    for (const item of items) {
+      if (ingestWhopEvent(normalize(item)) === "recorded") recorded++;
+      if (item.created_at > maxAt) maxAt = item.created_at;
+    }
+    // Single page, no pagination loop (council/cairn+forge+spark). At a 1-product
+    // $49/mo room this never trips; if it ever does, the cursor advances to the
+    // page max and the next 15-min tick drains the rest (the ledger dedups overlap).
+    // Logged so a real backlog is visible instead of silently truncated.
+    if (items.length >= EVENTS_PAGE_SIZE) {
+      eventsLog(`${label}: full page (${items.length}) — backlog likely, will drain over subsequent ticks`);
+    }
+  } catch (error) {
+    eventsLog(`${label} poll error: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  return { recorded, maxAt };
+}
+
+async function pollWhopEvents(): Promise<void> {
+  if (!WHOP_EVENTS_ENABLED) {
+    eventsLog("disabled (WHOP_EVENTS_ENABLED=false) — skip");
+    return;
+  }
+
+  const apiKey = await getAppApiKey();
+  if (!apiKey) {
+    eventsLog("no app api key — skip");
+    return;
+  }
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) {
+    eventsLog("no company_id credential — skip");
+    return;
+  }
+
+  const floor = new Date(Date.now() - EVENTS_LOOKBACK_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const state = await readHookState(EVENTS_CURSOR_STATE);
+  const membershipsAfter = (state?.last_membership_after as string) || floor;
+  const paymentsAfter = (state?.last_payment_after as string) || floor;
+
+  const client = whopClient(apiKey);
+
+  const memberships = await pollEventStream<MembershipLike>(
+    "memberships",
+    () =>
+      client.memberships.list({
+        company_id: companyId,
+        created_after: membershipsAfter,
+        order: "created_at",
+        direction: "asc",
+        first: EVENTS_PAGE_SIZE,
+      }) as unknown as Promise<{ data?: MembershipLike[] | null }>,
+    normalizeMembership,
+    membershipsAfter,
+  );
+
+  const payments = await pollEventStream<PaymentLike>(
+    "payments",
+    () =>
+      client.payments.list({
+        company_id: companyId,
+        created_after: paymentsAfter,
+        order: "created_at",
+        direction: "asc",
+        first: EVENTS_PAGE_SIZE,
+      }) as unknown as Promise<{ data?: PaymentLike[] | null }>,
+    normalizePayment,
+    paymentsAfter,
+  );
+
+  await writeHookState(EVENTS_CURSOR_STATE, {
+    last_ran: new Date().toISOString(),
+    last_result: "ok",
+    // Guard against malformed/legacy hook-state lacking a numeric version (council/cairn).
+    version: typeof state?.version === "number" ? state.version + 1 : 1,
+    last_membership_after: memberships.maxAt,
+    last_payment_after: payments.maxAt,
+  });
+
+  eventsLog(
+    `polled events — ${memberships.recorded + payments.recorded} new recorded ` +
+      `(memberships≤${memberships.maxAt}, payments≤${payments.maxAt})`,
+  );
+}
+
 export default async function whopSensor(): Promise<string> {
   let result: "ok" | "skip" = "skip";
 
@@ -1250,6 +1381,17 @@ export default async function whopSensor(): Promise<string> {
       result = "ok";
     } catch (error) {
       freeForumLog(`free-forum lane error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  // --- Part 7 (P19): events intake lane (15min self-gate, WHOP_EVENTS_ENABLED kill switch) ---
+  const eventsClaimed = await claimSensorRun(EVENTS_SENSOR_NAME, EVENTS_INTERVAL_MINUTES);
+  if (eventsClaimed) {
+    try {
+      await pollWhopEvents();
+      result = "ok";
+    } catch (error) {
+      eventsLog(`events lane error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
