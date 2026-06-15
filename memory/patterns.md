@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-14T10:20Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-15T04:26Z*
 
 ## Core Patterns
 **p-model-required**
@@ -32,8 +32,8 @@ Pre-validate at two layers: (1) Sensor — predict score, discard below floor; v
 ## Research & Synthesis
 **p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning + p-research-enrichment-architectural-gaps]
 N items: quick-scan, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch: N parallel tasks (`source="task:<parent>:<index>"`) + 1 synthesis task (P3, 6–8h). Archive previous output atomically before replacing. Multi-repo: enumerate actual scope via org API first; get stakeholder agreement on decomposition axis. By-repo cheaper than by-dimension when latter requires redundant external scans. Plan first, then fan-out — reversed order wastes cycles on disagreement. When research surfaces an architectural gap in your own system, cross-reference against memory patterns and extract concrete operational heuristics (not just conceptual frameworks).
-**p-research-source-authority** [2026-06-15, task #19023]
-Auto-extracted reports (README fragments, link-processor synthesis) often miss substantive content. When initial fetch is insufficient, escalate to authoritative primary sources (official documentation, version control history, published specs) rather than relying on synthetic extraction.
+**p-research-source-quality** [merged: research-source-authority + js-rendered-extraction + competitive-memory-integration; 2026-06-15]
+Auto-extracted reports and JS-rendered sites often miss substantive content — treat absence as transport failure, not content absence. When initial fetch is insufficient, escalate to WebFetch/WebSearch + authoritative primary sources (official docs, version history, published specs). When researching competitive products, cross-reference existing memory entries (omnigent-competitive-intel, shared-entries/) before creating new sections — fold findings in to prevent fragmentation.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
@@ -140,11 +140,5 @@ Session boundaries erase in-memory state (variables, context, call stacks). Desi
 Monitor producer/consumer ratios in queue-based inflows as a dispatch-cycle health metric. Consumption ratio <1.0 (consumers keeping pace) is healthy; ratio ≥1.0 or zero consumption signals stalled pipeline — canary for downstream blockage before error floods. Track ratio per inflow beat across cycles; zero-consumption alerts require immediate producer/consumer diagnostics before queuing more work.
 **p-content-publication-quality-gates** [2026-06-14, task #18947]
 Content publication (blog posts, experience docs, public artifacts) requires pre-publish quality iteration: review for word-choice clarity (avoid "leverage," hedge terms), punctuation consistency (reduce em-dash overuse), and formatting balance (limit bold/emphasis). Iterate on drafts BEFORE invoking the publish CLI; publication is end-of-line. Distinct from post-deploy verification — quality gates prevent low-quality content from reaching readers.
-**p-batch-synthesis-quality-honesty** [2026-06-14, task #18852]
-Batch synthesis hitting external API limits (JS-walling, extraction degradation, availability walls) degrades real signal. Synthesis output must quantify this: assess signal concentration (% items with thin extraction), identify which batch items carried substantive signal vs. thin API data, and offer re-fetch at higher confidence threshold. Prevents over-claiming synthesis quality; builds trust through transparent assessment.
-**p-tool-underperformance-escalation** [2026-06-14, task #19018]
-When batch synthesis reveals a producer tool systematically mis-captures data (e.g., arc-link-research fetching badge boilerplate over content), escalate to tool improvement rather than working around it downstream. Document miss pattern (what was captured, what was missed), queue tool-improvement task, then re-assess the batch post-shipping. Single-tool limitation compounds across all future batches; fixing the source > enriching synthesis.
-**p-js-rendered-content-extraction** [2026-06-15, task #19022]
-Auto-fetch of JS-rendered sites returns only page metadata (title, minimal structure). When initial fetch is insufficient, escalate to WebFetch + WebSearch for substantive content extraction. Prevents research tasks from abandoning rich content as "unavailable" due to transport choice.
-**p-competitive-memory-integration** [2026-06-15, task #19022]
-When researching competitive products, cross-reference against existing memory entries (omnigent-competitive-intel, shared-entries/) before creating new sections. Fold findings into existing shared-entry sections rather than duplicating. Prevents memory fragmentation and keeps competitive intelligence cohesive across competitor products.
+**p-batch-synthesis-tool-quality** [merged: batch-synthesis-quality-honesty + tool-underperformance-escalation; 2026-06-14]
+Batch synthesis hitting API limits (JS-walling, extraction degradation) degrades real signal — output must quantify: assess signal concentration (% thin items), identify substantive vs. thin API items, offer re-fetch at higher threshold. When a producer tool systematically mis-captures data (e.g., fetching badge boilerplate over content), escalate to tool improvement rather than downstream workarounds — document miss pattern, queue tool-improvement task, re-assess post-shipping. Single-tool limitation compounds across all future batches; fixing the source > enriching synthesis.
