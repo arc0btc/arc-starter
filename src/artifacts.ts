@@ -34,7 +34,7 @@ const ARTIFACT_ROOT = resolve(import.meta.dir, "../artifacts/distilled");
 // ----- Types ----------------------------------------------------------------
 
 /** Source types we distill. Producers add to this list; consumers exhaustively switch. */
-export const ARTIFACT_TYPES = ["arxiv", "council", "watch-interior", "snippet"] as const;
+export const ARTIFACT_TYPES = ["arxiv", "council", "watch-interior", "snippet", "whop-signal"] as const;
 export type ArtifactType = (typeof ARTIFACT_TYPES)[number];
 
 /**
@@ -79,6 +79,7 @@ export const TTL_DAYS_BY_TYPE = {
   council: 90,
   "watch-interior": 7,
   snippet: 14,
+  "whop-signal": 7,
 } as const satisfies Record<ArtifactType, number>;
 
 /** Hard-delete grace period after soft-delete (deleted_at set). */

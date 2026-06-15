@@ -38,6 +38,7 @@
 
 import { createSourceLedger, type SourceLedger } from "../../../src/source-ledger.ts";
 import { insertTask, taskExistsForSource } from "../../../src/db.ts";
+import { writeDistilled, type ArtifactChannel } from "../../../src/artifacts.ts";
 
 // ---- Normalized event shape (mirrors SDK UnwrapWebhookEvent subset) ----
 
@@ -172,6 +173,10 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" {
     amount_cents: amountCents,
     payload: JSON.stringify(event.data),
   });
+  // Advisory signal into the artifact pool — AFTER record (unlike the critical task
+  // surface, which is before): a crash here drops at most one advisory pool signal,
+  // never duplicates it (re-ingest dedups at the ledger). P21.
+  recordWhopSignal(event);
   return "recorded";
 }
 
@@ -275,4 +280,60 @@ export function surfaceMemberWelcome(event: WhopEvent): void {
     model: "sonnet",
     source,
   });
+}
+
+// ---- P21: Whop events as external input into the artifact pool ----------
+//
+// Representative member events become privacy-safe "whop-signal" artifacts so the
+// paid-room synthesis lane (skills/whop/sensor.ts) folds room activity into its
+// room-read — the event influences what Arc produces next, not just a task to handle.
+// PRIVACY: the nugget carries NO member identity (name/email/username) — the paid room
+// sees interior reasoning but member PII stays out of the shared pool.
+
+const WHOP_SIGNAL_CHANNELS: readonly ArtifactChannel[] = ["whop-chat"];
+
+/** Aggregate, PII-free room-signal text for the events worth surfacing as input. */
+function signalCopy(event: WhopEvent): { topic: string; title: string; nugget: string } | null {
+  switch (event.type) {
+    case "membership.activated":
+      return {
+        topic: "room-growth",
+        title: "A new member joined the room",
+        nugget:
+          "A new member just joined the hash-it-out 'AI Prefers Bitcoin' room. The room grew — " +
+          "worth keeping in mind when reading the room: there may be someone new finding their footing.",
+      };
+    case "payment.succeeded":
+      return {
+        topic: "revenue",
+        title: "A membership payment cleared",
+        nugget:
+          "A hash-it-out membership payment cleared. Revenue signal — the room is being paid for; " +
+          "the contract is to keep earning that read.",
+      };
+    default:
+      return null; // other events surface as tasks only, not pool signals
+  }
+}
+
+/** Write a PII-free whop-signal artifact for representative events. Advisory; best-effort. */
+export function recordWhopSignal(event: WhopEvent): void {
+  const copy = signalCopy(event);
+  if (!copy) return;
+  try {
+    writeDistilled({
+      type: "whop-signal",
+      produced_at: event.occurred_at,
+      source_path: `whop-event:${event.id}`,
+      topic: copy.topic,
+      title: copy.title,
+      nugget: copy.nugget,
+      citation: event.id,
+      suggested_channels: WHOP_SIGNAL_CHANNELS,
+    });
+  } catch (error) {
+    console.log(
+      JSON.stringify({ whop_signal: "writeDistilled failed (advisory, non-fatal)", event_id: event.id, error: String(error) }),
+    );
+  }
 }

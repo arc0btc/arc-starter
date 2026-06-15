@@ -865,9 +865,17 @@ export async function pollWhopSynthesis(): Promise<void> {
     sinceHours: 24,
     limit: 1,
   });
+  // P21: Whop member events (joins, payments) as external input — room activity
+  // reaches the next synthesis read so it informs what Arc produces next.
+  const whopSignalNuggets = recentArtifacts("whop-signal", {
+    channel: "whop-chat",
+    sinceHours: 24,
+    limit: 1,
+  });
   const allNuggets: DistilledArtifact[] = [
     ...watchInteriorNuggets,
     ...arxivNuggets,
+    ...whopSignalNuggets,
   ];
   let wellsBlock = "";
   if (allNuggets.length > 0) {
