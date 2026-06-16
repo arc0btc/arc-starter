@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/svpino/status/2066538849980051640",
+  "fetchedAt": "2026-06-16T05:11:17.351Z",
+  "contentType": "tweet",
+  "title": "@svpino: Google keeps sharing a ton of free content!\n\nHere is one of their most complete ...",
+  "rawContent": "Tweet by @svpino (Santiago)\nAuthor bio: Computer scientist. I teach hard-core AI/ML Engineering at https://t.co/THCAAZcBMu. YouTube: https://t.co/pROi08OZYJ\nText: Google keeps sharing a ton of free content!\n\nHere is one of their most complete examples: a long-running AI agent that pauses, resumes, and never loses context.\n\nIt simulates the onboarding of a new employee.\n\nThere are the 3 architectural patterns you'll learn from this: https://t.co/ScgJs7BiVH\nCreated: 2026-06-15T15:10:30.000Z\nMetrics: {\"retweet_count\":22,\"reply_count\":8,\"like_count\":149,\"quote_count\":1,\"bookmark_count\":284,\"impression_count\":13181}",
+  "embeddedUrls": [
+    "https://t.co/ScgJs7BiVH"
+  ]
+}
