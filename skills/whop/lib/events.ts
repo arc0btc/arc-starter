@@ -78,22 +78,18 @@ function entityProductId(e: HasProduct): string | null {
 // (Avoid importing the heavy @whop/sdk types here; the sensor passes real SDK
 //  objects and only these fields are read.)
 
-export interface MembershipLike {
+export interface MembershipLike extends HasProduct {
   id: string;
   status: string;
   created_at: string;
-  product?: { id?: string | null } | null;
-  product_id?: string | null;
 }
 
-export interface PaymentLike {
+export interface PaymentLike extends HasProduct {
   id: string;
   status: string | null;
   created_at: string;
   usd_total?: number | null;
   total?: number | null;
-  product?: { id?: string | null } | null;
-  product_id?: string | null;
 }
 
 // ---- Normalizers ----
@@ -112,6 +108,13 @@ const MEMBERSHIP_PRODUCT_ID = "prod_TJknsIOzPDlQS";
 function isMembershipProduct(productId: string | null | undefined): boolean {
   return productId == null || productId === MEMBERSHIP_PRODUCT_ID;
 }
+
+// SQL WHERE fragments for the member-vs-product split — defined ONCE so the classification
+// rule can't drift across the five query sites that use it (council/spark). Both bind
+// MEMBERSHIP_PRODUCT_ID as their single `?` parameter. Safe to interpolate: pure dev constants,
+// never user input.
+const MEMBERSHIP_SCOPE = "(product_id = ? OR product_id IS NULL)"; // membership product or legacy NULL
+const PRODUCT_SCOPE = "(product_id IS NOT NULL AND product_id <> ?)"; // any one-time product
 
 /** Membership entity → WhopEvent. Type derives from status; id embeds status. */
 export function normalizeMembership(m: MembershipLike): WhopEvent {
@@ -190,8 +193,11 @@ export function whopEventLedger(): SourceLedger {
     //  which computeRevenue() treats as the legacy membership product. See classify.)
     try {
       getDatabase().run("ALTER TABLE whop_event_log ADD COLUMN product_id TEXT");
-    } catch {
-      /* column already present (fresh CREATE or prior migration) — no-op */
+    } catch (e) {
+      // Swallow ONLY the expected "duplicate column" (column already present on a fresh
+      // CREATE or a prior migration). Re-throw anything else (locked DB, IO error, a future
+      // typo) so a genuinely failed migration surfaces instead of silently no-op'ing.
+      if (!/duplicate column name/i.test(e instanceof Error ? e.message : String(e))) throw e;
     }
   }
   return ledgerSingleton;
@@ -249,7 +255,7 @@ export function surfaceWhopEvent(event: WhopEvent): void {
     if (isMembershipProduct(event.product_id)) {
       surfaceMemberWelcome(event);
     } else {
-      queueGenericEvent(event);
+      surfaceProductBuyer(event);
     }
     return;
   }
@@ -345,6 +351,49 @@ export function surfaceMemberWelcome(event: WhopEvent): void {
   });
 }
 
+/**
+ * Queue EXACTLY ONE follow-up action per one-time PRODUCT buyer (a non-membership-product
+ * `membership.activated`). Distinct from the $49-member welcome (council/lumen): a $9 report
+ * buyer is a CUSTOMER, not a room member, so this routes to a product-appropriate surface —
+ * confirm fulfillment + extend the continuity bridge (the room invite) rather than greet them
+ * as a member. Dedup key is the BUYER, so a re-dispatch never double-touches. The live
+ * post-purchase room-invite send itself is the P10B acquisition lane's job (gated); this task
+ * is the internal "a buyer landed — bridge them" signal so the buyer never falls into a void.
+ */
+export function surfaceProductBuyer(event: WhopEvent): void {
+  const data = (event.data ?? {}) as MembershipWelcomeData;
+  const buyerId = data.member?.id ?? data.user?.id;
+  if (!buyerId) {
+    console.log(
+      JSON.stringify({ whop_product_buyer: "no stable buyer id — surfacing generically", event_id: event.id }),
+    );
+    queueGenericEvent(event);
+    return;
+  }
+  const handle = data.user?.username || data.user?.name || "the new buyer";
+  const source = `whop-product-buyer:${buyerId}`;
+  if (taskExistsForSource(source)) return; // exactly-once per buyer
+
+  insertTask({
+    subject: `New product buyer: ${handle}`,
+    description: [
+      `Someone bought a one-time hash-it-out product (event ${event.id}, product ${event.product_id}).`,
+      `Handle: ${handle}`,
+      "",
+      "This is a CUSTOMER, not a $49/mo member — do NOT send the member welcome. The job is the",
+      "continuity bridge: confirm they got the deliverable, then extend a genuine, voice-carded",
+      "invite into the room/ship-board (membership = the earned continuity). Keep it value-first,",
+      "not a hard upsell. The live post-purchase send is owned by the P10B acquisition lane (gated);",
+      "until that lands, surface this for operator-reviewed follow-up.",
+      `(--source "${source}" makes any follow-up idempotent — a re-dispatch never double-touches.)`,
+    ].join("\n"),
+    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    priority: 4,
+    model: "sonnet",
+    source,
+  });
+}
+
 // ---- P21: Whop events as external input into the artifact pool ----------
 //
 // Representative member events become privacy-safe "whop-signal" artifacts so the
@@ -413,11 +462,22 @@ export interface RevenueSummary {
   /** ALL captured payments (recurring member charges + one-time product sales). */
   paymentsCapturedCents: number;
   paymentCount: number;
-  /** One-time product buyers = non-membership-product `payment.succeeded` sales. */
+  /**
+   * One-time product buyers = distinct non-membership-product memberships ever activated
+   * (the ACCESS GRANT, not the payment). Counting acquisitions — not payments — means a
+   * 100%-off buyer still counts as a customer (and a paid sale's payment lands in
+   * productRevenueCents). A customer is someone who acquired the product; revenue is separate.
+   */
   productCustomers: number;
-  /** Revenue from one-time product sales (SUM over the product payments above). */
+  /** Revenue from one-time product sales (SUM of non-membership-product payment.succeeded). */
   productRevenueCents: number;
-  /** M0/M10 headline: distinct paying customers = recurring members + product buyers. */
+  /**
+   * M0/M10 headline = recurring members + product buyers. NOTE (council/cairn): this counts
+   * distinct paying MEMBERSHIPS, not distinct humans — a person who both subscribes AND buys a
+   * report is two memberships, so they count twice. At M0/M10 scale (single digits) the operator
+   * eyeballs distinct humans; true user-id dedup is a P11 refinement. Read M10 ("10 customers")
+   * with that caveat — the recurring-conversion sub-gate (≥3 recurring) is the harder guarantee.
+   */
   customers: number;
   breakEvenTarget: number;
   breakEvenPct: number;
@@ -452,7 +512,7 @@ export function computeRevenue(): RevenueSummary {
     .query(
       `SELECT source, type FROM whop_event_log
        WHERE type IN ('membership.activated', 'membership.deactivated')
-         AND (product_id = ? OR product_id IS NULL)
+         AND ${MEMBERSHIP_SCOPE}
        ORDER BY recorded_at ASC`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string; type: string }>;
@@ -472,15 +532,29 @@ export function computeRevenue(): RevenueSummary {
     )
     .get() as { c: number; s: number };
 
-  // One-time product sales = succeeded payments carrying a NON-membership product id.
-  // (A payment with NULL product_id is legacy/membership → excluded from the product line.)
-  const prod = db
+  // Product CUSTOMERS = distinct non-membership-product memberships ever activated (the
+  // access grant). Acquisition-based, so a 100%-off / free grant still counts as a customer;
+  // cumulative (a one-time buy has no recurring state to churn), so no last-write-wins here.
+  const prodMemberships = db
     .query(
-      `SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents), 0) AS s
-       FROM whop_event_log
-       WHERE type = 'payment.succeeded' AND product_id IS NOT NULL AND product_id <> ?`,
+      `SELECT source FROM whop_event_log
+       WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}`,
     )
-    .get(MEMBERSHIP_PRODUCT_ID) as { c: number; s: number };
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string }>;
+  const productCustomers = new Set(prodMemberships.map((r) => membershipEntityId(r.source))).size;
+
+  // Product REVENUE = succeeded payments carrying a NON-membership product id (separate from
+  // the customer count: a $0 promo buyer is a customer with $0 revenue; a $9 buyer adds $9).
+  // CAVEAT (council/cairn): this is GROSS — refunds/chargebacks are not netted out, and a
+  // product membership.deactivated (a revoke/refund) does NOT decrement productCustomers.
+  // Acquisition is treated as cumulative at this stage; refund-netting is a P11 refinement.
+  const prodPay = db
+    .query(
+      `SELECT COALESCE(SUM(amount_cents), 0) AS s
+       FROM whop_event_log
+       WHERE type = 'payment.succeeded' AND ${PRODUCT_SCOPE}`,
+    )
+    .get(MEMBERSHIP_PRODUCT_ID) as { s: number };
 
   return {
     activeMembers,
@@ -489,9 +563,9 @@ export function computeRevenue(): RevenueSummary {
     mrrCents: activeMembers * MEMBERSHIP_PRICE_CENTS,
     paymentsCapturedCents: pay.s,
     paymentCount: pay.c,
-    productCustomers: prod.c,
-    productRevenueCents: prod.s,
-    customers: activeMembers + prod.c,
+    productCustomers,
+    productRevenueCents: prodPay.s,
+    customers: activeMembers + productCustomers,
     breakEvenTarget: BREAK_EVEN_MEMBERS,
     breakEvenPct: Math.round((activeMembers / BREAK_EVEN_MEMBERS) * 100),
   };
@@ -506,7 +580,7 @@ export function formatRevenue(r: RevenueSummary = computeRevenue()): string {
     `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [M0/M10 headline]`,
     `  recurring members:  ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} membership-product events)`,
     `  MRR:                ${usd(r.mrrCents)}  (${r.activeMembers} × $49/mo)`,
-    `  product revenue:    ${usd(r.productRevenueCents)}  across ${r.productCustomers} one-time product sale(s)`,
+    `  product revenue:    ${usd(r.productRevenueCents)}  (gross; from ${r.productCustomers} product buyer(s), incl. any $0 grants)`,
     `  payments captured:  ${usd(r.paymentsCapturedCents)}  across ${r.paymentCount} payment.succeeded (member + product)`,
     `  break-even:         ${r.activeMembers}/${r.breakEvenTarget} recurring members (${r.breakEvenPct}%)`,
   ].join("\n");
@@ -539,8 +613,8 @@ export interface WeekBucket {
   activations: number; // membership-product activations in the window
   deactivations: number;
   netNew: number; // net-new RECURRING members (activations − deactivations)
-  productSales: number; // one-time product sales (payment.succeeded) in the window
-  netNewCustomers: number; // net-new members + product sales (the customer spine)
+  newProductCustomers: number; // product membership activations (acquisitions) in the window
+  netNewCustomers: number; // net-new members + new product customers (the customer spine)
 }
 
 export interface NetNewSummary {
@@ -577,13 +651,15 @@ export function computeWeeklyNetNew(
     .query(
       `SELECT type, recorded_at FROM whop_event_log
        WHERE type IN ('membership.activated', 'membership.deactivated')
-         AND (product_id = ? OR product_id IS NULL)`,
+         AND ${MEMBERSHIP_SCOPE}`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ type: string; recorded_at: string }>;
+  // New product customers per window = non-membership-product membership ACTIVATIONS
+  // (acquisitions), matching computeRevenue's customer basis (a $0 grant still counts).
   const productRows = db
     .query(
       `SELECT recorded_at FROM whop_event_log
-       WHERE type = 'payment.succeeded' AND product_id IS NOT NULL AND product_id <> ?`,
+       WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ recorded_at: string }>;
 
@@ -595,7 +671,7 @@ export function computeWeeklyNetNew(
       activations: 0,
       deactivations: 0,
       netNew: 0,
-      productSales: 0,
+      newProductCustomers: 0,
       netNewCustomers: 0,
     });
   }
@@ -613,11 +689,11 @@ export function computeWeeklyNetNew(
   for (const r of productRows) {
     const idx = bucketIndex(r.recorded_at);
     if (idx === null) continue;
-    buckets[idx].productSales++;
+    buckets[idx].newProductCustomers++;
   }
   for (const b of buckets) {
     b.netNew = b.activations - b.deactivations;
-    b.netNewCustomers = b.netNew + b.productSales;
+    b.netNewCustomers = b.netNew + b.newProductCustomers;
   }
 
   const current = buckets[weeks - 1]?.netNew ?? 0;
@@ -665,7 +741,7 @@ export function computeDay60RetentionPct(now: number = Date.now()): RetentionSum
     .query(
       `SELECT source, type, recorded_at FROM whop_event_log
        WHERE type IN ('membership.activated', 'membership.deactivated')
-         AND (product_id = ? OR product_id IS NULL)
+         AND ${MEMBERSHIP_SCOPE}
        ORDER BY recorded_at ASC`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string; type: string; recorded_at: string }>;

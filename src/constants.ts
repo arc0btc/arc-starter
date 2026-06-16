@@ -64,3 +64,27 @@ export const PAID_ROOM_CHECKOUT_URL = `https://whop.com/checkout/plan_axYMvJ4cBn
  *  and the public-forum teaser all reference one canonical code (re-scope to L1
  *  at ladder rollout → P12). */
 export const PROMO_CODE = "FREEMONTH" as const;
+
+// --- hash-it-out PRODUCT SKU (P10A product-led conversion) ---
+// The first one-time PRODUCT (not the $49/mo membership): a packaged research report
+// sold as a standalone $9 SKU. Mirrors the PAID_ROOM_* block — same `?a=arc0btc`
+// attribution so a product sale increments Arc's affiliate counter, but this is a
+// ONE-TIME plan (`plan_type:"one_time"`), so the ledger classifies a buyer as a
+// product CUSTOMER (events.ts MEMBERSHIP_PRODUCT_ID split), NOT a $49/mo member.
+//
+// Flagship #1 = "The Harness Engineering Field Guide" (packaged from the existing
+// research/2026-05-19 harness-engineering report — sell the legibility + provenance,
+// not the raw research). Created HIDDEN via `whop create-product`; the operator flips
+// it `visible` at go-live. Minted live 2026-06-16.
+
+/** First product SKU (Whop product id). One-time plan; NOT the membership product. */
+export const PRODUCT_ID = "prod_HTLQdLKXqPGIS" as const;
+
+/** The product's one-time plan id (`plan_type:"one_time"`, $9). Drives direct checkout. */
+export const PRODUCT_PLAN_ID = "plan_iWhn7BqRgGBtu" as const;
+
+/** Product page (soft CTA — see the report, then buy). Attributable via `?a=arc0btc`. */
+export const PRODUCT_PAGE_URL = `https://whop.com/harness-engineering-field-guide/?a=${PAID_ROOM_AFFILIATE}`;
+
+/** Direct one-time checkout for the product. Attributable via `?a=arc0btc`. */
+export const PRODUCT_CHECKOUT_URL = `https://whop.com/checkout/${PRODUCT_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;

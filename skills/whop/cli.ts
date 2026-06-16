@@ -12,6 +12,7 @@
 import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { whopClient } from "./lib/whop-api.ts";
+import { PAID_ROOM_AFFILIATE } from "../../src/constants.ts";
 
 // Every Whop call routes through @whop/sdk (version-pinned in package.json) via
 // whopClient(); there is no hand-rolled REST left. Keys are still resolved from
@@ -142,6 +143,9 @@ function printHelp(): void {
       "                                         edit a forum post (no DELETE endpoint exists; PATCH to blank)",
       "  rename-experience --id exp_xxx --title <new title>",
       "  create-course --experience exp_xxx --title <t>",
+      "  create-product --title <t> --route <slug> [--price 9] [--description <d>] [--headline <h>]",
+      "                                         mint a HIDDEN one-time product SKU (create-or-find by route;",
+      "                                         30% global+member affiliate) → prints prod_/plan_ ids + PRODUCT_* constants",
       "  create-chapter --course cou_xxx --title <t>",
       "  create-lesson --chapter cha_xxx --title <t> [--type text|video|pdf|multi|quiz|knowledge_check]",
       "                [--content <md>] [--video-url <embed_id>] [--embed-type youtube|loom]",
@@ -380,6 +384,165 @@ async function cmdCreateLesson(apiKey: string, flags: Record<string, string>): P
   process.stdout.write(JSON.stringify(lesson, null, 2) + "\n");
 }
 
+// --- Product SKU creation (P10A — productize a research report as a one-time SKU) ---
+// create-product mints ONE Whop product per report, each with a ONE-TIME plan (no
+// subscription; the $49/mo membership stays the only recurring plan). Created HIDDEN
+// (accessible by direct link, off the public store) so the report can be attached and
+// a $0 test-purchase run before the operator flips it visible at go-live. The 30% global
+// + member affiliate mirrors the membership product so a `?a=arc0btc` sale is attributable.
+
+interface PlanSummary {
+  id: string;
+  plan_type: string;
+  initial_price: number;
+  visibility: string;
+}
+
+/** Find the product's plan (NEVER on the Product response — must be listed separately). */
+async function findOneTimePlan(
+  client: ReturnType<typeof whopClient>,
+  companyId: string,
+  productId: string,
+): Promise<PlanSummary | null> {
+  type PlanRow = PlanSummary & { product?: { id?: string | null } | null; product_id?: string | null };
+  const pick = (rows: PlanRow[]): PlanRow | null =>
+    rows.find((p) => p.plan_type === "one_time") ?? rows[0] ?? null;
+  const norm = (p: PlanRow | null): PlanSummary | null =>
+    p ? { id: p.id, plan_type: p.plan_type, initial_price: p.initial_price, visibility: p.visibility } : null;
+
+  // The server-side product_ids filter has been observed to return empty even when a
+  // plan exists, so try it first but fall back to a full scan matched on product id.
+  const filtered = await client.plans.list({ company_id: companyId, product_ids: [productId], first: 25 });
+  const fromFilter = pick(filtered.data as PlanRow[]);
+  if (fromFilter) return norm(fromFilter);
+  // CEILING (council/forge): the fallback scans only the first 100 plans (no cursor follow).
+  // Since the filter is the unreliable path, this scan is the real idempotency net — past ~100
+  // plans company-wide a freshly-created plan could fall off it and read as null, and a re-run
+  // would then stack a duplicate plan. ~100 plans = ~100 one-time products away; paginate before then.
+  const all = await client.plans.list({ company_id: companyId, first: 100 });
+  const owned = (all.data as PlanRow[]).filter((p) => (p.product?.id ?? p.product_id) === productId);
+  return norm(pick(owned));
+}
+
+async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.title) fail("create-product requires --title <product title>");
+  if (!flags.route) fail("create-product requires --route <url-slug> (the whop.com/<route> path)");
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("create-product requires creds key company_id (biz_xxx)");
+  const price = flags.price ? Number(flags.price) : 9; // $9 opening (P10.0b), reversible
+  if (!Number.isFinite(price) || price <= 0) fail("--price must be a positive number (USD); default 9");
+  const client = whopClient(apiKey);
+
+  // Create-OR-FIND by route (P8 idempotency): products.create is non-idempotent and a
+  // route collision errors, so a re-run for an existing route returns the existing SKU
+  // rather than stacking a duplicate. Route is the stable natural key for the catalog.
+  // CEILING (council/forge): scans only the first 50 products (no cursor follow). Past 50 the
+  // route-find can miss and fall through to products.create — which the server then rejects on
+  // the duplicate route (a hard error, NOT a duplicate SKU), so it degrades safely; paginate before then.
+  const existingPage = await client.products.list({ company_id: companyId, first: 50 });
+  const existing = (
+    existingPage.data as Array<{ id: string; route: string; title: string; visibility: string }>
+  ).find((p) => p.route === flags.route);
+
+  let productId: string;
+  let route: string;
+  let created: boolean;
+  if (existing) {
+    productId = existing.id;
+    route = existing.route;
+    created = false;
+    process.stderr.write(
+      `whop: product already exists for route "${flags.route}" (${existing.id}) — returning existing (idempotent)\n`,
+    );
+  } else {
+    let product;
+    try {
+      product = await client.products.create({
+        company_id: companyId,
+        title: flags.title,
+        ...(flags.description ? { description: flags.description } : {}),
+        ...(flags.headline ? { headline: flags.headline } : {}),
+        route: flags.route,
+        visibility: "hidden",
+        // NOTE: plan_options is NOT honored by the API for one-time plans (verified live —
+        // the product is created but no plan attaches). The purchasable plan is therefore
+        // created explicitly below via plans.create. Affiliate config DOES apply here.
+        global_affiliate_status: "enabled",
+        global_affiliate_percentage: 30,
+        member_affiliate_status: "enabled",
+        member_affiliate_percentage: 30,
+      });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (/403|access_pass:create|permission|forbidden/i.test(msg)) {
+        fail(
+          `products.create rejected (likely missing access_pass:create scope): ${msg}\n` +
+            `Fallback: create it in the Whop dashboard — HIDDEN, one-time plan, $${price}, 30% global+member ` +
+            `affiliate, route "${flags.route}" — then wire its prod_/plan_ ids into src/constants.ts PRODUCT_* by hand.`,
+        );
+      }
+      throw error;
+    }
+    productId = product.id;
+    route = product.route;
+    created = true;
+  }
+
+  // Create-OR-FIND the one-time plan (the product has none until we make it — plan_options
+  // is ignored by the API). Idempotent: only create when the product carries no plan yet,
+  // so a re-run never stacks duplicate plans on the same SKU.
+  let plan = await findOneTimePlan(client, companyId, productId);
+  if (!plan) {
+    const createdPlan = (await client.plans.create({
+      company_id: companyId,
+      product_id: productId,
+      title: "Full report — one-time",
+      currency: "usd",
+      plan_type: "one_time",
+      initial_price: price,
+      release_method: "buy_now",
+      unlimited_stock: true,
+      visibility: "hidden",
+    })) as { id: string; plan_type?: string; initial_price?: number; visibility?: string };
+    plan = {
+      id: createdPlan.id,
+      plan_type: createdPlan.plan_type ?? "one_time",
+      initial_price: createdPlan.initial_price ?? price,
+      visibility: createdPlan.visibility ?? "hidden",
+    };
+    process.stderr.write(`whop: created one-time plan ${plan.id} for ${productId} ($${price})\n`);
+  }
+  // `plan` is provably non-null here (found or just created), so no optional chaining / fallbacks.
+  const planId = plan.id;
+  const productPageUrl = `https://whop.com/${route}/?a=${PAID_ROOM_AFFILIATE}`;
+  const checkoutUrl = `https://whop.com/checkout/${planId}?a=${PAID_ROOM_AFFILIATE}`;
+
+  process.stdout.write(
+    JSON.stringify(
+      {
+        created,
+        product_id: productId,
+        plan_id: planId,
+        route,
+        visibility: "hidden",
+        price_usd: plan.initial_price,
+        plan_type: plan.plan_type,
+        affiliate: PAID_ROOM_AFFILIATE,
+        // Paste-ready values for the src/constants.ts PRODUCT_* block (mirror PAID_ROOM_*).
+        constants: {
+          PRODUCT_ID: productId,
+          PRODUCT_PLAN_ID: planId,
+          PRODUCT_PAGE_URL: productPageUrl,
+          PRODUCT_CHECKOUT_URL: checkoutUrl,
+        },
+        note: "wire `constants` into src/constants.ts PRODUCT_*; product is HIDDEN until the operator flips it visible at go-live",
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
 // --- Affiliate / referral program (Whop native: % of revenue for referrers) ---
 // All of these are reversible company/product CONFIG writes — no sats. The paid
 // product carries the global program (`global_affiliate_percentage` +
@@ -608,6 +771,11 @@ async function main(): Promise<void> {
     case "create-course": {
       const apiKey = await requireApiKey();
       await cmdCreateCourse(apiKey, flags);
+      break;
+    }
+    case "create-product": {
+      const apiKey = await requireApiKey();
+      await cmdCreateProduct(apiKey, flags);
       break;
     }
     case "create-chapter": {
