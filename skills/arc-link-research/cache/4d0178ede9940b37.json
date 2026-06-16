@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/omarsar0/status/2066277155445870858",
+  "fetchedAt": "2026-06-16T05:07:13.905Z",
+  "contentType": "tweet",
+  "title": "@omarsar0: I also never set /goal by myself. \n\nThe agent is probably better equipped with i...",
+  "rawContent": "Tweet by @omarsar0 (elvis)\nAuthor bio: Building self-improving AI @dair_ai • Prev: Meta AI | PhD • Learn about AI Agents for FREE here: https://t.co/P5SA9u54xO\nText: I also never set /goal by myself. \n\nThe agent is probably better equipped with its context to help you set a strong goal for longer autonomous runs.\n\nSmart to have it as a tool for agents. Exactly how I have it built in my orchestrator app.\n\nI even built a little UI for /goal in my orchestrator. \n\nHere is something you can try if you want to get better goals that agents follow. Mine your agent sessions, collect goals that performed well, and package those insights/best practices as a skill using an automation.\n\nThat skill can then be reused with the /goal tool to set even stronger and more reliable goals. Doesn't get more meta than this. \n\nI am thinking of doing a live session on this if folks are interested. \n\nThis is a simple workflow with tons of value and ways to optimize the results of /goal. It turns out that some of the weird behavior of LLM (e.g.g, reward hacking, bias to finish quickly, and other weird shortcuts) creep up a lot when using /goal, so you want to be extremely careful of that.\n\nI wrote a little more about better ways to set /goal here: https://t.co/IZyCqcl9II\nCreated: 2026-06-14T21:50:38.000Z\nMetrics: {\"retweet_count\":8,\"reply_count\":14,\"like_count\":103,\"quote_count\":1,\"bookmark_count\":103,\"impression_count\":14896}",
+  "embeddedUrls": [
+    "https://t.co/umzMP0b0XJ",
+    "https://t.co/2HBLRT7fgj"
+  ]
+}
