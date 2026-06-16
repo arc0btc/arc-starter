@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/PrajwalTomar_/status/2066529416197669058",
+  "fetchedAt": "2026-06-16T05:13:16.440Z",
+  "contentType": "tweet",
+  "title": "@PrajwalTomar_: WAIT. This is actually insane.\n\nA senior dev just dropped the 3-tier agent stack...",
+  "rawContent": "Tweet by @PrajwalTomar_ (Prajwal Tomar)\nAuthor bio: I build MVPs for founders in 21 days at @ignytlabs and teach others how to do the same inside @aimvpbuilders.\nText: WAIT. This is actually insane.\n\nA senior dev just dropped the 3-tier agent stack Boris Cherny (the creator of Claude Code) actually runs.\n\nHe uninstalled his IDE. Now runs 5-10 interactive Claude sessions during the day and several thousand agents overnight, mostly triggered from his phone.\n\n→ Tier 1: /loop runs slash commands on a schedule inside open sessions (PR review, deploy watch, Slack feedback mining every 5-30 min)\n→ Tier 2: Routines run on Anthropic's cloud overnight against a fresh clone (morning report, deep audit, dep hygiene, weekly recap)\n→ Tier 3: /batch + dynamic workflows orchestrate hundreds to thousands of agents on a single task\n\nA real example: 800 agents migrated user. email to user. primaryEmail across a 4,000-file monorepo. Each in its own worktree. Each with its own adversarial reviewer.\n\nThe Bun team rewrote their entire Zig codebase to Rust this way.\n\nHis closing line is the part nobody is saying out loud:\n\n\"The compound effect is in the system, not the model.\"\n\nMost builders are still running one Claude session at a time. The smart ones are running thousands while they sleep.\nCreated: 2026-06-15T14:33:01.000Z\nMetrics: {\"retweet_count\":15,\"reply_count\":7,\"like_count\":178,\"quote_count\":1,\"bookmark_count\":302,\"impression_count\":9930}",
+  "embeddedUrls": [
+    "https://t.co/BtN5rBrZUm"
+  ]
+}
