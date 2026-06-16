@@ -1267,15 +1267,19 @@ async function pollEventStream<T extends { created_at: string }>(
   return { recorded, maxAt };
 }
 
-async function pollWhopEvents(): Promise<void> {
+export async function pollWhopEvents(): Promise<void> {
   if (!WHOP_EVENTS_ENABLED) {
     eventsLog("disabled (WHOP_EVENTS_ENABLED=false) — skip");
     return;
   }
 
-  const apiKey = await getAppApiKey();
+  // Company key, NOT the app key: memberships.list / payments.list are company-scoped
+  // and 400 ("not authorized") under the app key — the events lane silently no-opped
+  // on every tick until this fix (the app key is for chat writes only). The verify
+  // artifact for the first product purchase already specified a "company-scoped poll".
+  const apiKey = await getCredential("whop", "company_api_key");
   if (!apiKey) {
-    eventsLog("no app api key — skip");
+    eventsLog("no company_api_key — skip");
     return;
   }
   const companyId = await getCredential("whop", "company_id");

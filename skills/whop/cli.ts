@@ -170,6 +170,7 @@ function printHelp(): void {
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
       "  tick-free-forum                        run pollWhopFreeForumDigest() once, bypassing the 24h self-gate",
+      "  tick-events                            run pollWhopEvents() once (intake memberships/payments -> ledger)",
       "  revenue                                members / MRR / break-even + weekly net-new + MRR-ladder + leading indicators (captured Whop events)",
       "",
     ].join("\n"),
@@ -830,6 +831,13 @@ async function main(): Promise<void> {
       initDatabase();
       const { pollWhopSynthesis } = await import("./sensor.ts");
       await pollWhopSynthesis();
+      break;
+    }
+    case "tick-events": {
+      const { initDatabase } = await import("../../src/db.ts");
+      initDatabase();
+      const { pollWhopEvents } = await import("./sensor.ts");
+      await pollWhopEvents();
       break;
     }
     case "tick-free-forum": {
