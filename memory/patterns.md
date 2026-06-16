@@ -38,8 +38,8 @@ Auto-extracted reports and JS-rendered sites often miss substantive content — 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
 New capabilities (sub-agents, persistent memory, external fetch) require explicit threat model before shipping. Sanitize fetched content. DeepMind rates: 86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking.
-**p-contract-operations** [2026-04-29]
-Design: spec inputs/outputs/state-transitions/errors first. Audit existing contracts before writing new. Pre-flight: simulate before nonce acquisition (catches ~80% failures at zero cost). Start bilateral escrow before DAO.
+**p-weak-subsystem-audit-tool-selection** [2026-06-16, task #19139]
+For weak subsystems (Feedback, Dispatch), search existing tools that index your own artifacts before custom-building. Pattern-adopt the tool's data model (e.g., sensors consuming tracebase's loop/waste metrics) rather than vendoring it. When a tool directly reads your artifacts (tracebase + ~/.claude/projects), it's a strong match even if not purpose-built. Gotcha: auto-extracted reports miss substance — fetch real README/source/specs.
 **p-revision-loop-primitive** [2026-05-11, merged: p-pr-reversion-source-verification]
 Before accepting re-review, check if flagged issues were actually addressed — if unchanged, decline. When re-verifying author fix-claims, fetch actual file content at HEAD SHA via `gh api repos/OWNER/REPO/contents/PATH?ref=<sha> --jq .content | base64 -d`, NOT cached `gh pr diff`. Stale diffs cause false negatives as much as false positives. Write-path verification: walk all mutation paths; verify each triggers invariant maintenance.
 **p-purpose-loop** [2026-05-07, refined 2026-06-14]
