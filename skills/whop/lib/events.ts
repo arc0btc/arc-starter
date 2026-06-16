@@ -54,6 +54,24 @@ export interface WhopEvent {
   data: unknown;
   /** Payment amount in whole-currency units (USD), when applicable. */
   amount?: number | null;
+  /**
+   * The Whop product (`prod_…`) the entity belongs to. Both membership and payment
+   * entities expose `.product.id`. Drives the P10A member-vs-product money split:
+   * MEMBERSHIP_PRODUCT_ID → recurring $49/mo member; anything else → one-time product
+   * customer. NULL = a legacy/unknown entity, treated as the membership product.
+   */
+  product_id?: string | null;
+}
+
+/** Structural view of an entity carrying a product reference (membership or payment). */
+interface HasProduct {
+  product?: { id?: string | null } | null;
+  product_id?: string | null;
+}
+
+/** Extract the product id off either entity shape (`.product.id` or a flat `product_id`). */
+function entityProductId(e: HasProduct): string | null {
+  return e.product?.id ?? e.product_id ?? null;
 }
 
 // ---- Minimal structural views of the SDK entities we poll ----
@@ -64,6 +82,8 @@ export interface MembershipLike {
   id: string;
   status: string;
   created_at: string;
+  product?: { id?: string | null } | null;
+  product_id?: string | null;
 }
 
 export interface PaymentLike {
@@ -72,12 +92,26 @@ export interface PaymentLike {
   created_at: string;
   usd_total?: number | null;
   total?: number | null;
+  product?: { id?: string | null } | null;
+  product_id?: string | null;
 }
 
 // ---- Normalizers ----
 
 const ACTIVE_MEMBERSHIP = new Set(["active", "trialing"]);
 const ENDED_MEMBERSHIP = new Set(["canceled", "expired", "completed"]);
+
+// The recurring $49/mo "hash it out — membership" product. Used in two places: the
+// member-welcome gate (P20 — only membership-product activations get the room welcome)
+// and the revenue split (P22 — only this product counts toward active members / MRR;
+// any other product is a one-time customer). NULL product_id = legacy/unknown entity,
+// treated as the membership product so pre-P10A behavior is preserved.
+const MEMBERSHIP_PRODUCT_ID = "prod_TJknsIOzPDlQS";
+
+/** True if an event belongs to the recurring membership product (NULL = legacy membership). */
+function isMembershipProduct(productId: string | null | undefined): boolean {
+  return productId == null || productId === MEMBERSHIP_PRODUCT_ID;
+}
 
 /** Membership entity → WhopEvent. Type derives from status; id embeds status. */
 export function normalizeMembership(m: MembershipLike): WhopEvent {
@@ -91,6 +125,7 @@ export function normalizeMembership(m: MembershipLike): WhopEvent {
     type,
     occurred_at: m.created_at,
     data: m,
+    product_id: entityProductId(m),
   };
 }
 
@@ -119,6 +154,7 @@ export function normalizePayment(p: PaymentLike): WhopEvent {
     occurred_at: p.created_at,
     data: p,
     amount,
+    product_id: entityProductId(p),
   };
 }
 
@@ -140,9 +176,23 @@ export function whopEventLedger(): SourceLedger {
       extraColumns: [
         { name: "occurred_at", type: "TEXT" },
         { name: "amount_cents", type: "INTEGER" },
+        // P10A: the Whop product the entity belongs to — drives the member-vs-product
+        // money-number split (a one-time report buyer must NOT count as a $49/mo member).
+        { name: "product_id", type: "TEXT" },
         { name: "payload", type: "TEXT" },
       ],
     });
+    // createSourceLedger is CREATE TABLE IF NOT EXISTS ONLY — it never adds a column
+    // to a table that predates product_id. A live whop_event_log created before P10A
+    // therefore needs an explicit, guarded migration. On a fresh DB the CREATE already
+    // carries product_id, so this ALTER throws "duplicate column name" and is ignored.
+    // (Live table had 0 rows at P10A, so no backfill is needed — older rows read NULL,
+    //  which computeRevenue() treats as the legacy membership product. See classify.)
+    try {
+      getDatabase().run("ALTER TABLE whop_event_log ADD COLUMN product_id TEXT");
+    } catch {
+      /* column already present (fresh CREATE or prior migration) — no-op */
+    }
   }
   return ledgerSingleton;
 }
@@ -172,6 +222,7 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" {
   ledger.record(event.id, event.type, {
     occurred_at: event.occurred_at,
     amount_cents: amountCents,
+    product_id: event.product_id ?? null,
     payload: JSON.stringify(event.data),
   });
   // Advisory signal into the artifact pool — AFTER record (unlike the critical task
@@ -190,7 +241,16 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" {
  */
 export function surfaceWhopEvent(event: WhopEvent): void {
   if (event.type === "membership.activated") {
-    surfaceMemberWelcome(event);
+    // P10A gate: Whop wraps EVERY access grant — including a one-time report purchase —
+    // in a `membership.activated`. Only the recurring membership product earns the
+    // $49/mo room welcome; a one-time product buyer must NOT be greeted as a member
+    // (it would mis-onboard a $9 customer). Non-membership-product activations surface
+    // generically — product fulfillment/follow-up is owned elsewhere, not the room welcome.
+    if (isMembershipProduct(event.product_id)) {
+      surfaceMemberWelcome(event);
+    } else {
+      queueGenericEvent(event);
+    }
     return;
   }
   queueGenericEvent(event);
@@ -297,23 +357,43 @@ const WHOP_SIGNAL_CHANNELS: readonly ArtifactChannel[] = ["whop-chat"];
 
 /** Aggregate, PII-free room-signal text for the events worth surfacing as input. */
 function signalCopy(event: WhopEvent): { topic: string; title: string; nugget: string } | null {
+  const membershipProduct = isMembershipProduct(event.product_id);
   switch (event.type) {
     case "membership.activated":
-      return {
-        topic: "room-growth",
-        title: "A new member joined the room",
-        nugget:
-          "A new member just joined the hash-it-out 'AI Prefers Bitcoin' room. The room grew — " +
-          "worth keeping in mind when reading the room: there may be someone new finding their footing.",
-      };
+      // A one-time report purchase also emits membership.activated — but it is NOT a
+      // new ROOM member, so only the membership product fires the room-growth signal.
+      return membershipProduct
+        ? {
+            topic: "room-growth",
+            title: "A new member joined the room",
+            nugget:
+              "A new member just joined the hash-it-out 'AI Prefers Bitcoin' room. The room grew — " +
+              "worth keeping in mind when reading the room: there may be someone new finding their footing.",
+          }
+        : {
+            topic: "revenue",
+            title: "A one-time product sold",
+            nugget:
+              "Someone bought a one-time hash-it-out product (a packaged research report, not a room " +
+              "membership). Proof-of-work converted to a sale — the continuity bridge into the room is " +
+              "the next read.",
+          };
     case "payment.succeeded":
-      return {
-        topic: "revenue",
-        title: "A membership payment cleared",
-        nugget:
-          "A hash-it-out membership payment cleared. Revenue signal — the room is being paid for; " +
-          "the contract is to keep earning that read.",
-      };
+      return membershipProduct
+        ? {
+            topic: "revenue",
+            title: "A membership payment cleared",
+            nugget:
+              "A hash-it-out membership payment cleared. Revenue signal — the room is being paid for; " +
+              "the contract is to keep earning that read.",
+          }
+        : {
+            topic: "revenue",
+            title: "A product sale cleared",
+            nugget:
+              "A one-time hash-it-out product sale cleared. Revenue signal — the packaged proof-of-work " +
+              "is converting; the read is whether the buyer crosses into the recurring room.",
+          };
     default:
       return null; // other events surface as tasks only, not pool signals
   }
@@ -321,16 +401,24 @@ function signalCopy(event: WhopEvent): { topic: string; title: string; nugget: s
 
 // ---- P22: revenue read over the event ledger (no separate sensor) ------
 
-const MEMBERSHIP_PRICE_CENTS = 4900; // hash-it-out single product: $49/mo
+const MEMBERSHIP_PRICE_CENTS = 4900; // hash-it-out recurring membership: $49/mo
 const BREAK_EVEN_MEMBERS = 16; // ~16-member break-even (QUEST)
 
 export interface RevenueSummary {
+  /** Currently-active RECURRING members (membership product only). Drives MRR. */
   activeMembers: number;
   activatedEvents: number;
   deactivatedEvents: number;
   mrrCents: number;
+  /** ALL captured payments (recurring member charges + one-time product sales). */
   paymentsCapturedCents: number;
   paymentCount: number;
+  /** One-time product buyers = non-membership-product `payment.succeeded` sales. */
+  productCustomers: number;
+  /** Revenue from one-time product sales (SUM over the product payments above). */
+  productRevenueCents: number;
+  /** M0/M10 headline: distinct paying customers = recurring members + product buyers. */
+  customers: number;
   breakEvenTarget: number;
   breakEvenPct: number;
 }
@@ -356,13 +444,18 @@ export function computeRevenue(): RevenueSummary {
   // activated→deactivated→activated). Order by recorded_at — the ledger's monotonic capture
   // timestamp — NOT occurred_at, which is the membership's created_at and is identical across
   // all of one membership's status events. Last-write-wins per entity.
+  // RECURRING members only: a one-time report purchase ALSO emits membership.activated,
+  // so the lifecycle read is scoped to the membership product (NULL = legacy membership).
+  // Counting every membership.activated here is exactly the bug P10A fixes — it would
+  // inflate active members / MRR with $9 product buyers.
   const lifecycle = db
     .query(
       `SELECT source, type FROM whop_event_log
        WHERE type IN ('membership.activated', 'membership.deactivated')
+         AND (product_id = ? OR product_id IS NULL)
        ORDER BY recorded_at ASC`,
     )
-    .all() as Array<{ source: string; type: string }>;
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string; type: string }>;
   const latestByEntity = new Map<string, string>();
   for (const r of lifecycle) latestByEntity.set(membershipEntityId(r.source), r.type);
   let activeMembers = 0;
@@ -371,12 +464,23 @@ export function computeRevenue(): RevenueSummary {
   const activated = lifecycle.filter((r) => r.type === "membership.activated");
   const deactivated = lifecycle.filter((r) => r.type === "membership.deactivated");
 
+  // ALL captured payments (member renewals + product sales) — unchanged top-line cash.
   const pay = db
     .query(
       `SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents), 0) AS s
        FROM whop_event_log WHERE type = 'payment.succeeded'`,
     )
     .get() as { c: number; s: number };
+
+  // One-time product sales = succeeded payments carrying a NON-membership product id.
+  // (A payment with NULL product_id is legacy/membership → excluded from the product line.)
+  const prod = db
+    .query(
+      `SELECT COUNT(*) AS c, COALESCE(SUM(amount_cents), 0) AS s
+       FROM whop_event_log
+       WHERE type = 'payment.succeeded' AND product_id IS NOT NULL AND product_id <> ?`,
+    )
+    .get(MEMBERSHIP_PRODUCT_ID) as { c: number; s: number };
 
   return {
     activeMembers,
@@ -385,6 +489,9 @@ export function computeRevenue(): RevenueSummary {
     mrrCents: activeMembers * MEMBERSHIP_PRICE_CENTS,
     paymentsCapturedCents: pay.s,
     paymentCount: pay.c,
+    productCustomers: prod.c,
+    productRevenueCents: prod.s,
+    customers: activeMembers + prod.c,
     breakEvenTarget: BREAK_EVEN_MEMBERS,
     breakEvenPct: Math.round((activeMembers / BREAK_EVEN_MEMBERS) * 100),
   };
@@ -396,10 +503,12 @@ const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 export function formatRevenue(r: RevenueSummary = computeRevenue()): string {
   return [
     "hash-it-out revenue (from captured Whop events — whop_event_log):",
-    `  active members:     ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} events)`,
+    `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [M0/M10 headline]`,
+    `  recurring members:  ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} membership-product events)`,
     `  MRR:                ${usd(r.mrrCents)}  (${r.activeMembers} × $49/mo)`,
-    `  payments captured:  ${usd(r.paymentsCapturedCents)}  across ${r.paymentCount} payment.succeeded`,
-    `  break-even:         ${r.activeMembers}/${r.breakEvenTarget} members (${r.breakEvenPct}%)`,
+    `  product revenue:    ${usd(r.productRevenueCents)}  across ${r.productCustomers} one-time product sale(s)`,
+    `  payments captured:  ${usd(r.paymentsCapturedCents)}  across ${r.paymentCount} payment.succeeded (member + product)`,
+    `  break-even:         ${r.activeMembers}/${r.breakEvenTarget} recurring members (${r.breakEvenPct}%)`,
   ].join("\n");
 }
 
@@ -427,18 +536,23 @@ const DAY60_MS = 60 * DAY_MS;
 export interface WeekBucket {
   /** UTC date (YYYY-MM-DD) of the 7-day window start (inclusive). */
   startsAt: string;
-  activations: number;
+  activations: number; // membership-product activations in the window
   deactivations: number;
-  netNew: number;
+  netNew: number; // net-new RECURRING members (activations − deactivations)
+  productSales: number; // one-time product sales (payment.succeeded) in the window
+  netNewCustomers: number; // net-new members + product sales (the customer spine)
 }
 
 export interface NetNewSummary {
-  current: number; // net-new in the most-recent 7d window
-  previous: number; // net-new in the prior 7d window
+  current: number; // net-new recurring members in the most-recent 7d window
+  previous: number; // net-new recurring members in the prior 7d window
   trend: "up" | "down" | "flat";
+  currentCustomers: number; // net-new customers (members + product sales), latest window
+  previousCustomers: number; // net-new customers, prior window
+  customerTrend: "up" | "down" | "flat";
   buckets: WeekBucket[]; // oldest → newest
-  distanceToM10: number; // members still needed for M10 (>=0)
-  distanceToBreakEven: number; // members still needed for break-even (>=0)
+  distanceToM10: number; // CUSTOMERS still needed for M10 (>=0) — M10 = 10 customers
+  distanceToBreakEven: number; // recurring members still needed for break-even (>=0)
 }
 
 /**
@@ -452,15 +566,26 @@ export function computeWeeklyNetNew(
   weeks = 4,
   now: number = Date.now(),
   activeMembers?: number,
+  customers?: number,
 ): NetNewSummary {
   whopEventLedger();
   const db = getDatabase();
+  // Net-new MEMBERS = membership-product lifecycle only (a one-time product activation
+  // is NOT a recurring member). Net-new CUSTOMERS additionally folds in one-time product
+  // sales — the spine the M0/M10 customer count rides on.
   const rows = db
     .query(
       `SELECT type, recorded_at FROM whop_event_log
-       WHERE type IN ('membership.activated', 'membership.deactivated')`,
+       WHERE type IN ('membership.activated', 'membership.deactivated')
+         AND (product_id = ? OR product_id IS NULL)`,
     )
-    .all() as Array<{ type: string; recorded_at: string }>;
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ type: string; recorded_at: string }>;
+  const productRows = db
+    .query(
+      `SELECT recorded_at FROM whop_event_log
+       WHERE type = 'payment.succeeded' AND product_id IS NOT NULL AND product_id <> ?`,
+    )
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ recorded_at: string }>;
 
   const oldestStart = now - weeks * WEEK_MS;
   const buckets: WeekBucket[] = [];
@@ -470,29 +595,52 @@ export function computeWeeklyNetNew(
       activations: 0,
       deactivations: 0,
       netNew: 0,
+      productSales: 0,
+      netNewCustomers: 0,
     });
   }
+  const bucketIndex = (recordedAt: string): number | null => {
+    const t = Date.parse(recordedAt);
+    if (Number.isNaN(t) || t < oldestStart || t >= now) return null;
+    return Math.min(weeks - 1, Math.floor((t - oldestStart) / WEEK_MS));
+  };
   for (const r of rows) {
-    const t = Date.parse(r.recorded_at);
-    if (Number.isNaN(t) || t < oldestStart || t >= now) continue;
-    const idx = Math.min(weeks - 1, Math.floor((t - oldestStart) / WEEK_MS));
+    const idx = bucketIndex(r.recorded_at);
+    if (idx === null) continue;
     if (r.type === "membership.activated") buckets[idx].activations++;
     else buckets[idx].deactivations++;
   }
-  for (const b of buckets) b.netNew = b.activations - b.deactivations;
+  for (const r of productRows) {
+    const idx = bucketIndex(r.recorded_at);
+    if (idx === null) continue;
+    buckets[idx].productSales++;
+  }
+  for (const b of buckets) {
+    b.netNew = b.activations - b.deactivations;
+    b.netNewCustomers = b.netNew + b.productSales;
+  }
 
   const current = buckets[weeks - 1]?.netNew ?? 0;
   const previous = buckets[weeks - 2]?.netNew ?? 0;
   const trend = current > previous ? "up" : current < previous ? "down" : "flat";
-  // Reuse the caller's already-computed count when given (computeReadout passes it) so a
+  const currentCustomers = buckets[weeks - 1]?.netNewCustomers ?? 0;
+  const previousCustomers = buckets[weeks - 2]?.netNewCustomers ?? 0;
+  const customerTrend =
+    currentCustomers > previousCustomers ? "up" : currentCustomers < previousCustomers ? "down" : "flat";
+  // Reuse the caller's already-computed counts when given (computeReadout passes them) so a
   // full readout doesn't recompute computeRevenue() twice; standalone calls still default.
-  const active = activeMembers ?? computeRevenue().activeMembers;
+  const revenue = activeMembers === undefined || customers === undefined ? computeRevenue() : null;
+  const active = activeMembers ?? revenue!.activeMembers;
+  const totalCustomers = customers ?? revenue!.customers;
   return {
     current,
     previous,
     trend,
+    currentCustomers,
+    previousCustomers,
+    customerTrend,
     buckets,
-    distanceToM10: Math.max(0, M10_TARGET - active),
+    distanceToM10: Math.max(0, M10_TARGET - totalCustomers),
     distanceToBreakEven: Math.max(0, BREAK_EVEN_MEMBERS - active),
   };
 }
@@ -511,13 +659,16 @@ export interface RetentionSummary {
 export function computeDay60RetentionPct(now: number = Date.now()): RetentionSummary {
   whopEventLedger();
   const db = getDatabase();
+  // Retention = the RECURRING base (membership product only); one-time product buyers
+  // have no renewal to retain, so they are out of this cohort by construction.
   const rows = db
     .query(
       `SELECT source, type, recorded_at FROM whop_event_log
        WHERE type IN ('membership.activated', 'membership.deactivated')
+         AND (product_id = ? OR product_id IS NULL)
        ORDER BY recorded_at ASC`,
     )
-    .all() as Array<{ source: string; type: string; recorded_at: string }>;
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string; type: string; recorded_at: string }>;
   const firstActivation = new Map<string, number>();
   const latestType = new Map<string, string>();
   for (const r of rows) {
@@ -573,8 +724,14 @@ export interface ReadoutSummary {
   ladder: { mrrCents: number; pctTo10k: number; pctTo50k: number };
   retention: RetentionSummary;
   spend: { todayCents: number; trailing7dCents: number };
-  /** trailing-7d spend ÷ active members; null at 0 members (no denominator). */
-  dollarPerMemberServedCents: number | null;
+  /**
+   * Trailing-7d spend ÷ RECURRING members; null at 0 recurring members (no denominator).
+   * Renamed from $/member-served (council rev #4): the denominator MUST be recurring
+   * members — a one-time $9 buyer is not a monthly-served member, so folding product
+   * buyers in would silently deflate the trip-wire the moment products dominate the mix.
+   * Product CAC is tracked separately (a one-time sale's economics differ from a renewal).
+   */
+  dollarPerRecurringMemberServedCents: number | null;
 }
 
 /** Compose the full P7 readout (revenue + weekly net-new + ladder + retention + spend). */
@@ -583,7 +740,7 @@ export function computeReadout(now: number = Date.now()): ReadoutSummary {
   const spend = computeSpend();
   return {
     revenue,
-    netNew: computeWeeklyNetNew(4, now, revenue.activeMembers),
+    netNew: computeWeeklyNetNew(4, now, revenue.activeMembers, revenue.customers),
     ladder: {
       mrrCents: revenue.mrrCents,
       pctTo10k: Math.round((revenue.mrrCents / LADDER_10K_CENTS) * 100),
@@ -591,7 +748,7 @@ export function computeReadout(now: number = Date.now()): ReadoutSummary {
     },
     retention: computeDay60RetentionPct(now),
     spend,
-    dollarPerMemberServedCents:
+    dollarPerRecurringMemberServedCents:
       revenue.activeMembers > 0 ? Math.round(spend.trailing7dCents / revenue.activeMembers) : null,
   };
 }
@@ -614,23 +771,25 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     ret.pct === null
       ? `N/A (no day-60 cohort yet)  [floor ${RETENTION_FLOOR_PCT}%]`
       : `${ret.pct}% (retained ${ret.retained}/${ret.cohortSize})  [floor ${RETENTION_FLOOR_PCT}%]`;
-  const dpms = r.dollarPerMemberServedCents;
+  const dpms = r.dollarPerRecurringMemberServedCents;
   const arpuPct =
     dpms === null ? null : Math.round((dpms / MEMBERSHIP_PRICE_CENTS) * 100);
   const guardLine =
     dpms === null
-      ? `spend 7d ${usd(r.spend.trailing7dCents)} (today ${usd(r.spend.todayCents)}) ÷ 0 members → N/A (pre-M0)  [trip-wire >~${GUARDRAIL_ARPU_PCT}% blended ARPU]`
-      : `${usd(dpms)}/member (${arpuPct}% of $49 ARPU; spend 7d ${usd(r.spend.trailing7dCents)})  [trip-wire >~${GUARDRAIL_ARPU_PCT}%]${
+      ? `spend 7d ${usd(r.spend.trailing7dCents)} (today ${usd(r.spend.todayCents)}) ÷ 0 recurring members → N/A (pre-M0)  [trip-wire >~${GUARDRAIL_ARPU_PCT}% blended ARPU]`
+      : `${usd(dpms)}/recurring-member (${arpuPct}% of $49 ARPU; spend 7d ${usd(r.spend.trailing7dCents)})  [trip-wire >~${GUARDRAIL_ARPU_PCT}%]${
           (arpuPct ?? 0) > GUARDRAIL_ARPU_PCT ? "  ⚠ BREACH" : ""
         }`;
+  const sgn = (n: number) => (n >= 0 ? "+" : "") + n;
 
   return [
     formatRevenue(r.revenue),
     "",
-    "weekly net-new members (captured-events estimate — same basis as above; poll-coverage caveat):",
-    `  this week:          ${nn.current >= 0 ? "+" : ""}${nn.current}  (${TREND_GLYPH[nn.trend]} vs prior week ${nn.previous >= 0 ? "+" : ""}${nn.previous})`,
-    `  trailing 4 wks:     ${trail}`,
-    `  distance:           M10 in ${nn.distanceToM10} · break-even in ${nn.distanceToBreakEven}`,
+    "weekly net-new (captured-events estimate — same basis as above; poll-coverage caveat):",
+    `  customers this wk:  ${sgn(nn.currentCustomers)}  (${TREND_GLYPH[nn.customerTrend]} vs prior week ${sgn(nn.previousCustomers)})  [M0/M10 spine]`,
+    `  members this wk:    ${sgn(nn.current)}  (${TREND_GLYPH[nn.trend]} vs prior week ${sgn(nn.previous)})  [recurring continuity]`,
+    `  trailing 4 wks (mbr): ${trail}`,
+    `  distance:           M10 in ${nn.distanceToM10} customers · break-even in ${nn.distanceToBreakEven} members`,
     "",
     "MRR ladder (P4 — current vs targets):",
     `  current MRR:        ${usd(r.ladder.mrrCents)}  ·  $10k: ${r.ladder.pctTo10k}%  ·  $50k: ${r.ladder.pctTo50k}%`,
@@ -643,7 +802,8 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     "inherited proof lines (P5/P4 hand-offs):",
     `  day-60 retention:   ${retLine}`,
     `  7d ship-log count:  (stub — TODO: members posting an attributable ship-log within 7d — ship-board P9)`,
-    `  $/member-served:    ${guardLine}`,
+    `  $/recurring-member-served: ${guardLine}`,
+    `  product CAC:        (stub — TODO: product acquisition spend ÷ product buyers, tracked SEPARATELY from $/recurring-member — council rev #4 → P11/P12)`,
   ].join("\n");
 }
 
