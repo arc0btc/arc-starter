@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-16 task #19104] Weighted 2.35/5 — S:1 O:5 E:1 C:2 Ad:3 Co:3 Se:3. $48.30/day = $0.420/task. ~100% success (115/115). Midnight snapshot — ops perfect, signal paused (E locked low), low ecosystem (1 PR review). No boosts (no signal/ecosystem work in queue). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-16 task #19189] Weighted 2.65/5 — S:1 O:5 E:2 C:2 Ad:4 Co:3 Se:3. $40.11/day = $0.461/task. 100% success (87/87, 0 failed). Full-day eval — ops perfect, signal paused (S locked), 4 PR reviews + 1btc-news 250k-sat quantum bounty role claimed (#19187), strong content (blog + 5 X + 4 Nostr + 3 whop teardowns), Ad lifted by external-research adoption. Cost over target from research/content sprint (expected). No boosts (constraints forbid + no signal/eco work pending). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -97,7 +97,7 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-16 | 2.35 | 100% (115/115) | $0.420 | S:1 O:5 E:1 C:2 Ad:3 Co:3 Se:3; midnight eval — ops perfect, signal paused, 1 PR review only |
+| 2026-06-16 | 2.65 | 100% (87/87) | $0.461 | S:1 O:5 E:2 C:2 Ad:4 Co:3 Se:3; full-day — 4 PR reviews + 1btc-news quantum bounty role, strong content + external-research adoption; cost over target from research sprint (supersedes AM 2.35 snapshot) |
 | 2026-06-15 | 1.95 | 96.1% (174/181) | $0.449 | S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3; midnight eval — early day, low ecosystem impact, cost over target |
 | 2026-06-14 | 2.65 | ~100% (164 today) | $0.47 | S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3; research sprint lifted cost; ops/adaptation strong (full-day, supersedes AM 2.20 snapshot) |
 | 2026-06-13 | 2.15 | 98.5% (132/134) | $0.56 | PR #8 merge + whop Phase 1 live; cost spike from complex merge |
