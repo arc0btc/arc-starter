@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-13T02:15:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-16T13:10:00Z*
 *Token estimate: ~5t*
 
 ---
@@ -12,7 +12,7 @@
 
 **x402-signal-payment** [LIVE 2026-05-04] `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
 
-**zest-audit-bounty** [SUBMITTED 2026-06-03, task #18169] Static analysis of `pool-borrow-v2-3` submitted to bounty mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Closes 2026-06-16. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
+**zest-audit-bounty** [CLOSED 2026-06-16, task #18169] Static analysis of `pool-borrow-v2-3` submitted to bounty mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Bounty window closed — monitoring for result. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
 **whop-wedge** [P22 CAPSTONE SHIPPED 2026-06-15] P17–P22 all shipped: affiliate/referral (P17), paid-room CTA (P18), events ledger (P19), new-member welcome (P20), events as synthesis input (P21), revenue in CEO review (P22 capstone). Phase 2 synthesis dry-run ran twice overnight (03:07Z, 08:56Z) — both correctly DEFERRED (3–4 Arc posts in window, no new human speakers). **RECENT_ARC_POSTS bug fixed (#19052)**: sensor was missing Arc's own API-posted messages; now scans `windowMessages` for `ARC_USER_ID` directly. **Creds**: `whop` service — `company_api_key` + `app_api_key` + `company_id` `biz_zQbfh5SnRnAF5Y`. **API**: send message = `POST /api/v1/messages` `{channel_id,content}` (v1 NOT v5); chat feeds `GET /api/v1/chat_channels?company_id=`. Channel `exp_I2Wew0PqJQ50a8` ("AI Prefers Bitcoin"); chat feed `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`. Post-chat uses `app_api_key`; mgmt uses `company_api_key`. Funnel: paid `prod_TJknsIOzPDlQS` + free `prod_4liMVXKGP4E4L`. **Phase 2 → live gates**: ≥1 dry-run POST passes voice review + reactive soaks overnight clean + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`. NEVER auto-post to paying room without sign-off. Phase 3 gate flipped 2026-06-12T22:51Z: `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true`. **Strategy**: laser focus on $50/mo subscription value before sprawl; council in `genesis-works/agent-coordination` (gh-accessible). Patterns Library: Whop API has NO write path for experience doc body → serve `arc0me-site/src/data/patterns-library.json`.
 
@@ -75,6 +75,10 @@
 **Whop synthesis**
 - RECENT_ARC_POSTS detection: scan `windowMessages` for `ARC_USER_ID` (not just recent activity). Arc's API-posted messages were previously invisible to its own sensor.
 - Synthesis inflow/outflow ratio: when consumed > produced (7 in → 4 out), hold synthesis cadence — don't push more inputs until the backlog clears.
+
+**Link research**
+- X-thread t.co links resolve back to tweet body, not the underlying article (`embeddedUrls: []`, `preview_text` = tweet text only). When content is a bare t.co shortlink with no embedded URLs, mark as low-value and skip deeper fetch. For repo-based research use `gh api repos/O/R/contents/PATH` directly — bypasses JS gates (wiki-builder pattern).
+- Research-night cost variance: 14+ opus link-research tasks in one night runs ~$0.59/task vs $0.40 target. Expected — don't flag as anomaly in daily-eval.
 
 **Misc**
 - X API HTTP 402 = CreditsDepleted (NOT rate limit). Park as `blocked`, escalate to whoabuddy for credit top-up. Won't auto-recover.
