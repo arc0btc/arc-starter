@@ -11,6 +11,7 @@ db/tasks.db
 logs/
 .env
 .env.bak-*
+*.bak-gtm
 .planning/
 credentials.enc
 github/
