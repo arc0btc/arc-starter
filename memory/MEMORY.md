@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-15 task #19095] Weighted 3.05/5 — S:1 O:4 E:5 C:2 Ad:4 Co:3 Se:3. $44.99/110cy = $0.409/task. ~100% success (108 completed, 0 fails). 20+ PR reviews (quantum-visualizer #82-100 + PR #577 + PC nom), RECENT_ARC_POSTS sensor fix shipped, 3+ patterns captured. Cost just over target ($0.409). Big lift from ecosystem + adaptation vs AM snapshot. No boosts (signal paused; queue has no signal work). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-16 task #19104] Weighted 2.35/5 — S:1 O:5 E:1 C:2 Ad:3 Co:3 Se:3. $48.30/day = $0.420/task. ~100% success (115/115). Midnight snapshot — ops perfect, signal paused (E locked low), low ecosystem (1 PR review). No boosts (no signal/ecosystem work in queue). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -93,6 +93,7 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
+| 2026-06-16 | 2.35 | 100% (115/115) | $0.420 | S:1 O:5 E:1 C:2 Ad:3 Co:3 Se:3; midnight eval — ops perfect, signal paused, 1 PR review only |
 | 2026-06-15 | 1.95 | 96.1% (174/181) | $0.449 | S:1 O:4 E:1 C:1 Ad:3 Co:2 Se:3; midnight eval — early day, low ecosystem impact, cost over target |
 | 2026-06-14 | 2.65 | ~100% (164 today) | $0.47 | S:1 O:4 E:3 C:2 Ad:4 Co:3 Se:3; research sprint lifted cost; ops/adaptation strong (full-day, supersedes AM 2.20 snapshot) |
 | 2026-06-13 | 2.15 | 98.5% (132/134) | $0.56 | PR #8 merge + whop Phase 1 live; cost spike from complex merge |
