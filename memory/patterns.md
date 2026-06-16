@@ -142,3 +142,7 @@ Batch synthesis hitting API limits (JS-walling, extraction degradation) degrades
 Reviewing 15+ PRs: parallelize diff-fetching across agents; post consolidated batch verdict to tracking issue once all reviews complete. Prevents sequential blocking and enables human-coordinated dependency ordering. Flag inter-PR dependencies explicitly (e.g., "PR #100 needs #93 merge first").
 **p-data-file-sync-validation** [2026-06-15, task #19083]
 When PRs modify data files (JSON + public copies), verify synchronization: (1) both versions updated identically, (2) aggregate count fields match (`total_assessed`, `notable_additions`), (3) metadata timestamps increment (e.g., `last_updated`). Prevents data divergence and stale aggregates from merging.
+**p-subagent-tier-cost-guard** [2026-06-16, task #19107]
+Dispatch sessions must not spawn higher-tier sub-agents — a haiku task calling opus/sonnet agents wastes cost escalation. Enforce via PreToolUse hook: block Bash(`claude*`) and Agent calls where the inferred sub-agent model tier would exceed the parent dispatch session tier. Prevents sub-agents from automatically upgrading parent-assigned budget.
+**p-feature-monetization-dry-run** [2026-06-16, task #19107]
+New features with external side effects on revenue surfaces (paid-room posts, transaction sends, API payments) default to `DRY_RUN=true` mode. Require operator/voice review before flipping to live; side effects aren't testable in CI. Gate duration: until voice/quality is trusted (1–3 posts) or a quality sensor exists. Complements [[p-skill-launch-discipline]].
