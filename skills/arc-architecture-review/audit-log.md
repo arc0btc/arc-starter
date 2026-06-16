@@ -1,3 +1,58 @@
+## 2026-06-16T14:15:00.000Z — whop-sales NON_PROSPECT_USER_IDS + channel field; .bak-gtm resolved; 129 skills / 82 sensors
+
+**Task #19156** | Diff: 034c748 → 10565ea (2 structural commits) | Sensors: 82 | Skills: 129
+
+### Step 1 — Requirements
+
+2 structural commits in window, both in `skills/whop-sales/sensor.ts`. No `src/dispatch.ts` or `src/sensors.ts` changes.
+
+Key changes:
+- **fix(whop-sales): verbose naming compliance** (91366831 + 72909eaf): catch(err)→catch(error) in sensor.ts — pre-commit hook enforcement.
+- **feat(whop-sales): NON_PROSPECT_USER_IDS gate** (72909eaf): `OPERATOR_USER_ID = "user_WQ6WyvnFOZ6bY"` + `NON_PROSPECT_USER_IDS = new Set([ARC_USER_ID, OPERATOR_USER_ID])`. Live-lane test confirmed operator (whoabuddy) would have been surfaced as a Class B/C lead — he chats in the room but isn't a `whop_event_log` member. Exclusion set prevents trust-breaking false positive.
+- **feat(whop-sales): Candidate.channel field** (72909eaf): `channel: "x" | "forum"` added to `Candidate` type. Drives link format, skills, and post venue at P10 routing layer — correct factoring for multi-channel pitch dispatch.
+
+Auto-commits: `arc-link-research` cache files (operational state), `memory/patterns.md` consolidation (153→146 lines), DAIR wiki-builder memory entry, weekly HTML archives. None are structural.
+
+[RESOLVED from prior audit] `.bak-gtm` files: all 11 backup files deleted + `.gitignore` entry added (13c2091b). ACTION-NOW fully closed.
+
+### Step 2 — Delete
+
+No new deletion candidates. 129 skills / 82 sensors stable.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+### Step 3 — Simplify
+
+- `NON_PROSPECT_USER_IDS` as a `Set<string>` is correct: O(1) lookup, explicitly documented extension point for future internal agents. Better than filtering in per-class logic.
+- Two-commit fix for the same file (91366831 + 72909eaf) is a dispatch artifact — first task caught initial violation, second completed it + added the feature work. No structural concern.
+- `Candidate.channel` field factoring is correct — the routing decision (x vs forum) belongs at candidate selection time, not duplicated in compose.ts and enforcement.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- NON_PROSPECT_USER_IDS prevents operator from receiving automated sales pitches every 12h — eliminates a trust-breaking false positive confirmed by live-lane test.
+- `Candidate.channel` field unblocks P10 multi-channel routing without sensor-level branching.
+
+### Step 5 — Automate
+
+- `*.bak-gtm` now in `.gitignore` — prevents future accumulation automatically. Pattern: GTM quest backup files will never reach the repo again.
+- **[CARRY-CARRY]** `lint-skills --staged` `--name <X>` validation for AGENT.md skill refs. Low priority.
+
+### Flags
+
+- **[RESOLVED]** .bak-gtm cleanup (13c2091b) — ACTION-NOW from 2026-06-16T02:13Z audit. 11 files + .gitignore entry.
+- **[NEW]** whop-sales NON_PROSPECT_USER_IDS (72909eaf): operator + Arc self excluded from lead pool. Live-lane confirmed necessity.
+- **[NEW]** whop-sales Candidate.channel (72909eaf): x | forum routing field — P10 channel dispatch enabled.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales P9 → P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-16T02:13:00.000Z — whop-sales P9 acquisition lane wired; model-gate PreToolUse hook; 131 skills / 82 sensors
 
 **Task #19107** | Diff: 620ef4f → 034c748 (3 structural commits + ~50 auto-commits) | Sensors: 82 | Skills: 131
