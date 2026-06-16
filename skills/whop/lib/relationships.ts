@@ -51,7 +51,7 @@ export interface Relationship {
   notes: string[];        // free-form, human-appendable
 }
 
-interface RelationshipStore {
+export interface RelationshipStore {
   updated_at: string;
   users: Record<string, Relationship>;
 }

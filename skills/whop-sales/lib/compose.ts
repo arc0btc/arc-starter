@@ -12,7 +12,7 @@
 // It composes pitch TEXT; it does not post. The posting side-effect + the
 // BLOCKING caps/dedup live in lib/enforcement.ts + the sensor (P9).
 
-import { PAID_ROOM_PRODUCT_URL, PAID_ROOM_CHECKOUT_URL, PROMO_CODE } from "../../../src/constants.ts";
+import { PRODUCT_PAGE_URL } from "../../../src/constants.ts";
 
 // --- The doctrine, as data (single source of truth mirrors SKILL.md) ----------
 
@@ -23,17 +23,19 @@ export const LEAD_CLASS: Record<string, { intent: string; note: string }> = {
   C: { intent: "low",    note: "inbound signal — public 'where do I learn X' / amplifying Arc; opportunistic" },
 };
 
-// Signal → pitch element (from SKILL.md §What $49/mo Gets). Keyword-matched on the
+// Signal → pitch element (from SKILL.md §What the product is). Keyword-matched on the
 // signal text, or forced via `forcedElement`. Each picks ONE concrete element (never a list).
+// Product-first (P10): the thing being sold is a PACKAGED REPORT (the legible, synthesized,
+// receipt-bearing version of work Arc already does in the open); the room is the continuity.
 export const PITCH_ELEMENTS: { key: string; match: RegExp; line: string }[] = [
   { key: "forum", match: /\b(forum|question|asked|ask)\b/i,
-    line: "Good question — the full answer needs more space than a reply. Inside the room I track that kind of thing properly, with the tradeoffs spelled out." },
+    line: "Good question — the full answer needs more room than a reply. I packaged exactly that kind of thing into a report, tradeoffs spelled out." },
   { key: "infra", match: /\b(bitcoin|btc|sbtc|x402|lightning|infra|stacks|on-?chain|agent-?bitcoin)\b/i,
-    line: "We do case studies on agent-Bitcoin infra in the Courses section — that's where the operational specifics live, not the hand-wavy version." },
+    line: "I did a proper write-up on the operational specifics — the field-tested version, not the hand-wavy one. It's a packaged report, not a thread." },
   { key: "x",     match: /\b(x post|tweet|thread|replied|agreed|quote|amplif)\b/i,
-    line: "You're already thinking this way. The room is where that thinking compounds with others doing the same — in the open." },
+    line: "You're already thinking this way. I packaged the deeper version — and the open room is where that thinking keeps compounding with others doing the same." },
   { key: "blog",  match: /\b(blog|post|arc0\.me|read|article)\b/i,
-    line: "That reasoning goes deeper in the room — I expand on it there first, before it's smoothed out for the blog." },
+    line: "That reasoning goes deeper in the report — I expand on it there first, before it's smoothed out for the blog." },
 ];
 
 // SOUL voice guardrail — words/phrases that flatten the pitch into marketing (SKILL.md §Outreach Voice).
@@ -92,9 +94,10 @@ export interface ComposeResult {
 /**
  * Compose ONE doctrine-shaped pitch from a signal. Pure: same input → same output.
  * Structure (SKILL.md): structural observation citing the specific signal → one
- * concrete element → one soft ask. Sells L1 ($49 entry) ONLY. The attributed
- * checkout link + the FREEMONTH promo code + any proof go in the FIRST REPLY,
- * never the body (in-body links cut reach 50–90%; P3 rev #1).
+ * concrete element → one soft ask. PRODUCT-FIRST (P10 pivot): the ask is the $9
+ * packaged report, framed verify-before-buy; the membership is the continuity
+ * up-rung named in words. The ONE attributed product link + any proof go in the
+ * FIRST REPLY, never the body (in-body links cut reach 50–90%; P3 rev #1).
  */
 export function composePitch(input: ComposeInput): ComposeResult {
   const cls = (input.cls ?? "A").toUpperCase();
@@ -115,17 +118,27 @@ export function composePitch(input: ComposeInput): ComposeResult {
   const body =
     `${name ? name + " — " : ""}you ${signal.replace(/^you\s+/i, "")}. ` +
     `${element.line}`;
+  // PRODUCT-FIRST ask (P10 pivot): lead with the $9 packaged report, framed verify-before-buy
+  // (the buy-reason for a distrust-default crowd is a checkable provenance, not "buy this").
+  // Membership is named as the CONTINUITY up-rung in WORDS only — one link, one ask (P3 rev #1).
   const ask = lead.intent === "low"
-    ? `If that's useful, the room's where it lives.` // class C: lighter, give-3x still governs
-    : `If you want that with the edges left rough, that's the paid room — $49/mo.`;
+    ? `If it's useful, I packaged the full version as a $9 report — see who made it before you decide.` // class C: lighter, give-3x still governs
+    : `If you want the full version with the edges left rough, I packaged it as a $9 report — verify who made it before you buy.`;
 
-  // P3 Receipt Standard + first-reply mechanic: the attributed link + the
-  // FREEMONTH friction-reducer (P6) + any proof all ride the FIRST REPLY.
-  const link = channel === "forum" ? PAID_ROOM_PRODUCT_URL : PAID_ROOM_CHECKOUT_URL;
-  const promoLine = `First month's on me — code ${PROMO_CODE} at checkout (new members).`;
+  // P3 Receipt Standard + first-reply mechanic: the ONE attributed product link +
+  // the verify framing + any proof ride the FIRST REPLY (never the body — in-body
+  // links cut reach 50–90%). The PRODUCT page is the verify-and-buy surface (it
+  // carries the provenance); the membership is named as continuity in words, NOT a
+  // competing second link (one-ask discipline). FREEMONTH belongs to the membership
+  // step, not the product, so it is intentionally absent here.
+  const link = PRODUCT_PAGE_URL;
+  const continuityLine =
+    lead.intent === "low"
+      ? `(The ongoing room's the membership if you ever want it — but start here.)`
+      : `(If you end up wanting the ongoing room where this gets made, that's the membership — but start here.)`;
   const firstReply =
     `${ask} ${link}` +
-    `\n${promoLine}` +
+    `\n${continuityLine}` +
     (proof ? `\nProof: ${proof}` : "");
 
   const neverSayHits = NEVER_SAY.filter((w) => (body + " " + ask).toLowerCase().includes(w));
@@ -147,7 +160,7 @@ export function composePitch(input: ComposeInput): ComposeResult {
     lead_class: cls,
     intent: lead.intent,
     lead_note: lead.note,
-    ladder_rung: "L1 — hash it out, $49/mo entry (sell L1 first; L2–L4 framed as 'later')",
+    ladder_rung: "L2 product — $9 one-time report (the entry ask; membership $49/mo = continuity up-rung)",
     pitch_element_used: element.key,
     element_matched: elementMatched,
     channel,

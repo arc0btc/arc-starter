@@ -51,6 +51,13 @@ import {
   DEFAULT_OUTREACH_PATH,
   type OutreachLedger,
 } from "./lib/enforcement.ts";
+import {
+  loadLeadStore,
+  refreshLeads,
+  ADVISOR_USER_IDS,
+  type ForumFetcher,
+} from "./lib/lead-source.ts";
+import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "whop-sales-acquisition";
 // Lean cadence: a 12h interval pairs with the ≤2/day cap to keep the account
@@ -72,7 +79,7 @@ const OPERATOR_LANE_RE = /\b(run (my|our) own agent|b2b|enterprise|our team|my t
 // and isn't a `whop_event_log` "member"). Future internal/team agents (e.g. the
 // dev-council Arc plans to onboard) get added here, not pitched.
 const OPERATOR_USER_ID = "user_WQ6WyvnFOZ6bY"; // whoabuddy (Whop user id)
-const NON_PROSPECT_USER_IDS = new Set<string>([ARC_USER_ID, OPERATOR_USER_ID]);
+const NON_PROSPECT_USER_IDS = new Set<string>([ARC_USER_ID, OPERATOR_USER_ID, ...ADVISOR_USER_IDS]);
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -131,11 +138,13 @@ export interface LaneSummary {
  * non-member lead set) directly to prove the gate/compose/route machinery.
  */
 function defaultLeadSource(): RelationshipStore {
-  log(
-    "no non-member lead source wired yet — the paid-room store is members-only; " +
-      "the free-forum/X non-member engagement source is a P10 wiring. 0 leads this cycle.",
-  );
-  return { updated_at: new Date(0).toISOString(), users: {} };
+  // P10B: the non-member lead source is the free-forum engagement store
+  // (db/whop-leads.json), refreshed at the top of each lane tick — see the
+  // refresh in runAcquisitionLane. The paid-room store is DELIBERATELY not used
+  // (see the doc comment above). Empty until a non-member engages on the forum.
+  const store = loadLeadStore();
+  log(`lead source: free-forum store — ${Object.keys(store.users).length} known non-member lead(s).`);
+  return store;
 }
 
 /** Pull cite-able recent activity (+ the message to reply to) from an engagement record. */
@@ -158,6 +167,7 @@ export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): 
   const out: Candidate[] = [];
   for (const rel of Object.values(store.users)) {
     if (NON_PROSPECT_USER_IDS.has(rel.user_id)) continue; // Arc + operator: never a lead
+    if (ADVISOR_USER_IDS.has(rel.user_id)) continue; // advisors — live set, catches ids added after module load (cairn #3)
     if (memberIds.has(rel.user_id)) continue; // never pitch a paying member
     if (rel.message_count < 1) continue;
     const cls: "A" | "B" | "C" =
@@ -187,21 +197,51 @@ function membershipEntityId(source: string): string {
   return source.replace(/:[^:]+$/, "");
 }
 
-/** Active member entity ids (latest lifecycle event = activation). Mirrors computeRevenue. */
-function readActiveMemberIds(): Set<string> {
+/** Pull the Whop USER id(s) carried in a membership event payload (data.user.id /
+ * data.member.id — events.ts stores `JSON.stringify(event.data)`). Returns every
+ * id present: leads are keyed by data.user.id (user_xxx), so that one is the
+ * exclusion that matters; data.member.id is added too and is simply inert if it
+ * never matches a forum user id. Robust to payload-shape uncertainty (no member
+ * rows exist yet to introspect). */
+export function memberUserIdsFromPayload(payload: string | null): string[] {
+  if (!payload) return [];
+  try {
+    const data = JSON.parse(payload) as { user?: { id?: string }; member?: { id?: string } };
+    const out: string[] = [];
+    if (data.user?.id) out.push(data.user.id);
+    if (data.member?.id) out.push(data.member.id);
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Active members' WHOP USER IDs (not membership-entity ids). The lead store keys
+ * leads by Whop user id, so the surface-time member exclusion MUST compare in the
+ * same id space — we resolve each active membership to the user id in its event
+ * payload. (Dev-council cairn #1: membership-entity id and user id are different
+ * namespaces; comparing them never matches, so a paying member who posts on the
+ * free forum would otherwise leak into the pitch queue. This is the go-live
+ * member-namespace check made correct.) Latest lifecycle event per entity wins.
+ */
+export function readActiveMemberIds(): Set<string> {
   const ids = new Set<string>();
   try {
     const db = getDatabase();
     const rows = db
       .query(
-        `SELECT source, type FROM whop_event_log
+        `SELECT source, type, payload FROM whop_event_log
          WHERE type IN ('membership.activated','membership.deactivated')
          ORDER BY recorded_at ASC`,
       )
-      .all() as Array<{ source: string; type: string }>;
-    const latest = new Map<string, string>();
-    for (const r of rows) latest.set(membershipEntityId(r.source), r.type);
-    for (const [id, t] of latest) if (t === "membership.activated") ids.add(id);
+      .all() as Array<{ source: string; type: string; payload: string | null }>;
+    const latest = new Map<string, { type: string; payload: string | null }>();
+    for (const r of rows) latest.set(membershipEntityId(r.source), { type: r.type, payload: r.payload });
+    for (const { type, payload } of latest.values()) {
+      if (type !== "membership.activated") continue;
+      for (const uid of memberUserIdsFromPayload(payload)) ids.add(uid);
+    }
   } catch (error) {
     log(`active-member read skipped: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -292,6 +332,9 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "```",
       "",
       "Voice bar: add information / make them want to respond. One ask only. Defer beats filler.",
+      "SENTIMENT GATE: if their engagement was critical, skeptical, or negative toward Arc, do NOT pitch —",
+      "close completed as 'skip: negative-sentiment lead' (pitching a critic is the highest-risk public move).",
+      "Proceed only if the engagement reads neutral or positive.",
       postBlock,
     ].join("\n"),
     skills: JSON.stringify(skills),
@@ -357,6 +400,10 @@ export interface LaneDeps {
   // same way the whop lane's tick-* commands call poll* directly. No `force` flag.)
   now?: Date;
   relationships?: RelationshipStore;
+  /** Inject a forum fetcher (fixtures); default fetches the live free forum. */
+  leadFetcher?: ForumFetcher;
+  /** Skip the free-forum lead refresh (e.g. a fixture exercising only the gate). */
+  skipLeadRefresh?: boolean;
   memberIds?: Set<string>;
   activations?: Activation[];
   ledgerPath?: string;
@@ -370,6 +417,15 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
   const now = deps.now ?? new Date();
   const dryRun = deps.dryRun ?? WHOP_SALES_DRY_RUN;
   const ledgerPath = deps.ledgerPath ?? DEFAULT_OUTREACH_PATH;
+  // Refresh the free-forum lead store before surfacing (read-only — safe in
+  // DRY_RUN). Skipped when a fixture injects `relationships`. Best-effort: a
+  // missing key / fetch failure leaves the store intact and the lane runs on the
+  // leads already known.
+  if (!deps.relationships && !deps.skipLeadRefresh) {
+    const apiKey = (await getCredential("whop", "company_api_key")) || null;
+    const refreshResult = await refreshLeads({ apiKey, fetcher: deps.leadFetcher, log });
+    log(`lead refresh: fetched=${refreshResult.fetched_posts} touched=${refreshResult.touched} total=${refreshResult.total_leads}`);
+  }
   const store = deps.relationships ?? defaultLeadSource(); // NOT the paid-room store — see defaultLeadSource
   const memberIds = deps.memberIds ?? readActiveMemberIds();
   const activations = deps.activations ?? readRecentActivations(now);
@@ -423,7 +479,14 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
     // ZERO dispatch sessions before traffic (instrument-before-traffic; the cap +
     // posting turn on together in P10/P11 with operator confirm).
     const task = buildPitchTask(c, channel, pitch.composed_pitch.body, pitch.composed_pitch.first_reply);
-    const taskId = dryRun ? null : queue(task);
+    // Live auto-post is gated to the warmest, consent-clearest leads: Class A
+    // (replied to Arc >=2x) on the arc-auto route. B/C and operator-manual leads
+    // are composed for review but NEVER auto-queued at strangers — even after the
+    // DRY_RUN flip — until Class A's reply/sentiment signal proves the shape.
+    // (Dev-council lumen #1/#2: a thin "just posted" signal, or someone else's
+    // AMA-commenter, is the slop/forum-farming risk this audience punishes.)
+    const autoPostEligible = c.route === "arc-auto" && c.cls === "A";
+    const taskId = !dryRun && autoPostEligible ? queue(task) : null;
     recordPitch(ledger, {
       lead_id: c.lead_id,
       username: c.username,

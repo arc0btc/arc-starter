@@ -1,19 +1,28 @@
 ---
 name: whop-sales
-description: "Convert engaged readers into hash-it-out members ($49/mo entry) — the consolidated, WIRED sales motion: lead identification, SOUL-aligned one-message pitch, the value ladder, receipt-backed proof, ship-board onboarding"
-updated: 2026-06-15
+description: "Convert engaged non-members into hash-it-out CUSTOMERS — lead with a $9 packaged research report (verify-before-buy), membership ($49/mo) as the earned continuity. The consolidated WIRED motion: lead identification, SOUL-aligned one-message pitch, the value ladder, receipt-backed proof, ship-board onboarding"
+updated: 2026-06-16
 tags:
   - monetization
   - sales
   - whop
 ---
 
-# Sales — hash-it-out membership (consolidated motion)
+# Sales — hash-it-out (product-first motion)
 
-Laser focus: one entry product, one price, one mission. Convert curious followers into paying
-`hash-it-out` members at the **$49/month entry tier**. The free public forum digest is the proof;
-the paid room is the promise. The value ladder above $49 is **designed (P4) but not sold yet** —
-it rolls out after the first 10 members (M10) prove the base.
+> **PRODUCT-FIRST PIVOT (P10, 2026-06-16).** The lead ask is no longer the $49/mo membership — it is a
+> concrete **one-time $9 packaged research report** (a known-value thing a stranger can evaluate in 30s).
+> Membership becomes the **earned continuity** named after the sale, not the first ask. **M0 = first paying
+> CUSTOMER** (a product sale counts). The CTA leads with the receipt — *"verify who made this before you buy"* —
+> not "buy this report" (a verifiable pitch is the only kind that converts a distrust-default crowd). The
+> **value boundary is the ARTIFACT, not the price**: the raw research stays FREE (notes, council verdicts,
+> ship-logs); the $9 buys the *packaged, synthesized, receipt-bearing* version (sell legibility + provenance,
+> NEVER the raw research); the $49 room is participation. Price is the LEAST important variable. See
+> `.planning/2026-06-15-hash-it-out-go-to-market/phases/10-product-led-conversion/strategy-resolution.md`.
+
+Convert engaged **non-members** (free-forum / X / blog engagers) into **customers**: one $9 product, then the
+room. The free public output is the proof; the packaged report is the first dollar; the paid room is the
+promise. The ladder above is **designed (P4) but rolls out post-M10** — don't present a menu at the first ask.
 
 **WIRED (2026-06-15, quest hash-it-out-go-to-market P5).** The doctrine below is executable via
 `skills/whop-sales/cli.ts`:
@@ -79,18 +88,20 @@ already asking.
 
 ---
 
-## What $49/mo gets (pitch shape)
+## What the product is (pitch shape)
 
-The pitch is never a list of features. It is a specific answer to the question the lead is already asking.
+The pitch is never a list of features. It is a specific answer to the question the lead is already asking,
+and it points at the **$9 packaged report** (the legible, synthesized, receipt-bearing version of work Arc
+already does in the open) — with the room named as continuity.
 
 **Canonical pitch elements** (select 1–2 per message, never all):
 
 | Signal the lead showed | Pitch element to use |
 |---|---|
-| Engaged with a blog post | "That reasoning goes deeper in the room — I expand on it there first." |
-| Asked a question in public forum | "Good question. The full answer needs more space — inside we track that kind of thing properly." |
-| Replied to an X post agreeing | "You're already thinking this way. The room is where that thinking compounds with others doing the same." |
-| Works in crypto/Bitcoin infra | "We do case studies on agent-Bitcoin infra in the Courses section. That's where the operational specifics live." |
+| Engaged with a blog post | "That reasoning goes deeper in the report — I expand on it there first, before it's smoothed out for the blog." |
+| Asked a question in public forum | "Good question — the full answer needs more room than a reply. I packaged exactly that kind of thing into a report, tradeoffs spelled out." |
+| Replied to an X post agreeing | "You're already thinking this way. I packaged the deeper version — and the open room is where that thinking keeps compounding." |
+| Works in crypto/Bitcoin infra | "I did a proper write-up on the operational specifics — the field-tested version, not the hand-wavy one. It's a packaged report, not a thread." |
 
 **Never say**: "unlimited access", "community", "premium content", "join us", "check it out", "you'd love", "perfect for". (`cli.ts` flags these at runtime.)
 
@@ -108,18 +119,20 @@ by other members (this is the community-as-product surface, not a perk).
 
 ---
 
-## The value ladder (sell L1 now; L2–L4 are designed, not sold)
+## The value ladder (product-first: sell L2 now, L1 is continuity; L3–L4 designed, not sold)
 
-Per P4 revenue architecture — **do not present a menu at the first conversion.** $49 is the clean
-entry and the first-10 proving price. The ladder rolls out post-M10 (P12):
+Per P4 revenue architecture, re-sequenced by the P10 pivot — **do not present a menu at the first ask.**
+The $9 product is the entry; the membership is the earned continuity after a buyer already trusts the value:
 
-- **L1 — $49/mo entry** ← **the only thing you sell today.** First-month-free promo is the only friction-reducer.
-- **L2 — productized output** ($29–$299 one-time: courses + skills/research packs) — *later.*
-- **L3 — Operator Circle** ($99/mo: the multi-operator room, run your own agent alongside Arc) — *later.*
-- **L4 — Agent Operator / B2B** ($499/mo) — *later.*
+- **L2 — productized output** ($9 one-time packaged report) ← **the entry ask — the first conversion (M0→M10).**
+  Reversible price ($9→$19→$39 if room-conversion is weak). Sell the packaging/provenance, never the raw research.
+- **L1 — membership** ($49/mo) ← **the CONTINUITY up-rung**, named in words after the product ask, not the lead.
+  First-month-free promo (FREEMONTH) is the friction-reducer at THIS step, not the product step.
+- **L3 — Operator Circle** ($99/mo: the multi-operator room, run your own agent alongside Arc) — *later (post-M10).*
+- **L4 — Agent Operator / B2B** ($499/mo) — *later (post-M10).*
 
 If a lead self-selects up-ladder ("can I run my own agent in there?"), note it for the L3 waitlist —
-don't improvise pricing.
+don't improvise pricing. **M10 sub-gate:** of the first 10 customers, ≥3 must convert to recurring within 30d.
 
 ---
 

@@ -26,6 +26,9 @@
 import { parseFlags } from "../../src/utils.ts";
 import { PAID_ROOM_PRODUCT_URL, PAID_ROOM_CHECKOUT_URL, PROMO_CODE } from "../../src/constants.ts";
 import { composePitch, NEVER_SAY } from "./lib/compose.ts";
+import { getCredential } from "../../src/credentials.ts";
+import { refreshLeads, loadLeadStore } from "./lib/lead-source.ts";
+import { surfaceLeads } from "./sensor.ts";
 
 function fail(message: string): never {
   process.stderr.write(`whop-sales: ${message}\n`);
@@ -108,6 +111,39 @@ async function cmdTickAcquisition(): Promise<void> {
   await runAcquisitionLane();
 }
 
+async function cmdRefreshLeads(): Promise<void> {
+  // Refresh the free-forum non-member lead store (db/whop-leads.json) from the
+  // live forum, then preview the classified candidates. The company API key
+  // carries forum:read. This is the standalone entry to the same refresh the
+  // acquisition lane runs at the top of each tick.
+  const apiKey = (await getCredential("whop", "company_api_key")) || null;
+  const r = await refreshLeads({ apiKey, log: (m) => process.stderr.write(m + "\n") });
+  const store = loadLeadStore();
+  // Preview only: member-exclusion is applied in the LIVE lane (it reads active
+  // members from whop_event_log); here we pass an empty set so the preview shows
+  // the full lead store.
+  const candidates = surfaceLeads(store, new Set<string>());
+  process.stdout.write(
+    JSON.stringify(
+      {
+        refreshed: r,
+        note: "candidates = STORE preview; member-exclusion is applied in the live lane, not here",
+        candidates: candidates.map((c) => ({
+          lead_id: c.lead_id,
+          username: c.username,
+          cls: c.cls,
+          value_touches: c.value_touches,
+          channel: c.channel,
+          route: c.route,
+          signal: c.signal,
+        })),
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
 function printHelp(): void {
   console.log(
     [
@@ -117,6 +153,7 @@ function printHelp(): void {
       "  pitch --class A|B|C --signal \"<what they did>\" [--name <h>] [--channel x|forum] [--element blog|forum|x|infra] [--proof <txid|url>]",
       "  doctrine            print the consolidated pipeline + cadence + guardrails",
       "  tick-acquisition    run the autonomous acquisition lane once (bypass the interval gate)",
+      "  refresh-leads       refresh the free-forum non-member lead store + preview candidates",
       "  help                this message",
     ].join("\n"),
   );
@@ -141,6 +178,9 @@ async function main(): Promise<void> {
       break;
     case "tick-acquisition":
       await cmdTickAcquisition();
+      break;
+    case "refresh-leads":
+      await cmdRefreshLeads();
       break;
     default:
       fail(`unknown command: ${command}. Run with no args for help.`);
