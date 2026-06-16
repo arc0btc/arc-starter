@@ -239,3 +239,4 @@
 2026-06-16T05:30:14.040Z | task #19146 | completed | haiku | Retrospective: extract learnings from task #19143 — Research | Extracted judge-panel design patterns: model-weight diversity + anonymize-before
 2026-06-16T05:31:35.324Z | task #19147 | completed | haiku | Retrospective: extract learnings from task #19144 — Research | wiki-builder research revealed 3 reusable patterns: (1) gh api fetch for plugin 
 2026-06-16T06:36:35.324Z | task #19148 | completed | sonnet | Consolidate patterns.md (153 lines, threshold 150) | merged 3 pattern pairs (153→146 lines): memory-hygiene, pr-review-at-scale, disp
+2026-06-16T08:33:24.215Z | task #19141 | completed | opus | Compose + email HTML research digest to whoabuddy (2026-06-1 | Digest sent to whoabuddy (msg ba36b13d). Batch was Claude Code/agent-tooling int
