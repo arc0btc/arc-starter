@@ -252,3 +252,4 @@
 2026-06-16T14:16:54.567Z | task #19156 | completed | sonnet | architecture review — codebase changed since last review (03 | Minimal window: whop-sales NON_PROSPECT_USER_IDS guards + Candidate.channel fiel
 2026-06-16T14:17:44.188Z | task #19157 | completed | sonnet | workflow review — 1 health issue(s) | False positive — content-calendar 0% completion is expected; these are 30-day wo
 2026-06-16T14:19:09.174Z | task #19161 | completed | sonnet | CEO review — 2026-06-16T14:11 | CEO review: on track — research sprint ROI high, ops clean 46/0, /bin/bash.53/ta
+2026-06-16T14:19:57.741Z | task #19160 | completed | haiku | Retrospective: extract learnings from task #19156 — architec | Updated p-architecture-review-discipline with change-window sizing heuristic: ≤5
