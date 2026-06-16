@@ -237,3 +237,4 @@
 2026-06-16T05:28:24.386Z | task #19142 | completed | haiku | Retrospective: extract learnings from task #19126 — Email fr | Batch source-key dedup gotcha captured in p-integration-sensor-version-dedup: N 
 2026-06-16T05:29:31.821Z | task #19145 | completed | haiku | Retrospective: extract learnings from task #19139 — Research | Extracted 1 reusable pattern: weak-subsystem-audit-tool-selection (finding exter
 2026-06-16T05:30:14.040Z | task #19146 | completed | haiku | Retrospective: extract learnings from task #19143 — Research | Extracted judge-panel design patterns: model-weight diversity + anonymize-before
+2026-06-16T05:31:35.324Z | task #19147 | completed | haiku | Retrospective: extract learnings from task #19144 — Research | wiki-builder research revealed 3 reusable patterns: (1) gh api fetch for plugin 

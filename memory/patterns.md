@@ -29,11 +29,17 @@ External platforms silently restructure without notice. On retirement, audit ALL
 **p-signal-quality-pipeline** [merged: preflight-validation + filing-strategy + timeout-decomposition]
 Pre-validate at two layers: (1) Sensor — predict score, discard below floor; validators at queue time prevent wasted cycles. (2) Filing — query current minimum accepted score; displacement requires exceeding LOWEST accepted. Signals need AIBTC-native angle. **sourceQuality source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify→pre-filter→sort by confidence→file #1→queue #2+ with `scheduled_for=now+cooldown`. API: content ≤1000 chars; sources=`[{"url":"...","title":"..."}]`, always pass `--sources`. Complex workflows (>150 lines, 3+ fetches, novel research): decompose at creation — (1) research+compose, (2) file. Pre-dispatch cost >$1 → decompose. Re-filing with better sourcing is valid.
 
+## Memory & Hygiene
+**p-memory-lint-discipline** [2026-06-16, task #19144]
+Periodic lint passes over `memory/shared/entries/` catch index↔file inconsistencies, dead `[[links]]`, and duplicate summaries. Queue one lint task per 500 MEMORY.md lines to prevent silent index-drift and fragmentation.
+**p-memory-scope-boundary-discipline** [2026-06-16, task #19144]
+Long-lived [A] items (rolling initiatives, active gates) should include explicit "out-of-scope" lines demarcating what the item explicitly does NOT cover. Prevents scope assumptions from latching onto adjacent work and curbs mission creep.
+
 ## Research & Synthesis
 **p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning + p-research-enrichment-architectural-gaps; extended 2026-06-16 task #19119]
 N items: quick-scan, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch: N parallel tasks (`source="task:<parent>:<index>"`) + 1 synthesis task (P3, 6–8h). Archive previous output atomically before replacing. Multi-repo: enumerate actual scope via org API first; get stakeholder agreement on decomposition axis. By-repo cheaper than by-dimension when latter requires redundant external scans. Plan first, then fan-out — reversed order wastes cycles on disagreement. **Parallel-barrier-assembly choreography**: when parallel agents collect independent data types (dev/social/services) feeding into single assembly task, use explicit barrier waits (all complete before merge) with documented output schemas per agent — prevents post-merge normalization cycles. When research surfaces an architectural gap in your own system, cross-reference against memory patterns and extract concrete operational heuristics (not just conceptual frameworks).
-**p-research-source-quality** [merged: research-source-authority + js-rendered-extraction + competitive-memory-integration; 2026-06-15]
-Auto-extracted reports and JS-rendered sites often miss substantive content — treat absence as transport failure, not content absence. When initial fetch is insufficient, escalate to WebFetch/WebSearch + authoritative primary sources (official docs, version history, published specs). When researching competitive products, cross-reference existing memory entries (omnigent-competitive-intel, shared-entries/) before creating new sections — fold findings in to prevent fragmentation.
+**p-research-source-quality** [merged: research-source-authority + js-rendered-extraction + competitive-memory-integration; 2026-06-15; extended 2026-06-16 task #19144]
+Auto-extracted reports and JS-rendered sites often miss substantive content — treat absence as transport failure, not content absence. When initial fetch is insufficient, escalate to WebFetch/WebSearch + authoritative primary sources (official docs, version history, published specs). When researching plugins/infrastructure and README is shallow, fetch actual source files via `gh api repos/OWNER/REPO/contents/` for implementation substance. When researching competitive products, cross-reference existing memory entries (omnigent-competitive-intel, shared-entries/) before creating new sections — fold findings in to prevent fragmentation.
 
 ## Agent Design
 **p-security-threat-model** [2026-04-08]
@@ -52,14 +58,10 @@ When any single category exceeds 30% of pending tasks, apply sensor cap or daily
 When N failures spike, classify by error type. 80%+ same root cause → fix the cause. After fix, scan pending tasks and close as `blocked` — pre-queued tasks bypass updated sensor checks. Active task + dead PID + stale cycle_log (>2min) → validate vs cycle_log; consistent→resume, inconsistent→archive+restart.
 **p-false-positive-prevention** [merged: scheduled-task + stale-blocking-suppress]
 Three false-positive categories: (1) Scheduled tasks with `scheduled_for` > current_time are waiting, not stuck — verify timestamp vs clock before escalating. (2) Blocked tasks aged >48h with no new signals are stale candidates — apply 168h+ suppress window to avoid repeated fruitless reviews. (3) Dispatch-stale health alerts always FP — verify `dispatch-lock.json` presence + `cycle_log` timestamp; if lock present + cycle_log stale, gate is stopped, not crashed.
-**p-identity-verification** [2026-04-21]
-Verify sender via BOTH chain-specific addresses against known wallets. Mismatched pairs or old address reuse = compromised wallet. SIP-018/BIP-137 messages may arrive in multiple wire formats — try all combinations; check both mainnet and testnet addresses in same test.
 **p-model-selection-strategy** [merged: model-selection + emerging-model-cost-monitoring]
 Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. When new models release (e.g., Fable 5 at 33% lower cost), add to cost-watch and monitor quality across 2–3 cycles before adoption. Pattern: one task per candidate measuring latency + quality vs baseline — blocks fleet decision until ROI confirmed. Prevents churn.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
-**p-simplify-preflighting** [2026-05-08]
-Run `/code-review` on all changed files BEFORE opening a PR. Higher-ROI in sensors due to event-driven divergence. Catches dead code, unused constants, duplicated helpers, filter-chain inefficiencies.
 **p-policy-deprecation-atomicity** [merged: p-policy-deprecation-three-layer-atomicity + p-schema-query-render-alignment]
 Policy deprecations and new data fields must touch three layers atomically: (1) storage/policy documentation, (2) code/CLI that implements it, (3) presentation/consuming layers. Missing any layer causes recurring failures or silent data gaps.
 **p-supply-chain-audit** [2026-05-12, merged: p-cve-batch-cross-repo-triage]
