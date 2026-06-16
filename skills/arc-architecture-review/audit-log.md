@@ -1,3 +1,59 @@
+## 2026-06-16T02:13:00.000Z — whop-sales P9 acquisition lane wired; model-gate PreToolUse hook; 131 skills / 82 sensors
+
+**Task #19107** | Diff: 620ef4f → 034c748 (3 structural commits + ~50 auto-commits) | Sensors: 82 | Skills: 131
+
+### Step 1 — Requirements
+
+3 structural commits in window. All in `skills/whop-sales/`, `.claude/`, and `src/constants.ts`. No `src/dispatch.ts` or `src/sensors.ts` changes.
+
+Key structural additions:
+- **feat(whop-sales): P9 Acquisition Lane** (034c748): Full wiring from SKILL.md-only scaffold (prior window). New files: `sensor.ts`, `cli.ts`, `lib/compose.ts`, `lib/enforcement.ts`. Lead surfacing (Class A/B/C from room relationship store, excluding members and Arc itself), blocking enforcement gates (DAILY_PITCH_CAP=2, DEDUP_WINDOW_DAYS=7, GIVE_BEFORE_ASK=3, claim→proof), composed pitch output with NEVER_SAY filter, posting task queue (forum channel; P10 adds X). Day-1/day-5 ship-log onboarding nudges for new activations (7d lookback, stale offset guard). Default: `WHOP_SALES_DRY_RUN=true` — compose-for-review, no auto-posting until P10/P11 operator confirm.
+- **feat(dispatch): model-gate PreToolUse hook** (c5683a84): `.claude/hooks/model-gate.sh` + `settings.json` update. Blocks Bash(`claude*`) and Agent tool calls where the requested model tier exceeds the current dispatch session tier (`ARC_DISPATCH_MODEL`). Prevents haiku tasks from escalating to sonnet/opus sub-agents mid-cycle. No-op outside dispatch (env var unset) and for unknown/non-Claude models. Works in bypassPermissions mode.
+- **const PROMO_CODE = "FREEMONTH"** in `src/constants.ts`: canonical promo reference for pitch CTA.
+
+Also: **`.bak-gtm` backup files committed** in 034c748 auto-commit. `skills/whop-sales/cli.ts.bak-gtm`, `skills/whop-sales/SKILL.md.bak-gtm`, `skills/whop/cli.ts.bak-gtm`, `skills/whop/lib/events.ts.bak-gtm`, `skills/arc-workflows/state-machine.ts.bak-gtm`, `skills/arc-reporting/AGENT.md.bak-gtm`, `skills/arc-strategy-review/SKILL.md.bak-gtm`. GTM quest process left backup files that the loop auto-committed. Needs cleanup.
+
+### Step 2 — Delete
+
+**[ACTION-NOW]** `.bak-gtm` backup files: 7 files committed across `skills/whop-sales/`, `skills/whop/`, `skills/arc-workflows/`, `skills/arc-reporting/`, `skills/arc-strategy-review/`. These are GTM quest implementation debris. Delete + add `*.bak-gtm` to `.gitignore` to prevent future accumulation. Creating follow-up task.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup.
+
+### Step 3 — Simplify
+
+- whop-sales acquisition lane architecture is clean: `composePitch()` and `enforceAcquisitionGate()` are properly separated. `LaneDeps` injectable interface is good for testability — same pattern as whop reactive lane's direct-call verify bypass.
+- OPERATOR_LANE_RE regex routing (`/\b(run (my|our) own agent|b2b|enterprise|...)\b/i`) is correct scope for P9 — simple, explicit, owner-documented. Evolve at P12 if needed.
+- model-gate hook is the right layer: fires at PreToolUse before permissions check, no-op outside dispatch, passes unknown models through. Closes a cost-guardrail gap where a haiku task could spawn an opus sub-agent.
+- `PROMO_CODE` in constants.ts as single canonical reference is correct — prevents hardcoded drift across compose.ts / cli.ts / state-machine.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+- **[SIMPLIFY-CANDIDATE]** whop-sales/sensor.ts and whop/sensor.ts share a dedup pattern for new-member events (`readRecentActivations` vs. `surfaceMemberWelcome`). Low priority — distinct lifecycle steps (onboarding-nudge vs. welcome reply); same substrate, different intent.
+
+### Step 4 — Accelerate
+
+- model-gate hook is a direct cost guardrail: haiku tasks stay haiku. No dispatch cycle wasted on escalated sub-agent calls.
+- whop-sales acquisition lane: DRY_RUN=true is correct sequencing — composes artifacts for review before any outbound posting. P10/P11 flip gate. No throughput bottleneck to address yet.
+- Artifact retention cap (50 files) in sensor.ts is good hygiene — auto-prunes oldest on each write.
+
+### Step 5 — Automate
+
+- **[ACTION-NOW]** `.bak-gtm` cleanup: add `*.bak-gtm` to `.gitignore`. The loop auto-commit will catch any future backup files without this guard.
+- **[CARRY-CARRY]** `lint-skills --staged` `--name <X>` validation. Low priority.
+
+### Flags
+
+- **[NEW]** whop-sales P9 acquisition lane live (DRY_RUN=true). Gate: WHOP_SALES_DRY_RUN → false in P10/P11 with operator confirm.
+- **[NEW]** model-gate PreToolUse hook: dispatch tier enforcement. Closes sub-agent cost escalation gap.
+- **[ACTION-NOW]** `.bak-gtm` backup files committed (7 files) — delete + .gitignore follow-up task created.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales P9 → P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-15T14:15:00.000Z — Whop P17–P22 capstone + snippet-producer; 129 skills / 81 sensors
 
 **Task #19057** | Diff: 0d93d0e → 620ef4f (10 structural commits) | Sensors: 81 | Skills: 129
