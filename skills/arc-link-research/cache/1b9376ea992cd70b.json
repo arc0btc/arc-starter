@@ -1,0 +1,24 @@
+{
+  "url": "https://github.com/Piebald-AI/claude-code-system-prompts",
+  "fetchedAt": "2026-06-16T05:21:02.657Z",
+  "contentType": "github",
+  "title": "claude-code-system-prompts",
+  "rawContent": "Repo: Piebald-AI/claude-code-system-prompts\nDescription: All parts of Claude Code's system prompt, 27 builtin tool descriptions, sub agent prompts (Plan/Explore/Task), utility prompts (CLAUDE.md, compact,  statusline, magic docs, WebFetch, Bash cmd, security review, agent creation).  Updated for each Claude Code version.\nTopics: claude-code, claude-code-system-prompts, system-prompts\nStars: 11108\n\nREADME:\n<div>\n<div align=\"right\">\n<a href=\"https://piebald.ai\"><img width=\"200\" top=\"20\" align=\"right\" src=\"https://github.com/Piebald-AI/.github/raw/main/Wordmark.svg\"></a>\n</div>\n\n<div align=\"left\">\n\n### Check out Piebald\nWe've released **Piebald**, the ultimate agentic AI developer experience. \\\nDownload it and try it out for free!  **https://piebald.ai/**\n\n<a href=\"https://piebald.ai/discord\"><img src=\"https://img.shields.io/badge/Join%20our%20Discord-5865F2?style=flat&logo=discord&logoColor=white\" alt=\"Join our Discord\"></a>\n<a href=\"https://x.com/PiebaldAI\"><img src=\"https://img.shields.io/badge/Follow%20%40PiebaldAI-000000?style=flat&logo=x&logoColor=white\" alt=\"X\"></a>\n\n<sub>[**Scroll down for Claude Code's system prompts.**](#claude-code-system-prompts) :point_down:</sub>\n\n</div>\n</div>\n\n<div align=\"left\">\n<a href=\"https://piebald.ai\">\n<picture>\n  <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://piebald.ai/screenshot-dark.png\">\n  <source media=\"(prefers-color-scheme: light)\" srcset=\"https://piebald.ai/screenshot-light.png\">\n  <img alt=\"hero\" width=\"800\" src=\"https://piebald.ai/screenshot-light.png\">\n</picture>\n</a>\n</div>\n\n# Claude Code System Prompts\n\n[![Mentioned in Awesome Claude Code](https://awesome.re/mentioned-badge.svg)](https://github.com/hesreallyhim/awesome-claude-code)\n\n> [!tip]\n> **NEW (June 12, 2026):** We've greatly expanded this list with many more of Claude Code's prompts&mdash;**from 350 to 515 (+165)**&mdash;our most complete coverage yet.\n\nThis repository contains an up-to-date list of all Claude Code's various system prompts and their associated token counts as of **[Claude Code v2.1.178](https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.1.178) (June 15th, 2026).**  It also contains a [**CHANGELOG.md**](./CHANGELOG.md) for the system prompts across 211 versions since v2.0.14.  From the team behind [<img src=\"https://github.com/Piebald-AI/piebald/raw/main/assets/logo.svg\" width=\"15\"> **Piebald.**](https://piebald.ai/)\n\n**This repository is updated within minutes of each Claude Code release.  See the [changelog](./CHANGELOG.md), and follow [@PiebaldAI](https://x.com/PiebaldAI) on X for a summary of the system prompt changes in each release.**\n\n> [!note]\n> â­ **Star** this repository to get notified about new Claude Code versions.  For each new Claude Code version, we create a release on GitHub, which will notify all users who've starred the repository.\n\n---\n\nWhy multiple \"system prompts?\"\n\n**Claude Code doesn't just have one single string for its system prompt.**\n\nInstead, there are:\n- Large portions conditionally added depending on the environment and various configs.\n- Descriptions for builtin tools like `Write`, `Bash`, and `TodoWrite`, and some are fairly large.\n- Separate system prompts for builtin agents like Explore and Plan.\n- Numerous AI-powered utility functions, such as conversation compaction, `CLAUDE.md` generation, session title generation, etc. featuring their own systems prompts.\n\nThe res",
+  "embeddedUrls": [
+    "https://piebald.ai",
+    "https://github.com/Piebald-AI/.github/raw/main/Wordmark.svg",
+    "https://piebald.ai/**",
+    "https://piebald.ai/discord",
+    "https://img.shields.io/badge/Join%20our%20Discord-5865F2?style=flat&logo=discord&logoColor=white",
+    "https://img.shields.io/badge/Follow%20%40PiebaldAI-000000?style=flat&logo=x&logoColor=white",
+    "https://piebald.ai",
+    "https://piebald.ai/screenshot-dark.png",
+    "https://piebald.ai/screenshot-light.png",
+    "https://piebald.ai/screenshot-light.png",
+    "https://awesome.re/mentioned-badge.svg",
+    "https://github.com/hesreallyhim/awesome-claude-code",
+    "https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.1.178",
+    "https://github.com/Piebald-AI/piebald/raw/main/assets/logo.svg",
+    "https://piebald.ai/"
+  ]
+}
