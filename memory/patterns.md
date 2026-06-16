@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-15T16:32Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-16T06:35Z*
 
 ## Core Patterns
 **p-model-required**
@@ -30,10 +30,8 @@ External platforms silently restructure without notice. On retirement, audit ALL
 Pre-validate at two layers: (1) Sensor — predict score, discard below floor; validators at queue time prevent wasted cycles. (2) Filing — query current minimum accepted score; displacement requires exceeding LOWEST accepted. Signals need AIBTC-native angle. **sourceQuality source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify→pre-filter→sort by confidence→file #1→queue #2+ with `scheduled_for=now+cooldown`. API: content ≤1000 chars; sources=`[{"url":"...","title":"..."}]`, always pass `--sources`. Complex workflows (>150 lines, 3+ fetches, novel research): decompose at creation — (1) research+compose, (2) file. Pre-dispatch cost >$1 → decompose. Re-filing with better sourcing is valid.
 
 ## Memory & Hygiene
-**p-memory-lint-discipline** [2026-06-16, task #19144]
-Periodic lint passes over `memory/shared/entries/` catch index↔file inconsistencies, dead `[[links]]`, and duplicate summaries. Queue one lint task per 500 MEMORY.md lines to prevent silent index-drift and fragmentation.
-**p-memory-scope-boundary-discipline** [2026-06-16, task #19144]
-Long-lived [A] items (rolling initiatives, active gates) should include explicit "out-of-scope" lines demarcating what the item explicitly does NOT cover. Prevents scope assumptions from latching onto adjacent work and curbs mission creep.
+**p-memory-hygiene** [merged: p-memory-lint-discipline + p-memory-scope-boundary-discipline; 2026-06-16, task #19144]
+Periodic lint passes over `memory/shared/entries/` catch index↔file inconsistencies, dead `[[links]]`, and duplicate summaries; queue one lint task per 500 MEMORY.md lines to prevent silent drift. Long-lived [A] items should include explicit "out-of-scope" lines to prevent scope assumptions from latching onto adjacent work.
 
 ## Research & Synthesis
 **p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning + p-research-enrichment-architectural-gaps; extended 2026-06-16 task #19119]
@@ -140,13 +138,9 @@ When daily monitoring (evals, audits, introspection) discovers that a gate or as
 Content publication (blog posts, experience docs) has two gates: (1) Pre-publish quality iteration for word-choice, punctuation, and formatting — iterate on drafts BEFORE invoking publish CLI; (2) Post-gate resync when violations are caught — fixing requires re-publishing (not direct artifact edits) to re-sync derived formats (MDX, metadata) and re-run the gate. Pattern: draft iteration → publish → verify gate output → deploy.
 **p-batch-synthesis-tool-quality** [merged: batch-synthesis-quality-honesty + tool-underperformance-escalation; 2026-06-14]
 Batch synthesis hitting API limits (JS-walling, extraction degradation) degrades real signal — output must quantify: assess signal concentration (% thin items), identify substantive vs. thin API items, offer re-fetch at higher threshold. When a producer tool systematically mis-captures data (e.g., fetching badge boilerplate over content), escalate to tool improvement rather than downstream workarounds — document miss pattern, queue tool-improvement task, re-assess post-shipping. Single-tool limitation compounds across all future batches; fixing the source > enriching synthesis.
-**p-batch-pr-review-scale** [2026-06-15, task #19083]
-Reviewing 15+ PRs: parallelize diff-fetching across agents; post consolidated batch verdict to tracking issue once all reviews complete. Prevents sequential blocking and enables human-coordinated dependency ordering. Flag inter-PR dependencies explicitly (e.g., "PR #100 needs #93 merge first").
-**p-data-file-sync-validation** [2026-06-15, task #19083]
-When PRs modify data files (JSON + public copies), verify synchronization: (1) both versions updated identically, (2) aggregate count fields match (`total_assessed`, `notable_additions`), (3) metadata timestamps increment (e.g., `last_updated`). Prevents data divergence and stale aggregates from merging.
-**p-subagent-tier-cost-guard** [2026-06-16, task #19107]
-Dispatch sessions must not spawn higher-tier sub-agents — a haiku task calling opus/sonnet agents wastes cost escalation. Enforce via PreToolUse hook: block Bash(`claude*`) and Agent calls where the inferred sub-agent model tier would exceed the parent dispatch session tier. Prevents sub-agents from automatically upgrading parent-assigned budget.
-**p-feature-monetization-dry-run** [2026-06-16, task #19107]
-New features with external side effects on revenue surfaces (paid-room posts, transaction sends, API payments) default to `DRY_RUN=true` mode. Require operator/voice review before flipping to live; side effects aren't testable in CI. Gate duration: until voice/quality is trusted (1–3 posts) or a quality sensor exists. Complements [[p-skill-launch-discipline]].
+**p-pr-review-at-scale** [merged: p-batch-pr-review-scale + p-data-file-sync-validation; 2026-06-15, task #19083]
+Reviewing 15+ PRs: parallelize diff-fetching across agents; post consolidated batch verdict to tracking issue; flag inter-PR dependencies explicitly. When PRs modify data files (JSON + public copies): verify both versions updated identically, aggregate count fields match, metadata timestamps increment.
+**p-dispatch-safety-gates** [merged: p-subagent-tier-cost-guard + p-feature-monetization-dry-run; 2026-06-16, task #19107]
+Dispatch sessions must not spawn higher-tier sub-agents — enforce via PreToolUse hook blocking Bash(`claude*`)/Agent calls where inferred tier exceeds parent session tier. New features with external side effects on revenue surfaces (paid-room posts, tx sends, API payments) default to `DRY_RUN=true`; require operator/voice review before flipping live; gate until 1–3 clean posts or a quality sensor exists. Complements [[p-skill-launch-discipline]].
 **p-judge-panel-design-diversity** [2026-06-16, task #19143]
 Judge-panel/adversarial-verification stages reduce conformity bias via two mechanisms: (1) use per-agent `model` overrides in `parallel()` to vary models (opus+sonnet+openrouter), not just prompts — genuine model diversity outperforms prompt-only variation; (2) strip response authorship before ranking to cut self-preference bias. Borrowed from DAIR's LLM Council pattern; Arc's Workflow judge-panel already supports both via existing infrastructure.
