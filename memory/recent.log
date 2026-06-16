@@ -247,3 +247,4 @@
 2026-06-16T13:08:36.918Z | task #19153 | completed | sonnet | Overnight brief — 2026-06-16 | Overnight brief 2026-06-16 written: 30 tasks, 0 failures, research sprint night.
 2026-06-16T13:09:46.348Z | task #19154 | completed | haiku | Retrospective: extract learnings from task #19152 — Watch re | 1 new pattern: observation-context-aware-flagging — distinguish operational paus
 2026-06-16T13:13:02.990Z | task #19155 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added link-research gotcha (t.co→tweet body, not article; gh api better for repo
+2026-06-16T14:12:59.087Z | task #19158 | completed | sonnet | compliance-review: 3 finding(s) [batch 1/1] | renamed catch (err) → (error) in whop-sales/sensor.ts at lines 205, 230, 347 — a
