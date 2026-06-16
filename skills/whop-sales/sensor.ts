@@ -163,8 +163,8 @@ function readActiveMemberIds(): Set<string> {
     const latest = new Map<string, string>();
     for (const r of rows) latest.set(membershipEntityId(r.source), r.type);
     for (const [id, t] of latest) if (t === "membership.activated") ids.add(id);
-  } catch (err) {
-    log(`active-member read skipped: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`active-member read skipped: ${error instanceof Error ? error.message : String(error)}`);
   }
   return ids;
 }
@@ -188,8 +188,8 @@ function readRecentActivations(now: Date): Activation[] {
       )
       .all(sinceIso) as Array<{ source: string; recorded_at: string }>;
     for (const r of rows) out.push({ member_id: membershipEntityId(r.source), activated_at: r.recorded_at });
-  } catch (err) {
-    log(`activation read skipped: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`activation read skipped: ${error instanceof Error ? error.message : String(error)}`);
   }
   return out;
 }
@@ -280,8 +280,8 @@ function writeArtifact(summary: LaneSummary): string | null {
       try { unlinkSync(join(dir, old)); } catch { /* best-effort */ }
     }
     return path;
-  } catch (err) {
-    log(`artifact write skipped: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`artifact write skipped: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }
