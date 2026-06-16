@@ -10,6 +10,7 @@ db/x-credits-depleted.json
 db/tasks.db
 logs/
 .env
+.env.bak-*
 .planning/
 credentials.enc
 github/
