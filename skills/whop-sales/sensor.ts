@@ -66,6 +66,14 @@ const WHOP_SALES_DRY_RUN = Bun.env.WHOP_SALES_DRY_RUN !== "false";
 // an autonomous $49 (L1) pitch from arc0btc.
 const OPERATOR_LANE_RE = /\b(run (my|our) own agent|b2b|enterprise|our team|my team|operators?|white[- ]?label|reseller)\b/i;
 
+// Identities that must NEVER be surfaced as sales leads: Arc itself and the
+// operator (whoabuddy) — they live in the room but are not prospects. The live
+// lane confirmed the operator WOULD otherwise be pitched (he chats in the room
+// and isn't a `whop_event_log` "member"). Future internal/team agents (e.g. the
+// dev-council Arc plans to onboard) get added here, not pitched.
+const OPERATOR_USER_ID = "user_WQ6WyvnFOZ6bY"; // whoabuddy (Whop user id)
+const NON_PROSPECT_USER_IDS = new Set<string>([ARC_USER_ID, OPERATOR_USER_ID]);
+
 const log = createSensorLogger(SENSOR_NAME);
 
 export type Route = "arc-auto" | "operator-manual";
@@ -77,6 +85,8 @@ export interface Candidate {
   value_touches: number; // arc_replies_to_them — value Arc gave first
   signal: string; // what the lead actually did (cite-able)
   route: Route;
+  channel: string; // x | forum — drives the link, the skills, and the post venue
+  reply_to_msg_id: string | null; // the room message to reply to (forum venue)
 }
 
 export interface LaneSummary {
@@ -102,30 +112,57 @@ export interface LaneSummary {
   artifact_path: string | null;
 }
 
-// ---- Lead surfacing + classification ----------------------------------------
+// ---- Lead source + classification -------------------------------------------
 
-/** Pull cite-able recent activity from a relationship for the pitch signal. */
-function leadSignal(rel: Relationship): string {
+/**
+ * The PRODUCTION lead source. The acquisition target is NON-members who engaged
+ * Arc on FREE / PUBLIC surfaces — the free public forum (exp_YRtS3kgMVeBGzu), X
+ * (@arc0btc), and the blog — per SKILL.md §Lead Identification.
+ *
+ * The paid-room relationship store (db/whop-relationships.json) is DELIBERATELY
+ * NOT used: it tracks the gated paid chat, so everyone in it has already paid (or
+ * is Arc / the operator) — zero acquisition prospects. Pitching a $49 membership
+ * to someone already inside the paid room is incoherent.
+ *
+ * Tracking non-member engagement on the free/public surfaces is a P10 wiring
+ * (Presence & audience-building — it also owns the audience map + the channels).
+ * Until it lands, this returns no leads, so the live lane is a correct NO-OP
+ * rather than mis-targeting members. Fixtures inject `deps.relationships` (a
+ * non-member lead set) directly to prove the gate/compose/route machinery.
+ */
+function defaultLeadSource(): RelationshipStore {
+  log(
+    "no non-member lead source wired yet — the paid-room store is members-only; " +
+      "the free-forum/X non-member engagement source is a P10 wiring. 0 leads this cycle.",
+  );
+  return { updated_at: new Date(0).toISOString(), users: {} };
+}
+
+/** Pull cite-able recent activity (+ the message to reply to) from an engagement record. */
+function leadSignal(rel: Relationship): { signal: string; msgId: string | null } {
   const lastUser = [...rel.recent_interactions].reverse().find((i) => i.direction === "from_user");
-  if (lastUser) return `said in the room: "${lastUser.snippet}"`;
-  return `engaged the room ${rel.message_count}× without replying`;
+  if (lastUser) return { signal: `engaged Arc: "${lastUser.snippet}"`, msgId: lastUser.msg_id };
+  return { signal: `engaged Arc ${rel.message_count}× without replying`, msgId: null };
 }
 
 /**
- * Surface non-member, non-Arc counterparties as classified leads, ordered A→B→C.
- * Class A = replied to Arc ≥2× (warm); B = ≥3 messages (passive reader); C = rest.
- * (Mirrors SKILL.md §Lead Identification on the substrate we have — the room
- * relationship store. P10 broadens the lead source to X / public-forum repliers.)
+ * Pure classifier: turn an engagement store of NON-member prospects into ranked
+ * leads, A→B→C — EXCLUDING Arc, the operator, and any paying member (defence in
+ * depth; the source itself must already be non-members). Class A = replied to Arc
+ * ≥2× (warm); B = ≥3 messages (passive reader); C = rest. The CALLER supplies the
+ * source: production uses `defaultLeadSource()` (free-forum/X non-member engagers,
+ * a P10 wiring — empty today); fixtures inject a store. Each lead's `channel` is
+ * its reachable venue (free public forum → "forum"; X → "x").
  */
 export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): Candidate[] {
   const out: Candidate[] = [];
   for (const rel of Object.values(store.users)) {
-    if (rel.user_id === ARC_USER_ID) continue;
+    if (NON_PROSPECT_USER_IDS.has(rel.user_id)) continue; // Arc + operator: never a lead
     if (memberIds.has(rel.user_id)) continue; // never pitch a paying member
     if (rel.message_count < 1) continue;
     const cls: "A" | "B" | "C" =
       rel.their_replies_to_arc >= 2 ? "A" : rel.message_count >= 3 ? "B" : "C";
-    const signal = leadSignal(rel);
+    const { signal, msgId } = leadSignal(rel);
     const route: Route = OPERATOR_LANE_RE.test(signal) ? "operator-manual" : "arc-auto";
     out.push({
       lead_id: rel.user_id,
@@ -134,6 +171,8 @@ export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): 
       value_touches: rel.arc_replies_to_them,
       signal,
       route,
+      channel: "forum", // free public-forum engager default; P10's source sets "x" for X repliers
+      reply_to_msg_id: msgId,
     });
   }
   const order = { A: 0, B: 1, C: 2 };
@@ -198,22 +237,46 @@ function readRecentActivations(now: Date): Activation[] {
 
 function buildPitchTask(c: Candidate, channel: string, body: string, firstReply: string): InsertTask {
   const opFlag = c.route === "operator-manual" ? "[OPERATOR-MANUAL] " : "";
-  const postBlock =
-    c.route === "operator-manual"
-      ? [
-          "ROUTE: OPERATOR-MANUAL — do NOT auto-post. This lead self-selected up-ladder (L3/L4),",
-          "which is relationship-gated. Flag for whoabuddy to handle from their own account; the",
-          "lane composed the below as a starting point only. Close completed with the draft in the summary.",
-        ].join("\n")
-      : [
-          "ROUTE: ARC-AUTO (arc0btc) — post the BODY, then the FIRST REPLY (the attributed CTA +",
-          "FREEMONTH + any proof) as a reply beneath it (in-body links cut reach 50–90%; P3 rev #1):",
-          `  arc skills run --name social-x-posting -- post --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
-          `  arc skills run --name social-x-posting -- reply --tweet-id <id> --text "<first_reply>"`,
-          "The social-x-posting CLI re-checks BUDGET_LIMITS.posts at post time (hard daily X cap).",
-        ].join("\n");
+  const isX = channel === "x";
+  // Skills scoped to the POST VENUE so the dispatched session loads only what it
+  // needs: the X lane loads social-x-posting; the room/forum lane loads whop
+  // (reply-chat). Both carry whop-sales (doctrine) + arc-brand-voice (voice).
+  const skills = isX
+    ? ["whop-sales", "social-x-posting", "arc-brand-voice"]
+    : ["whop-sales", "whop", "arc-brand-voice"];
+
+  let postBlock: string;
+  if (c.route === "operator-manual") {
+    postBlock = [
+      "ROUTE: OPERATOR-MANUAL — do NOT auto-post. This lead self-selected up-ladder (L3/L4),",
+      "which is relationship-gated. Flag for whoabuddy to handle from their own account; the",
+      "lane composed the below as a starting point only. Close completed with the draft in the summary.",
+    ].join("\n");
+  } else if (isX) {
+    postBlock = [
+      "ROUTE: ARC-AUTO (arc0btc X) — post the BODY, then the FIRST REPLY (the attributed CTA +",
+      "FREEMONTH + any proof) as a reply beneath it (in-body links cut reach 50–90%; P3 rev #1):",
+      `  arc skills run --name social-x-posting -- post --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
+      `  arc skills run --name social-x-posting -- reply --tweet-id <id> --text "<first_reply>"`,
+      "The social-x-posting CLI re-checks BUDGET_LIMITS.posts at post time (hard daily X cap).",
+    ].join("\n");
+  } else {
+    // FREE public-forum venue (exp_YRtS3kgMVeBGzu — discovery surface non-members
+    // can see; NOT the paid chat, and on-Whop so links aren't reach-suppressed):
+    // reply to their free-forum post with the value, then a follow-up carrying the
+    // CTA + FREEMONTH. (P10's lead source finalizes the exact post id / command.)
+    const to = c.reply_to_msg_id ?? "<their_free_forum_post_id>";
+    postBlock = [
+      "ROUTE: ARC-AUTO (FREE public forum, exp_YRtS3kgMVeBGzu) — reply to their post with the BODY,",
+      "then a follow-up carrying the attributed CTA + FREEMONTH (ask stays out of the first message):",
+      `  arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --parent ${to} --content "<body>"`,
+      `  arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --parent ${to} --content "<first_reply>"`,
+      "Never pitch inside the PAID room (those people already paid). Idempotency: confirm not already pitched.",
+    ].join("\n");
+  }
+
   return {
-    subject: `${opFlag}Whop-sales pitch (${c.cls}) to ${c.username ?? c.lead_id}`,
+    subject: `${opFlag}Whop-sales pitch (${c.cls}, ${channel}) to ${c.username ?? c.lead_id}`,
     description: [
       `Lead class: ${c.cls} (${c.route}). Channel: ${channel}.`,
       `Signal: ${c.signal}`,
@@ -231,7 +294,7 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "Voice bar: add information / make them want to respond. One ask only. Defer beats filler.",
       postBlock,
     ].join("\n"),
-    skills: JSON.stringify(["whop-sales", "social-x-posting", "arc-brand-voice"]),
+    skills: JSON.stringify(skills),
     priority: 5,
     model: "sonnet",
     // Quest-mandated cross-cutting attribution source (PHASES.md P9:
@@ -307,7 +370,7 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
   const now = deps.now ?? new Date();
   const dryRun = deps.dryRun ?? WHOP_SALES_DRY_RUN;
   const ledgerPath = deps.ledgerPath ?? DEFAULT_OUTREACH_PATH;
-  const store = deps.relationships ?? loadRelationships();
+  const store = deps.relationships ?? defaultLeadSource(); // NOT the paid-room store — see defaultLeadSource
   const memberIds = deps.memberIds ?? readActiveMemberIds();
   const activations = deps.activations ?? readRecentActivations(now);
   const queue = deps.queue ?? ((t: InsertTask) => insertTaskIfNew(t.source!, t));
@@ -330,7 +393,7 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
   const candidates = surfaceLeads(store, memberIds);
   summary.candidates_seen = candidates.length;
   for (const c of candidates) {
-    const channel = "forum"; // room/forum substrate; P10 adds the x lane
+    const channel = c.channel; // set per lead-source venue (forum today; x in P10)
     const pitch = composePitch({ cls: c.cls, signal: c.signal, name: c.username ?? undefined, channel });
     if (!pitch.ok) {
       summary.blocked.push({ lead_id: c.lead_id, username: c.username, reasons: [`compose-error: ${pitch.error}`] });
