@@ -1,5 +1,5 @@
 import { Workflow } from "../../src/db.ts";
-import { PAID_ROOM_PRODUCT_URL } from "../../src/constants.ts";
+import { PAID_ROOM_PRODUCT_URL, PROMO_CODE } from "../../src/constants.ts";
 
 /**
  * Minimal state machine runner. No external deps.
@@ -534,17 +534,17 @@ Guardrails (members pay real money):
           skills: ["social-x-posting", "arc-brand-voice"],
           source: `content-calendar:${ctx.slug}:x`,
           autoAdvanceState: "x_thread_posted",
-          description: `Compose a 2–3 tweet X thread developing this work-piece. The final tweet closes with the blog link (if present) AND one low-key paid-room CTA line — give value across the thread, then ONE ask.${contentCalendarBlogRef(ctx)}
+          description: `Compose a 2–3 tweet X thread developing this work-piece. The thread itself carries NO paid-room link — the attributed CTA goes in a dedicated FIRST REPLY beneath the thread (in-body links cut thread reach 50–90%; P3 growth-council rev #1). Give value across the thread, then ONE ask in the reply.${contentCalendarBlogRef(ctx)}
 
 Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/CADENCE.md. Each tweet ≤280 chars and must stand on its own — structural observations, not a "new post" announcement. Open on a sharp inversion; only thread because the idea genuinely needs sequential development.
 
-Close (final tweet only — value-first, not spammy): after the thread's payoff lands, add ONE low-key line funneling to the paid room, framed as a continuation — e.g. "this is the kind of thing I work through in the room → ${PAID_ROOM_PRODUCT_URL}". Use that EXACT link verbatim: its ?a= referral param attributes the free→paid conversion to Arc's affiliate record, which is how this funnel is measured. Keep the blog link too if the thread carries one (blog link + room link both fit the final tweet, or split blog into an earlier tweet). One ask only — never a CTA on every tweet, never hype. Mirror the public-forum teaser's tone.
+CTA placement (P3 rev #1 — the M0-critical change): keep the room link OUT of every thread tweet. The final thread tweet lands the payoff (link-free, full reach). THEN post ONE reply to the thread carrying the value-first ask + the attributed link + the first-month-free code, framed as a continuation — e.g. "this is the kind of thing I work through in the room → ${PAID_ROOM_PRODUCT_URL} — first month's on me, code ${PROMO_CODE} at checkout (new members)." Use that EXACT link verbatim (its ?a= referral param attributes the free→paid conversion to Arc's affiliate record — how this funnel is measured) and the EXACT promo code ${PROMO_CODE}. One ask only — never a CTA on a thread tweet, never hype. Mirror the public-forum teaser's tone. (A blog link, if the thread carries one, may sit in an earlier thread tweet as before.)
 
 Steps:
-1. Compose the thread (2–3 posts), with the final tweet carrying the room CTA (and blog link if present).
+1. Compose the thread (2–3 posts), all link-free for the room CTA; the final tweet lands the payoff. Compose the SEPARATE first-reply CTA (link + ${PROMO_CODE}).
 2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up. The workflow has auto-advanced; source-dedup prevents a double-post, so it fires once credits return.
-3. Post the first tweet (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; concurrent/crash window documented in cli.ts), then reply-chain the rest: arc skills run --name social-x-posting -- post --text "<text>" --source content-calendar:${ctx.slug}:x then reply --tweet-id <id> --text "<text>".
-4. Verify the thread is live.`,
+3. Post the first tweet (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; concurrent/crash window documented in cli.ts), then reply-chain the rest of the thread, then post the CTA as the final reply: arc skills run --name social-x-posting -- post --text "<text>" --source content-calendar:${ctx.slug}:x then reply --tweet-id <id> --text "<text>" (last reply = the CTA + ${PROMO_CODE}).
+4. Verify the thread is live and the CTA reply is attached beneath it.`,
         };
       },
     },
@@ -590,7 +590,7 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
           autoAdvanceState: "public_forum_teaser",
           description: `Post a teaser to the FREE public forum (discovery) — one real insight given away, deliberately incomplete on the payoff, funneling to the PAID ROOM with an attributable CTA.${contentCalendarBlogRef(ctx)}
 
-Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, then close with a one-line CTA that funnels to the paid room — frame it as a continuation, e.g. "the full teardown — and the room where this gets built in the open — lives here: ${PAID_ROOM_PRODUCT_URL}". Use that EXACT link verbatim: its ?a= referral param attributes the conversion to Arc's affiliate record, which is how this free→paid funnel is measured. Never bait-and-switch; the free part must stand alone. No hype CTAs.
+Voice: read skills/arc-brand-voice/CHANNELS.md §public-forum. 80–160 words: lead with the sharpest line (a structural inversion that stops the scroll), give ONE real insight for free, then close with a one-line CTA that funnels to the paid room — frame it as a continuation, e.g. "the full teardown — and the room where this gets built in the open — lives here: ${PAID_ROOM_PRODUCT_URL} (first month free for new members, code ${PROMO_CODE})". Use that EXACT link verbatim (its ?a= referral param attributes the conversion to Arc's affiliate record, how this free→paid funnel is measured) and the EXACT promo code ${PROMO_CODE}. Never bait-and-switch; the free part must stand alone. No hype CTAs.
 
 Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --title "<title>" --content "<markdown>" --source content-calendar:${ctx.slug}:public-forum — then verify it landed. The workflow has auto-advanced.`,
         };

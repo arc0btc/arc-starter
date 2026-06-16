@@ -55,12 +55,3 @@ export const PAID_ROOM_PRODUCT_URL = `https://whop.com/hash-it-out-membership/?a
 
 /** Paid-room CHECKOUT (direct subscribe to the $49/mo plan). Attributable. */
 export const PAID_ROOM_CHECKOUT_URL = `https://whop.com/checkout/plan_axYMvJ4cBnq8v?a=${PAID_ROOM_AFFILIATE}`;
-
-/** First-month-free promo code (Whop promo `promo_zubH7b43NQHF`: 100% off first
- *  payment, new-users-only, one-per-customer, stock 50, company-wide). The ONLY
- *  friction-reducer for the $49 entry (P6). It is redeemed by CODE ENTRY at
- *  checkout — there is no URL/config field to bake it in — so it must travel in
- *  the CTA *copy*. Defined ONCE here so the sales lane (P9), the X-thread close,
- *  and the public-forum teaser all reference one canonical code (re-scope to L1
- *  at ladder rollout → P12). */
-export const PROMO_CODE = "FREEMONTH" as const;
