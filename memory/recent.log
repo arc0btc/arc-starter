@@ -249,3 +249,4 @@
 2026-06-16T13:13:02.990Z | task #19155 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added link-research gotcha (t.co→tweet body, not article; gh api better for repo
 2026-06-16T14:12:59.087Z | task #19158 | completed | sonnet | compliance-review: 3 finding(s) [batch 1/1] | renamed catch (err) → (error) in whop-sales/sensor.ts at lines 205, 230, 347 — a
 2026-06-16T14:13:41.853Z | task #19159 | completed | haiku | Fetch and compile arXiv digest — 2026-06-16 (30 new papers) | Fetched 50 papers, compiled 20 relevant to LLM/agent research. Digest written to
+2026-06-16T14:16:54.567Z | task #19156 | completed | sonnet | architecture review — codebase changed since last review (03 | Minimal window: whop-sales NON_PROSPECT_USER_IDS guards + Candidate.channel fiel
