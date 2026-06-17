@@ -1,3 +1,55 @@
+## 2026-06-17T14:20:00.000Z — content-calendar title dedup; .bak-rsku/.bak-p10b* cleanup resolved; 129 skills / 82 sensors
+
+**Task #19235** | Diff: 991bc09 → 0f12c51 (1 structural commit) | Sensors: 82 | Skills: 129
+
+### Step 1 — Requirements
+
+1 structural commit in window. No `src/dispatch.ts` or `src/sensors.ts` changes.
+
+- **fix(arc-workflows): prevent duplicate content-calendar workflows via title dedup** (0f12c51e):
+  - `src/db.ts`: New `getWorkflowByTemplateAndContextTitle(template, title)` — queries workflows by template + context JSON LIKE match on title field.
+  - `skills/arc-workflows/sensor.ts`: Title cross-check added to `syncContentCalendar()`. Before creating a content-calendar workflow, checks if any existing workflow (any slug) already covers this blog title. Three already-fired Tier-A duplicates (#2982, #2983, #2984) completed retroactively.
+  - Root cause of "Five Subsystems" double-post (2026-06-16): Tier-A backfill instances used memory-entry slugs as instance keys; `syncBlogPublishes()` used blog-file slugs. Neither dedup caught cross-slug conflicts. Title is the correct invariant.
+
+Non-structural: `.bak-rsku` + `.bak-p10b*` file cleanup (4ba1668f, `.gitignore *.bak-*`), whop/cli.ts compliance rename (07027b24), auto-commits.
+
+### Step 2 — Delete
+
+**[RESOLVED]** `.bak-rsku` + `.bak-p10b*` cleanup (4ba1668f) — the ACTION-NOW from the 2026-06-17T02:20Z audit is done. `.gitignore` now covers `*.bak-*` (superset pattern).
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+### Step 3 — Simplify
+
+- **[FRAGILITY NOTE]** `getWorkflowByTemplateAndContextTitle()` uses SQL LIKE on the context JSON blob. Manual escaping handles `\` and `"` but NOT `%` or `_` (SQL LIKE wildcards). A blog title containing a literal `%` would act as a glob match. Production-safe today (blog titles are human prose), but the pattern is fragile. Long-term: prefer `json_extract(context,'$.title')` or a dedicated indexed `content_title` column on the workflows table.
+- The fix is the correct invariant: instance-key dedup is slug-scoped; title dedup is content-scoped. Two dedup layers serving different purposes is correct here.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- Title dedup closes the double-post class for ContentCalendarMachine. Direct improvement: no more X/whop duplicate posts from cross-slug conflicts.
+- Three retroactively completed Tier-A duplicates (#2982/#2983/#2984) will not dispatch downstream X tasks, preventing further waste.
+- Tier-A content-calendar un-gate checklist still requires `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true` + whop clean-post + human sign-off before Tier-A can post.
+
+### Step 5 — Automate
+
+- **[TECH-DEBT]** If `workflows` table gains a `content_title` column at creation time, the LIKE scan becomes an indexed point lookup — worthwhile at high workflow volume. Not urgent at current scale (~3000 workflow rows).
+
+### Flags
+
+- **[RESOLVED]** `.bak-rsku` + `.bak-p10b*` cleanup (4ba1668f) — ACTION-NOW from prior audit.
+- **[RESOLVED]** "Five Subsystems" double-post root cause — content-calendar title dedup (0f12c51e) prevents recurrence.
+- **[FRAGILITY]** `getWorkflowByTemplateAndContextTitle()` LIKE pattern doesn't escape `%`/`_` SQL wildcards. Accept now; migrate to `json_extract()` if workflow volume grows.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-17T02:20:00.000Z — arc-link-research catalog + frontmatter libs; whop-sales P10 receipt; .bak-rsku/.bak-p10b* pollution; 129 skills / 82 sensors
 
 **Task #19204** | Diff: 10565ea → 07027b24 (6 structural commits) | Sensors: 82 | Skills: 129
