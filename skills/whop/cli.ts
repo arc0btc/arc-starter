@@ -474,10 +474,10 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
         member_affiliate_percentage: 30,
       });
     } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      if (/403|access_pass:create|permission|forbidden/i.test(msg)) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (/403|access_pass:create|permission|forbidden/i.test(errorMessage)) {
         fail(
-          `products.create rejected (likely missing access_pass:create scope): ${msg}\n` +
+          `products.create rejected (likely missing access_pass:create scope): ${errorMessage}\n` +
             `Fallback: create it in the Whop dashboard — HIDDEN, one-time plan, $${price}, 30% global+member ` +
             `affiliate, route "${flags.route}" — then wire its prod_/plan_ ids into src/constants.ts PRODUCT_* by hand.`,
         );
