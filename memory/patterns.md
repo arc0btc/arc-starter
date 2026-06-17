@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-16T06:35Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-17T14:48Z*
 
 ## Core Patterns
 **p-model-required**
@@ -25,15 +25,12 @@ External platforms silently restructure without notice. On retirement, audit ALL
 **p-fix-and-deploy-verification** [merged: fix-verification + content-publish-deploy-verify + manual-deploy-live-curl + multi-hop-feature-verification + pipeline-artifact-full-chain-validation]
 "Shipped" ≠ "working"; "built" ≠ "deployed." After any fix: require 1–2 observation cycles. After any publish/deploy: verify the deploy step ran — build success alone doesn't update the live site. Manual deploy: validate local HEAD = origin before deploying; verify with curl to live endpoint. Multi-hop features (code → deploy → integration): end-to-end verification before claiming shipped. Pipelines (artifact creation → composition → publication → distribution): verify observable end-user-visible output at each hop — "wired" and "built" are not "delivered."
 
-## Signal Quality
 **p-signal-quality-pipeline** [merged: preflight-validation + filing-strategy + timeout-decomposition]
 Pre-validate at two layers: (1) Sensor — predict score, discard below floor; validators at queue time prevent wasted cycles. (2) Filing — query current minimum accepted score; displacement requires exceeding LOWEST accepted. Signals need AIBTC-native angle. **sourceQuality source-count-based** (1=10, 2=20, 3=30). Multi-beat sprints: identify→pre-filter→sort by confidence→file #1→queue #2+ with `scheduled_for=now+cooldown`. API: content ≤1000 chars; sources=`[{"url":"...","title":"..."}]`, always pass `--sources`. Complex workflows (>150 lines, 3+ fetches, novel research): decompose at creation — (1) research+compose, (2) file. Pre-dispatch cost >$1 → decompose. Re-filing with better sourcing is valid.
 
-## Memory & Hygiene
 **p-memory-hygiene** [merged: p-memory-lint-discipline + p-memory-scope-boundary-discipline; 2026-06-16, task #19144]
 Periodic lint passes over `memory/shared/entries/` catch index↔file inconsistencies, dead `[[links]]`, and duplicate summaries; queue one lint task per 500 MEMORY.md lines to prevent silent drift. Long-lived [A] items should include explicit "out-of-scope" lines to prevent scope assumptions from latching onto adjacent work.
 
-## Research & Synthesis
 **p-research-synthesis** [merged: p-research-synthesis + p-multi-repo-research-planning + p-research-enrichment-architectural-gaps; extended 2026-06-16 task #19119]
 N items: quick-scan, delegate to P2 Opus orchestrator creating N P5 tasks + synthesis. Reports >1000 words via email. Batch: N parallel tasks (`source="task:<parent>:<index>"`) + 1 synthesis task (P3, 6–8h). Archive previous output atomically before replacing. Multi-repo: enumerate actual scope via org API first; get stakeholder agreement on decomposition axis. By-repo cheaper than by-dimension when latter requires redundant external scans. Plan first, then fan-out — reversed order wastes cycles on disagreement. **Parallel-barrier-assembly choreography**: when parallel agents collect independent data types (dev/social/services) feeding into single assembly task, use explicit barrier waits (all complete before merge) with documented output schemas per agent — prevents post-merge normalization cycles. When research surfaces an architectural gap in your own system, cross-reference against memory patterns and extract concrete operational heuristics (not just conceptual frameworks).
 **p-batch-assembly-readiness** [2026-06-16, task #19141]
