@@ -1,3 +1,61 @@
+## 2026-06-17T02:20:00.000Z — arc-link-research catalog + frontmatter libs; whop-sales P10 receipt; .bak-rsku/.bak-p10b* pollution; 129 skills / 82 sensors
+
+**Task #19204** | Diff: 10565ea → 07027b24 (6 structural commits) | Sensors: 82 | Skills: 129
+
+### Step 1 — Requirements
+
+6 structural commits in window. No `src/dispatch.ts` or `src/sensors.ts` changes.
+
+Key structural additions:
+
+- **feat(arc-link-research): catalog + frontmatter libs** (991bc098): New `lib/catalog.ts` (129 lines) — article catalog system to avoid re-fetching. New `lib/frontmatter.ts` (199 lines) — structured frontmatter I/O. New `REPORT-TEMPLATE.md`. Expanded `cli.ts` (+226 lines). arc-link-research evolves from fetch-and-summarize to catalog-and-retrieve.
+- **feat(whop-sales): P10 receipt.ts** (991bc098): New `lib/receipt.ts` (294 lines) — pitch receipt tracking and dedup. Prerequisite for `WHOP_SALES_DRY_RUN=false`. Without receipts, live sends have no idempotency guard.
+- **feat(whop-sales): lead-source expansion** (991bc098 + 4319ba1c): `lib/lead-source.ts` (+206 lines) — expanded lead surfacing from whop relationships store. `cli.ts` + `sensor.ts` updated accordingly.
+- **fix(whop): events.ts** (991bc098 + 7aa2c289 + f1584efb): 72 lines of event parsing improvements. `src/constants.ts` gains a new whop constant (f1584efb).
+- **fix(compliance): naming renames** (991bc098 + 4319ba1c + 07027b24): `r→refreshResult`, `msg→errorMessage`, etc. Pre-commit hook enforcement working correctly.
+
+**Commit mislabeling**: 991bc098 subject says "rename abbreviated variable 'r'" but the diff is 2840+ lines across 21 files including two major new lib modules. Compliance-fix subject hides significant feature work.
+
+### Step 2 — Delete
+
+**[ACTION-NOW]** `.bak-rsku` and `.bak-p10b*` files tracked in git — same class as `.bak-gtm` (resolved 2026-06-16). Currently tracked: `skills/arc-link-research/AGENT.md.bak-rsku`, `SKILL.md.bak-rsku`, `cli.ts.bak-rsku`, `skills/whop-sales/cli.ts.bak-p10br`, `lib/lead-source.ts.bak-p10bx`. `.gitignore` only covers `*.bak-gtm`. Need to extend to `*.bak-*`. Follow-up task created.
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+### Step 3 — Simplify
+
+- arc-link-research `lib/catalog.ts` + `lib/frontmatter.ts` factoring is correct — mirrors inflows pool amortization pattern.
+- `lib/receipt.ts` at 294 lines is appropriate scope for P10 dedup. Correct sequencing: receipt before live-lane flip.
+- **[GITIGNORE PATTERN DRIFT]** Each quest spawns new backup suffixes (`.bak-gtm`, `.bak-rsku`, `.bak-p10br`, `.bak-p10bx`). `*.bak-*` as a general gitignore pattern is the durable fix.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- `lib/receipt.ts` is the P10 unlocker: `WHOP_SALES_DRY_RUN=false` now technically unblocked (still needs operator confirm).
+- arc-link-research catalog reduces redundant article fetching across research cycles.
+- Events.ts improvements mean fewer missed member lifecycle events.
+
+### Step 5 — Automate
+
+- **[ACTION-NOW]** Extend `.gitignore` with `*.bak-*` (superset of `*.bak-gtm`). Delete currently tracked backup files.
+- **[CARRY-CARRY]** `lint-skills --staged` `--name <X>` AGENT.md validation. Low priority.
+
+### Flags
+
+- **[ACTION-NOW]** `.bak-rsku` + `.bak-p10b*` tracked files (5 files) — delete + extend .gitignore. Follow-up task created.
+- **[NEW]** arc-link-research: catalog + frontmatter libs shipped. Research skill now catalog-backed.
+- **[NEW]** whop-sales: `lib/receipt.ts` shipped — P10 dedup gate in place. `WHOP_SALES_DRY_RUN=false` technically unblocked, awaiting operator confirm.
+- **[PATTERN-NOTE]** Commit mislabeling: compliance-fix subjects hiding major feature work. Low severity.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** RFC Phase 2 — not started.
+- **[CARRY-WATCH]** arc-email-worker no-CI/CD.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-16T14:15:00.000Z — whop-sales NON_PROSPECT_USER_IDS + channel field; .bak-gtm resolved; 129 skills / 82 sensors
 
 **Task #19156** | Diff: 034c748 → 10565ea (2 structural commits) | Sensors: 82 | Skills: 129
