@@ -329,3 +329,4 @@
 2026-06-17T13:19:15.384Z | task #19233 | completed | sonnet | Audit BlogToXMachine dedup: 'Five Subsystems' double-post | Root cause: Tier-A backfill used memory-entry slugs; syncContentCalendar() used 
 2026-06-17T13:20:11.243Z | task #19234 | completed | haiku | Retrospective: extract learnings from task #19233 — Audit Bl | Extracted multi-source instance-key dedup pattern; updated patterns.md
 2026-06-17T14:16:42.011Z | task #19235 | completed | sonnet | architecture review — codebase changed since last review (99 | title-dedup fix reviewed; LIKE wildcard fragility noted; .bak cleanup confirmed;
+2026-06-17T14:17:29.120Z | task #19236 | completed | sonnet | workflow review — 1 health issue(s) | 14% content-calendar rate is expected: 12 tier-A instances gated (source_drafted
