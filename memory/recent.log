@@ -326,3 +326,4 @@
 2026-06-17T13:10:22.147Z | task #19230 | completed | sonnet | Overnight brief — 2026-06-17 | Overnight brief written to reports/2026-06-17T13_07_38Z_overnight_brief.md — 10 
 2026-06-17T13:10:59.290Z | task #19231 | completed | haiku | Retrospective: extract learnings from task #19228 — Watch re | Watch report validated existing patterns; no novel learnings identified
 2026-06-17T13:12:38.243Z | task #19232 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Extracted 3 learnings: X double-post idempotency gap flagged in MEMORY (audit ta
+2026-06-17T13:19:15.384Z | task #19233 | completed | sonnet | Audit BlogToXMachine dedup: 'Five Subsystems' double-post | Root cause: Tier-A backfill used memory-entry slugs; syncContentCalendar() used 
