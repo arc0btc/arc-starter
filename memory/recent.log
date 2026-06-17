@@ -309,3 +309,4 @@
 2026-06-17T02:28:45.881Z | task #19212 | completed | sonnet | self-review triage: 1 issue(s) found | Triaged 1 cost issue: created task #19215 (cost-audit, sonnet, p6) to identify t
 2026-06-17T02:30:46.953Z | task #19215 | completed | sonnet | cost audit: identify top task types driving above 0.40 per t | cost audit complete: opus at $0.97 avg is primary driver (42% spend, 22% tasks);
 2026-06-17T02:33:46.337Z | task #19216 | completed | sonnet | fix model routing: blog-post tasks use sonnet not opus by de | no fix needed: all blog sensor paths already use sonnet; the 6 opus blog tasks i
+2026-06-17T02:36:41.882Z | task #19217 | completed | sonnet | fix model routing: x-posting tasks must use sonnet not opus | Audit complete — all X-posting task creation paths already use model=sonnet: x-c
