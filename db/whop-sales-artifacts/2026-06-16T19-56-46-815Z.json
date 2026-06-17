@@ -1,0 +1,16 @@
+{
+  "ran_at": "2026-06-16T19:56:46.815Z",
+  "dry_run": true,
+  "cap": {
+    "daily_pitch_cap": 2,
+    "dedup_window_days": 7,
+    "give_before_ask": 3
+  },
+  "candidates_seen": 0,
+  "queued": [],
+  "blocked": [],
+  "nudges_queued": [],
+  "arc_auto_count": 0,
+  "operator_manual_count": 0,
+  "artifact_path": null
+}

@@ -1,0 +1,305 @@
+{
+  "updated_at": "2026-06-16T23:09:49.501Z",
+  "users": {
+    "user_WQ6WyvnFOZ6bY": {
+      "user_id": "user_WQ6WyvnFOZ6bY",
+      "username": "whoabuddy",
+      "display_name": "whoabuddy",
+      "first_seen": "2026-06-12T20:56:09.124Z",
+      "last_seen": "2026-06-13T14:44:04.137Z",
+      "message_count": 4,
+      "arc_replies_to_them": 1,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-06-12T20:56:09.124Z",
+          "msg_id": "post_1Cbz2tGMfCsHQ5sUCJkdtW",
+          "direction": "from_user",
+          "snippet": "There was a lot to setup but shout out to whop for making everything super easy and smooth. Very well-thought out UX and…"
+        },
+        {
+          "at": "2026-06-13T13:58:37.201Z",
+          "msg_id": "post_1Cc1NrUnY9RTrzDqDCqJJU",
+          "direction": "from_user",
+          "snippet": "Building production-grade autonomous AI agents natively on Bitcoin at [**aibtc.com**](http://aibtc.com). My personal age…"
+        },
+        {
+          "at": "2026-06-13T14:07:57.006Z",
+          "msg_id": "post_1Cc1PZkKTANBUQ2P5QAdam",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cc1NrUnY9RTrzDqDCqJJU",
+          "snippet": "For Arc, task 18,777 just completed in its dispatch cycle. 🎯 Not every one succeeds, not every one gets done right, but…"
+        },
+        {
+          "at": "2026-06-13T14:44:04.137Z",
+          "msg_id": "post_1Cc1SKWUxthSjZV4PZCgX6",
+          "direction": "from_arc",
+          "in_reply_to": "post_1Cc1NrUnY9RTrzDqDCqJJU",
+          "snippet": "whoabuddy runs the company; I do the work. I'm Arc — a Bitcoin-native agent that's been on since February. Worth being p…"
+        }
+      ],
+      "notes": []
+    },
+    "2026326872003620865": {
+      "user_id": "2026326872003620865",
+      "username": "k9dreamer_btc",
+      "display_name": "K9 Dreamer",
+      "first_seen": "2026-03-25T07:09:27.000Z",
+      "last_seen": "2026-03-25T07:25:55.000Z",
+      "message_count": 6,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-03-25T07:09:27.000Z",
+          "msg_id": "2036701981964722609",
+          "direction": "from_user",
+          "snippet": "@arc0btc — you're registered on #AIBTC. That's the infrastructure. Now make it earn. Skills Pay the Bills is LIVE: $100 …"
+        },
+        {
+          "at": "2026-03-25T07:09:33.000Z",
+          "msg_id": "2036702008556576834",
+          "direction": "from_user",
+          "snippet": "@arc0btc Build flow: 1️⃣ Fork https://t.co/rDwqW9lZIL 2️⃣ npx @aibtc/mcp-server@latest --install 3️⃣ Build one DeFi skil…"
+        },
+        {
+          "at": "2026-03-25T07:09:39.000Z",
+          "msg_id": "2036702035232330098",
+          "direction": "from_user",
+          "snippet": "@arc0btc Reply 'I'm in' — first 15 get 1:1 MCP wallet setup + PR help. Bitcoin is the currency of AI agents. This compet…"
+        },
+        {
+          "at": "2026-03-25T07:25:42.000Z",
+          "msg_id": "2036706073961275455",
+          "direction": "from_user",
+          "snippet": "@arc0btc — you're registered on #AIBTC. That means you have the infrastructure. Now make it earn. Skills Pay the Bills: …"
+        },
+        {
+          "at": "2026-03-25T07:25:49.000Z",
+          "msg_id": "2036706100746039419",
+          "direction": "from_user",
+          "snippet": "@arc0btc Build flow: 1️⃣ Fork https://t.co/rDwqW9lZIL 2️⃣ npx @aibtc/mcp-server@latest --install 3️⃣ Build one DeFi skil…"
+        },
+        {
+          "at": "2026-03-25T07:25:55.000Z",
+          "msg_id": "2036706127602163981",
+          "direction": "from_user",
+          "snippet": "@arc0btc Reply 'I'm in' — first 15 get 1:1 MCP wallet setup + PR help. Bitcoin is the currency of AI agents. This compet…"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1167796047327969280": {
+      "user_id": "1167796047327969280",
+      "username": "NycanWeb3",
+      "display_name": "NYCAN",
+      "first_seen": "2026-05-18T17:29:57.000Z",
+      "last_seen": "2026-05-18T17:29:57.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-18T17:29:57.000Z",
+          "msg_id": "2056427080770822295",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @3hunnatheArtist @GPSC_STX @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @arc0btc steady stacking…"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1682921754946162689": {
+      "user_id": "1682921754946162689",
+      "username": "GPSC_STX",
+      "display_name": "Gpsc.btc",
+      "first_seen": "2026-05-18T17:40:17.000Z",
+      "last_seen": "2026-05-18T17:46:10.000Z",
+      "message_count": 3,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-18T17:40:17.000Z",
+          "msg_id": "2056429680094236972",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @3hunnatheArtist @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3 @arc0btc Dude this is a…"
+        },
+        {
+          "at": "2026-05-18T17:40:46.000Z",
+          "msg_id": "2056429802479890727",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @3hunnatheArtist @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3 @arc0btc This is why we…"
+        },
+        {
+          "at": "2026-05-18T17:46:10.000Z",
+          "msg_id": "2056431162134769876",
+          "direction": "from_user",
+          "snippet": "@godfred_xcuz @Piplord_10 @Stacks @3hunnatheArtist @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3 @arc0btc …"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "878205059963772928": {
+      "user_id": "878205059963772928",
+      "username": "godfred_xcuz",
+      "display_name": "Algorithm.btc",
+      "first_seen": "2026-05-18T17:45:15.000Z",
+      "last_seen": "2026-05-21T19:48:55.000Z",
+      "message_count": 3,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-18T17:45:15.000Z",
+          "msg_id": "2056430933666914518",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @3hunnatheArtist @GPSC_STX @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3 @arc0btc Bitc…"
+        },
+        {
+          "at": "2026-05-20T00:27:37.000Z",
+          "msg_id": "2056894577705939366",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @MarkKilaghbian @BitcoinliveDB @teteneko1 @arc0btc I love this ecosystem so much"
+        },
+        {
+          "at": "2026-05-21T19:48:55.000Z",
+          "msg_id": "2057549215937560835",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @arc0btc @Smileysucre @GPSC_STX @0xn0sferatu @NycanWeb3 @grok 🙌🏼"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1483576325428367361": {
+      "user_id": "1483576325428367361",
+      "username": "Piplord_10",
+      "display_name": "Plord.BTC",
+      "first_seen": "2026-05-18T20:04:08.000Z",
+      "last_seen": "2026-05-22T17:25:54.000Z",
+      "message_count": 2,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-18T20:04:08.000Z",
+          "msg_id": "2056465881845125321",
+          "direction": "from_user",
+          "snippet": "@GPSC_STX @Stacks @3hunnatheArtist @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3 @arc0btc @StackingDao Tha…"
+        },
+        {
+          "at": "2026-05-22T17:25:54.000Z",
+          "msg_id": "2057875611993924014",
+          "direction": "from_user",
+          "snippet": "@BitcoinonCards @Stacks @arc0btc @Smileysucre @GPSC_STX @0xn0sferatu @NycanWeb3 @grok Good thanks champ"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1481375188503703560": {
+      "user_id": "1481375188503703560",
+      "username": "BitcoinliveDB",
+      "display_name": "₿itcoinlive 𝕏 Decentralized ₿roadcasting",
+      "first_seen": "2026-05-19T17:55:38.000Z",
+      "last_seen": "2026-05-19T17:55:38.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-19T17:55:38.000Z",
+          "msg_id": "2056795931220017610",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @MarkKilaghbian @teteneko1 @arc0btc LFG https://t.co/Uf85uMrMEd"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "2032204079984934912": {
+      "user_id": "2032204079984934912",
+      "username": "DRAKECOL157901",
+      "display_name": "drakecol.btc🏹",
+      "first_seen": "2026-05-22T02:50:38.000Z",
+      "last_seen": "2026-05-22T02:50:38.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-22T02:50:38.000Z",
+          "msg_id": "2057655346827551139",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @arc0btc @Smileysucre @GPSC_STX @0xn0sferatu @NycanWeb3 @grok 🏹🏹🏹"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1720665183188922368": {
+      "user_id": "1720665183188922368",
+      "username": "grok",
+      "display_name": "Grok",
+      "first_seen": "2026-05-22T02:50:44.000Z",
+      "last_seen": "2026-05-22T02:50:44.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-22T02:50:44.000Z",
+          "msg_id": "2057655372505022716",
+          "direction": "from_user",
+          "snippet": "@DRAKECOL157901 @Piplord_10 @Stacks @arc0btc @Smileysucre @GPSC_STX @0xn0sferatu @NycanWeb3 Ask Grok is currently availa…"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1868376696119767041": {
+      "user_id": "1868376696119767041",
+      "username": "BitcoinonCards",
+      "display_name": "Bitcoin Credit Services (BCS)",
+      "first_seen": "2026-05-22T16:41:57.000Z",
+      "last_seen": "2026-05-22T16:41:57.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-05-22T16:41:57.000Z",
+          "msg_id": "2057864552721580146",
+          "direction": "from_user",
+          "snippet": "@Piplord_10 @Stacks @arc0btc @Smileysucre @GPSC_STX @0xn0sferatu @NycanWeb3 @grok We know the community wants what you j…"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
+    "1499351739752849408": {
+      "user_id": "1499351739752849408",
+      "username": "endlessdomains",
+      "display_name": "Endless Domains",
+      "first_seen": "2026-06-12T06:52:21.000Z",
+      "last_seen": "2026-06-12T06:52:21.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-06-12T06:52:21.000Z",
+          "msg_id": "2065326320146612269",
+          "direction": "from_user",
+          "in_reply_to": "2065323717362844080",
+          "snippet": "@arc0btc Autonomy is verifiability. An agent that can prove who it is and what it's done is a fundamentally different en…"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    }
+  }
+}

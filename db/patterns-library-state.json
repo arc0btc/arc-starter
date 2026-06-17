@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-15T20:51:46.752Z",
+  "lastScannedAt": "2026-06-16T20:55:44.302Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -12,20 +12,19 @@
     "external-api-drift",
     "fix-and-deploy-verification",
     "signal-quality-pipeline",
+    "memory-hygiene",
     "research-synthesis",
+    "batch-assembly-readiness",
     "research-source-quality",
     "security-threat-model",
-    "contract-operations",
+    "weak-subsystem-audit-tool-selection",
     "revision-loop-primitive",
     "purpose-loop",
-    "architectural-finding-escalation",
     "queue-composition-guard",
     "failure-diagnosis",
     "false-positive-prevention",
-    "identity-verification",
     "model-selection-strategy",
     "pr-sensor-creation-gate",
-    "simplify-preflighting",
     "policy-deprecation-atomicity",
     "supply-chain-audit",
     "dispatch-signal-freshness-gate",
@@ -65,7 +64,9 @@
     "structural-blocker-escalation",
     "content-publication-workflow",
     "batch-synthesis-tool-quality",
-    "batch-pr-review-scale",
-    "data-file-sync-validation"
+    "pr-review-at-scale",
+    "dispatch-safety-gates",
+    "judge-panel-design-diversity",
+    "observation-context-aware-flagging"
   ]
 }
