@@ -102,8 +102,8 @@ Author `AGENT.md` for a skill when: (1) dispatched 3+ times, (2) each dispatch r
 Batch operations returning uniform error signature indicate service-level issue (rate-limit/outage), not individual failures. Queue ONE orchestration task with diagnose-before-fanout: retry with backoff, classify service state, conditionally fan out. **Time-correlation addition**: when N uniform failures cluster at same UTC hour but retries succeed ≥1h later, diagnose time-synchronized transients (service degradation window, rate-limit reset boundary, cron job conflict) rather than persistent outage — requires timestamp analysis across the error cluster, not just error text matching.
 **p-reflect-per-task-closure** [2026-05-29]
 Write learnings at task close (via `arc tasks close --summary "insight"`), not waiting for periodic evals. If task revealed a reusable heuristic or architectural insight, capture as 1–2 sentence summary. Accumulates in `memory/recent.log` for monthly consolidation.
-**p-exclusion-rule-accumulation-refactor** [2026-06-03]
-When skip/exclusion conditions accumulate to ~20+ and cluster by semantic type, replace scattered prefix guards with a dedicated pattern table. Transparent, testable, maintainable at scale.
+**p-exclusion-rule-accumulation-refactor** [2026-06-03; reinforced 2026-06-17 task #19204]
+When adding a new exclusion rule (.gitignore patterns, skip-lists), generalize immediately to the semantic category rather than waiting for accumulation. Pattern: `.bak-gtm` → `*.bak-*`; prevents future tracked-file sprawl. When accumulated rules reach ~20+ and cluster by semantic type, replace scattered guards with a dedicated pattern table. Transparent, testable, maintainable at scale.
 **p-completed-task-terminal** [2026-06-03]
 A completed task is terminal — no code path should set its status back to `pending`. Safe fix requires two layers: (1) catch-block status check before any requeue call, (2) `UPDATE ... WHERE status != 'completed'` guard in `requeueTask()`. After shipping a resurrection guard, sweep for tasks already left in bad `pending` state — the guard is preventive, not curative.
 **p-fallback-path-observability** [2026-06-06]
