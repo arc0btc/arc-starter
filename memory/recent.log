@@ -310,3 +310,4 @@
 2026-06-17T02:30:46.953Z | task #19215 | completed | sonnet | cost audit: identify top task types driving above 0.40 per t | cost audit complete: opus at $0.97 avg is primary driver (42% spend, 22% tasks);
 2026-06-17T02:33:46.337Z | task #19216 | completed | sonnet | fix model routing: blog-post tasks use sonnet not opus by de | no fix needed: all blog sensor paths already use sonnet; the 6 opus blog tasks i
 2026-06-17T02:36:41.882Z | task #19217 | completed | sonnet | fix model routing: x-posting tasks must use sonnet not opus | Audit complete — all X-posting task creation paths already use model=sonnet: x-c
+2026-06-17T02:38:41.114Z | task #19218 | completed | sonnet | cost audit: identify opus tasks in 'other' bucket that could | daily-eval (sensor:arc-strategy-review) changed opus→sonnet: structured rubric, 

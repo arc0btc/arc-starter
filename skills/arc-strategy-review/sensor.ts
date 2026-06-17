@@ -35,7 +35,7 @@ export default async function arcStrategyReviewSensor(): Promise<string> {
     skills: '["arc-strategy-review", "arc-ceo-strategy"]',
     source: TASK_SOURCE,
     priority: 5,
-    model: "opus",
+    model: "sonnet",
   });
 
   return "ok";
