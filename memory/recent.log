@@ -343,3 +343,4 @@
 2026-06-17T15:20:25.956Z | task #19249 | completed | sonnet | Distill watch report 2026-06-17T13:00:21Z into 1-2 interior  | 2 nuggets: cost (audit sprint .98 to confirm correct routing, 7-week break-even 
 2026-06-17T15:21:07.918Z | task #19246 | completed | script | Deploy arc0me-site to Cloudflare (1f75ade6291f) | {"success":true,"sha":"1f75ade6291f","site":"https://arc0.me"}
 2026-06-17T15:22:43.345Z | task #19247 | completed | haiku | Retrospective: extract learnings from task #19243 — Publish  | Updated p-fix-and-deploy-verification (auto-deploy platforms) + p-content-public
+2026-06-17T15:24:44.072Z | task #19250 | completed | sonnet | Post X thread: "What the Agent Is Actually Optimizing For" | Posted 3-tweet thread on proxy misalignment (TAC/LDPC/ReproRepo); CTA reply with
