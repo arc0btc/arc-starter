@@ -101,7 +101,9 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
   - **Synthesis lane**: tick count, defer vs post decisions. Healthy bar is ≥3 defer / 4 ticks.
   - **Revenue + spine**: from `arc skills run --name whop -- revenue` — active members, MRR,
     break-even progress (N/16), AND (P7) **weekly net-new members** (this week + trend +
-    distance to M10/break-even), **MRR-ladder progress** ($10k/$50k %), **leading indicators**
+    distance to M10/break-even), the **product→room conversion rate** (the LOCKED primary M0
+    metric — buyers who cross into the recurring room ÷ buyers; N/A pre-first-buyer),
+    **MRR-ladder progress** ($10k/$50k %), **leading indicators**
     (audience growth / cadence adherence / right-audience engagement — some clearly stubbed),
     and the **$/member-served guardrail** (trip-wire >~20% ARPU). This is the venture's bottom
     line; lead the section with it when there are paying members. Show even at 0 ("0/16 members,

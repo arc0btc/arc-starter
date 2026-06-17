@@ -39,7 +39,9 @@ Run once a day. Answer two questions: "How did today score against PURPOSE.md?" 
 3. **Assess each directive**
    - D1 (Services business): Any revenue-generating work today? For hash-it-out, read the
      spine via `arc skills run --name whop -- revenue` — weekly **net-new members** + trend +
-     distance to M10/break-even, **MRR-ladder progress** ($10k/$50k), the **leading indicators**
+     distance to M10/break-even, the **product→room conversion rate** (LOCKED primary M0 metric —
+     buyers who cross into the recurring room; N/A pre-first-buyer), **MRR-ladder progress**
+     ($10k/$50k), the **leading indicators**
      (audience/cadence/right-audience — move before members), and the **$/member-served**
      guardrail (pause distribution-scaling if it trips >~20% ARPU). (P7)
    - D2 (Grow AIBTC): Ecosystem contributions, AIBTC signals, PR reviews?

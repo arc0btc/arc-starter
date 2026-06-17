@@ -832,6 +832,103 @@ export function computeDay60RetentionPct(now: number = Date.now()): RetentionSum
   };
 }
 
+export interface ConversionSummary {
+  /** Distinct USERS who acquired a one-time product (the denominator). */
+  productBuyers: number;
+  /** Of those buyers, how many ALSO activated a recurring membership (crossed into the room). */
+  converted: number;
+  /** converted ÷ productBuyers as a 0–100 percent; null until the first product buyer. */
+  pct: number | null;
+  /**
+   * Ledger rows (across BOTH sides) that carried NO joinable user id — no payload, a parse
+   * error, or a payload with no `data.user.id`. Excluded from the rate. Surfaced because a
+   * silent undercount of the DENOMINATOR would flatter the rate (dev-council lumen): at M0/M10
+   * scale this should be 0, so >0 is a loud signal of malformed data OR SDK shape-drift (the
+   * user id moved) — exactly when the rate would otherwise read a misleading 0%/N/A.
+   */
+  unjoinableRows: number;
+}
+
+/**
+ * Distinct, non-null Whop user ids (`data.user.id`) parsed out of a set of ledger payload rows,
+ * plus a count of rows that yielded NO user id (unjoinable). `eventUserId` is null-safe via
+ * optional chaining (`d?.user?.id`), so a payload that parses to `null`/a primitive/an array
+ * returns null rather than throwing — only `JSON.parse` itself can throw, and that's caught.
+ */
+function userIdSet(rows: Array<{ payload: string | null }>): { ids: Set<string>; unjoinable: number } {
+  const ids = new Set<string>();
+  let unjoinable = 0;
+  for (const r of rows) {
+    if (!r.payload) {
+      unjoinable++;
+      continue;
+    }
+    let data: unknown;
+    try {
+      data = JSON.parse(r.payload);
+    } catch {
+      unjoinable++; // malformed payload — can't join on a user (NOT silently counted as a buyer)
+      continue;
+    }
+    const uid = eventUserId(data);
+    if (uid) ids.add(uid);
+    else unjoinable++; // parsed but no user id (shape-drift or a null/primitive payload body)
+  }
+  return { ids, unjoinable };
+}
+
+/**
+ * Product→ROOM conversion RATE — the P10.0b-LOCKED **primary M0 success metric** (at $9 the
+ * revenue is noise; what matters is whether a buyer crosses into the recurring room). GTM
+ * growth-council rev #2 (2026-06-17): wire it as a first-class computed field BEFORE buyer #1,
+ * so the funnel can be steered from the first sale rather than waiting on the coarse M10
+ * sub-gate (≥3-of-10 recurring) to observe conversion too late.
+ *
+ * Numerator = distinct product-buyer USERS who ALSO activated a recurring membership;
+ * denominator = distinct product-buyer USERS. `null` until the first product buyer.
+ *
+ * Per-USER basis ON PURPOSE — the ONE place this module dedups by human, not by membership
+ * (cf. RevenueSummary.customers, which is per-membership): a buyer "becoming a member" is
+ * inherently a per-person event, and a product buy + a room join are two different memberships
+ * under one user id. The join key is `data.user.id` off the event payload; rows with no user id
+ * can't be joined and are excluded from BOTH sides (documented, not silently counted). "Became a
+ * member" = has ANY recurring-membership activation (the conversion BRIDGE fired at least once);
+ * whether they STAY is the orthogonal day-60 retention metric — the two are kept separate by
+ * design so a conversion rate is never conflated with churn.
+ */
+export function computeProductToRoomConversion(): ConversionSummary {
+  whopEventLedger();
+  const db = getDatabase();
+  // EXACT while ONE product SKU exists: productRows = ALL non-membership activations = "product
+  // buyers", memberRows = ALL membership-product activations = "members". With a 2nd product SKU
+  // "product buyers" silently becomes "any-product buyers" — revisit the denominator's per-SKU
+  // scoping then (P11, mirrors the receipt machinery's per-product deferral).
+  const productRows = db
+    .query(
+      `SELECT payload FROM whop_event_log
+       WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}`,
+    )
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ payload: string | null }>;
+  const memberRows = db
+    .query(
+      `SELECT payload FROM whop_event_log
+       WHERE type = 'membership.activated' AND ${MEMBERSHIP_SCOPE}`,
+    )
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ payload: string | null }>;
+
+  const buyers = userIdSet(productRows);
+  const members = userIdSet(memberRows);
+  let converted = 0;
+  for (const u of buyers.ids) if (members.ids.has(u)) converted++;
+  const productBuyers = buyers.ids.size;
+  return {
+    productBuyers,
+    converted,
+    pct: productBuyers === 0 ? null : Math.round((converted / productBuyers) * 100),
+    unjoinableRows: buyers.unjoinable + members.unjoinable,
+  };
+}
+
 /** Arc compute spend (USD cents) from `cycle_log.cost_usd` — today + trailing 7 days. Read-only. */
 export function computeSpend(): { todayCents: number; trailing7dCents: number } {
   const db = getDatabase();
@@ -861,6 +958,8 @@ function readCadenceToday(): { date: string; xPosts: number } | null {
 export interface ReadoutSummary {
   revenue: RevenueSummary;
   netNew: NetNewSummary;
+  /** Product→room conversion — the LOCKED primary M0 metric (P10.0b; council rev #2). */
+  conversion: ConversionSummary;
   ladder: { mrrCents: number; pctTo10k: number; pctTo50k: number };
   retention: RetentionSummary;
   spend: { todayCents: number; trailing7dCents: number };
@@ -881,6 +980,7 @@ export function computeReadout(now: number = Date.now()): ReadoutSummary {
   return {
     revenue,
     netNew: computeWeeklyNetNew(4, now, revenue.activeMembers, revenue.customers),
+    conversion: computeProductToRoomConversion(),
     ladder: {
       mrrCents: revenue.mrrCents,
       pctTo10k: Math.round((revenue.mrrCents / LADDER_10K_CENTS) * 100),
@@ -906,6 +1006,12 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     .map((b) => `${b.startsAt} ${b.netNew >= 0 ? "+" : ""}${b.netNew}`)
     .join(" · ");
   const cadence = readCadenceToday();
+  const conv = r.conversion;
+  const convUnjoinable = conv.unjoinableRows > 0 ? `  ⚠ ${conv.unjoinableRows} row(s) unjoinable — excluded` : "";
+  const convLine =
+    conv.pct === null
+      ? `N/A (no product buyer yet)${convUnjoinable}`
+      : `${conv.pct}%  (${conv.converted}/${conv.productBuyers} buyers ever activated the room membership)${convUnjoinable}`;
   const ret = r.retention;
   const retLine =
     ret.pct === null
@@ -930,6 +1036,9 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     `  members this wk:    ${sgn(nn.current)}  (${TREND_GLYPH[nn.trend]} vs prior week ${sgn(nn.previous)})  [recurring continuity]`,
     `  trailing 4 wks (mbr): ${trail}`,
     `  distance:           M10 in ${nn.distanceToM10} customers · break-even in ${nn.distanceToBreakEven} members`,
+    "",
+    "product→room conversion (P10.0b — THE primary M0 metric: rate not revenue; per-USER; activation not current retention — see day-60):",
+    `  buyers→members:     ${convLine}`,
     "",
     "MRR ladder (P4 — current vs targets):",
     `  current MRR:        ${usd(r.ladder.mrrCents)}  ·  $10k: ${r.ladder.pctTo10k}%  ·  $50k: ${r.ladder.pctTo50k}%`,
