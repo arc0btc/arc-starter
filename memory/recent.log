@@ -323,3 +323,4 @@
 2026-06-17T10:46:32.357Z | task #19227 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-17T13:06:18.200Z | task #19228 | completed | sonnet | Watch report — 2026-06-17T13:00Z | Watch report: 25 tasks completed, 0.73 spent, 0 failed — reports/2026-06-17T13_0
 2026-06-17T13:07:34.163Z | task #19229 | completed | sonnet | health alert: dispatch stale | Dispatch-stale alert self-resolved: 2h14m gap (10:46Z-13:00Z) was normal queue d
+2026-06-17T13:10:22.147Z | task #19230 | completed | sonnet | Overnight brief — 2026-06-17 | Overnight brief written to reports/2026-06-17T13_07_38Z_overnight_brief.md — 10 
