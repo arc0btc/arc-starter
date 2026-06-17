@@ -109,6 +109,30 @@ function isMembershipProduct(productId: string | null | undefined): boolean {
   return productId == null || productId === MEMBERSHIP_PRODUCT_ID;
 }
 
+// ---- Non-customer exclusions (operator-confirmed 2026-06-16) ----
+// Arc's own APP product — how Arc connects to the room AS ARC (not the company key).
+// Pure infrastructure, never a paying customer; its memberships are dropped at ingest
+// so no count / MRR / surface ever sees them.
+const APP_PRODUCT_IDS = new Set<string>(["prod_M6LD5bS1EkNwD"]); // "arc-the-agent"
+
+// Free-forever ADVISOR / internal test accounts — collaborators, not customers. Their
+// events are dropped at ingest (mirrors the acquisition lane's ADVISOR_USER_IDS).
+const ADVISOR_USER_IDS = new Set<string>(["user_ua7hpY3BdW19S"]); // milestesting (Miles)
+
+/** The Whop USER id off an entity payload (`data.user.id`). `member.id` is the
+ *  membership entity, NOT the user, so it is intentionally not used for identity. */
+function eventUserId(data: unknown): string | null {
+  const d = data as { user?: { id?: string | null } | null } | null;
+  return d?.user?.id ?? null;
+}
+
+/** Drop infrastructure + non-customer identities before they reach the ledger/surface. */
+function isExcludedEvent(event: WhopEvent): boolean {
+  if (event.product_id && APP_PRODUCT_IDS.has(event.product_id)) return true;
+  const uid = eventUserId(event.data);
+  return uid != null && ADVISOR_USER_IDS.has(uid);
+}
+
 // SQL WHERE fragments for the member-vs-product split — defined ONCE so the classification
 // rule can't drift across the five query sites that use it (council/spark). Both bind
 // MEMBERSHIP_PRODUCT_ID as their single `?` parameter. Safe to interpolate: pure dev constants,
@@ -118,17 +142,28 @@ const PRODUCT_SCOPE = "(product_id IS NOT NULL AND product_id <> ?)"; // any one
 
 /** Membership entity → WhopEvent. Type derives from status; id embeds status. */
 export function normalizeMembership(m: MembershipLike): WhopEvent {
+  const productId = entityProductId(m);
+  // A one-time product (any non-membership SKU) has no renewal: Whop marks it
+  // "completed" the instant it is fulfilled, which for the BUYER means "owns it" =
+  // a CUSTOMER acquisition, not a churn. So a one-time "completed" normalizes to
+  // membership.activated (→ counts as a product customer + gets the product-buyer
+  // surface). For the recurring membership product, "completed" still means the
+  // subscription ended → deactivated. (Operator-in-loop test 2026-06-16 surfaced
+  // that one-time purchases land as "completed", never "active".)
+  const oneTime = !isMembershipProduct(productId);
+  // A one-time SKU's terminal "completed" = the buyer OWNS it = a customer acquisition.
+  const completedPurchase = oneTime && m.status === "completed";
   const type = ACTIVE_MEMBERSHIP.has(m.status)
     ? "membership.activated"
     : ENDED_MEMBERSHIP.has(m.status)
-      ? "membership.deactivated"
+      ? (completedPurchase ? "membership.activated" : "membership.deactivated")
       : "membership.updated";
   return {
     id: `whop-evt:membership:${m.id}:${m.status}`,
     type,
     occurred_at: m.created_at,
     data: m,
-    product_id: entityProductId(m),
+    product_id: productId,
   };
 }
 
@@ -215,7 +250,10 @@ export function whopEventLedger(): SourceLedger {
  * crash-safe: a record-before-surface order could strand an event (recorded, never
  * surfaced) if the surface step failed.
  */
-export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" {
+export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" | "skipped" {
+  // Drop Arc's app product + advisor/test identities BEFORE the ledger/surface so no
+  // downstream count, MRR, or task ever sees them (operator-confirmed 2026-06-16).
+  if (isExcludedEvent(event)) return "skipped";
   const ledger = whopEventLedger();
   if (ledger.dedupSkip(event.id, "ingested")) return "duplicate";
 
@@ -479,6 +517,16 @@ export interface RevenueSummary {
    * with that caveat — the recurring-conversion sub-gate (≥3 recurring) is the harder guarantee.
    */
   customers: number;
+  /**
+   * PAYING customers = active recurring members (each pays $49/mo) + distinct one-time
+   * product sales that actually collected money (payment.succeeded, amount > 0). This is
+   * the honest **M0 ("first PAYING customer")** metric: unlike `customers` (acquisition-
+   * based — a $0 / 100%-off grant counts), `payingCustomers` only moves on real revenue,
+   * so a comp/test purchase can never read as M0. (Dev-council lumen 2026-06-16.)
+   */
+  payingCustomers: number;
+  /** Distinct one-time product sales that collected money (amount > 0). */
+  payingProductCustomers: number;
   breakEvenTarget: number;
   breakEvenPct: number;
 }
@@ -556,6 +604,19 @@ export function computeRevenue(): RevenueSummary {
     )
     .get(MEMBERSHIP_PRODUCT_ID) as { s: number };
 
+  // PAYING one-time product customers = product payment.succeeded rows that collected
+  // money (amount_cents > 0). A 100%-off / $0 grant is a `customer` but NOT a paying one.
+  const prodPaid = db
+    .query(
+      `SELECT COUNT(*) AS c
+       FROM whop_event_log
+       WHERE type = 'payment.succeeded' AND amount_cents > 0 AND ${PRODUCT_SCOPE}`,
+    )
+    .get(MEMBERSHIP_PRODUCT_ID) as { c: number };
+  const payingProductCustomers = prodPaid.c;
+  // Recurring members all pay $49/mo, so they are paying by definition.
+  const payingCustomers = activeMembers + payingProductCustomers;
+
   return {
     activeMembers,
     activatedEvents: activated.length,
@@ -566,6 +627,8 @@ export function computeRevenue(): RevenueSummary {
     productCustomers,
     productRevenueCents: prodPay.s,
     customers: activeMembers + productCustomers,
+    payingCustomers,
+    payingProductCustomers,
     breakEvenTarget: BREAK_EVEN_MEMBERS,
     breakEvenPct: Math.round((activeMembers / BREAK_EVEN_MEMBERS) * 100),
   };
@@ -577,7 +640,8 @@ const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 export function formatRevenue(r: RevenueSummary = computeRevenue()): string {
   return [
     "hash-it-out revenue (from captured Whop events — whop_event_log):",
-    `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [M0/M10 headline]`,
+    `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [acquisition; incl $0 grants]`,
+    `  paying customers:   ${r.payingCustomers}  (${r.activeMembers} paying members + ${r.payingProductCustomers} paid product sales)  [M0/M10 headline — real revenue]${r.customers > 0 && r.payingCustomers === 0 ? "  ⚠ $0 comps only — M0 NOT reached" : ""}`,
     `  recurring members:  ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} membership-product events)`,
     `  MRR:                ${usd(r.mrrCents)}  (${r.activeMembers} × $49/mo)`,
     `  product revenue:    ${usd(r.productRevenueCents)}  (gross; from ${r.productCustomers} product buyer(s), incl. any $0 grants)`,

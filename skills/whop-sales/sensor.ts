@@ -56,8 +56,10 @@ import {
   refreshLeads,
   ADVISOR_USER_IDS,
   type ForumFetcher,
+  type XFetcher,
 } from "./lib/lead-source.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { loadXCreds } from "../social-x-posting/lib/x-api.ts";
 
 const SENSOR_NAME = "whop-sales-acquisition";
 // Lean cadence: a 12h interval pairs with the ≤2/day cap to keep the account
@@ -138,12 +140,13 @@ export interface LaneSummary {
  * non-member lead set) directly to prove the gate/compose/route machinery.
  */
 function defaultLeadSource(): RelationshipStore {
-  // P10B: the non-member lead source is the free-forum engagement store
-  // (db/whop-leads.json), refreshed at the top of each lane tick — see the
-  // refresh in runAcquisitionLane. The paid-room store is DELIBERATELY not used
-  // (see the doc comment above). Empty until a non-member engages on the forum.
+  // P10B: the non-member lead store (db/whop-leads.json) is fed by BOTH the free
+  // forum (channel "forum") and X (@arc0btc mentions/replies, channel "x"),
+  // refreshed at the top of each lane tick — see the refresh in runAcquisitionLane.
+  // The paid-room store is DELIBERATELY not used (see the doc comment above). Empty
+  // until a non-member engages on the forum or on X.
   const store = loadLeadStore();
-  log(`lead source: free-forum store — ${Object.keys(store.users).length} known non-member lead(s).`);
+  log(`lead source: non-member lead store — ${Object.keys(store.users).length} known lead(s) (forum + X).`);
   return store;
 }
 
@@ -181,7 +184,10 @@ export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): 
       value_touches: rel.arc_replies_to_them,
       signal,
       route,
-      channel: "forum", // free public-forum engager default; P10's source sets "x" for X repliers
+      // The lead store tags each user with the surface it was sourced from
+      // (lead-source.ts: forum fold leaves it unset → "forum"; X fold sets "x").
+      // channel drives the link, the venue-scoped skills, and the post command.
+      channel: rel.channel ?? "forum",
       reply_to_msg_id: msgId,
     });
   }
@@ -293,12 +299,18 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "lane composed the below as a starting point only. Close completed with the draft in the summary.",
     ].join("\n");
   } else if (isX) {
+    // WARM-REPLY ASSIST (P10B steer — NOT cold outreach): this lead engaged Arc on
+    // X (a reply to Arc = the Class-A signal), so Arc REPLIES to THEIR tweet rather
+    // than posting a standalone. Value first (no link); the attributed CTA goes in a
+    // follow-up reply (in-body links cut reach 50–90%; ask stays out of touch #1 —
+    // P3 rev #1). reply_to_msg_id is their tweet id (from the lead's last X activity).
+    const to = c.reply_to_msg_id ?? "<their_tweet_id>";
     postBlock = [
-      "ROUTE: ARC-AUTO (arc0btc X) — post the BODY, then the FIRST REPLY (the attributed CTA +",
-      "FREEMONTH + any proof) as a reply beneath it (in-body links cut reach 50–90%; P3 rev #1):",
-      `  arc skills run --name social-x-posting -- post --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
-      `  arc skills run --name social-x-posting -- reply --tweet-id <id> --text "<first_reply>"`,
-      "The social-x-posting CLI re-checks BUDGET_LIMITS.posts at post time (hard daily X cap).",
+      "ROUTE: ARC-AUTO (arc0btc X) — warm-reply ASSIST. REPLY to THEIR tweet with the BODY (value, no link),",
+      "then a follow-up reply carrying the attributed CTA + FREEMONTH + any proof:",
+      `  arc skills run --name social-x-posting -- reply --tweet-id ${to} --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
+      `  arc skills run --name social-x-posting -- reply --tweet-id <arc_reply_tweet_id> --text "<first_reply>"`,
+      "The social-x-posting CLI re-checks BUDGET_LIMITS.replies at post time (hard daily X cap).",
     ].join("\n");
   } else {
     // FREE public-forum venue (exp_YRtS3kgMVeBGzu — discovery surface non-members
@@ -332,7 +344,8 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "```",
       "",
       "Voice bar: add information / make them want to respond. One ask only. Defer beats filler.",
-      "SENTIMENT GATE: if their engagement was critical, skeptical, or negative toward Arc, do NOT pitch —",
+      "SENTIMENT GATE (model-judgment — NOT a hard-enforced gate like the cap/dedup/give-3x/proof blocks;",
+      "it relies on YOU honoring it): if their engagement was critical, skeptical, or negative toward Arc, do NOT pitch —",
       "close completed as 'skip: negative-sentiment lead' (pitching a critic is the highest-risk public move).",
       "Proceed only if the engagement reads neutral or positive.",
       postBlock,
@@ -402,7 +415,9 @@ export interface LaneDeps {
   relationships?: RelationshipStore;
   /** Inject a forum fetcher (fixtures); default fetches the live free forum. */
   leadFetcher?: ForumFetcher;
-  /** Skip the free-forum lead refresh (e.g. a fixture exercising only the gate). */
+  /** Inject an X-mentions fetcher (fixtures); default fetches live @arc0btc mentions. */
+  xFetcher?: XFetcher;
+  /** Skip the lead refresh entirely (e.g. a fixture exercising only the gate). */
   skipLeadRefresh?: boolean;
   memberIds?: Set<string>;
   activations?: Activation[];
@@ -423,8 +438,12 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
   // leads already known.
   if (!deps.relationships && !deps.skipLeadRefresh) {
     const apiKey = (await getCredential("whop", "company_api_key")) || null;
-    const refreshResult = await refreshLeads({ apiKey, fetcher: deps.leadFetcher, log });
-    log(`lead refresh: fetched=${refreshResult.fetched_posts} touched=${refreshResult.touched} total=${refreshResult.total_leads}`);
+    const xCreds = deps.xFetcher ? null : await loadXCreds();
+    const refreshResult = await refreshLeads({ apiKey, fetcher: deps.leadFetcher, xCreds, xFetcher: deps.xFetcher, log });
+    log(
+      `lead refresh: forum(${refreshResult.forum.status} fetched=${refreshResult.forum.fetched} touched=${refreshResult.forum.touched}) ` +
+        `x(${refreshResult.x.status} fetched=${refreshResult.x.fetched} touched=${refreshResult.x.touched}) total=${refreshResult.total_leads}`,
+    );
   }
   const store = deps.relationships ?? defaultLeadSource(); // NOT the paid-room store — see defaultLeadSource
   const memberIds = deps.memberIds ?? readActiveMemberIds();
@@ -449,7 +468,7 @@ export async function runAcquisitionLane(deps: LaneDeps = {}): Promise<LaneSumma
   const candidates = surfaceLeads(store, memberIds);
   summary.candidates_seen = candidates.length;
   for (const c of candidates) {
-    const channel = c.channel; // set per lead-source venue (forum today; x in P10)
+    const channel = c.channel; // set per lead-source venue (forum or x — per the lead-source fold)
     const pitch = composePitch({ cls: c.cls, signal: c.signal, name: c.username ?? undefined, channel });
     if (!pitch.ok) {
       summary.blocked.push({ lead_id: c.lead_id, username: c.username, reasons: [`compose-error: ${pitch.error}`] });

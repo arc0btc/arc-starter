@@ -31,8 +31,11 @@ export interface MessageListResponse {
 // safe for the P3 chat WRITE path: auto-retrying a non-idempotent POST /messages
 // on a 5xx/timeout could double-post. P3 decides write retry posture explicitly,
 // gated by source-dedup, rather than inheriting silent retries here.
-export function whopClient(apiKey: string): Whop {
-  return new Whop({ apiKey, timeout: 15_000, maxRetries: 0 });
+export function whopClient(apiKey: string, maxRetries = 0): Whop {
+  // Default maxRetries:0 keeps non-idempotent chat WRITES single-attempt (no double-post).
+  // Idempotent READ lanes (e.g. the events poll) may pass a small retry count so a
+  // transient 5xx on the now-live M0-detection poll doesn't silently no-op (forge 2026-06-16).
+  return new Whop({ apiKey, timeout: 15_000, maxRetries });
 }
 
 export async function getAppApiKey(): Promise<string | null> {

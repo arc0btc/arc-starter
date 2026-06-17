@@ -49,6 +49,11 @@ export interface Relationship {
   their_replies_to_arc: number;
   recent_interactions: Interaction[];
   notes: string[];        // free-form, human-appendable
+  // Which surface this counterparty was sourced from. Set ONLY by the acquisition
+  // lane's lead store (db/whop-leads.json) so surfaceLeads can route a lead to its
+  // reachable venue (forum vs X). Optional + additive: the paid-room store never
+  // sets it (everyone there is on Whop chat), and nothing here reads it.
+  channel?: "forum" | "x";
 }
 
 export interface RelationshipStore {

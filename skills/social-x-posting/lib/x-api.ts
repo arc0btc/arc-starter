@@ -21,6 +21,12 @@ import { getCredential } from "../../../src/credentials.ts";
 
 const API_BASE = "https://api.x.com/2";
 
+// Arc's own X user id (@arc0btc) — a constant. Callers pass this to fetchArcMentions
+// so it can SKIP the /users/me round-trip (mentions is user-scoped). That halves X
+// read consumption per fetch, which matters on the low free-tier read caps (forge
+// #3). /users/me remains the fallback when no id is supplied.
+export const ARC_X_USER_ID = "1952849545785909248";
+
 export interface XCreds {
   apiKey: string;
   apiSecret: string;
@@ -116,7 +122,15 @@ export async function xApiGet(
   queryParams: Record<string, string> = {},
 ): Promise<Record<string, unknown>> {
   const baseUrl = `${API_BASE}${endpoint}`;
-  const url = `${baseUrl}?${new URLSearchParams(queryParams).toString()}`;
+  // Build the query string with the SAME percentEncode used to compute the OAuth
+  // signature base — URLSearchParams encodes a space as "+" while the signature uses
+  // "%20", so any param with a space (or !*'()) would otherwise mismatch and 401
+  // (cairn #2). Sorting matches the signature-base ordering too.
+  const qs = Object.keys(queryParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
+    .join("&");
+  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
   const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
   const response = await fetch(url, {
     method: "GET",
@@ -161,14 +175,21 @@ export interface XMentionsResult {
  */
 export async function fetchArcMentions(opts: {
   creds: XCreds;
+  /** Arc's X user id. Pass ARC_X_USER_ID to skip the /users/me round-trip (saves a
+   * read); omit to resolve it live via /users/me. */
+  arcUserId?: string;
   maxResults?: number;
   log?: (m: string) => void;
 }): Promise<XMentionsResult> {
   const log = opts.log ?? (() => {});
-  const me = await xApiGet("/users/me", opts.creds, { "user.fields": "id,username" });
-  const meData = (me["data"] ?? {}) as Record<string, unknown>;
-  const arcUserId = meData["id"] ? String(meData["id"]) : "";
-  const arcUsername = (meData["username"] as string | undefined) ?? null;
+  let arcUserId = opts.arcUserId ?? "";
+  let arcUsername: string | null = null;
+  if (!arcUserId) {
+    const me = await xApiGet("/users/me", opts.creds, { "user.fields": "id,username" });
+    const meData = (me["data"] ?? {}) as Record<string, unknown>;
+    arcUserId = meData["id"] ? String(meData["id"]) : "";
+    arcUsername = (meData["username"] as string | undefined) ?? null;
+  }
   if (!arcUserId) throw new Error("could not resolve Arc X user id (/users/me returned no id)");
 
   const max = Math.min(Math.max(opts.maxResults ?? 25, 5), 100);

@@ -3,22 +3,13 @@
 // CLI for the research skill. Processes link batches into mission-relevant reports.
 // Usage: arc skills run --name research -- <subcommand> [flags]
 
-import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
-import {
-  parseFrontmatter,
-  serializeFrontmatter,
-  validateFrontmatter,
-  emptyFrontmatter,
-  type ResearchFrontmatter,
-} from "./lib/frontmatter.ts";
-import { buildIndex, findCoverage, type CatalogEntry } from "./lib/catalog.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const RESEARCH_DIR = join(ROOT, "research");
 const CACHE_DIR = join(import.meta.dir, "cache");
-const INDEX_FILE = "INDEX.md";
 
 // Signal filing paused 2026-05-19 per whoabuddy policy (task #17094).
 // Mirrors the gate in aibtc-news-editorial, arxiv-research, bitcoin-macro sensors.
@@ -48,61 +39,6 @@ function ensureCacheDir(): void {
   if (!existsSync(CACHE_DIR)) {
     mkdirSync(CACHE_DIR, { recursive: true });
   }
-}
-
-// ---- Catalog (research/INDEX.md) — the research-to-SKU shelf -------------------
-
-function isoNow(): string {
-  return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-}
-
-/** Map the mechanical high/medium/low rating to the 0–5 arc_relevance scale. A
- *  mechanical keyword pass is shallow, so it caps at 4 (a deep, repo-grounded agent
- *  report earns 5); low → 1, the anti-slop skip threshold. */
-function relevanceToNumber(r: "high" | "medium" | "low"): number {
-  return r === "high" ? 4 : r === "medium" ? 2 : 1;
-}
-
-/** Load every standard-front-matter report in research/. Reports without a
- *  research front-matter block (pre-standard) are counted as legacy, not indexed. */
-function loadCatalogEntries(): { entries: CatalogEntry[]; legacyCount: number } {
-  ensureResearchDir();
-  const files = readdirSync(RESEARCH_DIR).filter(
-    (f) => f.endsWith(".md") && f !== INDEX_FILE && !f.startsWith("."),
-  );
-  const entries: CatalogEntry[] = [];
-  let legacyCount = 0;
-  for (const f of files) {
-    let content: string;
-    try {
-      content = readFileSync(join(RESEARCH_DIR, f), "utf8");
-    } catch {
-      continue; // unreadable file (e.g. removed mid-scan) — skip, don't crash the reindex
-    }
-    const fm = parseFrontmatter(content);
-    if (fm) entries.push({ path: f, fm });
-    else legacyCount++;
-  }
-  return { entries, legacyCount };
-}
-
-/** Rebuild research/INDEX.md from the current reports. Returns the counts.
- *  NOTE (cost): a full readdir + readFile of every report. Cheap at hundreds of
- *  reports (sub-100ms); if research/ ever grows past ~1000, make reindex incremental. */
-function writeIndex(): { catalogued: number; legacyCount: number } {
-  const { entries, legacyCount } = loadCatalogEntries();
-  const body = buildIndex(entries, { generatedAt: isoNow(), legacyCount });
-  writeFileSync(join(RESEARCH_DIR, INDEX_FILE), body);
-  return { catalogued: entries.length, legacyCount };
-}
-
-/** Replace (or insert) the leading front-matter block of a report's content. */
-function replaceFrontmatter(content: string, fm: ResearchFrontmatter): string {
-  const block = serializeFrontmatter(fm);
-  if (/^---\n[\s\S]*?\n---\n?/.test(content)) {
-    return content.replace(/^---\n[\s\S]*?\n---\n?/, block);
-  }
-  return block + "\n" + content; // no existing block — prepend
 }
 
 interface CachedContent {
@@ -855,22 +791,6 @@ async function cmdProcess(args: string[]): Promise<void> {
   const filename = `${timestamp}_research.md`;
   const filepath = join(RESEARCH_DIR, filename);
 
-  // Standard machine front-matter (research-to-SKU pipeline): fill what the
-  // mechanical pass can know; the deep, repo-grounded fields (repos_touched,
-  // sku_candidate) stay conservative — an agent-written report sets those properly.
-  const fm: ResearchFrontmatter = {
-    ...emptyFrontmatter(),
-    source_url: urls.length === 1 ? urls[0] : "batch",
-    fetched_at: timestamp,
-    task_id: flags.task ?? "",
-    parent: flags.parent ?? "",
-    topics: [...new Set(results.flatMap((r) => r.devToolTags))].slice(0, 8),
-    arc_relevance: results.length > 0 ? Math.max(...results.map((r) => relevanceToNumber(r.relevance))) : 0,
-    repos_touched: "unknown",
-    sku_candidate: false,
-    packaged: false,
-  };
-
   const lines: string[] = [
     `# Research Report — ${timestamp}`,
     "",
@@ -927,19 +847,10 @@ async function cmdProcess(args: string[]): Promise<void> {
   }
   lines.push("");
 
-  const report = serializeFrontmatter(fm) + "\n" + lines.join("\n");
+  const report = lines.join("\n");
   await Bun.write(filepath, report);
 
   process.stdout.write(`Report written: research/${filename}\n`);
-
-  // Keep the catalog current — best-effort so a reindex hiccup never fails the run.
-  try {
-    const { catalogued, legacyCount } = writeIndex();
-    process.stdout.write(`research/INDEX.md updated: ${catalogued} catalogued, ${legacyCount} legacy\n`);
-  } catch (e) {
-    process.stderr.write(`Warning: INDEX.md reindex skipped — ${e instanceof Error ? e.message : String(e)}\n`);
-  }
-
   process.stdout.write(JSON.stringify({ file: filename, links: results.length, high: counts.high, medium: counts.medium, low: counts.low }, null, 2) + "\n");
 
   // Signal routing: HIGH relevance + dev-tool tags + extractable content → queue aibtc-network signal filing task
@@ -1045,111 +956,6 @@ function cmdList(): void {
   }
 }
 
-function cmdReindex(): void {
-  const { entries, legacyCount } = loadCatalogEntries();
-  const body = buildIndex(entries, { generatedAt: isoNow(), legacyCount });
-  writeFileSync(join(RESEARCH_DIR, INDEX_FILE), body);
-  process.stdout.write(`research/${INDEX_FILE} rebuilt: ${entries.length} catalogued, ${legacyCount} legacy (no front-matter)\n`);
-
-  // Surface validation warnings so a malformed / slop-shaped report isn't trusted
-  // blindly (the standard's anti-slop gates are warnings, not hard blocks).
-  let warned = 0;
-  for (const e of entries) {
-    const w = validateFrontmatter(e.fm);
-    if (w.length > 0) {
-      warned++;
-      process.stderr.write(`  ⚠ ${e.path}: ${w.join("; ")}\n`);
-    }
-  }
-  if (warned > 0) process.stderr.write(`${warned} report(s) have front-matter warnings (above).\n`);
-
-  // Anti-slop tell: an implausibly high share flagged sku_candidate (the "don't SKU
-  // everything" guardrail). Only meaningful once the catalog is non-trivial.
-  const skuCount = entries.filter((e) => e.fm.sku_candidate).length;
-  if (entries.length >= 5 && skuCount / entries.length > 0.5) {
-    process.stderr.write(
-      `⚠ ${skuCount}/${entries.length} reports flagged sku_candidate (>50%) — review for slop; the SKU bar is "packaged, this would sell," not "interesting".\n`,
-    );
-  }
-}
-
-function cmdMarkPackaged(args: string[]): void {
-  // Close the catalog↔Whop loop: once create-product mints a SKU from a report, flip
-  // the report's front-matter packaged:y + record the product id so it leaves the SKU
-  // backlog (otherwise create-product would restock the same SKU forever — council cairn).
-  const flags = parseFlags(args);
-  if (!flags.report || !flags.product) {
-    process.stderr.write('Usage: mark-packaged --report "<filename-in-research/>" --product "<prod_id>"\n');
-    process.exit(1);
-  }
-  const filepath = join(RESEARCH_DIR, flags.report);
-  if (!existsSync(filepath)) {
-    process.stderr.write(`Error: research/${flags.report} not found\n`);
-    process.exit(1);
-  }
-  const content = readFileSync(filepath, "utf8");
-  const fm = parseFrontmatter(content);
-  if (!fm) {
-    process.stderr.write(`Error: research/${flags.report} has no standard front-matter (can't mark packaged)\n`);
-    process.exit(1);
-  }
-  fm.packaged = true;
-  fm.product_id = flags.product;
-  writeFileSync(filepath, replaceFrontmatter(content, fm));
-  const { catalogued, legacyCount } = writeIndex();
-  process.stdout.write(
-    `Marked research/${flags.report} packaged (product ${flags.product}); INDEX rebuilt: ${catalogued} catalogued, ${legacyCount} legacy\n`,
-  );
-}
-
-function cmdCatalog(): void {
-  const { entries, legacyCount } = loadCatalogEntries();
-  const skuBacklog = entries.filter((e) => e.fm.sku_candidate && !e.fm.packaged);
-  process.stdout.write(
-    JSON.stringify(
-      {
-        catalogued: entries.length,
-        legacy_no_frontmatter: legacyCount,
-        sku_backlog: skuBacklog.map((e) => ({
-          report: e.path,
-          arc_relevance: e.fm.arc_relevance,
-          topics: e.fm.topics,
-          repos_touched: e.fm.repos_touched,
-          sku_why: e.fm.sku_why,
-        })),
-        note: "rebuild research/INDEX.md with `reindex`",
-      },
-      null,
-      2,
-    ) + "\n",
-  );
-}
-
-function cmdCheck(args: string[]): void {
-  // Dedup gate: is a url/topic already covered? Use BEFORE researching a link so we
-  // update an existing report rather than fork a duplicate (anti-slop discipline).
-  const flags = parseFlags(args);
-  if (!flags.url && !flags.topic) {
-    process.stderr.write('Usage: check --url "<url>" | --topic "a,b"\n');
-    process.exit(1);
-  }
-  const { entries } = loadCatalogEntries();
-  const topics = flags.topic ? flags.topic.split(",").map((t) => t.trim()).filter(Boolean) : [];
-  const hits = findCoverage(entries, { url: flags.url, topics });
-  process.stdout.write(
-    JSON.stringify(
-      {
-        query: { url: flags.url ?? null, topics },
-        covered: hits.length > 0,
-        guidance: hits.length > 0 ? "already covered — update the existing report if there's new signal; do NOT fork a duplicate" : "not covered — safe to research",
-        matches: hits.map((e) => ({ report: e.path, topics: e.fm.topics, arc_relevance: e.fm.arc_relevance, source_url: e.fm.source_url })),
-      },
-      null,
-      2,
-    ) + "\n",
-  );
-}
-
 function printUsage(): void {
   process.stdout.write(`arc-link-research CLI
 
@@ -1171,26 +977,10 @@ SUBCOMMANDS
   list
     Show recent research reports (active, not archived).
 
-  reindex
-    Rebuild research/INDEX.md (the catalog) from every report's front-matter.
-    Reports without standard front-matter are counted as legacy, not indexed.
-
-  catalog
-    Print the catalog summary + the SKU backlog (sku_candidate, not yet packaged).
-
-  check --url "<url>" | --topic "a,b"
-    Dedup gate: is this url/topic already covered? Run BEFORE researching a link.
-
-  mark-packaged --report "<file>" --product "<prod_id>"
-    Flip a report packaged:y + record its Whop product id (after create-product mints
-    the SKU) so it leaves the SKU backlog. Then reindexes.
-
 EXAMPLES
   arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/123,https://x.com/user/status/456"
   arc skills run --name arc-link-research -- process --links "https://example.com/article,https://github.com/owner/repo"
   arc skills run --name arc-link-research -- list
-  arc skills run --name arc-link-research -- reindex
-  arc skills run --name arc-link-research -- check --topic "harness,verification"
 `);
 }
 
@@ -1209,18 +999,6 @@ async function main(): Promise<void> {
       break;
     case "list":
       cmdList();
-      break;
-    case "reindex":
-      cmdReindex();
-      break;
-    case "catalog":
-      cmdCatalog();
-      break;
-    case "check":
-      cmdCheck(args.slice(1));
-      break;
-    case "mark-packaged":
-      cmdMarkPackaged(args.slice(1));
       break;
     case "help":
     case "--help":

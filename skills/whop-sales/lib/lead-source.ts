@@ -18,17 +18,28 @@
 // ChatMessage and reuse the whop reactive lane's idempotent updateFromMessages()
 // rather than re-deriving the (already battle-tested) classification + dedup.
 //
-// X repliers/mentions are a planned 2nd channel increment (channel "x"); this
-// increment wires the free forum (channel "forum").
+// Two channels feed the one store: the FREE FORUM (channel "forum", increment 1)
+// and X (channel "x", this increment) — @arc0btc mentions/replies, with a reply to
+// one of Arc's tweets as the warm Class-A signal. Blog commenters were the third
+// planned X-adjacent source but arc0.me exposes no comment data, so they're
+// deferred (no source to wire), not silently dropped.
 
 import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import {
   updateFromMessages,
+  ARC_USER_ID,
   type ChatMessage,
   type RelationshipStore,
 } from "../../whop/lib/relationships.ts";
 import { whopClient } from "../../whop/lib/whop-api.ts";
+import {
+  fetchArcMentions,
+  ARC_X_USER_ID,
+  type XCreds,
+  type XMention,
+  type XMentionsResult,
+} from "../../social-x-posting/lib/x-api.ts";
 
 export const FREE_FORUM_EXPERIENCE_ID = "exp_YRtS3kgMVeBGzu";
 
@@ -41,7 +52,19 @@ const LEAD_STORE_PATH = resolve(import.meta.dir, "../../../db/whop-leads.json");
 // add the user id HERE — the sensor unions this set into NON_PROSPECT_USER_IDS,
 // and we also drop advisor posts before they ever enter the lead store (below).
 export const ADVISOR_USER_IDS = new Set<string>([
-  // "user_xxxxxxxxxxxx", // <advisor handle> — added when signal 1 lands
+  "user_ua7hpY3BdW19S", // milestesting (Miles) — first advisor, free-forever test account (2026-06-16)
+]);
+
+// X identities that must NEVER become leads: Arc's own account + the operator's.
+// X handles/ids are a DIFFERENT namespace from the Whop NON_PROSPECT set, so the
+// sensor's downstream Whop-id gate can't catch them — drop them HERE at fold time
+// (the way advisors are dropped from the forum batch). Arc's own X id is excluded
+// by comparison against the live /users/me id; this set covers handles we can name
+// up front (matched case-insensitively). Advisors rarely @-mention on X and have
+// no known X id, so they're covered only opportunistically (by handle if listed).
+export const OPERATOR_X_USERNAMES = new Set<string>([
+  "whoabuddydev", // the operator's X account (from @arc0btc's bio)
+  "whoabuddy",
 ]);
 
 // Re-export the (now exported) relationships store type so callers importing it
@@ -117,6 +140,95 @@ export function updateLeadsFromForum(
   return updateFromMessages(store, batch);
 }
 
+// ---- X channel (@arc0btc mentions/replies) ----------------------------------
+
+/**
+ * Map an X mention onto the chat-message(s) the relationship updater consumes.
+ *
+ * A reply to ARC also yields a SYNTHETIC Arc-authored anchor (id = the replied-to
+ * tweet) placed in the same batch, so updateFromMessages credits the reply as
+ * "replied to Arc" (the warm Class-A signal) — exactly how the forum keeps Arc's
+ * own posts in the batch for that attribution. The anchor has no parent, so
+ * updateFromMessages records it ONLY in its per-tick arcAuthoredMessageIds scratch
+ * (it never becomes a user/interaction — see relationships.ts: from-Arc messages
+ * without a parent are skipped). A bare mention/quote threads to nothing → it
+ * counts as engagement but earns no replied-to-Arc credit (so it classes B/C, and
+ * live auto-post is Class-A-only — a one-off @-mention is never auto-pitched).
+ */
+export function xMentionToMessages(m: XMention, arcXUserId: string): ChatMessage[] {
+  const out: ChatMessage[] = [];
+  const isReplyToArc =
+    !!m.in_reply_to_user_id && m.in_reply_to_user_id === arcXUserId && !!m.replied_to_tweet_id;
+  if (isReplyToArc) {
+    out.push({
+      id: m.replied_to_tweet_id!,
+      content: "",
+      created_at: m.created_at,
+      replying_to_message_id: null,
+      user: { id: ARC_USER_ID },
+    });
+  }
+  out.push({
+    id: m.id,
+    content: m.text,
+    created_at: m.created_at,
+    replying_to_message_id: isReplyToArc ? m.replied_to_tweet_id! : null,
+    user: {
+      id: m.author_id,
+      username: m.author_username ?? undefined,
+      name: m.author_name ?? undefined,
+    },
+  });
+  return out;
+}
+
+/**
+ * Fold a batch of @arc0btc mentions into the lead store, tagging each touched user
+ * `channel: "x"` so surfaceLeads routes them to the X warm-reply-assist venue.
+ * Arc's own account and the operator's handle(s) are dropped before mapping (X is a
+ * separate id namespace from the Whop NON_PROSPECT gate). Idempotent by tweet id.
+ * Returns the user_ids touched.
+ *
+ * GIVE-3X OBSERVABILITY GAP (known, documented for dev-council): value_touches =
+ * arc_replies_to_them, and the mentions feed is INBOUND-only — Arc's outbound X
+ * replies never appear here, so X leads accrue value_touches=0 and the BLOCKING
+ * give-3x gate (≥3 gives before an ask) correctly holds them back from AUTO-posting.
+ * That makes X a SURFACING channel today: warm X repliers show up in the lane's
+ * blocked list (operator-visible for manual engagement), and auto-assist activates
+ * only once Arc's give-history is observable. Closing the gap (fold Arc's own
+ * outbound replies via /users/{id}/tweets, OR a council decision on a warm-reply-
+ * assist give-3x exception since the assist itself leads with value) is a tracked
+ * follow-up — NOT weakened here, because give-3x is a hardened safety rail.
+ *
+ * IMPORTANT (council lumen #1): the Class-A-only auto-post gate (sensor.ts:
+ * autoPostEligible) is the SECOND, INDEPENDENT rail that keeps noisy multi-tag
+ * community-thread mentions (where @arc0btc is one of many tags → class B/C) out of
+ * auto-posting. Do NOT relax it when closing the give-3x gap, or B/C thread noise
+ * becomes auto-pitchable.
+ */
+export function updateLeadsFromX(
+  store: RelationshipStore,
+  mentions: XMention[],
+  arcXUserId: string,
+): string[] {
+  const batch: ChatMessage[] = [];
+  for (const m of mentions) {
+    if (!m.author_id) continue;
+    if (m.author_id === arcXUserId) continue; // Arc's own account
+    if (m.author_username && OPERATOR_X_USERNAMES.has(m.author_username.toLowerCase())) continue;
+    batch.push(...xMentionToMessages(m, arcXUserId));
+  }
+  const touched = updateFromMessages(store, batch);
+  for (const id of touched) {
+    const rel = store.users[id];
+    if (rel) rel.channel = "x";
+  }
+  return touched;
+}
+
+/** Live X fetch wrapper (injectable for fixtures via refreshLeads' xFetcher). */
+export type XFetcher = () => Promise<XMentionsResult>;
+
 /**
  * Live forum fetch: top-level posts + their comments (the company API key
  * carries forum:read). We pull comments on EVERY top-level post that has them —
@@ -169,48 +281,80 @@ export async function fetchFreeForumEngagement(
 
 export type RefreshStatus = "ok" | "no-key" | "fetch-failed";
 
-export interface RefreshResult {
-  // Distinguishes the actionable failure (no/forum-misscoped key) from a benign
-  // quiet forum, so the surfacing layer / end-of-quest monitor can alert (forge #5).
+// Per-channel result so the surfacing layer / end-of-quest monitor can tell a
+// benign quiet channel ("ok", 0 fetched) from an actionable failure ("no-key" =
+// misconfigured creds, "fetch-failed" = API error) — independently per channel
+// (forge #5). `fetched` = engagement records pulled; `touched` = lead users updated.
+export interface ChannelRefresh {
   status: RefreshStatus;
   touched: number;
-  total_leads: number;
-  fetched_posts: number;
+  fetched: number;
 }
 
+export interface RefreshResult {
+  forum: ChannelRefresh;
+  x: ChannelRefresh;
+  total_leads: number;
+}
+
+const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+
 /**
- * Refresh the lead store from the live free forum. Best-effort: a missing key or
- * a fetch failure logs and leaves the existing store intact (the lane then runs
- * on whatever leads are already known — a correct degrade, never a throw). The
- * fetcher is injectable for fixtures.
+ * Refresh the lead store from BOTH live channels — the free forum (Whop company
+ * key) and X (@arc0btc mentions, X OAuth creds) — into the one db/whop-leads.json
+ * store. Each channel is independently best-effort: a missing key / fetch failure
+ * logs, leaves that channel's existing leads intact, and never throws (the lane
+ * then runs on whatever leads are already known — a correct degrade). Fetchers are
+ * injectable for fixtures. The store is saved only if a channel actually fetched
+ * (so a both-channels-no-key run leaves the file — and its updated_at — untouched).
  */
 export async function refreshLeads(opts: {
-  apiKey: string | null;
-  fetcher?: ForumFetcher;
+  apiKey: string | null; // whop company key — forum:read
+  fetcher?: ForumFetcher; // inject the forum fetch (fixtures)
+  xCreds?: XCreds | null; // X OAuth creds
+  xFetcher?: XFetcher; // inject the X fetch (fixtures)
+  skipX?: boolean; // refresh forum only (e.g. a forum-only fixture)
   log?: (m: string) => void;
 }): Promise<RefreshResult> {
   const log = opts.log ?? (() => {});
   const store = loadLeadStore();
-  let posts: ForumPost[] = [];
+
+  // --- Forum channel ---
+  const forum: ChannelRefresh = { status: "no-key", touched: 0, fetched: 0 };
   try {
-    if (opts.fetcher) {
-      posts = await opts.fetcher(FREE_FORUM_EXPERIENCE_ID);
-    } else if (opts.apiKey) {
-      posts = await fetchFreeForumEngagement(opts.apiKey, FREE_FORUM_EXPERIENCE_ID, 50, log);
-    } else {
-      log("refresh-leads: no whop company_api_key — skipping forum fetch (store unchanged)");
-      return { status: "no-key", touched: 0, total_leads: Object.keys(store.users).length, fetched_posts: 0 };
+    let posts: ForumPost[] | null = null;
+    if (opts.fetcher) posts = await opts.fetcher(FREE_FORUM_EXPERIENCE_ID);
+    else if (opts.apiKey) posts = await fetchFreeForumEngagement(opts.apiKey, FREE_FORUM_EXPERIENCE_ID, 50, log);
+    else log("refresh-leads: no whop company_api_key — skipping forum fetch (forum leads unchanged)");
+    if (posts) {
+      forum.fetched = posts.length;
+      forum.touched = updateLeadsFromForum(store, posts).length;
+      forum.status = "ok";
     }
   } catch (e) {
-    log(`refresh-leads: forum fetch failed (${e instanceof Error ? e.message : String(e)}) — store unchanged`);
-    return { status: "fetch-failed", touched: 0, total_leads: Object.keys(store.users).length, fetched_posts: 0 };
+    forum.status = "fetch-failed";
+    log(`refresh-leads: forum fetch failed (${errMsg(e)}) — forum leads unchanged`);
   }
-  const touched = updateLeadsFromForum(store, posts);
-  saveLeadStore(store);
-  return {
-    status: "ok",
-    touched: touched.length,
-    total_leads: Object.keys(store.users).length,
-    fetched_posts: posts.length,
-  };
+
+  // --- X channel ---
+  const x: ChannelRefresh = { status: "no-key", touched: 0, fetched: 0 };
+  if (!opts.skipX) {
+    try {
+      let result: XMentionsResult | null = null;
+      if (opts.xFetcher) result = await opts.xFetcher();
+      else if (opts.xCreds) result = await fetchArcMentions({ creds: opts.xCreds, arcUserId: ARC_X_USER_ID, log });
+      else log("refresh-leads: no X creds — skipping mentions fetch (X leads unchanged)");
+      if (result) {
+        x.fetched = result.mentions.length;
+        x.touched = updateLeadsFromX(store, result.mentions, result.arc_user_id).length;
+        x.status = "ok";
+      }
+    } catch (e) {
+      x.status = "fetch-failed";
+      log(`refresh-leads: X mentions fetch failed (${errMsg(e)}) — X leads unchanged`);
+    }
+  }
+
+  if (forum.status === "ok" || x.status === "ok") saveLeadStore(store);
+  return { forum, x, total_leads: Object.keys(store.users).length };
 }

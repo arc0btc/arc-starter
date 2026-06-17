@@ -64,44 +64,46 @@ For each link, pull out:
 - Any implications for our skills, capabilities, or strategy
 - Cross-references to existing Arc skills or gaps that suggest new ones
 
-### 6. Dedup before you research (anti-slop gate)
+### 6. Write the Report
 
-Before writing a report, check whether the url/topic is already covered:
-
+Use the CLI to process links:
 ```bash
-arc skills run --name arc-link-research -- check --url "<url>"
-arc skills run --name arc-link-research -- check --topic "harness,verification"
+arc skills run --name research -- process --links "url1,url2,url3"
 ```
 
-If covered, UPDATE the existing report (only if there's genuinely new signal) — do NOT
-fork a duplicate. Relevance-gate each link 0–5: a link scoring **≤1 gets a one-line
-"skipped, why"**, not a forced report.
+Or if executing directly, write the report to `research/{ISO8601}_research.md` with this structure:
 
-### 7. Write the Report — FOLLOW `REPORT-TEMPLATE.md`
+```markdown
+# Research Report — {date}
 
-The canonical structure is `skills/arc-link-research/REPORT-TEMPLATE.md`. Two
-non-negotiables it adds beyond the old free-form report:
+**Links analyzed:** {count}
+**Source:** Task #{id}
 
-- **Machine front-matter** (REQUIRED, the file's first line is `---`): `source_url,
-  cached_path, fetched_at, task_id, parent, topics[], arc_relevance(0–5),
-  repos_touched(arc-starter|agent-runtime|both|neither), sku_candidate(y/n) + sku_why,
-  packaged(y/n)`. This is what makes the report show up in `research/INDEX.md` and the
-  SKU backlog — a report without it counts as legacy and is invisible to the catalog.
-- **Arc-alignment grounded in the REAL repos** — read BOTH `~/arc-starter` (this VM) AND
-  `~/agent-runtime` (the shared fleet base), cite actual files/skills, say which repo a
-  finding belongs in, and always ask **"port to agent-runtime?"** (a fleet-wide win).
-  No hand-waving; if you can't ground a claim, say so.
+---
 
-A quick mechanical pass can use `process` (it writes front-matter + auto-reindexes):
-```bash
-arc skills run --name arc-link-research -- process --links "url1,url2,url3" [--task <id>] [--parent <id>]
+## {Link Title or Domain}
+
+**URL:** {url}
+**Relevance:** {high|medium|low} — {one-line justification}
+
+### Key Takeaways
+- Point 1
+- Point 2
+- Point 3
+
+---
+
+## Summary
+
+### Cross-Cutting Themes
+- Theme 1
+- Theme 2
+
+### Suggested Actions
+- Follow-up task or skill suggestion
 ```
-A deep, SKU-worthy report you write directly — then reindex so the catalog updates:
-```bash
-arc skills run --name arc-link-research -- reindex
-```
 
-### 8. Close the Task
+### 7. Close the Task
 
 ```bash
 arc tasks close --id <task_id> --status completed --summary "Analyzed N links: X high, Y medium, Z low relevance"

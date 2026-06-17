@@ -26,7 +26,6 @@
 import { parseFlags } from "../../src/utils.ts";
 import { PAID_ROOM_PRODUCT_URL, PAID_ROOM_CHECKOUT_URL, PROMO_CODE } from "../../src/constants.ts";
 import { composePitch, NEVER_SAY } from "./lib/compose.ts";
-import { composeReceipt, composeTeaser } from "./lib/receipt.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { refreshLeads, loadLeadStore } from "./lib/lead-source.ts";
 import { loadXCreds } from "../social-x-posting/lib/x-api.ts";
@@ -147,84 +146,6 @@ async function cmdRefreshLeads(): Promise<void> {
   );
 }
 
-async function cmdReceipt(flags: Record<string, string>): Promise<void> {
-  // The first-sale (and Nth-sale) RECEIPT post — the viral proof unit. By default
-  // reads the LIVE paying product-sale count off the ledger (events.ts
-  // `payingProductCustomers` — paid sales only; $0 comps don't count) and composes
-  // the receipt. `--count N` previews what the receipt WOULD say at N sales (this
-  // CLI is DRY — it composes text, it never posts — so a preview override is safe).
-  let count: number;
-  let countSource: string;
-  if (flags.count != null) {
-    if (!/^\d+$/.test(flags.count)) fail(`--count must be a non-negative integer (got '${flags.count}')`);
-    count = Number(flags.count);
-    countSource = "preview override (--count); the live receipt reads the ledger";
-  } else {
-    const { initDatabase } = await import("../../src/db.ts");
-    initDatabase();
-    const { computeRevenue } = await import("../whop/lib/events.ts");
-    count = computeRevenue().payingProductCustomers;
-    countSource = "live ledger (whop_event_log: paying product customers, amount > 0)";
-  }
-
-  const result = composeReceipt({
-    count,
-    productId: flags.product,
-    channel: flags.channel,
-  });
-
-  for (const w of result.warnings) process.stderr.write(`whop-sales: WARNING — ${w}\n`);
-  if (!result.ok) {
-    // A refusal is the CORRECT outcome before the first paid sale — print it as
-    // structured JSON (not a hard fail) so the operator sees the honest gate held.
-    console.log(JSON.stringify({ ok: false, count_source: countSource, reason: result.error }, null, 2));
-    return;
-  }
-
-  console.log(
-    JSON.stringify(
-      {
-        mode: "DRY — composition only; the live receipt POST is the go-live sensor lane (gated)",
-        count_source: countSource,
-        is_first_sale: result.is_first_sale,
-        count: result.count,
-        channel: result.channel,
-        composed_post: result.composed_post,
-        never_say_clean: result.never_say_clean,
-      },
-      null,
-      2,
-    ),
-  );
-}
-
-function cmdTeaser(flags: Record<string, string>): void {
-  // A free TEASER SLICE of a paid product — give-3x content that points at the SKU.
-  // Pure composition; reads no ledger.
-  const result = composeTeaser({
-    productId: flags.product,
-    slice: flags.slice != null ? Number(flags.slice) : undefined,
-    channel: flags.channel,
-  });
-
-  for (const w of result.warnings) process.stderr.write(`whop-sales: WARNING — ${w}\n`);
-  if (!result.ok) fail(result.error ?? "teaser compose failed");
-
-  console.log(
-    JSON.stringify(
-      {
-        mode: "DRY — composition only; the live teaser POST is the go-live presence lane (gated)",
-        slice: `${result.slice_index} of ${result.slice_count}`,
-        channel: result.channel,
-        composed_post: result.composed_post,
-        never_say_clean: result.never_say_clean,
-      },
-      null,
-      2,
-    ),
-  );
-}
-
 function printHelp(): void {
   console.log(
     [
@@ -235,8 +156,6 @@ function printHelp(): void {
       "  doctrine            print the consolidated pipeline + cadence + guardrails",
       "  tick-acquisition    run the autonomous acquisition lane once (bypass the interval gate)",
       "  refresh-leads       refresh the non-member lead store (forum + X) + preview candidates",
-      "  receipt             compose the first/Nth-sale RECEIPT post (live paid count; --count N to preview) [--channel x|forum|nostr] [--product <id>]",
-      "  teaser              compose a free TEASER SLICE pointing at the product [--slice N] [--channel x|forum|nostr] [--product <id>]",
       "  help                this message",
     ].join("\n"),
   );
@@ -264,12 +183,6 @@ async function main(): Promise<void> {
       break;
     case "refresh-leads":
       await cmdRefreshLeads();
-      break;
-    case "receipt":
-      await cmdReceipt(flags);
-      break;
-    case "teaser":
-      cmdTeaser(flags);
       break;
     default:
       fail(`unknown command: ${command}. Run with no args for help.`);

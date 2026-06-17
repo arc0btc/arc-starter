@@ -32,9 +32,6 @@ No sensor — triggered by human task creation or ecosystem sensor signals. X/Tw
 arc skills run --name arc-link-research -- prescreen --links "url1,url2,..."
 arc skills run --name arc-link-research -- process --links "url1,url2,url3"
 arc skills run --name arc-link-research -- list
-arc skills run --name arc-link-research -- check --url "<url>" | --topic "a,b"   # dedup gate
-arc skills run --name arc-link-research -- reindex                                # rebuild research/INDEX.md
-arc skills run --name arc-link-research -- catalog                                # catalog + SKU backlog
 ```
 
 ### prescreen
@@ -64,18 +61,6 @@ Cache: `skills/arc-link-research/cache/{url_hash}.json`
 
 Shows recent research reports (active, not archived). Max 5 active — housekeeping archives older ones.
 
-### check / reindex / catalog (research-to-SKU pipeline)
-
-The research shelf and the product catalog are **one pipeline**: every report carries
-machine front-matter (see `REPORT-TEMPLATE.md`), and `research/INDEX.md` is the running
-catalog that powers dedup AND the **SKU backlog** that `create-product` (the `whop` skill)
-restocks the $9 line from.
-
-- **`check`** — dedup gate. `--url`/`--topic` → is it already covered? Run BEFORE researching.
-- **`reindex`** — rebuild `research/INDEX.md` from every report's front-matter (reports without
-  it count as legacy, not indexed). `process` auto-reindexes; agent-written reports run it explicitly.
-- **`catalog`** — print the catalog summary + the unpackaged `sku_candidate` backlog.
-
 ## Task Pattern
 
 Whoabuddy creates tasks like:
@@ -96,12 +81,7 @@ Load when: processing a batch of links dropped by whoabuddy (task subject: "Rese
 
 ## Report Format
 
-Canonical structure: **`REPORT-TEMPLATE.md`** (machine front-matter + required sections).
 Each report contains:
-- **Front-matter** (REQUIRED, machine-parseable) — `source_url, cached_path, fetched_at,
-  task_id, parent, topics[], arc_relevance(0–5), repos_touched, sku_candidate(y/n)+why,
-  packaged(y/n)`. Without it the report is "legacy" and invisible to the catalog.
-- TL;DR + per-link key takeaways (cited)
-- **Arc-alignment grounded in BOTH `~/arc-starter` AND `~/agent-runtime`** (cite files; "port to agent-runtime?")
-- Recommendations tagged effort/impact/risk/target-repo
-- Provenance (for the paid report's "verify before you buy")
+- Header with timestamp and link count
+- Per-link analysis: title, relevance rating, justification, key takeaways
+- Summary: cross-cutting themes, suggested follow-up tasks or new skills

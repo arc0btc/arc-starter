@@ -1246,14 +1246,25 @@ async function pollEventStream<T extends { created_at: string }>(
   after: string,
 ): Promise<{ recorded: number; maxAt: string }> {
   let recorded = 0;
+  let skipped = 0;
   let maxAt = after;
   try {
     const page = await fetchPage();
     const items = page.data ?? [];
     for (const item of items) {
-      if (ingestWhopEvent(normalize(item)) === "recorded") recorded++;
-      if (item.created_at > maxAt) maxAt = item.created_at;
+      // Per-item guard: a single malformed event must not abort the page (and strand
+      // every later event behind an un-advanced cursor). The cursor advances only past
+      // items we actually processed (forge 2026-06-16).
+      try {
+        const outcome = ingestWhopEvent(normalize(item));
+        if (outcome === "recorded") recorded++;
+        else if (outcome === "skipped") skipped++;
+        if (item.created_at > maxAt) maxAt = item.created_at;
+      } catch (itemErr) {
+        eventsLog(`${label}: item ingest failed (${itemErr instanceof Error ? itemErr.message : String(itemErr)}) — skipped, cursor held`);
+      }
     }
+    if (skipped > 0) eventsLog(`${label}: skipped ${skipped} excluded (app-product / advisor) event(s)`);
     // Single page, no pagination loop (council/cairn+forge+spark). At a 1-product
     // $49/mo room this never trips; if it ever does, the cursor advances to the
     // page max and the next 15-min tick drains the rest (the ledger dedups overlap).
@@ -1293,7 +1304,9 @@ export async function pollWhopEvents(): Promise<void> {
   const membershipsAfter = (state?.last_membership_after as string) || floor;
   const paymentsAfter = (state?.last_payment_after as string) || floor;
 
-  const client = whopClient(apiKey);
+  // Idempotent reads → allow a couple retries so a transient 5xx on the (now-live)
+  // M0-detection poll doesn't silently no-op for a full cycle (forge 2026-06-16).
+  const client = whopClient(apiKey, 2);
 
   const memberships = await pollEventStream<MembershipLike>(
     "memberships",

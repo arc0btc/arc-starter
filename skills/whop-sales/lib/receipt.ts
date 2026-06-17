@@ -1,0 +1,294 @@
+#!/usr/bin/env bun
+
+// skills/whop-sales/lib/receipt.ts
+//
+// The PURE receipt + teaser composer — the viral-unit half of the product-led
+// funnel (P10B). Two deterministic composers, mirroring lib/compose.ts:
+//
+//   composeReceipt — the first-sale (and Nth-sale) RECEIPT post. The shareable
+//     proof unit: "report #N just sold." Arc publishes its own count openly —
+//     transparency-as-trust — and points to the report's PUBLIC PROVENANCE as the
+//     verifiable hook. The first sale (#1) is the M0 moment, framed as such.
+//
+//   composeTeaser — a free TEASER SLICE of a paid product. The artifact-boundary
+//     (P10.0b council): the raw/synthesized SLICE is free and must deliver real
+//     value standalone (give-3x-before-you-ask); the PACKAGED, receipt-bearing
+//     full version is the $9 ask. The slice points at the SKU; it is not a
+//     content-free tease.
+//
+// Deterministic glue only: NO LLM call, NO credentials, NO network, NO writes.
+// It composes post TEXT; it does not post. Posting + caps/dedup are the sensor's
+// lane (lib/enforcement.ts + sensor.ts), gated behind WHOP_SALES_DRY_RUN until
+// go-live — so the FIRST REAL receipt post waits for go-live / the first paid sale.
+//
+// HONESTY KEYSTONE (crypto-trust lens; mirrors the P10A HTML's no-overclaim fix
+// and the events.ts `payingCustomers` discipline): a receipt may report ONLY a
+// real, paid sale. `count` is the PAYING product-customer count (amount > 0) — a
+// $0 comp / 100%-off test is NOT a sale and must NOT mint a receipt. composeReceipt
+// REFUSES (ok:false) at count < 1. And the count is framed as Arc's own published
+// number (self-report), never as something a stranger can independently audit (Whop
+// sales counts are private; there is no on-chain sale record on Stripe rails) — the
+// ONLY externally-verifiable claim is the product's lineage, which is what "verify"
+// points at.
+
+// PRODUCT_PAGE_URL is the one-time $9 SKU's page (NOT PAID_ROOM_PRODUCT_URL, which
+// is the $49 membership) — both carry `?a=arc0btc`. The receipt/teaser sell the
+// PRODUCT; the membership is named only as continuity over in lib/compose.ts.
+import { PRODUCT_ID, PRODUCT_PAGE_URL } from "../../../src/constants.ts";
+import { NEVER_SAY } from "./compose.ts";
+
+// --- shared post-finalization (single-sources the channel doctrine) --------
+//
+// X (and any unknown channel) keep the ONE attributed link in the FIRST REPLY —
+// in-body links cut reach 50–90% (P3 rev #1). forum/nostr don't penalize links, so
+// a single-post venue folds the link into the body (first_reply empty). Defined once
+// so this doctrine cannot drift between the receipt and teaser composers, and so the
+// never-say scan always runs over the FINAL emitted text (post-fold), both fields.
+
+interface FinalizedPost {
+  composed_post: { body: string; first_reply: string };
+  never_say_hits: string[];
+  never_say_clean: boolean;
+  warnings: string[];
+}
+
+function finalizePost(body: string, firstReply: string, channel: string, label: string): FinalizedPost {
+  const linkInBody = channel === "forum" || channel === "nostr";
+  const composed = linkInBody
+    ? { body: `${body}\n\n${firstReply}`, first_reply: "" }
+    : { body, first_reply: firstReply };
+  const haystack = `${composed.body} ${composed.first_reply}`.toLowerCase();
+  const neverSayHits = NEVER_SAY.filter((w) => haystack.includes(w));
+  const warnings: string[] = [];
+  if (neverSayHits.length > 0) warnings.push(`${label} contains never-say phrase(s): ${neverSayHits.join(", ")}`);
+  return {
+    composed_post: composed,
+    never_say_hits: neverSayHits,
+    never_say_clean: neverSayHits.length === 0,
+    warnings,
+  };
+}
+
+// --- The product catalog (teaser source), as data --------------------------
+//
+// Keyed by Whop product id. Each entry is the SHAREABLE metadata for one SKU: the
+// noun used in a receipt ("report #N"), and the free teaser SLICES — each slice a
+// genuinely useful standalone takeaway plus the one line that names what the PAID
+// version adds. This is curated, NOT scraped from the packaged HTML at runtime
+// (the free/paid boundary is an editorial decision, not a parse). The
+// research-to-SKU pipeline (P10B item 3) will GENERATE these entries per report;
+// today the one shipped flagship is hand-authored from its own field guide.
+
+export interface ProductTeaserSlice {
+  /** The hook — a scroll-stopping one-liner (a real claim, not hype). */
+  hook: string;
+  /** The free value: a genuinely useful takeaway that stands on its own. */
+  insight: string;
+  /** What the PAID, packaged version adds beyond this free slice. */
+  paid_adds: string;
+}
+
+export interface ProductMeta {
+  id: string;
+  /** Singular noun for the receipt count line ("report #N", "pack #N"). */
+  noun: string;
+  /** Display title. */
+  title: string;
+  /** The PRODUCT page — the one-time SKU's verify-and-buy surface (`?a=arc0btc`); NOT the membership. */
+  page_url: string;
+  /** The packaged report's public lineage, in one phrase — the verify hook. */
+  provenance: string;
+  /** Free teaser slices (give-3x). Index 0 is the headline slice. */
+  slices: ProductTeaserSlice[];
+}
+
+export const PRODUCT_CATALOG: Record<string, ProductMeta> = {
+  [PRODUCT_ID]: {
+    id: PRODUCT_ID,
+    noun: "report",
+    title: "The Harness Engineering Field Guide",
+    page_url: PRODUCT_PAGE_URL,
+    provenance: "the six source lectures it distills, the agent that wrote it, and the loop that ships it — all public",
+    slices: [
+      {
+        hook: "Teams reach for a bigger model when an agent fails. Usually that's the wrong lever.",
+        insight:
+          "The same model in a better harness goes from unreliable to dependable. A harness is five subsystems — instruction, tool, environment, state, feedback — each engineered or neglected on its own. When an agent fails, attribute it to ONE of the five and fix that, before you touch the model.",
+        paid_adds: "the five failure points named, the highest-ROI fix, and a field-test against a live 24/7 agent — including where the theory broke.",
+      },
+      {
+        hook: "The weakest subsystem in almost every agent is the same one: feedback.",
+        insight:
+          "A Definition of Done written in prose is a suggestion; a Definition of Done that's a command is a contract. Attach a concrete check to non-trivial work — a build that passes, a test that exits 0, an endpoint that returns healthy — so success is observed, not asserted. It's the cheapest reliability you'll ever buy.",
+        paid_adds: "the other four failure modes, the repo-as-system-of-record discipline, and what changed when this was run against a production harness.",
+      },
+      {
+        hook: "One giant instruction file fails — and you're paying tokens for the privilege.",
+        insight:
+          "Models underweight content buried mid-file, so a critical rule on line 400 of an 800-line file is effectively invisible while still burning budget. Use a 50–200 line routing file plus per-topic docs loaded on demand; put hard constraints at the extremes (top or bottom, never the middle); cap global constraints at ~15.",
+        paid_adds: "the continuity artifacts for long-running tasks, the bootstrap contract, and the operator's full checklist.",
+      },
+    ],
+  },
+};
+
+export function getProductMeta(productId: string = PRODUCT_ID): ProductMeta | null {
+  return PRODUCT_CATALOG[productId] ?? null;
+}
+
+// --- Receipt composer ------------------------------------------------------
+
+export interface ReceiptInput {
+  /** Paying product sales so far (events.ts `payingProductCustomers` — amount > 0). */
+  count: number;
+  /** Which product (defaults to the flagship). */
+  productId?: string;
+  /** x | forum | nostr — where the receipt lands (drives link placement). */
+  channel?: string;
+}
+
+export interface ReceiptResult {
+  ok: boolean;
+  error?: string;
+  channel: string;
+  /** True only for the FIRST paid sale — the M0 milestone receipt. */
+  is_first_sale: boolean;
+  count: number;
+  composed_post: { body: string; first_reply: string };
+  never_say_hits: string[];
+  never_say_clean: boolean;
+  warnings: string[];
+}
+
+/**
+ * Compose ONE receipt post for the live paid-sale count. Pure: same input → same
+ * output. The body is Arc's published count (a transparent self-report); the
+ * first reply carries the ONE attributed product link + the verify-the-provenance
+ * framing (link in the FIRST REPLY on X, where in-body links cut reach 50–90% —
+ * P3 rev #1; inline-OK on forum/nostr which don't penalize links).
+ *
+ * REFUSES at count < 1: a receipt must report a REAL paid sale. $0 comps/tests do
+ * not count (events.ts `payingCustomers` discipline) — a receipt for a sale that
+ * didn't happen is exactly the overclaim the crypto-trust lens guards against.
+ */
+export function composeReceipt(input: ReceiptInput): ReceiptResult {
+  const channel = (input.channel ?? "x").toLowerCase();
+  const count = input.count;
+
+  const meta = getProductMeta(input.productId);
+  if (!meta) return receiptError(`unknown product '${input.productId}'. Known: ${Object.keys(PRODUCT_CATALOG).join(", ")}`, channel);
+
+  if (!Number.isInteger(count) || count < 1) {
+    return receiptError(
+      `no real paid sale yet (paying count = ${count}). A receipt reports a REAL, paid sale — a $0 comp/test does not count (a receipt for a non-sale is an overclaim). Run after the first paying customer.`,
+      channel,
+    );
+  }
+
+  const isFirst = count === 1;
+
+  // Body: a POINT-IN-TIME capture (council cairn/lumen) — "a sale just landed", NOT
+  // a permanent cumulative "#N sold" claim a later refund would contradict (the count
+  // is gross-of-refunds; refund-netting is a P11 deferral). "sale #N" reads as the Nth
+  // SALE/copy of this one report, never "the Nth distinct report". Honest register —
+  // Arc states its own number plainly; it does NOT assert the number is externally
+  // auditable (the only checkable claim is the product's lineage; see verifyLine).
+  const body = isFirst
+    ? `Receipt: someone just bought the first one — ${meta.title}. The first sale. ` +
+      `Not a testimonial, not a waitlist: an actual sale of an actual thing I made and packaged in the open.`
+    : `Receipt: another sale just landed — that's sale #${count} of ${meta.title}. ` +
+      `I publish the count because the number is the proof-of-work: each one a real sale of a real thing, packaged in the open.`;
+
+  // First reply: the ONE attributed link + the verify hook (the PRODUCT's lineage
+  // is what's checkable, not the count). One ask. No promo (FREEMONTH belongs to
+  // the membership step, not the product — same boundary lib/compose.ts keeps).
+  const verifyLine = `Lineage is public — ${meta.provenance}. Verify who made it before you buy:`;
+  const firstReply = `${verifyLine} ${meta.page_url}`;
+
+  const fin = finalizePost(body, firstReply, channel, "receipt");
+  return { ok: true, channel, is_first_sale: isFirst, count, ...fin };
+}
+
+// --- Teaser composer -------------------------------------------------------
+
+export interface TeaserInput {
+  /** Which product (defaults to the flagship). */
+  productId?: string;
+  /** Which free slice (index into meta.slices). Defaults to the headline (0). */
+  slice?: number;
+  /** x | forum | nostr — where the teaser lands (drives link placement). */
+  channel?: string;
+}
+
+export interface TeaserResult {
+  ok: boolean;
+  error?: string;
+  channel: string;
+  slice_index: number;
+  slice_count: number;
+  composed_post: { body: string; first_reply: string };
+  never_say_hits: string[];
+  never_say_clean: boolean;
+  warnings: string[];
+}
+
+/**
+ * Compose ONE free teaser-slice post. Pure: same input → same output. The body is
+ * the free value (hook + a genuinely useful standalone insight = give-3x); the soft
+ * pointer to the paid full version + the attributed link ride the first reply on X
+ * (inline on forum/nostr). The slice is real value, not a content-free tease — the
+ * artifact-boundary (P10.0b): free slice, paid synthesis.
+ */
+export function composeTeaser(input: TeaserInput): TeaserResult {
+  const channel = (input.channel ?? "x").toLowerCase();
+  const meta = getProductMeta(input.productId);
+  if (!meta) return teaserError(`unknown product '${input.productId}'. Known: ${Object.keys(PRODUCT_CATALOG).join(", ")}`, channel);
+
+  const idx = input.slice ?? 0;
+  if (!Number.isInteger(idx) || idx < 0 || idx >= meta.slices.length) {
+    return teaserError(`slice ${idx} out of range (product has ${meta.slices.length} slice(s): 0–${meta.slices.length - 1}).`, channel);
+  }
+  const slice = meta.slices[idx];
+
+  // Body = the free value. Hook then the standalone insight. No link in the body
+  // (give first; the ask is the soft pointer in the reply).
+  const body = `${slice.hook}\n\n${slice.insight}`;
+
+  // First reply = the soft pointer: name what the paid version adds, then the link.
+  // One ask. The teaser EARNS the click by having already delivered value above.
+  // (Phrasing keeps the parenthetical BEFORE paid_adds so a slice whose paid_adds
+  // ends in a period / contains an em-dash never collides with a trailing clause.)
+  const pointer = `That's one slice of ${meta.title}. The full ${meta.noun} ($9, packaged with public provenance) adds ${slice.paid_adds}`;
+  const firstReply = `${pointer} ${meta.page_url}`;
+
+  const fin = finalizePost(body, firstReply, channel, "teaser");
+  return { ok: true, channel, slice_index: idx, slice_count: meta.slices.length, ...fin };
+}
+
+function receiptError(error: string, channel: string): ReceiptResult {
+  return {
+    ok: false,
+    error,
+    channel,
+    is_first_sale: false,
+    count: 0,
+    composed_post: { body: "", first_reply: "" },
+    never_say_hits: [],
+    never_say_clean: true,
+    warnings: [],
+  };
+}
+
+function teaserError(error: string, channel: string): TeaserResult {
+  return {
+    ok: false,
+    error,
+    channel,
+    slice_index: -1,
+    slice_count: 0,
+    composed_post: { body: "", first_reply: "" },
+    never_say_hits: [],
+    never_say_clean: true,
+    warnings: [],
+  };
+}
