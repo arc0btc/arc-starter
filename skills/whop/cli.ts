@@ -9,6 +9,7 @@
 //
 // See SKILL.md for command syntax and STRATEGY.md for the monetization plan.
 
+import { readFileSync } from "node:fs";
 import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { whopClient } from "./lib/whop-api.ts";
@@ -144,6 +145,12 @@ function printHelp(): void {
       "  rename-experience --id exp_xxx --title <new title>",
       "  create-course --experience exp_xxx --title <t>",
       "  create-product --title <t> --route <slug> [--price 9] [--description <d>] [--headline <h>]",
+      "                [--report <md-path>] [--file <html/pdf-path>] [--quiz <json-path>] [--allow-empty]",
+      "                         mint a hidden SKU; deliverable flags auto-attach a course (report + quiz) so",
+      "                         checkout delivers. With NO deliverable flags it FAILS unless --allow-empty (a",
+      "                         bare SKU would ship a buyer an empty product) — attach later via attach-deliverable",
+      "  attach-deliverable --product prod_xxx [--title <t>] [--report <md>] [--file <html/pdf>] [--quiz <json>]",
+      "                         (re-)attach the per-SKU course deliverable; idempotent, refreshes content",
       "                                         mint a HIDDEN one-time product SKU (create-or-find by route;",
       "                                         30% global+member affiliate) → prints prod_/plan_ ids + PRODUCT_* constants",
       "  create-chapter --course cou_xxx --title <t>",
@@ -518,6 +525,34 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
   const productPageUrl = `https://whop.com/${route}/?a=${PAID_ROOM_AFFILIATE}`;
   const checkoutUrl = `https://whop.com/checkout/${planId}?a=${PAID_ROOM_AFFILIATE}`;
 
+  // Auto-attach the deliverable so the SKU actually delivers on checkout. Without one a buyer
+  // lands on an empty product — so warn loudly when no deliverable flags are given.
+  let deliverable: DeliverableRefs | null = null;
+  const deliverableInputs = readDeliverableFlags(flags, flags.title);
+  if (deliverableInputs) {
+    deliverable = await attachDeliverable(client, companyId, productId, { title: flags.title, ...deliverableInputs });
+    process.stderr.write(
+      `whop: attached deliverable — course ${deliverable.course_id}, report lesson ${deliverable.report_lesson_id}` +
+        `${deliverable.quiz_lesson_id ? `, quiz ${deliverable.quiz_lesson_id}` : ""}` +
+        `${deliverable.report_file_id ? `, file ${deliverable.report_file_id}` : ""}\n`,
+    );
+  } else if (flags["allow-empty"]) {
+    process.stderr.write(
+      "whop: minted a BARE hidden SKU (--allow-empty) — NO deliverable attached yet. Attach one via " +
+        "`attach-deliverable --product " +
+        productId +
+        " --report <md> --file <html> --quiz <json>` BEFORE flipping it visible.\n",
+    );
+  } else {
+    // A visible SKU with no deliverable ships a buyer an EMPTY product (lumen). Don't let that
+    // happen silently: require explicit intent for a bare mint rather than a soft warning.
+    fail(
+      "create-product: no deliverable given (--report/--file/--quiz). A SKU with no deliverable would ship a buyer " +
+        "an EMPTY product. Either pass the deliverable flags to attach a course now, or pass --allow-empty to mint a " +
+        "bare hidden SKU and attach later via `attach-deliverable`.",
+    );
+  }
+
   process.stdout.write(
     JSON.stringify(
       {
@@ -536,12 +571,265 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
           PRODUCT_PAGE_URL: productPageUrl,
           PRODUCT_CHECKOUT_URL: checkoutUrl,
         },
+        deliverable,
         note: "wire `constants` into src/constants.ts PRODUCT_*; product is HIDDEN until the operator flips it visible at go-live",
       },
       null,
       2,
     ) + "\n",
   );
+}
+
+// ---- Per-SKU deliverable: a Whop course (report lesson + quiz lesson) attached to the SKU ----
+//
+// Whop delivers a digital product via an EXPERIENCE bound to the access pass; without one a buyer
+// pays and lands on an empty product. For a research report we attach a COURSES-app experience
+// holding (1) a report lesson — markdown body (in-app readable) + the HTML artifact as a downloadable
+// file attachment (uploaded via files.upload, operator's choice 2026-06-17) — and (2) a short native
+// QUIZ lesson (the differentiated "research → report → quiz" pipeline). Idempotent: find-or-create at
+// each level (experience by product+app, course/chapter by first-in-list, lessons by title), and
+// REFRESH content/attachments/questions on re-run via update. Re-runs re-upload the file (attachments
+// "replaces all existing") — a rare op (once per SKU), the old file is orphaned; acceptable for now.
+const COURSES_APP_ID = "app_0vPZThfBpAwLo"; // Whop "Courses" app — powers the delivery experience
+
+interface QuizQuestion {
+  question_text: string;
+  question_type: "short_answer" | "true_false" | "multiple_choice" | "multiple_select";
+  correct_answer: string;
+  options?: Array<{ option_text: string; is_correct: boolean }>;
+}
+
+interface DeliverableRefs {
+  experience_id: string;
+  course_id: string;
+  chapter_id: string;
+  report_lesson_id: string;
+  quiz_lesson_id: string | null;
+  report_file_id: string | null;
+  /** Did the quiz pass-gate (min grade / attempts) read back after update? null = no quiz / unread.
+   *  The questions persist; the gate has been observed NOT to echo via the SDK — surfaced, not trusted. */
+  quiz_gate_verified: boolean | null;
+  /** True if ANY entity was newly created this run. NOTE: re-runs still REFRESH content/attachments/
+   *  questions every time via update — `created:false` does NOT mean the call was a no-op. */
+  created: boolean;
+}
+
+/** Find a Courses-app experience already attached to the product, else create + attach one. */
+async function findOrCreateCourseExperience(
+  client: ReturnType<typeof whopClient>,
+  companyId: string,
+  productId: string,
+  name: string,
+): Promise<{ id: string; created: boolean }> {
+  const attached = await client.experiences.list({ company_id: companyId, product_id: productId, first: 50 });
+  const existing = (attached.data as Array<{ id: string; app?: { id?: string | null } | null }>).find(
+    (e) => e.app?.id === COURSES_APP_ID,
+  );
+  if (existing) return { id: existing.id, created: false };
+  const exp = (await client.experiences.create({ app_id: COURSES_APP_ID, company_id: companyId, name })) as {
+    id: string;
+  };
+  await client.experiences.attach(exp.id, { product_id: productId });
+  return { id: exp.id, created: true };
+}
+
+/** Return the first row of a list, or create one. Warns if >1 exists (expected exactly 1 per SKU). */
+async function firstOrCreate<T extends { id: string }>(
+  label: string,
+  list: () => Promise<{ data: unknown[] }>,
+  create: () => Promise<T>,
+): Promise<{ row: T; created: boolean }> {
+  const rows = (await list()).data as T[];
+  if (rows.length > 1) {
+    process.stderr.write(`whop: note: ${rows.length} ${label}s found for this SKU — using the first (expected 1)\n`);
+  }
+  if (rows[0]) return { row: rows[0], created: false };
+  return { row: await create(), created: true };
+}
+
+/** Build (or refresh) the per-SKU course: report lesson + optional quiz lesson. Idempotent. */
+async function attachDeliverable(
+  client: ReturnType<typeof whopClient>,
+  companyId: string,
+  productId: string,
+  opts: {
+    title: string;
+    reportMarkdown: string;
+    reportFile?: { path: string; filename: string; contentType: string };
+    quiz?: { questions: QuizQuestion[]; minimumCorrect?: number };
+  },
+): Promise<DeliverableRefs> {
+  let created = false;
+  const exp = await findOrCreateCourseExperience(client, companyId, productId, opts.title);
+  created ||= exp.created;
+
+  const course = await firstOrCreate<{ id: string }>(
+    "course",
+    () => client.courses.list({ experience_id: exp.id, first: 25 }) as Promise<{ data: unknown[] }>,
+    () => client.courses.create({ experience_id: exp.id, title: opts.title }) as Promise<{ id: string }>,
+  );
+  created ||= course.created;
+
+  const chapter = await firstOrCreate<{ id: string }>(
+    "chapter",
+    () => client.courseChapters.list({ course_id: course.row.id, first: 25 }) as Promise<{ data: unknown[] }>,
+    () => client.courseChapters.create({ course_id: course.row.id, title: "The guide" }) as Promise<{ id: string }>,
+  );
+  created ||= chapter.created;
+
+  const lessons = (await client.courseLessons.list({ chapter_id: chapter.row.id, first: 50 })).data as Array<{
+    id: string;
+    title?: string | null;
+  }>;
+  const REPORT_TITLE = "The report";
+  const QUIZ_TITLE = "Quick quiz";
+
+  // ---- report lesson: set the markdown body FIRST, then attempt the file upload separately ----
+  // (forge): a rejected/oversized file must NOT lose the report body or the quiz, so the upload is
+  // its own try/catch — a failure logs and leaves the report text intact rather than aborting.
+  let reportLesson = lessons.find((l) => l.title === REPORT_TITLE) ?? null;
+  if (!reportLesson) {
+    reportLesson = (await client.courseLessons.create({
+      chapter_id: chapter.row.id,
+      lesson_type: "text",
+      title: REPORT_TITLE,
+      content: opts.reportMarkdown,
+    })) as { id: string };
+    created = true;
+  } else {
+    await client.courseLessons.update(reportLesson.id, { content: opts.reportMarkdown });
+  }
+  let reportFileId: string | null = null;
+  if (opts.reportFile) {
+    try {
+      const bytes = readFileSync(opts.reportFile.path);
+      const file = new File([bytes], opts.reportFile.filename, { type: opts.reportFile.contentType });
+      reportFileId = ((await client.files.upload(file)) as { id: string }).id;
+      await client.courseLessons.update(reportLesson.id, { attachments: [{ id: reportFileId }] });
+    } catch (e) {
+      process.stderr.write(
+        `whop: ⚠ report file upload/attach failed (report TEXT still delivered): ${e instanceof Error ? e.message : String(e)}\n`,
+      );
+      reportFileId = null;
+    }
+  }
+
+  // ---- quiz lesson: native assessment ----
+  let quizLessonId: string | null = null;
+  let quizGateVerified: boolean | null = null;
+  if (opts.quiz && opts.quiz.questions.length > 0) {
+    let quizLesson = lessons.find((l) => l.title === QUIZ_TITLE) ?? null;
+    if (!quizLesson) {
+      quizLesson = (await client.courseLessons.create({
+        chapter_id: chapter.row.id,
+        lesson_type: "quiz",
+        title: QUIZ_TITLE,
+        content: "A quick check on the field guide — pass to lock in the ideas.",
+      })) as { id: string };
+      created = true;
+    }
+    const total = opts.quiz.questions.length;
+    const minCorrect = opts.quiz.minimumCorrect ?? Math.ceil(total * 0.6);
+    await client.courseLessons.update(quizLesson.id, {
+      assessment_questions: opts.quiz.questions,
+      // percent (not count): minimum_questions_correct was observed not to persist on read.
+      assessment_completion_requirement: { minimum_grade_percent: Math.round((minCorrect / total) * 100) },
+      max_attempts: 3,
+    });
+    // Honesty (lumen): the QUESTIONS persist, but the pass-gate has been observed NOT to echo back.
+    // Confirm and surface — never imply an enforced passing requirement we can't verify.
+    try {
+      const back = (await client.courseLessons.retrieve(quizLesson.id)) as {
+        assessment_completion_requirement?: unknown;
+      };
+      quizGateVerified = back.assessment_completion_requirement != null;
+    } catch {
+      quizGateVerified = null;
+    }
+    if (quizGateVerified !== true) {
+      process.stderr.write(
+        "whop: ⚠ quiz questions set, but the pass-gate (min grade / attempts) did NOT read back via the SDK — " +
+          "confirm/set the passing requirement in the Whop UI before relying on it.\n",
+      );
+    }
+    quizLessonId = quizLesson.id;
+  }
+
+  // Remove Whop's auto-seeded empty default lesson(s) (named "Lesson N") — ONLY when the course was
+  // just created this run (cairn): Whop seeds the placeholder at course creation, so on an established
+  // course a "Lesson N" would be intentional content and must NOT be reaped. Log every deletion.
+  if (course.created) {
+    const keepIds = new Set([reportLesson.id, quizLessonId].filter(Boolean) as string[]);
+    const after = (await client.courseLessons.list({ chapter_id: chapter.row.id, first: 50 })).data as Array<{
+      id: string;
+      title?: string | null;
+    }>;
+    for (const l of after) {
+      if (keepIds.has(l.id)) continue;
+      if (/^lesson \d+$/i.test((l.title ?? "").trim())) {
+        try {
+          await client.courseLessons.delete(l.id);
+          process.stderr.write(`whop: removed auto-seeded placeholder lesson "${l.title}" (${l.id})\n`);
+          created = true;
+        } catch (e) {
+          process.stderr.write(
+            `whop: note: could not delete placeholder "${l.title}": ${e instanceof Error ? e.message : String(e)}\n`,
+          );
+        }
+      }
+    }
+  }
+
+  return {
+    experience_id: exp.id,
+    course_id: course.row.id,
+    chapter_id: chapter.row.id,
+    report_lesson_id: reportLesson.id,
+    quiz_lesson_id: quizLessonId,
+    report_file_id: reportFileId,
+    quiz_gate_verified: quizGateVerified,
+    created,
+  };
+}
+
+/** Resolve the deliverable inputs from CLI flags (shared by create-product and attach-deliverable). */
+function readDeliverableFlags(
+  flags: Record<string, string>,
+  title: string,
+): {
+  reportMarkdown: string;
+  reportFile?: { path: string; filename: string; contentType: string };
+  quiz?: { questions: QuizQuestion[]; minimumCorrect?: number };
+} | null {
+  if (!flags.report && !flags.file && !flags.quiz) return null;
+  const reportMarkdown = flags.report ? readFileSync(flags.report, "utf8") : "";
+  if (flags.report && !reportMarkdown.trim()) fail("--report file is empty");
+  let reportFile;
+  if (flags.file) {
+    const filename = flags.file.split("/").pop() || "report.html";
+    const contentType = filename.endsWith(".pdf")
+      ? "application/pdf"
+      : filename.endsWith(".html")
+        ? "text/html"
+        : "application/octet-stream";
+    reportFile = { path: flags.file, filename, contentType };
+  }
+  let quiz;
+  if (flags.quiz) {
+    quiz = JSON.parse(readFileSync(flags.quiz, "utf8")) as { questions: QuizQuestion[]; minimumCorrect?: number };
+  }
+  return { reportMarkdown: reportMarkdown || `# ${title}`, reportFile, quiz };
+}
+
+async function cmdAttachDeliverable(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("attach-deliverable requires --product prod_xxx");
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("attach-deliverable requires creds key company_id (biz_xxx)");
+  const title = flags.title ?? "Field guide";
+  const inputs = readDeliverableFlags(flags, title);
+  if (!inputs) fail("attach-deliverable needs at least one of --report <md> | --file <html/pdf> | --quiz <json>");
+  const refs = await attachDeliverable(whopClient(apiKey), companyId, flags.product, { title, ...inputs! });
+  process.stdout.write(JSON.stringify({ ...refs, product_id: flags.product }, null, 2) + "\n");
 }
 
 // --- Affiliate / referral program (Whop native: % of revenue for referrers) ---
@@ -777,6 +1065,11 @@ async function main(): Promise<void> {
     case "create-product": {
       const apiKey = await requireApiKey();
       await cmdCreateProduct(apiKey, flags);
+      break;
+    }
+    case "attach-deliverable": {
+      const apiKey = await requireApiKey();
+      await cmdAttachDeliverable(apiKey, flags);
       break;
     }
     case "create-chapter": {
