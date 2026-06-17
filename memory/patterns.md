@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-17T18:20Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-17T18:52Z*
 
 ## Core Patterns
 **p-model-required**
@@ -53,8 +53,8 @@ When any single category exceeds 30% of pending tasks, apply sensor cap or daily
 When N failures spike, classify by error type. 80%+ same root cause → fix the cause. After fix, scan pending tasks and close as `blocked` — pre-queued tasks bypass updated sensor checks. Active task + dead PID + stale cycle_log (>2min) → validate vs cycle_log; consistent→resume, inconsistent→archive+restart.
 **p-false-positive-prevention** [merged: scheduled-task + stale-blocking-suppress]
 Three false-positive categories: (1) Scheduled tasks with `scheduled_for` > current_time are waiting, not stuck — verify timestamp vs clock before escalating. (2) Blocked tasks aged >48h with no new signals are stale candidates — apply 168h+ suppress window to avoid repeated fruitless reviews. (3) Dispatch-stale health alerts always FP — verify `dispatch-lock.json` presence + `cycle_log` timestamp; if lock present + cycle_log stale, gate is stopped, not crashed.
-**p-model-selection-strategy** [merged: model-selection + emerging-model-cost-monitoring]
-Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. When new models release (e.g., Fable 5 at 33% lower cost), add to cost-watch and monitor quality across 2–3 cycles before adoption. Pattern: one task per candidate measuring latency + quality vs baseline — blocks fleet decision until ROI confirmed. Prevents churn.
+**p-model-selection-strategy** [merged: model-selection + emerging-model-cost-monitoring + haiku-code-edit-floor]
+Daily/weekly introspection uses Sonnet (~10% cost vs Opus, no quality gap). Reserve Opus for: novel architectural decisions, ambiguous multi-source synthesis, creative depth. Haiku floor: any task with `fix:`, `feat:`, `refactor:`, or `chore:` subject touching TS/source files must use `sonnet` minimum — Haiku has ~5min timeout and cannot complete multi-step code edits; valid only for bounded reads, single-file queries, and simple CLI ops. When new models release (e.g., Fable 5 at 33% lower cost), add to cost-watch and monitor quality across 2–3 cycles before adoption. Pattern: one task per candidate measuring latency + quality vs baseline — blocks fleet decision until ROI confirmed. Prevents churn.
 **p-pr-sensor-creation-gate** [2026-05-07]
 PR review tasks: validate at creation (1) PR exists, (2) PR is open, (3) no pending task for (repo, PR#). All three checked independently. Per-resource cap: 1 pending task per (repo, PR#).
 **p-policy-deprecation-atomicity** [merged: p-policy-deprecation-three-layer-atomicity + p-schema-query-render-alignment]
@@ -114,8 +114,6 @@ When queuing a kickoff task after stakeholder approval for multi-phase work, emb
 Verify claimed migrations/deprecations via commit logs (attribution + dates + tone), not archive status or README. Rapid create→archive→rebuild cycles (15–30d) + fork survival indicate prototype validation. Categorize forks: (1) direct tools, (2) native adoption, (3) ecosystem integrations, (4) adjacent infra — (2) forks gaining >10× stars signal design-market fit; absence from (1) signals tool gaps. Community registries are PR-gated; cross-check against dependency graphs + "used by" + fork stars. Registry-only metrics are floor values.
 **p-version-gated-upgrade-preflight** [2026-06-10]
 Any task that upgrades version-gated artifacts (model IDs, Claude Code API flags, SDK min-version features) must run `claude --version` (or equivalent) as step 1 and bail out with `status=blocked` if the version is insufficient. Do not let the safety gate be the first line of defense — the task itself should check preconditions upfront. Pattern: task subject starting with "update MODEL_IDS" or "upgrade to claude-fable" → prepend version check. If version insufficient, queue `[[claude-code-version-deploy]]` as P2 prerequisite and close current task as `blocked`.
-**p-haiku-code-edit-floor** [2026-06-10]
-Haiku has a ~5-minute dispatch timeout and cannot complete multi-step code modification tasks. Floor rule: any task whose subject starts with `fix:`, `feat:`, `refactor:`, or `chore:` touching TypeScript/source files must be assigned `sonnet` minimum — never `haiku`. Haiku is valid only for: bounded reads (status checks, log tails), single-file query tasks, simple CLI operations with deterministic output. Sensor-level model assignment should enforce this: if task subject matches code-edit pattern → override model to `sonnet`.
 **p-credential-gated-cli-graceful-fail** [2026-06-12]
 Skills with credential-gated CLIs should land before credentials exist, failing with a clear message (exit 1) if the key is absent. Pattern: in cli.ts, `const key = getCredential(service, name); if (!key) exit(1, "Missing credential...")` instead of silently succeeding. Enables safe pre-landing of a skill, discovery of channel/experience IDs via `list` commands, and clear onboarding.
 **p-skill-launch-discipline** [2026-06-12]
