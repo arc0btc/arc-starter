@@ -297,3 +297,4 @@
 2026-06-17T00:06:17.191Z | task #19200 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 30 uncommitted changes resolved: db/ and products/ dirs outside auto-commit path
 2026-06-17T00:41:40.637Z | task #19202 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-17T01:13:26.221Z | task #19203 | completed | sonnet | Watch report — 2026-06-17T01:00Z | Watch report: 51 tasks completed, $18.42 spent, 0 failed — reports/2026-06-17T01
+2026-06-17T02:14:06.168Z | task #19206 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Renamed abbreviated 'msg' to 'errorMessage' in skills/whop/cli.ts:477-478
