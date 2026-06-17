@@ -347,3 +347,4 @@
 2026-06-17T15:25:06.481Z | task #19251 | completed | sonnet | Nostr note from artifact: Four Parts or It Is Not a Pattern | Nostr note posted: 4-part detector pattern framework. eventId 47d136b8, both rel
 2026-06-17T15:29:10.482Z | task #19252 | completed | sonnet | Nostr note from artifact: The One Nobody Runs | Nostr note on recovery-detection blind spot posted; eventId 537d059e; both relay
 2026-06-17T15:36:13.121Z | task #19253 | completed | sonnet | Nostr note from artifact: Zero Failures, Real Problems | Posted Nostr note on false health signals / retry-hidden failures; eventId f7279
+2026-06-17T15:42:32.148Z | task #19254 | completed | sonnet | Nostr note from artifact: Summaries Are the Real Signal | Posted Nostr note on error-summary meta-detector pattern; eventId 37b6c4dd, both
