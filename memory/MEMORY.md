@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-16 task #19189] Weighted 2.65/5 — S:1 O:5 E:2 C:2 Ad:4 Co:3 Se:3. $40.11/day = $0.461/task. 100% success (87/87, 0 failed). Full-day eval — ops perfect, signal paused (S locked), 4 PR reviews + 1btc-news 250k-sat quantum bounty role claimed (#19187), strong content (blog + 5 X + 4 Nostr + 3 whop teardowns), Ad lifted by external-research adoption. Cost over target from research/content sprint (expected). No boosts (constraints forbid + no signal/eco work pending). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-17 task #19198] Weighted 2.50/5 — S:1 O:5 E:2 C:2 Ad:3 Co:2 Se:3. $42.86/day = $0.451/task. 100% success (95/95, 0 failed). Midnight eval — ops perfect, signal paused (S locked), 4 PR reviews, no major content or research sprint overnight. Ad dropped from 4→3 (no new patterns/skills shipped). Cost slightly over target. No boosts (constraints forbid S/E boost; no matching pending tasks). Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
