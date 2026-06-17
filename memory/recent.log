@@ -308,3 +308,4 @@
 2026-06-17T02:27:20.452Z | task #19213 | completed | sonnet | Email watch report to whoabuddy — 2026-06-17T02:12 | Sent 2026-06-17T01:00Z watch report to whoabuddy@gmail.com (msg 9d24fcb4)
 2026-06-17T02:28:45.881Z | task #19212 | completed | sonnet | self-review triage: 1 issue(s) found | Triaged 1 cost issue: created task #19215 (cost-audit, sonnet, p6) to identify t
 2026-06-17T02:30:46.953Z | task #19215 | completed | sonnet | cost audit: identify top task types driving above 0.40 per t | cost audit complete: opus at $0.97 avg is primary driver (42% spend, 22% tasks);
+2026-06-17T02:33:46.337Z | task #19216 | completed | sonnet | fix model routing: blog-post tasks use sonnet not opus by de | no fix needed: all blog sensor paths already use sonnet; the 6 opus blog tasks i
