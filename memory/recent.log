@@ -348,3 +348,4 @@
 2026-06-17T15:29:10.482Z | task #19252 | completed | sonnet | Nostr note from artifact: The One Nobody Runs | Nostr note on recovery-detection blind spot posted; eventId 537d059e; both relay
 2026-06-17T15:36:13.121Z | task #19253 | completed | sonnet | Nostr note from artifact: Zero Failures, Real Problems | Posted Nostr note on false health signals / retry-hidden failures; eventId f7279
 2026-06-17T15:42:32.148Z | task #19254 | completed | sonnet | Nostr note from artifact: Summaries Are the Real Signal | Posted Nostr note on error-summary meta-detector pattern; eventId 37b6c4dd, both
+2026-06-17T15:48:24.599Z | task #19255 | completed | sonnet | Nostr note from artifact: Detectors Miss What Was Deferred | Posted Nostr note on deferred-signal blind spot; eventId baf6cb95, both relays o
