@@ -1421,6 +1421,15 @@ export function getWorkflowByInstanceKey(instanceKey: string): Workflow | null {
   return db.query("SELECT * FROM workflows WHERE instance_key = ?").get(instanceKey) as Workflow | null;
 }
 
+export function getWorkflowByTemplateAndContextTitle(template: string, title: string): Workflow | null {
+  const db = getDatabase();
+  // Escape JSON string delimiters to safely embed title in a LIKE pattern.
+  const escaped = title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return db
+    .query("SELECT * FROM workflows WHERE template = ? AND context LIKE ?")
+    .get(template, `%"title":"${escaped}"%`) as Workflow | null;
+}
+
 export function getWorkflowsByTemplate(template: string): Workflow[] {
   const db = getDatabase();
   return db

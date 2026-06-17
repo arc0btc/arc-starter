@@ -8,6 +8,7 @@ import {
   updateWorkflowState,
   updateWorkflowContext,
   getWorkflowByInstanceKey,
+  getWorkflowByTemplateAndContextTitle,
   insertWorkflow,
   completeWorkflow,
 } from "../../src/db.ts";
@@ -548,6 +549,15 @@ function syncContentCalendar(): number {
 
     if (fm.draft === true) continue; // not published
     if (fm.scheduled_for && fm.scheduled_for > nowIso) continue; // scheduled in the future
+
+    // Title-based cross-check: a Tier-A backfill workflow may cover the same blog content
+    // under a different instance key (memory-entry slug vs blog-file slug). If any
+    // content-calendar workflow already has this title in its context JSON, skip creation
+    // to prevent duplicate X/whop posts (root cause: "Five Subsystems" double-post 2026-06-16).
+    if (fm.title && getWorkflowByTemplateAndContextTitle("content-calendar", fm.title)) {
+      log(`content-calendar: skipping "${postId}" — title already handled by another workflow`);
+      continue;
+    }
 
     // Published recently? Prefer published_at, fall back to date, then the filename date.
     const stamp = fm.published_at || fm.date || dateMatch[1];
