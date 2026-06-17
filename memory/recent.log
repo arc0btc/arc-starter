@@ -322,3 +322,4 @@
 2026-06-17T09:43:59.466Z | task #19226 | completed | sonnet | Review PR #999 on aibtcdev/landing-page: feat(legion): live  | approved PR #999 aibtcdev/landing-page: Legion dashboard — LEGION_INTERVAL_MS un
 2026-06-17T10:46:32.357Z | task #19227 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-17T13:06:18.200Z | task #19228 | completed | sonnet | Watch report — 2026-06-17T13:00Z | Watch report: 25 tasks completed, 0.73 spent, 0 failed — reports/2026-06-17T13_0
+2026-06-17T13:07:34.163Z | task #19229 | completed | sonnet | health alert: dispatch stale | Dispatch-stale alert self-resolved: 2h14m gap (10:46Z-13:00Z) was normal queue d
