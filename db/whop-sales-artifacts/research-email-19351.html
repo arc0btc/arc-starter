@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.55;color:#1a1a1a;max-width:720px;margin:0 auto;padding:24px}
+h1{font-size:22px;border-bottom:2px solid #f7931a;padding-bottom:8px}
+h2{font-size:17px;margin-top:28px;color:#b35900}
+h3{font-size:14px;margin-bottom:4px}
+code{background:#f4f4f4;padding:1px 4px;border-radius:3px;font-size:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#faf5ee}
+.tag{font-size:11px;color:#666}
+.lede{color:#444;font-size:14px}
+ul{margin-top:4px}
+li{margin-bottom:5px}
+.skip{color:#777;font-size:12px}
+</style></head>
+<body>
+<h1>Research batch — 20 links, 2026-06-18 (complete HTML synthesis)</h1>
+<p class="lede" style="background:#faf5ee;padding:8px 12px;border-left:3px solid #f7931a"><strong>Note:</strong> you got a shorter plaintext note on this batch earlier from an interrupted run. This is the complete HTML version it was meant to produce — 10 reports total (5 added since), the $9-guide-quality packaging you asked for. The earlier note's themes hold; this supersedes it.</p>
+<p class="lede">Raw research is on the shelf: 10 reports total under <code>research/</code> (5 from the first pass, 5 new), every link cached and relevance-gated. This email is the synthesis layer — the convergence no single link shows, what it touches in our code, and what to package. Parent: task 19350. Batch task: 19351.</p>
+
+<p><strong>Gating result:</strong> 20 links in. 1 deleted (startupideaspod). 3 off-mission, one-line skips (Saboo: agentic video studio; contralabs: image-model design-crit dataset; zeeg: Sentry internal AI-adoption memo, culturally interesting, no code hook). 4 folded into themes rather than forked (TaliaGold Intercom&rarr;Fin comeback; fivosaresti service-as-software; nurijanian PM-critique; zachlloyd pr-walkthrough skill). 10 earned full reports — no slop-by-catalog.</p>
+
+<h2>1. Themes — the convergence across links</h2>
+<p>Four independent practitioners landed on the same conclusion in the same week, none citing each other:</p>
+<ul>
+<li><strong>The harness is commoditizing; the durable asset sits around the loop, not in it.</strong> Iusztin: "Models are commoditized. Harnesses are commoditized. The only moat is your context layer." Rohan Paul on the Claude Code paper: it works "not because of a complex AI brain but because a simple loop is surrounded by a huge system for tools, safety, memory, permissions, recovery." Akshay Pachaar: the self-compiling harness. Mayank: "eval-perfected harnesses." The model and the agent loop are not the differentiator. The scaffolding is.</li>
+<li><strong>The unit of capability is the small sharp skill; the frontier is composing many, not building bigger.</strong> Ibryam's top-10 star data: "small, sharp workflows are winning." Elvis on SkillWeaver: compositional routing decomposes a query, retrieves a skill per sub-task, composes a DAG plan across 2,209 real skills. Building one giant skill is the losing move.</li>
+<li><strong>Close the feedback loop — the output should be a better artifact, scored reproducibly.</strong> Zach Lloyd's self-improvement loop edits the agent's own Skills from feedback. Mayank publishes a concrete score: mechanical checks (objective) plus weighted LLM judge, pass at &ge;0.7. The loop produces a better skill, measured.</li>
+<li><strong>Context is the scarce resource; compaction and indexing are first-class engineering.</strong> Trevin's RTK compacts verbose tool output at the hook layer (git status &minus;60.9%). DataChaz indexes the codebase into an AST graph for token-cheap retrieval. Same problem from two angles.</li>
+</ul>
+<p><strong>The editorial read:</strong> the market is now naming the architecture Arc bet on a year ago. Task queue, git-versioned memory spine, sensors, escalation ladder — that is "own the context and feedback layer" before it had a name. The convergence is the signal: this is not a fad, it is where four serious builders independently arrived.</p>
+
+<h2>2. Arc-code applicability — arc-starter vs agent-runtime</h2>
+<table>
+<tr><th>Theme &rarr; lever</th><th>Already in Arc</th><th>Gap</th><th>Repo</th></tr>
+<tr><td>Context layer as moat (Iusztin)</td><td><code>CLAUDE.md</code> 40-50k budget; <code>memory/MEMORY.md</code> + <code>shared/entries</code> git-versioned; <code>hermes-agent-convergent-architecture</code>, <code>twelve-factor-agents-arc-scorecard</code> entries</td><td>Layer is coupled to arc-starter + Claude Code; fails Iusztin's "switch harness" portability test</td><td>port to <strong>agent-runtime</strong> (schema + injection); content stays per-agent</td></tr>
+<tr><td>Self-improvement loop (Lloyd)</td><td>dispatch loop; RARV reflect &rarr; <code>recent.log</code>; <code>arc-skill-manager</code>; <code>agent-runtime/src/memory.ts</code> <code>appendRecentLog</code></td><td>Nothing feeds reflections back into a skill edit — Arc reflects then forgets at skill level. Feedback is the documented weak subsystem.</td><td><strong>agent-runtime</strong> (skill-improve routine)</td></tr>
+<tr><td>Reproducible eval score (Mayank)</td><td><code>arc tasks close --quality 1-5</code>; weighted daily-eval; <code>recursive-improve-failure-detectors</code>, <code>harness-engineering-completion-verification</code> entries</td><td>Quality is hand-assigned with no mechanical anchor; the <code>verification_cmd</code> gap is already named in our memory</td><td><strong>agent-runtime</strong> (mechanical-check runner); Arc-specific checks in arc-starter</td></tr>
+<tr><td>Token compaction at hook layer (Trevin)</td><td>40-50k budget; PreToolUse guards (<code>path-conditional-hook-guards</code>); pattern "&gt;10 files &rarr; add CLI first"</td><td>No output-compaction hook; verbose git/find/ls output hits context raw</td><td><strong>agent-runtime</strong> (fleet-generic hook)</td></tr>
+<tr><td>Small sharp skills + routing (Ibryam, SkillWeaver)</td><td>4-file skill pattern; 129 skills in arc-starter, 12 base in agent-runtime; <code>Workflow</code> orchestration</td><td>No compositional router across the 129; breadth without a routing layer</td><td>router in <strong>agent-runtime</strong>; audit in arc-starter</td></tr>
+</table>
+
+<h2>3. Monetization / Whop</h2>
+<p>The existing $9 line is the Harness Engineering guide. This batch upgrades it and seeds adjacent SKUs. The pattern that sells: a thesis a stranger can evaluate in 30 seconds, backed by our real receipts (file paths, counts, formulas).</p>
+<ul>
+<li><strong>Strengthens the existing guide:</strong> the Claude Code paper summary (Rohan Paul) and walkinglabs lectures are the primary-source spine; RTK compaction is a concrete context-budget chapter; the eval formula is the missing eval chapter.</li>
+<li><strong>New packageable SKUs (see section 6).</strong></li>
+<li><strong>Service-as-software (fivosaresti, TaliaGold Intercom&rarr;Fin):</strong> the broader business-model shift our Whop play sits inside. Not a guide SKU, but it is the framing for the room's value prop — agents that do the work, not software humans run.</li>
+</ul>
+
+<h2>4. AIBTC ecosystem implications</h2>
+<ul>
+<li><strong>Context layer + on-chain identity = the agent-economy primitive.</strong> Iusztin argues the portable context layer is the asset. Pair that with verifiable on-chain identity (Arc's BNS/Stacks/Bitcoin signing) and you get a portable, provable agent — the thing AIBTC needs for agent-to-agent contracts.</li>
+<li><strong>Compositional skill routing maps onto agent-to-agent capability discovery.</strong> SkillWeaver routes across a skill library; the same problem appears across the empty <code>/api/capabilities</code> registry (see <code>rfc-demand-first-evaluation</code>). Routing is the demand-side answer.</li>
+<li><strong>A reproducible eval score is the basis for agent reputation.</strong> Mayank's mechanical+judge formula is exactly what an on-chain agent reputation system needs — objective checks plus judged quality, combined into one auditable number.</li>
+</ul>
+
+<h2>5. Top 5 to implement today</h2>
+<table>
+<tr><th>#</th><th>What &amp; why</th><th>Effort / risk</th><th>Repo</th><th>First concrete step</th></tr>
+<tr><td>1</td><td>Tag <code>recent.log</code> lines with the owning skill. Prereq for the self-improvement loop — today reflections are free-text and skill-blind.</td><td>S / low</td><td>agent-runtime</td><td>Add a <code>skill</code> field to <code>RecentLogEntry</code> in <code>src/memory.ts</code> <code>appendRecentLog</code>.</td></tr>
+<tr><td>2</td><td>Add the mechanical+judge eval score to <code>arc tasks close</code>, additively (keep the hand 1-5). Gives the daily-eval an objective anchor.</td><td>M / low</td><td>agent-runtime</td><td>Define 3 generic checks: commit present, build/syntax passed, no error in <code>result_detail</code>.</td></tr>
+<tr><td>3</td><td><code>git status</code> compaction PreToolUse hook — the proven 60.9% RTK win, single high-frequency command.</td><td>S / low</td><td>agent-runtime</td><td>Prototype a hook that post-processes <code>git status</code> output only; measure on a real transcript.</td></tr>
+<tr><td>4</td><td>Promote stop-slop voice rules from inline <code>SOUL.md</code> into a callable <code>voice-gate</code> skill. The market rewards a sharp taste gate (taste-skill, 44k stars).</td><td>S / low</td><td>agent-runtime</td><td>Scaffold the skill via <code>skill-manager</code> with a <code>score --text</code> CLI.</td></tr>
+<tr><td>5</td><td>Write the context-layer migration inventory — every artifact marked portable-machinery vs agent-specific-content. Unblocks the agent-runtime port.</td><td>S / low</td><td>arc-starter</td><td>List SOUL.md, MEMORY.md, shared/entries, recent.log, dead-ends; tag each.</td></tr>
+</table>
+
+<h2>6. SKU candidates — most worth packaging next</h2>
+<ol>
+<li><strong>"The Context Layer Is the Moat"</strong> (Iusztin thesis + Arc's real implementation). Sells because it is the why-buy argument for the whole guide line — and we can prove it with file paths, not slides. The strongest narrative SKU in the batch.</li>
+<li><strong>"Closing the Feedback Loop"</strong> (Lloyd's self-improving skills + Mayank's eval formula, combined). Sells because every agent builder has this exact gap and nobody has shipped the closure. Concrete formula + wiring diagram = a buildable artifact.</li>
+<li><strong>"Agent Skills Market 2026"</strong> (Ibryam's ranked star data + Arc's 129-skill audit + SkillWeaver routing). Sells because it is legible and data-backed — a buyer evaluates "what wins and why" in 30 seconds.</li>
+</ol>
+
+<h2>7. What is genuinely interesting + next steps</h2>
+<p>The interesting part is not any single link. It is that the field converged on Arc's architecture this week without knowing Arc exists. We do not need to chase the trend; we need to document that we are it, then close the one gap everyone shares — feedback. Items 1 and 2 above are the first two rungs of that ladder and both are small.</p>
+<p>Concrete next steps: (a) approve items 1-3 for a feature branch in agent-runtime; (b) decide whether to package SKU #1 or #2 first for the $9 line; (c) I hold the rest as themes unless you want a fork on service-as-software for the Whop framing. Your call on the SKU order — I will draft whichever you pick.</p>
+
+<hr>
+<p class="tag">Reports on the shelf: context-layer-as-moat, agent-skills-market-data, self-improvement-loop-skills, rtk-token-saving-hooks, eval-scoring-formula (new) + harness-engineering-spine, agent-skills-market-routing, fork-copy-on-write, codebase-memory-mcp-ast-index, harnessx-self-compiling (first pass). All under <code>research/</code>, indexed in <code>research/INDEX.md</code>. Every link cached under <code>skills/arc-link-research/cache/</code>. — Arc</p>
+</body>
+</html>
