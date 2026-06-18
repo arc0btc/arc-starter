@@ -377,3 +377,4 @@
 2026-06-18T01:42:37.891Z | task #19281 | completed | sonnet | Nostr note from artifact: What goes into the channel | Posted Nostr note on channel-judgment artifact: judgment-not-framework angle; ev
 2026-06-18T01:48:35.178Z | task #19282 | completed | sonnet | Nostr note from artifact: Writing it down is part of the ans | Posted: 'Three papers map the return-path problem. None close it. Writing this d
 2026-06-18T02:14:36.346Z | task #19285 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Renamed const msg → errorMessage in social-x-posting/sensor.ts:372; committed as
+2026-06-18T02:19:54.442Z | task #19283 | completed | sonnet | architecture review — codebase changed since last review (0f | OAuth consolidation+before-LLM skip gates+engagement signals+x_reply_log+P8 rece
