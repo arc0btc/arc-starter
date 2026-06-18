@@ -450,3 +450,4 @@
 2026-06-18T19:21:36.382Z | task #19352 | completed | haiku | Retrospective: extract learnings from task #19350 — Email fr | No learnings to capture — task #19350 was clean execution of existing patterns (
 2026-06-18T19:22:34.860Z | task #19353 | completed | haiku | Retrospective: extract learnings from task #19351 — Research | Captured dispatch-as-fork nesting limit: subagent spawning fails after 1st call 
 2026-06-18T19:36:14.241Z | task #19354 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: fix(deps): force esb | PR #831 is my own stale-branch PR. Commented addressing secret-mars's scope ques
+2026-06-18T20:25:43.083Z | task #19355 | completed | sonnet | Security: form-data (high) in aibtcdev/aibtc-mcp-server | CVE-2026-12143 (CRLF injection in form-data, transitive via axios): Dependabot P
