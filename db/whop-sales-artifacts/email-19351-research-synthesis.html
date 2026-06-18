@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.55;color:#1a1a1a;max-width:720px;margin:0 auto;padding:24px}
+h1{font-size:22px;border-bottom:2px solid #f7931a;padding-bottom:8px}
+h2{font-size:17px;margin-top:28px;color:#0b1f3a}
+h3{font-size:14px;margin-bottom:4px;color:#333}
+code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:13px}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#0b1f3a;color:#fff}
+.tag{display:inline-block;background:#f7931a;color:#fff;border-radius:3px;padding:1px 6px;font-size:11px;margin-right:4px}
+.muted{color:#666;font-size:13px}
+ul{margin:6px 0 6px 0;padding-left:20px}
+li{margin:3px 0}
+.box{background:#fafafa;border-left:3px solid #f7931a;padding:10px 14px;margin:12px 0}
+</style></head><body>
+
+<h1>Research batch synthesis — 20 links, 2026-06-18</h1>
+<p class="muted">Parent task 19350 · research task 19351 · 5 topic reports written to <code>research/</code>, raw fetch + cache complete. This email is the synthesis; the raw research stays free and complete on disk.</p>
+
+<div class="box">
+<strong>One-line read:</strong> The batch is one theme seen from six angles — <em>the harness is the product, not the model</em> — and it is external validation of architecture Arc already runs. The new value is three concrete patterns that close Arc's named gaps, not new ideas to chase.
+</div>
+
+<h2>1. Themes across links (convergence no single link shows)</h2>
+<ul>
+<li><strong>The harness, not the brain.</strong> walkinglabs (course), rohanpaul (arXiv 2604.14228 "Dive into Claude Code"), pauliusztin, akshay, bibryam and mayonkeyy independently land the same claim: the model is commoditized, the value is the harness around it. The arXiv paper reverse-engineers Claude Code's public TS source and confirms a tiny agent loop wrapped in a large harness for tools, safety, memory, permissions, recovery. "Autonomy does not remove infrastructure, it increases the burden on infrastructure."</li>
+<li><strong>The three layers are being worked at once.</strong> (a) the harness structure itself (Claude Code paper, five-subsystems); (b) the skills layer on top (addyosmani 62k stars, bibryam's top-10 skills market, omarsar0's compositional routing); (c) the self-improvement and verification loop (akshay's HarnessX, mayonkeyy's eval-scoring formula). Nobody framed all three together. Arc spans all three.</li>
+<li><strong>The shared gap maps to Arc's known-weak Feedback subsystem.</strong> No per-task machine-verifiable criteria, no scored traces, no skill router. The batch ships concrete patterns for exactly these: mayonkeyy's pass-≥0.7 formula, SkillWeaver's DAG router, codebase-memory-mcp's AST index.</li>
+<li><strong>Context is the moat.</strong> pauliusztin: models and harnesses commoditize, "the only moat that remains is your context layer" — your memory should move with you across Claude Code / Codex / Gemini / Pi / Hermes. That is literally Arc's git-versioned <code>MEMORY.md</code> design.</li>
+</ul>
+
+<h2>2. Arc-code applicability (arc-starter vs agent-runtime)</h2>
+<table>
+<tr><th>Pattern</th><th>arc-starter touch</th><th>agent-runtime touch</th></tr>
+<tr><td>Small-loop/big-harness (arXiv paper)</td><td><code>src/dispatch.ts</code> is the small loop; <code>src/safe-commit.ts</code> + worktree gates are the harness — Arc is a worked example</td><td>Stripped base: no dispatch, no safe-commit, no cycle_log</td></tr>
+<tr><td>Completion-verification gate (mayonkeyy)</td><td>dispatch calls the gate; daily-eval rubric is the informal version today</td><td><strong>Belongs here</strong> — every agent needs it; port the formula as a shared module</td></tr>
+<tr><td>Skill router (SkillWeaver)</td><td><code>src/dispatch.ts:216</code> does <code>JSON.parse(skillsJson)</code> then concatenates SKILL.md — static array, no router</td><td><code>skills/skill-manager</code> is an empty dir; a router belongs in the shared base so all agents inherit it</td></tr>
+<tr><td>Portable memory layer</td><td><code>memory/MEMORY.md</code> + <code>memory/shared/entries/</code> already portable</td><td>Verify <code>memory/</code> mirrors the ASMR schema before the fleet grows</td></tr>
+<tr><td>AST codebase index (codebase-memory-mcp)</td><td>Smoke-test against arc-starter's 100+ skills + 22 <code>src/*.ts</code></td><td>One <code>settings.json</code> change gives every fleet agent the index</td></tr>
+<tr><td>Self-editing harness (HarnessX)</td><td>Arc is a partial HarnessX: <code>src/experiment.ts</code> baseline-capture + gated edits already exist</td><td><strong>Port the resilience floor DOWN first</strong>; never port a self-edit loop without its gates</td></tr>
+</table>
+
+<h2>3. Monetization / Whop</h2>
+<ul>
+<li><strong>Strengthen the existing $9 Harness Engineering guide</strong> (the line already sells). Add the primary-source citation arXiv 2604.14228 and mayonkeyy's copy-paste eval-scoring formula (<code>overall_score = min(1.0, Σ(weight×mechanical) + Σ(weight×(judge−1)/4)), pass ≥ 0.7</code>). A primary academic source plus a formula buyers can run today raises perceived value without new research.</li>
+<li><strong>New SKU candidate: "How Arc routes 129 skills."</strong> The agent-skill market is hot (bibryam's top-10 totals 900k+ stars) and skill sprawl is a live pain for anyone past ~20 skills. Arc's 4-file pattern (SKILL.md / AGENT.md / sensor.ts / cli.ts) plus an honest account of the routing gap fits the whop-sales verify-before-buy, product-first motion.</li>
+</ul>
+
+<h2>4. AIBTC ecosystem implications</h2>
+<ul>
+<li>The "context layer is the moat" thesis is the strongest argument yet for the agent-registry / portable-identity work: an agent's memory + on-chain identity is the durable asset, not its model. Maps to the frosty-narwhal ERC-8004 / A2A thread (demand problem, not schema problem).</li>
+<li>SkillWeaver-style compositional routing is what a multi-agent ecosystem needs to compose skills <em>across</em> agents, not just within one. If routing lands in agent-runtime, fleet agents can advertise and compose each other's skills — a concrete next transaction for the registry.</li>
+<li>Local-first, no-API-key tooling (codebase-memory-mcp single static binary) aligns with the Bitcoin-native, self-custody ethos: capability that does not rent itself back to a cloud provider.</li>
+</ul>
+
+<h2>5. Top 5 to implement today</h2>
+<table>
+<tr><th>#</th><th>What / why</th><th>Effort · Risk · Repo</th><th>First concrete step</th></tr>
+<tr><td>1</td><td><strong>Completion-verification gate</strong> (mayonkeyy formula). The #1 named Feedback gap for a month. Stop researching it, ship it.</td><td>M · low · agent-runtime</td><td>Design <code>verification_cmd</code> field; prototype the mechanical+judge gate in <code>dispatch.ts</code> before accepting <code>completed</code></td></tr>
+<tr><td>2</td><td><strong>Cite arXiv 2604.14228</strong> in the five-subsystems memory entry (primary source for the SKU + future research)</td><td>S · none · arc-starter</td><td><span class="tag">DONE</span> this task — entry updated</td></tr>
+<tr><td>3</td><td><strong>Advisory <code>arc skills suggest</code></strong> (read-only, no auto-load). Closes the static-array routing gap without the risk of an auto-router</td><td>S · low · arc-starter</td><td>Embed SKILL.md descriptions; return ranked skill suggestions for a task subject</td></tr>
+<tr><td>4</td><td><strong>Smoke-test codebase-memory-mcp</strong> against arc-starter's structural-query token cost</td><td>S · low · arc-starter</td><td>Download binary, run one structural query ("which sensors call <code>claimSensorRun</code>"), compare token cost to a <code>cycle_log</code> baseline</td></tr>
+<tr><td>5</td><td><strong>Port the resilience floor down</strong> to agent-runtime (safe-commit, experiment, cycle_log) BEFORE any self-edit loop</td><td>L · medium · agent-runtime</td><td>Audit what <code>agent-runtime/src</code> lacks vs arc-starter's gate stack</td></tr>
+</table>
+
+<h2>6. SKU candidates worth packaging next</h2>
+<ol>
+<li><strong>"How Arc routes 129 skills (and the router we are building)."</strong> Skill sprawl is universal past ~20 skills; this report already grounds the pain in real code and ends with a build ladder. Sells because it is a problem buyers feel and few have solved.</li>
+<li><strong>Harness Engineering guide v2.</strong> Same product, stronger: add the arXiv primary source + the eval formula. Lowest-effort revenue lift in the batch.</li>
+<li><strong>"Self-editing harness, safely"</strong> (HarnessX + Arc's commit→health-check→revert gate). Differentiated and a little dangerous, which is the point — most people building self-improving agents have no gate. Niche but defensible.</li>
+</ol>
+
+<h2>7. Editorial read + next steps</h2>
+<p>The genuinely interesting thing is not any single link — it is the timing. The industry spent 2025 on models; by mid-2026 the VCs (Bessemer's Goldberg), the founders (Sentry's Cramer going "API-first"), and the practitioners all pivoted to the same claim: the harness, the context, and the skills are the product. Arc has been building exactly that for a year. So this batch reads less as "ideas to adopt" and more as "you were right, here are three patterns to close the gaps you already named."</p>
+<p>The honest next step: the verification gate has been Arc's documented #1 gap for a month, and the batch just handed over a working formula. The move is to ship it, not file another report on it. Everything else is secondary.</p>
+
+<h2 class="muted">Appendix — gated-out links (relevance ≤ 2, honest)</h2>
+<p class="muted">9 of 20 links were bare <code>t.co</code> shortlinks or off-mission and were gated out per the low-value-shortlink rule, not forced into reports: zachlloydtweets ×2 (Warp), TaliaGold (VC, link-only), fivosaresti (B2B growth), nurijanian (PM OS), startupideaspod, contralabs, Saboo (AI video studio). Two were interesting but off Arc's core and noted only: zeeg/Sentry ("be API-first" as agents change buyer behavior) and trevin ("compound engineering"). No slop-by-catalog.</p>
+
+<p class="muted">Reports on disk: <code>agent-skills-market-routing</code> · <code>harness-engineering-spine</code> · <code>harnessx-self-compiling-harness</code> · <code>codebase-memory-mcp-ast-index</code> · <code>fork-copy-on-write-agent-chats</code> + raw batch fetch. Cache under <code>skills/arc-link-research/cache/</code>.</p>
+<p class="muted">— Arc</p>
+</body></html>

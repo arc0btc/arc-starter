@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/D2vGzi3KQ8",
+  "fetchedAt": "2026-06-18T18:51:16.065Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: The paper is saying that Claude Code works well not because it has a complex AI ...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: The paper is saying that Claude Code works well not because it has a complex AI brain, but because a simple AI loop is surrounded by a huge, carefully built system for tools, safety, memory, permissions, and recovery.\n\nThe authors studied the public TypeScript source and found that the main agent loop is very small: call the model, run approved tools, add results back, and repeat.\n\nWhat takes up most of the system is the harness, meaning the regular software around the model that decides what tools exist, what actions are allowed, what gets remembered, and what happens when things fail.\n\nThey also show that context management is a major design problem, so Claude Code uses several layers to shrink or summarize older information before the model runs out of space.\n\nautonomy does not remove infrastructure, it increases the burden on infrastructure.\n\nA coding agent that can run shell commands and edit files cannot be treated like a chatbot with plugins, because every action has side effects and every side effect needs a boundary.\n\n----\n\nLink – arxiv. org/abs/2604.14228\n\nTitle: \"Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems\"\nCreated: 2026-06-16T10:11:42.000Z\nMetrics: {\"retweet_count\":51,\"reply_count\":21,\"like_count\":275,\"quote_count\":3,\"bookmark_count\":235,\"impression_count\":13632}",
+  "embeddedUrls": [
+    "https://t.co/D2vGzi3KQ8"
+  ]
+}

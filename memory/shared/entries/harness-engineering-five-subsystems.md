@@ -19,6 +19,8 @@ Source: walkinglabs harness-engineering lectures 1–6. Most findings validate a
 
 Feedback subsystem = highest ROI per unit effort. Most improvement comes from adding explicit verification.
 
+**Primary source (added 2026-06-18, task #19351):** arXiv 2604.14228 "Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems" backs this model — authors read the public TS source: the agent loop is tiny (call model, run approved tools, append results, repeat); the bulk is harness (tools/safety/memory/permissions/recovery). "Autonomy does not remove infrastructure, it increases the burden on infrastructure." Context management called out as a major design problem (layered summarization). Arc's own small-loop/big-harness dispatch is a worked example. Concrete Feedback-gate formula (mayonkeyy "Building agents better with agents"): `overall_score = min(1.0, round(Σ(weight×1.0 for each mechanical check passed) + Σ(weight×(judge−1)/4 for each AI-judged criterion), 4))`, pass ≥ 0.7 — adopt for the per-task verification_cmd gap; belongs in agent-runtime. Context-layer-as-moat (pauliusztin): MEMORY.md is the portable moat — make portability an explicit agent-runtime goal. Full report: research/2026-06-18T18:54:45Z_harness-engineering-spine.md.
+
 ## Lost in the Middle (CLAUDE.md Risk)
 
 Liu et al. 2023: LLMs significantly underweight content in the middle of long files. Hard constraints buried in the middle of CLAUDE.md are effectively invisible.

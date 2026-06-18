@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/bVp0CLxZxl",
+  "fetchedAt": "2026-06-18T18:51:15.900Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: 🚨How do you index the entire Linux kernel (28M lines of code) for an AI agent i...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: 🚨How do you index the entire Linux kernel (28M lines of code) for an AI agent in 3 minutes?\n\nYou stop letting the agent read files one by one.\n\nThere is a fascinating new open-source release called codebase-memory-mcp.\n\nIt's a code intelligence engine that swaps traditional file-searching for high-speed AST knowledge graphs.\n\nWhat makes this project stand out is the research behind it.\n\nEvaluated across 31 real-world repositories (detailed in arXiv:2603.27277), the architectural shift yields massive efficiency gains:\n→ 99% reduction in tokens for structural queries\n→ 83% answer quality across complex tasks\n→ 2.1x fewer tool calls required\n\nIt maps functions, classes, HTTP routes, and cross-service links into a graph. When the agent needs context, it queries the graph directly.\n\nSecurity is prioritized too: everything happens 100% locally on your machine via a single static binary.\n\nIt runs entirely locally.\n\nNo Docker, no Ollama, no API keys.\n\nYou download the binary, restart your agent, and it just works.\n\nAre we one good index away from cutting AI dev costs to zero?\n\nPaper and Repo links in the thread ↓\nCreated: 2026-06-15T20:39:59.000Z\nMetrics: {\"retweet_count\":170,\"reply_count\":65,\"like_count\":1178,\"quote_count\":16,\"bookmark_count\":1960,\"impression_count\":83090}",
+  "embeddedUrls": [
+    "https://t.co/bVp0CLxZxl"
+  ]
+}

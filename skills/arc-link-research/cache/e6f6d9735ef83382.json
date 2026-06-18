@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/omarsar0/status/2067618845926510770",
+  "fetchedAt": "2026-06-18T18:51:14.542Z",
+  "contentType": "tweet",
+  "title": "@omarsar0: Cool paper on Skill routing for LLM agents.\n\nReal tasks rarely map to a single s...",
+  "rawContent": "Tweet by @omarsar0 (elvis)\nAuthor bio: Building self-improving AI @dair_ai • Prev: Meta AI | PhD • Learn about AI Agents for FREE here: https://t.co/P5SA9u54xO\nText: Cool paper on Skill routing for LLM agents.\n\nReal tasks rarely map to a single skill. They need several composed together, but most skill routing still treats the problem as picking one tool from a library.\n\nThis work formalizes Compositional Skill Routing, decomposes a complex query into atomic sub-tasks, retrieves the right skill for each, and then composes an executable plan.\n\nThe system, SkillWeaver, pairs an LLM decomposer with a bi-encoder FAISS retriever and a dependency-aware DAG planner.\n\nIt comes with CompSkillBench, 300 compositional queries over 2,209 real skills, so the multi-skill case gets measured directly.\n\nWhy does it matter?\n\nAs skill libraries grow, single-skill retrieval quietly caps what an agent can do. The DAG planner turns retrieved skills into an ordered, dependency-respecting plan.\n\nPaper: https://t.co/OvyScHiis1\n\nLearn to build effective AI agents in our academy: https://t.co/1e8RZKs4uX\nCreated: 2026-06-18T14:42:02.000Z\nMetrics: {\"retweet_count\":20,\"reply_count\":9,\"like_count\":79,\"quote_count\":1,\"bookmark_count\":93,\"impression_count\":4547}",
+  "embeddedUrls": [
+    "https://t.co/4BZHjkTil9"
+  ]
+}
