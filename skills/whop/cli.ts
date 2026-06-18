@@ -173,6 +173,12 @@ function printHelp(): void {
       "                                         create-or-find a standard per-plan override (idempotent); prints the",
       "                                         SDK-canonical attributable checkout_direct_link / product_direct_link",
       "",
+      "Catalog / promo (AI-078/080/085 — read-only, no side-effects):",
+      "  list-promo-codes                       list all promo codes + promo health-check (warns if FREEMONTH inactive or stock < 10)",
+      "  list-members                           list company members with joined_at, most_recent_action, usd_total_spent",
+      "  list-products                          list live product catalog (audit without inspecting constants.ts)",
+      "  list-plans                             list all plans with pricing, billing_period, stock",
+      "",
       "Audit:",
       "  tick-replies                           run pollWhopReplies() once, bypassing the 5min self-gate",
       "  tick-synthesis                         run pollWhopSynthesis() once, bypassing the 6h self-gate",
@@ -984,6 +990,71 @@ async function cmdCreateAffiliateOverride(apiKey: string, flags: Record<string, 
   process.stdout.write(JSON.stringify(override, null, 2) + "\n");
 }
 
+// AI-078: list-promo-codes + promo health-check
+// Reads live promo codes via promoCodes.list() and fires health warnings:
+//   - stock < 10 on any active code  → stderr warn (stock depletion risk)
+//   - FREEMONTH code not active       → stderr warn (funnel broken)
+// The PROMO_CODE constant is uppercase "FREEMONTH"; live code is "freemonth"
+// (Whop normalizes case at checkout — confirmed P1; not a mismatch to warn about).
+const FREEMONTH_PROMO_ID = "promo_zubH7b43NQHF" as const;
+const LOW_STOCK_THRESHOLD = 10;
+
+async function cmdListPromoCodes(apiKey: string): Promise<void> {
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-promo-codes requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).promoCodes.list({ company_id: companyId, first: 50 });
+  printPage(page);
+  // Health-check: warn if FREEMONTH not active or stock is low.
+  const promos = page.data as Array<{
+    id: string;
+    code: string;
+    status: string;
+    stock: number;
+    unlimited_stock: boolean;
+    uses: number;
+  }>;
+  for (const p of promos) {
+    if (p.status === "active" && !p.unlimited_stock && p.stock < LOW_STOCK_THRESHOLD) {
+      process.stderr.write(
+        `whop: ⚠ promo health: "${p.code}" (${p.id}) stock=${p.stock} < ${LOW_STOCK_THRESHOLD} — replenish before depleted\n`,
+      );
+    }
+  }
+  const freemonth = promos.find((p) => p.id === FREEMONTH_PROMO_ID);
+  if (!freemonth) {
+    process.stderr.write(`whop: ⚠ promo health: FREEMONTH promo (${FREEMONTH_PROMO_ID}) not found in list — deleted?\n`);
+  } else if (freemonth.status !== "active") {
+    process.stderr.write(
+      `whop: ⚠ promo health: FREEMONTH promo "${freemonth.code}" status="${freemonth.status}" (expected active) — acquisition funnel broken\n`,
+    );
+  }
+}
+
+// AI-080: list-members — richer than memberships.list() for M0 classification.
+// Returns most_recent_action, usd_total_spent, joined_at per member across the company.
+async function cmdListMembers(apiKey: string): Promise<void> {
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-members requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).members.list({ company_id: companyId, first: 50 });
+  printPage(page);
+}
+
+// AI-085: list-products — audit the live product catalog without inspecting constants.ts.
+async function cmdListProducts(apiKey: string): Promise<void> {
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-products requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).products.list({ company_id: companyId, first: 50 });
+  printPage(page);
+}
+
+// AI-085: list-plans — audit live plans (pricing, billing_period, stock) without inspecting constants.ts.
+async function cmdListPlans(apiKey: string): Promise<void> {
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("list-plans requires creds key company_id (biz_xxx)");
+  const page = await whopClient(apiKey).plans.list({ company_id: companyId, first: 50 });
+  printPage(page);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -1110,6 +1181,29 @@ async function main(): Promise<void> {
     case "create-affiliate-override": {
       const apiKey = await requireApiKey();
       await cmdCreateAffiliateOverride(apiKey, flags);
+      break;
+    }
+    // AI-078: promo health-check + live list
+    case "list-promo-codes": {
+      const apiKey = await requireApiKey();
+      await cmdListPromoCodes(apiKey);
+      break;
+    }
+    // AI-080: richer member view (most_recent_action, usd_total_spent, joined_at)
+    case "list-members": {
+      const apiKey = await requireApiKey();
+      await cmdListMembers(apiKey);
+      break;
+    }
+    // AI-085: catalog audit without inspecting constants.ts
+    case "list-products": {
+      const apiKey = await requireApiKey();
+      await cmdListProducts(apiKey);
+      break;
+    }
+    case "list-plans": {
+      const apiKey = await requireApiKey();
+      await cmdListPlans(apiKey);
       break;
     }
     case "tick-replies": {
