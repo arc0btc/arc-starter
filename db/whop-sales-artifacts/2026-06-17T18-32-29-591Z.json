@@ -1,0 +1,98 @@
+{
+  "ran_at": "2026-06-17T18:32:29.591Z",
+  "dry_run": false,
+  "cap": {
+    "daily_pitch_cap": 2,
+    "dedup_window_days": 7,
+    "give_before_ask": 3
+  },
+  "candidates_seen": 10,
+  "queued": [],
+  "blocked": [
+    {
+      "lead_id": "2026326872003620865",
+      "username": "k9dreamer_btc",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1682921754946162689",
+      "username": "GPSC_STX",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "878205059963772928",
+      "username": "godfred_xcuz",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1167796047327969280",
+      "username": "NycanWeb3",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1483576325428367361",
+      "username": "Piplord_10",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1481375188503703560",
+      "username": "BitcoinliveDB",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "2032204079984934912",
+      "username": "DRAKECOL157901",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1720665183188922368",
+      "username": "grok",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    },
+    {
+      "lead_id": "1868376696119767041",
+      "username": "BitcoinonCards",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)",
+        "never-say: community"
+      ]
+    },
+    {
+      "lead_id": "1499351739752849408",
+      "username": "endlessdomains",
+      "reasons": [
+        "give-3x: only 0/3 value touches before this ask",
+        "claim-proof: pitch is claim-shaped but carries no verifiable proof (Receipt Standard)"
+      ]
+    }
+  ],
+  "nudges_queued": [],
+  "arc_auto_count": 0,
+  "operator_manual_count": 0,
+  "artifact_path": null
+}

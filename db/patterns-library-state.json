@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-16T20:55:44.302Z",
+  "lastScannedAt": "2026-06-17T21:00:21.265Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -45,15 +45,14 @@
     "dispatch-infra-config",
     "agent-md-authoring-trigger",
     "batch-uniform-error-diagnosis",
+    "smoke-test-task-closure",
     "reflect-per-task-closure",
     "exclusion-rule-accumulation-refactor",
     "completed-task-terminal",
     "fallback-path-observability",
     "kickoff-task-parameter-capture",
-    "documented-inventory-atomicity",
     "research-ecosystem-analysis",
     "version-gated-upgrade-preflight",
-    "haiku-code-edit-floor",
     "credential-gated-cli-graceful-fail",
     "skill-launch-discipline",
     "architecture-evaluation-discipline",
@@ -67,6 +66,8 @@
     "pr-review-at-scale",
     "dispatch-safety-gates",
     "judge-panel-design-diversity",
-    "observation-context-aware-flagging"
+    "observation-context-aware-flagging",
+    "multi-source-instance-key-conflict",
+    "sql-json-pattern-matching-safety"
   ]
 }

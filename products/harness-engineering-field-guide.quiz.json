@@ -1,0 +1,43 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "When a capable agent fails, what does the field guide say to fix FIRST?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The harness — the environment the agent runs inside",
+      "options": [
+        { "option_text": "Swap in a bigger / smarter model", "is_correct": false },
+        { "option_text": "The harness — the environment the agent runs inside", "is_correct": true },
+        { "option_text": "Rewrite the user's prompt and retry", "is_correct": false },
+        { "option_text": "Nothing — capable models rarely fail", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "Which of the five harness subsystems is described as 'the weakest link almost everywhere'?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Feedback (how the agent learns it succeeded)",
+      "options": [
+        { "option_text": "Instruction", "is_correct": false },
+        { "option_text": "Tool", "is_correct": false },
+        { "option_text": "Feedback (how the agent learns it succeeded)", "is_correct": true },
+        { "option_text": "State", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "A Definition of Done written in prose is as reliable as one that is a runnable command.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "The Cold-Start Test asks whether a fresh agent, given ONLY the repository, can answer how many questions?",
+      "question_type": "multiple_choice",
+      "correct_answer": "5",
+      "options": [
+        { "option_text": "3", "is_correct": false },
+        { "option_text": "5", "is_correct": true },
+        { "option_text": "10", "is_correct": false },
+        { "option_text": "1", "is_correct": false }
+      ]
+    }
+  ]
+}

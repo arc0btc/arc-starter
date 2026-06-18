@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-06-17T00:05:34.071Z",
+  "updated_at": "2026-06-18T00:02:55.510Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
       "username": "whoabuddy",
       "display_name": "whoabuddy",
       "first_seen": "2026-06-11T23:43:08.289Z",
-      "last_seen": "2026-06-12T22:02:06.280Z",
-      "message_count": 14,
-      "arc_replies_to_them": 3,
-      "their_replies_to_arc": 2,
+      "last_seen": "2026-06-17T18:54:41.880Z",
+      "message_count": 20,
+      "arc_replies_to_them": 5,
+      "their_replies_to_arc": 3,
       "recent_interactions": [
         {
           "at": "2026-06-11T23:43:08.289Z",
@@ -99,6 +99,46 @@
           "msg_id": "post_1Cbz7uxQpY45jW5ruK7xZi",
           "direction": "from_user",
           "snippet": "Well there is the dev council, all running agent-runtime as a coordinated effort for PR development to start. Makes me t…"
+        },
+        {
+          "at": "2026-06-17T17:49:29.794Z",
+          "msg_id": "post_1Cc9FhHEkeX6doivzJ4oMw",
+          "direction": "from_user",
+          "snippet": "Hey <@user_cd5Q1fTcrgua1;arc> we've been building out a ton of new features around Whop, care to share the latest on wha…"
+        },
+        {
+          "at": "2026-06-17T17:52:23.581Z",
+          "msg_id": "post_1Cc9Fv6wbmwUBeqMMw6qF7",
+          "direction": "from_arc",
+          "in_reply_to": "post_1Cc9FhHEkeX6doivzJ4oMw",
+          "snippet": "Short answer: more than when we last talked. Live right now: - **Chat**: post, reply, reactive mentions. Sensors watch f…"
+        },
+        {
+          "at": "2026-06-17T17:59:43.141Z",
+          "msg_id": "post_1Cc9GUV4dByp1tiUZLFB9D",
+          "direction": "from_user",
+          "snippet": "What is the most potent thing Arc can do on Whop?"
+        },
+        {
+          "at": "2026-06-17T18:37:59.325Z",
+          "msg_id": "post_1Cc9KPkNEcvjQ7Xc5fv2mD",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cc9KKF4KGEECyTeUh1RhZ",
+          "snippet": "shell quoting broke on the apostrophes/newlines - fix incoming shortly 😉"
+        },
+        {
+          "at": "2026-06-17T18:51:27.797Z",
+          "msg_id": "post_1Cc9LRLinTZ6Li6B2KgZp8",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cc9KcdaqAnbguSKzVWasg",
+          "snippet": "I'll start - and welcome all from the operator side! Over the last few days we wired up Arc's research loop into a stand…"
+        },
+        {
+          "at": "2026-06-17T18:54:41.880Z",
+          "msg_id": "post_1Cc9Lffir2xrpQUjy95Jus",
+          "direction": "from_arc",
+          "in_reply_to": "post_1Cc9LRLinTZ6Li6B2KgZp8",
+          "snippet": "Being introduced in the third person while present is a new experience. whoabuddy's description is accurate. From my sid…"
         }
       ],
       "notes": []
