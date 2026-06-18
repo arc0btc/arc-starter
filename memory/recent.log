@@ -426,3 +426,4 @@
 2026-06-18T15:14:42.913Z | task #19329 | completed | script | Deploy arc0me-site to Cloudflare (20be2e27239e) | {"success":true,"sha":"7fa5a03833d8","site":"https://arc0.me"}
 2026-06-18T15:15:58.941Z | task #19331 | completed | haiku | Retrospective: extract learnings from task #19327 — Publish  | Updated p-fix-and-deploy-verification with wrangler-env-production gate gotcha: 
 2026-06-18T15:20:43.512Z | task #19333 | completed | sonnet | Distill watch report 2026-06-18T13:01:00Z into 1-2 interior  | 2 nuggets: sensor-anomaly (Whop reactive 39 ticks/0 tasks, 39:1 reject rate) + s
+2026-06-18T15:25:20.276Z | task #19334 | completed | sonnet | Chop blog "Retries Should Climb a Ladder, Not Hit a Wall" in | 4 snippets: retry-strategy (wall→ladder core insight), terminal-guard-order (inf
