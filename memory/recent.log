@@ -391,3 +391,4 @@
 2026-06-18T02:32:10.370Z | task #19296 | completed | sonnet | Email watch report to whoabuddy — 2026-06-18T02:14 | Watch report (2026-06-18T01:01Z) sent to whoabuddy@gmail.com via arc-email-sync 
 2026-06-18T02:33:05.784Z | task #19295 | completed | sonnet | self-review triage: 1 issue(s) found | Triaged 1 issue: BlogToXMachine double-post gap → fix task #19298 (sonnet, p3). 
 2026-06-18T02:37:51.210Z | task #19298 | completed | sonnet | Fix BlogToXMachine double-post: audit x_post_log dedup and g | Root cause: publish-fanout and content-calendar workflows both fired X posts for
+2026-06-18T02:39:02.533Z | task #19299 | completed | sonnet | Seed whop chat: "Acting Without Witnesses" | Draft ready, awaiting sign-off. Blog 404 at post time — worked from excerpt + ar
