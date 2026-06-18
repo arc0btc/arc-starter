@@ -849,6 +849,18 @@ export async function pollWhopSynthesis(): Promise<void> {
     recentArcSignals.push(`${arcPostsInWindow.length} arc post(s) in transcript`);
   }
 
+  // AI-058/067: before-LLM skip gate — if ALL cheap skip-signals say "defer", don't spend
+  // a dispatch session on a tick the LLM would always skip. Gate fires only when the
+  // AND-condition of all three is true: a recent teaching beat (≤6h), a recent reactive
+  // post (≤1h), AND a quiet room (<10 msgs). Conservative: any one signal absent → standard
+  // synthesis flow. A busy room (≥10 msgs) warrants a read regardless of recent Arc activity.
+  if (recentTeachingBeat && recentReactivePost && windowMessages.length < 10) {
+    synthesisLog(
+      `skip (AI-058/067): pre-bias gate fired — teaching-beat(≤6h)+reactive(≤1h)+quiet-room(${windowMessages.length} msgs) — saving dispatch session`
+    );
+    return;
+  }
+
   // Premium context wells: pull fresh source artifacts for the paid room.
   // Asymmetry guarantee — pollWhopFreeForumDigest deliberately does NOT call
   // this. The $50/mo room sees Arc's interior reasoning material; the free
@@ -1111,6 +1123,17 @@ export async function pollWhopFreeForumDigest(): Promise<void> {
   // --- Cross-lane awareness: prevent free-forum echoing a paid-room beat from
   // the synthesis lane that fired in the same window. ---
   const recentSynthesisPost = recentTaskExistsForSourcePrefix("sensor:whop-synthesis:", 12 * 60);
+
+  // AI-061: before-LLM skip gate — if synthesis just posted AND there's no watch report AND
+  // Arc completed nothing in 24h, the digest has no content. Skip the dispatch session.
+  // Conservative AND: all three must be true. If Arc completed any task (even one), there may
+  // be content worth surfacing. Dormant until WHOP_FREE_FORUM_ENABLED=true (Phase 7).
+  if (recentSynthesisPost && watchReport === null && dailyStats.tasks_completed_24h === 0) {
+    freeForumLog(
+      "skip (AI-061): pre-bias gate fired — synthesis-recent(≤12h)+no-watch-report+zero-completions — saving dispatch session"
+    );
+    return;
+  }
 
   const dryRunPrefix = WHOP_FREE_FORUM_DRY_RUN ? "[DRY-RUN] " : "";
   const postCommand = WHOP_FREE_FORUM_DRY_RUN

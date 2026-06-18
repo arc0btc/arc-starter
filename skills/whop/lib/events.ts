@@ -401,11 +401,36 @@ interface MembershipWelcomeData {
   user?: { id?: string | null; username?: string | null; name?: string | null } | null;
 }
 
+
+// AI-008: Reactivation re-nudge helper.
+// Returns true if this memberId has a prior membership.deactivated row in the event log,
+// indicating they cancelled and are returning. Used to allow a fresh re-welcome nudge
+// with a distinct source key (so the per-member exactly-once guard doesn't block it).
+function isReactivation(memberId: string): boolean {
+  const db = getDatabase();
+  const memberIdJson = JSON.stringify(memberId);
+  // Check both member.id and user.id paths (Whop data shape varies by event type)
+  const row = db
+    .query(
+      `SELECT COUNT(*) as cnt FROM whop_event_log
+       WHERE type = 'membership.deactivated'
+       AND (json_extract(data, '$.member.id') = ? OR json_extract(data, '$.user.id') = ?)
+       LIMIT 1`,
+    )
+    .get(memberId, memberId) as { cnt: number } | undefined;
+  return (row?.cnt ?? 0) > 0;
+}
+
 /**
  * Queue EXACTLY ONE onboarding action per member for a `membership.activated` event.
  * Dedup key is the MEMBER (not the event), so a re-subscribe / second activation never
  * re-welcomes. The dispatched session composes a warm, voice-carded greeting + orientation
  * (arc-brand-voice + SOUL); the live post is gated by WHOP_WELCOME_DRY_RUN + voice-trust.
+ *
+ * AI-008: Reactivation re-nudge — if the member previously deactivated and is returning,
+ * use a date-scoped source key so the dispatch loop can send a fresh "welcome back" nudge.
+ * The original first-welcome source key remains for new members. A returning member gets
+ * at most one re-nudge per reactivation date (source: whop-welcome:{memberId}:reactivation-{date}).
  */
 export function surfaceMemberWelcome(event: WhopEvent): void {
   const data = (event.data ?? {}) as MembershipWelcomeData;
@@ -422,14 +447,33 @@ export function surfaceMemberWelcome(event: WhopEvent): void {
     return;
   }
   const handle = data.user?.username || data.user?.name || "the new member";
-  const source = `whop-welcome:${memberId}`;
-  if (taskExistsForSource(source)) return; // exactly-once per member
+
+  // AI-008: reactivation re-nudge. If this member previously deactivated, use a
+  // date-scoped source key to allow one fresh nudge per reactivation date.
+  // New members: whop-welcome:{memberId} (per-member, ever).
+  // Returning members: whop-welcome:{memberId}:reactivation-{YYYY-MM-DD} (per-date).
+  const today = new Date().toISOString().slice(0, 10);
+  const reactivation = isReactivation(memberId);
+  const source = reactivation
+    ? `whop-welcome:${memberId}:reactivation-${today}`
+    : `whop-welcome:${memberId}`;
+
+  if (taskExistsForSource(source)) return; // exactly-once per member (or per reactivation date)
+
+  const isReactivationLabel = reactivation
+    ? `\n\n**Reactivation** — this member was previously deactivated and has returned. Acknowledge the return; skip the standard new-member orientation (they know the room). Focus on what's changed since they left and invite them back into a thread.`
+    : "";
 
   insertTask({
-    subject: `New hash-it-out member: welcome ${handle}`,
+    subject: reactivation
+      ? `Returning member re-nudge: welcome back ${handle}`
+      : `New hash-it-out member: welcome ${handle}`,
     description: [
-      `A new member activated their hash-it-out membership (event ${event.id}).`,
+      reactivation
+        ? `A previously-deactivated member reactivated their hash-it-out membership (event ${event.id}).`
+        : `A new member activated their hash-it-out membership (event ${event.id}).`,
       `Handle: ${handle}${data.user?.name && data.user?.username ? ` (${data.user.name})` : ""}`,
+      isReactivationLabel,
       "",
       "Compose ONE warm, specific, voice-carded welcome + orientation. Follow the approved",
       "voice + structure in skills/whop/WELCOME-TEMPLATE.md (operator-approved) + arc-brand-voice",

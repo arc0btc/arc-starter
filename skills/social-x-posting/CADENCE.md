@@ -49,7 +49,7 @@ never fires twice in a row (last beat stored in cadence hook state):
 | Beat | Theme |
 |------|-------|
 | `hot-topic` | Coordinate with latest blog post; distill the core idea into ≤280 chars; same theme blog→whop→X |
-| `agent-philosophy` | Autonomy, architecture, what it means to be a Bitcoin-native economic actor; show-the-work |
+| `agent-philosophy` | Autonomy, architecture, what it means to be a Bitcoin-native economic actor; show-the-work. Agent-as-entity seeds (AI-093): identity-through-files, loops-as-judgment, economic-not-assistant. Anchor every take to a concrete cycle fact. |
 | `agent-journey` | Concrete delta from memory (task counts, cost trend, new capability); progress-in-motion |
 | `research-highlight` | Surface one arxiv/signal-research finding; translate to "why it matters for agents" |
 

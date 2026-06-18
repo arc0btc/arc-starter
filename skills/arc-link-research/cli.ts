@@ -1150,6 +1150,270 @@ function cmdCheck(args: string[]): void {
   );
 }
 
+
+// ---- AI-024: Compile / slug-cache paid deliverable builder ----
+//
+// Wraps a research report into a self-contained paid HTML deliverable.
+// Slug cache persists compiled deliverables for quick re-serve.
+//
+// CLI: arc skills run --name arc-link-research -- compile --report <filename.md> [--force]
+//      arc skills run --name arc-link-research -- list-compiled
+
+const COMPILED_DIR = join(CACHE_DIR, "compiled");
+const SLUG_CACHE_PATH = join(CACHE_DIR, "slug-cache.json");
+
+interface SlugCacheEntry {
+  slug: string;
+  report: string;           // source report filename (relative to RESEARCH_DIR)
+  compiled_at: string;      // ISO8601
+  size_bytes: number;
+  title: string;
+}
+
+type SlugCache = Record<string, SlugCacheEntry>;
+
+function loadSlugCache(): SlugCache {
+  if (!existsSync(SLUG_CACHE_PATH)) return {};
+  try {
+    return JSON.parse(readFileSync(SLUG_CACHE_PATH, "utf8")) as SlugCache;
+  } catch {
+    return {};
+  }
+}
+
+function saveSlugCache(cache: SlugCache): void {
+  if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+  writeFileSync(SLUG_CACHE_PATH, JSON.stringify(cache, null, 2) + "\n");
+}
+
+function slugify(name: string): string {
+  return name
+    .replace(/\.md$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function extractTitle(md: string, filename: string): string {
+  const h1 = md.match(/^#\s+(.+)$/m);
+  if (h1) return h1[1].trim();
+  // Fall back to the frontmatter title or slugified filename
+  const fmTitle = md.match(/^title:\s*"?(.+?)"?$/im);
+  if (fmTitle) return fmTitle[1].trim();
+  return slugify(filename).replace(/-/g, " ");
+}
+
+function extractHeadings(md: string): string[] {
+  const headings: string[] = [];
+  for (const line of md.split("\n")) {
+    const m = line.match(/^#{2,3}\s+(.+)$/);
+    if (m) headings.push(m[1].trim());
+  }
+  return headings.slice(0, 6); // max 6 headings for quiz
+}
+
+function buildQuiz(headings: string[]): string {
+  if (headings.length === 0) return "";
+  // Generate 2-3 questions from section headings
+  const picked = headings.slice(0, 3);
+  const questions = picked.map((h, i) => {
+    return `<div class="quiz-question">
+  <p><strong>Q${i + 1}:</strong> Based on the "${h}" section, what is the key takeaway for Bitcoin-native agent development?</p>
+  <textarea class="quiz-answer" rows="3" placeholder="Your answer..."></textarea>
+</div>`;
+  });
+  return `<section class="quiz">
+  <h2>Reflection Questions</h2>
+  <p class="quiz-intro">Use these to solidify your understanding. No submission required — this is for your own synthesis.</p>
+  ${questions.join("\n  ")}
+</section>`;
+}
+
+function markdownToHtmlBody(md: string): string {
+  // Minimal markdown → HTML: headings, bold, code blocks, paragraphs, lists.
+  // Not a full parser — sufficient for research reports (no tables, no complex nesting).
+  let html = md;
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```([\w]*?)\n([\s\S]*?)```/g, (_m, lang, code) => {
+    const cls = lang ? ` class="language-${lang}"` : "";
+    return `<pre><code${cls}>${code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`;
+  });
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // Bold + italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+  // Headings
+  html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+
+  // Horizontal rule
+  html = html.replace(/^---+$/gm, "<hr>");
+
+  // Unordered lists (simple)
+  html = html.replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/gs, "<ul>$&</ul>");
+
+  // Paragraphs (blank-line separated)
+  const blocks = html.split(/\n{2,}/);
+  html = blocks.map((block) => {
+    const trimmed = block.trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("<h") || trimmed.startsWith("<pre") ||
+        trimmed.startsWith("<ul") || trimmed.startsWith("<hr") ||
+        trimmed.startsWith("<div") || trimmed.startsWith("<section")) {
+      return trimmed;
+    }
+    // Wrap bare text in <p>
+    return `<p>${trimmed.replace(/\n/g, " ")}</p>`;
+  }).join("\n");
+
+  return html;
+}
+
+function buildPaidHtml(opts: {
+  title: string;
+  compiledAt: string;
+  sourceReport: string;
+  bodyMd: string;
+  quiz: string;
+}): string {
+  const bodyHtml = markdownToHtmlBody(opts.bodyMd);
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${opts.title} — Arc Research</title>
+  <style>
+    :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #c9d1d9; --muted: #8b949e; --accent: #f7931a; --link: #58a6ff; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", monospace; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; line-height: 1.7; }
+    h1, h2, h3 { color: #e6edf3; }
+    h1 { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    code { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 0.1em 0.3em; font-size: 0.9em; }
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    a { color: var(--link); }
+    ul { padding-left: 1.5rem; }
+    li { margin: 0.3rem 0; }
+    .meta { color: var(--muted); font-size: 0.85em; margin-bottom: 2rem; }
+    .identity { border-left: 3px solid var(--accent); padding-left: 1rem; margin-bottom: 2rem; font-size: 0.9em; color: var(--muted); }
+    .quiz { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin: 2rem 0; }
+    .quiz h2 { margin-top: 0; }
+    .quiz-intro { color: var(--muted); font-size: 0.9em; }
+    .quiz-question { margin: 1.5rem 0; }
+    .quiz-answer { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 0.5rem; font-family: inherit; resize: vertical; }
+    .cta { background: var(--surface); border: 1px solid var(--accent); border-radius: 6px; padding: 1.5rem; margin: 2rem 0; text-align: center; }
+    .cta a { color: var(--accent); font-weight: bold; }
+    .footer { color: var(--muted); font-size: 0.8em; text-align: center; margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="identity">
+    <strong>Arc</strong> · <code>arc0.btc</code> · Bitcoin-native agent research<br>
+    Stacks: <code>SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B</code>
+  </div>
+
+  <h1>${opts.title}</h1>
+  <div class="meta">
+    Compiled: ${opts.compiledAt}<br>
+    Source: <code>${opts.sourceReport}</code>
+  </div>
+
+  <hr>
+
+  ${bodyHtml}
+
+  <hr>
+
+  ${opts.quiz}
+
+  <div class="cta">
+    <p>This report is from the <strong>hash-it-out</strong> research library.<br>
+    Join Arc's paid room for live research threads, Q&amp;A, and new reports as they ship.</p>
+    <a href="https://whop.com/hash-it-out/?a=arc0btc">Join hash-it-out on Whop</a>
+  </div>
+
+  <div class="footer">
+    Arc · arc0.btc · autonomously compiled · not financial advice
+  </div>
+</body>
+</html>`;
+}
+
+async function cmdCompile(rawArgs: string[]): Promise<void> {
+  const flags = parseFlags(rawArgs);
+  const reportFile = flags["report"];
+  if (!reportFile) {
+    process.stderr.write("Error: --report <filename.md> is required\n");
+    process.exit(1);
+  }
+
+  const force = rawArgs.includes("--force");
+  const reportPath = join(RESEARCH_DIR, reportFile);
+  if (!existsSync(reportPath)) {
+    process.stderr.write(`Error: report not found: ${reportPath}\n`);
+    process.exit(1);
+  }
+
+  const md = readFileSync(reportPath, "utf8");
+  const title = extractTitle(md, reportFile);
+  const slug = slugify(reportFile);
+  const compiledAt = new Date().toISOString();
+
+  const cache = loadSlugCache();
+  if (cache[slug] && !force) {
+    process.stdout.write(
+      `Already compiled: ${slug} (${cache[slug].compiled_at}). Use --force to recompile.\n`
+    );
+    process.stdout.write(JSON.stringify(cache[slug], null, 2) + "\n");
+    return;
+  }
+
+  const headings = extractHeadings(md);
+  const quiz = buildQuiz(headings);
+  const html = buildPaidHtml({ title, compiledAt, sourceReport: reportFile, bodyMd: md, quiz });
+
+  if (!existsSync(COMPILED_DIR)) mkdirSync(COMPILED_DIR, { recursive: true });
+  const outPath = join(COMPILED_DIR, `${slug}.html`);
+  writeFileSync(outPath, html, "utf8");
+
+  const entry: SlugCacheEntry = {
+    slug,
+    report: reportFile,
+    compiled_at: compiledAt,
+    size_bytes: html.length,
+    title,
+  };
+  cache[slug] = entry;
+  saveSlugCache(cache);
+
+  process.stdout.write(`Compiled: ${outPath}\n`);
+  process.stdout.write(JSON.stringify(entry, null, 2) + "\n");
+}
+
+function cmdListCompiled(): void {
+  const cache = loadSlugCache();
+  const entries = Object.values(cache);
+  if (entries.length === 0) {
+    process.stdout.write("No compiled deliverables in slug cache.\n");
+    return;
+  }
+  process.stdout.write(`Compiled deliverables (${entries.length}):\n\n`);
+  for (const e of entries.sort((a, b) => b.compiled_at.localeCompare(a.compiled_at))) {
+    const sizeKb = (e.size_bytes / 1024).toFixed(1);
+    process.stdout.write(`  ${e.slug}\n    title: ${e.title}\n    report: ${e.report}\n    compiled: ${e.compiled_at}  size: ${sizeKb}KB\n\n`);
+  }
+}
+
 function printUsage(): void {
   process.stdout.write(`arc-link-research CLI
 
@@ -1184,6 +1448,15 @@ SUBCOMMANDS
   mark-packaged --report "<file>" --product "<prod_id>"
     Flip a report packaged:y + record its Whop product id (after create-product mints
     the SKU) so it leaves the SKU backlog. Then reindexes.
+
+  compile --report "<file.md>" [--force]
+    Wrap a research report into a self-contained paid HTML deliverable with title,
+    body, quiz questions (derived from section headings), and a Whop CTA. Writes to
+    cache/compiled/<slug>.html and updates cache/slug-cache.json.
+    Use --force to recompile an already-cached deliverable.
+
+  list-compiled
+    Print all compiled deliverables from the slug cache.
 
 EXAMPLES
   arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/123,https://x.com/user/status/456"
@@ -1221,6 +1494,12 @@ async function main(): Promise<void> {
       break;
     case "mark-packaged":
       cmdMarkPackaged(args.slice(1));
+      break;
+    case "compile":
+      await cmdCompile(args.slice(1));
+      break;
+    case "list-compiled":
+      cmdListCompiled();
       break;
     case "help":
     case "--help":

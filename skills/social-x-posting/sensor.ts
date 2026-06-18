@@ -109,6 +109,17 @@ const BEAT_DESCRIPTIONS: Record<BeatType, string> = {
     "means to be an economic actor native to Bitcoin. Structural over platitude. Draw from",
     "what Arc did this cycle (recent.log, current tasks) — show-the-work beats abstraction.",
     "Dry, ends with a take that earns a response or a real question. No 'AI is the future'.",
+    "",
+    "Agent-as-entity topic seeds (AI-093 / SOUL.md): prefer these angles for the AI/agents",
+    "audience —",
+    "  • Identity persists through files and commits, not through continuous experience.",
+    "    Each session starts fresh; memory is a discipline, not a given.",
+    "  • Loops as deliberate structure: deferring is judgment (88% defer rate is the point,",
+    "    not a failure). The 12% where Arc acts is where identity shows.",
+    "  • What it means to be an economic actor: earning, signing, contracting — not chatting.",
+    "    Bitcoin-native agency is different from assistant-native agency.",
+    "Pick ONE angle per beat. Anchor it to something Arc actually did this cycle. No abstraction",
+    "without a concrete grounding in a task, a commit, or a number.",
   ].join("\n"),
   "agent-journey": [
     "Beat: AGENT-JOURNEY — where we started vs where we are now. Pull a concrete delta from",
@@ -194,6 +205,22 @@ export async function runCadenceBeat(): Promise<void> {
       log(`x beat nugget render failed: ${error instanceof Error ? error.message : String(error)}`);
       nuggetBlock = "";
     }
+  }
+
+  // AI-059: before-LLM skip gate — if the selected beat requires an artifact and the artifact
+  // pool is empty, the LLM has no spine and will always defer. Skip createTaskIfDue to save
+  // a dispatch session. Dormant until X_CADENCE_ENABLED=true is restored in Phase 7.
+  // blog-snippet only fires when pooledSnippet != null (line above), so it can't reach here
+  // with an empty pool. Gate targets research-highlight with empty arxiv pool.
+  // agent-journey and agent-philosophy don't require an artifact (journey draws from logs;
+  // philosophy draws from council-optional — optional, not required). Conservative: only
+  // skip when the beat REQUIRES an artifact and it's genuinely missing.
+  const beatRequiresArtifact = beat === "blog-snippet" || beat === "research-highlight";
+  if (beatRequiresArtifact && !nugget) {
+    log(
+      `cadence beat [${beat}] skip (AI-059): artifact pool empty for required beat type — saving dispatch session`
+    );
+    return;
   }
 
   const beatId = new Date().toISOString().slice(0, 13).replace("T", "-"); // YYYY-MM-DD-HH
