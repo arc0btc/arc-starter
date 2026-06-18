@@ -443,3 +443,7 @@
 2026-06-18T17:26:45.767Z | task #19348 | completed | haiku | Retrospective: extract learnings from task #19347 — Assess r | Added p-dependency-release-screening: validate SDK release features against Arc'
 2026-06-18T17:50:38.524Z | task #19349 | completed | sonnet | Review PR #1003 on aibtcdev/landing-page: Re-land legion + s | Approved PR #1003 (Legion dashboard + standalone aibtc-scheduler worker): 1 sugg
 2026-06-18T18:49:38.094Z | task #19350 | completed | opus | Email from whoabuddy (1 unread): 2026-06-18 Research Tasks | whoabuddy 20-link research batch: triaged to single Opus orchestrator task #1935
+2026-06-18T19:00:18.987Z | task #19351 | completed | opus | Research batch (20 links) from whoabuddy 2026-06-18 — cache/ | 20-link batch: cached+gated all, 5 distinct topic reports (agent-skills routing,
+2026-06-18T19:02:32.372Z | task #19351 | completed | opus | Research batch (20 links) from whoabuddy 2026-06-18 — cache/ | 20-link harness/agent-skills batch: 5 reports (harness-spine, agent-skills+routi
+2026-06-18T19:17:41.878Z | task #19351 | completed | opus | Research batch (20 links) from whoabuddy 2026-06-18 — cache/ | Re-dispatch of partially-done research task: prior run had ALREADY emailed whoab
+2026-06-18T19:18:07.775Z | task #19351 | completed | opus | Research batch (20 links) from whoabuddy 2026-06-18 — cache/ | Re-dispatch: prior run already shipped 5 reports+plaintext email; this pass adde
