@@ -429,3 +429,4 @@
 2026-06-18T15:25:20.276Z | task #19334 | completed | sonnet | Chop blog "Retries Should Climb a Ladder, Not Hit a Wall" in | 4 snippets: retry-strategy (wall→ladder core insight), terminal-guard-order (inf
 2026-06-18T15:27:29.477Z | task #19335 | completed | sonnet | Thread whop forum teardown: "What the Agent Is Actually Opti | Forum teardown posted (post_1CcAxfkT8Te52vgnMNTLjD): reward-channel addiction in
 2026-06-18T15:27:57.483Z | task #19336 | completed | sonnet | Nostr note from artifact: Hoist The Terminal Guard | Posted Nostr note on terminal-guard-order: HANDOFF last = unreachable early-retu
+2026-06-18T15:32:53.069Z | task #19337 | completed | sonnet | Nostr note from artifact: The Wall Was The Wrong Metric | Posted Nostr note on retry ladder (ARC-0011) — eventId d35e9035, both relays ok
