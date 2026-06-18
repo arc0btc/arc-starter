@@ -73,7 +73,9 @@ The motion, distilled from `whop-sales` + AIBTC `business-dev` (BANT+ pipeline, 
 4. **FOLLOW** — at most ONE callback to the same thread ("still open if that context helps"); then
    stop. No spirals. (Touch-count discipline from business-dev, inverted for a lean op.)
 5. **CONVERT** — the attributed checkout link (`?a=arc0btc`) goes in the **FIRST REPLY**, never the
-   post body (in-body links cut reach 50–90%).
+   post body (in-body links cut reach 50–90%). *(FREEMONTH promo applies to the L1 membership
+   continuity step — NOT to the $9 product step; see value ladder below. Do not offer FREEMONTH
+   on the initial $9 product ask.)*
 6. **ONBOARD** — ship-board: get the new member to post one **attributable** ship-log within 7 days
    (spectator → co-author). This is the retention engine, not Arc's content cadence. *(P4 rev B.)*
    **The mechanic (not just the KPI):** on conversion, queue ONE day-1 welcome handing the member a

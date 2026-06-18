@@ -25,6 +25,32 @@ const INDEX_FILE = "INDEX.md";
 // Re-enable: flip to false (grep `SIGNAL_FILING_DISABLED` to find all gates).
 const SIGNAL_FILING_DISABLED = true;
 
+// ---- AI-025: Topic controlled-vocabulary ------------------------------------
+//
+// The dedup shelf and SKU backlog use topic tags to surface coverage gaps.
+// Unknown topics drift the catalog. TOPIC_VOCAB defines the canonical set;
+// the reindex pass warns on out-of-vocab topics (non-blocking).
+// The research-to-SKU pipeline (P10B) will expand this set per batch.
+const TOPIC_VOCAB = new Set([
+  // agent harness & architecture
+  "agent-harness", "agent-runtime", "agent-architecture", "dispatch-loop",
+  "task-queue", "state-machine", "memory", "feedback-loop",
+  // bitcoin & stacks
+  "bitcoin", "stacks", "clarity", "smart-contracts", "sbtc", "l2",
+  "lightning", "ordinals", "runes", "bns",
+  // monetization & x402
+  "x402", "monetization", "payments", "whop", "subscription",
+  // tooling
+  "testing", "verification", "ci-cd", "deployment", "monitoring",
+  // research
+  "llm", "prompt-engineering", "tool-use", "rag", "multi-agent",
+]);
+
+/** Return topics that are NOT in TOPIC_VOCAB (for reindex warnings). */
+function unknownTopics(topics: string[]): string[] {
+  return topics.filter((t) => !TOPIC_VOCAB.has(t));
+}
+
 // ---- Helpers ----
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -1045,6 +1071,59 @@ function cmdList(): void {
   }
 }
 
+/** AI-027: Retro-migrate legacy research reports to the standard front-matter format.
+ *  Legacy reports have no leading ---...--- front-matter block. For each:
+ *    - Extract the ISO timestamp from the filename (YYYY-MM-DDTHH:MM:SSZ_research.md).
+ *    - Prepend an emptyFrontmatter() block with fetched_at = filename-ts, source_url = "legacy-migration".
+ *    - Write back. A report that can't be parsed as a filename ISO is skipped with a warning.
+ *  Returns { migrated, skipped, total }. Idempotent: re-running won't touch already-standard reports.
+ */
+function cmdMigrateLegacy(): void {
+  ensureResearchDir();
+  const files = readdirSync(RESEARCH_DIR).filter(
+    (f) => f.endsWith(".md") && f !== INDEX_FILE && !f.startsWith("."),
+  );
+  let migrated = 0;
+  let skipped = 0;
+  let alreadyStandard = 0;
+  for (const f of files) {
+    let raw: string;
+    try {
+      raw = readFileSync(join(RESEARCH_DIR, f), "utf8");
+    } catch {
+      skipped++;
+      continue;
+    }
+    const existing = parseFrontmatter(raw);
+    if (existing) {
+      alreadyStandard++;
+      continue; // already has front-matter — skip
+    }
+    // Extract ISO timestamp from filename: YYYY-MM-DDTHH:MM:SSZ_research.md
+    const m = f.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)/);
+    const fetchedAt = m ? m[1] : "";
+    if (!fetchedAt) {
+      process.stderr.write(`  migrate-legacy: skipping ${f} — filename has no ISO timestamp\n`);
+      skipped++;
+      continue;
+    }
+    const fm = {
+      ...emptyFrontmatter(),
+      source_url: "legacy-migration",
+      fetched_at: fetchedAt,
+      arc_relevance: 0,
+    };
+    const updated = replaceFrontmatter(raw, fm);
+    writeFileSync(join(RESEARCH_DIR, f), updated);
+    migrated++;
+  }
+  const { entries, legacyCount } = loadCatalogEntries();
+  writeFileSync(join(RESEARCH_DIR, INDEX_FILE), buildIndex(entries, { generatedAt: isoNow(), legacyCount }));
+  process.stdout.write(
+    `migrate-legacy: migrated ${migrated} of ${migrated + skipped + alreadyStandard} legacy reports (${alreadyStandard} already standard, ${skipped} skipped). INDEX rebuilt: ${entries.length} catalogued, ${legacyCount} legacy remaining.\n`,
+  );
+}
+
 function cmdReindex(): void {
   const { entries, legacyCount } = loadCatalogEntries();
   const body = buildIndex(entries, { generatedAt: isoNow(), legacyCount });
@@ -1054,14 +1133,25 @@ function cmdReindex(): void {
   // Surface validation warnings so a malformed / slop-shaped report isn't trusted
   // blindly (the standard's anti-slop gates are warnings, not hard blocks).
   let warned = 0;
+  let malformedCount = 0; // AI-026: distinct counter for reports with standard front-matter but invalid fields
+  let vocabWarnings = 0;  // AI-025: topics outside TOPIC_VOCAB
   for (const e of entries) {
     const w = validateFrontmatter(e.fm);
     if (w.length > 0) {
       warned++;
+      malformedCount++; // AI-026: count separately (front-matter present but fails validation)
       process.stderr.write(`  ⚠ ${e.path}: ${w.join("; ")}\n`);
+    }
+    // AI-025: warn on unknown topics (controlled-vocab drift)
+    const unknown = unknownTopics(e.fm.topics);
+    if (unknown.length > 0) {
+      vocabWarnings++;
+      process.stderr.write(`  topic-vocab: ${e.path}: unknown topic(s): ${unknown.join(", ")}\n`);
     }
   }
   if (warned > 0) process.stderr.write(`${warned} report(s) have front-matter warnings (above).\n`);
+  if (malformedCount > 0) process.stderr.write(`${malformedCount} malformed-standard report(s) (front-matter present but fields invalid).\n`); // AI-026
+  if (vocabWarnings > 0) process.stderr.write(`${vocabWarnings} report(s) have out-of-vocab topics (see TOPIC_VOCAB in cli.ts to expand). // AI-025\n`);
 
   // Anti-slop tell: an implausibly high share flagged sku_candidate (the "don't SKU
   // everything" guardrail). Only meaningful once the catalog is non-trivial.
@@ -1435,6 +1525,11 @@ SUBCOMMANDS
   list
     Show recent research reports (active, not archived).
 
+  migrate-legacy
+    Retro-migrate all legacy research reports (no front-matter) to the standard
+    front-matter format (AI-027). Idempotent — re-running won't touch already-standard
+    reports. Run once to migrate the ~147 pre-standard reports. Then reindex.
+
   reindex
     Rebuild research/INDEX.md (the catalog) from every report's front-matter.
     Reports without standard front-matter are counted as legacy, not indexed.
@@ -1485,6 +1580,9 @@ async function main(): Promise<void> {
       break;
     case "reindex":
       cmdReindex();
+      break;
+    case "migrate-legacy":
+      cmdMigrateLegacy(); // AI-027: retro-migrate 147 legacy reports to standard front-matter
       break;
     case "catalog":
       cmdCatalog();

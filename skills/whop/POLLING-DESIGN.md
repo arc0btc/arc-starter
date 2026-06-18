@@ -257,3 +257,140 @@ Phased, mirroring the X cadence pre-launch we already proved:
 5. **Direct-address detection: not in scope yet.** Trigger only on the verified
    `mentions[]`/`mentions_everyone`/`replying_to_message_id` paths. If we learn
    the mention object misses cases, add a name-pattern trigger then.
+
+---
+
+## Push Webhook Design (AI-077, P8)
+
+> **Status (2026-06-18):** VM receiver is ready (ingestWhopEvent is idempotent + handles all event
+> types). The CF Worker relay is NOT deployed — requires a live public HTTPS endpoint (infra deploy
+> outside VM-local scope). Re-classified as operator/RFC for the deploy step.
+
+### Why push beats poll
+
+The current poll-based ingest (`pollWhopEvents` in sensor.ts) has two limitations:
+1. **Latency:** memberships/payments are polled every sensor cycle (~5 min). A sale
+   detected after 5 min delays the receipt/teaser by one full cycle.
+2. **Refund gap:** Whop's REST API never returns `status="refunded"` on membership
+   receipts. The `payment.refunded` type (AI-011) was added as a forward-compat seam
+   for push webhooks, which DO carry the refunded event type in the payload.
+
+Push webhooks eliminate both limitations.
+
+### VM receiver (ALREADY WIRED)
+
+`ingestWhopEvent(event: WhopEvent)` in `skills/whop/lib/events.ts` IS the receiver:
+- Idempotent via source-PK dedup (won't double-ingest the same event).
+- Handles all event types: `membership.activated`, `membership.deactivated`,
+  `payment.succeeded`, `payment.refunded`.
+- The poll-path calls it; a push-path calls it identically.
+
+To receive a Whop webhook payload, parse it into a `WhopEvent` shape and call
+`ingestWhopEvent(event)`. No new receiver code needed.
+
+### CF Worker relay (OPERATOR STEP — not deployed)
+
+Whop sends webhooks to a public HTTPS URL. The VM has no public IP. A CF Worker relay
+bridges the gap:
+
+```
+Whop → POST /webhook (CF Worker)
+  1. Verify HMAC-SHA256 signature (WHOP_WEBHOOK_SECRET header + body)
+  2. Forward POST to VM via Cloudflare Tunnel / ngrok (internal endpoint)
+  3. VM parses payload → ingestWhopEvent()
+```
+
+**Operator steps to deploy:**
+1. Create a CF Tunnel (`cloudflared tunnel create whop-relay`) pointing at VM port.
+2. Deploy a CF Worker that:
+   - Reads `WHOP_WEBHOOK_SECRET` from env.
+   - Verifies `whop-signature-v1` header (HMAC-SHA256 of `"{ts}.{body}"`).
+   - On valid signature: forwards to tunnel URL with a timeout.
+   - Returns 200 immediately (Whop expects fast ACK).
+3. Register the public CF Worker URL in Whop Dashboard → Webhooks.
+4. Test: `arc skills run --name whop -- tick-events` will confirm DB row for the
+   webhook-ingested event.
+
+**Blocked by:** infra deploy (CF Tunnel + Worker) — outside VM-local scope.
+
+### Refund netting note (AI-011)
+
+The `payment.refunded` event type is defined in `paymentType()` (events.ts) and
+properly nets from `productRevenueCents` in `computeRevenue()`. The poll REST path
+never surfaces refunds (Whop REST API limitation). Push webhooks will send
+`payment.refunded` and the existing code will handle it correctly — no code change
+needed at that point.
+
+---
+
+## SDK Namespace Investigation Findings (P8)
+
+### AI-081: Whop `leads` namespace vs `db/whop-leads.json`
+
+**Finding (2026-06-18 live probe):** `client.leads.list({ company_id })` returns `data=[]`
+(0 leads). The Whop leads API tracks **checkout-page visitor intent** — people who started
+but did not complete checkout. Our `db/whop-leads.json` tracks **chat-interaction
+relationships** (message counts, arc_replies_to_them, interaction snippets) from the paid room.
+
+**Conclusion:** NOT redundant. Both are needed for different purposes:
+- Whop leads API = checkout intent (visitors who abandoned checkout)
+- `db/whop-leads.json` = conversation relationship strength (give-3x signals)
+
+Currently 0 Whop leads because no checkout abandonment tracking is configured. The
+leads API would become useful after setting up checkout configurations (see AI-082).
+
+### AI-082: `checkoutConfigurations` for FREEMONTH auto-apply
+
+**Finding (2026-06-18 live probe):** `client.checkoutConfigurations.list({ company_id })`
+returns `data=[]` — no checkout configurations exist. The SDK supports
+`checkoutConfigurations.create()`, `retrieve()`, and `list()`.
+
+**Path to auto-apply FREEMONTH for `?a=arc0btc` referral links:**
+```typescript
+await client.checkoutConfigurations.create({
+  company_id: COMPANY_ID,
+  // ... checkout config with promo pre-filled for affiliate sessions
+});
+```
+
+**Conclusion:** Possible via SDK but needs operator decision (creates a visible config
+in Whop dashboard; must be tested in staging first). Currently users must type FREEMONTH
+manually at checkout — Whop normalizes case (confirmed P1). Mark as operator/RFC.
+
+### AI-086: Orphaned product `prod_LDd7mrxopWr1z`
+
+**Finding (2026-06-18 live probe):** `client.products.retrieve('prod_LDd7mrxopWr1z')` returns:
+- `title: "True"`, `route: "true"`, `member_count: 0`
+- `company.id: "biz_KIhdLwQUJXOAnC"` (route="true", title="True")
+- `owner_user.username: "comerhvac"`
+- Created: `2025-02-27` (14 months before our company was created)
+
+**This is NOT our product.** It belongs to a completely different Whop company
+(`comerhvac`'s "True" company). It appeared in prior `get-affiliate-config` output
+only because the wrong `--product` flag value was used. Our `products.list()` correctly
+excludes it (it's not in our catalog).
+
+**Conclusion:** No cleanup needed. Do NOT attempt to modify/delete — it's not ours.
+The affiliate config for our company is clean. Remove `prod_LDd7mrxopWr1z` from any
+future `get-affiliate-config` lookups.
+
+### AI-037: Quiz pass-gate SDK limitation (confirmed)
+
+**Finding (2026-06-18 SDK trace):** The Whop SDK's `courseLessons.update()` accepts
+`assessment_completion_requirement: { minimum_grade_percent: N }` but `courseLessons.retrieve()`
+does NOT echo `assessment_completion_requirement` back. The field is absent from the
+retrieve response shape.
+
+**Confirmed limitation:** The code in `cli.ts` lines 743-751 already documents this:
+> "the pass-gate has been observed NOT to echo back. Confirm and surface — never imply
+> an enforced passing requirement we can't verify."
+
+The SDK emits a `stderr` warning when `quiz_gate_verified !== true`.
+
+**Operator step (manual, Whop UI):**
+1. Whop Dashboard → Products → "The Harness Engineering Field Guide" → Courses.
+2. Open the course → Quiz lesson → Edit.
+3. Set "Minimum grade to pass" to the desired % (recommended: 60%).
+4. Save. The gate is now enforced at the Whop platform level.
+
+**Conclusion:** SDK limitation confirmed. Re-classify AI-037 as operator/manual.

@@ -9,7 +9,7 @@
 //
 // See SKILL.md for command syntax and STRATEGY.md for the monetization plan.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { whopClient } from "./lib/whop-api.ts";
@@ -645,9 +645,9 @@ async function firstOrCreate<T extends { id: string }>(
   list: () => Promise<{ data: unknown[] }>,
   create: () => Promise<T>,
 ): Promise<{ row: T; created: boolean }> {
-  const rows = (await list()).data as T[];
+  const rows = ((await list()).data as T[]).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   if (rows.length > 1) {
-    process.stderr.write(`whop: note: ${rows.length} ${label}s found for this SKU — using the first (expected 1)\n`);
+    process.stderr.write(`whop: note: ${rows.length} ${label}s found for this SKU — using the first by id (expected 1)\n`);
   }
   if (rows[0]) return { row: rows[0], created: false };
   return { row: await create(), created: true };
@@ -708,10 +708,29 @@ async function attachDeliverable(
   let reportFileId: string | null = null;
   if (opts.reportFile) {
     try {
-      const bytes = readFileSync(opts.reportFile.path);
-      const file = new File([bytes], opts.reportFile.filename, { type: opts.reportFile.contentType });
-      reportFileId = ((await client.files.upload(file)) as { id: string }).id;
-      await client.courseLessons.update(reportLesson.id, { attachments: [{ id: reportFileId }] });
+      // AI-040: size guard — 10MB limit before upload attempt to avoid a rejected call leaving
+      // the lesson in a partial state. Whop does not document a hard limit; 10MB is conservative.
+      const fileStats = statSync(opts.reportFile.path);
+      const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+      if (fileStats.size > MAX_FILE_BYTES) {
+        process.stderr.write(
+          `whop: ⚠ report file too large (${fileStats.size} bytes > ${MAX_FILE_BYTES} limit) — skipping upload; report TEXT still delivered.\n`,
+        );
+        reportFileId = null;
+      } else {
+        // AI-038: orphan guard — re-uploading replaces the attachment but the OLD CDN object is orphaned
+        // (Whop files.upload has no delete API). This is acceptable for a once-per-SKU op but worth flagging.
+        const existingLesson = lessons.find((l) => l.title === REPORT_TITLE);
+        if (existingLesson && reportLesson) {
+          process.stderr.write(
+            "whop: note: re-uploading report file — the previous CDN upload is orphaned (Whop has no files.delete). This is expected for a re-run / content refresh.\n",
+          );
+        }
+        const bytes = readFileSync(opts.reportFile.path);
+        const file = new File([bytes], opts.reportFile.filename, { type: opts.reportFile.contentType });
+        reportFileId = ((await client.files.upload(file)) as { id: string }).id;
+        await client.courseLessons.update(reportLesson.id, { attachments: [{ id: reportFileId }] });
+      }
     } catch (e) {
       process.stderr.write(
         `whop: ⚠ report file upload/attach failed (report TEXT still delivered): ${e instanceof Error ? e.message : String(e)}\n`,

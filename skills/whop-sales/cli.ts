@@ -86,7 +86,7 @@ function cmdDoctrine(): void {
       "PIPELINE (signal → retain):",
       "  1. SIGNAL   — surface Class A/B/C leads from reactive/synthesis lanes + X/forum engagement.",
       "  2. QUALIFY  — BANT+ lite: is this a right-audience builder/operator? what did they actually engage?",
-      "  3. PITCH    — ONE message, value-first, sell L1 ($49); cite the specific signal; one element only.",
+      "  3. PITCH    — ONE message, value-first, sell L2 ($9 product); cite the specific signal; one element only.",
       "  4. FOLLOW   — at most ONE callback to the same thread; then stop (no spirals).",
       "  5. CONVERT  — attributed checkout link (?a=arc0btc) + FREEMONTH promo in the FIRST REPLY (never post body).",
       "  6. ONBOARD  — ship-board: new member posts one attributable ship-log within 7 days (P4 rev B).",

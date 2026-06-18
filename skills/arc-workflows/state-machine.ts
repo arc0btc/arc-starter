@@ -401,13 +401,17 @@ export const BlogToXMachine = PublishFanoutMachine;
  *   tier          — work-piece tier; feeds the course-candidacy cluster check.
  *   cadence_anchor — ISO T+0 (blog publish). Missing/invalid → gates fail OPEN (no spacing).
  *
- * TODO (feedback loop → course escalation): wire engagement signals back into context so the
- * T+30d course-candidacy assessment is data-driven rather than time-only:
- *   - whop chat replies on the seeded hot-topic (skills/whop)
- *   - whop forum posts / replies on the teardown thread (skills/whop)
- *   - X engagement (likes/replies/quotes) on the thread (skills/social-x-posting)
- * A future clustering sensor would tally these per `tier`/topic and set ctx.cluster_size +
- * ctx.engagement_score; the course hop would then gate on real signal, not just elapsed time.
+ * AI-054 (engagement feedback loop wired): the signals ARE now available via P3 x_reply_log and
+ * P5 CTAs. The course-candidacy assessment at T+30d can now check real engagement:
+ *   - X engagement: query x_reply_log (social-x-posting/cli.ts) for replies to the CTA post
+ *     (source key: content-calendar:<slug>:x-cta) — available since P5.
+ *   - Whop engagement: query whop_post_log (skills/whop/cli.ts) for the public-forum teaser
+ *     (source key: content-calendar:<slug>:public-teaser) to count replies/engagement.
+ *   - Whop chat replies: check whop_post_log for the whop-chat seed post
+ *     (source key: content-calendar:<slug>:whop-chat) and check for replies in the channel.
+ * The task description at course_candidate state instructs the agent to check these signal
+ * sources before deciding to escalate. A dedicated clustering sensor (ctx.engagement_score)
+ * is a future optimization; the agent-readable signal sources are wired now.
  */
 export interface ContentCalendarContext {
   title?: string;
@@ -624,7 +628,11 @@ Steps:
 2. If fewer than 3 related pieces, do NOT create a course — close this task noting "no cluster yet"; the workflow auto-completes.
 3. If 3+ related pieces, create a course / chapters / lessons from the cluster (skills/whop create-course/create-chapter/create-lesson) — or queue a follow-up task to do so.
 
-TODO: this assessment is currently time-only (T+30d). When the engagement feedback loop lands (whop chat replies, whop forum posts, X engagement → ctx.cluster_size / ctx.engagement_score), gate escalation on real signal, not just elapsed time. See the machine doc-comment.`,
+AI-054 (engagement signals wired): before deciding, CHECK the available engagement signals:
+- X replies to the CTA post: look up x_reply_log in the social-x-posting skill for source key content-calendar:${ctx.slug ?? ""}:x-cta (wired since P5)
+- Whop public-forum teaser replies: run \`arc skills run --name whop -- list-forum-posts --experience exp_YRtS3kgMVeBGzu --limit 10\` and filter for threads seeded from source content-calendar:${ctx.slug ?? ""}:public-teaser
+- Whop chat engagement: check whop_post_log for source key content-calendar:${ctx.slug ?? ""}:whop-chat
+If engagement signals show >=3 substantive replies/interactions across channels AND cluster_size >=3, escalate. Pure time-only (T+30d, no engagement) = close with "no cluster yet".`,
         };
       },
     },

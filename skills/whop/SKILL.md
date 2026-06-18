@@ -200,3 +200,65 @@ registered:
 - Lesson: **the auto-generated "App Access" product + plan that appears when an App is installed on a
   company is the install link. NEVER delete it.** Identify by `internal_notes: "App Access"`,
   `accepted_payment_methods: ["free"]`, title matches the App name.
+
+---
+
+## Autonomous Receipt Mechanic (AI-073, P8)
+
+> **Status (2026-06-18):** Wired as second-hop (AI-060/062 resolved in P2). NOT sensor-direct.
+
+### Trigger path
+
+```
+pollWhopEvents()       → skills/whop/sensor.ts
+  ingestWhopEvent()    → skills/whop/lib/events.ts  (idempotent, source-PK dedup)
+    surfaceProductBuyer()  → events.ts line ~508    (fires on membership.activated + PRODUCT_SCOPE)
+      insertTask(title="whop-product-buyer:{buyerId}", ...)
+```
+
+The task description carries 3 explicit CLI steps:
+
+**STEP 1 — RECEIPT:**
+```
+arc skills run --name whop-sales -- receipt
+```
+Reads live paying-customer count; composes M0 receipt post (SOUL.md voice).
+Post to X (primary) + paid forum.
+
+**STEP 2 — TEASER:**
+```
+arc skills run --name whop-sales -- teaser
+```
+Composes a public-forum teaser for the free discovery forum.
+
+**STEP 3 — CONTINUITY BRIDGE:**
+```
+arc skills run --name whop -- post-chat --content "<invite text>" \
+  --source whop-room-invite:{buyerId} --channel exp_dlYgb6mrXuRIq8
+```
+Invites the buyer into the paid room. Idempotent via post-chat local ledger.
+
+### Idempotency
+
+- `ingestWhopEvent()` source-PK dedup prevents double-ingest of the same event.
+- `post-chat` uses `--source whop-room-invite:{buyerId}` — a re-run with the same
+  source is suppressed by the local `whop_post_log` SQLite ledger.
+- `receipt` and `teaser` use their own source keys internally.
+
+### Sensor-direct gap (AI-060/062 context)
+
+The receipt fires autonomously **only if** a dispatch session picks up the
+`whop-product-buyer:{buyerId}` task within the next sensor cycle. The sensor
+does NOT call `tick-receipt` or `teaser` directly — it delegates to the
+dispatched session by embedding the CLI instructions in the task description.
+This is the approved second-hop pattern (P2 resolution of AI-062).
+
+### Post-M0 path (AI-084)
+
+The `reviews` SDK namespace (`client.reviews.list`, `client.reviews.retrieve`) exists and is
+callable. A day-7 review-request nudge after course completion would:
+1. Query `courseLessonInteractions` to detect completion.
+2. Check if a review has been left (`reviews.list({ company_id, product_id })`).
+3. Send a nudge via `post-chat` to the buyer's channel.
+Implement only after first real paying buyers (post-M0; ship-board phase).
+Implement only after first real paying buyers (post-M0; ship-board phase).

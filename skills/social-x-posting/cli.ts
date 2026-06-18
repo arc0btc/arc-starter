@@ -8,6 +8,7 @@ import { join } from "path";
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
 const BUDGET_PATH = join(import.meta.dir, "../../db/x-budget.json");
+const BUDGET_HISTORY_PATH = join(import.meta.dir, "../../db/x-budget-history.json"); // AI-005: trailing cadence history
 const CREDITS_DEPLETED_PATH = join(import.meta.dir, "../../db/x-credits-depleted.json");
 
 const CREDITS_DEPLETED_TTL_DAYS = 30;
@@ -200,6 +201,17 @@ async function loadBudget(): Promise<DailyBudget> {
     if (await file.exists()) {
       const data = (await file.json()) as DailyBudget;
       if (data.date === today) return data;
+      // AI-005: Day rolled over — archive yesterday's budget to the history file before resetting.
+      // x-budget-history.json is a JSON array, capped at 30 entries (trailing ~1 month).
+      try {
+        const histFile = Bun.file(BUDGET_HISTORY_PATH);
+        const existing = histFile.size > 0 ? ((await histFile.json()) as DailyBudget[]) : [];
+        const trimmed = Array.isArray(existing) ? existing.slice(-29) : []; // keep last 29 + new = 30
+        trimmed.push(data);
+        await Bun.write(BUDGET_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+      } catch {
+        // History write is best-effort — never block the budget reset
+      }
     }
   } catch {
     // corrupt file, start fresh

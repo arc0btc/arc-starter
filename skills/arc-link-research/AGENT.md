@@ -79,6 +79,18 @@ fork a duplicate. Relevance-gate each link 0–5: a link scoring **≤1 gets a o
 
 ### 7. Write the Report — FOLLOW `REPORT-TEMPLATE.md`
 
+> **AI-048 — machine-parseable front-matter standard (P8):**
+> `REPORT-TEMPLATE.md` is the single source of truth for the research-to-SKU pipeline.
+> The front-matter parser is **`lib/frontmatter.ts`** in this skill — it reads the
+> `---`-fenced block, validates required fields, and populates `research/INDEX.md`.
+> A session loading ONLY this AGENT.md now knows:
+> 1. Reports must begin with a `---`-fenced front-matter block (line 1 = `---`).
+> 2. `research/INDEX.md` is the catalog; `sku_candidate: y` rows are the SKU backlog
+>    that `create-product` (`whop` skill) restocks from.
+> 3. Call `arc skills run --name arc-link-research -- reindex` to refresh INDEX.md
+>    after writing a report (or use `process` — it auto-reindexes).
+> Full template: `skills/arc-link-research/REPORT-TEMPLATE.md`.
+
 The canonical structure is `skills/arc-link-research/REPORT-TEMPLATE.md`. Two
 non-negotiables it adds beyond the old free-form report:
 

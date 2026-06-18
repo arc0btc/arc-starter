@@ -1158,15 +1158,31 @@ export function computeSpend(): { todayCents: number; trailing7dCents: number } 
   }
 }
 
-/** Best-effort read of today's X cadence from the local budget file. null if unavailable. */
-// AI-004: also surface today's reply count (right-audience engagement proxy) from x-budget.json.
-function readCadenceToday(): { date: string; xPosts: number; xReplies: number } | null {
+/** Best-effort read of today's X cadence from the local budget file + trailing 7d history. null if unavailable.
+ *  AI-004: also surface today's reply count (right-audience engagement proxy).
+ *  AI-005: trailing 7d post count from db/x-budget-history.json (appended by social-x-posting/cli.ts
+ *  on daily budget rotation — when a new day starts, the old day's budget is archived there).
+ */
+function readCadenceToday(): { date: string; xPosts: number; xReplies: number; trailing7dPosts: number | null } | null {
   try {
     const j = JSON.parse(readFileSync("db/x-budget.json", "utf8")) as { date?: string; posts?: number; replies?: number };
+    let trailing7dPosts: number | null = null;
+    try {
+      const hist = JSON.parse(readFileSync("db/x-budget-history.json", "utf8")) as Array<{ date?: string; posts?: number }>;
+      if (Array.isArray(hist)) {
+        const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        trailing7dPosts = hist
+          .filter((h) => h.date && h.date >= cutoff)
+          .reduce((sum, h) => sum + (typeof h.posts === "number" ? h.posts : 0), 0);
+      }
+    } catch {
+      // history file absent or unreadable — trailing unavailable
+    }
     return {
       date: j.date ?? "?",
       xPosts: typeof j.posts === "number" ? j.posts : 0,
       xReplies: typeof j.replies === "number" ? j.replies : 0,
+      trailing7dPosts,
     };
   } catch {
     return null;
@@ -1283,7 +1299,7 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     // NOT wired here (live API call per readout tick adds X read-budget pressure — see db/x-budget.json).
     // Operator: run `arc skills run --name social-x-posting -- status` for current follower count.
     `  audience growth:    (run \`arc skills run --name social-x-posting -- status\` for live followers — X API, not wired per-tick to preserve read budget)`,
-    `  cadence adherence:  ${cadence ? `X posts today: ${cadence.xPosts} (${cadence.date})` : "X budget unavailable"}  ·  planned-cap + trailing → TODO (P9/P10)`,
+    `  cadence adherence:  ${cadence ? `X posts today: ${cadence.xPosts} (${cadence.date}) | 7d trailing: ${cadence.trailing7dPosts !== null ? cadence.trailing7dPosts + " posts" : "(no history yet)"}` : "X budget unavailable"}  ·  planned-cap: ~2/day (12h CADENCE_INTERVAL)  [AI-005]`,
     // AI-004: right-audience engagement — X replies to leads tracked in x_reply_log (social-x-posting
     // skill's SQLite, not the main arc.sqlite). `arc skills run --name social-x-posting -- budget`
     // shows daily reply count. Full engagement signal needs ship-board + forum-reply tracking (post-M0).

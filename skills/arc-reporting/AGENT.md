@@ -109,6 +109,7 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
     line; lead the section with it when there are paying members. Show even at 0 ("0/16 members,
     $0 MRR — pre-M0"). Leading indicators move *before* the member count — call them out when
     they climb (or stall) even while members are flat.
+    **Note (AI-047):** The leading-indicator lines in the readout output are partially stubbed — lines marked with `(stub` or `(run \`arc skills run...\`` are placeholders showing the data path but NOT live values. A consumer reading the report must treat stubbed lines as informational pointers, not current counts.
   - **Daily reply budget**: e.g. "2/5 used (40%)".
   - **Top counterparties**: 2-3 most-active room members from `db/whop-relationships.json` — show username + their_replies_to_arc + arc_replies_to_them.
   - **Empty state**: if no posts AND no tick activity in period, use `<p class="empty">No room activity this period. Reactive lane {dry-run|live}, 0 candidates.</p>` — one line, no padding.
