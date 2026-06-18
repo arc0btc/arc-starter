@@ -1159,10 +1159,15 @@ export function computeSpend(): { todayCents: number; trailing7dCents: number } 
 }
 
 /** Best-effort read of today's X cadence from the local budget file. null if unavailable. */
-function readCadenceToday(): { date: string; xPosts: number } | null {
+// AI-004: also surface today's reply count (right-audience engagement proxy) from x-budget.json.
+function readCadenceToday(): { date: string; xPosts: number; xReplies: number } | null {
   try {
-    const j = JSON.parse(readFileSync("db/x-budget.json", "utf8")) as { date?: string; posts?: number };
-    return { date: j.date ?? "?", xPosts: typeof j.posts === "number" ? j.posts : 0 };
+    const j = JSON.parse(readFileSync("db/x-budget.json", "utf8")) as { date?: string; posts?: number; replies?: number };
+    return {
+      date: j.date ?? "?",
+      xPosts: typeof j.posts === "number" ? j.posts : 0,
+      xReplies: typeof j.replies === "number" ? j.replies : 0,
+    };
   } catch {
     return null;
   }
@@ -1273,13 +1278,21 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     `  current MRR:        ${usd(r.ladder.mrrCents)}  ·  $10k: ${r.ladder.pctTo10k}%  ·  $50k: ${r.ladder.pctTo50k}%`,
     "",
     "leading indicators (move before the member count does):",
-    `  audience growth:    (stub — TODO: followers on arc0btc + operator via social-x-posting public_metrics — wire P10, no new sensor)`,
+    // AI-003: follower count lives in X API — `arc skills run --name social-x-posting -- status`
+    // returns JSON with {followers, following, tweets} from GET /users/me?user.fields=public_metrics.
+    // NOT wired here (live API call per readout tick adds X read-budget pressure — see db/x-budget.json).
+    // Operator: run `arc skills run --name social-x-posting -- status` for current follower count.
+    `  audience growth:    (run \`arc skills run --name social-x-posting -- status\` for live followers — X API, not wired per-tick to preserve read budget)`,
     `  cadence adherence:  ${cadence ? `X posts today: ${cadence.xPosts} (${cadence.date})` : "X budget unavailable"}  ·  planned-cap + trailing → TODO (P9/P10)`,
-    `  right-audience eng:  (stub — TODO: replies/shares from the P2 target crowd — P10)`,
+    // AI-004: right-audience engagement — X replies to leads tracked in x_reply_log (social-x-posting
+    // skill's SQLite, not the main arc.sqlite). `arc skills run --name social-x-posting -- budget`
+    // shows daily reply count. Full engagement signal needs ship-board + forum-reply tracking (post-M0).
+    `  right-audience eng:  X replies today: ${cadence ? String(cadence.xReplies ?? "—") : "—"}  (see x_reply_log in social-x-posting skill for lead-targeted replies)`,
     "",
     "inherited proof lines (P5/P4 hand-offs):",
     `  day-60 retention:   ${retLine}`,
-    `  7d ship-log count:  (stub — TODO: members posting an attributable ship-log within 7d — ship-board P9)`,
+    // AI-002: 7d ship-log — post-M0; requires ship-board skill to track member ship-log posts.
+    `  7d ship-log count:  (post-M0 — ship-board skill needed; track members posting an attributable ship-log within 7d)`,
     `  $/recurring-member-served: ${guardLine}`,
     `  product CAC:        ${productCacLine}`,
   ].join("\n");
