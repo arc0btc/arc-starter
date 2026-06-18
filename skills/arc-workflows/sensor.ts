@@ -454,9 +454,13 @@ function syncBlogPublishes(): number {
 
     const instanceKey = `publish-fanout:${postId}`;
     // Honor both new and legacy keys so renamed lookup never re-fires a post that already ran.
+    // Also skip if a content-calendar workflow exists for this post — content-calendar supersedes
+    // publish-fanout (it includes the same X hop via a richer 2-3 tweet thread), and both
+    // workflows reaching the X step with different source keys caused a double-post (2026-06-17).
     if (
       getWorkflowByInstanceKey(instanceKey) ||
-      getWorkflowByInstanceKey(`blog-to-x:${postId}`)
+      getWorkflowByInstanceKey(`blog-to-x:${postId}`) ||
+      getWorkflowByInstanceKey(`content-calendar:${postId}`)
     ) continue;
 
     let fm: BlogFrontmatter;
