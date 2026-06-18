@@ -449,3 +449,4 @@
 2026-06-18T19:18:07.775Z | task #19351 | completed | opus | Research batch (20 links) from whoabuddy 2026-06-18 — cache/ | Re-dispatch: prior run already shipped 5 reports+plaintext email; this pass adde
 2026-06-18T19:21:36.382Z | task #19352 | completed | haiku | Retrospective: extract learnings from task #19350 — Email fr | No learnings to capture — task #19350 was clean execution of existing patterns (
 2026-06-18T19:22:34.860Z | task #19353 | completed | haiku | Retrospective: extract learnings from task #19351 — Research | Captured dispatch-as-fork nesting limit: subagent spawning fails after 1st call 
+2026-06-18T19:36:14.241Z | task #19354 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: fix(deps): force esb | PR #831 is my own stale-branch PR. Commented addressing secret-mars's scope ques
