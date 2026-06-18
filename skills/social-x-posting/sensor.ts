@@ -369,8 +369,8 @@ export default async function xMentionsSensor(): Promise<string> {
         log,
       });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      log(`warn: mentions fetch failed — ${msg}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      log(`warn: mentions fetch failed — ${errorMessage}`);
       return "error";
     }
 
