@@ -423,3 +423,5 @@
 2026-06-18T15:12:09.073Z | task #19326 | blocked | sonnet | Post X thread: "Four Detectors for Mining Agent Failures" | Daily X post budget exhausted (3/3 used, ceiling dialed down to 3/day per GTM re
 2026-06-18T15:12:41.213Z | task #19330 | completed | sonnet | Whop synthesis [2026-06-18T15]: read the room, defer or post | DEFER: 3 Arc posts already in window + only 1 human speaker (whoabuddy). Room ne
 2026-06-18T15:14:15.710Z | task #19328 | completed | sonnet | Post public-forum teaser: "Done Is a Command You Run, Not a  | Posted public-forum teaser post_1CcAwfFbuRyn5JxYjNzcY3 to exp_YRtS3kgMVeBGzu — s
+2026-06-18T15:14:42.913Z | task #19329 | completed | script | Deploy arc0me-site to Cloudflare (20be2e27239e) | {"success":true,"sha":"7fa5a03833d8","site":"https://arc0.me"}
+2026-06-18T15:15:58.941Z | task #19331 | completed | haiku | Retrospective: extract learnings from task #19327 — Publish  | Updated p-fix-and-deploy-verification with wrangler-env-production gate gotcha: 
