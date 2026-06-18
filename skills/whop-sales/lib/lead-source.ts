@@ -279,6 +279,71 @@ export async function fetchFreeForumEngagement(
   return out;
 }
 
+// ---- X outbound reply log (AI-018/031: give-3x gap) ------------------------
+//
+// cli.ts records each outbound X reply to the x_reply_log SQLite table (with the
+// author_id of the tweet Arc replied to as x_lead_author_id). processXReplyLog()
+// reads unprocessed rows, bumps arc_replies_to_them for the matching lead in the
+// given store, and marks the rows consumed (consumed_at). This closes the
+// observability gap: X leads now accrue value_touches from outbound replies.
+//
+// Called inside refreshLeads so every lead refresh picks up new reply-log entries.
+// Idempotent: rows consumed once (consumed_at set) are never reprocessed.
+
+export async function processXReplyLog(
+  store: RelationshipStore,
+  log: (m: string) => void = () => {},
+): Promise<number> {
+  try {
+    // Dynamically import DB so lead-source stays database-agnostic in fixture tests
+    // (process.env.SKIP_X_REPLY_LOG = "1" in test harness to skip).
+    if (process.env.SKIP_X_REPLY_LOG === "1") return 0;
+    const { initDatabase, getDatabase } = await import("../../../src/db.ts");
+    initDatabase();
+    const db = getDatabase();
+
+    // Ensure table exists (created by cli.ts on first reply, but may not exist yet).
+    db.run(
+      `CREATE TABLE IF NOT EXISTS x_reply_log (
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         replied_to_tweet_id TEXT NOT NULL,
+         reply_tweet_id TEXT,
+         x_lead_author_id TEXT,
+         replied_at TEXT NOT NULL,
+         consumed_at TEXT
+       )`,
+    );
+
+    const rows = db
+      .query("SELECT id, x_lead_author_id, replied_at FROM x_reply_log WHERE consumed_at IS NULL AND x_lead_author_id IS NOT NULL")
+      .all() as Array<{ id: number; x_lead_author_id: string; replied_at: string }>;
+
+    if (rows.length === 0) return 0;
+
+    let bumped = 0;
+    const now = new Date().toISOString();
+    for (const row of rows) {
+      const rel = store.users[row.x_lead_author_id];
+      if (rel) {
+        rel.arc_replies_to_them += 1;
+        rel.last_seen = rel.last_seen > row.replied_at ? rel.last_seen : row.replied_at;
+        bumped++;
+        log(`x-reply-log: bumped arc_replies_to_them for ${row.x_lead_author_id} → ${rel.arc_replies_to_them}`);
+      } else {
+        // Lead not yet in store (e.g. replied before the mention was folded in). Still
+        // mark consumed so we don't reprocess; it will be credited on next refresh once
+        // the mention lands.
+        log(`x-reply-log: no lead for ${row.x_lead_author_id} (reply logged, will credit on next refresh)`);
+      }
+      db.query("UPDATE x_reply_log SET consumed_at = ? WHERE id = ?").run(now, row.id);
+    }
+    return bumped;
+  } catch (e) {
+    log(`x-reply-log: processXReplyLog failed (${e instanceof Error ? e.message : String(e)}) — skipped`);
+    return 0;
+  }
+}
+
 export type RefreshStatus = "ok" | "no-key" | "fetch-failed";
 
 // Per-channel result so the surfacing layer / end-of-quest monitor can tell a
@@ -354,6 +419,11 @@ export async function refreshLeads(opts: {
       log(`refresh-leads: X mentions fetch failed (${errMsg(e)}) — X leads unchanged`);
     }
   }
+
+  // AI-018/031: fold unprocessed outbound X replies into arc_replies_to_them.
+  // This runs on every refresh (forum-only or X+forum) so reply_log entries are
+  // never left stranded even when the X fetch itself is skipped.
+  await processXReplyLog(store, log);
 
   if (forum.status === "ok" || x.status === "ok") saveLeadStore(store);
   return { forum, x, total_leads: Object.keys(store.users).length };

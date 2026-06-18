@@ -40,6 +40,7 @@ import { readFileSync } from "node:fs";
 import { createSourceLedger, type SourceLedger } from "../../../src/source-ledger.ts";
 import { insertTask, taskExistsForSource, getDatabase } from "../../../src/db.ts";
 import { writeDistilled, type ArtifactChannel } from "../../../src/artifacts.ts";
+import { PRODUCT_PAGE_URL, PAID_ROOM_PRODUCT_URL, PROMO_CODE } from "../../../src/constants.ts";
 
 // ---- Normalized event shape (mirrors SDK UnwrapWebhookEvent subset) ----
 
@@ -126,7 +127,17 @@ function eventUserId(data: unknown): string | null {
   return d?.user?.id ?? null;
 }
 
-/** Drop infrastructure + non-customer identities before they reach the ledger/surface. */
+/**
+ * Drop infrastructure + non-customer identities before they reach the ledger/surface.
+ *
+ * AI-007 (code-trace confirm, 2026-06-17): The advisor exclusion is `uid != null &&
+ * ADVISOR_USER_IDS.has(uid)`. A null user id is NOT excluded as an advisor — it passes
+ * through and may be counted. This is correct: we drop KNOWN advisor user ids; a null-uid
+ * event cannot be a known advisor. A real advisor with a null uid is theoretically possible
+ * (malformed payload), but ADVISOR_USER_IDS only contains specific user ids so null never
+ * matches. The AI-043 null-uid warn log in ingestWhopEvent catches any null-uid events
+ * that do pass through so they are visible (not silently counted).
+ */
 function isExcludedEvent(event: WhopEvent): boolean {
   if (event.product_id && APP_PRODUCT_IDS.has(event.product_id)) return true;
   const uid = eventUserId(event.data);
@@ -172,6 +183,19 @@ function paymentType(status: string | null): string {
   switch (status) {
     case "paid":
       return "payment.succeeded";
+    case "refunded":
+      // AI-011: "refunded" appears in Whop's `substatus` (FriendlyReceiptStatus) and on
+      // push-webhook payloads, but NOT in the poll-path `status` field (ReceiptStatus:
+      // 'draft'|'open'|'paid'|'pending'|'uncollectible'|'unresolved'|'void'). This case
+      // is therefore dead code on the current POLL path — the sensor polls `p.status`, not
+      // `p.substatus`. It is retained as a forward-compatible seam: a future push-webhook
+      // handler can feed a payment with status="refunded" and this branch fires correctly.
+      // computeRevenue() nets payment.refunded rows with a POSITIVE amount_cents (the
+      // magnitude, same sign convention as payment.succeeded) — correctness lens (cairn.17):
+      // sign is positive because normalizePayment() reads p.usd_total ?? p.total, which
+      // Whop always stores as a positive magnitude regardless of direction. The netting is
+      // (succeeded − refunded) in computeRevenue(), so sign is correct.
+      return "payment.refunded";
     case "uncollectible":
     case "void":
       return "payment.failed";
@@ -234,6 +258,13 @@ export function whopEventLedger(): SourceLedger {
       // typo) so a genuinely failed migration surfaces instead of silently no-op'ing.
       if (!/duplicate column name/i.test(e instanceof Error ? e.message : String(e))) throw e;
     }
+    // AI-006: Index on `type` for lifecycle queries (membership.activated / deactivated /
+    // payment.succeeded / payment.refunded). Idempotent: IF NOT EXISTS ignores re-runs.
+    // At M0 with 0 rows this is a no-op cost; it pays off once the table grows to
+    // thousands of rows from recurring-member charges and product activations.
+    getDatabase().run(
+      "CREATE INDEX IF NOT EXISTS idx_whop_event_log_type ON whop_event_log(type)",
+    );
   }
   return ledgerSingleton;
 }
@@ -254,6 +285,23 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" | "s
   // Drop Arc's app product + advisor/test identities BEFORE the ledger/surface so no
   // downstream count, MRR, or task ever sees them (operator-confirmed 2026-06-16).
   if (isExcludedEvent(event)) return "skipped";
+
+  // AI-043: Warn on null user id so advisor-leak risk is visible in logs. A null-uid
+  // event is NOT excluded (it may be a real customer with a malformed payload) but it
+  // CANNOT be verified against the ADVISOR_USER_IDS set — log so it can be investigated.
+  // At M0 scale this should never fire; if it does, inspect the payload shape.
+  const uid = eventUserId(event.data);
+  if (uid === null && !APP_PRODUCT_IDS.has(event.product_id ?? "")) {
+    console.log(
+      JSON.stringify({
+        whop_ingest_warn: "null user id — cannot verify advisor exclusion; event will be counted",
+        event_id: event.id,
+        event_type: event.type,
+        product_id: event.product_id ?? null,
+      }),
+    );
+  }
+
   const ledger = whopEventLedger();
   if (ledger.dedupSkip(event.id, "ingested")) return "duplicate";
 
@@ -263,6 +311,21 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" | "s
     typeof event.amount === "number" && Number.isFinite(event.amount)
       ? Math.round(event.amount * 100)
       : null;
+
+  // AI-012: Warn when a payment event arrives with a null/missing amount. A null amount
+  // is stored as NULL in amount_cents and contributes $0 to revenue totals — a genuine
+  // free/100%-off sale is expected, but a dropped amount field would be silently laundered
+  // into $0. Log so it can be distinguished from intentional free grants.
+  if (event.type === "payment.succeeded" && amountCents === null) {
+    console.log(
+      JSON.stringify({
+        whop_ingest_warn: "payment.succeeded with null/missing amount — stored as $0; verify if intentional",
+        event_id: event.id,
+        product_id: event.product_id ?? null,
+      }),
+    );
+  }
+
   ledger.record(event.id, event.type, {
     occurred_at: event.occurred_at,
     amount_cents: amountCents,
@@ -419,13 +482,37 @@ export function surfaceProductBuyer(event: WhopEvent): void {
       `Handle: ${handle}`,
       "",
       "This is a CUSTOMER, not a $49/mo member — do NOT send the member welcome. The job is the",
-      "continuity bridge: confirm they got the deliverable, then extend a genuine, voice-carded",
-      "invite into the room/ship-board (membership = the earned continuity). Keep it value-first,",
-      "not a hard upsell. The live post-purchase send is owned by the P10B acquisition lane (gated);",
-      "until that lands, surface this for operator-reviewed follow-up.",
+      "continuity bridge: confirm they got the deliverable, then compose and fire the viral-unit",
+      "receipt + teaser, then extend a genuine, voice-carded invite into the room/ship-board",
+      "(membership = the earned continuity). Keep it value-first, not a hard upsell.",
+      "",
+      "STEP 1 — COMPOSE THE RECEIPT (M0 milestone viral post):",
+      `  arc skills run --name whop-sales -- receipt`,
+      "  This reads the live paying-customer count and composes the M0 receipt post.",
+      "  The receipt is the highest-virality artifact for the AI/agents audience — the proof",
+      "  that an agent sold something, autonomously, to a real buyer.",
+      "  Voice: SOUL.md — precise, no hype, receipt-standard (every claim ships its verifiable link).",
+      "  Post the composed receipt to X (primary channel) and the paid forum.",
+      "",
+      "STEP 2 — COMPOSE A TEASER SLICE (free-preview → paid funnel):",
+      `  arc skills run --name whop-sales -- teaser`,
+      "  This composes a free teaser slice of the product pointing at the SKU.",
+      `  The CTA points to: ${PRODUCT_PAGE_URL} with promo code ${PROMO_CODE}.`,
+      "  Post the teaser to the free public forum (exp_YRtS3kgMVeBGzu) for discovery.",
+      "",
+      "STEP 3 — CONTINUITY BRIDGE (fire AFTER receipt + teaser are posted):",
+      "  Send the actual room invite via post-chat (AI-015 wired send — exactly-once per buyer via --source):",
+      `  Compose a genuine, voice-carded invite to the paid room/ship-board. SOUL.md voice: specific,`,
+      "  name the thing they bought, frame the room as earned continuity (not upsell). Then send:",
+      `  arc skills run --name whop -- post-chat --content "<invite text>" --source whop-room-invite:${buyerId} --channel exp_dlYgb6mrXuRIq8`,
+      "  The --source key makes this idempotent (post-chat local ledger: a re-dispatch never double-sends).",
+      `  Membership link to reference in the invite: ${PAID_ROOM_PRODUCT_URL}`,
+      "  Give-3x discipline: the receipt + teaser ARE the 3x value. The invite is the ask.",
+      "  NOTE: at M0/0-buyers this step never fires (composeReceipt refuses count<1); safe to activate now.",
+      "",
       `(--source "${source}" makes any follow-up idempotent — a re-dispatch never double-touches.)`,
     ].join("\n"),
-    skills: JSON.stringify(["whop", "arc-brand-voice"]),
+    skills: JSON.stringify(["whop", "whop-sales", "arc-brand-voice"]),
     priority: 4,
     model: "sonnet",
     source,
@@ -502,31 +589,46 @@ export interface RevenueSummary {
   paymentCount: number;
   /**
    * One-time product buyers = distinct non-membership-product memberships ever activated
-   * (the ACCESS GRANT, not the payment). Counting acquisitions — not payments — means a
-   * 100%-off buyer still counts as a customer (and a paid sale's payment lands in
-   * productRevenueCents). A customer is someone who acquired the product; revenue is separate.
+   * (the ACCESS GRANT, not the payment). AI-010: deduped by Whop USER id (parsed from
+   * event payload) — counts distinct humans, not membership entities. Falls back to
+   * membership-entity count for rows with no parseable user id (unjoinable). A customer
+   * is someone who acquired the product; revenue is separate.
    */
   productCustomers: number;
-  /** Revenue from one-time product sales (SUM of non-membership-product payment.succeeded). */
-  productRevenueCents: number;
   /**
-   * M0/M10 headline = recurring members + product buyers. NOTE (council/cairn): this counts
-   * distinct paying MEMBERSHIPS, not distinct humans — a person who both subscribes AND buys a
-   * report is two memberships, so they count twice. At M0/M10 scale (single digits) the operator
-   * eyeballs distinct humans; true user-id dedup is a P11 refinement. Read M10 ("10 customers")
-   * with that caveat — the recurring-conversion sub-gate (≥3 recurring) is the harder guarantee.
+   * Per-product-id breakdown of productCustomers. AI-022: enables per-SKU scoping before
+   * a 2nd product SKU inflates the global count. Keys are Whop product ids (e.g. `prod_…`).
+   * At M0/M1-SKU this has at most one entry; add the 2nd SKU and this differentiates.
+   */
+  productCustomersByProductId: Record<string, number>;
+  /**
+   * Revenue from one-time product sales (NET: SUM payment.succeeded − SUM payment.refunded).
+   * AI-011: refunds are netted out. A payment.refunded event (Whop status="refunded") carries
+   * a negative contribution so the net figure reflects actual collected cash.
+   */
+  productRevenueCents: number;
+  /** Gross refunded amount in cents for one-time product events (AI-011). */
+  refundedRevenueCents: number;
+  /**
+   * M0/M10 headline = recurring members + product buyers. AI-010: productCustomers is now
+   * user-id deduped so a person who buys once counts once (not twice as two membership entities).
    */
   customers: number;
   /**
    * PAYING customers = active recurring members (each pays $49/mo) + distinct one-time
-   * product sales that actually collected money (payment.succeeded, amount > 0). This is
-   * the honest **M0 ("first PAYING customer")** metric: unlike `customers` (acquisition-
-   * based — a $0 / 100%-off grant counts), `payingCustomers` only moves on real revenue,
-   * so a comp/test purchase can never read as M0. (Dev-council lumen 2026-06-16.)
+   * product buyers who collected money (payment.succeeded amount > 0, user-id deduped).
+   * AI-021: user-id deduped (via payload parse) — counts distinct humans who paid.
+   * This is the honest **M0 ("first PAYING customer")** metric.
    */
   payingCustomers: number;
-  /** Distinct one-time product sales that collected money (amount > 0). */
+  /**
+   * Distinct one-time product buyers who collected money (amount > 0). AI-021: deduped
+   * by user id — parsed from payment.succeeded payloads. Unjoinable rows (null user id)
+   * are excluded from the dedup set and counted in unjoinablePaymentRows.
+   */
   payingProductCustomers: number;
+  /** Payment.succeeded rows with a non-null product_id but no parseable user id (AI-021). */
+  unjoinablePaymentRows: number;
   breakEvenTarget: number;
   breakEvenPct: number;
 }
@@ -581,39 +683,87 @@ export function computeRevenue(): RevenueSummary {
     .get() as { c: number; s: number };
 
   // Product CUSTOMERS = distinct non-membership-product memberships ever activated (the
-  // access grant). Acquisition-based, so a 100%-off / free grant still counts as a customer;
-  // cumulative (a one-time buy has no recurring state to churn), so no last-write-wins here.
+  // access grant). AI-010: deduped by Whop USER id (parsed from payload) rather than
+  // membership entity id — counts distinct humans. Falls back to entity-id count for rows
+  // with no parseable user id. Cumulative (no last-write-wins): a one-time purchase is
+  // permanent; a $0 promo grant still counts as a customer.
   const prodMemberships = db
     .query(
-      `SELECT source FROM whop_event_log
+      `SELECT source, payload, product_id FROM whop_event_log
        WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}`,
     )
-    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string }>;
-  const productCustomers = new Set(prodMemberships.map((r) => membershipEntityId(r.source))).size;
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ source: string; payload: string | null; product_id: string | null }>;
 
-  // Product REVENUE = succeeded payments carrying a NON-membership product id (separate from
-  // the customer count: a $0 promo buyer is a customer with $0 revenue; a $9 buyer adds $9).
-  // CAVEAT (council/cairn): this is GROSS — refunds/chargebacks are not netted out, and a
-  // product membership.deactivated (a revoke/refund) does NOT decrement productCustomers.
-  // Acquisition is treated as cumulative at this stage; refund-netting is a P11 refinement.
-  const prodPay = db
+  // AI-010: build the user-id set for dedup, falling back to entity id for unjoinable rows.
+  const productCustomerUserIds = new Set<string>();
+  // AI-022: per-product-id breakdown (key = product_id).
+  const productCustomersByProductId: Record<string, Set<string>> = {};
+  for (const r of prodMemberships) {
+    // Attempt user-id dedup for the global count.
+    let uid: string | null = null;
+    if (r.payload) {
+      try {
+        uid = eventUserId(JSON.parse(r.payload));
+      } catch {
+        // malformed payload — fall through to entity-id fallback
+      }
+    }
+    const dedupeKey = uid ?? membershipEntityId(r.source);
+    productCustomerUserIds.add(dedupeKey);
+    // Per-product breakdown (AI-022).
+    const pid = r.product_id ?? "unknown";
+    if (!productCustomersByProductId[pid]) productCustomersByProductId[pid] = new Set<string>();
+    productCustomersByProductId[pid].add(dedupeKey);
+  }
+  const productCustomers = productCustomerUserIds.size;
+  // Convert per-product Sets to counts.
+  const productCustomersByProductIdCounts: Record<string, number> = {};
+  for (const [pid, s] of Object.entries(productCustomersByProductId)) {
+    productCustomersByProductIdCounts[pid] = s.size;
+  }
+
+  // Product REVENUE = NET: SUM payment.succeeded − SUM payment.refunded for non-membership
+  // product payments. AI-011: refunds are netted out. Sign convention (cairn.17 correctness
+  // flag): amount_cents for payment.refunded rows is stored as a POSITIVE magnitude
+  // (normalizePayment reads p.usd_total ?? p.total, which Whop returns as a positive number
+  // regardless of direction). The subtraction (succeeded − refunded) is therefore correct.
+  // NOTE: the poll path cannot currently produce payment.refunded rows (Whop's `status`
+  // field never contains "refunded" — see paymentType() comment); this netting is safe
+  // no-op at M0 and activates correctly once a push-webhook path is added (AI-077).
+  const prodPaySucceeded = db
     .query(
       `SELECT COALESCE(SUM(amount_cents), 0) AS s
        FROM whop_event_log
        WHERE type = 'payment.succeeded' AND ${PRODUCT_SCOPE}`,
     )
     .get(MEMBERSHIP_PRODUCT_ID) as { s: number };
-
-  // PAYING one-time product customers = product payment.succeeded rows that collected
-  // money (amount_cents > 0). A 100%-off / $0 grant is a `customer` but NOT a paying one.
-  const prodPaid = db
+  const prodPayRefunded = db
     .query(
-      `SELECT COUNT(*) AS c
+      `SELECT COALESCE(SUM(amount_cents), 0) AS s
        FROM whop_event_log
+       WHERE type = 'payment.refunded' AND ${PRODUCT_SCOPE}`,
+    )
+    .get(MEMBERSHIP_PRODUCT_ID) as { s: number };
+  const refundedRevenueCents = prodPayRefunded.s;
+  const productRevenueCents = prodPaySucceeded.s - refundedRevenueCents;
+
+  // PAYING one-time product customers = distinct users behind product payment.succeeded rows
+  // that collected money (amount_cents > 0). AI-021: deduped by user id via userIdSet()
+  // (reuse: patterns lens / forge.15 recommended collapse — the contract is identical to
+  // the existing helper). A 100%-off / $0 grant is a `customer` but NOT a paying one.
+  const prodPaidRows = db
+    .query(
+      `SELECT payload FROM whop_event_log
        WHERE type = 'payment.succeeded' AND amount_cents > 0 AND ${PRODUCT_SCOPE}`,
     )
-    .get(MEMBERSHIP_PRODUCT_ID) as { c: number };
-  const payingProductCustomers = prodPaid.c;
+    .all(MEMBERSHIP_PRODUCT_ID) as Array<{ payload: string | null }>;
+  // AI-021: userIdSet() parses user ids, returns {ids, unjoinable} — same semantics as
+  // computeProductToRoomConversion(). Intentional over-count caveat (cairn.17): a user
+  // with one joinable and one unjoinable payment row is counted twice (once in ids, once
+  // as +1 unjoinable). At M0 with exactly-one purchase per buyer this is never hit.
+  // Conservative over-count is safer than under-count for the M0 "first PAYING customer".
+  const { ids: prodPaidUserIds, unjoinable: unjoinablePaymentRows } = userIdSet(prodPaidRows);
+  const payingProductCustomers = prodPaidUserIds.size + unjoinablePaymentRows;
   // Recurring members all pay $49/mo, so they are paying by definition.
   const payingCustomers = activeMembers + payingProductCustomers;
 
@@ -625,10 +775,13 @@ export function computeRevenue(): RevenueSummary {
     paymentsCapturedCents: pay.s,
     paymentCount: pay.c,
     productCustomers,
-    productRevenueCents: prodPay.s,
+    productCustomersByProductId: productCustomersByProductIdCounts,
+    productRevenueCents,
+    refundedRevenueCents,
     customers: activeMembers + productCustomers,
     payingCustomers,
     payingProductCustomers,
+    unjoinablePaymentRows,
     breakEvenTarget: BREAK_EVEN_MEMBERS,
     breakEvenPct: Math.round((activeMembers / BREAK_EVEN_MEMBERS) * 100),
   };
@@ -638,16 +791,28 @@ const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 /** Human-readable revenue block for the whop CLI + watch-report / CEO-review surfaces. */
 export function formatRevenue(r: RevenueSummary = computeRevenue()): string {
+  const refundNote = r.refundedRevenueCents > 0 ? `  (refunded ${usd(r.refundedRevenueCents)})` : "";
+  const perProductLines = Object.entries(r.productCustomersByProductId)
+    .map(([pid, count]) => `  product buyers (${pid}): ${count}  [per-SKU; AI-022]`)
+    .join("\n");
+  const unjoinableNote =
+    r.unjoinablePaymentRows > 0
+      ? `  ⚠ ${r.unjoinablePaymentRows} paying-row(s) without user id — counted individually, not deduped`
+      : "";
   return [
     "hash-it-out revenue (from captured Whop events — whop_event_log):",
-    `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [acquisition; incl $0 grants]`,
-    `  paying customers:   ${r.payingCustomers}  (${r.activeMembers} paying members + ${r.payingProductCustomers} paid product sales)  [M0/M10 headline — real revenue]${r.customers > 0 && r.payingCustomers === 0 ? "  ⚠ $0 comps only — M0 NOT reached" : ""}`,
+    `  customers:          ${r.customers}  (${r.activeMembers} recurring members + ${r.productCustomers} product buyers)  [acquisition; user-id deduped; incl $0 grants]`,
+    `  paying customers:   ${r.payingCustomers}  (${r.activeMembers} paying members + ${r.payingProductCustomers} paid product buyers)  [M0/M10 headline — real revenue]${r.customers > 0 && r.payingCustomers === 0 ? "  ⚠ $0 comps only — M0 NOT reached" : ""}`,
+    unjoinableNote,
     `  recurring members:  ${r.activeMembers}  (activated ${r.activatedEvents} / deactivated ${r.deactivatedEvents} membership-product events)`,
     `  MRR:                ${usd(r.mrrCents)}  (${r.activeMembers} × $49/mo)`,
-    `  product revenue:    ${usd(r.productRevenueCents)}  (gross; from ${r.productCustomers} product buyer(s), incl. any $0 grants)`,
+    `  product revenue:    ${usd(r.productRevenueCents)}  (net; gross − refunds${refundNote}; from ${r.productCustomers} buyer(s), incl. any $0 grants)`,
+    perProductLines,
     `  payments captured:  ${usd(r.paymentsCapturedCents)}  across ${r.paymentCount} payment.succeeded (member + product)`,
     `  break-even:         ${r.activeMembers}/${r.breakEvenTarget} recurring members (${r.breakEvenPct}%)`,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 // ---- P7: weekly net-new + leading indicators + MRR-ladder progress --------
@@ -899,20 +1064,23 @@ function userIdSet(rows: Array<{ payload: string | null }>): { ids: Set<string>;
 export function computeProductToRoomConversion(): ConversionSummary {
   whopEventLedger();
   const db = getDatabase();
-  // EXACT while ONE product SKU exists: productRows = ALL non-membership activations = "product
-  // buyers", memberRows = ALL membership-product activations = "members". With a 2nd product SKU
-  // "product buyers" silently becomes "any-product buyers" — revisit the denominator's per-SKU
-  // scoping then (P11, mirrors the receipt machinery's per-product deferral).
+  // AI-034: 90-day window on both queries — limits full-table scan growth. A buyer who
+  // first activated >90d ago is excluded from the denominator; extend the window if you
+  // need to re-examine older cohorts. At M0 this window has no effect (0 rows).
+  // AI-036: EXACT while ONE product SKU exists — productRows = ALL non-membership
+  // activations = "product buyers". With a 2nd SKU, add a product_id filter here.
   const productRows = db
     .query(
       `SELECT payload FROM whop_event_log
-       WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}`,
+       WHERE type = 'membership.activated' AND ${PRODUCT_SCOPE}
+         AND recorded_at >= datetime('now', '-90 days')`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ payload: string | null }>;
   const memberRows = db
     .query(
       `SELECT payload FROM whop_event_log
-       WHERE type = 'membership.activated' AND ${MEMBERSHIP_SCOPE}`,
+       WHERE type = 'membership.activated' AND ${MEMBERSHIP_SCOPE}
+         AND recorded_at >= datetime('now', '-90 days')`,
     )
     .all(MEMBERSHIP_PRODUCT_ID) as Array<{ payload: string | null }>;
 
@@ -924,7 +1092,8 @@ export function computeProductToRoomConversion(): ConversionSummary {
   return {
     productBuyers,
     converted,
-    pct: productBuyers === 0 ? null : Math.round((converted / productBuyers) * 100),
+    // AI-033: one decimal place (e.g. "33.3%") — Math.round(x * 1000) / 10 gives 1dp.
+    pct: productBuyers === 0 ? null : Math.round((converted / productBuyers) * 1000) / 10,
     unjoinableRows: buyers.unjoinable + members.unjoinable,
   };
 }
@@ -1007,6 +1176,15 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     .join(" · ");
   const cadence = readCadenceToday();
   const conv = r.conversion;
+  // AI-035: emit a warn log when unjoinable rows exceed 0 (shape-drift or payload errors).
+  if (conv.unjoinableRows > 0) {
+    console.log(
+      JSON.stringify({
+        whop_readout_warn: "unjoinable rows in conversion rate — payload missing user id; rate may be understated",
+        unjoinableRows: conv.unjoinableRows,
+      }),
+    );
+  }
   const convUnjoinable = conv.unjoinableRows > 0 ? `  ⚠ ${conv.unjoinableRows} row(s) unjoinable — excluded` : "";
   const convLine =
     conv.pct === null
@@ -1026,6 +1204,13 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
       : `${usd(dpms)}/recurring-member (${arpuPct}% of $49 ARPU; spend 7d ${usd(r.spend.trailing7dCents)})  [trip-wire >~${GUARDRAIL_ARPU_PCT}%]${
           (arpuPct ?? 0) > GUARDRAIL_ARPU_PCT ? "  ⚠ BREACH" : ""
         }`;
+  // AI-013/AI-053: Wire product CAC as trailing 7d spend ÷ paying product buyers.
+  // Economics differ from $/recurring-member-served (a one-time sale has a different
+  // unit economics model than a monthly renewal). Pre-first-buyer: stub with context.
+  const productCacLine =
+    r.revenue.payingProductCustomers > 0
+      ? `${usd(Math.round(r.spend.trailing7dCents / r.revenue.payingProductCustomers))}/paying-product-buyer  (7d spend ${usd(r.spend.trailing7dCents)} ÷ ${r.revenue.payingProductCustomers} buyer(s))  [tracked SEPARATELY from $/recurring-member]`
+      : `N/A (no paying product buyers yet — pre-first-sale)  [will show 7d spend ÷ paying product buyers]`;
   const sgn = (n: number) => (n >= 0 ? "+" : "") + n;
 
   return [
@@ -1052,7 +1237,7 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     `  day-60 retention:   ${retLine}`,
     `  7d ship-log count:  (stub — TODO: members posting an attributable ship-log within 7d — ship-board P9)`,
     `  $/recurring-member-served: ${guardLine}`,
-    `  product CAC:        (stub — TODO: product acquisition spend ÷ product buyers, tracked SEPARATELY from $/recurring-member — council rev #4 → P11/P12)`,
+    `  product CAC:        ${productCacLine}`,
   ].join("\n");
 }
 

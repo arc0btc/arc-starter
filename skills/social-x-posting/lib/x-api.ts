@@ -16,10 +16,90 @@
 // onto this lib is a tracked follow-up (P11). The signing logic below is copied
 // verbatim from cli.ts (HMAC-SHA1 OAuth 1.0a), READ-only: no budget, no
 // credits-depleted side-effects, GET requests only.
+//
+// READ BUDGET GUARD (AI-016): fetchArcMentions is guarded by a daily read cap
+// (X_MAX_READS_PER_DAY, default 50) persisted in db/x-read-budget.json. On 429,
+// a backoff_until timestamp is written (15 min) and subsequent calls fast-fail
+// until the window clears. This prevents runaway consumption on the free tier
+// (500k reads/month free; 50/day = ~1.5k/month = well under cap).
 
 import { getCredential } from "../../../src/credentials.ts";
+import { join } from "path";
 
 const API_BASE = "https://api.x.com/2";
+
+// ---- Read budget (AI-016) ---------------------------------------------------
+
+const READ_BUDGET_PATH = join(import.meta.dir, "../../../db/x-read-budget.json");
+
+/** Daily cap for X API read calls from this lib (GET /mentions, /users/me). */
+export const X_MAX_READS_PER_DAY = 50;
+
+interface XReadBudget {
+  date: string;        // YYYY-MM-DD UTC
+  reads: number;
+  backoff_until?: string; // ISO8601 — set on 429, cleared when expired
+}
+
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function loadReadBudget(): Promise<XReadBudget> {
+  const today = todayUTC();
+  try {
+    const file = Bun.file(READ_BUDGET_PATH);
+    if (await file.exists()) {
+      const data = (await file.json()) as XReadBudget;
+      if (data.date === today) return data;
+    }
+  } catch {
+    // corrupt or missing — start fresh
+  }
+  return { date: today, reads: 0 };
+}
+
+async function saveReadBudget(budget: XReadBudget): Promise<void> {
+  const tmp = READ_BUDGET_PATH + ".tmp";
+  await Bun.write(tmp, JSON.stringify(budget, null, 2) + "\n");
+  // Rename for atomic write (same-filesystem)
+  const { renameSync } = await import("node:fs");
+  renameSync(tmp, READ_BUDGET_PATH);
+}
+
+/**
+ * Throws if we are over the daily read budget or inside a 429 backoff window.
+ * Call BEFORE any GET to the X API from this lib.
+ */
+export async function checkReadBudget(): Promise<void> {
+  const budget = await loadReadBudget();
+  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
+    throw new Error(
+      `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
+    );
+  }
+  if (budget.reads >= X_MAX_READS_PER_DAY) {
+    throw new Error(
+      `X read budget exhausted: ${budget.reads}/${X_MAX_READS_PER_DAY} reads today. Resets at midnight UTC.`,
+    );
+  }
+}
+
+/** Increment the read counter after a successful GET. */
+export async function incrementReadBudget(): Promise<void> {
+  const budget = await loadReadBudget();
+  budget.reads += 1;
+  await saveReadBudget(budget);
+}
+
+/** Write a 429 backoff (15 min) to the budget file. */
+export async function setReadBackoff(): Promise<void> {
+  const budget = await loadReadBudget();
+  budget.backoff_until = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+  await saveReadBudget(budget);
+}
+
+// ---- Credentials ------------------------------------------------------------
 
 // Arc's own X user id (@arc0btc) — a constant. Callers pass this to fetchArcMentions
 // so it can SKIP the /users/me round-trip (mentions is user-scoped). That halves X
@@ -115,12 +195,17 @@ async function buildOAuthHeader(
   return `OAuth ${headerParts}`;
 }
 
-/** A signed, read-only GET against the X API v2. Throws on non-2xx. */
+/** A signed, read-only GET against the X API v2. Throws on non-2xx.
+ * Budget-aware: checks read budget before the call, increments after success,
+ * and writes a 429 backoff on rate-limit responses (AI-016). */
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
   queryParams: Record<string, string> = {},
 ): Promise<Record<string, unknown>> {
+  // Guard: enforce daily read budget and 429 backoff before touching the network.
+  await checkReadBudget();
+
   const baseUrl = `${API_BASE}${endpoint}`;
   // Build the query string with the SAME percentEncode used to compute the OAuth
   // signature base — URLSearchParams encodes a space as "+" while the signature uses
@@ -137,9 +222,20 @@ export async function xApiGet(
     headers: { Authorization: authHeader },
   });
   const data = await response.json();
+
+  if (response.status === 429) {
+    // Rate limit hit — write a 15-min backoff then throw.
+    await setReadBackoff();
+    throw new Error(`X API GET ${endpoint} 429: rate limited — backoff written (15 min)`);
+  }
+
   if (!response.ok) {
     throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(data)}`);
   }
+
+  // Success — consume one read unit.
+  await incrementReadBudget();
+
   return data as Record<string, unknown>;
 }
 
@@ -163,6 +259,7 @@ export interface XMentionsResult {
   arc_user_id: string;
   arc_username: string | null;
   mentions: XMention[];
+  newest_id?: string;
 }
 
 /**
@@ -172,6 +269,10 @@ export interface XMentionsResult {
  * the caller can (a) attribute each mention to a handle and (b) tell a reply-to-Arc
  * (warm) from a bare mention. SCALING CEILING (like the forum fetch): one page of
  * `maxResults` — older mentions are not paged; logs when it touches the ceiling.
+ *
+ * PAGINATION (AI-019): pass `sinceId` to fetch only mentions newer than the last
+ * seen id. The returned `newest_id` from the API meta is surfaced in the result
+ * so the caller can persist it for the next fetch.
  */
 export async function fetchArcMentions(opts: {
   creds: XCreds;
@@ -179,6 +280,8 @@ export async function fetchArcMentions(opts: {
    * read); omit to resolve it live via /users/me. */
   arcUserId?: string;
   maxResults?: number;
+  /** Only fetch mentions newer than this tweet id (since_id cursor for pagination). */
+  sinceId?: string;
   log?: (m: string) => void;
 }): Promise<XMentionsResult> {
   const log = opts.log ?? (() => {});
@@ -193,16 +296,23 @@ export async function fetchArcMentions(opts: {
   if (!arcUserId) throw new Error("could not resolve Arc X user id (/users/me returned no id)");
 
   const max = Math.min(Math.max(opts.maxResults ?? 25, 5), 100);
-  const resp = await xApiGet(`/users/${arcUserId}/mentions`, opts.creds, {
+  const queryParams: Record<string, string> = {
     max_results: String(max),
     "tweet.fields": "created_at,author_id,in_reply_to_user_id,referenced_tweets,conversation_id",
     expansions: "author_id",
     "user.fields": "username,name",
-  });
+  };
+  if (opts.sinceId) {
+    queryParams["since_id"] = opts.sinceId;
+  }
+
+  const resp = await xApiGet(`/users/${arcUserId}/mentions`, opts.creds, queryParams);
 
   const data = (resp["data"] as Array<Record<string, unknown>> | undefined) ?? [];
   const includes = (resp["includes"] as Record<string, unknown> | undefined) ?? {};
   const users = (includes["users"] as Array<Record<string, unknown>> | undefined) ?? [];
+  const meta = (resp["meta"] as Record<string, unknown> | undefined) ?? {};
+  const newestId = meta["newest_id"] ? String(meta["newest_id"]) : undefined;
   const userMap = new Map<string, { username?: string; name?: string }>();
   for (const u of users) {
     userMap.set(String(u["id"]), {
@@ -231,5 +341,5 @@ export async function fetchArcMentions(opts: {
     };
   });
 
-  return { arc_user_id: arcUserId, arc_username: arcUsername, mentions };
+  return { arc_user_id: arcUserId, arc_username: arcUsername, mentions, newest_id: newestId };
 }

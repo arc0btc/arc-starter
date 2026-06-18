@@ -1,6 +1,14 @@
 // skills/social-x-posting/sensor.ts
 // Polls X mentions every 15 minutes, creates tasks for mentions worth responding to.
 // Deduplicates by storing last-seen tweet ID in hook state.
+//
+// AI-051/052: OAuth helpers (percentEncode, generateNonce, hmacSha1, OAuthCreds,
+// loadCreds, apiGet) consolidated onto lib/x-api.ts's xApiGet + loadXCreds.
+// The private apiGet used URLSearchParams for URL construction (encodes space as "+")
+// while the OAuth signature used percentEncode (space→"%20") — a signature mismatch
+// on any param with spaces (AI-044). xApiGet uses percentEncode throughout, fixing it.
+//
+// AI-019: since_id cursor passed to fetchArcMentions (persisted in hook state).
 
 import {
   claimSensorRun,
@@ -10,7 +18,6 @@ import {
   insertTaskIfNew,
   createTaskIfDue,
 } from "../../src/sensors.ts";
-import { getCredential } from "../../src/credentials.ts";
 import {
   recentArtifacts,
   renderInline,
@@ -20,6 +27,11 @@ import {
 } from "../../src/artifacts.ts";
 import { getDatabase } from "../../src/db.ts";
 import { join } from "path";
+import {
+  loadXCreds,
+  fetchArcMentions,
+  ARC_X_USER_ID,
+} from "./lib/x-api.ts";
 
 const CREDITS_DEPLETED_PATH = join(import.meta.dir, "../../db/x-credits-depleted.json");
 const CREDITS_DEPLETED_TTL_DAYS = 30;
@@ -42,7 +54,6 @@ async function isCreditsDepleted(): Promise<boolean> {
 
 const SENSOR_NAME = "social-x-posting";
 const INTERVAL_MINUTES = 15;
-const API_BASE = "https://api.x.com/2";
 
 // Keywords to detect topic-specific context needs for mention reply tasks.
 const BITCOIN_WALLET_KEYWORDS = [
@@ -225,116 +236,14 @@ export async function runCadenceBeat(): Promise<void> {
         .get(`sensor:${CADENCE_SENSOR_NAME}:${beatId}`) as { id: number } | undefined;
       if (row) markConsumed(nugget.id, nugget.type, "x", row.id);
     }
+    // AI-049: provide complete HookState default (last_ran + last_result required).
     await writeHookState(CADENCE_SENSOR_NAME, {
-      ...(cadenceState || { version: 0 }),
+      ...(cadenceState || { version: 0, last_ran: new Date().toISOString(), last_result: "skip" as const }),
       last_beat_type: beat,
       last_beat_at: new Date().toISOString(),
       version: ((cadenceState?.version as number) || 0) + 1,
     });
   }
-}
-
-// ---- OAuth 1.0a (minimal, GET-only) ----
-
-function percentEncode(text: string): string {
-  return encodeURIComponent(text)
-    .replace(/!/g, "%21")
-    .replace(/\*/g, "%2A")
-    .replace(/'/g, "%27")
-    .replace(/\(/g, "%28")
-    .replace(/\)/g, "%29");
-}
-
-function generateNonce(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let nonce = "";
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  for (const byte of bytes) {
-    nonce += chars[byte % chars.length];
-  }
-  return nonce;
-}
-
-async function hmacSha1(key: string, data: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(key),
-    { name: "HMAC", hash: "SHA-1" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(data));
-  return btoa(String.fromCharCode(...new Uint8Array(signature)));
-}
-
-interface OAuthCreds {
-  apiKey: string;
-  apiSecret: string;
-  accessToken: string;
-  accessTokenSecret: string;
-}
-
-async function loadCreds(): Promise<OAuthCreds | null> {
-  try {
-    const apiKey = await getCredential("x", "consumer_key");
-    const apiSecret = await getCredential("x", "consumer_secret");
-    const accessToken = await getCredential("x", "access_token");
-    const accessTokenSecret = await getCredential("x", "access_token_secret");
-    if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) return null;
-    return { apiKey, apiSecret, accessToken, accessTokenSecret };
-  } catch {
-    return null;
-  }
-}
-
-async function apiGet(
-  endpoint: string,
-  creds: OAuthCreds,
-  queryParams: Record<string, string> = {}
-): Promise<Record<string, unknown> | null> {
-  const baseUrl = `${API_BASE}${endpoint}`;
-  const url = Object.keys(queryParams).length > 0
-    ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
-    : baseUrl;
-
-  // Build OAuth header
-  const oauthParams: Record<string, string> = {
-    oauth_consumer_key: creds.apiKey,
-    oauth_nonce: generateNonce(),
-    oauth_signature_method: "HMAC-SHA1",
-    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
-    oauth_token: creds.accessToken,
-    oauth_version: "1.0",
-  };
-
-  const allParams = { ...oauthParams, ...queryParams };
-  const sortedKeys = Object.keys(allParams).sort();
-  const paramString = sortedKeys
-    .map((k) => `${percentEncode(k)}=${percentEncode(allParams[k])}`)
-    .join("&");
-  const signatureBase = `GET&${percentEncode(baseUrl)}&${percentEncode(paramString)}`;
-  const signingKey = `${percentEncode(creds.apiSecret)}&${percentEncode(creds.accessTokenSecret)}`;
-  const signature = await hmacSha1(signingKey, signatureBase);
-
-  oauthParams["oauth_signature"] = signature;
-  const headerParts = Object.keys(oauthParams)
-    .sort()
-    .map((k) => `${percentEncode(k)}="${percentEncode(oauthParams[k])}"`)
-    .join(", ");
-
-  const response = await fetch(url, {
-    headers: { Authorization: `OAuth ${headerParts}` },
-    signal: AbortSignal.timeout(15_000),
-  });
-
-  if (!response.ok) {
-    log(`warn: API ${response.status} on ${endpoint}`);
-    return null;
-  }
-
-  return (await response.json()) as Record<string, unknown>;
 }
 
 // ---- Mention filtering ----
@@ -410,57 +319,47 @@ export default async function xMentionsSensor(): Promise<string> {
     // mentions early-returns so the cadence fires regardless of mention volume.
     await runCadenceBeat();
 
-    const creds = await loadCreds();
+    const creds = await loadXCreds();
     if (!creds) {
       log("skip: X credentials not configured");
       return "skip";
     }
 
-    // Get our user ID
-    const me = await apiGet("/users/me", creds, { "user.fields": "id" });
-    if (!me) {
-      log("error: could not fetch user info");
-      return "error";
-    }
-    const userData = me["data"] as Record<string, string> | undefined;
-    if (!userData) {
-      log("error: no user data in response");
-      return "error";
-    }
-    const myUserId = userData["id"];
-
-    // Load last-seen ID from hook state
+    // Load last-seen ID from hook state (AI-019: since_id cursor)
     const state = await readHookState(SENSOR_NAME);
     const lastSeenId = (state?.["last_seen_id"] as string) || undefined;
 
-    // Fetch mentions
-    const params: Record<string, string> = {
-      max_results: "20",
-      "tweet.fields": "created_at,author_id,public_metrics,conversation_id,in_reply_to_user_id",
-    };
-    if (lastSeenId) {
-      params["since_id"] = lastSeenId;
-    }
-
-    const mentionsResponse = await apiGet(`/users/${myUserId}/mentions`, creds, params);
-    if (!mentionsResponse) {
-      log("warn: mentions fetch failed");
+    // Fetch mentions via consolidated x-api.ts (AI-051/052).
+    // Passes ARC_X_USER_ID to skip the /users/me round-trip (saves one read budget unit).
+    // Passes lastSeenId as sinceId cursor so we only see new mentions (AI-019).
+    let mentionsResult;
+    try {
+      mentionsResult = await fetchArcMentions({
+        creds,
+        arcUserId: ARC_X_USER_ID,
+        maxResults: 20,
+        sinceId: lastSeenId,
+        log,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      log(`warn: mentions fetch failed — ${msg}`);
       return "error";
     }
 
-    const mentions = (mentionsResponse["data"] as Mention[] | undefined) || [];
-    const meta = mentionsResponse["meta"] as Record<string, string> | undefined;
-    const newestId = meta?.["newest_id"];
+    const mentions = mentionsResult.mentions as Mention[];
+    const newestId = mentionsResult.newest_id;
+    const myUserId = mentionsResult.arc_user_id;
 
     if (mentions.length === 0) {
       log("no new mentions");
       // Still update state to track last run
       if (newestId) {
         await writeHookState(SENSOR_NAME, {
-          ...(state || { version: 0 }),
+          ...(state || { version: 0, last_ran: new Date().toISOString(), last_result: "ok" as const }),
           last_ran: new Date().toISOString(),
-          last_result: "ok",
-          version: (state?.version || 0) + 1,
+          last_result: "ok" as const,
+          version: ((state?.version as number) || 0) + 1,
           last_seen_id: newestId,
         });
       }
@@ -474,10 +373,10 @@ export default async function xMentionsSensor(): Promise<string> {
       log("skip task creation: X credits depleted (db/x-credits-depleted.json)");
       if (newestId) {
         await writeHookState(SENSOR_NAME, {
-          ...(state || { version: 0 }),
+          ...(state || { version: 0, last_ran: new Date().toISOString(), last_result: "skip" as const }),
           last_ran: new Date().toISOString(),
-          last_result: "skip",
-          version: (state?.version || 0) + 1,
+          last_result: "skip" as const,
+          version: ((state?.version as number) || 0) + 1,
           last_seen_id: newestId,
         });
       }
@@ -508,7 +407,8 @@ export default async function xMentionsSensor(): Promise<string> {
           mention.conversation_id ? `Conversation: ${mention.conversation_id}` : "",
           "",
           "Review this mention and reply if appropriate. Use:",
-          `  arc skills run --name social-x-posting -- reply --text "<reply>" --tweet-id ${mention.id}`,
+          // AI-018/031: include --x-lead-id so cli.ts can log the reply as a value_touch.
+          `  arc skills run --name social-x-posting -- reply --text "<reply>" --tweet-id ${mention.id} --x-lead-id ${mention.author_id}`,
         ]
           .filter(Boolean)
           .join("\n"),
@@ -530,10 +430,10 @@ export default async function xMentionsSensor(): Promise<string> {
     // Update last-seen ID
     const newLastSeen = newestId || mentions[0]?.id || lastSeenId;
     await writeHookState(SENSOR_NAME, {
-      ...(state || { version: 0 }),
+      ...(state || { version: 0, last_ran: new Date().toISOString(), last_result: "ok" as const }),
       last_ran: new Date().toISOString(),
-      last_result: "ok",
-      version: (state?.version || 0) + 1,
+      last_result: "ok" as const,
+      version: ((state?.version as number) || 0) + 1,
       last_seen_id: newLastSeen || "",
       last_mention_count: mentions.length,
       last_tasks_created: tasksCreated,

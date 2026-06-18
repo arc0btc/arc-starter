@@ -95,6 +95,46 @@ async function recordPost(source: string, tweetId: string | null): Promise<void>
     "INSERT OR IGNORE INTO x_post_log (source, tweet_id, posted_at) VALUES (?, ?, ?)",
   ).run(source, tweetId, new Date().toISOString());
 }
+// ---- X reply log (AI-018/031: give-3x gap for X channel) -------------------
+//
+// When Arc replies to a mention, we log the original author's X id so
+// refreshLeads (lead-source.ts) can increment arc_replies_to_them for that lead.
+// The author id comes from the sensor task description via --x-lead-id.
+// This closes the give-3x observability gap: X leads now accrue value_touches
+// from outbound replies (each reply = one give), enabling the enforcement gate
+// to unblock auto-assist once ≥3 gives are on record.
+async function xReplyLog() {
+  const { initDatabase, getDatabase } = await import("../../src/db.ts");
+  initDatabase();
+  const db = getDatabase();
+  db.run(
+    `CREATE TABLE IF NOT EXISTS x_reply_log (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       replied_to_tweet_id TEXT NOT NULL,
+       reply_tweet_id TEXT,
+       x_lead_author_id TEXT,
+       replied_at TEXT NOT NULL
+     )`,
+  );
+  return db;
+}
+
+/**
+ * Record an outbound X reply so lead-source.ts can fold it into arc_replies_to_them.
+ * xLeadAuthorId = the X author_id of the tweet Arc replied to (from --x-lead-id flag).
+ * No-op when xLeadAuthorId is absent (legacy callers without the flag are unaffected).
+ */
+async function recordXReply(
+  repliedToTweetId: string,
+  replyTweetId: string | null,
+  xLeadAuthorId: string | undefined,
+): Promise<void> {
+  if (!xLeadAuthorId) return;
+  const db = await xReplyLog();
+  db.query(
+    "INSERT INTO x_reply_log (replied_to_tweet_id, reply_tweet_id, x_lead_author_id, replied_at) VALUES (?, ?, ?, ?)",
+  ).run(repliedToTweetId, replyTweetId, xLeadAuthorId, new Date().toISOString());
+}
 
 // ---- Cache ----
 
@@ -425,6 +465,8 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   if (data) {
     await incrementBudget("replies");
     if (flags["source"]) await recordPost(flags["source"], data["id"]);
+    // AI-018/031: log value_touch so give-3x gate can unblock X leads.
+    await recordXReply(tweetId, data["id"] ?? null, flags["x-lead-id"]);
     console.log(JSON.stringify({ id: data["id"], text: data["text"], reply_to: tweetId }, null, 2));
     log(`Reply posted: ${data["id"]}`);
   } else {
@@ -806,7 +848,8 @@ Commands:
   post       --text <text> [--source <key>]    Post a tweet (max 280 chars)
                                                (--source: a re-run with the same key is suppressed
                                                 by the local x_post_log ledger — no double-post)
-  reply      --text <text> --tweet-id <id> [--source <key>]  Reply to a tweet (--source: idempotent re-run)
+  reply      --text <text> --tweet-id <id> [--source <key>] [--x-lead-id <author_id>]
+             Reply to a tweet. --source: idempotent re-run. --x-lead-id: log as give-3x value_touch for this X lead.
   delete     --tweet-id <id>                   Delete a tweet
   like       --tweet-id <id>                   Like a tweet
   unlike     --tweet-id <id>                   Unlike a tweet

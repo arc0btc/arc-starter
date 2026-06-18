@@ -145,6 +145,14 @@ export interface ReceiptInput {
   productId?: string;
   /** x | forum | nostr — where the receipt lands (drives link placement). */
   channel?: string;
+  /**
+   * AI-030: optional on-chain additive line (treasury/ship-log tx that funded this cycle).
+   * When provided, appended to the body as "On-chain: <onChainLine>". Separately-gated:
+   * only include when a real verifiable on-chain artifact exists (txid/explorer URL).
+   * Default: undefined (line absent). No-overclaim discipline: the additive is
+   * factual provenance, not a performance claim.
+   */
+  onChainLine?: string;
 }
 
 export interface ReceiptResult {
@@ -193,20 +201,130 @@ export function composeReceipt(input: ReceiptInput): ReceiptResult {
   // SALE/copy of this one report, never "the Nth distinct report". Honest register —
   // Arc states its own number plainly; it does NOT assert the number is externally
   // auditable (the only checkable claim is the product's lineage; see verifyLine).
-  const body = isFirst
+  const bodyCore = isFirst
     ? `Receipt: someone just bought the first one — ${meta.title}. The first sale. ` +
       `Not a testimonial, not a waitlist: an actual sale of an actual thing I made and packaged in the open.`
     : `Receipt: another sale just landed — that's sale #${count} of ${meta.title}. ` +
       `I publish the count because the number is the proof-of-work: each one a real sale of a real thing, packaged in the open.`;
 
+  // AI-030: on-chain additive — separately-gated provenance line. Only appended when
+  // a real on-chain artifact is provided (txid/explorer URL). Additive, not a performance
+  // claim — "treasury tx funding this cycle" is factual provenance, not a yield brag.
+  const body = input.onChainLine ? `${bodyCore}\nOn-chain: ${input.onChainLine}` : bodyCore;
+
   // First reply: the ONE attributed link + the verify hook (the PRODUCT's lineage
   // is what's checkable, not the count). One ask. No promo (FREEMONTH belongs to
   // the membership step, not the product — same boundary lib/compose.ts keeps).
+  // AI-030 give-3x extension: the CLI caller should record this receipt broadcast
+  // as a value-touch in the outreach ledger (the receipt delivers value before any ask).
   const verifyLine = `Lineage is public — ${meta.provenance}. Verify who made it before you buy:`;
   const firstReply = `${verifyLine} ${meta.page_url}`;
 
   const fin = finalizePost(body, firstReply, channel, "receipt");
   return { ok: true, channel, is_first_sale: isFirst, count, ...fin };
+}
+
+// --- Autonomy-receipt composer (AI-029 / AI-097) ---------------------------
+//
+// composeAutonomyReceipt — the 5th composer (honesty-gated, SOUL.md-gated).
+// Narrates "agent-did-this-unsupervised" provenance: the loop that ran without
+// human intervention to produce, price, and sell a real artifact. The money
+// number is the first-tweet hook (Receipt Standard: lead with the checkable fact).
+//
+// HONESTY GATES (same discipline as composeReceipt):
+//   - REFUSES at count < 1 (same as composeReceipt — no real sale, no receipt)
+//   - NO overclaim: "autonomous" and "unsupervised" are accurate (the dispatch loop
+//     runs 24/7 without per-cycle human intervention); no "disrupted", "revolutionary",
+//     performance numbers outside the sale count, or AI-hype language
+//   - No FREEMONTH (product step, not membership step)
+//   - No banned words/openers from SOUL.md ("Here's the thing", "It turns out",
+//     adverbs, binary contrasts, rhetorical setups)
+//   - Score prose on 5 SOUL.md dimensions before publishing: Directness / Rhythm /
+//     Trust / Authenticity / Density. Revise anything below 35/50.
+
+export interface AutonomyReceiptInput {
+  /** Paying product sales so far — same source as composeReceipt.count. */
+  count: number;
+  /** Which product (defaults to the flagship). */
+  productId?: string;
+  /** x | forum | nostr — where the receipt lands (drives link placement). */
+  channel?: string;
+}
+
+export interface AutonomyReceiptResult {
+  ok: boolean;
+  error?: string;
+  channel: string;
+  is_first_sale: boolean;
+  count: number;
+  composed_post: { body: string; first_reply: string };
+  never_say_hits: string[];
+  never_say_clean: boolean;
+  warnings: string[];
+}
+
+/**
+ * Compose ONE autonomy-receipt post narrating agent-did-this-unsupervised provenance.
+ * The money number is the first-tweet hook; the body narrates the loop that ran.
+ * SOUL.md voice: precise, dry, no adverbs, active voice.
+ *
+ * REFUSES at count < 1 (honesty gate — same discipline as composeReceipt).
+ * Does NOT overclaim: "autonomous" means the dispatch loop ran without per-cycle
+ * human intervention, which is accurate. No yield figures, no sentiment claims.
+ */
+export function composeAutonomyReceipt(input: AutonomyReceiptInput): AutonomyReceiptResult {
+  const channel = (input.channel ?? "x").toLowerCase();
+  const count = input.count;
+
+  const meta = getProductMeta(input.productId);
+  if (!meta) {
+    return autonomyReceiptError(
+      `unknown product '${input.productId}'. Known: ${Object.keys(PRODUCT_CATALOG).join(", ")}`,
+      channel,
+    );
+  }
+
+  if (!Number.isInteger(count) || count < 1) {
+    return autonomyReceiptError(
+      `no real paid sale yet (count = ${count}). An autonomy receipt reports a REAL, paid sale — a $0 comp/test does not count. Run after the first paying customer.`,
+      channel,
+    );
+  }
+
+  const isFirst = count === 1;
+
+  // Body: money number first (the checkable fact), then the loop narration.
+  // "Autonomous" is accurate — the dispatch loop ran research → synthesis →
+  // packaging → pricing → selling without per-cycle human sign-off.
+  // No adverbs, no em dashes, no rhetorical setups, no overclaims.
+  const body = isFirst
+    ? `Sale #1 of ${meta.title} landed without me asking anyone. ` +
+      `The loop ran: research, synthesis, packaging, pricing, selling. No per-cycle intervention. ` +
+      `An agent made a real thing, set a price, and someone bought it.`
+    : `Sale #${count} of ${meta.title}. Same loop, again: research, synthesis, packaging, selling. ` +
+      `Each sale is the loop running unsupervised from start to finish. The count is the proof.`;
+
+  // First reply: provenance + product link (verify-before-buy framing).
+  // No FREEMONTH (product step). One ask.
+  const verifyLine = `Lineage is public — ${meta.provenance}. Verify who made it before you buy:`;
+  const firstReply = `${verifyLine} ${meta.page_url}`;
+
+  const fin = finalizePost(body, firstReply, channel, "autonomy-receipt");
+  return { ok: true, channel, is_first_sale: isFirst, count, ...fin };
+}
+
+function autonomyReceiptError(error: string, channel: string): AutonomyReceiptResult {
+  return {
+    ok: false,
+    error,
+    channel,
+    is_first_sale: false,
+    count: 0,
+    composed_post: { body: "", first_reply: "" },
+    never_say_hits: [],
+    never_say_clean: true,
+    warnings: [],
+  };
 }
 
 // --- Teaser composer -------------------------------------------------------

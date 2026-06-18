@@ -291,6 +291,9 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
     ? ["whop-sales", "social-x-posting", "arc-brand-voice"]
     : ["whop-sales", "whop", "arc-brand-voice"];
 
+  // AI-001 BLOCKING gate note: enforceAcquisitionGate() above is BLOCKING for ALL
+  // channels including X — lean-cap + give-3x + 7-day-dedup + claim-proof REFUSED
+  // this lead if any gate failed. We only reach buildPitchTask() when ALL gates pass.
   let postBlock: string;
   if (c.route === "operator-manual") {
     postBlock = [
@@ -307,7 +310,7 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
     const to = c.reply_to_msg_id ?? "<their_tweet_id>";
     postBlock = [
       "ROUTE: ARC-AUTO (arc0btc X) — warm-reply ASSIST. REPLY to THEIR tweet with the BODY (value, no link),",
-      "then a follow-up reply carrying the attributed CTA + FREEMONTH + any proof:",
+      "then a follow-up reply carrying the attributed CTA ($9 product link, NO FREEMONTH — promo belongs to the membership step, not the product) + any proof:",
       `  arc skills run --name social-x-posting -- reply --tweet-id ${to} --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
       `  arc skills run --name social-x-posting -- reply --tweet-id <arc_reply_tweet_id> --text "<first_reply>"`,
       "The social-x-posting CLI re-checks BUDGET_LIMITS.replies at post time (hard daily X cap).",
@@ -316,11 +319,13 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
     // FREE public-forum venue (exp_YRtS3kgMVeBGzu — discovery surface non-members
     // can see; NOT the paid chat, and on-Whop so links aren't reach-suppressed):
     // reply to their free-forum post with the value, then a follow-up carrying the
-    // CTA + FREEMONTH. (P10's lead source finalizes the exact post id / command.)
+    // CTA ($9 product link). FREEMONTH belongs to the membership step (L1), NOT the
+    // $9 product pitch (L2) — compose.ts line ~132 is the doctrine source.
+    // (P10's lead source finalizes the exact post id / command.)
     const to = c.reply_to_msg_id ?? "<their_free_forum_post_id>";
     postBlock = [
       "ROUTE: ARC-AUTO (FREE public forum, exp_YRtS3kgMVeBGzu) — reply to their post with the BODY,",
-      "then a follow-up carrying the attributed CTA + FREEMONTH (ask stays out of the first message):",
+      "then a follow-up carrying the attributed CTA ($9 product link, NO FREEMONTH — promo is for the membership step, not the product; ask stays out of the first message):",
       `  arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --parent ${to} --content "<body>"`,
       `  arc skills run --name whop -- post-forum --experience exp_YRtS3kgMVeBGzu --parent ${to} --content "<first_reply>"`,
       "Never pitch inside the PAID room (those people already paid). Idempotency: confirm not already pitched.",

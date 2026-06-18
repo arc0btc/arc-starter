@@ -107,7 +107,11 @@ function ensureUser(store: RelationshipStore, msg: ChatMessage): Relationship {
 }
 
 /** Returns true if this interaction was newly appended (i.e., not a duplicate). */
-function appendInteraction(rel: Relationship, interaction: Interaction): boolean {
+function appendInteraction(
+  rel: Relationship,
+  interaction: Interaction,
+  arcAuthoredMessageIds: Set<string>,
+): boolean {
   // Idempotent: don't double-count a message we already saw on a prior tick.
   if (rel.recent_interactions.some((i) => i.msg_id === interaction.msg_id)) return false;
   rel.recent_interactions.push(interaction);
@@ -128,21 +132,23 @@ function appendInteraction(rel: Relationship, interaction: Interaction): boolean
   return true;
 }
 
-// Per-tick scratch: which message IDs in the current window were authored by Arc.
-// Used so we can detect "their reply to Arc" without re-fetching authorship.
-const arcAuthoredMessageIds = new Set<string>();
-
 /**
  * Update the store with a batch of messages (newest-first or any order — we
  * sort internally). Returns the set of user_ids that were touched, for the
  * artifact log.
+ *
+ * AI-020: arcAuthoredMessageIds is now function-local (was module-global mutable
+ * state). Each call constructs a fresh Set — no .clear() needed, no shared state
+ * across concurrent callers (not a risk today under single-threaded dispatch, but
+ * correct regardless).
  */
 export function updateFromMessages(
   store: RelationshipStore,
   messages: ChatMessage[],
 ): string[] {
-  // Pre-scan: remember which messages Arc authored so reply attribution works.
-  arcAuthoredMessageIds.clear();
+  // Per-call scratch: which message IDs in this batch were authored by Arc.
+  // Used to detect "their reply to Arc" without re-fetching authorship.
+  const arcAuthoredMessageIds = new Set<string>();
   for (const m of messages) {
     if (m.user.id === ARC_USER_ID) arcAuthoredMessageIds.add(m.id);
   }
@@ -170,7 +176,7 @@ export function updateFromMessages(
         direction: "from_arc",
         in_reply_to: msg.replying_to_message_id,
         snippet: snippet(msg.content),
-      });
+      }, arcAuthoredMessageIds);
       touched.add(parent.user.id);
       continue;
     }
@@ -186,7 +192,7 @@ export function updateFromMessages(
       direction: "from_user",
       in_reply_to: msg.replying_to_message_id ?? undefined,
       snippet: snippet(msg.content),
-    });
+    }, arcAuthoredMessageIds);
     touched.add(msg.user.id);
   }
 
