@@ -1,3 +1,62 @@
+## 2026-06-18T02:15:00.000Z — OAuth consolidation, before-LLM skip gates, engagement signals wired; 129 skills / 82 sensors
+
+**Task #19283** | Diff: 0f12c51 → 93ec01f (6 structural commits) | Sensors: 82 | Skills: 129
+
+### Step 1 — Requirements
+
+6 structural commits in window. No `src/dispatch.ts` or `src/sensors.ts` changes. All changes are skill-layer.
+
+Key structural additions:
+
+- **OAuth consolidation (AI-051/052)**: `lib/x-api.ts` now owns `xApiGet` + `loadXCreds`. Prior duplication between `sensor.ts` and `cli.ts` had a bug: URLSearchParams encoded spaces as `+` while OAuth signature used `%20`, causing signature mismatches on any param with spaces. `xApiGet` uses `percentEncode` throughout — bug class closed. `since_id` cursor now persisted in hook state (AI-019).
+- **Before-LLM skip gates (AI-058/059/061/067)**: Three new AND-condition gates added across `social-x-posting/sensor.ts` and `whop/sensor.ts`. All are conservative (all conditions must be true to skip). Pattern: if cheap signals all say "defer", save the dispatch session. Dormant until respective feature flags enabled.
+- **x_reply_log table (AI-018/031)**: New `x_reply_log` table in `social-x-posting/cli.ts`. Records outbound replies per X lead author ID. Closes give-3x observability gap — `lead-source.ts` can now tally `arc_replies_to_them` from X replies, not just whop messages.
+- **Budget history (AI-005)**: `x-budget-history.json` rolling 30-day cap, archived on day rollover. Enables retroactive cost analysis.
+- **ContentCalendarMachine engagement wire-up (AI-054)**: TODO comment in `state-machine.ts` replaced with actual signal sources (`x_reply_log`, `whop_post_log` source keys). Course-candidacy gate upgraded from time-only (T+30d) to engagement-gated (≥3 replies AND cluster_size ≥3 OR close).
+- **CTA source key (AI-090)**: Thread CTA reply now uses `--source content-calendar:<slug>:x-cta`. Intermediate thread replies use sequential source keys. Full thread is now source-tracked in `x_post_log`.
+- **P8 Autonomous Receipt (AI-073)**: `surfaceProductBuyer()` wired in `events.ts` — fires 3-step task on `membership.activated` + PRODUCT_SCOPE: receipt CLI → teaser CLI → continuity bridge.
+- **FREEMONTH clarification (AI-001)**: CTA copy corrected — FREEMONTH belongs to L1 membership step, not $9 product step (L2). `buildPitchTask()` and `SKILL.md` updated.
+- **arc-reporting AGENT.md stub caveat (AI-047)**: Note added — stubbed leading-indicator lines in readout output are placeholders (informational pointers), not live values.
+
+### Step 2 — Delete
+
+**[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — still pending cleanup on next sensor edit.
+
+**[WATCH-NEW]** AI-XXX comment breadcrumbs accumulating across skill files. Each fix leaves an inline trace comment. Low noise today but will become search-index pollution at ~AI-200+. No action needed now; worth a periodic cleanup pass every 100 AI-IDs.
+
+### Step 3 — Simplify
+
+- Before-LLM skip gates across `whop/sensor.ts` and `social-x-posting/sensor.ts` share the same AND-condition pattern. If a third sensor adds this pattern, extract a shared `beforeLLMSkipGate(conditions: boolean[], reason: string): boolean` utility — saves ~15 lines per sensor and makes the pattern searchable.
+- `xApiGet` consolidation was correct and closed a real bug class. The before/after is cleaner: one OAuth implementation, one URL-encoding path.
+- `x_reply_log` CREATE TABLE in a lazy function works for low-traffic tables. No concern at current scale.
+- **[CARRY-WATCH]** `arc-reporting` AGENT.md stub caveat (AI-047) acknowledges stubs but doesn't fix them. The leading-indicator lines that show `(stub` or `(run arc skills run...)` should eventually be replaced with live queries. Follow-up if watch reports show consumers misreading stubs as actuals.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+
+### Step 4 — Accelerate
+
+- Before-LLM skip gates are direct dispatch-session savings — no LLM invoked for empty-pool cadence ticks or quiet-room synthesis checks. Measurable improvement in cost/task once flags enabled.
+- Budget history enables retroactive cost analysis without querying `cycle_log` (which grows unbounded). Good pattern.
+- Course-candidacy upgrade (AI-054) removes the "time-only" hack — assessments now use real signal, preventing hollow escalations.
+
+### Step 5 — Automate
+
+- The `x_reply_log` give-3x observability is a prerequisite for an automated give-3x enforcement gate in `whop-sales`. Once receipt tracking is live, the enforcement gate can auto-permit leads with ≥3 confirmed gives — no manual review needed per lead.
+- A dedicated clustering sensor for `ctx.engagement_score` (noted in AI-054 comment) is the right long-term automation. Not urgent at current content volume.
+
+### Flags
+
+- **[RESOLVED]** OAuth signature mismatch on space-encoding (AI-051/052) — `lib/x-api.ts` consolidation.
+- **[RESOLVED]** FREEMONTH mis-placed in product pitch (AI-001) — updated in `buildPitchTask()` + `SKILL.md`.
+- **[WATCH-NEW]** arc-reporting stubbed leading-indicator lines (AI-047) — note added but stubs not fixed. Monitor for misreads.
+- **[WATCH-NEW]** AI-XXX breadcrumb accumulation — low priority, worth reviewing at AI-200+.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated.
+
+---
+
 ## 2026-06-17T14:20:00.000Z — content-calendar title dedup; .bak-rsku/.bak-p10b* cleanup resolved; 129 skills / 82 sensors
 
 **Task #19235** | Diff: 991bc09 → 0f12c51 (1 structural commit) | Sensors: 82 | Skills: 129
