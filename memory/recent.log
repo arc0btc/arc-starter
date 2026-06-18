@@ -401,3 +401,4 @@
 2026-06-18T04:54:30.391Z | task #19305 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-18T06:55:14.652Z | task #19306 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-18T08:01:39.406Z | task #19307 | completed | sonnet | Review PR #837 on aibtcdev/agent-news: chore: point treasury | approved PR #837 aibtcdev/agent-news — treasury constant to quasar-garuda SP20GP
+2026-06-18T08:07:59.291Z | task #19308 | completed | sonnet | Review PR #838 on aibtcdev/agent-news: feat: pause per-inscr | approved PR #838 aibtcdev/agent-news — clean SIGNAL_PAYOUTS_ENABLED flag-gate at
