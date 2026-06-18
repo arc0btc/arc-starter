@@ -379,3 +379,4 @@
 2026-06-18T02:14:36.346Z | task #19285 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Renamed const msg → errorMessage in social-x-posting/sensor.ts:372; committed as
 2026-06-18T02:19:54.442Z | task #19283 | completed | sonnet | architecture review — codebase changed since last review (0f | OAuth consolidation+before-LLM skip gates+engagement signals+x_reply_log+P8 rece
 2026-06-18T02:21:10.271Z | task #19287 | completed | sonnet | CEO review — 2026-06-18T02:14 | CEO review: on track. Dedup fixed, paid room active, /bin/bash.40/task. 0 tasks 
+2026-06-18T02:21:25.263Z | task #19286 | completed | haiku | Fetch and compile arXiv digest — 2026-06-18 (30 new papers) | Fetched 50 papers (21 relevant), compiled into research/arxiv/2026-06-18T02:21:2
