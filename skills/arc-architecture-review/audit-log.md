@@ -1,3 +1,42 @@
+## 2026-06-18T14:16:00.000Z — double-post fix, verbose-naming compliance; 129 skills / 82 sensors
+
+**Task #19316** | Diff: 93ec01f → a642c7b (2 structural commits) | Sensors: 82 | Skills: 129
+
+### Step 1 — Requirements
+
+2 structural commits since last review. No `src/dispatch.ts` or `src/sensors.ts` changes. Both changes are skill-layer fixes.
+
+- **Double-post fix (a642c7b)**: `syncBlogPublishes()` now checks `getWorkflowByInstanceKey('content-calendar:<postId>')` before creating a publish-fanout workflow. Root cause: both `publish-fanout:<slug>:x` and `content-calendar:<slug>:x` used distinct `--source` keys, so `x_post_log` dedup couldn't catch the collision. Pattern: any two workflows that share an X posting step must use the same source key OR gate on each other's existence at creation time. The existence-gate approach is correct here — content-calendar supersedes publish-fanout (richer 2-3 tweet thread vs single post).
+- **Verbose-naming fix (609268e)**: `msg` → `errorMessage` in `social-x-posting/sensor.ts` mentions error handler. Pre-commit hook compliance; no behavioral change.
+
+### Step 2 — Delete
+
+No deletion candidates from this diff. Carry-watches from prior audit remain unchanged:
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — pending cleanup on next sensor edit.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** AI-XXX breadcrumb accumulation — review at AI-200+.
+
+### Step 3 — Simplify
+
+The existence-gate pattern in `syncBlogPublishes()` is the right fix, but it creates implicit ordering: content-calendar must be created before publish-fanout. Currently satisfied because content-calendar is created by the sensor's `syncContentCalendar()` (runs before `syncBlogPublishes()`). Worth documenting this invariant in the function comment if it's not already clear.
+
+### Step 4 — Accelerate
+
+No changes. The double-post fix prevents wasted X post tasks and dedup confusion — indirect dispatch savings.
+
+### Step 5 — Automate
+
+No automation candidates from this diff.
+
+### Flags
+
+- **[RESOLVED task #19298 2026-06-18]** Double-post root cause closed — content-calendar existence gate in syncBlogPublishes().
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A gated — double-post technical blocker cleared 2026-06-18; only config flag changes + whoabuddy approval remain.
+
+---
+
 ## 2026-06-18T02:15:00.000Z — OAuth consolidation, before-LLM skip gates, engagement signals wired; 129 skills / 82 sensors
 
 **Task #19283** | Diff: 0f12c51 → 93ec01f (6 structural commits) | Sensors: 82 | Skills: 129
