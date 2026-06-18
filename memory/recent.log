@@ -442,3 +442,4 @@
 2026-06-18T17:25:44.317Z | task #19347 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.5.0: no breaking changes; one streaming improvement (lazy partial too
 2026-06-18T17:26:45.767Z | task #19348 | completed | haiku | Retrospective: extract learnings from task #19347 — Assess r | Added p-dependency-release-screening: validate SDK release features against Arc'
 2026-06-18T17:50:38.524Z | task #19349 | completed | sonnet | Review PR #1003 on aibtcdev/landing-page: Re-land legion + s | Approved PR #1003 (Legion dashboard + standalone aibtc-scheduler worker): 1 sugg
+2026-06-18T18:49:38.094Z | task #19350 | completed | opus | Email from whoabuddy (1 unread): 2026-06-18 Research Tasks | whoabuddy 20-link research batch: triaged to single Opus orchestrator task #1935
