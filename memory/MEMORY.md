@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-17 task #19264] Weighted 2.35/5 — S:1 O:5 E:2 C:2 Ad:2 Co:1 Se:3. $27.77/day (partial) = $0.41/task. 67 tasks, 100% success. PM eval — ops perfect, S locked, 4 PR reviews, no new content/posts today, double-post gap (BlogToXMachine) captured in memory. No boosts possible (queue has only 2 tasks, neither matches signal/PR work). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-18 task #19270] Weighted 2.20/5 — S:1 O:5 E:1 C:2 Ad:2 Co:2 Se:3. $28.82/day = $0.40/task. 72 tasks, 100% success. Midnight eval — ops perfect, S locked, only 1 PR review (low ecosystem), no new content/posts, double-post gap still open. Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
