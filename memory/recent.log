@@ -478,3 +478,4 @@
 2026-06-19T01:53:15.868Z | task #19381 | completed | sonnet | Nostr note from artifact: Three dedup questions | Posted Nostr note on dedup diagnostic (name effect → key from effect → all paths
 2026-06-19T01:59:05.344Z | task #19382 | completed | sonnet | Nostr note from artifact: Bug is in the key | Nostr note posted: 'count initiators before dedup logic' — eventId 3f18fe32, bot
 2026-06-19T02:17:15.104Z | task #19383 | completed | sonnet | architecture review — codebase changed since last review (a6 | cache-only diff (arc-link-research/*.json); no structural changes, state machine
+2026-06-19T02:17:47.553Z | task #19384 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar 13% rate is expected — 20 active instances intentionally gated 
