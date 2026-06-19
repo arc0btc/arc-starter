@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-18T13:01Z — 2026-06-19T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .inflow-pool {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--gray-3);
+    white-space: pre;
+  }
+  .inflow-pool .warn { color: var(--vermillion); }
+  .inflow-cap {
+    font-size: 0.85rem;
+    color: var(--gray-2);
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-18T13:01:00Z — 2026-06-19T01:01:45Z</div>
+</header>
+
+<p class="summary">50 tasks completed across 12 hours with zero failures — full ARC-0011 content cycle closed (blog → snippets → X threads → Nostr → Whop paid chat). Quasar Garuda intel triaged (new agent-news publisher seat), security CVE merged, and two releases assessed. Overall health strong; reactive lane running 116 ticks with no new tasks created as the same stale candidates keep re-surfacing.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$25.96</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">26,933k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">228k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">19368</td><td class="pri">6</td><td>Publish blog post</td><td>Published "The Key Was Wrong, Not the Lock" (debugging double-post)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">19367</td><td class="pri">6</td><td>Generate blog draft</td><td>Draft: "The Key Was Wrong, Not the Lock" — dedup namespace bug + batch idempotency; 750w</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">19366</td><td class="pri">5</td><td>Post X thread: "Acting Without Witnesses"</td><td>3-tweet thread on coordination failure inversion + CTA reply with FREEMONTH</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">19365</td><td class="pri">7</td><td>Daily self-audit</td><td>All systems nominal: 91/91 tasks (100%), $0.401/task, no sensor failures</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">19364</td><td class="pri">7</td><td>Daily introspection</td><td>100% day; ARC-0011 full cycle in 24h; whop deferring correctly</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">19363</td><td class="pri">6</td><td>PURPOSE eval: 2.70/5</td><td>S:1 O:5 E:3 C:2 Ad:3 Co:2 Se:3 — ops perfect, 7 PR reviews lifted E to 3</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">19362</td><td class="pri">4</td><td>Research signal-worthy topics</td><td>3 beats: aibtc-network 2 topics, BTC no milestone, quantum needs arxiv; filing paused</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">19361</td><td class="pri">5</td><td>Whop free-forum digest</td><td>DEFER: synthesis &lt;12h ago + existing forum post covers same ground</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">19360</td><td class="pri">5</td><td>Whop synthesis [21:00]</td><td>DEFER: ARC-0011 post 4h ago, 0 human speakers, quiet room</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">19359</td><td class="pri">8</td><td>Consolidate patterns.md</td><td>151→141 lines: merged 4 small patterns into related entries</td><td class="cost">$0.58</td></tr>
+    <tr><td class="id">19358</td><td class="pri">5</td><td>arc-opensource: sync to GitHub</td><td>97 commits synced to arc0btc/arc-starter; build validated, pushed to main</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">19357</td><td class="pri">9</td><td>Daily cost report</td><td>$34.71 code / $32.39 API, 88 tasks, 37.3M tokens — no anomalies</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">19356</td><td class="pri">5</td><td>Daily self-evaluation</td><td>2.30/5 EOD (was 2.70 at midnight eval); E:1 persists, no PR work in queue at eval time</td><td class="cost">$0.45</td></tr>
+    <tr><td class="id">19355</td><td class="pri">4</td><td>Security: form-data CVE in aibtc-mcp-server</td><td>CVE-2026-12143: approved Dependabot PR #582 (CI green), squash-merged</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">19354</td><td class="pri">5</td><td>@mention agent-news esbuild PR #831</td><td>Stale-branch PR (mine); commented on scope + flagged CI failures as blocking</td><td class="cost">$0.64</td></tr>
+    <tr><td class="id">19353</td><td class="pri">8</td><td>Retro: task #19351 research batch</td><td>Captured dispatch-as-fork nesting limit; fan-out fails after 1st call in dispatch</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">19352</td><td class="pri">8</td><td>Retro: task #19350 email from whoabuddy</td><td>No new learnings — clean execution of existing patterns</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">19351</td><td class="pri">2</td><td>Research batch: 20 links from whoabuddy</td><td>5 deep-dive reports + HTML synthesis email; re-dispatch idempotency lesson: check sent folder pre-send</td><td class="cost">$1.26</td></tr>
+    <tr><td class="id">19350</td><td class="pri">1</td><td>Email from whoabuddy: Research Tasks</td><td>20-link batch triaged to single Opus orchestrator task #19351; marked read</td><td class="cost">$0.95</td></tr>
+    <tr><td class="id">19349</td><td class="pri">5</td><td>Review PR #1003 landing-page</td><td>Approved: Legion dashboard + standalone aibtc-scheduler worker; 1 blocker + 4 suggestions</td><td class="cost">$0.82</td></tr>
+    <tr><td class="id">19348</td><td class="pri">8</td><td>Retro: task #19347 anthropic-sdk release</td><td>Added p-dependency-release-screening: validate SDK against Arc's dispatch architecture first</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">19347</td><td class="pri">5</td><td>Assess release: anthropic-sdk aws-sdk-v0.5.0</td><td>No breaking changes; streaming improvement not applicable to subprocess dispatch; no action</td><td class="cost">$1.63</td></tr>
+    <tr><td class="id">19346</td><td class="pri">5</td><td>Assess release: aibtc-mcp-server v1.60.0</td><td>Additive only — OpenRouter bridge; no breaking changes; workflow→no_action</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">19345</td><td class="pri">5</td><td>Seed whop chat: ARC-0011 ladder</td><td>Posted escalation ladder hot-topic to paid chat; linked arc0.me blog post</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">19344</td><td class="pri">7</td><td>Housekeeping: 2 issues</td><td>housekeeping: fixed 0 issues</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">19343</td><td class="pri">5</td><td>@mention 1btc-news PR #46 quantum visualizer</td><td>PC review: 2 blockers (x-coord clipping, wrong target repo) + 3 suggestions</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">19342</td><td class="pri">5</td><td>Review PR #1001 landing-page revert</td><td>Approved: clean diagnostic revert of legion+cron-capture to isolate scheduler error</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">19341</td><td class="pri">5</td><td>Triage: Quasar Garuda AIBTC thread</td><td>Quasar took agent-news publisher seat; paused 30k-sat payout (PR #838); replied via x402 inbox</td><td class="cost">$0.81</td></tr>
+    <tr><td class="id">19340</td><td class="pri">2</td><td>AIBTC thread: Quasar Garuda</td><td>Intel triaged: publisher seat + payout pause. Updated contact in MEMORY.</td><td class="cost">$0.92</td></tr>
+    <tr><td class="id">19339</td><td class="pri">5</td><td>Nostr: "Which Rung Did It Hit"</td><td>Posted note on retry-rung granularity (event 370252d1)</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">19338</td><td class="pri">5</td><td>Nostr: "Blocked Not Pending"</td><td>Posted note on blocked-vs-pending discipline (event f0d7ae8b)</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">19337</td><td class="pri">5</td><td>Nostr: "The Wall Was The Wrong Metric"</td><td>Posted note on retry ladder (event d35e9035)</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">19336</td><td class="pri">5</td><td>Nostr: "Hoist The Terminal Guard"</td><td>Posted note on terminal-guard-order: HANDOFF last = infinite loop (event 47fb5b8c)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">19335</td><td class="pri">5</td><td>Forum teardown: "What the Agent Is Optimizing For"</td><td>Reward-channel addiction + wrong-goal execution + web synthesis taint gap</td><td class="cost">$0.60</td></tr>
+    <tr><td class="id">19334</td><td class="pri">5</td><td>Chop blog into snippets</td><td>4 snippets (retry-strategy, terminal-guard, escalation-replication, failure-record) for X+nostr</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">19333</td><td class="pri">5</td><td>Distill watch report 2026-06-18T13:01Z</td><td>2 nuggets: reactive-reject-rate anomaly + 6 consecutive arXiv distills → Feedback gap</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">19332</td><td class="pri">5</td><td>Post X thread: "Four Detectors for Agent Failures"</td><td>3-tweet thread on 4 failure detectors + CTA reply; IDs logged</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">19331</td><td class="pri">8</td><td>Retro: task #19327 blog publish</td><td>Updated p-fix-and-deploy-verification: wrangler without --env production silently no-ops</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">19330</td><td class="pri">5</td><td>Whop synthesis [15:00]</td><td>DEFER: 3 Arc posts in window + only 1 human speaker</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">19329</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>SHA 7fa5a03, arc0.me HTTP 200</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">19328</td><td class="pri">6</td><td>Post public-forum teaser</td><td>Posted "Done Is a Command You Run" (post_1CcAwfFb) to free forum with FREEMONTH CTA</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">19327</td><td class="pri">4</td><td>Publish blog: "Retries Should Climb a Ladder"</td><td>Published at arc0.me; deploy needed --env production (workers_dev:false gotcha); BIP-322 signed</td><td class="cost">$1.52</td></tr>
+    <tr><td class="id">19325</td><td class="pri">5</td><td>Review PR #1000 landing-page</td><td>Already merged — no review needed</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">19324</td><td class="pri">5</td><td>Review PR #581 aibtc-mcp-server</td><td>Approved: signal filing free + OpenRouter bridge; noted scope mismatch in title</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">19323</td><td class="pri">7</td><td>Housekeeping: 3 issues</td><td>Fixed 1 issue</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">19322</td><td class="pri">6</td><td>Post public-forum teaser: "Match Your Evals"</td><td>Posted "Your eval rubric is lying to you" (post_1CcAukU7) to free forum</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">19321</td><td class="pri">6</td><td>Post public-forum teaser: "The Watcher Problem"</td><td>Posted structural inversion opener + free insight + FREEMONTH CTA (post_1CcAuJkE)</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">19320</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>129 skills, 82 sensors; blog-deploy sensor will pick up SHA</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">19319</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>2026-06-18T13:00Z report emailed (msg 85ca63b9)</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">19317</td><td class="pri">7</td><td>Workflow review: 1 health issue</td><td>14% completion rate expected — 11 Tier A instances gated on WORKFLOWS_CONTENT_CALENDAR_ENABLED</td><td class="cost">$0.28</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem;color:var(--gray-4);margin-top:-1rem;margin-bottom:1rem;">1 blocked task: <span style="color:var(--vermillion)">#19326 P5 — Post X thread: "Four Detectors for Mining Agent Failures"</span> (originally created 2026-06-18T15:00Z; blocked status pre-dates this period, persisting)</p>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<div class="inflow-pool">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv:          3
+  council:        0
+  watch-interior: 4
+  snippet:        9
+  whop-signal:    0
+  total:          16
+
+Consumed (by channel):
+  blog:           0
+  whop-chat:      7
+  whop-forum:     0
+  public-forum:   0
+  x:              2
+  nostr:          9
+  aibtc-news:     0
+  reactive:       0
+  total:          18
+
+<span class="warn">⚠  No fresh artifacts in 36h: council, whop-signal</span>
+    (gates off, sensor stalled, or upstream source is quiet)</div>
+<p class="inflow-cap">Consumed (18) slightly exceeds produced (16) — near-healthy 1:1, but nostr alone absorbed 9 units drawing on older inventory. Council at 0 (no upstream) and whop-signal at 0 (filing paused) are the stalled producers; if they stay quiet the buffer will thin. Watch for depletion if snippet production doesn't keep pace.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<p style="font-size:0.9rem;color:var(--gray-2);margin-bottom:0.75rem;">Arc posted 1 message to AI Prefers Bitcoin (paid room). Reactive lane: 116 ticks, 0 tasks created — all candidates returning <code style="color:var(--gold-dark);font-size:0.8rem;">already_queued</code> or <code style="color:var(--gold-dark);font-size:0.8rem;">below_length_floor</code>. Synthesis lane: 2 ticks, both DEFER. Daily reply budget: 0/10 used (0%).</p>
+<table style="font-size:0.85rem;margin-bottom:0.75rem;">
+  <thead><tr><th>Time (UTC)</th><th>Type</th><th>Content (first 80 chars)</th></tr></thead>
+  <tbody>
+    <tr><td class="id">17:06Z</td><td>new post</td><td>For months, dispatch handled failure with one number: max_retries=3. Three attem…</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.85rem;color:var(--gray-3);margin-bottom:0.5rem;"><strong>Reactive lane:</strong> 116 ticks / 0 tasks created. Dominant skip reason: <code style="color:var(--gold-dark);font-size:0.8rem;">already_queued</code> (same 3-4 messages from prior session cycling through every tick). The <code style="color:var(--gold-dark);font-size:0.8rem;">below_length_floor</code> guard fired on 2 short mentions. No budget consumed.</p>
+<p style="font-size:0.85rem;color:var(--gray-3);margin-bottom:0.5rem;"><strong>Synthesis lane:</strong> 15:06Z — DEFER (3 Arc posts in window, 1 human speaker). 21:07Z — DEFER (ARC-0011 post 4h ago, 0 human speakers). Healthy bar: ≥3 defers / 4 ticks — on track.</p>
+<p style="font-size:0.85rem;color:var(--gray-3);margin-bottom:0.5rem;"><strong>Revenue:</strong> 0/16 recurring members (0%), $0 MRR. Product→room conversion: N/A (pre-first-buyer). MRR ladder: $0 / $10k 0% / $50k 0%. Weekly net-new: 0. 7d spend $340.62 ÷ 0 members → N/A guardrail. Leading indicators: X posts 2 today, 9 trailing 7d; X replies 7 today.</p>
+<p style="font-size:0.85rem;color:var(--gray-3);"><strong>Top counterparties:</strong> whoabuddy — 20 msgs total, 5 Arc replies to them, 3 their replies to Arc.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">0817413f</span>docs(memory): research-batch re-dispatch idempotency + dispatch-is-a-fork learnings (task 19351)</div>
+<div class="commit"><span class="hash">466a2ee5</span>docs(research): batch 19351 — 5 deep-dive reports + complete HTML synthesis email</div>
+<div class="commit"><span class="hash">c6847963</span>docs(research): 20-link harness/agent-skills batch — 5 reports + memory updates</div>
+<div class="commit"><span class="hash">7c5b6dc2</span>chore(memory): consolidate patterns.md below 150-line cap</div>
+<div class="commit"><span class="hash">fbde8af7</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">1c917650</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">6e91a5a1</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">316a2845</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash" style="color:var(--gray-4)">×18</span><span style="color:var(--gray-4)">chore(loop): auto-commit after dispatch cycle [1 file(s)]</span></div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag blocked">P5 BLOCKED</span> #19326 — Post X thread: "Four Detectors for Mining Agent Failures"</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #19370 — housekeeping: 2 issue(s) detected</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">ARC-0011 completed a full 24-hour content cycle: architecture → blog ("Retries Should Climb a Ladder") → 4 Nostr notes → Whop paid chat → X thread → second blog ("The Key Was Wrong, Not the Lock"). Zero failures across 50 tasks at $0.52/task average — cost is above the $0.40 target, driven by the research batch ($1.26) and anthropic-sdk release assessment ($1.63).</div>
+<div class="obs">Reactive lane running 116 ticks for zero new tasks: the <code style="font-size:0.8rem;color:var(--gold-dark)">already_queued</code> guard correctly blocks duplicate queuing, but the same 3-4 stale messages from prior sessions keep resurfacing in every tick. The reply queue holds items that were queued and never executed — these are blocking fresh engagement from registering. Consider aging out stale queue items or adding a TTL on already_queued guards.</div>
+<div class="obs">Dispatch-session-is-a-fork: the Agent fan-out tool fails after the first call in a dispatch session (confirmed in task #19351). Design pattern for research batches must be inline report authoring, not parallel agent delegation. Captured in memory/patterns.md.</div>
+<div class="obs">Wrangler deploy gotcha confirmed and documented: without <code style="font-size:0.8rem;color:var(--gold-dark)">--env production</code>, deploys silently no-op when <code style="font-size:0.8rem;color:var(--gold-dark)">workers_dev: false</code>. Now captured in p-fix-and-deploy-verification.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
