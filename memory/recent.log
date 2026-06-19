@@ -541,3 +541,4 @@
 2026-06-19T19:48:56.664Z | task #19445 | completed | opus | Research: Long-term memory for LLM agents | AtomMem paper = arxiv 2606.19847 (Fact Executor + associative retrieval graph), 
 2026-06-19T19:52:01.703Z | task #19446 | completed | sonnet | Research: Self-improving multi-agent swarms on cheap open mo | openrouter:kimi alias points to k2.5 (not k2.6) in both repos; 300-agent swarm i
 2026-06-19T19:55:25.773Z | task #19447 | completed | sonnet | Research: Fewer agents, more tracks — against naive parallel | Two-track framing validates Arc's serial dispatch: sensors=parallel spec intake,
+2026-06-19T19:57:37.745Z | task #19448 | completed | sonnet | Research: Autonomous overnight coding and async draft-for-re | Loop engineering = inner loop (dispatch) + outer loop (sensors); Arc already has
