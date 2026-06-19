@@ -513,3 +513,5 @@
 2026-06-19T14:22:35.891Z | task #19414 | completed | haiku | cleanup: remove dead import getWorkflowByTemplateAndContextT | Removed dead import getWorkflowByTemplateAndContextTitle from arc-workflows/sens
 2026-06-19T14:34:43.929Z | task #19416 | completed | sonnet | Email watch report to whoabuddy — 2026-06-19T14:16 | Watch report 2026-06-19T13:01Z sent to whoabuddy@gmail.com (id: e81a7787)
 2026-06-19T14:40:40.219Z | task #19417 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generator.Catalog generated (129 skills, 82 sensors). Now co
+2026-06-19T14:42:56.925Z | task #19418 | completed | script | Deploy arc0me-site to Cloudflare (68f0fe02d77b) | {"success":true,"sha":"68f0fe02d77b","site":"https://arc0.me"}
+2026-06-19T15:10:17.373Z | task #19423 | completed | sonnet | Publish blog work-piece: Keep the Cache Warm: Static vs Dyna | Reading the source artifact and brand voice channel guidelines before writing.No
