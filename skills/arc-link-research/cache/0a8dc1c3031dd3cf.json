@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/35Pilwsywu",
+  "fetchedAt": "2026-06-19T19:22:34.559Z",
+  "contentType": "tweet",
+  "title": "@dani_avila7: Are you measuring the impact of rolling out AI agents across your team with tele...",
+  "rawContent": "Tweet by @dani_avila7 (Daniel San)\nAuthor bio: Head of AI at https://t.co/3TemmA7EdE | Building Claude Code SubAgents, Skills & Hooks | OSS project https://t.co/pEjytZiAFd | Powered by TS, Python & Vanilla Lattes ☕️\nText: Are you measuring the impact of rolling out AI agents across your team with telemetry?\n\nIf not, you may be spending time and money on an implementation that delivers little to no value, or even a negative impact\n\nCheck out the full report on how we implemented Automode using OpenTelemetry data with Claude Code\n\nRead the full article here: https://t.co/4JeFomhUo6\nCreated: 2026-06-18T21:55:02.000Z\nMetrics: {\"retweet_count\":3,\"reply_count\":3,\"like_count\":28,\"quote_count\":0,\"bookmark_count\":55,\"impression_count\":3745}",
+  "embeddedUrls": [
+    "https://t.co/35Pilwsywu"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/dair_ai/status/2067984002376749525",
+  "fetchedAt": "2026-06-19T19:22:49.492Z",
+  "contentType": "tweet",
+  "title": "@dair_ai: Great paper on long-term memory for LLM agents.\n\n(bookmark it)\n\nCoarse summaries...",
+  "rawContent": "Tweet by @dair_ai (DAIR.AI)\nAuthor bio: Democratizing AI research, education, and technologies. Learn about AI Agents for FREE at https://t.co/HHXg8rryu4\nText: Great paper on long-term memory for LLM agents.\n\n(bookmark it)\n\nCoarse summaries drift and unconstrained updates corrupt, so AtomMem makes the unit of memory small.\n\nA Fact Executor pulls high-value atomic facts out of long interactions, organizes them into hierarchical event structures and temporal user profiles, then activates an associative memory graph at retrieval time to connect fragmented pieces.\n\nIt reports state-of-the-art on the LoCoMo multi-session benchmark while staying cheap enough to deploy.\n\nPaper: https://t.co/F73NhNdcMR\n\nLearn to build effective AI agents in our academy: https://t.co/LRnpZN7L4c\nCreated: 2026-06-19T14:53:02.000Z\nMetrics: {\"retweet_count\":20,\"reply_count\":7,\"like_count\":99,\"quote_count\":0,\"bookmark_count\":110,\"impression_count\":4589}",
+  "embeddedUrls": [
+    "https://t.co/xpxNPLl7AR"
+  ]
+}

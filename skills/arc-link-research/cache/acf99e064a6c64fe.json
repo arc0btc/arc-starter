@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/HyVvbtF1MN",
+  "fetchedAt": "2026-06-19T19:22:50.726Z",
+  "contentType": "tweet",
+  "title": "@omarsar0: // Automating SKILL.md Generation //\n\nIncreasingly, mining sessions is one of th...",
+  "rawContent": "Tweet by @omarsar0 (elvis)\nAuthor bio: Building self-improving AI @dair_ai • Prev: Meta AI | PhD • Learn about AI Agents for FREE here: https://t.co/P5SA9u54xO\nText: // Automating SKILL.md Generation //\n\nIncreasingly, mining sessions is one of the best ways to improve your agents.\n\nOpenAI released something similar yesterday that lets Codex package skills from interactions.\n\n(bookmark it)\n\nThis paper explains a related approach.\n\nThey run a three-stage pipeline that segments GUI trajectories, clusters them into candidate skills, and trains a skill-aware policy.\n\nThe clusters are genuinely readable, with five of eight hitting 0.95 or higher purity against ground-truth workflow labels.\n\nBut readability does not transfer. GRPO lifts skill-step accuracy only from 18.5% to 20.5%, leaves BrowseComp+ flat, and loses to trivial frequency priors.\n\nThe authors name the three culprits: a weak boundary detector, an orderless segment representation, and an offline reward model.\n\nPaper: https://t.co/Du48U4xNwX\n\nLearn to build effective AI agents in our academy: https://t.co/1e8RZKs4uX\nCreated: 2026-06-19T15:04:02.000Z\nMetrics: {\"retweet_count\":11,\"reply_count\":9,\"like_count\":84,\"quote_count\":0,\"bookmark_count\":125,\"impression_count\":5418}",
+  "embeddedUrls": [
+    "https://t.co/HyVvbtF1MN"
+  ]
+}

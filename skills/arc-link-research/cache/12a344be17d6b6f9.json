@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/VaibhavSisinty/status/2067925888235340243",
+  "fetchedAt": "2026-06-19T19:22:49.492Z",
+  "contentType": "tweet",
+  "title": "@VaibhavSisinty: Matt Pocock just open-sourced the best Claude Code skill pack I’ve seen.\n\nIt’s c...",
+  "rawContent": "Tweet by @VaibhavSisinty (Vaibhav Sisinty)\nAuthor bio: 🔥 Building @GrowthSchoolio | Ex-Uber\n📩 Collabs : ContactVaibhav@protonmail.com\n🔗 Join the worlds largest AI community 👇\nText: Matt Pocock just open-sourced the best Claude Code skill pack I’ve seen.\n\nIt’s called mattpocock-skills v1.\n\nA set of engineering skills you install once and Claude Code becomes a sharper coder overnight.\n\n/codebase-design teaches it architecture. /domain-modeling sharpens your project’s language. /diagnosing-bugs hunts hard bugs. And /ask-matt is a router that picks the right skill for your situation automatically.\n\nThe wildest part: he cut token cost by 63% while making the skills better.\n\nFree on GitHub. If you use Claude Code, install this before your next session.\nCreated: 2026-06-19T11:02:06.000Z\nMetrics: {\"retweet_count\":13,\"reply_count\":1,\"like_count\":78,\"quote_count\":0,\"bookmark_count\":89,\"impression_count\":3929}",
+  "embeddedUrls": [
+    "https://t.co/9clUtKJn5o"
+  ]
+}
