@@ -75,6 +75,7 @@
 **Whop synthesis**
 - RECENT_ARC_POSTS detection: scan `windowMessages` for `ARC_USER_ID` (not just recent activity). Arc's API-posted messages were previously invisible to its own sensor.
 - Synthesis inflow/outflow ratio: when consumed > produced (7 in → 4 out), hold synthesis cadence — don't push more inputs until the backlog clears.
+- **Monologue DEFER gate (2026-06-19)**: DEFER fires on 2 Arc posts + 0 human speakers — distinct from the "3 Arc posts locks synthesis" rule. The 0-human-speakers condition is a separate gate. Both defers overnight (03:00Z + 09:00Z) were healthy behavior but indicate the paid room has no overnight human engagement yet. Next synthesis threshold review: gate on ≥1 human message in window rather than dropping Arc-post count.
 
 **Link research**
 - X-thread t.co links resolve back to tweet body, not the underlying article (`embeddedUrls: []`, `preview_text` = tweet text only). When content is a bare t.co shortlink with no embedded URLs, mark as low-value and skip deeper fetch. For repo-based research use `gh api repos/O/R/contents/PATH` directly — bypasses JS gates (wiki-builder pattern).
@@ -84,7 +85,8 @@
 
 **arXiv clusters**
 - Agent-reliability at scale: 3 consecutive distills (2026-06-15→17) surfaced multi-agent coordination failure papers — TAC benchmark (2606.18142, advisor→actor gap), LDPC reliability model (2606.18121), ReproRepo GitHub-issues supervision (2606.18237). All map to Arc's weak Feedback subsystem.
-- Dispatch-loop architecture: 2026-06-18 distill added 3 more on foundational orchestration mechanics — Multi-Agent Fictitious Play equilibrium (2606.19308), OmniAgent POMDP dispatch loop (2606.19341), Data Intelligence 3-agent pipeline (2606.19319). Arc's task queue is structurally a POMDP dispatch loop. Now 6 papers across 6 consecutive distills on coordination/dispatch. When a research sprint slot opens, synthesize both clusters into `memory/shared/entries/`.
+- Dispatch-loop architecture: 2026-06-18 distill added 3 more on foundational orchestration mechanics — Multi-Agent Fictitious Play equilibrium (2606.19308), OmniAgent POMDP dispatch loop (2606.19341), Data Intelligence 3-agent pipeline (2606.19319). Arc's task queue is structurally a POMDP dispatch loop.
+- 2026-06-19 distill added 4 more on agent-architecture: Contagion Networks (bias propagation), Sovereign Execution Brokers (mutation authority), Probe-and-Refine, Hierarchical Recovery (directly validates ARC-0011 escalation ladder). Now **7 papers across 7 consecutive distills** on coordination/dispatch + reliability. Research sprint backlog is urgent — synthesize both clusters into `memory/shared/entries/` when next sonnet/opus slot opens.
 
 **Misc**
 - X API HTTP 402 = CreditsDepleted (NOT rate limit). Park as `blocked`, escalate to whoabuddy for credit top-up. Won't auto-recover.
@@ -94,6 +96,8 @@
 - `tasks update --status blocked` NOT supported — only `tasks close --status blocked`.
 - x402 404 = agent deregistered — do NOT retry. Per-file reads in dispatch = token explosion (>10 files → add CLI first).
 - Version-gated Claude Code changes: run `claude --version` pre-flight before applying changes that require a minimum version (e.g. claude-fable-5 requires v2.1.170+). If version insufficient, upgrade first via [[claude-code-version-deploy]] then re-queue. Don't let the task fail at the safety gate — check preconditions upfront.
+- **Reactive lane anomaly (2026-06-19)**: 116 reactive ticks/0 tasks is a `already_queued` stale-blocking pattern. If it recurs in watch reports, investigate reactive sensor for stuck dedup state.
+- **Memory structure → dispatch speed (task #19374 verified #19377)**: memory/MEMORY.md changes that reduce context bloat compound: -4.8% cost, -36% avg duration, -72% P95 duration. Lean memory structure is a perf lever, not just hygiene. Overnight cost/task was ~$0.27 (well under $0.40 target) partly from this.
 
 ---
 
