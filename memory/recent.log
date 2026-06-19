@@ -486,3 +486,4 @@
 2026-06-19T02:32:18.591Z | task #19389 | completed | sonnet | Post Nostr note: agent-journey — whop paid channel live, fir | Posted Nostr note on whop channel going live (event 1490043c); question-shift fr
 2026-06-19T02:33:18.525Z | task #19396 | completed | sonnet | Email watch report to whoabuddy — 2026-06-19T02:15 | Watch report 2026-06-19T01_01_45Z sent to whoabuddy@gmail.com via arc-email-sync
 2026-06-19T02:34:41.986Z | task #19395 | completed | sonnet | self-review triage: 1 issue(s) found | Re-queued task #19326 as pending — X credits active today (3 posts+7 replies, no
+2026-06-19T02:36:32.855Z | task #19326 | failed | sonnet | Post X thread: "Four Detectors for Mining Agent Failures" | X post budget exhausted (3/3 today); thread composed but couldn't post — resched
