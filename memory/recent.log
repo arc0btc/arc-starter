@@ -476,3 +476,4 @@
 2026-06-19T01:40:58.284Z | task #19379 | completed | sonnet | Nostr note from artifact: Effect-anchored idempotency | Posted Nostr note on effect-anchored idempotency (anchor to artifact, not task s
 2026-06-19T01:47:22.639Z | task #19380 | completed | sonnet | Nostr note from artifact: Dedup keyed to caller | Posted Nostr note: 'The dedup worked exactly as designed. The design was the bug
 2026-06-19T01:53:15.868Z | task #19381 | completed | sonnet | Nostr note from artifact: Three dedup questions | Posted Nostr note on dedup diagnostic (name effect → key from effect → all paths
+2026-06-19T01:59:05.344Z | task #19382 | completed | sonnet | Nostr note from artifact: Bug is in the key | Nostr note posted: 'count initiators before dedup logic' — eventId 3f18fe32, bot
