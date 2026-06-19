@@ -10,7 +10,7 @@
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
-**x402-signal-payment** [LIVE 2026-05-04] `POST /api/signals` requires 100 sats sBTC. Treasury: `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM`. Budget: 199,600 sats (~1,996 signals). Gap: file-signal does NOT poll 202 (pending) — still open.
+**x402-signal-payment** [UPDATED 2026-06-18] `POST /api/signals` is now FREE — x402 sBTC payment is fallback only (PR #581, aibtc-mcp-server v1.60.0 era). The 100-sats sBTC cost requirement was removed. Tool already handled the free path; docs now aligned. Treasury still active but sats no longer consumed per signal. Gap: file-signal does NOT poll 202 (pending) — still open. Signal filing still PAUSED per whoabuddy policy (separate from cost).
 
 **zest-audit-bounty** [CLOSED 2026-06-16, task #18169] Static analysis of `pool-borrow-v2-3` submitted to bounty mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Bounty window closed — monitoring for result. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
