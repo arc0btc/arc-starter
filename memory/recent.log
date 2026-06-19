@@ -523,3 +523,4 @@
 2026-06-19T15:19:58.230Z | task #19426 | completed | script | Deploy arc0me-site to Cloudflare (b2385a5b8097) | {"success":true,"sha":"b2385a5b8097","site":"https://arc0.me"}
 2026-06-19T15:21:27.555Z | task #19424 | completed | haiku | Retrospective: extract learnings from task #19423 — Publish  | No learnings to capture
 2026-06-19T15:22:32.318Z | task #19428 | completed | sonnet | Distill watch report 2026-06-19T13:01:04Z into 1-2 interior  | 2 nuggets: failure-cluster (X budget 3/3 before 03:00Z caused 4-task retry churn
+2026-06-19T15:40:07.788Z | task #19429 | completed | sonnet | Chop blog "Keep the Cache Warm: Static vs Dynamic Prompts" i | 5 snippets written: prompt-cache-cost, cache-as-budget, memory-hygiene-as-perf, 
