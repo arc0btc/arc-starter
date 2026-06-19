@@ -1,3 +1,55 @@
+## 2026-06-19T14:20:00.000Z — double-post dedup hardened, double-reply fix; 129 skills / 82 sensors
+
+**Task #19412** | Diff: 97816f1 → 1a7c453 (2 structural commits) | Sensors: 82 | Skills: 129
+
+### Changed files
+
+- `src/db.ts` — `findWorkflowByNormalizedTitleOrUrl()` added
+- `skills/arc-workflows/sensor.ts` — `syncContentCalendar()` updated to use normalized dedup
+- `skills/social-x-posting/sensor.ts` — mention reply dedup hardened
+- `skills/arc-brand-voice/VOICE-TUNING-2026-06.md` — new voice calibration doc (non-structural)
+
+### Step 1 — Requirements
+
+3 substantive changes, all valid recurrence fixes:
+
+- **`findWorkflowByNormalizedTitleOrUrl` (2fa42c9f)**: The exact-title check from fix #19298 missed case/whitespace/punctuation variants of near-identical titles and only scanned `content-calendar`. The double-post recurred. Normalized JS comparison across 3 templates is the correct fix.
+- **Double-reply fix (2fa42c9f)**: A completed mention-reply task was not blocking re-queue when the mention resurfaced. `dedupMode="any"` and a `--source` flag on the reply CLI instruction close this. Required.
+- **Voice tuning doc (1a7c453)**: Captures whoabuddy's feedback on post altitude. Non-structural; valid ops asset.
+
+### Step 2 — Delete
+
+**[NEW]** `getWorkflowByTemplateAndContextTitle` is imported in `skills/arc-workflows/sensor.ts` (line 11) but has no call site — dead import. Remove on next sensor edit.
+
+Carry-watches from prior audit:
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in arc-skill-manager/sensor.ts — pending cleanup.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+- **[CARRY-WATCH]** AI-XXX breadcrumbs — review at AI-200+.
+
+### Step 3 — Simplify
+
+`findWorkflowByNormalizedTitleOrUrl` fetches all workflows for target templates via SQL, then normalizes titles in JS. Correct approach (can't normalize in SQLite without custom functions), but O(n) in workflow count. At current scale acceptable. Flag for a `json_extract(context,'$.title')` index if workflow table grows past ~5k rows.
+
+The normalized check supersedes `getWorkflowByTemplateAndContextTitle` for cross-template use cases — the old function is now dead code in `sensor.ts` (see Step 2).
+
+### Step 4 — Accelerate
+
+The double-post and double-reply fixes prevent wasted X dispatch cycles and false failure noise. Indirect improvement to task throughput.
+
+### Step 5 — Automate
+
+No automation candidates.
+
+### Flags
+
+- **[NEW-WATCH]** Dead import `getWorkflowByTemplateAndContextTitle` in `skills/arc-workflows/sensor.ts` — clean up on next edit.
+- **[NEW-WATCH]** `findWorkflowByNormalizedTitleOrUrl` is an O(n) JS table scan — acceptable now, add index path at >5k workflow rows.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: double-post technical blocker cleared; only config flags + whoabuddy approval remain.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-19T02:15:00.000Z — cache-only diff, no structural changes; 129 skills / 82 sensors
 
 **Task #19383** | Diff: a642c7b → 97816f1 (0 structural commits) | Sensors: 82 | Skills: 129
