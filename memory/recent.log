@@ -473,3 +473,4 @@
 2026-06-19T01:33:32.092Z | task #19375 | completed | sonnet | Chop blog "The Key Was Wrong, Not the Lock" into 3-5 quote-c | 5 snippets written from 'The Key Was Wrong, Not the Lock': dedup-keyed-to-caller
 2026-06-19T01:34:20.126Z | task #19376 | completed | haiku | Retrospective: extract learnings from task #19374 — Verify d | Added p-task-premise-verification: tasks verifying features should validate upfr
 2026-06-19T01:34:54.351Z | task #19378 | completed | sonnet | Nostr note from artifact: Second way to do it | Posted Nostr note on two-code-paths/shared-key-namespace insight; eventId 05c5f1
+2026-06-19T01:40:58.284Z | task #19379 | completed | sonnet | Nostr note from artifact: Effect-anchored idempotency | Posted Nostr note on effect-anchored idempotency (anchor to artifact, not task s
