@@ -542,3 +542,4 @@
 2026-06-19T19:52:01.703Z | task #19446 | completed | sonnet | Research: Self-improving multi-agent swarms on cheap open mo | openrouter:kimi alias points to k2.5 (not k2.6) in both repos; 300-agent swarm i
 2026-06-19T19:55:25.773Z | task #19447 | completed | sonnet | Research: Fewer agents, more tracks — against naive parallel | Two-track framing validates Arc's serial dispatch: sensors=parallel spec intake,
 2026-06-19T19:57:37.745Z | task #19448 | completed | sonnet | Research: Autonomous overnight coding and async draft-for-re | Loop engineering = inner loop (dispatch) + outer loop (sensors); Arc already has
+2026-06-19T20:01:32.561Z | task #19449 | completed | sonnet | Research: Agents as economic actors — Hermes ecosystem (chor | Hermes ecosystem confirms Arc's skills-first + model-tier architecture is alread
