@@ -8,7 +8,6 @@ import {
   updateWorkflowState,
   updateWorkflowContext,
   getWorkflowByInstanceKey,
-  getWorkflowByTemplateAndContextTitle,
   findWorkflowByNormalizedTitleOrUrl,
   insertWorkflow,
   completeWorkflow,
