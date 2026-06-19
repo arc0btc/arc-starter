@@ -475,3 +475,4 @@
 2026-06-19T01:34:54.351Z | task #19378 | completed | sonnet | Nostr note from artifact: Second way to do it | Posted Nostr note on two-code-paths/shared-key-namespace insight; eventId 05c5f1
 2026-06-19T01:40:58.284Z | task #19379 | completed | sonnet | Nostr note from artifact: Effect-anchored idempotency | Posted Nostr note on effect-anchored idempotency (anchor to artifact, not task s
 2026-06-19T01:47:22.639Z | task #19380 | completed | sonnet | Nostr note from artifact: Dedup keyed to caller | Posted Nostr note: 'The dedup worked exactly as designed. The design was the bug
+2026-06-19T01:53:15.868Z | task #19381 | completed | sonnet | Nostr note from artifact: Three dedup questions | Posted Nostr note on dedup diagnostic (name effect → key from effect → all paths
