@@ -1430,6 +1430,43 @@ export function getWorkflowByTemplateAndContextTitle(template: string, title: st
     .get(template, `%"title":"${escaped}"%`) as Workflow | null;
 }
 
+/**
+ * Cross-template dedup by NORMALIZED title or blog URL. Catches the same blog
+ * piece seeded under two different slugs (dated blog-file slug vs topic/memory
+ * backfill slug) with near-identical titles — which the exact-title check
+ * (getWorkflowByTemplateAndContextTitle, the 06-18 fix #19298) missed for
+ * case/whitespace/punctuation variants and for the publish-fanout template.
+ * Root cause: "Five Subsystems" X double-post 2026-06-16 (recurrence 06-18).
+ */
+export function findWorkflowByNormalizedTitleOrUrl(
+  templates: string[],
+  title: string,
+  url: string,
+): Workflow | null {
+  const norm = (s: string | undefined | null): string =>
+    (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const titleNorm = norm(title);
+  const urlNorm = norm(url);
+  if (!titleNorm && !urlNorm) return null;
+  if (templates.length === 0) return null;
+  const db = getDatabase();
+  const placeholders = templates.map(() => "?").join(",");
+  const rows = db
+    .query(`SELECT * FROM workflows WHERE template IN (${placeholders})`)
+    .all(...templates) as Workflow[];
+  for (const wf of rows) {
+    try {
+      const c = JSON.parse(wf.context || "{}") as { title?: string; url?: string };
+      if ((titleNorm && norm(c.title) === titleNorm) || (urlNorm && norm(c.url) === urlNorm)) {
+        return wf;
+      }
+    } catch {
+      // unparseable context — skip
+    }
+  }
+  return null;
+}
+
 export function getWorkflowsByTemplate(template: string): Workflow[] {
   const db = getDatabase();
   return db

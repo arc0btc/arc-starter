@@ -435,7 +435,9 @@ export default async function xMentionsSensor(): Promise<string> {
           "",
           "Review this mention and reply if appropriate. Use:",
           // AI-018/031: include --x-lead-id so cli.ts can log the reply as a value_touch.
-          `  arc skills run --name social-x-posting -- reply --text "<reply>" --tweet-id ${mention.id} --x-lead-id ${mention.author_id}`,
+          // --source: x_post_log dedup so a re-surfaced mention can't double-reply even
+          // if a duplicate task slips through (mirrors the cadence POST ledger guard).
+          `  arc skills run --name social-x-posting -- reply --text "<reply>" --tweet-id ${mention.id} --x-lead-id ${mention.author_id} --source sensor:${SENSOR_NAME}:reply:${mention.id}`,
         ]
           .filter(Boolean)
           .join("\n"),
@@ -446,7 +448,10 @@ export default async function xMentionsSensor(): Promise<string> {
         ]),
         priority: 7,
         model: "sonnet",
-      });
+        // dedupMode "any": dedup against ALL statuses (incl. completed), not just
+        // pending/active. A mention that re-surfaces after its reply task completed
+        // must NOT spawn a second reply (root cause: double-reply to whoabuddydev).
+      }, "any");
 
       if (taskId !== null) {
         tasksCreated++;

@@ -9,6 +9,7 @@ import {
   updateWorkflowContext,
   getWorkflowByInstanceKey,
   getWorkflowByTemplateAndContextTitle,
+  findWorkflowByNormalizedTitleOrUrl,
   insertWorkflow,
   completeWorkflow,
 } from "../../src/db.ts";
@@ -554,12 +555,19 @@ function syncContentCalendar(): number {
     if (fm.draft === true) continue; // not published
     if (fm.scheduled_for && fm.scheduled_for > nowIso) continue; // scheduled in the future
 
-    // Title-based cross-check: a Tier-A backfill workflow may cover the same blog content
-    // under a different instance key (memory-entry slug vs blog-file slug). If any
-    // content-calendar workflow already has this title in its context JSON, skip creation
-    // to prevent duplicate X/whop posts (root cause: "Five Subsystems" double-post 2026-06-16).
-    if (fm.title && getWorkflowByTemplateAndContextTitle("content-calendar", fm.title)) {
-      log(`content-calendar: skipping "${postId}" — title already handled by another workflow`);
+    // Cross-template, NORMALIZED cross-check: the same blog piece can be seeded
+    // under two different slugs (dated blog-file slug vs topic/memory-entry slug)
+    // with near-identical titles, producing a duplicate X/whop fan-out. The earlier
+    // exact-title check (fix #19298) missed case/whitespace/punctuation variants and
+    // only scanned content-calendar — so the double recurred. Normalize title + URL
+    // across BOTH fan-out templates. Root cause: "Five Subsystems" double-post 2026-06-16.
+    const priorPiece = findWorkflowByNormalizedTitleOrUrl(
+      ["content-calendar", "publish-fanout", "blog-to-x"],
+      fm.title || "",
+      `https://arc0.me/blog/${postId}/`,
+    );
+    if (priorPiece) {
+      log(`content-calendar: skipping "${postId}" — same piece already handled by ${priorPiece.instance_key}`);
       continue;
     }
 
