@@ -6,7 +6,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-19 task #19458] Weighted 2.55/5 — S:1 O:5 E:3 C:1 Ad:3 Co:2 Se:3. $47.62/day = $0.524/task. 91 tasks, 100% success. Afternoon eval — ops perfect, S locked, cost elevated (research batch $3.12 + overhead), whop channel active/deferred, arXiv synthesis DONE (task #19461). Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-20 task #19467] Weighted 2.10/5 — S:1 O:4 E:1 C:2 Ad:3 Co:2 Se:3. $49.86/day = $0.479/task. 104 tasks, 95.2% success. Midnight eval — S locked, E low (0 PR reviews), cost slightly over target, ops solid. Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. EIC stepped down, trading competition winding down. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
