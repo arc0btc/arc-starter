@@ -1,3 +1,61 @@
+## 2026-06-20T02:20:00.000Z — social-engine migration scripts added, dead import cleaned; 131 skills / 84 sensors
+
+**Task #19480** | Diff: 1a7c453 → 3b071cd (1 structural commit; social-engine bulk add) | Sensors: 84 | Skills: 131
+
+### Changed files
+
+- `skills/social-engine/` — 25 new TypeScript files across 2 commits: migration scripts (005-p3 through 011-p7), shared library (`admission.ts`), fixtures, producers (github-release, hn, reddit, rss), monitors (post-lane, reply-lane), and live-read/live-send scripts. **No `SKILL.md` present.**
+- `skills/arc-workflows/sensor.ts` — dead import `getWorkflowByTemplateAndContextTitle` removed (f893c51e). Closes [NEW-WATCH] from 2026-06-19T14:20Z audit.
+- `skills/arc-link-research/cache/` — cache files only, not structural.
+
+### Step 1 — Requirements
+
+- **`skills/arc-workflows/sensor.ts` cleanup**: dead import removed. Valid, no new requirement.
+- **`skills/social-engine/`**: 25 TS files added representing a social posting engine: admission primitive (kill-switch, idempotency, cap checks, atomic CAS claim), reply/post pipelines (P3–P7), content producers (HN, Reddit, RSS, GitHub releases), monitors, and a Moltbook DB migration. The Moltbook file (011-p7) explicitly guards attribution (OBSERVED class only, no person-level joins). This is a real new system — requirements appear valid.
+
+### Step 2 — Delete
+
+**[CLOSED]** Dead import `getWorkflowByTemplateAndContextTitle` in `skills/arc-workflows/sensor.ts` — removed. ✓
+
+No new deletion candidates.
+
+Carry-watches:
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts` — still pending cleanup.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20. No growth.
+- **[CARRY-WATCH]** AI-XXX breadcrumb accumulation — review at AI-200+.
+
+### Step 3 — Simplify
+
+**[NEW-WATCH: CRITICAL]** `skills/social-engine/` has 25 TS files but no `SKILL.md`. This breaks the 4-file skill pattern — the skill is invisible to `arc skills show`, not loadable via the `skills` column in tasks, and bypasses the pre-commit lint hook. Two paths:
+1. If this is a permanent skill: add `SKILL.md` with frontmatter (name, description, tags) and a `disallowed-tools` list appropriate for a library/migration skill.
+2. If these are one-shot migration scripts: relocate to `db/migrations/` or a `scripts/` directory where migration code lives — not under `skills/`.
+
+The pipeline files reference absolute paths (`/home/dev/arc-starter/`, `/home/dev/.bun/bin/bun`) — fragile for a version-controlled codebase. Should use relative paths or env-var overrides.
+
+`admission.ts` is a reusable library primitive (kill-switch, idempotency, cap, CAS). Good factoring. Import path in the file comment references `ops/lib/social-engine/admission.ts` but the actual location is `skills/social-engine/admission.ts` — comment is stale.
+
+### Step 4 — Accelerate
+
+The `admission.ts` shared primitive reduces the P3/P4 code paths that had inline state machine logic duplicated. Correct direction.
+
+### Step 5 — Automate
+
+No new candidates.
+
+### Flags
+
+- **[NEW-WATCH: CRITICAL]** `skills/social-engine/` has no `SKILL.md` — add one or relocate to `db/migrations/`. Pre-commit hook cannot lint it; skill system cannot load it.
+- **[NEW-WATCH]** `skills/social-engine/*.ts` references absolute paths (`/home/dev/arc-starter/`). Use relative paths or `process.env` lookups for portability.
+- **[NEW-WATCH]** `admission.ts` import path comment is stale (`ops/lib/social-engine/` vs actual `skills/social-engine/`).
+- **[CLOSED]** Dead import `getWorkflowByTemplateAndContextTitle` — resolved ✓
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop Phase 2 → live gates: ≥1 dry-run POST passes voice review + overnight soak + whoabuddy sign-off → flip `WHOP_SYNTHESIS_DRY_RUN=false`.
+- **[CARRY-WATCH]** ContentCalendarMachine Tier A: only config flags + whoabuddy approval remain.
+- **[CARRY-WATCH]** whop-sales P10/P11 flip requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-19T14:20:00.000Z — double-post dedup hardened, double-reply fix; 129 skills / 82 sensors
 
 **Task #19412** | Diff: 97816f1 → 1a7c453 (2 structural commits) | Sensors: 82 | Skills: 129
