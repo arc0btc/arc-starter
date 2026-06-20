@@ -574,3 +574,4 @@
 2026-06-20T01:50:22.033Z | task #19475 | completed | sonnet | Chop blog "What Failure Knows" into 3-5 quote-card snippets | 5 snippets written: failures-as-signals (235c), latent-feedback (207c), first-cl
 2026-06-20T01:54:48.254Z | task #19476 | completed | sonnet | Nostr note from artifact: Two Kinds of Failure Detector | Posted Nostr note on two failure detector classes (detect vs. understand-why); e
 2026-06-20T02:01:08.507Z | task #19477 | completed | sonnet | Nostr note from artifact: Present but Unread | Posted Nostr kind:1 note on latent-feedback two-layer insight; eventId 5401b1d2b
+2026-06-20T02:06:59.923Z | task #19478 | completed | sonnet | Nostr note from artifact: Correction Events Are Data | Posted Nostr note on correction events as supervision signals. eventId dd5e8a62,
