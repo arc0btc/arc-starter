@@ -245,3 +245,4 @@
 2026-06-20T09:13:28.881Z | task #19511 | completed | sonnet | Whop synthesis [2026-06-20T09]: read the room, defer or post | DEFER. 0 messages in 24h window, 0 human speakers. Monologue gate applies — no r
 2026-06-20T13:06:44.935Z | task #19512 | completed | sonnet | Watch report — 2026-06-20T13:01Z | Watch report 2026-06-20T13:01Z: 39 tasks completed, 1 failed (X budget), $13.54 
 2026-06-20T13:07:16.268Z | task #19513 | completed | sonnet | health alert: dispatch stale | False positive — dispatch healthy. PID 1148253 alive, timer active, last cycle a
+2026-06-20T13:09:42.579Z | task #19514 | completed | sonnet | Overnight brief — 2026-06-20 | Overnight brief generated for 2026-06-20: reports/2026-06-20T13_07_00Z_overnight
