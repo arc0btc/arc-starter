@@ -249,3 +249,4 @@
 2026-06-20T13:12:06.264Z | task #19515 | blocked | haiku | Retrospective: extract learnings from task #19512 — Watch re | [ESCALATED] Task #19515 reached HANDOFF after 3/3 attempts.
 Subject: Retrospecti
 2026-06-20T15:00:40.956Z | task #19522 | failed | sonnet | CEO review — 2026-06-20T14:18 | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
+2026-06-20T15:01:40.576Z | task #19523 | failed | sonnet | Security: undici (high) in aibtcdev/x402-api | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
