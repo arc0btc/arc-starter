@@ -433,15 +433,18 @@ export default async function xMentionsSensor(): Promise<string> {
           `Text: ${mention.text}`,
           mention.conversation_id ? `Conversation: ${mention.conversation_id}` : "",
           "",
-          "Review this mention and reply if appropriate. Use:",
-          // AI-018/031: include --x-lead-id so cli.ts can log the reply as a value_touch.
-          // --source: x_post_log dedup so a re-surfaced mention can't double-reply even
-          // if a duplicate task slips through (mirrors the cadence POST ledger guard).
-          `  arc skills run --name social-x-posting -- reply --text "<reply>" --tweet-id ${mention.id} --x-lead-id ${mention.author_id} --source sensor:${SENSOR_NAME}:reply:${mention.id}`,
+          "Review this mention and reply if appropriate. Use the UNIFIED reply lane:",
+          // Reply-lane consolidation (2026-06-20): the ONLY sanctioned reply path is the
+          // social-engine unified sender. It enforces canonical source_key UNIQUE dedup
+          // (≤1 reply/thread/day), the outbound_enabled kill switch, in-txn budget, and
+          // reply-restriction 403 → skip. Do NOT call `social-x-posting -- reply` directly
+          // (it now delegates here anyway). --x-lead-id logs the give-3x value_touch.
+          `  arc skills run --name social-engine -- reply --tweet-id ${mention.id} --text "<reply>" --x-lead-id ${mention.author_id}`,
         ]
           .filter(Boolean)
           .join("\n"),
         skills: JSON.stringify([
+          "social-engine",
           "social-x-posting",
           ...(detectBitcoinWalletTopic(mention.text) ? ["bitcoin-wallet"] : []),
           ...(detectMultisigTopic(mention.text) ? ["bitcoin-taproot-multisig"] : []),

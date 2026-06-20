@@ -310,10 +310,12 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
     const to = c.reply_to_msg_id ?? "<their_tweet_id>";
     postBlock = [
       "ROUTE: ARC-AUTO (arc0btc X) — warm-reply ASSIST. REPLY to THEIR tweet with the BODY (value, no link),",
-      "then a follow-up reply carrying the attributed CTA ($9 product link, NO FREEMONTH — promo belongs to the membership step, not the product) + any proof:",
-      `  arc skills run --name social-x-posting -- reply --tweet-id ${to} --text "<body>" --source quest:gtm:recurring:acquisition:${c.lead_id}`,
-      `  arc skills run --name social-x-posting -- reply --tweet-id <arc_reply_tweet_id> --text "<first_reply>"`,
-      "The social-x-posting CLI re-checks BUDGET_LIMITS.replies at post time (hard daily X cap).",
+      "then a follow-up (your own thread continuation) carrying the attributed CTA ($9 product link, NO FREEMONTH — promo belongs to the membership step, not the product) + any proof.",
+      "Reply to THEIR tweet via the UNIFIED reply lane (2026-06-20 consolidation): canonical source_key dedup (≤1 reply/thread/day) + kill switch + budget:",
+      `  arc skills run --name social-engine -- reply --tweet-id ${to} --text "<body>" --x-lead-id ${c.lead_id}`,
+      "Then the follow-up CTA is YOUR OWN thread continuation (POST lane, not the reply lane) — use post --reply-to:",
+      `  arc skills run --name social-x-posting -- post --text "<first_reply>" --reply-to <arc_reply_tweet_id> --source quest:gtm:recurring:acquisition:${c.lead_id}:cta`,
+      "The unified reply lane enforces the canonical per-thread reply cap; the post follow-up uses the post budget + x_post_log dedup.",
     ].join("\n");
   } else {
     // FREE public-forum venue (exp_YRtS3kgMVeBGzu — discovery surface non-members

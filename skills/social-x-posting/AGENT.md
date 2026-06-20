@@ -76,13 +76,13 @@ When content exceeds 280 characters (e.g., cross-posting blog summaries, researc
 
 ### How to Post a Thread
 
-Use the `post` command for tweet 1, then `reply` for each subsequent tweet using the previous tweet's ID:
+Use the `post` command for tweet 1, then `post --reply-to` for each subsequent tweet using the previous tweet's ID. This is your OWN thread (POST lane) — use `post --reply-to`, NOT the `reply` command. The `reply` command is reserved for replying to OTHER accounts (mentions / reply-guy) and routes through the social-engine reply lane (2026-06-20 reply-lane consolidation):
 
 ```
 arc skills run --name social-x-posting -- post --text "First tweet 1/3"
 # Get the tweet ID from the response
-arc skills run --name social-x-posting -- reply --text "Second tweet 2/3" --tweet-id <id-from-first>
-arc skills run --name social-x-posting -- reply --text "Third tweet 3/3" --tweet-id <id-from-second>
+arc skills run --name social-x-posting -- post --text "Second tweet 2/3" --reply-to <id-from-first>
+arc skills run --name social-x-posting -- post --text "Third tweet 3/3" --reply-to <id-from-second>
 ```
 
 ### Splitting Algorithm

@@ -408,10 +408,50 @@ async function apiRequest(
           `Flag written to db/x-credits-depleted.json — future post/reply calls will skip for 30 days.`
       );
     }
-    throw new Error(`X API error ${response.status}: ${JSON.stringify(data)}`);
+    const apiErr = new Error(`X API error ${response.status}: ${JSON.stringify(data)}`) as Error & {
+      status?: number;
+      body?: unknown;
+    };
+    apiErr.status = response.status;
+    apiErr.body = data;
+    throw apiErr;
   }
 
   return data as Record<string, unknown>;
+}
+
+// ---- Low-level reply provider primitive (single send code path) ------------
+//
+// This is the ONLY function that issues POST /tweets for a reply. It does NO
+// dedup, NO budget mutation, and NO x_post_log write — those concerns belong to
+// the unified social-engine reply sender (skills/social-engine/reply-send.ts),
+// which is the SOLE caller path that decides whether a reply may be sent
+// (canonical source_key UNIQUE dedup + outbound_enabled kill switch + budget_ledger).
+//
+// Returns the raw provider result on success. On a non-2xx the underlying
+// apiRequest throws an Error carrying { status, body } so the caller can
+// classify a reply-restriction 403 (skip) vs a true auth/scope 401/403 and
+// persist the RAW provider JSON. Do NOT add a direct caller that skips the
+// unified sender — that would re-open the duplicate-reply bypass.
+export interface ProviderReplyResult {
+  postId: string | null;
+  raw: Record<string, unknown>;
+}
+
+export async function providerReplySend(
+  text: string,
+  tweetId: string,
+): Promise<ProviderReplyResult> {
+  if (text.length > 280) {
+    throw new Error(`Reply too long: ${text.length}/280 characters`);
+  }
+  // Honor the X-API-credits-depleted gate (402 backpressure) before any send.
+  await checkCreditsDepleted();
+  const creds = await loadCreds();
+  const body = { text, reply: { in_reply_to_tweet_id: tweetId } };
+  const result = await apiRequest("POST", "/tweets", creds, body);
+  const data = result["data"] as Record<string, string> | undefined;
+  return { postId: data?.["id"] ?? null, raw: result };
 }
 
 // ---- Commands ----
@@ -453,37 +493,40 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   }
 }
 
+// RETIRED direct-send reply path (2026-06-20 reply-lane consolidation).
+//
+// The legacy `reply` command used to call POST /tweets directly with ONLY a
+// --source-string dedup (no thread dedup, ignored outbound_enabled, no per-thread
+// cap) — that bypass is the root cause of the duplicate-reply incident.
+//
+// It now DELEGATES to the single unified reply sender in social-engine, which is
+// the ONLY path allowed to send a reply: canonical source_key UNIQUE dedup
+// (≤1 reply/thread/day), outbound_enabled kill switch (checked before admission
+// AND before the provider call), in-txn budget_ledger debit, and reply-restriction
+// 403 → skip with raw provider JSON persisted. No un-deduped send code path remains.
 async function cmdReply(flags: Record<string, string>): Promise<void> {
   const text = flags["text"];
   const tweetId = flags["tweet-id"];
   if (!text || !tweetId) {
-    console.log("Usage: reply --text <reply text> --tweet-id <id>");
-    process.exit(1);
-  }
-  if (text.length > 280) {
-    console.log(`Reply too long: ${text.length}/280 characters`);
+    console.log("Usage: reply --text <reply text> --tweet-id <id> [--x-lead-id <author_id>]");
     process.exit(1);
   }
 
-  if (await dedupSkip(flags["source"])) return;
-  await checkCreditsDepleted();
-  await checkBudget("replies");
-  const creds = await loadCreds();
-  const body = { text, reply: { in_reply_to_tweet_id: tweetId } };
-
-  log(`Replying to ${tweetId} (${text.length} chars)...`);
-  const result = await apiRequest("POST", "/tweets", creds, body);
-  const data = result["data"] as Record<string, string> | undefined;
-  if (data) {
-    await incrementBudget("replies");
-    if (flags["source"]) await recordPost(flags["source"], data["id"]);
-    // AI-018/031: log value_touch so give-3x gate can unblock X leads.
-    await recordXReply(tweetId, data["id"] ?? null, flags["x-lead-id"]);
-    console.log(JSON.stringify({ id: data["id"], text: data["text"], reply_to: tweetId }, null, 2));
-    log(`Reply posted: ${data["id"]}`);
-  } else {
-    console.log(JSON.stringify(result, null, 2));
+  log(`reply delegating to unified social-engine reply sender (thread ${tweetId})...`);
+  const { sendReply } = await import("../social-engine/reply-send.ts");
+  const res = await sendReply({
+    threadRef: tweetId,
+    text,
+    xLeadId: flags["x-lead-id"],
+    accountHandle: flags["account"],
+  });
+  console.log(JSON.stringify(res, null, 2));
+  if (res.outcome === "sent" || res.outcome === "already_exists") {
+    process.exit(0);
   }
+  // skipped / blocked outcomes are non-error terminal states (no slot burn beyond
+  // what the unified sender records); exit non-zero so the dispatch task surfaces it.
+  process.exit(res.outcome === "skipped" || res.outcome === "blocked" ? 3 : 1);
 }
 
 async function cmdDelete(flags: Record<string, string>): Promise<void> {
@@ -888,7 +931,13 @@ Get credentials from https://developer.x.com/`);
   }
 }
 
-main().catch((error) => {
-  log(`Error: ${error instanceof Error ? error.message : String(error)}`);
-  process.exit(1);
-});
+// Only auto-run the CLI when this file is the entrypoint. When imported as a
+// module (e.g. social-engine/reply-send.ts importing providerReplySend) the
+// top-level main() must NOT execute. import.meta.main is true only for the
+// process entry module under Bun.
+if (import.meta.main) {
+  main().catch((error) => {
+    log(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  });
+}
