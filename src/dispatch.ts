@@ -1480,7 +1480,7 @@ export async function runDispatch(): Promise<void> {
   const useCodex = sdkRoute.sdk === "codex";
   const explicitOpenRouter = sdkRoute.sdk === "openrouter";
   const openRouterKey = (useCodex && !explicitOpenRouter) ? null : await getOpenRouterApiKey();
-  const useOpenRouter = explicitOpenRouter || (!useCodex && (!!openRouterKey || process.env.DISPATCH_MODE === "openrouter"));
+  const useOpenRouter = explicitOpenRouter || (!useCodex && process.env.DISPATCH_MODE === "openrouter");
   if (useCodex) {
     log(`dispatch: using Codex CLI dispatch mode (model=${sdkRoute.model ?? "default"})`);
   } else if (explicitOpenRouter) {

@@ -21,7 +21,7 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL_IDS: Record<ModelTier, string> = {
   opus: "anthropic/claude-opus-4-6",
   sonnet: "anthropic/claude-sonnet-4-6",
-  haiku: "anthropic/claude-haiku-4-5-20251001",
+  haiku: "anthropic/claude-haiku-4-5",
 };
 
 /** Max iterations for tool-call loop to prevent runaway. */
