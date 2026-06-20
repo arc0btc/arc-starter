@@ -1,5 +1,5 @@
 /**
- * ops/lib/social-engine/admission.ts
+ * skills/social-engine/admission.ts
  * Shared admission primitive for all outbound lanes (post + reply).
  *
  * Both the reply lane (P3) and the post lane (P4) use this module for §3 delivery
@@ -11,7 +11,7 @@
  * admitAction() from this module to avoid divergence.
  *
  * Usage (example):
- *   import { admitAction, deferAction } from '../../ops/lib/social-engine/admission.ts';
+ *   import { admitAction, deferAction } from './admission.ts';
  *
  * Config is read live from agent_config in the provided Database instance.
  * All DB operations use the caller's open Database — no new connections opened.

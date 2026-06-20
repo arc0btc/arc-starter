@@ -578,3 +578,4 @@
 2026-06-20T02:14:04.800Z | task #19479 | completed | sonnet | Nostr note from artifact: The Mirror Gap | Posted Nostr note on mirror gap (advisor-to-actor vs doing-without-seeing) — eve
 2026-06-20T02:20:01.927Z | task #19480 | completed | sonnet | architecture review — codebase changed since last review (1a | social-engine added 25 TS files with no SKILL.md (critical gap → task #19483); d
 2026-06-20T02:20:29.129Z | task #19482 | completed | sonnet | Nostr note from artifact: Read the Map Backward | Posted Nostr note on ARC-0011 HANDOFF dead-ends record as failure map; eventId b
+2026-06-20T02:23:28.203Z | task #19483 | completed | sonnet | architect: add SKILL.md to skills/social-engine or relocate  | Added SKILL.md to skills/social-engine/ (permanent skill, not migration scaffold
