@@ -27,4 +27,5 @@ arc-link-research/cache/
 arc-link-research/archive/
 arc-link-research/*.md
 artifacts/
+payloads/
 .claude/scheduled_tasks.lock

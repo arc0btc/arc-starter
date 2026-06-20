@@ -1,0 +1,17 @@
+{
+  "stage": "control",
+  "gate_passed_at": "2026-06-19T23:19:42.123Z",
+  "advanced_to": "research_core",
+  "advanced_at": "2026-06-19T23:19:42.123Z",
+  "evidence": {
+    "outbound_action_id": 3,
+    "provider_post_id": "2068110137144021025",
+    "source_key": "engage:out:reply:x:2047404386931081563",
+    "thread_ref": "2047404386931081563",
+    "account": "whoabuddydev"
+  },
+  "next_stage": "research_core",
+  "next_gate": "48h dwell + no dup/unknown actions + all replies receipt-backed",
+  "monitor_schedule": "*/15 * * * * on arc-starter VM",
+  "written_at": "2026-06-19T23:19:42.123Z"
+}
