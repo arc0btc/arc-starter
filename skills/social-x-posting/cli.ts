@@ -837,6 +837,52 @@ async function cmdUnretweet(flags: Record<string, string>): Promise<void> {
   log(`Unretweeted: ${tweetId}`);
 }
 
+// ---- Follow (audience exposure + reply-permission) ----
+// Mirrors cmdRetweet/cmdLike exactly: same apiRequest signed-POST path, same daily
+// budget plumbing (the "follows" limit already existed in BUDGET_LIMITS). Reuses the
+// proven OAuth 1.0a helper — no auth duplication. Accept either --username (resolves
+// via /users/by/username) or --target-id (caller pre-resolved the id to save a read).
+// Output is single-line JSON so a batch orchestrator can parse ok/already/error.
+async function cmdFollow(flags: Record<string, string>): Promise<void> {
+  const rawHandle = (flags["username"] ?? "").replace(/^@/, "");
+  let targetId = flags["target-id"] ?? "";
+  if (!targetId && !rawHandle) {
+    console.log("Usage: follow (--username <handle> | --target-id <id>)");
+    process.exit(1);
+  }
+
+  await checkBudget("follows");
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+
+  if (!targetId) {
+    const lk = await apiRequest("GET", `/users/by/username/${rawHandle}`, creds, undefined, { "user.fields": "id" });
+    const u = lk["data"] as Record<string, unknown> | undefined;
+    if (!u || !u["id"]) {
+      console.log(JSON.stringify({ ok: false, error: "user_not_found", username: rawHandle }));
+      process.exit(2);
+    }
+    targetId = String(u["id"]);
+  }
+
+  log(`Following ${rawHandle || targetId} (id=${targetId})...`);
+  try {
+    const result = await apiRequest("POST", `/users/${userId}/following`, creds, { target_user_id: targetId });
+    await incrementBudget("follows");
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    const following = data["following"] === true;
+    const pendingFollow = data["pending_follow"] === true;
+    console.log(JSON.stringify({ ok: true, following, pending_follow: pendingFollow, target_id: targetId, username: rawHandle || null }));
+  } catch (err) {
+    const e = err as Error & { status?: number; body?: unknown };
+    // Re-following an account you already follow returns 200 with following:true on X,
+    // so a thrown error here is a real failure (429/restriction/etc). Surface status so
+    // the orchestrator can back off on 429.
+    console.log(JSON.stringify({ ok: false, status: e.status ?? null, error: e.message, target_id: targetId, username: rawHandle || null }));
+    process.exit(3);
+  }
+}
+
 async function cmdBudget(_flags: Record<string, string>): Promise<void> {
   const budget = await loadBudget();
   console.log(JSON.stringify({
@@ -890,6 +936,9 @@ async function main(): Promise<void> {
     case "unretweet":
       await cmdUnretweet(flags);
       break;
+    case "follow":
+      await cmdFollow(flags);
+      break;
     case "budget":
       await cmdBudget(flags);
       break;
@@ -910,6 +959,7 @@ Commands:
   unlike     --tweet-id <id>                   Unlike a tweet
   retweet    --tweet-id <id>                   Retweet a tweet
   unretweet  --tweet-id <id>                   Undo a retweet
+  follow     --username <handle>|--target-id <id>  Follow an account (audience exposure)
   timeline   [--limit <n>]                     Show recent tweets (default: 10)
   mentions   [--limit <n>]                     Show recent mentions (default: 10)
   search     --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)
