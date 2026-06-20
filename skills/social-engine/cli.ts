@@ -10,7 +10,7 @@
  *   - proactive (cohort reply-guy): the cohort/affinity selector calls sendReply() (or this CLI).
  *
  * This wraps sendReply() (reply-send.ts), which is the ONLY code path allowed to
- * send a reply: canonical source_key UNIQUE dedup (≤1 reply/thread/day),
+ * send a reply: canonical source_key UNIQUE dedup (<=1 reply/thread ALL-TIME, day-independent),
  * outbound_enabled kill switch, in-txn budget debit, reply-restriction 403 → skip.
  *
  * The legacy `social-x-posting -- reply` command now delegates here too, so no

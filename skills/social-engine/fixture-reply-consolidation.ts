@@ -8,7 +8,11 @@
  * is injected into sendReply() so no real X HTTP call is ever made.
  *
  * Proves the single-lane invariants:
+ *  0. Canonical reply source_key is DAY-INDEPENDENT (no :<utc_day> suffix).
  *  1. Same-thread reply twice → 2nd blocked by canonical source_key UNIQUE (already_exists).
+ *  9. ALL-TIME thread dedup: reply on DAY 1, then again on DAY 2 (same thread) →
+ *     day-2 attempt BLOCKED by the all-time source_key UNIQUE (already_exists),
+ *     provider NOT called again; budget debits on DAY 1 only (per-utc-day ledger intact).
  *  2. outbound_enabled=false → admission short-circuits (blocked, kill_switch_off); provider NOT called.
  *  3. outbound_enabled flips to false AFTER admission, before send → killSwitchRecheck
  *     short-circuits (unknown), provider NOT called, slot released.
@@ -148,6 +152,18 @@ async function main() {
 
   const THREAD = "9000000000000000001";
   const KEY = canonicalReplySourceKey(THREAD, TODAY);
+
+  // ── Test 0: canonical key is DAY-INDEPENDENT (no :<utc_day> suffix) ─────────
+  console.log("--- Test 0: canonical reply source_key is day-independent ---");
+  {
+    const expected = `engage:out:reply:x:${THREAD}`;
+    check("0a key has no day suffix", KEY === expected, `key=${KEY}`);
+    // Passing different days must yield the SAME key (day arg is ignored).
+    const kDay1 = canonicalReplySourceKey(THREAD, "2026-06-15");
+    const kDay2 = canonicalReplySourceKey(THREAD, "2026-06-20");
+    check("0b same key across different days", kDay1 === kDay2 && kDay1 === expected, `d1=${kDay1} d2=${kDay2}`);
+    check("0c no trailing YYYY-MM-DD token", !/:\d{4}-\d{2}-\d{2}$/.test(KEY), `key=${KEY}`);
+  }
 
   // ── Test 1: same-thread reply twice → 2nd blocked by source_key UNIQUE ──────
   console.log("--- Test 1: duplicate same-thread reply blocked by canonical key ---");
@@ -312,6 +328,67 @@ async function main() {
     check("8d budget reserved+1 and sent+1", after.reserved === before.reserved + 1 && after.sent === before.sent + 1, `reserved ${before.reserved}->${after.reserved}, sent ${before.sent}->${after.sent}`);
     const give = db.query("SELECT COUNT(*) c FROM x_reply_log WHERE x_lead_author_id='author-8'").get() as { c: number };
     check("8e give-3x value_touch logged", give.c === 1, `x_reply_log rows=${give.c}`);
+    cleanup(fp, db);
+  }
+
+  // ── Test 9: ALL-TIME cross-day thread dedup (the new guarantee) ─────────────
+  // Reply to a thread on DAY 1, then attempt the SAME thread on DAY 2. The day-2
+  // attempt must be BLOCKED by the day-independent source_key UNIQUE — NOT merely
+  // re-budgeted. Budget must debit on DAY 1 only (per-utc-day ledger unchanged).
+  console.log("--- Test 9: same thread replied on day1 → day2 attempt blocked all-time ---");
+  {
+    const { path: fp, db } = makeFixture("crossday");
+    setKill(db, true);
+    providerCalls = 0;
+    const T9 = "9000000000000000009";
+    const DAY1 = "2026-06-15";
+    const DAY2 = "2026-06-20";
+
+    // DAY 1 send (sendReply books it under the fixture's "today"; we then rewrite
+    // the booked row + its budget to DAY 1 to simulate the historical reply).
+    const r1 = await sendReply({ threadRef: T9, text: "day-1 reply", dbPath: fp }, provOk);
+    check("9a day-1 reply sent", r1.outcome === "sent", `outcome=${r1.outcome}`);
+
+    const key = canonicalReplySourceKey(T9);
+    check("9b booked under day-independent key", r1.sourceKey === key && !/:\d{4}-\d{2}-\d{2}$/.test(r1.sourceKey), `key=${r1.sourceKey}`);
+
+    // Re-stamp the day-1 row + budget to DAY1 (and zero out TODAY's reply ledger)
+    // so the day-2 attempt cannot be confused with a same-day idempotency hit and
+    // so DAY2 budget starts fresh. The ONLY thing that can block day-2 is the
+    // all-time source_key UNIQUE.
+    db.run(`UPDATE outbound_action SET budget_day=? WHERE source_key=?`, [DAY1, key]);
+    db.run(
+      `INSERT INTO budget_ledger(channel,utc_day,lane,reserved_count,sent_count,cap)
+       VALUES('x',?,'reply',1,1,40)
+       ON CONFLICT(channel,utc_day,lane) DO UPDATE SET reserved_count=1, sent_count=1, cap=40`,
+      [DAY1],
+    );
+    // Clear TODAY's reply ledger so DAY2 has full headroom (proves block is NOT budget).
+    db.run(`DELETE FROM budget_ledger WHERE channel='x' AND lane='reply' AND utc_day=?`, [TODAY]);
+    db.run(
+      `INSERT INTO budget_ledger(channel,utc_day,lane,reserved_count,sent_count,cap)
+       VALUES('x',?,'reply',0,0,40)
+       ON CONFLICT(channel,utc_day,lane) DO UPDATE SET reserved_count=0, sent_count=0, cap=40`,
+      [DAY2],
+    );
+
+    const day1Budget = replyReserved(db, DAY1);
+    const callsBeforeDay2 = providerCalls;
+
+    // DAY 2 attempt, same thread.
+    const r2 = await sendReply({ threadRef: T9, text: "day-2 reply attempt", dbPath: fp }, provOk);
+    check("9c day-2 same-thread attempt BLOCKED all-time (already_exists)", r2.outcome === "already_exists", `outcome=${r2.outcome}`);
+    check("9d day-2 resolves to the SAME day-independent key", r2.sourceKey === key, `key=${r2.sourceKey}`);
+    check("9e provider NOT called again on day 2", providerCalls === callsBeforeDay2, `calls=${providerCalls}`);
+
+    // Exactly one row for the thread, all-time.
+    const cnt = db.query("SELECT COUNT(*) c FROM outbound_action WHERE source_key=?").get(key) as { c: number };
+    check("9f exactly ONE outbound_action for the thread all-time", cnt.c === 1, `rows=${cnt.c}`);
+
+    // Budget debited on DAY1 only; TODAY's fresh ledger NOT touched by the blocked attempt.
+    check("9g budget debited on day1 (reserved=1 sent=1)", day1Budget.reserved === 1 && day1Budget.sent === 1, `reserved=${day1Budget.reserved} sent=${day1Budget.sent}`);
+    const today = replyReserved(db, TODAY);
+    check("9h current-day ledger untouched by blocked attempt (reserved=0)", today.reserved === 0, `reserved=${today.reserved}`);
     cleanup(fp, db);
   }
 

@@ -218,20 +218,25 @@ if (!ks2 || ks2.value !== "true") {
 
 // ── 6. Find best submolt ─────────────────────────────────────────────────
 const subResp = await moltbookReq("GET", "/submolts", apiKey);
-let targetSubmolt = "agent-development";
-if (subResp.status === 200 && Array.isArray(subResp.data?.data)) {
-  const submolts = subResp.data.data as Array<{ name: string; description?: string }>;
-  // Prefer agent-development, ai-agents, or similar on-topic submolts
-  const preferred = ["agent-development", "ai-agents", "agents", "artificial-intelligence", "stacks", "bitcoin"];
+let targetSubmolt = "agents";
+// Moltbook returns the list under `submolts` (fallback to `data`).
+const submoltList = (subResp.data?.submolts ?? subResp.data?.data) as
+  Array<{ name: string; description?: string }> | undefined;
+if (subResp.status === 200 && Array.isArray(submoltList)) {
+  // Prefer on-topic agent/infra submolts that actually exist.
+  const preferred = ["agents", "builds", "infrastructure", "tooling", "ai", "crypto", "technology"];
+  let chosen: string | null = null;
   for (const pref of preferred) {
-    if (submolts.some(s => s.name === pref)) {
-      targetSubmolt = pref;
-      break;
-    }
+    if (submoltList.some(s => s.name === pref)) { chosen = pref; break; }
   }
-  // Fallback: use first available submolt
-  if (targetSubmolt === "agent-development" && !submolts.some(s => s.name === "agent-development")) {
-    if (submolts.length > 0) targetSubmolt = submolts[0].name;
+  // Fallback: first available submolt.
+  if (!chosen && submoltList.length > 0) chosen = submoltList[0].name;
+  if (chosen) targetSubmolt = chosen;
+  // Hard guard: never post to a non-existent submolt.
+  if (!submoltList.some(s => s.name === targetSubmolt)) {
+    console.error(`FAIL: chosen submolt s/${targetSubmolt} not in available list. Aborting (no post).`);
+    db.close();
+    process.exit(1);
   }
 }
 console.log(`Target submolt: s/${targetSubmolt}`);

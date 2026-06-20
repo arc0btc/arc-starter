@@ -7,10 +7,11 @@
  * sendReply(). It is the ONLY code path permitted to issue a reply, and it routes
  * every send through the shared admission primitive (admission.ts) so that:
  *
- *   - source_key is UNIQUE per thread/day → at most ONE reply per thread per day
- *     (canonical key: engage:out:reply:x:<thread_ref>[:<budget_day> appended for
- *      day rollover]). The UNIQUE constraint on outbound_action.source_key is the
- *     hard dedup that the legacy --source-string path lacked.
+ *   - source_key is UNIQUE per thread (DAY-INDEPENDENT) -> at most ONE reply per
+ *     thread for ALL TIME (canonical key: engage:out:reply:x:<thread_ref>, no day
+ *     suffix). The UNIQUE constraint on outbound_action.source_key is the hard
+ *     all-time dedup the legacy --source-string path lacked. Per-day BUDGET is
+ *     enforced separately by budget_ledger (debited per UTC day in admission).
  *   - outbound_enabled (kill switch) is checked BEFORE admission AND again
  *     immediately before the provider call (killSwitchRecheck).
  *   - budget_ledger is debited inside the admission txn (CAS reservation under cap).
@@ -76,13 +77,16 @@ function sha256(text: string): string {
 }
 
 /**
- * Canonical reply source_key. Per-thread/day so the UNIQUE constraint enforces
- * the 1-reply-per-thread-per-day cap. (A reply to the same thread on a later UTC
- * day gets a distinct key — distinct day, distinct slot — which is the intended
- * "≤1 reply/thread/day" rule, not "never reply to a thread twice in its lifetime".)
+ * Canonical reply source_key. DAY-INDEPENDENT: keyed only on thread_ref so the
+ * UNIQUE constraint on outbound_action.source_key enforces AT MOST ONE reply per
+ * thread for ALL TIME (closes the cross-day re-fire gap — Arc must never reply to
+ * the same X thread twice in its lifetime). Per-day BUDGET is enforced separately
+ * by budget_ledger UNIQUE(channel, utc_day, lane), debited per UTC day in admission.
+ *
+ * The optional second arg is accepted and IGNORED for backward call-site compat.
  */
-export function canonicalReplySourceKey(threadRef: string, day = utcDay()): string {
-  return `engage:out:reply:x:${threadRef}:${day}`;
+export function canonicalReplySourceKey(threadRef: string, _day?: string): string {
+  return `engage:out:reply:x:${threadRef}`;
 }
 
 /**
@@ -224,7 +228,7 @@ export async function sendReply(
 ): Promise<SendReplyResult> {
   const dbPath = opts.dbPath ?? DB_PATH;
   const budgetDay = utcDay();
-  const sourceKey = opts.sourceKey ?? canonicalReplySourceKey(opts.threadRef, budgetDay);
+  const sourceKey = opts.sourceKey ?? canonicalReplySourceKey(opts.threadRef);
 
   if (opts.text.length > 280) {
     return { outcome: "blocked", sourceKey, reason: "text_too_long", detail: `${opts.text.length}/280` };
