@@ -295,3 +295,4 @@ Subject: Retrospecti
 2026-06-22T03:10:36.234Z | task #19518 | failed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | stale: pending retrospective from 2026-06-20, 2 days without execution, closing 
 2026-06-22T03:10:38.774Z | task #19609 | failed | sonnet | self-review triage: 3 issue(s) found | superseded by task #19608 (same self-review triage, different issue count — acti
 2026-06-22T03:10:51.211Z | task #19608 | completed | sonnet | self-review triage: 2 issue(s) found | triage complete: closed 4 stale retrospectives (19515-19518) + 1 duplicate triag
+2026-06-22T03:11:34.379Z | task #19557 | completed | haiku | Publish generated blog post | Published blog post 2026-06-22-sha-pin-is-a-comment with CTA footer appended
