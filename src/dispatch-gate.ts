@@ -6,6 +6,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { hostname } from "node:os";
 import { join } from "node:path";
 import { log } from "./utils.ts";
@@ -58,6 +59,97 @@ function writeGateState(state: DispatchGateState): void {
   writeFileSync(DISPATCH_GATE_FILE, JSON.stringify(state, null, 2));
 }
 
+// ── Discord auth-outage alert ─────────────────────────────────────────────────
+
+const DISCORD_AUTH_ALERT_FILE = join(ROOT, "db", "hook-state", "oauth-discord-alert.json");
+const DISCORD_AUTH_ALERT_DEDUP_MS = 4 * 60 * 60 * 1000; // 4h dedup window
+const DISCORD_CHANNEL_ID_DEFAULT = "1472999795361841193";
+
+/** Load Discord bot token from ARC_DISCORD_TOKEN env or credentials store. */
+function loadDiscordToken(): string | null {
+  if (process.env.ARC_DISCORD_TOKEN) return process.env.ARC_DISCORD_TOKEN;
+  try {
+    const secretsPath = process.env.ARC_SECRETS_PATH ?? "/home/dev/.arc-secrets";
+    const output = execFileSync("bash", [
+      "-c",
+      "set -a; source " + secretsPath + "; set +a; ARC_CREDS_PASSWORD=$ARC_CREDS_PASSWORD " +
+      "/home/dev/.bun/bin/bun /home/dev/arc-starter/src/credentials/cli.ts get discord bot_token 2>/dev/null",
+    ], { timeout: 8000, encoding: "utf-8" }) as string;
+    const lines = output.split("\n").filter((l: string) => !l.startsWith("[credentials]") && l.trim());
+    const token = lines[lines.length - 1]?.trim() ?? "";
+    return token || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Send a deduped Discord alert when dispatch stops due to auth/OAuth failure.
+ * Carries the literal /login or setup-token remediation.
+ * M0-P0a: exactly ONE deduped alert per 4h — not a flood.
+ * Fire-and-forget — must not block the gate path.
+ */
+function sendDiscordAuthAlert(stoppedAt: string): void {
+  // Dedup check: skip if alerted within 4h
+  try {
+    if (existsSync(DISCORD_AUTH_ALERT_FILE)) {
+      const state = JSON.parse(readFileSync(DISCORD_AUTH_ALERT_FILE, "utf-8")) as { alerted_at: string };
+      const age = Date.now() - new Date(state.alerted_at).getTime();
+      if (age < DISCORD_AUTH_ALERT_DEDUP_MS) {
+        log(`dispatch: Discord auth alert suppressed — sent ${Math.round(age / 60000)}min ago (4h dedup)`);
+        return;
+      }
+    }
+  } catch { /* ignore read errors */ }
+
+  // Write dedup state before sending (crash-safe: don't flood on restart)
+  try {
+    mkdirSync(join(ROOT, "db", "hook-state"), { recursive: true });
+    writeFileSync(DISCORD_AUTH_ALERT_FILE, JSON.stringify({ alerted_at: new Date().toISOString() }));
+  } catch { /* non-fatal */ }
+
+  // Fire-and-forget background send
+  void (async () => {
+    try {
+      const token = loadDiscordToken();
+      if (!token) {
+        log("dispatch: Discord auth alert skipped — no bot token available");
+        return;
+      }
+      const msg = [
+        "**Arc dispatch STOPPED — OAuth/auth failure**",
+        `Stopped at: ${stoppedAt}`,
+        `Host: ${hostname()}`,
+        "",
+        "**Operator action required (dispatch will NOT auto-recover):**",
+        "SSH to Arc VM and run interactively:",
+        "```",
+        "  /login",
+        "  # or: arc credentials setup-token",
+        "```",
+        "After fixing the token: `arc dispatch reset`",
+      ].join("\n");
+      const resp = await fetch(
+        `https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID_DEFAULT}/messages`,
+        {
+          method: "POST",
+          headers: { "Authorization": `Bot ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ content: msg }),
+          signal: AbortSignal.timeout(10_000),
+        }
+      );
+      if (resp.ok) {
+        const data = (await resp.json()) as { id?: string };
+        log(`dispatch: Discord auth alert sent (message_id=${data.id ?? "?"})`);
+      } else {
+        log(`dispatch: Discord auth alert failed: HTTP ${resp.status}`);
+      }
+    } catch (e) {
+      log(`dispatch: Discord auth alert error: ${e}`);
+    }
+  })();
+}
+
 /**
  * Send email notification to whoabuddy that dispatch has stopped.
  * Uses arc CLI (fire-and-forget, non-blocking).
@@ -94,6 +186,12 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null, st
     log(`dispatch: notification email queued to whoabuddy`);
   } catch (e) {
     log(`dispatch: failed to send notification email: ${e}`);
+  }
+
+  // M0-P0a: auth-class stops also send a Discord alert with literal /login remediation.
+  // One deduped alert per 4h — suppresses the flood on outage.
+  if (errorClass === "auth") {
+    sendDiscordAuthAlert(new Date().toISOString());
   }
 }
 

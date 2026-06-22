@@ -471,20 +471,43 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   // exactly-once guarantee for sequential re-runs (see xPostLog note).
   if (await dedupSkip(flags["source"])) return;
   await checkCreditsDepleted();
-  await checkBudget("posts");
+
+  // M0-P0a: thread continuations (--reply-to set) are NOT root tweets and must NOT
+  // burn the 3/day root budget. Only root posts count against the daily cap.
+  // Admission.ts already enforces this split; this mirrors it in the legacy cli path.
+  const isContinuation = !!flags["reply-to"];
+
+  if (!isContinuation) {
+    // Root post — check + reserve the 3/day budget.
+    // budget_exhausted → exit 2 (deferred, not failed): dispatch must NOT mark
+    // status=failed on a budget-over condition; exit 2 signals deferrable.
+    try {
+      await checkBudget("posts");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("budget exhausted")) {
+        log(`root post budget exhausted — exiting 2 (deferred, not failed): ${msg}`);
+        console.log(JSON.stringify({ deferred: true, reason: "root_post_budget_exhausted", detail: msg }));
+        process.exit(2);
+      }
+      throw e;
+    }
+  }
+
   const creds = await loadCreds();
   const body: Record<string, unknown> = { text };
 
-  // Support reply
+  // Support reply / thread continuation
   if (flags["reply-to"]) {
     body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
   }
 
-  log(`Posting tweet (${text.length} chars)...`);
+  log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : "root"})...`);
   const result = await apiRequest("POST", "/tweets", creds, body);
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
-    await incrementBudget("posts");
+    // Only root posts burn the 3/day budget counter.
+    if (!isContinuation) await incrementBudget("posts");
     if (flags["source"]) await recordPost(flags["source"], data["id"]);
     console.log(JSON.stringify({ id: data["id"], text: data["text"] }, null, 2));
     log(`Tweet posted: ${data["id"]}`);
