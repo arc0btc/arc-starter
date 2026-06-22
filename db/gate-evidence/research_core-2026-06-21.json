@@ -1,0 +1,11 @@
+{
+  "stage": "research_core",
+  "gate_passed_at": "2026-06-21T23:30:01.912Z",
+  "advanced_to": "tier_a",
+  "dwell_hours": 48.17216361111111,
+  "evidence": {
+    "no_unknown_actions": true,
+    "dwell_ok": true
+  },
+  "written_at": "2026-06-21T23:30:01.912Z"
+}

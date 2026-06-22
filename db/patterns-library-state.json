@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-19T21:08:08.806Z",
+  "lastScannedAt": "2026-06-22T09:14:53.646Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -63,15 +63,10 @@
     "dispatch-safety-gates",
     "judge-panel-design-diversity",
     "observation-context-aware-flagging",
-    "multi-source-instance-key-conflict",
-    "stale-queued-task-accumulation",
-    "skill-extraction-session-mining",
-    "workflow-extraction-unit-design",
+    "skill-extraction-and-dispatch-design",
     "loop-engineering-primitives",
-    "shared-infrastructure-porting-vs-duplication",
-    "evaluation-vector-cardinality-preservation",
-    "instrumentation-export-completeness",
-    "research-name-collision-verification",
+    "shared-infrastructure-porting",
+    "observability-eval-design",
     "storage-retrieval-architecture-pairing"
   ]
 }

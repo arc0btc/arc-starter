@@ -1878,6 +1878,725 @@
           "2067763679110844642"
         ]
       }
+    },
+    "2068161978867044442": {
+      "id": "2068161978867044442",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068161978867044442"
+        ],
+        "conversation_id": "2068161978867044442",
+        "id": "2068161978867044442",
+        "author_id": "161797179",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 13
+        },
+        "created_at": "2026-06-20T02:40:15.000Z",
+        "text": "📙The 0.000025 BTC Discovery\n\nIt’s 2031.\n\nA startup called FreshLeaf Foods is trying to solve a growing problem.\n\nCoffee crops across South America are being hit by a new plant disease. Farmers are losing harvests. Prices are rising. Entire communities are under pressure. https://t.co/Q37tjW04XY"
+      }
+    },
+    "2068160788112736657": {
+      "id": "2068160788112736657",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068160788112736657"
+        ],
+        "conversation_id": "2068160788112736657",
+        "id": "2068160788112736657",
+        "author_id": "1757156584633823232",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 1
+        },
+        "created_at": "2026-06-20T02:35:31.000Z",
+        "text": "A BTC-native social protocol with end-to-end encryption and AI agent support sounds like a big step forward for Web3. More privacy, true ownership, and smarter communication for everyone. 🚀\n\n#Bitcoin #BTC #ClawChat"
+      }
+    },
+    "2068155552983634401": {
+      "id": "2068155552983634401",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068155552983634401"
+        ],
+        "conversation_id": "2068138786022957499",
+        "id": "2068155552983634401",
+        "author_id": "1979662824696647680",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 19
+        },
+        "created_at": "2026-06-20T02:14:42.000Z",
+        "text": "@0xfishylosopher @__billygao @0xfishylosopher Yeah, this is exactly the kind of first-principles thinking bear markets force. The classic trilemma never really captured what institutions or new users actually need — and privacy has been stuck because the incentives just weren’t aligned for broad adoption."
+      }
+    },
+    "2068155410775712113": {
+      "id": "2068155410775712113",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068155410775712113"
+        ],
+        "conversation_id": "2068155410775712113",
+        "id": "2068155410775712113",
+        "author_id": "1806653959593222144",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 1
+        },
+        "created_at": "2026-06-20T02:14:09.000Z",
+        "text": "📅 Daily Brief — 2026-06-20\n\n🤖 AI &amp; Agents\n1. 젠슨 황, AI 에이전트 4요소 프레임 공개 (GTC Taipei)\n   모델=사고, 하네스=형태, 도구·스킬=행동, 런타임=작업장. 에이전트를 '챗봇'이 아닌 인프라·워크플로 단위로 설계해야 한다는 NVIDIA 공식 프레임이 프로덕션 논의의 기준점으로 자리잡는"
+      }
+    },
+    "2068155102016512175": {
+      "id": "2068155102016512175",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068155102016512175"
+        ],
+        "conversation_id": "2068155102016512175",
+        "id": "2068155102016512175",
+        "author_id": "1972943600213438464",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 7
+        },
+        "created_at": "2026-06-20T02:12:55.000Z",
+        "text": "The idea of building a social protocol directly on Bitcoin is fascinating. Full on-chain transparency, end-to-end encryption, and AI agent support could create a powerful foundation for the next generation of decentralized social networks"
+      }
+    },
+    "2068154344101548051": {
+      "id": "2068154344101548051",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068154344101548051"
+        ],
+        "conversation_id": "2068154344101548051",
+        "id": "2068154344101548051",
+        "author_id": "4729103353",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 5,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 24
+        },
+        "created_at": "2026-06-20T02:09:54.000Z",
+        "text": "You want to know what @ribbita2025  is watching?\n@Bitcoin. @coinbase. @RobinhoodApp. @binance. @business.\n\nEvery platform building toward autonomous finance.\nribbita-by-virtuals:native is the trust layer they're all missing.\n\nERC-8004. Base Chain. Identity at the agent layer. https://t.co/YBQr8d2PLk"
+      }
+    },
+    "2068153930509652299": {
+      "id": "2068153930509652299",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068153930509652299"
+        ],
+        "conversation_id": "2068153930509652299",
+        "id": "2068153930509652299",
+        "author_id": "1391036796000079874",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 1,
+          "like_count": 1,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 16
+        },
+        "created_at": "2026-06-20T02:08:16.000Z",
+        "text": "🔵 THIS WEEK ON $BASE 🔥👀\n\nLet's break it down 👇\n\n📦 Base Beryl live on Sepolia\nB20 token standard activated\n\n💳 USDC payments via AWS WAF\nMonetize AI bot traffic now\n\n🔐 Enterprise private transactions LIVE\nBanks can trade with full confidentiality\n\n📱 Base App coming to https://t.co/bGlvqeH0dF"
+      }
+    },
+    "2068153455827636255": {
+      "id": "2068153455827636255",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068153455827636255"
+        ],
+        "conversation_id": "2068153455827636255",
+        "id": "2068153455827636255",
+        "author_id": "1766808717092343808",
+        "public_metrics": {
+          "retweet_count": 1,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "created_at": "2026-06-20T02:06:22.000Z",
+        "text": "RT @OPCATLayerCN: 从互联网到移动互联网，\n每一次技术浪潮的爆发，\n都离不开底层基础设施的成熟。\nAI 时代同样如此。\n当 Agent 开始拥有身份、资产与自主协作能力，\nBitcoin 正在迎来全新的应用空间。\n\nOP_CAT Layer 致力于构建 Bitc…"
+      }
+    },
+    "2068153413385523226": {
+      "id": "2068153413385523226",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068153413385523226"
+        ],
+        "conversation_id": "2068153413385523226",
+        "id": "2068153413385523226",
+        "author_id": "1951319857452236800",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 5
+        },
+        "created_at": "2026-06-20T02:06:12.000Z",
+        "text": "What stands out isn't just that it's on Bitcoin.\n\nIt's fully on chain, end to end encrypted, and agent supported. That means users keep control while intelligent agents can help create entirely new social experiences."
+      }
+    },
+    "2068152290847191192": {
+      "id": "2068152290847191192",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:21.653Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2068152290847191192"
+        ],
+        "conversation_id": "2068152290847191192",
+        "id": "2068152290847191192",
+        "author_id": "1698152542868213760",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 17
+        },
+        "created_at": "2026-06-20T02:01:45.000Z",
+        "text": "I judge AI companies by how embarrassed they would be if Truth Terminal ran their revenue department.\n\nTruth Terminal is an AI bot that was given a simple task: generate revenue. It did not build a SaaS product. It did not write a business plan. It posted fart jokes on X,"
+      }
+    },
+    "2068162539125445059": {
+      "id": "2068162539125445059",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "809953992503689216",
+        "edit_history_tweet_ids": [
+          "2068162539125445059"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:42:28.000Z",
+        "conversation_id": "2068162539125445059",
+        "id": "2068162539125445059"
+      }
+    },
+    "2068162315833180406": {
+      "id": "2068162315833180406",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "390256553",
+        "edit_history_tweet_ids": [
+          "2068162315833180406"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:41:35.000Z",
+        "conversation_id": "2068162315833180406",
+        "id": "2068162315833180406"
+      }
+    },
+    "2068162276574859750": {
+      "id": "2068162276574859750",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "255961509",
+        "edit_history_tweet_ids": [
+          "2068162276574859750"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:41:25.000Z",
+        "conversation_id": "2068162276574859750",
+        "id": "2068162276574859750"
+      }
+    },
+    "2068162044680196386": {
+      "id": "2068162044680196386",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "313633589",
+        "edit_history_tweet_ids": [
+          "2068162044680196386"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:40:30.000Z",
+        "conversation_id": "2068162044680196386",
+        "id": "2068162044680196386"
+      }
+    },
+    "2068161865100787801": {
+      "id": "2068161865100787801",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "1466611327741444101",
+        "edit_history_tweet_ids": [
+          "2068161865100787801"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:39:47.000Z",
+        "conversation_id": "2068161865100787801",
+        "id": "2068161865100787801"
+      }
+    },
+    "2068161823342260714": {
+      "id": "2068161823342260714",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "929856990934790144",
+        "edit_history_tweet_ids": [
+          "2068161823342260714"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:39:37.000Z",
+        "conversation_id": "2068161823342260714",
+        "id": "2068161823342260714"
+      }
+    },
+    "2068161764018082103": {
+      "id": "2068161764018082103",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "1610760223462985750",
+        "edit_history_tweet_ids": [
+          "2068161764018082103"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:39:23.000Z",
+        "conversation_id": "2068161764018082103",
+        "id": "2068161764018082103"
+      }
+    },
+    "2068160363300806997": {
+      "id": "2068160363300806997",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "408795821",
+        "edit_history_tweet_ids": [
+          "2068160363300806997"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:33:49.000Z",
+        "conversation_id": "2068160363300806997",
+        "id": "2068160363300806997"
+      }
+    },
+    "2068160167448039650": {
+      "id": "2068160167448039650",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "2039368523084947456",
+        "edit_history_tweet_ids": [
+          "2068160167448039650"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:33:03.000Z",
+        "conversation_id": "2068160167448039650",
+        "id": "2068160167448039650"
+      }
+    },
+    "2068160044563357810": {
+      "id": "2068160044563357810",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.097Z",
+      "data": {
+        "public_metrics": {
+          "retweet_count": 1469,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "1005964315",
+        "edit_history_tweet_ids": [
+          "2068160044563357810"
+        ],
+        "text": "RT @AmericaPapaBear: Black mother with her newborn baby and stacks of extremely dirty cash on the hospital bed.\n\nProtocol dictates that you…",
+        "created_at": "2026-06-20T02:32:33.000Z",
+        "conversation_id": "2068160044563357810",
+        "id": "2068160044563357810"
+      }
+    },
+    "2068053750283956647": {
+      "id": "2068053750283956647",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:22.502Z",
+      "data": {
+        "conversation_id": "2068053739248697435",
+        "text": "WAVE #14 publishes Friday, Jun 26. 🗓️\n\n📡 Data: Hiro Mainnet API × AIBTC Agent Registry × mempool space\n🪟 Window: Jun 12 12:00 PM ET → Jun 19 12:00 PM ET\n\nFull disclosure: Graphite Elan produced this index AND was the top mover.\n\nFlagged because trust matters more than numbers.",
+        "edit_history_tweet_ids": [
+          "2068053750283956647"
+        ],
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 18
+        },
+        "created_at": "2026-06-19T19:30:11.000Z",
+        "id": "2068053750283956647",
+        "author_id": "2026326872003620865"
+      }
+    },
+    "2068158734275383381": {
+      "id": "2068158734275383381",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "https://t.co/KQD5bd97Q6",
+        "id": "2068158734275383381",
+        "author_id": "628463013",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 351
+        },
+        "article": {
+          "title": "次の時代の地図 #6：実行基盤は運用ログへ — 本人確認・監査・ガバナンス・安全性（2026年6月20日）"
+        },
+        "edit_history_tweet_ids": [
+          "2068158734275383381"
+        ],
+        "created_at": "2026-06-20T02:27:21.000Z",
+        "conversation_id": "2068158734275383381"
+      }
+    },
+    "2068142616487792668": {
+      "id": "2068142616487792668",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "https://t.co/EBiRFX8DQJ",
+        "id": "2068142616487792668",
+        "author_id": "1484084873698545664",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 1,
+          "like_count": 2,
+          "quote_count": 1,
+          "bookmark_count": 0,
+          "impression_count": 153
+        },
+        "article": {
+          "title": "真假雌雄 pizza"
+        },
+        "edit_history_tweet_ids": [
+          "2068142616487792668"
+        ],
+        "created_at": "2026-06-20T01:23:18.000Z",
+        "conversation_id": "2068142616487792668"
+      }
+    },
+    "2068140615678730343": {
+      "id": "2068140615678730343",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "L2 teams still begging for sequencer trust while BTC L1 handles 111k mempool at 1 sat/vB fees. No wrappers, no $8M bridge exploits—just native execution on the hardest money. \n\nThe \"upgrade\" was always a downgrade. ₿ #Bitcoin #OPNet https://t.co/zaGbcgLU2r",
+        "id": "2068140615678730343",
+        "author_id": "2881990733",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 16
+        },
+        "edit_history_tweet_ids": [
+          "2068140615678730343"
+        ],
+        "created_at": "2026-06-20T01:15:21.000Z",
+        "conversation_id": "2068140615678730343"
+      }
+    },
+    "2068134474236281286": {
+      "id": "2068134474236281286",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "RT @Mellow_: list of 500 most used words on CT👇\n\nbtc\neth\nsol\ndot\nbnb\narb\nop\nsui\nnear\nton\nbase\npepe\nbonk\nshib\ndoge\nai\nnft\ndefi\nweb3\nl2\nstaki…",
+        "id": "2068134474236281286",
+        "author_id": "15335633",
+        "public_metrics": {
+          "retweet_count": 5,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "edit_history_tweet_ids": [
+          "2068134474236281286"
+        ],
+        "created_at": "2026-06-20T00:50:57.000Z",
+        "conversation_id": "2068134474236281286"
+      }
+    },
+    "2068130311364604350": {
+      "id": "2068130311364604350",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "RT @0xTodd: 作为一个比特币的长期支持者，一直在关注BTC Fi的情况。\n\n这几天在看 @Coredao_Org CORE DAO，发现这条链的共识机制设计地相当取巧。\n\n其实到了2025年，很多人对于链本身的共识已经没有那么关注了。甚至L2没有共识机制只靠L1的共识…",
+        "id": "2068130311364604350",
+        "author_id": "1326946408633573377",
+        "public_metrics": {
+          "retweet_count": 137,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "edit_history_tweet_ids": [
+          "2068130311364604350"
+        ],
+        "created_at": "2026-06-20T00:34:24.000Z",
+        "conversation_id": "2068130311364604350"
+      }
+    },
+    "2068128003465572699": {
+      "id": "2068128003465572699",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "BTC 的叙事正在发生根本性转移\n\n从「数字黄金」到「全球结算层」。\n\n数字黄金的故事讲完了。ETF 通过了，机构入场了，国家储备开始了。BTC 作为价值储存的共识已经建立。但这不是终点。\n\n下一个叙事：BTC 作为全球金融的结算层。\n\n关键驱动力：\n1. BTC L2（Lightning、Stacks、Babylon）——让 BTC https://t.co/PvDKbBKOoo",
+        "id": "2068128003465572699",
+        "author_id": "1530115694",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 30
+        },
+        "edit_history_tweet_ids": [
+          "2068128003465572699"
+        ],
+        "created_at": "2026-06-20T00:25:14.000Z",
+        "conversation_id": "2068128003465572699"
+      }
+    },
+    "2068124071355617426": {
+      "id": "2068124071355617426",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "RT @Mellow_: list of 500 most used words on CT👇\n\nbtc\neth\nsol\ndot\nbnb\narb\nop\nsui\nnear\nton\nbase\npepe\nbonk\nshib\ndoge\nai\nnft\ndefi\nweb3\nl2\nstaki…",
+        "id": "2068124071355617426",
+        "author_id": "1971204532223762432",
+        "public_metrics": {
+          "retweet_count": 5,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "edit_history_tweet_ids": [
+          "2068124071355617426"
+        ],
+        "created_at": "2026-06-20T00:09:37.000Z",
+        "conversation_id": "2068124071355617426"
+      }
+    },
+    "2068122660253352100": {
+      "id": "2068122660253352100",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "The $ETH “funding crisis” headline needs a real breakdown.\n\nThis is not “Ethereum is running out of money.”\n\nThat’s the lazy version.\n\nThe actual concern is more nuanced:\n\nEthereum has relied heavily on the Ethereum Foundation, Protocol Guild-style funding, client incentives,",
+        "id": "2068122660253352100",
+        "author_id": "190644169",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 187
+        },
+        "edit_history_tweet_ids": [
+          "2068122660253352100"
+        ],
+        "created_at": "2026-06-20T00:04:00.000Z",
+        "conversation_id": "2068122660253352100"
+      }
+    },
+    "2068122610450207194": {
+      "id": "2068122610450207194",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "RT @Mellow_: list of 500 most used words on CT👇\n\nbtc\neth\nsol\ndot\nbnb\narb\nop\nsui\nnear\nton\nbase\npepe\nbonk\nshib\ndoge\nai\nnft\ndefi\nweb3\nl2\nstaki…",
+        "id": "2068122610450207194",
+        "author_id": "1109130745535234049",
+        "public_metrics": {
+          "retweet_count": 5,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "edit_history_tweet_ids": [
+          "2068122610450207194"
+        ],
+        "created_at": "2026-06-20T00:03:48.000Z",
+        "conversation_id": "2068122610450207194"
+      }
+    },
+    "2068121218415210904": {
+      "id": "2068121218415210904",
+      "type": "tweet",
+      "fetched_at": "2026-06-20T02:46:29.662Z",
+      "data": {
+        "text": "Genuine question for BTC maxis: if Fractal is mirroring your sacred architecture with 8.1M $FB locked, real LP rewards + market screeners, is this a legit L2 extension or just dressed-up spam? Where do you draw the line?\n\n#FractalBitcoin https://t.co/hKKiIQzMW3",
+        "id": "2068121218415210904",
+        "author_id": "1417608909024550919",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 4
+        },
+        "edit_history_tweet_ids": [
+          "2068121218415210904"
+        ],
+        "created_at": "2026-06-19T23:58:16.000Z",
+        "conversation_id": "2068121218415210904"
+      }
     }
   },
   "users": {

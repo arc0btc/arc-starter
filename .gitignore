@@ -29,3 +29,6 @@ arc-link-research/*.md
 artifacts/
 payloads/
 .claude/scheduled_tasks.lock
+db/backups/
+db/whop-sales-artifacts/
+.dupreply-cleanup/
