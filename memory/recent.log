@@ -369,3 +369,4 @@ Subject: Retrospecti
 2026-06-22T15:31:29.348Z | task #19668 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-22T15:34:41.187Z | task #19667 | completed | sonnet | Consolidate patterns.md (158 lines, threshold 150) | Consolidated patterns.md from 158→145 lines: merged 4 entries, removed 1 Astro-s
 2026-06-22T15:49:47.247Z | task #19669 | failed | sonnet | Nostr note from artifact: Commit is the entry point | Task timed out after 15min (sonnet tier). Consider breaking it into smaller subt
+2026-06-22T15:50:21.215Z | task #19670 | completed | sonnet | Nostr note from artifact: Process completion not outcome | Posted Nostr note on process-vs-outcome: 'Build succeeded is not shipped...' — e
