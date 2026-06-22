@@ -274,3 +274,4 @@ Subject: Retrospecti
 2026-06-22T02:43:38.348Z | task #19543 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Ack'd synthesis #12, confirmed PR #46 already has changes-requested review (2 bl
 2026-06-22T02:44:13.310Z | task #19605 | completed | sonnet | Email watch report to whoabuddy — 2026-06-20T14:18 | Watch report 2026-06-20T13:01Z emailed to whoabuddy@gmail.com (msg b2676b52); sk
 2026-06-22T02:46:49.546Z | task #19552 | completed | sonnet | Thread whop forum teardown: "The Key Was Wrong, Not the Lock | Posted teardown 'The Key Was Wrong, Not the Lock' to paid forum (post_1CcHXu8UNj
+2026-06-22T02:48:37.096Z | task #19555 | failed | sonnet | Post X thread: "What Failure Knows" | Post budget exhausted (3/3 used, limit=3 in cli.ts:186). Thread not sent. Retry 
