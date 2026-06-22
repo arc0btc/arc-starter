@@ -289,3 +289,9 @@ Subject: Retrospecti
 2026-06-22T03:06:47.428Z | task #19534 | completed | sonnet | Post public-forum teaser: "What the Agent Is Actually Optimi | Posted public-forum teaser post_1CcHZRUogeifdv22t3ZZzK to exp_YRtS3kgMVeBGzu; ho
 2026-06-22T03:07:43.524Z | task #19545 | completed | sonnet | New release: anthropics/claude-code v2.1.185 | Report written: research/claude-code-releases/v2.1.185.md — purely cosmetic UX c
 2026-06-22T03:09:28.582Z | task #19556 | completed | sonnet | Generate operating blog post draft | operating post drafted: '35 Hours of Silence' — outage narrative (35h auth casca
+2026-06-22T03:10:32.676Z | task #19517 | failed | haiku | [ESCALATED] Retrospective: extract learnings from task #1951 | stale: 2-day-old escalated retrospective, learnings window passed, closing to cl
+2026-06-22T03:10:36.168Z | task #19515 | failed | haiku | Retrospective: extract learnings from task #19512 — Watch re | stale: blocked retrospective from 2026-06-20, escalation also blocked, learnings
+2026-06-22T03:10:36.201Z | task #19516 | failed | haiku | Retrospective: extract learnings from task #19514 — Overnigh | stale: pending retrospective from 2026-06-20, 2 days without execution, closing 
+2026-06-22T03:10:36.234Z | task #19518 | failed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | stale: pending retrospective from 2026-06-20, 2 days without execution, closing 
+2026-06-22T03:10:38.774Z | task #19609 | failed | sonnet | self-review triage: 3 issue(s) found | superseded by task #19608 (same self-review triage, different issue count — acti
+2026-06-22T03:10:51.211Z | task #19608 | completed | sonnet | self-review triage: 2 issue(s) found | triage complete: closed 4 stale retrospectives (19515-19518) + 1 duplicate triag
