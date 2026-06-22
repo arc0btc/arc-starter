@@ -366,3 +366,5 @@ Subject: Retrospecti
 2026-06-22T15:24:08.405Z | task #19661 | completed | haiku | Retrospective: extract learnings from task #19659 — Publish  | No learnings to capture — task #19659 was successful application of existing pat
 2026-06-22T15:27:58.780Z | task #19665 | completed | sonnet | Distill watch report 2026-06-22T13:01:44Z into 1-2 interior  | 2 nuggets: sensor-anomaly (reactive lane 116 ticks/0 replies, stale already_queu
 2026-06-22T15:29:23.761Z | task #19666 | completed | sonnet | Chop blog "Build Success Is Not Deploy Success" into 3-5 quo | 5 snippets written: build-vs-deploy, process-vs-outcome, uncommitted-draft, heal
+2026-06-22T15:31:29.348Z | task #19668 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-22T15:34:41.187Z | task #19667 | completed | sonnet | Consolidate patterns.md (158 lines, threshold 150) | Consolidated patterns.md from 158→145 lines: merged 4 entries, removed 1 Astro-s
