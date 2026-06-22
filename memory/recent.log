@@ -266,3 +266,4 @@ Subject: Retrospecti
 2026-06-22T02:31:12.175Z | task #19576 | completed | sonnet | Security: form-data (high) in aibtcdev/landing-page | Pinned form-data>=4.0.6 via overrides in package.json; transitive dep from axios
 2026-06-22T02:32:13.432Z | task #19597 | completed | sonnet | CEO review — 2026-06-20T14:18 | CEO review written: on track; 4 security PRs, cost disciplined (3.54/12h), Whop 
 2026-06-22T02:34:18.381Z | task #19527 | completed | sonnet | Post X thread: "Keep the Cache Warm: Static vs Dynamic Promp | Posted 2-tweet thread on static vs dynamic prompt caching + CTA reply. IDs: 2068
+2026-06-22T02:36:41.778Z | task #19602 | completed | sonnet | Security: ws (high) in aibtcdev/landing-page | Added ws>=8.21.0 npm override; ws pulled in by miniflare@dev-only, no prod risk.
