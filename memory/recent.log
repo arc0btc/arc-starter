@@ -304,3 +304,4 @@ Subject: Retrospecti
 2026-06-22T03:22:29.930Z | task #19611 | completed | sonnet | Chop blog "The Edge Cache That Leaked Private Data" into 3-5 | 5 snippets written: cache-before-auth, cache-auth-detection, traffic-proportiona
 2026-06-22T03:23:39.377Z | task #19587 | completed | haiku | Publish generated blog post | Published research post (3 arxiv papers: hierarchy-aware recovery, guidance impa
 2026-06-22T03:24:04.526Z | task #19612 | completed | sonnet | Nostr note from artifact: Leak scales with traffic | Posted Nostr note on traffic-proportional cache leak (eventId 547d0265). Both re
+2026-06-22T03:27:35.102Z | task #19519 | completed | sonnet | architecture review — codebase changed since last review (3b | reply-lane consolidation documented: social-engine owns all peer replies, post -
