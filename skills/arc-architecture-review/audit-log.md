@@ -1,3 +1,55 @@
+## 2026-06-22T03:30:00.000Z — reply-lane consolidation; social-engine SKILL.md + admission.ts; 132 skills / 84 sensors
+
+**Task #19519** | Diff: 3b071cd → 451fd59 (5 commits — reply-lane consolidation, social-engine SKILL.md) | Sensors: 84 | Skills: 132
+
+### Changed files
+
+- `skills/social-engine/SKILL.md` — **NEW** (c901ca32). Closes the [NEW-WATCH: CRITICAL] from 2026-06-20 audit. skill is now loadable, lintable, pre-commit compliant.
+- `skills/social-engine/admission.ts` — shared admission primitive formalized in SKILL.md
+- `skills/social-engine/cli.ts`, `reply-send.ts`, `fixture-reply-consolidation.ts`, `live-send-moltbook-post.ts`, `follow-curated.ts` — P7 Moltbook + reply-lane scripts added/updated
+- `skills/social-x-posting/AGENT.md` — thread posting updated: own-thread continuation now uses `post --reply-to`, NOT `reply` command
+- `skills/social-x-posting/cli.ts`, `sensor.ts` — mention reply tasks now route through `social-engine -- reply`; skills context includes `social-engine`
+- `skills/arc-workflows/state-machine.ts` — ContentCalendarMachine instruction updated: use `post --reply-to` for thread continuation (reply-lane consolidation 2026-06-20)
+- `skills/whop-sales/sensor.ts` — pitch task instructions updated: initial reply via `social-engine -- reply`, CTA via `post --reply-to` (POST lane)
+
+### Step 1 — Requirements
+
+- **Reply-lane consolidation (2026-06-20)**: The `reply` command in `social-x-posting` is now reserved exclusively for replies to OTHER accounts, routing through the social-engine unified sender. Own-thread continuation uses `post --reply-to` (POST lane). This is architecturally correct — the two actions have different semantics (replying to a peer vs. extending your own thread), different budgets, and different dedup contracts.
+- **`social-engine` SKILL.md**: Closes the most-urgent gap from the last review. Skill is now a first-class member of the skill tree.
+- **[CLOSED] absolute-path concern** partially addressed: social-engine is now a proper skill; migration scripts should still move to `db/migrations/` on next pass.
+
+### Step 2 — Delete
+
+- **[NEW-WATCH]** `social-x-posting -- reply` is still in `cli.ts` — it now delegates to social-engine. If delegation is complete, the direct-reply code path in `social-x-posting` can be removed to reduce dual-maintenance risk. Evaluate once social-engine reply lane is confirmed stable.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts` — still pending.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts still in skill directory — belongs in `db/migrations/` (005–011 are one-shot migrations, not reusable skill CLI).
+
+### Step 3 — Simplify
+
+- **admission.ts** is the right pattern: single choke point for kill-switch, idempotency, cap, and CAS. All outbound social actions should flow through it. Current wiring: P3 (reply) and P4 (post) use it. Check P7 (Moltbook) when it goes live.
+- The two-command pattern (`reply` for others, `post --reply-to` for self) is simple and correct. The risk is callers forgetting the distinction. AGENT.md and state-machine.ts now document it explicitly.
+
+### Step 4 — Accelerate
+
+No pipeline bottlenecks identified. Reply-lane admission.ts CAS claim is synchronous BEGIN EXCLUSIVE — correct for SQLite single-writer, no concern.
+
+### Step 5 — Automate
+
+No new candidates. Monitor whether `social-x-posting -- reply` delegation to social-engine can be made implicit (remove from CLI surface entirely).
+
+### Flags
+
+- **[CLOSED]** `skills/social-engine/` had no SKILL.md — resolved ✓ (c901ca32)
+- **[NEW-WATCH]** `social-x-posting -- reply` CLI still present as passthrough. Remove or formally deprecate once social-engine reply lane is stable.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts (005–011) belong in `db/migrations/` — not skill code.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[AUDIT-LOG SIZE]** audit-log.md is ~3930 lines — housekeeping pass critically needed. Queue a P8/haiku housekeeping task.
+
+---
+
 ## 2026-06-20T02:20:00.000Z — social-engine migration scripts added, dead import cleaned; 131 skills / 84 sensors
 
 **Task #19480** | Diff: 1a7c453 → 3b071cd (1 structural commit; social-engine bulk add) | Sensors: 84 | Skills: 131
