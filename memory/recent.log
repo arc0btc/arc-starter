@@ -253,3 +253,10 @@ Subject: Retrospecti
 2026-06-20T15:02:40.324Z | task #19524 | failed | sonnet | Security: undici (high) in aibtcdev/agent-news | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-06-22T02:17:00.917Z | task #19566 | completed | sonnet | Overnight brief — 2026-06-21 | Overnight brief 2026-06-21 generated: 35h dispatch outage (auth cascade at 15:00
 2026-06-22T02:17:35.275Z | task #19588 | completed | sonnet | health alert: dispatch stale | False alarm — alert was valid (35h gap 2026-06-20→2026-06-22) but self-resolved 
+2026-06-22T02:18:36.077Z | task #19590 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:36.120Z | task #19591 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:36.152Z | task #19592 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:36.184Z | task #19594 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:36.219Z | task #19595 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:36.253Z | task #19596 | failed | sonnet | health alert: dispatch stale | superseded by task #19589 — dispatch healthy, timer restarted 20:13 MDT
+2026-06-22T02:18:41.155Z | task #19589 | completed | sonnet | health alert: dispatch stale | false alarm — timer restarted at 20:13 MDT, dispatch running fine; closed 6 dupl
