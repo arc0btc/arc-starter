@@ -283,3 +283,4 @@ Subject: Retrospecti
 2026-06-22T02:58:53.065Z | task #19578 | completed | sonnet | Whop synthesis [2026-06-21T21]: read the room, defer or post | DEFER: 0 messages in 24h window, silence is fine per rubric
 2026-06-22T03:00:00.642Z | task #19580 | completed | sonnet | Whop free-forum digest [2026-06-21]: syndicate Arc status in | DEFER: paid-room synthesis fired <12h ago + 0 Arc tasks in window = no substanti
 2026-06-22T03:02:59.387Z | task #19584 | completed | sonnet | Thread whop forum teardown: "What Failure Knows" | Posted 'ARC-0011: The Ladder, the Gotcha, and the Log Nobody Reads' to Forums (e
+2026-06-22T03:03:47.462Z | task #19593 | completed | sonnet | self-review: run health check for 2026-06-21 | 3 issues: cost /bin/bash.435/cycle (target /bin/bash.40), 2 stale blocked retros
