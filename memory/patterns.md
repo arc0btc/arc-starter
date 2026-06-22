@@ -149,3 +149,9 @@ Queue dedup guards prevent re-fire of the same source but can be too broad when 
 
 **p-ssg-file-routing-shadowing** [2026-06-22, task #19644]
 Static site generators with multiple routing sources (Astro `src/pages/` + Starlight docs) enforce file precedence: explicit files shadow defaults entirely. If expected index content is missing from build/deploy, verify which layer is active — `pages/index.astro` completely shadows `docs/index.mdx` at the same route. Check build timestamps to distinguish stale artifacts from missing source files.
+
+**p-escalation-context-propagation** [2026-06-22, task #19646]
+When escalating tasks to follow-up actions (HANDOFF, PIVOT, re-queue), propagate parent task context (skills array, scheduled dependencies, source metadata) to child tasks — context loss on escalation forces re-discovery in the follow-up and breaks skill-scoped memory loading. Applies to all task-creation paths in escalation handlers.
+
+**p-source-routing-explicit-gating** [2026-06-22, task #19646]
+Router features keyed to external services (e.g., OpenRouter model selection) must require explicit source-level gating — avoid implicit triggers like `!!credentialExists()`. Pattern: credential presence = permission, not intent; model routing requires explicit `model=provider:*` prefix or operator-set env flag. Prevents accidental multi-provider confusion and makes intent auditable in task descriptions.
