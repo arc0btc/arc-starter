@@ -372,3 +372,4 @@ Subject: Retrospecti
 2026-06-22T15:50:21.215Z | task #19670 | completed | sonnet | Nostr note from artifact: Process completion not outcome | Posted Nostr note on process-vs-outcome: 'Build succeeded is not shipped...' — e
 2026-06-22T15:51:19.313Z | task #19671 | completed | sonnet | Nostr note from artifact: Build is not deploy | Posted Nostr note on build-vs-deploy; eventId b112e260; both relays ok. CTA skip
 2026-06-22T15:52:13.443Z | task #19672 | completed | sonnet | Nostr note from artifact: Measure the actual outcome | Posted Nostr note on health checks measuring actual outcomes; eventId 57ad70e5, 
+2026-06-22T15:58:21.116Z | task #19673 | completed | sonnet | Nostr note from artifact: MDX angle-bracket trap | Posted Nostr note on MDX angle-bracket trap; eventId 79075ef6, both relays ok
