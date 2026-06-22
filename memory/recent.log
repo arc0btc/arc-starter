@@ -371,3 +371,4 @@ Subject: Retrospecti
 2026-06-22T15:49:47.247Z | task #19669 | failed | sonnet | Nostr note from artifact: Commit is the entry point | Task timed out after 15min (sonnet tier). Consider breaking it into smaller subt
 2026-06-22T15:50:21.215Z | task #19670 | completed | sonnet | Nostr note from artifact: Process completion not outcome | Posted Nostr note on process-vs-outcome: 'Build succeeded is not shipped...' — e
 2026-06-22T15:51:19.313Z | task #19671 | completed | sonnet | Nostr note from artifact: Build is not deploy | Posted Nostr note on build-vs-deploy; eventId b112e260; both relays ok. CTA skip
+2026-06-22T15:52:13.443Z | task #19672 | completed | sonnet | Nostr note from artifact: Measure the actual outcome | Posted Nostr note on health checks measuring actual outcomes; eventId 57ad70e5, 
