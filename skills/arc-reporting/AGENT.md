@@ -79,6 +79,33 @@ run in this period — show empty state, not a missing-data error.
 
 **Sensor state:** Read `db/hook-state/*.json` files for sensor run counts.
 
+**North-Star Gauges (REQUIRED — pull every watch report, fixed 24h/7d windows):**
+```bash
+# Follower / audience count
+arc skills run --name social-x-posting -- status
+# Returns JSON with followers, following, tweets. Record followers as current count.
+
+# Baseline file for delta computation — read or create on first run
+# Path: db/hook-state/north-star-baseline.json
+# Schema: { captured_at, followers_24h_ago, followers_24h_ago_at, followers_7d_ago, followers_7d_ago_at }
+# On first run (file missing): create with current count as both anchors.
+# On subsequent runs: update followers_24h_ago to the current count AFTER computing delta;
+#   preserve followers_7d_ago until its timestamp is >7d old, then reset it.
+```
+
+Per-touch impressions + engagement rate:
+- X Basic/Free tier does NOT provide per-tweet impressions via API — note this explicitly.
+- Proxy: for posts in period, sum like_count + retweet_count + reply_count from x_post_log entries
+  joined with search results where available (use `arc skills run --name social-x-posting -- search --query "from:arc0btc" --limit 10` to pull fresh metrics if credits allow).
+- If credits depleted: show `impressions: n/a (credits depleted)` — never omit the section.
+
+Micro-funnel (show current count + note data availability):
+- Profile clicks: X API does not expose profile analytics on Basic tier — show `n/a (no API access)`.
+- Bio-link clicks: requires UTM in profile link — show `n/a (no UTM in profile)`.
+- Report views: check arc0btc-worker KV or admin endpoint if available; else `n/a`.
+- Checkout starts (24h): `SELECT COUNT(*) FROM whop_event_log WHERE type LIKE '%checkout%' AND occurred_at > datetime('now','-24 hours')`.
+- Abandons = checkout starts (24h) minus confirmed whop_sale rows in same window.
+
 ### 3. Generate the HTML report
 
 Read the template at `templates/status-report.html`. Replace all `{{placeholders}}` with real data.
@@ -113,6 +140,12 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
   - **Daily reply budget**: e.g. "2/5 used (40%)".
   - **Top counterparties**: 2-3 most-active room members from `db/whop-relationships.json` — show username + their_replies_to_arc + arc_replies_to_them.
   - **Empty state**: if no posts AND no tick activity in period, use `<p class="empty">No room activity this period. Reactive lane {dry-run|live}, 0 candidates.</p>` — one line, no padding.
+- **North-Star Gauges:** REQUIRED section in every watch report. Use a `.metrics` grid. Show:
+  - Followers: current count + 24h delta (e.g. "+2 vs 24h ago") + 7d delta (e.g. "+5 vs 7d ago")
+  - Per-touch impressions: sum of post engagement in period (likes + RTs + replies) or "n/a (credits depleted)"
+  - Micro-funnel: profile clicks (n/a), bio-link clicks (n/a), checkout starts (N from DB), abandons (N).
+  - If no baseline file exists yet, show current count with "baseline captured now" note.
+  - engagement_log maintenance note: if row count > 10000, add an `.obs` noting "engagement_log >10k rows — run cleanup: DELETE FROM engagement_log WHERE occurred_at < datetime('now','-90 days')".
 
 **Total target: 80-120 lines of filled HTML content** (excluding the template chrome). Shorter is better.
 

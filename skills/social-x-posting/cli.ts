@@ -4,6 +4,7 @@
 
 import { getCredential } from "../../src/credentials.ts";
 import { join } from "path";
+import { createHash } from "crypto";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
@@ -223,13 +224,17 @@ async function saveBudget(budget: DailyBudget): Promise<void> {
   await Bun.write(BUDGET_PATH, JSON.stringify(budget, null, 2));
 }
 
+class BudgetExhaustedError extends Error {
+  constructor(msg: string) { super(msg); this.name = "BudgetExhaustedError"; }
+}
+
 async function checkBudget(action: string): Promise<void> {
   const budget = await loadBudget();
   const limit = BUDGET_LIMITS[action];
   if (limit === undefined) return;
   const used = budget[action as keyof DailyBudget] as number;
   if (used >= limit) {
-    throw new Error(
+    throw new BudgetExhaustedError(
       `Daily ${action} budget exhausted: ${used}/${limit}. Resets at midnight UTC.`
     );
   }
@@ -484,10 +489,26 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     try {
       await checkBudget("posts");
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("budget exhausted")) {
-        log(`root post budget exhausted — exiting 2 (deferred, not failed): ${msg}`);
-        console.log(JSON.stringify({ deferred: true, reason: "root_post_budget_exhausted", detail: msg }));
+      if (e instanceof BudgetExhaustedError) {
+        const sourceKey = flags["source"] ?? `budget-defer:${createHash("sha256").update(text).digest("hex").slice(0, 12)}:${todayDateStr()}`;
+        const msg = e.message;
+        log(`root post budget exhausted — writing planned_posts deferred row, exiting 2 (deferred, not failed): ${msg}`);
+        // Write a deferred planned_posts row so the post re-queues for tomorrow.
+        try {
+          const { initDatabase, getDatabase } = await import("../../src/db.ts");
+          initDatabase();
+          const db = getDatabase();
+          db.run(
+            `INSERT OR IGNORE INTO planned_posts
+               (source_key, lane, is_root, scheduled_utc_day, defer_count, status, notes, created_at, updated_at)
+             VALUES (?, 'post', 1, date('now','+1 day'), 0, 'deferred', 'budget-exhausted auto-defer', strftime('%Y-%m-%dT%H:%M:%SZ','now'), strftime('%Y-%m-%dT%H:%M:%SZ','now'))`,
+            sourceKey
+          );
+        } catch (dbErr) {
+          // Best-effort — do not block exit on DB write failure
+          log(`planned_posts deferred insert failed (non-fatal): ${dbErr instanceof Error ? dbErr.message : String(dbErr)}`);
+        }
+        console.log(JSON.stringify({ deferred: true, reason: "root_post_budget_exhausted", detail: msg, planned_for: "tomorrow" }));
         process.exit(2);
       }
       throw e;

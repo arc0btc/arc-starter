@@ -293,6 +293,27 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
     return { ok: true, terminal: true, reason: "max_defer_count_reached" };
   }
 
+  // Age-based terminal skip: if the action has been deferred for too long, skip it permanently
+  // regardless of defer_count. Prevents indefinitely-accumulating deferred backlog.
+  const maxDeferAgeDays = getConfigInt(db, "max_defer_age_days", 7);
+  const ageRow = db.query("SELECT created_at FROM outbound_action WHERE id=?").get(actionId) as
+    | { created_at: string } | null;
+  if (ageRow) {
+    const ageMs = Date.now() - new Date(ageRow.created_at).getTime();
+    const ageDays = ageMs / (1000 * 60 * 60 * 24);
+    if (ageDays > maxDeferAgeDays) {
+      db.run(
+        `UPDATE outbound_action SET status='skipped', defer_count=?, updated_at=? WHERE id=? AND status NOT IN ('sent','skipped')`,
+        [nextDeferCount, utcNow(), actionId]
+      );
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'deferred', ?)`,
+        [actionId, `terminal: max_defer_age=${maxDeferAgeDays}d exceeded (age=${ageDays.toFixed(1)}d, defer_count=${nextDeferCount})`]
+      );
+      return { ok: true, terminal: true, reason: "max_defer_count_reached" };
+    }
+  }
+
   // Non-terminal defer: bump defer_count, update budget_day, reset to queued
   const newDeferCount = currentDeferCount + 1;
 

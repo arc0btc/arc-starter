@@ -88,22 +88,3 @@ export const PRODUCT_PAGE_URL = `https://whop.com/harness-engineering-field-guid
 
 /** Direct one-time checkout for the product. Attributable via `?a=arc0btc`. */
 export const PRODUCT_CHECKOUT_URL = `https://whop.com/checkout/${PRODUCT_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
-
-// --- $9 single-report tripwire SKU (P2 — three-surface pricing reconciliation) ---
-// The canonical entry product per the operator-set product model (2026-06-22).
-// Entry = $9 single-report tripwire; $49/mo membership unlocks all reports + ongoing stream.
-// Created 2026-06-22 as prod_HD0HZ2bAfHCtF / plan_arGwx0yFBhYOL.
-// Price must read identically across Whop, arc0btc.com /catalog, and x402 accepts[].
-// Rollback: client.products.update('prod_HD0HZ2bAfHCtF', { visibility: 'hidden' })
-
-/** $9 tripwire product SKU (Whop product id). One-time plan; entry to the report stream. */
-export const TRIPWIRE_PRODUCT_ID = "prod_HD0HZ2bAfHCtF" as const;
-
-/** $9 tripwire plan id (`plan_type:"one_time"`, $9). Drives direct checkout. */
-export const TRIPWIRE_PLAN_ID = "plan_arGwx0yFBhYOL" as const;
-
-/** Tripwire product page (soft CTA — see the report, then buy). Attributable via ?a=arc0btc. */
-export const TRIPWIRE_PAGE_URL = `https://whop.com/arc-research-single/?a=${PAID_ROOM_AFFILIATE}`;
-
-/** Direct one-time checkout for the tripwire. Attributable via ?a=arc0btc. */
-export const TRIPWIRE_CHECKOUT_URL = `https://whop.com/checkout/${TRIPWIRE_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
