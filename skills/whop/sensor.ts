@@ -36,6 +36,7 @@
 
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { createHash } from "node:crypto";
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource, getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
@@ -777,6 +778,31 @@ function queueReplyTask(
   return taskId;
 }
 
+// Room-change dedup state (operator 2026-06-21): hash of the last room we queued a
+// synthesis read for. An unchanged room (no new non-Arc messages) with no fresh
+// context wells means another tick would only DEFER or risk a dupe — so skip it
+// instead of spending a dispatch session. Streak resets to 0 whenever we queue.
+const SYNTH_STATE_FILE = resolve(import.meta.dir, "../../db/whop-synthesis-state.json");
+interface SynthState {
+  last_room_hash?: string;
+  last_seen_message_id?: string | null;
+  last_queued_bucket?: string;
+  consecutive_unchanged?: number;
+  updated_at?: string;
+}
+function loadSynthState(): SynthState {
+  try {
+    return existsSync(SYNTH_STATE_FILE)
+      ? (JSON.parse(readFileSync(SYNTH_STATE_FILE, "utf8")) as SynthState)
+      : {};
+  } catch {
+    return {};
+  }
+}
+function saveSynthState(state: SynthState): void {
+  writeFileSync(SYNTH_STATE_FILE, JSON.stringify(state, null, 2) + "\n", "utf8");
+}
+
 /** 6h synthesis lane — read the room, queue one defer-or-post task. */
 export async function pollWhopSynthesis(): Promise<void> {
   if (!WHOP_SYNTHESIS_ENABLED) {
@@ -903,6 +929,36 @@ export async function pollWhopSynthesis(): Promise<void> {
     }
   }
 
+  // Room-change dedup: if no new non-Arc messages since the last queued tick AND no
+  // fresh context wells, skip — re-reading an unchanged room burns a dispatch session
+  // that would defer (we already replied) or risk a dupe. ARC_WHOP_FORCE=1 bypasses.
+  const humanMsgs = windowMessages
+    .filter((m) => m.user?.id !== ARC_USER_ID)
+    .slice()
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const roomHash = createHash("sha256")
+    .update(humanMsgs.map((m) => `${m.id}:${m.content}`).join("\n"))
+    .digest("hex");
+  const synthState = loadSynthState();
+  if (process.env.ARC_WHOP_FORCE !== "1" && synthState.last_room_hash === roomHash && allNuggets.length === 0) {
+    const streak = (synthState.consecutive_unchanged ?? 0) + 1;
+    saveSynthState({ ...synthState, consecutive_unchanged: streak, updated_at: new Date().toISOString() });
+    synthesisLog(
+      `skip (room-unchanged): no new non-Arc messages since last synthesis tick (hash ${roomHash.slice(0, 8)}, ${humanMsgs.length} human msgs) and no fresh wells — saving dispatch session (streak ${streak})`
+    );
+    writeArtifact("synthesis", {
+      tick_at: new Date().toISOString(),
+      channel_id: CHAT_CHANNEL_ID,
+      bucket,
+      window_hours: 24,
+      messages_in_window: windowMessages.length,
+      outcome: "skip_room_unchanged",
+      room_hash: roomHash,
+      consecutive_unchanged: streak,
+    });
+    return;
+  }
+
   const taskId = insertTask({
     subject: `${dryRunPrefix}Whop synthesis [${bucket}]: read the room, defer or post`,
     description: [
@@ -966,6 +1022,15 @@ export async function pollWhopSynthesis(): Promise<void> {
       markConsumed(nugget.id, nugget.type, "whop-chat", taskId);
     }
   }
+
+  // Record the room we just queued for so the next tick can detect an unchanged room.
+  saveSynthState({
+    last_room_hash: roomHash,
+    last_seen_message_id: humanMsgs.at(-1)?.id ?? null,
+    last_queued_bucket: bucket,
+    consecutive_unchanged: 0,
+    updated_at: new Date().toISOString(),
+  });
 
   const artifactPath = writeArtifact("synthesis", {
     tick_at: new Date().toISOString(),
