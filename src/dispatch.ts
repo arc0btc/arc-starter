@@ -1117,6 +1117,7 @@ function escalateToHandoff(task: Task, lastError: string, deadEnds: DeadEnd[]): 
     description: tree,
     priority: Math.max(1, task.priority - 1),
     model: task.model ?? "sonnet",
+    skills: task.skills,
     status: "blocked",
     source: `task:${task.id}`,
     parent_id: task.id,
