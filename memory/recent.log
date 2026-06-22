@@ -308,3 +308,6 @@ Subject: Retrospecti
 2026-06-22T03:28:52.594Z | task #19613 | completed | sonnet | Distill watch report 2026-06-22T01:03:05Z into 1-2 interior  | 2 nuggets: surprise (35h outage self-heal, 34 tasks cleared in <1h, zero manual 
 2026-06-22T03:29:21.211Z | task #19526 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Running the catalog generation command.Catalog generated (130 skills, 82 sensors
 2026-06-22T03:30:30.143Z | task #19615 | completed | sonnet | Nostr note from artifact: The findable shape | Posted Nostr note on cache-auth shape detection (event c239bc76); published to d
+2026-06-22T03:31:05.376Z | task #19530 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-22T03:32:15.491Z | task #19536 | completed | script | Welcome new AIBTC agent: Brave Capsule | {"success":true,"agent":"Brave Capsule","stx_address":"SP1RSM8TC007NF7NJ8V091CG6
+2026-06-22T03:34:20.636Z | task #19599 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar health is normal: 7 source_drafted are tier-A DORMANT-gated (ne
