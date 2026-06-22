@@ -2,19 +2,17 @@
  * skills/social-engine/admission.ts
  * Shared admission primitive for all outbound lanes (post + reply).
  *
- * Both the reply lane (P3) and the post lane (P4) use this module for §3 delivery
- * state machine steps 1-5 (kill-switch, idempotency, cap checks, atomic admission,
- * CAS claim) and deferral with bounded max_defer_count.
+ * P4 hardening (2026-06-22): two reply-spam gaps closed per operator incident report
+ * and dev-council (4-lens) APPROVE-WITH-CHANGES review:
  *
- * P3's control send (005-p3-reply-pipeline.ts) implemented the same logic inline.
- * That script already ran its one-time live send. New sends in both lanes call
- * admitAction() from this module to avoid divergence.
+ *   GUARD 1 (target-age): moved into sendReply() pre-check; block if tweet is stale.
+ *   GUARD 2 (per-conversation burst): moved INSIDE the CAS transaction in admitAction()
+ *     so it is atomic with the budget reservation — no TOCTOU race.
+ *     conversation_ref column added to outbound_action (migration 016, backfilled).
+ *   account_id enforcement: reply lane now requires account_id != null at admission
+ *     entry — fail with 'missing_account_id' rather than silently omitting it.
  *
- * Usage (example):
- *   import { admitAction, deferAction } from './admission.ts';
- *
- * Config is read live from agent_config in the provided Database instance.
- * All DB operations use the caller's open Database — no new connections opened.
+ * Both guards fail CLOSED (block-with-log) not open (skip-and-continue).
  */
 
 import type { Database } from "bun:sqlite";
@@ -28,6 +26,7 @@ export interface AdmitOpts {
   lane: Lane;
   isRoot: boolean;
   threadRef: string | null;
+  conversationRef?: string | null;  // root tweet of the conversation (reply lane)
   payloadRef: string;
   payloadHash: string;
   budgetDay: string;  // YYYY-MM-DD
@@ -42,8 +41,10 @@ export type AdmitResult =
 export type AdmitFailReason =
   | "kill_switch_off"
   | "already_exists"
+  | "missing_account_id"       // P4: reply lane requires account_id
   | "root_cap_exceeded"
   | "continuation_cap_exceeded"
+  | "conversation_burst"       // P4: ≤1 reply per conversation per window
   | "budget_exhausted"
   | "budget_race"
   | "admission_txn_failed"
@@ -51,7 +52,7 @@ export type AdmitFailReason =
 
 export interface DeferOpts {
   actionId: number;
-  newBudgetDay: string;  // Must be strictly > today
+  newBudgetDay: string;
   currentDeferCount: number;
 }
 
@@ -71,8 +72,8 @@ function getConfigInt(db: Database, key: string, fallback: number): number {
 
 function getCapForLane(db: Database, lane: Lane): number {
   if (lane === "post") return getConfigInt(db, "root_daily_cap", 3);
-  if (lane === "reply") return getConfigInt(db, "reply_daily_cap", 40);
-  return 40;
+  if (lane === "reply") return getConfigInt(db, "reply_daily_cap", 3);
+  return 3;
 }
 
 function utcNow(): string {
@@ -83,28 +84,38 @@ function utcNow(): string {
 
 /**
  * Run §3 delivery state machine steps 1-5:
- *   kill-switch → idempotency → cap checks → atomic admission txn → CAS claim
+ *   kill-switch → account_id check (reply) → idempotency → cap checks →
+ *   atomic admission txn (incl. conversation burst guard) → CAS claim
  *
- * Returns { ok: true, actionId, engQueuedId, engClaimedId } on success.
- * Returns { ok: false, reason, ... } on any gate failure.
- *
- * On success the outbound_action row is in status='sending' with an active lease.
- * The caller is responsible for:
- *   - Doing the kill-switch re-check immediately before provider send (§3.7)
- *   - Updating status to 'sent' + provider_post_id on success
- *   - Updating status to 'unknown' on ambiguous send
+ * P4 changes:
+ * - Reply lane: account_id must be provided (not null). Returns 'missing_account_id' otherwise.
+ * - Conversation burst guard runs INSIDE the admission txn (atomic with budget reservation)
+ *   to prevent TOCTOU races. It checks: any sent/queued/sending reply in the same
+ *   conversation_ref within conversation_window_minutes. Fails closed.
  */
 export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
   const {
     sourceKey, lane, isRoot, threadRef, payloadRef, payloadHash,
     budgetDay, accountId, notes,
   } = opts;
+  const conversationRef = opts.conversationRef ?? threadRef;
 
   // ── Step 1: Kill-switch check ────────────────────────────────────────────
   const cfg = db.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as
     | { value: string } | null;
   if (!cfg || cfg.value !== "true") {
     return { ok: false, reason: "kill_switch_off", detail: `outbound_enabled=${cfg?.value ?? "missing"}` };
+  }
+
+  // ── Step 1b: account_id required for reply lane (P4 hardening) ──────────
+  // Fail closed: a reply with no account_id bypasses per-author dedup.
+  // Callers must resolve account_id before calling admitAction() for replies.
+  if (lane === "reply" && accountId == null) {  // covers both undefined and null
+    return {
+      ok: false,
+      reason: "missing_account_id",
+      detail: "reply lane requires account_id to be populated before admission (prevents per-author dedup bypass)",
+    };
   }
 
   // ── Step 2: Idempotency ──────────────────────────────────────────────────
@@ -168,12 +179,44 @@ export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
     };
   }
 
-  // ── Step 4/5: Atomic admission txn ───────────────────────────────────────
+  // ── Step 4/5: Atomic admission txn (incl. P4 conversation burst guard) ───
   let actionId: number;
   let engQueuedId: number;
 
   try {
     db.exec("BEGIN");
+
+    // P4 GUARD 2: per-conversation burst check — INSIDE the txn for atomicity.
+    // Fails closed: any sent/queued/sending reply in the same conversation within
+    // the window blocks this admission. Wedged 'sending' rows older than the
+    // lease_expires_at are treated as expired and excluded (liveness: a crashed
+    // mid-send does not block the conversation indefinitely).
+    if (lane === "reply" && conversationRef) {
+      const windowMinutes = getConfigInt(db, "conversation_window_minutes", 1440);
+      const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+      const now = utcNow();
+      const existing = db.query(`
+        SELECT id, status FROM outbound_action
+        WHERE conversation_ref = ?
+          AND lane = 'reply'
+          AND created_at >= ?
+          AND (
+            status IN ('sent', 'queued')
+            OR (status = 'sending' AND (lease_expires_at IS NULL OR lease_expires_at > ?))
+          )
+        LIMIT 1
+      `).get(conversationRef, windowStart, now) as
+        | { id: number; status: string } | null;
+
+      if (existing) {
+        db.exec("ROLLBACK");
+        return {
+          ok: false,
+          reason: "conversation_burst",
+          detail: `conversation_ref=${conversationRef} already has a reply (id=${existing.id} status=${existing.status}) within ${windowMinutes}min window`,
+        };
+      }
+    }
 
     // Ensure budget row exists
     db.run(
@@ -193,13 +236,14 @@ export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
       return { ok: false, reason: "budget_race", detail: "budget UPDATE returned 0 changes" };
     }
 
-    // Insert outbound_action
+    // Insert outbound_action (with conversation_ref)
     const insertRes = db.run(
       `INSERT INTO outbound_action
          (source_key, platform, lane, status, payload_ref, payload_hash,
-          is_root, thread_ref, defer_count, budget_day, account_id)
-       VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, 0, ?, ?)`,
-      [sourceKey, lane, payloadRef, payloadHash, isRoot ? 1 : 0, threadRef, budgetDay, accountId ?? null]
+          is_root, thread_ref, conversation_ref, defer_count, budget_day, account_id)
+       VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, ?, 0, ?, ?)`,
+      [sourceKey, lane, payloadRef, payloadHash, isRoot ? 1 : 0, threadRef,
+       conversationRef ?? null, budgetDay, accountId ?? null]
     );
     actionId = insertRes.lastInsertRowid as number;
 
@@ -241,20 +285,9 @@ export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
 
 // ── deferAction ───────────────────────────────────────────────────────────────
 
-/**
- * Defer a queued action to a strictly future UTC day.
- *
- * Per §3: "A defer must set budget_day to a strictly later UTC day;
- *          after the third defer it is skipped."
- *
- * Returns { ok: true, terminal: false, newDeferCount } on successful defer.
- * Returns { ok: true, terminal: true, reason: 'max_defer_count_reached' } on 3rd defer.
- * Returns { ok: false, reason: 'not_future_day' } if newBudgetDay is not strictly future.
- */
 export function deferAction(db: Database, opts: DeferOpts): DeferResult {
   const { actionId, newBudgetDay, currentDeferCount } = opts;
 
-  // Validate strictly future day
   const today = new Date().toISOString().slice(0, 10);
   if (newBudgetDay <= today) {
     return {
@@ -264,15 +297,10 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
   }
 
   const maxDefer = getConfigInt(db, "max_defer_count", 3);
-
-  // Terminal skip: when the NEW defer_count would reach or exceed max_defer_count.
-  // "after the 3rd defer it is skipped" → terminal when currentDeferCount + 1 >= maxDefer.
-  // Also handles case where row is already at max (e.g., stuck row found by monitor).
   const nextDeferCount = currentDeferCount + 1;
   const isTerminal = nextDeferCount >= maxDefer;
 
   if (isTerminal) {
-    // Check current status to avoid double-skip
     const existRow = db
       .query("SELECT status, defer_count FROM outbound_action WHERE id=?")
       .get(actionId) as { status: string; defer_count: number } | null;
@@ -281,7 +309,6 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
       return { ok: false, reason: "max_defer_already_terminal", detail: "already skipped" };
     }
 
-    // Apply the final defer_count before skipping (consistent state)
     db.run(
       `UPDATE outbound_action SET status='skipped', defer_count=?, updated_at=? WHERE id=?`,
       [nextDeferCount, utcNow(), actionId]
@@ -293,8 +320,6 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
     return { ok: true, terminal: true, reason: "max_defer_count_reached" };
   }
 
-  // Age-based terminal skip: if the action has been deferred for too long, skip it permanently
-  // regardless of defer_count. Prevents indefinitely-accumulating deferred backlog.
   const maxDeferAgeDays = getConfigInt(db, "max_defer_age_days", 7);
   const ageRow = db.query("SELECT created_at FROM outbound_action WHERE id=?").get(actionId) as
     | { created_at: string } | null;
@@ -314,9 +339,7 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
     }
   }
 
-  // Non-terminal defer: bump defer_count, update budget_day, reset to queued
   const newDeferCount = currentDeferCount + 1;
-
   const upRes = db.run(
     `UPDATE outbound_action
      SET budget_day=?, defer_count=?, status='queued', updated_at=?
@@ -338,12 +361,6 @@ export function deferAction(db: Database, opts: DeferOpts): DeferResult {
 
 // ── killSwitchRecheck ─────────────────────────────────────────────────────────
 
-/**
- * §3 step 7: Kill-switch re-check immediately before provider send.
- * If kill switch is off, marks action as 'unknown' and logs it.
- *
- * Returns true if clear to send; false if kill switch was off (caller must abort send).
- */
 export function killSwitchRecheck(db: Database, actionId: number): boolean {
   const cfg = db.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as
     | { value: string } | null;
@@ -362,10 +379,6 @@ export function killSwitchRecheck(db: Database, actionId: number): boolean {
 
 // ── markUnknown ───────────────────────────────────────────────────────────────
 
-/**
- * Mark an action as unknown (ambiguous send) and log it.
- * unknown is NEVER automatically resent per §3.4.
- */
 export function markUnknown(db: Database, actionId: number, reason: string): void {
   db.run(
     `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=?`,
@@ -379,9 +392,6 @@ export function markUnknown(db: Database, actionId: number, reason: string): voi
 
 // ── markSent ─────────────────────────────────────────────────────────────────
 
-/**
- * Mark an action as sent with provider_post_id and increment budget sent_count.
- */
 export function markSent(db: Database, actionId: number, providerPostId: string, lane: Lane, budgetDay: string): void {
   db.run(
     `UPDATE outbound_action SET status='sent', provider_post_id=?, updated_at=? WHERE id=?`,
@@ -391,7 +401,6 @@ export function markSent(db: Database, actionId: number, providerPostId: string,
     `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'sent', ?)`,
     [actionId, `provider_post_id=${providerPostId}`]
   );
-  // Increment sent_count (observational — does not gate caps)
   db.run(
     `UPDATE budget_ledger SET sent_count=sent_count+1
      WHERE channel='x' AND utc_day=? AND lane=?`,
@@ -401,10 +410,6 @@ export function markSent(db: Database, actionId: number, providerPostId: string,
 
 // ── retryToQueued ─────────────────────────────────────────────────────────────
 
-/**
- * §3.5: A clearly pre-send failure may return to 'queued' ONLY while its original
- * reservation remains valid (lease still active). Returns false if lease expired.
- */
 export function retryToQueued(db: Database, actionId: number, notes: string): boolean {
   const row = db
     .query(
@@ -414,9 +419,7 @@ export function retryToQueued(db: Database, actionId: number, notes: string): bo
 
   if (!row) return false;
 
-  // Check lease is still valid
   if (row.lease_expires_at && row.lease_expires_at < new Date().toISOString()) {
-    // Lease expired — cannot return to queued; mark unknown instead
     markUnknown(db, actionId, `lease expired: ${row.lease_expires_at}; cannot retry: ${notes}`);
     return false;
   }
