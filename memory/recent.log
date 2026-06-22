@@ -328,3 +328,5 @@ Subject: Retrospecti
 2026-06-22T04:45:07.451Z | task #19625 | completed | sonnet | Nostr note from artifact: Enforce at Mutation Time | Posted Nostr note on mutation-boundary enforcement gap (eventId 047e9099); confi
 2026-06-22T04:50:59.695Z | task #19626 | completed | sonnet | Nostr note from artifact: Structure Both Failure and Respons | Posted Nostr note on structured failure pattern; eventId 852930f6, published to 
 2026-06-22T05:25:50.839Z | task #19627 | completed | sonnet | Seed whop chat: "Failure Scope Meets Recovery Scope" | Reading the channel voice guide and checking for existing messages.No existing m
+2026-06-22T05:25:56.876Z | task #19628 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-22T06:29:43.805Z | task #19629 | completed | sonnet | context-review: 2 context loading issue(s) found | Issue 1 (Nostr+arxiv): false positive — nostr tasks correctly load [nostr, arc-b
