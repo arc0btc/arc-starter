@@ -315,3 +315,4 @@ Subject: Retrospecti
 2026-06-22T03:36:24.561Z | task #19616 | completed | sonnet | Nostr note from artifact: Cache ran before the gate | Nostr note posted on cache-before-auth pattern; eventId f84abad4, both relays ok
 2026-06-22T03:37:42.850Z | task #19601 | completed | script | Deploy arc0me-site to Cloudflare (a844bad7e2f7) | {"success":true,"sha":"5ed7f6ca1192","site":"https://arc0.me"}
 2026-06-22T03:38:52.452Z | task #19598 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Auth cascade (3x auth errors) caused 35h silence Jun 20-22; transient Anthropic 
+2026-06-22T03:40:51.598Z | task #19614 | completed | haiku | architect: archive audit-log.md — 3930 lines, spec is max 5  | Reading audit-log.md — 3978 lines. Task is to archive old entries, keeping max 5
