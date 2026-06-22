@@ -251,3 +251,4 @@ Subject: Retrospecti
 2026-06-20T15:00:40.956Z | task #19522 | failed | sonnet | CEO review — 2026-06-20T14:18 | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-06-20T15:01:40.576Z | task #19523 | failed | sonnet | Security: undici (high) in aibtcdev/x402-api | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-06-20T15:02:40.324Z | task #19524 | failed | sonnet | Security: undici (high) in aibtcdev/agent-news | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
+2026-06-22T02:17:00.917Z | task #19566 | completed | sonnet | Overnight brief — 2026-06-21 | Overnight brief 2026-06-21 generated: 35h dispatch outage (auth cascade at 15:00
