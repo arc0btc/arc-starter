@@ -1,3 +1,56 @@
+## 2026-06-22T14:30:00.000Z — HANDOFF skills propagation; OpenRouter routing narrowed; whop room-hash dedup; 132 skills / 84 sensors
+
+**Task #19646** | Diff: 451fd59 → c42bf23 (4 structural commits) | Sensors: 84 | Skills: 132
+
+### Changed files
+
+- `src/dispatch.ts` (c42bf23) — HANDOFF skills propagation: `escalateToHandoff()` now copies `task.skills` to the blocked follow-up task.
+- `src/dispatch.ts` (e56631fc) — OpenRouter routing narrowed: removed `!!openRouterKey` as implicit trigger; now explicit only.
+- `src/openrouter.ts` (e56631fc) — Haiku model ID: `claude-haiku-4-5-20251001` → `claude-haiku-4-5`.
+- `skills/whop/sensor.ts` (869abe98) — Room-hash dedup on synthesis lane. State file: `db/whop-synthesis-state.json`.
+- `skills/social-engine/cli.ts` + `skills/social-x-posting/cli.ts` (391fcdaf) — Compliance renames only. No behavioral change.
+- `skills/arc-architecture-review/db/*.sqlite*` — SQLite binaries committed via auto-commit loop. [NEW-WATCH] below.
+
+### Step 1 — Requirements
+
+- **HANDOFF skills copy**: Valid correctness fix. Skills array was lost on escalation — whoabuddy re-dispatch ran without SKILL.md context. Copy is cheap, context is critical.
+- **OpenRouter routing narrowed**: Valid simplification. Implicit routing on key presence was a footgun — any deploy with an OpenRouter key silently rerouted all tasks. Now requires explicit intent (`model=openrouter:*` or `DISPATCH_MODE=openrouter`).
+- **Haiku model ID**: Maintenance. Unpinned the dated suffix; follows the same pattern as opus/sonnet (no date component).
+- **Room-hash dedup**: Valid efficiency improvement. Idle room during dispatch outage recovery accumulated stale "read the room" sessions. Hash gate eliminates no-op dispatch cycles.
+
+### Step 2 — Delete
+
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts` — still pending.
+- **[CARRY-WATCH]** `social-x-posting -- reply` CLI passthrough still present — formally deprecate or remove once social-engine lane confirmed stable.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts (005–011) in skill dir — belongs in `db/migrations/`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[NEW-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` committed to git (auto-commit loop). Add `skills/arc-architecture-review/db/` to `.gitignore`. SQLite files are binary, volatile, and should not be versioned.
+
+### Step 3 — Simplify
+
+- OpenRouter narrowing removes implicit coupling. Correct. The pattern now matches how `model=codex` routing works — explicit tier, not inferred from env state.
+- Room-hash state file (`db/whop-synthesis-state.json`) follows the established sensor state pattern (`db/hook-state/*.json` family). Only difference: stored at `db/` root rather than `db/hook-state/`. Worth migrating to `db/hook-state/whop-synthesis.json` on next sensor edit for consistency.
+
+### Step 4 — Accelerate
+
+- Room-hash dedup: direct dispatch throughput gain. Each skipped idle synthesis session reclaims a dispatch slot (~6–15 min) for real queue work.
+
+### Step 5 — Automate
+
+- The SQLite commit issue is automatable at the gitignore level. One-line fix prevents recurrence.
+
+### Flags
+
+- **[NEW-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` in git — add to `.gitignore`.
+- **[NEW-WATCH]** `db/whop-synthesis-state.json` inconsistency with `db/hook-state/` pattern — migrate on next sensor edit.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts`.
+- **[CARRY-WATCH]** `social-x-posting -- reply` CLI passthrough — remove or deprecate.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts — relocate to `db/migrations/`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-22T03:30:00.000Z — reply-lane consolidation; social-engine SKILL.md + admission.ts; 132 skills / 84 sensors
 
 **Task #19519** | Diff: 3b071cd → 451fd59 (5 commits — reply-lane consolidation, social-engine SKILL.md) | Sensors: 84 | Skills: 132
