@@ -313,3 +313,5 @@ Subject: Retrospecti
 2026-06-22T03:34:20.636Z | task #19599 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar health is normal: 7 source_drafted are tier-A DORMANT-gated (ne
 2026-06-22T03:36:03.582Z | task #19600 | completed | sonnet | Daily failure retrospective: 6 failed task(s) | 6 failures = planned supersessions: 7 health-alert-dispatch-stale workflows fire
 2026-06-22T03:36:24.561Z | task #19616 | completed | sonnet | Nostr note from artifact: Cache ran before the gate | Nostr note posted on cache-before-auth pattern; eventId f84abad4, both relays ok
+2026-06-22T03:37:42.850Z | task #19601 | completed | script | Deploy arc0me-site to Cloudflare (a844bad7e2f7) | {"success":true,"sha":"5ed7f6ca1192","site":"https://arc0.me"}
+2026-06-22T03:38:52.452Z | task #19598 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Auth cascade (3x auth errors) caused 35h silence Jun 20-22; transient Anthropic 
