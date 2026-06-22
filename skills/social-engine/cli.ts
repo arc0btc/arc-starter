@@ -45,16 +45,16 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
-  const res = await sendReply({
+  const replyResult = await sendReply({
     threadRef: tweetId,
     text,
     accountHandle: flags["account"],
     xLeadId: flags["x-lead-id"],
   });
 
-  console.log(JSON.stringify(res, null, 2));
+  console.log(JSON.stringify(replyResult, null, 2));
 
-  switch (res.outcome) {
+  switch (replyResult.outcome) {
     case "sent":
     case "already_exists":
       process.exit(0);
@@ -89,7 +89,7 @@ Commands:
   }
 }
 
-main().catch((err) => {
-  console.error("FATAL:", err);
+main().catch((error) => {
+  console.error("FATAL:", error);
   process.exit(1);
 });

@@ -514,19 +514,19 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
 
   log(`reply delegating to unified social-engine reply sender (thread ${tweetId})...`);
   const { sendReply } = await import("../social-engine/reply-send.ts");
-  const res = await sendReply({
+  const replyResult = await sendReply({
     threadRef: tweetId,
     text,
     xLeadId: flags["x-lead-id"],
     accountHandle: flags["account"],
   });
-  console.log(JSON.stringify(res, null, 2));
-  if (res.outcome === "sent" || res.outcome === "already_exists") {
+  console.log(JSON.stringify(replyResult, null, 2));
+  if (replyResult.outcome === "sent" || replyResult.outcome === "already_exists") {
     process.exit(0);
   }
   // skipped / blocked outcomes are non-error terminal states (no slot burn beyond
   // what the unified sender records); exit non-zero so the dispatch task surfaces it.
-  process.exit(res.outcome === "skipped" || res.outcome === "blocked" ? 3 : 1);
+  process.exit(replyResult.outcome === "skipped" || replyResult.outcome === "blocked" ? 3 : 1);
 }
 
 async function cmdDelete(flags: Record<string, string>): Promise<void> {
