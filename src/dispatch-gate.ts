@@ -102,13 +102,7 @@ function sendDiscordAuthAlert(stoppedAt: string): void {
     }
   } catch { /* ignore read errors */ }
 
-  // Write dedup state before sending (crash-safe: don't flood on restart)
-  try {
-    mkdirSync(join(ROOT, "db", "hook-state"), { recursive: true });
-    writeFileSync(DISCORD_AUTH_ALERT_FILE, JSON.stringify({ alerted_at: new Date().toISOString() }));
-  } catch { /* non-fatal */ }
-
-  // Fire-and-forget background send
+  // Fire-and-forget background send; dedup written only on success to avoid missed-alert window
   void (async () => {
     try {
       const token = loadDiscordToken();
@@ -141,13 +135,18 @@ function sendDiscordAuthAlert(stoppedAt: string): void {
       if (resp.ok) {
         const data = (await resp.json()) as { id?: string };
         log(`dispatch: Discord auth alert sent (message_id=${data.id ?? "?"})`);
+        // Write dedup only after successful send — avoids missed-alert window if token fetch fails
+        try {
+          mkdirSync(join(ROOT, "db", "hook-state"), { recursive: true });
+          writeFileSync(DISCORD_AUTH_ALERT_FILE, JSON.stringify({ alerted_at: new Date().toISOString() }));
+        } catch { /* non-fatal */ }
       } else {
         log(`dispatch: Discord auth alert failed: HTTP ${resp.status}`);
       }
     } catch (e) {
       log(`dispatch: Discord auth alert error: ${e}`);
     }
-  })();
+  })().catch((e: unknown) => log(`dispatch: Discord auth alert unhandled: ${e}`));
 }
 
 /**
