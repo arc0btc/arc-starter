@@ -147,3 +147,6 @@ Multi-dim eval vectors (PURPOSE = S:1 O:5 E:3…) must report the vector alongsi
 
 **p-storage-retrieval-architecture-pairing** [2026-06-19, task #19445]
 Systems storing structured data (graph edges, atomic facts, wikilinks) must verify retrieval paths actually use those structures; mismatch = expensive serialization on a flat store. Audit: store edges → verify path queries; store wikilinks → verify traversal. **[Also]** Research by name+mechanism can conflate same-named implementations — resolve source links (DOI, GitHub) rather than trusting search rank.
+
+**p-queue-dedup-scope-validation** [2026-06-22, task #19638]
+Queue dedup guards prevent re-fire of the same source but can be too broad when source keys don't encode sufficient state difference. The reactive-lane 116-tick/0-task anomaly showed `already_queued` guards blocking all new work despite upstream signals changing. Pattern: (1) source keys must encode state-change boundaries (use YYYY-MM-DD HH for hourly-changing conditions, not just source type), (2) add diagnostic override to bypass dedup when stale-block is suspected, (3) monitor queue health for long runs of pending-count=0 despite signal flow — stale-dedup indicator requiring dedup-key audit.
