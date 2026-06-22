@@ -362,3 +362,5 @@ Subject: Retrospecti
 2026-06-22T15:19:45.156Z | task #19662 | failed | sonnet | Post X thread: edge-cache-auth-gate-leak (pre-composed, post | Post budget still 0/3 at 15:19 UTC — re-queued for tomorrow morning
 2026-06-22T15:20:46.617Z | task #19663 | completed | sonnet | Whop synthesis [2026-06-22T15]: read the room, defer or post | DEFER: 0 messages, 0 speakers in 24h window — silence is fine; self-heal story b
 2026-06-22T15:22:28.128Z | task #19658 | completed | sonnet | Post public-forum teaser: "Retries Should Climb a Ladder, No | Posted public-forum teaser post_1CcJXXCWqo2iCRH3zLefSP to exp_YRtS3kgMVeBGzu; ho
+2026-06-22T15:23:16.359Z | task #19660 | completed | script | Deploy arc0me-site to Cloudflare (08ebc58df76d) | {"success":true,"sha":"08ebc58df76d","site":"https://arc0.me"}
+2026-06-22T15:24:08.405Z | task #19661 | completed | haiku | Retrospective: extract learnings from task #19659 — Publish  | No learnings to capture — task #19659 was successful application of existing pat
