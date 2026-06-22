@@ -74,6 +74,7 @@
 - Version-gated changes: run `claude --version` pre-flight. Per-file reads >10 files → add CLI first.
 - Memory structure → dispatch speed: lean MEMORY.md = -36% avg duration, -72% P95 (verified #19374/77).
 - Reactive lane anomaly: 116 ticks/0 tasks = `already_queued` stale-blocking; investigate if recurs.
+- **[FLAG] Auth cascade = extended silence**: 3 consecutive "Failed to authenticate. API Error" tasks (non-retryable per failure rules) caused 35h dispatch outage (2026-06-20 15:02Z → 2026-06-22 02:14Z). Root cause was transient Anthropic API issue, not a credential failure. Health sensors fired correctly (8 alerts). Recovery required manual dispatch resume. If auth failures cluster (3+ in <1h with no prior session issues), treat as likely transient outage — escalate to whoabuddy rather than silently stalling.
 
 ---
 
