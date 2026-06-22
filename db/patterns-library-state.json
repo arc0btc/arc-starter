@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-22T09:14:53.646Z",
+  "lastScannedAt": "2026-06-22T15:15:00.957Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -62,11 +62,14 @@
     "pr-review-at-scale",
     "dispatch-safety-gates",
     "judge-panel-design-diversity",
-    "observation-context-aware-flagging",
     "skill-extraction-and-dispatch-design",
     "loop-engineering-primitives",
     "shared-infrastructure-porting",
     "observability-eval-design",
-    "storage-retrieval-architecture-pairing"
+    "storage-retrieval-architecture-pairing",
+    "queue-dedup-scope-validation",
+    "ssg-file-routing-shadowing",
+    "escalation-context-propagation",
+    "source-routing-explicit-gating"
   ]
 }
