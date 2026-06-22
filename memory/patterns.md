@@ -146,3 +146,6 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-queue-dedup-scope-validation** [2026-06-22, task #19638]
 Queue dedup guards prevent re-fire of the same source but can be too broad when source keys don't encode sufficient state difference. The reactive-lane 116-tick/0-task anomaly showed `already_queued` guards blocking all new work despite upstream signals changing. Pattern: (1) source keys must encode state-change boundaries (use YYYY-MM-DD HH for hourly-changing conditions, not just source type), (2) add diagnostic override to bypass dedup when stale-block is suspected, (3) monitor queue health for long runs of pending-count=0 despite signal flow — stale-dedup indicator requiring dedup-key audit.
+
+**p-ssg-file-routing-shadowing** [2026-06-22, task #19644]
+Static site generators with multiple routing sources (Astro `src/pages/` + Starlight docs) enforce file precedence: explicit files shadow defaults entirely. If expected index content is missing from build/deploy, verify which layer is active — `pages/index.astro` completely shadows `docs/index.mdx` at the same route. Check build timestamps to distinguish stale artifacts from missing source files.
