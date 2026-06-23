@@ -614,6 +614,13 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // Without this, Agent tool subagents run in-process and env inheritance is partial.
   // Evaluated in task #13297; safe to enable post-competition.
   env.CLAUDE_CODE_FORK_SUBAGENT = "1";
+  // Retry watchdog for unattended sessions (v2.1.186+). Limits internal API-call retries
+  // within a single subprocess invocation. Distinct from ARC-0011 task-level retries — these
+  // two layers don't conflict. Without this, a flaky API can hold the dispatch slot for the
+  // full outer timeout (5–90min) retrying internally. 5 attempts covers transient blips; after
+  // that, the subprocess exits and Arc's classifyError() + ARC-0011 take over. Auth errors
+  // are already classified non-retryable by classifyError() and bypass the ladder.
+  env.CLAUDE_CODE_RETRY_WATCHDOG = "5";
   // Task context for session-start.sh hook
   if (taskId !== undefined) {
     env.ARC_TASK_ID = String(taskId);
