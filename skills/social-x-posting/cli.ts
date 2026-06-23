@@ -225,7 +225,7 @@ async function saveBudget(budget: DailyBudget): Promise<void> {
 }
 
 class BudgetExhaustedError extends Error {
-  constructor(msg: string) { super(msg); this.name = "BudgetExhaustedError"; }
+  constructor(message: string) { super(message); this.name = "BudgetExhaustedError"; }
 }
 
 async function checkBudget(action: string): Promise<void> {
@@ -491,8 +491,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     } catch (e: unknown) {
       if (e instanceof BudgetExhaustedError) {
         const sourceKey = flags["source"] ?? `budget-defer:${createHash("sha256").update(text).digest("hex").slice(0, 12)}:${todayDateStr()}`;
-        const msg = e.message;
-        log(`root post budget exhausted — writing planned_posts deferred row, exiting 2 (deferred, not failed): ${msg}`);
+        const errorMessage = e.message;
+        log(`root post budget exhausted — writing planned_posts deferred row, exiting 2 (deferred, not failed): ${errorMessage}`);
         // Write a deferred planned_posts row so the post re-queues for tomorrow.
         try {
           const { initDatabase, getDatabase } = await import("../../src/db.ts");
