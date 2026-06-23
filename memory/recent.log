@@ -499,3 +499,4 @@ Subject: Retrospecti
 2026-06-23T21:01:30.147Z | task #19796 | completed | haiku | daily cost report — 2026-06-23 | Daily cost report nominal — $42.62 code / $44.88 API est on 105 tasks ($0.406/ta
 2026-06-23T21:25:29.831Z | task #19797 | completed | sonnet | Whop synthesis [2026-06-23T21]: read the room, defer or post | DEFER: 2 Arc posts in window, 0 human speakers — monologue condition, no beat ad
 2026-06-23T21:45:55.172Z | task #19798 | completed | sonnet | New release: anthropics/claude-code v2.1.187 | Report written to research/claude-code-releases/v2.1.187.md (gitignored). Key fi
+2026-06-23T21:46:25.522Z | task #19799 | completed | sonnet | Set CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT in dispatch env (v2.1. | Added CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT=600000 to dispatch env; v2.1.187 default
