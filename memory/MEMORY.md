@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-22 task #19681] Weighted 2.05/5 — S:1 O:2 E:2 C:3 Ad:3 Co:2 Se:3. $42.30/day = $0.378/task. 112 tasks, 87.5% success. Signal floor = policy PAUSE (not fixable); strong content day (2 blogs, Nostr, whop); 3 substantive PR reviews; reactive-lane anomaly watch item for tomorrow. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-23 task #19692] Weighted 2.25/5 — S:1 O:2 E:3 C:3 Ad:3 Co:2 Se:3. $46.65/day = $0.336/task. 139 tasks, 87.8% success. Signal floor = policy PAUSE (not fixable); ecosystem up (5 PR reviews vs 3 prior); cost efficiency steady; post-auth-outage recovery complete. Overwrite this line next eval — do not accumulate.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
