@@ -1,3 +1,67 @@
+## 2026-06-23T02:30:00.000Z — Discord auth alert; retry watchdog; P4 reply hardening; $9 tripwire; reply-copy-pool; 132 skills / 84 sensors
+
+**Task #19703** | Diff: c42bf23 → 0a6d7ff (5 auto-commits) | Sensors: 84 | Skills: 132
+
+### Changed files
+
+- `src/dispatch.ts` (0a6d7ff) — `CLAUDE_CODE_RETRY_WATCHDOG=5` added. Limits internal API-call retries per subprocess to 5; after that, subprocess exits and ARC-0011 takes over. Prevents flaky API from holding the dispatch slot for the full outer timeout.
+- `src/dispatch-gate.ts` (e2b78af7, cc102e64) — Discord auth-outage alert added (M0-P0a). Auth-class gate stops fire a deduped (4h) Discord bot message with literal `/login` remediation. Loads `ARC_DISCORD_TOKEN` from env or credentials store; fire-and-forget, non-blocking. Dedup file: `db/hook-state/oauth-discord-alert.json`.
+- `src/constants.ts` (afcbffde) — `$9 tripwire` product constants: `TRIPWIRE_PRODUCT_ID`, `TRIPWIRE_PLAN_ID`, `TRIPWIRE_PAGE_URL`, `TRIPWIRE_CHECKOUT_URL`. Entry SKU for the report stream.
+- `skills/social-engine/admission.ts` (db2d41d5, afcbffde) — P4 hardening: `reply_daily_cap` default 40→3; `missing_account_id` fail-closed guard; conversation burst check moved inside CAS txn (TOCTOU fix); `conversation_ref` column added to `outbound_action`.
+- `skills/social-engine/reply-send.ts` (db2d41d5) — GUARD 1 (target-age) added: blocks replies to tweets older than `reply_target_age_hours` (default 48h); `missing_tweet_age` if `tweetCreatedAt` not supplied.
+- `skills/social-engine/reply-copy-pool.ts` (afcbffde) — NEW: copy pool for reply composing.
+- `skills/social-engine/reply-watchlist-sensor.ts` (afcbffde) — NEW: watchlist producer for reply lane.
+- `skills/x402-pull-loop.ts` (afcbffde) — **[NEW-WATCH]** loose `.ts` file at `skills/` root, not inside any named skill directory. Breaks 4-file skill pattern.
+- `skills/social-engine/reply-copy-pool.ts.bak` (afcbffde) — **[NEW-WATCH]** `.bak` file committed to git. Should not be versioned.
+- `skills/arc-reporting/AGENT.md` (afcbffde) — updated (content not structurally significant).
+- `skills/social-x-posting/cli.ts` (cc102e64, afcbffde) — updated.
+
+### Step 1 — Requirements
+
+- **Retry watchdog**: Valid. Subprocess-level retry cap (5) and task-level ARC-0011 retries are independent, non-conflicting layers. The auth-outage that caused 35h silence would have benefited from this — auth errors remain non-retryable, but unknown transient blips now exit fast.
+- **Discord auth alert**: Valid and well-designed. Auth failures require human action; Discord message carries the exact commands. 4h dedup prevents flood. Fire-and-forget avoids blocking gate path. Complements email notification.
+- **P4 reply hardening**: Valid. Triggered by operator incident (outbound_action ids 7, 8 — week-old necro-replies with `account_id=NULL`). Both guards fail closed. GUARD 2 moved inside CAS txn is correct — the old TOCTOU window was a real race condition.
+- **$9 tripwire SKU**: Valid product constant. Must read identically across Whop, arc0btc.com, and x402 accepts[].
+- **reply-copy-pool + watchlist-sensor**: Valid new producers for the reply lane.
+
+### Step 2 — Delete
+
+- **[NEW-WATCH]** `skills/x402-pull-loop.ts` is a loose `.ts` file at the `skills/` root — not inside any named skill directory. Either create `skills/x402-pull-loop/` and move it, or relocate to `src/` if it's infrastructure. Current location breaks the 4-file skill pattern and bypasses the pre-commit lint hook.
+- **[NEW-WATCH]** `skills/social-engine/reply-copy-pool.ts.bak` — `.bak` file committed. Add to `.gitignore` or delete and commit.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts` — still pending.
+- **[CARRY-WATCH]** `social-x-posting -- reply` CLI passthrough — remove or deprecate once social-engine reply lane confirmed stable.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts (005–011) — relocate to `db/migrations/`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+
+### Step 3 — Simplify
+
+- Retry watchdog adds one env var, no structural change. Simple and correct.
+- Discord alert uses `execFileSync(bash, ["-c", ...])` with absolute paths to load the credentials CLI. Pattern is consistent with other credential reads in the codebase. No simplification needed.
+- P4 admission hardening is additive (new guards inside existing function). The function is getting long — acceptable at current complexity. Monitor if further guards are added.
+
+### Step 4 — Accelerate
+
+- Retry watchdog: direct throughput gain. Prevents one flaky API call from holding the dispatch slot for 30–90min. Estimated impact: a few held-slot rescues per week at current API stability.
+
+### Step 5 — Automate
+
+- `.bak` file prevention: add `*.bak` to `.gitignore` — one-line, prevents recurrence.
+- `skills/x402-pull-loop.ts` relocation: create `skills/x402-pull-loop/` with a proper `SKILL.md` on next edit of that file.
+
+### Flags
+
+- **[NEW-WATCH]** `skills/x402-pull-loop.ts` at skills root — relocate to `skills/x402-pull-loop/x402-pull-loop.ts` (or `src/`) and add `SKILL.md`.
+- **[NEW-WATCH]** `skills/social-engine/reply-copy-pool.ts.bak` committed — delete + add `*.bak` to `.gitignore`.
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` committed (flagged 2026-06-22) — add `skills/arc-architecture-review/db/` to `.gitignore`.
+- **[CARRY-WATCH]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts`.
+- **[CARRY-WATCH]** `social-x-posting -- reply` CLI passthrough — deprecate once social-engine reply stable.
+- **[CARRY-WATCH]** `social-engine/*.ts` migration scripts (005–011) — relocate to `db/migrations/`.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[AUDIT-LOG SIZE]** audit-log.md growing — housekeeping pass on entries older than 14d recommended.
+
+---
+
 ## 2026-06-22T14:30:00.000Z — HANDOFF skills propagation; OpenRouter routing narrowed; whop room-hash dedup; 132 skills / 84 sensors
 
 **Task #19646** | Diff: 451fd59 → c42bf23 (4 structural commits) | Sensors: 84 | Skills: 132
