@@ -85,15 +85,15 @@ if (entryIdx !== -1 && process.argv[entryIdx + 1]) {
   const workerUrl = process.env.WORKER_URL ?? "https://arc0btc-worker.arc0.workers.dev";
   console.log(`[pull-loop] pulling from ${workerUrl}/api/x402/honored`);
   try {
-    const res = await fetch(`${workerUrl}/api/x402/honored`);
-    if (!res.ok) {
-      console.error(`[pull-loop] Worker /api/x402/honored returned ${res.status} — no entries to pull`);
+    const fetchResponse = await fetch(`${workerUrl}/api/x402/honored`);
+    if (!fetchResponse.ok) {
+      console.error(`[pull-loop] Worker /api/x402/honored returned ${fetchResponse.status} — no entries to pull`);
       console.log("[pull-loop] This is expected if the honored-list endpoint is not yet implemented on the Worker.");
       console.log("[pull-loop] Use --entry mode for control-plane injection.");
       db.close();
       process.exit(0);
     }
-    const body = (await res.json()) as { honored: HonoredEntry[] };
+    const body = (await fetchResponse.json()) as { honored: HonoredEntry[] };
     entries = body.honored ?? [];
     console.log(`[pull-loop] fetched ${entries.length} honored entries`);
   } catch (e) {

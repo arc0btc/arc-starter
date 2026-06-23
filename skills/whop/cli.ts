@@ -1247,8 +1247,8 @@ async function main(): Promise<void> {
       console.log(`Messages in window: ${messages.length}`);
       console.log("");
       let alreadyReplied = 0, alreadyQueued = 0, noTask = 0;
-      for (const msg of messages) {
-        const source = `sensor:whop-replies:${msg.id}`;
+      for (const message of messages) {
+        const source = `sensor:whop-replies:${message.id}`;
         const status = getStatus(source);
         const label = status === null ? "no-task" :
           (status === "completed" || status === "failed" || status === "blocked") ? `already-replied(${status})` :
@@ -1256,8 +1256,8 @@ async function main(): Promise<void> {
         if (status === null) noTask++;
         else if (status === "completed" || status === "failed" || status === "blocked") alreadyReplied++;
         else alreadyQueued++;
-        const age = Math.round((Date.now() - Date.parse(msg.created_at)) / (1000 * 60 * 60));
-        console.log(`  ${msg.id} | ${label} | age=${age}h | from=${msg.user?.username ?? msg.user?.id}`);
+        const age = Math.round((Date.now() - Date.parse(message.created_at)) / (1000 * 60 * 60));
+        console.log(`  ${message.id} | ${label} | age=${age}h | from=${message.user?.username ?? message.user?.id}`);
       }
       console.log("");
       console.log(`Summary: no-task=${noTask} already-replied=${alreadyReplied} already-queued=${alreadyQueued}`);
