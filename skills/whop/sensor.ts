@@ -39,7 +39,7 @@ import { resolve, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, taskExistsForSource, getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, taskExistsForSource, getTaskStatusForSource, getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import {
   normalizeMembership,
@@ -467,15 +467,19 @@ export async function pollWhopReplies(): Promise<void> {
       continue;
     }
 
-    // Source dedup — one task per chat message, ever.
+    // Source dedup — state-aware. Terminal tasks (completed/failed/blocked) surface as
+    // "already_replied" so anomaly counts don't conflate handled messages with stale
+    // in-flight blockers. In-flight tasks (pending/active) surface as "already_queued".
     const source = `sensor:whop-replies:${message.id}`;
-    if (taskExistsForSource(source)) {
+    const existingStatus = getTaskStatusForSource(source);
+    if (existingStatus !== null) {
+      const isTerminal = existingStatus === "completed" || existingStatus === "failed" || existingStatus === "blocked";
       candidates.push({
         msg_id: message.id,
         from: message.user.username ?? message.user.id,
         outcome: "skip",
         trigger,
-        reason: "already_queued",
+        reason: isTerminal ? "already_replied" : "already_queued",
       });
       continue;
     }

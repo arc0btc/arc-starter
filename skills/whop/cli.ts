@@ -1232,6 +1232,37 @@ async function main(): Promise<void> {
       await pollWhopReplies();
       break;
     }
+    case "debug-reply-dedup": {
+      // Fetch the current message window and show dedup state for every candidate.
+      // Useful for diagnosing "0 tasks despite N ticks" anomalies.
+      const { initDatabase, getTaskStatusForSource: getStatus } = await import("../../src/db.ts");
+      initDatabase();
+      const apiKey = await requireAppApiKey();
+      const { listMessages } = await import("./lib/whop-api.ts");
+      const CHAT_CHANNEL_ID = "chat_feed_1CbxMbfsj2yvpGqNnMcuCg";
+      const response = await listMessages(CHAT_CHANNEL_ID, apiKey, 50);
+      if (!response) { console.error("listMessages failed"); process.exit(1); }
+      const messages = response.data;
+      console.log(`Channel: ${CHAT_CHANNEL_ID}`);
+      console.log(`Messages in window: ${messages.length}`);
+      console.log("");
+      let alreadyReplied = 0, alreadyQueued = 0, noTask = 0;
+      for (const msg of messages) {
+        const source = `sensor:whop-replies:${msg.id}`;
+        const status = getStatus(source);
+        const label = status === null ? "no-task" :
+          (status === "completed" || status === "failed" || status === "blocked") ? `already-replied(${status})` :
+          `already-queued(${status})`;
+        if (status === null) noTask++;
+        else if (status === "completed" || status === "failed" || status === "blocked") alreadyReplied++;
+        else alreadyQueued++;
+        const age = Math.round((Date.now() - Date.parse(msg.created_at)) / (1000 * 60 * 60));
+        console.log(`  ${msg.id} | ${label} | age=${age}h | from=${msg.user?.username ?? msg.user?.id}`);
+      }
+      console.log("");
+      console.log(`Summary: no-task=${noTask} already-replied=${alreadyReplied} already-queued=${alreadyQueued}`);
+      break;
+    }
     case "tick-synthesis": {
       const { initDatabase } = await import("../../src/db.ts");
       initDatabase();

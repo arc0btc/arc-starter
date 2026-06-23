@@ -678,6 +678,19 @@ export function pendingTaskExistsForSource(source: string): boolean {
   return row !== null;
 }
 
+/**
+ * Returns the most recent task status for the given source, or null if no task exists.
+ * Useful for state-aware dedup: distinguish in-flight (pending/active) from terminal
+ * (completed/failed/blocked) to surface accurate skip reasons.
+ */
+export function getTaskStatusForSource(source: string): string | null {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT status FROM tasks WHERE source = ? ORDER BY id DESC LIMIT 1")
+    .get(source) as { status: string } | null;
+  return row?.status ?? null;
+}
+
 export function completedTaskCountForSource(source: string): number {
   const db = getDatabase();
   const row = db
