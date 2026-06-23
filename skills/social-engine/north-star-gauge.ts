@@ -139,7 +139,7 @@ export async function runGauge(): Promise<NorthStarGaugeResult> {
     await checkReadBudgetN(2);
   } catch (budgetErr) {
     log(`Read budget pre-check failed — degraded mode: ${budgetErr}`);
-    return degradedResult(now, baseline, `${String(budgetErr).slice(0, 140)}. Resets at midnight UTC.`);
+    return degradedResult(now, baseline, `${String(budgetErr).slice(0, 160)}`);
   }
 
   // ── Live follower fetch ────────────────────────────────────────────────────

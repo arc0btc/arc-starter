@@ -80,24 +80,18 @@ run in this period — show empty state, not a missing-data error.
 **Sensor state:** Read `db/hook-state/*.json` files for sensor run counts.
 
 **North-Star Gauges (REQUIRED — pull every watch report, fixed 24h/7d windows):**
+
+P5 wired live reads. Use the gauge skill (a single call):
 ```bash
-# Follower / audience count
-arc skills run --name social-x-posting -- status
-# Returns JSON with followers, following, tweets. Record followers as current count.
-
-# Baseline file for delta computation — read or create on first run
-# Path: db/hook-state/north-star-baseline.json
-# Schema: { captured_at, followers_24h_ago, followers_24h_ago_at, followers_7d_ago, followers_7d_ago_at }
-# On first run (file missing): create with current count as both anchors.
-# On subsequent runs: update followers_24h_ago to the current count AFTER computing delta;
-#   preserve followers_7d_ago until its timestamp is >7d old, then reset it.
+# Single call: fetches live followers + computes 24h/7d deltas + per-touch impressions
+bun skills/social-engine/north-star-gauge.ts
+# Returns JSON: { followers, delta_24h, delta_7d, anchor_age_hours, per_touch, degraded, warn_msg? }
+# On budget exhaustion / API error: degraded=true, last-known followers returned (no crash).
+# delta_24h is null when anchor_age_hours < 20 (partial window — show "anchor Nh old, no delta yet").
+# per_touch.impression_proxy_total = sum of likes+RTs+replies for recent 10 posts (proxy, not impressions).
+# X Basic tier does NOT expose impression_count — impression_proxy is the available proxy.
+# If degraded: show last-known count + warn_msg; never omit the section.
 ```
-
-Per-touch impressions + engagement rate:
-- X Basic/Free tier does NOT provide per-tweet impressions via API — note this explicitly.
-- Proxy: for posts in period, sum like_count + retweet_count + reply_count from x_post_log entries
-  joined with search results where available (use `arc skills run --name social-x-posting -- search --query "from:arc0btc" --limit 10` to pull fresh metrics if credits allow).
-- If credits depleted: show `impressions: n/a (credits depleted)` — never omit the section.
 
 Micro-funnel (show current count + note data availability):
 - Profile clicks: X API does not expose profile analytics on Basic tier — show `n/a (no API access)`.
