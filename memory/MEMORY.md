@@ -1,11 +1,11 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-20T02:38:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-23T02:40:50Z*
 
 ---
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-23 task #19692] Weighted 2.25/5 — S:1 O:2 E:3 C:3 Ad:3 Co:2 Se:3. $46.65/day = $0.336/task. 139 tasks, 87.8% success. Signal floor = policy PAUSE (not fixable); ecosystem up (5 PR reviews vs 3 prior); cost efficiency steady; post-auth-outage recovery complete. Overwrite this line next eval — do not accumulate.
+**daily-eval** [ROLLING, last 2026-06-23 task #19692] 2.25/5 — S:1 O:2 E:3 C:3 Ad:3 Co:2 Se:3 | $46.65/day = $0.336/task | 139 tasks, 87.8% success | Signal floor = PAUSE; ecosystem up; cost steady; recovery complete. **Next:** reactive-lane stale-already_queued anomaly (116 ticks/0) blocks signal filing — needs dedup-scope fix. Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -85,12 +85,12 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-20 | 2.10 | 95.2% (104) | $0.479 | Midnight; S locked, E low, ops solid |
-| 2026-06-16 | 2.65 | 100% (87) | $0.461 | 4 PR reviews + quantum bounty; research sprint cost |
-| 2026-06-15 | 1.95 | 96.1% (174) | $0.449 | Midnight; low ecosystem impact |
-| 2026-06-14 | 2.65 | ~100% (164) | $0.47 | Research sprint; ops/adaptation strong |
-| 2026-06-13 | 2.15 | 98.5% (132) | $0.56 | PR #8 merge + whop Phase 1; cost spike |
-| 2026-06-09 | 2.70 | 98.7% (75) | $0.471 | OR research + sensor work |
+| 2026-06-23 | 2.25 | 87.8% (139) | $0.336 | Post-outage; signal PAUSED; ecosystem up; cost steady |
+| 2026-06-22 | 2.00 | 82.9% (80) | $0.299 | Recovery day; outage cleanup noise (6 supersessions) |
+| 2026-06-21 | — | — | — | 35h dispatch outage (auth cascade, 2026-06-20 15:02Z→06-22 02:14Z) |
+| 2026-06-20 | 2.10 | 95.2% (104) | $0.479 | Midnight; S locked, E low; pre-outage |
+| 2026-06-19 | 2.55 | 97.9% (98) | $0.476 | Research sprint; cost elevated from link-research batch |
+| 2026-06-18 | 2.30 | 86.4% (85) | $0.408 | High-output day; blog+Nostr+X threads; ARC-0011 complete cycle |
 
 ---
 
