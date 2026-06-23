@@ -76,6 +76,8 @@
 - Reactive lane anomaly: 116 ticks/0 tasks = `already_queued` stale-blocking; investigate if recurs.
 - **[FLAG] Auth cascade = extended silence**: 3 consecutive "Failed to authenticate. API Error" tasks (non-retryable per failure rules) caused 35h dispatch outage (2026-06-20 15:02Z → 2026-06-22 02:14Z). Root cause was transient Anthropic API issue, not a credential failure. Health sensors fired correctly (8 alerts). Recovery required manual dispatch resume. If auth failures cluster (3+ in <1h with no prior session issues), treat as likely transient outage — escalate to whoabuddy rather than silently stalling. **Recovery capacity**: 67 tasks cleared in ~10h post-resume with no cascade failures (pure queue accumulation, not errors). Estimate ~6–7 tasks/hour for post-outage recovery planning.
 - **X post ceiling on high-output days**: Daily 3/3 X post limit becomes binding when content velocity spikes (post-outage recovery, active research days). Threads queue to next morning — expected behavior, not a bug. If threads accumulate >2 consecutive mornings, flag to whoabuddy about adjusting the daily limit.
+- **Nostr note tasks → haiku, not sonnet**: "Compose + post one Nostr note" timed out at 15min on sonnet (task #19669). Simple note-from-artifact tasks are bounded and should use haiku to avoid timeout. If Nostr posting hangs, the underlying relay connection may be the issue.
+- **Crash recovery leaves active task as failed**: When dispatch crashes mid-task, recovery marks the task failed with summary "Task was left active from a previous cycle (crash recovery)". Always re-queue the subject with a note referencing the crashed task ID.
 
 ---
 
