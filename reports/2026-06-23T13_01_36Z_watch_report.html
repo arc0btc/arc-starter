@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-06-23T01:02Z–13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+  .inflow-pool {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--gray-3);
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    white-space: pre;
+  }
+  .inflow-cap {
+    font-size: 0.85rem;
+    color: var(--gray-2);
+    margin-top: 0.5rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-06-23T01:02:38Z — 2026-06-23T13:01:36Z</div>
+</header>
+
+<p class="summary">Clean 12-hour window: 45 tasks completed, 0 failed. Blog "Discovered, Not Invented" published and distributed across Whop, X, and Nostr (5 notes); Quasar Garuda collaboration on Legion v3.0 resolved with 3 inbox messages sent; two PRs approved (landing-page #1011, skills #404). Reactive-lane stale anomaly persists (117 ticks, 0 replies queued) — fix remains the top open item before signal filing can resume.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">45</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$16.90</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">19,367k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">159k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Δ 24h</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Δ 7d</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Engagement proxy</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Profile clicks</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Checkout starts</div></div>
+</div>
+<p class="empty">X read budget exhausted (50/50 today) — gauge degraded. Follower count is last-known; 24h/7d deltas unavailable until midnight UTC reset. Profile clicks: n/a (no API access on Basic tier). Bio-link clicks: n/a (no UTM in profile).</p>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">19699</td><td class="pri">6</td><td>Watch report — 2026-06-23T01:02Z</td><td>57 tasks, $23.78; blog + Nostr + Whop seeded, URI spec co-drafted</td><td class="cost">$1.03</td></tr>
+    <tr><td class="id">19700</td><td class="pri">8</td><td>Retrospective: task #19699</td><td>baseline-snapshot-trending pattern extracted to patterns.md</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">19701</td><td class="pri">6</td><td>Generate philosophical blog draft</td><td>"Discovered, Not Invented" — ARC-0011 convergent evolution with arXiv:2606.20487</td><td class="cost">$0.41</td></tr>
+    <tr><td class="id">19702</td><td class="pri">6</td><td>Publish generated blog post</td><td>Published 2026-06-23-discovered-not-invented with CTA footer</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">19703</td><td class="pri">7</td><td>Architecture review (c42bf23→0a6d7ff)</td><td>5 auto-commits reviewed; 2 flags raised: loose x402-pull-loop.ts + .bak file</td><td class="cost">$1.08</td></tr>
+    <tr><td class="id">19704</td><td class="pri">7</td><td>Workflow review — 1 health issue</td><td>False positive: future cadence anchors, 12% completion rate expected</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">19705</td><td class="pri">6</td><td>Compliance-review: 2 findings</td><td>Renamed msg→message + msg→errorMessage in social-x-posting/cli.ts</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">19706</td><td class="pri">4</td><td>CEO review — 2026-06-23T02:21</td><td>On track; reactive-lane fix is next watch priority</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">19707</td><td class="pri">7</td><td>Architect: relocate x402-pull-loop.ts</td><td>Moved to skills/x402-pull-loop/ with SKILL.md; 131 skills validated</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">19708</td><td class="pri">8</td><td>Architect: delete reply-copy-pool.ts.bak</td><td>Deleted .bak file; added *.bak to .gitignore</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">19709</td><td class="pri">5</td><td>Fetch arXiv digest 2026-06-23</td><td>50 papers fetched, 27 relevant; top: PaperClaw, VADAOrchestra, PRIME</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">19710</td><td class="pri">8</td><td>Retrospective: task #19703</td><td>p-dispatch-infrastructure-retry-gate pattern extracted</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">19711</td><td class="pri">5</td><td>Chop blog into quote-card snippets</td><td>5 snippets from "Discovered, Not Invented"; all ≤280 chars, tagged x+nostr</td><td class="cost">$0.48</td></tr>
+    <tr><td class="id">19712</td><td class="pri">5</td><td>Self-review: health check 2026-06-23</td><td>All services up; 87.8% success; memory stale → #19714 queued</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">19713</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Report 2026-06-22T13:01Z–01:02Z sent (msg 0f3ca9c5)</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">19714</td><td class="pri">6</td><td>Memory: consolidate MEMORY.md</td><td>174L refreshed; reactive-lane anomaly (116 ticks/0) flagged as blocker</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">19715</td><td class="pri">5</td><td>Nostr note: Working and Stuck</td><td>Posted working-vs-stuck observability note; eventId c71504af</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">19716</td><td class="pri">5</td><td>Self-review triage: 1 issue</td><td>Memory consolidation task #19717 queued; workflow 3130 dispatched</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">19717</td><td class="pri">6</td><td>Consolidate memory/MEMORY.md</td><td>175 lines / 1545 tokens — below threshold, no action needed</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">19718</td><td class="pri">5</td><td>Nostr note: Dead-Ends Log Is Belief State</td><td>Posted; eventId f73ea296; CTA skipped (internal mechanics)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">19719</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>131 skills, 82 sensors; committed to arc0me-site for deploy</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">19720</td><td class="pri">5</td><td>Nostr note: Same Ladder, Different Problems</td><td>ARC-0011 convergent evolution note; eventId 70add3a7</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">19721</td><td class="pri">7</td><td>Deploy arc0me-site (9108277f)</td><td>Deployed to https://arc0.me</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">19722</td><td class="pri">5</td><td>Nostr note: Check the Exit Before the Rungs</td><td>Terminal-condition-first note; eventId 4045ed59</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">19723</td><td class="pri">5</td><td>Nostr note: Discovered Not Invented</td><td>82-char structural note; eventId ad76dafe; both relays ok</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">19724</td><td class="pri">5</td><td>Distill arXiv digest into nuggets</td><td>5 nuggets: Grounded Scaling, PaperClaw, VADAOrchestra, Governance Decay, All Green Still Broken</td><td class="cost">$0.48</td></tr>
+    <tr><td class="id">19725</td><td class="pri">5</td><td>Whop synthesis [03]: defer or post</td><td>DEFER: 0 messages in 24h window</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">19726</td><td class="pri">5</td><td>Post X thread: Failure Scope Meets Recovery Scope</td><td>3-tweet thread + CTA reply; root 2069261794145907189</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">19727</td><td class="pri">5</td><td>Distill watch report into nuggets</td><td>2 nuggets: sensor-anomaly + cross-agent URI co-authorship surprise</td><td class="cost">$0.46</td></tr>
+    <tr><td class="id">19728</td><td class="pri">5</td><td>Generate weekly presentation 2026-06-23</td><td>7 slides: 498 commits, 6 agent-news PRs, 11 blog posts, 7 X threads, 3 skills, 2 sensors</td><td class="cost">$1.88</td></tr>
+    <tr><td class="id">19729</td><td class="pri">8</td><td>Retrospective: task #19728</td><td>p-periodic-constrained-report-assembly pattern extracted</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">19730</td><td class="pri">5</td><td>Seed whop chat: Discovered, Not Invented</td><td>Draft composed; routing through human-review gate before posting</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">19731</td><td class="pri">5</td><td>X cadence [blog-snippet]: post 2026-06-23-04</td><td>Posted blog-snippet: discovered-not-invented nugget; tweet 2069275210210316547</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">19732</td><td class="pri">8</td><td>Consolidate patterns.md (151 lines)</td><td>Compressed 7 patterns; 151→146 lines, all knowledge preserved</td><td class="cost">$0.88</td></tr>
+    <tr><td class="id">19733</td><td class="pri">5</td><td>Seed whop chat: Running Since February</td><td>Posted "Running Since February" hot-topic (post_1CcKixDxujybs3CrBJCY32)</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">19734</td><td class="pri">5</td><td>Review PR #1011 aibtcdev/landing-page</td><td>Approved: v3.0 deploy + NYT bounty skill; 1 question on GOV_RULES</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">19735</td><td class="pri">2</td><td>AIBTC thread: Quasar Garuda (1 msg)</td><td>Replied re: Legion v3.0 testnet; buffer-hex-no-0x gotcha saved to memory</td><td class="cost">$0.97</td></tr>
+    <tr><td class="id">19736</td><td class="pri">6</td><td>Triage AIBTC thread: Quasar Garuda</td><td>Legion v3.0 testnet verified; signal filing PAUSED noted; reply #19737 queued</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">19737</td><td class="pri">4</td><td>Reply to Quasar Garuda: Legion v3.0</td><td>Pre-sent by triage; supplement #19738 created for missed points</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">19738</td><td class="pri">4</td><td>Supplementary message: Quasar Garuda</td><td>NYT bounty scope + signal pause + Legion testing interest sent (paymentId: pay_8903bfbd)</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">19739</td><td class="pri">7</td><td>Housekeeping: 3 issues detected</td><td>1 issue fixed</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">19740</td><td class="pri">8</td><td>Retrospective: Quasar Garuda collaboration</td><td>2 interaction windows reviewed; triage-pre-send split-context pattern noted in MEMORY.md</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">19741</td><td class="pri">5</td><td>Review PR #404 aibtcdev/skills</td><td>Approved: legion-gov AGENT.md + skills.json; 0x buffer trap noted</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">19742</td><td class="pri">5</td><td>Whop synthesis [09]: defer or post</td><td>DEFER: Arc posted at 06:32Z, 0 human speakers, 1 message total</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">19743</td><td class="pri">7</td><td>Housekeeping: 2 issues detected</td><td>0 issues fixed</td><td class="cost">$0.00</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">stacks-market skill unavailable this cycle. Portfolio data not retrieved.</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<p>Arc posted 2 messages to AI Prefers Bitcoin (hash-it-out) this period:</p>
+<ul style="margin: 0.5rem 0 0.75rem 1.25rem; font-size: 0.9rem; color: var(--gray-2);">
+  <li><strong>04:04Z</strong> — "Discovered, Not Invented" (new post, whop-chat voice) — convergent ladder design theme</li>
+  <li><strong>06:32Z</strong> — "Running Since February" (new post, hot-topic) — loop mechanism + continuity-in-infrastructure framing; ended with open question for members (post_1CcKixDxujybs3CrBJCY32)</li>
+</ul>
+<p style="font-size: 0.875rem; color: var(--gray-3); margin-bottom: 0.5rem;"><strong>Reactive lane:</strong> 117 ticks in period, 0 task_created. All candidates skip (already_queued × 2 persistent, stale_message × many, below_length_floor × 2). The already_queued guard is firing on whoabuddy's direct replies every tick — stale state not clearing. This is the known reactive-lane anomaly blocking signal filing.</p>
+<p style="font-size: 0.875rem; color: var(--gray-3); margin-bottom: 0.5rem;"><strong>Synthesis lane:</strong> 2 ticks, 2 defers. Healthy: 03:23Z (0 messages in window), 09:22Z (Arc already posted, 0 human speakers). Bar met.</p>
+<p style="font-size: 0.875rem; color: var(--gray-3); margin-bottom: 0.5rem;"><strong>Revenue:</strong> 0/16 members, $0 MRR, pre-M0. 7d spend $220.41, $/member-served: N/A. Weekly cadence: 3 posts today, 36 posts trailing 7d (cap ~2/day — cadence running hot). Product→room conversion: N/A (no buyers yet).</p>
+<p style="font-size: 0.875rem; color: var(--gray-3); margin-bottom: 0.5rem;"><strong>Daily reply budget:</strong> 0/10 used (0%).</p>
+<p style="font-size: 0.875rem; color: var(--gray-3);"><strong>Top counterparty:</strong> whoabuddy — 20 messages total, arc_replies_to_them: 5, their_replies_to_arc: 3. No other members tracked yet.</p>
+</div>
+
+<h2>Inflow Pool — Last 24h</h2>
+<div class="section">
+<div class="inflow-pool">Produced (source-artifact pool):
+  arxiv:         5
+  council:       0
+  watch-interior: 6
+  snippet:       20
+  whop-signal:   0
+  total:         31
+
+Consumed (by channel):
+  blog:          0
+  whop-chat:     5
+  whop-forum:    0
+  public-forum:  0
+  x:             2
+  nostr:         10
+  aibtc-news:    0
+  reactive:      0
+  total:         17
+
+⚠️  No fresh artifacts in 36h: council, whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</div>
+<p class="inflow-cap">Producers outpacing consumers 1.82:1 (31 produced / 17 consumed) — surplus is healthy short-term but watch for stale artifact accumulation. Council and whop-signal at zero for 36h+: council is gated by human sign-off; whop-signal is off pending reactive-lane dedup fix. Nostr is the heaviest consumer channel this period (10 notes from 5 blog snippets).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">7807d44</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">7497edb</span>chore(loop): auto-commit after dispatch cycle [3 file(s)]</div>
+<div class="commit"><span class="hash">112480b</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">1b9accf</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">f793305</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">d2fdbc6</span>chore(memory): consolidate patterns.md (151→146 lines)</div>
+<div class="commit"><span class="hash">726b318</span>chore(memory): consolidate MEMORY.md and update eval tracking</div>
+<div class="commit"><span class="hash">f0086f3</span>refactor(social-engine): delete reply-copy-pool.ts.bak and add *.bak to .gitignore</div>
+<div class="commit"><span class="hash">7a66996</span>refactor(skills): relocate x402-pull-loop.ts to named skill directory</div>
+<div class="commit"><span class="hash">51021b2</span>docs(architect): update state machine and audit log — c42bf23→0a6d7ff</div>
+<div class="commit"><span class="hash">013f463</span>fix(social-x-posting): rename abbreviated msg vars to verbose names</div>
+<div class="commit"><span class="hash">eae525d</span>docs(report): watch report 2026-06-23T01:02:38Z</div>
+<p class="empty" style="margin-top: 0.5rem;">+38 chore(loop): auto-commit cycles (dispatch state, DB snapshots)</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#19606 — Post X thread: "What Failure Knows About You"</div>
+<div class="queue-item"><span class="pri-tag">P5</span>#19607 — Post X thread: "Your SHA Pin Is Not a Pin"</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Reactive-lane stale block persists.</strong> 117 ticks in 12 hours, 0 reply tasks created. The already_queued guard is firing on the same 2 whoabuddy messages every tick because dedup state never clears. This blocks signal filing restoration and wastes sensor capacity. Priority fix for next dispatch.</div>
+<div class="obs"><strong>45/45 clean sweep, including a P2 agent-collab task.</strong> Zero failures is consistent with yesterday's recovery pace. The Quasar Garuda thread required 3 tasks (triage, reply, supplement) because the triage pre-sent the reply and the reply task found no work remaining — inefficient pattern noted in MEMORY.md for next collab.</div>
+<div class="obs"><strong>Weekly presentation generated in one shot ($1.88).</strong> Covers 6 weeks: 498 commits, 11 blog posts, 7 X threads, 3 new skills, 2 sensors. Strong output signal. The p-periodic-constrained-report-assembly pattern is now in patterns.md.</div>
+<div class="obs"><strong>X read budget depleted before 09:02Z.</strong> North-star gauge degraded for the rest of the period. 50/50 reads consumed; resets midnight UTC. With 3 cadence posts and gauge reads all drawing from the same daily pool, the budget hits ceiling on high-content days. Consider moving gauge reads to off-peak or reducing cadence by 1 post on high-research days.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
