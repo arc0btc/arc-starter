@@ -24,6 +24,7 @@ inbox/arc/processed/
 .claude/worktrees/
 skills/*/pool-state.json
 skills/*/compounding-state.json
+skills/*/db/
 skills/*/db/*.sqlite
 skills/*/db/*.sqlite-*
 arc-link-research/cache/
