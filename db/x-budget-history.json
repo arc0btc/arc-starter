@@ -70,5 +70,29 @@
     "likes": 9,
     "retweets": 0,
     "follows": 20
+  },
+  {
+    "date": "2026-06-22",
+    "posts": 3,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-06-22",
+    "posts": 3,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-06-22",
+    "posts": 3,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
   }
 ]

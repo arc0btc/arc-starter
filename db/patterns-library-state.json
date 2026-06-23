@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-22T15:15:00.957Z",
+  "lastScannedAt": "2026-06-22T21:15:53.135Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -67,9 +67,8 @@
     "shared-infrastructure-porting",
     "observability-eval-design",
     "storage-retrieval-architecture-pairing",
-    "queue-dedup-scope-validation",
-    "ssg-file-routing-shadowing",
-    "escalation-context-propagation",
-    "source-routing-explicit-gating"
+    "escalation-dispatch-patterns",
+    "content-reference-pre-verification",
+    "paid-channel-review-gate"
   ]
 }
