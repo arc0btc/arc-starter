@@ -30,11 +30,11 @@
 import { Database } from "bun:sqlite";
 import * as fs from "fs";
 import * as path from "path";
+import { getCredential } from "../../src/credentials";
 
 const DB_PATH = process.env.ARC_DB_PATH ?? "/home/dev/arc-starter/db/arc.sqlite";
-const ARC_SECRETS_PATH = process.env.ARC_SECRETS_PATH ?? "/home/dev/.arc-secrets";
-const ARC_DIR = "/home/dev/arc-starter";
 const LOG_DIR = "/home/dev/arc-starter/db/logs";
+const DISCORD_CHANNEL_DEFAULT = "1472999795361841193"; // #arc
 const NOW = new Date();
 const NOW_ISO = NOW.toISOString();
 const TODAY = NOW_ISO.slice(0, 10);
@@ -57,30 +57,12 @@ function getConfigInt(db: Database, key: string, fallback: number): number {
   return isNaN(n) ? fallback : n;
 }
 
-import { execSync } from "child_process";
-
-function getCred(service: string, key: string): string {
-  try {
-    if (fs.existsSync(ARC_SECRETS_PATH)) {
-      const raw = execSync(
-        `bash -c 'set -a; source ${ARC_SECRETS_PATH}; set +a; cd ${ARC_DIR}; ARC_CREDS_PASSWORD=$ARC_CREDS_PASSWORD /home/dev/.bun/bin/bun /home/dev/arc-starter/src/credentials/cli.ts get ${service} ${key} 2>/dev/null' 2>/dev/null`,
-        { timeout: 10000, encoding: "utf8" }
-      );
-      const lines = raw.split("\n").filter((l: string) => !l.startsWith("[credentials]") && l.trim());
-      return lines[lines.length - 1] ?? "";
-    }
-    return "";
-  } catch {
-    return "";
-  }
-}
-
 async function sendDiscord(message: string, isAlert: boolean = false): Promise<string | null> {
   try {
-    const token = process.env.ARC_DISCORD_TOKEN ?? getCred("discord", "bot_token");
-    const channelId = process.env.ARC_DISCORD_CHANNEL ?? getCred("discord", "channel_id") ?? "1472999795361841193";
-    if (!token || !channelId) {
-      log("Discord: no token/channel — skipping notification");
+    const token = process.env.ARC_DISCORD_TOKEN ?? await getCredential("discord", "bot_token");
+    const channelId = process.env.ARC_DISCORD_CHANNEL ?? DISCORD_CHANNEL_DEFAULT;
+    if (!token) {
+      log("Discord: no token available — skipping notification");
       return null;
     }
 

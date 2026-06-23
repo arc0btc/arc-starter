@@ -29,18 +29,15 @@
  */
 
 import { Database } from "bun:sqlite";
-import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { getCredential } from "../../src/credentials";
 
 // ---- Config ----------------------------------------------------------------
 const DB_PATH = process.env.ARC_DB_PATH ?? "/home/dev/arc-starter/db/arc.sqlite";
 const GATE_EVIDENCE_DIR = "/home/dev/arc-starter/db/gate-evidence";
 const LOG_DIR = "/home/dev/arc-starter/db/logs";
-
-// Discord config (read from arc credentials on VM)
-const ARC_DIR = "/home/dev/arc-starter";
-const ARC_SECRETS_PATH = process.env.ARC_SECRETS_PATH ?? "/home/dev/.arc-secrets";
+const DISCORD_CHANNEL_DEFAULT = "1472999795361841193"; // #arc
 
 // Stage dwell windows
 const DWELL_WINDOWS: Record<string, number> = {
@@ -68,12 +65,13 @@ function log(msg: string) {
 }
 
 async function sendDiscord(message: string, isAlert: boolean = false): Promise<string | null> {
-  // Read bot token from credential store (VM-side)
-  // Fallback: use ARC_DISCORD_TOKEN env var if set
   try {
-    const token = process.env.ARC_DISCORD_TOKEN ?? getCred("discord", "bot_token");
-    const channelId = process.env.ARC_DISCORD_CHANNEL ?? getCred("discord", "channel_id");
-    if (!token || !channelId) return null;
+    const token = process.env.ARC_DISCORD_TOKEN ?? await getCredential("discord", "bot_token");
+    const channelId = process.env.ARC_DISCORD_CHANNEL ?? DISCORD_CHANNEL_DEFAULT;
+    if (!token) {
+      log("Discord: no token available — skipping notification");
+      return null;
+    }
 
     const prefix = isAlert ? "**Arc reply lane STOP**" : "**Arc reply lane notice**";
     const body = `${prefix} — ${message}`;
@@ -94,33 +92,6 @@ async function sendDiscord(message: string, isAlert: boolean = false): Promise<s
     log(`Discord send error: ${e}`);
     return null;
   }
-}
-
-function getCred(service: string, key: string): string {
-  try {
-    // Try arc-starter credential CLI first (VM path)
-    const arcSecretsPath = ARC_SECRETS_PATH;
-    if (fs.existsSync(arcSecretsPath)) {
-      const raw = execSync(
-        `bash -c 'set -a; source ${arcSecretsPath}; set +a; cd ${ARC_DIR}; ARC_CREDS_PASSWORD=$ARC_CREDS_PASSWORD /home/dev/.bun/bin/bun /home/dev/arc-starter/src/credentials/cli.ts get ${service} ${key} 2>/dev/null' 2>/dev/null`,
-        { timeout: 10000, encoding: "utf8" }
-      );
-      const lines = raw.split("\n").filter(l => !l.startsWith("[credentials]") && l.trim());
-      return lines[lines.length - 1] ?? "";
-    }
-    // Try management host arc store
-    const mgmtSecretsPath = "/home/whoabuddy/arc/.arc-secrets";
-    const mgmtArcDir = "/home/whoabuddy/arc";
-    if (fs.existsSync(mgmtSecretsPath)) {
-      const raw = execSync(
-        `bash -c 'set -a; source ${mgmtSecretsPath}; set +a; cd ${mgmtArcDir}; bun src/credentials/cli.ts get ${service} ${key} 2>/dev/null'`,
-        { timeout: 10000, encoding: "utf8" }
-      );
-      const lines = raw.split("\n").filter(l => !l.startsWith("[credentials]") && l.trim());
-      return lines[lines.length - 1] ?? "";
-    }
-  } catch {}
-  return "";
 }
 
 function writeGateEvidence(stage: string, data: Record<string, unknown>) {
