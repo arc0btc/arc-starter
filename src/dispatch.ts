@@ -601,6 +601,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // x402 payments + Stacks transactions — both can have network latency. Set to 120s to avoid
   // silent timeouts on legitimate tool calls.
   env.MCP_TOOL_TIMEOUT = "120000";
+  // CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT: v2.1.187 introduced a 5-minute idle timeout that
+  // aborts MCP tool calls if no data is received within that window. Arc-mcp handles x402
+  // payments + Stacks transactions that can legitimately take longer. Set to 10min (600000ms)
+  // to match the upper bound of expected network latency without hitting the default early.
+  env.CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT = "600000";
   // Subprocess env scrub MUST stay disabled on trusted VM. v2.1.108 hardening:
   // CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 silently force-resets permission mode to "default",
   // overriding --permission-mode bypassPermissions. The bypass becomes unreachable; every
