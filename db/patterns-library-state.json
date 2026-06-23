@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-22T21:15:53.135Z",
+  "lastScannedAt": "2026-06-23T21:18:47.475Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -69,6 +69,9 @@
     "storage-retrieval-architecture-pairing",
     "escalation-dispatch-patterns",
     "content-reference-pre-verification",
-    "paid-channel-review-gate"
+    "paid-channel-review-gate",
+    "dispatch-infrastructure-retry-gate",
+    "periodic-constrained-report-assembly",
+    "synthesis-interpretation"
   ]
 }

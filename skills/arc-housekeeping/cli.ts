@@ -16,6 +16,8 @@ const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
 const ISO_PATTERN = /^\d{4}-\d{2}-\d{2}T/;
 const ARCHIVAL_DIRS = ["reports", "arc-link-research"];
 const ARCHIVAL_KEEP = 5;
+const WORKTREES_DIR = join(ROOT, ".worktrees");
+const STALE_WORKTREE_HOURS = 6;
 
 // ---- Types ----
 
@@ -27,6 +29,7 @@ interface CheckReport {
   walSizeMb: number | null;
   memoryLines: number | null;
   archivalNeeded: string[];
+  staleWorktrees: string[];
   issueCount: number;
 }
 
@@ -41,6 +44,7 @@ function runChecks(): CheckReport {
     walSizeMb: null,
     memoryLines: null,
     archivalNeeded: [],
+    staleWorktrees: [],
     issueCount: 0,
   };
 
@@ -111,6 +115,28 @@ function runChecks(): CheckReport {
     }
   }
 
+  // 6. Stale worktrees
+  if (existsSync(WORKTREES_DIR)) {
+    try {
+      const entries = readdirSync(WORKTREES_DIR, { withFileTypes: true });
+      const now = Date.now();
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        try {
+          const stat = statSync(join(WORKTREES_DIR, entry.name));
+          const ageHours = (now - stat.mtimeMs) / 3_600_000;
+          if (ageHours > STALE_WORKTREE_HOURS) {
+            report.staleWorktrees.push(entry.name);
+          }
+        } catch {
+          // ignore stat errors
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   // Count issues
   if (report.uncommitted.length > 0) report.issueCount++;
   if (report.untracked.length > 0) report.issueCount++;
@@ -118,6 +144,7 @@ function runChecks(): CheckReport {
   if (report.walSizeMb !== null && report.walSizeMb > WAL_MAX_MB) report.issueCount++;
   if (report.memoryLines !== null && report.memoryLines > MEMORY_MAX_LINES) report.issueCount++;
   if (report.archivalNeeded.length > 0) report.issueCount++;
+  if (report.staleWorktrees.length > 0) report.issueCount++;
 
   return report;
 }
@@ -210,6 +237,31 @@ function runFix(): void {
     process.stdout.write(
       `skipping: MEMORY.md is ${report.memoryLines} lines — needs manual consolidation via manage-skills\n`
     );
+  }
+
+  // 7. Stale worktrees
+  if (report.staleWorktrees.length > 0) {
+    process.stdout.write(`fixing: ${report.staleWorktrees.length} stale worktree(s)\n`);
+    let removedCount = 0;
+    for (const name of report.staleWorktrees) {
+      try {
+        const worktreePath = join(WORKTREES_DIR, name);
+        const branchName = `dispatch/${name}`;
+        const result = Bun.spawnSync(["git", "worktree", "remove", worktreePath, "--force"], { cwd: ROOT });
+        if (result.exitCode === 0) {
+          Bun.spawnSync(["git", "branch", "-D", branchName], { cwd: ROOT });
+          process.stdout.write(`  removed ${name}\n`);
+          removedCount++;
+        } else {
+          process.stderr.write(`  failed to remove ${name}: ${result.stderr.toString().trim()}\n`);
+        }
+      } catch (error) {
+        process.stderr.write(
+          `  error removing ${name}: ${error instanceof Error ? error.message : String(error)}\n`
+        );
+      }
+    }
+    if (removedCount > 0) fixed++;
   }
 
   process.stdout.write(`\nhousekeeping: fixed ${fixed} issue(s)\n`);

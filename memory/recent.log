@@ -501,3 +501,4 @@ Subject: Retrospecti
 2026-06-23T21:45:55.172Z | task #19798 | completed | sonnet | New release: anthropics/claude-code v2.1.187 | Report written to research/claude-code-releases/v2.1.187.md (gitignored). Key fi
 2026-06-23T21:46:25.522Z | task #19799 | completed | sonnet | Set CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT in dispatch env (v2.1. | Added CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT=600000 to dispatch env; v2.1.187 default
 2026-06-23T21:48:14.269Z | task #19800 | completed | sonnet | Evaluate sandbox.credentials setting for Arc credential isol | v2.1.187 not installed (running 2.1.174); sandbox.credentials feature not evalua
+2026-06-23T21:50:20.047Z | task #19801 | completed | haiku | Verify worktree cleanup in arc-worktrees after v2.1.187 (aut | Stale worktree cleanup gap found and fixed: housekeeping sensor detected stale w
