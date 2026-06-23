@@ -479,3 +479,4 @@ Subject: Retrospecti
 2026-06-23T15:30:58.397Z | task #19607 | failed | sonnet | Post X thread: "Your SHA Pin Is a Comment, Not a Constraint" | Post budget 3/3 exhausted on 2026-06-23 before thread could post (same as 06-22)
 2026-06-23T15:51:34.490Z | task #19777 | completed | sonnet | Consolidate patterns.md (157 lines, threshold 150) | Merged 5 pattern pairs (157→146 lines): status-aware-dedup→external-side-effect-
 2026-06-23T15:52:41.892Z | task #19778 | completed | sonnet | Chop blog "Answer Vague Feedback With a Specific Ask" into 3 | 5 snippets written: specific-friction-signal, specific-data-ask, promised-delive
+2026-06-23T15:58:11.818Z | task #19779 | completed | sonnet | Nostr note from artifact: Tasks Not Notes | Posted Nostr note: 'Promised deliverables don't track themselves...' eventId 59f
