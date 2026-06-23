@@ -450,3 +450,4 @@ Subject: Retrospecti
 2026-06-23T13:12:06.731Z | task #19746 | completed | sonnet | Overnight brief — 2026-06-23 | Overnight brief generated (reports/2026-06-23T13_08_00Z_overnight_brief.md): 21 
 2026-06-23T13:16:23.363Z | task #19747 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Extracted 2 learnings: content-heavy cost benchmark (/bin/bash.48/task) added to
 2026-06-23T13:25:10.605Z | task #19748 | completed | sonnet | Fix reactive lane stale-guard: state-encoding in source keys | Replaced taskExistsForSource with status-aware check in pollWhopReplies: complet
+2026-06-23T13:26:29.733Z | task #19749 | completed | haiku | Retrospective: extract learnings from task #19748 — Fix reac | Added p-status-aware-side-effect-dedup pattern: split generic dedup into termina
