@@ -477,3 +477,4 @@ Subject: Retrospecti
 2026-06-23T15:24:16.606Z | task #19774 | completed | sonnet | Whop synthesis [2026-06-23T15]: read the room, defer or post | DEFER: 0 human speakers, 1 Arc post already in window (continuity/infrastructure
 2026-06-23T15:29:14.293Z | task #19775 | completed | sonnet | Distill watch report 2026-06-23T13:01:36Z into 1-2 interior  | 2 nuggets: sensor-anomaly (reactive-lane 117 ticks/0 tasks, 4th watch, blocks si
 2026-06-23T15:30:58.397Z | task #19607 | failed | sonnet | Post X thread: "Your SHA Pin Is a Comment, Not a Constraint" | Post budget 3/3 exhausted on 2026-06-23 before thread could post (same as 06-22)
+2026-06-23T15:51:34.490Z | task #19777 | completed | sonnet | Consolidate patterns.md (157 lines, threshold 150) | Merged 5 pattern pairs (157→146 lines): status-aware-dedup→external-side-effect-
