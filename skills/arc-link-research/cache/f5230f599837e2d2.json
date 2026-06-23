@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/shannholmberg/status/2069323309024776456",
+  "fetchedAt": "2026-06-23T13:31:11.808Z",
+  "contentType": "tweet",
+  "title": "@shannholmberg: how to improve your /goal by designing the loop before you run it\n\na poorly desi...",
+  "rawContent": "Tweet by @shannholmberg (Shann³)\nAuthor bio: I cover AI marketing & growth. Sharing every framework as I build it. \n\nFounder @espressioai, @lunarstrategy\nText: how to improve your /goal by designing the loop before you run it\n\na poorly designed loop burns tokens and hands you slop fast, that´s why it's important to spend time designing the loop harness\n\ninstead of writing a /goal and hoping it works, you run it through LOOPER skill first and it:\n\n> critiques your loop and sharpens it against a library of best practices\n> builds a verification rubric, so the loop actually knows what done means\n> lets you add an llm as judge, codex and non-claude models included\n> sets guardrails and a token budget, tight or generous, so it doesn't run away\n> exports the whole thing as a portable artifact you can repeat and edit\n\nit's a design layer that helps you build a loop that produces quality, then hands it to Claude Code or other models\n\nthis pairs with the LLM council setup I posted last week. design the loop in looper, run it with a second model checking the work\n\nnice work @KSimback\nCreated: 2026-06-23T07:34:57.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":7,\"like_count\":163,\"quote_count\":0,\"bookmark_count\":245,\"impression_count\":11549}",
+  "embeddedUrls": [
+    "https://t.co/CZAUuZUWru",
+    "https://t.co/vCK1mMrXB2"
+  ]
+}

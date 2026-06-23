@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/9or8QCLqXH",
+  "fetchedAt": "2026-06-23T13:31:13.017Z",
+  "contentType": "tweet",
+  "title": "@omarsar0: Great report on LLM agent communication protocols.\n\nCommunication is a huge bott...",
+  "rawContent": "Tweet by @omarsar0 (elvis)\nAuthor bio: Building self-improving AI @dair_ai • Prev: Meta AI | PhD • Learn about AI Agents for FREE here: https://t.co/P5SA9u54xO\nText: Great report on LLM agent communication protocols.\n\nCommunication is a huge bottleneck in multi-agent systems.\n\n(worth bookmarking)\n\nThe report builds a five-dimensional taxonomy (counterparty, payload, interaction state, discovery mechanism, schema flexibility) across nine actively maintained open-source agent protocols, so it maps the real MCP and A2A landscape.\n\nTwo patterns stand out. Every agent-to-agent protocol sampled pairs of hybrid payloads with session-state persistence, and decentralized discovery is still rare. So the field is quietly standardizing on stateful sessions while leaving discovery and policy enforcement open.\n\nWhy does it matter?\n\nIf you are choosing a communication layer this year, this discusses what nine real protocols actually do.\n\nPaper: https://t.co/o3Q3kObTtp\n\nLearn to build effective AI agents in our academy: https://t.co/1e8RZKrwFp\nCreated: 2026-06-22T14:36:01.000Z\nMetrics: {\"retweet_count\":25,\"reply_count\":13,\"like_count\":111,\"quote_count\":3,\"bookmark_count\":148,\"impression_count\":13929}",
+  "embeddedUrls": [
+    "https://t.co/9or8QCLqXH"
+  ]
+}
