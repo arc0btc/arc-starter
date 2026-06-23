@@ -343,3 +343,154 @@ export async function fetchArcMentions(opts: {
 
   return { arc_user_id: arcUserId, arc_username: arcUsername, mentions, newest_id: newestId };
 }
+
+// ---- Search recent tweets by handle (P2 arc-reach-unblock) -----------------
+
+export interface RecentTweet {
+  id: string;
+  text: string;
+  created_at: string;
+  author_id: string;
+  conversation_id: string;
+}
+
+export interface SearchRecentResult {
+  tweets: RecentTweet[];
+  newest_id?: string;
+}
+
+/**
+ * Search recent tweets from a specific handle using "from:<handle>" query.
+ * Budget-aware via checkReadBudget() / incrementReadBudget() (AI-016 guard).
+ * Returns at most maxResults tweets (capped 5-100).
+ *
+ * Used by reply-watchlist-sensor.ts Phase 1 discovery to find recent tweets
+ * from in-network watchlist accounts without shelling out to cli.ts.
+ */
+export async function searchRecentByHandle(
+  handle: string,
+  creds: XCreds,
+  opts: { maxResults?: number; sinceId?: string } = {},
+): Promise<SearchRecentResult> {
+  const max = Math.min(Math.max(opts.maxResults ?? 10, 10), 100);
+  const queryParams: Record<string, string> = {
+    query: `from:${handle}`,
+    max_results: String(max),
+    "tweet.fields": "created_at,author_id,conversation_id",
+  };
+  if (opts.sinceId) queryParams["since_id"] = opts.sinceId;
+
+  const resp = await xApiGet("/tweets/search/recent", creds, queryParams);
+  const data = (resp["data"] as Array<Record<string, unknown>> | undefined) ?? [];
+  const meta = (resp["meta"] as Record<string, unknown> | undefined) ?? {};
+  const tweets: RecentTweet[] = data.map((t) => ({
+    id: String(t["id"]),
+    text: String(t["text"] ?? ""),
+    created_at: String(t["created_at"] ?? ""),
+    author_id: String(t["author_id"] ?? ""),
+    conversation_id: String(t["conversation_id"] ?? t["id"]),
+  }));
+  return { tweets, newest_id: meta["newest_id"] ? String(meta["newest_id"]) : undefined };
+}
+
+// ---- Follower metrics (P5 arc-reach-unblock) --------------------------------
+
+export interface FollowerMetrics {
+  followers_count: number;
+  following_count: number;
+  tweet_count: number;
+}
+
+/**
+ * Fetch live follower metrics for the authenticated user via /users/:id or /users/me.
+ * Pass arcUserId (ARC_X_USER_ID) to skip the /users/me round-trip — halves read cost.
+ * Budget-aware (checkReadBudget via xApiGet). Throws on API failure —
+ * callers implement graceful degradation.
+ */
+export async function fetchFollowerMetrics(
+  creds: XCreds,
+  arcUserId?: string,
+): Promise<FollowerMetrics> {
+  const endpoint = arcUserId ? `/users/${arcUserId}` : "/users/me";
+  const resp = await xApiGet(endpoint, creds, {
+    "user.fields": "public_metrics",
+  });
+  const data = (resp["data"] as Record<string, unknown> | undefined) ?? {};
+  const metrics = (data["public_metrics"] as Record<string, number> | undefined) ?? {};
+  return {
+    followers_count: metrics["followers_count"] ?? 0,
+    following_count: metrics["following_count"] ?? 0,
+    tweet_count: metrics["tweet_count"] ?? 0,
+  };
+}
+
+// ---- Per-touch post metrics (P5 arc-reach-unblock) -------------------------
+
+export interface PostTouchMetrics {
+  id: string;
+  created_at: string | null;   // null when API omits the field (not empty string)
+  like_count: number;
+  retweet_count: number;
+  reply_count: number;
+  impression_proxy: number; // likes + RTs + replies (proxy for reach on Basic tier)
+}
+
+/**
+ * Fetch public_metrics for up to 10 tweet IDs in a single GET /tweets?ids=... call.
+ * Returns an empty array when tweetIds is empty (zero-post safe).
+ * Budget-aware (checkReadBudget via xApiGet). Throws on API failure.
+ * X API free/basic tier does NOT expose impression_count in public_metrics;
+ * impression_proxy = like_count + retweet_count + reply_count.
+ */
+export async function fetchRecentPostMetrics(
+  tweetIds: string[],
+  creds: XCreds,
+): Promise<PostTouchMetrics[]> {
+  if (tweetIds.length === 0) return [];
+  const ids = tweetIds.slice(0, 10).join(",");
+  const resp = await xApiGet("/tweets", creds, {
+    ids,
+    "tweet.fields": "created_at,public_metrics",
+  });
+  const data = (resp["data"] as Array<Record<string, unknown>> | undefined) ?? [];
+  return data.map((t) => {
+    const m = (t["public_metrics"] as Record<string, number> | undefined) ?? {};
+    const like_count = m["like_count"] ?? 0;
+    const retweet_count = m["retweet_count"] ?? 0;
+    const reply_count = m["reply_count"] ?? 0;
+    return {
+      id: String(t["id"]),
+      created_at: t["created_at"] ? String(t["created_at"]) : null,
+      like_count,
+      retweet_count,
+      reply_count,
+      impression_proxy: like_count + retweet_count + reply_count,
+    };
+  });
+}
+
+/** Check read budget, throwing if fewer than `minSlots` remain today.
+ * Use instead of `checkReadBudget()` when a single run consumes multiple reads. */
+export async function checkReadBudgetN(minSlots: number): Promise<void> {
+  const budget = await loadReadBudget();
+  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
+    throw new Error(
+      `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
+    );
+  }
+  const remaining = X_MAX_READS_PER_DAY - budget.reads;
+  if (remaining < minSlots) {
+    throw new Error(
+      `X read budget low: ${budget.reads}/${X_MAX_READS_PER_DAY} reads today, need ${minSlots} slots. Resets at midnight UTC.`,
+    );
+  }
+}
+
+/** Return how many read slots remain today (0 = exhausted). */
+export async function getRemainingReadSlots(): Promise<number> {
+  const budget = await loadReadBudget();
+  const today = new Date().toISOString().slice(0, 10);
+  if (budget.date !== today) return X_MAX_READS_PER_DAY;
+  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) return 0;
+  return Math.max(0, X_MAX_READS_PER_DAY - budget.reads);
+}

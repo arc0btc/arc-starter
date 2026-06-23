@@ -6,10 +6,10 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { hostname } from "node:os";
 import { join } from "node:path";
 import { log } from "./utils.ts";
+import { getCredential } from "./credentials.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_GATE_FILE = join(ROOT, "db", "hook-state", "dispatch-gate.json");
@@ -66,18 +66,10 @@ const DISCORD_AUTH_ALERT_DEDUP_MS = 4 * 60 * 60 * 1000; // 4h dedup window
 const DISCORD_CHANNEL_ID_DEFAULT = "1472999795361841193";
 
 /** Load Discord bot token from ARC_DISCORD_TOKEN env or credentials store. */
-function loadDiscordToken(): string | null {
+async function loadDiscordToken(): Promise<string | null> {
   if (process.env.ARC_DISCORD_TOKEN) return process.env.ARC_DISCORD_TOKEN;
   try {
-    const secretsPath = process.env.ARC_SECRETS_PATH ?? "/home/dev/.arc-secrets";
-    const output = execFileSync("bash", [
-      "-c",
-      "set -a; source " + secretsPath + "; set +a; ARC_CREDS_PASSWORD=$ARC_CREDS_PASSWORD " +
-      "/home/dev/.bun/bin/bun /home/dev/arc-starter/src/credentials/cli.ts get discord bot_token 2>/dev/null",
-    ], { timeout: 8000, encoding: "utf-8" }) as string;
-    const lines = output.split("\n").filter((l: string) => !l.startsWith("[credentials]") && l.trim());
-    const token = lines[lines.length - 1]?.trim() ?? "";
-    return token || null;
+    return await getCredential("discord", "bot_token");
   } catch {
     return null;
   }
@@ -105,7 +97,7 @@ function sendDiscordAuthAlert(stoppedAt: string): void {
   // Fire-and-forget background send; dedup written only on success to avoid missed-alert window
   void (async () => {
     try {
-      const token = loadDiscordToken();
+      const token = await loadDiscordToken();
       if (!token) {
         log("dispatch: Discord auth alert skipped — no bot token available");
         return;
