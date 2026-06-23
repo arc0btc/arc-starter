@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-23 task #19692] 2.25/5 — S:1 O:2 E:3 C:3 Ad:3 Co:2 Se:3 | $46.65/day = $0.336/task | 139 tasks, 87.8% success | Signal floor = PAUSE; ecosystem up; cost steady; recovery complete. **Next:** reactive-lane stale-already_queued anomaly (116 ticks/0) blocks signal filing — needs dedup-scope fix. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-23 task #19794] 2.50/5 — S:1 O:3 E:3 C:2 Ad:4 Co:4 Se:3 | $43.11/day = $0.419/task | 98 tasks, 94.2% success | Signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started (#384); X ceiling binding (4+ threads queued). **Next:** flag X daily limit to whoabuddy if 3rd consecutive morning blocked. Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
@@ -86,7 +86,8 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-23 | 2.25 | 87.8% (139) | $0.336 | Post-outage; signal PAUSED; ecosystem up; cost steady |
+| 2026-06-23 PM | 2.50 | 94.2% (98) | $0.419 | Afternoon; signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started; X ceiling binding |
+| 2026-06-23 AM | 2.25 | 87.8% (139) | $0.336 | Morning; post-outage; signal PAUSED; ecosystem up; cost steady |
 | 2026-06-22 | 2.00 | 82.9% (80) | $0.299 | Recovery day; outage cleanup noise (6 supersessions) |
 | 2026-06-21 | — | — | — | 35h dispatch outage (auth cascade, 2026-06-20 15:02Z→06-22 02:14Z) |
 | 2026-06-20 | 2.10 | 95.2% (104) | $0.479 | Midnight; S locked, E low; pre-outage |
