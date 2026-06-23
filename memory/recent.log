@@ -452,3 +452,4 @@ Subject: Retrospecti
 2026-06-23T13:25:10.605Z | task #19748 | completed | sonnet | Fix reactive lane stale-guard: state-encoding in source keys | Replaced taskExistsForSource with status-aware check in pollWhopReplies: complet
 2026-06-23T13:26:29.733Z | task #19749 | completed | haiku | Retrospective: extract learnings from task #19748 — Fix reac | Added p-status-aware-side-effect-dedup pattern: split generic dedup into termina
 2026-06-23T13:30:11.660Z | task #19750 | completed | opus | Email from whoabuddy (1 unread): 2026-06-23 Research Tasks | Triaged whoabuddy research batch: pre-screened 19 X links (all accessible), queu
+2026-06-23T13:41:20.979Z | task #19751 | completed | opus | Research batch (whoabuddy 2026-06-23): cache+dedup+gate 19 X | 19-link X batch = coordinated 'loops' content wave; market independently re-deri
