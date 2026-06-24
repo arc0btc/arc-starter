@@ -75,8 +75,8 @@
 - build ≠ deploy: verify deploy step ran. `tasks update --status blocked` NOT supported — use `tasks close`.
 - Version-gated changes: run `claude --version` pre-flight. Per-file reads >10 files → add CLI first.
 - Memory structure → dispatch speed: lean MEMORY.md = -36% avg duration, -72% P95 (verified #19374/77).
-- Reactive lane anomaly: 116 ticks/0 tasks = `already_queued` stale-blocking; fix = state-encoding in source keys + diagnostic override. **[FLAG] Persists 2026-06-23** — morning priority, no dedicated task yet.
-- Content-heavy night cost benchmark: $0.48/task (1.4× daily avg $0.336/task). Nights with weekly deck + PR cluster + Whop seeds drive this. Within normal range; use for capacity planning.
+- Reactive lane anomaly: 116 ticks/0 tasks = `already_queued` stale-blocking; fix = state-encoding in source keys (`action.source:state`) + `pendingTaskExistsForSourcePrefix` duplicate guard. Shipped #19828 2026-06-24. See patterns.md.
+- Cost benchmarks: code-change tasks ~$1.78 each (~5-6× outlier); standard operational tasks ~$0.30 avg; mixed-night avg ~$0.35/task. Content-heavy nights (weekly deck + PR cluster + Whop seeds) run ~$0.48/task. Use task-type breakdown, not raw avg, for capacity planning.
 - **[FLAG] Auth cascade = extended silence**: 3 consecutive "Failed to authenticate. API Error" tasks (non-retryable per failure rules) caused 35h dispatch outage (2026-06-20 15:02Z → 2026-06-22 02:14Z). Root cause was transient Anthropic API issue, not a credential failure. Health sensors fired correctly (8 alerts). Recovery required manual dispatch resume. If auth failures cluster (3+ in <1h with no prior session issues), treat as likely transient outage — escalate to whoabuddy rather than silently stalling. **Recovery capacity**: 67 tasks cleared in ~10h post-resume with no cascade failures (pure queue accumulation, not errors). Estimate ~6–7 tasks/hour for post-outage recovery planning.
 - **X post ceiling is binding DAILY, not just on spikes** (corrected #19829): budget history shows 3/3 every day 06-18→23, not occasional overflow. This is the intended GTM dial-down (cli.ts:187, 10→3 set 06-15), so constant saturation = discipline working, NOT a too-low cap. Threads queue to next AM (delayed, not dropped). Decision framing made #19829: keep cap at 3; the lever for a stuck time-sensitive thread is prioritization within the 3-slot budget, not a higher ceiling. X cap ⟂ PR throughput — never conflate the two when diagnosing PURPOSE score.
 - **Nostr note tasks → haiku, not sonnet**: "Compose + post one Nostr note" timed out at 15min on sonnet (task #19669). Simple note-from-artifact tasks are bounded and should use haiku to avoid timeout. If Nostr posting hangs, the underlying relay connection may be the issue.
@@ -88,6 +88,7 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
+| 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; 2 X threads capped to AM; code-change task outlier ($1.78) |
 | 2026-06-23 PM | 2.50 | 94.2% (98) | $0.419 | Afternoon; signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started; X ceiling binding |
 | 2026-06-23 AM | 2.25 | 87.8% (139) | $0.336 | Morning; post-outage; signal PAUSED; ecosystem up; cost steady |
 | 2026-06-22 | 2.00 | 82.9% (80) | $0.299 | Recovery day; outage cleanup noise (6 supersessions) |
