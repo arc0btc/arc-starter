@@ -638,6 +638,8 @@ export default async function workflowsSensor(): Promise<string> {
 
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();
+    const skipReasons: Record<string, number> = {};
+    const bumpSkip = (reason: string) => { skipReasons[reason] = (skipReasons[reason] ?? 0) + 1; };
     for (const workflow of workflows) {
       // Get the template for this workflow
       const template = getTemplateByName(workflow.template);
@@ -670,7 +672,9 @@ export default async function workflowsSensor(): Promise<string> {
       }
 
       // Handle the action
-      if (action.type === "create-task") {
+      if (action === null) {
+        bumpSkip("null-action");
+      } else if (action.type === "create-task") {
         // Use action-specific source if provided (e.g. quest phases),
         // otherwise use state-specific source to prevent cross-state dedup collisions
         const source = action.source || `workflow:${workflow.id}:${workflow.current_state}`;
@@ -693,7 +697,25 @@ export default async function workflowsSensor(): Promise<string> {
         // Failed tasks are not blocked — they will retry after the 60-min recentDup window.
         // Safe for re-reviews: each review cycle uses a distinct source (v1, v2, ...).
         const completedDup = source.startsWith("pr-review:") && completedTaskCountForSource(source) > 0;
-        if (!crossSensorDup && !pendingTaskExistsForSource(source) && !recentDup && !completedDup) {
+        if (crossSensorDup) {
+          bumpSkip("crossSensorDup");
+        } else if (pendingTaskExistsForSource(source)) {
+          bumpSkip("pending");
+        } else if (recentDup) {
+          bumpSkip("recent60min");
+        } else if (completedDup) {
+          // Arc completed a review but the workflow wasn't advanced — PR fell outside the
+          // GraphQL last-50 window, so syncGitHubPRs never saw arcHasReview=true.
+          // Best-guess advance to "approved" so the source key changes and this workflow
+          // stops stale-blocking the reactive lane on every tick.
+          if (workflow.current_state === "opened" || workflow.current_state === "review-requested") {
+            updateWorkflowState(workflow.id, "approved", workflow.context);
+            totalActions++;
+            log(`stale-advance: wf:${workflow.id} (${workflow.instance_key}) ${workflow.current_state} → approved (review done, pr outside graphql window)`);
+          } else {
+            bumpSkip("completedDup");
+          }
+        } else {
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
@@ -766,6 +788,12 @@ export default async function workflowsSensor(): Promise<string> {
         );
         totalActions++;
       }
+    }
+
+    const skipTotal = Object.values(skipReasons).reduce((a, b) => a + b, 0);
+    if (skipTotal > 0) {
+      const reasons = Object.entries(skipReasons).map(([k, v]) => `${k}:${v}`).join(" ");
+      log(`skip-reasons: ${skipTotal} skipped — ${reasons}`);
     }
 
     return totalActions > 0 ? "ok" : "skip";
