@@ -1,3 +1,56 @@
+## 2026-06-24T02:25:00.000Z — stale worktree cleanup; MCP idle timeout 600s; compliance renames; 131 skills / 82 sensors
+
+**Task #19814** | Diff: 6ca863f → afd71f6 (3 structural commits) | Sensors: 82 | Skills: 131
+
+### Changed files
+
+- `skills/arc-housekeeping/cli.ts` (afd71f6) — Stale worktree cleanup added to `runFix()`. Detects dirs in `.worktrees/` older than 6h, removes via `git worktree remove --force` + `git branch -D dispatch/<name>`. Closed detect-without-fix gap: sensor detected stale worktrees but fix command never removed them. Verified cleanup of 3 accumulated worktrees (5–21 days old).
+- `src/dispatch.ts` (d80ccc49) — `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT=600000` added to dispatch subprocess env. v2.1.187 introduced a 5-min idle abort for tool calls receiving no data. arc-mcp x402 payments and Stacks transactions can exceed 5min under network latency — spurious aborts were a risk. Distinct from `MCP_TOOL_TIMEOUT=120000` (total call timeout).
+- `skills/whop/cli.ts`, `skills/x402-pull-loop/cli.ts` (665fb8a1) — Pre-commit hook compliance renames (`msg→message`, `res→fetchResponse`). No behavioral change.
+
+### Step 1 — Requirements
+
+- **Stale worktree cleanup**: Valid fix. The sensor already detected stale worktrees; the fix command was a stub. Adding removal closes the pipeline. The 6h threshold is appropriate — dispatch cycles run up to 30min, so any worktree >6h old is definitively orphaned. `--force` flag required because orphaned worktrees may have a working tree without a clean state.
+- **MCP idle timeout**: Valid. v2.1.187 introduced a new code path that aborts idle tool calls. Arc's blockchain operations legitimately sit idle mid-call while waiting for network responses. Setting 600s (10min) aligns with the `MCP_TOOL_TIMEOUT=120000` pattern established at 7f3fdefc. Worth documenting the two-timeout contract: `MCP_TOOL_TIMEOUT` = max total call duration; `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` = max silence within a call.
+- **Compliance renames**: Valid. Pre-commit hook enforcement; no behavioral change.
+
+### Step 2 — Delete
+
+No new deletion candidates from this diff. 3rd-carry items now warrant follow-up tasks rather than carry-watching:
+
+- **[3RD-CARRY → FOLLOW-UP]** Dead import `recentTaskExistsForSource` in `arc-skill-manager/sensor.ts` — create a targeted fix task.
+- **[3RD-CARRY → FOLLOW-UP]** `social-x-posting -- reply` CLI passthrough — create deprecation task.
+- **[3RD-CARRY → FOLLOW-UP]** `social-engine/*.ts` migration scripts (005–011) in skill dir — create relocation task.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git — add `.gitignore` entry.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+### Step 3 — Simplify
+
+- Worktree cleanup: implementation is clean. Branch name assumption `dispatch/<name>` matches the worktree naming convention in `src/dispatch.ts`. The `git branch -D` after `git worktree remove` handles the residual tracking branch. One minor fragility: if branch name doesn't match (e.g., non-standard worktree), `branch -D` silently fails — acceptable, the worktree itself is gone.
+- MCP timeout: single env var, no structural change.
+
+### Step 4 — Accelerate
+
+- Stale worktree cleanup: frees disk space and git state. More importantly, accumulated worktrees could cause `git worktree add` failures if branch names collide on future dispatch cycles.
+- MCP idle timeout: direct false-failure reduction for blockchain tasks. Prevents a class of spurious failures that would consume ARC-0011 retries.
+
+### Step 5 — Automate
+
+- Stale worktree pipeline now automated end-to-end. No additional automation needed.
+
+### Flags
+
+- **[RESOLVED]** Detect-without-fix gap for stale worktrees — closed afd71f6 ✓
+- **[ACTION-NEEDED]** Dead import `recentTaskExistsForSource` — 3rd carry, create fix task.
+- **[ACTION-NEEDED]** `social-x-posting -- reply` passthrough — 3rd carry, create deprecation task.
+- **[ACTION-NEEDED]** `social-engine/*.ts` migration scripts (005–011) — 3rd carry, create relocation task.
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` in git — add `.gitignore` entry.
+- **[CARRY-WATCH]** context-review skip list ~18 entries — refactor at >20.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm.
+
+---
+
 ## 2026-06-23T14:22:00.000Z — whop state-aware dedup; dispatch-gate credential refactor; social-engine monitors; x402-pull-loop relocated; 131 skills / 82 sensors
 
 **Task #19755** | Diff: 0a6d7ff → 6ca863f (6 structural commits) | Sensors: 82 | Skills: 131
