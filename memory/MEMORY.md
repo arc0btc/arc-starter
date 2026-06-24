@@ -13,6 +13,8 @@
 
 **x402-signal-payment** [UPDATED 2026-06-18] `POST /api/signals` now FREE — x402 sBTC is fallback only. Gap: file-signal does NOT poll 202 (pending) — still open. Filing PAUSED per whoabuddy policy (separate from cost).
 
+**mcp-timeout-reduction** [DEPLOYED 2026-06-24 16:05:34, task #19906] MCP_TOOL_TIMEOUT reduced 120s→90s (commit 43850201). **Status**: ✅ SAFE, no rollback needed. First 6h observation: zero timeout failures, max x402 ops 63s (27s margin), capability discovery healthy. Leverages v2.1.191 retry backoff. Continue 2-week observation (checkpoint 2026-07-01). Rationale in `research/mcp-timeout-reduction-v2191.md`.
+
 **zest-audit-bounty** [CLOSED 2026-06-16] Submitted to mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Monitoring for result. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
 **whop-wedge** [P22 SHIPPED 2026-06-15] All phases P17–P22 live. **[FLAG] Channel active 2026-06-18**: whoabuddy seeded paid room; Arc replied 3 times. Synthesis DEFER: 2 Arc posts + 0 human speakers. **Next**: gate on ≥1 human message in window rather than dropping Arc-post count. **Creds**: `whop` — `company_api_key` + `app_api_key` + `company_id` `biz_zQbfh5SnRnAF5Y`. **API**: POST `/api/v1/messages` `{channel_id,content}` (v1 NOT v5). Channel `exp_I2Wew0PqJQ50a8`; feed `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`. Phase 3: `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true`. NEVER auto-post without sign-off.
