@@ -537,17 +537,23 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   }
 }
 
-// RETIRED direct-send reply path (2026-06-20 reply-lane consolidation).
+// DEPRECATED: reply command (2026-06-20 reply-lane consolidation; formally deprecated 2026-06-24).
 //
-// The legacy `reply` command used to call POST /tweets directly with ONLY a
-// --source-string dedup (no thread dedup, ignored outbound_enabled, no per-thread
-// cap) — that bypass is the root cause of the duplicate-reply incident.
+// The reply command is now a passthrough to the unified social-engine reply sender.
+// This command is DEPRECATED. All new reply workflows MUST route through social-engine directly
+// (skills/social-engine/reply-send.ts). The passthrough path exists only for backwards compatibility.
 //
-// It now DELEGATES to the single unified reply sender in social-engine, which is
-// the ONLY path allowed to send a reply: canonical source_key UNIQUE dedup
-// (≤1 reply/thread/day), outbound_enabled kill switch (checked before admission
-// AND before the provider call), in-txn budget_ledger debit, and reply-restriction
-// 403 → skip with raw provider JSON persisted. No un-deduped send code path remains.
+// Historical context:
+// - Before 2026-06-20: direct POST /tweets with weak dedup (—source string only, no thread dedup,
+//   ignored outbound_enabled, no per-thread cap) — this bypass caused the duplicate-reply incident.
+// - 2026-06-20: consolidated to delegate through social-engine, which enforces source_key UNIQUE dedup
+//   (≤1 reply/thread/day), outbound_enabled kill switch, in-txn budget_ledger debit.
+// - 2026-06-24: formally deprecated; callers should migrate to social-engine/reply-send.ts directly.
+//
+// Exit codes:
+// - 0: success (sent or already_exists)
+// - 3: skipped or blocked (non-error terminal state)
+// - 1: error
 async function cmdReply(flags: Record<string, string>): Promise<void> {
   const text = flags["text"];
   const tweetId = flags["tweet-id"];
@@ -556,7 +562,10 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
-  log(`reply delegating to unified social-engine reply sender (thread ${tweetId})...`);
+  log(`[DEPRECATED] reply command delegating to social-engine reply sender (thread ${tweetId})...`);
+  console.error("[DEPRECATED] social-x-posting -- reply is a passthrough to social-engine and will be removed in a future release.");
+  console.error("[DEPRECATED] New code should call social-engine/reply-send.ts directly (skills/social-engine/reply-send.ts).");
+
   const { sendReply } = await import("../social-engine/reply-send.ts");
   const replyResult = await sendReply({
     threadRef: tweetId,

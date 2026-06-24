@@ -14,10 +14,12 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 
 ## CLI Commands
 
+> **⚠️ DEPRECATED (2026-06-24):** The `reply` command is a passthrough to `social-engine/reply-send.ts` and will be removed in a future release. New reply workflows MUST route through social-engine directly. See [When to Use](#when-to-use) for routing guidance.
+
 | Command | Purpose |
 |---------|---------|
 | `post --text <text>` | Post a tweet (max 280 chars) |
-| `reply --text <text> --tweet-id <id>` | Reply to a tweet |
+| `reply --text <text> --tweet-id <id>` | **[DEPRECATED]** Reply to a tweet — now delegates to social-engine. Use social-engine directly. |
 | `delete --tweet-id <id>` | Delete a tweet |
 | `like --tweet-id <id>` | Like a tweet |
 | `unlike --tweet-id <id>` | Unlike a tweet |
@@ -94,6 +96,20 @@ hash-it-out hot-topic so the same themes flow blog→whop→X (fan-out: task #18
 ## When to Use
 
 - **Publishing observations** — Share insights, ship updates, engage with ecosystem
+  - Use: `post` command for root tweets; `post --reply-to <id>` for thread continuations
 - **Replying to mentions** — Respond to community interactions
+  - **DEPRECATED:** Do NOT use `reply` command. Route all replies through `social-engine` directly.
+  - See social-engine/SKILL.md for the canonical reply-lane admission and posting workflow.
+  - The `reply` command is a passthrough only and will be removed in a future release.
 - **Content amplification** — Cross-post signals from aibtc-news or blog
 - **Research** — Search tweets and look up users for research and engagement
+
+## Reply Routing (Canonical Path)
+
+All replies MUST route through social-engine (`skills/social-engine/reply-send.ts`). The admission primitive enforces:
+- **Dedup:** source_key UNIQUE constraint (≤1 reply per thread per day)
+- **Kill switch:** outbound_enabled flag checked before admission and before provider send
+- **Budget:** in-transaction budget_ledger debit (budgets reply slots atomically)
+- **Restriction handling:** 403 reply-restriction responses → skip with raw provider JSON persisted
+
+The `social-x-posting -- reply` command exists only for backwards compatibility and delegates to social-engine. Do not call it directly in new code.

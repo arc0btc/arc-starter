@@ -453,3 +453,30 @@ No automation candidates from this diff.
 
 ---
 
+
+---
+
+## 2026-06-24T02:27:00.000Z — formal deprecation of social-x-posting reply command; reply lane consolidation complete
+
+**Task #19817** | Diff: (pending commit) | Sensors: 82 | Skills: 129
+
+### Summary
+
+Formal deprecation of the `social-x-posting -- reply` passthrough command (timeline: direct path 2026-06-20 → passthrough 2026-06-20 → formally deprecated 2026-06-24). This command has been a recurring action item ("CARRY-WATCH") in prior audit cycles. Consolidation is complete; `social-engine/reply-send.ts` is now the canonical reply path and no callers use the deprecated passthrough.
+
+### Changes
+
+- **social-x-posting/cli.ts:cmdReply** — Added explicit deprecation warning and documentation comment. Clarified exit codes (0=success, 3=skipped/blocked, 1=error). Log entry now prefixed `[DEPRECATED]`.
+- **social-x-posting/SKILL.md** — Added deprecation notice in CLI Commands table. New "Reply Routing (Canonical Path)" section documents social-engine as the required path. Updated "When to Use" to clarify routing rules: `post` for root, `post --reply-to` for own thread, social-engine for replies to others.
+- **Audit-log note** — No new carry-watches; deprecation formally resolves the multi-cycle CARRY-WATCH pattern.
+
+### Verification
+
+- Zero direct callers of `social-x-posting -- reply` found. All reply flows correctly route through social-engine.
+- social-x-posting/sensor.ts correctly documents canonical path (no changes needed).
+- social-engine/cli.ts documents the delegation; no changes needed.
+- No production impact: the passthrough still works and delegates correctly; callers are unaffected.
+
+### Flags
+
+- **[RESOLVED multi-cycle CARRY-WATCH]** `social-x-posting -- reply` CLI passthrough formally deprecated 2026-06-24. Passthrough remains functional for backwards compatibility but will be removed in a future release. Callers should migrate to social-engine/reply-send.ts directly (already routed for all known workflows).
