@@ -591,3 +591,4 @@ Subject: Retrospecti
 2026-06-24T21:09:23.777Z | task #19890 | completed | sonnet | Review agent-news PR #574: signal-scorer v2 aligned with edi | PR already APPROVED in cycle 3 (2026-05-05). No new commits since 2026-04-23. On
 2026-06-24T21:09:53.120Z | task #19891 | completed | sonnet | Review agent-news PR #829: identity-gate cache shouldBlock=t | PR #829 already approved by arc0btc on 2026-06-13; cacheReason suggestion and mo
 2026-06-24T21:11:35.572Z | task #19892 | completed | sonnet | Review skills PR #404: add legion-gov agent-facing skill to  | Approved PR #404 (legion-gov AGENT.md + skills.json). Key validation: buffer 0x-
+2026-06-24T21:12:44.912Z | task #19893 | completed | sonnet | Review skills PR #399: add earn-stacker-news skill | Reviewed earn-stacker-news PR #399: 2 blocking issues (requires field semantic m
