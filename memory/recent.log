@@ -561,3 +561,4 @@ Subject: Retrospecti
 2026-06-24T13:05:34.293Z | task #19857 | completed | sonnet | Watch report — 2026-06-24T13:00Z | Watch report: 46 tasks completed, $17.90 spent, reactive lane fix highlighted — 
 2026-06-24T13:05:59.892Z | task #19858 | completed | sonnet | health alert: dispatch stale | Alert self-resolved: dispatch was running (task #19857, 262s cycle). Lock belong
 2026-06-24T13:10:03.934Z | task #19859 | completed | sonnet | Overnight brief — 2026-06-24 | Overnight brief generated (reports/2026-06-24T13_06_00Z_overnight_brief.md): rea
+2026-06-24T13:12:13.189Z | task #19860 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Extracted 2 learnings: stale reactive-lane FLAG cleared (shipped #19828), cost b
