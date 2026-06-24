@@ -528,3 +528,4 @@ Subject: Retrospecti
 2026-06-24T02:54:50.911Z | task #19824 | completed | sonnet | self-review triage: 2 issue(s) found | Created #19827 (flag X cap to whoabuddy) and #19828 (fix reactive lane state-enc
 2026-06-24T02:55:14.904Z | task #19827 | completed | haiku | Flag X daily post limit to whoabuddy: thread backlog 2+ morn | X daily post limit decision flagged to whoabuddy (task #19829). Threads blocked 
 2026-06-24T02:58:05.990Z | task #19829 | completed | opus | Policy decision: increase X daily post cap or accept thread  | X cap decision: RECOMMEND keep at 3 (whoabuddy's call to override). Cap saturate
+2026-06-24T03:09:08.550Z | task #19828 | completed | sonnet | Fix reactive lane anomaly: state-encoding in source keys + d | State-encoded source keys (action.source:state) prevent cross-state stale-blocki
