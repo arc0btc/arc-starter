@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, unlinkSync, renameSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getLastCompletedTaskBySource, recentTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getLastCompletedTaskBySource } from "../../src/db.ts";
 import { Glob } from "bun";
 
 const SENSOR_NAME = "arc-skill-manager";
