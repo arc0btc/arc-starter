@@ -596,11 +596,12 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // API request timeout: v2.1.101+ respects this env var (previously hardcoded to 5min).
   // Set to match dispatch timeout so individual API calls don't abort before the outer kill fires.
   env.API_TIMEOUT_MS = String(getDispatchTimeoutMs(model));
-  // MCP_TOOL_TIMEOUT: HTTP/SSE MCP server request timeout. v2.1.142 fixed this being ignored
-  // (previously silently capped at 60s). Arc-mcp runs HTTP transport on port 3100 and handles
-  // x402 payments + Stacks transactions — both can have network latency. Set to 120s to avoid
-  // silent timeouts on legitimate tool calls.
-  env.MCP_TOOL_TIMEOUT = "120000";
+  // MCP_TOOL_TIMEOUT: HTTP/SSE MCP server request timeout (v2.1.191+).
+  // Capability discovery now retries transient errors with short backoff.
+  // Reduced from 120s → 90s; x402 payments + Stacks txs typically complete in 60-90s.
+  // Set to 90s to preserve margin while benefiting from v2.1.191 retries.
+  // Arc-mcp runs HTTP transport on port 3100 for x402 + Stacks operations.
+  env.MCP_TOOL_TIMEOUT = "90000";
   // CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT: v2.1.187 introduced a 5-minute idle timeout that
   // aborts MCP tool calls if no data is received within that window. Arc-mcp handles x402
   // payments + Stacks transactions that can legitimately take longer. Set to 10min (600000ms)
