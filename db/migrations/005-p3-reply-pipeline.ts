@@ -5,8 +5,8 @@
  * admit (txn) → CAS claim → kill-switch re-check → provider send → persist → reconcile
  *
  * Usage:
- *   bun ops/migrations/social-engine/005-p3-reply-pipeline.ts
- *   bun ops/migrations/social-engine/005-p3-reply-pipeline.ts --dry-run
+ *   bun db/migrations/005-p3-reply-pipeline.ts
+ *   bun db/migrations/005-p3-reply-pipeline.ts --dry-run
  *
  * --dry-run: does all DB steps but skips the actual provider send (marks status='queued' and stops).
  *

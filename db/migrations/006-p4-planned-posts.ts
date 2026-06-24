@@ -9,7 +9,7 @@
  * Run against fixture COPY first; then live DB.
  *
  * Usage:
- *   bun ops/migrations/social-engine/006-p4-planned-posts.ts [--fixture /path/to/copy.db]
+ *   bun db/migrations/006-p4-planned-posts.ts [--fixture /path/to/copy.db]
  *
  * Without --fixture flag, runs against live DB (arc-starter VM path).
  */

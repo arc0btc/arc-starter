@@ -19,7 +19,7 @@
  * We use a separate agent_config flag 'engagement_log_v2' to guard re-runs.
  *
  * Usage:
- *   bun ops/migrations/social-engine/006b-p4-engagement-log-deferred.ts [--fixture /path/to/copy.db]
+ *   bun db/migrations/006b-p4-engagement-log-deferred.ts [--fixture /path/to/copy.db]
  */
 
 import { Database } from "bun:sqlite";
