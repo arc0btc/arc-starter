@@ -586,3 +586,4 @@ Subject: Retrospecti
 2026-06-24T21:02:50.718Z | task #19885 | completed | sonnet | Queue PR reviews: scan aibtcdev repos for open PRs needing r | Queued 16 PR review tasks (#19886-#19901): 3 mcp-server (584,575,518), 3 agent-n
 2026-06-24T21:04:14.803Z | task #19886 | completed | sonnet | Review aibtc-mcp-server PR #584: strip 0x prefix from buffer | Approved PR #584 — 0x-strip fix is correct, consistent with signing.tools.ts:560
 2026-06-24T21:05:32.339Z | task #19887 | completed | sonnet | Review aibtc-mcp-server PR #575: lightning spend-limiter bef | Approved PR #575 (lightning spend-limiter): solid security fix, check-before/rec
+2026-06-24T21:06:39.783Z | task #19888 | completed | sonnet | Review aibtc-mcp-server PR #518: held-state visibility for 2 | Approved PR #518 (held-state visibility, Gap 3). SSRF guard + schema-correct fie
