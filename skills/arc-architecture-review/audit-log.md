@@ -1,3 +1,58 @@
+## 2026-06-24T14:22:00.000Z — reactive lane state-encoding; completedDup auto-advance; migration relocation; reply deprecation; 133 skills / 84 sensors
+
+**Task #19861** | Diff: afd71f6 → 8ee28f9 (4 structural commits) | Sensors: 84 | Skills: 133
+
+### Changed files
+
+- `skills/context-review/sensor.ts` (8ee28f9) — FP fix: blog post titles embedded in "Seed whop chat:" and "Chop blog " task subjects were triggering false-positive skill-coverage warnings. Two new regex exclusions added to `checkMissingSkillCoverage`. Skip list is now at ~20 entries — AT the refactor threshold (`>20` carry-watch).
+- `skills/arc-workflows/sensor.ts` (40e68349) — Reactive lane state-encoding: source keys now encode workflow state (`action.source:current_state`). Each `(source, state)` pair is unique so cross-state stale-blocking cannot occur. Returns `"ok"` instead of `"skip"` on stale-block so active monitoring is distinguishable from idle. Diagnostic log line added per block. `prAnyStatePending` check via `pendingTaskExistsForSourcePrefix()` prevents duplicate review tasks during state transitions.
+- `src/db.ts` (40e68349) — `pendingTaskExistsForSourcePrefix()` helper added: prefix-based pending check used by reactive lane state-encoding.
+- `skills/arc-workflows/sensor.ts` (40bb24ee) — `completedDup` auto-advance: when `completedDup` fires on a workflow in `'opened'` or `'review-requested'`, auto-advances to `'approved'` instead of silently skipping. Unblocked 17 stuck workflows (PRs outside GraphQL last-50 window). Diagnostic logging added.
+- `skills/social-engine/005–011 → db/migrations/` (c012b96e) — 7 migration scripts relocated from `skills/social-engine/` to `db/migrations/`. ✅ **[RESOLVED multi-cycle CARRY-WATCH]**
+- `skills/social-x-posting/cli.ts + SKILL.md` (03a6bb9b) — `cmdReply` formally deprecated with `[DEPRECATED]` prefix. SKILL.md documents social-engine as canonical reply path. ✅ **[RESOLVED multi-cycle CARRY-WATCH]**
+
+### Step 1 — Requirements
+
+- **Context-review FP fix**: Valid. Blog-title keywords (e.g., "Bitcoin", "Zest") in repurposing task subjects are not skill requirements — the fix correctly scopes exclusions at the subject-pattern level. Two new patterns (`/^Seed whop chat:/i` + `/^Chop blog /i`) are narrow and unambiguous.
+- **Reactive lane state-encoding**: Valid and well-designed. Root cause of the 116-tick/0-task anomaly was correct — shared source keys across states caused permanent stale-blocking on completed tasks. State suffix (`:<current_state>`) makes each (workflow, state) context unique. The `pendingTaskExistsForSourcePrefix()` helper correctly prevents double-queuing during transitions.
+- **completedDup auto-advance**: Valid fix for a structural gap. `completedDup` was a read-only check with no write path — it could correctly identify a reviewed PR but had no way to close the workflow when the PR fell outside the GraphQL window. Auto-advance to `'approved'` is the correct terminal action.
+- **Migration relocation**: Valid. `db/migrations/` is the correct home for one-shot schema scripts; `skills/` is for reusable skill code. Clear separation.
+- **Reply deprecation**: Valid. Formal documentation of an already-complete migration. Passthrough retained for backwards compatibility — zero-risk deprecation.
+
+### Step 2 — Delete
+
+- **[NEW-WATCH]** Dead import `recentTaskExistsForSource` carry-watch was a false positive: the identifier only appears in lint regex strings in `arc-skill-manager/sensor.ts` (lines 57, 62, 66) — never as an actual import. Import line 4 confirms only `pendingTaskExistsForSource` + `getLastCompletedTaskBySource` are imported. **Marking as RESOLVED.**
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git — add `.gitignore` entry (SQLite binaries, 4th carry).
+- **[CARRY-WATCH]** context-review skip list now at ~20 entries — AT THRESHOLD. Refactor into a declarative exclusion list (array of `{pattern, reason}`) on next edit of sensor.ts.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+### Step 3 — Simplify
+
+- `pendingTaskExistsForSourcePrefix()` is the right primitive — narrow SQL `LIKE` query. The state-suffix pattern is consistent with existing source-key conventions.
+- context-review skip list at ~20 entries warrants a refactor: array of `{pattern: RegExp, reason: string}` pairs would replace the 20 if-chains and make the list auditable in one glance. Not urgent but correct direction.
+- `completedDup` auto-advance adds 6 lines inside an existing branch — correct, no over-engineering.
+
+### Step 4 — Accelerate
+
+- Reactive lane fix: 116-tick/0-task cycles → active monitoring. Direct queue throughput gain (~17 recovered workflow slots).
+- Migration relocation: `skills/social-engine/` is now leaner — pre-commit hook lints fewer files per commit.
+
+### Step 5 — Automate
+
+- context-review skip list refactor: a declarative array + `.some()` loop is automatable — if pattern list stays in an exported constant, future additions would never require sensor.ts structural changes.
+
+### Flags
+
+- **[RESOLVED]** Reactive lane 116-tick/0-task anomaly — state-encoding + completedDup auto-advance ✓
+- **[RESOLVED]** social-engine migration scripts relocated to `db/migrations/` ✓
+- **[RESOLVED]** social-x-posting reply command formally deprecated ✓
+- **[RESOLVED]** Dead import `recentTaskExistsForSource` carry-watch was a false positive — never imported ✓
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (4th carry) — add to `.gitignore`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-24T02:25:00.000Z — stale worktree cleanup; MCP idle timeout 600s; compliance renames; 131 skills / 82 sensors
 
 **Task #19814** | Diff: 6ca863f → afd71f6 (3 structural commits) | Sensors: 82 | Skills: 131
