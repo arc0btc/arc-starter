@@ -752,6 +752,19 @@ export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: n
   return row !== null;
 }
 
+/**
+ * Pending-only prefix check: true if any pending/active task has a source starting with prefix.
+ * Use for PR review dedup across state-encoded source variants (e.g. "pr-review:X:v1:opened"
+ * vs "pr-review:X:v1:review-requested") to prevent duplicate review tasks per PR+version.
+ */
+export function pendingTaskExistsForSourcePrefix(prefix: string): boolean {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT 1 FROM tasks WHERE source LIKE ? AND status IN ('pending', 'active') LIMIT 1")
+    .get(`${prefix}%`);
+  return row !== null;
+}
+
 /** Daily cap for aibtc.news signal filing (6 signals/day enforced by publisher). */
 export const DAILY_SIGNAL_CAP = 6;
 

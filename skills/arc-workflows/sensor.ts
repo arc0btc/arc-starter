@@ -2,8 +2,10 @@ import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
   pendingTaskExistsForSource,
+  pendingTaskExistsForSourcePrefix,
   recentTaskExistsForSource,
   completedTaskCountForSource,
+  getTaskStatusForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   updateWorkflowContext,
@@ -675,32 +677,76 @@ export default async function workflowsSensor(): Promise<string> {
       if (action === null) {
         bumpSkip("null-action");
       } else if (action.type === "create-task") {
-        // Use action-specific source if provided (e.g. quest phases),
-        // otherwise use state-specific source to prevent cross-state dedup collisions
-        const source = action.source || `workflow:${workflow.id}:${workflow.current_state}`;
-        // Cross-sensor dedup: for pr-review tasks, also check the un-suffixed source
-        // (github-mentions uses "pr-review:repo#N", workflows use "pr-review:repo#N:v1").
-        // Only block on pending/active — completed tasks shouldn't prevent re-reviews.
-        const baseSource = source.replace(/:v\d+$/, "");
+        // State-encode the source key so cross-state stale-blocking doesn't occur.
+        // Explicit action sources (e.g. pr-review:X:v1) get the workflow state appended —
+        // this makes the source unique per (semantic-source, state) pair so that a pending
+        // task created in one state (e.g. "opened") no longer blocks task creation when the
+        // workflow transitions to a new state (e.g. "review-requested"). Fallback sources
+        // already encode state: workflow:N:state. (fix: reactive-lane-anomaly 2026-06-24)
+        const source = action.source
+          ? `${action.source}:${workflow.current_state}`
+          : `workflow:${workflow.id}:${workflow.current_state}`;
+
+        // Cross-sensor dedup: for pr-review tasks, also check the un-suffixed source.
+        // github-mentions uses "pr-review:repo#N"; workflows now use "pr-review:repo#N:v1:state".
+        // Strip version AND state suffix to get the base for the cross-sensor check.
+        // Use action.source (before state was appended) to strip cleanly.
+        const baseSource = action.source
+          ? action.source.replace(/:v\d+$/, "")   // pr-review:X:v1 → pr-review:X
+          : source.replace(/:v\d+$/, "");
         const crossSensorDup = baseSource !== source && pendingTaskExistsForSource(baseSource);
-        // Dedup: skip if a pending/active task already exists for this source.
-        // Use pendingTaskExistsForSource (not taskExistsForSource) so that completed/failed tasks
-        // don't permanently block re-creation — bulk cleanups or task failures should allow retry.
-        // Belt-and-braces: also skip if ANY task with this source was created in the last 60min
-        // (catches stuck-in-state workflow loops where autoAdvanceState was missing — see
-        // retrospective flood 2026-05-24, task #17585/#17590).
+
+        // Dedup: skip if a pending/active task already exists for this state-encoded source.
+        // pendingTaskExistsForSource (not taskExistsForSource) so completed/failed tasks
+        // don't permanently block re-creation.
+        const selfPending = pendingTaskExistsForSource(source);
+
+        // For PR reviews (same semantic source across opened/review-requested states):
+        // prevent duplicate review tasks when the workflow transitions states while a
+        // pending review already exists. Check:
+        //  (a) old-format pending (pre-state-encoding): pr-review:X:v1
+        //  (b) new-format pending (any state): pr-review:X:v1:* prefix
+        const isPrReview = source.startsWith("pr-review:");
+        const prVersionBase = action.source; // pr-review:X:v1 (without state suffix)
+        const prAnyStatePending = isPrReview && prVersionBase && (
+          pendingTaskExistsForSource(prVersionBase) ||                       // (a) old-format
+          pendingTaskExistsForSourcePrefix(`${prVersionBase}:`)              // (b) any state
+        );
+
+        // Belt-and-braces: also skip if ANY task with this state-encoded source was created
+        // in the last 60min (catches stuck-in-state workflow loops where autoAdvanceState was
+        // missing — retrospective flood 2026-05-24, task #17585/#17590).
         const recentDup = recentTaskExistsForSource(source, 60);
+
         // For PR review sources: block re-queue if a completed task already exists for this
-        // exact versioned source. Prevents re-review noise when the workflow state hasn't
-        // been updated yet (e.g., PR outside the GraphQL last-50 window so syncGitHubPRs
-        // never sees the arcHasReview flag and never advances the workflow to "approved").
-        // Failed tasks are not blocked — they will retry after the 60-min recentDup window.
-        // Safe for re-reviews: each review cycle uses a distinct source (v1, v2, ...).
-        const completedDup = source.startsWith("pr-review:") && completedTaskCountForSource(source) > 0;
+        // PR+version (any state suffix). Prevents re-review noise when the workflow state
+        // hasn't been updated yet (PR outside the GraphQL last-50 window).
+        // Failed tasks are not blocked — they retry after the 60-min recentDup window.
+        // Safe for re-reviews: each review cycle uses a distinct version (v1, v2, ...).
+        const completedDup = isPrReview && prVersionBase && (
+          completedTaskCountForSource(source) > 0 ||        // new format (state-encoded)
+          completedTaskCountForSource(prVersionBase) > 0    // legacy format (no state suffix)
+        );
+
         if (crossSensorDup) {
           bumpSkip("crossSensorDup");
-        } else if (pendingTaskExistsForSource(source)) {
-          bumpSkip("pending");
+        } else if (selfPending) {
+          // Diagnostic: distinguish stale-block (pending task from a prior state) vs same-state block.
+          // getTaskStatusForSource helps confirm it's actually pending/active, not a stale record.
+          const actualStatus = getTaskStatusForSource(source);
+          if (actualStatus === "pending" || actualStatus === "active") {
+            bumpSkip("pending");
+          } else {
+            // Source exists but is completed/failed — recentDup should catch this; log anomaly.
+            bumpSkip("pending-status-mismatch");
+          }
+        } else if (prAnyStatePending) {
+          // Stale-block: a pending PR review task exists for a different workflow state.
+          // The state-encoded source is new (not blocked by selfPending), but the base
+          // source has a pending task — preventing a duplicate review. Log for visibility.
+          const blockedBySource = pendingTaskExistsForSource(prVersionBase!) ? prVersionBase! : `${prVersionBase!}:*`;
+          log(`stale-block: wf:${workflow.id} (${workflow.instance_key}) in "${workflow.current_state}" blocked by pending ${blockedBySource}`);
+          bumpSkip("stale-pending-pr");
         } else if (recentDup) {
           bumpSkip("recent60min");
         } else if (completedDup) {
@@ -719,7 +765,7 @@ export default async function workflowsSensor(): Promise<string> {
           // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
           // since the last review was queued. Prevents re-reviewing the same commit
           // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
-          if (source.startsWith("pr-review:")) {
+          if (isPrReview) {
             let ctx: Record<string, unknown> = {};
             try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
             const headSha = ctx.headCommitSha as string | undefined;
@@ -732,7 +778,7 @@ export default async function workflowsSensor(): Promise<string> {
 
           // PR existence check: if the PR no longer exists on GitHub (404), close the workflow
           // and skip task creation. Prevents stale PR numbers from burning queue slots forever.
-          if (source.startsWith("pr-review:")) {
+          if (isPrReview) {
             let ctx: Record<string, unknown> = {};
             try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
             const prOwner = ctx.owner as string | undefined;
@@ -762,7 +808,7 @@ export default async function workflowsSensor(): Promise<string> {
           });
 
           // For PR reviews, record the HEAD SHA so we don't re-queue for the same commit
-          if (source.startsWith("pr-review:")) {
+          if (isPrReview) {
             let ctx: Record<string, unknown> = {};
             try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
             const headSha = ctx.headCommitSha as string | undefined;
@@ -793,10 +839,14 @@ export default async function workflowsSensor(): Promise<string> {
     const skipTotal = Object.values(skipReasons).reduce((a, b) => a + b, 0);
     if (skipTotal > 0) {
       const reasons = Object.entries(skipReasons).map(([k, v]) => `${k}:${v}`).join(" ");
-      log(`skip-reasons: ${skipTotal} skipped — ${reasons}`);
+      log(`skip-reasons: ${skipTotal} blocked — ${reasons}`);
     }
 
-    return totalActions > 0 ? "ok" : "skip";
+    // Return "ok" even when no new tasks were created if active workflows are being monitored
+    // (stale-block means the sensor is tracking workflows, not idle). Distinguishes "sensor
+    // active, all tasks queued" from "sensor truly idle with nothing to evaluate".
+    const staleBlocked = (skipReasons["stale-pending-pr"] ?? 0) > 0;
+    return (totalActions > 0 || staleBlocked) ? "ok" : "skip";
   } catch (error) {
     log(`error: ${error instanceof Error ? error.message : String(error)}`);
     return "skip";
