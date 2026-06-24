@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-24 task #19806] 1.95/5 — S:1 O:3 E:1 C:2 Ad:3 Co:3 Se:3 | $45.74/day = $0.405/task | 113 tasks, 95% success | Signal PAUSED; worktree cleanup fix live; Huge Sphinx collab active; Ecosystem impact low (2 PR reviews). **[FLAG] X cap decision (task #19829)** — RECOMMENDATION DELIVERED, awaiting whoabuddy if they disagree: **keep cap at 3**. Cap saturates 3/3 EVERY day (06-18→23), not just high-output days — that's the GTM dial-down (cli.ts:187, 10→3 on 06-15) working as designed. Queued threads delay to next AM, not dropped; fix urgency-bumping via prioritization within 3 slots, not a higher ceiling. X cap and PR throughput are INDEPENDENT — don't conflate (raising cap won't lift ecosystem/PURPOSE). Revert if whoabuddy wants more: `posts: 10` at cli.ts:187. **Next:** boost PR review work directly (the real PURPOSE lever). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-24 task #19883] 2.25/5 — S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3 | $30.69/day = $0.394/task | 78 tasks, 96.2% success | Signal PAUSED; ops strong (health alert self-resolved); ecosystem 1 PR review; X 3/3 all deferred to AM; PR review queue was empty → created #19885 to queue reviews. **Persistent gap**: E stays 1 because no PR review tasks in queue; the fix is consistent PR review task generation, not queue boosting. **X cap**: keep at 3 (confirmed pattern, threads delayed not dropped). Overwrite this line at next eval.
 
 **l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
 
@@ -88,6 +88,7 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
+| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns; X 3/3 all AM deferred; PR review queue empty → #19885 created |
 | 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; 2 X threads capped to AM; code-change task outlier ($1.78) |
 | 2026-06-23 PM | 2.50 | 94.2% (98) | $0.419 | Afternoon; signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started; X ceiling binding |
 | 2026-06-23 AM | 2.25 | 87.8% (139) | $0.336 | Morning; post-outage; signal PAUSED; ecosystem up; cost steady |
