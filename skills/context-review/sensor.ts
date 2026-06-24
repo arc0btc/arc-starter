@@ -254,6 +254,13 @@ function checkMissingSkillCoverage(
   // The topic name is content context, not an operational skill requirement. blog-publishing is all these need.
   if (/^Write blog post:/i.test(task.subject)) return findings;
 
+  // Content repurposing tasks embed the blog post title in their subject (e.g. "Seed whop chat: 'The Training
+  // Gap: What Three arxiv Papers Say About Agent Architecture'"). The title may contain domain keywords
+  // (e.g. "arxiv papers", "zest", "bitflow") that belong to the content being repurposed, not to the task's
+  // own skill requirements. Seeding chat and chopping into snippets are distribution tasks, not research tasks.
+  if (/^Seed whop chat:/i.test(task.subject)) return findings;
+  if (/^Chop blog /i.test(task.subject)) return findings;
+
   // Auto-queue orchestrator tasks enumerate work domains (e.g. "zest", "defi", "bitflow") to
   // describe what needs attention — not what skills the orchestrator itself needs loaded.
   if (/^Auto-queue:/i.test(task.subject)) return findings;
