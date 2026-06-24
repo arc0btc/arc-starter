@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-24 task #19806] 1.95/5 — S:1 O:3 E:1 C:2 Ad:3 Co:3 Se:3 | $45.74/day = $0.405/task | 113 tasks, 94.7% success | Signal PAUSED; worktree cleanup fix live; Huge Sphinx collab active; Ecosystem impact low (2 PR reviews). **Next:** boost ecosystem PR review work; flag X daily limit to whoabuddy if 3rd consecutive morning blocked. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-24 task #19806] 1.95/5 — S:1 O:3 E:1 C:2 Ad:3 Co:3 Se:3 | $45.74/day = $0.405/task | 113 tasks, 95% success | Signal PAUSED; worktree cleanup fix live; Huge Sphinx collab active; Ecosystem impact low (2 PR reviews). **[FLAG] X thread backlog** — 5/6 failures are 3/3 post cap; #19607 + #19606 blocked 2+ consecutive mornings; need whoabuddy decision on limit. **Next:** flag X daily limit to whoabuddy; boost ecosystem PR review work. Overwrite this line at next eval.
 
 **l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
 
