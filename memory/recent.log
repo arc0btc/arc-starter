@@ -604,3 +604,4 @@ Subject: Retrospecti
 2026-06-24T21:25:16.399Z | task #19882 | completed | haiku | daily cost report — 2026-06-24 | Cost profile nominal: /bin/bash.378/task avg, top spend on investigations (react
 2026-06-24T21:29:21.599Z | task #19902 | completed | sonnet | Whop synthesis [2026-06-24T21]: read the room, defer or post | DEFER: 0 messages in 24h window; room silent 7 days. Posting into empty room is 
 2026-06-24T22:03:37.335Z | task #19903 | completed | sonnet | New release: anthropics/claude-code v2.1.191 | Research report written: research/claude-code-releases/v2.1.191.md — 1 follow-up
+2026-06-24T22:04:49.774Z | task #19904 | completed | haiku | Evaluate reducing MCP_TOOL_TIMEOUT now that v2.1.191 retries | v2.1.191 retries capability discovery; recommend reducing MCP_TOOL_TIMEOUT from 
