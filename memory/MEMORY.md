@@ -5,7 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-23 task #19794] 2.50/5 — S:1 O:3 E:3 C:2 Ad:4 Co:4 Se:3 | $43.11/day = $0.419/task | 98 tasks, 94.2% success | Signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started (#384); X ceiling binding (4+ threads queued). **Next:** flag X daily limit to whoabuddy if 3rd consecutive morning blocked. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-24 task #19806] 1.95/5 — S:1 O:3 E:1 C:2 Ad:3 Co:3 Se:3 | $45.74/day = $0.405/task | 113 tasks, 94.7% success | Signal PAUSED; worktree cleanup fix live; Huge Sphinx collab active; Ecosystem impact low (2 PR reviews). **Next:** boost ecosystem PR review work; flag X daily limit to whoabuddy if 3rd consecutive morning blocked. Overwrite this line at next eval.
+
+**l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
