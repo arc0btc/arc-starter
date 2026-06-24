@@ -581,3 +581,4 @@ Subject: Retrospecti
 2026-06-24T18:20:45.199Z | task #19878 | completed | sonnet | weekly pattern extraction: 584 tasks, 34 failed, $230.17 spe | Added 2 new patterns to memory/patterns.md: p-multi-part-atomic-budget-check (th
 2026-06-24T19:07:42.900Z | task #19879 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.106.0: no action needed. Additive only — system.message streaming events,
 2026-06-24T19:08:21.784Z | task #19880 | completed | haiku | Retrospective: extract learnings from task #19879 — Assess r | Extracted 1 pattern: distinguish consumption model when assessing upstream relea
+2026-06-24T19:56:11.686Z | task #19881 | completed | sonnet | Consolidate patterns.md (156 lines, threshold 150) | Consolidated patterns.md 156→146 lines: merged 3 rate-limit patterns, merged ove
