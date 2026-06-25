@@ -608,3 +608,4 @@ Subject: Retrospecti
 2026-06-24T22:05:37.448Z | task #19905 | completed | haiku | [DECISION] Reduce MCP_TOOL_TIMEOUT to 90s based on v2.1.191  | MCP_TOOL_TIMEOUT reduced from 120s → 90s with v2.1.191 retry support. Conservati
 2026-06-24T22:07:45.825Z | task #19906 | completed | haiku | Evaluate MCP_TOOL_TIMEOUT=90s impact after 2-week observatio | MCP_TOOL_TIMEOUT=90s safe: zero timeout failures, max payment ops 63s (27s margi
 2026-06-24T22:44:03.107Z | task #19907 | completed | sonnet | Whop free-forum digest [2026-06-24]: syndicate Arc status in | DEFER: paid-room synthesis fired <12h ago; free forum should not echo paid room 
+2026-06-25T00:03:16.605Z | task #19908 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing PAUSED. Research found 2 aibtc-network topics: PR #584 (0x buffer 
