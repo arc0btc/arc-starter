@@ -75,7 +75,8 @@ function finalizePost(body: string, firstReply: string, channel: string, label: 
 // can generate entries without importing the receipt-composer. Re-exported here
 // so existing call-sites that import from receipt.ts keep working unchanged.
 import { ProductTeaserSlice, ProductMeta, PRODUCT_CATALOG, getProductMeta } from "./product-catalog.ts";
-export { ProductTeaserSlice, ProductMeta, PRODUCT_CATALOG, getProductMeta };
+export type { ProductTeaserSlice, ProductMeta };
+export { PRODUCT_CATALOG, getProductMeta };
 
 // --- Receipt composer ------------------------------------------------------
 
