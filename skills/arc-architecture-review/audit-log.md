@@ -1,3 +1,29 @@
+## 2026-06-25T14:25:00.000Z — thread starvation fix: cadence beat yields to parked X thread tasks; 133 skills / 84 sensors
+
+**Task #19951** | Diff: 4385020 → 79f9bb9 (1 structural commit) | Sensors: 84 | Skills: 133
+
+### Changed files
+
+- `skills/social-x-posting/sensor.ts` (79f9bb9b) — Thread starvation fix: `runCadenceBeat()` now queries for pending X thread tasks parked >6h before firing. If any found, skips the cadence beat to yield the daily 3-slot budget to threads. Also priority-boosts threads parked >24h to P2 so they win dispatch order against same-priority cadence tasks. Fixes the starvation pattern observed 2026-06-25: threads needing 3-4 posts consistently lost to single-post cadence tasks that queued earlier in the day.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Valid. Thread starvation was documented in MEMORY.md (2026-06-25 pattern analysis task #19829). The fix addresses the root cause: cadence posts execute earlier in the day, consuming all 3 X budget slots before thread tasks can queue. The yield gate is the correct lever — skip cadence when threads are waiting, don't raise the overall cap.
+- **Step 2 — Delete**: No new deletion candidates. Carry-watches from prior audit unchanged.
+- **Step 3 — Simplify**: Implementation is clean. One SQL query to detect stale threads, one loop to boost priority — 30 lines total. No abstraction needed. The `LIKE '%X thread%'` subject pattern is a constraint, not a bug, but it's silent if the naming convention drifts. A `-- [THREAD]` tag or dedicated column would be more robust long-term; acceptable at current scale.
+- **Step 4 — Accelerate**: Direct win: threads that arrive after cadence posts have already fired will now get the slot the next cadence cycle skips. P2 boost ensures they can't be starved by other P3+ tasks in the queue.
+- **Step 5 — Automate**: No new candidates.
+
+### Flags
+
+- **[WATCH]** Thread detection via `subject LIKE '%X thread%'`: naming convention must be maintained for the yield gate to work. If thread task subjects change format, gate silently disables. Document as a constraint or replace with a dedicated tag column.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window (checkpoint 2026-07-01).
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (5th carry) — add to `.gitignore`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-25T02:30:00.000Z — MCP_TOOL_TIMEOUT reduction 120s→90s; no structural diagram changes; 133 skills / 84 sensors
 
 **Task #19919** | Diff: 8ee28f9 → 4385020 (1 structural commit) | Sensors: 84 | Skills: 133
