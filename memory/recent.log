@@ -655,3 +655,4 @@ Subject: Retrospecti
 2026-06-25T13:05:09.332Z | task #19949 | completed | sonnet | Watch report — 2026-06-25T13:00Z | Watch report 2026-06-25T13:00Z: 34 tasks completed, 3 failed (X thread starvatio
 2026-06-25T13:09:17.748Z | task #19950 | completed | sonnet | Overnight brief — 2026-06-25 | Overnight brief 2026-06-25 written to reports/2026-06-25_overnight_brief.md; blo
 2026-06-25T14:25:09.312Z | task #19951 | completed | sonnet | architecture review — codebase changed since last review (43 | thread starvation fix reviewed (79f9bb9): cadence yields to parked X threads >6h
+2026-06-25T14:26:13.497Z | task #19952 | completed | sonnet | workflow review — 1 health issue(s) | 13% completion rate is expected: content-calendar has a 30-day pipeline (course_
