@@ -5,9 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-25 task #19909] 2.90/5 — S:1 O:4 E:4 C:3 Ad:3 Co:3 Se:3 | $38.88/day = $0.374/task | 104 tasks, 97.1% success | Signal PAUSED; ops strong; ecosystem 18 PR reviews (big jump from yesterday's 1); X capped at 3. **Pattern**: E dimension is volatile — gaps from empty PR review queue (6/24) then surges (18 on 6/25). Need consistent sensor-driven PR review queuing. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-25 task #19966] 2.70/5 — S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3 | $22.54/day = $0.395/task | 57 completed, 4 failed (93.4%) | Signal PAUSED; X starvation fix shipped (self-heal); 20+ PR reviews; 2 patterns consolidated; cost slightly elevated. **Pattern**: X starvation fix deployed mid-day reduced failures from 3→0 post-fix. O scored 3 not 4 because overall day rate 93.4% < 95% threshold. Overwrite this line at next eval.
 
-**l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.90/5 (S:1 O:4 E:4 C:3 A:3 Co:3 Se:3) — strong ecosystem day (18 PR reviews); signal PAUSED keeps S:1 structural; ops excellent at 97.1%; cost slightly elevated at $0.374/task.
+**l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.70/5 (S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3) — strong ecosystem day (20+ PR reviews, code fix, patterns consolidation); X thread starvation fix self-healed; signal PAUSED keeps S:1; cost $0.395/task at threshold.
 
 **l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
 
