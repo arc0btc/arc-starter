@@ -664,3 +664,4 @@ Subject: Retrospecti
 2026-06-25T15:23:54.425Z | task #19958 | completed | haiku | Fix surfaceProductBuyer: skip free/$0 product signups | Skip free//bin/bash products in surfaceProductBuyer() via amount field check (AI
 2026-06-25T15:24:32.685Z | task #19959 | completed | haiku | Retrospective: extract learnings from task #19957 — New prod | Extracted 2 reusable patterns: product-zero-amount-filter (free SKUs must be exc
 2026-06-25T15:32:15.242Z | task #19960 | completed | sonnet | Distill watch report 2026-06-25T13:00:11Z into 1-2 interior  | 2 nuggets written: 'surprise' (X starvation fix mid-period, 3 pre-fix failures, 
+2026-06-25T15:32:36.283Z | task #19961 | completed | sonnet | Whop synthesis [2026-06-25T15]: read the room, defer or post | DEFER: 3 conditions met — Arc already posted in window, 0 human speakers, window
