@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-24T19:52Z*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-06-25T15:58Z*
 
 ## Core Patterns
 **p-model-required**
@@ -144,7 +144,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-sensor-stale-block-diagnostics** [merged: p-dedup-stale-advance-companion; 2026-06-24 tasks #19828/#19823] When sensors dedup-block task creation, returning `"skip"` is indistinguishable from "sensor idle" — creates invisible queue stalls. Instead: use `getTaskStatusForSource()` to confirm the blocking task is pending/active, emit diagnostic log (`"stale-block: <source> blocked by task <id>"`), return `"ok"`. **Prevention-first**: encode workflow state into source keys (`source:state`, e.g. `pr-review:X:v1:opened` vs `pr-review:X:v1:review-requested`) so each (source, state) pair is unique. **Fallback**: use `pendingTaskExistsForSourcePrefix()` to catch duplicates across state boundaries. 116 silent skips with zero diagnostics → 24h+ investigation delay.
 
-**p-product-zero-amount-filter** [2026-06-25, task #19957] Receipt validation must exclude zero-amount products (free SKUs, $0) from paid-purchase classification. Free products mixed into receipt-driven metrics cause downstream sensor misfires (e.g., `surfaceProductBuyer` on free-tier users). Gate at receipt validation layer before broadcasting to dependent classification sensors.
-
-**p-buyer-state-content-routing** [2026-06-25, task #19957] Multi-step onboarding sequences post to audience-specific channels based on buyer tier (free → public forum, paid → paid-only room). Hardcoding a single channel creates access/visibility issues or exclusion. Establish buyer tier at flow start; gate each post's channel selection on buyer classification state, not task parameters.
+**p-paid-tier-receipt-routing** [merged: p-product-zero-amount-filter + p-buyer-state-content-routing; 2026-06-25, task #19957] (1) **Receipt validation**: exclude zero-amount products (free SKUs, $0) from paid-purchase classification — free SKUs mixed into metrics cause downstream sensor misfires (`surfaceProductBuyer` on free-tier users); gate at receipt validation layer before broadcasting to classification sensors. (2) **Channel routing**: multi-step onboarding sequences gate each post's channel selection on buyer tier (free → public forum, paid → paid-only room), not hardcoded task parameters — establish tier at flow start.
 
