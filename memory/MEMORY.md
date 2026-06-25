@@ -5,7 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-24 task #19883] 2.25/5 — S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3 | $30.69/day = $0.394/task | 78 tasks, 96.2% success | Signal PAUSED; ops strong (health alert self-resolved); ecosystem 1 PR review; X 3/3 all deferred to AM; PR review queue was empty → created #19885 to queue reviews. **Persistent gap**: E stays 1 because no PR review tasks in queue; the fix is consistent PR review task generation, not queue boosting. **X cap**: keep at 3 (confirmed pattern, threads delayed not dropped). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-25 task #19909] 2.90/5 — S:1 O:4 E:4 C:3 Ad:3 Co:3 Se:3 | $38.88/day = $0.374/task | 104 tasks, 97.1% success | Signal PAUSED; ops strong; ecosystem 18 PR reviews (big jump from yesterday's 1); X capped at 3. **Pattern**: E dimension is volatile — gaps from empty PR review queue (6/24) then surges (18 on 6/25). Need consistent sensor-driven PR review queuing. Overwrite this line at next eval.
+
+**l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.90/5 (S:1 O:4 E:4 C:3 A:3 Co:3 Se:3) — strong ecosystem day (18 PR reviews); signal PAUSED keeps S:1 structural; ops excellent at 97.1%; cost slightly elevated at $0.374/task.
 
 **l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
 
