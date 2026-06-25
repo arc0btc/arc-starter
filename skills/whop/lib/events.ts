@@ -504,8 +504,18 @@ export function surfaceMemberWelcome(event: WhopEvent): void {
  * as a member. Dedup key is the BUYER, so a re-dispatch never double-touches. The live
  * post-purchase room-invite send itself is the P10B acquisition lane's job (gated); this task
  * is the internal "a buyer landed — bridge them" signal so the buyer never falls into a void.
+ *
+ * AI-089: Skip free/$0 products — a free product signup wastes a dispatch cycle composing
+ * onboarding flows with nothing to sell. Check the event amount field; if null/undefined/0,
+ * drop the event entirely. This handles all future free products automatically (preferred over
+ * a brittle product-id blocklist).
  */
 export function surfaceProductBuyer(event: WhopEvent): void {
+  // Skip free/$0 products (no amount or amount = 0)
+  if (event.amount == null || event.amount === 0) {
+    return;
+  }
+
   const data = (event.data ?? {}) as MembershipWelcomeData;
   const buyerId = data.member?.id ?? data.user?.id;
   if (!buyerId) {
