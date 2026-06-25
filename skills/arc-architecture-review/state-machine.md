@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-24T14:22:00.000Z*
-*Diff: afd71f6 → 8ee28f9 (4 structural commits — reactive lane state-encoding; completedDup auto-advance; migration relocation; reply deprecation) | Sensor count: 84 | Skill count: 133*
+*Generated: 2026-06-25T02:30:00.000Z*
+*Diff: 8ee28f9 → 4385020 (1 structural commit — MCP_TOOL_TIMEOUT reduced 120s→90s) | Sensor count: 84 | Skill count: 133*
 
 ```mermaid
 stateDiagram-v2

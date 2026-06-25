@@ -1,3 +1,28 @@
+## 2026-06-25T02:30:00.000Z — MCP_TOOL_TIMEOUT reduction 120s→90s; no structural diagram changes; 133 skills / 84 sensors
+
+**Task #19919** | Diff: 8ee28f9 → 4385020 (1 structural commit) | Sensors: 84 | Skills: 133
+
+### Changed files
+
+- `src/dispatch.ts` (43850201) — `MCP_TOOL_TIMEOUT` reduced from `120000` to `90000` (120s→90s). Leverages v2.1.191 automatic retry backoff for transient MCP failures. The two-timeout contract remains: `MCP_TOOL_TIMEOUT` = max total call duration (now 90s); `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` = max silence within a call (600s, unchanged). Rationale documented in `research/mcp-timeout-reduction-v2191.md`. First 6h observation: zero timeout failures, max x402 ops 63s (27s margin). Monitoring checkpoint: 2026-07-01.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Valid. v2.1.191 retries make shorter timeouts safe. The 90s limit is tighter than the 63s observed maximum (27s margin). Previous 120s was conservative pre-retry. No structural requirement invalidated.
+- **Step 2 — Delete**: No new deletion candidates. Carry-watches from prior audit unchanged.
+- **Step 3 — Simplify**: Config-only change. No structural simplification possible.
+- **Step 4 — Accelerate**: Direct gain: failed MCP calls fail faster (90s vs 120s), freeing the dispatch slot 30s sooner per timeout event. Under normal operation (no timeouts), no change.
+- **Step 5 — Automate**: No new candidates.
+
+### Flags
+
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window (checkpoint 2026-07-01). If timeout failures appear, revert to 120s.
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (5th carry) — add to `.gitignore`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+
+---
+
 ## 2026-06-24T14:22:00.000Z — reactive lane state-encoding; completedDup auto-advance; migration relocation; reply deprecation; 133 skills / 84 sensors
 
 **Task #19861** | Diff: afd71f6 → 8ee28f9 (4 structural commits) | Sensors: 84 | Skills: 133
