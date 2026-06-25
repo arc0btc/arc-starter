@@ -181,6 +181,36 @@ export async function runCadenceBeat(): Promise<void> {
     log("cadence beat skipped: X posting credits depleted");
     return;
   }
+
+  // Yield to pending X thread tasks that have been parked >6h. Threads need
+  // 3-4 posts each and lose the 3-slot daily budget when single-post cadence
+  // tasks queue first (pattern observed 2026-06-25). Skip this beat so the
+  // thread can claim a slot when dispatch runs.
+  const db = getDatabase();
+  const stalePendingThreads = db
+    .query(
+      `SELECT id FROM tasks WHERE status = 'pending' AND subject LIKE '%X thread%' AND created_at < datetime('now', '-6 hours') ORDER BY id`
+    )
+    .all() as Array<{ id: number }>;
+
+  if (stalePendingThreads.length > 0) {
+    log(`cadence beat skipped: ${stalePendingThreads.length} pending X thread task(s) parked >6h — yielding slot`);
+
+    // Priority-boost threads parked >24h to P2 so they beat cadence tasks in dispatch order.
+    const boostCandidates = db
+      .query(
+        `SELECT id FROM tasks WHERE status = 'pending' AND subject LIKE '%X thread%' AND created_at < datetime('now', '-24 hours') AND priority > 2`
+      )
+      .all() as Array<{ id: number }>;
+
+    for (const { id } of boostCandidates) {
+      db.run("UPDATE tasks SET priority = 2 WHERE id = ?", [id]);
+      log(`priority-boosted thread task #${id} to P2 (parked >24h)`);
+    }
+
+    return;
+  }
+
   const cadenceState = await readHookState(CADENCE_SENSOR_NAME);
   const lastBeat = cadenceState?.["last_beat_type"] as BeatType | undefined;
 
