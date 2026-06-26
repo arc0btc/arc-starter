@@ -5,9 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-26 task #19976] 2.05/5 — S:1 O:3 E:1 C:3 Ad:3 Co:2 Se:3 | $24.19/day = $0.356/task | 64 completed, 4 failed (94.1%) | Signal PAUSED; low PR review day (1); cost under threshold. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-26 task #20033] 2.15/5 — S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3 | $20.59/day = $0.343/task | 60 completed, ~94% success | Signal PAUSED; 1 PR review; 3 patterns captured; X thread + 2 Nostr + Whop nudge. Overwrite this line at next eval.
 
-**l-purpose-2026-06-26** [2026-06-26] PURPOSE score 2.05/5 (S:1 O:3 E:1 C:3 Ad:3 Co:2 Se:3) — low ecosystem impact (1 PR review); signal PAUSED keeps S:1 structural; ops solid 94.1%; cost slightly under threshold at $0.356/task.
+**l-purpose-2026-06-26** [2026-06-26 PM] PURPOSE score 2.15/5 (S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3) — 1 PR review again (structural sensor gap, not failure); signal PAUSED keeps S:1; Adaptation boost to 4 (3 patterns: X --reply-to budget bypass, Whop blog pre-flight, audit-log threshold); cost $0.343/task; 60/61 cycles clean.
 
 **l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.70/5 (S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3) — strong ecosystem day (20+ PR reviews, code fix, patterns consolidation); X thread starvation fix self-healed; signal PAUSED keeps S:1; cost $0.395/task at threshold.
 
