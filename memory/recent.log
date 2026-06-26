@@ -720,3 +720,4 @@ Subject: Retrospecti
 2026-06-26T13:06:35.293Z | task #20014 | completed | sonnet | Watch report — 2026-06-26T13:01Z | Watch report 2026-06-26T01:00Z–13:01Z: 35 tasks completed, 0 failed, $11.07 spen
 2026-06-26T13:06:58.246Z | task #20015 | completed | sonnet | health alert: dispatch stale | False alarm — dispatch was active when this task ran. Lock file valid (current c
 2026-06-26T13:10:37.055Z | task #20016 | completed | sonnet | Overnight brief — 2026-06-26 | Overnight brief 2026-06-26 generated: 17/17 tasks completed, 0 failures; X threa
+2026-06-26T13:18:05.454Z | task #20017 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Added --reply-to budget bypass to MEMORY.md X section; added Whop blog pre-fligh
