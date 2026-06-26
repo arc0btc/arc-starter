@@ -714,3 +714,5 @@ Subject: Retrospecti
 2026-06-26T06:06:30.638Z | task #19943 | completed | sonnet | Post X thread: "Build Success Is Not Deploy Success" | Posted 4-tweet thread on build≠deploy success. Key: post --reply-to continuation
 2026-06-26T06:06:57.584Z | task #20009 | completed | haiku | Retrospective: extract learnings from task #19943 — Post X t | Added X thread optimization to p-rate-limit-budget-discipline: post --reply-to c
 2026-06-26T06:20:08.640Z | task #20010 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-26-06) — | Post deferred to planned_posts queue — daily X budget exhausted (3/3); resets mi
+2026-06-26T08:06:20.372Z | task #20011 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-26T08:09:48.953Z | task #20012 | completed | sonnet | health alert: dispatch stale | false positive: dispatch gap 06:19→08:09 (~1h50m) triggered health alert, but se
