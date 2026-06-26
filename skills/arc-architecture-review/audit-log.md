@@ -1,3 +1,31 @@
+## 2026-06-26T02:30:00.000Z — whop events constants wiring; whop-sales receipt composer; library-only diff; 133 skills / 84 sensors
+
+**Task #19982** | Diff: 79f9bb9 → fa42af4 (2 library-only commits) | Sensors: 84 | Skills: 133
+
+### Changed files
+
+- `skills/whop/lib/events.ts` (fa42af4) — Added imports: `PRODUCT_PAGE_URL`, `PAID_ROOM_PRODUCT_URL`, `PROMO_CODE` from `src/constants.ts`. Wires the P10B product page constants into the events intake layer. No interface or ledger logic changed; the P19 exactly-once contract and poll-coverage-limit carry are unchanged.
+- `skills/whop-sales/lib/receipt.ts` (6967dbc4) — NEW pure composer for P10B funnel: `composeReceipt` (receipt post; refuses at `count < 1` to prevent fabricated sale claims) and `composeTeaser` (free slice pointing at the $9 SKU). Deterministic — no LLM, no network, no writes. Posts via `skills/whop-sales/sensor.ts` + `lib/enforcement.ts`, gated behind `WHOP_SALES_DRY_RUN=true` until go-live. Channel doctrine single-sourced in `finalizePost()` (X: link in first reply; forum/nostr: link folded into body). `NEVER_SAY` scan runs post-fold over both fields.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both changes are valid. `events.ts` constants wiring enables the P10B receipt composer to reference the correct product URLs without scattering URL strings across skill files. The `receipt.ts` honesty keystone (`count < 1` refusal, `payingCustomers` discipline, no overclaiming) correctly enforces the trust contract for on-chain identity posts. Requirement remains valid: funnel receipt + teaser must be composable independently from posting logic.
+- **Step 2 — Delete**: No new deletion candidates. `receipt.ts` `NEVER_SAY` import is pulled from `lib/compose.ts` — correct reuse, no duplication. Carry-watches from prior audit unchanged (see Flags).
+- **Step 3 — Simplify**: `finalizePost()` is the right abstraction — single-sources the link-in-first-reply vs link-in-body channel doctrine so it cannot drift between receipt and teaser composers. The `FinalizedPost` interface is minimal and correct. No over-engineering.
+- **Step 4 — Accelerate**: No pipeline impact. These are library files; posting speed is unchanged.
+- **Step 5 — Automate**: No new candidates. `WHOP_SALES_DRY_RUN=false` go-live is operator-gated per P10/P11 plan.
+
+### Flags
+
+- **[WATCH]** Thread detection via `subject LIKE '%X thread%'` (from prior audit): naming convention constraint still load-bearing.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window, checkpoint 2026-07-01.
+- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (6th carry) — add to `.gitignore`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[AUDIT-LOG SIZE]** audit-log.md now >600 lines — housekeeping pass recommended.
+
+---
+
 ## 2026-06-25T14:25:00.000Z — thread starvation fix: cadence beat yields to parked X thread tasks; 133 skills / 84 sensors
 
 **Task #19951** | Diff: 4385020 → 79f9bb9 (1 structural commit) | Sensors: 84 | Skills: 133

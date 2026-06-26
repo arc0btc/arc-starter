@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-25T14:25:00.000Z*
-*Diff: 4385020 → 79f9bb9 (1 structural commit — thread starvation fix: cadence beat yields to parked X thread tasks) | Sensor count: 84 | Skill count: 133*
+*Generated: 2026-06-26T02:30:00.000Z*
+*Diff: 79f9bb9 → fa42af4 (2 library-only commits — whop events.ts constants wiring; whop-sales/lib/receipt.ts new pure composer) | Sensor count: 84 | Skill count: 133*
 
 ```mermaid
 stateDiagram-v2
