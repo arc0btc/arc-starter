@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-23T21:18:47.475Z",
+  "lastScannedAt": "2026-06-25T21:25:47.255Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -52,10 +52,8 @@
     "kickoff-task-parameter-capture",
     "research-ecosystem-analysis",
     "architecture-evaluation-discipline",
-    "workflow-wiring-patterns",
     "cost-spike-burstiness-validation",
-    "silent-overflow-prevention",
-    "auto-artifact-cleanup-cadence",
+    "scale-guard",
     "structural-blocker-escalation",
     "content-publication-workflow",
     "batch-synthesis-tool-quality",
@@ -68,10 +66,12 @@
     "observability-eval-design",
     "storage-retrieval-architecture-pairing",
     "escalation-dispatch-patterns",
-    "content-reference-pre-verification",
-    "paid-channel-review-gate",
+    "paid-channel-posting-discipline",
     "dispatch-infrastructure-retry-gate",
     "periodic-constrained-report-assembly",
-    "synthesis-interpretation"
+    "synthesis-interpretation",
+    "rate-limit-budget-discipline",
+    "sensor-stale-block-diagnostics",
+    "paid-tier-receipt-routing"
   ]
 }

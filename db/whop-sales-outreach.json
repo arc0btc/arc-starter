@@ -1,5 +1,22 @@
 {
-  "updated_at": "2026-06-23T23:19:53.986Z",
+  "updated_at": "2026-06-25T23:22:13.629Z",
   "records": [],
-  "nudges": []
+  "nudges": [
+    {
+      "member_id": "whop-evt:membership:mem_92ac6q7ROmowv5",
+      "day": "d1",
+      "queued_at": "2026-06-25T23:22:12.892Z",
+      "source": "quest:gtm:recurring:onboarding-nudge:whop-evt:membership:mem_92ac6q7ROmowv5:d1",
+      "task_id": 19973,
+      "dry_run": false
+    },
+    {
+      "member_id": "whop-evt:membership:mem_92ac6q7ROmowv5",
+      "day": "d5",
+      "queued_at": "2026-06-25T23:22:12.892Z",
+      "source": "quest:gtm:recurring:onboarding-nudge:whop-evt:membership:mem_92ac6q7ROmowv5:d5",
+      "task_id": 19974,
+      "dry_run": false
+    }
+  ]
 }
