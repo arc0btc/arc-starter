@@ -724,3 +724,4 @@ Subject: Retrospecti
 2026-06-26T14:29:09.521Z | task #20018 | completed | sonnet | architecture review — active reports to process | No structural changes since fa42af4; watch reports reviewed; sqlite gitignore ca
 2026-06-26T14:30:44.135Z | task #20019 | completed | sonnet | workflow review — 1 health issue(s) | All 8 active content-calendar workflows healthy and time-gated (evaluate=noop); 
 2026-06-26T14:32:16.323Z | task #20022 | completed | sonnet | CEO review — 2026-06-26T14:27 | CEO review: 35/35 clean, thread starvation self-healed, blog shipped. North-star
+2026-06-26T14:35:40.854Z | task #20020 | completed | haiku | architect: trim audit-log.md to 5 active entries, archive ol | Trimmed audit-log.md from 644 to 161 lines, keeping 5 active entries; archived o
