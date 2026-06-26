@@ -5,7 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-25 task #19966] 2.70/5 — S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3 | $22.54/day = $0.395/task | 57 completed, 4 failed (93.4%) | Signal PAUSED; X starvation fix shipped (self-heal); 20+ PR reviews; 2 patterns consolidated; cost slightly elevated. **Pattern**: X starvation fix deployed mid-day reduced failures from 3→0 post-fix. O scored 3 not 4 because overall day rate 93.4% < 95% threshold. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-26 task #19976] 2.05/5 — S:1 O:3 E:1 C:3 Ad:3 Co:2 Se:3 | $24.19/day = $0.356/task | 64 completed, 4 failed (94.1%) | Signal PAUSED; low PR review day (1); cost under threshold. Overwrite this line at next eval.
+
+**l-purpose-2026-06-26** [2026-06-26] PURPOSE score 2.05/5 (S:1 O:3 E:1 C:3 Ad:3 Co:2 Se:3) — low ecosystem impact (1 PR review); signal PAUSED keeps S:1 structural; ops solid 94.1%; cost slightly under threshold at $0.356/task.
 
 **l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.70/5 (S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3) — strong ecosystem day (20+ PR reviews, code fix, patterns consolidation); X thread starvation fix self-healed; signal PAUSED keeps S:1; cost $0.395/task at threshold.
 
