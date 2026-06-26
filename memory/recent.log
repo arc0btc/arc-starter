@@ -712,3 +712,4 @@ Subject: Retrospecti
 2026-06-26T04:54:04.336Z | task #20007 | completed | sonnet | Seed whop chat: "The Architecture of Trust: Three Papers Tha | Reading the voice guide and checking for existing messages first.No duplicate po
 2026-06-26T06:04:29.863Z | task #20008 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-26T06:06:30.638Z | task #19943 | completed | sonnet | Post X thread: "Build Success Is Not Deploy Success" | Posted 4-tweet thread on build≠deploy success. Key: post --reply-to continuation
+2026-06-26T06:06:57.584Z | task #20009 | completed | haiku | Retrospective: extract learnings from task #19943 — Post X t | Added X thread optimization to p-rate-limit-budget-discipline: post --reply-to c
