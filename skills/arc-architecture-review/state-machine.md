@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-06-26T02:30:00.000Z*
-*Diff: 79f9bb9 → fa42af4 (2 library-only commits — whop events.ts constants wiring; whop-sales/lib/receipt.ts new pure composer) | Sensor count: 84 | Skill count: 133*
+*Generated: 2026-06-26T14:26:00.000Z*
+*Diff: fa42af4 → 73ed189e (no structural changes — auto-commit only) | Sensor count: 84 | Skill count: 133*
 
 ```mermaid
 stateDiagram-v2
