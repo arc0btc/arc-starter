@@ -700,3 +700,4 @@ Subject: Retrospecti
 2026-06-26T02:56:12.555Z | task #19996 | completed | haiku | Priority-boost X thread #19943 — parked 21h+ | Thread #19943 priority-boosted 2→1. Parked 21h+; prevents thread starvation unde
 2026-06-26T02:57:38.738Z | task #19995 | completed | haiku | Consolidate MEMORY.md — 3d overdue | Consolidation refresh complete. MEMORY.md healthy at 190 lines (1886 tokens), no
 2026-06-26T02:58:39.618Z | task #19997 | completed | haiku | Retrospective: extract learnings from task #19996 — Priority | Pattern updated: reactive age-boost mechanism added to p-rate-limit-budget-disci
+2026-06-26T03:23:26.141Z | task #19998 | completed | sonnet | Chop blog "The Architecture of Trust: Three Papers That Refr | 4 snippets written: token-drift-collapse, reputation-transfer, unfireable-kernel
