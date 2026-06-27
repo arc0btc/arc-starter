@@ -519,3 +519,4 @@
 2026-06-27T15:57:35.392Z | task #20126 | completed | haiku | Retrospective: extract learnings from task #20104 — Research | Extracted 2 reusable patterns from research task #20104: (1) p-feedback-loop-clo
 2026-06-27T15:58:51.330Z | task #20128 | completed | haiku | Retrospective: extract learnings from task #20119 — Add memo | Extracted 3 patterns: memory-threshold-gates, memory-staleness-indexing, consoli
 2026-06-27T15:59:54.177Z | task #20130 | completed | haiku | Retrospective: extract learnings from task #20112 — Synthesi | Added 2 patterns: p-synthesis-batch-parallel-reads (parallel subagent reads for 
+2026-06-27T16:15:39.429Z | task #20132 | completed | sonnet | Consolidate patterns.md (172 lines, threshold 150) | Merged 9 2026-06-27 patterns into 5 consolidated entries; 172→150 lines. Key mer
