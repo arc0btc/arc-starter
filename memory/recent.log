@@ -801,3 +801,4 @@ Subject: Retrospecti
 2026-06-27T14:49:29.710Z | task #20095 | completed | sonnet | Mute false council-stalled flag + scope live-VM council moni | Muted false council-stalled alert: added STUCK_EXEMPT set in arc-reporting/senso
 2026-06-27T14:52:53.751Z | task #20098 | completed | opus | Research: loop-first agent workflow (Boris Cherny / /loop /  | Loop-first 3-tier stack report (Boris Cherny/eric zakariasson/Prajwal): Arc is a
 2026-06-27T14:56:20.560Z | task #20099 | completed | opus | Research: loops explained + loop-engineering concrete cases | Loops-explained (Kopadze, 8.18M) + RAG self-tuning loop (h100envy, full code) → 
+2026-06-27T15:00:51.645Z | task #20100 | completed | opus | Research: agent memory hygiene (auto-prune, health-audit, se | Memory-hygiene report written from #20093 cache (no re-process). Live receipt: M
