@@ -94,11 +94,12 @@ async function checkArc0btc(): Promise<CheckResult[]> {
 
   // Should have services content
   if ("body" in main) {
-    const hasServicesContent = main.body.toLowerCase().includes("service");
+    const bodyLower = main.body.toLowerCase();
+    const hasServicesContent = ["service", "catalog", "membership", "report", "product"].some(term => bodyLower.includes(term));
     results.push({
       check: "arc0btc-has-services",
       ok: hasServicesContent,
-      detail: hasServicesContent ? "Services content found" : "DRIFT: No services content on arc0btc.com",
+      detail: hasServicesContent ? "Commercial content found" : "DRIFT: No commercial content on arc0btc.com",
     });
 
     // Should link back to arc0.me

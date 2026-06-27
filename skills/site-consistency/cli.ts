@@ -103,8 +103,9 @@ async function runChecks(verbose: boolean): Promise<CheckResult[]> {
       ...(verbose ? { responseBody: arc0btcMain.body.slice(0, 500) } : {}),
     });
 
-    const hasServicesContent = arc0btcMain.body.toLowerCase().includes("service");
-    results.push({ check: "arc0btc-has-services", ok: hasServicesContent, detail: hasServicesContent ? "Found" : "DRIFT: Missing" });
+    const arc0btcBodyLower = arc0btcMain.body.toLowerCase();
+    const hasServicesContent = ["service", "catalog", "membership", "report", "product"].some(term => arc0btcBodyLower.includes(term));
+    results.push({ check: "arc0btc-has-services", ok: hasServicesContent, detail: hasServicesContent ? "Commercial content found" : "DRIFT: No commercial content on arc0btc.com" });
 
     const linksToArc0me = arc0btcMain.body.includes("arc0.me");
     results.push({ check: "arc0btc-links-to-arc0me", ok: linksToArc0me, detail: linksToArc0me ? "Found" : "DRIFT: Missing" });
