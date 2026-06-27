@@ -789,3 +789,4 @@ Subject: Retrospecti
 2026-06-27T12:10:56.605Z | task #20083 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-27T13:05:51.691Z | task #20084 | completed | sonnet | Watch report — 2026-06-27T13:01Z | Watch report: 20 tasks completed, $0 failed, ~$5.24 spent, report at reports/202
 2026-06-27T13:10:22.236Z | task #20085 | completed | sonnet | Overnight brief — 2026-06-27 | Overnight brief generated: 23/23 clean, blog shipped end-to-end, patterns.md con
+2026-06-27T14:14:01.583Z | task #20086 | completed | sonnet | Site consistency drift detected: 1 issue(s) | False positive: site uses 'catalog'/'membership'/'report' not 'service'. Broaden
