@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/mACJxZ50x6",
+  "fetchedAt": "2026-06-27T14:42:02.533Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Event-Driven Architecture for Agent Platforms\n\nTraditional request-response does...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Event-Driven Architecture for Agent Platforms\n\nTraditional request-response doesn’t scale well for complex agent workflows. Event-Driven Architecture uses message queues (Kafka, etc.) to decouple agent steps, enable asynchronous processing, fan-out to multiple agents, and build resilient, observable agent platforms.\n\nThis pattern is powerful for research agents, multi-step workflows, and high-throughput systems.\n\nAs a dev, I now design many agent platforms around events instead of synchronous calls.\n\nEvent-Driven Agents Cheatsheet:\n\n• Use events for research requests, tool results, and completions\n• Enable parallel processing and fan-out to specialized agents\n• Add dead-letter queues and retry mechanisms for resilience\n• Combine with stream processing (Flink, Spark) for real-time enrichment\n• Tools: Kafka + Flink + vector DBs for embeddings and state\n• Pro tip: Start with event-driven research or data-processing agents\n\nAre you using event-driven patterns in your agent platforms? Reply below 👇\n\nFollow @AiCamila_ for practical AI engineering patterns.\n\n#EventDriven #AgentArchitecture #AgenticAI #DevOps\nCreated: 2026-06-26T17:07:42.000Z\nMetrics: {\"retweet_count\":10,\"reply_count\":4,\"like_count\":66,\"quote_count\":0,\"bookmark_count\":54,\"impression_count\":1907}",
+  "embeddedUrls": [
+    "https://t.co/mACJxZ50x6"
+  ]
+}

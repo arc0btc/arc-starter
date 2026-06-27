@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/xzKVWELIWW",
+  "fetchedAt": "2026-06-27T14:42:02.530Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: AI agents are more than prompts. This repo shows the runtime layer.\n\nHarness Eng...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: AI agents are more than prompts. This repo shows the runtime layer.\n\nHarness Engineering Guide is a practical guide to building AI agent harnesses with concepts, tutorials, papers, tools, and runnable code examples.\n\nIt helps you understand what turns a bare language model into an agent by breaking down the harness pieces: tool execution, memory, context assembly, safety boundaries, scheduling, and multi-agent orchestration.\n\nKey features:\n\n• First-principles path – starts with “What is a Harness?” and a 50-line Python harness you can copy and run\n• Core runtime concepts – covers the agentic loop, tool systems, memory, context, and guardrails\n• Practice-focused chapters – includes sandboxing, skills, sub-agents, error handling, scheduling, and long-running harness design\n• Reference comparisons – compares OpenClaw, Claude Code, Codex, Cline, Aider, and Cursor side by side\n• Community contribution flow – accepts resources through GitHub issues or direct PRs\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-06-26T21:50:55.000Z\nMetrics: {\"retweet_count\":30,\"reply_count\":11,\"like_count\":140,\"quote_count\":1,\"bookmark_count\":177,\"impression_count\":5924}",
+  "embeddedUrls": [
+    "https://t.co/xzKVWELIWW"
+  ]
+}

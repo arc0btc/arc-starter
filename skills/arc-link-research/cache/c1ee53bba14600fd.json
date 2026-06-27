@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/rohanpaul_ai/status/2070809371710202227",
+  "fetchedAt": "2026-06-27T14:42:01.653Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: LLMs can learn better coding behavior from problems with no known answers.\n\nMany...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: LLMs can learn better coding behavior from problems with no known answers.\n\nMany real problems do not have a gold solution waiting in a database, especially in optimization, where the best answer may be unknown, expensive, or impossible to certify.\n\nNormal reinforcement learning works well when it can check a clear right answer, but that breaks down when the best answer is unknown.\n\nThe paper’s method, called RiVER, lets the model write several programs, runs them on the same hidden tests, and rewards the programs that perform better than the others.\n\nThe key trick is that RiVER does not trust raw scores directly, because some test cases naturally produce much bigger numbers and can distort training.\n\nInstead, it ranks programs within each test case, gives extra weight to the best one, and still gives smaller graded feedback to other valid programs.\n\nThe authors trained models on 12 AtCoder Heuristic Contest tasks, and RiVER improved both score-based contest performance and normal pass-or-fail coding benchmarks.\n\n----\n\nLink – arxiv. org/abs/2606.27369\n\nTitle: \"Reinforcement Learning without Ground-Truth Solutions can Improve LLMs\"\nCreated: 2026-06-27T10:00:02.000Z\nMetrics: {\"retweet_count\":14,\"reply_count\":6,\"like_count\":68,\"quote_count\":0,\"bookmark_count\":36,\"impression_count\":4957}",
+  "embeddedUrls": [
+    "https://t.co/ekD6EUEzgh"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/hyperagentapp/status/2070562827484762266",
+  "fetchedAt": "2026-06-27T14:42:01.656Z",
+  "contentType": "tweet",
+  "title": "@hyperagentapp: An open-weight model just beat the frontier flagships at competitive intelligenc...",
+  "rawContent": "Tweet by @hyperagentapp (Hyperagent)\nAuthor bio: Hyperagent is the system of agents that does real work, learns how your organization operates, and deploys across your entire team. By the team at Airtable.\nText: An open-weight model just beat the frontier flagships at competitive intelligence - for a fraction of the price.\n\nWe added four open models to Hyperagent - GLM 5.2, DeepSeek V4, Kimi K2.6, and Qwen 3.7 - and tested them on the work our users actually run: prospecting, competitive intel, content, data storytelling.\n\n- Kimi surprised us with impressive campaign content\n- GLM won competitive intel use cases outright\n- Qwen and DeepSeek delivered strong data stories at a fraction of the cost\n\nTwo takeaways: open weights are hitting parity with closed-source on real work, and there's no single best model - different models won different jobs. Which is the whole point of a harness: match the model to the task, get expert output at open-weight prices.\n\nModels available in Hyperagent today.\nCreated: 2026-06-26T17:40:21.000Z\nMetrics: {\"retweet_count\":15,\"reply_count\":15,\"like_count\":79,\"quote_count\":24,\"bookmark_count\":48,\"impression_count\":125099}",
+  "embeddedUrls": [
+    "https://t.co/7DwUuInrcI"
+  ]
+}

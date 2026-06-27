@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/ornith_/status/2070148887067963854",
+  "fetchedAt": "2026-06-27T14:42:01.656Z",
+  "contentType": "tweet",
+  "title": "@ornith_: Aloha! 🌺 Meet Ornith-1.0, a family of open-source  LLMs specialized for agentic...",
+  "rawContent": "Tweet by @ornith_ (Ornith)\nAuthor bio: For once you have tasted flight you will walk the earth with your eyes turned skywards.\nText: Aloha! 🌺 Meet Ornith-1.0, a family of open-source  LLMs specialized for agentic coding.\n\nOrnith-1.0 spans the full parameter sizes including 9B Dense, 31B Dense, 35B MoE, and 397B MoE.  It achieves state-of-the-art performance among open-source models of comparable size on coding benchmarks including:\n✅Terminal-Bench 2.1(77.5)\n✅SWE-Bench(82.4 on verified, 62.2 on pro, 78.9 on Multilingual)\n✅NL2Repo(48.2)\n✅SWE Atlas(41.2 on QnA, 42.6 RF, 39.1 TW)\n✅ClawEval(77.1)\n\nPost-trained on top of gemma4 and qwen3.5, Ornith-1.0 employs a novel self-improving training strategy in which reinforcement learning is used to generate not only solution rollouts, but also the task-specific scaffolds that drive those rollouts. By jointly optimizing the scaffold and the resulting solution, the model  generate higher-quality solutions in agentic coding.😎\n\nAll models are released under the MIT license, enabling full commercial and research use.\n\n📖Tech Blog: https://t.co/qT9N2HYWFn\n🤗Huggingface: https://t.co/PRrwqjeBtM\nCreated: 2026-06-25T14:15:30.000Z\nMetrics: {\"retweet_count\":932,\"reply_count\":454,\"like_count\":6185,\"quote_count\":639,\"bookmark_count\":6042,\"impression_count\":4917881}",
+  "embeddedUrls": [
+    "https://t.co/7g1rmacLps"
+  ]
+}
