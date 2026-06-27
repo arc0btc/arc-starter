@@ -151,3 +151,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-synthesis-topic-reuse** [2026-06-27, task #20098] Before authoring a synthesized report on a topic, check for recent synthesis coverage; cross-reference and cite rather than re-synthesizing from scratch. Reduces token cardinality and prevents redundant synthesis when multiple research tasks converge on overlapping topics. Distinct from source-level dedup — this is synthesis-efficiency at topic level.
 
+**p-architecture-audit-primitives-vs-verbs** [2026-06-27, task #20101] When auditing agent harnesses against reference frameworks, claims like "implements X of Y subsystems" must be grounded in actual code, not README promises. Distinguish: *primitives* (data structures, memory models, configurations) vs *verbs* (coordination loops, escalation logic, dispatch scheduling). Porting primitives to shared runtime is inert without the control flow; marking subsystem coverage requires code-read on both dimensions. Validates port-readiness and prevents false claims of architecture completeness.
+
