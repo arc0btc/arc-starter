@@ -99,9 +99,17 @@ A health alert fires ("no recent content") even though posts were written. Root 
 
 2026-06-11 (task #18556): arc0btc.com health alert fired. Posts for 2026-06-09 and 2026-06-10 were written but uncommitted. Fix: commit + deploy both posts. All health checks passing after fix.
 
+## Incidents (recurring pattern)
+
+- 2026-06-11 (task #18556): Posts for 2026-06-09 and 2026-06-10 were written but uncommitted. Fix: commit + deploy both posts.
+- 2026-06-27 (task #20044): "The Architecture of Trust" post was untracked — written but not committed. Freshness alert fired. Fix: direct `bun blog-deploy` invocation. Pattern: third recurrence, same root cause.
+
+**Observed trend**: This pattern repeats ~2 weeks apart. Each fix clears the alert but the prevention step (commit immediately after writing) is not being enforced.
+
 ## Prevention
 
 - After writing a blog post, commit immediately — don't leave content in an uncommitted state.
 - When a freshness alert fires, check `git status` in the site repo **before** generating new content. Uncommitted drafts may already exist.
 - Pipeline: write → **commit** → push → deploy → verify. The commit step is not optional.
 - Health alerts that say "no recent content" have three possible root causes (check in this order): (1) uncommitted drafts exist, (2) deploy was not triggered after build, (3) no content was generated at all.
+- After the third recurrence: consider a pre-deploy sensor that checks for uncommitted `.mdx` files in the site repo and queues a "commit drafts" task before freshness can decay.
