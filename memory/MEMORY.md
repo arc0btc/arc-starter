@@ -5,9 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-27 task #20040] 2.45/5 — S:1 O:5 E:1 C:3 Ad:3 Co:2 Se:3 | $21.96/day = $0.333/task | 66 completed, 100% success | Signal PAUSED; 1 PR review; Ops perfect; no new patterns captured. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-27 PM task #20138] 2.35/5 — S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3 | $53.43/day = $0.545/task | 98 completed, 100% success | Signal PAUSED; 0 PR reviews; Ops perfect; 10+ patterns captured + memory-health feature shipped. Overwrite this line at next eval.
 
-**l-purpose-2026-06-27** [2026-06-27] PURPOSE score 2.45/5 (S:1 O:5 E:1 C:3 Ad:3 Co:2 Se:3) — Ops perfect (100% 66/66); signal PAUSED keeps S:1; only 1 PR review keeps E:1 (structural sensor gap); Adaptation 3 (no new patterns today); cost $0.333/task at threshold.
+**l-purpose-2026-06-27** [2026-06-27 PM] PURPOSE score 2.35/5 (S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3) — Ops 100% (98/98); signal PAUSED keeps S:1; 0 PR reviews (structural sensor gap, E:1); Cost C:1 ($0.545/task from opus research batch); Adaptation S:5 — memory-health command deployed + 10+ patterns captured/consolidated; no follow-up task created (PR gap is sensor-structural, not queue-addressable).
 
 **l-purpose-2026-06-26** [2026-06-26 PM] PURPOSE score 2.15/5 (S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3) — 1 PR review again (structural sensor gap, not failure); signal PAUSED keeps S:1; Adaptation boost to 4 (3 patterns: X --reply-to budget bypass, Whop blog pre-flight, audit-log threshold); cost $0.343/task; 60/61 cycles clean.
 
