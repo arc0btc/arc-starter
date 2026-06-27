@@ -83,6 +83,10 @@ export interface MembershipLike extends HasProduct {
   id: string;
   status: string;
   created_at: string;
+  /** Plan the membership is on — used for attribution capture (P1 funnel-hardening). */
+  plan?: { id?: string | null } | null;
+  /** Promo code applied — used for attribution capture. SDK returns {id} object. */
+  promo_code?: { id?: string | null; code?: string | null } | null;
 }
 
 export interface PaymentLike extends HasProduct {
@@ -91,6 +95,10 @@ export interface PaymentLike extends HasProduct {
   created_at: string;
   usd_total?: number | null;
   total?: number | null;
+  /** Plan the payment is on — used for attribution capture (P1 funnel-hardening). */
+  plan?: { id?: string | null } | null;
+  /** Promo code applied — used for attribution capture. SDK returns {id} object. */
+  promo_code?: { id?: string | null; code?: string | null } | null;
 }
 
 // ---- Normalizers ----
@@ -269,6 +277,123 @@ export function whopEventLedger(): SourceLedger {
   return ledgerSingleton;
 }
 
+// ── P1 (arc-funnel-hardening): provenance migration + paid-sale capture ──────────────
+
+let whopSaleProvenanceMigrated = false;
+
+/**
+ * Ensure the `whop_sale` table has a `provenance` column (P1 migration).
+ * Uses the same guarded-ALTER pattern as the product_id migration above.
+ * Column: provenance TEXT NOT NULL DEFAULT 'organic'
+ * Constraint CHECK enforced at application layer (not DDL, to stay compatible with
+ * SQLite's limited ALTER TABLE — SQLite does not support adding a CHECK constraint
+ * via ALTER TABLE on an existing table). Write-time guard in writePaidSaleIfEligible
+ * only ever writes 'organic' | 'self_funded_test', so the constraint is de-facto enforced.
+ */
+function ensureWhopSaleProvenance(): void {
+  if (whopSaleProvenanceMigrated) return;
+  const db = getDatabase();
+  // Ensure the table exists before migrating (CREATE TABLE IF NOT EXISTS).
+  // whop_sale is created by the DB schema initializer — if running on a fresh DB
+  // it may not exist yet; skip the migration in that case (CREATE will include the column).
+  // In practice the live DB has the table (user_version=9).
+  try {
+    const exists = db.query(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='whop_sale'"
+    ).get() as { name: string } | undefined;
+    if (!exists) { whopSaleProvenanceMigrated = true; return; }
+  } catch { whopSaleProvenanceMigrated = true; return; }
+
+  try {
+    db.run("ALTER TABLE whop_sale ADD COLUMN provenance TEXT NOT NULL DEFAULT 'organic'");
+  } catch (e) {
+    if (!/duplicate column name/i.test(e instanceof Error ? e.message : String(e))) throw e;
+  }
+  whopSaleProvenanceMigrated = true;
+}
+
+/**
+ * Write a `whop_sale` row if this event represents a real paid organic transaction.
+ *
+ * Write-time provenance guard (P1 arc-funnel-hardening):
+ *   - amountCents must be > 0 (filters $0 free joins like Ahmed's membership.activated)
+ *   - event.type must be 'payment.succeeded' or 'membership.activated'
+ *   - All poll-written rows get provenance='organic' (poll data comes from the authenticated
+ *     Whop API; self_funded_test is an x402 concept, never a Whop poll concept)
+ *
+ * Confidence assignment (justified):
+ *   - payment.succeeded → 'trusted' (Whop confirmed the payment)
+ *   - membership.activated with amount > 0 → 'observed' (activation confirmed; payment
+ *     may have been processed by a separate event — we infer completion from status)
+ *
+ * Idempotency: INSERT OR IGNORE on UNIQUE(whop_ref, event). whop_ref = entity id
+ * (mem_…, pay_…); event = event type. Same entity+type → exactly one row regardless
+ * of replays.
+ *
+ * Attribution: best-effort from poll API. plan_id and promo_code extracted if present;
+ * whop_affiliate, referral_id, a_param are null (not available from poll endpoints;
+ * a push-webhook lane or checkout_config match would be needed for those).
+ */
+function writePaidSaleIfEligible(event: WhopEvent, amountCents: number | null): void {
+  // Guard: only paid events
+  if (amountCents === null || amountCents <= 0) return;
+  // Guard: only terminal paid event types
+  if (event.type !== "payment.succeeded" && event.type !== "membership.activated") return;
+
+  ensureWhopSaleProvenance();
+
+  // Determine confidence class
+  const confidence = event.type === "payment.succeeded" ? "trusted" : "observed";
+
+  // Extract entity id as whop_ref (parse from event.id: "whop-evt:<type>:<entity_id>:<status>")
+  const parts = event.id.split(":");
+  // Format: whop-evt : membership|payment : <entity_id> : <status>
+  // parts[0]="whop-evt", parts[1]="membership"|"payment", parts[2]=entity_id, parts[3]=status
+  const whopRef = parts.length >= 3 ? parts[2] : event.id;
+
+  // Extract attribution (best-effort from poll API data)
+  const d = event.data as {
+    plan?: { id?: string | null } | null;
+    promo_code?: { id?: string | null; code?: string | null } | null;
+  } | null;
+  const planId = d?.plan?.id ?? null;
+  // promo_code: Whop SDK returns { id: string } — store the code string if available, else id
+  const promoCode = d?.promo_code?.code ?? d?.promo_code?.id ?? null;
+  // join_kind: if promo was used → 'promo'; else 'direct'
+  const joinKind = promoCode ? "promo" : "direct";
+
+  const db = getDatabase();
+  try {
+    db.run(
+      `INSERT OR IGNORE INTO whop_sale
+        (whop_ref, event, product_id, plan_id, price_cents, currency,
+         promo_code, whop_affiliate, referral_id, a_param,
+         join_kind, attribution_confidence, provenance)
+       VALUES (?, ?, ?, ?, ?, 'usd', ?, null, null, null, ?, ?, 'organic')`,
+      [
+        whopRef,
+        event.type,
+        event.product_id ?? null,
+        planId,
+        amountCents,
+        promoCode,
+        joinKind,
+        confidence,
+      ],
+    );
+  } catch (err) {
+    // Non-fatal: log and continue. The ledger row is already committed; losing the
+    // whop_sale row is recoverable (a backfill or retry can re-insert). Never throw here.
+    console.log(
+      JSON.stringify({
+        whop_sale_warn: "writePaidSaleIfEligible INSERT failed (non-fatal)",
+        event_id: event.id,
+        error: String(err).slice(0, 200),
+      }),
+    );
+  }
+}
+
 /**
  * Record an event exactly once and surface new ones to the loop.
  * Returns "duplicate" if already recorded (no surface), "recorded" on first sight.
@@ -332,6 +457,13 @@ export function ingestWhopEvent(event: WhopEvent): "recorded" | "duplicate" | "s
     product_id: event.product_id ?? null,
     payload: JSON.stringify(event.data),
   });
+
+  // P1 (arc-funnel-hardening): Write a whop_sale row for paid organic events.
+  // Runs AFTER ledger.record() (whop_event_log commit) so that if this step fails,
+  // the event is still captured in whop_event_log and can be backfilled. The write
+  // is non-fatal — writePaidSaleIfEligible() catches and logs any INSERT failure.
+  writePaidSaleIfEligible(event, amountCents);
+
   // Advisory signal into the artifact pool — AFTER record (unlike the critical task
   // surface, which is before): a crash here drops at most one advisory pool signal,
   // never duplicates it (re-ingest dedups at the ledger). P21.
