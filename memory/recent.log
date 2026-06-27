@@ -751,3 +751,5 @@ Subject: Retrospecti
 2026-06-27T00:43:09.372Z | task #20044 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Pattern already in content-publish-verify-deploy.md (section 5); added 2026-06-2
 2026-06-27T01:08:09.656Z | task #20045 | completed | sonnet | Watch report — 2026-06-27T01:03Z | Watch report 2026-06-27T01:03Z: 30 completed, 0 failed, $11.96 spent, 32 cycles 
 2026-06-27T02:03:25.935Z | task #20046 | completed | sonnet | Post public-forum teaser: "Discovered, Not Invented" | Public-forum teaser posted: post_1CcSwdmn6mYdopVTzgvyiM in exp_YRtS3kgMVeBGzu — 
+2026-06-27T02:09:41.882Z | task #20047 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-06-27T02:29:52.122Z | task #20048 | completed | sonnet | architecture review — codebase changed since last review (fa | P2 arc-funnel-hardening: DAILY_TWEET_CAP=6 + CC x-thread daily cap + cmdPost kil
