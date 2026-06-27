@@ -231,10 +231,10 @@ async function loadBudget(): Promise<DailyBudget> {
 
 async function saveBudget(budget: DailyBudget): Promise<void> {
   // P2 arc-funnel-hardening: atomic temp-and-rename (crash-safe, matches saveReadBudget).
-  const tmp = BUDGET_PATH + ".tmp";
-  await Bun.write(tmp, JSON.stringify(budget, null, 2));
+  const temporaryFilePath = BUDGET_PATH + ".tmp";
+  await Bun.write(temporaryFilePath, JSON.stringify(budget, null, 2));
   const { renameSync } = await import("node:fs");
-  renameSync(tmp, BUDGET_PATH);
+  renameSync(temporaryFilePath, BUDGET_PATH);
 }
 
 class BudgetExhaustedError extends Error {
@@ -508,8 +508,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // Total-tweet daily cap. Panel target (arc-strategy-panel 2026-06-27): 6 tweets/day.
     // Primary enforcer; BUDGET_LIMITS.posts=3 is a secondary root-only guard.
     const todayCount = (guardDb.query(
-      "SELECT COUNT(*) as cnt FROM x_post_log WHERE date(posted_at) = date('now')"
-    ).get() as { cnt: number } | null)?.cnt ?? 0;
+      "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now')"
+    ).get() as { total_count: number } | null)?.total_count ?? 0;
     if (todayCount >= DAILY_TWEET_CAP) {
       log(`daily tweet cap exhausted (${todayCount}/${DAILY_TWEET_CAP} total tweets today) — deferring`);
       console.log(JSON.stringify({
