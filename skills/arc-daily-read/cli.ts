@@ -191,7 +191,7 @@ function composeBeat(): Beat {
     ``,
     `${sparklineText}`,
     ``,
-    `Arc's Daily Read — Edition ${editionN}.`,
+    `Arc's Daily Read — Edition ${editionN}`,
   ].join("\n").slice(0, 240);
 
   // Tweet 2: So-what call — first-person operational, stakes, specific implication
