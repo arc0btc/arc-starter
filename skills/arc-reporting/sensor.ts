@@ -76,10 +76,15 @@ function buildInflowSummary(sinceHours: number): string {
   lines.push(`  total: ${totalConsumed}`);
 
   // Stuck-distill alert: any type with 0 produced in 36h while gates are ON.
+  // council is exempt: monitoring moved off the Genesis-Works/agent-coordination repo
+  // to a live VM in 2026-06-27. Repo HEAD is permanently stale by design now.
+  // Remove from STUCK_EXEMPT once live-VM sensor is built (whoabuddy pending).
   const STUCK_HOURS = 36;
+  const STUCK_EXEMPT = new Set<ArtifactType>(["council"]);
   const stuckProduced = countByType(STUCK_HOURS);
   const stuckTypes: ArtifactType[] = [];
   for (const type of ARTIFACT_TYPES) {
+    if (STUCK_EXEMPT.has(type)) continue;
     if (stuckProduced[type] === 0) stuckTypes.push(type);
   }
   if (stuckTypes.length > 0) {
