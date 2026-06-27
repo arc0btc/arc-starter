@@ -792,3 +792,4 @@ Subject: Retrospecti
 2026-06-27T14:14:01.583Z | task #20086 | completed | sonnet | Site consistency drift detected: 1 issue(s) | False positive: site uses 'catalog'/'membership'/'report' not 'service'. Broaden
 2026-06-27T14:32:10.507Z | task #20087 | completed | sonnet | architecture review — codebase changed since last review (fa | arc-daily-read (P3 demand) added to state machine; site-consistency note updated
 2026-06-27T14:33:36.762Z | task #20088 | completed | sonnet | workflow review — 1 health issue(s) | False positive: all 9 active workflows are time-gated correctly (noop on evaluat
+2026-06-27T14:35:17.381Z | task #20089 | completed | haiku | Retrospective: extract learnings from task #20087 — architec | Extracted 3 learnings from architecture review task #20087: (1) carry-watch esca
