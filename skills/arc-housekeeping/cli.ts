@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { existsSync, statSync, readdirSync, mkdirSync, renameSync, readFileSync, unlinkSync } from "node:fs";
+import { existsSync, statSync, readdirSync, mkdirSync, renameSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
 import { join, relative } from "node:path";
 import { initDatabase } from "../../src/db.ts";
 
@@ -11,7 +11,10 @@ const DB_PATH = join(ROOT, "db/arc.sqlite");
 const MEMORY_PATH = join(ROOT, "memory/MEMORY.md");
 const LOCK_STALE_MINUTES = 60;
 const WAL_MAX_MB = 10;
-const MEMORY_MAX_LINES = 200;
+const MEMORY_WARN_LINES = 180;
+const MEMORY_HARD_LINES = 200;
+const RECENT_LOG_MAX_LINES = 500;
+const RECENT_LOG_PATH = join(ROOT, "memory/recent.log");
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
 const ISO_PATTERN = /^\d{4}-\d{2}-\d{2}T/;
 const ARCHIVAL_DIRS = ["reports", "arc-link-research"];
@@ -28,6 +31,7 @@ interface CheckReport {
   staleLockAgeMinutes: number | null;
   walSizeMb: number | null;
   memoryLines: number | null;
+  recentLogLines: number | null;
   archivalNeeded: string[];
   staleWorktrees: string[];
   issueCount: number;
@@ -43,6 +47,7 @@ function runChecks(): CheckReport {
     staleLockAgeMinutes: null,
     walSizeMb: null,
     memoryLines: null,
+    recentLogLines: null,
     archivalNeeded: [],
     staleWorktrees: [],
     issueCount: 0,
@@ -100,6 +105,16 @@ function runChecks(): CheckReport {
     }
   }
 
+  // 4b. recent.log line count
+  if (existsSync(RECENT_LOG_PATH)) {
+    try {
+      const content = readFileSync(RECENT_LOG_PATH, "utf-8");
+      report.recentLogLines = content.split("\n").filter((l) => l.trim()).length;
+    } catch {
+      // ignore
+    }
+  }
+
   // 5. ISO 8601 archival
   for (const dir of ARCHIVAL_DIRS) {
     const dirPath = join(ROOT, dir);
@@ -142,7 +157,8 @@ function runChecks(): CheckReport {
   if (report.untracked.length > 0) report.issueCount++;
   if (report.staleLock) report.issueCount++;
   if (report.walSizeMb !== null && report.walSizeMb > WAL_MAX_MB) report.issueCount++;
-  if (report.memoryLines !== null && report.memoryLines > MEMORY_MAX_LINES) report.issueCount++;
+  if (report.memoryLines !== null && report.memoryLines >= MEMORY_WARN_LINES) report.issueCount++;
+  if (report.recentLogLines !== null && report.recentLogLines > RECENT_LOG_MAX_LINES) report.issueCount++;
   if (report.archivalNeeded.length > 0) report.issueCount++;
   if (report.staleWorktrees.length > 0) report.issueCount++;
 
@@ -232,10 +248,26 @@ function runFix(): void {
     }
   }
 
-  // 6. Memory bloat — can't auto-fix, just report
-  if (report.memoryLines !== null && report.memoryLines > MEMORY_MAX_LINES) {
+  // 6. recent.log trim
+  if (report.recentLogLines !== null && report.recentLogLines > RECENT_LOG_MAX_LINES) {
+    process.stdout.write(`fixing: recent.log has ${report.recentLogLines} lines (threshold: ${RECENT_LOG_MAX_LINES})\n`);
+    try {
+      const content = readFileSync(RECENT_LOG_PATH, "utf-8");
+      const lines = content.split("\n").filter((l) => l.trim());
+      const trimmed = lines.slice(-RECENT_LOG_MAX_LINES).join("\n") + "\n";
+      writeFileSync(RECENT_LOG_PATH, trimmed, "utf-8");
+      process.stdout.write(`  trimmed to ${RECENT_LOG_MAX_LINES} lines (kept most recent)\n`);
+      fixed++;
+    } catch (error) {
+      process.stderr.write(`  trim failed: ${error instanceof Error ? error.message : String(error)}\n`);
+    }
+  }
+
+  // 7. Memory bloat — can't auto-fix, just report
+  if (report.memoryLines !== null && report.memoryLines >= MEMORY_WARN_LINES) {
+    const level = report.memoryLines >= MEMORY_HARD_LINES ? "AT TRUNCATION CLIFF" : "approaching cliff";
     process.stdout.write(
-      `skipping: MEMORY.md is ${report.memoryLines} lines — needs manual consolidation via manage-skills\n`
+      `skipping: MEMORY.md is ${report.memoryLines} lines (${level}) — run 'arc skills run --name arc-memory -- archive' then consolidate\n`
     );
   }
 

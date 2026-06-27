@@ -14,14 +14,22 @@
  */
 
 import { join } from "node:path";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from "node:fs";
 import { Database } from "bun:sqlite";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const PATTERNS_PATH = join(ROOT, "memory", "patterns.md");
 const FRAMEWORKS_PATH = join(ROOT, "memory", "frameworks.md");
 const MEMORY_PATH = join(ROOT, "memory", "MEMORY.md");
+const RECENT_LOG_PATH = join(ROOT, "memory", "recent.log");
+const SHARED_ENTRIES_DIR = join(ROOT, "memory", "shared", "entries");
+const ARCHIVE_DIR = join(ROOT, "memory", "archive");
 const DB_PATH = join(ROOT, "db", "arc.sqlite");
+
+const MEMORY_WARN_LINES = 180;
+const MEMORY_HARD_LINES = 200;
+const RECENT_LOG_MAX_LINES = 500;
+const STALE_TAG_DAYS = 14;
 
 // Category headers as they appear in MEMORY.md
 const CATEGORY_HEADERS: Record<string, string> = {
@@ -512,6 +520,128 @@ function cmdRetrospective(args: string[]): void {
   }
 }
 
+// ---- health ----
+
+interface HealthIssue {
+  level: "warn" | "fail";
+  check: string;
+  detail: string;
+}
+
+function cmdHealth(_args: string[]): void {
+  const issues: HealthIssue[] = [];
+
+  // 1. MEMORY.md line count
+  const memoryContent = existsSync(MEMORY_PATH) ? readFileSync(MEMORY_PATH, "utf8") : "";
+  const memoryLines = memoryContent ? memoryContent.split("\n").length : 0;
+  if (memoryLines >= MEMORY_HARD_LINES) {
+    issues.push({ level: "fail", check: "memory-lines", detail: `MEMORY.md ${memoryLines} lines — AT Claude Code truncation cliff (hard: ${MEMORY_HARD_LINES})` });
+  } else if (memoryLines >= MEMORY_WARN_LINES) {
+    issues.push({ level: "warn", check: "memory-lines", detail: `MEMORY.md ${memoryLines} lines — approaching truncation cliff (warn: ${MEMORY_WARN_LINES}, hard: ${MEMORY_HARD_LINES})` });
+  }
+
+  // 2. recent.log line count
+  const recentLogContent = existsSync(RECENT_LOG_PATH) ? readFileSync(RECENT_LOG_PATH, "utf8") : "";
+  const recentLogLines = recentLogContent ? recentLogContent.split("\n").filter((l) => l.trim()).length : 0;
+  if (recentLogLines > RECENT_LOG_MAX_LINES) {
+    issues.push({ level: "fail", check: "recent-log", detail: `recent.log ${recentLogLines} lines — over threshold (max: ${RECENT_LOG_MAX_LINES})` });
+  }
+
+  // 3. Orphaned shared/entries/*.md (no [[slug]] AND no index line in MEMORY.md)
+  const orphaned: string[] = [];
+  if (existsSync(SHARED_ENTRIES_DIR)) {
+    const entryFiles = readdirSync(SHARED_ENTRIES_DIR).filter((f) => f.endsWith(".md"));
+    for (const file of entryFiles) {
+      const slug = file.replace(/\.md$/, "");
+      const hasLink = memoryContent.includes(`[[${slug}]]`);
+      // index lines look like: - [Title](memory/shared/entries/slug.md)
+      const hasIndex = memoryContent.includes(`(memory/shared/entries/${file})`);
+      if (!hasLink && !hasIndex) orphaned.push(slug);
+    }
+  }
+  if (orphaned.length > 0) {
+    issues.push({
+      level: "warn",
+      check: "orphaned-entries",
+      detail: `${orphaned.length} orphaned shared/entries (no inbound link): ${orphaned.slice(0, 5).join(", ")}${orphaned.length > 5 ? ` +${orphaned.length - 5} more` : ""}`,
+    });
+  }
+
+  // 4. Broken [[slug]] links (slug referenced in MEMORY.md but no file exists)
+  const linkMatches = [...memoryContent.matchAll(/\[\[([a-z0-9-]+)\]\]/g)];
+  const brokenLinks: string[] = [];
+  if (linkMatches.length > 0) {
+    for (const m of linkMatches) {
+      const slug = m[1];
+      if (!existsSync(join(SHARED_ENTRIES_DIR, `${slug}.md`))) {
+        brokenLinks.push(slug);
+      }
+    }
+  }
+  const uniqueBroken = [...new Set(brokenLinks)];
+  if (uniqueBroken.length > 0) {
+    issues.push({ level: "warn", check: "broken-links", detail: `${uniqueBroken.length} broken [[slug]] link(s): ${uniqueBroken.join(", ")}` });
+  }
+
+  // 5. Stale [STATE: YYYY-MM-DD] tags in [A] section (> 14 days)
+  const staleTagPattern = /\[STATE: (\d{4}-\d{2}-\d{2})\]/g;
+  const nowMs = new Date().getTime();
+  const staleTags: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = staleTagPattern.exec(memoryContent)) !== null) {
+    const ageDays = (nowMs - new Date(m[1]).getTime()) / 86_400_000;
+    if (ageDays > STALE_TAG_DAYS) staleTags.push(`${m[1]} (${Math.round(ageDays)}d)`);
+  }
+  if (staleTags.length > 0) {
+    issues.push({ level: "warn", check: "stale-tags", detail: `${staleTags.length} stale [STATE:] tag(s): ${staleTags.join(", ")}` });
+  }
+
+  // Report
+  const now = new Date().toISOString();
+  console.log(`MEMORY HEALTH AUDIT — ${now}`);
+  console.log("=".repeat(60));
+  console.log(`MEMORY.md   ${memoryLines} lines  (warn: ${MEMORY_WARN_LINES}, hard: ${MEMORY_HARD_LINES})`);
+  console.log(`recent.log  ${recentLogLines} lines  (max: ${RECENT_LOG_MAX_LINES})`);
+
+  if (issues.length === 0) {
+    console.log("\nSTATUS: OK — no issues found");
+    return;
+  }
+
+  console.log(`\nISSUES (${issues.length}):`);
+  for (const issue of issues) {
+    const prefix = issue.level === "fail" ? "[FAIL]" : "[WARN]";
+    console.log(`  ${prefix} ${issue.detail}`);
+  }
+
+  const failures = issues.filter((i) => i.level === "fail").length;
+  const status = failures > 0 ? "FAIL" : "WARN";
+  console.log(`\nSTATUS: ${status} — ${issues.length} issue(s) found`);
+  if (failures > 0) process.exit(1);
+}
+
+// ---- archive ----
+
+function cmdArchive(_args: string[]): void {
+  if (!existsSync(MEMORY_PATH)) {
+    console.error("MEMORY.md not found");
+    process.exit(1);
+  }
+
+  mkdirSync(ARCHIVE_DIR, { recursive: true });
+
+  // Timestamp: YYYY-MM-DDTHH-MM-SSZ
+  const ts = new Date().toISOString().replace(/:/g, "-").replace(/\.\d{3}Z$/, "Z");
+  const archivePath = join(ARCHIVE_DIR, `${ts}-memory.md`);
+
+  const content = readFileSync(MEMORY_PATH, "utf8");
+  writeFileSync(archivePath, content, "utf8");
+
+  const lineCount = content.split("\n").length;
+  console.log(`Archived MEMORY.md (${lineCount} lines) → memory/archive/${ts}-memory.md`);
+  console.log("Now safe to consolidate MEMORY.md.");
+}
+
 // ---- framework ----
 
 function cmdFramework(args: string[]): void {
@@ -585,6 +715,12 @@ switch (command) {
   case "framework":
     cmdFramework(rest);
     break;
+  case "health":
+    cmdHealth(rest);
+    break;
+  case "archive":
+    cmdArchive(rest);
+    break;
   default:
     console.log("Usage: arc skills run --name arc-memory -- <command> [options]");
     console.log("Commands:");
@@ -595,6 +731,8 @@ switch (command) {
     console.log("  list-sections");
     console.log("  retrospective [--days 7] [--dry-run]");
     console.log('  framework     [--name "NAME"]');
+    console.log("  health        read-only audit: line counts, orphaned entries, broken links, stale tags");
+    console.log("  archive       snapshot current MEMORY.md to memory/archive/ before consolidation");
     if (command && command !== "--help" && command !== "-h") {
       console.error(`\nUnknown command: ${command}`);
       process.exit(1);

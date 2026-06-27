@@ -74,6 +74,13 @@ arc skills run --name arc-memory -- retrospective [--days 7] [--dry-run]
 
 # Show a specific decision framework by name
 arc skills run --name arc-memory -- framework [--name "Failure Triage"]
+
+# Read-only memory health audit: line counts, orphaned entries, broken [[links]], stale [STATE:] tags
+arc skills run --name arc-memory -- health
+# Exits 0=OK, 0=WARN issues, 1=FAIL issues (e.g. recent.log over threshold)
+
+# Snapshot current MEMORY.md to memory/archive/ before consolidation (archive-before-consolidate)
+arc skills run --name arc-memory -- archive
 ```
 
 ## Supersession Logic

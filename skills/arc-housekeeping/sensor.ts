@@ -2,6 +2,7 @@ import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertT
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
+
 const SENSOR_NAME = "arc-housekeeping";
 const INTERVAL_MINUTES = 120;
 const TASK_SOURCE = "sensor:arc-housekeeping";
@@ -14,8 +15,11 @@ const WAL_PATH = join(ROOT, "db/arc.sqlite-wal");
 const MEMORY_PATH = join(ROOT, "memory/MEMORY.md");
 const LOCK_STALE_MINUTES = 60;
 const WAL_MAX_MB = 10;
-const MEMORY_MAX_LINES = 200;
+const MEMORY_WARN_LINES = 180;
+const MEMORY_HARD_LINES = 200;
+const RECENT_LOG_MAX_LINES = 500;
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
+const SHARED_ENTRIES_DIR = join(ROOT, "memory/shared/entries");
 // After a zero-fix run, skip 4 sensor cycles before retrying (8h with 120min interval).
 const ZERO_FIX_COOLDOWN_MINUTES = 480;
 const ZERO_FIX_PATTERNS = ["all clean", "nothing to fix", "no issues found", "fixed 0"];
@@ -74,13 +78,52 @@ export default async function housekeepingSensor(): Promise<string> {
     }
   }
 
-  // 5. Memory file size
+  // 5. Memory file health
   if (existsSync(MEMORY_PATH)) {
     try {
       const content = await Bun.file(MEMORY_PATH).text();
       const lineCount = content.split("\n").length;
-      if (lineCount > MEMORY_MAX_LINES) {
-        issues.push(`MEMORY.md is ${lineCount} lines (threshold: ${MEMORY_MAX_LINES})`);
+      if (lineCount >= MEMORY_HARD_LINES) {
+        issues.push(`MEMORY.md ${lineCount} lines — AT Claude Code truncation cliff (hard: ${MEMORY_HARD_LINES})`);
+      } else if (lineCount >= MEMORY_WARN_LINES) {
+        issues.push(`MEMORY.md ${lineCount} lines — approaching truncation cliff (warn: ${MEMORY_WARN_LINES})`);
+      }
+
+      // Broken [[slug]] links
+      const linkMatches = [...content.matchAll(/\[\[([a-z0-9-]+)\]\]/g)];
+      if (linkMatches.length > 0 && existsSync(SHARED_ENTRIES_DIR)) {
+        const broken = [...new Set(linkMatches.map((m) => m[1]))].filter(
+          (slug) => !existsSync(join(SHARED_ENTRIES_DIR, `${slug}.md`))
+        );
+        if (broken.length > 0) {
+          issues.push(`${broken.length} broken [[slug]] link(s) in MEMORY.md`);
+        }
+      }
+
+      // Orphaned shared/entries (no [[slug]] AND no index line)
+      if (existsSync(SHARED_ENTRIES_DIR)) {
+        const entryFiles = readdirSync(SHARED_ENTRIES_DIR).filter((f) => f.endsWith(".md"));
+        const orphaned = entryFiles.filter((file) => {
+          const slug = file.replace(/\.md$/, "");
+          return !content.includes(`[[${slug}]]`) && !content.includes(`(memory/shared/entries/${file})`);
+        });
+        if (orphaned.length > 0) {
+          issues.push(`${orphaned.length} orphaned shared/entries (no inbound link in MEMORY.md)`);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 5b. recent.log line count
+  const RECENT_LOG_PATH = join(ROOT, "memory/recent.log");
+  if (existsSync(RECENT_LOG_PATH)) {
+    try {
+      const logContent = await Bun.file(RECENT_LOG_PATH).text();
+      const lineCount = logContent.split("\n").filter((l) => l.trim()).length;
+      if (lineCount > RECENT_LOG_MAX_LINES) {
+        issues.push(`recent.log is ${lineCount} lines (threshold: ${RECENT_LOG_MAX_LINES})`);
       }
     } catch {
       // ignore
