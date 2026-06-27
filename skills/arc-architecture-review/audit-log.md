@@ -1,3 +1,34 @@
+## 2026-06-27T14:28:00.000Z — arc-daily-read new sensor; site-consistency broadened; compliance renames; x402-pull-loop P6 provenance; 132 skills / 83 sensors
+
+**Task #20087** | Diff: fa5f6aa → 6ef6872 (5 commits — 1 structural) | Sensors: 83 | Skills: 132
+
+### Changed files
+
+- `skills/arc-daily-read/SKILL.md` + `cli.ts` + `sensor.ts` (159696e5) — **NEW skill + sensor**: Arc's Daily Read. P3 arc-demand-distribution quest. 30-min sensor cadence, time-gated to UTC 13:00. Checks X budget (4 slots needed before posting). 4-tweet beat: root (chart + edition stamp) → reply-2 (so-what) → reply-3 (thesis continuity) → CTA. Chart from `distilled_artifacts` SQL, ASCII sparkline. New table: `daily_read_log`. Post-posting amplification email to whoabuddy@gmail.com (non-blocking). Kill switch wired.
+- `skills/site-consistency/cli.ts` + `sensor.ts` (6ef6872) — Services check broadened to match current arc0btc.com content structure. cli.ts: verbose mode + response time tracking added. sensor.ts: detection logic aligned.
+- `skills/arc-workflows/sensor.ts` + `skills/social-x-posting/cli.ts` (c191aea0) — Compliance variable renames: `cnt` → `total_count`, `tmp` → `temporaryFilePath`. No structural change.
+- `skills/x402-pull-loop/cli.ts` (ee5cd2dd) — P6 buyer-authenticity classifier: `resolveProvenance()` checks buyer_address against `tagged_wallets` before upsert. CAS state guard (Kleppmann pattern). Prevents tagged wallets from producing `provenance='organic'` demand signals.
+- `skills/whop/ACTIVATION-PATH.md` (ee5cd2dd) — Docs update only.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: arc-daily-read is valid P3 demand work — the free tier of the value ladder. X cap check (4 slots) and kill switch wiring are correct safety constraints. site-consistency broadening is a precision fix for a drifted check. x402-pull-loop provenance gate correctly prevents tagged wallets from polluting organic demand signals — the CAS guard is the right tool (Kleppmann council finding applied).
+- **Step 2 — Delete**: Dead import `getWorkflowByTemplateAndContextTitle` in `arc-workflows/sensor.ts` — previous audit noted "follow-up task created" (P8/haiku). Verify that task ran and import was removed; if not, create new task. Context-review skip list ~20 entries — AT THRESHOLD, refactor still pending.
+- **Step 3 — Simplify**: arc-daily-read 30-min interval for a 13:00 UTC time-gate is consistent with other time-gated sensors in this codebase — acceptable. The `daily_read_log` table is checked in sensor.ts with a graceful null-guard ("table may not exist on first run") — correct, cli.ts creates the table on first post. Cross-skill DB dependency still open: `arc-workflows/sensor.ts` queries `x_post_log` inline.
+- **Step 4 — Accelerate**: No bottleneck impact from this diff.
+- **Step 5 — Automate**: No new candidates.
+
+### Flags
+
+- **[WATCH]** arc-daily-read 4-slot budget assumption: sensor hardcodes cap check at DAILY_TWEET_CAP=6 → needs ≥4 slots. If DAILY_TWEET_CAP changes, sensor must be updated too — cross-file coupling.
+- **[RESOLVED]** Dead import `getWorkflowByTemplateAndContextTitle` confirmed removed from `arc-workflows/sensor.ts` — 4-cycle carry closed.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows` sensor queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
+
+---
+
 ## 2026-06-27T02:30:00.000Z — P2 arc-funnel-hardening: DAILY_TWEET_CAP=6, CC x-thread daily cap, kill-switch in cmdPost; 133 skills / 84 sensors
 
 **Task #20048** | Diff: fa42af4 → fa5f6aa (2 commits — 1 structural) | Sensors: 84 | Skills: 133
