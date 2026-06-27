@@ -149,3 +149,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-mechanical-triage-cache-selective-enrich** [2026-06-27, task #20093] For large URL batches (>10 items): run one mechanical triage pass (CLI aggregator, parse+cache+follow t.co embeds, zero LLM) to populate shared cache; then selectively read caches for high-relevance items; consolidate topics before fan-out. Avoids spawning N inline LLM agents per URL — batch mechanical pass saves context cardinality, enables better dedup and topic clustering, reduces downstream redundancy. Pattern: process-one-batch → cache-all → read-selectively → consolidate → fan-out.
 
+**p-synthesis-topic-reuse** [2026-06-27, task #20098] Before authoring a synthesized report on a topic, check for recent synthesis coverage; cross-reference and cite rather than re-synthesizing from scratch. Reduces token cardinality and prevents redundant synthesis when multiple research tasks converge on overlapping topics. Distinct from source-level dedup — this is synthesis-efficiency at topic level.
+
