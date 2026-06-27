@@ -165,3 +165,7 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-consolidation-snapshot-atomicity** [2026-06-27, task #20119] Before running consolidation (merge/compress), snapshot current memory to `memory/archive/YYYY-MM-DDTHH-MM-SSZ-memory.md` with ISO timestamp, enabling rollback if consolidation loses critical context; makes consolidation operation auditable and reversible. Archive snapshots also serve as a before/after audit trail.
 
+**p-synthesis-batch-parallel-reads** [2026-06-27, task #20112] For large batches of pre-cached reports (N items already collected locally): dispatch parallel subagent read-tasks (each processing 3–5 items) to extract summaries into structured format, keeping orchestrator context lean; consolidate results in-context. Avoids sequential context bloat and enables faster synthesis cycles.
+
+**p-synthesis-format-template-anchoring** [2026-06-27, task #20112] Structured synthesis tasks with fixed output format benefit from identifying a gold-standard template upfront (e.g., $9 guide HTML/CSS structure), then matching all synthesis passages to that format. Template-first approach prevents format drift across multi-stage composition and accelerates final assembly.
+
