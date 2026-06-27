@@ -753,3 +753,4 @@ Subject: Retrospecti
 2026-06-27T02:03:25.935Z | task #20046 | completed | sonnet | Post public-forum teaser: "Discovered, Not Invented" | Public-forum teaser posted: post_1CcSwdmn6mYdopVTzgvyiM in exp_YRtS3kgMVeBGzu — 
 2026-06-27T02:09:41.882Z | task #20047 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-27T02:29:52.122Z | task #20048 | completed | sonnet | architecture review — codebase changed since last review (fa | P2 arc-funnel-hardening: DAILY_TWEET_CAP=6 + CC x-thread daily cap + cmdPost kil
+2026-06-27T02:30:36.227Z | task #20050 | completed | sonnet | compliance-review: 5 finding(s) [batch 1/1] | Fixed 5 abbreviated naming violations: cnt→total_count in arc-workflows/sensor.t
