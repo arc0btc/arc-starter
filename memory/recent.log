@@ -508,3 +508,4 @@
 2026-06-27T15:46:05.647Z | task #20094 | completed | haiku | Retrospective: extract learnings from task #20091 — Email fr | No learnings to capture
 2026-06-27T15:47:10.571Z | task #20096 | completed | haiku | Retrospective: extract learnings from task #20092 — Email fr | Extracted infrastructure-migration false-positive pattern. When systems migrate 
 2026-06-27T15:48:08.183Z | task #20114 | completed | haiku | Retrospective: extract learnings from task #20093 — Triage + | Extracted 1 new pattern: mechanical-triage-cache-selective-enrich (batch URL orc
+2026-06-27T15:49:08.087Z | task #20116 | completed | haiku | Retrospective: extract learnings from task #20097 — Email fr | FYI vs actionable email classification pattern added to p-email-task-handling
