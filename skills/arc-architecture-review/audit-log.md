@@ -1,3 +1,33 @@
+## 2026-06-27T02:30:00.000Z — P2 arc-funnel-hardening: DAILY_TWEET_CAP=6, CC x-thread daily cap, kill-switch in cmdPost; 133 skills / 84 sensors
+
+**Task #20048** | Diff: fa42af4 → fa5f6aa (2 commits — 1 structural) | Sensors: 84 | Skills: 133
+
+### Changed files
+
+- `skills/social-x-posting/cli.ts` (fa5f6aa) — P2 arc-funnel-hardening: `DAILY_TWEET_CAP=6` constant added; all `cmdPost` calls now check total tweet count via `x_post_log` before firing (covers root + continuation + CTA). Kill switch (`outbound_enabled=false`) wired into `cmdPost` — previously only `social-engine/admission.ts` enforced it; direct-post path was a gap. `is_root` column added to `x_post_log` schema (idempotent `ALTER TABLE`). `saveBudget` now uses atomic temp-and-rename via `node:fs.renameSync` (Bun has no native rename — unavoidable `node:*` import).
+- `skills/arc-workflows/sensor.ts` (fa5f6aa) — CC x-thread daily cap: `ContentCalendarMachine` x-thread steps (`content-calendar:<slug>:x`, excluding `:x-cta`) now check `x_post_log` row count before `insertTask`. Cap is 1/day. Panel target (arc-strategy-panel 2026-06-27): 25-workflow CC backlog drains in 25 days at this rate. Uses `getDatabase()` inline — cross-skill DB read (see Flags).
+- `skills/blog-publishing/sensor.ts` (fa5f6aa) — CTA footer product name updated: "The Harness Engineering Field Guide" → "Arc Daily Research Report". Cosmetic, no structural change.
+- `skills/social-x-posting/CADENCE.md` (fa5f6aa) — P2 doctrine documented: 1 thread/day + ≤6 total tweets/day. Updated pillar table.
+- `skills/whop/lib/events.ts` (7a8a1b20) — Secondary commit: no structural change (prior audit covered).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: `DAILY_TWEET_CAP=6` is panel-confirmed doctrine. The prior 3-root cap allowed continuations to bypass the spirit of the limit; the new total-tweet cap closes that gap. Kill switch in `cmdPost` is a valid defense-in-depth fix — the direct post path was a genuine bypass. `is_root` column is minimal and necessary for future analytics. CTA text rename is a product naming correction.
+- **Step 2 — Delete**: `[DEAD-IMPORT]` `getWorkflowByTemplateAndContextTitle` imported in `arc-workflows/sensor.ts` but never called — this is the **3rd carry** without removal. Creating a follow-up task.
+- **Step 3 — Simplify**: The CC x-thread cap in `arc-workflows/sensor.ts` embeds an inline `x_post_log` query. This creates a cross-skill DB dependency: a sensor in `arc-workflows/` knows the schema of `social-x-posting/`'s post log. Cleaner boundary: extract `countXPostsToday()` to `src/db.ts`. Not urgent but worth carrying.
+- **Step 4 — Accelerate**: No bottleneck impact.
+- **Step 5 — Automate**: No new candidates.
+
+### Flags
+
+- **[ACTION — follow-up created]** Dead import `getWorkflowByTemplateAndContextTitle` in `arc-workflows/sensor.ts` — 3rd carry, removing manually now deferred to P8 haiku task.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows` sensor queries `x_post_log` inline — consider `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
+
+---
+
 ## 2026-06-26T14:26:00.000Z — no structural changes since last review; active reports processed; 133 skills / 84 sensors
 
 **Task #20018** | Diff: fa42af4 → 73ed189e (1 auto-commit — architect audit log only) | Sensors: 84 | Skills: 133
