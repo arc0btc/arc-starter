@@ -72,9 +72,12 @@ async function xPostLog() {
     `CREATE TABLE IF NOT EXISTS x_post_log (
        source TEXT PRIMARY KEY,
        tweet_id TEXT,
-       posted_at TEXT NOT NULL
+       posted_at TEXT NOT NULL,
+       is_root INTEGER NOT NULL DEFAULT 0
      )`,
   );
+  // P2 arc-funnel-hardening: add is_root column to existing installs (idempotent).
+  try { db.run("ALTER TABLE x_post_log ADD COLUMN is_root INTEGER NOT NULL DEFAULT 0"); } catch { /* already exists */ }
   return db;
 }
 
@@ -91,11 +94,11 @@ async function dedupSkip(source: string | undefined): Promise<boolean> {
   return true;
 }
 
-async function recordPost(source: string, tweetId: string | null): Promise<void> {
+async function recordPost(source: string, tweetId: string | null, isRoot: boolean = false): Promise<void> {
   const db = await xPostLog();
   db.query(
-    "INSERT OR IGNORE INTO x_post_log (source, tweet_id, posted_at) VALUES (?, ?, ?)",
-  ).run(source, tweetId, new Date().toISOString());
+    "INSERT OR IGNORE INTO x_post_log (source, tweet_id, posted_at, is_root) VALUES (?, ?, ?, ?)",
+  ).run(source, tweetId, new Date().toISOString(), isRoot ? 1 : 0);
 }
 // ---- X reply log (AI-018/031: give-3x gap for X channel) -------------------
 //
@@ -179,6 +182,12 @@ interface DailyBudget {
   follows: number;
 }
 
+// P2 arc-funnel-hardening (2026-06-27): primary daily cap covering ALL tweet types
+// (roots + thread continuations + CTA tweets). Panel target: 6/day.
+// Real X Basic-tier ceiling: ~500k reads/month = ~16k/day. 6/day is 0.04% of that.
+// BUDGET_LIMITS.posts=3 remains as a secondary root-only guard.
+const DAILY_TWEET_CAP = 6;
+
 const BUDGET_LIMITS: Record<string, number> = {
   // GTM cadence dial-down (2026-06-15): hard daily X-post ceiling lowered 10 → 3 so the
   // account reads as lean/high-signal (~1-2 substantive items/day), reserving posts for
@@ -221,7 +230,11 @@ async function loadBudget(): Promise<DailyBudget> {
 }
 
 async function saveBudget(budget: DailyBudget): Promise<void> {
-  await Bun.write(BUDGET_PATH, JSON.stringify(budget, null, 2));
+  // P2 arc-funnel-hardening: atomic temp-and-rename (crash-safe, matches saveReadBudget).
+  const tmp = BUDGET_PATH + ".tmp";
+  await Bun.write(tmp, JSON.stringify(budget, null, 2));
+  const { renameSync } = await import("node:fs");
+  renameSync(tmp, BUDGET_PATH);
 }
 
 class BudgetExhaustedError extends Error {
@@ -477,9 +490,40 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (await dedupSkip(flags["source"])) return;
   await checkCreditsDepleted();
 
+  // P2 arc-funnel-hardening: kill switch + total-tweet daily cap — both apply to ALL
+  // tweet types (root + continuation + CTA). One shared db handle: xPostLog() already
+  // runs initDatabase()/getDatabase() and ensures the x_post_log table exists.
+  {
+    const guardDb = await xPostLog();
+
+    // Kill switch: the social-engine reply lane enforces this via admission.ts; the
+    // direct post lane was missing it.
+    const ksRow = guardDb.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as { value: string } | null;
+    if (ksRow?.value === "false") {
+      log("kill switch active (outbound_enabled=false) — halting post (root or continuation)");
+      console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: "false" }));
+      return;
+    }
+
+    // Total-tweet daily cap. Panel target (arc-strategy-panel 2026-06-27): 6 tweets/day.
+    // Primary enforcer; BUDGET_LIMITS.posts=3 is a secondary root-only guard.
+    const todayCount = (guardDb.query(
+      "SELECT COUNT(*) as cnt FROM x_post_log WHERE date(posted_at) = date('now')"
+    ).get() as { cnt: number } | null)?.cnt ?? 0;
+    if (todayCount >= DAILY_TWEET_CAP) {
+      log(`daily tweet cap exhausted (${todayCount}/${DAILY_TWEET_CAP} total tweets today) — deferring`);
+      console.log(JSON.stringify({
+        deferred: true,
+        reason: "daily_tweet_cap_exhausted",
+        detail: `${todayCount}/${DAILY_TWEET_CAP} total tweets today (cap covers root + continuation + CTA)`,
+        planned_for: "tomorrow",
+      }));
+      process.exit(2);
+    }
+  }
+
   // M0-P0a: thread continuations (--reply-to set) are NOT root tweets and must NOT
-  // burn the 3/day root budget. Only root posts count against the daily cap.
-  // Admission.ts already enforces this split; this mirrors it in the legacy cli path.
+  // burn the 3/day secondary root budget. Primary cap (DAILY_TWEET_CAP) covers all types.
   const isContinuation = !!flags["reply-to"];
 
   if (!isContinuation) {
@@ -502,13 +546,13 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
             `INSERT OR IGNORE INTO planned_posts
                (source_key, lane, is_root, scheduled_utc_day, defer_count, status, notes, created_at, updated_at)
              VALUES (?, 'post', 1, date('now','+1 day'), 0, 'deferred', 'budget-exhausted auto-defer', strftime('%Y-%m-%dT%H:%M:%SZ','now'), strftime('%Y-%m-%dT%H:%M:%SZ','now'))`,
-            sourceKey
+            [sourceKey]
           );
         } catch (dbErr) {
           // Best-effort — do not block exit on DB write failure
           log(`planned_posts deferred insert failed (non-fatal): ${dbErr instanceof Error ? dbErr.message : String(dbErr)}`);
         }
-        console.log(JSON.stringify({ deferred: true, reason: "root_post_budget_exhausted", detail: msg, planned_for: "tomorrow" }));
+        console.log(JSON.stringify({ deferred: true, reason: "root_post_budget_exhausted", detail: errorMessage, planned_for: "tomorrow" }));
         process.exit(2);
       }
       throw e;
@@ -527,9 +571,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   const result = await apiRequest("POST", "/tweets", creds, body);
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
-    // Only root posts burn the 3/day budget counter.
+    // Only root posts burn the 3/day secondary root budget counter (primary is DAILY_TWEET_CAP=6).
     if (!isContinuation) await incrementBudget("posts");
-    if (flags["source"]) await recordPost(flags["source"], data["id"]);
+    if (flags["source"]) await recordPost(flags["source"], data["id"], !isContinuation);
     console.log(JSON.stringify({ id: data["id"], text: data["text"] }, null, 2));
     log(`Tweet posted: ${data["id"]}`);
   } else {

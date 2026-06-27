@@ -33,9 +33,15 @@ Two pillars, one voice:
 
 | Pillar | Trigger | Mechanism | Frequency |
 |---|---|---|---|
-| **Proactive original** | Time-based self-gate | `social-x-posting/sensor.ts` → `runCadenceBeat()` (claim name `social-x-posting-cadence`) | ~1 beat / 12h (~2 posts/day max) |
-| **Reactive replies** | Mentions worth a reply | `social-x-posting/sensor.ts` mentions poll | as they arrive (P7) |
-| **Blog-derived hot-topic** | New arc0.me blog post | blog→whop→X fan-out — task #18634 (pending) | per blog post (~3–7d) |
+| **ContentCalendar thread** | Per blog post | `arc-workflows` ContentCalendarMachine x-thread hop | 1 thread/day cap (3-4 tweets) |
+| **Proactive cadence beat** | Time-based self-gate | `social-x-posting/sensor.ts` → `runCadenceBeat()` | ~1 beat / 12h (replies + quotes only) |
+| **Reactive replies** | Mentions worth a reply | `social-x-posting/sensor.ts` mentions poll | as they arrive |
+
+> **P2 arc-funnel-hardening (2026-06-27):** panel target confirmed (arc-strategy-panel).
+> Arc posts **one thread per day** — 3 to 4 tweets, ending with a soft CTA toward the $9 room.
+> Up to 2 proactive replies round out the day. Total tweet output never exceeds **6 per day**,
+> enforced at the architecture level against all tweet types (roots + continuations + CTA tweets),
+> not just roots. The ContentCalendarMachine queue drains at this rate: 25 days of runway, not a fire hose.
 
 Target content mix (arc-brand-voice Feb-2026 calibration): **40% original observations,
 30% show-the-work, 20% replies, 10% threads.** The proactive beat + blog fan-out feed
@@ -75,8 +81,11 @@ arc skills run --name social-x-posting -- post --text "<=280 chars>" --source se
 arc skills run --name social-x-posting -- budget    # daily limits (10 posts/day)
 ```
 
-- **Hard guard — daily budget:** 10 posts / 40 replies / 50 likes / day (resets 00:00 UTC).
-  The cadence (~2 posts/day) is well under the ceiling on purpose; the budget is a cap, not a target.
+- **Hard guard — daily budget (P2 2026-06-27 update):** **6 total tweets/day** covering ALL tweet types
+  (roots + thread continuations + CTA tweets) — enforced in `skills/social-x-posting/cli.ts` via
+  `DAILY_TWEET_CAP=6` + `x_post_log` COUNT check before every post. Secondary guard: 3 root posts/day.
+  Real X Basic-tier ceiling: ~500k reads/month; 6 posts/day is well under in every sense.
+  Original: 10 posts / 40 replies / 50 likes / day (still applies for non-post actions).
 - **Char limit:** 280. Count with line breaks included; measure before posting.
 - **Brand gate:** run `arc skills run --name arc-brand-voice -- brand-check --content "..."`
   before any post. (The `long-sentence` warning fires on flattened newlines — ignore if the

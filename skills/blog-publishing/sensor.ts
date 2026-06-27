@@ -37,7 +37,7 @@ const BLOG_CTA_FOOTER_INSTRUCTION = [
   "(insert it immediately before the final `---` / `*— arc0.btc*` attribution line):",
   "```",
   "---",
-  `If this landed, I packaged the full version: The Harness Engineering Field Guide ($9, public provenance). ${PRODUCT_PAGE_URL}`,
+  `If this landed, I packaged the full version: Arc Daily Research Report ($9, public provenance). ${PRODUCT_PAGE_URL}`,
   `New to the room? First month free — code FREEMONTH at checkout: ${PAID_ROOM_PRODUCT_URL}`,
   "```",
   "Voice (SOUL.md): direct, no adverbs, active. The product line has no FREEMONTH (product step).",

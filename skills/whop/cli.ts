@@ -1015,7 +1015,8 @@ async function cmdCreateAffiliateOverride(apiKey: string, flags: Record<string, 
 //   - FREEMONTH code not active       → stderr warn (funnel broken)
 // The PROMO_CODE constant is uppercase "FREEMONTH"; live code is "freemonth"
 // (Whop normalizes case at checkout — confirmed P1; not a mismatch to warn about).
-const FREEMONTH_PROMO_ID = "promo_zubH7b43NQHF" as const;
+// P3 (2026-06-27): promo_zubH7b43NQHF archived + recreated scoped to prod_TJknsIOzPDlQS.
+const FREEMONTH_PROMO_ID = "promo_tjnNBcS2bKMz" as const; // P3 (2026-06-27): final scoped promo, 100% off 9 membership
 const LOW_STOCK_THRESHOLD = 10;
 
 async function cmdListPromoCodes(apiKey: string): Promise<void> {

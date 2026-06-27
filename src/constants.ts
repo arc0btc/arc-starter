@@ -56,13 +56,11 @@ export const PAID_ROOM_PRODUCT_URL = `https://whop.com/hash-it-out-membership/?a
 /** Paid-room CHECKOUT (direct subscribe to the $49/mo plan). Attributable. */
 export const PAID_ROOM_CHECKOUT_URL = `https://whop.com/checkout/plan_axYMvJ4cBnq8v?a=${PAID_ROOM_AFFILIATE}`;
 
-/** First-month-free promo code (Whop promo `promo_zubH7b43NQHF`: 100% off first
- *  payment, new-users-only, one-per-customer, stock 50, company-wide). The ONLY
- *  friction-reducer for the $49 entry (P6). It is redeemed by CODE ENTRY at
- *  checkout — there is no URL/config field to bake it in — so it must travel in
- *  the CTA *copy*. Defined ONCE here so the sales lane (P9), the X-thread close,
- *  and the public-forum teaser all reference one canonical code (re-scope to L1
- *  at ladder rollout → P12). */
+/** First-month-free promo code (Whop promo `promo_lJL3irn7Gvh6`: 100% off first
+ *  payment, new-users-only, one-per-customer, stock 50, scoped to $49/mo membership only).
+ *  P3 (2026-06-27): old promo `promo_zubH7b43NQHF` (product=null) archived + recreated
+ *  scoped to prod_TJknsIOzPDlQS. The ONLY friction-reducer for the $49 entry (P6).
+ *  Redeemed by CODE ENTRY at checkout — must travel in CTA copy. One canonical def here. */
 export const PROMO_CODE = "FREEMONTH" as const;
 
 // --- hash-it-out PRODUCT SKU (P10A product-led conversion) ---
@@ -84,7 +82,8 @@ export const PRODUCT_ID = "prod_HTLQdLKXqPGIS" as const;
 export const PRODUCT_PLAN_ID = "plan_iWhn7BqRgGBtu" as const;
 
 /** Product page (soft CTA — see the report, then buy). Attributable via `?a=arc0btc`. */
-export const PRODUCT_PAGE_URL = `https://whop.com/harness-engineering-field-guide/?a=${PAID_ROOM_AFFILIATE}`;
+/** P3 (2026-06-27): repointed from harness-engineering-field-guide to canonical $9 tripwire (arc-research-single). */
+export const PRODUCT_PAGE_URL = `https://whop.com/arc-research-single/?a=${PAID_ROOM_AFFILIATE}`;
 
 /** Direct one-time checkout for the product. Attributable via `?a=arc0btc`. */
 export const PRODUCT_CHECKOUT_URL = `https://whop.com/checkout/${PRODUCT_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;

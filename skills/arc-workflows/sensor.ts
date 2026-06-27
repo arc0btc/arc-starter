@@ -13,6 +13,7 @@ import {
   findWorkflowByNormalizedTitleOrUrl,
   insertWorkflow,
   completeWorkflow,
+  getDatabase,
 } from "../../src/db.ts";
 
 import {
@@ -788,6 +789,30 @@ export default async function workflowsSensor(): Promise<string> {
               log(`pr-existence: ${prOwner}/${prRepo}#${prNumber} not found — closing workflow ${workflow.id}`);
               updateWorkflowState(workflow.id, "closed", workflow.context);
               completeWorkflow(workflow.id);
+              continue;
+            }
+          }
+
+          // P2 arc-funnel-hardening: ContentCalendar x-thread daily cap (1 thread/day).
+          // Panel target (arc-strategy-panel 2026-06-27): 1 CC thread/day = a 25-day runway
+          // for the 25-workflow backlog (vs a flush that causes 8-12 tweets/day).
+          // Only gates the x-thread step (content-calendar:<slug>:x), not blog/whop hops.
+          if (
+            workflow.template === "content-calendar" &&
+            action.source &&
+            action.source.endsWith(":x") &&
+            !action.source.endsWith(":x-cta")
+          ) {
+            let ccXRootsToday = 0;
+            try {
+              const row = getDatabase().query(
+                "SELECT COUNT(*) as cnt FROM x_post_log WHERE date(posted_at) = date('now') AND source LIKE 'content-calendar:%:x' AND is_root = 1"
+              ).get() as { cnt: number } | null;
+              ccXRootsToday = row?.cnt ?? 0;
+            } catch { /* non-fatal — if DB unavailable, allow task */ }
+            if (ccXRootsToday >= 1) {
+              log(`content-calendar daily x-thread cap reached (${ccXRootsToday}/1) — deferring ${action.source} to tomorrow`);
+              bumpSkip("cc-x-thread-daily-cap");
               continue;
             }
           }

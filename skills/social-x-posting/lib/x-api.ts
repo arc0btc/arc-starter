@@ -32,8 +32,60 @@ const API_BASE = "https://api.x.com/2";
 
 const READ_BUDGET_PATH = join(import.meta.dir, "../../../db/x-read-budget.json");
 
-/** Daily cap for X API read calls from this lib (GET /mentions, /users/me). */
-export const X_MAX_READS_PER_DAY = 50;
+// ---- Follower cache (P2 arc-funnel-hardening) --------------------------------
+// Cache follower metrics for up to 4h to avoid burning read budget on every gauge run.
+// The control-plane monitor (arc-m0-north-star.ts) runs every 30min — without caching,
+// the gauge would consume 2 reads every 30min = 96 reads/day just for follower data.
+// With 4h TTL: at most 6 gauge reads/day for followers, saving ~90 reads/day.
+const FOLLOWER_CACHE_PATH = join(import.meta.dir, "../../../db/hook-state/follower-cache.json");
+const FOLLOWER_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+
+interface FollowerCacheEntry {
+  date: string;          // YYYY-MM-DD UTC — invalidated at midnight
+  cached_at: string;     // ISO8601 — TTL check
+  followers_count: number;
+  following_count: number;
+  tweet_count: number;
+  cached: true;          // Tag so callers can tell this is a cached value
+}
+
+async function loadFollowerCache(): Promise<FollowerCacheEntry | null> {
+  try {
+    const f = Bun.file(FOLLOWER_CACHE_PATH);
+    if (!(await f.exists())) return null;
+    const data = (await f.json()) as FollowerCacheEntry;
+    // Must be today's date and within TTL
+    const today = new Date().toISOString().slice(0, 10);
+    if (data.date !== today) return null;
+    const age = Date.now() - new Date(data.cached_at).getTime();
+    if (age > FOLLOWER_CACHE_TTL_MS) return null;
+    return data;
+  } catch {
+    // Parse failure or missing = cache miss (never an error)
+    return null;
+  }
+}
+
+async function saveFollowerCache(metrics: { followers_count: number; following_count: number; tweet_count: number }): Promise<void> {
+  const entry: FollowerCacheEntry = {
+    date: new Date().toISOString().slice(0, 10),
+    cached_at: new Date().toISOString(),
+    followers_count: metrics.followers_count,
+    following_count: metrics.following_count,
+    tweet_count: metrics.tweet_count,
+    cached: true,
+  };
+  const tmp = FOLLOWER_CACHE_PATH + ".tmp";
+  await Bun.write(tmp, JSON.stringify(entry, null, 2) + "\n");
+  const { renameSync } = await import("node:fs");
+  renameSync(tmp, FOLLOWER_CACHE_PATH);
+}
+
+/** Daily cap for X API read calls from this lib (GET /mentions, /users/me).
+ * P2 arc-funnel-hardening (2026-06-27): raised 50 → 100.
+ * Real X Basic-tier ceiling: ~500k reads/month = ~16,667/day. 100/day = 0.6% of that.
+ * The follower cache (below) further reduces actual consumption. */
+export const X_MAX_READS_PER_DAY = 100;
 
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
@@ -410,18 +462,31 @@ export interface FollowerMetrics {
 export async function fetchFollowerMetrics(
   creds: XCreds,
   arcUserId?: string,
-): Promise<FollowerMetrics> {
+): Promise<FollowerMetrics & { cached?: boolean }> {
+  // P2 arc-funnel-hardening: check 4h cache before consuming read budget.
+  const cached = await loadFollowerCache();
+  if (cached) {
+    return {
+      followers_count: cached.followers_count,
+      following_count: cached.following_count,
+      tweet_count: cached.tweet_count,
+      cached: true,
+    };
+  }
   const endpoint = arcUserId ? `/users/${arcUserId}` : "/users/me";
   const resp = await xApiGet(endpoint, creds, {
     "user.fields": "public_metrics",
   });
   const data = (resp["data"] as Record<string, unknown> | undefined) ?? {};
   const metrics = (data["public_metrics"] as Record<string, number> | undefined) ?? {};
-  return {
+  const result = {
     followers_count: metrics["followers_count"] ?? 0,
     following_count: metrics["following_count"] ?? 0,
     tweet_count: metrics["tweet_count"] ?? 0,
   };
+  // Save to cache so next call within 4h skips the API
+  try { await saveFollowerCache(result); } catch { /* cache write is best-effort */ }
+  return result;
 }
 
 // ---- Per-touch post metrics (P5 arc-reach-unblock) -------------------------
