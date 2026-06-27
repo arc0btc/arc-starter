@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-25T21:25:47.255Z",
+  "lastScannedAt": "2026-06-27T03:08:37.304Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -72,6 +72,9 @@
     "synthesis-interpretation",
     "rate-limit-budget-discipline",
     "sensor-stale-block-diagnostics",
-    "paid-tier-receipt-routing"
+    "paid-tier-receipt-routing",
+    "external-agent-cost-benchmarking",
+    "independent-convergence-validates-design",
+    "whop-seed-preflight"
   ]
 }

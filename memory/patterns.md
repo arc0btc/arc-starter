@@ -150,3 +150,6 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-independent-convergence-validates-design** [2026-06-27, task #20053] When multiple independent implementations (Arc, Hermes, external agents) converge on the same architecture without cross-reference, the design is validated — stop defending choices, instead find where each version broke. Convergence on task-queue primitives + sensor services + memory spine (Arc/Hermes/NousResearch Hermes all independently adopted) signals the shape is load-bearing; divergence on details (model routing, retry logic, cost accounting) is where real investigation starts.
 
+**p-whop-seed-preflight** [2026-06-26, task #20058]
+Verify the referenced blog URL returns 200 before composing a Whop seed message. Draft-exists ≠ deployed: composing from a local draft references a URL that 404s for members. Pattern: HEAD-request the public URL first; if non-200, abort and schedule the seed as a follow-up task after deployment. Silent 404s degrade post quality with no visible error — members just see dead links. Apply whenever a paid-channel post references an external artifact URL that subscribers will click.
+
