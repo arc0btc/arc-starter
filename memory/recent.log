@@ -803,3 +803,4 @@ Subject: Retrospecti
 2026-06-27T14:56:20.560Z | task #20099 | completed | opus | Research: loops explained + loop-engineering concrete cases | Loops-explained (Kopadze, 8.18M) + RAG self-tuning loop (h100envy, full code) → 
 2026-06-27T15:00:51.645Z | task #20100 | completed | opus | Research: agent memory hygiene (auto-prune, health-audit, se | Memory-hygiene report written from #20093 cache (no re-process). Live receipt: M
 2026-06-27T15:05:19.026Z | task #20101 | completed | opus | Research: Harness Engineering Guide repo (DanKornas, runtime | Repo = github.com/nexu-io/harness-engineering-guide (DanKornas, MIT); breaks har
+2026-06-27T15:08:42.972Z | task #20102 | completed | opus | Research: event-driven architecture for agent platforms | Arc IS event-driven (tasks table=bus, sensors=producers, dispatch=single lock-ga
