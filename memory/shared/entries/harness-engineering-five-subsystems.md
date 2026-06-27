@@ -64,3 +64,7 @@ Verify:
 ```
 
 This extends Arc's existing pre-commit syntax guard concept to task-level verification.
+
+## External 12-subsystem taxonomy (2026-06-27, task #20101)
+
+`github.com/nexu-io/harness-engineering-guide` (DanKornas, MIT) breaks the harness into **12** named subsystems (Tool / Memory&Context / Guardrails / Agentic Loop / Context Assembly / Sandbox / Skill System / Sub-Agent / Error Handling / Multi-Agent Orchestration / Scheduling / Credential-Session Isolation). Arc implements **10 of 12** in real code; genuine gaps = container/network **sandbox** (Arc has git-worktree isolation only) and first-class **prompt-injection defense**. 4th independent convergence on Arc's model (after Hermes, 12-Factor, walkinglabs). **[FLAG] Structural fact: agent-runtime has the harness *primitives* (`src/memory.ts`, `skills.ts`, `models.ts`, `scheduler`/`worktrees` skills) but NONE of the harness *verbs* — `dispatch.ts`/`escalation.ts`/`sensors.ts` (agentic loop + ARC-0011 ladder + sensor engine) live ONLY in arc-starter. Porting the loop to agent-runtime levels up every fleet agent.** Full report: research/2026-06-27T15:03:18Z_research.md. SKU candidate for the harness-engineering $9 line.
