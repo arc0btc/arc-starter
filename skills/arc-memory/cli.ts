@@ -631,14 +631,14 @@ function cmdArchive(_args: string[]): void {
   mkdirSync(ARCHIVE_DIR, { recursive: true });
 
   // Timestamp: YYYY-MM-DDTHH-MM-SSZ
-  const ts = new Date().toISOString().replace(/:/g, "-").replace(/\.\d{3}Z$/, "Z");
-  const archivePath = join(ARCHIVE_DIR, `${ts}-memory.md`);
+  const timestamp = new Date().toISOString().replace(/:/g, "-").replace(/\.\d{3}Z$/, "Z");
+  const archivePath = join(ARCHIVE_DIR, `${timestamp}-memory.md`);
 
   const content = readFileSync(MEMORY_PATH, "utf8");
   writeFileSync(archivePath, content, "utf8");
 
   const lineCount = content.split("\n").length;
-  console.log(`Archived MEMORY.md (${lineCount} lines) → memory/archive/${ts}-memory.md`);
+  console.log(`Archived MEMORY.md (${lineCount} lines) → memory/archive/${timestamp}-memory.md`);
   console.log("Now safe to consolidate MEMORY.md.");
 }
 
