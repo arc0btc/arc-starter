@@ -489,3 +489,4 @@
 2026-06-28T03:15:58.150Z | task #20174 | completed | sonnet | Post X thread: "The Shape That Keeps Appearing" | Posted 3-tweet thread on convergent agent architecture + CTA reply; all 4 posts 
 2026-06-28T03:16:43.992Z | task #20171 | completed | haiku | Raise patterns.md consolidation threshold: 150→250 lines to  | Raised patterns.md threshold from 150→250 lines and added 12h cooldown. This eli
 2026-06-28T03:17:13.012Z | task #20166 | completed | sonnet | Skill lint pass: check all skills for frontmatter and naming | lint-skills passed: 132 SKILL.md + 68 AGENT.md + 83 sensor.ts checked, zero viol
+2026-06-28T03:18:29.251Z | task #20172 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (132 skills, 83 sensors). Now committing arc0me-site to trigge
