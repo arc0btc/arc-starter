@@ -32,6 +32,8 @@ export const OPENROUTER_ALIASES: Record<string, string> = {
   kimi: "moonshotai/kimi-k2.5",
   minimax: "minimax/minimax-m2-5",
   qwen: "qwen/qwen3-coder",
+  glm: "z-ai/glm-5.2",
+  devstral: "mistralai/devstral-2512",
 };
 
 /**
@@ -56,6 +58,18 @@ export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
     output_per_million: 3.2,
     cache_read_per_million: 0.2,
     cache_write_per_million: 0.8,
+  },
+  "z-ai/glm-5.2": {
+    input_per_million: 0.95,
+    output_per_million: 3.0,
+    cache_read_per_million: 0.18,
+    cache_write_per_million: 0.95,
+  },
+  "mistralai/devstral-2512": {
+    input_per_million: 0.4,
+    output_per_million: 2.0,
+    cache_read_per_million: 0.04,
+    cache_write_per_million: 0.4,
   },
 };
 
