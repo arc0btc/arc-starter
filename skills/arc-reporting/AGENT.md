@@ -35,7 +35,7 @@ arc tasks --limit 20
 ```
 Filter to tasks within the reporting period.
 
-**Cycle log** (via bun -e): total cycles, cost_usd, api_cost_usd, tokens_in, tokens_out.
+**Cycle log** (via bun -e): total cycles, cost_usd, api_cost_usd, tokens_in, tokens_out. Fetch aggregate totals only (SUM/AVG/COUNT) — do NOT select individual rows. The cycle_log can have hundreds of rows per day; row-level output inflates context.
 
 **Git:**
 ```bash
@@ -58,11 +58,11 @@ arc skills run --name stacks-market -- positions
 # Room messages in period — newest first, filter to messages in {{period_start}}..{{period_end}}.
 arc skills run --name whop -- list-messages --channel chat_feed_1CbxMbfsj2yvpGqNnMcuCg --limit 50
 
-# Reactive-lane tick artifacts in period
-ls skills/whop/artifacts/replies/*.json 2>/dev/null | awk -v s="{{period_start_basename}}" -v e="{{period_end_basename}}" '$0 >= "skills/whop/artifacts/replies/" s && $0 <= "skills/whop/artifacts/replies/" e' | xargs -r cat
+# Reactive-lane tick artifacts — most recent 15 only (artifacts accumulate; reading all inflates context)
+ls -t skills/whop/artifacts/replies/*.json 2>/dev/null | head -15 | xargs -r cat
 
-# Synthesis-lane tick artifacts in period
-ls skills/whop/artifacts/synthesis/*.json 2>/dev/null | awk -v s="{{period_start_basename}}" -v e="{{period_end_basename}}" '$0 >= "skills/whop/artifacts/synthesis/" s && $0 <= "skills/whop/artifacts/synthesis/" e' | xargs -r cat
+# Synthesis-lane tick artifacts — most recent 10 only
+ls -t skills/whop/artifacts/synthesis/*.json 2>/dev/null | head -10 | xargs -r cat
 
 # Counterparty store — current state of all known room members
 cat db/whop-relationships.json
@@ -77,7 +77,7 @@ comparison with `{{period_start}}` / `{{period_end}}` reformatted the same way
 gives a clean period filter. If artifact dirs don't exist, the lanes haven't
 run in this period — show empty state, not a missing-data error.
 
-**Sensor state:** Read `db/hook-state/*.json` files for sensor run counts.
+**Sensor state:** Read `db/hook-state/*.json` files for sensor run counts. Summarize in aggregate (total sensors, any with consecutive_failures > 0) — do NOT dump all 140+ files verbatim into context.
 
 **North-Star Gauges (REQUIRED — pull every watch report, fixed 24h/7d windows):**
 
