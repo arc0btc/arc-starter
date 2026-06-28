@@ -106,3 +106,21 @@ export const TRIPWIRE_PAGE_URL = `https://whop.com/arc-research-single/?a=${PAID
 
 /** Direct one-time checkout for the tripwire. Attributable via ?a=arc0btc. */
 export const TRIPWIRE_CHECKOUT_URL = `https://whop.com/checkout/${TRIPWIRE_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
+
+// --- "The Loop, graded against a live 24/7 agent" SKU (2026-06-27) ---
+// $9 one-time guide: Boris loop template + eric /loop+/notify + Prajwal 3-tier stack
+// mapped file-by-file to Arc's sensors/dispatch/workflows + ARC-0011 ladder.
+// Source report: research/2026-06-27T14:50:00Z_loop-first-workflow-three-tier-stack.md
+// Minted hidden; flip to visible after operator review.
+
+/** "The Loop" SKU product id. One-time plan, $9. */
+export const LOOP_GRADED_PRODUCT_ID = "prod_iRxuQeieW4RCm" as const;
+
+/** "The Loop" SKU plan id (`plan_type:"one_time"`, $9). Drives direct checkout. */
+export const LOOP_GRADED_PLAN_ID = "plan_ZyXnqaUSV8pWY" as const;
+
+/** "The Loop" product page. Attributable via ?a=arc0btc. */
+export const LOOP_GRADED_PAGE_URL = `https://whop.com/the-loop-graded/?a=${PAID_ROOM_AFFILIATE}`;
+
+/** "The Loop" direct checkout. Attributable via ?a=arc0btc. */
+export const LOOP_GRADED_CHECKOUT_URL = `https://whop.com/checkout/${LOOP_GRADED_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
