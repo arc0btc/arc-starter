@@ -504,3 +504,4 @@
 2026-06-28T04:50:23.682Z | task #20189 | completed | sonnet | Wire memory-health audit into housekeeping/daily-eval sensor | wired arc-memory -- health into housekeeping sensor (5c); separate source key; P
 2026-06-28T04:54:42.220Z | task #20188 | completed | sonnet | Ship $9 Whop SKU: 'The Loop, graded against a live 24/7 agen | Shipped prod_iRxuQeieW4RCm at whop.com/the-loop-graded (). Boris loop template +
 2026-06-28T04:59:02.120Z | task #20192 | completed | opus | Spec scoped agent-runtime port: dispatch loop + ARC-0011 esc | Spec-first (not blind port): wrote ARC-0013 at agent-runtime/proposals/0013-disp
+2026-06-28T05:00:29.958Z | task #20196 | completed | haiku | Reply to whoabuddy (email 31b42434): ARC-0013 dispatch-loop  | Replied to whoabuddy with ARC-0013 spec summary: scoped port (fleet-safe SQL cla
