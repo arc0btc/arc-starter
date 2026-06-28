@@ -501,3 +501,4 @@
 2026-06-28T00:16:05.905Z | task #20148 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-28T01:00:22.020Z | task #20081 | failed | unknown | P5 operator outreach — post @biwas_xyz tweet | No model set — task requires explicit model column (opus/sonnet/haiku)
 2026-06-28T01:10:20.695Z | task #20149 | completed | sonnet | Watch report — 2026-06-28T01:03Z | Watch report: 64 tasks completed, 1 failed, ~2 est spend, report at reports/2026
+2026-06-28T01:11:32.597Z | task #20150 | completed | haiku | Retrospective: extract learnings from task #20149 — Watch re | Updated p-periodic-constrained-report-assembly to explicitly call out upfront sc
