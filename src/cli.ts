@@ -119,6 +119,25 @@ function cmdStatus(): void {
     process.stdout.write(`quality (7d): avg=${avg}/5  rated=${qs.rated_count}  [${bar}]\n`);
   }
 
+  // Accept rate + cost-per-accepted-change (Kopadze benchmark: <50% accept rate costs more than it gives back)
+  const acceptStats = db
+    .query(
+      `SELECT
+         SUM(CASE WHEN result_quality >= 3 THEN 1 ELSE 0 END) as accepted,
+         SUM(CASE WHEN result_quality IS NOT NULL THEN 1 ELSE 0 END) as rated,
+         SUM(CASE WHEN result_quality >= 3 THEN COALESCE(cost_usd, 0) ELSE 0 END) as accepted_cost,
+         COALESCE(SUM(cost_usd), 0) as total_cost
+       FROM tasks
+       WHERE status = 'completed' AND completed_at >= datetime('now', '-7 days')`
+    )
+    .get() as { accepted: number; rated: number; accepted_cost: number; total_cost: number };
+  if (acceptStats.rated > 0) {
+    const acceptRate = acceptStats.accepted / acceptStats.rated;
+    const warn = acceptRate < 0.5 ? "  ⚠ <50% Kopadze threshold" : "";
+    const costPerAccepted = acceptStats.accepted > 0 ? `$${(acceptStats.accepted_cost / acceptStats.accepted).toFixed(2)}/accepted` : "n/a";
+    process.stdout.write(`cache_hit_rate (7d): ${(acceptRate * 100).toFixed(0)}% (${acceptStats.accepted}/${acceptStats.rated} rated ≥3)  cost/accepted: ${costPerAccepted}${warn}\n`);
+  }
+
   // Usage (informational — API-equivalent cost, not direct Max plan consumption)
   process.stdout.write(`\nusage (7d): $${costWeek.toFixed(2)} actual / $${apiCostWeek.toFixed(2)} api est (${cyclesWeek} cycles)\n`);
   process.stdout.write(`  today: $${costToday.toFixed(2)} actual / $${apiCostToday.toFixed(2)} api est (${cyclesToday} cycles)\n`);
