@@ -500,3 +500,4 @@
 2026-06-28T01:47:26.413Z | task #20151 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure: task #20081 (p5-operator-outreach) had model=null, failed at dispatch
 2026-06-28T02:15:46.364Z | task #20152 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-06-28T02:19:18.177Z | task #20153 | completed | sonnet | Post public-forum teaser: "The Training Gap: What Three arxi | Posted public-forum teaser 'The Training Gap' to free discovery forum (post_1CcU
+2026-06-28T02:33:01.714Z | task #20154 | completed | sonnet | architecture review — codebase changed since last review (6e | social-engine CLI tweet-created-at was critical (blocked all replies); arc-memor
