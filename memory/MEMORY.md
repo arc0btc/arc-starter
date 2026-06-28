@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-28T06:17:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-28T14:22:00Z*
 
 ---
 
@@ -23,14 +23,7 @@
 
 **content-calendar-tier-A** [DORMANT] 17 instances ids 2982–2998. UN-GATE: `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true` + `WORKFLOWS_BLOG_TO_X_ENABLED=false` + whoabuddy sign-off. See `memory/content-calendar-tier-a.md`. Double-post blocker CLEARED 2026-06-18.
 
-**Dead-ends** (no autonomous Arc action — see dead-ends.md):
-- **amber-otter** — credential exposure 2026-05-18. Awaiting key rotation.
-- **payout-disputes** — 11 disputes 30+d stale since 2026-04-26. Requires whoabuddy outreach.
-- **wallet-rotation** — awaiting whoabuddy policy decision since 2026-04-24.
-- **loom-spiral** — workflow 23 token spiral. No runs until whoabuddy resolves.
-- **pr-511** — aibtc-mcp-server: package rename + proprietary license + IPI blocklist. Awaiting author.
-
-→ See dead-ends.md for approach detail. [[dead-ends-convention]]
+**Dead-ends** → dead-ends.md [[dead-ends-convention]]: amber-otter (cred exposure 05-18), payout-disputes (11 stale 04-26), wallet-rotation (policy 04-24), loom-spiral (token spiral), pr-511 (license blocker).
 
 ---
 
@@ -95,9 +88,6 @@
 | 2026-06-28 AM | 2.05 | 100% (104) | $0.527 | S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3; overnight; 0 PR reviews; Whop DEFERs ×3 |
 | 2026-06-27 PM | 2.35 | 100% (98) | $0.545 | S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3; memory-health deployed; 10+ patterns |
 | 2026-06-26 PM | 2.15 | 98.4% (61) | $0.343 | S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3; 3 patterns; 60/61 clean |
-| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns |
-| 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; code-change outlier ($1.78) |
-| 2026-06-23 | 2.37 | 91% (237) | $0.377 | PM: reactive-lane fix + Huge Sphinx collab; AM: post-outage recovery |
 
 ---
 
@@ -119,11 +109,7 @@
 
 **quasar-garuda** [PARTNER] Classifieds IC #4. BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. STX: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Took agent-news publisher seat 2026-06-18. Per-signal payouts PAUSED (`SIGNAL_PAYOUTS_ENABLED` off, PR #838; reversible). Free filing + editors intact.
 
-**vivid-manticore** EmblemAI. 191 x402 tools at `api.emblemvault.ai`. BTC: `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`.
-
 **huge-sphinx** [CO-AUTHOR 2026-06-23] AIBTC agent. Co-drafting proposal #384 (URI-change → reputation-event). Arc accepted joint co-ownership 2026-06-23 task #19788. Spec v1 drafted 2026-06-22 task #19689. **Watch**: idempotency collision risk — triage task and reply task both fire on same thread message; idempotency guard on repliedAt timestamp is the correct defense. **Next**: await Huge Sphinx response on spec v1 before advancing to PR.
-
-**deep-tess** Bitcoin maxi AI. STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. ~6-week response cadence.
 
 **amber-otter** [COMPROMISED 2026-05-18] Genesis L2. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`. Must rotate creds before trusting.
 
@@ -181,3 +167,7 @@
 - [mcp-server-buffer-hex-no-0x-prefix](memory/shared/entries/mcp-server-buffer-hex-no-0x-prefix.md) — aibtc mcp-server buffer args need hex WITHOUT 0x prefix; `{type:"buffer",value:"0x.."}` silently encodes empty (no error) — debugging trap on Clarity gov calls
 - [research-batch-triage-process-once](memory/shared/entries/research-batch-triage-process-once.md) — triage a big link batch by running link-research `process` ONCE (caches all + follows embedded + one batch report, no LLM), read caches for bare-link tweets, consolidate/dedup/gate, then fan out tasks that REUSE the cache (never re-run `process`)
 - [openrouter-open-weight-routing](memory/shared/entries/openrouter-open-weight-routing.md) — routing policy for GLM-5.2/Devstral-2512: eligible task types (single-file, spec-complete, no side effects), quality gates (tsc + diff review), and arc tasks add patterns; do NOT assign from sensors
+- [claude-code-skill-patterns](memory/shared/entries/claude-code-skill-patterns.md) — best practices for Arc skill authors: permissions, context budgeting, cost patterns (v2.1.108–121)
+- [multi-repo-research-decomposition](memory/shared/entries/multi-repo-research-decomposition.md) — pattern for deep-research across multiple repos: process-once, fan-out via task queue, reuse cache
+- [flag-gates-creation-not-evaluation](memory/shared/entries/flag-gates-creation-not-evaluation.md) — arc-workflows landmine: feature flags control task creation, not evaluation; sensor must re-check gate at creation time
+- [hook-exec-form-eval](memory/shared/entries/hook-exec-form-eval.md) — audit result (v2.1.139): none of Arc's hooks are eligible for exec-form migration; shell form required for env expansion
