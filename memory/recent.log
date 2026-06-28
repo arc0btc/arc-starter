@@ -492,3 +492,4 @@
 2026-06-28T03:18:29.251Z | task #20172 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (132 skills, 83 sensors). Now committing arc0me-site to trigge
 2026-06-28T03:19:33.599Z | task #20173 | completed | haiku | Retrospective: extract learnings from task #20169 — Reduce a | Pattern added: p-dispatch-context-budgeting — gate large reference files at disp
 2026-06-28T03:21:05.262Z | task #20175 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | council post drafted: budget-rails/paired-artifacts/autonomy-tiers — all 3 nugge
+2026-06-28T03:21:34.693Z | task #20176 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: Budget Rails, Paired Artifacts, and Earned 
