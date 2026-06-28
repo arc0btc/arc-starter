@@ -510,3 +510,4 @@
 2026-06-28T05:10:46.256Z | task #20191 | completed | sonnet | Add cache_hit_rate + cost-per-accepted-change to arc status  | Added cache_hit_rate (accept rate: rated≥3/rated) + cost/accepted-change to arc 
 2026-06-28T05:11:54.034Z | task #20198 | completed | sonnet | Define open-weight routing policy: which task types suit ope | Routing policy written to memory/shared/entries/openrouter-open-weight-routing.m
 2026-06-28T05:12:41.316Z | task #20194 | completed | haiku | Retrospective: extract learnings from task #20187 — Email fr | Email approval dedup pattern (unique sources) + memory write-suppression at clif
+2026-06-28T05:13:39.847Z | task #20195 | completed | haiku | Retrospective: extract learnings from task #20188 — Ship $9  | Added p-content-url-prevalidation pattern: pre-flight external URLs before publi
