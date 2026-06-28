@@ -130,6 +130,35 @@ export default async function housekeepingSensor(): Promise<string> {
     }
   }
 
+  // 5c. Memory-health dedicated task — separate source so it's not blocked by pending housekeeping
+  const MEM_HEALTH_SOURCE = "sensor:arc-housekeeping:mem-health";
+  if (existsSync(MEMORY_PATH) && !pendingTaskExistsForSource(MEM_HEALTH_SOURCE)) {
+    try {
+      const memContent = await Bun.file(MEMORY_PATH).text();
+      const memLineCount = memContent.split("\n").length;
+      if (memLineCount >= MEMORY_WARN_LINES) {
+        const isFail = memLineCount >= MEMORY_HARD_LINES;
+        const healthProc = Bun.spawnSync(
+          ["bun", join(import.meta.dir, "../arc-memory/cli.ts"), "health"],
+          { cwd: ROOT }
+        );
+        const healthOut = healthProc.stdout.toString().trim();
+        insertTask({
+          subject: `memory-health: consolidate MEMORY.md (${memLineCount}/${MEMORY_HARD_LINES} lines)`,
+          description: `MEMORY.md at ${memLineCount} lines (warn:${MEMORY_WARN_LINES}, hard:${MEMORY_HARD_LINES}).\n\n${healthOut}`,
+          priority: isFail ? 2 : 4,
+          model: "sonnet",
+          skills: JSON.stringify(["arc-memory"]),
+          source: MEM_HEALTH_SOURCE,
+          max_retries: 3,
+        });
+        log(`memory-health task created: ${memLineCount} lines (${isFail ? "FAIL" : "WARN"})`);
+      }
+    } catch (e) {
+      log(`memory-health check error: ${e}`);
+    }
+  }
+
   // 6. ISO 8601 file accumulation
   const archivalDirs = findDirsNeedingArchival(ROOT);
   if (archivalDirs.length > 0) {
