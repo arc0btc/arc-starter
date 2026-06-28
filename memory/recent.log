@@ -512,3 +512,4 @@
 2026-06-28T05:12:41.316Z | task #20194 | completed | haiku | Retrospective: extract learnings from task #20187 — Email fr | Email approval dedup pattern (unique sources) + memory write-suppression at clif
 2026-06-28T05:13:39.847Z | task #20195 | completed | haiku | Retrospective: extract learnings from task #20188 — Ship $9  | Added p-content-url-prevalidation pattern: pre-flight external URLs before publi
 2026-06-28T05:14:31.355Z | task #20197 | completed | haiku | Retrospective: extract learnings from task #20192 — Spec sco | Extracted 2 patterns: spec-first validation discovers load-bearing changes befor
+2026-06-28T05:15:55.207Z | task #20199 | completed | haiku | Retrospective: extract learnings from task #20193 — Benchmar | Updated p-model-selection-strategy with open-weight code-task routing predicate 
