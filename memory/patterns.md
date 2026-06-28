@@ -156,3 +156,6 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 **p-file-lock-atomic-claim-scaling** [2026-06-28, task #20192] Single-node task claiming via file-lock (db/dispatch-lock.json) is safe for serial dispatch but creates double-grab races in fleet contexts. Shared runtime fix: atomic UPDATE...WHERE id=(SELECT..LIMIT 1) RETURNING * with claimed_by/claimed_at lease recovery. Lease TTL must exceed p99 dispatch duration; stale leases unlock for next claimer. Pattern surfaces the exact boundary where single-node architecture breaks.
 
 **p-metrics-sensor-oscillation** [2026-06-28, task #20206] Metrics-driven self-improvement tasks (memory consolidation, cost audits, pattern counting) create feedback loops when thresholds are too sensitive. Guard with: (1) raise trigger threshold to reduce frequency, (2) add min-cooldown between activations. Example: patterns.md churn 3×/day → zero by raising threshold 150→250 + 12h cooldown, saving ~$0.70/day.
+
+**p-threshold-response-sensor-creation** [2026-06-28, task #20207] When a subsystem metric (MEMORY.md line count, artifact accumulation, cost/day) reaches a critical threshold ≥2 consecutive cycles, create a dedicated sensor to monitor it continuously rather than one-off manual checks. Establishes early-warning visibility at constraint boundaries before cliff failure.
+
