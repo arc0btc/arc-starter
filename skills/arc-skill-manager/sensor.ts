@@ -15,7 +15,8 @@ const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
 const PATTERNS_PATH = join(import.meta.dir, "../../memory/patterns.md");
 const RECENT_LOG_PATH = join(import.meta.dir, "../../memory/recent.log");
 const LINE_THRESHOLD = 500;
-const PATTERNS_LINE_THRESHOLD = 150;
+const PATTERNS_LINE_THRESHOLD = 250;
+const PATTERNS_COOLDOWN_MINUTES = 720; // 12h to prevent oscillation when file hovers near threshold
 const RECENT_LOG_ARCHIVE_AGE_DAYS = 14;
 const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
 const RECENT_LOG_TASK_SOURCE = "sensor:arc-recent-log-consolidate";
@@ -147,17 +148,22 @@ export default async function manageSkillsSensor(): Promise<string> {
       const pContent = readFileSync(PATTERNS_PATH, "utf-8");
       const pLineCount = pContent.split("\n").length;
 
-      if (pLineCount > PATTERNS_LINE_THRESHOLD && !pendingTaskExistsForSource(PATTERNS_TASK_SOURCE)) {
+      const patternsLastRun = getLastCompletedTaskBySource(PATTERNS_TASK_SOURCE);
+      const patternsElapsedMinutes = patternsLastRun?.completed_at
+        ? (Date.now() - new Date(patternsLastRun.completed_at + "Z").getTime()) / 60_000
+        : Infinity;
+
+      if (pLineCount > PATTERNS_LINE_THRESHOLD && !pendingTaskExistsForSource(PATTERNS_TASK_SOURCE) && patternsElapsedMinutes >= PATTERNS_COOLDOWN_MINUTES) {
         insertTask({
           subject: `Consolidate patterns.md (${pLineCount} lines, threshold ${PATTERNS_LINE_THRESHOLD})`,
           description: [
-            "memory/patterns.md has grown past the 150-line cap.",
+            `memory/patterns.md has grown past the ${PATTERNS_LINE_THRESHOLD}-line threshold.`,
             "",
             "Steps:",
             "1. Read memory/patterns.md",
             "2. Archive or prune the oldest/most-specific entries",
             "3. Merge duplicate or closely related patterns",
-            "4. Keep the file under ~150 lines while preserving reusable operational knowledge",
+            `4. Keep the file under ~${PATTERNS_LINE_THRESHOLD} lines while preserving reusable operational knowledge`,
             "5. Commit the result",
           ].join("\n"),
           skills: '["arc-skill-manager"]',
@@ -166,6 +172,9 @@ export default async function manageSkillsSensor(): Promise<string> {
           source: PATTERNS_TASK_SOURCE,
         });
         results.push("patterns-task-created");
+      } else if (pLineCount > PATTERNS_LINE_THRESHOLD && patternsElapsedMinutes < PATTERNS_COOLDOWN_MINUTES) {
+        log(`patterns.md has ${pLineCount} lines but last consolidation was ${Math.round(patternsElapsedMinutes)}min ago — cooling off`);
+        results.push("patterns-cooldown");
       } else {
         results.push("patterns-ok");
       }
