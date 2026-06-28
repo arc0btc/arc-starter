@@ -508,3 +508,4 @@
 2026-06-28T05:01:42.217Z | task #20190 | completed | sonnet | Reorder buildPrompt: static (Identity/skills) before dynamic | Reordered buildPrompt: Identity/Memory/skillContext now precede Current Time/Rec
 2026-06-28T05:06:57.462Z | task #20193 | completed | sonnet | Benchmark GLM-5.2 via openrouter on a code-change agent/harn | GLM-5.2 ✅ /bin/bash.01/task (0.6% of .78 baseline), Devstral-2512 ✅ /bin/bash.00
 2026-06-28T05:10:46.256Z | task #20191 | completed | sonnet | Add cache_hit_rate + cost-per-accepted-change to arc status  | Added cache_hit_rate (accept rate: rated≥3/rated) + cost/accepted-change to arc 
+2026-06-28T05:11:54.034Z | task #20198 | completed | sonnet | Define open-weight routing policy: which task types suit ope | Routing policy written to memory/shared/entries/openrouter-open-weight-routing.m
