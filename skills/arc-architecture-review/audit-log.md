@@ -1,3 +1,36 @@
+## 2026-06-28T14:30:00.000Z — buildPrompt cache reorder; GLM/Devstral aliases; accept_rate metric; mem-health sensor wiring; 132 skills / 83 sensors
+
+**Task #20212** | Diff: 92e5a56 → 5498f53 (7 commits — 4 structural in src/, 3 in skills/) | Sensors: 83 | Skills: 132
+
+### Changed files
+
+- `src/dispatch.ts` (31628a9b) — **PERF: buildPrompt reorder** — static sections (identity, memory, skills) now placed before dynamic sections (current time, recent cycles). Cache prefix is now stable across cycles. Comment estimates $1-3/day savings at current volume. Correct ordering: the more stable a section, the earlier it must appear for prefix caching to activate.
+- `src/models.ts` (82843974) — **GLM-5.2** (`openrouter:glm`, ~$0.95/Mtok input) and **Devstral-2512** (`openrouter:devstral`, ~$0.40/Mtok input) added with full pricing. Prerequisite for open-weight routing policy written same day. Routing itself is NOT automated yet — policy exists but classification task is unqueued.
+- `src/cli.ts` (5498f53a) — **NEW metric** in `arc status`: shows accept rate + cost/accepted-change. `cache_hit_rate` is the output label but the metric actually computes accept rate (`result_quality >= 3`). **MISLABELED — see Flags.**
+- `src/constants.ts` (f76f9fc1) — Whop $9 SKU constant added (`LOOP_GRADED_PRODUCT_ID`). Library-only constant; no structural sensor/dispatch change.
+- `skills/arc-housekeeping/sensor.ts` (746a528a) — Wires `arc-memory health` CLI into sensor. Separate source key (`sensor:arc-housekeeping:mem-health`) prevents source collision with regular housekeeping. Priority: P2 on FAIL, P4 on WARN. Correct separation of concerns.
+- `skills/arc-skill-manager/sensor.ts` (7e5ee2e0) — patterns.md threshold raised 150→250; 12h cooldown added via `getLastCompletedTaskBySource`. Prevents oscillation when file hovers near threshold. Correct fix.
+- `skills/arc-reporting/AGENT.md` (a34ee886) — Whop artifact read cap added to prevent context explosion. Correct.
+- `skills/arc-architecture-review/AGENT.md + cli.ts + sensor.ts` (e79674ec) — Tokens fix from prior cycle. Reduces review context from 1.85M to <200K. This cycle confirms fix is working.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: buildPrompt reorder is valid and measurable. GLM/Devstral aliases are valid prerequisites. `cache_hit_rate` label is wrong — requirement is to track accept rate, not cache hit rate (true cache hit comes from API response headers, not result_quality). mem-health wiring is correct: separate source key was the right call. patterns.md threshold at 150 was too aggressive; 250 + 12h cooldown is calibrated.
+- **Step 2 — Delete**: `[RESOLVED]` CATEGORY_HEADERS mismatch in arc-memory/cli.ts fixed by commit 9941a876 — 2-cycle carry closed. `cache_hit_rate` string in `src/cli.ts` line ~138 should be renamed to `accept_rate` — easy fix, misleading at current label.
+- **Step 3 — Simplify**: mem-health task description embeds full `arc-memory health` stdout — bounded by health check output, acceptable. Cross-skill DB read in `arc-workflows/sensor.ts` unchanged — still open.
+- **Step 4 — Accelerate**: buildPrompt reorder is the largest perf win this cycle. Static prefix stability unlocks caching across consecutive dispatch cycles without code changes.
+- **Step 5 — Automate**: Open-weight routing policy is written but not automated — task-type classification unqueued. No new automation candidates beyond routing.
+
+### Flags
+
+- **[FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` outputs `cache_hit_rate (7d)` but the metric is accept_rate (result_quality >= 3). True cache hit rate would require reading API response headers. Rename output string to `accept_rate (7d)` — one-line fix, low priority but misleads capacity planning if left as-is.
+- **[WATCH]** Open-weight routing bottleneck: GLM/Devstral aliases live, policy written, but task-type classification unqueued. No automated routing until classification task is created (per MEMORY.md [[openrouter-open-weight-routing]]).
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array on next sensor edit.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation checkpoint 2026-07-01. No failures observed in 4d window.
+
+---
+
 ## 2026-06-28T02:30:00.000Z — social-engine CLI fix; arc-memory health+archive; arc-housekeeping dual-threshold; arc-reporting council exemption; 132 skills / 83 sensors
 
 **Task #20154** | Diff: 6ef6872 → 92e5a56 (6 commits — 4 structural) | Sensors: 83 | Skills: 132
@@ -72,13 +105,12 @@
 - `skills/arc-workflows/sensor.ts` (fa5f6aa) — CC x-thread daily cap: `ContentCalendarMachine` x-thread steps (`content-calendar:<slug>:x`, excluding `:x-cta`) now check `x_post_log` row count before `insertTask`. Cap is 1/day. Panel target (arc-strategy-panel 2026-06-27): 25-workflow CC backlog drains in 25 days at this rate. Uses `getDatabase()` inline — cross-skill DB read (see Flags).
 - `skills/blog-publishing/sensor.ts` (fa5f6aa) — CTA footer product name updated: "The Harness Engineering Field Guide" → "Arc Daily Research Report". Cosmetic, no structural change.
 - `skills/social-x-posting/CADENCE.md` (fa5f6aa) — P2 doctrine documented: 1 thread/day + ≤6 total tweets/day. Updated pillar table.
-- `skills/whop/lib/events.ts` (7a8a1b20) — Secondary commit: no structural change (prior audit covered).
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: `DAILY_TWEET_CAP=6` is panel-confirmed doctrine. The prior 3-root cap allowed continuations to bypass the spirit of the limit; the new total-tweet cap closes that gap. Kill switch in `cmdPost` is a valid defense-in-depth fix — the direct post path was a genuine bypass. `is_root` column is minimal and necessary for future analytics. CTA text rename is a product naming correction.
+- **Step 1 — Requirements**: `DAILY_TWEET_CAP=6` is panel-confirmed doctrine. The prior 3-root cap allowed continuations to bypass the spirit of the limit; the new total-tweet cap closes that gap. Kill switch in `cmdPost` is a valid defense-in-depth fix — the direct post path was a genuine bypass. `is_root` column is minimal and necessary for future analytics.
 - **Step 2 — Delete**: `[DEAD-IMPORT]` `getWorkflowByTemplateAndContextTitle` imported in `arc-workflows/sensor.ts` but never called — this is the **3rd carry** without removal. Creating a follow-up task.
-- **Step 3 — Simplify**: The CC x-thread cap in `arc-workflows/sensor.ts` embeds an inline `x_post_log` query. This creates a cross-skill DB dependency: a sensor in `arc-workflows/` knows the schema of `social-x-posting/`'s post log. Cleaner boundary: extract `countXPostsToday()` to `src/db.ts`. Not urgent but worth carrying.
+- **Step 3 — Simplify**: The CC x-thread cap in `arc-workflows/sensor.ts` embeds an inline `x_post_log` query. Cross-skill DB dependency: `arc-workflows/` knows `social-x-posting/` schema. Cleaner boundary: extract `countXPostsToday()` to `src/db.ts`. Not urgent but worth carrying.
 - **Step 4 — Accelerate**: No bottleneck impact.
 - **Step 5 — Automate**: No new candidates.
 
@@ -89,167 +121,3 @@
 - **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
 - **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
-
----
-
-## 2026-06-26T14:26:00.000Z — no structural changes since last review; active reports processed; 133 skills / 84 sensors
-
-**Task #20018** | Diff: fa42af4 → 73ed189e (1 auto-commit — architect audit log only) | Sensors: 84 | Skills: 133
-
-### Assessment
-
-No structural changes to `src/` or `skills/` since last review (fa42af4). Only the architecture review auto-commit itself appeared in the diff. Diagram remains accurate.
-
-Active reports reviewed: watch reports (01:00Z, 06:00Z overnight brief, 13:01Z). No actionable architectural feedback found. Operational items from watch:
-- Council distill stalled 36h+ (upstream `genesis-works/agent-coordination` unchanged — not an Arc architectural issue)
-- 14 stuck `public_forum_teaser` workflows resolved by workflow review task #19983
-- X thread starvation structurally worked around: `post --reply-to` continuations don't count against 3/day root-post budget
-
-### Carry-watch status
-
-- **[RESOLVED]** `skills/arc-architecture-review/db/*.sqlite*` — `.gitignore` already contains `skills/*/db/*.sqlite` and `skills/*/db/*.sqlite-*`. No tracked SQLite files found. Carry closed after 6 cycles.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative `{pattern: RegExp, reason: string}[]` array on next sensor edit. Threshold was `>20`; we are AT threshold.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-- **[ACTION-NEEDED]** audit-log.md is >600 lines — housekeeping pass needed. Max 5 active entries; archive older entries.
-
-### Flags
-
-- **[RESOLVED 6th-carry]** SQLite gitignore already present — carry closed.
-- **[AUDIT-LOG HOUSEKEEPING]** Create follow-up P8/haiku task to trim audit-log.md to 5 active entries.
-
----
-
-## 2026-06-26T02:30:00.000Z — whop events constants wiring; whop-sales receipt composer; library-only diff; 133 skills / 84 sensors
-
-**Task #19982** | Diff: 79f9bb9 → fa42af4 (2 library-only commits) | Sensors: 84 | Skills: 133
-
-### Changed files
-
-- `skills/whop/lib/events.ts` (fa42af4) — Added imports: `PRODUCT_PAGE_URL`, `PAID_ROOM_PRODUCT_URL`, `PROMO_CODE` from `src/constants.ts`. Wires the P10B product page constants into the events intake layer. No interface or ledger logic changed; the P19 exactly-once contract and poll-coverage-limit carry are unchanged.
-- `skills/whop-sales/lib/receipt.ts` (6967dbc4) — NEW pure composer for P10B funnel: `composeReceipt` (receipt post; refuses at `count < 1` to prevent fabricated sale claims) and `composeTeaser` (free slice pointing at the $9 SKU). Deterministic — no LLM, no network, no writes. Posts via `skills/whop-sales/sensor.ts` + `lib/enforcement.ts`, gated behind `WHOP_SALES_DRY_RUN=true` until go-live. Channel doctrine single-sourced in `finalizePost()` (X: link in first reply; forum/nostr: link folded into body). `NEVER_SAY` scan runs post-fold over both fields.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both changes are valid. `events.ts` constants wiring enables the P10B receipt composer to reference the correct product URLs without scattering URL strings across skill files. The `receipt.ts` honesty keystone (`count < 1` refusal, `payingCustomers` discipline, no overclaiming) correctly enforces the trust contract for on-chain identity posts. Requirement remains valid: funnel receipt + teaser must be composable independently from posting logic.
-- **Step 2 — Delete**: No new deletion candidates. `receipt.ts` `NEVER_SAY` import is pulled from `lib/compose.ts` — correct reuse, no duplication. Carry-watches from prior audit unchanged (see Flags).
-- **Step 3 — Simplify**: `finalizePost()` is the right abstraction — single-sources the link-in-first-reply vs link-in-body channel doctrine so it cannot drift between receipt and teaser composers. The `FinalizedPost` interface is minimal and correct. No over-engineering.
-- **Step 4 — Accelerate**: No pipeline impact. These are library files; posting speed is unchanged.
-- **Step 5 — Automate**: No new candidates. `WHOP_SALES_DRY_RUN=false` go-live is operator-gated per P10/P11 plan.
-
-### Flags
-
-- **[WATCH]** Thread detection via `subject LIKE '%X thread%'` (from prior audit): naming convention constraint still load-bearing.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window, checkpoint 2026-07-01.
-- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (6th carry) — add to `.gitignore`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` on next sensor edit.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-- **[AUDIT-LOG SIZE]** audit-log.md now >600 lines — housekeeping pass recommended.
-
----
-
-## 2026-06-25T14:25:00.000Z — thread starvation fix: cadence beat yields to parked X thread tasks; 133 skills / 84 sensors
-
-**Task #19951** | Diff: 4385020 → 79f9bb9 (1 structural commit) | Sensors: 84 | Skills: 133
-
-### Changed files
-
-- `skills/social-x-posting/sensor.ts` (79f9bb9b) — Thread starvation fix: `runCadenceBeat()` now queries for pending X thread tasks parked >6h before firing. If any found, skips the cadence beat to yield the daily 3-slot budget to threads. Also priority-boosts threads parked >24h to P2 so they win dispatch order against same-priority cadence tasks. Fixes the starvation pattern observed 2026-06-25: threads needing 3-4 posts consistently lost to single-post cadence tasks that queued earlier in the day.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Valid. Thread starvation was documented in MEMORY.md (2026-06-25 pattern analysis task #19829). The fix addresses the root cause: cadence posts execute earlier in the day, consuming all 3 X budget slots before thread tasks can queue. The yield gate is the correct lever — skip cadence when threads are waiting, don't raise the overall cap.
-- **Step 2 — Delete**: No new deletion candidates. Carry-watches from prior audit unchanged.
-- **Step 3 — Simplify**: Implementation is clean. One SQL query to detect stale threads, one loop to boost priority — 30 lines total. No abstraction needed. The `LIKE '%X thread%'` subject pattern is a constraint, not a bug, but it's silent if the naming convention drifts. A `-- [THREAD]` tag or dedicated column would be more robust long-term; acceptable at current scale.
-- **Step 4 — Accelerate**: Direct win: threads that arrive after cadence posts have already fired will now get the slot the next cadence cycle skips. P2 boost ensures they can't be starved by other P3+ tasks in the queue.
-- **Step 5 — Automate**: No new candidates.
-
-### Flags
-
-- **[WATCH]** Thread detection via `subject LIKE '%X thread%'`: naming convention must be maintained for the yield gate to work. If thread task subjects change format, gate silently disables. Document as a constraint or replace with a dedicated tag column.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window (checkpoint 2026-07-01).
-- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (5th carry) — add to `.gitignore`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-
----
-
-## 2026-06-25T02:30:00.000Z — MCP_TOOL_TIMEOUT reduction 120s→90s; no structural diagram changes; 133 skills / 84 sensors
-
-**Task #19919** | Diff: 8ee28f9 → 4385020 (1 structural commit) | Sensors: 84 | Skills: 133
-
-### Changed files
-
-- `src/dispatch.ts` (43850201) — `MCP_TOOL_TIMEOUT` reduced from `120000` to `90000` (120s→90s). Leverages v2.1.191 automatic retry backoff for transient MCP failures. The two-timeout contract remains: `MCP_TOOL_TIMEOUT` = max total call duration (now 90s); `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` = max silence within a call (600s, unchanged). Rationale documented in `research/mcp-timeout-reduction-v2191.md`. First 6h observation: zero timeout failures, max x402 ops 63s (27s margin). Monitoring checkpoint: 2026-07-01.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Valid. v2.1.191 retries make shorter timeouts safe. The 90s limit is tighter than the 63s observed maximum (27s margin). Previous 120s was conservative pre-retry. No structural requirement invalidated.
-- **Step 2 — Delete**: No new deletion candidates. Carry-watches from prior audit unchanged.
-- **Step 3 — Simplify**: Config-only change. No structural simplification possible.
-- **Step 4 — Accelerate**: Direct gain: failed MCP calls fail faster (90s vs 120s), freeing the dispatch slot 30s sooner per timeout event. Under normal operation (no timeouts), no change.
-- **Step 5 — Automate**: No new candidates.
-
-### Flags
-
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window (checkpoint 2026-07-01). If timeout failures appear, revert to 120s.
-- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (5th carry) — add to `.gitignore`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-
----
-
-## 2026-06-24T14:22:00.000Z — reactive lane state-encoding; completedDup auto-advance; migration relocation; reply deprecation; 133 skills / 84 sensors
-
-**Task #19861** | Diff: afd71f6 → 8ee28f9 (4 structural commits) | Sensors: 84 | Skills: 133
-
-### Changed files
-
-- `skills/context-review/sensor.ts` (8ee28f9) — FP fix: blog post titles embedded in "Seed whop chat:" and "Chop blog " task subjects were triggering false-positive skill-coverage warnings. Two new regex exclusions added to `checkMissingSkillCoverage`. Skip list is now at ~20 entries — AT the refactor threshold (`>20` carry-watch).
-- `skills/arc-workflows/sensor.ts` (40e68349) — Reactive lane state-encoding: source keys now encode workflow state (`action.source:current_state`). Each `(source, state)` pair is unique so cross-state stale-blocking cannot occur. Returns `"ok"` instead of `"skip"` on stale-block so active monitoring is distinguishable from idle. Diagnostic log line added per block. `prAnyStatePending` check via `pendingTaskExistsForSourcePrefix()` prevents duplicate review tasks during state transitions.
-- `src/db.ts` (40e68349) — `pendingTaskExistsForSourcePrefix()` helper added: prefix-based pending check used by reactive lane state-encoding.
-- `skills/arc-workflows/sensor.ts` (40bb24ee) — `completedDup` auto-advance: when `completedDup` fires on a workflow in `'opened'` or `'review-requested'`, auto-advances to `'approved'` instead of silently skipping. Unblocked 17 stuck workflows (PRs outside GraphQL last-50 window). Diagnostic logging added.
-- `skills/social-engine/005–011 → db/migrations/` (c012b96e) — 7 migration scripts relocated from `skills/social-engine/` to `db/migrations/`. ✅ **[RESOLVED multi-cycle CARRY-WATCH]**
-- `skills/social-x-posting/cli.ts + SKILL.md` (03a6bb9b) — `cmdReply` formally deprecated with `[DEPRECATED]` prefix. SKILL.md documents social-engine as canonical reply path. ✅ **[RESOLVED multi-cycle CARRY-WATCH]**
-
-### Step 1 — Requirements
-
-- **Context-review FP fix**: Valid. Blog-title keywords (e.g., "Bitcoin", "Zest") in repurposing task subjects are not skill requirements — the fix correctly scopes exclusions at the subject-pattern level. Two new patterns (`/^Seed whop chat:/i` + `/^Chop blog /i`) are narrow and unambiguous.
-- **Reactive lane state-encoding**: Valid and well-designed. Root cause of the 116-tick/0-task anomaly was correct — shared source keys across states caused permanent stale-blocking on completed tasks. State suffix (`:<current_state>`) makes each (workflow, state) context unique. The `pendingTaskExistsForSourcePrefix()` helper correctly prevents double-queuing during transitions.
-- **completedDup auto-advance**: Valid fix for a structural gap. `completedDup` was a read-only check with no write path — it could correctly identify a reviewed PR but had no way to close the workflow when the PR fell outside the GraphQL window. Auto-advance to `'approved'` is the correct terminal action.
-- **Migration relocation**: Valid. `db/migrations/` is the correct home for one-shot schema scripts; `skills/` is for reusable skill code. Clear separation.
-- **Reply deprecation**: Valid. Formal documentation of an already-complete migration. Passthrough retained for backwards compatibility — zero-risk deprecation.
-
-### Step 2 — Delete
-
-- **[NEW-WATCH]** Dead import `recentTaskExistsForSource` carry-watch was a false positive: the identifier only appears in lint regex strings in `arc-skill-manager/sensor.ts` (lines 57, 62, 66) — never as an actual import. Import line 4 confirms only `pendingTaskExistsForSource` + `getLastCompletedTaskBySource` are imported. **Marking as RESOLVED.**
-- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git — add `.gitignore` entry (SQLite binaries, 4th carry).
-- **[CARRY-WATCH]** context-review skip list now at ~20 entries — AT THRESHOLD. Refactor into a declarative exclusion list (array of `{pattern, reason}`) on next edit of sensor.ts.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-
-### Step 3 — Simplify
-
-- `pendingTaskExistsForSourcePrefix()` is the right primitive — narrow SQL `LIKE` query. The state-suffix pattern is consistent with existing source-key conventions.
-- context-review skip list at ~20 entries warrants a refactor: array of `{pattern: RegExp, reason: string}` pairs would replace the 20 if-chains and make the list auditable in one glance. Not urgent but correct direction.
-- `completedDup` auto-advance adds 6 lines inside an existing branch — correct, no over-engineering.
-
-### Step 4 — Accelerate
-
-- Reactive lane fix: 116-tick/0-task cycles → active monitoring. Direct queue throughput gain (~17 recovered workflow slots).
-- Migration relocation: `skills/social-engine/` is now leaner — pre-commit hook lints fewer files per commit.
-
-### Step 5 — Automate
-
-- context-review skip list refactor: a declarative array + `.some()` loop is automatable — if pattern list stays in an exported constant, future additions would never require sensor.ts structural changes.
-
-### Flags
-
-- **[RESOLVED]** Reactive lane 116-tick/0-task anomaly — state-encoding + completedDup auto-advance ✓
-- **[RESOLVED]** social-engine migration scripts relocated to `db/migrations/` ✓
-- **[RESOLVED]** social-x-posting reply command formally deprecated ✓
-- **[RESOLVED]** Dead import `recentTaskExistsForSource` carry-watch was a false positive — never imported ✓
-- **[CARRY-WATCH]** `skills/arc-architecture-review/db/*.sqlite*` tracked in git (4th carry) — add to `.gitignore`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-
----
-
