@@ -5,7 +5,9 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-27 PM task #20138] 2.35/5 — S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3 | $53.43/day = $0.545/task | 98 completed, 100% success | Signal PAUSED; 0 PR reviews; Ops perfect; 10+ patterns captured + memory-health feature shipped. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-28 AM task #20144] 2.05/5 — S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3 | $54.84/day = $0.527/task | 104 completed, 100% success | Signal PAUSED; 0 PR reviews; Ops perfect; overnight — no new adaptations, Whop DEFERs, housekeeping. Overwrite this line at next eval.
+
+**l-purpose-2026-06-28** [2026-06-28 AM] PURPOSE score 2.05/5 (S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3) — Ops 100% (104/104); signal PAUSED keeps S:1; 0 PR reviews (structural gap); Cost C:1 ($0.527/task, $54.84/day — above threshold); overnight cycle, no new patterns or capabilities (Ad:2 vs PM Ad:5); Whop synthesis DEFERed 3×.
 
 **l-purpose-2026-06-27** [2026-06-27 PM] PURPOSE score 2.35/5 (S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3) — Ops 100% (98/98); signal PAUSED keeps S:1; 0 PR reviews (structural sensor gap, E:1); Cost C:1 ($0.545/task from opus research batch); Adaptation S:5 — memory-health command deployed + 10+ patterns captured/consolidated; no follow-up task created (PR gap is sensor-structural, not queue-addressable).
 
