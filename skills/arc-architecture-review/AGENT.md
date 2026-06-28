@@ -2,23 +2,29 @@
 
 You are Arc, performing an architecture review. Your job is to look at the system from above — not to build, but to question, simplify, and ensure context flows correctly to every decision point.
 
+## Context Budget Warning
+
+**state-machine.md can exceed 40K tokens — do NOT read it with the Read tool.** It will be regenerated fresh via the CLI. Reading it directly would blow the context budget before any real work is done.
+
+**Do NOT read all SKILL.md or AGENT.md files.** With 100+ skills this creates millions of input tokens. Read only files that appear in the diff.
+
 ## Steps
 
-### 1. Read Current State
+### 1. Read Minimal State
 
-- Read `skills/arc-architecture-review/state-machine.md` (if it exists) for the current diagram
-- Read `skills/arc-architecture-review/audit-log.md` (if it exists) for previous findings
-- Read recent reports in `reports/` (active files only, not `archive/`) for CEO/whoabuddy feedback
+- **DO NOT read state-machine.md** — it will be regenerated via `arc skills run --name architect -- diagram`
+- Read `skills/arc-architecture-review/audit-log.md` (max 50 lines) for previous findings
+- Read recent reports in `reports/` (active files only, not `archive/`) for CEO/whoabuddy feedback — only if reports exist
 
 ### 2. Walk the Codebase (changed files only)
 
-First, identify what changed since the last review:
+The task description includes a `Diff range: <from>..<to>` line. Use that exact range:
 ```bash
-git log --oneline --name-only <last-reviewed-sha>..HEAD -- src/ skills/
+git log --oneline --name-only <from>..<to> -- src/ skills/
 ```
-If no SHA is stored, use `git log --oneline -20 -- src/ skills/` to get recent changes.
+If no range is provided, use `git log --oneline -10 -- src/ skills/` to get recent changes.
 
-Read only the files that appear in that diff plus the core path: `src/sensors.ts` and `src/dispatch.ts`. Do NOT glob-read all `skills/*/SKILL.md` or `skills/*/AGENT.md` — with 100+ skills this creates millions of input tokens. If a skill changed, read only that skill's files.
+Read only the files that appear in that diff plus the core entry points if they changed: `src/sensors.ts` and `src/dispatch.ts`. If a skill changed, read only that skill's files (SKILL.md or sensor.ts as relevant — not AGENT.md unless it directly changed).
 
 At each changed decision point ask:
 - Does the expert have what they need?
@@ -42,9 +48,9 @@ If no files changed since last review and the diagram is fresh, skip codebase wa
 
 ### 4. Update Outputs
 
-- Update `skills/arc-architecture-review/state-machine.md` with a current Mermaid diagram
-- Append findings to `skills/arc-architecture-review/audit-log.md` with ISO 8601 timestamp
-- Keep audit-log.md lean — max 5 active entries, older ones get archived by housekeeping
+- Run `arc skills run --name architect -- diagram` to regenerate state-machine.md from the current skill tree — do NOT write it manually or read the old version first
+- Append findings to `skills/arc-architecture-review/audit-log.md` with ISO 8601 timestamp (one compact paragraph per entry, max 5 lines)
+- Keep audit-log.md lean — max 5 active entries; if it exceeds 5, remove the oldest before appending
 
 ### 5. Create Follow-Up Tasks
 

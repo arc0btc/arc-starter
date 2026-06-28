@@ -33,13 +33,14 @@ function isoNow(): string {
 // ---- Diagram generation ----
 
 function buildMermaidDiagram(skills: SkillInfo[]): string {
-  const sensorsWithSkills = skills.filter((s) => s.hasSensor);
-  const skillsWithCli = skills.filter((s) => s.hasCli);
+  const sensorCount = skills.filter((s) => s.hasSensor).length;
+  const cliCount = skills.filter((s) => s.hasCli).length;
+  const agentCount = skills.filter((s) => s.hasAgent).length;
 
   const lines: string[] = [
     "# Arc State Machine",
     "",
-    `*Generated: ${isoNow()}*`,
+    `*Generated: ${isoNow()} | Skills: ${skills.length} | Sensors: ${sensorCount} | CLI: ${cliCount} | Agents: ${agentCount}*`,
     "",
     "```mermaid",
     "stateDiagram-v2",
@@ -51,28 +52,26 @@ function buildMermaidDiagram(skills: SkillInfo[]): string {
     "    }",
     "",
     "    state SensorsService {",
-    "        [*] --> RunAllSensors: parallel via Promise.allSettled",
+    `        [*] --> RunAllSensors: ${sensorCount} sensors via Promise.allSettled`,
+    "        RunAllSensors --> SensorGate: claimSensorRun(name, intervalMin)",
+    "        SensorGate --> Skip: interval not elapsed",
+    "        SensorGate --> DedupCheck: interval elapsed",
+    "        DedupCheck --> Skip: pending task exists",
+    "        DedupCheck --> CreateTask: no dupe",
+    "        CreateTask --> [*]: insertTask()",
+    "        Skip --> [*]",
+    "    }",
+    ""
   ];
 
-  // Add sensor states
-  for (const s of sensorsWithSkills) {
-    lines.push(`        RunAllSensors --> ${sanitizeName(s.name)}Sensor: ${s.name}`);
-  }
-  lines.push("");
-  for (const s of sensorsWithSkills) {
-    const sName = sanitizeName(s.name);
-    lines.push(`        state ${sName}Sensor {`);
-    lines.push(`            [*] --> ${sName}Gate: claimSensorRun(${s.name})`);
-    lines.push(`            ${sName}Gate --> ${sName}Skip: interval not elapsed`);
-    lines.push(`            ${sName}Gate --> ${sName}Dedup: interval elapsed`);
-    lines.push(`            ${sName}Dedup --> ${sName}Skip: pending task exists`);
-    lines.push(`            ${sName}Dedup --> ${sName}CreateTask: no dupe`);
-    lines.push(`            ${sName}CreateTask --> [*]: insertTask()`);
-    lines.push(`            ${sName}Skip --> [*]: return skip`);
-    lines.push("        }");
-    lines.push("");
-  }
-  lines.push("    }");
+  lines.push("    state DispatchService {");
+  lines.push("        [*] --> CheckLock: db/dispatch-lock.json");
+  lines.push("        CheckLock --> Exit: lock held by live PID");
+  lines.push("        CheckLock --> CrashRecovery: lock held by dead PID");
+  lines.push("        CheckLock --> PickTask: no lock");
+  lines.push("        CrashRecovery --> PickTask: mark stale active tasks failed");
+  lines.push("        PickTask --> Idle: no pending tasks");
+  lines.push("        PickTask --> BuildPrompt: highest priority task");
   lines.push("");
 
   // Dispatch service
@@ -115,53 +114,30 @@ function buildMermaidDiagram(skills: SkillInfo[]): string {
   lines.push("        ArcCommand --> StatusView: status");
   lines.push("    }");
 
-  if (skillsWithCli.length > 0) {
-    lines.push("");
-    lines.push("    note right of CLI");
-    lines.push("        Skills with CLI:");
-    for (const s of skillsWithCli) {
-      lines.push(`        - ${s.name}`);
-    }
-    lines.push("    end note");
-  }
-
   lines.push("```");
   lines.push("");
 
-  // Decision points table
+  // Compact decision points table only — no per-skill inventory (use `arc skills` for that)
   lines.push("## Decision Points");
   lines.push("");
-  lines.push("| # | Point | Context Available | Gate |");
-  lines.push("|---|-------|-------------------|------|");
-  lines.push("| 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |");
-  lines.push("| 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |");
-  lines.push("| 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |");
-  lines.push("| 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |");
-  lines.push("| 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |");
-  lines.push("| 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |");
-  lines.push("| 7 | LLM execution | Full prompt + CLI access | `arc` commands only |");
-  lines.push("| 8 | Result handling | Task status check post-run | Self-close vs fallback |");
-  lines.push("| 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |");
+  lines.push("| # | Point | Gate |");
+  lines.push("|---|-------|------|");
+  lines.push("| 1 | Sensor fires | `claimSensorRun()` |");
+  lines.push("| 2 | Sensor creates task | `pendingTaskExistsForSource()` |");
+  lines.push("| 3 | Dispatch lock check | `isPidAlive()` |");
+  lines.push("| 4 | Task selection | Priority ASC, ID ASC |");
+  lines.push("| 5 | Skill loading | `task.skills` JSON array |");
+  lines.push("| 6 | Prompt assembly | Token budget ~40-50k |");
+  lines.push("| 7 | LLM execution | `arc` commands only |");
+  lines.push("| 8 | Result handling | Self-close vs fallback |");
+  lines.push("| 9 | Auto-commit | `git diff --cached` |");
   lines.push("");
-
-  // Skills inventory
-  lines.push("## Skills Inventory");
-  lines.push("");
-  lines.push("| Skill | Sensor | CLI | Agent | Description |");
-  lines.push("|-------|--------|-----|-------|-------------|");
-  for (const s of skills) {
-    lines.push(
-      `| ${s.name} | ${s.hasSensor ? "yes" : "-"} | ${s.hasCli ? "yes" : "-"} | ${s.hasAgent ? "yes" : "-"} | ${s.description || "-"} |`
-    );
-  }
+  lines.push(`*Skill inventory: run \`arc skills\` for the full list (${skills.length} skills, ${sensorCount} sensors, ${cliCount} with CLI)*`);
   lines.push("");
 
   return lines.join("\n");
 }
 
-function sanitizeName(name: string): string {
-  return name.replace(/-/g, "_");
-}
 
 async function cmdDiagram(): Promise<void> {
   const skills = discoverSkills();

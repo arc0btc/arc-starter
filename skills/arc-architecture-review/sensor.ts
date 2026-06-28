@@ -85,10 +85,13 @@ export default async function architectSensor(): Promise<string> {
 
   log(`creating review task: ${reasons.join(", ")}`);
 
+  const shaRange = lastReviewedSha && currentSha ? `${lastReviewedSha}..${currentSha}` : "";
+
   insertTask({
     subject: "architecture review — " + reasons[0],
     description:
       `Triggers: ${reasons.join(", ")}\n\n` +
+      (shaRange ? `Diff range: ${shaRange} (use this with git log/diff — do NOT read state-machine.md)\n\n` : "") +
       `Run the architect skill to update the state machine diagram, ` +
       `audit context delivery at decision points, and apply the SpaceX ` +
       `5-step engineering process.\n\n` +
