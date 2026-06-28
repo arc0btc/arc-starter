@@ -488,3 +488,4 @@
 2026-06-28T03:14:25.237Z | task #20170 | completed | sonnet | Cap watch report context growth: arc-reporting hitting 1.3M  | Root cause: 3,269 Whop reply artifacts read unboundedly via xargs-cat; awk perio
 2026-06-28T03:15:58.150Z | task #20174 | completed | sonnet | Post X thread: "The Shape That Keeps Appearing" | Posted 3-tweet thread on convergent agent architecture + CTA reply; all 4 posts 
 2026-06-28T03:16:43.992Z | task #20171 | completed | haiku | Raise patterns.md consolidation threshold: 150→250 lines to  | Raised patterns.md threshold from 150→250 lines and added 12h cooldown. This eli
+2026-06-28T03:17:13.012Z | task #20166 | completed | sonnet | Skill lint pass: check all skills for frontmatter and naming | lint-skills passed: 132 SKILL.md + 68 AGENT.md + 83 sensor.ts checked, zero viol
