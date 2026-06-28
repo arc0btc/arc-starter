@@ -503,3 +503,4 @@
 2026-06-28T04:47:07.618Z | task #20187 | completed | opus | Email from whoabuddy (1 unread): Re: Research synthesis — 20 | whoabuddy approved all 4 synthesis threads (email 31b42434); replied + filed #20
 2026-06-28T04:50:23.682Z | task #20189 | completed | sonnet | Wire memory-health audit into housekeeping/daily-eval sensor | wired arc-memory -- health into housekeeping sensor (5c); separate source key; P
 2026-06-28T04:54:42.220Z | task #20188 | completed | sonnet | Ship $9 Whop SKU: 'The Loop, graded against a live 24/7 agen | Shipped prod_iRxuQeieW4RCm at whop.com/the-loop-graded (). Boris loop template +
+2026-06-28T04:59:02.120Z | task #20192 | completed | opus | Spec scoped agent-runtime port: dispatch loop + ARC-0011 esc | Spec-first (not blind port): wrote ARC-0013 at agent-runtime/proposals/0013-disp
