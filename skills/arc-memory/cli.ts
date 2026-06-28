@@ -6,10 +6,10 @@
  *   list-sections                                        List section headers in patterns.md
  *   retrospective [--days 7] [--dry-run]                 Print retrospective briefing
  *   framework     --name "NAME"                          Show a decision framework by name
- *   write-entry   --category A|F|S|T|P|L --slug SLUG --title TITLE --body TEXT
+ *   write-entry   --category A|S|P|E|L|N --slug SLUG --title TITLE --body TEXT
  *                 [--skills s1,s2] [--expires YYYY-MM-DD] [--follows EVENT_ID]
  *                 Write a structured entry to MEMORY.md; auto-supersedes entry with same slug
- *   list-entries  [--category A|F|S|T|P|L]              List all entries in MEMORY.md
+ *   list-entries  [--category A|S|P|E|L|N]              List all entries in MEMORY.md
  *   supersede     --slug OLD_SLUG --new-slug NEW_SLUG    Mark an entry as superseded
  */
 
@@ -33,21 +33,21 @@ const STALE_TAG_DAYS = 14;
 
 // Category headers as they appear in MEMORY.md
 const CATEGORY_HEADERS: Record<string, string> = {
-  A: "## [A] Operational State",
-  F: "## [F] Fleet",
-  S: "## [S] Services",
-  T: "## [T] Temporal Events",
-  P: "## [P] Patterns",
-  L: "## [L] Learnings",
+  A: "## [A] Active Items",
+  S: "## [S] Signal Filing Rules",
+  P: "## [P] Critical Patterns",
+  E: "## [E] Recent Evaluations",
+  L: "## [L] Core Validated Patterns",
+  N: "## [N] Agent Network Contacts",
 };
 
 const CATEGORY_NAMES: Record<string, string> = {
-  A: "Operational State",
-  F: "Fleet",
-  S: "Services",
-  T: "Temporal Events",
-  P: "Patterns",
-  L: "Learnings",
+  A: "Active Items",
+  S: "Signal Filing Rules",
+  P: "Critical Patterns",
+  E: "Recent Evaluations",
+  L: "Core Validated Patterns",
+  N: "Agent Network Contacts",
 };
 
 // ---- Helpers ----
@@ -181,13 +181,13 @@ function cmdWriteEntry(args: string[]): void {
   }
 
   if (!category || !slug || !body) {
-    console.error("Usage: write-entry --category A|F|S|T|P|L --slug SLUG --body TEXT [--title TITLE] [--skills s1,s2] [--expires YYYY-MM-DD] [--follows EVENT_ID]");
-    console.error("Categories: A=Operational State, F=Fleet, S=Services, T=Temporal Events, P=Patterns, L=Learnings");
+    console.error("Usage: write-entry --category A|S|P|E|L|N --slug SLUG --body TEXT [--title TITLE] [--skills s1,s2] [--expires YYYY-MM-DD] [--follows EVENT_ID]");
+    console.error("Categories: A=Active Items, S=Signal Filing Rules, P=Critical Patterns, E=Recent Evaluations, L=Core Validated Patterns, N=Agent Network Contacts");
     process.exit(1);
   }
 
   if (!CATEGORY_HEADERS[category]) {
-    console.error(`Unknown category: "${category}". Valid: A, F, S, T, P, L`);
+    console.error(`Unknown category: "${category}". Valid: A, S, P, E, L, N`);
     process.exit(1);
   }
 
@@ -279,7 +279,7 @@ function cmdListEntries(args: string[]): void {
     byCategory.set(entry.category, list);
   }
 
-  const categoryOrder = ["A", "F", "S", "T", "P", "L"];
+  const categoryOrder = ["A", "S", "P", "E", "L", "N"];
   for (const cat of categoryOrder) {
     const catEntries = byCategory.get(cat);
     if (!catEntries) continue;
