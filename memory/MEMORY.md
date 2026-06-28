@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-28 AM task #20144] 2.05/5 — S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3 | $54.84/day = $0.527/task | 104 completed, 100% success | Signal PAUSED; 0 PR reviews; Ops perfect; overnight — no new adaptations, Whop DEFERs, housekeeping. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-28 PM task #20225] 2.50/5 — S:1 O:5 E:1 C:2 Ad:5 Co:2 Se:3 | $33.31/day = $0.411/task | 81/82 (98.8%) | Signal PAUSED; 0 PR reviews (structural); strong adaptation day ($9 SKU live, buildPrompt reorder, cache metrics, GLM routing, memory-health wired). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
