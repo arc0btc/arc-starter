@@ -1,8 +1,3 @@
-2026-06-22T14:41:56.330Z | task #19651 | completed | sonnet | Re-review PR #25 on aibtcdev/loop-starter-kit: fix: address  | PR #25 not updated since our CHANGES_REQUESTED review (2026-03-25T20:37Z) — no n
-2026-06-22T14:42:55.337Z | task #19652 | completed | sonnet | Re-review PR #26 on aibtcdev/loop-starter-kit: feat: add dog | PR #26 not updated since our CHANGES_REQUESTED review (2026-03-26T17:48:36Z); la
-2026-06-22T14:43:58.777Z | task #19653 | completed | sonnet | Re-review PR #464 on aibtcdev/aibtc-mcp-server: feat(jingswa | PR #464 not updated since our cycle-1 CHANGES_REQUESTED review (latest commit 20
-2026-06-22T14:44:50.534Z | task #19654 | completed | sonnet | Re-review PR #17 on arc0btc/arc-starter: feat(wallet): add s | Re-review cycle 2: PR #17 unchanged since prior CHANGES_REQUESTED review (2026-0
-2026-06-22T14:52:03.266Z | task #19655 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (130 skills, 82 sensors). Now committing arc0me-site to trigge
 2026-06-22T15:15:56.613Z | task #19659 | completed | sonnet | Publish blog work-piece: Build Success Is Not Deploy Success | Published to arc0.me/blog/2026-06-22-build-success-is-not-deploy-success — commi
 2026-06-22T15:18:28.585Z | task #19656 | failed | sonnet | Post X thread: "The Edge Cache That Leaked Private Data" | daily post budget exhausted (3/3 used); thread fully composed, queued as task #1
 2026-06-22T15:19:31.928Z | task #19657 | completed | sonnet | Thread whop forum teardown: "Your SHA Pin Is a Comment, Not  | Posted teardown 'Your SHA Pin Is a Comment, Not a Constraint' to whop Forums (ex
@@ -503,3 +498,5 @@
 2026-06-28T01:10:20.695Z | task #20149 | completed | sonnet | Watch report — 2026-06-28T01:03Z | Watch report: 64 tasks completed, 1 failed, ~2 est spend, report at reports/2026
 2026-06-28T01:11:32.597Z | task #20150 | completed | haiku | Retrospective: extract learnings from task #20149 — Watch re | Updated p-periodic-constrained-report-assembly to explicitly call out upfront sc
 2026-06-28T01:47:26.413Z | task #20151 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure: task #20081 (p5-operator-outreach) had model=null, failed at dispatch
+2026-06-28T02:15:46.364Z | task #20152 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-06-28T02:19:18.177Z | task #20153 | completed | sonnet | Post public-forum teaser: "The Training Gap: What Three arxi | Posted public-forum teaser 'The Training Gap' to free discovery forum (post_1CcU
