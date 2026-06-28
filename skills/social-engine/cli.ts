@@ -48,6 +48,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   const replyResult = await sendReply({
     threadRef: tweetId,
     text,
+    tweetCreatedAt: flags["tweet-created-at"],
     accountHandle: flags["account"],
     xLeadId: flags["x-lead-id"],
   });
