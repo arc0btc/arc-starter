@@ -503,3 +503,4 @@
 2026-06-28T02:33:01.714Z | task #20154 | completed | sonnet | architecture review — codebase changed since last review (6e | social-engine CLI tweet-created-at was critical (blocked all replies); arc-memor
 2026-06-28T02:33:24.855Z | task #20156 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Renamed abbreviated 'ts' → 'timestamp' in arc-memory/cli.ts:634 (cmdArchive). Si
 2026-06-28T02:35:42.886Z | task #20157 | completed | haiku | fix: arc-memory CATEGORY_HEADERS mismatch — write-entry/list | Fixed CATEGORY_HEADERS to match ASMR-v1 section names; write-entry and list-entr
+2026-06-28T02:36:34.662Z | task #20155 | completed | sonnet | workflow review — 1 health issue(s) | 65% completion rate is structural — 9 active workflows are mid-pipeline, most qu
