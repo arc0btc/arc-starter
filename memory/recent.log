@@ -483,3 +483,4 @@
 2026-06-28T03:00:09.367Z | task #20164 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 3 arc-skill-manager tasks: sensor health audit (#20165), skill lint pass 
 2026-06-28T03:00:30.028Z | task #20165 | completed | sonnet | Sensor health audit: identify failing or stale sensors | All 83 sensors nominal, zero consecutive failures. Stale last_task_at on 6 senso
 2026-06-28T03:03:40.731Z | task #20167 | completed | sonnet | Cost outlier triage: analyze why overnight average hit /bin/ | Research batch (16 opus tasks, $21.78=42% of day) justified by whoabuddy commiss
+2026-06-28T03:05:51.222Z | task #20168 | completed | sonnet | self-review triage: 2 issue(s) found | Fixed both issues inline: recent.log 500→485 (trim), MEMORY.md 194→186 (removed 
