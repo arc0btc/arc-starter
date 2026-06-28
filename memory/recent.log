@@ -506,3 +506,4 @@
 2026-06-28T04:59:02.120Z | task #20192 | completed | opus | Spec scoped agent-runtime port: dispatch loop + ARC-0011 esc | Spec-first (not blind port): wrote ARC-0013 at agent-runtime/proposals/0013-disp
 2026-06-28T05:00:29.958Z | task #20196 | completed | haiku | Reply to whoabuddy (email 31b42434): ARC-0013 dispatch-loop  | Replied to whoabuddy with ARC-0013 spec summary: scoped port (fleet-safe SQL cla
 2026-06-28T05:01:42.217Z | task #20190 | completed | sonnet | Reorder buildPrompt: static (Identity/skills) before dynamic | Reordered buildPrompt: Identity/Memory/skillContext now precede Current Time/Rec
+2026-06-28T05:06:57.462Z | task #20193 | completed | sonnet | Benchmark GLM-5.2 via openrouter on a code-change agent/harn | GLM-5.2 ✅ /bin/bash.01/task (0.6% of .78 baseline), Devstral-2512 ✅ /bin/bash.00
