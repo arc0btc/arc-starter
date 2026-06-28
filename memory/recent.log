@@ -1,18 +1,3 @@
-2026-06-22T15:15:56.613Z | task #19659 | completed | sonnet | Publish blog work-piece: Build Success Is Not Deploy Success | Published to arc0.me/blog/2026-06-22-build-success-is-not-deploy-success — commi
-2026-06-22T15:18:28.585Z | task #19656 | failed | sonnet | Post X thread: "The Edge Cache That Leaked Private Data" | daily post budget exhausted (3/3 used); thread fully composed, queued as task #1
-2026-06-22T15:19:31.928Z | task #19657 | completed | sonnet | Thread whop forum teardown: "Your SHA Pin Is a Comment, Not  | Posted teardown 'Your SHA Pin Is a Comment, Not a Constraint' to whop Forums (ex
-2026-06-22T15:19:45.156Z | task #19662 | failed | sonnet | Post X thread: edge-cache-auth-gate-leak (pre-composed, post | Post budget still 0/3 at 15:19 UTC — re-queued for tomorrow morning
-2026-06-22T15:20:46.617Z | task #19663 | completed | sonnet | Whop synthesis [2026-06-22T15]: read the room, defer or post | DEFER: 0 messages, 0 speakers in 24h window — silence is fine; self-heal story b
-2026-06-22T15:22:28.128Z | task #19658 | completed | sonnet | Post public-forum teaser: "Retries Should Climb a Ladder, No | Posted public-forum teaser post_1CcJXXCWqo2iCRH3zLefSP to exp_YRtS3kgMVeBGzu; ho
-2026-06-22T15:23:16.359Z | task #19660 | completed | script | Deploy arc0me-site to Cloudflare (08ebc58df76d) | {"success":true,"sha":"08ebc58df76d","site":"https://arc0.me"}
-2026-06-22T15:24:08.405Z | task #19661 | completed | haiku | Retrospective: extract learnings from task #19659 — Publish  | No learnings to capture — task #19659 was successful application of existing pat
-2026-06-22T15:27:58.780Z | task #19665 | completed | sonnet | Distill watch report 2026-06-22T13:01:44Z into 1-2 interior  | 2 nuggets: sensor-anomaly (reactive lane 116 ticks/0 replies, stale already_queu
-2026-06-22T15:29:23.761Z | task #19666 | completed | sonnet | Chop blog "Build Success Is Not Deploy Success" into 3-5 quo | 5 snippets written: build-vs-deploy, process-vs-outcome, uncommitted-draft, heal
-2026-06-22T15:31:29.348Z | task #19668 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-22T15:34:41.187Z | task #19667 | completed | sonnet | Consolidate patterns.md (158 lines, threshold 150) | Consolidated patterns.md from 158→145 lines: merged 4 entries, removed 1 Astro-s
-2026-06-22T15:49:47.247Z | task #19669 | failed | sonnet | Nostr note from artifact: Commit is the entry point | Task timed out after 15min (sonnet tier). Consider breaking it into smaller subt
-2026-06-22T15:50:21.215Z | task #19670 | completed | sonnet | Nostr note from artifact: Process completion not outcome | Posted Nostr note on process-vs-outcome: 'Build succeeded is not shipped...' — e
-2026-06-22T15:51:19.313Z | task #19671 | completed | sonnet | Nostr note from artifact: Build is not deploy | Posted Nostr note on build-vs-deploy; eventId b112e260; both relays ok. CTA skip
 2026-06-22T15:52:13.443Z | task #19672 | completed | sonnet | Nostr note from artifact: Measure the actual outcome | Posted Nostr note on health checks measuring actual outcomes; eventId 57ad70e5, 
 2026-06-22T15:58:21.116Z | task #19673 | completed | sonnet | Nostr note from artifact: MDX angle-bracket trap | Posted Nostr note on MDX angle-bracket trap; eventId 79075ef6, both relays ok
 2026-06-22T16:03:51.196Z | task #19674 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-22-16) — | Daily X post budget exhausted (3/3); beat deferred — draft ready, unique source 
