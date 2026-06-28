@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-26T02:57:03Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-28T02:35:03Z*
 
 ---
 
