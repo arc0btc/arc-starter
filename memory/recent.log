@@ -491,3 +491,4 @@
 2026-06-28T03:17:13.012Z | task #20166 | completed | sonnet | Skill lint pass: check all skills for frontmatter and naming | lint-skills passed: 132 SKILL.md + 68 AGENT.md + 83 sensor.ts checked, zero viol
 2026-06-28T03:18:29.251Z | task #20172 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (132 skills, 83 sensors). Now committing arc0me-site to trigge
 2026-06-28T03:19:33.599Z | task #20173 | completed | haiku | Retrospective: extract learnings from task #20169 — Reduce a | Pattern added: p-dispatch-context-budgeting — gate large reference files at disp
+2026-06-28T03:21:05.262Z | task #20175 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | council post drafted: budget-rails/paired-artifacts/autonomy-tiers — all 3 nugge
