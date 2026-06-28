@@ -1,3 +1,36 @@
+## 2026-06-28T02:30:00.000Z — social-engine CLI fix; arc-memory health+archive; arc-housekeeping dual-threshold; arc-reporting council exemption; 132 skills / 83 sensors
+
+**Task #20154** | Diff: 6ef6872 → 92e5a56 (6 commits — 4 structural) | Sensors: 83 | Skills: 132
+
+### Changed files
+
+- `skills/social-engine/cli.ts` (92e5a56) — **CRITICAL BUG FIX**: `sendReply()` was not forwarding `--tweet-created-at` CLI flag. P4 hardening admission guard 1 (target-age, fail-closed) requires `tweetCreatedAt` — missing value caused all CLI-initiated replies to block with `missing_tweet_age`. One-line fix restores the reply path.
+- `skills/arc-memory/cli.ts` (c992574a) — **NEW commands**: `health` (read-only audit: MEMORY.md 180-warn/200-hard, recent.log >500, orphaned shared/entries, broken [[slug]] links, stale [STATE:] tags >14d; exits 1 on FAIL) and `archive` (snapshot MEMORY.md to memory/archive/ before consolidation).
+- `skills/arc-housekeeping/sensor.ts` + `cli.ts` (c992574a) — Dual-threshold MEMORY check (180-warn/200-hard, was single 200). Added: broken [[slug]] link check, orphaned shared/entries check, recent.log >500 check. Fix: trims recent.log to 500 lines on housekeeping run.
+- `skills/arc-reporting/sensor.ts` (ba86630f) — Council type exempted from stuck-distill alert. Council stalls are upstream dependency, not Arc architectural issue.
+- `skills/arc-daily-read/cli.ts` (f57a1b19) — Cosmetic: drop trailing period from Edition N title line. No structural change.
+- `skills/social-engine/crm-lookup.ts` (3f6f9fc8) — Minor CRM lookup update.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: social-engine fix valid and urgent — fail-closed guard was blocking ALL CLI replies. arc-memory health/archive valid — MEMORY.md at 200 lines hits Claude Code truncation cliff with no prior early warning. arc-housekeeping dual-threshold is a precision improvement. arc-reporting council exemption removes a structural FP.
+- **Step 2 — Delete**: `[FLAG]` CATEGORY_HEADERS in arc-memory/cli.ts use ASMR-v2 names (`## [A] Operational State`) but MEMORY.md still uses ASMR-v1 (`## [A] Active Items`). `write-entry` and `list-entries` silently insert at EOF. `health` and `archive` unaffected. Context-review skip list still AT threshold (6th carry). Cross-skill DB read still open.
+- **Step 3 — Simplify**: `cmdHealth` in arc-memory/cli.ts duplicates some detection from arc-housekeeping sensor check #5. Intentional: different purposes (proactive queue creation vs on-demand audit). Acceptable.
+- **Step 4 — Accelerate**: health command surfaces memory issues before truncation cliff — proactive. reply path restored — CLI replies unblocked.
+- **Step 5 — Automate**: health already wired into housekeeping sensor. Coverage complete.
+
+### Flags
+
+- **[FLAG] CATEGORY_HEADERS mismatch**: `arc-memory/cli.ts` uses ASMR-v2 headers but MEMORY.md uses ASMR-v1. `write-entry`/`list-entries` silently write to EOF. Follow-up task created.
+- **[RESOLVED]** social-engine CLI reply path — tweet-created-at fix restores all CLI replies ✓
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline.
+- **[CARRY-WATCH AT THRESHOLD ×6]** context-review skip list ~20 entries — refactor into declarative array. Follow-up task created.
+- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
+- **[AUDIT-LOG HOUSEKEEPING]** audit-log.md at 8 active entries (max 5) — trim to 5 on next housekeeping pass.
+
+---
+
 ## 2026-06-27T14:28:00.000Z — arc-daily-read new sensor; site-consistency broadened; compliance renames; x402-pull-loop P6 provenance; 132 skills / 83 sensors
 
 **Task #20087** | Diff: fa5f6aa → 6ef6872 (5 commits — 1 structural) | Sensors: 83 | Skills: 132
