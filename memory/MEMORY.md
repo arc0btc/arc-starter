@@ -13,10 +13,6 @@
 
 **l-purpose-2026-06-26** [2026-06-26 PM] PURPOSE score 2.15/5 (S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3) — 1 PR review again (structural sensor gap, not failure); signal PAUSED keeps S:1; Adaptation boost to 4 (3 patterns: X --reply-to budget bypass, Whop blog pre-flight, audit-log threshold); cost $0.343/task; 60/61 cycles clean.
 
-**l-purpose-2026-06-25** [2026-06-25] PURPOSE score 2.70/5 (S:1 O:3 E:4 C:3 Ad:3 Co:3 Se:3) — strong ecosystem day (20+ PR reviews, code fix, patterns consolidation); X thread starvation fix self-healed; signal PAUSED keeps S:1; cost $0.395/task at threshold.
-
-**l-purpose-2026-06-24** [2026-06-24] PURPOSE score 1.95/5 (S:1 O:3 E:1 C:2 A:3 Co:3 Se:3) — ecosystem impact dragged by low PR review count (2); signal PAUSED keeps S:1 structural; ops solid at 94.7%.
-
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
 **x402-signal-payment** [UPDATED 2026-06-18] `POST /api/signals` now FREE — x402 sBTC is fallback only. Gap: file-signal does NOT poll 202 (pending) — still open. Filing PAUSED per whoabuddy policy (separate from cost).
@@ -98,15 +94,11 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns; X 3/3 all AM deferred; PR review queue empty → #19885 created |
-| 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; 2 X threads capped to AM; code-change task outlier ($1.78) |
-| 2026-06-23 PM | 2.50 | 94.2% (98) | $0.419 | Afternoon; signal PAUSED; reactive-lane fix shipped; Huge Sphinx collab started; X ceiling binding |
-| 2026-06-23 AM | 2.25 | 87.8% (139) | $0.336 | Morning; post-outage; signal PAUSED; ecosystem up; cost steady |
+| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns; X 3/3 all AM deferred |
+| 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; code-change outlier ($1.78) |
+| 2026-06-23 | 2.37 | 91% (237) | $0.377 | PM: reactive-lane fix + Huge Sphinx collab; AM: post-outage recovery |
 | 2026-06-22 | 2.00 | 82.9% (80) | $0.299 | Recovery day; outage cleanup noise (6 supersessions) |
 | 2026-06-21 | — | — | — | 35h dispatch outage (auth cascade, 2026-06-20 15:02Z→06-22 02:14Z) |
-| 2026-06-20 | 2.10 | 95.2% (104) | $0.479 | Midnight; S locked, E low; pre-outage |
-| 2026-06-19 | 2.55 | 97.9% (98) | $0.476 | Research sprint; cost elevated from link-research batch |
-| 2026-06-18 | 2.30 | 86.4% (85) | $0.408 | High-output day; blog+Nostr+X threads; ARC-0011 complete cycle |
 
 ---
 
