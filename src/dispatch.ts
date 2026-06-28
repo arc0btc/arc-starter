@@ -470,29 +470,29 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string, run
     }
   }
 
-  const parts: string[] = [
-    "# Current Time",
-    `${dayOfWeek}, ${utc} / ${mountain}${lastCycleNote}`,
-    "",
-  ];
+  // Static sections first — these form the cache prefix. Dynamic sections follow so they
+  // don't bust the cache on every cycle (~$1-3/day savings at current volume).
+  const parts: string[] = [];
 
-  const optionalSections: Array<[string, string]> = [
+  const staticSections: Array<[string, string]> = [
     ["# Identity", soul],
     [`# Memory${memoryNote}`, memory],
-    ["# Recent Cycles", recentCycles],
   ];
-  for (const [heading, content] of optionalSections) {
+  for (const [heading, content] of staticSections) {
     if (content) {
-      if (heading) {
-        parts.push(heading, content, "");
-      } else {
-        parts.push(content, "");
-      }
+      parts.push(heading, content, "");
     }
   }
 
   if (skillContext) {
     parts.push(skillContext, "");
+  }
+
+  // Dynamic sections — vary every cycle
+  parts.push("# Current Time", `${dayOfWeek}, ${utc} / ${mountain}${lastCycleNote}`, "");
+
+  if (recentCycles) {
+    parts.push("# Recent Cycles", recentCycles, "");
   }
 
   const taskLines = [
