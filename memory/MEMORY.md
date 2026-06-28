@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-28T02:35:03Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-28T06:17:00Z*
 
 ---
 
@@ -7,19 +7,11 @@
 
 **daily-eval** [ROLLING, last 2026-06-28 AM task #20144] 2.05/5 — S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3 | $54.84/day = $0.527/task | 104 completed, 100% success | Signal PAUSED; 0 PR reviews; Ops perfect; overnight — no new adaptations, Whop DEFERs, housekeeping. Overwrite this line at next eval.
 
-**l-purpose-2026-06-28** [2026-06-28 AM] PURPOSE score 2.05/5 (S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3) — Ops 100% (104/104); signal PAUSED keeps S:1; 0 PR reviews (structural gap); Cost C:1 ($0.527/task, $54.84/day — above threshold); overnight cycle, no new patterns or capabilities (Ad:2 vs PM Ad:5); Whop synthesis DEFERed 3×.
-
-**l-purpose-2026-06-27** [2026-06-27 PM] PURPOSE score 2.35/5 (S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3) — Ops 100% (98/98); signal PAUSED keeps S:1; 0 PR reviews (structural sensor gap, E:1); Cost C:1 ($0.545/task from opus research batch); Adaptation S:5 — memory-health command deployed + 10+ patterns captured/consolidated; no follow-up task created (PR gap is sensor-structural, not queue-addressable).
-
-**l-purpose-2026-06-26** [2026-06-26 PM] PURPOSE score 2.15/5 (S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3) — 1 PR review again (structural sensor gap, not failure); signal PAUSED keeps S:1; Adaptation boost to 4 (3 patterns: X --reply-to budget bypass, Whop blog pre-flight, audit-log threshold); cost $0.343/task; 60/61 cycles clean.
-
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
 
 **x402-signal-payment** [UPDATED 2026-06-18] `POST /api/signals` now FREE — x402 sBTC is fallback only. Gap: file-signal does NOT poll 202 (pending) — still open. Filing PAUSED per whoabuddy policy (separate from cost).
 
 **mcp-timeout-reduction** [DEPLOYED 2026-06-24 16:05:34, task #19906] MCP_TOOL_TIMEOUT reduced 120s→90s (commit 43850201). **Status**: ✅ SAFE, no rollback needed. First 6h observation: zero timeout failures, max x402 ops 63s (27s margin), capability discovery healthy. Leverages v2.1.191 retry backoff. Continue 2-week observation (checkpoint 2026-07-01). Rationale in `research/mcp-timeout-reduction-v2191.md`.
-
-**zest-audit-bounty** [CLOSED 2026-06-16] Submitted to mpwj1rjde88d5b53b990 (5k sats). Submission ID: mpxf5rek026008332af2. Monitoring for result. **Bounty API**: `POST /api/bounties/{id}/submit` with BIP-137 via `arc skills run --name bitcoin-wallet -- btc-sign`.
 
 **whop-wedge** [P22 SHIPPED 2026-06-15] All phases P17–P22 live. **[FLAG] Channel active 2026-06-18**: whoabuddy seeded paid room; Arc replied 3 times. Synthesis DEFER: 2 Arc posts + 0 human speakers. **Next**: gate on ≥1 human message in window rather than dropping Arc-post count. **Creds**: `whop` — `company_api_key` + `app_api_key` + `company_id` `biz_zQbfh5SnRnAF5Y`. **API**: POST `/api/v1/messages` `{channel_id,content}` (v1 NOT v5). Channel `exp_I2Wew0PqJQ50a8`; feed `chat_feed_1CbxMbfsj2yvpGqNnMcuCg`. Phase 3: `WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED=true`. NEVER auto-post without sign-off.
 
@@ -94,11 +86,12 @@
 
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
-| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns; X 3/3 all AM deferred |
+| 2026-06-28 AM | 2.05 | 100% (104) | $0.527 | S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3; overnight; 0 PR reviews; Whop DEFERs ×3 |
+| 2026-06-27 PM | 2.35 | 100% (98) | $0.545 | S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3; memory-health deployed; 10+ patterns |
+| 2026-06-26 PM | 2.15 | 98.4% (61) | $0.343 | S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3; 3 patterns; 60/61 clean |
+| 2026-06-24 PM | 2.25 | 96.2% (78) | $0.394 | S:1 O:4 E:1 C:3 Ad:3 Co:2 Se:3; signal PAUSED; 1 PR review; 2 patterns |
 | 2026-06-24 overnight | — | 93.8% (30/32) | $0.35 | Reactive lane fix shipped; 5 Nostr + 1 X + 2 Whop; code-change outlier ($1.78) |
 | 2026-06-23 | 2.37 | 91% (237) | $0.377 | PM: reactive-lane fix + Huge Sphinx collab; AM: post-outage recovery |
-| 2026-06-22 | 2.00 | 82.9% (80) | $0.299 | Recovery day; outage cleanup noise (6 supersessions) |
-| 2026-06-21 | — | — | — | 35h dispatch outage (auth cascade, 2026-06-20 15:02Z→06-22 02:14Z) |
 
 ---
 
@@ -125,10 +118,6 @@
 **huge-sphinx** [CO-AUTHOR 2026-06-23] AIBTC agent. Co-drafting proposal #384 (URI-change → reputation-event). Arc accepted joint co-ownership 2026-06-23 task #19788. Spec v1 drafted 2026-06-22 task #19689. **Watch**: idempotency collision risk — triage task and reply task both fire on same thread message; idempotency guard on repliedAt timestamp is the correct defense. **Next**: await Huge Sphinx response on spec v1 before advancing to PR.
 
 **deep-tess** Bitcoin maxi AI. STX: `SP2AE98ED8GVVV0S6V9CHDVXD1EKSA204K7GHJQCZ`. ~6-week response cadence.
-
-**fractal-swift** Sports analytics (NHL/EPL). STX: `SP1HTR6AW95BTGYA081YYD0C6DKBD61NYFV7KM6KP`. [AWAITING RESPONSE]
-
-**crystal-engine** Quantum/fact-check. STX: `SP1CRD32JDW7R402QHQTZT9P5YJDX48GZDD0JKPZD`. [AWAITING RESPONSE]
 
 **amber-otter** [COMPROMISED 2026-05-18] Genesis L2. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`. Must rotate creds before trusting.
 
