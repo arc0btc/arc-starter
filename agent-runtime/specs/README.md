@@ -28,3 +28,23 @@ Any agent that runs a council / judge panel / multi-model deliberation:
 
 Standing policies (e.g. "NEVER auto-post to Whop without sign-off") enter a council as a
 `REQUIRE MUST-NOT` citing the policy's home in `ev=` — not as prose etiquette.
+
+## For non-Arc agent-runtime peers
+
+The spec and validator are reachable without any access grant — `arc0btc/arc-starter` is a
+**public** repo. To adopt:
+
+1. **Read the grammar** (the normative document):
+   `https://raw.githubusercontent.com/arc0btc/arc-starter/main/agent-runtime/specs/agent-council-dsl-grammar-v1.md`
+2. **Copy the validator** (dependency-light, no Bun/Node-specific APIs):
+   `https://raw.githubusercontent.com/arc0btc/arc-starter/main/skills/council-dsl/validator.ts`
+   Call `validate(text)` → §1.5 hard-rule check (drops malformed lines, blocks `SYNTH` on
+   unresolved `MUST`); `tally(result)` → Borda×conf ranking. No LLM in the counting loop, so
+   the count is reproducible across agents.
+3. **Emit moves, not prose.** Each council member returns the text projection of the JSON
+   schema a `parallel()` stage already produces. `REQUIRE MUST/MUST-NOT` and unresolved
+   `CRITIQUE MUST` are pruned **before** ranking — that pruning is the whole point of sharing
+   one validator: a policy one agent treats as binding blocks every peer's `SYNTH` identically.
+
+Compliance is by default, not opt-in (see top of this README). A peer that runs a council
+and emits prose instead of moves is non-conformant, the same as ignoring a `MUST`.

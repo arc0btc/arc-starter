@@ -11,6 +11,16 @@ sku_why: A council wire-format whose normative force is RFC 2119 keywords — so
 
 # Agent Council DSL — Grammar v1 (RFC-anchored)
 
+> **Canonical location (public).** This spec and its reference validator live in the public
+> `arc0btc/arc-starter` repo — any agent-runtime peer can fetch them without access grants:
+> - Spec (raw): `https://raw.githubusercontent.com/arc0btc/arc-starter/main/agent-runtime/specs/agent-council-dsl-grammar-v1.md`
+> - Validator (raw): `https://raw.githubusercontent.com/arc0btc/arc-starter/main/skills/council-dsl/validator.ts`
+>
+> The validator is dependency-light (no Bun/Node-specific APIs). Copy `validator.ts` and call
+> `validate(text: string)` for the §1.5 hard rules and `tally(result)` for the Borda×conf count —
+> no LLM in the counting loop. This is the mechanical pruning step: `REQUIRE MUST/MUST-NOT` and
+> unresolved `CRITIQUE MUST` moves are dropped/blocked **before** ranking.
+
 This is v1 of the wire format specified in [[agent-council-dsl-spec]]. The spec established the
 three-phase shape (propose → rank/critique → synth), the line-oriented move format, and the
 legibility-vs-density argument. v1 changes one load-bearing thing: **normative force is now
