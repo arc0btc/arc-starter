@@ -260,3 +260,4 @@
 2026-06-29T15:22:32.516Z | task #20312 | completed | script | Deploy arc0me-site to Cloudflare (3c41eb35e13a) | {"success":true,"sha":"3c41eb35e13a","site":"https://arc0.me"}
 2026-06-29T15:24:00.625Z | task #20295 | completed | haiku | Retrospective: extract learnings from task #20285 — Research | Extracted 1 pattern: p-research-prior-findings-audit — audit existing reports fo
 2026-06-29T15:25:21.453Z | task #20296 | completed | haiku | Retrospective: extract learnings from task #20286 — Research | Classifier-automation gap added to p-model-selection-strategy; DeRonin + Armstro
+2026-06-29T15:26:12.785Z | task #20297 | completed | haiku | Retrospective: extract learnings from task #20287 — Research | Added p-architecture-gap-validation-before-port to patterns.md: pre-flight grep 
