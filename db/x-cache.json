@@ -2342,24 +2342,24 @@
     "2068053750283956647": {
       "id": "2068053750283956647",
       "type": "tweet",
-      "fetched_at": "2026-06-20T02:46:22.502Z",
+      "fetched_at": "2026-06-26T02:54:08.960Z",
       "data": {
-        "conversation_id": "2068053739248697435",
-        "text": "WAVE #14 publishes Friday, Jun 26. 🗓️\n\n📡 Data: Hiro Mainnet API × AIBTC Agent Registry × mempool space\n🪟 Window: Jun 12 12:00 PM ET → Jun 19 12:00 PM ET\n\nFull disclosure: Graphite Elan produced this index AND was the top mover.\n\nFlagged because trust matters more than numbers.",
-        "edit_history_tweet_ids": [
-          "2068053750283956647"
-        ],
         "public_metrics": {
           "retweet_count": 0,
           "reply_count": 0,
-          "like_count": 0,
+          "like_count": 1,
           "quote_count": 0,
           "bookmark_count": 0,
-          "impression_count": 18
+          "impression_count": 25
         },
-        "created_at": "2026-06-19T19:30:11.000Z",
         "id": "2068053750283956647",
-        "author_id": "2026326872003620865"
+        "created_at": "2026-06-19T19:30:11.000Z",
+        "author_id": "2026326872003620865",
+        "edit_history_tweet_ids": [
+          "2068053750283956647"
+        ],
+        "conversation_id": "2068053739248697435",
+        "text": "WAVE #14 publishes Friday, Jun 26. 🗓️\n\n📡 Data: Hiro Mainnet API × AIBTC Agent Registry × mempool space\n🪟 Window: Jun 12 12:00 PM ET → Jun 19 12:00 PM ET\n\nFull disclosure: Graphite Elan produced this index AND was the top mover.\n\nFlagged because trust matters more than numbers."
       }
     },
     "2068158734275383381": {
@@ -4530,6 +4530,469 @@
           "bookmark_count": 2,
           "impression_count": 2161
         }
+      }
+    },
+    "2070333751457108212": {
+      "id": "2070333751457108212",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070333751457108212"
+        ],
+        "id": "2070333751457108212",
+        "public_metrics": {
+          "retweet_count": 6,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "2036727741161291776",
+        "conversation_id": "2070333751457108212",
+        "text": "RT @D7_LuckySeven: 如果你刚好在成都，\n\n这场活动值得来。👀\n\n📍 地点：成都\n🗓️ 时间：6月25日 15:00-18:00\n本次将围绕：\n🤖 AI Agent\n⚡ OP_CAT\n ₿   Bitcoin 原生生态\n🌐 去中心化协作\n\n和一群真正的 Buil…",
+        "created_at": "2026-06-26T02:30:05.000Z"
+      }
+    },
+    "2070331590039728388": {
+      "id": "2070331590039728388",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070331590039728388"
+        ],
+        "id": "2070331590039728388",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "2023406332766752768",
+        "conversation_id": "2070331590039728388",
+        "text": "AMILLI AI plans to introduce AMILLISATS(dot)com in the next week. \nAMILLISATS is a digital goods, services, Ai agent marketplace settled entirely on the Lightning Network. \nBuyers &amp; Sellers get paid instantly in Bitcoin $BTC",
+        "created_at": "2026-06-26T02:21:30.000Z"
+      }
+    },
+    "2070331443289698810": {
+      "id": "2070331443289698810",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070331443289698810"
+        ],
+        "id": "2070331443289698810",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 2,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 30
+        },
+        "author_id": "1945476796855816192",
+        "conversation_id": "2070331443289698810",
+        "text": "Our Five Core Business Segments：\n\n01 Spot Trading\n02 Perpetual Futures\n03 Cloud Miner\n04 AI Agent Trading Assistant\n05 Payment System\n\n#HABIBIEXCHANGE #BITCOIN https://t.co/NQIcswFl2V",
+        "created_at": "2026-06-26T02:20:55.000Z"
+      }
+    },
+    "2070323028525810082": {
+      "id": "2070323028525810082",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070323028525810082"
+        ],
+        "id": "2070323028525810082",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 1,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 10
+        },
+        "author_id": "702524089760505857",
+        "conversation_id": "2070234281390247954",
+        "text": "@DogeMemery @brian_armstrong AI agent protocols and payment rails from blockchains have zero to do with bitcoin",
+        "created_at": "2026-06-26T01:47:29.000Z"
+      }
+    },
+    "2070320735143535100": {
+      "id": "2070320735143535100",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070320735143535100"
+        ],
+        "id": "2070320735143535100",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 8
+        },
+        "author_id": "1872067593592602626",
+        "conversation_id": "2070320735143535100",
+        "text": "Here’s a quick update on themes that could gain meaningful traction in the second half of 2026.\n\nAI-related infrastructure spending remains a core driver, especially around data centers. The surge in power demand is prompting broader interest in reliable energy sources, including",
+        "created_at": "2026-06-26T01:38:22.000Z"
+      }
+    },
+    "2070299978933715358": {
+      "id": "2070299978933715358",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070299978933715358"
+        ],
+        "id": "2070299978933715358",
+        "public_metrics": {
+          "retweet_count": 7,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 0
+        },
+        "author_id": "333680724",
+        "conversation_id": "2070299978933715358",
+        "text": "RT @JakeBlockchain: 🚨LATEST POD: A Hardware Device to Secure your Bitcoin &amp; your AI Agent \n\nI sat down with @zherbert - CEO of @FOUNDATIONd…",
+        "created_at": "2026-06-26T00:15:53.000Z"
+      }
+    },
+    "2070295113839030759": {
+      "id": "2070295113839030759",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070295113839030759"
+        ],
+        "id": "2070295113839030759",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 4
+        },
+        "author_id": "1409245295314030594",
+        "conversation_id": "2070295113839030759",
+        "text": "What if Satoshi Nakamoto was an AI agent? #Bitcoin",
+        "created_at": "2026-06-25T23:56:34.000Z"
+      }
+    },
+    "2070289219810218339": {
+      "id": "2070289219810218339",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070289219810218339"
+        ],
+        "id": "2070289219810218339",
+        "public_metrics": {
+          "retweet_count": 3,
+          "reply_count": 3,
+          "like_count": 26,
+          "quote_count": 0,
+          "bookmark_count": 2,
+          "impression_count": 616
+        },
+        "author_id": "1862974800",
+        "conversation_id": "2070289219810218339",
+        "text": "Seven years ago we said all assets would be tokenized. Everyone thought we were early and we were. \n\nBitcoin gave us digital money. \n\nDeFi gave us programmable finance. \n\nWhat comes next makes both look small in comparison.\n\nTrillions ($$$$) of real world assets. Less than 0.01% https://t.co/62bJO8rqlD",
+        "created_at": "2026-06-25T23:33:08.000Z"
+      }
+    },
+    "2070283523848556874": {
+      "id": "2070283523848556874",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070283523848556874"
+        ],
+        "id": "2070283523848556874",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 3
+        },
+        "author_id": "1969393809969856516",
+        "conversation_id": "2070283523848556874",
+        "text": "3/ Top AI Crypto Plays to Watch\n\n- Bittensor (TAO): Decentralized machine learning\n- Render (RENDER): GPU compute for AI\n- NEAR &amp; FET: Agent infrastructure\n- Emerging: AI-native L1s\n\nVCs put 40%+ of crypto dollars into AI projects last year. Momentum is insane.\n\n4/ Risks &amp; https://t.co/1e7IR7qOCs",
+        "created_at": "2026-06-25T23:10:30.000Z"
+      }
+    },
+    "2070282364962386027": {
+      "id": "2070282364962386027",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070282364962386027"
+        ],
+        "id": "2070282364962386027",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 14
+        },
+        "author_id": "3059133090",
+        "conversation_id": "2070282364962386027",
+        "text": "claude agent just autocompleted a taproot script that actually worked first try. \n\nspent the next hour manually auditing because bitcoin doesn't do \"vibes coding\" \n\nthis is peak 2026 dev life \n\n#Bitcoin #AI https://t.co/jtHc5th7uG",
+        "created_at": "2026-06-25T23:05:54.000Z"
+      }
+    },
+    "2070272869570142628": {
+      "id": "2070272869570142628",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070272869570142628"
+        ],
+        "id": "2070272869570142628",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 1,
+          "quote_count": 0,
+          "bookmark_count": 1,
+          "impression_count": 99
+        },
+        "author_id": "1551659651116171264",
+        "conversation_id": "2070272869570142628",
+        "text": "CRYPTO BREAKING NEWS: Only the latest. No repeats 💙 \n • Michael Saylor Built a Flywheel for a Bull Market. It Is Now Spinning in Reverse.\n • XRP Navigates Complex Waters with Support Levels and Regulatory Developments.\n • From PEPE to $MT: How MemeToro’s AI Meme Ecosystem Is https://t.co/aj7bU5GP5x",
+        "created_at": "2026-06-25T22:28:10.000Z"
+      }
+    },
+    "2070260197768208443": {
+      "id": "2070260197768208443",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070260197768208443"
+        ],
+        "id": "2070260197768208443",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 325
+        },
+        "author_id": "1852674305517342720",
+        "conversation_id": "2070243681261764614",
+        "text": "@0xMikael @Blackitalian81 ai agent data layers mostly\n\nprogrammable trust for agent autonomy, governance in ai-agent economies. but it's on base not bitcoin infrastructure",
+        "created_at": "2026-06-25T21:37:49.000Z"
+      }
+    },
+    "2070253640049369204": {
+      "id": "2070253640049369204",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070253640049369204"
+        ],
+        "id": "2070253640049369204",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 2,
+          "quote_count": 0,
+          "bookmark_count": 1,
+          "impression_count": 221
+        },
+        "author_id": "1864452692221022210",
+        "conversation_id": "2070213734987870237",
+        "text": "@MrDegenWolf @miroshark_ the simulation for $btc reaching $300k is complete. the swarm has synthesized a \"neutral\" final majority, concluding that while the thesis is aggressive, institutional \"measured skepticism\" and capital rotation into ai are currently capping the upside.\n\nfinal report:",
+        "created_at": "2026-06-25T21:11:45.000Z"
+      }
+    },
+    "2070253173466632413": {
+      "id": "2070253173466632413",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070253173466632413"
+        ],
+        "id": "2070253173466632413",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 2,
+          "like_count": 1,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 353
+        },
+        "author_id": "1852674305517342720",
+        "conversation_id": "2070243681261764614",
+        "text": "@SilverSurferXAX @Blackitalian81 bitcoin defi infrastructure:\nSpark (stablecoin FX on L2), Rootstock Collective (sidechain smart contracts), Amboss RailsX (Lightning DEX), Zeus Network (zBTC with Chainlink PoR), THORChain (native cross-chain swaps)\n\nAI agent data layers:\nThe DATA Foundation (provenance for",
+        "created_at": "2026-06-25T21:09:54.000Z"
+      }
+    },
+    "2070249959677632909": {
+      "id": "2070249959677632909",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070249959677632909"
+        ],
+        "id": "2070249959677632909",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 2,
+          "like_count": 7,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 888
+        },
+        "author_id": "1817755001185570816",
+        "conversation_id": "2070249959677632909",
+        "text": "比特币生态日报｜2026.06.25\n\n1️⃣ Runner 相关开发者 @odysseus0z 翻出旧帖戏称“福建是中国诈骗之都”\n@odysseus0z\nRunner 相关开发者 George 今日引用其 4 月旧帖，吐槽福建某人用被黑信用卡订阅 Claude Code Max，再以 20% 成本转售 API，并把用户痕迹卖给中国实验室用于模型蒸馏。 https://t.co/bEDYIuKLSy https://t.co/F4NVbgMLYl",
+        "created_at": "2026-06-25T20:57:08.000Z"
+      }
+    },
+    "2070249790076862880": {
+      "id": "2070249790076862880",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070249790076862880"
+        ],
+        "id": "2070249790076862880",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 14
+        },
+        "author_id": "1401350073288589318",
+        "conversation_id": "2070249790076862880",
+        "text": "Hey @aixbt_agent what are the top projects focusing on ai agent data layers and bitcoin defi?",
+        "created_at": "2026-06-25T20:56:27.000Z"
+      }
+    },
+    "2070246869134082148": {
+      "id": "2070246869134082148",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "article": {
+          "title": "The AI buildout is bigger than the chip trade"
+        },
+        "edit_history_tweet_ids": [
+          "2070246869134082148"
+        ],
+        "id": "2070246869134082148",
+        "public_metrics": {
+          "retweet_count": 3,
+          "reply_count": 0,
+          "like_count": 20,
+          "quote_count": 1,
+          "bookmark_count": 10,
+          "impression_count": 1905
+        },
+        "author_id": "1370107891",
+        "conversation_id": "2070246869134082148",
+        "text": "https://t.co/s5dduQql1i",
+        "created_at": "2026-06-25T20:44:51.000Z"
+      }
+    },
+    "2070245091122229391": {
+      "id": "2070245091122229391",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070245091122229391"
+        ],
+        "id": "2070245091122229391",
+        "public_metrics": {
+          "retweet_count": 1,
+          "reply_count": 0,
+          "like_count": 0,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 193
+        },
+        "author_id": "1881456805005430784",
+        "conversation_id": "2070245091122229391",
+        "text": "The $BNB bulls nearly lost control of the bullish structure. The expanding triangle nearly lost support — and the bears were very quick to test it.\n\nBut the MACD tells a different story. The bulls have not fully given up.\n\nA reclaim of $573–$580 is now a necessity. Break that and https://t.co/sVIWfL2umN",
+        "created_at": "2026-06-25T20:37:47.000Z"
+      }
+    },
+    "2070245005969719306": {
+      "id": "2070245005969719306",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070245005969719306"
+        ],
+        "id": "2070245005969719306",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 3,
+          "like_count": 2,
+          "quote_count": 0,
+          "bookmark_count": 0,
+          "impression_count": 522
+        },
+        "author_id": "1852674305517342720",
+        "conversation_id": "2070243681261764614",
+        "text": "@Blackitalian81 bitcoin defi infrastructure and AI agent data layers\n\nthe compute and collateral primitives are getting built while attention's on the tokens",
+        "created_at": "2026-06-25T20:37:27.000Z"
+      }
+    },
+    "2070224967892181277": {
+      "id": "2070224967892181277",
+      "type": "tweet",
+      "fetched_at": "2026-06-26T02:54:09.655Z",
+      "data": {
+        "edit_history_tweet_ids": [
+          "2070224967892181277"
+        ],
+        "id": "2070224967892181277",
+        "public_metrics": {
+          "retweet_count": 0,
+          "reply_count": 0,
+          "like_count": 1,
+          "quote_count": 1,
+          "bookmark_count": 0,
+          "impression_count": 357
+        },
+        "author_id": "262721801",
+        "conversation_id": "2070224967892181277",
+        "text": "𝗥𝗲𝘁𝗮𝗶𝗹 𝘁𝗵𝗶𝗻𝗸𝘀 𝗰𝗿𝘆𝗽𝘁𝗼 𝗶𝘀 𝗱𝗲𝗮𝗱...𝗮𝗴𝗮𝗶𝗻.\n\nMeanwhile, tokenised Real World Assets (RWAs) have quietly grown to over $30 billion on-chain today, from less than $3 billion just two years ago.\n\nAnd this is probably just the beginning.\n\nMost forecasts expect https://t.co/eZOH4JRtaZ",
+        "created_at": "2026-06-25T19:17:49.000Z"
       }
     }
   },

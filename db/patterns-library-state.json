@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-27T03:08:37.304Z",
+  "lastScannedAt": "2026-06-28T21:12:15.450Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -73,8 +73,15 @@
     "rate-limit-budget-discipline",
     "sensor-stale-block-diagnostics",
     "paid-tier-receipt-routing",
-    "external-agent-cost-benchmarking",
-    "independent-convergence-validates-design",
-    "whop-seed-preflight"
+    "synthesis-efficiency",
+    "shared-runtime-porting",
+    "feedback-memory-architecture",
+    "memory-lifecycle",
+    "dispatch-context-budgeting",
+    "content-url-prevalidation",
+    "spec-first-architecture-validation",
+    "file-lock-atomic-claim-scaling",
+    "metrics-sensor-oscillation",
+    "threshold-response-sensor-creation"
   ]
 }

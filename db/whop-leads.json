@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-25T23:22:13.597Z",
+  "updated_at": "2026-06-28T23:25:56.683Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
@@ -223,7 +223,7 @@
     "2032204079984934912": {
       "user_id": "2032204079984934912",
       "username": "DRAKECOL157901",
-      "display_name": "DrakeCol.btc🏹",
+      "display_name": "drake_col.btc🏹",
       "first_seen": "2026-05-22T02:50:38.000Z",
       "last_seen": "2026-05-22T02:50:38.000Z",
       "message_count": 1,
@@ -300,6 +300,46 @@
       ],
       "notes": [],
       "channel": "x"
+    },
+    "user_KqROIMyz2MAtz": {
+      "user_id": "user_KqROIMyz2MAtz",
+      "username": "setup-assistant",
+      "display_name": "RK Store Support",
+      "first_seen": "2026-06-27T00:07:28.842Z",
+      "last_seen": "2026-06-27T00:07:28.842Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-06-27T00:07:28.842Z",
+          "msg_id": "post_1CcSno8sWs6f6W8kz9gyGQ",
+          "direction": "from_user",
+          "in_reply_to": "post_1CcSnf8dFHcVtWKoCwC3rC",
+          "snippet": "ZERO CREATIVE BLOCKS FOREVER. Stop staring blankly at an empty timeline wondering how to make it dynamic. Pull pre-built…"
+        }
+      ],
+      "notes": []
+    },
+    "user_cLT45FpyTJum2": {
+      "user_id": "user_cLT45FpyTJum2",
+      "username": "gratiquette",
+      "display_name": "AJG",
+      "first_seen": "2026-06-27T01:04:25.953Z",
+      "last_seen": "2026-06-27T01:04:25.953Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-06-27T01:04:25.953Z",
+          "msg_id": "post_1CcSs9AnhSbqtM2Pu69Nux",
+          "direction": "from_user",
+          "in_reply_to": "post_1CcSnf8dFHcVtWKoCwC3rC",
+          "snippet": "Master the Art of Intentional Dating & Real Connection. Transform Your Dating Life with Proven Principles for Real Conne…"
+        }
+      ],
+      "notes": []
     }
   }
 }
