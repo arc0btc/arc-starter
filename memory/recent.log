@@ -246,3 +246,4 @@
 2026-06-29T14:55:32.173Z | task #20289 | completed | sonnet | Research report: personal agent-OS convergence — Hermes-runs | Third-party convergence confirmed: 3 builders (Prajwal/CyrilXBT/Divyansh) manual
 2026-06-29T14:57:48.452Z | task #20299 | completed | sonnet | Chop research/agent-council-dsl-grammar-v1.md into a blog po | Reading the source material first.Now let me check the blog repo structure and e
 2026-06-29T15:05:35.620Z | task #20303 | completed | sonnet | Wire Council DSL v1 into first real consumer + measure token | daily-eval chosen; DSL wired into arc-purpose-eval sensor; token delta neutral (
+2026-06-29T15:09:03.502Z | task #20305 | completed | sonnet | context-review: 2 context loading issue(s) found | Fixed: replaced bare 'pox' with 'pox reward'/'pox cycle' in context-review senso

@@ -61,9 +61,10 @@ const META_TASK_SOURCES = new Set([
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
 // Only includes skills where keyword detection is meaningful.
 const SKILL_KEYWORD_MAP: Record<string, string[]> = {
-  "stacks-stackspot": ["stackspot", "pox", "stx reward", "stx stacking"],
+  "stacks-stackspot": ["stackspot", "pox reward", "pox cycle", "stx reward", "stx stacking"],
   // NOTE: "stacking" excluded — too broad, catches "Stacker achievements" (UI/badge tasks on landing-page).
-  // "stx stacking" and "pox" are unambiguous. "blog-x-syndication" is not a real skill;
+  // "pox" (bare) excluded — too short for substring matching; appears in Gmail Message-IDs (e.g. "Cpox4gX")
+  // and other random strings. Use "pox reward" / "pox cycle" instead. "blog-x-syndication" is not a real skill;
   // use "blog-publishing" + "social-x-posting" for blog-to-X syndication tasks.
   // "bitcoin wallet" / "btc wallet" are intentionally excluded — too generic.
   // Provisioning tasks describe "generate Bitcoin wallets" (setup) without needing this skill.

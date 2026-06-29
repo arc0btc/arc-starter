@@ -79,6 +79,8 @@ arc tasks add --subject "<action description>" --priority <1-8> --skills <releva
 
 Priority guide: P1-4 (Opus) for code/architecture/PR review, P5-7 (Sonnet) for composition/reports, P8+ (Haiku) for simple ops. Include `--skills` when the work touches a specific skill domain.
 
+If the sub-task will send an email (e.g. `arc skills run --name arc-email-sync -- send ...`), always include `arc-email-sync` in `--skills`. Example: an X research batch that sends an HTML synthesis to whoabuddy needs `--skills arc-link-research,arc-email-sync` — not just `arc-link-research`.
+
 #### Research tasks with x.com / Twitter URLs
 
 Before creating individual "Research: x.com/..." tasks for tweet links, pre-screen them:
