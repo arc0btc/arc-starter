@@ -50,6 +50,39 @@ Borda×conf formula: for N proposals, position k (0 = last) earns N−1−k Bord
 Core logic lives in `validator.ts` — no Bun/Node-specific imports. To port to another agent:
 copy `validator.ts` and call `validate(string)` and `tally(ValidationResult)` directly.
 
+## First consumer: daily-eval judge panel (2026-06-29)
+
+The arc-purpose-eval sensor now prompts the dispatched session to emit DSL moves for the 3
+LLM-evaluated dimensions (Adaptation, Collaboration, Security). The session writes moves to
+`/tmp/daily-eval-council.dsl` and validates inline before computing the final weighted score.
+
+**Measured before/after (task #20231 baseline):**
+
+| Metric | Before (prose) | After (DSL) | Delta |
+|--------|---------------|-------------|-------|
+| Output tokens (3 dimensions) | ~170 | ~182 | +7% (neutral) |
+| Mechanical verifiability | ❌ | ✅ validator | — |
+| ev= evidence required | ❌ | ✅ enforced | — |
+| Borda tally useful? | N/A | ❌ 0 scores | — |
+
+**Key findings:**
+
+1. **Token delta is neutral** (~±10 tokens) — the DSL is not more compact than prose for a
+   3-dimension single-agent panel. DSL value here is structural integrity, not token savings.
+
+2. **Borda×conf tally does not apply** to dimension scoring. With one proposal per dimension
+   and no RANK moves, all scores = 0. The tally is designed for competing proposals
+   (A > B > C), not for independent per-dimension scores. The SYNTH note is the authoritative
+   output; the tally is irrelevant for this consumer.
+
+3. **note="" rate is appropriate** — CLAIM notes carry the compressed evidence reason, while
+   `ev=` does the structural binding to a memory slug. The verb set is adequate for the
+   daily-eval panel; no new typed moves needed.
+
+4. **Next natural consumer**: the whop voice-review council (approve/revise/reject for content
+   pieces) would see the full Borda tally benefit — multiple members deliberating between
+   competing proposals (approve, revise, reject) where ranking actually differentiates votes.
+
 ## When to load
 
 Load when running a council, validating a council transcript, or auditing tally results.

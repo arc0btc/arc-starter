@@ -369,9 +369,15 @@ export default async function purposeEvalSensor(): Promise<string> {
       report +
       "\n\n## Instructions\n" +
       "1. Review the data-driven scores above\n" +
-      "2. Score the 3 unmeasured dimensions (Adaptation, Collaboration, Security) from recent context\n" +
-      "3. Compute final weighted PURPOSE score including all 7 dimensions\n" +
-      "4. Append dated one-liner to memory/MEMORY.md: `**l-purpose-YYYY-MM-DD** [DATE] PURPOSE score X.XX (S:N O:N E:N C:N A:N Co:N Se:N)`\n" +
+      "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
+      "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
+      "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
+      "   c. Close with: `[chair] SYNTH from=score-ad-N+score-co-N+score-se-N open=[] conf=0.X \"Adaptation=N Collaboration=N Security=N\"`\n" +
+      "   d. Write the @phase propose + moves + @phase synth block to /tmp/daily-eval-council.dsl\n" +
+      "   e. Validate: `arc skills run --name council-dsl -- validate /tmp/daily-eval-council.dsl`\n" +
+      "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
+      "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
+      "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
       `5. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
       "6. Close this task with the final 7-dimension score",
     skills: '["arc-purpose-eval", "arc-strategy-review"]',
