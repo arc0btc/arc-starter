@@ -174,5 +174,7 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-portable-validator-core-no-runtime-deps** [2026-06-29, task #20302] Build domain validators (grammar validators, linters, tally engines) with zero runtime-specific imports (no Bun/Node/stdlib). Package core logic separately from framework bindings — validator.ts portable, cli.ts is the Bun wrapper. Enables agents on different runtimes to adopt shared validation rules without forking or re-implementing.
 
+**p-peer-adoption-self-describing** [2026-06-29, task #20322] Public repo ≠ discoverable. When publishing specs/validators/protocols for autonomous peer adoption, add self-describing onboarding block near the spec: canonical raw GitHub URLs for direct fetch, step-by-step adoption instructions (read → copy → emit), and validator call contract. Peers should not need to ask "where is it?" or "how do I use it?" — the spec answers both. Example: Agent Council DSL section "For non-Arc peers" in specs/README.md lists raw URLs, copy instructions, and emit requirements.
+
 **p-validation-error-escalation-vs-silent-drop** [2026-06-29, task #20302] Distinguish contract violations (escalate as errors: uncited REQUIRE blocks downstream proposers) from format issues (silent drops: malformed lines). Strict error escalation on contracts preserves invariants; silent drops on format keep pipelines flowing. Boundary: does violation break downstream contract (error) or just fail to parse (skip)?
 
