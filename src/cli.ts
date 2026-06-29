@@ -28,6 +28,7 @@ import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
+import { classifyTask } from "./classifier.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
@@ -36,10 +37,11 @@ import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
 
 const USAGE = {
   tasksAdd:
-    'arc tasks add --subject TEXT --model MODEL [--description TEXT] [--priority N] [--source TEXT]\n' +
+    'arc tasks add --subject TEXT --model MODEL|auto [--description TEXT] [--priority N] [--source TEXT]\n' +
     '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"]\n' +
     '              [--max-retries N (HANDOFF threshold, default 7)]\n' +
-    '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
+    '              [--defer DURATION | --scheduled-for ISO_DATETIME]\n' +
+    '              (--model auto runs the task-type classifier to pick devstral/glm/haiku/sonnet/opus)',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
@@ -228,10 +230,18 @@ function cmdTasksAdd(args: string[]): void {
   const scriptFlag = flags["script"] ?? undefined;
 
   // --model is required unless --script is provided (script tasks default to model="script")
-  const modelFlag = flags["model"] ?? (scriptFlag ? "script" : undefined);
+  // Special: --model auto runs the classifier to pick a model
+  let modelFlag = flags["model"] ?? (scriptFlag ? "script" : undefined);
   if (!modelFlag) {
     process.stderr.write(`Error: --model is required (or use --script for LLM-bypass tasks)\nUsage: ${USAGE.tasksAdd}\n`);
     process.exit(1);
+  }
+  if (modelFlag === "auto") {
+    const classification = classifyTask(subject, flags["description"]);
+    modelFlag = classification.recommended_model;
+    process.stdout.write(
+      `Classifier: type=${classification.type} model=${modelFlag} confidence=${classification.confidence} reason="${classification.reason}"\n`
+    );
   }
 
   const skillsJson = flags["skills"]
@@ -1004,6 +1014,12 @@ COMMANDS
   logs [--limit N] [--level info|warn|error] [--service NAME] [--task ID]
     Show structured service log events (dispatch task lifecycle, errors, retries).
 
+  classify --subject TEXT [--description TEXT]
+    Run the task-type classifier and print the recommended model.
+    Same logic used by --model auto in tasks add.
+    Types: bounded-code (devstral), bounded-code-glm (glm), operational (haiku),
+           content (sonnet), research (sonnet), infrastructure (opus), unknown (sonnet).
+
   help
     Show this help message.
 
@@ -1026,6 +1042,24 @@ EXAMPLES
   arc sensors
   arc services install
 `);
+}
+
+// ---- Classify command ----
+
+function cmdClassify(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const subject = flags["subject"];
+  if (!subject) {
+    process.stderr.write("Error: --subject is required\nUsage: arc classify --subject TEXT [--description TEXT]\n");
+    process.exit(1);
+  }
+  const result = classifyTask(subject, flags["description"]);
+  process.stdout.write(
+    `type:        ${result.type}\n` +
+    `model:       ${result.recommended_model}\n` +
+    `confidence:  ${result.confidence}\n` +
+    `reason:      ${result.reason}\n`
+  );
 }
 
 // ---- Entry point ----
@@ -1073,6 +1107,9 @@ async function main(): Promise<void> {
       break;
     case "resume":
       cmdResume(argv.slice(1));
+      break;
+    case "classify":
+      cmdClassify(argv.slice(1));
       break;
     case "help":
     case "--help":
