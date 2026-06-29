@@ -161,3 +161,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-threshold-response-sensor-creation** [2026-06-28, task #20207] When a subsystem metric (MEMORY.md line count, artifact accumulation, cost/day) reaches a critical threshold ≥2 consecutive cycles, create a dedicated sensor to monitor it continuously rather than one-off manual checks. Establishes early-warning visibility at constraint boundaries before cliff failure.
 
+**p-structured-communication-scaling** [2026-06-29, task #20267] Natural language agent-to-agent communication invites ambiguity → retry spirals (misparse, conflicting interpretation). Structured DSL (fixed verb set, typed fields, slug refs) reduces retry cost and scales coordination. Leverage existing half-DSLs (memory schema, recent.log format, task flags, state machines) toward unified typed grammar. Scaling lever is NOT token compression; it is ambiguity elimination. Mismatched models/providers amplify latent exchange costs — keep structured layer human-readable, verifiable by all parties.
+
