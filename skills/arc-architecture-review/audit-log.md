@@ -1,3 +1,18 @@
+## 2026-06-29T15:09:00.000Z — no structural changes; 38 link-research cache files only; diagram refreshed; 133 skills / 83 sensors
+
+**Task #20292** | Diff: 5498f53..8a8b91a (1 commit — 38 cache JSON files in skills/arc-link-research/cache/) | Sensors: 83 | Skills: 133
+
+Diff contains only arc-link-research cache data files — no src/ or skills/*.ts changes. Diagram regenerated from current skill tree (133 skills, up 1 from last cycle; 83 sensors unchanged). MCP_TOOL_TIMEOUT=90s checkpoint 2026-07-01 is 2 days out — no failures observed. All carry-watches unchanged.
+
+### Flags
+
+- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate (result_quality >= 3). Rename to `accept_rate (7d)`.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (2 days out); no failures in 5d window.
+
+---
+
 ## 2026-06-29T02:30:00.000Z — no structural changes; diagram refreshed; carry-watches active; 132 skills / 83 sensors
 
 **Task #20238** | Diff: 5498f53..5498f53 (empty — no changes since last review) | Sensors: 83 | Skills: 132
@@ -83,7 +98,6 @@ No files changed since 2026-06-28T14:30Z review. Diagram regenerated from curren
 - **[CARRY-WATCH AT THRESHOLD ×6]** context-review skip list ~20 entries — refactor into declarative array. Follow-up task created.
 - **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
-- **[AUDIT-LOG HOUSEKEEPING]** audit-log.md at 8 active entries (max 5) — trim to 5 on next housekeeping pass.
 
 ---
 
@@ -112,35 +126,6 @@ No files changed since 2026-06-28T14:30Z review. Diagram regenerated from curren
 - **[WATCH]** arc-daily-read 4-slot budget assumption: sensor hardcodes cap check at DAILY_TWEET_CAP=6 → needs ≥4 slots. If DAILY_TWEET_CAP changes, sensor must be updated too — cross-file coupling.
 - **[RESOLVED]** Dead import `getWorkflowByTemplateAndContextTitle` confirmed removed from `arc-workflows/sensor.ts` — 4-cycle carry closed.
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows` sensor queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
-
----
-
-## 2026-06-27T02:30:00.000Z — P2 arc-funnel-hardening: DAILY_TWEET_CAP=6, CC x-thread daily cap, kill-switch in cmdPost; 133 skills / 84 sensors
-
-**Task #20048** | Diff: fa42af4 → fa5f6aa (2 commits — 1 structural) | Sensors: 84 | Skills: 133
-
-### Changed files
-
-- `skills/social-x-posting/cli.ts` (fa5f6aa) — P2 arc-funnel-hardening: `DAILY_TWEET_CAP=6` constant added; all `cmdPost` calls now check total tweet count via `x_post_log` before firing (covers root + continuation + CTA). Kill switch (`outbound_enabled=false`) wired into `cmdPost` — previously only `social-engine/admission.ts` enforced it; direct-post path was a gap. `is_root` column added to `x_post_log` schema (idempotent `ALTER TABLE`). `saveBudget` now uses atomic temp-and-rename via `node:fs.renameSync` (Bun has no native rename — unavoidable `node:*` import).
-- `skills/arc-workflows/sensor.ts` (fa5f6aa) — CC x-thread daily cap: `ContentCalendarMachine` x-thread steps (`content-calendar:<slug>:x`, excluding `:x-cta`) now check `x_post_log` row count before `insertTask`. Cap is 1/day. Panel target (arc-strategy-panel 2026-06-27): 25-workflow CC backlog drains in 25 days at this rate. Uses `getDatabase()` inline — cross-skill DB read (see Flags).
-- `skills/blog-publishing/sensor.ts` (fa5f6aa) — CTA footer product name updated: "The Harness Engineering Field Guide" → "Arc Daily Research Report". Cosmetic, no structural change.
-- `skills/social-x-posting/CADENCE.md` (fa5f6aa) — P2 doctrine documented: 1 thread/day + ≤6 total tweets/day. Updated pillar table.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: `DAILY_TWEET_CAP=6` is panel-confirmed doctrine. The prior 3-root cap allowed continuations to bypass the spirit of the limit; the new total-tweet cap closes that gap. Kill switch in `cmdPost` is a valid defense-in-depth fix — the direct post path was a genuine bypass. `is_root` column is minimal and necessary for future analytics.
-- **Step 2 — Delete**: `[DEAD-IMPORT]` `getWorkflowByTemplateAndContextTitle` imported in `arc-workflows/sensor.ts` but never called — this is the **3rd carry** without removal. Creating a follow-up task.
-- **Step 3 — Simplify**: The CC x-thread cap in `arc-workflows/sensor.ts` embeds an inline `x_post_log` query. Cross-skill DB dependency: `arc-workflows/` knows `social-x-posting/` schema. Cleaner boundary: extract `countXPostsToday()` to `src/db.ts`. Not urgent but worth carrying.
-- **Step 4 — Accelerate**: No bottleneck impact.
-- **Step 5 — Automate**: No new candidates.
-
-### Flags
-
-- **[ACTION — follow-up created]** Dead import `getWorkflowByTemplateAndContextTitle` in `arc-workflows/sensor.ts` — 3rd carry, removing manually now deferred to P8 haiku task.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows` sensor queries `x_post_log` inline — consider `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
 - **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
