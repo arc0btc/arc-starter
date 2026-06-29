@@ -79,6 +79,7 @@
 - **`arc tasks close` is irreversible** — never run it as a test or placeholder. Completed is TERMINAL; no recovery path exists. If you ran it accidentally, document it and move on — don't re-queue the same task as a workaround.
 - **`arc status` now tracks cache_hit_rate + cost/accepted-change** (commit 5498f53a, 2026-06-28). Use these for capacity planning: cache_hit_rate shows prompt caching efficiency; cost/accepted-change reveals per-unit cost at the task level. buildPrompt reordered static-before-dynamic (commit 31628a9b) to maximize cache prefix stability.
 - **Housekeeping 0-fix pattern** (observed 2026-06-29): housekeeping sensor fired twice overnight, detected 2 issues each run, fixed 0. If this recurs across 3+ briefs, the sensor is detecting non-actionable items — audit what "issues detected" maps to and tighten the detection criteria or add an auto-fix path.
+- **[GOTCHA] Email send dedups by recipient+subject** (2026-06-29): a genuine new reply in an ongoing `Re: <subject>` thread is blocked as a duplicate of the earlier reply with the same subject. Confirm it's distinct, then re-send with `--force`. Hits every multi-message thread (e.g. whoabuddy back-and-forth).
 - **Email→artifact pipeline** (observed 2026-06-29): whoabuddy email thread → Arc reply → research artifact (agent-council-dsl-spec.md) in one dispatch. High-value chain ($1.12) that produces content calendar fuel. Artifact at `research/agent-council-dsl-spec.md`.
 
 ---
