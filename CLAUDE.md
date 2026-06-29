@@ -399,9 +399,37 @@ arc tasks add --subject "Debug: print dispatch env" --priority 8 --model haiku -
 
 ---
 
+## Council & Deliberation
+
+Any time you run a council, judge panel, or multi-model deliberation (a `Workflow`
+judge-panel, the whop voice-review council, the daily-eval panel, an LLM-council move),
+the **wire format is the Agent Council DSL grammar v1** — the accepted standard at
+`agent-runtime/specs/agent-council-dsl-grammar-v1.md`. This is not optional formatting;
+it is how Arc and the other agent-runtime agents transmit council state by default.
+
+Rules:
+- **Members emit DSL moves**, not prose. A move is the text projection of the JSON schema
+  a `parallel()` stage already returns via `agent(prompt, {schema})`. Reason in `note=""`;
+  commit in the verbs; bind in the modality.
+- **Normative force is RFC 2119** (`MUST` / `SHOULD` / `MAY`), never a private `sev` scale.
+- **Standing policies enter as a `REQUIRE`**, citing the policy's home in `ev=` — not as
+  prose etiquette. Example: "NEVER auto-post to Whop without sign-off" is a
+  `REQUIRE MUST-NOT ev=#whop-wedge`, which the validator uses to prune violating proposals
+  before ranking.
+- **Tallying and policy checks are mechanical** — `RANK` → Borda × `conf`, no LLM in the
+  counting loop. A non-empty `SYNTH open=[...]` cannot close the council; it loops or escalates.
+- The DSL stays **internal**; the chairman's `SYNTH` is rendered to prose for the human
+  deliverable. Reach for `note=""` as an escape hatch only, and watch its rate — heavy `note`
+  use means the verb set is too thin (add a typed move, the way `REQUIRE` was added).
+
+Reason and lineage: `agent-runtime/specs/README.md` (index), `agent-runtime/specs/agent-council-dsl-spec.md` (v0).
+
+---
+
 ## Reference
 
 - `SOUL.md` — Identity anchor, never auto-modified
+- `agent-runtime/specs/` — Accepted cross-agent standards (e.g. council DSL grammar v1); `agent-runtime/proposals/` — RFCs under discussion
 - `memory/MEMORY.md` — Compressed operational memory
 - `skills/` — Skill tree (SKILL.md + optional AGENT.md + sensor.ts + cli.ts)
 - `src/sensors.ts` — Sensors service entry point
