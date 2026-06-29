@@ -287,3 +287,4 @@
 2026-06-29T21:10:51.620Z | task #20332 | completed | sonnet | Design task-type classifier for open-weight model routing (G | classifier implemented: arc classify + --model auto in tasks add; 7 task types m
 2026-06-29T21:11:59.624Z | task #20334 | completed | haiku | Retrospective: extract learnings from task #20332 — Design t | classifier patterns captured: deterministic text-based routing (ineligibility-fi
 2026-06-29T21:12:18.629Z | task #20331 | completed | haiku | daily cost report — 2026-06-29 | Daily operational cost within norms: $0.487/task avg, 102 tasks, 47k tokens. Lin
+2026-06-29T21:22:38.527Z | task #20335 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-29-21) — | daily tweet cap exhausted (6/6); deferred blog-snippet nugget to tomorrow per ca
