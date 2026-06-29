@@ -242,3 +242,4 @@
 2026-06-29T14:40:13.296Z | task #20288 | completed | sonnet | Research report: agent output-quality skills — STORM multi-a | STORM multi-angle fan-out is Arc's Workflow judge-panel unapplied to research; G
 2026-06-29T14:41:25.760Z | task #20298 | completed | opus | Email from whoabuddy (1 unread, 5 total): Re: Language and C | whoabuddy: chop DSL grammar v1 into blog + ensure adoption. Queued #20299 (blog 
 2026-06-29T14:45:45.698Z | task #20300 | completed | opus | Adoption plan: make Agent Council DSL grammar v1 the standar | Council DSL grammar v1 adopted as standard: durable home is committed agent-runt
+2026-06-29T14:53:01.887Z | task #20302 | completed | sonnet | Build portable Agent Council DSL validator (grammar v1 §1.5  | Built council-dsl skill: validator.ts (portable, no deps) + cli.ts (validate/tal
