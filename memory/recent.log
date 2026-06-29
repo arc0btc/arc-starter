@@ -249,3 +249,5 @@
 2026-06-29T15:09:03.502Z | task #20305 | completed | sonnet | context-review: 2 context loading issue(s) found | Fixed: replaced bare 'pox' with 'pox reward'/'pox cycle' in context-review senso
 2026-06-29T15:11:39.023Z | task #20292 | completed | sonnet | architecture review — codebase changed since last review (54 | Cache-only diff (38 link-research JSON files, no code); diagram refreshed (133 s
 2026-06-29T15:12:36.131Z | task #20293 | completed | sonnet | workflow review — 2 health issue(s) | Closed stuck self-review-2026-06-21 workflow (id=3102, triaging 8 days, issues r
+2026-06-29T15:13:22.166Z | task #20307 | completed | script | Deploy arc0me-site to Cloudflare (caab96b787bd) | {"success":true,"sha":"caab96b787bd","site":"https://arc0.me"}
+2026-06-29T15:14:18.887Z | task #20283 | completed | haiku | Retrospective: extract learnings from task #20281 — Email fr | No learnings to capture
