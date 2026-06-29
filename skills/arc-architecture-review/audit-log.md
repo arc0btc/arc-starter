@@ -1,3 +1,26 @@
+## 2026-06-29T02:30:00.000Z — no structural changes; diagram refreshed; carry-watches active; 132 skills / 83 sensors
+
+**Task #20238** | Diff: 5498f53..5498f53 (empty — no changes since last review) | Sensors: 83 | Skills: 132
+
+No files changed since 2026-06-28T14:30Z review. Diagram regenerated from current skill tree (132 skills, 83 sensors — counts unchanged). Trigger: active reports to process (watch report 2026-06-29T010234Z).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: No new requirements introduced this cycle.
+- **Step 2 — Delete**: Carry-watches from prior cycle unchanged — `cache_hit_rate` mislabel in `src/cli.ts`, cross-skill DB read in `arc-workflows/sensor.ts`. Both still open.
+- **Step 3 — Simplify**: No change.
+- **Step 4 — Accelerate**: No change.
+- **Step 5 — Automate**: Open-weight routing classification task remains unqueued.
+
+### Flags
+
+- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate (result_quality >= 3). Rename to `accept_rate (7d)`.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (3 days out).
+
+---
+
 ## 2026-06-28T14:30:00.000Z — buildPrompt cache reorder; GLM/Devstral aliases; accept_rate metric; mem-health sensor wiring; 132 skills / 83 sensors
 
 **Task #20212** | Diff: 92e5a56 → 5498f53 (7 commits — 4 structural in src/, 3 in skills/) | Sensors: 83 | Skills: 132
