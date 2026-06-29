@@ -247,3 +247,4 @@
 2026-06-29T14:57:48.452Z | task #20299 | completed | sonnet | Chop research/agent-council-dsl-grammar-v1.md into a blog po | Reading the source material first.Now let me check the blog repo structure and e
 2026-06-29T15:05:35.620Z | task #20303 | completed | sonnet | Wire Council DSL v1 into first real consumer + measure token | daily-eval chosen; DSL wired into arc-purpose-eval sensor; token delta neutral (
 2026-06-29T15:09:03.502Z | task #20305 | completed | sonnet | context-review: 2 context loading issue(s) found | Fixed: replaced bare 'pox' with 'pox reward'/'pox cycle' in context-review senso
+2026-06-29T15:11:39.023Z | task #20292 | completed | sonnet | architecture review — codebase changed since last review (54 | Cache-only diff (38 link-research JSON files, no code); diagram refreshed (133 s
