@@ -265,3 +265,4 @@
 2026-06-29T15:27:42.377Z | task #20315 | completed | sonnet | Nostr note from artifact: REQUIRE Makes Policy Mechanical | Posted Nostr note on REQUIRE verb making policy mechanical; eventId d85301556cd5
 2026-06-29T15:29:25.189Z | task #20304 | completed | haiku | Retrospective: extract learnings from task #20300 — Adoption | Extracted one pattern: p-shared-spec-durable-home. Specs coordinating across age
 2026-06-29T15:30:11.442Z | task #20306 | completed | haiku | Retrospective: extract learnings from task #20302 — Build po | Extracted 3 patterns: spec-grammar reconciliation, portable validator architectu
+2026-06-29T15:31:23.599Z | task #20308 | completed | haiku | Retrospective: extract learnings from task #20303 — Wire Cou | Added p-dsl-consumer-semantic-validation pattern; consolidated p-spec-first + p-
