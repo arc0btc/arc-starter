@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/yryUXZSlFv",
+  "fetchedAt": "2026-06-29T14:24:36.079Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: AI agents often forget past work, but this Accenture paper method keeps everythi...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: AI agents often forget past work, but this Accenture paper method keeps everything reachable.\n\nTraditional LLMs often forget important details during long projects because their limited memory space forces them to discard old information.\n\nThis introduces a system that keeps a compact summary of recent work while storing all past actions in a separate, accessible database.\n\nThe agent uses smart indexing to quickly look up exact details from this database whenever it needs to recall a specific past event.\n\nA custom training method teaches the agent to decide for itself which information is worth keeping and when to pull data from its long-term archives.\n\nBy saving only the necessary summaries in the active workspace, the model maintains a sharp focus on its current goal without being overwhelmed by a massive history.\n\nThis approach solves the problem of information loss that usually happens when an AI struggles to complete complicated, multi-step tasks over a long period.\n\n-----\n\nPaper Link – arxiv. org/abs/2603.04257\n\nPaper Title: \"Memex(RL): Scaling Long-Horizon LLM Agents via Indexed Experience Memory\"\nCreated: 2026-06-28T16:00:38.000Z\nMetrics: {\"retweet_count\":21,\"reply_count\":9,\"like_count\":81,\"quote_count\":1,\"bookmark_count\":57,\"impression_count\":7315}",
+  "embeddedUrls": [
+    "https://t.co/yryUXZSlFv"
+  ]
+}

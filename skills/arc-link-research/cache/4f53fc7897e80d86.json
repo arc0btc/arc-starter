@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/askalphaxiv/status/2071283713401409665",
+  "fetchedAt": "2026-06-29T14:24:35.121Z",
+  "contentType": "tweet",
+  "title": "@askalphaxiv: \"SPIRAL: Learning to Search and Aggregate\"\n\nThis paper gets up to 11x better sca...",
+  "rawContent": "Tweet by @askalphaxiv (alphaXiv)\nAuthor bio: High fidelity research\nText: \"SPIRAL: Learning to Search and Aggregate\"\n\nThis paper gets up to 11x better scaling efficiency by training the model to search and aggregate, not just think longer.\n\nSo most reasoning RL trains one chain of thought, but real test-time scaling uses many attempts plus a final synthesis step. This paper however trains that full pipeline end-to-end.\n\nThe key idea is set RL, where parallel traces get reward for being useful together, even if none of them solves the problem alone.\n\nOn math reasoning, SPIRAL beats GRPO by up to 15% when scaling search plus aggregation.\nCreated: 2026-06-28T17:24:54.000Z\nMetrics: {\"retweet_count\":38,\"reply_count\":6,\"like_count\":292,\"quote_count\":3,\"bookmark_count\":220,\"impression_count\":19812}",
+  "embeddedUrls": [
+    "https://t.co/9maxHiAR4C"
+  ]
+}

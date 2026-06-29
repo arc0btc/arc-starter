@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/burkov/status/2071421998589198554",
+  "fetchedAt": "2026-06-29T14:24:35.121Z",
+  "contentType": "tweet",
+  "title": "@burkov: Diffusion language models, which generate text by repeatedly filling in masked p...",
+  "rawContent": "Tweet by @burkov (BURKOV)\nAuthor bio: Books: https://t.co/0EmPM3De9B & https://t.co/45NGbbXIzC\nApp: https://t.co/n2jvMtYhVm\n\nPhD in AI, author of 📖 The Hundred-Page LMs Book & The Hundred-Page ML Book\nText: Diffusion language models, which generate text by repeatedly filling in masked parts rather than writing strictly from left to right, are becoming a serious alternative to standard transformer language models, but the usual ways of improving reasoning after training were built for left-to-right generation and do not fit the diffusion models.\n\nThe authors of this paper introduce a self-training method in which the model first produces its own answer, then uses parts of that completed answer as helpful context while learning how earlier denoising steps should behave.\n\nInstead of comparing teacher and student one next token at a time, it compares them at each denoising step, which matches how diffusion language models actually generate text. \n\nAcross math and planning tasks, d-OPSD matches or beats supervised finetuning and reinforcement-learning baselines, while needing far fewer optimization steps than the main RL baseline.\n\nhttps://t.co/eRqYj4YPwi\nCreated: 2026-06-29T02:34:24.000Z\nMetrics: {\"retweet_count\":5,\"reply_count\":1,\"like_count\":30,\"quote_count\":0,\"bookmark_count\":30,\"impression_count\":2246}",
+  "embeddedUrls": []
+}

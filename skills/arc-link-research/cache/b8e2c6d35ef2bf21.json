@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/damengchen/status/2071426727524638989",
+  "fetchedAt": "2026-06-29T14:24:35.121Z",
+  "contentType": "tweet",
+  "title": "@damengchen: api services in niche verticals i absolutely love:\n\n- gptzero: detect if content...",
+  "rawContent": "Tweet by @damengchen (Damon Chen)\nAuthor bio: 💜 https://t.co/yyLfH8mOar\n🤖 https://t.co/ZzTStsMvdh\n✨ https://t.co/FXsz9dQGbK\n🎤 https://t.co/T70J8MBCS3\n👌 https://t.co/khvGOizgE7\nText: api services in niche verticals i absolutely love:\n\n- gptzero: detect if content is ai-generated\n- PDFgen: generate a pdf\n- logo dev: get company logo\n- 1lookup: validate phone numbers\n- emailable: validate email addresses\n- ipapi: get the ip address\n- bannerbear: generate images\n- screenshotone: generate screenshots\n- firecrawl: turn a url into clean text for llms\n- deepgram: transcribe audio to text\n- removebg: remove image backgrounds\n- e2b: run untrusted code in a sandbox\n- svix: send outbound webhooks with retries\n- mindee: extract data from receipts and invoices\n- resend: send transactional email\n- cloudconvert: convert files between formats\n- tinypng: compress images\n- quickchart: generate charts from data\n- geocodio: convert addresses to coordinates\n- hunter: find email addresses from a domain\n\nCreated: 2026-06-29T02:53:11.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":13,\"like_count\":179,\"quote_count\":0,\"bookmark_count\":310,\"impression_count\":11578}",
+  "embeddedUrls": []
+}

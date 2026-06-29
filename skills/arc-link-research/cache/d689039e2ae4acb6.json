@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/dfTI1vGKds",
+  "fetchedAt": "2026-06-29T14:24:36.087Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: This paper asks whether AI agents have a real memory system yet, and finds the a...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: This paper asks whether AI agents have a real memory system yet, and finds the answer is mostly no.\n\nThe problem is that AI agents now need memory that can store, search, update, and clean up information across long tasks.\n\nThe authors say current tests mostly check final answers, so they miss whether the memory system itself is fast, reliable, or good at handling changed facts.\n\nThey split agent memory into 4 parts: how memories are stored, how facts are extracted, how useful memories are found, and how old or conflicting memories are maintained.\n\nThey tested 12 memory systems across 5 workloads and 11 datasets, including long conversations, multi-session recall, database tasks, and update-heavy settings.\n\nThe main result is that no memory design wins everywhere, because graph memories help with linked facts, hybrid systems help with filtered search, and raw traces help when exact action history matters.\n\n----\n\nLink – arxiv. org/abs/2606.24775\n\nTitle: \"Are They Ready For An Agent-Native Memory System?\"\nCreated: 2026-06-28T22:44:00.000Z\nMetrics: {\"retweet_count\":19,\"reply_count\":9,\"like_count\":126,\"quote_count\":3,\"bookmark_count\":53,\"impression_count\":6738}",
+  "embeddedUrls": [
+    "https://t.co/dfTI1vGKds"
+  ]
+}

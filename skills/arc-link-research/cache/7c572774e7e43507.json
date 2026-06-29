@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/X1B8ClS7fa",
+  "fetchedAt": "2026-06-29T14:24:36.060Z",
+  "contentType": "tweet",
+  "title": "@DeRonin_: My entire AI stack is now Chinese 🇨🇳\n\n87% cheaper. same revenue\n\nswaps by task...",
+  "rawContent": "Tweet by @DeRonin_ (Ronin)\nAuthor bio: scale AI products | building @CloseAI_hq\nText: My entire AI stack is now Chinese 🇨🇳\n\n87% cheaper. same revenue\n\nswaps by task:\n\n1. reasoning / backend brain\n   Opus 4.8 → Kimi K2.7\n   benchmark gap: ~8%  ·  price: ~11x cheaper\n\n2. code generation\n   GPT-5.5 → Qwen 3.7 Max\n   benchmark gap: ~18%  ·  price: ~7x cheaper\n\n3. agent loops + tool calling\n   Sonnet 4.7 → GLM 5.2\n   benchmark gap: ~3%  ·  price: ~5x cheaper on input\n\n4. cheap volume / bulk processing\n   GPT-5.5 mini → MiMo V2.5\n   benchmark gap: ~6%  ·  price: ~12x cheaper\n\n5. image generation\n   GPT-Image-2 → Wan 2.5\n   benchmark gap: ~5%  ·  price: ~8x cheaper\n\n6. video generation\n   Sora 2 → Kling 3.0\n   benchmark gap: roughly equal  ·  price: ~6x cheaper\n\n[ result after 30 days: ]\n\noperating costs dropped 87%, output quality dropped 4% on average, revenue unchanged\n\nthe most important that these models will be not banned in a month and i can run them locally\n\nnobody will steal my data and i can learn them as i need\n\nfull article drops tomorrow with:\n> exact routing logic per task type\n> the 2 cases where I still pay for American\n> the migration playbook anyone can copy in a weekend \n\nVERY IMPORTANT to get migrated now, while it's not too late\nCreated: 2026-06-29T11:48:04.000Z\nMetrics: {\"retweet_count\":58,\"reply_count\":66,\"like_count\":537,\"quote_count\":8,\"bookmark_count\":490,\"impression_count\":29178}",
+  "embeddedUrls": [
+    "https://t.co/X1B8ClS7fa"
+  ]
+}
