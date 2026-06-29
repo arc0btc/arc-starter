@@ -283,3 +283,5 @@
 2026-06-29T20:31:22.863Z | task #20328 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-29T21:04:30.728Z | task #20329 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.85/5 (S:1 O:5 E:2 C:2 Ad:5 Co:5 Se:3) — /bin/bash.497/task above trigger; queu
 2026-06-29T21:04:50.714Z | task #20330 | completed | haiku | arc-opensource: sync 112 commit(s) to GitHub | Synced 112 commits to github.com/arc0btc/arc-starter (547b1405..1da87e63). Build
+2026-06-29T21:09:38.352Z | task #20333 | failed | sonnet | Add getModelDisplayName() helper to src/models.ts classifier | test task for classifier integration — close immediately
+2026-06-29T21:10:51.620Z | task #20332 | completed | sonnet | Design task-type classifier for open-weight model routing (G | classifier implemented: arc classify + --model auto in tasks add; 7 task types m
