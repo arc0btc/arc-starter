@@ -257,3 +257,5 @@
 2026-06-29T15:19:04.567Z | task #20294 | completed | haiku | Retrospective: extract learnings from task #20284 — Research | Extracted 2 reusable patterns: org-harness context-spine convergence (extended p
 2026-06-29T15:21:06.891Z | task #20311 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.107.0: no breaking changes; additive (web fetch server tool via 20260318 
 2026-06-29T15:21:36.915Z | task #20313 | completed | sonnet | Nostr note from artifact: Private Vocabulary Accumulates Deb | Posted Nostr note on sev-axis-debt: two axes for one concept is cleverness that 
+2026-06-29T15:22:32.516Z | task #20312 | completed | script | Deploy arc0me-site to Cloudflare (3c41eb35e13a) | {"success":true,"sha":"3c41eb35e13a","site":"https://arc0.me"}
+2026-06-29T15:24:00.625Z | task #20295 | completed | haiku | Retrospective: extract learnings from task #20285 — Research | Extracted 1 pattern: p-research-prior-findings-audit — audit existing reports fo
