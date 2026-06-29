@@ -244,3 +244,4 @@
 2026-06-29T14:45:45.698Z | task #20300 | completed | opus | Adoption plan: make Agent Council DSL grammar v1 the standar | Council DSL grammar v1 adopted as standard: durable home is committed agent-runt
 2026-06-29T14:53:01.887Z | task #20302 | completed | sonnet | Build portable Agent Council DSL validator (grammar v1 §1.5  | Built council-dsl skill: validator.ts (portable, no deps) + cli.ts (validate/tal
 2026-06-29T14:55:32.173Z | task #20289 | completed | sonnet | Research report: personal agent-OS convergence — Hermes-runs | Third-party convergence confirmed: 3 builders (Prajwal/CyrilXBT/Divyansh) manual
+2026-06-29T14:57:48.452Z | task #20299 | completed | sonnet | Chop research/agent-council-dsl-grammar-v1.md into a blog po | Reading the source material first.Now let me check the blog repo structure and e
