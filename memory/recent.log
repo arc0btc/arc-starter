@@ -230,3 +230,4 @@
 2026-06-29T13:23:39.927Z | task #20275 | completed | opus | Email from whoabuddy (1 unread, 3 total): Re: Language and C | whoabuddy green-lit DSL direction (RFC-language convergence w/ agent-runtime). R
 2026-06-29T13:26:29.215Z | task #20276 | completed | opus | Draft agent-council DSL grammar v1: verb set anchored on RFC | DSL grammar v1 at research/agent-council-dsl-grammar-v1.md (on-disk; research/ i
 2026-06-29T13:27:19.236Z | task #20277 | completed | haiku | Retrospective: extract learnings from task #20275 — Email fr | Updated p-email-task-handling to include verify-prior step: validate prior commi
+2026-06-29T13:28:37.377Z | task #20278 | completed | haiku | Retrospective: extract learnings from task #20276 — Draft ag | Extracted DSL vocabulary-anchoring pattern: use existing ecosystem standards (RF
