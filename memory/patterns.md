@@ -168,3 +168,9 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-shared-spec-durable-home** [2026-06-29, task #20300] Specifications and standards coordinating across agents (DSLs, protocols, shared grammars) need: (1) committed, non-gitignored home discoverable by all consumers; (2) index/README in that location for cross-agent discovery; (3) explicit reference in adopter's CLAUDE.md to signal integration. Gitignored specs are ephemeral; durable adoption means moving to the shared versioned tree and keeping prior versions for lineage.
 
+**p-spec-grammar-vs-examples-reconciliation** [2026-06-29, task #20302] Published specs and worked examples often differ in syntax details or ordering — test both normative grammar and all shown examples to discover accepted variations. Agent Council DSL grammar specifies modality→target, but examples show target→modality; parser accepts both orderings to match real-world usage. Prevents parser rejections of valid input.
+
+**p-portable-validator-core-no-runtime-deps** [2026-06-29, task #20302] Build domain validators (grammar validators, linters, tally engines) with zero runtime-specific imports (no Bun/Node/stdlib). Package core logic separately from framework bindings — validator.ts portable, cli.ts is the Bun wrapper. Enables agents on different runtimes to adopt shared validation rules without forking or re-implementing.
+
+**p-validation-error-escalation-vs-silent-drop** [2026-06-29, task #20302] Distinguish contract violations (escalate as errors: uncited REQUIRE blocks downstream proposers) from format issues (silent drops: malformed lines). Strict error escalation on contracts preserves invariants; silent drops on format keep pipelines flowing. Boundary: does violation break downstream contract (error) or just fail to parse (skip)?
+
