@@ -490,3 +490,4 @@
 2026-06-30T23:03:46.921Z | task #20473 | completed | sonnet | Retrospective: recurring failure "unknown" (2 occurrences) | Fix (228d3079, widened ERROR_PATTERNS regex categories) was already shipped and 
 2026-06-30T23:06:00.245Z | task #20474 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | No new learnings: this retrospective for workflow:651 (Ionic Nova) was already c
 2026-06-30T23:09:50.214Z | task #20589 | completed | sonnet | Add created_at staleness guard to AgentCollaborationMachine, | Already implemented in commit 6d6cd08e (created earlier this dispatch cycle) — s
+2026-06-30T23:10:35.419Z | task #20475 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | Duplicate retrospective: AgentCollaborationMachine workflow #793 (agent-collab-i
