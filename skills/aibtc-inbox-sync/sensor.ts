@@ -285,6 +285,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
         messageCount: peerMessages.length,
         source,
         peer,
+        created_at: new Date().toISOString(),
       }),
     });
 

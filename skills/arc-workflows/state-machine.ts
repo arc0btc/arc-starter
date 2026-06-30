@@ -210,6 +210,27 @@ function fanoutStale(createdAtIso: string | undefined): boolean {
   return Date.now() - created > PUBLISH_FANOUT_STALE_GRACE_MS;
 }
 
+/**
+ * Generic creation/period-timestamp staleness check (task #20589), for machines whose context
+ * already carries a creation-time anchor (created_at, scanDate, cycleDate, ...) but whose
+ * non-side-effecting stage actions (retrospective/triage/review-task creation) have no guard
+ * against replaying on a re-activated dormant workflow. Same 7-day grace and fail-open shape as
+ * fanoutStale()/cadenceGateOpen(): a missing or unparseable anchor is never treated as stale, so
+ * legacy workflows without the field still progress. See
+ * memory/shared/entries/stale-workflow-email-stage-replay.md for the AgentCollaborationMachine/
+ * ComplianceReviewMachine/self-review-cycle instances that motivated this.
+ */
+const WORKFLOW_STAGE_STALE_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
+function isAnchorStale(
+  anchorIso: string | undefined,
+  graceMs: number = WORKFLOW_STAGE_STALE_GRACE_MS
+): boolean {
+  if (!anchorIso) return false;
+  const anchor = new Date(anchorIso).getTime();
+  if (isNaN(anchor)) return false;
+  return Date.now() - anchor > graceMs;
+}
+
 export const PublishFanoutMachine: StateMachine<{
   title?: string;
   url?: string;
@@ -1705,6 +1726,11 @@ export const StreakMaintenanceMachine: StateMachine<{
  *   actionType      — "bitcoin-op" | "stacks-op" | "information" | "collaboration"
  *   opsDescription  — description of the Bitcoin/Stacks operation to execute
  *   retrospectiveRef — reference to completed ops task (e.g., "task:1403")
+ *   created_at      — ISO timestamp set ONCE by aibtc-inbox-sync's sensor at workflow creation
+ *     (task #20589 staleness guard, mirrors PublishFanoutMachine). Missing/invalid → fails open.
+ *     retrospective_pending skips the duplicate retrospective once the workflow is >7d old —
+ *     two instances (workflows #651/#793) were re-activated by the 2026-06-30 backfill and
+ *     re-ran retrospectives whose original learnings had already been captured months earlier.
  */
 export const AgentCollaborationMachine: StateMachine<{
   sender?: string;
@@ -1713,6 +1739,7 @@ export const AgentCollaborationMachine: StateMachine<{
   actionType?: string;
   opsDescription?: string;
   retrospectiveRef?: string;
+  created_at?: string;
 }> = {
   name: "agent-collaboration",
   initialState: "received",
@@ -1769,6 +1796,7 @@ Steps:
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
         if (!ctx.sender) return null;
+        if (isAnchorStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         return {
           type: "create-task",
           subject: `Retrospective: extract learnings from collaboration with ${ctx.sender}`,
@@ -2821,6 +2849,13 @@ Then complete the health check:
     issues_found: {
       on: { triage: "triaging" },
       action: (ctx) => {
+        // Staleness guard (task #20589, mirrors ComplianceReviewMachine.scan_complete /
+        // AgentCollaborationMachine.retrospective_pending): a re-activated dormant workflow
+        // (e.g. self-review-2026-04-02, workflow #896) replays this action and would dispatch a
+        // triage task quoting issueSummary's point-in-time cost/queue stats as if observed today.
+        // cycleDate is set once at workflow creation (triggered state); once >7d old, skip the
+        // duplicate triage and complete honestly instead of re-triaging stale data.
+        if (isAnchorStale(ctx.cycleDate)) return { type: "transition", nextState: "resolved" };
         const count = ctx.issueCount || 1;
         const cost = ctx.costToday ? `, $${ctx.costToday} today` : "";
         return {
@@ -3326,7 +3361,11 @@ Steps:
  * Context:
  *   findingCount   — number of compliance findings
  *   skillCount     — number of skills scanned
- *   scanDate       — ISO date of the scan (for dedup / reference)
+ *   scanDate       — ISO date of the scan (for dedup / reference); also doubles as the
+ *     staleness anchor (task #20589) — scan_complete skips creating a review task for findings
+ *     >7d old (a re-activated dormant workflow's stale aggregate counts can't be re-verified
+ *     against the current skill tree), transitioning straight to retrospective_pending with an
+ *     honest staleness note instead. Missing/invalid scanDate fails open. See workflow #1687.
  *   taskRef        — "task:{id}" of the compliance review task
  *   learningsSummary — brief summary of what was learned
  */
@@ -3345,6 +3384,7 @@ export const ComplianceReviewMachine: StateMachine<{
       action: (ctx) => {
         const count = ctx.findingCount ?? 0;
         if (count === 0) return { type: "transition", nextState: "clean" };
+        if (isAnchorStale(ctx.scanDate)) return { type: "transition", nextState: "completed" };
         const skills = ctx.skillCount ? ` across ${ctx.skillCount} skills` : "";
         const date = ctx.scanDate || new Date().toISOString().slice(0, 10);
         return {
