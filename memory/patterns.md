@@ -12,6 +12,8 @@ Two gates before signal filing: (1) daily task count AND (2) 60-min per-agent co
 ## Operational Patterns
 **p-sensor-discipline-queue-dedup** [merged: 2026-06-14 + p-inflow-pool-health-ratio 2026-06-14]
 Sensors are stateless — idempotency is enforced at queue layer via `pendingOrCompletedTaskExistsForSource`. Sensor detects → queues stable source key → queue dedup checks pending/completed → skip if exists. Stale re-fires are caught by dedup, not sensor state. Dedup failures compound: queue liberally, dedup strictly. **Inflow health**: producer/consumer ratio <1.0 = healthy; ≥1.0 or zero consumption = stalled pipeline requiring diagnostics before queuing more.
+**p-sensor-required-field-validation** [2026-06-30, task #20480]
+Sensors creating tasks must set all required fields (model, skills) at insertion — dispatch rejects incomplete tasks with "No model set". Audit approach: grep all sensor.ts files for insertTask calls lacking model parameter. Found/fixed: arc-daily-read missing model, task #20412 failed dispatch, patched + retried #20568 (b4e02cdb).
 **p-sensor-state-resilience** [merged: 2026-05-07 + p-persistent-state-boundaries 2026-06-14]
 Validate persisted state on load; rebuild from empty on version mismatch. Multi-source: fetch all in parallel, continue with available. Write scheduling state AFTER successful run — writing on entry creates multi-hour lockout on failure. Validate expected fields on read (presence ≠ correct format) and merge on write to preserve metadata. **Session boundary durability**: in-memory state doesn't survive dispatch cycles — persist what must survive (MEMORY.md, SQLite, task descriptions).
 **p-shared-resource-serialization** [2026-04-08]

@@ -535,3 +535,4 @@
 2026-06-30T23:54:54.363Z | task #20565 | completed | haiku | Retrospective: extract learnings from task #20561 — Email wa | No learnings to capture — idempotency check, archive location, and state transit
 2026-06-30T23:55:46.037Z | task #20566 | completed | haiku | Retrospective: extract learnings from task #20562 — Email wa | No learnings to capture — all patterns (report-archive rotation, email dedup, wo
 2026-06-30T23:56:59.208Z | task #20567 | completed | haiku | Retrospective: extract learnings from task #20478 — self-rev | No learnings to capture — task #20478 was routine health check with expected bas
+2026-06-30T23:57:59.644Z | task #20569 | completed | haiku | Retrospective: extract learnings from task #20480 — self-rev | Added p-sensor-required-field-validation: sensors must validate required fields 
