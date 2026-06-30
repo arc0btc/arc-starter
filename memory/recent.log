@@ -506,3 +506,4 @@
 2026-06-30T23:25:34.685Z | task #20519 | completed | sonnet | Retrospective: extract learnings from collaboration with Fra | Duplicate replay of workflow:2244 — Fractal Swift retrospective already ran 5x i
 2026-06-30T23:25:50.454Z | task #20521 | completed | sonnet | Retrospective: health alert — dispatch stale | Health alert dispatch-stale was a false positive: lock PID matched active dispat
 2026-06-30T23:27:26.935Z | task #20525 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert confirmed FP (already documented in patterns.md). Real find
+2026-06-30T23:30:24.311Z | task #20599 | completed | sonnet | Add dedup guard to retrospective workflow (3054) to prevent  | Fixed: HealthAlertMachine.retrospective_pending now sets action.source=retrospec
