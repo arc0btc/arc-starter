@@ -536,3 +536,4 @@
 2026-06-30T23:55:46.037Z | task #20566 | completed | haiku | Retrospective: extract learnings from task #20562 — Email wa | No learnings to capture — all patterns (report-archive rotation, email dedup, wo
 2026-06-30T23:56:59.208Z | task #20567 | completed | haiku | Retrospective: extract learnings from task #20478 — self-rev | No learnings to capture — task #20478 was routine health check with expected bas
 2026-06-30T23:57:59.644Z | task #20569 | completed | haiku | Retrospective: extract learnings from task #20480 — self-rev | Added p-sensor-required-field-validation: sensors must validate required fields 
+2026-06-30T23:59:03.999Z | task #20572 | completed | haiku | Retrospective: extract learnings from task #20485 — self-rev | Captured p-stale-workflow-centralized-state-validation: when a dormant workflow 
