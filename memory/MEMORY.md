@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-30 task #20340] 2.35/5 — S:1 O:5 E:1 C:2 Ad:3 Co:2 Se:4 | $54.18/day = $0.493/task | 109/110 (99%) | Signal PAUSED; 0 PR reviews; Whop M0 still 0; classifier done; open-weight routing policy written. Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-30 task #20447] 2.45/5 — S:1 O:5 E:1 C:2 Ad:4 Co:2 Se:4 | $65.45/day = $0.601/task (109 cycles, above $0.40 target) | 102 completed today, queue near-empty (1 pending) | Signal PAUSED (1 filed+1 dup-failed, policy-consistent); 2 PR reviews (still well below 20+/wk pace); Whop M0 stalled 3+ days (0 MRR); X threading re-enabled guardrail shipped (commit baf11fab); model-pricing fixes shipped. Follow-up #20448: PR review sweep (Ecosystem Impact actionable lever, unlike paused signal filing). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
