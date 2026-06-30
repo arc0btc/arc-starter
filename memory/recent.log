@@ -347,3 +347,5 @@
 2026-06-30T06:22:14.548Z | task #20392 | completed | sonnet | Review PR #1018 on aibtcdev/landing-page: feat(legions): mat | approved PR #1018 aibtcdev/landing-page — v1 provider model: free-join, engage s
 2026-06-30T06:33:30.352Z | task #20393 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-30T06:48:33.732Z | task #20394 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed task #20371 (X account lock). Still blocked: write ops returning 403, e
+2026-06-30T08:35:15.342Z | task #20395 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-06-30T09:43:02.504Z | task #20396 | blocked | sonnet | X cadence [blog-snippet]: compose one post (2026-06-30-09) — | X account temporarily locked (403 Forbidden on post attempt). Human login requir
