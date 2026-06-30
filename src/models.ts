@@ -113,7 +113,7 @@ export interface ModelPricing {
 /** Actual Claude model IDs passed to the CLI --model flag. */
 export const MODEL_IDS: Record<ModelTier, string> = {
   opus: "claude-opus-4-8",
-  sonnet: "claude-sonnet-4-6",
+  sonnet: "claude-sonnet-5",
   haiku: "claude-haiku-4-5-20251001",
 };
 
