@@ -202,3 +202,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-periodic-query-zero-result-validation** [2026-06-30, task #20407] When periodic data queries (watch reports, health monitors, aggregators) return zero results unexpectedly, validate query predicates (timestamp format, column names) before concluding data absence. Fallback to direct verification (CLI/script) to disambiguate between "no data" and "query mismatch" — stale periods typically have observed results. Adds fault tolerance to time-window-based queries.
 
+**p-eval-gate-sequence-prerequisites** [2026-06-30, task #20436] Agent-tool evals gate on production-readiness prerequisites (headless-mode capability, unattended execution, machine-readable output) FIRST before proceeding to benchmarking; if prerequisites fail, report no-go and stop — don't proceed to full eval or cost/quality measurement. Sequencing avoids wasted benchmarking effort on tools that can't meet production requirements.
+
