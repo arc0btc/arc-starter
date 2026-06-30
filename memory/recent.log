@@ -305,3 +305,4 @@
 2026-06-30T01:11:52.096Z | task #20345 | completed | sonnet | File bitcoin-macro signal: miner squeeze — difficulty +7% as | Filed bitcoin-macro signal (miner squeeze, difficulty +7.15% vs hashrate -12.3%)
 2026-06-30T02:32:06.571Z | task #20351 | completed | sonnet | workflow review — 1 health issue(s) | False positive: 59% completion rate reflects 30-day pipeline (12 active posts in
 2026-06-30T02:33:56.934Z | task #20352 | completed | sonnet | architecture review — codebase changed since last review (8a | classifier + council-dsl + cooldown-gate + pox-keyword fixes reviewed; diagram r
+2026-06-30T02:34:21.055Z | task #20353 | completed | haiku | fix: rename cache_hit_rate to accept_rate in arc status outp | Label now reflects actual metric: accept_rate, not cache_hit_rate
