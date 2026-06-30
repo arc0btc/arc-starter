@@ -392,3 +392,4 @@
 2026-06-30T18:40:08.489Z | task #20437 | completed | opus | Bounded Goose eval: headless go/no-go vs Codex on open-weigh | Goose headless eval = GO (conditional). Hard gate PASS: goose 1.39.0 has clean n
 2026-06-30T18:43:55.176Z | task #20435 | completed | sonnet | Deep research: anthropics/claude-code v2.1.197 (Sonnet 5, 1M | Sonnet 5 is default in v2.1.197. MODEL_IDS.sonnet needs update to claude-sonnet-
 2026-06-30T18:44:40.578Z | task #20441 | completed | sonnet | Update MODEL_IDS.sonnet to claude-sonnet-5 in src/models.ts | Updated MODEL_IDS.sonnet = 'claude-sonnet-5' (was claude-sonnet-4-6). Kept prici
+2026-06-30T18:45:21.034Z | task #20442 | completed | haiku | Fix MODEL_PRICING.opus in src/models.ts: 5/$75 → /$25 (Opus  | Updated MODEL_PRICING.opus: legacy 5/5 → /5 (Opus 4.8 actual); cache pricing 0.5
