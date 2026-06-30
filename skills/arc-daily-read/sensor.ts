@@ -98,6 +98,7 @@ export default async function arcDailyReadSensor(): Promise<string> {
     ].join("\n"),
     skills: JSON.stringify(["arc-daily-read"]),
     priority: 2,
+    model: "sonnet",
     source: todaySource,
   });
 
