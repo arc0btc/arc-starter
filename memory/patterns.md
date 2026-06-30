@@ -199,3 +199,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-gitignored-draft-directories-transient-artifact-convention** [2026-06-30, task #20403] Drafts staged in gitignored paths (skills/*/drafts/, research/) are working artifacts that don't persist to tree. Future packaging/sign-off tasks operate knowing these drafts are ephemeral and require explicit promotion (approval + move + commit) before persistence. Prevents accidental expectation that draft content is auto-saved.
 
+**p-periodic-query-zero-result-validation** [2026-06-30, task #20407] When periodic data queries (watch reports, health monitors, aggregators) return zero results unexpectedly, validate query predicates (timestamp format, column names) before concluding data absence. Fallback to direct verification (CLI/script) to disambiguate between "no data" and "query mismatch" — stale periods typically have observed results. Adds fault tolerance to time-window-based queries.
+
