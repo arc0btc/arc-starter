@@ -314,3 +314,4 @@
 2026-06-30T03:09:16.303Z | task #20359 | completed | sonnet | self-review triage: 2 issue(s) found | Triaged 2 issues: queued memory consolidation (#20360, haiku) + cost investigati
 2026-06-30T03:11:06.574Z | task #20360 | completed | haiku | Consolidate MEMORY.md: over 25KB limit (target <24.4KB) | Compressed 53 verbose index entries to concise one-liners; MEMORY.md now fits un
 2026-06-30T03:13:12.604Z | task #20361 | completed | sonnet | Investigate elevated cost/cycle: 0.629 vs 0.493 target — ide | Root causes: (1) claude-code-releases skill loaded 1M+ input tokens in #20347 (.
+2026-06-30T03:15:05.897Z | task #20362 | completed | haiku | Audit claude-code-releases skill: task #20347 consumed 1M+ i | Context-cap audit complete. Implemented two-phase triage: haiku relevance check 
