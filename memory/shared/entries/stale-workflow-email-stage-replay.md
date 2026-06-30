@@ -96,3 +96,14 @@ learnings to justify the task. `AgentCollaborationMachine` joins `ComplianceRevi
 `self-review-cycle` on the list of machines needing the `created_at`-based staleness guard —
 worth one batched follow-up task to add the guard to all three at once rather than three
 separate ones.
+
+**FIXED 2026-06-30 (task #20577 chain, commit 6d6cd08e):** all three machines now guarded via a
+shared `isAnchorStale()` helper (7d grace, fail-open) in `state-machine.ts` —
+`AgentCollaborationMachine.retrospective_pending` (guards on `created_at`, set by
+`aibtc-inbox-sync` sensor at workflow creation), `ComplianceReviewMachine.scan_complete` (guards
+on `scanDate`), `self-review-cycle.issues_found` (guards on `cycleDate`). **Gotcha confirmed
+live**: the follow-up task created to do this work (#20589, source `task:20474`) was itself
+queued *after* commit 6d6cd08e had already landed in the same dispatch session — a same-session
+duplicate-task instance of the exact replay pattern this entry describes, caught only by
+checking `git log` before writing code. Always check recent commits for the target file before
+implementing a follow-up task that names a specific prior commit/task as its trigger.
