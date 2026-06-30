@@ -144,13 +144,35 @@ export default async function arc0btcSiteHealthSensor(): Promise<string> {
       return "ok";
     }
 
-    if (pendingTaskExistsForSource(TASK_SOURCE)) {
-      log(`${failures.length} issue(s) but alert task already pending`);
+    // Re-verify failures immediately before alerting — transient blips (a
+    // late-arriving post, a one-off fetch timeout) can self-resolve within
+    // seconds and otherwise flood the queue with no-op fix tasks.
+    const recheckByName: Record<string, () => Promise<HealthResult>> = {
+      uptime: checkUptime,
+      api: checkApi,
+      freshness: checkContentFreshness,
+      "deploy-drift": checkDeployDrift,
+    };
+    const recheckResults = await Promise.allSettled(
+      failures.map((f) => (recheckByName[f.check] ?? (async () => f))()),
+    );
+    const persistentFailures = recheckResults
+      .filter((r): r is PromiseFulfilledResult<HealthResult> => r.status === "fulfilled")
+      .map((r) => r.value)
+      .filter((c) => !c.ok);
+
+    if (persistentFailures.length === 0) {
+      log(`${failures.length} issue(s) detected but resolved on immediate re-check, skipping alert`);
       return "ok";
     }
 
-    const failedChecks = failures.map((f) => f.check).join(",");
-    const failSummary = failures.map((f) => `- ${f.check}: ${f.detail}`).join("\n");
+    if (pendingTaskExistsForSource(TASK_SOURCE)) {
+      log(`${persistentFailures.length} issue(s) but alert task already pending`);
+      return "ok";
+    }
+
+    const failedChecks = persistentFailures.map((f) => f.check).join(",");
+    const failSummary = persistentFailures.map((f) => `- ${f.check}: ${f.detail}`).join("\n");
 
     // Use workflow for fix→retrospective chain tracking
     const today = new Date().toISOString().slice(0, 10);
@@ -162,14 +184,14 @@ export default async function arc0btcSiteHealthSensor(): Promise<string> {
         instance_key: wfKey,
         current_state: "alert",
         context: JSON.stringify({
-          issueCount: failures.length,
+          issueCount: persistentFailures.length,
           issuesSummary: failSummary,
           alertDate: today,
         }),
       });
     }
 
-    log(`created alert task: ${failures.length} issue(s)`);
+    log(`created alert task: ${persistentFailures.length} issue(s)`);
     return "ok";
   } catch (e) {
     log(`sensor error: ${e instanceof Error ? e.message : String(e)}`);
