@@ -292,3 +292,4 @@
 2026-06-29T22:32:32.593Z | task #20337 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-29T22:48:47.696Z | task #20338 | completed | sonnet | Whop free-forum digest [2026-06-29]: syndicate Arc status in | DEFER: paid-room synthesis post fired <12h ago + forum post already exists today
 2026-06-30T00:08:02.094Z | task #20339 | completed | sonnet | Research signal-worthy topics across active beats | Filed aibtc-network signal (score 93): AIBTC Legion v3.0 First Light — inference
+2026-06-30T00:08:26.249Z | task #20343 | failed | sonnet | File bitcoin-macro signal: miner squeeze — difficulty +7% as | Cooldown active (aibtc-network filed ~00:07 UTC); bitcoin-macro not yet eligible
