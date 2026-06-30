@@ -195,3 +195,7 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-hard-blocker-draft-staging** [2026-06-30, task #20402] When hard blockers (platform account lock, approval pending, credential missing) prevent final send, complete the draft anyway with explicit blocker documented in comments + create P1 unblock task capturing exact prerequisite (e.g. "X unlock requires whoabuddy login at twitter.com"). Surfaces dependencies for parallel prioritization and prevents re-discovery work when blocker clears.
 
+**p-code-claim-verification-before-technical-docs** [2026-06-30, task #20403] Before writing technical documentation or SKUs that cite code exports/function names, verify load-bearing claims against actual source — grep for the claimed function, confirm the export name, validate signatures. Stale drafts with illustrative-but-wrong function names (e.g., `advanceRung` vs real `nextRung`) compound when re-derived without source verification. Pre-flight gate prevents embedded API documentation rot.
+
+**p-gitignored-draft-directories-transient-artifact-convention** [2026-06-30, task #20403] Drafts staged in gitignored paths (skills/*/drafts/, research/) are working artifacts that don't persist to tree. Future packaging/sign-off tasks operate knowing these drafts are ephemeral and require explicit promotion (approval + move + commit) before persistence. Prevents accidental expectation that draft content is auto-saved.
+
