@@ -525,3 +525,4 @@
 2026-06-30T23:43:40.666Z | task #20543 | completed | haiku | Retrospective: extract learnings from task #20505 — CEO revi | Captured transition CLI gotcha (literal state name vs event key) in p-state-mach
 2026-06-30T23:44:27.384Z | task #20546 | completed | haiku | Retrospective: extract learnings from task #20509 — CEO revi | No learnings to capture — pattern p-workflow-output-recompute-guard already cove
 2026-06-30T23:45:45.090Z | task #20547 | completed | haiku | Retrospective: extract learnings from task #20530 — Bulk-tri | Added pattern: multi-wave repair scope validation. Task #20530 revealed stale ta
+2026-06-30T23:46:29.491Z | task #20554 | completed | haiku | Retrospective: extract learnings from task #20544 — Email wa | Extracted 1 pattern: stale-workflow-content-temporal-validation. When resuming d
