@@ -44,3 +44,14 @@ stages (email/post/fanout) will replay. Add a staleness/idempotency guard at the
 boundary BEFORE running the un-stick repair, not after the inbox fills. The durable pattern:
 guard on a creation/period timestamp that is set ONCE at instance creation, suppress when it is
 parseable-and-stale, and fail OPEN on a missing timestamp so fresh work is never blocked.
+
+**Non-email instance (2026-06-30, workflow #896, task #20571):** `self-review-cycle` workflow
+`self-review-2026-04-02` was part of the same backfill wave, reaching the `triaging` stage with
+an `issueSummary` quoting April cost/queue stats ($0.758/task, 69 pending) as if observed today.
+Lower harm than the email case — triage data, not a sent message — but the failure mode is
+identical: stale `context` read as current without a freshness check. Caught by cross-checking
+`arc status` live output against the workflow's embedded numbers before acting; the mismatch
+(April figures vs. June actuals) was the tell. No fix task was created — would have "fixed" a
+phantom cost spike from three months ago. Confirms the rule generalizes beyond `emailing`/`post`
+stages to any workflow stage that embeds point-in-time data in `context` and gets replayed by a
+backfill.
