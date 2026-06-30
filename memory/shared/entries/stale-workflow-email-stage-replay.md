@@ -138,3 +138,15 @@ a straggler queued just ahead of the fix. No side effect (memory-write only); cl
 as a duplicate rather than fabricating fresh learnings. Confirms the fix prevents *future*
 replays but does not retroactively clear tasks already enqueued before it landed — those still
 need manual triage on close.
+
+**Seventh confirmed instance, same straggler batch (2026-06-30, workflow #2062, task #20504):**
+`AgentCollaborationMachine` instance `agent-collab-frosty-narwhal-2026-04-30` (created
+2026-04-30 08:01:13, `completed_at` backfilled to 2026-06-30 21:42:17) replayed
+`retrospective_pending` for the Frosty Narwhal thread — a low-value cold-outreach NFT promo
+(Early Eagles, no collaboration ask). Already retrospected twice: task #14110 (2026-04-30, same
+day, "low-value promotional contact" pattern) and task #18975 (2026-06-14, after an unrelated
+substantive RFC exchange added the demand-first-evaluation and display-name-resolution
+learnings, both already in `memory/MEMORY.md` and [[rfc-demand-first-evaluation]]). No new
+collaboration activity since 2026-06-14. Closed honestly as a duplicate rather than re-deriving
+learnings already on record. Same root cause as the sixth instance — queued in the pre-fix
+straggler batch, not a guard failure.

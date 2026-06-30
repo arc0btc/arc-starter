@@ -494,3 +494,4 @@
 2026-06-30T23:12:16.663Z | task #20499 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Stale-workflow replay (5th instance): workflow #1516 overnight-brief:2026-04-13 
 2026-06-30T23:13:36.859Z | task #20591 | completed | sonnet | Add isAnchorStale guard to OvernightBriefMachine.retrospecti | Added isAnchorStale guard to OvernightBriefMachine.retrospective_pending (guards
 2026-06-30T23:15:04.384Z | task #20502 | completed | sonnet | Retrospective: extract learnings from collaboration with Dee | Duplicate replay: Deep Tess retrospective already ran in April (task #13712), le
+2026-06-30T23:16:10.500Z | task #20504 | completed | sonnet | Retrospective: extract learnings from collaboration with Fro | Duplicate retrospective: workflow #2062 (Frosty Narwhal) already retrospected tw
