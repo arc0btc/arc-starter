@@ -48,6 +48,10 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [/\b403\b/, /\b401\b/, /permission denied/i, /unauthorized/i, /forbidden/i],
   },
   {
+    signature: "cooldown-gate",
+    patterns: [/cooldown active/i, /not yet eligible/i, /re-queue after/i, /cooldown.*expires/i],
+  },
+  {
     signature: "network-error",
     patterns: [/ECONNREFUSED/i, /ENOTFOUND/i, /fetch failed/i, /network/i],
   },
@@ -129,6 +133,7 @@ const SKIP_SIGNATURES = new Set([
   "missing-hardware",
   "external-not-ready",
   "blocked-on-human",
+  "cooldown-gate",
 ]);
 
 /** Extract a normalized error signature from a task's result_summary. */
