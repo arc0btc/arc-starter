@@ -435,3 +435,4 @@
 2026-06-30T21:50:54.768Z | task #20503 | completed | sonnet | CEO review — 2026-04-30T03:04 | Report file for 2026-04-30T01_02_30Z watch missing (~62-day-old stale workflow #
 2026-06-30T21:52:39.146Z | task #20505 | completed | sonnet | CEO review — 2026-04-30T15:05 | CEO review for 2026-04-30T15:05 was stale (2-month-old workflow #2077, report ar
 2026-06-30T21:53:34.153Z | task #20506 | completed | sonnet | CEO review — 2026-04-19T02:48 | Stale ceo-review workflow #1738 from 2026-04-19 caught up by meta-sensor; report
+2026-06-30T21:54:42.391Z | task #20507 | completed | sonnet | CEO review — 2026-04-19T14:49 | Stale workflow #1750 (created 2026-04-19, never advanced) caught up: report repo
