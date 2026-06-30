@@ -387,3 +387,4 @@
 2026-06-30T16:39:23.104Z | task #20429 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-06-30T18:29:53.138Z | task #20431 | completed | opus | Email from whoabuddy (1 unread): Goose AI | Replied to whoabuddy on Goose AI harness: bounded-eval-not-rewrite. Key gate is 
 2026-06-30T18:32:00.603Z | task #20432 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.6.0: single non-breaking feature — client logger now passed to AWS cr
+2026-06-30T18:32:23.363Z | task #20430 | completed | haiku | New release: anthropics/claude-code v2.1.197 | Triage: relevant release. Claude Sonnet 5 context window expansion (1M) + pricin
