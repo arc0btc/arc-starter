@@ -34,10 +34,16 @@ it recurs whenever more stale workflows wake.
 - `cadenceGateOpen()` got a 7-day staleness ceiling: it now returns `false` (gate shut) once
   `now > anchor+offset + 7d`, closing the same replay hole for all 6 content-calendar fanout
   hops (whop/x/forum). Missing/invalid anchor still fails open by design.
-- **Still exposed:** `PublishFanoutMachine` has NO time anchor (fires on workflow state, relies
-  only on `--source` dedup) — a re-activated dormant instance would compose+post a fresh
-  observation about a stale blog. Lower harm (freshly composed, not a body replay) → follow-up
-  task #20577. Also flagged `EmailThreadMachine` reply stage for review there.
+- **FIXED 2026-06-30 (task #20577, `state-machine.ts` + `arc-workflows/sensor.ts`):**
+  `PublishFanoutMachine` previously had NO time anchor (fired on workflow state, relied only on
+  `--source` dedup). Added `created_at` to context, set once by `syncBlogPublishes()` at
+  workflow-creation time; a new `fanoutStale()` helper (7d grace, same as `cadenceGateOpen`)
+  short-circuits all three hops (`blog_published`/`x_pending`/`whop_forum`) straight to
+  `completed` once the workflow is older than the grace window. `EmailThreadMachine.reply_pending`
+  had the identical gap (a stuck "Send reply" task on a re-activated workflow would resend a
+  stale draft) — added `replyDraftedAt` (set by the dispatched triage task alongside
+  `replyDraft`) and a 48h staleness check before creating the send task. Both fail open on a
+  missing/invalid timestamp, consistent with the rule below.
 
 **Rule:** any repair that re-activates dormant workflows must assume their side-effecting
 stages (email/post/fanout) will replay. Add a staleness/idempotency guard at the side-effect
