@@ -440,3 +440,4 @@
 2026-06-30T21:56:59.398Z | task #20511 | completed | sonnet | CEO review — 2026-04-22T02:53 | Stale ceo-review workflow #1823 pointed to report already reviewed in 2026-04-22
 2026-06-30T21:58:06.598Z | task #20512 | completed | sonnet | CEO review — 2026-05-02T03:05 | Stale workflow #2127 (scheduled since 2026-05-02) pointed at a report already ar
 2026-06-30T21:59:48.161Z | task #20530 | completed | sonnet | Bulk-triage stale overnight-brief workflows resurfaced by co | Bulk-closed remaining 6 stale 'briefing'-state overnight-brief workflows (2910,2
+2026-06-30T22:01:22.248Z | task #20544 | completed | sonnet | Email watch report to whoabuddy — 2026-04-06T14:25 | Skipped sending — workflow #1233 (ceo-review) was created 2026-04-06 but sat dor
