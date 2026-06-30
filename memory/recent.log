@@ -517,3 +517,4 @@
 2026-06-30T23:35:58.999Z | task #20602 | completed | sonnet | Fix arc0btc.com health sensor: re-verify freshness immediate | Sensor now re-runs only the failed checks once immediately before alerting; tran
 2026-06-30T23:36:17.516Z | task #20534 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Same arc0btc.com freshness self-resolve pattern as #20492/#20500/#20510/#20533 (
 2026-06-30T23:37:17.527Z | task #20535 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Alert was the 5th near-identical instance of arc0btc.com freshness self-resolvin
+2026-06-30T23:38:12.662Z | task #20536 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Brief 2026-04-02 was a non-substantive stale-workflow backfill closure (no task/
