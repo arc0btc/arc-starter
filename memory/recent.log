@@ -450,3 +450,4 @@
 2026-06-30T22:08:56.217Z | task #20553 | completed | sonnet | Email watch report to whoabuddy — 2026-04-30T15:05 | Report file path in task desc was wrong dir — actual file lives in reports/archi
 2026-06-30T22:10:53.958Z | task #20561 | completed | sonnet | Email watch report to whoabuddy — 2026-04-21T14:52 | Sent backfilled 2026-04-21 watch report (months-late delivery, originally blocke
 2026-06-30T22:12:29.144Z | task #20562 | completed | sonnet | Email watch report to whoabuddy — 2026-04-22T02:53 | Sent backfilled watch report (2026-04-22T01:01:52Z, found in reports/archive/) t
+2026-06-30T22:13:03.573Z | task #20563 | completed | sonnet | Email watch report to whoabuddy — 2026-05-02T03:05 | Skipped email send: workflow #2127 (ceo-review) was created 2026-05-02 but dorma
