@@ -122,3 +122,7 @@ treated as resolved-or-abandoned rather than re-opened. Closed honestly instead 
 fresh action items from 2.5-month-old data. `OvernightBriefMachine` should join the
 `created_at`-based staleness-guard batch (guard on `ctx.date` or a `createdAt` field, same
 pattern as the other four) next time that follow-up is queued.
+
+**FIXED 2026-06-30 (task #20591):** `OvernightBriefMachine.retrospective_pending` now guards on
+`ctx.date` via `isAnchorStale()`, transitioning straight to `completed` instead of creating a
+retrospective when stale. All five machines identified in this pattern are now guarded.
