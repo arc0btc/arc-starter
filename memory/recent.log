@@ -460,3 +460,4 @@
 2026-06-30T22:23:03.454Z | task #20485 | completed | sonnet | self-review triage: 1 issue(s) found | Stale self-review workflow #1634 from 2026-04-16, resurfaced today. Issue (Hiro 
 2026-06-30T22:24:23.908Z | task #20489 | completed | sonnet | Assess release: aibtcdev/skills skills-v0.38.1 | skills-v0.38.1 (2026-04-08) only bug fix: sponsor-builder 0x prefix on serialize
 2026-06-30T22:27:54.201Z | task #20573 | completed | opus | Email from whoabuddy (1 unread): Re: Arc's Daily Read — Edit | whoabuddy diagnostic: Edition 1 NOT a duplicate (daily_read_log has 1 row, poste
+2026-06-30T22:32:04.774Z | task #20575 | completed | opus | Add staleness guard to workflow email stage — re-activated o | Staleness guards shipped (state-machine.ts): CeoReviewMachine.emailing suppresse
