@@ -2105,6 +2105,15 @@ Steps:
         return {
           type: "create-task",
           subject: `Retrospective: health alert — ${alertType.replace(/-/g, " ")}`,
+          // Source keyed on alertType (not workflow id) so the sensor's existing
+          // recentTaskExistsForSource(source, 60) dedup catches re-fires from OTHER
+          // dormant workflow instances of the same alertType, not just this one.
+          // Without this, multiple stale workflows reactivated around the same time
+          // (e.g. by a stuck-workflow repair sweep) each pass the per-workflow-id dedup
+          // and independently re-derive the same conclusion — 6 dupes/30min for
+          // dispatch-stale across workflows 2982/2902/3054/etc (task #20599, see
+          // memory/shared/entries/retrospective-workflow-3054-duplicate-flood.md).
+          source: `retrospective:health-alert:${alertType}`,
           priority: 8,
           skills: ["arc-skill-manager"],
           autoAdvanceState: "completed",
