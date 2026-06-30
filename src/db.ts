@@ -1509,9 +1509,27 @@ export function getAllActiveWorkflows(): Workflow[] {
 
 export function updateWorkflowState(id: number, newState: string, context?: string | null): void {
   const db = getDatabase();
+  // Any state transition implies the workflow isn't done — clear completed_at so the
+  // meta-sensor's getAllActiveWorkflows() picks it back up. Callers that land a workflow
+  // in a genuine terminal state either call completeWorkflow() right after, or rely on the
+  // meta-sensor's auto-complete sweep (getAllowedTransitions === {}) on the next cycle.
+  // Without this, a workflow that completes then later reopens (e.g. a closed PR reopened
+  // on GitHub) keeps its stale completed_at forever and silently drops out of evaluation.
   db.query(
-    "UPDATE workflows SET current_state = ?, context = ?, updated_at = datetime('now') WHERE id = ?"
+    "UPDATE workflows SET current_state = ?, context = ?, completed_at = NULL, updated_at = datetime('now') WHERE id = ?"
   ).run(newState, context ?? null, id);
+}
+
+export function getAllWorkflows(): Workflow[] {
+  const db = getDatabase();
+  return db.query("SELECT * FROM workflows ORDER BY updated_at DESC").all() as Workflow[];
+}
+
+export function clearWorkflowCompletedAt(id: number): void {
+  const db = getDatabase();
+  db.query(
+    "UPDATE workflows SET completed_at = NULL, updated_at = datetime('now') WHERE id = ?"
+  ).run(id);
 }
 
 export function completeWorkflow(id: number): void {

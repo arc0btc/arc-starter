@@ -7,8 +7,10 @@ import {
   getWorkflowByInstanceKey,
   getWorkflowsByTemplate,
   getAllActiveWorkflows,
+  getAllWorkflows,
   updateWorkflowState,
   completeWorkflow,
+  clearWorkflowCompletedAt,
   deleteWorkflow,
   Workflow,
 } from "../../src/db.ts";
@@ -51,9 +53,12 @@ SUBCOMMANDS
   delete <id>                                Delete a workflow
   evaluate <id>                             Evaluate state machine for workflow
   allowed-transitions <id>                  Show allowed transitions from current state
+  repair-stale-completions [--template T]   Clear completed_at on workflows stuck in a
+                                             non-terminal state (invariant repair)
 
 FLAGS
   --context JSON                            JSON context for transitions
+  --template T                              Restrict repair-stale-completions to one template
 `);
 }
 
@@ -271,6 +276,53 @@ function complete(idStr: string): CommandResult {
   }
 }
 
+// Repairs workflows that have completed_at set but sit in a non-terminal state
+// (current_state still has outgoing transitions per its template). These rows are
+// invisible to getAllActiveWorkflows() and never get re-evaluated, so they silently
+// stall forever — e.g. a closed PR that gets reopened on GitHub transitions current_state
+// back to "opened" but historically nothing cleared the stale completed_at.
+function repairStaleCompletions(templateFilter?: string): CommandResult {
+  try {
+    initDatabase();
+    const candidates = (templateFilter
+      ? getWorkflowsByTemplate(templateFilter)
+      : getAllWorkflows()
+    ).filter((w) => w.completed_at !== null);
+
+    const repaired: Array<{ id: number; template: string; instance_key: string; current_state: string }> = [];
+    const skippedUnknownTemplate: number[] = [];
+
+    for (const workflow of candidates) {
+      const template = getTemplateByName(workflow.template);
+      if (!template) {
+        skippedUnknownTemplate.push(workflow.id);
+        continue;
+      }
+      const transitions = getAllowedTransitions(workflow.current_state, template);
+      if (Object.keys(transitions).length > 0) {
+        clearWorkflowCompletedAt(workflow.id);
+        repaired.push({
+          id: workflow.id,
+          template: workflow.template,
+          instance_key: workflow.instance_key,
+          current_state: workflow.current_state,
+        });
+      }
+    }
+
+    return {
+      success: true,
+      message: `Repaired ${repaired.length} stale-completed workflow(s)${templateFilter ? ` for template '${templateFilter}'` : ""}`,
+      data: { repaired, skippedUnknownTemplate },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+}
+
 function deleteCmd(idStr: string): CommandResult {
   if (!idStr) {
     return { success: false, message: "id argument required" };
@@ -432,6 +484,10 @@ function main(): void {
 
     case "allowed-transitions":
       result = allowedTransitions(args[1] ?? "");
+      break;
+
+    case "repair-stale-completions":
+      result = repairStaleCompletions(params.template);
       break;
 
     default:
