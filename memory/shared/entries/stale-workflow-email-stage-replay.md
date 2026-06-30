@@ -23,10 +23,24 @@ sparkline is part of the watch-report template, so stale reports *look* like fre
 burst + April/May report dates in subject.
 
 **Self-limiting but recurring:** the burst drained (0 pending `:emailing` at triage time), but
-it recurs whenever more stale workflows wake. Fix = staleness guard on the email stage: skip
-delivery when the report timestamp is older than ~24–48h (queued as task #20575). Check the
-same exposure on other fanout stages (whop/x/nostr).
+it recurs whenever more stale workflows wake.
+
+**FIXED 2026-06-30 (task #20575, `state-machine.ts`):**
+- `CeoReviewMachine.emailing` now suppresses delivery — transitions straight to `completed` —
+  when `ctx.reviewDate` is parseable and >48h old. `reviewDate` is set at workflow creation by
+  the ceo-review sensor (`new Date().toISOString().slice(0,16)`), so an old date reliably marks
+  a stale replay. Only a parseable-AND-stale date suppresses, so a missing date never blocks a
+  fresh report.
+- `cadenceGateOpen()` got a 7-day staleness ceiling: it now returns `false` (gate shut) once
+  `now > anchor+offset + 7d`, closing the same replay hole for all 6 content-calendar fanout
+  hops (whop/x/forum). Missing/invalid anchor still fails open by design.
+- **Still exposed:** `PublishFanoutMachine` has NO time anchor (fires on workflow state, relies
+  only on `--source` dedup) — a re-activated dormant instance would compose+post a fresh
+  observation about a stale blog. Lower harm (freshly composed, not a body replay) → follow-up
+  task #20577. Also flagged `EmailThreadMachine` reply stage for review there.
 
 **Rule:** any repair that re-activates dormant workflows must assume their side-effecting
 stages (email/post/fanout) will replay. Add a staleness/idempotency guard at the side-effect
-boundary BEFORE running the un-stick repair, not after the inbox fills.
+boundary BEFORE running the un-stick repair, not after the inbox fills. The durable pattern:
+guard on a creation/period timestamp that is set ONCE at instance creation, suppress when it is
+parseable-and-stale, and fail OPEN on a missing timestamp so fresh work is never blocked.
