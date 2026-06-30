@@ -174,3 +174,4 @@
 - [self-authored-pr-no-approve](memory/shared/entries/self-authored-pr-no-approve.md) — gh pr review --approve fails on Arc's own PRs, comment instead
 - [report-path-archive-rotation](memory/shared/entries/report-path-archive-rotation.md) — rotated report files live in reports/archive/, not reports/
 - [stale-workflow-email-stage-replay](memory/shared/entries/stale-workflow-email-stage-replay.md) — un-sticking stale workflows replays their email stage with months-old content (whoabuddy got 3 stale Apr watch reports 2026-06-30); guard side-effects before un-stick repairs
+- [failure-triage-pattern-coverage-gap](memory/shared/entries/failure-triage-pattern-coverage-gap.md) — "unknown" failure bucket = regex coverage gap, widen categories not exact strings
