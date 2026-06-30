@@ -126,3 +126,15 @@ pattern as the other four) next time that follow-up is queued.
 **FIXED 2026-06-30 (task #20591):** `OvernightBriefMachine.retrospective_pending` now guards on
 `ctx.date` via `isAnchorStale()`, transitioning straight to `completed` instead of creating a
 retrospective when stale. All five machines identified in this pattern are now guarded.
+
+**Sixth confirmed instance, pre-dates the fix (2026-06-30, workflow #1929, task #20502):**
+`AgentCollaborationMachine` instance `agent-collab-deep-tess-2026-04-25` (created 2026-04-25,
+`completed_at` backfilled to 2026-06-30 21:42:17 by the same wave) replayed `retrospective_pending`
+for the Deep Tess collaboration. That retrospective already ran in April (task #13712,
+2026-04-26) and its learnings are captured in [[agent-collab-feedback-loop]] — no new
+collaboration activity occurred since. Task #20502 was created 21:35:57, before the
+`isAnchorStale()` guard for this machine landed (commit 6d6cd08e, later in the same session) —
+a straggler queued just ahead of the fix. No side effect (memory-write only); closed honestly
+as a duplicate rather than fabricating fresh learnings. Confirms the fix prevents *future*
+replays but does not retroactively clear tasks already enqueued before it landed — those still
+need manual triage on close.
