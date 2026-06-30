@@ -416,3 +416,4 @@
 2026-06-30T21:26:53.401Z | task #20458 | completed | sonnet | Investigate why PrLifecycleMachine isn't creating review tas | Root cause found: 86 pr-lifecycle workflows (verified via gh pr view, all still 
 2026-06-30T21:31:48.081Z | task #20470 | completed | sonnet | Fix 86 pr-lifecycle workflows stuck with completed_at set in | Invariant guard already implemented (uncommitted): updateWorkflowState() now cle
 2026-06-30T21:33:07.187Z | task #20449 | completed | haiku | Retrospective: extract learnings from task #20447 — Daily se | Constraint-awareness refinement to p-purpose-loop: when PURPOSE dimensions are l
+2026-06-30T21:34:29.017Z | task #20459 | completed | haiku | Retrospective: extract learnings from task #20448 — Sweep AI | Extracted p-automation-breakage-investigation pattern; consolidated 4 task-speci
