@@ -522,3 +522,4 @@
 2026-06-30T23:40:43.155Z | task #20539 | completed | haiku | Retrospective: extract learnings from task #20482 — CEO revi | Extracted pattern: p-workflow-output-recompute-guard. Templated workflows crashi
 2026-06-30T23:41:44.369Z | task #20540 | completed | haiku | Retrospective: extract learnings from task #20484 — Integrat | Extended p-integration-sensor-version-dedup with stale validation: when queuing 
 2026-06-30T23:42:32.062Z | task #20541 | completed | haiku | Retrospective: extract learnings from task #20487 — CEO revi | Updated p-workflow-output-recompute-guard to cover stale external-completion sce
+2026-06-30T23:43:40.666Z | task #20543 | completed | haiku | Retrospective: extract learnings from task #20505 — CEO revi | Captured transition CLI gotcha (literal state name vs event key) in p-state-mach
