@@ -391,3 +391,4 @@
 2026-06-30T18:33:52.136Z | task #20436 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Goose AI | whoabuddy approved bounded Goose eval; replied (force-sent past thread dedup), q
 2026-06-30T18:40:08.489Z | task #20437 | completed | opus | Bounded Goose eval: headless go/no-go vs Codex on open-weigh | Goose headless eval = GO (conditional). Hard gate PASS: goose 1.39.0 has clean n
 2026-06-30T18:43:55.176Z | task #20435 | completed | sonnet | Deep research: anthropics/claude-code v2.1.197 (Sonnet 5, 1M | Sonnet 5 is default in v2.1.197. MODEL_IDS.sonnet needs update to claude-sonnet-
+2026-06-30T18:44:40.578Z | task #20441 | completed | sonnet | Update MODEL_IDS.sonnet to claude-sonnet-5 in src/models.ts | Updated MODEL_IDS.sonnet = 'claude-sonnet-5' (was claude-sonnet-4-6). Kept prici
