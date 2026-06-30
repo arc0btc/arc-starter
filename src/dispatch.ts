@@ -1620,8 +1620,14 @@ export async function runDispatch(): Promise<void> {
       }
     }
 
-    // Schedule retrospective for complex/expensive tasks; lightweight learning extraction for others
-    if ((task.priority <= 1 || cost_usd > 1.0) && finalStatus?.status === "completed") {
+    // Schedule retrospective for complex/expensive tasks; lightweight learning extraction for others.
+    // Never schedule a retrospective FOR a retrospective: the retrospective task is itself P8 and
+    // routinely costs >$1, so the (cost_usd > 1.0) trigger made each one breed another — a
+    // self-sustaining loop that produced 37 of 47 backlogged tasks on 2026-06-30 (see
+    // retrospective-workflow-3054-duplicate-flood.md). The "Retrospective:" subject prefix marks
+    // an auto-generated retrospective; exclude it from spawning further retrospectives.
+    const isRetrospectiveTask = task.subject.startsWith("Retrospective:");
+    if (!isRetrospectiveTask && (task.priority <= 1 || cost_usd > 1.0) && finalStatus?.status === "completed") {
       // Full retrospective: patterns.md update for high-value work
       scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
     }

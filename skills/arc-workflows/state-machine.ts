@@ -58,12 +58,29 @@ export function evaluateWorkflow<C = unknown>(
 
   const context = workflow.context ? JSON.parse(workflow.context) : ({} as C);
 
-  if (stateConfig.action) {
-    const action = stateConfig.action(context as C);
-    return action || { type: "noop" };
+  if (!stateConfig.action) return { type: "noop" };
+
+  const action = stateConfig.action(context as C);
+  if (!action) return { type: "noop" };
+
+  // SYSTEMIC STALENESS GUARD — enforces the per-stage isAnchorStale() rule centrally so no current
+  // or future side-effecting stage can forget it. A re-activated dormant workflow replays its
+  // create-task action (email/post/retrospective) against months-old content. When the content
+  // anchor is stale, suppress the side-effect and advance to the action's own autoAdvanceState
+  // (or the machine terminal) — exactly what the explicit per-stage guards do. Fail-open: only
+  // fires on a resolvable + parseable + stale anchor, so anchor-less machines are unaffected, and
+  // the existing per-stage guards remain as redundant safety (they transition before reaching here).
+  if (action.type === "create-task" && isAnchorStale(resolveContentAnchor(context))) {
+    const skipTo = [
+      action.autoAdvanceState,
+      "completed",
+      "resolved",
+      ...Object.values(stateConfig.on ?? {}),
+    ].find((s): s is string => typeof s === "string" && s in template.states);
+    if (skipTo) return { type: "transition", nextState: skipTo };
   }
 
-  return { type: "noop" };
+  return action;
 }
 
 /**
@@ -229,6 +246,26 @@ function isAnchorStale(
   const anchor = new Date(anchorIso).getTime();
   if (isNaN(anchor)) return false;
   return Date.now() - anchor > graceMs;
+}
+
+// Content-date fields representing "this cycle's anchor date". Deliberately EXCLUDES created_at,
+// which reactive/live machines (pr-lifecycle, blog/publish-fanout, agent-collaboration) use with
+// their own purpose-built guards (fanoutStale / per-stage isAnchorStale). A value in any of these
+// older than the grace window means a re-activated dormant workflow is about to replay a
+// side-effect (email/post/retrospective) against months-stale content. See memory/shared/entries/
+// stale-workflow-email-stage-replay.md and retrospective-workflow-3054-duplicate-flood.md.
+const STALE_CONTENT_ANCHOR_FIELDS = [
+  "date", "alertDate", "reviewDate", "cycleDate", "reportDate", "scanDate",
+] as const;
+
+function resolveContentAnchor(context: unknown): string | undefined {
+  if (!context || typeof context !== "object") return undefined;
+  const ctx = context as Record<string, unknown>;
+  for (const field of STALE_CONTENT_ANCHOR_FIELDS) {
+    const v = ctx[field];
+    if (typeof v === "string" && v) return v;
+  }
+  return undefined;
 }
 
 export const PublishFanoutMachine: StateMachine<{
