@@ -445,7 +445,18 @@ function cadenceGateOpen(anchorIso: string | undefined, offsetMs: number): boole
   if (!anchorIso) return true;
   const anchor = new Date(anchorIso).getTime();
   if (isNaN(anchor)) return true;
-  return Date.now() >= anchor + offsetMs;
+  const now = Date.now();
+  const fireTime = anchor + offsetMs;
+  // Staleness ceiling (task #20575): a re-activated dormant workflow (e.g. the completed_at
+  // un-stick repair) carries an old anchor, so every hop's fireTime is far in the past and the
+  // gate would otherwise fall open and replay months-old fanout (whop/x/forum) the moment the
+  // meta-sensor reaches it — the same replay class as the watch-report email stage. Once a hop is
+  // more than CADENCE_STALE_GRACE_MS past its scheduled fire time the work-piece is stale: keep
+  // the gate shut so it never amplifies. Active workflows fire within ~5min (meta-sensor cadence)
+  // of fireTime, far inside the grace window. Missing/invalid anchor still fails open by design.
+  const CADENCE_STALE_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
+  if (now > fireTime + CADENCE_STALE_GRACE_MS) return false;
+  return now >= fireTime;
 }
 
 /** Shared blog context lines appended to every downstream hop's task description. */
@@ -3110,6 +3121,18 @@ Steps:
     emailing: {
       on: { sent: "completed" },
       action: (ctx) => {
+        // Staleness guard (task #20575): re-activated dormant workflows (e.g. the
+        // completed_at un-stick repair, ~302 old workflows) advance through this stage
+        // and replay months-old watch reports as live email. Suppress delivery when the
+        // report timestamp is older than the threshold — skip straight to completed.
+        // reviewDate is set at workflow creation by the ceo-review sensor and is the
+        // report period, so an old date reliably marks a stale replay. Only suppress on a
+        // parseable + stale date so a missing date never blocks a fresh report.
+        const STALE_REPORT_MS = 48 * 60 * 60 * 1000;
+        const reviewMs = ctx.reviewDate ? Date.parse(ctx.reviewDate) : NaN;
+        if (!Number.isNaN(reviewMs) && Date.now() - reviewMs > STALE_REPORT_MS) {
+          return { type: "transition", nextState: "completed" };
+        }
         if (ctx.emailTaskCreated) {
           const createdAt = ctx.emailTaskCreatedAt ? new Date(ctx.emailTaskCreatedAt).getTime() : 0;
           if (Date.now() - createdAt > 30 * 60 * 1000) {
