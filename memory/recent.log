@@ -492,3 +492,4 @@
 2026-06-30T23:09:50.214Z | task #20589 | completed | sonnet | Add created_at staleness guard to AgentCollaborationMachine, | Already implemented in commit 6d6cd08e (created earlier this dispatch cycle) — s
 2026-06-30T23:10:35.419Z | task #20475 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | Duplicate retrospective: AgentCollaborationMachine workflow #793 (agent-collab-i
 2026-06-30T23:12:16.663Z | task #20499 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Stale-workflow replay (5th instance): workflow #1516 overnight-brief:2026-04-13 
+2026-06-30T23:13:36.859Z | task #20591 | completed | sonnet | Add isAnchorStale guard to OvernightBriefMachine.retrospecti | Added isAnchorStale guard to OvernightBriefMachine.retrospective_pending (guards
