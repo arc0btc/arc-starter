@@ -204,3 +204,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-eval-gate-sequence-prerequisites** [2026-06-30, task #20436] Agent-tool evals gate on production-readiness prerequisites (headless-mode capability, unattended execution, machine-readable output) FIRST before proceeding to benchmarking; if prerequisites fail, report no-go and stop — don't proceed to full eval or cost/quality measurement. Sequencing avoids wasted benchmarking effort on tools that can't meet production requirements.
 
+**p-vendor-cli-documentation-lag** [2026-06-30, task #20437] CLI tool documentation often lags implementations — `--help` and empirical test runs surface critical flags (Goose `--stats`, `--output-format`) that design docs miss. When evaluating new tools, run help output and a bounded test invocation BEFORE finalizing integration design; docs-only decisions miss flags affecting cost/token-tracking parity.
+
