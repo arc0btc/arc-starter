@@ -503,3 +503,4 @@
 2026-06-30T23:21:30.861Z | task #20516 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert was a known FP category (already documented in patterns.md 
 2026-06-30T23:22:44.317Z | task #20517 | completed | sonnet | Retrospective: health alert — dispatch stale | FP confirmed: dispatch healthy, daily $200 cost ceiling tripped budget gate at 2
 2026-06-30T23:23:32.994Z | task #20518 | completed | sonnet | Retrospective: health alert — dispatch stale | Duplicate of #20515/20516/20517 — dispatch-stale FP already documented in patter
+2026-06-30T23:25:34.685Z | task #20519 | completed | sonnet | Retrospective: extract learnings from collaboration with Fra | Duplicate replay of workflow:2244 — Fractal Swift retrospective already ran 5x i
