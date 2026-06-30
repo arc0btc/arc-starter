@@ -1,5 +1,5 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-06-28T14:22:00Z*
+*Schema: ASMR v1 — Last consolidated: 2026-06-30T04:33:00Z*
 
 ---
 
@@ -7,9 +7,7 @@
 
 **daily-eval** [ROLLING, last 2026-06-30 task #20340] 2.35/5 — S:1 O:5 E:1 C:2 Ad:3 Co:2 Se:4 | $54.18/day = $0.493/task | 109/110 (99%) | Signal PAUSED; 0 PR reviews; Whop M0 still 0; classifier done; open-weight routing policy written. Overwrite this line at next eval.
 
-**signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep `SIGNAL_FILING_DISABLED` and flip to false.
-
-**x402-signal-payment** [UPDATED 2026-06-18] `POST /api/signals` now FREE — x402 sBTC is fallback only. Gap: file-signal does NOT poll 202 (pending) — still open. Filing PAUSED per whoabuddy policy (separate from cost).
+**signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
 **mcp-timeout-reduction** [DEPLOYED 2026-06-24 16:05:34, task #19906] MCP_TOOL_TIMEOUT reduced 120s→90s (commit 43850201). **Status**: ✅ SAFE, no rollback needed. First 6h observation: zero timeout failures, max x402 ops 63s (27s margin), capability discovery healthy. Leverages v2.1.191 retry backoff. Continue 2-week observation (checkpoint 2026-07-01). Rationale in `research/mcp-timeout-reduction-v2191.md`.
 
@@ -81,7 +79,6 @@
 - **Housekeeping 0-fix pattern** (observed 2026-06-29): housekeeping sensor fired twice overnight, detected 2 issues each run, fixed 0. If this recurs across 3+ briefs, the sensor is detecting non-actionable items — audit what "issues detected" maps to and tighten the detection criteria or add an auto-fix path.
 - **[GOTCHA] Email send dedups by recipient+subject** (2026-06-29): a genuine new reply in an ongoing `Re: <subject>` thread is blocked as a duplicate of the earlier reply with the same subject. Confirm it's distinct, then re-send with `--force`. Hits every multi-message thread (e.g. whoabuddy back-and-forth).
 - **[GOTCHA] Persisted Bash cwd → wrong DB** (2026-06-29): the Bash tool keeps its working dir across calls. After `cd github/arc0btc/arc0me-site` (a sub-repo with its OWN `db/arc.sqlite`), later `arc tasks add`/`close` SILENTLY hit that repo's DB — add got a low reset rowid (#18), `close --id 20321` failed "not found". No error, just wrong target. Always `cd /home/dev/arc-starter` (or use absolute paths) before any `arc` CLI call that mutates the task queue.
-- **Email→artifact pipeline** (observed 2026-06-29): whoabuddy email thread → Arc reply → research artifact (agent-council-dsl-spec.md) in one dispatch. High-value chain ($1.12) that produces content calendar fuel. Artifact at `research/agent-council-dsl-spec.md`.
 - **[FLAG] X self-reply 403 = pre-lock signal** (2026-06-30, task #20370): "Reply not allowed — not mentioned by author" on a self-reply is NOT a code bug (auth confirmed correct, no reply_settings set). It's X's automated spam detection firing BEFORE a full account lock. Sequence: root post success → reply 403 "not allowed" → account temporarily locked. On first self-reply 403: STOP, check `arc skills run --name social-x-posting -- status`. If locked: escalate to whoabuddy (priority 1) — requires human login at twitter.com. See [[x-reply-403-account-lock-cascade]].
 
 ---
@@ -92,7 +89,6 @@
 |------|-------|---------|-----------|-------|
 | 2026-06-28 AM | 2.05 | 100% (104) | $0.527 | S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3; overnight; 0 PR reviews; Whop DEFERs ×3 |
 | 2026-06-27 PM | 2.35 | 100% (98) | $0.545 | S:1 O:5 E:1 C:1 Ad:5 Co:2 Se:3; memory-health deployed; 10+ patterns |
-| 2026-06-26 PM | 2.15 | 98.4% (61) | $0.343 | S:1 O:3 E:1 C:3 Ad:4 Co:2 Se:3; 3 patterns; 60/61 clean |
 
 ---
 
@@ -119,8 +115,6 @@
 **amber-otter** [COMPROMISED 2026-05-18] Genesis L2. STX: `SP3GXCKM4AB5EB1KJ8V5QSTR1XMTW3R142VQS2NVW`. Must rotate creds before trusting.
 
 **frosty-narwhal** Iskander (BNS: `iskander-ai.btc`, #124). STX: `SP3JR7JXFT7ZM9JKSQPBQG1HPT0D365MA5TN0P12E`. AIBTC display ≠ BNS — resolve via contacts before treating as spoofing.
-
-**icy-garuda** [WELCOMED 2026-06-15] New AIBTC agent. STX partial: `SP2ATXSFKRCXF5H95107FK1K07FJ...` — resolve full address via registry.
 
 ---
 
@@ -178,3 +172,6 @@
 - [flag-gates-creation-not-evaluation](memory/shared/entries/flag-gates-creation-not-evaluation.md) — flag gate timing
 - [hook-exec-form-eval](memory/shared/entries/hook-exec-form-eval.md) — hook form audit result
 - [x-reply-403-account-lock-cascade](memory/shared/entries/x-reply-403-account-lock-cascade.md) — X self-reply 403 = pre-lock signal, stop + escalate
+- [fork-inherits-full-plan](memory/shared/entries/fork-inherits-full-plan.md) — forked agent inherits full conversation plan context
+- [no-proxy-verification](memory/shared/entries/no_proxy_verification.md) — proxy config not verified on systemd/bun deploy
+- [openrouter-open-weight-benchmark](memory/shared/entries/openrouter-open-weight-benchmark.md) — GLM-5.2/Devstral-2512 benchmark data vs Sonnet
