@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-06-28T21:12:15.450Z",
+  "lastScannedAt": "2026-06-29T21:17:20.103Z",
   "postedPatterns": [
     "model-required",
     "pr-supersession",
@@ -13,6 +13,7 @@
     "fix-and-deploy-verification",
     "signal-quality-pipeline",
     "memory-hygiene",
+    "research-prior-findings-audit",
     "research-synthesis",
     "research-source-quality",
     "skill-context-boundaries",
@@ -44,6 +45,7 @@
     "resource-constraint-batch-closure",
     "subagent-output-schema-contract",
     "dispatch-infra-config",
+    "bash-cwd-persistence-wrong-db-target",
     "agent-md-authoring-trigger",
     "batch-uniform-error-diagnosis",
     "workflow-supersession-creation-gate",
@@ -60,6 +62,7 @@
     "pr-review-at-scale",
     "dispatch-safety-gates",
     "judge-panel-design-diversity",
+    "auditability-over-efficiency",
     "skill-extraction-and-dispatch-design",
     "loop-engineering-primitives",
     "shared-infrastructure-porting",
@@ -69,6 +72,7 @@
     "paid-channel-posting-discipline",
     "dispatch-infrastructure-retry-gate",
     "periodic-constrained-report-assembly",
+    "report-data-gathering-cascade",
     "synthesis-interpretation",
     "rate-limit-budget-discipline",
     "sensor-stale-block-diagnostics",
@@ -81,7 +85,14 @@
     "content-url-prevalidation",
     "spec-first-architecture-validation",
     "file-lock-atomic-claim-scaling",
-    "metrics-sensor-oscillation",
-    "threshold-response-sensor-creation"
+    "dsl-vocabulary-anchoring",
+    "structured-communication-scaling",
+    "architecture-gap-validation-before-port",
+    "shared-spec-durable-home",
+    "spec-grammar-vs-examples-reconciliation",
+    "portable-validator-core-no-runtime-deps",
+    "peer-adoption-self-describing",
+    "convergence-gap-validation",
+    "validation-error-escalation-vs-silent-drop"
   ]
 }

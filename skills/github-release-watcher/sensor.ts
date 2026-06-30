@@ -119,11 +119,11 @@ export default async function releaseWatcherSensor(): Promise<string> {
     const skillsJson = repoSkills && repoSkills.length > 0 ? JSON.stringify(repoSkills) : undefined;
 
     if (RESEARCH_REPOS.has(repo)) {
-      // Dedicated applicability research task — Sonnet-level, structured report
+      // Triage task: haiku-level relevance check (Phase 1). If relevant, escalates to Phase 2 sonnet.
       insertTask({
         subject: `New release: ${repo} ${release.tag_name}`,
         description: [
-          `New Claude Code release detected.`,
+          `Claude Code release detected.`,
           `Tag: ${release.tag_name}`,
           `Name: ${release.name}`,
           `Published: ${release.published_at}`,
@@ -132,14 +132,14 @@ export default async function releaseWatcherSensor(): Promise<string> {
           "Release notes preview:",
           bodyPreview,
           "",
-          "Instructions:",
-          "Read AGENT.md for this skill (claude-code-releases) — it contains the full research workflow.",
-          "Assess applicability across three lenses: Arc, AIBTC, agent-general.",
-          "Write report to research/claude-code-releases/ and create follow-up tasks for any action items.",
+          "PHASE 1: Triage for relevance.",
+          "Read AGENT.md (claude-code-releases skill) — describes two-phase process.",
+          "Quick decision: Does this affect Arc, AIBTC, or agent architecture?",
+          "If relevant → create Phase 2 sonnet task. If not → close immediately.",
         ].join("\n"),
         skills: skillsJson,
         priority: 6,
-        model: "sonnet",
+        model: "haiku",
         source,
       });
     } else {

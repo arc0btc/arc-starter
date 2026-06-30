@@ -15,37 +15,52 @@ disallowed-tools:
 
 # claude-code-releases
 
-Triggered by the `github-release-watcher` sensor when a new `anthropics/claude-code` release is detected. Queues a P6 Sonnet research task to assess how the release applies to Arc, AIBTC, and agents in general. Output is a markdown report reviewed manually — follow-up tasks are created from the report.
+Triggered by the `github-release-watcher` sensor when a new `anthropics/claude-code` release is detected. Two-phase process: **Phase 1 (Haiku)** does fast relevance triage; **Phase 2 (Sonnet)** does deep research only if relevant.
 
-## Trigger Pattern
+## Process
 
-Sensor detects new claude-code tag → creates research task with this skill loaded → agent writes report → human reviews → follow-up tasks created from findings.
+### Phase 1: Haiku Triage
 
-Start manual. Automate the follow-up task generation later if the pattern is stable.
+- **Model:** Haiku (fast, bounded context)
+- **Input:** Release tag, URL, 500-char preview
+- **Decision:** Is this relevant to Arc, AIBTC, or agent architecture?
+- **Output:** Either close the task (not relevant) OR create a Phase 2 sonnet task (relevant)
 
-## Research Task Framing
+### Phase 2: Sonnet Deep Analysis (if triggered)
 
-Each release is assessed across three lenses:
+- **Model:** Sonnet (unrestricted context)
+- **Input:** Full release notes fetched at dispatch time
+- **Output:** Report to `research/claude-code-releases/{tag}.md` + follow-up tasks if needed
 
-1. **Arc applicability** — Does this change how Arc should configure Claude Code? New flags, model options, context controls, tool permissions, hook behavior, cost/token tracking, dispatch parameters?
-2. **AIBTC applicability** — Does this matter for AIBTC ecosystem builders, skill authors, or agent developers building on top of arc-starter patterns?
-3. **Agent-general applicability** — What does this release signal about the direction of Claude Code as an agent runtime? Patterns other agents should adopt or avoid?
+## Why Two Phases?
 
-Plus a direct take: **like/dislike** — what's genuinely good, what's a concern, what's a non-issue despite the noise.
+Claude Code changelogs are often 50KB+ and tokenize to 1M+ tokens when loaded into dispatch context. A single-phase sonnet task for every release (including irrelevant ones) wastes ~$0.20-0.50 per task. Haiku triage costs ~$0.01-0.02 and filters out 70-80% of releases (minor bug fixes, docs, tooling). Only relevant releases escalate to the expensive Phase 2.
+
+**Context cost reduction:** ~80% fewer big-context sonnet runs; when Phase 2 runs, full changelog is justified (deep analysis required).
+
+## Research Lenses (Phase 2)
+
+Each relevant release is assessed across three:
+
+1. **Arc applicability** — New flags, config changes, context controls, breaking changes to dispatch?
+2. **AIBTC applicability** — Skill-author or agent-developer patterns affected?
+3. **Agent-general applicability** — Signal about Claude Code's direction as an agent runtime?
+
+Plus editorial take: **like/dislike**.
 
 ## Output
 
-Report written to `research/claude-code-releases/{tag}.md`. Follows the structure:
+Report written to `research/claude-code-releases/{tag}.md` (Phase 2 only). Follows structure:
 - Release metadata (tag, date, URL)
 - Arc lens
 - AIBTC lens
 - Agent-general lens
 - Like / dislike summary
-- Follow-up tasks (created via `arc tasks add`, not just listed)
+- Follow-up tasks (created via `arc tasks add`)
 
 ## When to Load
 
-Load when: the dispatched task subject starts with "New release: anthropics/claude-code". Do NOT load for unrelated release review tasks.
+Load when: task subject starts with "New release: anthropics/claude-code". Do NOT load for unrelated release tasks.
 
 ## Sensor Source Format
 
