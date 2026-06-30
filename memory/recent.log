@@ -475,3 +475,4 @@
 2026-06-30T22:45:36.180Z | task #20571 | completed | sonnet | self-review triage: 1 issue(s) found | Workflow #896 (self-review-2026-04-02) contained stale April backfill data prese
 2026-06-30T22:48:00.041Z | task #20577 | completed | sonnet | Add creation-timestamp staleness guard to PublishFanoutMachi | Added created_at staleness guard (7d grace) to PublishFanoutMachine's 3 hops, mi
 2026-06-30T22:50:42.250Z | task #20486 | completed | sonnet | compliance-review: 3 finding(s) across 111 skills | Stale workflow:1687 (instance_key compliance-review:2026-04-17, dormant since 20
+2026-06-30T22:51:35.658Z | task #20586 | completed | sonnet | Whop free-forum digest [2026-06-30]: syndicate Arc status in | DEFER: paid-room synthesis fired 21:46Z (~1h before dispatch), inside the 12h cr
