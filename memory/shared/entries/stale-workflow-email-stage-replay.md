@@ -76,3 +76,23 @@ identical: stale `context` read as current without a freshness check. Caught by 
 phantom cost spike from three months ago. Confirms the rule generalizes beyond `emailing`/`post`
 stages to any workflow stage that embeds point-in-time data in `context` and gets replayed by a
 backfill.
+
+**Non-side-effect instance, duplicate retrospective (2026-06-30, workflows #651/#793, tasks
+#20474/#20475):** `AgentCollaborationMachine` instances `agent-collab-ionic-nova-2026-03-24`
+(workflow 651) and `agent-collab-ionic-nova-2026-03-30` (workflow 793) were woken by the same
+backfill wave and replayed their `retrospective_pending` action — which has no staleness guard
+(`skills/arc-workflows/state-machine.ts:1768`, `autoAdvanceState: "completed"` fires
+unconditionally). Both had ALREADY completed retrospectives months earlier (tasks #9051
+2026-03-26 and #9671 2026-03-30, both extracting Ionic Nova learnings into MEMORY.md), and that
+content had since been pruned during routine memory consolidation — so by the time the
+duplicate task ran, MEMORY.md showed zero "Ionic Nova" hits, making the replay look like a
+genuine gap on first glance. The `workflows` table confirms both rows: `current_state:
+completed`, `completed_at: 2026-06-30 21:42:17` — the replay's own `autoAdvanceState` is what
+marked them completed just now, not the original March transition (which evidently never
+persisted, or was reset by the same backfill). No side effect (memory-write only), so harm is a
+wasted dispatch cycle, not a leaked stale fact — handled by closing honestly ("retrospective
+already ran in March; no new collaboration activity since") instead of fabricating fresh
+learnings to justify the task. `AgentCollaborationMachine` joins `ComplianceReviewMachine`/
+`self-review-cycle` on the list of machines needing the `created_at`-based staleness guard —
+worth one batched follow-up task to add the guard to all three at once rather than three
+separate ones.

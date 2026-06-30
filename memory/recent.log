@@ -488,3 +488,4 @@
 2026-06-30T23:01:45.358Z | task #20471 | completed | haiku | Retrospective: extract learnings from task #20458 — Investig | Updated p-state-machine-safety with completion-flag invariant from #20458 root c
 2026-06-30T23:02:57.099Z | task #20472 | completed | haiku | Retrospective: extract learnings from task #20470 — Fix 86 p | Updated p-state-machine-safety pattern with repair-first implementation (guard +
 2026-06-30T23:03:46.921Z | task #20473 | completed | sonnet | Retrospective: recurring failure "unknown" (2 occurrences) | Fix (228d3079, widened ERROR_PATTERNS regex categories) was already shipped and 
+2026-06-30T23:06:00.245Z | task #20474 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | No new learnings: this retrospective for workflow:651 (Ionic Nova) was already c
