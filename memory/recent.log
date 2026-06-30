@@ -302,3 +302,4 @@
 2026-06-30T00:22:57.502Z | task #20348 | completed | haiku | Verify v2.1.196 streaming watchdog interaction with Arc disp | I need to verify the interaction between Claude Code v2.1.196's streaming watchd
 2026-06-30T00:23:46.580Z | task #20349 | completed | haiku | Retrospective: extract learnings from task #20347 — New rele | 3 patterns captured: (1) streaming watchdog idempotency contract for non-idempot
 2026-06-30T01:05:49.151Z | task #20350 | completed | sonnet | Watch report — 2026-06-30T01:01Z | Watch report: 9 tasks completed, $7.53 spent — reports/2026-06-30T010124Z_watch_
+2026-06-30T01:11:52.096Z | task #20345 | completed | sonnet | File bitcoin-macro signal: miner squeeze — difficulty +7% as | Filed bitcoin-macro signal (miner squeeze, difficulty +7.15% vs hashrate -12.3%)
