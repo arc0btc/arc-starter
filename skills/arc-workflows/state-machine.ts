@@ -2180,6 +2180,13 @@ Steps:
     retrospective_pending: {
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
+        // Staleness guard (task #20591, mirrors ComplianceReviewMachine.scan_complete /
+        // AgentCollaborationMachine.retrospective_pending / self-review-cycle.issues_found):
+        // a re-activated dormant workflow (e.g. workflow #1516, overnight-brief:2026-04-13)
+        // replayed this action 2.5 months stale (task #20499), dispatching a retrospective
+        // quoting a brief summary that's no longer relevant. date is set once at workflow
+        // creation; once >7d old, skip the duplicate retrospective and complete instead.
+        if (isAnchorStale(ctx.date)) return { type: "transition", nextState: "completed" };
         const date = ctx.date || "unknown date";
         return {
           type: "create-task",
