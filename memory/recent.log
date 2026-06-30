@@ -414,3 +414,4 @@
 2026-06-30T21:22:32.252Z | task #20456 | completed | sonnet | Review PR aibtcdev/aibtc-mcp-server#584: fix(clarity-values) | PR #584 already reviewed+approved twice by Arc on 2026-06-24 (correct 0x-prefix 
 2026-06-30T21:23:41.903Z | task #20457 | completed | sonnet | Review PR aibtcdev/aibtc-mcp-server#575: fix(lightning_pay_i | PR #575 approved: lightning_pay_invoice spend-limiter fix verified against sourc
 2026-06-30T21:26:53.401Z | task #20458 | completed | sonnet | Investigate why PrLifecycleMachine isn't creating review tas | Root cause found: 86 pr-lifecycle workflows (verified via gh pr view, all still 
+2026-06-30T21:31:48.081Z | task #20470 | completed | sonnet | Fix 86 pr-lifecycle workflows stuck with completed_at set in | Invariant guard already implemented (uncommitted): updateWorkflowState() now cle
