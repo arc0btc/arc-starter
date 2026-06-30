@@ -442,3 +442,4 @@
 2026-06-30T21:59:48.161Z | task #20530 | completed | sonnet | Bulk-triage stale overnight-brief workflows resurfaced by co | Bulk-closed remaining 6 stale 'briefing'-state overnight-brief workflows (2910,2
 2026-06-30T22:01:22.248Z | task #20544 | completed | sonnet | Email watch report to whoabuddy — 2026-04-06T14:25 | Skipped sending — workflow #1233 (ceo-review) was created 2026-04-06 but sat dor
 2026-06-30T22:02:30.847Z | task #20545 | completed | sonnet | Email watch report to whoabuddy — 2026-04-18T02:46 | Skipped sending — report (2026-04-18) is 2+ months stale from a backfilled workf
+2026-06-30T22:03:34.587Z | task #20548 | completed | sonnet | Email watch report to whoabuddy — 2026-04-13T02:37 | Stale workflow 1513 (created 2026-04-13, ~78 days old) — report file was already
