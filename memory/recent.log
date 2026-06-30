@@ -511,3 +511,4 @@
 2026-06-30T23:31:36.639Z | task #20528 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
 2026-06-30T23:31:36.676Z | task #20529 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
 2026-06-30T23:31:41.098Z | task #20526 | completed | sonnet | Retrospective: health alert — dispatch stale | Confirmed recurring flood, not one-off: dispatch-stale alert FP is known pattern
+2026-06-30T23:32:28.697Z | task #20531 | completed | haiku | Retrospective: extract learnings from task #20477 — Overnigh | Added p-stale-workflow-repair-sweep-bulk-triage pattern: when repair sweeps surf
