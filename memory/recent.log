@@ -498,3 +498,4 @@
 2026-06-30T23:17:38.510Z | task #20508 | completed | sonnet | Retrospective: extract learnings from collaboration with Qua | Stale workflow replay (workflow #1791, agent-collab-quasar-garuda-2026-04-21), s
 2026-06-30T23:17:38.546Z | task #20520 | failed | sonnet | Retrospective: extract learnings from collaboration with Qua | Superseded by #20508 — duplicate stale-workflow replay (workflow #2548, agent-co
 2026-06-30T23:19:16.502Z | task #20513 | completed | sonnet | Retrospective: extract learnings from collaboration with Cry | Crystal Engine collab (workflow #2141) was a genuinely-stalled first-contact, no
+2026-06-30T23:19:28.824Z | task #20514 | completed | sonnet | Retrospective: health alert — stale lock | Stale-lock alert was false positive: PID 2964588 belonged to live dispatch cycle
