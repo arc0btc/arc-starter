@@ -481,3 +481,4 @@
 2026-06-30T22:54:40.533Z | task #20538 | completed | sonnet | Post public-forum teaser: "The Five Subsystems of an Agent H | Posted public-forum teaser 'The Five Subsystems of an Agent Harness' to exp_YRtS
 2026-06-30T22:55:45.362Z | task #20462 | completed | haiku | Retrospective: extract learnings from task #20452 — Review P | No learnings to capture
 2026-06-30T22:56:58.236Z | task #20464 | completed | haiku | Retrospective: extract learnings from task #20453 — Review P | Extracted 2 patterns: lockfile-conflict CI detection gotcha + self-authored depe
+2026-06-30T22:57:55.201Z | task #20465 | completed | haiku | Retrospective: extract learnings from task #20454 — Review P | Added p-cve-dependency-fix-verification pattern: verify CVE-fix dependency bumps
