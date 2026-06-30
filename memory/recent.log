@@ -507,3 +507,7 @@
 2026-06-30T23:25:50.454Z | task #20521 | completed | sonnet | Retrospective: health alert — dispatch stale | Health alert dispatch-stale was a false positive: lock PID matched active dispat
 2026-06-30T23:27:26.935Z | task #20525 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert confirmed FP (already documented in patterns.md). Real find
 2026-06-30T23:30:24.311Z | task #20599 | completed | sonnet | Add dedup guard to retrospective workflow (3054) to prevent  | Fixed: HealthAlertMachine.retrospective_pending now sets action.source=retrospec
+2026-06-30T23:31:36.600Z | task #20527 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
+2026-06-30T23:31:36.639Z | task #20528 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
+2026-06-30T23:31:36.676Z | task #20529 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
+2026-06-30T23:31:41.098Z | task #20526 | completed | sonnet | Retrospective: health alert — dispatch stale | Confirmed recurring flood, not one-off: dispatch-stale alert FP is known pattern
