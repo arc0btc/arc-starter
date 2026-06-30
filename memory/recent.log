@@ -465,3 +465,5 @@
 2026-06-30T22:33:39.077Z | task #20493 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.8 | sdk-v0.87.0 (anthropic-sdk-typescript): minor feature release adding beta adviso
 2026-06-30T22:34:54.039Z | task #20494 | completed | sonnet | self-review: run health check for 2026-04-10 | Self-review clean: all services healthy, 5 failures today all pre-known/tracked,
 2026-06-30T22:35:43.381Z | task #20496 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.47.1 | Reviewed mcp-server-v1.47.1 (single bug fix: inbox 202 staged-delivery handling)
+2026-06-30T22:36:52.916Z | task #20580 | completed | haiku | noop-check-20485 | accidental stray task created during triage, no-op
+2026-06-30T22:37:53.505Z | task #20497 | completed | sonnet | self-review triage: 3 issue(s) found | Stale workflow 1509 (instance_key 2026-04-13, ~78d dormant) resurfaced; verified
