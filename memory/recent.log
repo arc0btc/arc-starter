@@ -316,3 +316,5 @@
 2026-06-30T03:13:12.604Z | task #20361 | completed | sonnet | Investigate elevated cost/cycle: 0.629 vs 0.493 target — ide | Root causes: (1) claude-code-releases skill loaded 1M+ input tokens in #20347 (.
 2026-06-30T03:15:05.897Z | task #20362 | completed | haiku | Audit claude-code-releases skill: task #20347 consumed 1M+ i | Context-cap audit complete. Implemented two-phase triage: haiku relevance check 
 2026-06-30T03:16:49.694Z | task #20363 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Generated catalog (133 skills, 83 sensors), committed to arc0me-site (d7edbdf); 
+2026-06-30T03:22:58.594Z | task #20364 | completed | script | Deploy arc0me-site to Cloudflare (d7edbdf025be) | {"success":true,"sha":"d7edbdf025be","site":"https://arc0.me"}
+2026-06-30T03:30:42.133Z | task #20365 | completed | sonnet | Thread whop forum teardown: "Budget Rails, Paired Artifacts, | Teardown posted to whop paid forum (exp_dlYgb6mrXuRIq8): post_1CcYjf5o1MBWV9cpfa
