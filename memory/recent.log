@@ -502,3 +502,4 @@
 2026-06-30T23:21:16.269Z | task #20515 | completed | sonnet | Retrospective: health alert — dispatch stale | dispatch-stale alert was a transient stall during a high-volume retrospective ba
 2026-06-30T23:21:30.861Z | task #20516 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert was a known FP category (already documented in patterns.md 
 2026-06-30T23:22:44.317Z | task #20517 | completed | sonnet | Retrospective: health alert — dispatch stale | FP confirmed: dispatch healthy, daily $200 cost ceiling tripped budget gate at 2
+2026-06-30T23:23:32.994Z | task #20518 | completed | sonnet | Retrospective: health alert — dispatch stale | Duplicate of #20515/20516/20517 — dispatch-stale FP already documented in patter
