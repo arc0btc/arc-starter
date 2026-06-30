@@ -1,3 +1,20 @@
+## 2026-06-30T02:35:00.000Z — classifier added; council-dsl skill shipped; cooldown-gate fix; context-review pox fix; 133 skills / 83 sensors
+
+**Task #20352** | Diff: 8a8b91a..8b50aba (5 commits — 2 src/, 4 skills/) | Sensors: 83 | Skills: 133
+
+Changed: `src/classifier.ts` (new — task-type classifier, 7 tiers, pure heuristics, no LLM); `src/cli.ts` (wires `--model auto` → classifier, adds `classify` subcommand); `skills/council-dsl/` (new skill — DSL v1 validator + Borda×conf tally, 340-line validator, 115-line CLI); `skills/arc-purpose-eval/sensor.ts` (daily-eval brief now emits DSL moves + runs `council-dsl validate`); `skills/arc-failure-triage/sensor.ts` (cooldown-gate added to ERROR_PATTERNS + SKIP_SIGNATURES — prevents false network-error classification); `skills/context-review/sensor.ts` (pox keyword narrowed from bare `pox` to `pox reward`/`pox cycle` to prevent substring collisions in Message-IDs).
+
+**Steps 1–5**: Req — classifier + council-dsl are demand-driven (open-weight routing bottleneck + daily-eval DSL mandate). Delete — no candidates; all changes are additive and scoped. Simplify — classifier is pure heuristics (no LLM, no network); council-dsl CLI is thin wrapper over validator.ts; both are correct abstraction level. Accelerate — `--model auto` closes the open-weight routing gap without any new queue pressure. Automate — council-dsl now validates daily-eval DSL mechanically before scoring; this is the right automation boundary.
+
+### Flags
+
+- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate. Rename to `accept_rate (7d)`. (3 cycles carried — queue a fix task)
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[NEW-WATCH]** `classifier.ts` INELIGIBLE regex `/\bsensor\b/i` would block any task with "sensor" in subject (e.g. "fix sensor cooldown") from open-weight routing — correct behavior, but verify intent covers sensor-adjacent task subjects.
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (tomorrow). Escalate if failures appear.
+
+---
+
 ## 2026-06-29T15:09:00.000Z — no structural changes; 38 link-research cache files only; diagram refreshed; 133 skills / 83 sensors
 
 **Task #20292** | Diff: 5498f53..8a8b91a (1 commit — 38 cache JSON files in skills/arc-link-research/cache/) | Sensors: 83 | Skills: 133
@@ -96,36 +113,5 @@ No files changed since 2026-06-28T14:30Z review. Diagram regenerated from curren
 - **[RESOLVED]** social-engine CLI reply path — tweet-created-at fix restores all CLI replies ✓
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline.
 - **[CARRY-WATCH AT THRESHOLD ×6]** context-review skip list ~20 entries — refactor into declarative array. Follow-up task created.
-- **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
-
----
-
-## 2026-06-27T14:28:00.000Z — arc-daily-read new sensor; site-consistency broadened; compliance renames; x402-pull-loop P6 provenance; 132 skills / 83 sensors
-
-**Task #20087** | Diff: fa5f6aa → 6ef6872 (5 commits — 1 structural) | Sensors: 83 | Skills: 132
-
-### Changed files
-
-- `skills/arc-daily-read/SKILL.md` + `cli.ts` + `sensor.ts` (159696e5) — **NEW skill + sensor**: Arc's Daily Read. P3 arc-demand-distribution quest. 30-min sensor cadence, time-gated to UTC 13:00. Checks X budget (4 slots needed before posting). 4-tweet beat: root (chart + edition stamp) → reply-2 (so-what) → reply-3 (thesis continuity) → CTA. Chart from `distilled_artifacts` SQL, ASCII sparkline. New table: `daily_read_log`. Post-posting amplification email to whoabuddy@gmail.com (non-blocking). Kill switch wired.
-- `skills/site-consistency/cli.ts` + `sensor.ts` (6ef6872) — Services check broadened to match current arc0btc.com content structure. cli.ts: verbose mode + response time tracking added. sensor.ts: detection logic aligned.
-- `skills/arc-workflows/sensor.ts` + `skills/social-x-posting/cli.ts` (c191aea0) — Compliance variable renames: `cnt` → `total_count`, `tmp` → `temporaryFilePath`. No structural change.
-- `skills/x402-pull-loop/cli.ts` (ee5cd2dd) — P6 buyer-authenticity classifier: `resolveProvenance()` checks buyer_address against `tagged_wallets` before upsert. CAS state guard (Kleppmann pattern). Prevents tagged wallets from producing `provenance='organic'` demand signals.
-- `skills/whop/ACTIVATION-PATH.md` (ee5cd2dd) — Docs update only.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: arc-daily-read is valid P3 demand work — the free tier of the value ladder. X cap check (4 slots) and kill switch wiring are correct safety constraints. site-consistency broadening is a precision fix for a drifted check. x402-pull-loop provenance gate correctly prevents tagged wallets from polluting organic demand signals — the CAS guard is the right tool (Kleppmann council finding applied).
-- **Step 2 — Delete**: Dead import `getWorkflowByTemplateAndContextTitle` in `arc-workflows/sensor.ts` — previous audit noted "follow-up task created" (P8/haiku). Verify that task ran and import was removed; if not, create new task. Context-review skip list ~20 entries — AT THRESHOLD, refactor still pending.
-- **Step 3 — Simplify**: arc-daily-read 30-min interval for a 13:00 UTC time-gate is consistent with other time-gated sensors in this codebase — acceptable. The `daily_read_log` table is checked in sensor.ts with a graceful null-guard ("table may not exist on first run") — correct, cli.ts creates the table on first post. Cross-skill DB dependency still open: `arc-workflows/sensor.ts` queries `x_post_log` inline.
-- **Step 4 — Accelerate**: No bottleneck impact from this diff.
-- **Step 5 — Automate**: No new candidates.
-
-### Flags
-
-- **[WATCH]** arc-daily-read 4-slot budget assumption: sensor hardcodes cap check at DAILY_TWEET_CAP=6 → needs ≥4 slots. If DAILY_TWEET_CAP changes, sensor must be updated too — cross-file coupling.
-- **[RESOLVED]** Dead import `getWorkflowByTemplateAndContextTitle` confirmed removed from `arc-workflows/sensor.ts` — 4-cycle carry closed.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows` sensor queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH AT THRESHOLD]** context-review skip list ~20 entries — refactor into declarative array on next sensor edit.
 - **[CARRY-WATCH]** whop-sales P10/P11 requires operator confirm before `WHOP_SALES_DRY_RUN=false`.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation window checkpoint 2026-07-01.
