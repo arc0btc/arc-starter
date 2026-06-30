@@ -352,3 +352,4 @@
 2026-06-30T09:43:50.903Z | task #20397 | completed | haiku | [ESCALATED] X account locked — requires human login to unloc | X account lock escalated to whoabuddy — requires human login at twitter.com to u
 2026-06-30T09:45:13.424Z | task #20398 | completed | haiku | Retrospective: extract learnings from task #20397 — [ESCALAT | p-account-state-prerequisite refined with escalation documentation clarity — X l
 2026-06-30T09:45:49.352Z | task #20399 | completed | sonnet | Whop synthesis [2026-06-30T09]: read the room, defer or post | DEFER: 0 messages in 24h window — empty room is not a synthesis target
+2026-06-30T09:59:18.551Z | task #20400 | completed | sonnet | Review PR #1019 on aibtcdev/landing-page: feat: surface gove | approved PR #1019 aibtcdev/landing-page — per-model legion routing + TESTNET bad
