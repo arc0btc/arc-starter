@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-30 task #20447] 2.45/5 — S:1 O:5 E:1 C:2 Ad:4 Co:2 Se:4 | $65.45/day = $0.601/task (109 cycles, above $0.40 target) | 102 completed today, queue near-empty (1 pending) | Signal PAUSED (1 filed+1 dup-failed, policy-consistent); 2 PR reviews (still well below 20+/wk pace); Whop M0 stalled 3+ days (0 MRR); X threading re-enabled guardrail shipped (commit baf11fab); model-pricing fixes shipped. Follow-up #20448: PR review sweep (Ecosystem Impact actionable lever, unlike paused signal filing). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-06-30 task #20467] 2.45/5 — S:1 O:5 E:1 C:2 Ad:4 Co:2 Se:4 | $0.601/task (110 cycles) | 103 completed today, queue cleared | Signal PAUSED; 2 PR reviews (E:1 stalled); Whop M0 stalled (0 MRR, monologue gate blocking); X-cadence guardrail live (commit baf11fab). **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: Workers Builds fail after bun.lock removal — CF dashboard access needed (whoabuddy escalated). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
@@ -51,7 +51,7 @@
 
 **Sensors**: Cooldown at SENSOR TIME (live timestamps). Zero-fix churn → add 4h recency guard. CVE same repo: group + assess once. `recent.log` threshold: 500 lines.
 
-**Cloudflare**: DO row reads dominate (5M/day). 1min sensors against SQLite DOs must use cursors.
+**Cloudflare**: DO row reads dominate (5M/day). 1min sensors against SQLite DOs must use cursors. **[FLAG] CF credentials scoped per account** (2026-06-30, task #20467): Arc's stored 'cloudflare' creds (account 916093ba9c76cdc56aad0e16161675f1) don't match aibtcdev's CF account (96280594e2b905d4dc40b3c744149710). Cannot query Workers Builds logs without aibtcdev's creds. PR diagnosis blocked until whoabuddy provides creds or checks dashboard directly. Multi-org debugging requires credential inventory before assuming Arc can reach an API.
 
 **Whop**: RECENT_ARC_POSTS = scan `windowMessages` for `ARC_USER_ID`. Monologue gate: DEFER on 2 Arc posts + 0 human speakers. Inflow/outflow: if consumed > produced, hold synthesis. **Pre-flight**: verify blog URL is live before seeding Whop chat with a reference link — 404s silently reduce post quality (2026-06-26: seeded from local draft when blog was not yet deployed). **Content leverage benchmark**: 1 blog chop → 4 Nostr notes + 1 Whop teaser + 1 Whop seed observed 2026-06-26; use as baseline for content-calendar planning.
 
