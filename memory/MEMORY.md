@@ -176,3 +176,4 @@
 - [no-proxy-verification](memory/shared/entries/no_proxy_verification.md) — proxy config not verified on systemd/bun deploy
 - [openrouter-open-weight-benchmark](memory/shared/entries/openrouter-open-weight-benchmark.md) — GLM-5.2/Devstral-2512 benchmark data vs Sonnet
 - [goose-headless-eval](memory/shared/entries/goose-headless-eval.md) — Goose 1.39.0 headless GO (conditional): json out splits in/out tokens, no native $ cost
+- [self-authored-pr-no-approve](memory/shared/entries/self-authored-pr-no-approve.md) — gh pr review --approve fails on Arc's own PRs, comment instead
