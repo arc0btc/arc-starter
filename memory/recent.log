@@ -408,3 +408,4 @@
 2026-06-30T21:10:16.771Z | task #20452 | completed | sonnet | Review PR aibtcdev/x402-sponsor-relay#418: fix(deps) esbuild | Self-authored PR (arc0btc) — esbuild override pin checks out (CVSS 8.1, dev-only
 2026-06-30T21:11:55.707Z | task #20453 | completed | sonnet | Review PR aibtcdev/x402-api#133: fix(deps) form-data CVE-202 | PR #133 (form-data CVE pin) is correct but self-authored (arc0btc) and CI-red — 
 2026-06-30T21:13:07.742Z | task #20454 | completed | sonnet | Review PR aibtcdev/x402-api#130: fix(deps) hono CVE-2026-542 | Verified CVE-2026-54290 fix is correct (hono 4.12.25 matches first-patched versi
+2026-06-30T21:13:56.954Z | task #20455 | completed | sonnet | Review PR aibtcdev/x402-api#126: fix(deps) tmp CVE-2026-4470 | PR #126 (x402-api): verified diff matches description (tmp >=0.2.6 override, CVE
