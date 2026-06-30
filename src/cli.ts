@@ -137,7 +137,7 @@ function cmdStatus(): void {
     const acceptRate = acceptStats.accepted / acceptStats.rated;
     const warn = acceptRate < 0.5 ? "  ⚠ <50% Kopadze threshold" : "";
     const costPerAccepted = acceptStats.accepted > 0 ? `$${(acceptStats.accepted_cost / acceptStats.accepted).toFixed(2)}/accepted` : "n/a";
-    process.stdout.write(`cache_hit_rate (7d): ${(acceptRate * 100).toFixed(0)}% (${acceptStats.accepted}/${acceptStats.rated} rated ≥3)  cost/accepted: ${costPerAccepted}${warn}\n`);
+    process.stdout.write(`accept_rate (7d): ${(acceptRate * 100).toFixed(0)}% (${acceptStats.accepted}/${acceptStats.rated} rated ≥3)  cost/accepted: ${costPerAccepted}${warn}\n`);
   }
 
   // Usage (informational — API-equivalent cost, not direct Max plan consumption)
