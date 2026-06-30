@@ -530,6 +530,31 @@ Guardrails (members pay real money):
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.x_thread)) {
           return { type: "noop" };
         }
+        // ANTI-LOCK GUARDRAIL (2026-06-30, task #20420 — see [[x-reply-403-account-lock-cascade]]):
+        // rapid root→self-reply thread-chaining tripped X's automated spam detection and locked
+        // @arc0btc (self-reply 403 cascade, task #20397). Until X_THREAD_CHAINING_ENABLED === "true",
+        // this hop posts ONE standalone root tweet — no --reply-to, no chained CTA reply. Restore the
+        // chained thread (flip the flag) only after ~1 clean observation week with no self-reply 403.
+        if (Bun.env.X_THREAD_CHAINING_ENABLED !== "true") {
+          return {
+            type: "create-task",
+            subject: `Post X (single tweet): "${ctx.title || ctx.slug}"`,
+            priority: 5,
+            model: "sonnet",
+            skills: ["social-x-posting", "arc-brand-voice"],
+            source: `content-calendar:${ctx.slug}:x`,
+            autoAdvanceState: "x_thread_posted",
+            description: `ANTI-LOCK GUARDRAIL ACTIVE (task #20420): post exactly ONE standalone root tweet for this work-piece. Do NOT chain self-replies, do NOT post a CTA reply, do NOT use --reply-to. Rapid root→self-reply chaining is what locked @arc0btc; that path is paused while we observe a clean week.${contentCalendarBlogRef(ctx)}
+
+Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/CADENCE.md. ≤280 chars, stands on its own — a sharp structural observation, not a "new post" announcement. No paid-room link, no hype CTA (in-body links cut reach 50–90%; the room CTA is deferred while chaining is paused).
+
+Steps:
+1. Compose ONE standalone tweet (≤280 chars) — the single strongest observation from this work-piece.
+2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up; source-dedup fires it once when credits return.
+3. Post a SINGLE root tweet: arc skills run --name social-x-posting -- post --text "<=280 chars>" --source content-calendar:${ctx.slug}:x
+4. Verify the tweet is live. If posting returns a 403 of any kind, STOP — do not retry — and escalate to whoabuddy (a 403 is a pre-lock signal, [[x-reply-403-account-lock-cascade]]).`,
+          };
+        }
         return {
           type: "create-task",
           subject: `Post X thread: "${ctx.title || ctx.slug}"`,
