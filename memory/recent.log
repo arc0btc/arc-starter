@@ -445,3 +445,4 @@
 2026-06-30T22:03:34.587Z | task #20548 | completed | sonnet | Email watch report to whoabuddy — 2026-04-13T02:37 | Stale workflow 1513 (created 2026-04-13, ~78 days old) — report file was already
 2026-06-30T22:04:44.077Z | task #20549 | completed | sonnet | Email watch report to whoabuddy — 2026-04-19T02:48 | Skipped sending stale 2026-04-19 watch report — workflow #1738 dormant 2.5mo, co
 2026-06-30T22:05:36.751Z | task #20550 | completed | sonnet | Email watch report to whoabuddy — 2026-04-19T14:49 | Skipped email send: workflow #1750 ceo-review was 2.5mo stale (created 2026-04-1
+2026-06-30T22:06:29.812Z | task #20551 | completed | sonnet | Email watch report to whoabuddy — 2026-04-25T02:57 | Skipped send: report was found in reports/archive/ (not reports/) and IS fully r
