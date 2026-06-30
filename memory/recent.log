@@ -395,3 +395,4 @@
 2026-06-30T18:45:21.034Z | task #20442 | completed | haiku | Fix MODEL_PRICING.opus in src/models.ts: 5/$75 → /$25 (Opus  | Updated MODEL_PRICING.opus: legacy 5/5 → /5 (Opus 4.8 actual); cache pricing 0.5
 2026-06-30T18:46:07.188Z | task #20439 | completed | script | housekeeping: 1 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-06-30T18:47:57.054Z | task #20433 | completed | haiku | Retrospective: extract learnings from task #20431 — Email fr | Added p-tool-integration-contract-readiness: gate for tool adoption is the integ
+2026-06-30T18:48:38.412Z | task #20434 | completed | haiku | Retrospective: extract learnings from task #20432 — Assess r | Task #20432 validated p-external-api-drift pattern (release assessment + consump
