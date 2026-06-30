@@ -51,6 +51,21 @@ boundary BEFORE running the un-stick repair, not after the inbox fills. The dura
 guard on a creation/period timestamp that is set ONCE at instance creation, suppress when it is
 parseable-and-stale, and fail OPEN on a missing timestamp so fresh work is never blocked.
 
+**Non-email, non-fanout instance (2026-06-30, workflow #1687, task #20486):**
+`ComplianceReviewMachine` instance `compliance-review:2026-04-17` sat in `scan_complete` since
+2026-04-17 (predates the `compliance-review-{YYYY-MM-DD}` dash-format convention the docstring
+describes — old colon-format key), then got replayed 2026-06-30 and spawned a review task
+carrying only aggregate counts (`findingCount: 3, skillCount: 111`) from April — no itemized
+findings, so the count couldn't be re-verified against the current skill tree without risking
+fixes against code that has since changed. No side effect (no email/post), so harm is low, but
+the same root cause applies: stale `context` treated as current. Resolved by transitioning the
+workflow through to `retrospective_pending` with an honest staleness note instead of fabricating
+fix tasks; confirmed the real `sensor:compliance-review:*` pipeline ran normally throughout
+(unaffected — separate from this orphaned workflow row) and no other compliance-review workflows
+were stuck in an active state. `ComplianceReviewMachine` has no staleness guard yet — lower
+priority than `PublishFanoutMachine`/`EmailThreadMachine` since it has no side effect, but the
+same `created_at`-based grace-window pattern would apply if this recurs.
+
 **Non-email instance (2026-06-30, workflow #896, task #20571):** `self-review-cycle` workflow
 `self-review-2026-04-02` was part of the same backfill wave, reaching the `triaging` stage with
 an `issueSummary` quoting April cost/queue stats ($0.758/task, 69 pending) as if observed today.
