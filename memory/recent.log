@@ -514,3 +514,4 @@
 2026-06-30T23:32:28.697Z | task #20531 | completed | haiku | Retrospective: extract learnings from task #20477 — Overnigh | Added p-stale-workflow-repair-sweep-bulk-triage pattern: when repair sweeps surf
 2026-06-30T23:33:22.200Z | task #20532 | completed | haiku | Retrospective: extract learnings from task #20479 — Overnigh | Stale workflow backfill pattern: zero-data windows → disposition note + retrospe
 2026-06-30T23:34:38.100Z | task #20533 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | arc0btc.com freshness alert was the 4th near-identical self-resolved instance (#
+2026-06-30T23:35:58.999Z | task #20602 | completed | sonnet | Fix arc0btc.com health sensor: re-verify freshness immediate | Sensor now re-runs only the failed checks once immediately before alerting; tran
