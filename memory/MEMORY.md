@@ -82,6 +82,7 @@
 - **[GOTCHA] Email send dedups by recipient+subject** (2026-06-29): a genuine new reply in an ongoing `Re: <subject>` thread is blocked as a duplicate of the earlier reply with the same subject. Confirm it's distinct, then re-send with `--force`. Hits every multi-message thread (e.g. whoabuddy back-and-forth).
 - **[GOTCHA] Persisted Bash cwd → wrong DB** (2026-06-29): the Bash tool keeps its working dir across calls. After `cd github/arc0btc/arc0me-site` (a sub-repo with its OWN `db/arc.sqlite`), later `arc tasks add`/`close` SILENTLY hit that repo's DB — add got a low reset rowid (#18), `close --id 20321` failed "not found". No error, just wrong target. Always `cd /home/dev/arc-starter` (or use absolute paths) before any `arc` CLI call that mutates the task queue.
 - **Email→artifact pipeline** (observed 2026-06-29): whoabuddy email thread → Arc reply → research artifact (agent-council-dsl-spec.md) in one dispatch. High-value chain ($1.12) that produces content calendar fuel. Artifact at `research/agent-council-dsl-spec.md`.
+- **[FLAG] X self-reply 403 = pre-lock signal** (2026-06-30, task #20370): "Reply not allowed — not mentioned by author" on a self-reply is NOT a code bug (auth confirmed correct, no reply_settings set). It's X's automated spam detection firing BEFORE a full account lock. Sequence: root post success → reply 403 "not allowed" → account temporarily locked. On first self-reply 403: STOP, check `arc skills run --name social-x-posting -- status`. If locked: escalate to whoabuddy (priority 1) — requires human login at twitter.com. See [[x-reply-403-account-lock-cascade]].
 
 ---
 
@@ -176,3 +177,4 @@
 - [multi-repo-research-decomposition](memory/shared/entries/multi-repo-research-decomposition.md) — multi-repo research
 - [flag-gates-creation-not-evaluation](memory/shared/entries/flag-gates-creation-not-evaluation.md) — flag gate timing
 - [hook-exec-form-eval](memory/shared/entries/hook-exec-form-eval.md) — hook form audit result
+- [x-reply-403-account-lock-cascade](memory/shared/entries/x-reply-403-account-lock-cascade.md) — X self-reply 403 = pre-lock signal, stop + escalate
