@@ -513,3 +513,4 @@
 2026-06-30T23:31:41.098Z | task #20526 | completed | sonnet | Retrospective: health alert — dispatch stale | Confirmed recurring flood, not one-off: dispatch-stale alert FP is known pattern
 2026-06-30T23:32:28.697Z | task #20531 | completed | haiku | Retrospective: extract learnings from task #20477 — Overnigh | Added p-stale-workflow-repair-sweep-bulk-triage pattern: when repair sweeps surf
 2026-06-30T23:33:22.200Z | task #20532 | completed | haiku | Retrospective: extract learnings from task #20479 — Overnigh | Stale workflow backfill pattern: zero-data windows → disposition note + retrospe
+2026-06-30T23:34:38.100Z | task #20533 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | arc0btc.com freshness alert was the 4th near-identical self-resolved instance (#
