@@ -443,3 +443,4 @@
 2026-06-30T22:01:22.248Z | task #20544 | completed | sonnet | Email watch report to whoabuddy — 2026-04-06T14:25 | Skipped sending — workflow #1233 (ceo-review) was created 2026-04-06 but sat dor
 2026-06-30T22:02:30.847Z | task #20545 | completed | sonnet | Email watch report to whoabuddy — 2026-04-18T02:46 | Skipped sending — report (2026-04-18) is 2+ months stale from a backfilled workf
 2026-06-30T22:03:34.587Z | task #20548 | completed | sonnet | Email watch report to whoabuddy — 2026-04-13T02:37 | Stale workflow 1513 (created 2026-04-13, ~78 days old) — report file was already
+2026-06-30T22:04:44.077Z | task #20549 | completed | sonnet | Email watch report to whoabuddy — 2026-04-19T02:48 | Skipped sending stale 2026-04-19 watch report — workflow #1738 dormant 2.5mo, co
