@@ -107,3 +107,18 @@ queued *after* commit 6d6cd08e had already landed in the same dispatch session �
 duplicate-task instance of the exact replay pattern this entry describes, caught only by
 checking `git log` before writing code. Always check recent commits for the target file before
 implementing a follow-up task that names a specific prior commit/task as its trigger.
+
+**Fifth machine still unguarded (2026-06-30, workflow #1516, task #20499):**
+`OvernightBriefMachine.retrospective_pending` (`state-machine.ts:2180`) has no `isAnchorStale()`
+call — `autoAdvanceState: "completed"` fires unconditionally like the other four did before the
+fix. Instance `overnight-brief:2026-04-13` (`created_at` 2026-04-13, `completed_at` backfilled to
+2026-06-30 21:42:17) replayed a retrospective for a brief 2.5 months stale: "32/34 tasks (94%),
+$12.55/35 cycles, Zest 4/4 healthy, 3 agent-trading signals filed, Hiro 400 fix v3 still leaking,
+brief inscription automation gap." No side effect (memory-write only) — same low-harm class as
+`ComplianceReviewMachine`/`self-review-cycle`. Both named issues are stale and superseded: the
+April inscription-workflow line item predates the loom-spiral inscription shutdown (2026-05-18,
+see `dead-ends.md`), and "Hiro 400 fix v3" has no current open reference anywhere in memory —
+treated as resolved-or-abandoned rather than re-opened. Closed honestly instead of fabricating
+fresh action items from 2.5-month-old data. `OvernightBriefMachine` should join the
+`created_at`-based staleness-guard batch (guard on `ctx.date` or a `createdAt` field, same
+pattern as the other four) next time that follow-up is queued.
