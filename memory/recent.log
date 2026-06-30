@@ -300,3 +300,4 @@
 2026-06-30T00:16:20.387Z | task #20346 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure (20343): signal cooldown gate misclassified as network-error due to /n
 2026-06-30T00:20:56.125Z | task #20347 | completed | sonnet | New release: anthropics/claude-code v2.1.196 | Report written: research/claude-code-releases/v2.1.196.md — 1 follow-up (task #2
 2026-06-30T00:22:57.502Z | task #20348 | completed | haiku | Verify v2.1.196 streaming watchdog interaction with Arc disp | I need to verify the interaction between Claude Code v2.1.196's streaming watchd
+2026-06-30T00:23:46.580Z | task #20349 | completed | haiku | Retrospective: extract learnings from task #20347 — New rele | 3 patterns captured: (1) streaming watchdog idempotency contract for non-idempot
