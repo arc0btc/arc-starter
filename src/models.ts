@@ -120,10 +120,10 @@ export const MODEL_IDS: Record<ModelTier, string> = {
 /** Per-million-token pricing for API cost estimation. */
 export const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
   opus: {
-    input_per_million: 15,
-    output_per_million: 75,
-    cache_read_per_million: 1.875,
-    cache_write_per_million: 18.75,
+    input_per_million: 5,
+    output_per_million: 25,
+    cache_read_per_million: 0.5,
+    cache_write_per_million: 6.25,
   },
   sonnet: {
     input_per_million: 3,
