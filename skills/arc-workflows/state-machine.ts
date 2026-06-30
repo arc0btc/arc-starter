@@ -182,16 +182,40 @@ export const BlogPostingMachine: StateMachine<{
  *                    task queue. Source-dedup (publish-fanout:<slug>:x) prevents duplicate X posts.
  *   completed      → terminal; meta-sensor auto-completes the workflow.
  *
- * Context: { title, url, slug, blog_excerpt }
+ * Context: { title, url, slug, blog_excerpt, created_at }
+ *   created_at — ISO timestamp set ONCE by the sensor at workflow creation. Missing/invalid →
+ *   fails open (no staleness check), matching cadenceGateOpen's fail-open default.
+ *
+ * STALENESS GUARD (task #20577, mirrors cadenceGateOpen's CADENCE_STALE_GRACE_MS): unlike
+ * ContentCalendarMachine, this machine has no time anchor at all — its hops fire purely on
+ * workflow state, relying only on --source dedup. A re-activated dormant workflow (e.g. the
+ * completed_at un-stick repair) that never finished its X/whop hops has no prior dedup entry, so
+ * it would compose+post a fresh observation about a months-old blog the moment the meta-sensor
+ * reaches it. fanoutStale() checks elapsed time since created_at and short-circuits straight to
+ * `completed` instead of creating a task once the workflow is older than the grace window.
  *
  * NOTE: When ContentCalendarMachine is enabled, set WORKFLOWS_BLOG_TO_X_ENABLED=false —
  * content-calendar supersedes this machine (publish-fanout is its 2-channel subset).
  */
+const PUBLISH_FANOUT_STALE_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * True when the workflow is older than the staleness grace window since creation. Missing/invalid
+ * created_at fails open (false) — only workflows with a known, old anchor are suppressed.
+ */
+function fanoutStale(createdAtIso: string | undefined): boolean {
+  if (!createdAtIso) return false;
+  const created = new Date(createdAtIso).getTime();
+  if (isNaN(created)) return false;
+  return Date.now() - created > PUBLISH_FANOUT_STALE_GRACE_MS;
+}
+
 export const PublishFanoutMachine: StateMachine<{
   title?: string;
   url?: string;
   slug?: string;
   blog_excerpt?: string;
+  created_at?: string;
 }> = {
   name: "publish-fanout",
   initialState: "blog_published",
@@ -200,6 +224,7 @@ export const PublishFanoutMachine: StateMachine<{
       on: { post_whop: "whop_pending", skip_whop: "x_pending" },
       action: (ctx) => {
         if (!ctx.slug || !ctx.title) return null;
+        if (fanoutStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
         const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
         const whopEnabled = Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_ENABLED === "true";
@@ -271,6 +296,7 @@ ${dryRunBody}`,
       on: { post_x: "whop_forum" },
       action: (ctx) => {
         if (!ctx.slug || !ctx.title) return null;
+        if (fanoutStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         const urlLine = ctx.url ? `\nBlog URL: ${ctx.url}` : "";
         const excerptLine = ctx.blog_excerpt ? `\nExcerpt: ${ctx.blog_excerpt}` : "";
         return {
@@ -300,6 +326,7 @@ Steps:
       on: { post_whop_forum: "completed" },
       action: (ctx) => {
         if (!ctx.slug || !ctx.title) return null;
+        if (fanoutStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         if (Bun.env.WORKFLOWS_PUBLISH_FANOUT_WHOP_FORUM_ENABLED !== "true") {
           // Hop disabled → advance without posting (keeps the pipeline moving).
           return { type: "transition", nextState: "completed" };
@@ -1393,6 +1420,7 @@ export const ArchitectureReviewMachine: StateMachine<{
  *   needsReply     — whether a reply should be sent
  *   actionItems    — comma-separated list of action items identified during triage
  *   replyDraft     — draft reply text (populated before transitioning to reply_pending)
+ *   replyDraftedAt — ISO timestamp set alongside replyDraft (task #20577 staleness guard)
  */
 export const EmailThreadMachine: StateMachine<{
   sender?: string;
@@ -1402,6 +1430,7 @@ export const EmailThreadMachine: StateMachine<{
   needsReply?: boolean;
   actionItems?: string;
   replyDraft?: string;
+  replyDraftedAt?: string;
 }> = {
   name: "email-thread",
   initialState: "received",
@@ -1428,7 +1457,9 @@ Steps:
 4. Transition this workflow to 'triaged' with updated context:
    - needsReply: true/false
    - actionItems: comma-separated summary of tasks created
-   - replyDraft: draft reply text (if needsReply is true)`,
+   - replyDraft: draft reply text (if needsReply is true)
+   - replyDraftedAt: current ISO timestamp (if needsReply is true) — used to suppress a stale
+     send if this workflow sits dormant and is later re-activated`,
         };
       },
     },
@@ -1450,6 +1481,17 @@ Steps:
       on: { send: "completed" },
       action: (ctx) => {
         if (!ctx.sender || !ctx.replyDraft) return null;
+        // Staleness guard (task #20577, mirrors CeoReviewMachine's task #20575 fix): a
+        // re-activated dormant workflow (e.g. the completed_at un-stick repair) would otherwise
+        // recreate the "Send reply" task with a months-old draft and send it as if fresh. Suppress
+        // once the draft is older than the grace window — skip straight to completed instead.
+        // Missing/invalid timestamp fails open so legacy workflows without replyDraftedAt aren't
+        // blocked.
+        const REPLY_DRAFT_STALE_MS = 48 * 60 * 60 * 1000;
+        const draftedMs = ctx.replyDraftedAt ? Date.parse(ctx.replyDraftedAt) : NaN;
+        if (!Number.isNaN(draftedMs) && Date.now() - draftedMs > REPLY_DRAFT_STALE_MS) {
+          return { type: "transition", nextState: "completed" };
+        }
         return {
           type: "create-task",
           subject: `Send reply to ${ctx.sender}`,

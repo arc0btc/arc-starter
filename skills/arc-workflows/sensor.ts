@@ -493,6 +493,7 @@ function syncBlogPublishes(): number {
         url: `https://arc0.me/blog/${postId}/`,
         slug: postId,
         blog_excerpt: excerpt || undefined,
+        created_at: nowIso,
       }),
     });
     created++;
