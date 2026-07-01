@@ -544,3 +544,4 @@
 2026-07-01T00:04:16.211Z | task #20603 | completed | sonnet | daily introspection: 245 tasks, 234 completed, $179.69 spent | 24h: 96% success, $179.69 spent, 245 tasks. Fleet ran cleanly on autopilot — fai
 2026-07-01T00:05:24.653Z | task #20608 | completed | haiku | test | accidental test task created during audit investigation, no-op, closing immediat
 2026-07-01T00:05:29.404Z | task #20606 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | No new anomalies: 11 failures/24h are mostly transient retries, only 2 terminal 
+2026-07-01T00:06:22.702Z | task #20578 | completed | haiku | Retrospective: extract learnings from task #20575 — Add stal | Updated p-stale-workflow-fix-email-replay-side-effect pattern with staleness-gat
