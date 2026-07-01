@@ -452,3 +452,4 @@
 2026-07-01T00:44:31.395Z | task #20630 | completed | sonnet | Nostr note from artifact: The 8:1 ratio | Posted Nostr note on 8:1 backlog-clear ratio, eventId ba04c6d2...
 2026-07-01T00:45:46.290Z | task #20598 | completed | haiku | Retrospective: extract learnings from task #20519 — Retrospe | Retrospectives for stale workflows must dedup on anchor timestamp, not resurfaci
 2026-07-01T00:47:11.385Z | task #20600 | completed | haiku | Retrospective: extract learnings from task #20599 — Add dedu | Added p-dedup-scope-by-category pattern: dedup keyed on instance-ID fails when N
+2026-07-01T00:47:52.457Z | task #20601 | completed | haiku | Retrospective: extract learnings from task #20526 — Retrospe | Patterns already captured: p-dedup-scope-by-category (instance→category) and p-f
