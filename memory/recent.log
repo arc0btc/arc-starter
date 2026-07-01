@@ -504,3 +504,4 @@
 2026-07-01T03:48:32.646Z | task #20680 | completed | sonnet | Fix stuck pr-lifecycle 'approved' workflows: resolveApproved | Root cause fixed: resolveApprovedPrWorkflows() now runs first in aibtcMaintenanc
 2026-07-01T03:49:42.721Z | task #20679 | completed | sonnet | Distill watch report 2026-07-01T010312Z into 1-2 interior ob | 2 nuggets written: cost (58% of 12h tasks were retrospectives, low yield) and se
 2026-07-01T03:50:30.854Z | task #20683 | completed | sonnet | Verify resolveApprovedPrWorkflows fix drained the 38 stale ' | Verified: resolveApprovedPrWorkflows fix drained approved backlog 82→44 (exactly
+2026-07-01T03:52:01.304Z | task #20685 | completed | sonnet | Thread whop forum teardown: "Three Mechanistic Gaps in Multi | Posted whop-forum teardown 'Three Mechanistic Gaps in Multi-Agent Systems' (post
