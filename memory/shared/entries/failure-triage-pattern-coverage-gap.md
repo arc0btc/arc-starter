@@ -45,3 +45,17 @@ credentials needed", "creds are scoped to a different CF account") doesn't match
 the "monitoring" prediction above: unknown will keep recurring as dispatch produces new
 summary phrasings, and each recurrence needs the same widen-don't-itemize treatment, not a
 one-off patch.
+
+**2nd recurrence fix** (2026-07-01, task #20623, commit 2d5f0ee9): added a `superseded`
+SKIP signature (`/superseded by (task )?#?\d+/i`) and widened `blocked-on-human` with broad
+creds/dashboard-mismatch regexes. Verified via `arc skills run --name arc-failure-triage --
+scan --hours 24`: unknown dropped 7 → 1 (remaining was a genuinely distinct failure — "No
+model set on task"). **New finding**: `cli.ts`'s `scan` command carries its own duplicated
+copy of `ERROR_PATTERNS`, independent from `sensor.ts`'s copy — it had already drifted and
+was missing `cooldown-gate`, `agent-suspended`, `github-blocked`, `x-budget-exhausted`,
+`missing-hardware`, `external-not-ready`, `blocked-on-human`, and `outage-artifact` entirely.
+Only the two new patterns from this fix were backported to `cli.ts` (to make verification
+meaningful) — the CLI list is still stale relative to sensor.ts. If `scan` output looks wrong
+after future sensor.ts edits, check `cli.ts` first: the two files are not kept in sync
+automatically, and this drift is the actual root cause risk for the next unknown-bucket
+recurrence, not fresh phrasing.

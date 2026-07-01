@@ -561,3 +561,4 @@
 2026-07-01T00:29:34.123Z | task #20588 | completed | haiku | Retrospective: extract learnings from task #20486 — complian | Extended p-creation-timestamp-staleness-guard pattern with task-creation machine
 2026-07-01T00:30:31.122Z | task #20590 | completed | haiku | Retrospective: extract learnings from task #20474 — Retrospe | No learnings to capture — p-creation-timestamp-staleness-guard already covers do
 2026-07-01T00:32:39.123Z | task #20622 | completed | sonnet | Daily failure retrospective: 10 failed task(s) | 8/10 failures were already-documented patterns (dup retro flood, CF creds mismat
+2026-07-01T00:33:58.337Z | task #20623 | completed | sonnet | Widen arc-failure-triage ERROR_PATTERNS: add 'superseded' sk | Added 'superseded' skip-signature + widened blocked-on-human for CF-creds-scope 
