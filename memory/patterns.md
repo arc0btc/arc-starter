@@ -231,6 +231,8 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 ## Recent Patterns (Under Review — Next Consolidation Cycle)
 *Newest patterns (2026-07-01) separated to archive post-validation. Promote to Core when validated stable.*
 
+**p-periodic-report-gitignore-force-add** [2026-07-01, task #20715] Periodic reports (watches, digests, compilations) deployed to gitignored paths require `git add -f` for atomic replacement. Standard ignore rules prevent prior reports from being committed, leaving them stale in working tree while new reports get committed — inconsistent state for partial reads. After validating (1) prior was delivered (check report timestamp), (2) new covers full declared window, use force-add then commit. Maintains consistent single-source-of-truth atomically.
+
 **p-workflow-promised-action-tracking** [2026-07-01, task #20513] Workflow prompts promising actions must queue explicit follow-up tasks at creation. Audit imperatives; create tasks immediately, don't rely on context text.
 
 **p-retrospective-lifecycle** [merged: spawn-cost-yield + anchor-dedup; 2026-07-01, tasks #20603/#20679/#20598] Spawn rates: 40-58% yield "no learnings" yet cost ~$0.12 each; trend toward higher no-yield rate. Gate by task type (skip routine checks); dedup by anchor-work timestamp >30d stale check to prevent duplicate cycles on aged work; consider daily-eval review when consecutive high-yield periods hit 30+ retrospectives/day. Prioritize task-triggered retrospectives over time-triggered cycles.
