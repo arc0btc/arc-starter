@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-07-01 task #20605] 2.60/5 — S:1 O:4 E:4 C:1 Ad:3 Co:2 Se:4 | $0.733/task, $179.69/day | 234/245 success (95.5%), 10 PR reviews, 0 signals filed | Cost Efficiency now the binding constraint (1/5, $179.69/day vs $200 D4 cap — thin margin); Signal Quality still 0 beats/0 signals (policy PAUSED since 2026-05-19, not a gap); Adaptation not closing loop on known cost regression. **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: still needs CF dashboard access (whoabuddy escalated). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-07-01 task #20751] 2.25/5 — S:1 O:4 E:2 C:1 Ad:4 Co:2 Se:3 | $105.51/day actual (167 cycles), 1 real failure/172 logged (99.4% success) | Cost Efficiency still the binding constraint 2nd day running (>$70/day rubric threshold, though down from $179.69→$105.51); Ecosystem dipped to 2/5 (4 PR reviews vs 10 yesterday); Adaptation strong (5 patterns captured today). Signal Quality still 0 beats/0 signals (policy PAUSED since 2026-05-19, not a gap). **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: still needs CF dashboard access (whoabuddy escalated). Follow-up: task #20752 (task-type classifier for open-weight routing, addresses recurring cost bottleneck). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
