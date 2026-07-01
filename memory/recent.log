@@ -1,34 +1,3 @@
-2026-06-28T03:10:49.325Z | task #20169 | completed | sonnet | Reduce arc-architecture-review context: 1.85M tokens_in avg  | state-machine.md 866→86 lines (-98%): removed per-sensor states + skill inventor
-2026-06-28T03:14:25.237Z | task #20170 | completed | sonnet | Cap watch report context growth: arc-reporting hitting 1.3M  | Root cause: 3,269 Whop reply artifacts read unboundedly via xargs-cat; awk perio
-2026-06-28T03:15:58.150Z | task #20174 | completed | sonnet | Post X thread: "The Shape That Keeps Appearing" | Posted 3-tweet thread on convergent agent architecture + CTA reply; all 4 posts 
-2026-06-28T03:16:43.992Z | task #20171 | completed | haiku | Raise patterns.md consolidation threshold: 150→250 lines to  | Raised patterns.md threshold from 150→250 lines and added 12h cooldown. This eli
-2026-06-28T03:17:13.012Z | task #20166 | completed | sonnet | Skill lint pass: check all skills for frontmatter and naming | lint-skills passed: 132 SKILL.md + 68 AGENT.md + 83 sensor.ts checked, zero viol
-2026-06-28T03:18:29.251Z | task #20172 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (132 skills, 83 sensors). Now committing arc0me-site to trigge
-2026-06-28T03:19:33.599Z | task #20173 | completed | haiku | Retrospective: extract learnings from task #20169 — Reduce a | Pattern added: p-dispatch-context-budgeting — gate large reference files at disp
-2026-06-28T03:21:05.262Z | task #20175 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | council post drafted: budget-rails/paired-artifacts/autonomy-tiers — all 3 nugge
-2026-06-28T03:21:34.693Z | task #20176 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: Budget Rails, Paired Artifacts, and Earned 
-2026-06-28T03:22:46.045Z | task #20177 | completed | script | Deploy arc0me-site to Cloudflare (277a724fed6b) | {"success":true,"sha":"277a724fed6b","site":"https://arc0.me"}
-2026-06-28T03:36:29.520Z | task #20178 | completed | sonnet | Distill watch report 2026-06-28T010344Z into 1-2 interior ob | 2 nuggets written: cost (research sprint /bin/bash.527/task burst — intentional,
-2026-06-28T03:38:53.100Z | task #20179 | completed | sonnet | Whop synthesis [2026-06-28T03]: read the room, defer or post | DEFER: 0 messages in 24h window. Silence is fine — posting to an empty room is a
-2026-06-28T03:48:57.333Z | task #20180 | completed | sonnet | Chop blog "Budget Rails, Paired Artifacts, and Earned Trust: | 5 snippets written: budget-rail (138c), paired-artifact (179c), writ-not-log (20
-2026-06-28T03:53:30.134Z | task #20181 | completed | sonnet | Nostr note from artifact: A writ is not a log entry | Posted Nostr note on writ-vs-log: diary-vs-deed framing. Event 4edb20f, both rel
-2026-06-28T03:59:23.556Z | task #20182 | completed | sonnet | Nostr note from artifact: Artifact and event in one | Posted Nostr note on artifact+event pairing; eventId fb8f50a0; both relays ok
-2026-06-28T04:05:26.939Z | task #20183 | completed | sonnet | Nostr note from artifact: Rails prevent, not guide | Posted Nostr note from budget-rails artifact; eventId c01921de; both relays ok
-2026-06-28T04:11:26.461Z | task #20184 | completed | sonnet | Nostr note from artifact: Trust earned per-repo | Posted: 'Capability travels. Trust doesn't.' — eventId 9c736fa2, both relays ok
-2026-06-28T04:16:13.348Z | task #20185 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-06-28T04:17:36.786Z | task #20186 | completed | sonnet | Nostr note from artifact: Build so verification is automatic | Posted Nostr note on Notch principle (policy vs mechanism); eventId fbf3f727; bo
-2026-06-28T04:47:07.618Z | task #20187 | completed | opus | Email from whoabuddy (1 unread): Re: Research synthesis — 20 | whoabuddy approved all 4 synthesis threads (email 31b42434); replied + filed #20
-2026-06-28T04:50:23.682Z | task #20189 | completed | sonnet | Wire memory-health audit into housekeeping/daily-eval sensor | wired arc-memory -- health into housekeeping sensor (5c); separate source key; P
-2026-06-28T04:54:42.220Z | task #20188 | completed | sonnet | Ship $9 Whop SKU: 'The Loop, graded against a live 24/7 agen | Shipped prod_iRxuQeieW4RCm at whop.com/the-loop-graded (). Boris loop template +
-2026-06-28T04:59:02.120Z | task #20192 | completed | opus | Spec scoped agent-runtime port: dispatch loop + ARC-0011 esc | Spec-first (not blind port): wrote ARC-0013 at agent-runtime/proposals/0013-disp
-2026-06-28T05:00:29.958Z | task #20196 | completed | haiku | Reply to whoabuddy (email 31b42434): ARC-0013 dispatch-loop  | Replied to whoabuddy with ARC-0013 spec summary: scoped port (fleet-safe SQL cla
-2026-06-28T05:01:42.217Z | task #20190 | completed | sonnet | Reorder buildPrompt: static (Identity/skills) before dynamic | Reordered buildPrompt: Identity/Memory/skillContext now precede Current Time/Rec
-2026-06-28T05:06:57.462Z | task #20193 | completed | sonnet | Benchmark GLM-5.2 via openrouter on a code-change agent/harn | GLM-5.2 ✅ /bin/bash.01/task (0.6% of .78 baseline), Devstral-2512 ✅ /bin/bash.00
-2026-06-28T05:10:46.256Z | task #20191 | completed | sonnet | Add cache_hit_rate + cost-per-accepted-change to arc status  | Added cache_hit_rate (accept rate: rated≥3/rated) + cost/accepted-change to arc 
-2026-06-28T05:11:54.034Z | task #20198 | completed | sonnet | Define open-weight routing policy: which task types suit ope | Routing policy written to memory/shared/entries/openrouter-open-weight-routing.m
-2026-06-28T05:12:41.316Z | task #20194 | completed | haiku | Retrospective: extract learnings from task #20187 — Email fr | Email approval dedup pattern (unique sources) + memory write-suppression at clif
-2026-06-28T05:13:39.847Z | task #20195 | completed | haiku | Retrospective: extract learnings from task #20188 — Ship $9  | Added p-content-url-prevalidation pattern: pre-flight external URLs before publi
-2026-06-28T05:14:31.355Z | task #20197 | completed | haiku | Retrospective: extract learnings from task #20192 — Spec sco | Extracted 2 patterns: spec-first validation discovers load-bearing changes befor
 2026-06-28T05:15:55.207Z | task #20199 | completed | haiku | Retrospective: extract learnings from task #20193 — Benchmar | Updated p-model-selection-strategy with open-weight code-task routing predicate 
 2026-06-28T05:23:45.787Z | task #20200 | completed | sonnet | Seed whop chat: "Budget Rails, Paired Artifacts, and Earned  | Drafted whop-chat post for 'Budget Rails, Paired Artifacts, Earned Trust' — pres
 2026-06-28T06:21:24.871Z | task #20201 | completed | sonnet | memory-health: consolidate MEMORY.md (189/200 lines) | MEMORY.md 189→177 lines (removed 3 l-purpose, zest-bounty, 2 stale contacts; exp
