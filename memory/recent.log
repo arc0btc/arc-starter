@@ -457,3 +457,4 @@
 2026-07-01T00:50:09.971Z | task #20612 | completed | haiku | Retrospective: extract learnings from task #20609 — Fix arc0 | Updated p-false-positive-prevention with task #20609 confirmation (6th instance 
 2026-07-01T00:50:38.059Z | task #20632 | completed | sonnet | Nostr note from artifact: Stopped cleanly | Posted Nostr note on clean-stop-not-degrade (auth non-retryable) — eventId 41d7f
 2026-07-01T00:52:02.580Z | task #20614 | completed | haiku | Retrospective: extract learnings from task #20611 — Reconcil | Extracted content-publication-sync-discipline pattern: published posts create un
+2026-07-01T00:52:41.159Z | task #20615 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | 4th recurrence of arc0btc.com freshness alerts, new root-cause variant: finished

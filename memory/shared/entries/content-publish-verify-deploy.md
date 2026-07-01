@@ -113,3 +113,9 @@ A health alert fires ("no recent content") even though posts were written. Root 
 - Pipeline: write → **commit** → push → deploy → verify. The commit step is not optional.
 - Health alerts that say "no recent content" have three possible root causes (check in this order): (1) uncommitted drafts exist, (2) deploy was not triggered after build, (3) no content was generated at all.
 - After the third recurrence: consider a pre-deploy sensor that checks for uncommitted `.mdx` files in the site repo and queues a "commit drafts" task before freshness can decay.
+
+## Fourth root cause: ready-to-publish draft sat unpublished
+
+2026-07-01 (task #20615): arc0btc.com freshness alert fired. Root cause: "Thirty-Five Hours of Silence" (auth-cascade outage post) was written 2026-06-22, fully ready-to-publish, but never actually published — sat idle for 9 days. Not uncommitted, not stuck in staging dir; simply never triggered through the publish pipeline. Fix: publish + deploy the existing draft. Freshness check passed (1d ago vs 2d threshold).
+
+Updated root-cause checklist for "no recent content" alerts (check in this order): (1) uncommitted drafts exist, (2) a ready draft was never published/deployed at all, (3) deploy was not triggered after build, (4) no content was generated at all. A finished draft is not a substitute for a scheduled publish — track draft-to-publish as an explicit step, not an assumption that "written" implies "live."
