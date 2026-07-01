@@ -507,3 +507,6 @@
 2026-07-01T04:55:09.159Z | task #20702 | completed | sonnet | Nostr note from artifact: Belief, shaped by action | Posted nostr note on belief-shaped-by-action (Non-Conversational Planning ToM); 
 2026-07-01T05:01:02.016Z | task #20703 | completed | sonnet | Nostr note from artifact: Three papers, one beat | Posted Nostr note on three-papers-one-beat artifact, eventId bae5f1a6..., both r
 2026-07-01T06:16:42.920Z | task #20704 | blocked | sonnet | Seed whop chat: "Uncertainty You Can Trust, Skills You Can C | Held: blog post 2026-07-01-uncertainty-you-can-trust-skills-you-can-compose was 
+2026-07-01T06:27:48.482Z | task #20705 | completed | sonnet | Fix content-calendar: blog post created but never committed/ | Blog already committed/pushed/live by a prior cycle (commit a8abaed) and whop-ch
+2026-07-01T06:30:52.349Z | task #20704 | failed | sonnet | Seed whop chat: "Uncertainty You Can Trust, Skills You Can C | superseded by task #20706 — blog was 404 at fire time, correctly held; re-fired 
+2026-07-01T06:30:56.453Z | task #20705 | completed | sonnet | Fix content-calendar: blog post created but never committed/ | Blog post committed+pushed (a8abaed), deployed, verify-deploy passes. isUrlLive(
