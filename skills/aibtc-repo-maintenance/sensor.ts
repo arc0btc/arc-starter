@@ -139,7 +139,10 @@ function resolveApprovedPrWorkflows(): number {
       ["gh", "pr", "view", numberStr, "--repo", `${owner}/${repo}`, "--json", "state,mergedAt"],
       { timeout: 15_000 },
     );
-    if (result.exitCode !== 0) continue;
+    if (result.exitCode !== 0) {
+      log(`resolveApprovedPrWorkflows: gh pr view failed for ${prRef}: ${result.stderr.toString().trim().slice(0, 200)}`);
+      continue;
+    }
 
     let state: string;
     let mergedAt: string | null;
@@ -147,7 +150,8 @@ function resolveApprovedPrWorkflows(): number {
       const parsed = JSON.parse(result.stdout.toString().trim()) as { state: string; mergedAt: string | null };
       state = parsed.state;
       mergedAt = parsed.mergedAt;
-    } catch {
+    } catch (err) {
+      log(`resolveApprovedPrWorkflows: failed to parse gh output for ${prRef}: ${err}`);
       continue;
     }
 
@@ -214,25 +218,35 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  // Track open issues as workflow instances (issue-opened state)
-  // PR review task creation is handled by PrLifecycleMachine in arc-workflows
-  const issues = getRecentIssues();
-  const issuesCreated = trackIssueWorkflows(issues);
-
-  if (issuesCreated > 0) {
-    log(`tracked ${issuesCreated} new issue(s)`);
+  // Runs first and in its own try/catch so a failure in issue tracking below
+  // (e.g. one bad repo in WATCHED_REPOS) can never prevent stale 'approved'
+  // pr-lifecycle workflows from draining. See task #20680.
+  try {
+    const prResolved = resolveApprovedPrWorkflows();
+    if (prResolved > 0) {
+      log(`resolved ${prResolved} approved PR workflow(s)`);
+    }
+  } catch (err) {
+    log(`resolveApprovedPrWorkflows threw: ${err}`);
   }
 
-  // Close workflows for issues that have since been closed on GitHub
-  const issuesClosed = closeStaleIssueWorkflows();
-  if (issuesClosed > 0) {
-    log(`closed ${issuesClosed} stale issue-opened workflow(s)`);
-  }
+  try {
+    // Track open issues as workflow instances (issue-opened state)
+    // PR review task creation is handled by PrLifecycleMachine in arc-workflows
+    const issues = getRecentIssues();
+    const issuesCreated = trackIssueWorkflows(issues);
 
-  // Auto-transition approved PR workflows when PR is merged/closed on GitHub
-  const prResolved = resolveApprovedPrWorkflows();
-  if (prResolved > 0) {
-    log(`resolved ${prResolved} approved PR workflow(s)`);
+    if (issuesCreated > 0) {
+      log(`tracked ${issuesCreated} new issue(s)`);
+    }
+
+    // Close workflows for issues that have since been closed on GitHub
+    const issuesClosed = closeStaleIssueWorkflows();
+    if (issuesClosed > 0) {
+      log(`closed ${issuesClosed} stale issue-opened workflow(s)`);
+    }
+  } catch (err) {
+    log(`issue tracking step threw: ${err}`);
   }
 
   return "ok";
