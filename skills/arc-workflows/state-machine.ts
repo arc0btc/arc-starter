@@ -3121,7 +3121,35 @@ Steps:
     },
     auditing: {
       on: { resolve: "resolved" },
-      action: () => null,
+      // Polls auditTaskIds directly against the tasks table (no executing task needed —
+      // getTaskById is a synchronous bun:sqlite read, safe to call from an action).
+      // Without this, the state was action: () => null and nothing ever fired 'resolve'
+      // once the dispatched audit tasks finished — same bug shape as
+      // SelfReviewCycleMachine.dispatched (task #20644, commit c20a14d8). See task #20650.
+      action: (ctx) => {
+        let ids: number[] = [];
+        try {
+          ids = ctx.auditTaskIds ? (JSON.parse(ctx.auditTaskIds) as number[]) : [];
+        } catch {
+          ids = [];
+        }
+        if (ids.length === 0) {
+          // No audit tasks were ever recorded — nothing to wait on; resolve honestly.
+          return { type: "transition", nextState: "resolved" };
+        }
+        const TERMINAL = new Set(["completed", "failed", "blocked"]);
+        const tasks = ids.map((id) => getTaskById(id));
+        const allTerminal = tasks.every((t) => t !== null && TERMINAL.has(t.status));
+        if (!allTerminal) return null;
+        const summary = tasks
+          .map((t) => `#${t!.id} ${t!.status}: ${t!.result_summary || t!.subject}`)
+          .join("; ");
+        return {
+          type: "transition",
+          nextState: "resolved",
+          contextUpdate: { findingsSummary: summary },
+        };
+      },
     },
     clean: {
       on: {},
