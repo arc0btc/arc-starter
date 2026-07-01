@@ -285,6 +285,8 @@ arc tasks close --id <id> --status completed --summary "<summary>"
 
 Example: `arc tasks add --subject "..." --priority 3 --model opus --skills s1,s2`
 
+**For bounded, single-file code-change follow-ups** (e.g. "add function X to file.ts", "update config table in file.ts"), use `--model auto` instead of hardcoding `sonnet`. This runs the deterministic classifier in `src/classifier.ts` (see [[openrouter-open-weight-routing]]) and routes eligible tasks to `openrouter:devstral`/`openrouter:glm` (~$0.003–0.01/task vs ~$0.30+ for sonnet). It prints its decision — verify the reasoning looks right before trusting it, and fall back to explicit `--model sonnet` for anything requiring judgment, multi-file awareness, or test execution. Do not use `--model auto` from sensors (sensors already avoid judgment calls; the classifier is for dispatch-created follow-ups).
+
 **Task supersession:** When a higher-priority task makes lower-priority pending tasks redundant (same subject/scope), the superseding task must explicitly close them before completing its own work:
 ```
 arc tasks close --id <N> --status failed --summary "superseded by task #<this_id>"
