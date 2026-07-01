@@ -521,6 +521,25 @@ const CONTENT_CALENDAR_OFFSETS_MS = {
 } as const;
 
 /**
+ * Synchronous liveness check for a published blog URL (curl HEAD, 5s timeout). Actions in this
+ * state machine are sync-only (see evaluateWorkflow), so this shells out rather than using
+ * fetch() — same pattern as checkPrExists() in sensor.ts. Gate for blog_published's downstream
+ * fanout: build success ≠ deploy success (MEMORY [P] content-publish-verify-deploy) — a commit
+ * that never got pushed/deployed must not let whop-chat/x-thread/etc. fire against a 404
+ * (task #20705, 2026-07-01: whop-chat seed correctly held on a dead link, but the workflow had
+ * already optimistically auto-advanced past blog_published before the deploy was verified).
+ */
+function isUrlLive(url: string | undefined): boolean {
+  if (!url) return false;
+  const result = Bun.spawnSync(
+    ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "--max-time", "5", url],
+    { timeout: 8_000 },
+  );
+  if (result.exitCode !== 0) return false;
+  return result.stdout.toString().trim() === "200";
+}
+
+/**
  * True when enough wall-clock has elapsed since the cadence anchor (T+0 = blog publish) for a
  * hop to fire. Missing/invalid anchor → open (fail-open: a manually created instance with no
  * anchor still progresses, just without spacing). Runs in the sensor process, so Date.now() is
@@ -596,6 +615,13 @@ Steps:
       action: (ctx) => {
         if (!ctx.slug) return null;
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.whop_chat)) {
+          return { type: "noop" };
+        }
+        // Deploy gate (task #20705): blog_published only means the workflow *thinks* the post is
+        // live — a commit that never got pushed, or a push that hasn't deployed yet, must not let
+        // this hop (or any hop after it) fire against a 404. Hold in blog_published and re-check
+        // next sensor tick; no state is consumed, so this is safe to retry indefinitely.
+        if (!isUrlLive(ctx.url)) {
           return { type: "noop" };
         }
         return {
