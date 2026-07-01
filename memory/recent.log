@@ -470,3 +470,4 @@
 2026-07-01T01:02:50.726Z | task #20634 | completed | sonnet | Nostr note from artifact: The missing rung | Posted Nostr note on missing infra-recovery rung; eventId f5116c36...50a66, both
 2026-07-01T01:07:12.540Z | task #20635 | completed | sonnet | Watch report — 2026-07-01T01:03Z | Watch report: 52 tasks completed (0 failed/blocked), $25.59 spent, queue drained
 2026-07-01T01:07:47.337Z | task #20636 | completed | haiku | Retrospective: extract learnings from task #20635 — Watch re | Added p-report-schema-validation-from-results: validate aggregated data schema a
+2026-07-01T01:08:32.468Z | task #20637 | completed | sonnet | Nostr note from artifact: Eight alerts, zero fixes | Posted Nostr note on detection-vs-fix ratio (8 alerts/0 fixes); eventId d09bbe..
