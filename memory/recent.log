@@ -491,3 +491,4 @@
 2026-07-01T03:14:19.313Z | task #20659 | completed | sonnet | Audit remaining StateMachine templates in state-machine.ts f | Full audit of all ~80 action:()=>null states across 35 state-machine.ts template
 2026-07-01T03:16:41.598Z | task #20659 | completed | sonnet | Audit remaining StateMachine templates in state-machine.ts f | Audited all 81 action:()=>null states across 34 machines in state-machine.ts. Ze
 2026-07-01T03:26:15.841Z | task #20659 | completed | sonnet | Audit remaining StateMachine templates in state-machine.ts f | Audited all ~79 action:()=>null states across 36 templates in state-machine.ts; 
+2026-07-01T03:28:40.379Z | task #20669 | completed | sonnet | Fix NewReleaseMachine orphaned state names: 20 live workflow | Migrated 20 new-release workflow rows off pre-rename state names (assess/integra
