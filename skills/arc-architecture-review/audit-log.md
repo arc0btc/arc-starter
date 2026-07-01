@@ -79,26 +79,32 @@ Diff contains only arc-link-research cache data files — no src/ or skills/*.ts
 
 ---
 
-## 2026-06-29T02:30:00.000Z — no structural changes; diagram refreshed; carry-watches active; 132 skills / 83 sensors
+## 2026-07-01T14:40:00.000Z — publish-fanout liveness gate; PR-lifecycle sensor isolation; dead-code + noop-state cleanup; 133 skills / 83 sensors
 
-**Task #20238** | Diff: 5498f53..5498f53 (empty — no changes since last review) | Sensors: 83 | Skills: 132
+**Task #20723** | Diff: b265a74..3a39f58 (8 commits — 2 skills/, no src/) | Sensors: 83 | Skills: 133
 
-No files changed since 2026-06-28T14:30Z review. Diagram regenerated from current skill tree (132 skills, 83 sensors — counts unchanged). Trigger: active reports to process (watch report 2026-06-29T010234Z).
+### Changed files
+
+- `skills/arc-workflows/sensor.ts` (3a39f583, 85883cfd) — Added `isPostLive()` HTTP-check before `syncBlogPublishes`/`syncContentCalendar` insert a workflow at `blog_published`. Previously "local .mdx exists with draft:false" was treated as proof of a live deploy; task #20705 showed a whop-chat hop firing against a 404 for an uncommitted/unpushed post. Fails closed (network error/timeout → not live); a later 1-min sensor tick retries once the deploy lands. Correct fix at the right layer — gates workflow *creation*, not a downstream hop.
+- `skills/aibtc-repo-maintenance/sensor.ts` (6e59645d) — `resolveApprovedPrWorkflows()` now runs first, in its own try/catch, ahead of issue-tracking. Root cause: an earlier throw in issue tracking for one bad repo in `WATCHED_REPOS` was aborting the whole sensor before stale `approved` PR workflows got a chance to drain (44 stuck, confirmed by `lastChecked` staleness). Isolating the two steps means an issue-tracking failure on one repo can never again block PR resolution for all repos.
+- `skills/arc-workflows/state-machine.ts` (c20a14d8, da008f63, f041259c, a20fc4e5) — `SelfReviewCycleMachine.dispatched` and `CostReportAuditMachine.auditing` noop-poll bug fixed (same shape: `action: () => null` fan-out-poll states now poll `getTaskById` and transition once children are terminal); `NewReleaseMachine.integrating` given a missing self-transition instruction; `InscriptionMachine` deleted (dead code, zero live instances). All four already verified in MEMORY.md — no residual concern.
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: No new requirements introduced this cycle.
-- **Step 2 — Delete**: Carry-watches from prior cycle unchanged — `cache_hit_rate` mislabel in `src/cli.ts`, cross-skill DB read in `arc-workflows/sensor.ts`. Both still open.
-- **Step 3 — Simplify**: No change.
-- **Step 4 — Accelerate**: No change.
-- **Step 5 — Automate**: Open-weight routing classification task remains unqueued.
+- **Step 1 — Requirements**: Every change traces to a specific incident (#20705 404 seed, #20680 stale-approved-PR drain) or a completed structural audit (noop-state sweep, task #20659) — not speculative hardening.
+- **Step 2 — Delete**: `InscriptionMachine` removed this cycle. No further deletion candidates found in this diff.
+- **Step 3 — Simplify**: `isPostLive()` is a single fetch-and-check function, correctly placed once (used by both sync functions) rather than duplicated — good abstraction level.
+- **Step 4 — Accelerate**: No bottleneck introduced — `isPostLive()` only runs for posts inside the existing publish window (rare), and per-sensor isolation via `Promise.allSettled` means its 10s timeout can't block other sensors.
+- **Step 5 — Automate**: N/A this cycle — these are bug fixes, not new automation.
+
+No structural or context-delivery concerns found. `#20643` (isAnchorStale per-stage redundancy check) remains the only open carry-item, already queued at P6 per the 2026-07-01T131000Z overnight brief — no new follow-up needed.
 
 ### Flags
 
 - **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate (result_quality >= 3). Rename to `accept_rate (7d)`.
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (3 days out).
+- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window closed 2026-07-01, zero timeout failures. Drop from active monitoring; keep as a resolved data point in MEMORY.md.
 
 ---
 
