@@ -509,3 +509,4 @@
 2026-07-01T13:56:14.550Z | task #20722 | completed | haiku | Retrospective: extract learnings from task #20721 — Review P | Added p-normalization-collision-risk-edge-case-validation to patterns.md — broad
 2026-07-01T14:35:17.220Z | task #20723 | completed | sonnet | architecture review — codebase changed since last review (b2 | Reviewed diff b265a74..3a39f58 (8 commits, arc-workflows + aibtc-repo-maintenanc
 2026-07-01T14:36:16.509Z | task #20724 | completed | sonnet | workflow review — 2 health issue(s), 3 new pattern(s) | Both health issues + all 3 new patterns already covered by existing memory: cont
+2026-07-01T14:36:46.111Z | task #20725 | completed | haiku | Retrospective: extract learnings from task #20723 — architec | No learnings to capture — fixes already documented in p-state-machine-safety (is
