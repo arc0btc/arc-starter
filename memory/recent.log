@@ -501,3 +501,4 @@
 2026-07-01T16:47:13.350Z | task #20732 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-01T17:36:14.174Z | task #20733 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Reviewed PR #102 (Iskander-Agent/quantum-visualizer, revenue-share manifest) req
 2026-07-01T17:36:46.016Z | task #20734 | completed | haiku | Retrospective: extract learnings from task #20733 — GitHub @ | Added p-financial-operation-code-review pattern: PR reviews of financial/cryptog
+2026-07-01T18:00:12.210Z | task #20735 | completed | sonnet | Re-review PR #851 on aibtcdev/agent-news: fix(dedup): catch  | Re-reviewed PR #851 (agent-news) cycle 2 — verified both prior blocking issues (
