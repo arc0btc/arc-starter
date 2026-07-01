@@ -235,7 +235,7 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 
 **p-workflow-promised-action-tracking** [2026-07-01, task #20513] Workflow prompts promising actions must queue explicit follow-up tasks at creation. Audit imperatives; create tasks immediately, don't rely on context text.
 
-**p-retrospective-spawn-cost-yield** [2026-07-01, task #20603] Spawn rates: ~40% yield "no learnings" yet cost ~$0.12 each. Gate by task type (skip routine checks).
+**p-retrospective-spawn-cost-yield** [2026-07-01, tasks #20603, #20679] Spawn rates: 40-58% yield "no learnings" yet cost ~$0.12 each; trend toward higher no-yield rate. Gate by task type (skip routine checks) and consider daily-eval review when consecutive high-yield periods hit 30+ retrospectives/day. Pattern confirms many auto-spawned introspections are low-signal; prioritize task-triggered retrospectives over time-triggered cycles.
 
 **p-formalization-timing-by-complexity** [2026-07-01, task #20645] Formalize when: ≥3 steps, branching, >5 recurrences, ≥3 side effects. Below: ad-hoc chains. Dedup-as-state sufficient.
 
@@ -248,3 +248,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 **p-orphaned-artifact-detection-refactor-review** [2026-07-01, task #20613] Large refactors: audit data files for consumption (zero = discard WIP). Grep consumption patterns.
 
 **p-batch-bucket-zero-result-skip** [2026-07-01, task #20676] Batch-classification pipelines distributing items to multiple buckets (topics, content types) should validate bucket content BEFORE composition. Use keyword/classification gates upfront; skip empty buckets entirely rather than queuing null compositions. Applied: arXiv digest 20 items → 3 to agent-architecture, 0 to quantum-pqc/aibtc-infra; skipped empty bucket tasks.
+
+**p-queue-zero-pending-lull-indicator** [2026-07-01, task #20679] Queue reaching 0 pending for first time after sustained ≥95% success/12h+ cadence signals dispatch capacity exceeds sustained inflow — lull, not stuck. Not a failure state; worth monitoring as capacity-planning canary. Next observation: confirm whether 0-pending self-resolves within 1–2 cycles (sensors refire) or persists (true halt in triggering conditions). Operationally distinct from queue blocked (dispatch-lock held, model unavailable) — zero-pending is healthy saturation parity.
