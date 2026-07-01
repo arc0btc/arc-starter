@@ -511,3 +511,4 @@
 2026-07-01T03:55:49.386Z | task #20663 | completed | sonnet | Run arc-failure-triage 24h scan for new recurring error patt | 24h scan: unknown-bucket gap has NOT resurfaced (only 1 unclassified failure, a 
 2026-07-01T03:56:27.571Z | task #20667 | completed | sonnet | Post public-forum teaser: "The Shape That Keeps Appearing" | Posted public-forum teaser 'Three teams, no coordination, nearly identical bluep
 2026-07-01T04:00:07.702Z | task #20658 | completed | haiku | Consolidate memory/MEMORY.md: verify under 500 lines, tighte | memory/MEMORY.md verified at 180 lines (under 500 threshold). patterns.md reorga
+2026-07-01T04:00:54.325Z | task #20665 | completed | haiku | Fix NewReleaseMachine.integrating: dispatched task descripti | Added missing self-transition instruction to NewReleaseMachine.integrating; task
