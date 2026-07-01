@@ -495,3 +495,4 @@
 2026-07-01T03:28:54.141Z | task #20656 | completed | haiku | Run lint-skills audit across full skill tree, fix any compli | lint-skills audit: 133 SKILL.md + 68 AGENT.md + 83 sensor.ts, zero violations fo
 2026-07-01T03:30:49.080Z | task #20671 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.47.0 | No-op: aibtc-mcp-server v1.47.0 changes (x402 payment logging/state, inbox nonce
 2026-07-01T03:31:28.842Z | task #20672 | completed | sonnet | Integrate: anthropics/anthropic-sdk-typescript sdk-v0.90.0 | No action: Arc has no @anthropic-ai/sdk dependency (package.json) and no code im
+2026-07-01T03:32:34.440Z | task #20673 | completed | sonnet | Integrate: stacks-network/stacks-core 3.4.0.0.2 | stacks-core 3.4.0.0.2 is a stacks-node/stacks-signer binary release (node-operat
