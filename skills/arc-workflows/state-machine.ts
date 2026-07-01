@@ -1370,7 +1370,13 @@ export const NewReleaseMachine: StateMachine<{
           priority: 4,
           model: "sonnet",
           skills: skillList,
-          description: ctx.integrationDescription || `Apply relevant changes from ${ctx.repo} ${ctx.version} to Arc.`,
+          description: ctx.integrationDescription || `Apply relevant changes from ${ctx.repo} ${ctx.version} to Arc.
+
+Steps:
+1. Implement the required changes
+2. Test the integration thoroughly
+3. Commit changes with conventional commit format
+4. Transition this workflow to 'completed'`,
           autoAdvanceState: "integrating",
         };
       },
