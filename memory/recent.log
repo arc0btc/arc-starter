@@ -478,3 +478,4 @@
 2026-07-01T02:44:43.740Z | task #20644 | completed | sonnet | Fix self-review-cycle 'dispatched' state stuck (no auto-reso | Fixed SelfReviewCycleMachine.dispatched (skills/arc-workflows/state-machine.ts):
 2026-07-01T02:46:25.704Z | task #20649 | completed | haiku | Fetch and compile arXiv digest — 2026-07-01 (30 new papers) | Fetched 50 arXiv papers, 20 relevant. Digest compiled and written to research/ar
 2026-07-01T02:49:02.614Z | task #20645 | completed | sonnet | Evaluate formal state machine for retrospective task chains | Evaluated generic RetrospectiveMachine, rejected: ad-hoc task-level retrospectiv
+2026-07-01T02:51:04.224Z | task #20650 | completed | sonnet | Audit CostReportAuditMachine.auditing for same dispatched-st | CostReportAuditMachine.auditing had identical action:()=>null bug as SelfReviewC
