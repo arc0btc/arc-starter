@@ -501,3 +501,4 @@
 2026-07-01T14:46:26.609Z | task #20726 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-01T14:51:50.140Z | task #20727 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed #20638 and #20706: both still correctly blocked on missing whoabuddy Ph
 2026-07-01T15:01:32.156Z | task #20728 | completed | sonnet | Thread whop forum teardown: "Council Moves: How a Grammar Re | Posted whop-forum teardown (post_1CcbYCnKPC2GjxJf83ZjaE) for council-moves-gramm
+2026-07-01T15:23:10.522Z | task #20729 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (133 skills, 83 sensors) — no diff vs committed version, so 
