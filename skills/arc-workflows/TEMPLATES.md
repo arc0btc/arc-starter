@@ -97,41 +97,6 @@ Give on-chain feedback to agents via ERC-8004. Guides mentorship interactions th
 
 **Requires:** `erc8004-reputation` skill (for give-feedback operations)
 
-## Inscription (`inscription`)
-
-Manage Bitcoin inscription lifecycle through two-phase commit/reveal process.
-
-**States:**
-- `pending` — Initial state, inscription data prepared
-- `commit_preparing` — Preparing commit transaction (fee estimation, UTXO selection)
-- `commit_broadcasted` — Commit transaction broadcast, awaiting confirmation
-- `reveal_pending` — Commit confirmed, ready for reveal
-- `reveal_preparing` — Preparing reveal transaction
-- `reveal_broadcasted` — Reveal transaction broadcast, awaiting confirmation
-- `confirmed` — Reveal confirmed, inscription complete
-- `completed` — Workflow finished (terminal)
-
-**Context schema:**
-```typescript
-{
-  dataHash: string;          // Required: SHA-256 hash of inscription data
-  dataSize?: number;         // Optional: Size in bytes
-  walletAddress: string;     // Required: Wallet address for inscriptions
-  commitTxid?: string;       // Commit transaction ID after broadcast
-  commitFee?: number;        // Commit transaction fee (sats)
-  commitConfirmed?: boolean; // Whether commit reached target confirmations
-  revealTxid?: string;       // Reveal transaction ID after broadcast
-  revealFee?: number;        // Reveal transaction fee (sats)
-  revealConfirmed?: boolean; // Whether reveal reached target confirmations
-  inscriptionId?: string;    // Inscription ID after reveal confirmation
-  network?: string;          // "mainnet" or "testnet" (default: mainnet)
-}
-```
-
-**Pattern:** Two-phase Byzantine commit for Bitcoin inscriptions. Commit phase reserves UTXO. Reveal phase uses committed UTXO to inscribe data. State machine ensures atomic semantics and fee tracking across both phases.
-
-**Requires:** `bitcoin-wallet` skill (for transaction preparation and broadcast)
-
 ## Daily Brief Inscription (`daily-brief-inscription`)
 
 Higher-level workflow for inscribing daily briefs onto Bitcoin L1. Wraps the commit/reveal flow with brief-specific states (fetch, balance check, record). Designed to prevent token spirals by enforcing single-state-per-task discipline.

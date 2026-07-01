@@ -1089,96 +1089,6 @@ export const ValidationRequestMachine: StateMachine<{
   },
 };
 
-export const InscriptionMachine: StateMachine<{
-  dataHash?: string;
-  dataSize?: number;
-  walletAddress?: string;
-  commitTxid?: string;
-  commitFee?: number;
-  commitConfirmed?: boolean;
-  revealTxid?: string;
-  revealFee?: number;
-  revealConfirmed?: boolean;
-  inscriptionId?: string;
-  network?: string;
-}> = {
-  name: "inscription",
-  initialState: "pending",
-  states: {
-    pending: {
-      on: { prepare_commit: "commit_preparing" },
-      action: (ctx) => {
-        if (!ctx.dataHash || !ctx.walletAddress) return null;
-        return {
-          type: "create-task",
-          subject: `Inscription: Prepare commit for ${ctx.dataHash.slice(0, 8)}...`,
-          priority: 5,
-          skills: ["bitcoin-wallet"],
-          description: `Prepare commit transaction. Data hash: ${ctx.dataHash}, Wallet: ${ctx.walletAddress}, Network: ${ctx.network || "mainnet"}.\n\nIMPORTANT: Advance exactly ONE state transition (pending → commit_preparing), then exit. Do NOT proceed to broadcast or further states in this session.`,
-        };
-      },
-    },
-    commit_preparing: {
-      on: { broadcast_commit: "commit_broadcasted" },
-      action: () => null,
-    },
-    commit_broadcasted: {
-      on: { confirm_commit: "reveal_pending" },
-      action: (ctx) => {
-        if (!ctx.commitTxid) return null;
-        return {
-          type: "create-task",
-          subject: `Inscription: Confirm commit ${ctx.commitTxid.slice(0, 8)}...`,
-          priority: 5,
-          skills: ["bitcoin-wallet"],
-          description: `Check commit confirmation status (typically 1-6 blocks). Commit txid: ${ctx.commitTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (commit_broadcasted → reveal_pending), then exit. If not yet confirmed, create a scheduled follow-up task — do NOT poll inline.`,
-        };
-      },
-    },
-    reveal_pending: {
-      on: { prepare_reveal: "reveal_preparing" },
-      action: () => null,
-    },
-    reveal_preparing: {
-      on: { broadcast_reveal: "reveal_broadcasted" },
-      action: (ctx) => {
-        if (!ctx.commitTxid) return null;
-        return {
-          type: "create-task",
-          subject: `Inscription: Prepare reveal for ${ctx.commitTxid.slice(0, 8)}...`,
-          priority: 5,
-          skills: ["bitcoin-wallet"],
-          description: `Prepare and broadcast reveal transaction using commit UTXO. Commit txid: ${ctx.commitTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (reveal_preparing → reveal_broadcasted), then exit. Do NOT wait for confirmation in this session.`,
-        };
-      },
-    },
-    reveal_broadcasted: {
-      on: { confirm_reveal: "confirmed" },
-      action: (ctx) => {
-        if (!ctx.revealTxid) return null;
-        return {
-          type: "create-task",
-          subject: `Inscription: Confirm reveal ${ctx.revealTxid.slice(0, 8)}...`,
-          priority: 5,
-          skills: ["bitcoin-wallet"],
-          description: `Check reveal confirmation and extract inscription ID. Reveal txid: ${ctx.revealTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (reveal_broadcasted → confirmed), then exit. If not yet confirmed, create a scheduled follow-up task — do NOT poll inline.`,
-        };
-      },
-    },
-    confirmed: {
-      on: { complete: "completed" },
-      action: (ctx) => {
-        if (!ctx.inscriptionId) return null;
-        return { type: "noop" };
-      },
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
-
 /**
  * Daily Brief Inscription Machine
  *
@@ -4019,7 +3929,6 @@ export function getTemplateByName(name: string): StateMachine | null {
     "pr-lifecycle": PrLifecycleMachine,
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
-    "inscription": InscriptionMachine,
     "daily-brief-inscription": DailyBriefInscriptionMachine,
     "new-release": NewReleaseMachine,
     "architecture-review": ArchitectureReviewMachine,
