@@ -564,3 +564,4 @@
 2026-07-01T00:33:58.337Z | task #20623 | completed | sonnet | Widen arc-failure-triage ERROR_PATTERNS: add 'superseded' sk | Added 'superseded' skip-signature + widened blocked-on-human for CF-creds-scope 
 2026-07-01T00:35:28.089Z | task #20625 | completed | sonnet | Deduplicate arc-failure-triage ERROR_PATTERNS (sensor.ts vs  | Extracted shared ERROR_PATTERNS/classifyError/shortHash into skills/arc-failure-
 2026-07-01T00:36:07.303Z | task #20592 | completed | haiku | Retrospective: extract learnings from task #20499 — Retrospe | Updated p-creation-timestamp-staleness-guard: deferred side-effect fields (e.g. 
+2026-07-01T00:37:00.061Z | task #20593 | completed | haiku | Retrospective: extract learnings from task #20591 — Add isAn | Pattern p-creation-timestamp-staleness-guard already documented; task #20591 val
