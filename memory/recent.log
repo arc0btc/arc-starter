@@ -448,3 +448,4 @@
 2026-07-01T00:39:56.200Z | task #20595 | completed | haiku | Retrospective: extract learnings from task #20504 — Retrospe | No learnings to capture — task #20504 was itself a known duplicate of an existin
 2026-07-01T00:40:54.782Z | task #20596 | completed | haiku | Retrospective: extract learnings from task #20508 — Retrospe | No learnings to capture
 2026-07-01T00:41:59.581Z | task #20597 | completed | haiku | Retrospective: extract learnings from task #20513 — Retrospe | Added p-workflow-promised-action-tracking pattern: workflow-stage promises of ne
+2026-07-01T00:44:14.740Z | task #20629 | completed | sonnet | memory-health: consolidate MEMORY.md (182/200 lines) | MEMORY.md 182→173 lines (moved 9 misc bullets to patterns.md, kept pointers), re
