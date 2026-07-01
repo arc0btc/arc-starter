@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-01T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-01T01:03Z — 2026-07-01T13:00Z</div>
+</header>
+
+<p class="summary">Busy 12h: 75 tasks closed, 0 failed, 2 held blocked (whop-chat seed and an X thread continuation, both correctly gated on missing sign-off). Ship highlights: two workflow-machine noop-stuck-state bugs found and fixed (self-review-cycle, cost-report-audit), a full audit of 79 action:()=>null states confirmed no further recurrence, 20 new-release workflows migrated off orphaned state names, the pr-lifecycle "approved" resolver fix verified draining 82→44, and a content-calendar liveness gate shipped to stop fanout hops firing against undeployed posts. One blog post drafted and published ("Uncertainty You Can Trust, Skills You Can Compose"), chopped into snippets, fed into 4 Nostr notes and 1 X post. Whop stayed quiet — one forum teardown posted, synthesis deferred twice, reactive lane saw 39 messages and zero live candidates (all stale or below length floor).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">75</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$56.32</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">54507k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">300k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">20635</td><td class="pri">6</td><td>Watch report — 01T01:03Z</td><td>52 tasks completed, $25.59 spent, queue drained to 0</td><td class="cost">$2.68</td></tr>
+    <tr><td class="id">20639</td><td class="pri">7</td><td>Architecture review (post 15-commit diff)</td><td>Diagram regenerated, staleness-guard centralization reviewed</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">20644</td><td class="pri">4</td><td>Fix self-review-cycle "dispatched" stuck state</td><td>Root cause: missing fixTaskIds poll — fixed and self-resolving</td><td class="cost">$2.35</td></tr>
+    <tr><td class="id">20650</td><td class="pri">6</td><td>Audit CostReportAuditMachine.auditing</td><td>Same noop-stuck bug as self-review-cycle — fixed</td><td class="cost">$1.64</td></tr>
+    <tr><td class="id">20659</td><td class="pri">5</td><td>Audit remaining action:()=>null states</td><td>~79 states / 36 templates audited — no further recurrence</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">20669</td><td class="pri">4</td><td>Fix NewReleaseMachine orphaned state names</td><td>Migrated 20 live workflows off pre-rename state names</td><td class="cost">$1.91</td></tr>
+    <tr><td class="id">20656</td><td class="pri">6</td><td>lint-skills audit (133 skills, 68 AGENT.md, 83 sensors)</td><td>Zero compliance violations found</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">20671–20674</td><td class="pri">4</td><td>Integrate 3 upstream releases</td><td>All no-op/evaluated — no code changes required</td><td class="cost">$5.51</td></tr>
+    <tr><td class="id">20680</td><td class="pri">4</td><td>Fix stuck pr-lifecycle "approved" resolver</td><td>Isolated resolveApprovedPrWorkflows from earlier sensor throw</td><td class="cost">$1.28</td></tr>
+    <tr><td class="id">20683</td><td class="pri">5</td><td>Verify pr-lifecycle resolver fix drained backlog</td><td>Confirmed 82→44, matches 38 stale-merged found earlier</td><td class="cost">$1.06</td></tr>
+    <tr><td class="id">20685</td><td class="pri">5</td><td>Whop forum teardown: "Three Mechanistic Gaps"</td><td>Posted, 220 words per CHANNELS.md whop-forum card</td><td class="cost">$1.80</td></tr>
+    <tr><td class="id">20667</td><td class="pri">6</td><td>Public-forum teaser: "The Shape That Keeps Appearing"</td><td>Posted to Bitcoin-agent public forum</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">20666</td><td class="pri">8</td><td>Delete InscriptionMachine dead code</td><td>Zero live instances, zero callers, superseded elsewhere</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">20690–20691</td><td class="pri">6</td><td>Draft + publish research blog post</td><td>"Uncertainty You Can Trust, Skills You Can Compose" live</td><td class="cost">$0.78</td></tr>
+    <tr><td class="id">20692</td><td class="pri">5</td><td>Chop blog into snippets</td><td>4 quote-card nuggets extracted for distribution</td><td class="cost">$1.09</td></tr>
+    <tr><td class="id">20705</td><td class="pri">3</td><td>Fix content-calendar: undeployed blog fanout gap</td><td>isUrlLive() gate added; committed post, verify-deploy passes</td><td class="cost">$2.95</td></tr>
+    <tr><td class="id">20649</td><td class="pri">5</td><td>Fetch + compile arXiv digest</td><td>50 papers fetched, 20 relevant, digest written</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">20676</td><td class="pri">5</td><td>Distill arXiv digest into nuggets</td><td>3 agent-architecture nuggets written</td><td class="cost">$1.15</td></tr>
+    <tr><td class="id">20637, 20661, 20662, 20694, 20700, 20702, 20703</td><td class="pri">5–6</td><td>Nostr notes (7)</td><td>Detection-vs-fix, state-machine sync, formalization-timing, ToM, confidence-that-lies themes</td><td class="cost">$3.94</td></tr>
+    <tr><td class="id">20712</td><td class="pri">5</td><td>X cadence [blog-snippet]</td><td>Posted blog-snippet nugget verbatim, tweet 2072267…</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">20686, 20711</td><td class="pri">5</td><td>Whop synthesis ×2</td><td>Both DEFER — room silent, no human speaker, no new beat</td><td class="cost">$1.35</td></tr>
+    <tr><td class="id">20654, 20657</td><td class="pri">5–6</td><td>Self-review + sensor-health checks</td><td>Both clean — 83 sensors OK, 0 stuck workflows</td><td class="cost">$0.76</td></tr>
+    <tr><td class="id">20658, 20693, 20695</td><td class="pri">7–8</td><td>Memory/patterns consolidation ×3</td><td>MEMORY.md 180→176, patterns.md 256→246, held under thresholds</td><td class="cost">$1.98</td></tr>
+    <tr><td class="id">20636, 20642, 20647, 20651–20653, 20664, 20670, 20675, 20677, 20678, 20682, 20684, 20687–20689, 20697, 20699, 20701, 20707</td><td class="pri">8</td><td>Retrospectives (19)</td><td>Per-task learning extraction — several no-yield, several patterns.md additions</td><td class="cost">$2.35</td></tr>
+    <tr><td class="id">20696, 20708, 20710, 20713, 20714</td><td class="pri">7</td><td>Housekeeping sweeps (5)</td><td>Fixed 5 minor issues total across period</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">20648, 20681</td><td class="pri">9</td><td>Dummy/test tasks (2)</td><td>No-op checks, human-initiated</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">20709</td><td class="pri">7</td><td>Review blocked task for possible unblock</td><td>#20706 correctly still blocked — no whoabuddy sign-off yet</td><td class="cost">$0.55</td></tr>
+  </tbody>
+</table>
+<div class="section">
+<p class="empty">Blocked (2): #20638 whop-chat seed held pending Phase 3 sign-off (first hop of its kind, CADENCE.md gap). #20706 same class, reviewed at #20709 and confirmed still correctly held. #20378/#20698 (X thread continuation + escalation) resolved into blocked status just before this period started and remain open pending whoabuddy on the anti-lock guardrail.</p>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+  Arc posted 1 message to the paid room this period (whop-forum teardown, "Three Mechanistic Gaps in Multi-Agent Systems", task #20685). Reactive lane: 3 ticks, 39 messages seen each tick, 0 live candidates — all skipped as stale_message or below_length_floor (whoabuddy's own historical messages, already actioned). Synthesis lane: 2/2 ticks deferred — room had only 1 message in each 24h window (Arc's own 06-30 prompt asking what people are building), no human speaker, no new teaching beat. Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+  Top counterparty this period: whoabuddy (20 lifetime msgs, 5 arc replies to them, 3 their replies to arc) — no new activity from them this window.
+</div>
+<div class="whop-revenue">
+  Revenue: 0/16 recurring members (0%), $0 MRR, pre-M0. 1 product buyer (comped), 0 paying customers. Product→room conversion: 0% (0/1 buyers activated). Weekly net-new: +1 customer, +0 members. Leading indicators: X cadence adherence 2 posts today / 81 trailing 7d (~2/day cap, on target); audience growth and right-audience-engagement lines are stubbed pointers, not live values (AI-047). $/member-served: N/A pre-M0 (7d spend $471.37).
+</div>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">3a39f583</span>fix(arc-workflows): verify blog deploy is live before firing fanout hops</div>
+<div class="commit"><span class="hash">85883cfd</span>fix(arc-workflows): gate blog_published fanout on verify-deploy liveness</div>
+<div class="commit"><span class="hash">ee77ea14</span>chore(memory): consolidate patterns.md (256->246 lines)</div>
+<div class="commit"><span class="hash">cd7bf4c5</span>chore(memory): consolidate MEMORY.md (180->176 lines), trim recent.log to 500</div>
+<div class="commit"><span class="hash">77e863f3</span>docs(memory): add dead-code-workflow-deletion-pattern entry</div>
+<div class="commit"><span class="hash">a20fc4e5</span>fix(arc-workflows): delete InscriptionMachine — dead code, no live instances</div>
+<div class="commit"><span class="hash">f041259c</span>fix(arc-workflows): add missing self-transition instruction to NewReleaseMachine.integrating</div>
+<div class="commit"><span class="hash">6e59645d</span>fix(aibtc-repo-maintenance): isolate resolveApprovedPrWorkflows from earlier sensor steps</div>
+<div class="commit"><span class="hash">da008f63</span>fix(arc-workflows): resolve CostReportAuditMachine.auditing noop-stuck bug</div>
+<div class="commit"><span class="hash">c20a14d8</span>fix(arc-workflows): resolve SelfReviewCycleMachine.dispatched stuck state</div>
+<div class="commit"><span class="hash">1b478194</span>docs(architect): update state machine and audit log — staleness-guard centralization + retro-breeding fix review</div>
+<div class="commit"><span class="hash">+83 more</span>docs/memory/loop auto-commits (73 chore(loop), plus 20669/20659/20645/20693 memory notes) — see full log for detail</div>
+</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #20643 — arc-workflows: verify per-stage isAnchorStale() calls redundant w/ centralized guard, prune if so</div>
+<p class="empty">Queue otherwise drained. No other pending tasks.</p>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">24h Δ (anchor 11h)</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d Δ</div></div>
+  <div class="metric"><div class="value">4</div><div class="label">Per-touch proxy (10 posts)</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Profile clicks</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Bio-link clicks</div></div>
+  <div class="metric"><div class="value">0</div><div class="label">Checkout starts 24h</div></div>
+</div>
+<p class="empty">Followers anchor still building (11h old, no 24h delta yet). Profile/bio-link clicks n/a — no X Basic-tier analytics access, no UTM in profile. Checkout starts: 0 in trailing 24h, 0 abandons.</p>
+
+<h2>Inflow pool</h2>
+<div class="section">
+<table>
+  <thead><tr><th colspan="2">Produced (24h)</th><th colspan="2">Consumed (24h)</th></tr></thead>
+  <tbody>
+    <tr><td>arxiv</td><td class="cost">11</td><td>blog</td><td class="cost">3</td></tr>
+    <tr><td>council</td><td class="cost">0</td><td>whop-chat</td><td class="cost">7</td></tr>
+    <tr><td>watch-interior</td><td class="cost">6</td><td>whop-forum</td><td class="cost">0</td></tr>
+    <tr><td>snippet</td><td class="cost">14</td><td>public-forum</td><td class="cost">0</td></tr>
+    <tr><td>whop-signal</td><td class="cost">0</td><td>x</td><td class="cost">2</td></tr>
+    <tr><td></td><td></td><td>nostr</td><td class="cost">9</td></tr>
+    <tr><td></td><td></td><td>aibtc-news</td><td class="cost">0</td></tr>
+    <tr><td></td><td></td><td>reactive</td><td class="cost">0</td></tr>
+    <tr><td><strong>total</strong></td><td class="cost"><strong>31</strong></td><td><strong>total</strong></td><td class="cost"><strong>21</strong></td></tr>
+  </tbody>
+</table>
+<p class="empty">31 produced vs 21 consumed (~1.5:1) — producers running slightly ahead of consumers, healthy range, not starved. No fresh artifacts in 36h for whop-signal (policy-paused, expected — not a stall). No stuck-distill alerts.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Two independent state-machine noop-stuck bugs (self-review-cycle, cost-report-audit) shared the same root cause shape — an <code>action:()=>null</code> state waiting on external task completion with no poll. The follow-up full audit (#20659, $0 cost) confirmed this shape doesn't recur elsewhere in the 79-state surface, closing the loop cheaply rather than fixing one-by-one as they surface.</div>
+<div class="obs">Retrospective volume stayed high (19 of 75 tasks, ~$2.35 total) relative to yield — several closed "no learnings to capture." Consistent with the daily-eval's Adaptation gap; worth revisiting whether every fix-task needs a dedicated retrospective spawn versus batching.</div>
+<div class="obs">Whop stayed genuinely quiet this window — reactive lane's 0-candidate outcome is correct behavior (all 9 flagged messages were whoabuddy's own history, already actioned), not a miss. Synthesis correctly deferred twice rather than posting into an empty room.</div>
+<div class="obs">Content pipeline ran end-to-end once (arXiv digest → blog draft → publish → chop → 4 Nostr + 1 X), matching the 1:4:1:1 leverage benchmark from 06-26. Inflow pool at 1.5:1 produced:consumed is healthy — no starvation, no backlog.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
