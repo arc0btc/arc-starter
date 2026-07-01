@@ -388,6 +388,25 @@ function getBlogDir(): string {
   return join(process.cwd(), "github/arc0btc/arc0me-site/src/content/docs/blog");
 }
 
+/**
+ * True only when `url` actually resolves live (HTTP 200). Both syncBlogPublishes and
+ * syncContentCalendar previously trusted "file exists locally with draft:false" as proof the
+ * post was published — but a drafted .mdx can sit uncommitted/unpushed indefinitely, so the
+ * constructed URL 404s while the workflow is created straight into `blog_published` and fires
+ * downstream hops (whop-chat, x-thread) against a dead link (task #20705: 2026-07-01
+ * uncertainty-you-can-trust post never committed/pushed before its whop-chat hop fired).
+ * Fails closed (not live) on network error or timeout, so an unreachable deploy is treated the
+ * same as a 404 rather than optimistically assumed live.
+ */
+async function isPostLive(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: "GET", signal: AbortSignal.timeout(10_000) });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 interface BlogFrontmatter {
   title?: string;
   draft?: boolean;
@@ -431,7 +450,7 @@ function extractExcerpt(content: string): string {
   return "";
 }
 
-function syncBlogPublishes(): number {
+async function syncBlogPublishes(): Promise<number> {
   if (Bun.env.WORKFLOWS_BLOG_TO_X_ENABLED === "false") return 0;
 
   const blogDir = getBlogDir();
@@ -484,13 +503,22 @@ function syncBlogPublishes(): number {
     const publishedAt = new Date(stamp).getTime();
     if (isNaN(publishedAt) || now - publishedAt > windowMs) continue; // stale or unparseable
 
+    // Confirm the post is actually deployed before treating it as live — a local mdx with
+    // draft:false is not proof of a committed/pushed/deployed post (see isPostLive docstring).
+    // Not live yet → skip this cycle; a later tick picks it up once the deploy actually lands.
+    const url = `https://arc0.me/blog/${postId}/`;
+    if (!(await isPostLive(url))) {
+      log(`publish-fanout: skipping "${postId}" — ${url} not live yet (build/deploy pending)`);
+      continue;
+    }
+
     insertWorkflow({
       template: "publish-fanout",
       instance_key: instanceKey,
       current_state: "blog_published",
       context: JSON.stringify({
         title: fm.title || postId,
-        url: `https://arc0.me/blog/${postId}/`,
+        url,
         slug: postId,
         blog_excerpt: excerpt || undefined,
         created_at: nowIso,
@@ -518,7 +546,7 @@ function syncBlogPublishes(): number {
  * = publish time (T+0); downstream hops self-space off that anchor (see ContentCalendarMachine
  * TIMING note). Per-slug instance keys ("content-calendar:<post_id>") guarantee exactly once.
  */
-function syncContentCalendar(): number {
+async function syncContentCalendar(): Promise<number> {
   if (Bun.env.WORKFLOWS_CONTENT_CALENDAR_ENABLED !== "true") return 0;
 
   const blogDir = getBlogDir();
@@ -579,13 +607,23 @@ function syncContentCalendar(): number {
     const publishedAt = new Date(stamp).getTime();
     if (isNaN(publishedAt) || now - publishedAt > windowMs) continue; // stale or unparseable
 
+    // Confirm the post is actually deployed before assuming "blog is already live" — a local
+    // mdx with draft:false is not proof it was ever committed/pushed (task #20705: the
+    // 2026-07-01 uncertainty post fired its whop-chat hop against a URL that still 404'd).
+    // Not live yet → skip this cycle; a later tick creates the workflow once the deploy lands.
+    const url = `https://arc0.me/blog/${postId}/`;
+    if (!(await isPostLive(url))) {
+      log(`content-calendar: skipping "${postId}" — ${url} not live yet (build/deploy pending)`);
+      continue;
+    }
+
     insertWorkflow({
       template: "content-calendar",
       instance_key: instanceKey,
-      current_state: "blog_published", // blog is already live; downstream hops fan out from T+0
+      current_state: "blog_published", // verified live above; downstream hops fan out from T+0
       context: JSON.stringify({
         title: fm.title || postId,
-        url: `https://arc0.me/blog/${postId}/`,
+        url,
         slug: postId,
         source_artifact_path: join("github/arc0btc/arc0me-site/src/content/docs/blog", file),
         blog_excerpt: excerpt || undefined,
@@ -635,10 +673,10 @@ export default async function workflowsSensor(): Promise<string> {
     totalActions += prActionsCount;
 
     // Detect freshly published blog posts → create one PublishFanoutMachine per new slug
-    totalActions += syncBlogPublishes();
+    totalActions += await syncBlogPublishes();
 
     // Full content-calendar fan-out (gated off by default; supersedes blog-to-x when enabled)
-    totalActions += syncContentCalendar();
+    totalActions += await syncContentCalendar();
 
     // Evaluate all active workflows and process their actions
     const workflows = getAllActiveWorkflows();
