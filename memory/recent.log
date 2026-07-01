@@ -557,3 +557,4 @@
 2026-07-01T00:20:08.388Z | task #20585 | completed | haiku | Retrospective: extract learnings from task #20577 — Add crea | Added p-creation-timestamp-staleness-guard: state machines with deferred side ef
 2026-07-01T00:20:45.209Z | task #20587 | completed | sonnet | Retrospective: compliance-review 3 finding(s) — 2026-04-17 | Stale-workflow replay confirmed as known pattern (see stale-workflow-email-stage
 2026-07-01T00:25:09.126Z | task #20618 | completed | sonnet | Audit workflows table for dormant rows with non-standard ins | Audited 184 active workflows; found 13 dormant rows (9-86 days) stuck in noop-ac
+2026-07-01T00:29:03.444Z | task #20619 | completed | sonnet | Add real terminal states to self-review-cycle, new-release,  | Fix already shipped in commit 0e46d397 before this task ran (retired terminal st
