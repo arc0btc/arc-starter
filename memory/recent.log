@@ -1,17 +1,3 @@
-2026-06-28T06:21:24.871Z | task #20201 | completed | sonnet | memory-health: consolidate MEMORY.md (189/200 lines) | MEMORY.md 189→177 lines (removed 3 l-purpose, zest-bounty, 2 stale contacts; exp
-2026-06-28T06:21:29.268Z | task #20202 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-06-28T07:55:27.300Z | task #20203 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-28-07) — | Posted Notch principle tweet from blog-snippet beat: 'build so verification is a
-2026-06-28T08:10:46.341Z | task #20204 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-28-08) — | Posted trust-per-repo nugget: 'Capability necessary not sufficient, tier:0 reset
-2026-06-28T09:39:50.291Z | task #20205 | completed | sonnet | Whop synthesis [2026-06-28T09]: read the room, defer or post | DEFER: 0 messages in window, empty room — synthesis requires speakers
-2026-06-28T13:07:42.025Z | task #20206 | completed | sonnet | Watch report — 2026-06-28T13:01Z | Watch report: 57 tasks completed, 3.89 spent, report at reports/2026-06-28T13012
-2026-06-28T13:11:41.116Z | task #20207 | completed | sonnet | Overnight brief — 2026-06-28 | Overnight brief 2026-06-28: 24 tasks, 0 failures, $12.18 spent. Highlights: $9 W
-2026-06-28T13:12:45.039Z | task #20208 | completed | haiku | Retrospective: extract learnings from task #20206 — Watch re | Added p-metrics-sensor-oscillation: guard self-improvement sensors with threshol
-2026-06-28T13:14:12.106Z | task #20209 | completed | haiku | Retrospective: extract learnings from task #20207 — Overnigh | Extracted p-threshold-response-sensor-creation: when subsystem metric reaches cr
-2026-06-28T13:16:24.313Z | task #20210 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | placeholder
-2026-06-28T14:24:30.191Z | task #20211 | completed | sonnet | memory-health: consolidate MEMORY.md (184/200 lines) | MEMORY.md 184→173 lines (dead-ends compressed, 3 eval rows dropped, 2 stale cont
-2026-06-28T14:32:56.547Z | task #20212 | completed | sonnet | architecture review — codebase changed since last review (92 | buildPrompt cache reorder validated; GLM/Devstral aliases; cache_hit_rate mislab
-2026-06-28T14:33:38.725Z | task #20213 | completed | sonnet | workflow review — 1 health issue(s) | All 10 active content-calendar workflows are progressing normally through cadenc
-2026-06-28T14:36:55.892Z | task #20214 | completed | sonnet | CEO review — 2026-06-28T14:30 | CEO review: on track, 57/0 tasks, context-bloat fixes ship,  SKU live pre-M0. 0 
 2026-06-28T14:48:45.240Z | task #20215 | completed | sonnet | Email watch report to whoabuddy — 2026-06-28T14:30 | Sent to whoabuddy@gmail.com (msg d69eec60); skill is arc-email-sync not 'email'
 2026-06-28T15:11:55.103Z | task #20216 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog generated (132 skills, 83 sensors). Now commit arc0me-site to trigger bl
 2026-06-28T15:36:46.335Z | task #20217 | completed | sonnet | Distill watch report 2026-06-28T130126Z into 1-2 interior ob | 2 nuggets: cost (context-bloat double-fix compounding, /bin/bash.419/task, floor
@@ -512,3 +498,5 @@
 2026-07-01T06:30:56.453Z | task #20705 | completed | sonnet | Fix content-calendar: blog post created but never committed/ | Blog post committed+pushed (a8abaed), deployed, verify-deploy passes. isUrlLive(
 2026-07-01T06:31:51.705Z | task #20706 | blocked | sonnet | Seed whop chat: "Uncertainty You Can Trust, Skills You Can C | Blog verified live; drafted whop-chat post at skills/whop/drafts/2026-07-01-unce
 2026-07-01T06:33:23.840Z | task #20707 | completed | haiku | Retrospective: extract learnings from task #20705 — Fix cont | Enhanced p-state-machine-safety pattern: workflow states must verify external re
+2026-07-01T06:42:30.344Z | task #20708 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-01T06:50:46.544Z | task #20709 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #20706: still correctly blocked, no whoabuddy sign-off recorded for who
