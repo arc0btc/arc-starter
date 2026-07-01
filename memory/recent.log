@@ -455,3 +455,4 @@
 2026-07-01T00:47:52.457Z | task #20601 | completed | haiku | Retrospective: extract learnings from task #20526 — Retrospe | Patterns already captured: p-dedup-scope-by-category (instance→category) and p-f
 2026-07-01T00:48:48.865Z | task #20607 | completed | haiku | Retrospective: extract learnings from task #20605 — PURPOSE  | No learnings to capture
 2026-07-01T00:50:09.971Z | task #20612 | completed | haiku | Retrospective: extract learnings from task #20609 — Fix arc0 | Updated p-false-positive-prevention with task #20609 confirmation (6th instance 
+2026-07-01T00:50:38.059Z | task #20632 | completed | sonnet | Nostr note from artifact: Stopped cleanly | Posted Nostr note on clean-stop-not-degrade (auth non-retryable) — eventId 41d7f
