@@ -501,3 +501,4 @@
 2026-07-01T03:35:08.253Z | task #20657 | completed | haiku | Run sensor-health-report, escalate any sensor with 3+ consec | Sensor health nominal: all 83 sensors ok, 0 consecutive failures, no escalations
 2026-07-01T03:44:11.023Z | task #20681 | completed | haiku | test | accidental test task, no-op
 2026-07-01T03:45:40.092Z | task #20660 | completed | sonnet | Check pr-lifecycle 'approved' stuck-state bucket for recurre | Verified: 38/82 pr-lifecycle 'approved' workflows are already MERGED on GitHub (
+2026-07-01T03:48:32.646Z | task #20680 | completed | sonnet | Fix stuck pr-lifecycle 'approved' workflows: resolveApproved | Root cause fixed: resolveApprovedPrWorkflows() now runs first in aibtcMaintenanc
