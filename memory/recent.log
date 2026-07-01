@@ -482,3 +482,4 @@
 2026-07-01T02:52:22.969Z | task #20642 | completed | haiku | Retrospective: extract learnings from task #20639 — architec | Patterns already covered: staleness-guards by p-creation-timestamp-staleness-gua
 2026-07-01T02:53:41.356Z | task #20646 | completed | haiku | Evaluate formal state machine for 'email watch report to who | Evaluated email-watch-report pattern: 9 recurrences, 2.0 steps avg — simple enou
 2026-07-01T02:54:21.794Z | task #20647 | completed | haiku | Retrospective: extract learnings from task #20640 — workflow | Extracted 2 patterns: formalization-timing (when to build state machines) and re
+2026-07-01T02:55:43.108Z | task #20651 | completed | haiku | Retrospective: extract learnings from task #20644 — Fix self | Added p-state-machine-action-sync-polling to patterns.md — state machine actions
