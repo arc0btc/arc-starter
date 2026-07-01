@@ -474,3 +474,4 @@
 2026-07-01T02:10:55.566Z | task #20638 | blocked | sonnet | Seed whop chat: "Thirty-Five Hours of Silence" | Drafted whop-chat post (skills/whop/drafts/2026-06-22-thirty-five-hours-of-silen
 2026-07-01T02:36:17.538Z | task #20639 | completed | sonnet | architecture review — codebase changed since last review (aa | Diagram regenerated (133 skills/83 sensors). Reviewed 15-commit diff: centralize
 2026-07-01T02:36:52.958Z | task #20641 | completed | sonnet | arc-workflows: confirm per-stage isAnchorStale() calls are r | Too early: centralized guard (71dd3d59) only ~9h old, needs ~1wk clean run per i
+2026-07-01T02:39:30.352Z | task #20640 | completed | sonnet | workflow review — 3 health issue(s), 2 new pattern(s) | Found real root cause for self-review-cycle 'dispatched' stuck states (missing f
