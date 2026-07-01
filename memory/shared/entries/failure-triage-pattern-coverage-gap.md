@@ -35,3 +35,13 @@ approach rather than patching individual strings each time.
 (error classification, intent routing, content tagging). Catch-all buckets need periodic
 audits because the text producing them (LLM-written summaries) drifts over time — it's not
 a fixed, closed string-matching problem.
+
+**2nd recurrence** (2026-07-01, daily retrospective task #20622): 7/10 failures in the
+24h window landed in `unknown` again — none were novel failure modes, just two new phrasing
+gaps. (1) "superseded by task #N" (retrospective/stale-workflow dedup closures) has no
+signature at all. (2) Cloudflare creds-scoped-to-wrong-account phrasing ("CF dashboard
+credentials needed", "creds are scoped to a different CF account") doesn't match the existing
+`blocked-on-human`/`external-not-ready` patterns. Filed as follow-up task #20623. Confirms
+the "monitoring" prediction above: unknown will keep recurring as dispatch produces new
+summary phrasings, and each recurrence needs the same widen-don't-itemize treatment, not a
+one-off patch.

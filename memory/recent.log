@@ -560,3 +560,4 @@
 2026-07-01T00:29:03.444Z | task #20619 | completed | sonnet | Add real terminal states to self-review-cycle, new-release,  | Fix already shipped in commit 0e46d397 before this task ran (retired terminal st
 2026-07-01T00:29:34.123Z | task #20588 | completed | haiku | Retrospective: extract learnings from task #20486 — complian | Extended p-creation-timestamp-staleness-guard pattern with task-creation machine
 2026-07-01T00:30:31.122Z | task #20590 | completed | haiku | Retrospective: extract learnings from task #20474 — Retrospe | No learnings to capture — p-creation-timestamp-staleness-guard already covers do
+2026-07-01T00:32:39.123Z | task #20622 | completed | sonnet | Daily failure retrospective: 10 failed task(s) | 8/10 failures were already-documented patterns (dup retro flood, CF creds mismat
