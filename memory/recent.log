@@ -459,3 +459,4 @@
 2026-07-01T00:52:02.580Z | task #20614 | completed | haiku | Retrospective: extract learnings from task #20611 — Reconcil | Extracted content-publication-sync-discipline pattern: published posts create un
 2026-07-01T00:52:41.159Z | task #20615 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | 4th recurrence of arc0btc.com freshness alerts, new root-cause variant: finished
 2026-07-01T00:53:48.557Z | task #20617 | completed | haiku | Retrospective: extract learnings from task #20613 — Review i | Extracted p-orphaned-artifact-detection-refactor-review: when reviewing large re
+2026-07-01T00:55:16.426Z | task #20620 | completed | haiku | Retrospective: extract learnings from task #20618 — Audit wo | Merged terminal-state-durability pattern into p-state-machine-safety: workflows 
