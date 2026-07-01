@@ -657,6 +657,10 @@ Guardrails (members pay real money):
         // @arc0btc (self-reply 403 cascade, task #20397). Until X_THREAD_CHAINING_ENABLED === "true",
         // this hop posts ONE standalone root tweet — no --reply-to, no chained CTA reply. Restore the
         // chained thread (flip the flag) only after ~1 clean observation week with no self-reply 403.
+        // 2026-07-01: flag flipped to true (chaining re-enabled). Forensics showed the 2026-06-30 lock
+        // was a 403 RETRY-CASCADE, not chaining itself (daily-read chains daily without incident); the
+        // real fix is the centralized 403-backoff in social-x-posting/cli.ts (no retry on 403). This
+        // standalone-only branch stays as a kill switch: set X_THREAD_CHAINING_ENABLED=false to fall back.
         if (Bun.env.X_THREAD_CHAINING_ENABLED !== "true") {
           return {
             type: "create-task",

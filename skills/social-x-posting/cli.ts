@@ -568,7 +568,31 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   }
 
   log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : "root"})...`);
-  const result = await apiRequest("POST", "/tweets", creds, body);
+  // ANTI-LOCK 403 BACKOFF (2026-07-01): a 403 on a write — especially a self-reply continuation — is a
+  // transient reply-restriction / rate-cooldown signal, NOT a permanent failure. RETRYING it is what
+  // turned a short cooldown into a multi-hour @arc0btc lock (self-reply 403 cascade, tasks
+  // #20368->20374->20375, 2026-06-30). Treat any 403 as a terminal SKIP (exit 3, non-error) so the
+  // dispatching agent does not re-attempt; --source dedup + cooldown handle the rest. This is the real
+  // fix and supersedes the blanket X_THREAD_CHAINING_ENABLED pause — chaining is safe (daily-read chains
+  // daily); retry-hammering a 403 was not. Root cause confirmed via X API docs: 403 "not mentioned by
+  // author" on a self-reply = reply-restriction/cooldown, not the whop link (whop is not ToS-blocked).
+  let result: Awaited<ReturnType<typeof apiRequest>>;
+  try {
+    result = await apiRequest("POST", "/tweets", creds, body);
+  } catch (err) {
+    if ((err as { status?: number })?.status === 403) {
+      log(`X 403 on ${isContinuation ? "self-reply" : "root"} — backing off, NO retry (cooldown/reply-restriction).`);
+      console.log(JSON.stringify({
+        skipped: true,
+        reason: "x_403_backoff",
+        retry: false,
+        continuation: isContinuation,
+        detail: ((err as Error).message ?? "403 Forbidden").slice(0, 300),
+      }));
+      process.exit(3);
+    }
+    throw err;
+  }
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
     // Only root posts burn the 3/day secondary root budget counter (primary is DAILY_TWEET_CAP=6).
