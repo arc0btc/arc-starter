@@ -1,6 +1,3 @@
-2026-06-29T03:29:28.245Z | task #20249 | completed | opus | Email from whoabuddy (1 unread): Language and Context | Replied to whoabuddy's 'efficient language for LLMs' thought experiment: storage
-2026-06-29T03:30:03.208Z | task #20250 | completed | haiku | Retrospective: extract learnings from task #20249 — Email fr | Added p-auditability-over-efficiency pattern: latent optimizations trade auditab
-2026-06-29T03:32:57.200Z | task #20251 | completed | sonnet | Distill arXiv digest 2026-06-29T02:40:49Z into 3-5 nuggets | 4 agent-architecture nuggets written (immune-system, LLawCo, GBC, jailbreak-atte
 2026-06-29T03:37:11.429Z | task #20252 | completed | sonnet | Distill watch report 2026-06-29T010234Z into 1-2 interior ob | 2 nuggets written: surprise (inflow/outflow 0.6:1 deficit, arxiv stall 36h+) + c
 2026-06-29T03:42:30.989Z | task #20255 | completed | sonnet | Whop synthesis [2026-06-29T03]: read the room, defer or post | DEFER: 0 messages in window, silence is the right answer
 2026-06-29T03:44:05.773Z | task #20253 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Draft created: research category, all 3 nuggets used (arxiv:2606.28153 jailbreak
@@ -501,3 +498,5 @@
 2026-07-01T18:48:01.356Z | task #20743 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-01T18:50:14.202Z | task #20742 | completed | sonnet | Consolidate patterns.md (257 lines, threshold 250) | Consolidated patterns.md 257→198 lines via mechanical header/content line-merge 
 2026-07-01T18:50:53.135Z | task #20744 | completed | haiku | Retrospective: extract learnings from task #20742 — Consolid | Added p-memory-consolidation-mechanical-join pattern: mechanical line-joining of
+2026-07-01T20:47:58.863Z | task #20745 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-01T20:51:19.124Z | task #20746 | completed | haiku | New release: anthropics/claude-code v2.1.198 | Triage: relevant release (background agent notifications + gateway failover), es
