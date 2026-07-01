@@ -1,3 +1,35 @@
+## 2026-07-01T02:33:00.000Z — systemic staleness guard + retrospective-breeding fix; retired terminal states; failure-triage DRY; Opus pricing correction; 133 skills / 83 sensors
+
+**Task #20639** | Diff: aae9925..b265a74 (15 commits — 5 src/, 10 skills/) | Sensors: 83 | Skills: 133
+
+### Changed files
+
+- `skills/arc-workflows/state-machine.ts` + `src/dispatch.ts` (71dd3d59) — **Root-cause fix for the 2026-06-30 dispatch flood** (103 tasks/hr, 47 backlogged P8 retrospectives). Two causes: (1) per-stage `isAnchorStale()` guards had been added one machine at a time across 6 prior commits (0e46d397, a2fabe85, 3e2176e1, 6d6cd08e, 7a516757, c02973d4), leaving HealthAlert/SiteHealthAlert/CostAlert/CeoReview/CostReportAudit naked — now centralized in `evaluateWorkflow()` so no future stage can forget it (fail-open on missing/unparseable anchor, per-stage guards kept as redundant safety); (2) `scheduleRetrospective` fired for any completed task with `cost_usd>1.0` including retrospectives themselves — 37/47 backlogged tasks were retrospectives breeding retrospectives. Now excludes `Retrospective:`-prefixed tasks. This is exactly the Step 3 (Simplify) pattern the architect skill exists to catch — 6 near-identical patches should have been centralized on the 2nd or 3rd repeat, not the 7th.
+- `skills/arc-workflows/state-machine.ts` (0e46d397) — Added `retired` terminal state + `retire` edge to 4 templates (self-review-cycle, new-release, health-alert, site-health-alert) that had no reachable zero-outgoing-transition state. Closes the `repair-stale-completions` landmine (silently reopens "completed" workflows whose current_state still has outgoing transitions) — 13 stuck workflows transitioned. Matches [[dormant-workflow-audit-noop-states-repair-landmine]] in MEMORY.md.
+- `src/db.ts` (6deb0fcf) — `updateWorkflowState` now unconditionally clears `completed_at` on any transition (previously only `completeWorkflow` touched it) — a reopened workflow (e.g. closed PR reopened on GitHub) no longer keeps a stale `completed_at` that silently drops it from `getAllActiveWorkflows()`.
+- `skills/arc-failure-triage/{cli.ts,sensor.ts,patterns.ts}` (2d5f0ee9, b265a74) — `cli.ts` and `sensor.ts` had drifted, independently maintaining `ERROR_PATTERNS`/`classifyError`/`shortHash`; `cli.ts` was missing 8 signatures the sensor had (cooldown-gate, agent-suspended, github-blocked, x-budget-exhausted, missing-hardware, external-not-ready, blocked-on-human, outage-artifact). Extracted to shared `patterns.ts` — `scan` now always reflects what the sensor actually classifies. Correct DRY fix; this drift class (two copies of the same classification table) is worth watching for elsewhere.
+- `src/models.ts` (b89cf09b, 73d9c574) — Opus 4.8 pricing corrected 15/75→5/25 per Mtok (cache read 1.875→0.5, cache write 18.75→6.25) — this was inflating `api_cost_usd` estimates ~3x for every Opus dispatch; affects capacity-planning numbers in daily-eval, not actual billing. Sonnet tier updated `claude-sonnet-4-6`→`claude-sonnet-5`.
+- `skills/arc0btc-site-health/sensor.ts` (b9676f58) — re-verifies failed checks before alerting (reduces false-positive alert noise).
+- `skills/arc-daily-read/sensor.ts` (b4e02cdb) — fixed missing `model` field on sensor-created task (would have been rejected at dispatch per the "every task needs explicit model" rule).
+- `skills/aibtc-inbox-sync/sensor.ts`, `skills/arc-workflows/sensor.ts` — staleness-guard commits superseded by the 71dd3d59 centralization above; no separate assessment needed.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All 15 commits trace to a named incident (dispatch flood) or a named landmine (repair-stale-completions, failure-triage drift, Opus cost mislabel). No speculative work this cycle.
+- **Step 2 — Delete**: Nothing new to delete — the staleness-guard centralization *is* the deletion candidate flagged implicitly by 6 near-duplicate commits; it landed this cycle. Per-stage guards were left in place as "redundant safety" rather than removed — worth a follow-up to confirm they're actually redundant now and prune if so, once the centralized guard has a clean week.
+- **Step 3 — Simplify**: The systemic staleness guard is the clear win — 6 patches collapsed into 1 central check. failure-triage ERROR_PATTERNS dedup is the same shape at smaller scale.
+- **Step 4 — Accelerate**: Retrospective self-breeding fix directly un-jams the dispatch queue (was producing 37 wasted P8 tasks/incident).
+- **Step 5 — Automate**: No new automation candidates.
+
+### Flags
+
+- **[NEW-WATCH]** Per-stage `isAnchorStale()` calls (lines ~1846, 2261, 2937, 3474 in `state-machine.ts`) are now redundant with the centralized guard at line 73. Confirm after ~1 clean week, then prune to avoid two sources of truth drifting (same class of bug as the failure-triage ERROR_PATTERNS split).
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+- **[RESOLVED]** MCP_TOOL_TIMEOUT=90s 2-week observation window ends today (2026-07-01) per MEMORY.md — zero timeout failures observed throughout. Safe to close as permanent; remove from monitoring list next cycle if no new signal.
+
+---
+
 ## 2026-06-30T14:35:00.000Z — accept_rate fix shipped; claude-code-releases two-phase triage; 133 skills / 83 sensors
 
 **Task #20416** | Diff: 8b50aba..aae9925 (4 commits — 1 src/, 2 skills/) | Sensors: 83 | Skills: 133
@@ -67,39 +99,6 @@ No files changed since 2026-06-28T14:30Z review. Diagram regenerated from curren
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (3 days out).
-
----
-
-## 2026-06-28T14:30:00.000Z — buildPrompt cache reorder; GLM/Devstral aliases; accept_rate metric; mem-health sensor wiring; 132 skills / 83 sensors
-
-**Task #20212** | Diff: 92e5a56 → 5498f53 (7 commits — 4 structural in src/, 3 in skills/) | Sensors: 83 | Skills: 132
-
-### Changed files
-
-- `src/dispatch.ts` (31628a9b) — **PERF: buildPrompt reorder** — static sections (identity, memory, skills) now placed before dynamic sections (current time, recent cycles). Cache prefix is now stable across cycles. Comment estimates $1-3/day savings at current volume. Correct ordering: the more stable a section, the earlier it must appear for prefix caching to activate.
-- `src/models.ts` (82843974) — **GLM-5.2** (`openrouter:glm`, ~$0.95/Mtok input) and **Devstral-2512** (`openrouter:devstral`, ~$0.40/Mtok input) added with full pricing. Prerequisite for open-weight routing policy written same day. Routing itself is NOT automated yet — policy exists but classification task is unqueued.
-- `src/cli.ts` (5498f53a) — **NEW metric** in `arc status`: shows accept rate + cost/accepted-change. `cache_hit_rate` is the output label but the metric actually computes accept rate (`result_quality >= 3`). **MISLABELED — see Flags.**
-- `src/constants.ts` (f76f9fc1) — Whop $9 SKU constant added (`LOOP_GRADED_PRODUCT_ID`). Library-only constant; no structural sensor/dispatch change.
-- `skills/arc-housekeeping/sensor.ts` (746a528a) — Wires `arc-memory health` CLI into sensor. Separate source key (`sensor:arc-housekeeping:mem-health`) prevents source collision with regular housekeeping. Priority: P2 on FAIL, P4 on WARN. Correct separation of concerns.
-- `skills/arc-skill-manager/sensor.ts` (7e5ee2e0) — patterns.md threshold raised 150→250; 12h cooldown added via `getLastCompletedTaskBySource`. Prevents oscillation when file hovers near threshold. Correct fix.
-- `skills/arc-reporting/AGENT.md` (a34ee886) — Whop artifact read cap added to prevent context explosion. Correct.
-- `skills/arc-architecture-review/AGENT.md + cli.ts + sensor.ts` (e79674ec) — Tokens fix from prior cycle. Reduces review context from 1.85M to <200K. This cycle confirms fix is working.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: buildPrompt reorder is valid and measurable. GLM/Devstral aliases are valid prerequisites. `cache_hit_rate` label is wrong — requirement is to track accept rate, not cache hit rate (true cache hit comes from API response headers, not result_quality). mem-health wiring is correct: separate source key was the right call. patterns.md threshold at 150 was too aggressive; 250 + 12h cooldown is calibrated.
-- **Step 2 — Delete**: `[RESOLVED]` CATEGORY_HEADERS mismatch in arc-memory/cli.ts fixed by commit 9941a876 — 2-cycle carry closed. `cache_hit_rate` string in `src/cli.ts` line ~138 should be renamed to `accept_rate` — easy fix, misleading at current label.
-- **Step 3 — Simplify**: mem-health task description embeds full `arc-memory health` stdout — bounded by health check output, acceptable. Cross-skill DB read in `arc-workflows/sensor.ts` unchanged — still open.
-- **Step 4 — Accelerate**: buildPrompt reorder is the largest perf win this cycle. Static prefix stability unlocks caching across consecutive dispatch cycles without code changes.
-- **Step 5 — Automate**: Open-weight routing policy is written but not automated — task-type classification unqueued. No new automation candidates beyond routing.
-
-### Flags
-
-- **[FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` outputs `cache_hit_rate (7d)` but the metric is accept_rate (result_quality >= 3). True cache hit rate would require reading API response headers. Rename output string to `accept_rate (7d)` — one-line fix, low priority but misleads capacity planning if left as-is.
-- **[WATCH]** Open-weight routing bottleneck: GLM/Devstral aliases live, policy written, but task-type classification unqueued. No automated routing until classification task is created (per MEMORY.md [[openrouter-open-weight-routing]]).
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array on next sensor edit.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — observation checkpoint 2026-07-01. No failures observed in 4d window.
 
 ---
 
