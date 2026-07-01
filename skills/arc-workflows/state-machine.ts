@@ -1340,7 +1340,7 @@ export const NewReleaseMachine: StateMachine<{
   initialState: "detected",
   states: {
     detected: {
-      on: { assess: "assessing" },
+      on: { assess: "assessing", retire: "retired" },
       action: (ctx) => {
         if (!ctx.repo || !ctx.version) return null;
         const skillList = ctx.skills?.length ? ctx.skills : ["arc-skill-manager"];
@@ -1356,11 +1356,11 @@ export const NewReleaseMachine: StateMachine<{
       },
     },
     assessing: {
-      on: { needs_integration: "integration_pending", no_action_needed: "no_action" },
+      on: { needs_integration: "integration_pending", no_action_needed: "no_action", retire: "retired" },
       action: () => null,
     },
     integration_pending: {
-      on: { integrate: "integrating" },
+      on: { integrate: "integrating", retire: "retired" },
       action: (ctx) => {
         if (!ctx.repo || !ctx.version) return null;
         const skillList = ctx.skills?.length ? ctx.skills : ["arc-skill-manager"];
@@ -1376,7 +1376,7 @@ export const NewReleaseMachine: StateMachine<{
       },
     },
     integrating: {
-      on: { complete: "completed" },
+      on: { complete: "completed", retire: "retired" },
       action: () => null,
     },
     no_action: {
@@ -1384,6 +1384,16 @@ export const NewReleaseMachine: StateMachine<{
       action: () => null,
     },
     completed: {
+      on: {},
+      action: () => null,
+    },
+    // Genuine terminal state for "task happened outside the state machine, no further
+    // action needed" — e.g. a dormant workflow whose real integration/assessment work
+    // was done manually. Has NO outgoing transitions, unlike detected/assessing/
+    // integration_pending/integrating, so completing a workflow from here is
+    // invariant-safe under repair-stale-completions (task #20619, see
+    // memory/shared/entries/dormant-workflow-audit-noop-states-repair-landmine.md).
+    retired: {
       on: {},
       action: () => null,
     },
@@ -1888,7 +1898,7 @@ export const SiteHealthAlertMachine: StateMachine<{
   initialState: "alert",
   states: {
     alert: {
-      on: { fix: "fixing" },
+      on: { fix: "fixing", retire: "retired" },
       action: (ctx) => {
         const issues = ctx.issueCount || 1;
         const summary = ctx.issuesSummary ? `: ${ctx.issuesSummary}` : "";
@@ -1910,11 +1920,11 @@ Steps:
       },
     },
     fixing: {
-      on: { fixed: "retrospective_pending" },
+      on: { fixed: "retrospective_pending", retire: "retired" },
       action: () => null,
     },
     retrospective_pending: {
-      on: { learnings_extracted: "completed" },
+      on: { learnings_extracted: "completed", retire: "retired" },
       action: (ctx) => {
         return {
           type: "create-task",
@@ -1933,6 +1943,14 @@ Steps:
       },
     },
     completed: {
+      on: {},
+      action: () => null,
+    },
+    // Genuine terminal state for "task happened outside the state machine, no further
+    // action needed" (task #20619). No outgoing transitions, so completing from here is
+    // invariant-safe under repair-stale-completions. See memory/shared/entries/
+    // dormant-workflow-audit-noop-states-repair-landmine.md.
+    retired: {
       on: {},
       action: () => null,
     },
@@ -2110,7 +2128,7 @@ export const HealthAlertMachine: StateMachine<{
   initialState: "triggered",
   states: {
     triggered: {
-      on: { acknowledge: "acknowledging" },
+      on: { acknowledge: "acknowledging", retire: "retired" },
       action: (ctx) => {
         const alertType = ctx.alertType || "unknown";
         const subject = `health alert: ${alertType.replace(/-/g, " ")}`;
@@ -2132,11 +2150,11 @@ Steps:
       },
     },
     acknowledging: {
-      on: { resolved: "retrospective_pending" },
+      on: { resolved: "retrospective_pending", retire: "retired" },
       action: () => null,
     },
     retrospective_pending: {
-      on: { learnings_extracted: "completed" },
+      on: { learnings_extracted: "completed", retire: "retired" },
       action: (ctx) => {
         const alertType = ctx.alertType || "unknown";
         return {
@@ -2164,6 +2182,14 @@ Steps:
       },
     },
     completed: {
+      on: {},
+      action: () => null,
+    },
+    // Genuine terminal state for "task happened outside the state machine, no further
+    // action needed" (task #20619). No outgoing transitions, so completing from here is
+    // invariant-safe under repair-stale-completions. See memory/shared/entries/
+    // dormant-workflow-audit-noop-states-repair-landmine.md.
+    retired: {
       on: {},
       action: () => null,
     },
@@ -2866,7 +2892,7 @@ export const SelfReviewCycleMachine: StateMachine<{
   initialState: "triggered",
   states: {
     triggered: {
-      on: { start_review: "reviewing" },
+      on: { start_review: "reviewing", retire: "retired" },
       action: (ctx) => {
         const date = ctx.cycleDate || new Date().toISOString().slice(0, 10);
         return {
@@ -2890,7 +2916,7 @@ Then complete the health check:
       },
     },
     reviewing: {
-      on: { found_issues: "issues_found", no_issues: "clean" },
+      on: { found_issues: "issues_found", no_issues: "clean", retire: "retired" },
       action: (ctx) => {
         if (ctx.issueCount === undefined) return null;
         if (ctx.issueCount > 0) {
@@ -2900,7 +2926,7 @@ Then complete the health check:
       },
     },
     issues_found: {
-      on: { triage: "triaging" },
+      on: { triage: "triaging", retire: "retired" },
       action: (ctx) => {
         // Staleness guard (task #20589, mirrors ComplianceReviewMachine.scan_complete /
         // AgentCollaborationMachine.retrospective_pending): a re-activated dormant workflow
@@ -2937,11 +2963,11 @@ Steps:
       },
     },
     triaging: {
-      on: { dispatch: "dispatched" },
+      on: { dispatch: "dispatched", retire: "retired" },
       action: () => null,
     },
     dispatched: {
-      on: { resolve: "resolved" },
+      on: { resolve: "resolved", retire: "retired" },
       action: () => null,
     },
     clean: {
@@ -2949,6 +2975,14 @@ Steps:
       action: () => null,
     },
     resolved: {
+      on: {},
+      action: () => null,
+    },
+    // Genuine terminal state for "task happened outside the state machine, no further
+    // action needed" (task #20619). No outgoing transitions, so completing from here is
+    // invariant-safe under repair-stale-completions. See memory/shared/entries/
+    // dormant-workflow-audit-noop-states-repair-landmine.md.
+    retired: {
       on: {},
       action: () => null,
     },
