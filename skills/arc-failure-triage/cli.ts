@@ -51,6 +51,25 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     signature: "dismissed",
     patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
   },
+  {
+    signature: "superseded",
+    patterns: [/superseded by (task )?#?\d+/i, /superseded by/i],
+  },
+  {
+    signature: "blocked-on-human",
+    patterns: [
+      /whoabuddy.*needs to/i,
+      /whoabuddy.*must/i,
+      /wallet creds not in/i,
+      /manual step needed/i,
+      /requires.*browser interaction/i,
+      /no X credentials/i,
+      /X account.*registered/i,
+      /creds?.*scoped to.*(a )?different/i,
+      /dashboard (access|credentials) needed/i,
+      /credentials?.*(don't|do not) match/i,
+    ],
+  },
 ];
 
 function classifyError(text: string): string {

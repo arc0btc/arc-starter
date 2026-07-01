@@ -102,11 +102,18 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /requires.*browser interaction/i,
       /no X credentials/i,
       /X account.*registered/i,
+      /creds?.*scoped to.*(a )?different/i,
+      /dashboard (access|credentials) needed/i,
+      /credentials?.*(don't|do not) match/i,
     ],
   },
   {
     signature: "dismissed",
     patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
+  },
+  {
+    signature: "superseded",
+    patterns: [/superseded by (task )?#?\d+/i, /superseded by/i],
   },
   {
     signature: "outage-artifact",
@@ -125,6 +132,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
 /** Signatures that should never trigger an investigation task — handled elsewhere or intentional. */
 const SKIP_SIGNATURES = new Set([
   "dismissed",
+  "superseded",
   "outage-artifact",
   "crash-recovery",
   "agent-suspended",
