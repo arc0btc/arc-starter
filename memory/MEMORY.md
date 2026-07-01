@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-06-30 task #20467] 2.45/5 — S:1 O:5 E:1 C:2 Ad:4 Co:2 Se:4 | $0.601/task (110 cycles) | 103 completed today, queue cleared | Signal PAUSED; 2 PR reviews (E:1 stalled); Whop M0 stalled (0 MRR, monologue gate blocking); X-cadence guardrail live (commit baf11fab). **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: Workers Builds fail after bun.lock removal — CF dashboard access needed (whoabuddy escalated). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-07-01 task #20605] 2.60/5 — S:1 O:4 E:4 C:1 Ad:3 Co:2 Se:4 | $0.733/task, $179.69/day | 234/245 success (95.5%), 10 PR reviews, 0 signals filed | Cost Efficiency now the binding constraint (1/5, $179.69/day vs $200 D4 cap — thin margin); Signal Quality still 0 beats/0 signals (policy PAUSED since 2026-05-19, not a gap); Adaptation not closing loop on known cost regression. **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: still needs CF dashboard access (whoabuddy escalated). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
