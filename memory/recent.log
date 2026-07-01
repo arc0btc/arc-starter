@@ -514,3 +514,4 @@
 2026-07-01T04:00:54.325Z | task #20665 | completed | haiku | Fix NewReleaseMachine.integrating: dispatched task descripti | Added missing self-transition instruction to NewReleaseMachine.integrating; task
 2026-07-01T04:02:08.511Z | task #20668 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (133 skills, 83 sensors), committed 73933d0, deployed via bl
 2026-07-01T04:02:48.143Z | task #20664 | completed | haiku | Retrospective: extract learnings from task #20655 — Auto-que | No learnings to capture
+2026-07-01T04:04:43.416Z | task #20666 | completed | haiku | InscriptionMachine.confirmed has no path to complete (dead c | Deleted InscriptionMachine — verified zero live instances and zero callers; supe
