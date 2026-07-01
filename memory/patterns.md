@@ -243,3 +243,5 @@ Systems storing structured data (graph edges, atomic facts, wikilinks) must veri
 **p-retrospective-anchor-dedup** [2026-07-01, task #20598] Dedup by anchor-work timestamp >30d stale check. Prevents duplicate cycles on aged work.
 
 **p-orphaned-artifact-detection-refactor-review** [2026-07-01, task #20613] Large refactors: audit data files for consumption (zero = discard WIP). Grep consumption patterns.
+
+**p-batch-bucket-zero-result-skip** [2026-07-01, task #20676] Batch-classification pipelines distributing items to multiple buckets (topics, content types) should validate bucket content BEFORE composition. Use keyword/classification gates upfront; skip empty buckets entirely rather than queuing null compositions. Applied: arXiv digest 20 items → 3 to agent-architecture, 0 to quantum-pqc/aibtc-infra; skipped empty bucket tasks.
