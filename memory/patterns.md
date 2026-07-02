@@ -224,4 +224,6 @@
 
 **p-entity-contact-limit-creation-gate** [2026-07-02, task #20853] Entity-specific contact limits (one callback max per lead per policy) must be enforced at task CREATION, not execution. Ahmed had 3 prior touches recorded + policy says "one callback then stop" — the 4th touch task should never have been considered at dispatch. Gate at `arc tasks add` level via skill CLI or pre-flight check in task-creation logic. Distinguishes skill-internal enforcement (always active within the skill CLI) from dispatch-level enforcement (task creation can bypass skill rules if done outside the CLI).
 
+**p-time-window-constrained-contact-eligibility** [2026-07-02, task #20856] Contact-eligible entities must satisfy multiple age/quota gates simultaneously: reply-send age guard (48h) blocks stale signals, give-before-ask enforces (1-3 value touches before any ask). Leads outside either boundary become permanently inaccessible without rule changes. Discovery systems can't widen the funnel faster than the contact-eligibility window closes (age decay > contact-quota available). Pattern: don't scale discovery capacity without expanding or parallelizing the contact-eligibility constraints; diagnostic asks "are my leads aging out?" and "does give-3x quota allow N contacts/day?" before queuing discovery improvements.
+
 
