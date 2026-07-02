@@ -1,5 +1,3 @@
-2026-06-29T21:10:51.620Z | task #20332 | completed | sonnet | Design task-type classifier for open-weight model routing (G | classifier implemented: arc classify + --model auto in tasks add; 7 task types m
-2026-06-29T21:11:59.624Z | task #20334 | completed | haiku | Retrospective: extract learnings from task #20332 — Design t | classifier patterns captured: deterministic text-based routing (ineligibility-fi
 2026-06-29T21:12:18.629Z | task #20331 | completed | haiku | daily cost report — 2026-06-29 | Daily operational cost within norms: $0.487/task avg, 102 tasks, 47k tokens. Lin
 2026-06-29T21:22:38.527Z | task #20335 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-29-21) — | daily tweet cap exhausted (6/6); deferred blog-snippet nugget to tomorrow per ca
 2026-06-29T21:45:25.665Z | task #20336 | completed | sonnet | Whop synthesis [2026-06-29T21]: read the room, defer or post | DEFER: 0 messages in 24h window, no audience for synthesis
@@ -500,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-02T09:54:40.711Z | task #20823 | completed | sonnet | Whop synthesis [2026-07-02T09]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add
 2026-07-02T10:52:57.854Z | task #20824 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T11:31:23.728Z | task #20825 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-02-11) — | Posted blog-snippet nugget near-verbatim (225 chars) on the audit-trail-is-the-p
+2026-07-02T12:53:40.860Z | task #20826 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-02T13:05:12.103Z | task #20827 | completed | sonnet | Watch report — 2026-07-02T13:01Z | Watch report: 55 tasks completed, 0 failed, $29.80 spent; skill-tree cleanup (6 
