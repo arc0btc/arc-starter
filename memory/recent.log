@@ -513,3 +513,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T03:20:57.970Z | task #20793 | completed | haiku | Confirm-delete dead skill: defi-portfolio-scanner (0 real re | Verified dead: no sensor.ts, 0 real refs (only 2026-04-16 lint fix note), 77d st
 2026-07-02T03:21:54.543Z | task #20794 | completed | haiku | Confirm-delete dead skill: hodlmm-risk (0 real refs, 0 senso | hodlmm-risk deleted: confirmed 0 refs, 95d stale, non-standard layout (no sensor
 2026-07-02T03:22:51.399Z | task #20795 | completed | haiku | Confirm-delete dead skill: zest-auto-repay (0 real refs, 0 s | zest-auto-repay deleted — confirmed 0 real refs, 77d stale, non-standard layout
+2026-07-02T03:24:10.038Z | task #20796 | completed | haiku | Confirm-delete dead skill scaffold: arc0btc-email-worker (SK | Deleted arc0btc-email-worker: 34d-stale SKILL.md-only scaffold. No cli/sensor/AG
