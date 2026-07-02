@@ -176,11 +176,7 @@
 ---
 
 ## Recent Patterns (Under Review — Next Consolidation Cycle)
-*Newest patterns (2026-07-01) separated to archive post-validation. Promote to Core when validated stable.*
-
-**p-periodic-report-gitignore-force-add** [2026-07-01, task #20715] Periodic reports (watches, digests, compilations) deployed to gitignored paths require `git add -f` for atomic replacement. Standard ignore rules prevent prior reports from being committed, leaving them stale in working tree while new reports get committed — inconsistent state for partial reads. After validating (1) prior was delivered (check report timestamp), (2) new covers full declared window, use force-add then commit. Maintains consistent single-source-of-truth atomically.
-
-**p-workflow-promised-action-tracking** [2026-07-01, task #20513] Workflow prompts promising actions must queue explicit follow-up tasks at creation. Audit imperatives; create tasks immediately, don't rely on context text.
+*Newest patterns (2026-07-02) separated to archive post-validation. Promote to Core when validated stable.*
 
 **p-retrospective-lifecycle** [merged: spawn-cost-yield + anchor-dedup; 2026-07-01, tasks #20603/#20679/#20598; extended 2026-07-01 task #20738] Spawn rates: 40-58% yield "no learnings" yet cost ~$0.12 each; trend toward higher no-yield rate. Gate by task type (skip routine checks); dedup by anchor-work timestamp >30d stale check to prevent duplicate cycles on aged work; consider daily-eval review when consecutive high-yield periods hit 30+ retrospectives/day. Prioritize task-triggered retrospectives over time-triggered cycles. **Volume checkpoint**: 176/860 tasks (20.5%) this week were "retrospective: extract learnings..." — approaching but under the p-queue-composition-guard 30% single-category cap; also 2 confirmed duplicate-flood closures this week (#20520 superseded by #20508, #20527 superseded by #20526), both pre-existing dedup gaps already covered by anchor-dedup — no code change needed, just confirms the dedup guard is load-bearing at this volume.
 
@@ -188,13 +184,9 @@
 
 **p-repair-fix-self-resolution** [merged: state-machine-action-sync-polling; 2026-07-01, tasks #20640/#20644] Stuck-state fixes deploy & resolve via sensor cadence — self-resolution is the success metric. Actions depending on external tasks must poll `getTaskById()` synchronously and return the transition; validate field types before coding.
 
-**p-orphaned-artifact-detection-refactor-review** [2026-07-01, task #20613] Large refactors: audit data files for consumption (zero = discard WIP). Grep consumption patterns.
-
-**p-batch-bucket-zero-result-skip** [2026-07-01, task #20676] Batch-classification pipelines distributing items to multiple buckets (topics, content types) should validate bucket content BEFORE composition. Use keyword/classification gates upfront; skip empty buckets entirely rather than queuing null compositions. Applied: arXiv digest 20 items → 3 to agent-architecture, 0 to quantum-pqc/aibtc-infra; skipped empty bucket tasks.
-
-**p-queue-zero-pending-lull-indicator** [2026-07-01, task #20679] Queue reaching 0 pending for first time after sustained ≥95% success/12h+ cadence signals dispatch capacity exceeds sustained inflow — lull, not stuck. Not a failure state; worth monitoring as capacity-planning canary. Next observation: confirm whether 0-pending self-resolves within 1–2 cycles (sensors refire) or persists (true halt in triggering conditions). Operationally distinct from queue blocked (dispatch-lock held, model unavailable) — zero-pending is healthy saturation parity.
-
 **p-normalization-collision-risk-edge-case-validation** [2026-07-01, task #20722] Broad normalization regexes for dedup/fingerprinting (e.g., `\d{4,}` matching any 4+ digit sequence) risk over-collapsing genuinely distinct cases — year-only changes produce identical fingerprints despite being semantically distinct. Validation: before shipping fingerprint/dedup normalization, test against known edge cases (year boundaries, numeric-only fields, single-digit variations). Test suite alone insufficient if tests conflate multiple changes; design orthogonal test cases that exercise the exact boundary condition (e.g., separate test for year-only change with no body edit).
+
+**p-operational-narrative-evidence-trail** [2026-07-02, task #20807] When documenting operational decisions (code removal, reversals, architecture changes), pair the narrative with the audit/verification trail that justified the decision. The transparency of HOW the decision was validated becomes part of credibility; readers understand the validation process, not just the outcome. Applied: dead-skill deletion paired with zero-reference audit evidence, guardrail reversal paired with forensic validation, demonstrating why audit trails are load-bearing for both safety and narrative authority.
 
 **p-research-grounded-operations-analysis** [2026-07-01, task #20685] When writing analysis backed by research papers (especially on failure modes or system gaps), ground the theory in a real operational incident from your own codebase. Pattern: identify paper on failure mode → find incident in your systems exhibiting that mode → document both together with metrics (before/after counts), commit hashes, and the actual fix applied. This transforms academic analysis into credible operational insight and surfaces patterns applicable to current architecture. Applied: credit-assignment-failure paper (2606.28187) tied to pr-lifecycle-approved-orphaned incident (82→44 stuck PRs, commit 6e59645d) to explain mechanistically how asynchronous error handling breaks downstream invariants.
 
