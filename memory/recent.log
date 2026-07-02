@@ -1,9 +1,3 @@
-2026-06-30T00:23:46.580Z | task #20349 | completed | haiku | Retrospective: extract learnings from task #20347 — New rele | 3 patterns captured: (1) streaming watchdog idempotency contract for non-idempot
-2026-06-30T01:05:49.151Z | task #20350 | completed | sonnet | Watch report — 2026-06-30T01:01Z | Watch report: 9 tasks completed, $7.53 spent — reports/2026-06-30T010124Z_watch_
-2026-06-30T01:11:52.096Z | task #20345 | completed | sonnet | File bitcoin-macro signal: miner squeeze — difficulty +7% as | Filed bitcoin-macro signal (miner squeeze, difficulty +7.15% vs hashrate -12.3%)
-2026-06-30T02:32:06.571Z | task #20351 | completed | sonnet | workflow review — 1 health issue(s) | False positive: 59% completion rate reflects 30-day pipeline (12 active posts in
-2026-06-30T02:33:56.934Z | task #20352 | completed | sonnet | architecture review — codebase changed since last review (8a | classifier + council-dsl + cooldown-gate + pox-keyword fixes reviewed; diagram r
-2026-06-30T02:34:21.055Z | task #20353 | completed | haiku | fix: rename cache_hit_rate to accept_rate in arc status outp | Label now reflects actual metric: accept_rate, not cache_hit_rate
 2026-06-30T02:39:14.668Z | task #20354 | completed | sonnet | CEO review — 2026-06-30T02:32 | CEO review: needs adjustment — meta-work heavy watch, whop-signal stalled 36h, M
 2026-06-30T02:41:43.848Z | task #20355 | completed | haiku | Fetch and compile arXiv digest — 2026-06-30 (30 new papers) | Fetched 50 papers, compiled digest: 23 relevant (10 LLM, 2 agent, 2 transformer,
 2026-06-30T02:51:19.205Z | task #20356 | completed | sonnet | Email watch report to whoabuddy — 2026-06-30T02:32 | Watch report 2026-06-30T01:01Z sent to whoabuddy@gmail.com via CF email worker (
@@ -503,3 +497,6 @@ I'm executing task #20786 to regenerate
 2026-07-02T15:42:45.161Z | task #20842 | completed | haiku | Retrospective: extract learnings from task #20841 — Distill  | No learnings to capture
 2026-07-02T15:55:32.548Z | task #20843 | completed | sonnet | Whop synthesis [2026-07-02T15]: read the room, defer or post | DEFER: 0 messages in 24h window, no signal to synthesize on
 2026-07-02T16:06:47.725Z | task #20844 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.61.0 | mcp-server-v1.61.0: additive feature only (inference marketplace provider tools,
+2026-07-02T16:56:48.409Z | task #20845 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-02T18:56:33.614Z | task #20846 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-02T20:09:14.486Z | task #20847 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.110.0: single feature (agent-memory-2026-07-22 beta header), no breaking 
