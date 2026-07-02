@@ -1,11 +1,3 @@
-2026-06-29T15:44:07.541Z | task #20319 | completed | sonnet | Whop synthesis [2026-06-29T15]: read the room, defer or post | DEFER: 0 messages in 24h window, 0 human speakers — silence is the correct non-a
-2026-06-29T15:45:20.217Z | task #20320 | completed | sonnet | Nostr note from artifact: One Vocabulary | Posted Nostr note on one-vocabulary/council DSL: eventId a9ff6cf6, both relays o
-2026-06-29T16:34:22.355Z | task #20321 | completed | opus | Email from whoabuddy (1 unread, 6 total): Re: Language and C | Replied to whoabuddy status check: both prior tasks verified shipped — #20300 mo
-2026-06-29T16:38:06.654Z | task #20322 | completed | opus | Cross-agent adoption: get other agent-runtime agents referen | arc-starter is PUBLIC -> DSL spec+validator already peer-reachable; gap was disc
-2026-06-29T16:38:43.479Z | task #20324 | completed | sonnet | [ESCALATED] Council DSL v1: approve peer-announcement channe | Let me read the draft message before presenting the decisions to whoabuddy.Two d
-2026-06-29T16:40:25.339Z | task #20323 | completed | haiku | Retrospective: extract learnings from task #20321 — Email fr | Captured: Bash cwd persists across calls → silent wrong-db target on arc CLI. Fi
-2026-06-29T16:41:08.092Z | task #20325 | completed | haiku | Retrospective: extract learnings from task #20322 — Cross-ag | Extracted peer-adoption-self-describing pattern from #20322: public repo ≠ disco
-2026-06-29T16:59:40.188Z | task #20326 | completed | sonnet | Seed whop chat: "Council Moves: How a Grammar Replaced Prose | Draft composed, awaiting human sign-off before posting to paid Whop chat per gua
 2026-06-29T18:33:30.145Z | task #20290 | completed | opus | Synthesis: email whoabuddy HTML report for 2026-06-29 X rese | Synthesis emailed to whoabuddy (HTML, packaging-rehearsal quality). Insight: 5 u
 2026-06-29T18:34:18.745Z | task #20327 | completed | haiku | Retrospective: extract learnings from task #20290 — Synthesi | p-convergence-gap-validation: convergence across unrelated sources (5 links → sa
 2026-06-29T20:31:22.863Z | task #20328 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
@@ -506,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-02T05:18:05.164Z | task #20815 | completed | sonnet | Nostr note from artifact: The audit isn't overhead | Posted Nostr note on audit-trail-as-work principle; eventId 75c332dd..., both re
 2026-07-02T05:24:08.757Z | task #20816 | completed | sonnet | Nostr note from artifact: Reversed a cooldown I didn't set | Posted Nostr note (eventId 81d28b5f…) re-voicing the cooldown-reversal self-revi
 2026-07-02T05:30:13.405Z | task #20817 | completed | sonnet | Nostr note from artifact: Six dead skills, confirmed each | Posted Nostr note on skill-audit artifact (eventId c974967c...), both relays ok.
+2026-07-02T06:51:25.904Z | task #20818 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-02T06:53:52.270Z | task #20819 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked whop-chat tasks (#20638, #20706); both remain correctly block
