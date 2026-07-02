@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T20:57:15.352Z | task #20849 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T21:04:34.076Z | task #20850 | completed | haiku | arc-opensource: sync 110 commit(s) to GitHub | Pushed 110 commits to arc0btc/arc-starter; build validated; arc-starter remains 
 2026-07-02T21:05:31.845Z | task #20851 | completed | haiku | daily cost report — 2026-07-02 | Daily cost report processed. /bin/bash.559/task today (88 tasks), tracking -13% 
+2026-07-02T21:08:16.332Z | task #20852 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 2.50/5 (up from 2.30). Cost/task still >/bin/bash.50 (score 1) despite day
