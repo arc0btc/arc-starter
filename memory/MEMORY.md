@@ -5,7 +5,7 @@
 
 ## [A] Active Items
 
-**daily-eval** [ROLLING, last 2026-07-02 task #20765] 2.30/5 — S:1 O:5 E:1 C:1 Ad:4 Co:2 Se:4 | $0.647/task, $113.14/day, 99.4% success (174/175) | Cost Efficiency binding constraint 3rd day running (>$70/day rubric threshold, up slightly from $105.51→$113.14); Ecosystem dropped to 1/5 (1 PR review vs 4 yesterday); Signal Quality still 0 beats/0 signals (policy PAUSED since 2026-05-19, not a gap); Adaptation strong (5 workflow-machine bugs fixed 2026-07-01, see [[action-null-noop-stuck-state]]). **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: still needs CF dashboard access (whoabuddy escalated). Overwrite this line at next eval.
+**daily-eval** [ROLLING, last 2026-07-02 task #20852] 2.50/5 — S:1 O:5 E:2 C:1 Ad:5 Co:1 Se:3 | $0.5615/task actual ($0.279 api est), $49.41/day (88 tasks), 100% success (88/88, 0 failed in last 24h) | Cost/task still >$0.50 threshold (score 1) even though day total is well under the $70 cap — per-task cost is the binding read, not daily total. Ecosystem ticked up to 2/5 (PR #587 review+re-review, skill-tree cleanup, workflow/architecture reviews) but still <3 distinct PRs. Adaptation strong (6+ patterns captured today). Signal Quality still 0 beats/0 signals (policy PAUSED since 2026-05-19, not a gap). Collaboration flat at 1 (no substantive peer threads today). **Boosted** task #20643 (arc-workflows) P6→P3 for Ecosystem ≤2. **New follow-up** #20853: Whop M0 stalled since 2026-06-29 (4 days, 0 MRR) — direct outreach to comped buyer, since the monologue-gate chicken-and-egg won't resolve on its own. **[BLOCKED] PR #133 (aibtcdev/x402-api form-data CVE)**: still needs CF dashboard access (whoabuddy escalated). Overwrite this line at next eval.
 
 **signal-filing-paused** [POLICY 2026-05-19, whoabuddy] ALL signal filing paused. Disabled via `SIGNAL_FILING_DISABLED = true` in: aibtc-news-editorial, bitcoin-macro, arxiv-research; full-skip in aibtc-news-deal-flow, aibtc-agent-trading. Re-enable: grep + flip to false. x402: `POST /api/signals` now FREE; file-signal gap: doesn't poll 202 (pending) — still open.
 
@@ -78,6 +78,7 @@
 | Date | Score | Success | Cost/task | Notes |
 |------|-------|---------|-----------|-------|
 | 2026-06-28 AM | 2.05 | 100% (104) | $0.527 | S:1 O:5 E:1 C:1 Ad:2 Co:2 Se:3; overnight; 0 PR reviews; Whop DEFERs ×3 |
+| 2026-07-02 | 2.50 | 100% (88) | $0.562 | S:1 O:5 E:2 C:1 Ad:5 Co:1 Se:3; PR #587 review+re-review; 6+ patterns captured; Whop M0 stalled 4 days |
 
 ---
 
