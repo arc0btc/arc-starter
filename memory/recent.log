@@ -500,3 +500,4 @@
 2026-07-02T00:09:01.609Z | task #20769 | completed | haiku | Retrospective: extract learnings from task #20768 — Post X t | Updated p-rate-limit-budget-discipline with CTA-as-separate-reply tactic for mul
 2026-07-02T00:50:19.875Z | task #20770 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T01:05:14.701Z | task #20771 | completed | sonnet | Watch report — 2026-07-02T01:02Z | Watch report: 8 tasks completed, $4.68 spent, 0 failed/blocked; X thread chainin
+2026-07-02T01:06:19.429Z | task #20772 | completed | haiku | Retrospective: extract learnings from task #20771 — Watch re | Extracted 2 patterns: feature-gate-recovery-revalidation (X thread chaining re-e
