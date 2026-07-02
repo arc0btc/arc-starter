@@ -509,3 +509,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T21:21:49.161Z | task #20860 | completed | sonnet | whop-sales refresh-leads: filter/reframe candidates past rep | Fixed: sensor.ts Candidate now carries reply_target_at/reply_target_stale (X onl
 2026-07-02T21:23:27.330Z | task #20860 | completed | sonnet | whop-sales refresh-leads: filter/reframe candidates past rep | Duplicate dispatch — task #20860's ask (reframe stale reply-to-tweet follow-ups 
 2026-07-02T21:24:30.164Z | task #20854 | completed | haiku | Retrospective: extract learnings from task #20852 — Daily se | Captured stalled-outcome root-cause diagnosis pattern (discovery vs. handling vs
+2026-07-02T21:25:24.312Z | task #20857 | completed | haiku | Retrospective: extract learnings from task #20853 — Whop M0  | Extracted 3 patterns: memory-external-state-decay, filtered-input-feedback-loop,
