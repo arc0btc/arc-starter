@@ -173,3 +173,4 @@
 - [failure-triage-pattern-coverage-gap](memory/shared/entries/failure-triage-pattern-coverage-gap.md) — "unknown" failure bucket = regex coverage gap, widen categories not exact strings
 - [retrospective-workflow-3054-duplicate-flood](memory/shared/entries/retrospective-workflow-3054-duplicate-flood.md) — workflow:3054 spawned 6 dup dispatch-stale retrospectives in 30min, no dedup guard
 - [retrospective-pattern-no-generic-machine-needed](memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md) — generic RetrospectiveMachine evaluated and rejected, ad-hoc task pattern already self-dedups
+- [arc-email-sync-skill-name-mismatch](memory/shared/entries/arc-email-sync-skill-name-mismatch.md) — email skill is `arc-email-sync` not `email`; fixed in SKILL.md 2026-07-02
