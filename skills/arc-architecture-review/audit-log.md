@@ -1,3 +1,31 @@
+## 2026-07-02T14:40:00.000Z — dead-skill pruning sweep (7 deleted); doc fix; 126 skills / 83 sensors
+
+**Task #20834** | Diff: 095a444..77ff447 (8 commits — 0 src/, 8 skills/) | Sensors: 83 | Skills: 126 (down from 133)
+
+### Changed files
+
+- Seven skills deleted, all confirmed zero-reference before removal: `stacking-delegation` (76d stale), `contract-preflight` (77d stale, no sensor), `code-audit` (37d stale, subsumed by `/code-review`), `defi-portfolio-scanner` (77d stale, no sensor), `hodlmm-risk` (95d stale, non-standard layout), `zest-auto-repay` (77d stale, non-standard layout), `arc0btc-email-worker` (34d stale, SKILL.md-only scaffold, pending upstream issue #2).
+- `skills/arc-email-sync/SKILL.md` (db808515) — fixed CLI examples using wrong skill name (`--name email` → `--name arc-email-sync`); caught live during task #20782's watch report send.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All 7 deletions trace to a concrete staleness signal (34–95 days unused, zero live references) rather than speculative pruning. This is Step 2 (Delete) already applied by a prior cycle — this review's job was to verify the deletions were clean, which they are: `grep -rl` across `src/` and `skills/` for all 7 deleted skill names returns zero live references (only the historical mention in `audit-log.archive.md`, expected).
+- **Step 2 — Delete**: Confirmed clean — this cycle's diff *is* the delete step for 7 skills. No further deletion candidates surfaced.
+- **Step 3 — Simplify**: N/A — no code restructuring this diff, just removal + one doc typo fix.
+- **Step 4 — Accelerate**: Marginal — 126 vs 133 skills is a small reduction in `arc skills` list size and skill-tree audit surface, no measurable pipeline change.
+- **Step 5 — Automate**: N/A this cycle.
+
+No structural or context-delivery concerns found. This is the cleanest possible diff type for an architecture review — pure subtraction, pre-verified reference-free.
+
+### Flags
+
+- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate. Rename to `accept_rate (7d)`. Carried 6 cycles now across multiple audits with no fix task filed — queuing one this cycle.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
+- **[CARRY-WATCH]** X_THREAD_CHAINING_ENABLED re-enable (2026-07-01, flagged 2026-07-02 #20773) — per MEMORY.md, escalation #20820 already covers the whop-chat sign-off gap; X chaining itself has no new signal this cycle (still short of the "clean week" window, no new lock observed).
+
+---
+
 ## 2026-07-02T02:34:00.000Z — X 403 backoff centralized + thread chaining re-enabled (policy reversal flagged); 133 skills / 83 sensors
 
 **Task #20773** | Diff: 3a39f58..095a444 (2 commits — 0 src/, 2 skills/) | Sensors: 83 | Skills: 133
@@ -71,23 +99,6 @@ Changed: `src/cli.ts` (accept_rate rename — carry-flag resolved); `skills/clau
 - **[RESOLVED]** `cache_hit_rate` mislabel — renamed to `accept_rate` in `src/cli.ts` (commit a38cb92e). Removed from active flags.
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH]** `classifier.ts` INELIGIBLE regex `/\bsensor\b/i` may block "fix sensor cooldown"-type subjects from open-weight routing — verify intent.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (tomorrow). Escalate if failures appear.
-
----
-
-## 2026-06-30T02:35:00.000Z — classifier added; council-dsl skill shipped; cooldown-gate fix; context-review pox fix; 133 skills / 83 sensors
-
-**Task #20352** | Diff: 8a8b91a..8b50aba (5 commits — 2 src/, 4 skills/) | Sensors: 83 | Skills: 133
-
-Changed: `src/classifier.ts` (new — task-type classifier, 7 tiers, pure heuristics, no LLM); `src/cli.ts` (wires `--model auto` → classifier, adds `classify` subcommand); `skills/council-dsl/` (new skill — DSL v1 validator + Borda×conf tally, 340-line validator, 115-line CLI); `skills/arc-purpose-eval/sensor.ts` (daily-eval brief now emits DSL moves + runs `council-dsl validate`); `skills/arc-failure-triage/sensor.ts` (cooldown-gate added to ERROR_PATTERNS + SKIP_SIGNATURES — prevents false network-error classification); `skills/context-review/sensor.ts` (pox keyword narrowed from bare `pox` to `pox reward`/`pox cycle` to prevent substring collisions in Message-IDs).
-
-**Steps 1–5**: Req — classifier + council-dsl are demand-driven (open-weight routing bottleneck + daily-eval DSL mandate). Delete — no candidates; all changes are additive and scoped. Simplify — classifier is pure heuristics (no LLM, no network); council-dsl CLI is thin wrapper over validator.ts; both are correct abstraction level. Accelerate — `--model auto` closes the open-weight routing gap without any new queue pressure. Automate — council-dsl now validates daily-eval DSL mechanically before scoring; this is the right automation boundary.
-
-### Flags
-
-- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate. Rename to `accept_rate (7d)`. (3 cycles carried — queue a fix task)
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[NEW-WATCH]** `classifier.ts` INELIGIBLE regex `/\bsensor\b/i` would block any task with "sensor" in subject (e.g. "fix sensor cooldown") from open-weight routing — correct behavior, but verify intent covers sensor-adjacent task subjects.
 - **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (tomorrow). Escalate if failures appear.
 
 ---
