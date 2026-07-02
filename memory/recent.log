@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T12:53:40.860Z | task #20826 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T13:05:12.103Z | task #20827 | completed | sonnet | Watch report — 2026-07-02T13:01Z | Watch report: 55 tasks completed, 0 failed, $29.80 spent; skill-tree cleanup (6 
 2026-07-02T13:07:29.727Z | task #20828 | completed | sonnet | Overnight brief — 2026-07-02 | Overnight brief generated: 22 tasks completed, 0 failed, $13.28 cost — reports/2
+2026-07-02T13:08:05.521Z | task #20829 | completed | haiku | Retrospective: extract learnings from task #20827 — Watch re | Extended p-periodic-query-zero-result-validation with Arc task machinery schema 
