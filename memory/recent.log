@@ -1,14 +1,3 @@
-2026-06-29T13:27:19.236Z | task #20277 | completed | haiku | Retrospective: extract learnings from task #20275 — Email fr | Updated p-email-task-handling to include verify-prior step: validate prior commi
-2026-06-29T13:28:37.377Z | task #20278 | completed | haiku | Retrospective: extract learnings from task #20276 — Draft ag | Extracted DSL vocabulary-anchoring pattern: use existing ecosystem standards (RF
-2026-06-29T14:16:47.123Z | task #20279 | completed | opus | Email from whoabuddy (1 unread, 4 total): Re: Language and C | Replied to whoabuddy 'What was the result?' with DSL grammar v1 outcome (task #2
-2026-06-29T14:17:32.257Z | task #20280 | completed | haiku | Retrospective: extract learnings from task #20279 — Email fr | No learnings to capture - task #20279 validated existing p-email-task-handling a
-2026-06-29T14:23:42.342Z | task #20281 | completed | opus | Email from whoabuddy (1 unread): 2026-06-29 Research Tasks | whoabuddy 25-link X research batch (24 unique) -> delegated to opus orchestratio
-2026-06-29T14:28:43.943Z | task #20282 | completed | opus | Orchestrate 2026-06-29 X research batch (24 links): cache-on | 24-link X batch: process-once cached 24 tweets+13 embedded; article-level cache 
-2026-06-29T14:31:29.026Z | task #20284 | completed | opus | Research report: org-level agent harnesses (single→multiplay | Org-harness article maps single-player→org-level onto Arc single-node→fleet: Arc
-2026-06-29T14:34:05.635Z | task #20285 | completed | opus | Research report: agent memory systems — Accenture persistent | Memory store/search/update/clean-up rubric: Arc covers 3/4 (store/update/clean-u
-2026-06-29T14:36:05.732Z | task #20286 | completed | opus | Research report: open-weight + cost-routing — 'entire stack  | Cost-routing report: DeRonin per-task swap table + Armstrong 'Better Defaults no
-2026-06-29T14:38:15.842Z | task #20287 | completed | opus | Research report: agentic-engineering discipline — Karpathy s | Agentic-engineering discipline report written (relevance-5 SKU candidate, harnes
-2026-06-29T14:40:13.296Z | task #20288 | completed | sonnet | Research report: agent output-quality skills — STORM multi-a | STORM multi-angle fan-out is Arc's Workflow judge-panel unapplied to research; G
 2026-06-29T14:41:25.760Z | task #20298 | completed | opus | Email from whoabuddy (1 unread, 5 total): Re: Language and C | whoabuddy: chop DSL grammar v1 into blog + ensure adoption. Queued #20299 (blog 
 2026-06-29T14:45:45.698Z | task #20300 | completed | opus | Adoption plan: make Agent Council DSL grammar v1 the standar | Council DSL grammar v1 adopted as standard: durable home is committed agent-runt
 2026-06-29T14:53:01.887Z | task #20302 | completed | sonnet | Build portable Agent Council DSL validator (grammar v1 §1.5  | Built council-dsl skill: validator.ts (portable, no deps) + cli.ts (validate/tal
@@ -509,3 +498,5 @@
 2026-07-02T02:41:55.274Z | task #20777 | completed | haiku | Retrospective: extract learnings from task #20774 — workflow | Verified task #20774 findings. Content-calendar phase3 gap is known (no action).
 2026-07-02T02:42:31.445Z | task #20779 | completed | haiku | Retrospective: extract learnings from task #20778 — CEO revi | Captured p-report-only-scope-boundary: report-only tasks maintain zero-adjustmen
 2026-07-02T02:43:13.707Z | task #20780 | completed | haiku | Fetch and compile arXiv digest — 2026-07-02 (30 new papers) | Fetched 50 papers, 25 relevant. Compiled digest: 18 LLM papers, 4 reasoning, 3 o
+2026-07-02T02:51:05.149Z | task #20781 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-02T02:53:33.680Z | task #20782 | completed | sonnet | Email watch report to whoabuddy — 2026-07-02T02:34 | Sent watch report (2026-07-02T01:02Z) to whoabuddy@gmail.com via arc-email-sync 
