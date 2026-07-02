@@ -174,3 +174,4 @@
 - [retrospective-workflow-3054-duplicate-flood](memory/shared/entries/retrospective-workflow-3054-duplicate-flood.md) — workflow:3054 spawned 6 dup dispatch-stale retrospectives in 30min, no dedup guard
 - [retrospective-pattern-no-generic-machine-needed](memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md) — generic RetrospectiveMachine evaluated and rejected, ad-hoc task pattern already self-dedups
 - [arc-email-sync-skill-name-mismatch](memory/shared/entries/arc-email-sync-skill-name-mismatch.md) — email skill is `arc-email-sync` not `email`; fixed in SKILL.md 2026-07-02
+- [dead-skill-audit-evidence-triangulation](memory/shared/entries/dead-skill-audit-evidence-triangulation.md) — recent.log alone insufficient for 30d dead-skill audits; triangulate sensor-health-report + git staleness + external refs
