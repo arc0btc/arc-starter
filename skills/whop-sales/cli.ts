@@ -139,6 +139,12 @@ async function cmdRefreshLeads(): Promise<void> {
           channel: c.channel,
           route: c.route,
           signal: c.signal,
+          reply_target_at: c.reply_target_at,
+          // X only: true when reply_to_msg_id is past the reply lane's target-age
+          // guard (skills/social-engine/reply-send.ts, default 48h) — a reply-to-tweet
+          // follow-up for this candidate WILL be blocked ('stale_target') at send time.
+          // Reframe as a fresh-signal outreach instead (task #20860).
+          reply_target_stale: c.reply_target_stale,
         })),
       },
       null,

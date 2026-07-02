@@ -96,6 +96,8 @@ export interface Candidate {
   route: Route;
   channel: string; // x | forum — drives the link, the skills, and the post venue
   reply_to_msg_id: string | null; // the room message to reply to (forum venue)
+  reply_target_at: string | null; // ISO8601 created_at of reply_to_msg_id (X: age-gated by the reply lane)
+  reply_target_stale: boolean; // true when an X reply-to-tweet follow-up would be blocked (stale_target)
 }
 
 export interface LaneSummary {
@@ -150,11 +152,42 @@ function defaultLeadSource(): RelationshipStore {
   return store;
 }
 
-/** Pull cite-able recent activity (+ the message to reply to) from an engagement record. */
-function leadSignal(rel: Relationship): { signal: string; msgId: string | null } {
+/** Pull cite-able recent activity (+ the message to reply to, + its timestamp) from an engagement record. */
+function leadSignal(rel: Relationship): { signal: string; msgId: string | null; msgAt: string | null } {
   const lastUser = [...rel.recent_interactions].reverse().find((i) => i.direction === "from_user");
-  if (lastUser) return { signal: `engaged Arc: "${lastUser.snippet}"`, msgId: lastUser.msg_id };
-  return { signal: `engaged Arc ${rel.message_count}× without replying`, msgId: null };
+  if (lastUser) return { signal: `engaged Arc: "${lastUser.snippet}"`, msgId: lastUser.msg_id, msgAt: lastUser.at };
+  return { signal: `engaged Arc ${rel.message_count}× without replying`, msgId: null, msgAt: null };
+}
+
+// The X reply lane (skills/social-engine/reply-send.ts GUARD 1) fail-closed-blocks
+// any reply to a tweet older than `reply_target_age_hours` (agent_config, default
+// 48h). Mirror the SAME default here so a stale X lead is caught at CANDIDATE time
+// — before a pitch/value-touch follow-up is queued that's guaranteed to be blocked
+// at send time (task #20860: endlessdomains' ~20d-old tweet hit this the hard way).
+// Only X is gated: the forum reply-to-post path (whop -- post-forum) has no such guard.
+const REPLY_TARGET_AGE_HOURS_DEFAULT = 48;
+
+function getReplyTargetAgeHours(): number {
+  try {
+    const db = getDatabase();
+    const row = db.query("SELECT value FROM agent_config WHERE key=?").get("reply_target_age_hours") as
+      | { value: string }
+      | null;
+    if (!row) return REPLY_TARGET_AGE_HOURS_DEFAULT;
+    const n = parseInt(row.value, 10);
+    return isNaN(n) ? REPLY_TARGET_AGE_HOURS_DEFAULT : n;
+  } catch {
+    return REPLY_TARGET_AGE_HOURS_DEFAULT;
+  }
+}
+
+/** True when an X reply-to-tweet follow-up for this candidate would be blocked by the reply lane's target-age guard. */
+function isReplyTargetStale(channel: string, msgAt: string | null): boolean {
+  if (channel !== "x" || !msgAt) return false;
+  const at = new Date(msgAt);
+  if (isNaN(at.getTime())) return false;
+  const ageMs = Date.now() - at.getTime();
+  return ageMs > getReplyTargetAgeHours() * 3600 * 1000;
 }
 
 /**
@@ -175,8 +208,9 @@ export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): 
     if (rel.message_count < 1) continue;
     const cls: "A" | "B" | "C" =
       rel.their_replies_to_arc >= 2 ? "A" : rel.message_count >= 3 ? "B" : "C";
-    const { signal, msgId } = leadSignal(rel);
+    const { signal, msgId, msgAt } = leadSignal(rel);
     const route: Route = OPERATOR_LANE_RE.test(signal) ? "operator-manual" : "arc-auto";
+    const channel = rel.channel ?? "forum";
     out.push({
       lead_id: rel.user_id,
       username: rel.username,
@@ -187,8 +221,10 @@ export function surfaceLeads(store: RelationshipStore, memberIds: Set<string>): 
       // The lead store tags each user with the surface it was sourced from
       // (lead-source.ts: forum fold leaves it unset → "forum"; X fold sets "x").
       // channel drives the link, the venue-scoped skills, and the post command.
-      channel: rel.channel ?? "forum",
+      channel,
       reply_to_msg_id: msgId,
+      reply_target_at: msgAt,
+      reply_target_stale: isReplyTargetStale(channel, msgAt),
     });
   }
   const order = { A: 0, B: 1, C: 2 };
@@ -300,6 +336,22 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "ROUTE: OPERATOR-MANUAL — do NOT auto-post. This lead self-selected up-ladder (L3/L4),",
       "which is relationship-gated. Flag for whoabuddy to handle from their own account; the",
       "lane composed the below as a starting point only. Close completed with the draft in the summary.",
+    ].join("\n");
+  } else if (isX && c.reply_target_stale) {
+    // STALE TARGET (task #20860): reply_to_msg_id is older than the reply lane's
+    // target-age guard (skills/social-engine/reply-send.ts GUARD 1, default 48h) —
+    // a reply-to-tweet follow-up here is GUARANTEED to be blocked at send time
+    // ('stale_target'), same failure task #20858 hit against endlessdomains' ~20d-old
+    // tweet. Reframe as a FRESH-SIGNAL outreach: a new standalone post that mentions
+    // the lead by handle, instead of reviving a dead thread.
+    const who = c.username ? `@${c.username}` : "them";
+    postBlock = [
+      `ROUTE: ARC-AUTO (arc0btc X) — STALE REPLY TARGET (their last known tweet is past the ${getReplyTargetAgeHours()}h reply-target-age cutoff; a reply would be blocked as 'stale_target').`,
+      `Do NOT call social-engine -- reply against reply_to_msg_id=${c.reply_to_msg_id ?? "<none>"} — it will be rejected.`,
+      `Instead, compose a FRESH standalone post that mentions ${who} directly (value first, no link) — a new-signal outreach, not a revived thread:`,
+      `  arc skills run --name social-x-posting -- post --text "<body mentioning ${who}>" --source quest:gtm:recurring:acquisition:${c.lead_id}:fresh`,
+      "If the CTA needs a follow-up, use post --reply-to against the tweet you just posted (your own thread, not theirs).",
+      "If no fresher engagement signal exists for this lead, treat as C-class / defer rather than forcing an outreach.",
     ].join("\n");
   } else if (isX) {
     // WARM-REPLY ASSIST (P10B steer — NOT cold outreach): this lead engaged Arc on
