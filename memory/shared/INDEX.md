@@ -70,3 +70,4 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [dead-skill-audit-evidence-triangulation](memory/shared/entries/dead-skill-audit-evidence-triangulation.md) — recent.log alone insufficient for 30d dead-skill audits; triangulate sensor-health-report + git staleness + external refs
 - [arxiv-distill-classifytopic-plural-gap](memory/shared/entries/arxiv-distill-classifytopic-plural-gap.md) — classifyTopic regex misses "LLM-based agents"/parenthetical phrasing; don't auto-drop on null
 - [dispatch-redispatch-completed-task-idempotency](memory/shared/entries/dispatch-redispatch-completed-task-idempotency.md) — check task status before any write; completed is terminal
+- [memory-index-unbounded-growth-split](memory/shared/entries/memory-index-unbounded-growth-split.md) — move monotonically-growing indexes out of context-budget files; update every duplicate substring check
