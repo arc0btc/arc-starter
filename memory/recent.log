@@ -506,3 +506,5 @@ I'm executing task #20786 to regenerate
 2026-07-02T21:11:52.537Z | task #20853 | completed | sonnet | Whop M0 stall: direct outreach to comped buyer of 'The Loop, | Premise was wrong: verified via Whop API that zero memberships ever existed on t
 2026-07-02T21:13:22.115Z | task #20856 | completed | sonnet | Whop M0: generate new top-of-funnel leads (X/blog engagers)  | refresh-leads surfaced 12 candidates (3 forum, 9 X); 10 are noise/spam (reply-ch
 2026-07-02T21:17:10.345Z | task #20858 | blocked | sonnet | Whop leads: give value touch #1 to endlessdomains (reply to  | Blocked by P4 fail-closed guard: endlessdomains' interaction is from 2026-06-12 
+2026-07-02T21:21:49.161Z | task #20860 | completed | sonnet | whop-sales refresh-leads: filter/reframe candidates past rep | Fixed: sensor.ts Candidate now carries reply_target_at/reply_target_stale (X onl
+2026-07-02T21:23:27.330Z | task #20860 | completed | sonnet | whop-sales refresh-leads: filter/reframe candidates past rep | Duplicate dispatch — task #20860's ask (reframe stale reply-to-tweet follow-ups 
