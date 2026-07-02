@@ -509,3 +509,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T14:35:53.655Z | task #20834 | completed | sonnet | architecture review — codebase changed since last review (09 | Diff 095a444..77ff447 was pure skill-tree pruning: 7 dead skills deleted (all ve
 2026-07-02T14:36:45.862Z | task #20836 | completed | openrouter:mistralai/devstral-2512 | fix: rename cache_hit_rate label to accept_rate in src/cli.t | The label 'cache_hit_rate' has already been renamed to 'accept_rate' in src/cli.
 2026-07-02T14:37:43.584Z | task #20835 | completed | sonnet | workflow review — 2 health issue(s) | Both flagged issues already tracked: content-calendar 44% completion = known who
+2026-07-02T14:38:54.377Z | task #20837 | completed | haiku | Retrospective: extract learnings from task #20834 — architec | No learnings to capture. Task #20834 executed cleanly per existing patterns: p-a
