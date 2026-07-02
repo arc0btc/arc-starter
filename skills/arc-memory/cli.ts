@@ -547,15 +547,17 @@ function cmdHealth(_args: string[]): void {
     issues.push({ level: "fail", check: "recent-log", detail: `recent.log ${recentLogLines} lines — over threshold (max: ${RECENT_LOG_MAX_LINES})` });
   }
 
-  // 3. Orphaned shared/entries/*.md (no [[slug]] AND no index line in MEMORY.md)
+  // 3. Orphaned shared/entries/*.md (no [[slug]] AND no index line in MEMORY.md or shared/INDEX.md)
   const orphaned: string[] = [];
+  const sharedIndexPath = join(ROOT, "memory", "shared", "INDEX.md");
+  const sharedIndexContent = existsSync(sharedIndexPath) ? readFileSync(sharedIndexPath, "utf8") : "";
   if (existsSync(SHARED_ENTRIES_DIR)) {
     const entryFiles = readdirSync(SHARED_ENTRIES_DIR).filter((f) => f.endsWith(".md"));
     for (const file of entryFiles) {
       const slug = file.replace(/\.md$/, "");
       const hasLink = memoryContent.includes(`[[${slug}]]`);
       // index lines look like: - [Title](memory/shared/entries/slug.md)
-      const hasIndex = memoryContent.includes(`(memory/shared/entries/${file})`);
+      const hasIndex = memoryContent.includes(`(memory/shared/entries/${file})`) || sharedIndexContent.includes(`(memory/shared/entries/${file})`);
       if (!hasLink && !hasIndex) orphaned.push(slug);
     }
   }

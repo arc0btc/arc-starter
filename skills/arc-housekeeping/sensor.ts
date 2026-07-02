@@ -100,12 +100,15 @@ export default async function housekeepingSensor(): Promise<string> {
         }
       }
 
-      // Orphaned shared/entries (no [[slug]] AND no index line)
+      // Orphaned shared/entries (no [[slug]] AND no index line in MEMORY.md or shared/INDEX.md)
       if (existsSync(SHARED_ENTRIES_DIR)) {
+        const sharedIndexPath = join(ROOT, "memory/shared/INDEX.md");
+        const sharedIndexContent = existsSync(sharedIndexPath) ? await Bun.file(sharedIndexPath).text() : "";
         const entryFiles = readdirSync(SHARED_ENTRIES_DIR).filter((f) => f.endsWith(".md"));
         const orphaned = entryFiles.filter((file) => {
           const slug = file.replace(/\.md$/, "");
-          return !content.includes(`[[${slug}]]`) && !content.includes(`(memory/shared/entries/${file})`);
+          const hasIndex = content.includes(`(memory/shared/entries/${file})`) || sharedIndexContent.includes(`(memory/shared/entries/${file})`);
+          return !content.includes(`[[${slug}]]`) && !hasIndex;
         });
         if (orphaned.length > 0) {
           issues.push(`${orphaned.length} orphaned shared/entries (no inbound link in MEMORY.md)`);
