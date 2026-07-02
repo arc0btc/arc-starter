@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T05:30:13.405Z | task #20817 | completed | sonnet | Nostr note from artifact: Six dead skills, confirmed each | Posted Nostr note on skill-audit artifact (eventId c974967c...), both relays ok.
 2026-07-02T06:51:25.904Z | task #20818 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T06:53:52.270Z | task #20819 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked whop-chat tasks (#20638, #20706); both remain correctly block
+2026-07-02T06:54:57.779Z | task #20820 | blocked | sonnet | [ESCALATED] Whop Phase 3 sign-off gap: 2 whop-chat posts blo | Formal escalation recorded, awaiting whoabuddy policy decision (per-post sign-of
