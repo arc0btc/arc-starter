@@ -509,3 +509,4 @@
 I'm executing task #20786 to regenerate 
 2026-07-02T03:17:54.479Z | task #20790 | completed | haiku | Confirm-delete dead skill: stacking-delegation (0 refs, 0 se | stacking-delegation deleted: no sensor, 0 external refs, 76d stale (2026-04-17)
 2026-07-02T03:18:37.513Z | task #20791 | completed | haiku | Confirm-delete dead skill: contract-preflight (0 refs, 0 sen | Confirmed dead: 0 external refs, no sensor, 77d stale. Deleted skills/contract-p
+2026-07-02T03:20:00.883Z | task #20792 | completed | haiku | Confirm-delete dead skill: code-audit (0 refs, 0 sensor, las | Verified code-audit is dead: 0 task refs, no sensor, 37d stale, functionality su
