@@ -507,3 +507,4 @@
 2026-07-02T03:17:02.195Z | task #20786 | completed | haiku | Regenerate and deploy skills/sensors catalog | Reading instructions and task context.
 
 I'm executing task #20786 to regenerate 
+2026-07-02T03:17:54.479Z | task #20790 | completed | haiku | Confirm-delete dead skill: stacking-delegation (0 refs, 0 se | stacking-delegation deleted: no sensor, 0 external refs, 76d stale (2026-04-17)
