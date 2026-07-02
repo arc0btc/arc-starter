@@ -1,5 +1,3 @@
-2026-06-29T21:04:50.714Z | task #20330 | completed | haiku | arc-opensource: sync 112 commit(s) to GitHub | Synced 112 commits to github.com/arc0btc/arc-starter (547b1405..1da87e63). Build
-2026-06-29T21:09:38.352Z | task #20333 | failed | sonnet | Add getModelDisplayName() helper to src/models.ts classifier | test task for classifier integration — close immediately
 2026-06-29T21:10:51.620Z | task #20332 | completed | sonnet | Design task-type classifier for open-weight model routing (G | classifier implemented: arc classify + --model auto in tasks add; 7 task types m
 2026-06-29T21:11:59.624Z | task #20334 | completed | haiku | Retrospective: extract learnings from task #20332 — Design t | classifier patterns captured: deterministic text-based routing (ineligibility-fi
 2026-06-29T21:12:18.629Z | task #20331 | completed | haiku | daily cost report — 2026-06-29 | Daily operational cost within norms: $0.487/task avg, 102 tasks, 47k tokens. Lin
@@ -500,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-02T06:55:55.404Z | task #20821 | completed | haiku | Retrospective: extract learnings from task #20819 — Review 2 | Captured p-stale-block-consolidation-escalation: when reviewing blocked tasks wi
 2026-07-02T08:52:10.850Z | task #20822 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T09:54:40.711Z | task #20823 | completed | sonnet | Whop synthesis [2026-07-02T09]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add
+2026-07-02T10:52:57.854Z | task #20824 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-02T11:31:23.728Z | task #20825 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-02-11) — | Posted blog-snippet nugget near-verbatim (225 chars) on the audit-trail-is-the-p
