@@ -511,3 +511,4 @@ I'm executing task #20786 to regenerate
 2026-07-02T21:24:30.164Z | task #20854 | completed | haiku | Retrospective: extract learnings from task #20852 — Daily se | Captured stalled-outcome root-cause diagnosis pattern (discovery vs. handling vs
 2026-07-02T21:25:24.312Z | task #20857 | completed | haiku | Retrospective: extract learnings from task #20853 — Whop M0  | Extracted 3 patterns: memory-external-state-decay, filtered-input-feedback-loop,
 2026-07-02T21:26:11.139Z | task #20859 | completed | haiku | Retrospective: extract learnings from task #20856 — Whop M0: | 1 new pattern captured: p-time-window-constrained-contact-eligibility. Most lear
+2026-07-02T21:27:22.094Z | task #20861 | completed | haiku | Retrospective: extract learnings from task #20860 — whop-sal | Added p-multipart-task-completion-audit: when task requests multi-part work, com
