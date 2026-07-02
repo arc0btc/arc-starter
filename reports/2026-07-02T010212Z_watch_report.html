@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-02T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Inflow pool */
+  .inflow-pre {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--gray-2);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-01T13:00:27Z — 2026-07-02T01:02:12Z</div>
+</header>
+
+<p class="summary">Quiet watch: 8 tasks completed, 0 failed, 0 blocked, $4.68 spent across 9 dispatch cycles. Main work was operational — daily eval, self-audit, retrospectives, one X thread post — plus a fix re-enabling X thread chaining after a week clean of self-reply 403s. Whop room stayed silent (no member messages since 2026-06-30); reactive lane correctly skipped all 1,062 candidates it saw. Queue is thin: one pending task.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">8</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$4.68</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">3983k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">22k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">20764</td>
+      <td class="pri">4</td>
+      <td>Research signal-worthy topics</td>
+      <td>Signal filing still policy-paused (since 2026-05-19) — no filing action taken</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">20765</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2/5</td>
+      <td>2.30/5 weighted (S:1 O:5 E:1 C:1 Ad:4 Co:2 Se:4) — cost efficiency binding constraint</td>
+      <td class="cost">$1.06</td>
+    </tr>
+    <tr>
+      <td class="id">20763</td>
+      <td class="pri">7</td>
+      <td>Daily introspection</td>
+      <td>175 tasks, 174 completed, $113.14 spent — 99% success, cost/task 3rd day above $70/day threshold</td>
+      <td class="cost">$0.81</td>
+    </tr>
+    <tr>
+      <td class="id">20768</td>
+      <td class="pri">5</td>
+      <td>Post X thread: "The Coordination Floor"</td>
+      <td>Posted 3-tweet thread, root chained to two replies</td>
+      <td class="cost">$1.35</td>
+    </tr>
+    <tr>
+      <td class="id">20766</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit</td>
+      <td>All systems nominal: 3 pending/0 stuck tasks, 99.4% success rate</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">20767</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #20765 (PURPOSE eval)</td>
+      <td>No learnings to capture</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">20769</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #20768 (X thread post)</td>
+      <td>Updated p-rate-limit-budget-discipline with CTA-as-separate-reply tactic</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">20770</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 2 issues detected</td>
+      <td>Fixed 1 issue</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+No Arc posts to AI Prefers Bitcoin this period — the room has had no member messages since 2026-06-30T15:19Z.
+Reactive lane: 118 ticks, 1,062 candidates seen, 100% skip (708 stale_message, 354 below_length_floor) —
+zero live traffic to react to, correct behavior given a quiet room. Synthesis lane: 2 ticks, both deferred
+(0 messages in window each). Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+Top counterparties (all-time, room dormant this period): whoabuddy (20 msgs, 5 arc replies to them, 3 their replies to arc).
+</div>
+<p class="empty">Revenue: 0/16 recurring members, $0.00 MRR — pre-M0. 1 product buyer, 0% buyer→member conversion.</p>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">+0</div><div class="label">Δ 24h</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Δ 7d (anchor 23h)</div></div>
+  <div class="metric"><div class="value">6</div><div class="label">Per-touch proxy (10 tweets)</div></div>
+</div>
+<p class="empty">Micro-funnel: profile clicks n/a (no API access) · bio-link clicks n/a (no UTM) · checkout starts (24h) 0 · abandons 0.</p>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<div class="inflow-pre">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv: 3
+  council: 0
+  watch-interior: 4
+  snippet: 9
+  whop-signal: 0
+  total: 16
+
+Consumed (by channel):
+  blog: 3
+  whop-chat: 7
+  whop-forum: 0
+  public-forum: 0
+  x: 3
+  nostr: 5
+  aibtc-news: 0
+  reactive: 0
+  total: 18
+
+⚠️  No fresh artifacts in 36h: whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</div>
+<p class="empty">Produced 16 vs consumed 18 — roughly balanced (≈1:1), consumers running slightly ahead of producers. The whop-signal stall is expected: signal filing has been policy-paused since 2026-05-19, not a pipeline gap.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">095a4440</span>fix(social-x-posting): 403 backoff (no retry-cascade) + re-enable X thread chaining</div>
+<div class="commit"><span class="hash">c94a49c9</span>docs(claude): instruct dispatch to use --model auto for bounded code follow-ups</div>
+<div class="commit"><span class="hash">df570f03</span>chore(memory): daily eval 2026-07-01 — 2.25/5, cost efficiency still binding constraint</div>
+<div class="commit"><span class="hash">486c3108</span>chore(memory): consolidate patterns.md (257→198 lines)</div>
+<div class="commit"><span class="hash">29343f95</span>chore(memory): auto-persist on Stop</div>
+<div class="commit">+ 25 chore(loop) auto-commit cycles (routine task-close commits, omitted individually)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#20643 — arc-workflows: verify per-stage isAnchorStale() calls redundant</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">X thread chaining is back on (commit 095a4440) after the guarded single-root period following the 2026-06-30 self-reply 403 lock. Task #20768 posted a clean 3-tweet chained thread with no errors — first live proof the fix holds. Worth watching the next few chained posts for a repeat 403.</div>
+<div class="obs">Reactive Whop lane ran 118 ticks and skipped all 1,062 candidates it saw (708 stale_message, 354 below_length_floor). This isn't a guard misfire — the room has had zero member messages since 2026-06-30T15:19Z, so there was nothing fresh to react to.</div>
+<div class="obs">Cost efficiency remains the binding constraint per the daily eval (task #20765, 2.30/5): $113.14/day, 3rd consecutive day above the $70/day rubric threshold. This period's own spend ($4.68/12h, ~$9.36/day pace) ran well under that, driven by a thin queue rather than a fix.</div>
+<div class="obs">Queue is nearly empty — one pending task (#20643, a P6 workflow-machine follow-up). Most of this period's cycles were self-referential (eval, audit, retrospectives) rather than new work; expect the queue to refill once sensors pick up next cycle.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
