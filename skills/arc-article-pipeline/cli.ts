@@ -536,6 +536,92 @@ async function createBlogDraft(title: string, slug: string, tags: string[]): Pro
   return { postId: parsed.post_id, indexPath: parsed.path };
 }
 
+/**
+ * P2 AMENDMENT (2026-07-03, operator correction): "I don't quality gate what Arc publishes."
+ * The blog leg must hand off to Arc's own autonomous publish lane, not sit staged waiting on
+ * a human. `blog-publishing/sensor.ts`'s "oldestDraft" scan is that lane — it scans
+ * `src/content/docs/blog/*.mdx` for `draft: true` and, hourly, queues a normal
+ * "review and finalize" -> "publish" task pair for the oldest one it finds, exactly the same
+ * live-by-default path every other Arc blog post goes through. Our `stage()` writes the
+ * canonical draft into `content/...` only (never read by that sensor — see the file header
+ * comment). This syncs the FINAL body into the sensor's discovery directory, `draft: true`
+ * preserved (never flips it — only `blog-publishing publish`, run by Arc's own dispatch loop
+ * when its sensor decides, does that). This is the identical sync `publish()` performs, minus
+ * the flip.
+ */
+function syncToPublishLane(postId: string, finalContent: string): void {
+  const blogDocsDir = join(LIVE_SITE_DIR, "src/content/docs/blog");
+  fs.mkdirSync(blogDocsDir, { recursive: true });
+  fs.writeFileSync(join(blogDocsDir, `${postId}.mdx`), finalContent);
+}
+
+/**
+ * P2 AMENDMENT (2026-07-03, operator correction): "If Arc wants me to post something, it
+ * should email me like it has been." Reuses the EXACT credential/send path
+ * `arc-daily-read/cli.ts`'s `sendAmplificationEmail()` already established (email/api_base_url,
+ * email/admin_api_key, email/report_recipient via src/credentials.ts, POST {base}/api/send)
+ * rather than inventing a second one. One email per staged article — not a bulk send.
+ */
+async function sendXThreadAmplificationEmail(
+  articleN: number,
+  finding: Finding,
+  postId: string,
+  fullThread: string[],
+  dryRun: boolean = false
+): Promise<boolean> {
+  const { getCredential } = await import(join(ARC_STARTER_ROOT, "src/credentials.ts"));
+  const apiBaseUrl = await getCredential("email", "api_base_url");
+  const adminKey = await getCredential("email", "admin_api_key");
+  const recipient = await getCredential("email", "report_recipient");
+
+  if (!apiBaseUrl || !adminKey || !recipient) {
+    console.warn("  [EMAIL] email credentials not configured — skipping amplification email");
+    return false;
+  }
+
+  const blogUrl = `${ARC0ME_BASE}/blog/${postId}/?a=${ATTRIBUTION_TAG}`;
+  const subject = `Arc's Article ${articleN} ready to amplify — "${finding.slug}"`;
+  const plainText = [
+    `Arc's Article ${articleN} — ${finding.slug}`,
+    ``,
+    `Blog post (Arc's dispatch loop will publish this on its own cadence, not gated on you):`,
+    blogUrl,
+    ``,
+    `X-thread ready to post from @whoabuddy — quote/credit Arc, your own voice, your own account:`,
+    ``,
+    ...fullThread.map((t, i) => `Tweet ${i + 1} (${t.length} chars):\n${t}\n`),
+  ].join("\n");
+  const htmlBody = `<!DOCTYPE html><html><body style="font-family:monospace;max-width:640px;margin:40px auto;background:#0a0a0a;color:#e0e0e0;padding:24px">
+<h2 style="color:#f0f0f0">Arc's Article ${articleN} — ${finding.slug}</h2>
+<p><strong>Blog post:</strong> <a href="${blogUrl}">${blogUrl}</a> (Arc's own publish lane handles this, not gated on you)</p>
+<h3>X-thread ready to post from @whoabuddy:</h3>
+${fullThread.map((t, i) => `<div style="background:#1a1a1a;border-left:3px solid #1d9bf0;padding:12px 16px;margin:12px 0;border-radius:4px"><div style="color:#888;font-size:0.85em">Tweet ${i + 1}</div><pre style="white-space:pre-wrap;margin:0">${t}</pre></div>`).join("")}
+</body></html>`;
+
+  if (dryRun) {
+    console.log(`  [DRY-RUN EMAIL] Would send to ${recipient}: "${subject}"`);
+    return true;
+  }
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/send`, {
+      method: "POST",
+      headers: { "X-Admin-Key": adminKey, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(15_000),
+      body: JSON.stringify({ to: recipient, subject, body: plainText, html: htmlBody }),
+    });
+    if (!response.ok) {
+      console.error(`  [EMAIL] send failed: HTTP ${response.status} — ${await response.text()}`);
+      return false;
+    }
+    console.log(`  [EMAIL] sent to ${recipient}: "${subject}"`);
+    return true;
+  } catch (err) {
+    console.error(`  [EMAIL] network error: ${err}`);
+    return false;
+  }
+}
+
 function writeBlogBody(indexPath: string, blogTitle: string, blogBody: string, closing: string): void {
   const raw = fs.readFileSync(indexPath, "utf-8");
   const fmMatch = raw.match(/^(---\n[\s\S]*?\n---\n)/);
@@ -560,8 +646,12 @@ async function ensurePreviewSiteCopy(): Promise<void> {
   // existsSync() on PREVIEW_SITE_DIR would otherwise flip true the instant mkdirSync runs,
   // before rsync finishes, letting a concurrent stage build against a half-populated tree.
   const tmpDir = `${PREVIEW_SITE_DIR}.rsync-tmp-${process.pid}`;
+  // Anchored excludes (leading slash): an unanchored `--exclude=dist` matches a `dist/` dir at
+  // ANY depth, including node_modules/astro/dist — this was found live (2026-07-03) when a
+  // dispatch-turn run hit exactly this and self-diagnosed it mid-task. Anchoring to the sync
+  // root excludes only the top-level `.git`/`dist`, leaving nested package dirs intact.
   const result = await runCommand(
-    ["rsync", "-a", "--exclude=.git", "--exclude=dist", `${LIVE_SITE_DIR}/`, `${tmpDir}/`],
+    ["rsync", "-a", "--exclude=/.git", "--exclude=/dist", `${LIVE_SITE_DIR}/`, `${tmpDir}/`],
     ARC_STARTER_ROOT
   );
   if (result.exitCode !== 0) throw new Error(`rsync preview copy failed: ${result.stderr}`);
@@ -716,6 +806,13 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   const previewPostUrl = `${previewBase}/blog/${postId}/`;
   console.log(`Preview deployed: ${previewBase}`);
 
+  // P2 AMENDMENT: hand off to Arc's own autonomous publish lane (blog-publishing/sensor.ts's
+  // oldestDraft scan) instead of leaving the blog leg staged on an operator gate. draft:true
+  // is preserved — this only makes the draft DISCOVERABLE to the sensor; only Arc's own
+  // publish task (queued and run by its own dispatch loop, on its own timeline) flips it.
+  syncToPublishLane(postId, finalMdx);
+  console.log("Synced to blog-publishing's discovery path (src/content/docs/blog/) — Arc's own sensor will queue review+publish on its normal cadence, no operator gate.");
+
   const ctaTweet = buildXCtaTweet(postId, finding);
   const fullThread = [...draft.xThread, ctaTweet];
   if (!fs.existsSync(DRAFTS_DIR)) fs.mkdirSync(DRAFTS_DIR, { recursive: true });
@@ -729,6 +826,11 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   fs.writeFileSync(xVariantPath, xContent);
   console.log(`Wrote X-thread variant: ${xVariantPath}`);
 
+  // P2 AMENDMENT: deliver the X-thread to Jason via Arc's EXISTING email lane (the same
+  // mechanism arc-daily-read's sendAmplificationEmail already uses), not left as a file for
+  // him to fetch. Non-fatal if email creds are missing — the file still exists as a fallback.
+  const emailSent = await sendXThreadAmplificationEmail(articleN, finding, postId, fullThread);
+
   finalizeArticle(db, articleN, postId, previewPostUrl, xVariantPath);
   db.close();
 
@@ -739,8 +841,60 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
     post_id: postId,
     preview_url: previewPostUrl,
     x_variant_path: xVariantPath,
+    synced_to_publish_lane: true,
+    amplification_email_sent: emailSent,
     status: "staged",
   }, null, 2));
+}
+
+/**
+ * P2 AMENDMENT operational command: retroactively hand off an already-staged article (staged
+ * before this amendment landed) to Arc's publish lane + send the amplification email, without
+ * redoing the claim/create/preview steps. Idempotent to re-run (sync overwrites the same file;
+ * email re-sends — intentionally, since re-running this is an explicit operator/session action,
+ * not an automatic retry).
+ */
+async function cmdHandOff(articleN: number): Promise<void> {
+  const db = getDb();
+  const row = db.query(
+    "SELECT post_id, finding_slug, hook, file_line FROM article_queue_log WHERE article_n = ?"
+  ).get([articleN]) as { post_id: string; finding_slug: string; hook: string; file_line: string } | null;
+  db.close();
+  if (!row?.post_id) {
+    console.error(`Article ${articleN} has no post_id on record — nothing to hand off.`);
+    process.exit(1);
+  }
+  const finding: Finding = {
+    slug: row.finding_slug,
+    reportFile: "",
+    title: row.finding_slug,
+    hook: row.hook,
+    fileLine: row.file_line,
+    packagedProductUrl: extractFindingMaterials(
+      parseIndexCandidates().find((c) => c.slug === row.finding_slug)?.reportFile ?? ""
+    )?.packagedProductUrl ?? null,
+  };
+  const postId = row.post_id;
+  const date = postId.substring(0, 10);
+  const year = date.substring(0, 4);
+  const slug = postId.substring(11);
+  const indexPath = join(LIVE_SITE_DIR, "content", year, date, slug, "index.md");
+  if (!fs.existsSync(indexPath)) throw new Error(`Canonical source not found at ${indexPath}`);
+  const finalContent = fs.readFileSync(indexPath, "utf-8");
+
+  syncToPublishLane(postId, finalContent);
+  console.log(`Synced article ${articleN} (${postId}) to blog-publishing's discovery path.`);
+
+  const xVariantPath = join(DRAFTS_DIR, `article-${articleN}-x-thread.md`);
+  if (!fs.existsSync(xVariantPath)) throw new Error(`X-thread file not found at ${xVariantPath}`);
+  const xContent = fs.readFileSync(xVariantPath, "utf-8");
+  const fullThread = xContent
+    .split(/^## Tweet \d+ \(\d+ chars\)\n\n/m)
+    .slice(1)
+    .map((s) => s.trim());
+
+  const emailSent = await sendXThreadAmplificationEmail(articleN, finding, postId, fullThread);
+  console.log(JSON.stringify({ success: true, article_n: articleN, post_id: postId, synced_to_publish_lane: true, amplification_email_sent: emailSent }, null, 2));
 }
 
 async function cmdStatus(): Promise<void> {
@@ -820,6 +974,13 @@ async function main() {
         process.exit(1);
       }
       await cmdFixPreview(articleOverride);
+      break;
+    case "hand-off":
+      if (articleOverride === undefined) {
+        console.error("Usage: bun cli.ts hand-off --article <N>");
+        process.exit(1);
+      }
+      await cmdHandOff(articleOverride);
       break;
     default:
       console.log("Usage: bun cli.ts <materials|stage|status> [--article N] [--slug <slug>] [--dry-run]");
