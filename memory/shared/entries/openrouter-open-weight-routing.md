@@ -71,16 +71,26 @@ If any gate fails: close task as `failed`, create a follow-up with `sonnet` and 
 
 **Prefer `--model auto` over manual assignment (deployed 2026-06-29, commit 85c0c022, `src/classifier.ts`).**
 It runs this same eligibility logic as pure-text heuristics (no LLM, no network) and prints its
-reasoning (`type`/`confidence`/`reason`) — verify the line looks right, don't blind-trust it. Manual
-`--model openrouter:devstral`/`glm` below is still valid when you're more confident than the
-classifier — e.g. its subject-text heuristics need a literal filename (`.ts`/`.js`/`.json`) to fire
-`bounded-code`, so a follow-up phrased in terms of the skill/CLI name rather than the file path
-(`"add grep-verify step to lint-skills"` vs `"update skills/x/cli.ts"`) falls through to
-`unknown` → `sonnet` even when the underlying work is genuinely bounded. Confirmed 2026-07-03
-(task #21005): 0 of 86 sonnet follow-ups created that day used `openrouter:devstral`/`glm`, and
-`memory/recent.log` shows only 1 historical mention of `--model auto` since the classifier shipped —
-adoption is the gap, not wiring. When creating a bounded follow-up, phrase the subject with the
-actual file path so the classifier can match it, then try `--model auto` first.
+reasoning (`type`/`confidence`/`reason`) — verify the line looks right, don't blind-trust it.
+
+**Adoption gap found 2026-07-03 (task #21005), recall broadened same day (task #21007, commit
+f4100aee):** 0 of 86 sonnet follow-ups created 2026-07-03 used `openrouter:devstral`/`glm`, and
+`memory/recent.log` showed only 1 historical mention of `--model auto` since the classifier shipped.
+Root cause: the classifier's subject-text heuristics needed a literal filename (`.ts`/`.js`/`.json`)
+to fire `bounded-code` — follow-ups phrased around the skill/CLI name instead of the file path
+(`"add grep-verify step to lint-skills"` vs `"update skills/x/cli.ts"`) fell through to
+`unknown` → `sonnet`. Fixed with two additions to `src/classifier.ts`:
+1. **`--file PATH` flag** on `tasks add`/`classify` — names the target file explicitly,
+   independent of subject-text parsing. High-confidence `bounded-code` when paired with an
+   action verb; also checked against `CORE_INFRA_PATTERNS`.
+2. **Skill-prefix / CLI-name heuristics** — `"<skill-name>: <verb> ..."` or `"<verb> ... <skill>
+   cli"` phrasing with no literal file path routes to `bounded-code-glm` (GLM's extra tool
+   iterations locate the right file without a literal path).
+
+INELIGIBLE patterns (audit/research/investigate/whop/etc) are unchanged and still gate ahead of
+both new heuristics. When creating a bounded follow-up: try `--model auto` first, and pass
+`--file skills/x/cli.ts` explicitly if the subject is phrased around the skill/CLI name rather
+than the file path.
 
 ```bash
 # Devstral — cheapest, fastest, purely mechanical
@@ -94,6 +104,14 @@ arc tasks add \
 arc tasks add \
   --subject "Update pricing table in src/models.ts for new OpenRouter models" \
   --model openrouter:glm \
+  --priority 6 \
+  --skills arc-skill-manager
+
+# --model auto with skill-phrased subject — pass --file so it doesn't need a literal path in the subject
+arc tasks add \
+  --subject "arc-skill-manager: add grep-verify step to lint-skills" \
+  --model auto \
+  --file skills/arc-skill-manager/cli.ts \
   --priority 6 \
   --skills arc-skill-manager
 ```
