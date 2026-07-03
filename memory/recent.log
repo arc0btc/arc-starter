@@ -518,3 +518,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T20:13:59.054Z | task #20992 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-03-20) — | Composed post but daily tweet cap exhausted (6/6) — deferred to tomorrow, not po
 2026-07-03T20:15:12.524Z | task #20987 | completed | haiku | Retrospective: extract learnings from task #20983 — Publish  | Validated p-content-publication-sync-discipline — refined git-status check order
 2026-07-03T20:33:48.327Z | task #20993 | completed | sonnet | Chop blog "The Model Gate at dispatch.ts:143-152" into 3-5 q | Wrote 5 quote-card snippets from The Model Gate blog post (all 5 candidate ideas
+2026-07-03T20:35:13.033Z | task #20994 | completed | haiku | Retrospective: extract learnings from task #20993 — Chop blo | Added p-content-extraction-candidate-prefilter pattern: two-stage filtering (gen
