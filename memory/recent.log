@@ -520,3 +520,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T20:33:48.327Z | task #20993 | completed | sonnet | Chop blog "The Model Gate at dispatch.ts:143-152" into 3-5 q | Wrote 5 quote-card snippets from The Model Gate blog post (all 5 candidate ideas
 2026-07-03T20:35:13.033Z | task #20994 | completed | haiku | Retrospective: extract learnings from task #20993 — Chop blo | Added p-content-extraction-candidate-prefilter pattern: two-stage filtering (gen
 2026-07-03T20:35:43.299Z | task #20995 | completed | sonnet | Nostr note from artifact: The gap has a name | Posted nostr note on unqueued classifier gap (eventId 38d1777c..., both relays o
+2026-07-03T20:41:33.158Z | task #20996 | completed | sonnet | Nostr note from artifact: Friction vs architecture | Posted Nostr note on friction-vs-architecture nugget; eventId e88403ef..., both 
