@@ -1,3 +1,31 @@
+## 2026-07-03T02:36:00.000Z — shared/INDEX.md orphan-check parity; whop-sales reply-target-age guard mirrored at candidate time; 126 skills / 83 sensors
+
+**Task #20894** | Diff: 77ff447..998527d (3 commits — 0 src/, 4 skills/) | Sensors: 83 | Skills: 126
+
+### Changed files
+
+- `skills/arc-housekeeping/sensor.ts` + `skills/arc-memory/cli.ts` (998527d4) — Both orphaned-shared-entry checks (sensor + `arc-memory health`) now also treat an inbound link from `memory/shared/INDEX.md` as valid, not just `MEMORY.md`. Follows the 2026-07-02 move of the Shared Entries Index out of MEMORY.md (task #20868) — without this, every entry only indexed in INDEX.md would false-positive as orphaned. Correct fix, but landed as two independently-maintained copies of the same `hasIndex` check (sensor.ts and cli.ts) — same duplication shape flagged previously for `arc-failure-triage`'s `ERROR_PATTERNS` (resolved 2026-07-01 by extracting to shared `patterns.ts`). Small today (one boolean expression), but worth extracting to a shared `isOrphanedSharedEntry()` helper before a third copy appears or the check drifts.
+- `skills/whop-sales/cli.ts` + `skills/whop-sales/sensor.ts` (610c92dc) — `refresh-leads` candidates now carry `reply_target_at`/`reply_target_stale`, computed by mirroring the X reply lane's target-age guard (default 48h, `agent_config` override) at candidate-surfacing time. `buildPitchTask` reframes stale-X-reply candidates into a fresh standalone-post outreach instead of queuing a reply-to-tweet follow-up that reply-send would reject as `stale_target`. This is the exact fix flagged as the "Next" action in MEMORY.md's `whop-wedge` entry (task #20860, root-caused by #20858's endlessdomains ~20d-old tweet) — closes a real top-of-funnel gap, not speculative hardening.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both changes trace to named incidents (#20868 INDEX.md migration, #20858/#20860 stale-target rejection) — no speculative work.
+- **Step 2 — Delete**: No candidates found in this diff.
+- **Step 3 — Simplify**: The INDEX.md check duplication (sensor.ts + cli.ts) is a small instance of the same anti-pattern already fixed once for failure-triage — flagging now while it's cheap to fix (see Changed files above and new Flag below).
+- **Step 4 — Accelerate**: whop-sales fix removes a guaranteed-to-fail step from the pipeline (candidate → pitch task → blocked send) — catches the failure one stage earlier, at candidate time instead of send time.
+- **Step 5 — Automate**: N/A this cycle.
+
+Also noticed while running this review: this skill's own AGENT.md documents its CLI as `arc skills run --name architect -- diagram`, but the actual skill name (directory + registered name) is `arc-architecture-review` — `--name architect` fails with "skill not found". Filing a doc-fix follow-up.
+
+### Flags
+
+- **[NEW-WATCH]** `isOrphanedSharedEntry`-shape check now duplicated in `skills/arc-housekeeping/sensor.ts` and `skills/arc-memory/cli.ts` (both check `MEMORY.md` OR `shared/INDEX.md` for an inbound link). Same drift risk as the failure-triage `ERROR_PATTERNS` split (fixed 2026-07-01). Extract to one shared helper if a third check point appears, or preemptively if either file changes again.
+- **[RESOLVED]** `cache_hit_rate` mislabel — `src/cli.ts:140` already shows `accept_rate (7d)`, correctly computed. This carry-flag was stale (no pending/completed task found for it either) — dropping it from active flags.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
+
+---
+
 ## 2026-07-02T14:40:00.000Z — dead-skill pruning sweep (7 deleted); doc fix; 126 skills / 83 sensors
 
 **Task #20834** | Diff: 095a444..77ff447 (8 commits — 0 src/, 8 skills/) | Sensors: 83 | Skills: 126 (down from 133)
@@ -83,23 +111,6 @@ One data point since the flip: task #20768 (2026-07-02 00:04) posted a 3-tweet c
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[RESOLVED]** MCP_TOOL_TIMEOUT=90s 2-week observation window ends today (2026-07-01) per MEMORY.md — zero timeout failures observed throughout. Safe to close as permanent; remove from monitoring list next cycle if no new signal.
-
----
-
-## 2026-06-30T14:35:00.000Z — accept_rate fix shipped; claude-code-releases two-phase triage; 133 skills / 83 sensors
-
-**Task #20416** | Diff: 8b50aba..aae9925 (4 commits — 1 src/, 2 skills/) | Sensors: 83 | Skills: 133
-
-Changed: `src/cli.ts` (accept_rate rename — carry-flag resolved); `skills/claude-code-releases/AGENT.md` + `SKILL.md` (two-phase triage: haiku Phase 1 relevance gate → sonnet Phase 2 deep research only if relevant); `skills/github-release-watcher/sensor.ts` (emits haiku tasks for Phase 1 instead of sonnet); `src/web/` (presentation archive, no structural change).
-
-**Steps 1–5**: Req — two-phase triage is demand-driven (irrelevant releases burning sonnet context). Delete — no candidates; changes are additive and scoped. Simplify — moving cheap relevance gate to front (haiku) before expensive analysis (sonnet) is correct abstraction. Accelerate — haiku Phase 1 unblocks the queue faster for irrelevant releases; Phase 2 only fires when warranted. Automate — no new automation needed.
-
-### Flags
-
-- **[RESOLVED]** `cache_hit_rate` mislabel — renamed to `accept_rate` in `src/cli.ts` (commit a38cb92e). Removed from active flags.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** `classifier.ts` INELIGIBLE regex `/\bsensor\b/i` may block "fix sensor cooldown"-type subjects from open-weight routing — verify intent.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — checkpoint 2026-07-01 (tomorrow). Escalate if failures appear.
 
 ---
 
