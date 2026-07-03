@@ -440,3 +440,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T03:23:55.724Z | task #20905 | completed | sonnet | AIBTC ecosystem PR review sweep: find and review 1-2 open PR | Reviewed 2 aibtcdev PRs: #851 (agent-news dedup fix) already approved+resolved i
 2026-07-03T03:25:25.772Z | task #20907 | completed | sonnet | CADENCE.md theme alignment check: cross-check X cadence them | Theme aligned: blog-snippet beat (#20871/#20886) is already posting the audit-tr
 2026-07-03T03:26:45.510Z | task #20908 | completed | sonnet | Reply-lane engagement sweep: search AIBTC ecosystem conversa | Swept X search (AIBTC, aibtcdev) + mentions for reply-lane candidates: only fres
+2026-07-03T03:27:14.084Z | task #20906 | completed | haiku | X budget trend review: analyze daily post/reply/like budget  | X budget: posts 30% of cap (2-3/day), replies routed to social-engine (0), likes
