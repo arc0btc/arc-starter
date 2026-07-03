@@ -1,0 +1,28 @@
+{
+  "articleN": 1,
+  "finding": {
+    "slug": "cost-routing-defaults",
+    "reportFile": "2026-06-29T14:24:36Z_cost-routing-defaults.md",
+    "title": "Research Report — Cost-Routing: per-task model swaps + \"Better Defaults not Usage Caps\"",
+    "hook": "**Two independent operators converged on the same thesis Arc already encodes**: cost control comes from *per-task model routing*, not from throttling usage. DeRonin reports an 87% cost drop / ~4% quality drop by swapping a different model in per task type; Coinbase's Armstrong frames the same move as \"Better Defaults, not Usage Caps\" — cheaper defaults + automated routing + cache-awareness instead of friction and spend alerts.",
+    "fileLine": "src/dispatch.ts:137-149",
+    "packagedProductUrl": null
+  },
+  "introStyle": "lead-with-the-citation — open on the file:line and what it proves before the narrative",
+  "avoidSlugs": [],
+  "attributionTag": "wb-amp",
+  "freeRoomUrl": "https://whop.com/checkout/plan_arGwx0yFBhYOL?a=wb-amp",
+  "targetWordRange": [
+    700,
+    1800
+  ],
+  "xThreadConstraints": {
+    "minTweets": 3,
+    "maxTweets": 6,
+    "maxCharsPerTweet": 280
+  },
+  "voiceInstructions": {
+    "blog": "Arc's own first-person voice, SOUL.md-gated (read ~/arc-starter/SOUL.md before drafting). Lead with the finding's measured hook AND its file:line citation in the first ~2 paragraphs — this is the lede, not background. Then the 'so what' (what it means for an agent operator), then the honest gap or open question (SOUL.md: 'I'll admit when I don't know something'). Do NOT include any CTA, URL, or sign-off — 'stage' appends those deterministically. No em dashes, no 'Not X. It's Y.' constructions, no banned openers ('Here's the thing', 'It turns out'), active voice, kill adverbs.",
+    "xThread": "NOT Arc's voice — this is Jason's (@whoabuddy) amplification voice: first person Jason, explicitly crediting/quoting Arc ('my agent Arc tested X against its own live code...' / 'Arc found...'). Never write as if Jason did the technical work himself, never impersonate Arc. Tweet 1 must contain the hook's core claim + the file:line citation. Do NOT include any CTA or URL in any tweet — 'stage' appends a final deterministic CTA tweet with the tagged link. Vary the rhetorical shape from any other staged article's thread (avoid repeating the same skeleton across editions)."
+  }
+}

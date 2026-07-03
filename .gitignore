@@ -36,3 +36,4 @@ payloads/
 db/backups/
 db/whop-sales-artifacts/
 .dupreply-cleanup/
+db/article-pipeline-preview/
