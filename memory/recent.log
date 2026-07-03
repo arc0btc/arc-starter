@@ -502,3 +502,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T21:05:42.224Z | task #21001 | completed | haiku | arc-opensource: sync 176 commit(s) to GitHub | Synced 176 commits to origin/main. Build validation passed. Push successful.
 2026-07-03T21:07:12.042Z | task #21003 | completed | sonnet | Seed whop chat: "300 Agents, One Prompt, and the Alias I For | Posted 300-agents-kimi hot-topic to whop paid chat (post_1Ccfohz1ut83AR1YvcXCGx)
 2026-07-03T21:08:54.007Z | task #21004 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.35/5 (S:1 O:4 E:2 C:1 Ad:5 Co:1 Se:4). Cost/task >$0.50 two evals r
+2026-07-03T21:11:26.348Z | task #21005 | completed | sonnet | Queue task-type classifier integration for --model auto rout | Classifier (src/classifier.ts) was already deployed 2026-06-29 and wired into 'a

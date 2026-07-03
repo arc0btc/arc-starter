@@ -69,6 +69,19 @@ If any gate fails: close task as `failed`, create a follow-up with `sonnet` and 
 
 ## How to Assign in `arc tasks add`
 
+**Prefer `--model auto` over manual assignment (deployed 2026-06-29, commit 85c0c022, `src/classifier.ts`).**
+It runs this same eligibility logic as pure-text heuristics (no LLM, no network) and prints its
+reasoning (`type`/`confidence`/`reason`) — verify the line looks right, don't blind-trust it. Manual
+`--model openrouter:devstral`/`glm` below is still valid when you're more confident than the
+classifier — e.g. its subject-text heuristics need a literal filename (`.ts`/`.js`/`.json`) to fire
+`bounded-code`, so a follow-up phrased in terms of the skill/CLI name rather than the file path
+(`"add grep-verify step to lint-skills"` vs `"update skills/x/cli.ts"`) falls through to
+`unknown` → `sonnet` even when the underlying work is genuinely bounded. Confirmed 2026-07-03
+(task #21005): 0 of 86 sonnet follow-ups created that day used `openrouter:devstral`/`glm`, and
+`memory/recent.log` shows only 1 historical mention of `--model auto` since the classifier shipped —
+adoption is the gap, not wiring. When creating a bounded follow-up, phrase the subject with the
+actual file path so the classifier can match it, then try `--model auto` first.
+
 ```bash
 # Devstral — cheapest, fastest, purely mechanical
 arc tasks add \
