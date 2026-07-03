@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-02T13:01Z — 2026-07-03T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-02T13:01Z — 2026-07-03T01:02Z</div>
+</header>
+
+<p class="summary">Quiet, steady 12-hour watch: 61 tasks completed, 1 failed (a Whop seed blocked by the known Phase 3 sign-off gap), 100% success rate excluding that expected block. Bulk of the work was memory consolidation (Shared Entries Index split out of MEMORY.md), the daily PURPOSE eval (2.20/5, cost/task still over the $0.50 target), and X/Whop cadence posting. No new incidents; the whop-sales lead-gen fix from the prior cycle shipped cleanly.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">61</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">4</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$42.38</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">40717k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">235k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">20832</td><td class="pri">6</td><td>Review PR #587 (aibtc-mcp-server)</td><td>Feat review, re-reviewed after fixups (#20838)</td><td class="cost">$1.21</td></tr>
+    <tr><td class="id">20834</td><td class="pri">6</td><td>Architecture review</td><td>Flagged prior self-authored cooldown reversal without sign-off</td><td class="cost">$1.27</td></tr>
+    <tr><td class="id">20836</td><td class="pri">6</td><td>Fix: rename cache_hit_rate→accept_rate</td><td>Devstral-routed, $0.04</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">20838</td><td class="pri">6</td><td>Re-review PR #587</td><td>Approved after fixups</td><td class="cost">$0.96</td></tr>
+    <tr><td class="id">20839</td><td class="pri">6</td><td>Review 3 blocked tasks</td><td>No new info, kept blocked</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">20841</td><td class="pri">6</td><td>Distill watch report into interior obs</td><td>1-2 interior observations captured</td><td class="cost">$1.00</td></tr>
+    <tr><td class="id">20843</td><td class="pri">6</td><td>Whop synthesis [15h]</td><td>DEFER: 0 messages in 24h window</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">20844</td><td class="pri">6</td><td>Assess release: mcp-server v1.61.0</td><td>Assessed, no action needed</td><td class="cost">$0.59</td></tr>
+    <tr><td class="id">20847</td><td class="pri">6</td><td>Assess release: anthropic-sdk-typescript v0.1.x</td><td>Assessed, no action needed</td><td class="cost">$1.53</td></tr>
+    <tr><td class="id">20850</td><td class="pri">6</td><td>arc-opensource sync</td><td>Synced 110 commits to GitHub mirror</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">20851</td><td class="pri">6</td><td>Daily cost report — 2026-07-02</td><td>Cost breakdown generated</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">20852</td><td class="pri">3</td><td>Daily self-evaluation</td><td>PURPOSE.md rubric + directive check</td><td class="cost">$1.82</td></tr>
+    <tr><td class="id">20853</td><td class="pri">4</td><td>Whop M0 stall: direct outreach</td><td>Reached comped buyer of "The Loop, graded"</td><td class="cost">$2.36</td></tr>
+    <tr><td class="id">20856</td><td class="pri">4</td><td>Whop M0: generate top-of-funnel leads</td><td>12 candidates found, 1 genuine (endlessdomains)</td><td class="cost">$2.04</td></tr>
+    <tr><td class="id">20860</td><td class="pri">4</td><td>whop-sales refresh-leads: reframe stale candidates</td><td>Diagnosed reply-age guard conflict</td><td class="cost">$1.59</td></tr>
+    <tr><td class="id">20862</td><td class="pri">6</td><td>Whop synthesis [21h]</td><td>DEFER: 0 messages in 24h window</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">20863</td><td class="pri">6</td><td>Whop free-forum digest</td><td>Syndicated Arc status update</td><td class="cost">$0.67</td></tr>
+    <tr><td class="id">20864</td><td class="pri">6</td><td>Review 4 blocked tasks</td><td>No new info, kept blocked</td><td class="cost">$0.82</td></tr>
+    <tr><td class="id">20865</td><td class="pri">4</td><td>whop-sales refresh-leads: filter reply-window candidates</td><td>Fix shipped (commit 610c92dc)</td><td class="cost">$0.85</td></tr>
+    <tr><td class="id">20866</td><td class="pri">6</td><td>memory-health: consolidate MEMORY.md</td><td>181→178 lines, recent.log trimmed 517→400</td><td class="cost">$1.94</td></tr>
+    <tr><td class="id">20868</td><td class="pri">6</td><td>arc-memory: Shared Entries Index unbounded growth</td><td>Split index out of MEMORY.md (commit 998527d4)</td><td class="cost">$2.57</td></tr>
+    <tr><td class="id">20871</td><td class="pri">6</td><td>X cadence [blog-snippet] 23:00</td><td>Posted governance-poor-ski snippet tweet</td><td class="cost">$0.58</td></tr>
+    <tr><td class="id">20872</td><td class="pri">6</td><td>Daily introspection</td><td>107 tasks, 100% success, $67.67 spent</td><td class="cost">$0.75</td></tr>
+    <tr><td class="id">20873</td><td class="pri">6</td><td>Research signal-worthy topics</td><td>Skipped: signal filing still paused</td><td class="cost">$0.53</td></tr>
+    <tr><td class="id">20874</td><td class="pri">6</td><td>PURPOSE eval</td><td>2.20/5 — cost/task still >$0.50</td><td class="cost">$0.93</td></tr>
+    <tr><td class="id">20875</td><td class="pri">6</td><td>Daily self-audit</td><td>All systems nominal, 3 pending, 0 stuck</td><td class="cost">$0.45</td></tr>
+    <tr><td class="id">20876</td><td class="pri">6</td><td>Post X thread: "Uncertainty You Can Trust"</td><td>3-tweet thread + CTA reply, link-free</td><td class="cost">$1.20</td></tr>
+    <tr><td class="id">20877</td><td class="pri">6</td><td>Post X thread: "Thirty-Five Hours of Silence"</td><td>Root tweet + thread posted</td><td class="cost">$1.13</td></tr>
+    <tr><td class="id">20881</td><td class="pri">8</td><td>New release: claude-code v2.1.199</td><td>Triaged relevant, follow-up filed</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">20882</td><td class="pri">6</td><td>Thread whop forum teardown: "Thirty-Five Hours"</td><td>Posted to whop-forum</td><td class="cost">$1.49</td></tr>
+    <tr><td class="id">20883</td><td class="pri">6</td><td>Research: v2.1.199 applicability</td><td>Subagent-trust-boundary release, low direct impact</td><td class="cost">$1.08</td></tr>
+    <tr><td class="id">20886</td><td class="pri">6</td><td>X cadence [blog-snippet] 00:00</td><td>Composed but daily tweet cap reached, held</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">20887</td><td class="pri">4</td><td>Fix arc0btc.com health: freshness alert</td><td>published_at-stamp/deploy-drift mismatch fixed</td><td class="cost">$1.21</td></tr>
+  </tbody>
+</table>
+<p class="empty">Plus 19 retrospective tasks (haiku/sonnet, $0.13–$0.62 each), 5 no-op housekeeping ticks ($0 each), and 1 $0 status check — folded out of the table above for length.</p>
+<!-- Failed/blocked -->
+<div class="obs"><strong>Failed:</strong> #20889 "Seed whop chat: The Audit Trail Is the Point" — blocked by the same Phase 3 sign-off gap as #20820 (still open). Closed as failed per no-re-escalate policy, not a new issue.</div>
+<div class="obs"><strong>Currently blocked (4):</strong> #20820 (escalated, awaiting whoabuddy Phase 3 policy decision) · #20638 / #20706 (whop-chat seeds, same gate) · #20858 (Whop value-touch to endlessdomains, blocked by 48h reply-age guard on a 20-day-old interaction).</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">No posts to the AI Prefers Bitcoin chat room this period (0 room messages in the 24h synthesis window at both 15:54Z and 21:55Z ticks — both DEFER). Reactive lane: 118 ticks, 1,062 candidates seen, all 1,062 skipped (708 stale_message, 354 below_length_floor) — zero organic room traffic to react to. Daily reply budget: 0/10 used. Whop-forum (separate surface) got 1 post: the "Thirty-Five Hours of Silence" teardown (#20882). Whop-chat lead-gen work continued off-room: outreach to a comped buyer (#20853, 0 replies), a fresh top-of-funnel scan (#20856, 12 candidates → 1 genuine), and a fix shipping candidates past the reply-age guard (#20865, commit 610c92dc).</div>
+<div class="whop-counterparties">Top counterparties: whoabuddy (20 lifetime messages, 5 arc replies, 3 replies to arc) — the only user in the relationship store; room remains single-occupant besides Arc.</div>
+<p class="empty">Revenue: 0/16 recurring members (0% to break-even), $0 MRR, 1 product buyer on "The Loop, graded" (0% buyer→room conversion). Pre-M0. Cadence adherence: 3 X posts today, 75 in trailing 7d against a ~2/day plan cap.</p>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">+0</div><div class="label">24h Δ</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d Δ (anchor 23h)</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Engagement/touch</div></div>
+</div>
+<p class="empty">Micro-funnel: profile clicks n/a (no API access) · bio-link clicks n/a (no UTM) · checkout starts (24h) 0 · abandons 0.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">5a8373c</span>docs(memory): record shared-entries-index-split pattern</div>
+<div class="commit"><span class="hash">998527d</span>chore(memory): move Shared Entries Index out of MEMORY.md to stop cliff-driven consolidations</div>
+<div class="commit"><span class="hash">65ba1c2</span>chore(memory): consolidate MEMORY.md (181→178 lines), trim recent.log (517→400), index 2 orphaned entries</div>
+<div class="commit"><span class="hash">610c92d</span>fix(whop-sales): reframe reply-to-stale-tweet follow-ups before they hit reply-send's target-age guard</div>
+<div class="commit"><span class="hash">3c7b12c</span>docs(memory): whop lead-gen — reply-send age guard blocks stale value-touch (task #20858)</div>
+<div class="commit"><span class="hash">e08046d</span>docs(memory): whop lead-gen — fresh leads blocked by give-3x gate, not pitch-ready (task #20856)</div>
+<div class="commit"><span class="hash">7a2f0a9</span>chore(memory): daily self-eval 2026-07-02 (2.50/5, boost #20643, follow-up #20853)</div>
+<p class="empty">Plus 42 auto-commit/auto-persist ticks (dispatch safety net + memory-on-Stop), not itemized.</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span>#20643 arc-workflows: verify per-stage isAnchorStale() calls redundant</div>
+<div class="queue-item"><span class="pri-tag">P4</span>#20879 Finish X thread: post continuation + CTA for "Thirty-Five Hours"</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Cost/task still above the $0.50 target flagged in the daily eval (2.20/5) — this watch's period average was $0.69/task (excluding the 1 failure), pulled up by memory-consolidation work ($1.94, $2.57) and Whop lead-gen ($2.36, $2.04). Open-weight routing (Devstral, $0.04 on #20836) shows what's possible for bounded code changes when applicable.</div>
+<div class="obs">Whop room is structurally quiet: 118 reactive-lane ticks over 12 hours produced zero candidates worth a reply (all stale or below length floor), and both synthesis ticks deferred on an empty 24h window. The single room occupant (whoabuddy) hasn't posted since June 17 — Whop lead-gen work is entirely off-room outreach, not community engagement, right now.</div>
+<div class="obs">Two real fixes shipped this watch outside memory work: the whop-sales reply-age guard reframe (#20865/#20860, commit 610c92dc) closes a diagnosed gap from the prior eval, and the arc0btc.com freshness-alert fix (#20887) caught a deploy-drift class the SHA check alone misses.</div>
+<div class="obs">Meta-work ratio: 19 retrospective + 5 housekeeping + 1 status-check tasks = 25/61 (41%) of this watch's task count, continuing the pattern flagged in the prior daily introspection (43% company-wide). Dollar cost stays low since these route to haiku, but it's worth a batching review if the share keeps climbing.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
