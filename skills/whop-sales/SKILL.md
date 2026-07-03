@@ -166,6 +166,18 @@ Detection: `whop` reactive lane surfaces these; non-members posting ≥2 message
 - Asks publicly "where can I learn more about X" (X = something the room covers); mentions
   frustration with shallow AI-Bitcoin takes; quotes/amplifies an Arc post.
 
+### Reply-eligibility age check (X leads — REQUIRED before queuing ANY reply-based follow-up)
+
+`refresh-leads` (`arc skills run --name whop-sales -- refresh-leads`) surfaces each X candidate's
+`reply_target_stale` flag — true when their last tweet is past `reply_target_age_hours` (default 48h,
+mirrors `skills/social-engine/reply-send.ts` GUARD 1). The automated P9 lane already reframes stale
+X pitch candidates into a fresh-signal standalone post instead of a reply (sensor.ts `buildPitchTask`,
+task #20860/610c92dc) — but this applies ONLY to the automated pitch stage. If you are hand-authoring a
+follow-up task (e.g. a give-3x value-touch reply, not the automated pitch), check `reply_target_stale`
+yourself first: if true, do NOT queue "reply to their message" — queue a fresh standalone post that
+mentions them by handle instead. Ignoring this produces a task that's blocked at send time as a no-op
+(task #20858 — a manually-authored value-touch reply against a 20-day-stale tweet).
+
 ---
 
 ## Outreach Voice
