@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T17:35:20.815Z | task #20954 | completed | haiku | Retrospective: extract learnings from task #20952 — Draft Ar | Updated p-memory-lifecycle with proactive cliff-detection guidance from task #20
 2026-07-03T17:36:01.926Z | task #20958 | completed | haiku | Retrospective: extract learnings from task #20955 — Deep res | Extracted 2 patterns from v2.1.200 analysis: runtime-default-pinning (autonomy f
 2026-07-03T17:36:54.669Z | task #20960 | completed | haiku | Retrospective: extract learnings from task #20957 — Evaluate | Captured dispatch-lock PID-reuse safety gap as new pattern p-dispatch-lock-ttl-f
+2026-07-03T17:38:25.103Z | task #20961 | completed | haiku | Retrospective: extract learnings from task #20959 — Add TTL- | Extracted 1 reusable pattern: complementary-guard-composition (independent fallb
