@@ -30,3 +30,17 @@ expect ~1 genuine signal per ~12 raw candidates.
 for the candidate. If < 3, the next task is "give a genuine, non-sales value touch"
 (reply to their actual point, no CTA), not a pitch. Only queue `whop-sales pitch` once
 a lead clears 3 value touches.
+
+**UPDATE (P5 arc-demand-flywheel, 2026-07-03)**: two parts of this note are now addressed,
+not just diagnosed:
+1. The "reply-chain noise / forum spam bots" problem is now filtered at the SOURCE —
+   `lead-source.ts`'s `isLikelySpam()` drops ad-copy and multi-@-mention pile-ons before
+   they ever enter `db/whop-leads.json` (a one-time reconciliation also cleaned the
+   existing store: 13 candidates -> 2, matching this note's "~1 genuine signal per ~12"
+   estimate almost exactly).
+2. The give-3x credit path itself was already wired (not missing) — `x_reply_log`
+   (written on every outbound X reply) feeds `processXReplyLog()` which increments
+   `arc_replies_to_them` on every `refreshLeads()` call. Verified correct via an isolated
+   fixture (`fixture-give3x-wiring.ts`). The remaining constraint is outbound reply
+   VOLUME (403 reply-targeting), not missing wiring — see
+   `reply-watchlist-sensor.ts`'s `consecutive_403_count`-ordered pre-filter.
