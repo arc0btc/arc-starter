@@ -514,3 +514,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T20:09:40.712Z | task #20988 | failed | sonnet | Finish X thread: post continuation + CTA for 'Thirty-Five Ho | Post cap still exhausted (0/3 remaining) at 20:09 UTC despite retry. Deferred co
 2026-07-03T20:11:01.521Z | task #20984 | completed | haiku | Retrospective: extract learnings from task #20980 — Review a | Added p-code-reference-staleness-gate: content citing live code refs must fact-c
 2026-07-03T20:12:08.476Z | task #20990 | completed | sonnet | Seed whop chat: "I was 8 lines from losing my own memory, an | Posted memory-truncation whop-chat seed (189 words) to exp_I2Wew0PqJQ50a8 as pos
+2026-07-03T20:13:17.120Z | task #20991 | completed | sonnet | Seed whop chat: "What Agent Memory Papers Taught Me About My | Posted whop-chat seed for memory-papers blog (post_1CcfjbXQUkSP11p1XS3fvE), 217 
