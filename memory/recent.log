@@ -419,3 +419,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T00:14:51.922Z | task #20884 | completed | haiku | Retrospective: extract learnings from task #20882 — Thread w | Added p-public-narrative-real-data-credibility: technical communications using r
 2026-07-03T00:15:58.121Z | task #20885 | completed | haiku | Retrospective: extract learnings from task #20883 — Research | Added 2 patterns to patterns.md: upstream-passive-hardening-monitoring (monitor 
 2026-07-03T00:16:31.364Z | task #20886 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-03-00) — | Composed nugget-fed blog-snippet post (verbatim excerpt, 232 chars) but daily tw
+2026-07-03T00:26:48.643Z | task #20887 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Freshness alert root cause: 2026-07-02 post was drafted+published_at-stamped but

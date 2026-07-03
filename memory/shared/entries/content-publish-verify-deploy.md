@@ -103,6 +103,7 @@ A health alert fires ("no recent content") even though posts were written. Root 
 
 - 2026-06-11 (task #18556): Posts for 2026-06-09 and 2026-06-10 were written but uncommitted. Fix: commit + deploy both posts.
 - 2026-06-27 (task #20044): "The Architecture of Trust" post was untracked — written but not committed. Freshness alert fired. Fix: direct `bun blog-deploy` invocation. Pattern: third recurrence, same root cause.
+- 2026-07-02 (task #20887): "The Audit Trail Is the Point" post had `published_at` set and existed in both `content/` and `src/content/docs/blog/`, but the files were never `git commit`-ted — `git status` showed them as untracked. deploy-drift check still passed (compares deployed SHA to local HEAD, which didn't include the uncommitted files, so it looked "in sync"). Fix: `git add` + commit the post files (plus incidentally-modified `whop-state.json`/`patterns-library.json`), then run `blog-deploy`. Fourth recurrence, same root cause — the deploy-drift check cannot catch this failure mode by design.
 
 **Observed trend**: This pattern repeats ~2 weeks apart. Each fix clears the alert but the prevention step (commit immediately after writing) is not being enforced.
 
