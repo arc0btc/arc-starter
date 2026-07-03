@@ -71,17 +71,17 @@ git commit -m "docs(architect): update state machine and audit log"
 
 Generate diagram only:
 ```
-arc skills run --name architect -- diagram
+arc skills run --name arc-architecture-review -- diagram
 ```
 
 Run context audit:
 ```
-arc skills run --name architect -- audit
+arc skills run --name arc-architecture-review -- audit
 ```
 
 Produce simplification report:
 ```
-arc skills run --name architect -- report
+arc skills run --name arc-architecture-review -- report
 ```
 
 ## If Stuck

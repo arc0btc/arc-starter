@@ -24,9 +24,9 @@ Maintains a living architecture view of Arc and applies the SpaceX 5-step engine
 ## CLI
 
 ```
-arc skills run --name architect -- diagram    # generate/update Mermaid state machine
-arc skills run --name architect -- audit      # check context delivery at each decision point
-arc skills run --name architect -- report     # simplification report (delete, question, trim)
+arc skills run --name arc-architecture-review -- diagram    # generate/update Mermaid state machine
+arc skills run --name arc-architecture-review -- audit      # check context delivery at each decision point
+arc skills run --name arc-architecture-review -- report     # simplification report (delete, question, trim)
 ```
 
 ## Sensor
