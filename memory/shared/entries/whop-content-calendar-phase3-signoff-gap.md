@@ -24,3 +24,14 @@ table + this entry), or (b) the content-calendar workflow needs its own review-q
 relying on the dispatched session's judgment call each time it fires. Until resolved, expect every
 `content-calendar:*:whop-chat` task to block the same way — don't let them silently pile up as "failed";
 they should all block citing this entry.
+
+**RESOLVED 2026-07-03:** whoabuddy chose option (a) — blanket pre-approval for the whole post class, not
+per-post sign-off. Recorded in `skills/whop/CADENCE.md` under a new "Sign-off log" section (entry dated
+2026-07-03), and the hard rule now carries an explicit exception for post classes with a standing
+blanket pre-approval. Task #20820 (the escalation) closed `completed`. Tasks #20638 and #20706 were
+requeued to `pending` with the resolution + posting instructions appended to their descriptions — the
+next dispatch cycle should verify idempotency (per the existing whop-chat guardrails) and post normally,
+not re-block. #20889 ("the-audit-trail-is-the-point") hit the same gate before this resolution landed and
+was left `failed`; it is a distinct blog seed post, not a duplicate of #20638/#20706, but wasn't
+resurrected — a fresh content-calendar cycle will regenerate that beat if still relevant. Going forward,
+`content-calendar:*:whop-chat` tasks should proceed straight to posting without blocking on sign-off.

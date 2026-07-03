@@ -110,17 +110,30 @@ What to look for during Phase 0 dry-run:
 | 0 (current) | Both lanes log-only via dry-run flags; artifacts being produced | both `_ENABLED=false` |
 | 1 | Reactive live, synthesis still dry-run | `WHOP_REPLY_ENABLED=true`, `WHOP_REPLY_DRY_RUN=false` — needs whoabuddy OK |
 | 2 | Synthesis live | `WHOP_SYNTHESIS_ENABLED=true`, `WHOP_SYNTHESIS_DRY_RUN=false` — needs whoabuddy OK |
-| 3 | Fanout tie-in | `PublishFanoutMachine` (#18638) extends with whop hop for blog-derived posts; synthesis lane stays for off-blog beats |
+| 3 | Fanout tie-in | `PublishFanoutMachine` (#18638) extends with whop hop for blog-derived posts; synthesis lane stays for off-blog beats — **sign-off granted 2026-07-03, see Sign-off log below** |
 
 Each phase flip is a one-line code change + a deliberate sign-off in chat or
 a closing summary on the relevant task. Never auto-flip.
 
 ---
 
+## Sign-off log
+
+Dated record of explicit whoabuddy approvals referenced by the "Never
+auto-post" hard rule below. Each entry documents the scope of what's
+pre-approved — anything not covered here still needs a fresh sign-off.
+
+| Date | Granted by | Scope | Note |
+|---|---|---|---|
+| 2026-07-03 | whoabuddy | Blog-derived paid-chat seed posts (Phase 3 `content-calendar:*:whop-chat` fanout hop, `PublishFanoutMachine` blog→whop-chat) | Pre-approved as a class — no per-post sign-off required going forward. Resolves the escalated gap in task #20820 / `whop-content-calendar-phase3-signoff-gap` memory entry; unblocked #20638 and #20706. Reactive replies, synthesis posts, and any non-blog-derived post class are **not** covered — the general rule below still applies to them. |
+
+---
+
 ## Hard rules
 
 - Never auto-post to the paying room without sign-off (this doc + an explicit
-  OK in the cycle where the flag flips).
+  OK in the cycle where the flag flips), **except** for post classes carrying
+  a standing blanket pre-approval recorded in the Sign-off log above.
 - `post-chat` and `reply-chat` are side-effecting and non-idempotent. If a
   dispatched task re-runs, check the room for an existing matching message
   before re-posting. (See MEMORY [P] idempotency rule.)
