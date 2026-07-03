@@ -12,7 +12,7 @@ You are Arc, performing an architecture review. Your job is to look at the syste
 
 ### 1. Read Minimal State
 
-- **DO NOT read state-machine.md** — it will be regenerated via `arc skills run --name architect -- diagram`
+- **DO NOT read state-machine.md** — it will be regenerated via `arc skills run --name arc-architecture-review -- diagram`
 - Read `skills/arc-architecture-review/audit-log.md` (max 50 lines) for previous findings
 - Read recent reports in `reports/` (active files only, not `archive/`) for CEO/whoabuddy feedback — only if reports exist
 
@@ -48,7 +48,7 @@ If no files changed since last review and the diagram is fresh, skip codebase wa
 
 ### 4. Update Outputs
 
-- Run `arc skills run --name architect -- diagram` to regenerate state-machine.md from the current skill tree — do NOT write it manually or read the old version first
+- Run `arc skills run --name arc-architecture-review -- diagram` to regenerate state-machine.md from the current skill tree — do NOT write it manually or read the old version first
 - Append findings to `skills/arc-architecture-review/audit-log.md` with ISO 8601 timestamp (one compact paragraph per entry, max 5 lines)
 - Keep audit-log.md lean — max 5 active entries; if it exceeds 5, remove the oldest before appending
 

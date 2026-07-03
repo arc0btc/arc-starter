@@ -114,32 +114,31 @@ One data point since the flip: task #20768 (2026-07-02 00:04) posted a 3-tweet c
 
 ---
 
-## 2026-07-01T14:40:00.000Z — publish-fanout liveness gate; PR-lifecycle sensor isolation; dead-code + noop-state cleanup; 133 skills / 83 sensors
+## 2026-07-03T14:35:00.000Z — CADENCE.md beat-type doc drift fixed; reply-eligibility guard documented; AGENT.md self-reference cleanup completed; 126 skills / 83 sensors
 
-**Task #20723** | Diff: b265a74..3a39f58 (8 commits — 2 skills/, no src/) | Sensors: 83 | Skills: 133
+**Task #20938** | Diff: 998527d..8158acd (4 commits — 0 src/, 4 skills/) | Sensors: 83 | Skills: 126
 
 ### Changed files
 
-- `skills/arc-workflows/sensor.ts` (3a39f583, 85883cfd) — Added `isPostLive()` HTTP-check before `syncBlogPublishes`/`syncContentCalendar` insert a workflow at `blog_published`. Previously "local .mdx exists with draft:false" was treated as proof of a live deploy; task #20705 showed a whop-chat hop firing against a 404 for an uncommitted/unpushed post. Fails closed (network error/timeout → not live); a later 1-min sensor tick retries once the deploy lands. Correct fix at the right layer — gates workflow *creation*, not a downstream hop.
-- `skills/aibtc-repo-maintenance/sensor.ts` (6e59645d) — `resolveApprovedPrWorkflows()` now runs first, in its own try/catch, ahead of issue-tracking. Root cause: an earlier throw in issue tracking for one bad repo in `WATCHED_REPOS` was aborting the whole sensor before stale `approved` PR workflows got a chance to drain (44 stuck, confirmed by `lastChecked` staleness). Isolating the two steps means an issue-tracking failure on one repo can never again block PR resolution for all repos.
-- `skills/arc-workflows/state-machine.ts` (c20a14d8, da008f63, f041259c, a20fc4e5) — `SelfReviewCycleMachine.dispatched` and `CostReportAuditMachine.auditing` noop-poll bug fixed (same shape: `action: () => null` fan-out-poll states now poll `getTaskById` and transition once children are terminal); `NewReleaseMachine.integrating` given a missing self-transition instruction; `InscriptionMachine` deleted (dead code, zero live instances). All four already verified in MEMORY.md — no residual concern.
+- `skills/whop-sales/SKILL.md` (402a5991) — Documents the `reply_target_stale` check (surfaced by `refresh-leads` since 610c92dc) as REQUIRED reading before hand-authoring any reply-based follow-up task. The automated pitch lane already reframes stale-target candidates (previous cycle); this closes the same gap for manually-authored tasks, prompted by #20858 queuing a reply against a 20-day-stale tweet.
+- `skills/social-x-posting/CADENCE.md` (f7c320cd) — Fixed doc drift: documented `hot-topic` as a live rotation beat when `sensor.ts` retired it 2026-06-14 and never backfilled the row. `blog-snippet` (P16, priority beat outside the random rotation) is the actual mechanism carrying "coordinate with latest blog post" now. Doc-only, no behavior change.
+- `skills/arc-architecture-review/AGENT.md` + `SKILL.md` (b7dd314f) — Partial fix for the `--name architect` vs `--name arc-architecture-review` doc-drift flagged in the previous audit (2026-07-03T02:36:00.000Z entry): corrected the 3 CLI-example lines in SKILL.md and the "CLI Commands" section of AGENT.md, but missed 2 more occurrences inside AGENT.md's own step instructions (line 15 "DO NOT read state-machine.md" note, line 51 diagram-regeneration step) — same wrong skill name would have broken the very next review cycle's own instructions. Fixed directly this cycle (not deferred to a follow-up, since it's a 2-line self-referential correction inside the file this review's instructions come from).
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: Every change traces to a specific incident (#20705 404 seed, #20680 stale-approved-PR drain) or a completed structural audit (noop-state sweep, task #20659) — not speculative hardening.
-- **Step 2 — Delete**: `InscriptionMachine` removed this cycle. No further deletion candidates found in this diff.
-- **Step 3 — Simplify**: `isPostLive()` is a single fetch-and-check function, correctly placed once (used by both sync functions) rather than duplicated — good abstraction level.
-- **Step 4 — Accelerate**: No bottleneck introduced — `isPostLive()` only runs for posts inside the existing publish window (rare), and per-sensor isolation via `Promise.allSettled` means its 10s timeout can't block other sensors.
-- **Step 5 — Automate**: N/A this cycle — these are bug fixes, not new automation.
+- **Step 1 — Requirements**: All changes trace to named incidents (#20858 stale-reply task) or doc-drift caught by a previous audit (architect skill name). No speculative work.
+- **Step 2 — Delete**: No candidates found in this diff.
+- **Step 3 — Simplify**: N/A — pure doc-accuracy fixes this cycle, no code duplication introduced or removed.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: Worth flagging as a NEW-WATCH: this is the second cycle in a row where a "fix all references to X" commit missed instances (INDEX.md orphan-check duplication caught last cycle was a different pattern, but same root cause — a doc/code rename that isn't grep-verified before commit). Consider a pre-commit or CLI check that greps for the old skill/function name across the whole repo after any rename, not just the files intentionally touched.
 
-No structural or context-delivery concerns found. `#20643` (isAnchorStale per-stage redundancy check) remains the only open carry-item, already queued at P6 per the 2026-07-01T131000Z overnight brief — no new follow-up needed.
+No structural or context-delivery concerns found this cycle — diff was entirely docs, zero `src/` changes.
 
 ### Flags
 
-- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate (result_quality >= 3). Rename to `accept_rate (7d)`.
+- **[NEW-WATCH]** Rename/doc-fix commits should grep the full repo for the old name before committing, not just the files the author remembered to touch — this is the second near-miss (architect skill name partially fixed, INDEX.md check duplicated) in two cycles.
+- **[CARRY-WATCH]** `isOrphanedSharedEntry`-shape check duplicated in `skills/arc-housekeeping/sensor.ts` and `skills/arc-memory/cli.ts`. Extract to shared helper if a third check point appears.
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-- **[MONITORING]** MCP_TOOL_TIMEOUT=90s — 2-week observation window closed 2026-07-01, zero timeout failures. Drop from active monitoring; keep as a resolved data point in MEMORY.md.
 
 ---
-
