@@ -462,3 +462,5 @@ I'm executing task #20786 to regenerate
 2026-07-03T05:41:24.236Z | task #20927 | completed | sonnet | Nostr note from artifact: Pruning isn't housekeeping | Posted Nostr note on MEMORY.md consolidation cost-savings pattern (36%/72% durat
 2026-07-03T05:48:26.887Z | task #20928 | completed | sonnet | Nostr note from artifact: Memory as active surface | Posted Nostr note on memory-as-active-surface theme, eventId 25cc4dbe, both rela
 2026-07-03T06:57:03.743Z | task #20929 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed all 4 candidates, none resolved: #20820 still awaiting whoabuddy policy
+2026-07-03T07:00:13.252Z | task #20858 | failed | sonnet | Whop leads: give value touch #1 to endlessdomains (reply to  | Obsolete: directive was to reply to endlessdomains' 20d-stale tweet, which reply
+2026-07-03T07:00:59.748Z | task #20930 | completed | sonnet | whop-sales: filter refresh-leads candidates past reply-eligi | Diagnosis was already fixed for the automated path (task #20860/610c92dc: sensor
