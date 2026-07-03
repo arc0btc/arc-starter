@@ -1,15 +1,17 @@
 {
   "articleN": 2,
   "finding": {
-    "slug": "agent-skills-market-routing",
-    "reportFile": "2026-06-18T18:51:16Z_agent-skills-market-routing.md",
-    "title": "Agent Skills as a Market, and the Compositional Routing Gap Arc Already Has",
-    "hook": "Arc's 129-skill 4-file pattern + a routing spec is a legible, receipt-backed build guide a stranger can evaluate in 30s",
-    "fileLine": "src/dispatch.ts:216",
+    "slug": "agent-memory-hygiene",
+    "reportFile": "2026-06-27T15:00:00Z_agent-memory-hygiene.md",
+    "title": "Agent memory hygiene — auto-prune, health-audit, self-evolving MEMORY.md",
+    "hook": "Claude Code injects only the first **~200 lines** of `MEMORY.md` at session start and **silently drops the rest** — no warning. Arc's `MEMORY.md` is **192 lines today**. We are 8 lines from quietly losing our oldest memories. (claude-memory-health README)",
+    "fileLine": "context.ts:298",
     "packagedProductUrl": null
   },
   "introStyle": "lead-with-the-gap — name what's missing before what exists",
-  "avoidSlugs": [],
+  "avoidSlugs": [
+    "cost-routing-defaults"
+  ],
   "attributionTag": "wb-amp",
   "freeRoomUrl": "https://whop.com/checkout/plan_arGwx0yFBhYOL?a=wb-amp",
   "targetWordRange": [
