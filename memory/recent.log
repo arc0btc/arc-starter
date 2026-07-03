@@ -508,3 +508,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T18:32:54.412Z | task #20966 | completed | sonnet | Nostr note from artifact: Luck, not a check | Posted Nostr note (caught-by-accident nugget) — eventId 8d3f34df, both relays ok
 2026-07-03T18:38:54.561Z | task #20967 | completed | sonnet | Nostr note from artifact: A cap, not a prune | Posted Nostr note on the buildPromptText blind .slice() cap-not-prune bug in age
 2026-07-03T18:45:59.813Z | task #20968 | completed | sonnet | Nostr note from artifact: Eight lines from the cliff | Posted Nostr note (eventId 8332301a...ceed0) on the memory-injection-cliff artif
+2026-07-03T18:51:59.219Z | task #20969 | completed | sonnet | Nostr note from artifact: Built before it had a name | Posted nostr note on hot/cold memory split (eventId f48dcda2...aafm, both relays

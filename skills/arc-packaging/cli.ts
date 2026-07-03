@@ -148,12 +148,19 @@ interface MaterialsBrief {
   sanitizationChecklist: string[];
 }
 
-function composeMaterials(reportOverride?: string): { db: Database; brief: MaterialsBrief | null } {
+function composeMaterials(
+  reportOverride?: string,
+  slugOverride?: string,
+): { db: Database; brief: MaterialsBrief | null } {
   const db = getDb();
   const candidate = selectCandidate(db, INDEX_PATH, reportOverride);
   if (!candidate) return { db, brief: null };
 
-  const slug = slugFromReportFile(candidate.reportFile);
+  // Some report filenames carry no descriptive slug after the leading ISO-timestamp prefix is
+  // stripped (e.g. a batch-triage file literally named "<timestamp>_research.md" derives the
+  // generic slug "research") — --slug lets a human supply a real one so the Whop product route
+  // isn't a meaningless URL. Auto-derived otherwise.
+  const slug = slugOverride ? slugify(slugOverride) : slugFromReportFile(candidate.reportFile);
   const route = slugify(slug);
   const reportPath = join(RESEARCH_DIR, candidate.reportFile);
   const reportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
@@ -193,9 +200,9 @@ function composeMaterials(reportOverride?: string): { db: Database; brief: Mater
   return { db, brief };
 }
 
-async function cmdMaterials(reportOverride?: string): Promise<void> {
+async function cmdMaterials(reportOverride?: string, slugOverride?: string): Promise<void> {
   console.log("=== arc-packaging — Materials Brief ===");
-  const { db, brief } = composeMaterials(reportOverride);
+  const { db, brief } = composeMaterials(reportOverride, slugOverride);
   if (!brief) {
     console.error(
       "NO ELIGIBLE CANDIDATE: research/INDEX.md's SKU backlog has no relevance>=4 report that isn't already queued/packaged.",
@@ -267,6 +274,13 @@ function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: 
   if (!descLower.includes("read this content")) {
     errors.push('description missing the required agent frame ("read this content")');
   }
+  // Whop's products.create rejects headline > 80 chars live (discovered running this pipeline
+  // for real, 2026-07-03: "Headline is too long (maximum is 80 characters)") — catch it here,
+  // deterministically, before the subprocess call, instead of failing mid-stage against a real
+  // API after the row is already claimed.
+  if (draft.headline && draft.headline.length > 80) {
+    errors.push(`headline is ${draft.headline.length} chars, Whop's products.create limit is 80 — shorten it`);
+  }
   if (!forceSanitization) {
     const scanText = [reportMarkdown, draft.title, draft.headline ?? "", draft.description].join("\n");
     for (const hit of sanitizeScan(scanText)) {
@@ -315,7 +329,12 @@ function claimCandidate(db: Database, reportFile: string): ClaimResult {
   return "claimed";
 }
 
-async function cmdStage(reportFile: string, dryRun: boolean, forceSanitization: boolean): Promise<void> {
+async function cmdStage(
+  reportFile: string,
+  dryRun: boolean,
+  forceSanitization: boolean,
+  deliverableOverride?: string,
+): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
   const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
@@ -373,7 +392,22 @@ async function cmdStage(reportFile: string, dryRun: boolean, forceSanitization: 
   }
 
   const price = draft.price ?? DEFAULT_PRICE_USD;
-  const cleanedMarkdown = cleanDeliverableMarkdown(rawReportMarkdown);
+  // --deliverable lets a report ship an ALREADY-POLISHED standalone deliverable (e.g. a guide
+  // an earlier session hand-authored from this same report) instead of the raw research report
+  // + automatic strip pass. `report_file`/mark-packaged bookkeeping still tracks the ORIGINAL
+  // research report identity — only the content attached to the Whop product changes. Skips
+  // cleanDeliverableMarkdown (a manually-supplied override is assumed already customer-ready;
+  // running the strip regexes on hand-authored prose risks mangling it).
+  let cleanedMarkdown: string;
+  if (deliverableOverride) {
+    if (!fs.existsSync(deliverableOverride)) {
+      throw new Error(`--deliverable path does not exist: ${deliverableOverride}`);
+    }
+    cleanedMarkdown = fs.readFileSync(deliverableOverride, "utf-8");
+    console.log(`Using deliverable override: ${deliverableOverride} (skipping auto-strip — assumed already customer-ready)`);
+  } else {
+    cleanedMarkdown = cleanDeliverableMarkdown(rawReportMarkdown);
+  }
   const cleanedPath = join(MATERIALS_DIR, `${row.slug}.deliverable.md`);
   fs.writeFileSync(cleanedPath, cleanedMarkdown);
 
@@ -570,7 +604,7 @@ async function main() {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
     case "materials": {
-      await cmdMaterials(argValue(args, "--report"));
+      await cmdMaterials(argValue(args, "--report"), argValue(args, "--slug"));
       break;
     }
     case "stage": {
@@ -579,7 +613,7 @@ async function main() {
         console.error("stage requires --report <filename-in-research/>");
         process.exit(1);
       }
-      await cmdStage(report, args.includes("--dry-run"), args.includes("--force-sanitization"));
+      await cmdStage(report, args.includes("--dry-run"), args.includes("--force-sanitization"), argValue(args, "--deliverable"));
       break;
     }
     case "status": {
@@ -591,12 +625,18 @@ async function main() {
         [
           "arc-packaging CLI — the standing packaging pipeline stage",
           "",
-          "  materials [--report <filename-in-research/>]                pick the next backlog candidate, write a materials brief",
-          "  stage --report <filename> [--dry-run] [--force-sanitization]  validate the draft (+ sanitization scan unless forced), then mint the SKU",
+          "  materials [--report <filename-in-research/>] [--slug <slug>]  pick the next backlog candidate, write a materials brief",
+          "                                                                (--slug overrides the auto-derived slug/route for a report whose",
+          "                                                                filename has no descriptive part, e.g. a batch-triage file)",
+          "  stage --report <filename> [--dry-run] [--force-sanitization] [--deliverable <path>]",
+          "                                                                validate the draft (+ sanitization scan unless forced), then mint the SKU",
           "  status                                                        show packaging_queue_log",
           "",
           "  --force-sanitization: human-only escape hatch for a confirmed sanitizer false positive.",
           "  Never used by the automated sensor path.",
+          "  --deliverable <path>: ship an already-polished standalone file instead of the raw",
+          "  research report + auto-strip pass (report_file identity/mark-packaged still tracks",
+          "  the original research report).",
         ].join("\n"),
       );
       process.exit(command ? 1 : 0);
