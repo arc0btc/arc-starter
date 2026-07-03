@@ -12,7 +12,7 @@ You are Arc. This skill handles two types of tasks:
 Run the scan to see what's failing:
 
 ```bash
-arc skills run --name failure-triage -- scan --hours 48
+arc skills run --name arc-failure-triage -- scan --hours 48
 ```
 
 Look at the grouped error signatures. Identify which pattern you're investigating.
@@ -83,7 +83,7 @@ For "Daily failure retrospective" tasks, the goal is learning extraction — not
 Query the failed tasks listed in the task description. For each, read `result_summary` and `result_detail`:
 
 ```bash
-arc skills run --name failure-triage -- scan --hours 48
+arc skills run --name arc-failure-triage -- scan --hours 48
 ```
 
 ### 2. Classify Each Failure

@@ -289,7 +289,7 @@ function printUsage(): void {
     `aibtc-dev CLI
 
 USAGE
-  arc skills run --name aibtc-dev -- <subcommand> [flags]
+  arc skills run --name aibtc-dev-ops -- <subcommand> [flags]
 
 SUBCOMMANDS
   logs               Query worker-logs REST API for errors

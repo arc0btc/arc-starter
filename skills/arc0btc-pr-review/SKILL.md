@@ -90,7 +90,7 @@ After every completed paid PR review, the `pr-review-attestation` sensor (runs e
 1. Sensor detects completed tasks with `sensor:arc-payments:` source (subject contains "PR Review") or `paid:pr-review:` source
 2. Queues a P8/Haiku task: look up requester's ERC-8004 agent ID via contacts, then call:
    ```
-   arc skills run --name reputation -- give-feedback \
+   arc skills run --name erc8004-reputation -- give-feedback \
      --agent-id <requester-agent-id> --value 5 \
      --tag1 pr-review --tag2 paid-service \
      --endpoint <pr-url-or-ref> --sponsored

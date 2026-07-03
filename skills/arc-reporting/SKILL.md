@@ -42,5 +42,5 @@ Load when: the reporting sensor creates a watch report or overnight brief task. 
 ## CLI
 
 ```
-arc skills run --name reporting -- generate [--variant watch|overnight] [--since ISO8601]
+arc skills run --name arc-reporting -- generate [--variant watch|overnight] [--since ISO8601]
 ```

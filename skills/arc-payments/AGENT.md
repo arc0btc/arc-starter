@@ -84,7 +84,7 @@ The sensor already rejected underpayments. If you somehow receive a task with an
 Before delivering any service, optionally verify sender reputation:
 
 ```
-arc skills run --name nostr-wot -- sybil-check --pubkey <hex>
+arc skills run --name maximumsats -- sybil-check --pubkey <hex>
 ```
 
 Stacks addresses do not map directly to Nostr pubkeys. You need the pubkey from X DM context or contact lookup. If `likely_sybil = true`, withhold delivery and close as `failed` with "sybil check failed — service withheld".

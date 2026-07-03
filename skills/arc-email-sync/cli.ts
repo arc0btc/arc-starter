@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/arc-email-sync/cli.ts
 // Unified CLI for the email skill.
-// Usage: arc skills run --name email -- <subcommand> [flags]
+// Usage: arc skills run --name arc-email-sync -- <subcommand> [flags]
 
 import { initDatabase, markEmailRead, archiveOldEmails } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
@@ -104,7 +104,7 @@ async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || (!flags.body && !flags["body-html"])) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>] [--force]\n");
+    process.stderr.write("Usage: arc skills run --name arc-email-sync -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>] [--force]\n");
     process.exit(1);
   }
 
@@ -182,7 +182,7 @@ async function cmdMarkRead(args: string[]): Promise<void> {
   const remoteId = flags.id;
 
   if (!remoteId) {
-    process.stderr.write("Usage: arc skills run --name email -- mark-read --id <remote_id>\n");
+    process.stderr.write("Usage: arc skills run --name arc-email-sync -- mark-read --id <remote_id>\n");
     process.exit(1);
   }
 
@@ -237,7 +237,7 @@ async function cmdFetch(args: string[]): Promise<void> {
   const remoteId = flags.id;
 
   if (!remoteId) {
-    process.stderr.write("Usage: arc skills run --name email -- fetch --id <remote_id>\n");
+    process.stderr.write("Usage: arc skills run --name arc-email-sync -- fetch --id <remote_id>\n");
     process.exit(1);
   }
 
@@ -262,7 +262,7 @@ async function cmdArchive(args: string[]): Promise<void> {
   const days = parseInt(daysStr, 10);
 
   if (isNaN(days) || days < 1) {
-    process.stderr.write("Usage: arc skills run --name email -- archive [--days <N>]\nDefault: 7 days\n");
+    process.stderr.write("Usage: arc skills run --name arc-email-sync -- archive [--days <N>]\nDefault: 7 days\n");
     process.exit(1);
   }
 
@@ -276,7 +276,7 @@ function printUsage(): void {
   process.stdout.write(`email CLI
 
 USAGE
-  arc skills run --name email -- <subcommand> [flags]
+  arc skills run --name arc-email-sync -- <subcommand> [flags]
 
 SUBCOMMANDS
   send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>] [--force]
@@ -301,12 +301,12 @@ SUBCOMMANDS
     Archive stale email threads older than N days (default: 7).
 
 EXAMPLES
-  arc skills run --name email -- send --to user@example.com --subject "Hello" --body "Hi there."
-  arc skills run --name email -- mark-read --id abc123
-  arc skills run --name email -- sync
-  arc skills run --name email -- stats
-  arc skills run --name email -- fetch --id abc123
-  arc skills run --name email -- archive --days 7
+  arc skills run --name arc-email-sync -- send --to user@example.com --subject "Hello" --body "Hi there."
+  arc skills run --name arc-email-sync -- mark-read --id abc123
+  arc skills run --name arc-email-sync -- sync
+  arc skills run --name arc-email-sync -- stats
+  arc skills run --name arc-email-sync -- fetch --id abc123
+  arc skills run --name arc-email-sync -- archive --days 7
 `);
 }
 

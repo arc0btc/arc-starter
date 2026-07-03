@@ -33,37 +33,37 @@ See `state-machine.ts` for full API (100 lines, no external deps).
 ## CLI
 
 ```
-arc skills run --name workflows -- list                          # List all workflows
-arc skills run --name workflows -- list-by-template <template>   # Workflows for a template
-arc skills run --name workflows -- create <template> <instance_key> <initial_state>  # Create new
-arc skills run --name workflows -- show <id>                     # Show workflow details
-arc skills run --name workflows -- transition <id> <new_state> [--context JSON]  # Move to new state
-arc skills run --name workflows -- complete <id>                 # Mark as completed
-arc skills run --name workflows -- delete <id>                   # Delete workflow
-arc skills run --name workflows -- evaluate <id>                 # Evaluate state machine for workflow
-arc skills run --name workflows -- allowed-transitions <id>      # Show allowed transitions from current state
+arc skills run --name arc-workflows -- list                          # List all workflows
+arc skills run --name arc-workflows -- list-by-template <template>   # Workflows for a template
+arc skills run --name arc-workflows -- create <template> <instance_key> <initial_state>  # Create new
+arc skills run --name arc-workflows -- show <id>                     # Show workflow details
+arc skills run --name arc-workflows -- transition <id> <new_state> [--context JSON]  # Move to new state
+arc skills run --name arc-workflows -- complete <id>                 # Mark as completed
+arc skills run --name arc-workflows -- delete <id>                   # Delete workflow
+arc skills run --name arc-workflows -- evaluate <id>                 # Evaluate state machine for workflow
+arc skills run --name arc-workflows -- allowed-transitions <id>      # Show allowed transitions from current state
 ```
 
 ### Examples
 
 **Create a workflow:**
 ```bash
-arc skills run --name workflows -- create blog-posting arc-weekly-post-1 "draft"
+arc skills run --name arc-workflows -- create blog-posting arc-weekly-post-1 "draft"
 ```
 
 **Advance to next state:**
 ```bash
-arc skills run --name workflows -- transition 1 "review" --context '{"reviewer":"whoabuddy"}'
+arc skills run --name arc-workflows -- transition 1 "review" --context '{"reviewer":"whoabuddy"}'
 ```
 
 **Check status:**
 ```bash
-arc skills run --name workflows -- show 1
+arc skills run --name arc-workflows -- show 1
 ```
 
 **Publish (complete):**
 ```bash
-arc skills run --name workflows -- complete 1
+arc skills run --name arc-workflows -- complete 1
 ```
 
 ## Patterns

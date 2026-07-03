@@ -5,7 +5,7 @@
 // Dispatch quality evaluation: error analysis, human labeling, LLM judges, calibration.
 // Adapted from hamelsmu/evals-skills methodology.
 //
-// Usage: arc skills run --name evals -- <subcommand>
+// Usage: arc skills run --name arc-dispatch-evals -- <subcommand>
 
 import { Database } from "bun:sqlite";
 import { join } from "node:path";
@@ -682,7 +682,7 @@ function printUsage(): void {
   process.stdout.write(`evals CLI — dispatch quality evaluation
 
 USAGE
-  arc skills run --name evals -- <subcommand>
+  arc skills run --name arc-dispatch-evals -- <subcommand>
 
 SUBCOMMANDS
   error-analysis  Analyze task traces for failure patterns

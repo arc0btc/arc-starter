@@ -19,13 +19,13 @@ Evaluate Arc's dispatch quality using structured error analysis, LLM-as-judge ev
 ## CLI
 
 ```
-arc skills run --name evals -- error-analysis [--limit N] [--status STATUS]
-arc skills run --name evals -- summary
-arc skills run --name evals -- label --task-id N --pass|--fail [--category CAT] [--notes TEXT]
-arc skills run --name evals -- labels [--category CAT]
-arc skills run --name evals -- judge --task-id N --category CAT
-arc skills run --name evals -- validate --category CAT
-arc skills run --name evals -- help
+arc skills run --name arc-dispatch-evals -- error-analysis [--limit N] [--status STATUS]
+arc skills run --name arc-dispatch-evals -- summary
+arc skills run --name arc-dispatch-evals -- label --task-id N --pass|--fail [--category CAT] [--notes TEXT]
+arc skills run --name arc-dispatch-evals -- labels [--category CAT]
+arc skills run --name arc-dispatch-evals -- judge --task-id N --category CAT
+arc skills run --name arc-dispatch-evals -- validate --category CAT
+arc skills run --name arc-dispatch-evals -- help
 ```
 
 ## Data

@@ -11,7 +11,7 @@ The wallet is already imported as `arc0btc`. You do not need to create or import
 ### Sign a Bitcoin message (e.g., AIBTC heartbeat)
 
 ```bash
-arc skills run --name wallet -- btc-sign --message "AIBTC Check-In | 2026-02-27T20:00:00.000Z"
+arc skills run --name bitcoin-wallet -- btc-sign --message "AIBTC Check-In | 2026-02-27T20:00:00.000Z"
 ```
 
 Signing auto-unlocks and locks the wallet. No manual unlock step needed.
@@ -19,13 +19,13 @@ Signing auto-unlocks and locks the wallet. No manual unlock step needed.
 ### Sign a Stacks message
 
 ```bash
-arc skills run --name wallet -- stacks-sign --message "your message"
+arc skills run --name bitcoin-wallet -- stacks-sign --message "your message"
 ```
 
 ### Verify a Bitcoin signature
 
 ```bash
-arc skills run --name wallet -- btc-verify --message "the message" --signature "hex-or-base64" --expected-signer "bc1q..."
+arc skills run --name bitcoin-wallet -- btc-verify --message "the message" --signature "hex-or-base64" --expected-signer "bc1q..."
 ```
 
 No unlock required for verification.
@@ -33,8 +33,8 @@ No unlock required for verification.
 ### Check wallet state
 
 ```bash
-arc skills run --name wallet -- info      # addresses, network
-arc skills run --name wallet -- status    # locked/unlocked, readiness
+arc skills run --name bitcoin-wallet -- info      # addresses, network
+arc skills run --name bitcoin-wallet -- status    # locked/unlocked, readiness
 ```
 
 ## Output Format

@@ -322,7 +322,7 @@ async function cmdBtcSign(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.message) {
-    process.stderr.write("Usage: arc skills run --name wallet -- btc-sign --message \"text\" [--auto-lock]\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- btc-sign --message \"text\" [--auto-lock]\n");
     process.exit(1);
   }
 
@@ -342,7 +342,7 @@ async function cmdStacksSign(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.message) {
-    process.stderr.write("Usage: arc skills run --name wallet -- stacks-sign --message \"text\" [--auto-lock]\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- stacks-sign --message \"text\" [--auto-lock]\n");
     process.exit(1);
   }
 
@@ -362,7 +362,7 @@ async function cmdBtcVerify(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.message || !flags.signature) {
-    process.stderr.write("Usage: arc skills run --name wallet -- btc-verify --message \"text\" --signature \"sig\" [--expected-signer \"addr\"]\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- btc-verify --message \"text\" --signature \"sig\" [--expected-signer \"addr\"]\n");
     process.exit(1);
   }
 
@@ -386,7 +386,7 @@ async function cmdSchnorrSignDigest(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.digest) {
-    process.stderr.write("Usage: arc skills run --name wallet -- schnorr-sign-digest --digest <hex> [--confirm-blind-sign] [--aux-rand <hex>]\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- schnorr-sign-digest --digest <hex> [--confirm-blind-sign] [--aux-rand <hex>]\n");
     process.exit(1);
   }
 
@@ -408,8 +408,8 @@ async function cmdSchnorrSignDigest(args: string[]): Promise<void> {
 
 async function cmdBns(args: string[]): Promise<void> {
   if (args.length === 0) {
-    process.stderr.write("Usage: arc skills run --name wallet -- bns <bns-subcommand> [flags]\n");
-    process.stderr.write("Example: arc skills run --name wallet -- bns claim-fast --name myname --send-to SP...\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- bns <bns-subcommand> [flags]\n");
+    process.stderr.write("Example: arc skills run --name bitcoin-wallet -- bns claim-fast --name myname --send-to SP...\n");
     process.exit(1);
   }
 
@@ -455,8 +455,8 @@ async function cmdBns(args: string[]): Promise<void> {
 
 async function cmdX402(args: string[]): Promise<void> {
   if (args.length === 0) {
-    process.stderr.write("Usage: arc skills run --name wallet -- x402 <x402-subcommand> [flags]\n");
-    process.stderr.write("Example: arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content \"Hello\"\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- x402 <x402-subcommand> [flags]\n");
+    process.stderr.write("Example: arc skills run --name bitcoin-wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content \"Hello\"\n");
     process.exit(1);
   }
 
@@ -752,7 +752,7 @@ function printUsage(): void {
   process.stdout.write(`wallet CLI
 
 USAGE
-  arc skills run --name wallet -- <subcommand> [flags]
+  arc skills run --name bitcoin-wallet -- <subcommand> [flags]
 
 SUBCOMMANDS
   unlock
@@ -804,17 +804,17 @@ SUBCOMMANDS
     in the same process so the wallet singleton is available to x402.
 
 EXAMPLES
-  arc skills run --name wallet -- info
-  arc skills run --name wallet -- unlock
-  arc skills run --name wallet -- balance
-  arc skills run --name wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
-  arc skills run --name wallet -- btc-sign --message "Hello"
-  arc skills run --name wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
-  arc skills run --name wallet -- check-relay-health
-  arc skills run --name wallet -- check-relay-health --relay-url "https://custom-relay.com" --sponsor-address "SP1CUSTOM..."
-  arc skills run --name wallet -- stx-send --recipient SP... --amount-stx 2
-  arc skills run --name wallet -- stx-send --recipient SP... --amount-stx 0.5 --memo "funding"
-  arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
+  arc skills run --name bitcoin-wallet -- info
+  arc skills run --name bitcoin-wallet -- unlock
+  arc skills run --name bitcoin-wallet -- balance
+  arc skills run --name bitcoin-wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
+  arc skills run --name bitcoin-wallet -- btc-sign --message "Hello"
+  arc skills run --name bitcoin-wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
+  arc skills run --name bitcoin-wallet -- check-relay-health
+  arc skills run --name bitcoin-wallet -- check-relay-health --relay-url "https://custom-relay.com" --sponsor-address "SP1CUSTOM..."
+  arc skills run --name bitcoin-wallet -- stx-send --recipient SP... --amount-stx 2
+  arc skills run --name bitcoin-wallet -- stx-send --recipient SP... --amount-stx 0.5 --memo "funding"
+  arc skills run --name bitcoin-wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
 `);
 }
 

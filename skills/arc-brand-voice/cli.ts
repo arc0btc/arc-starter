@@ -299,7 +299,7 @@ async function cmdBrandCheck(args: string[]): Promise<void> {
   const { flags } = parseFlags(args);
 
   if (!flags.content) {
-    process.stderr.write("Usage: arc skills run --name arc-brand -- brand-check --content \"text to check\"\n");
+    process.stderr.write("Usage: arc skills run --name arc-brand-voice -- brand-check --content \"text to check\"\n");
     process.exit(1);
   }
 
@@ -331,7 +331,7 @@ async function cmdReviewPost(args: string[]): Promise<void> {
   const { flags } = parseFlags(args);
 
   if (!flags.file) {
-    process.stderr.write("Usage: arc skills run --name arc-brand -- review-post --file <path>\n");
+    process.stderr.write("Usage: arc skills run --name arc-brand-voice -- review-post --file <path>\n");
     process.exit(1);
   }
 

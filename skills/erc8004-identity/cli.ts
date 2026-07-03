@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/erc8004-identity/cli.ts
 // Wrapper for identity skill, delegates to upstream aibtcdev/skills implementation.
-// Usage: arc skills run --name identity -- <subcommand> [flags]
+// Usage: arc skills run --name erc8004-identity -- <subcommand> [flags]
 
 import { resolve } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
@@ -89,7 +89,7 @@ async function main(args: string[]): Promise<void> {
   if (args.length === 0) {
     console.log(`Identity Skill
 
-Usage: arc skills run --name identity -- <subcommand> [options]
+Usage: arc skills run --name erc8004-identity -- <subcommand> [options]
 
 Subcommands:
   register                 Register a new agent identity

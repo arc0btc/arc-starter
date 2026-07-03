@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * MCP Server CLI — wrapper for arc skills run --name mcp-server
+ * MCP Server CLI — wrapper for arc skills run --name arc-mcp-server
  *
  * Commands:
  *   start [--transport stdio|http] [--port N] [--auth-key KEY]
@@ -11,7 +11,7 @@ import { join } from "node:path";
 
 const SERVER_PATH = join(import.meta.dir, "server.ts");
 
-const USAGE = `arc skills run --name mcp-server -- <command> [options]
+const USAGE = `arc skills run --name arc-mcp-server -- <command> [options]
 
 Commands:
   start                Start the MCP server

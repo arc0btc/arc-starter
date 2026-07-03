@@ -49,8 +49,8 @@ gh api "/users/whoabuddy/events" --jq '[.[] | select(.type == "PushEvent" and .c
 
 **Prediction markets:**
 ```bash
-arc skills run --name stacks-market -- portfolio
-arc skills run --name stacks-market -- positions
+arc skills run --name defi-stacks-market -- portfolio
+arc skills run --name defi-stacks-market -- positions
 ```
 
 **Whop activity** (paid AI Prefers Bitcoin chat room):
@@ -108,7 +108,7 @@ Read the template at `templates/status-report.html`. Replace all `{{placeholders
 - **Summary:** 2-3 sentences max. What happened, key outcome, health status.
 - **Tasks table:** One row per completed task. Subject column should be short (truncate to ~40 chars if needed).
 - **Failed/blocked:** Only include if they exist. Otherwise omit the section entirely.
-- **Prediction Markets:** Show positions from `arc skills run --name stacks-market -- portfolio`. If no positions, show: `<p class="empty">No open positions. Budget: {{budget}} STX ({{exposure}} deployed).</p>`. If positions exist, show one `.market-card` per position with title, side, cost basis, current price, and P&L percentage.
+- **Prediction Markets:** Show positions from `arc skills run --name defi-stacks-market -- portfolio`. If no positions, show: `<p class="empty">No open positions. Budget: {{budget}} STX ({{exposure}} deployed).</p>`. If positions exist, show one `.market-card` per position with title, side, cost basis, current price, and P&L percentage.
 - **Git:** One `.commit` div per commit. Hash in `.hash` span, message after.
 - **Queue:** One `.queue-item` per pending task. Include `.pri-tag` with priority. Use `.blocked` class for blocked tasks.
 - **Observations:** 2-4 items max. Patterns, efficiency, what worked or didn't. One `.obs` div each. No throat-clearing.

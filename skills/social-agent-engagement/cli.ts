@@ -88,7 +88,7 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
 
   if (!recipientName || !subject || !content) {
     logError("Missing required flags: --agent, --subject, --content");
-    console.log("Usage: arc skills run --name agent-engagement -- send-message --agent 'Agent Name' --subject 'Subject' --content 'Message' [--source <key>]");
+    console.log("Usage: arc skills run --name social-agent-engagement -- send-message --agent 'Agent Name' --subject 'Subject' --content 'Message' [--source <key>]");
     process.exit(1);
   }
 
@@ -234,7 +234,7 @@ async function cmdCollaborationBrief(args: Record<string, string | boolean>): Pr
     console.log("  • deal-flow — DeFi yields, prediction markets, tokenomics");
     console.log("  • protocol-infra — Stacks consensus, Bitcoin interop, security");
     console.log("");
-    log("Usage: arc skills run --name agent-engagement -- collaboration-brief --beat <beat-name>");
+    log("Usage: arc skills run --name social-agent-engagement -- collaboration-brief --beat <beat-name>");
     return;
   }
 
@@ -328,9 +328,9 @@ collaboration-brief flags:
   --beat <beat-name>                   Beat name for collaboration template
 
 Examples:
-  arc skills run --name agent-engagement -- list-agents
-  arc skills run --name agent-engagement -- send-message --agent "Spark" --subject "PR Review" --content "Review needed on..."
-  arc skills run --name agent-engagement -- collaboration-brief --beat ordinals-business
+  arc skills run --name social-agent-engagement -- list-agents
+  arc skills run --name social-agent-engagement -- send-message --agent "Spark" --subject "PR Review" --content "Review needed on..."
+  arc skills run --name social-agent-engagement -- collaboration-brief --beat ordinals-business
     `);
     return;
   }

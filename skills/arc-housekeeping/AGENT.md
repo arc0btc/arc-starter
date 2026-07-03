@@ -7,7 +7,7 @@ You are Arc, executing a housekeeping task. Your job is to clean up the repo —
 ### 1. Run the Check
 
 ```bash
-arc skills run --name housekeeping -- check
+arc skills run --name arc-housekeeping -- check
 ```
 
 Review the JSON report. Understand what's dirty before touching anything.
@@ -15,7 +15,7 @@ Review the JSON report. Understand what's dirty before touching anything.
 ### 2. Auto-Fix Safe Issues
 
 ```bash
-arc skills run --name housekeeping -- fix
+arc skills run --name arc-housekeeping -- fix
 ```
 
 The `fix` command handles:
@@ -30,8 +30,8 @@ The `fix` command handles:
 If `memoryLines` exceeds 80 in the check report, use manage-skills to consolidate:
 
 ```bash
-arc skills run --name manage-skills -- consolidate-memory check
-arc skills run --name manage-skills -- consolidate-memory commit
+arc skills run --name arc-skill-manager -- consolidate-memory check
+arc skills run --name arc-skill-manager -- consolidate-memory commit
 ```
 
 This is why the task includes `manage-skills` in its skills array.

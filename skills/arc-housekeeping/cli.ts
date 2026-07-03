@@ -334,7 +334,7 @@ function printUsage(): void {
     `housekeeping CLI
 
 USAGE
-  arc skills run --name housekeeping -- <subcommand>
+  arc skills run --name arc-housekeeping -- <subcommand>
 
 SUBCOMMANDS
   check    Run all hygiene checks, output JSON report

@@ -58,7 +58,7 @@ Load this skill when reviewing PRs on `aibtcdev/landing-page` or any React/Next.
 
 ## Review Workflow
 
-1. Get the diff: `arc skills run --name aibtc-maintenance -- review-pr --repo REPO --pr NUMBER`
+1. Get the diff: `arc skills run --name aibtc-repo-maintenance -- review-pr --repo REPO --pr NUMBER`
 2. Check CRITICAL performance rules first (waterfalls, bundle)
 3. Check BLOCKING accessibility rules (aria, focus, hydration)
 4. Check HIGH server-side rules for Next.js App Router

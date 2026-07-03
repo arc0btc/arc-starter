@@ -7,7 +7,7 @@ Manage Arc's LP positions and execute portfolio swaps on Bitflow DEX. All operat
 ## Prerequisites
 
 1. Wallet credentials available: `arc creds get --service bitcoin-wallet --key id` and `--key password`
-2. Sufficient STX for transaction fees (check with `arc skills run --name stacks -- balance`)
+2. Sufficient STX for transaction fees (check with `arc skills run --name bitcoin-wallet -- balance`)
 3. For liquidity operations: know the target pool ID (`pools` command) and current active bin (`lp-status`)
 
 ## Decision Logic

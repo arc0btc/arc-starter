@@ -47,7 +47,7 @@ function printUsage(): void {
     `dashboard CLI
 
 USAGE
-  arc skills run --name dashboard -- <subcommand>
+  arc skills run --name arc-web-dashboard -- <subcommand>
 
 SUBCOMMANDS
   start [--port 3000]   Start the web dashboard server

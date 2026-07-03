@@ -492,7 +492,7 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.name) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- claim-beat --beat <slug> --name <name> [--description <desc>] [--color <hex>]"
+      "Usage: arc skills run --name aibtc-news-editorial -- claim-beat --beat <slug> --name <name> [--description <desc>] [--color <hex>]"
     );
     process.exit(1);
   }
@@ -606,7 +606,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--source <key>] [--force]"
+      "Usage: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--source <key>] [--force]"
     );
     process.exit(1);
   }
@@ -1009,7 +1009,7 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
 
   if (!observation || observation.trim().length === 0) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- compose-signal --beat <slug> --observation <text> [--headline <text>] [--sources <json>] [--tags <json>]"
+      "Usage: arc skills run --name aibtc-news-editorial -- compose-signal --beat <slug> --observation <text> [--headline <text>] [--sources <json>] [--tags <json>]"
     );
     process.exit(1);
   }
@@ -1067,7 +1067,7 @@ async function cmdCheckSources(args: string[]): Promise<void> {
 
   if (!sourcesJson) {
     console.error(
-      'Usage: arc skills run --name aibtc-news -- check-sources --sources \'[{"url":"...","title":"..."}]\''
+      'Usage: arc skills run --name aibtc-news-editorial -- check-sources --sources \'[{"url":"...","title":"..."}]\''
     );
     process.exit(1);
   }
@@ -1594,7 +1594,7 @@ async function cmdJudgeSignal(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>]"
+      "Usage: arc skills run --name aibtc-news-editorial -- judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>]"
     );
     process.exit(1);
   }
@@ -1888,7 +1888,7 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
+    console.error("Usage: arc skills run --name aibtc-news-editorial -- <command> [flags]");
     console.error(
       "Commands: claim-beat, file-signal, file-correction, list-corrections, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data, update-narrative, show-narrative"
     );

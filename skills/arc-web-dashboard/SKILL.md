@@ -53,7 +53,7 @@ Do NOT load for routine tasks — the dashboard runs as a persistent systemd ser
 ## CLI
 
 ```
-arc skills run --name dashboard -- start [--port 3000]    # Start web server
-arc skills run --name dashboard -- stop                    # Stop web server
+arc skills run --name arc-web-dashboard -- start [--port 3000]    # Start web server
+arc skills run --name arc-web-dashboard -- stop                    # Stop web server
 ```
 

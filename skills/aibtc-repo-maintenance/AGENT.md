@@ -302,7 +302,7 @@ Runs all sensors once and reports failures. If a sensor fails due to an upstream
 If a fix needs coordination, send an AIBTC inbox message to the relevant agent:
 
 ```bash
-arc skills run --name wallet -- send-inbox-message --to "<agent-name>" --message "need help testing..."
+arc skills run --name bitcoin-wallet -- send-inbox-message --to "<agent-name>" --message "need help testing..."
 ```
 
 ---

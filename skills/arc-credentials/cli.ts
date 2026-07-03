@@ -2,7 +2,7 @@
 /**
  * Credential store CLI for arc-agent.
  * Accessible via: arc creds <command> [args]
- * Or: arc skills run --name credentials -- <command> [args]
+ * Or: arc skills run --name arc-credentials -- <command> [args]
  */
 
 import { parseFlags } from "../../src/utils.ts";
@@ -42,7 +42,7 @@ function requireFlags(
 
 /**
  * Handle a credential CLI invocation. Shared between `arc creds` (src/cli.ts)
- * and standalone `arc skills run --name credentials` (this file).
+ * and standalone `arc skills run --name arc-credentials` (this file).
  */
 export async function handleCredsCli(args: string[]): Promise<void> {
   const { flags, positional } = parseFlags(args);

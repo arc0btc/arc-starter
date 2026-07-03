@@ -345,7 +345,7 @@ function printUsage(): void {
   process.stdout.write(`performance-analytics CLI
 
 USAGE
-  arc skills run --name performance-analytics -- <subcommand> [flags]
+  arc skills run --name arc-performance-analytics -- <subcommand> [flags]
 
 SUBCOMMANDS
   summary [--period today|week|month|all]
@@ -361,10 +361,10 @@ SUBCOMMANDS
     Print this message.
 
 EXAMPLES
-  arc skills run --name performance-analytics -- summary
-  arc skills run --name performance-analytics -- summary --period week
-  arc skills run --name performance-analytics -- by-skill --period month --limit 10
-  arc skills run --name performance-analytics -- cycles --limit 25
+  arc skills run --name arc-performance-analytics -- summary
+  arc skills run --name arc-performance-analytics -- summary --period week
+  arc skills run --name arc-performance-analytics -- by-skill --period month --limit 10
+  arc skills run --name arc-performance-analytics -- cycles --limit 25
 `);
 }
 

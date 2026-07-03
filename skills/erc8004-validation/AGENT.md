@@ -49,40 +49,40 @@ All commands return JSON with:
 
 Request validation from a validator:
 ```
-arc skills run --name validation -- request --validator SP2... --agent-id 42 --request-uri ipfs://request-data --request-hash a3f2b1...64hex
+arc skills run --name erc8004-validation -- request --validator SP2... --agent-id 42 --request-uri ipfs://request-data --request-hash a3f2b1...64hex
 ```
 
 Submit a validation response:
 ```
-arc skills run --name validation -- respond --request-hash a3f2b1...64hex --response 85 --response-uri ipfs://response-data --response-hash b4e9c2...64hex --tag security
+arc skills run --name erc8004-validation -- respond --request-hash a3f2b1...64hex --response 85 --response-uri ipfs://response-data --response-hash b4e9c2...64hex --tag security
 ```
 
 Get the status of a validation request:
 ```
-arc skills run --name validation -- get-status --request-hash a3f2b1...64hex
+arc skills run --name erc8004-validation -- get-status --request-hash a3f2b1...64hex
 ```
 
 Get the aggregated validation summary for an agent:
 ```
-arc skills run --name validation -- get-summary --agent-id 42
+arc skills run --name erc8004-validation -- get-summary --agent-id 42
 ```
 
 List all validation request hashes for an agent:
 ```
-arc skills run --name validation -- get-agent-validations --agent-id 42
+arc skills run --name erc8004-validation -- get-agent-validations --agent-id 42
 ```
 
 List validation requests for an agent with pagination:
 ```
-arc skills run --name validation -- get-agent-validations --agent-id 42 --cursor 14
+arc skills run --name erc8004-validation -- get-agent-validations --agent-id 42 --cursor 14
 ```
 
 List all validation requests submitted to a validator:
 ```
-arc skills run --name validation -- get-validator-requests --validator SP2...
+arc skills run --name erc8004-validation -- get-validator-requests --validator SP2...
 ```
 
 List validator requests with pagination:
 ```
-arc skills run --name validation -- get-validator-requests --validator SP2... --cursor 14
+arc skills run --name erc8004-validation -- get-validator-requests --validator SP2... --cursor 14
 ```

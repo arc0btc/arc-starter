@@ -42,9 +42,9 @@ Exposes Arc's core surfaces via the Model Context Protocol (MCP). External Claud
 ## CLI
 
 ```
-arc skills run --name mcp-server -- start                          # stdio transport (default)
-arc skills run --name mcp-server -- start --transport http         # HTTP on port 3100
-arc skills run --name mcp-server -- start --port 3100 --auth-key KEY  # custom port + auth
+arc skills run --name arc-mcp-server -- start                          # stdio transport (default)
+arc skills run --name arc-mcp-server -- start --transport http         # HTTP on port 3100
+arc skills run --name arc-mcp-server -- start --port 3100 --auth-key KEY  # custom port + auth
 ```
 
 ## When to Load

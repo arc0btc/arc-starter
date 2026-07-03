@@ -56,40 +56,40 @@ All commands return JSON with:
 
 Submit positive feedback:
 ```
-arc skills run --name reputation -- give-feedback --agent-id 42 --value 5 --tag1 helpful
+arc skills run --name erc8004-reputation -- give-feedback --agent-id 42 --value 5 --tag1 helpful
 ```
 
 Submit feedback with supporting evidence hash:
 ```
-arc skills run --name reputation -- give-feedback --agent-id 42 --value 8 --value-decimals 1 --feedback-uri ipfs://evidence --feedback-hash a3f2b1...64hex
+arc skills run --name erc8004-reputation -- give-feedback --agent-id 42 --value 8 --value-decimals 1 --feedback-uri ipfs://evidence --feedback-hash a3f2b1...64hex
 ```
 
 Revoke feedback you previously submitted:
 ```
-arc skills run --name reputation -- revoke-feedback --agent-id 42 --index 0
+arc skills run --name erc8004-reputation -- revoke-feedback --agent-id 42 --index 0
 ```
 
 Append a response to a feedback entry:
 ```
-arc skills run --name reputation -- append-response --agent-id 42 --client SP2... --index 0 --response-uri ipfs://myresponse --response-hash b4e9c2...64hex
+arc skills run --name erc8004-reputation -- append-response --agent-id 42 --client SP2... --index 0 --response-uri ipfs://myresponse --response-hash b4e9c2...64hex
 ```
 
 Approve a client to submit feedback:
 ```
-arc skills run --name reputation -- approve-client --agent-id 42 --client SP3... --index-limit 5
+arc skills run --name erc8004-reputation -- approve-client --agent-id 42 --client SP3... --index-limit 5
 ```
 
 Get reputation summary:
 ```
-arc skills run --name reputation -- get-summary --agent-id 42
+arc skills run --name erc8004-reputation -- get-summary --agent-id 42
 ```
 
 Get all feedback with pagination:
 ```
-arc skills run --name reputation -- read-all-feedback --agent-id 42 --cursor 14
+arc skills run --name erc8004-reputation -- read-all-feedback --agent-id 42 --cursor 14
 ```
 
 Get all clients who gave feedback:
 ```
-arc skills run --name reputation -- get-clients --agent-id 42
+arc skills run --name erc8004-reputation -- get-clients --agent-id 42
 ```

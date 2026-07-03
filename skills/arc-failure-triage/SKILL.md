@@ -23,8 +23,8 @@ Prevents the loop from retrying the same broken thing repeatedly. Detects recurr
 ## CLI
 
 ```
-arc skills run --name failure-triage -- scan [--hours 24] [--threshold 3]
-arc skills run --name failure-triage -- investigate --pattern "error signature text"
+arc skills run --name arc-failure-triage -- scan [--hours 24] [--threshold 3]
+arc skills run --name arc-failure-triage -- investigate --pattern "error signature text"
 ```
 
 - `scan` — Review recent failed/blocked tasks, group by error signature, report patterns. Creates investigation tasks for patterns exceeding threshold.

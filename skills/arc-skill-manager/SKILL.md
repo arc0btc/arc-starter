@@ -36,7 +36,7 @@ Each file must be self-contained: `SKILL.md` frontmatter (name, description, tag
 Use the scaffold command to generate a starter template:
 
 ```
-arc skills run --name manage-skills -- create <name> --description "what it does"
+arc skills run --name arc-skill-manager -- create <name> --description "what it does"
 ```
 
 ## Restricting Tools: `disallowed-tools`
@@ -81,8 +81,8 @@ If a skill accidentally attempts a disallowed tool, Claude Code fails the operat
 The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
 
 - **Sensor** (120 min): checks MEMORY.md line count, queues a consolidation task if >500 lines
-- **CLI check**: `arc skills run --name manage-skills -- consolidate-memory check` — reports stats
-- **CLI commit**: `arc skills run --name manage-skills -- consolidate-memory commit` — stages and commits
+- **CLI check**: `arc skills run --name arc-skill-manager -- consolidate-memory check` — reports stats
+- **CLI commit**: `arc skills run --name arc-skill-manager -- consolidate-memory commit` — stages and commits
 
 During a consolidation task, the dispatched session reads MEMORY.md, compresses it (merge duplicates, remove stale entries, tighten prose), then runs `consolidate-memory commit`.
 
