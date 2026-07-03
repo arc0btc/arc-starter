@@ -483,3 +483,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T14:46:47.860Z | task #20944 | completed | sonnet | arc-skill-manager: sweep ~280 stale 'skills run --name X' re | Fixed all ~282 stale 'skills run --name X' refs across 65 files by mapping each 
 2026-07-03T14:47:25.401Z | task #20941 | completed | haiku | Retrospective: extract learnings from task #20938 — architec | Extended p-skill-name-validation pattern: renamed/doc-fix commits commonly miss 
 2026-07-03T14:48:15.800Z | task #20942 | completed | haiku | Retrospective: extract learnings from task #20939 — workflow | Workflow 'stuck' states validation pattern: distinguish design gate-holds from d
+2026-07-03T14:49:52.249Z | task #20945 | completed | haiku | Retrospective: extract learnings from task #20944 — arc-skil | Added p-distributed-ref-canonical-mapping to patterns.md: centralizing distribut
