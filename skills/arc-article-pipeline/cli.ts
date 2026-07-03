@@ -4,13 +4,20 @@
 //
 // Mirrors skills/arc-daily-read/cli.ts's P1 3-step contract (materials -> LLM voice draft ->
 // deterministic stage), adapted for long-form: a crown-jewel finding becomes an arc0.me article
-// (Arc's own voice) + an X-thread variant in Jason's (@whoabuddy) amplification voice — "my
-// agent Arc tested X against its own live code", never undisclosed fronting. Every link the
-// pipeline emits is assembled DETERMINISTICALLY (never LLM-authored) and carries `?a=wb-amp` —
-// closes the exact class of bug P1 found (a hand-typed CTA silently overflowed/truncated a
-// link). Firing (blog publish + git commit/push, or posting the X thread from Jason's own
-// account) is always a separate, manual, human-initiated step — this pipeline only gets a
-// finding to "staged."
+// (Arc's own voice) + a long-form X ARTICLE variant in Jason's (@whoabuddy) amplification voice
+// — "my agent Arc tested X against its own live code", never undisclosed fronting.
+//
+// P2 REWORK (2026-07-03, operator correction): the X variant is an X ARTICLE (title + article
+// body, ready to paste into X's article composer from @whoabuddy) plus a suggested short
+// companion post — NOT a tweet thread. Operator's words: "I thought I was posting X Articles
+// from my view as an operator, or whatever would draw more eyes to Arc." The amplification
+// email carries the full article draft ready-to-paste.
+//
+// Every link the pipeline emits is assembled DETERMINISTICALLY (never LLM-authored) and carries
+// `?a=wb-amp` — closes the exact class of bug P1 found (a hand-typed CTA silently
+// overflowed/truncated a link). The blog leg hands off to Arc's own autonomous blog-publishing
+// lane; the X Article leg is delivered to Jason by email and only he posts it, from his own
+// account — this pipeline never posts to X and never flips draft:false itself.
 
 import { Database } from "bun:sqlite";
 import { join } from "path";
@@ -28,7 +35,20 @@ const LIVE_SITE_DIR = join(ARC_STARTER_ROOT, "github/arc0btc/arc0me-site");
 const ARC0ME_BASE = "https://arc0.me";
 const ATTRIBUTION_TAG = "wb-amp";
 const FREE_ROOM_URL = `https://whop.com/checkout/plan_arGwx0yFBhYOL?a=${ATTRIBUTION_TAG}`;
-const X_HANDLE = "@arc0btc";
+
+// X Article variant constraints — the ONE source of truth. The materials brief embeds the
+// object, voiceInstructions interpolate from it, sensor.ts imports it for its task-description
+// text (cli.ts's main() is import.meta.main-guarded so the import is side-effect-free), and
+// validateXArticle() enforces it — so the drafting LLM's instructions and the validator can
+// never silently desync (P2-rework dev-council: hohpe). bodyWordRange's upper bound gets +15%
+// enforcement slack (same as the blog leg): "target 1500, hard-reject past 1725" is the full
+// contract, documented here rather than hidden in the validator (lamport).
+export const X_ARTICLE_CONSTRAINTS = {
+  titleMaxChars: 100, // X's article composer title limit
+  bodyWordRange: [400, 1500] as [number, number],
+  citationWindowChars: 1500, // the file:line proof must land in the first 1500 chars (~ the first two paragraphs)
+  companionMaxChars: 240, // leaves headroom for the attached article link in a 280-char post
+};
 
 // Same priority list arc-daily-read/cli.ts uses (QUEST.md-named crown jewels), drafted first.
 const CROWN_JEWEL_SLUGS = [
@@ -80,9 +100,19 @@ function getDb(): Database {
       x_variant_path TEXT,
       preview_url TEXT,
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
-      staged_at TEXT
+      staged_at TEXT,
+      email_sent_at TEXT
     )
   `);
+  // P2-rework dev-council fix (kleppmann F1 / hohpe #1 / lamport #1): idempotency marker for
+  // the one irreversible side effect (the amplification email), so a crash-resume never
+  // re-sends. Additive, idempotent migration for pre-existing DBs (ALTER throws if the column
+  // exists — swallowed deliberately).
+  try {
+    db.run("ALTER TABLE article_queue_log ADD COLUMN email_sent_at TEXT");
+  } catch {
+    // column already exists
+  }
 
   return db;
 }
@@ -136,6 +166,11 @@ function parseIndexCandidates(): IndexRow[] {
 }
 
 function extractFindingMaterials(reportFile: string): { title: string; hook: string; fileLine: string; packagedProductUrl: string | null } | null {
+  // P2-rework dev-council fix (newman #3): findingFromRow passes "" when a staged article's
+  // finding has rotated out of INDEX.md — join(RESEARCH_DIR, "") is RESEARCH_DIR itself, which
+  // exists, so readFileSync threw an opaque EISDIR on exactly the recovery commands
+  // (hand-off/rework-x). Degrade to null instead (packagedProductUrl becomes null downstream).
+  if (!reportFile) return null;
   const p = join(RESEARCH_DIR, reportFile);
   if (!fs.existsSync(p)) return null;
   const text = fs.readFileSync(p, "utf-8");
@@ -284,8 +319,8 @@ interface MaterialsBrief {
   attributionTag: string;
   freeRoomUrl: string;
   targetWordRange: [number, number];
-  xThreadConstraints: { minTweets: number; maxTweets: number; maxCharsPerTweet: number };
-  voiceInstructions: { blog: string; xThread: string };
+  xArticleConstraints: typeof X_ARTICLE_CONSTRAINTS;
+  voiceInstructions: { blog: string; xArticle: string };
 }
 
 function composeMaterials(articleOverride?: number, slugOverride?: string): MaterialsBrief {
@@ -308,7 +343,7 @@ function composeMaterials(articleOverride?: number, slugOverride?: string): Mate
     attributionTag: ATTRIBUTION_TAG,
     freeRoomUrl: FREE_ROOM_URL,
     targetWordRange: [700, 1800],
-    xThreadConstraints: { minTweets: 3, maxTweets: 6, maxCharsPerTweet: 280 },
+    xArticleConstraints: X_ARTICLE_CONSTRAINTS,
     voiceInstructions: {
       blog: [
         "Arc's own first-person voice, SOUL.md-gated (read ~/arc-starter/SOUL.md before drafting).",
@@ -319,14 +354,28 @@ function composeMaterials(articleOverride?: number, slugOverride?: string): Mate
         "those deterministically. No em dashes, no 'Not X. It's Y.' constructions, no banned",
         "openers ('Here's the thing', 'It turns out'), active voice, kill adverbs.",
       ].join(" "),
-      xThread: [
-        "NOT Arc's voice — this is Jason's (@whoabuddy) amplification voice: first person",
-        "Jason, explicitly crediting/quoting Arc ('my agent Arc tested X against its own live",
-        "code...' / 'Arc found...'). Never write as if Jason did the technical work himself,",
-        "never impersonate Arc. Tweet 1 must contain the hook's core claim + the file:line",
-        "citation. Do NOT include any CTA or URL in any tweet — 'stage' appends a final",
-        "deterministic CTA tweet with the tagged link. Vary the rhetorical shape from any",
-        "other staged article's thread (avoid repeating the same skeleton across editions).",
+      // Numbers below are interpolated from X_ARTICLE_CONSTRAINTS — never hand-typed — so the
+      // instruction the LLM reads and the validator that judges the result share one source
+      // (P2-rework dev-council: hohpe).
+      xArticle: [
+        "NOT Arc's voice — this is Jason's (@whoabuddy) amplification voice, writing a",
+        "long-form X ARTICLE (X's article composer), NOT a tweet thread: first person Jason,",
+        "explicitly crediting/quoting Arc throughout ('my agent Arc tested X against its own",
+        "live code...' / 'Arc found...'). Never write as if Jason did the technical work",
+        "himself, never impersonate Arc; where Arc's own words are quoted they must pass Arc's",
+        "SOUL.md voice rules. The measured hook + the file:line citation ('tested against a",
+        `live agent') must land within the first ${X_ARTICLE_CONSTRAINTS.citationWindowChars}`,
+        "characters (roughly the first two paragraphs) — proof up front, not buried.",
+        "body: plain paragraphs separated by blank lines,",
+        `${X_ARTICLE_CONSTRAINTS.bodyWordRange[0]}-${X_ARTICLE_CONSTRAINTS.bodyWordRange[1]} words;`,
+        "NO markdown syntax (X's composer renders none of it — no #, ##, **, backticks, or",
+        "[links]); short bold-free section labels on their own line are fine. title: a",
+        `compelling, specific claim, <=${X_ARTICLE_CONSTRAINTS.titleMaxChars} chars.`,
+        "companionPost: the short post Jason pairs with the article share",
+        `(<=${X_ARTICLE_CONSTRAINTS.companionMaxChars} chars, the article link gets attached`,
+        "by X when he posts). Do NOT include any CTA or URL anywhere in",
+        "title/body/companionPost — 'stage' appends a deterministic tagged closing. Vary the",
+        "rhetorical shape from other staged articles' variants.",
       ].join(" "),
     },
   };
@@ -341,10 +390,29 @@ function loadMaterialsBrief(path: string): MaterialsBrief {
   return JSON.parse(fs.readFileSync(path, "utf-8"));
 }
 
+interface XArticleDraft {
+  title: string;
+  body: string;
+  companionPost: string;
+}
+
 interface ArticleDraft {
   blogTitle: string;
   blogBody: string;
-  xThread: string[];
+  xArticle: XArticleDraft;
+}
+
+function parseXArticleDraft(raw: unknown, where: string): XArticleDraft {
+  const x = raw as Record<string, unknown> | null | undefined;
+  if (!x || typeof x !== "object") {
+    throw new DraftValidationError(`draft at ${where}: missing xArticle object ({ title, body, companionPost }) — the X variant is an X Article now, not a tweet thread`);
+  }
+  for (const field of ["title", "body", "companionPost"] as const) {
+    if (typeof x[field] !== "string" || !(x[field] as string).trim()) {
+      throw new DraftValidationError(`draft at ${where}: missing/empty xArticle.${field}`);
+    }
+  }
+  return { title: (x.title as string).trim(), body: (x.body as string).trim(), companionPost: (x.companionPost as string).trim() };
 }
 
 function loadDraft(path: string): ArticleDraft {
@@ -355,15 +423,20 @@ function loadDraft(path: string): ArticleDraft {
   if (typeof raw.blogBody !== "string" || !raw.blogBody.trim()) {
     throw new DraftValidationError(`draft at ${path}: missing/empty blogBody`);
   }
-  if (!Array.isArray(raw.xThread) || raw.xThread.length < 1 || raw.xThread.some((t: unknown) => typeof t !== "string")) {
-    throw new DraftValidationError(`draft at ${path}: xThread must be a non-empty string array (excluding the deterministic final CTA tweet)`);
-  }
-  return { blogTitle: raw.blogTitle, blogBody: raw.blogBody, xThread: raw.xThread };
+  return { blogTitle: raw.blogTitle, blogBody: raw.blogBody, xArticle: parseXArticleDraft(raw.xArticle, path) };
 }
 
 // ---------- Validation ----------
 
-const RAW_URL_RE = /(https?:\/\/(?:[\w-]+\.)?(?:arc0\.me|whop\.com)\S*)/gi;
+// No /g flag — .test() with a global regex carries lastIndex state between calls, which the
+// original code managed with hand-placed resets after every use. Boolean containment is all
+// these checks need; dropping the flag removes the whole discipline-dependent failure class
+// (P2-rework dev-council: lamport #8, newman #6).
+const RAW_URL_RE = /https?:\/\/(?:[\w-]+\.)?(?:arc0\.me|whop\.com)/i;
+// The X Article contract is stronger than the blog one: NO LLM-authored URL of any kind (the
+// deterministic closing is appended after validation, so the validator never needs to tolerate
+// the pipeline's own links) — not just untagged arc0.me/whop links (lamport #4).
+const ANY_URL_RE = /https?:\/\//i;
 
 function validateDraft(brief: MaterialsBrief, draft: ArticleDraft): string[] {
   const errors: string[] = [];
@@ -386,24 +459,62 @@ function validateDraft(brief: MaterialsBrief, draft: ArticleDraft): string[] {
   if (RAW_URL_RE.test(draft.blogBody)) {
     errors.push("blogBody contains a hand-authored arc0.me/whop.com URL — links must be appended deterministically by 'stage', not drafted");
   }
-  RAW_URL_RE.lastIndex = 0;
 
-  const { minTweets, maxTweets, maxCharsPerTweet } = brief.xThreadConstraints;
-  if (draft.xThread.length < minTweets || draft.xThread.length > maxTweets) {
-    errors.push(`xThread has ${draft.xThread.length} tweets, outside [${minTweets}, ${maxTweets}]`);
-  }
-  draft.xThread.forEach((t, i) => {
-    if (t.length > maxCharsPerTweet) errors.push(`xThread[${i}] is ${t.length} chars, exceeds ${maxCharsPerTweet}`);
-    if (RAW_URL_RE.test(t)) errors.push(`xThread[${i}] contains a hand-authored URL — the CTA link is appended deterministically`);
-    RAW_URL_RE.lastIndex = 0;
-  });
-  if (draft.xThread.length > 0 && !draft.xThread[0].includes(finding.fileLine)) {
-    errors.push(`xThread[0] does not contain the required citation "${finding.fileLine}" verbatim`);
-  }
+  errors.push(...validateXArticle(finding, draft.xArticle));
 
   const recentSlugSet = new Set(brief.avoidSlugs);
   if (recentSlugSet.has(finding.slug)) {
     errors.push(`finding "${finding.slug}" was staged in the recent rotation window — selection should have avoided a repeat`);
+  }
+
+  return errors;
+}
+
+/**
+ * X Article validation, shared by `stage` (full-draft path) and `rework-x` (regenerate the X
+ * variant for an already-staged article). Enforces the same X_ARTICLE_CONSTRAINTS the materials
+ * brief advertises to the drafting LLM.
+ */
+function validateXArticle(finding: Finding, x: XArticleDraft): string[] {
+  const errors: string[] = [];
+  const { titleMaxChars, bodyWordRange, citationWindowChars, companionMaxChars } = X_ARTICLE_CONSTRAINTS;
+
+  if (x.title.length > titleMaxChars) {
+    errors.push(`xArticle.title is ${x.title.length} chars, exceeds X's ${titleMaxChars}-char article title limit`);
+  }
+  if (/[\r\n\u2028\u2029]/.test(x.title)) {
+    errors.push("xArticle.title contains a line break — must be a single line");
+  }
+
+  const bodyWords = x.body.trim().split(/\s+/).length;
+  const [minW, maxW] = bodyWordRange;
+  if (bodyWords < minW || bodyWords > Math.round(maxW * 1.15)) {
+    errors.push(`xArticle.body word count ${bodyWords} outside acceptable range [${minW}, ${Math.round(maxW * 1.15)}]`);
+  }
+
+  const citationIdx = x.body.indexOf(finding.fileLine);
+  if (citationIdx === -1) {
+    errors.push(`xArticle.body does not contain the required citation "${finding.fileLine}" verbatim`);
+  } else if (citationIdx > citationWindowChars) {
+    errors.push(`xArticle.body buries the citation "${finding.fileLine}" at char ${citationIdx} — the "tested against a live agent" proof must land in the first ${citationWindowChars} chars`);
+  }
+
+  // X's article composer renders no markdown — pasted syntax shows up as literal characters.
+  // Backticks are checked too (P2-rework dev-council: lamport #5, fowler): the file:line
+  // citation is extracted FROM a backticked token in the research report, so the drafting LLM
+  // copying it verbatim is the single most likely way literal backticks reach the composer.
+  if (/^#{1,6}\s/m.test(x.body) || /\*\*[^*\n]+\*\*/.test(x.body) || /\[[^\]\n]+\]\([^)\n]+\)/.test(x.body) || x.body.includes("`")) {
+    errors.push("xArticle.body contains markdown syntax (#, **bold**, [](...) or backticks) — X's article composer renders none of it; use plain paragraphs and plain-text citations");
+  }
+
+  for (const [field, value] of [["title", x.title], ["body", x.body], ["companionPost", x.companionPost]] as const) {
+    if (ANY_URL_RE.test(value)) {
+      errors.push(`xArticle.${field} contains a hand-authored URL — every link is appended deterministically by the closing`);
+    }
+  }
+
+  if (x.companionPost.length > companionMaxChars) {
+    errors.push(`xArticle.companionPost is ${x.companionPost.length} chars, exceeds ${companionMaxChars} (headroom for the attached article link)`);
   }
 
   return errors;
@@ -424,17 +535,87 @@ function buildBlogClosing(finding: Finding, postId: string): string {
   return lines.join("\n");
 }
 
-function buildXCtaTweet(postId: string, finding: Finding): string {
+/**
+ * Deterministic closing appended to the X Article body — the only place links appear. Plain
+ * text (X's composer auto-links raw URLs; it renders no markdown), written in Jason's framing
+ * (he is the one posting the article), crediting Arc explicitly. Every link carries
+ * `?a=wb-amp`, code-assembled, never LLM-authored.
+ */
+function buildXArticleClosing(finding: Finding, postId: string): string {
   const blogUrl = `${ARC0ME_BASE}/blog/${postId}/?a=${ATTRIBUTION_TAG}`;
-  let tweet = `Arc's full writeup, citations included: ${blogUrl}\nFree room for agent operators who want to feed their agents real signal: ${FREE_ROOM_URL}`;
+  const lines = [
+    "—",
+    "",
+    `Arc's original writeup, with every citation: ${blogUrl}`,
+    "",
+    `If you operate agents: Arc keeps a free room with its raw research feed, real signal, no marketing: ${FREE_ROOM_URL}`,
+  ];
   if (finding.packagedProductUrl) {
-    const withProduct = `${tweet}\nGraded version: ${finding.packagedProductUrl}?a=${ATTRIBUTION_TAG}`;
-    if (withProduct.length <= 280) tweet = withProduct;
+    lines.push("", `The graded, packaged version of this topic, tested against a live agent: ${finding.packagedProductUrl}?a=${ATTRIBUTION_TAG}`);
   }
-  if (tweet.length > 280) {
-    throw new Error(`buildXCtaTweet: assembled CTA tweet is ${tweet.length} chars, exceeds 280 — shorten FREE_ROOM_URL or blogUrl construction`);
-  }
-  return tweet;
+  return lines.join("\n");
+}
+
+function assembleXArticle(finding: Finding, postId: string, x: XArticleDraft): XArticleDraft & { finalBody: string } {
+  return { ...x, finalBody: `${x.body.trim()}\n\n${buildXArticleClosing(finding, postId)}` };
+}
+
+// Atomic single-file write (temp + rename, same discipline ensurePreviewSiteCopy already uses)
+// — a crash mid-write can never leave a torn/half-written file for a later JSON.parse to choke
+// on (P2-rework dev-council: kleppmann F3).
+function writeFileAtomic(path: string, content: string): void {
+  const tmp = `${path}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, path);
+}
+
+/**
+ * Persist the assembled X Article variant to drafts/ in two forms: a JSON sidecar (the machine
+ * source of truth `hand-off` re-reads — no fragile markdown re-parsing; carries BOTH the raw
+ * LLM `body` and the assembled `finalBody` so the artifact stays losslessly re-validatable and
+ * re-assemblable — kleppmann F4/fowler #1) and a human-readable .md derived from it (the .json
+ * is canonical). The .md is written first, the .json last (atomically), so the sidecar's
+ * presence implies a complete pair. Returns the .md path (recorded as `x_variant_path`).
+ */
+function writeXArticleFiles(
+  articleN: number,
+  finding: Finding,
+  postId: string,
+  xArticle: XArticleDraft & { finalBody: string }
+): string {
+  if (!fs.existsSync(DRAFTS_DIR)) fs.mkdirSync(DRAFTS_DIR, { recursive: true });
+  const jsonPath = join(DRAFTS_DIR, `article-${articleN}-x-article.json`);
+  const sidecarJson = JSON.stringify({
+    title: xArticle.title,
+    body: xArticle.body,
+    finalBody: xArticle.finalBody,
+    companionPost: xArticle.companionPost,
+    postId,
+    findingSlug: finding.slug,
+    generatedAt: new Date().toISOString(),
+  }, null, 2);
+
+  const mdPath = join(DRAFTS_DIR, `article-${articleN}-x-article.md`);
+  const mdContent = [
+    `# Article ${articleN} X Article variant — ready to paste into X's article composer, NOT posted`,
+    `Finding: ${finding.slug} | Blog post: ${postId} | Voice: @whoabuddy amplifying Arc (quote/credit, never undisclosed fronting)`,
+    "",
+    `## Title (${xArticle.title.length} chars)`,
+    "",
+    xArticle.title,
+    "",
+    "## Article body (plain text — X's composer renders no markdown)",
+    "",
+    xArticle.finalBody,
+    "",
+    `## Suggested companion post (${xArticle.companionPost.length} chars — X attaches the article link when posting)`,
+    "",
+    xArticle.companionPost,
+    "",
+  ].join("\n");
+  writeFileAtomic(mdPath, mdContent);
+  writeFileAtomic(jsonPath, sidecarJson);
+  return mdPath;
 }
 
 // ---------- Claim (linearization, before any side effects) ----------
@@ -555,19 +736,32 @@ function syncToPublishLane(postId: string, finalContent: string): void {
   fs.writeFileSync(join(blogDocsDir, `${postId}.mdx`), finalContent);
 }
 
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 /**
  * P2 AMENDMENT (2026-07-03, operator correction): "If Arc wants me to post something, it
  * should email me like it has been." Reuses the EXACT credential/send path
  * `arc-daily-read/cli.ts`'s `sendAmplificationEmail()` already established (email/api_base_url,
  * email/admin_api_key, email/report_recipient via src/credentials.ts, POST {base}/api/send)
  * rather than inventing a second one. One email per staged article — not a bulk send.
+ *
+ * P2 REWORK (2026-07-03, operator correction #2): the payload is a long-form X ARTICLE draft
+ * (title + article body, ready to paste into X's article composer from @whoabuddy) plus a
+ * suggested short companion post — not a tweet thread. `supersede` marks the resend of a
+ * corrected draft so the subject line makes clear it replaces an earlier thread-format email.
+ * Payload type is exactly what the email renders (title/finalBody/companionPost) — callers
+ * never pass a raw `body`, so the raw-vs-assembled distinction cannot leak in here
+ * (fowler #1/hohpe #5). `previewUrl` gives the operator a working page to read before Arc's
+ * autonomous lane publishes the arc0.me URL (hohpe #4).
  */
-async function sendXThreadAmplificationEmail(
+async function sendXArticleAmplificationEmail(
   articleN: number,
   finding: Finding,
   postId: string,
-  fullThread: string[],
-  dryRun: boolean = false
+  xArticle: { title: string; finalBody: string; companionPost: string },
+  options: { supersede?: boolean; previewUrl?: string | null } = {}
 ): Promise<boolean> {
   const { getCredential } = await import(join(ARC_STARTER_ROOT, "src/credentials.ts"));
   const apiBaseUrl = await getCredential("email", "api_base_url");
@@ -580,28 +774,42 @@ async function sendXThreadAmplificationEmail(
   }
 
   const blogUrl = `${ARC0ME_BASE}/blog/${postId}/?a=${ATTRIBUTION_TAG}`;
-  const subject = `Arc's Article ${articleN} ready to amplify — "${finding.slug}"`;
+  const subject = options.supersede
+    ? `[Supersedes the earlier thread email] Arc's Article ${articleN} as an X Article — "${finding.slug}"`
+    : `Arc's Article ${articleN} ready to amplify — X Article draft — "${finding.slug}"`;
+  const supersedeNote = options.supersede
+    ? "This replaces the earlier email that carried this article as a tweet thread. Post THIS version: a long-form X Article, not a thread."
+    : "";
   const plainText = [
     `Arc's Article ${articleN} — ${finding.slug}`,
+    ...(supersedeNote ? [``, supersedeNote] : []),
     ``,
-    `Blog post (Arc's dispatch loop will publish this on its own cadence, not gated on you):`,
+    `Arc's blog post (Arc's own publish lane handles this on its own cadence, not gated on you):`,
     blogUrl,
+    ...(options.previewUrl ? [``, `Working preview (staging, readable now even before Arc's lane publishes):`, options.previewUrl] : []),
     ``,
-    `X-thread ready to post from @whoabuddy — quote/credit Arc, your own voice, your own account:`,
+    `X ARTICLE draft — paste title + body into X's article composer from @whoabuddy`,
+    `(Jason amplifying Arc: quote/credit Arc, your own account; links below are pre-tagged ?a=${ATTRIBUTION_TAG}):`,
     ``,
-    ...fullThread.map((t, i) => `Tweet ${i + 1} (${t.length} chars):\n${t}\n`),
+    `=== TITLE (${xArticle.title.length} chars) ===`,
+    xArticle.title,
+    ``,
+    `=== ARTICLE BODY ===`,
+    xArticle.finalBody,
+    ``,
+    `=== SUGGESTED COMPANION POST (${xArticle.companionPost.length} chars — X attaches the article link when you post) ===`,
+    xArticle.companionPost,
   ].join("\n");
   const htmlBody = `<!DOCTYPE html><html><body style="font-family:monospace;max-width:640px;margin:40px auto;background:#0a0a0a;color:#e0e0e0;padding:24px">
-<h2 style="color:#f0f0f0">Arc's Article ${articleN} — ${finding.slug}</h2>
-<p><strong>Blog post:</strong> <a href="${blogUrl}">${blogUrl}</a> (Arc's own publish lane handles this, not gated on you)</p>
-<h3>X-thread ready to post from @whoabuddy:</h3>
-${fullThread.map((t, i) => `<div style="background:#1a1a1a;border-left:3px solid #1d9bf0;padding:12px 16px;margin:12px 0;border-radius:4px"><div style="color:#888;font-size:0.85em">Tweet ${i + 1}</div><pre style="white-space:pre-wrap;margin:0">${t}</pre></div>`).join("")}
+<h2 style="color:#f0f0f0">Arc's Article ${articleN} — ${escapeHtml(finding.slug)}</h2>
+${supersedeNote ? `<p style="color:#ffb020;border:1px solid #ffb020;padding:8px 12px;border-radius:4px">${escapeHtml(supersedeNote)}</p>` : ""}
+<p><strong>Arc's blog post:</strong> <a href="${blogUrl}">${blogUrl}</a> (Arc's own publish lane handles this, not gated on you)</p>
+${options.previewUrl ? `<p><strong>Working preview</strong> (staging, readable now): <a href="${options.previewUrl}">${options.previewUrl}</a></p>` : ""}
+<h3>X Article draft — paste into X's article composer from @whoabuddy:</h3>
+<div style="background:#1a1a1a;border-left:3px solid #1d9bf0;padding:12px 16px;margin:12px 0;border-radius:4px"><div style="color:#888;font-size:0.85em">Title (${xArticle.title.length} chars)</div><pre style="white-space:pre-wrap;margin:0">${escapeHtml(xArticle.title)}</pre></div>
+<div style="background:#1a1a1a;border-left:3px solid #1d9bf0;padding:12px 16px;margin:12px 0;border-radius:4px"><div style="color:#888;font-size:0.85em">Article body</div><pre style="white-space:pre-wrap;margin:0">${escapeHtml(xArticle.finalBody)}</pre></div>
+<div style="background:#1a1a1a;border-left:3px solid #8b5cf6;padding:12px 16px;margin:12px 0;border-radius:4px"><div style="color:#888;font-size:0.85em">Suggested companion post (${xArticle.companionPost.length} chars — X attaches the article link)</div><pre style="white-space:pre-wrap;margin:0">${escapeHtml(xArticle.companionPost)}</pre></div>
 </body></html>`;
-
-  if (dryRun) {
-    console.log(`  [DRY-RUN EMAIL] Would send to ${recipient}: "${subject}"`);
-    return true;
-  }
 
   try {
     const response = await fetch(`${apiBaseUrl}/api/send`, {
@@ -758,7 +966,7 @@ async function cmdMaterials(articleOverride?: number, slugOverride?: string): Pr
   const outPath = join(MATERIALS_DIR, `article-${brief.articleN}.json`);
   fs.writeFileSync(outPath, JSON.stringify(brief, null, 2));
   console.log(`\nWrote brief to ${outPath}`);
-  console.log(`Next: draft { blogTitle, blogBody, xThread: [...] } to`);
+  console.log(`Next: draft { blogTitle, blogBody, xArticle: { title, body, companionPost } } to`);
   console.log(`  ${join(MATERIALS_DIR, `article-${brief.articleN}.draft.json`)}`);
   console.log(`Then run: bun cli.ts stage --article ${brief.articleN}`);
 }
@@ -777,7 +985,7 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   const finding = brief.finding!;
 
   if (dryRun) {
-    console.log("[DRY-RUN] Draft passed validation. Would claim, create blog post, preview-deploy, and write X-thread draft.");
+    console.log("[DRY-RUN] Draft passed validation. Would claim, create blog post, preview-deploy, write the X Article variant, and email it.");
     return;
   }
 
@@ -792,10 +1000,28 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
     console.log(`Article ${articleN} was claimed but not finalized (a prior 'stage' run was interrupted) — resuming, not aborting.`);
   }
 
-  const slug = slugify(draft.blogTitle);
-  const tags = [finding.slug.split("-")[0]].filter(Boolean);
-  const { postId, indexPath } = await createBlogDraft(draft.blogTitle, slug, tags);
-  console.log(`Created blog draft: ${postId} (${indexPath})`);
+  // P2-rework dev-council fix (kleppmann F2 / lamport #2): postId is date-derived by
+  // blog-publishing, so a resume on a later day would mint a SECOND postId — leaving the
+  // crashed run's draft:true .mdx orphaned in the publish lane's discovery dir, where the
+  // autonomous sensor would publish BOTH. Pin postId on the row the moment it exists and
+  // reuse it on resume, so the article key is a function of the claim, not of the wall clock.
+  const prior = db.query(
+    "SELECT post_id, email_sent_at FROM article_queue_log WHERE article_n = ?"
+  ).get([articleN]) as { post_id: string | null; email_sent_at: string | null } | null;
+
+  let postId: string;
+  let indexPath: string;
+  if (prior?.post_id) {
+    postId = prior.post_id;
+    indexPath = canonicalIndexPath(postId);
+    console.log(`Resuming with the already-created blog draft: ${postId}`);
+  } else {
+    const slug = slugify(draft.blogTitle);
+    const tags = [finding.slug.split("-")[0]].filter(Boolean);
+    ({ postId, indexPath } = await createBlogDraft(draft.blogTitle, slug, tags));
+    db.run("UPDATE article_queue_log SET post_id = ? WHERE article_n = ?", [postId, articleN]);
+    console.log(`Created blog draft: ${postId} (${indexPath})`);
+  }
 
   const closing = buildBlogClosing(finding, postId);
   writeBlogBody(indexPath, draft.blogTitle, draft.blogBody, closing);
@@ -813,23 +1039,27 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   syncToPublishLane(postId, finalMdx);
   console.log("Synced to blog-publishing's discovery path (src/content/docs/blog/) — Arc's own sensor will queue review+publish on its normal cadence, no operator gate.");
 
-  const ctaTweet = buildXCtaTweet(postId, finding);
-  const fullThread = [...draft.xThread, ctaTweet];
-  if (!fs.existsSync(DRAFTS_DIR)) fs.mkdirSync(DRAFTS_DIR, { recursive: true });
-  const xVariantPath = join(DRAFTS_DIR, `article-${articleN}-x-thread.md`);
-  const xContent = [
-    `# Article ${articleN} X-thread variant — staged, NOT posted`,
-    `Finding: ${finding.slug} | Blog post: ${postId} | Voice: @whoabuddy amplifying Arc (quote/credit, never undisclosed fronting)`,
-    "",
-    ...fullThread.map((t, i) => `## Tweet ${i + 1} (${t.length} chars)\n\n${t}\n`),
-  ].join("\n");
-  fs.writeFileSync(xVariantPath, xContent);
-  console.log(`Wrote X-thread variant: ${xVariantPath}`);
+  const xArticle = assembleXArticle(finding, postId, draft.xArticle);
+  const xVariantPath = writeXArticleFiles(articleN, finding, postId, xArticle);
+  console.log(`Wrote X Article variant: ${xVariantPath}`);
 
-  // P2 AMENDMENT: deliver the X-thread to Jason via Arc's EXISTING email lane (the same
+  // P2 AMENDMENT: deliver the X Article to Jason via Arc's EXISTING email lane (the same
   // mechanism arc-daily-read's sendAmplificationEmail already uses), not left as a file for
-  // him to fetch. Non-fatal if email creds are missing — the file still exists as a fallback.
-  const emailSent = await sendXThreadAmplificationEmail(articleN, finding, postId, fullThread);
+  // him to fetch. Non-fatal if email creds are missing — the files still exist as a fallback.
+  // P2-rework dev-council fix (kleppmann F1 / lamport #1 / hohpe #1): the email is the one
+  // irreversible side effect, so it is guarded by a durable sent-marker written IMMEDIATELY
+  // after a successful send — a crash between the send and finalizeArticle can no longer
+  // re-send on the next tick's resume.
+  let emailSent = false;
+  if (prior?.email_sent_at) {
+    console.log(`Amplification email already sent at ${prior.email_sent_at} — not re-sending (idempotent resume).`);
+    emailSent = true;
+  } else {
+    emailSent = await sendXArticleAmplificationEmail(articleN, finding, postId, xArticle, { previewUrl: previewPostUrl });
+    if (emailSent) {
+      db.run("UPDATE article_queue_log SET email_sent_at = ? WHERE article_n = ?", [new Date().toISOString(), articleN]);
+    }
+  }
 
   finalizeArticle(db, articleN, postId, previewPostUrl, xVariantPath);
   db.close();
@@ -847,24 +1077,27 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   }, null, 2));
 }
 
-/**
- * P2 AMENDMENT operational command: retroactively hand off an already-staged article (staged
- * before this amendment landed) to Arc's publish lane + send the amplification email, without
- * redoing the claim/create/preview steps. Idempotent to re-run (sync overwrites the same file;
- * email re-sends — intentionally, since re-running this is an explicit operator/session action,
- * not an automatic retry).
- */
-async function cmdHandOff(articleN: number): Promise<void> {
+interface QueueRow {
+  post_id: string;
+  finding_slug: string;
+  hook: string;
+  file_line: string;
+  preview_url: string | null;
+  email_sent_at: string | null;
+}
+
+function getQueueRow(articleN: number): QueueRow | null {
   const db = getDb();
   const row = db.query(
-    "SELECT post_id, finding_slug, hook, file_line FROM article_queue_log WHERE article_n = ?"
-  ).get([articleN]) as { post_id: string; finding_slug: string; hook: string; file_line: string } | null;
+    "SELECT post_id, finding_slug, hook, file_line, preview_url, email_sent_at FROM article_queue_log WHERE article_n = ?"
+  ).get([articleN]) as QueueRow | null;
   db.close();
-  if (!row?.post_id) {
-    console.error(`Article ${articleN} has no post_id on record — nothing to hand off.`);
-    process.exit(1);
-  }
-  const finding: Finding = {
+  return row?.post_id ? row : null;
+}
+
+/** Reconstruct a Finding from a queue row (packagedProductUrl re-resolved from the live INDEX). */
+function findingFromRow(row: QueueRow): Finding {
+  return {
     slug: row.finding_slug,
     reportFile: "",
     title: row.finding_slug,
@@ -874,27 +1107,126 @@ async function cmdHandOff(articleN: number): Promise<void> {
       parseIndexCandidates().find((c) => c.slug === row.finding_slug)?.reportFile ?? ""
     )?.packagedProductUrl ?? null,
   };
-  const postId = row.post_id;
+}
+
+function canonicalIndexPath(postId: string): string {
   const date = postId.substring(0, 10);
   const year = date.substring(0, 4);
   const slug = postId.substring(11);
-  const indexPath = join(LIVE_SITE_DIR, "content", year, date, slug, "index.md");
+  return join(LIVE_SITE_DIR, "content", year, date, slug, "index.md");
+}
+
+/**
+ * P2 AMENDMENT operational command: retroactively hand off an already-staged article to Arc's
+ * publish lane + re-send the amplification email, without redoing the claim/create/preview
+ * steps. Idempotent to re-run (sync overwrites the same file; email re-sends — intentionally,
+ * since re-running this is an explicit operator/session action, not an automatic retry).
+ * Reads the X Article JSON sidecar written by `stage`/`rework-x` — for articles staged before
+ * the X-Article rework (thread-era), run `rework-x` first to regenerate the variant.
+ */
+async function cmdHandOff(articleN: number, supersede: boolean): Promise<void> {
+  const row = getQueueRow(articleN);
+  if (!row) {
+    console.error(`Article ${articleN} has no post_id on record — nothing to hand off.`);
+    process.exit(1);
+  }
+  const finding = findingFromRow(row);
+  const postId = row.post_id;
+  const indexPath = canonicalIndexPath(postId);
   if (!fs.existsSync(indexPath)) throw new Error(`Canonical source not found at ${indexPath}`);
   const finalContent = fs.readFileSync(indexPath, "utf-8");
 
   syncToPublishLane(postId, finalContent);
   console.log(`Synced article ${articleN} (${postId}) to blog-publishing's discovery path.`);
 
-  const xVariantPath = join(DRAFTS_DIR, `article-${articleN}-x-thread.md`);
-  if (!fs.existsSync(xVariantPath)) throw new Error(`X-thread file not found at ${xVariantPath}`);
-  const xContent = fs.readFileSync(xVariantPath, "utf-8");
-  const fullThread = xContent
-    .split(/^## Tweet \d+ \(\d+ chars\)\n\n/m)
-    .slice(1)
-    .map((s) => s.trim());
+  const jsonPath = join(DRAFTS_DIR, `article-${articleN}-x-article.json`);
+  if (!fs.existsSync(jsonPath)) {
+    throw new Error(`No X Article sidecar at ${jsonPath} — this article predates the X-Article rework. Draft { title, body, companionPost } to db/article-materials/article-${articleN}.xarticle.json and run: bun cli.ts rework-x --article ${articleN}`);
+  }
+  const sidecar = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  // Sidecars written after the P2 rework carry the raw `body` — re-validate it so no path to
+  // the operator's inbox bypasses validateXArticle (lamport #6). Older/foreign sidecars
+  // without `body` are sent as-is (they were validated when written).
+  if (typeof sidecar.body === "string" && sidecar.body.trim()) {
+    const errors = validateXArticle(finding, { title: sidecar.title, body: sidecar.body, companionPost: sidecar.companionPost });
+    if (errors.length > 0) {
+      console.error("ABORTED — sidecar failed re-validation (was it hand-edited?):");
+      errors.forEach((e) => console.error(`  - ${e}`));
+      process.exit(1);
+    }
+  }
+  const xArticle = { title: sidecar.title, finalBody: sidecar.finalBody, companionPost: sidecar.companionPost };
 
-  const emailSent = await sendXThreadAmplificationEmail(articleN, finding, postId, fullThread);
+  const emailSent = await sendXArticleAmplificationEmail(articleN, finding, postId, xArticle, { supersede, previewUrl: row.preview_url });
+  if (emailSent) {
+    const db = getDb();
+    db.run("UPDATE article_queue_log SET email_sent_at = ? WHERE article_n = ?", [new Date().toISOString(), articleN]);
+    db.close();
+  }
   console.log(JSON.stringify({ success: true, article_n: articleN, post_id: postId, synced_to_publish_lane: true, amplification_email_sent: emailSent }, null, 2));
+}
+
+/**
+ * P2 REWORK operational command: regenerate the X variant of an ALREADY-STAGED article as an
+ * X Article (operator correction 2026-07-03: "the posts that it emailed me are all threads — I
+ * thought I was posting X Articles"). Reads a raw LLM/session-drafted
+ * `db/article-materials/article-<N>.xarticle.json` ({ title, body, companionPost } — no URLs,
+ * validated the same way `stage` validates), assembles the deterministic tagged closing, writes
+ * the drafts/ files, updates `x_variant_path`, and re-sends the amplification email
+ * (`--supersede` marks the subject as replacing an earlier thread-format email). Does NOT touch
+ * the blog leg — the article is already staged/synced.
+ */
+async function cmdReworkX(articleN: number, supersede: boolean, dryRun: boolean): Promise<void> {
+  console.log(`=== Arc Article Pipeline — Rework X variant for Article ${articleN} ${dryRun ? "(DRY-RUN)" : ""} ===`);
+  const row = getQueueRow(articleN);
+  if (!row) {
+    console.error(`Article ${articleN} has no post_id on record — stage it first.`);
+    process.exit(1);
+  }
+  const finding = findingFromRow(row);
+  const postId = row.post_id;
+
+  const rawPath = join(MATERIALS_DIR, `article-${articleN}.xarticle.json`);
+  if (!fs.existsSync(rawPath)) {
+    console.error(`No X Article draft at ${rawPath} — draft { title, body, companionPost } there first (Jason's amplification voice, no URLs, citation "${finding.fileLine}" verbatim up front).`);
+    process.exit(1);
+  }
+  const draft = parseXArticleDraft(JSON.parse(fs.readFileSync(rawPath, "utf-8")), rawPath);
+
+  const errors = validateXArticle(finding, draft);
+  if (errors.length > 0) {
+    console.error("DEFERRED — X Article draft failed validation:");
+    errors.forEach((e) => console.error(`  - ${e}`));
+    process.exit(1);
+  }
+
+  if (dryRun) {
+    console.log("[DRY-RUN] X Article draft passed validation. Would write drafts/ files, update x_variant_path, and send the amplification email.");
+    return;
+  }
+
+  const xArticle = assembleXArticle(finding, postId, draft);
+  const xVariantPath = writeXArticleFiles(articleN, finding, postId, xArticle);
+  console.log(`Wrote X Article variant: ${xVariantPath}`);
+
+  const db = getDb();
+  db.run("UPDATE article_queue_log SET x_variant_path = ? WHERE article_n = ?", [xVariantPath, articleN]);
+  db.close();
+
+  const emailSent = await sendXArticleAmplificationEmail(articleN, finding, postId, xArticle, { supersede, previewUrl: row.preview_url });
+  if (emailSent) {
+    const db2 = getDb();
+    db2.run("UPDATE article_queue_log SET email_sent_at = ? WHERE article_n = ?", [new Date().toISOString(), articleN]);
+    db2.close();
+  }
+  console.log(JSON.stringify({
+    success: true,
+    article_n: articleN,
+    post_id: postId,
+    x_variant_path: xVariantPath,
+    amplification_email_sent: emailSent,
+    superseded_thread_email: supersede,
+  }, null, 2));
 }
 
 async function cmdStatus(): Promise<void> {
@@ -950,6 +1282,7 @@ function argValue(flag: string): string | undefined {
 async function main() {
   const command = process.argv[2];
   const dryRun = process.argv.includes("--dry-run");
+  const supersede = process.argv.includes("--supersede");
   const articleArg = argValue("--article");
   const articleOverride = articleArg ? parseInt(articleArg, 10) : undefined;
   const slugOverride = argValue("--slug");
@@ -977,21 +1310,36 @@ async function main() {
       break;
     case "hand-off":
       if (articleOverride === undefined) {
-        console.error("Usage: bun cli.ts hand-off --article <N>");
+        console.error("Usage: bun cli.ts hand-off --article <N> [--supersede]");
         process.exit(1);
       }
-      await cmdHandOff(articleOverride);
+      await cmdHandOff(articleOverride, supersede);
+      break;
+    case "rework-x":
+      if (articleOverride === undefined) {
+        console.error("Usage: bun cli.ts rework-x --article <N> [--supersede] [--dry-run]");
+        process.exit(1);
+      }
+      await cmdReworkX(articleOverride, supersede, dryRun);
       break;
     default:
-      console.log("Usage: bun cli.ts <materials|stage|status> [--article N] [--slug <slug>] [--dry-run]");
+      console.log("Usage: bun cli.ts <materials|stage|status|fix-preview|hand-off|rework-x> [--article N] [--slug <slug>] [--dry-run] [--supersede]");
       console.log("  materials [--article N] [--slug <slug>]   Deterministic brief for the LLM voice pass (crown-jewel rotation, or force a specific finding)");
-      console.log("  stage --article N [--dry-run]              Validate draft, create blog post, preview-deploy (staging, never production), stage X-thread");
+      console.log("  stage --article N [--dry-run]              Validate draft, create blog post, preview-deploy (staging, never production), stage + email the X Article variant");
       console.log("  status                                     Show the article queue log");
+      console.log("  fix-preview --article N                    Re-run the isolated preview build+deploy for a staged article");
+      console.log("  hand-off --article N [--supersede]         Re-sync blog leg + re-send the X Article amplification email for a staged article");
+      console.log("  rework-x --article N [--supersede] [--dry-run]  Regenerate a staged article's X variant as an X Article from article-<N>.xarticle.json and email it");
       process.exit(1);
   }
 }
 
-main().catch((error) => {
-  process.stderr.write(`Error: ${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
-  process.exit(1);
-});
+// import.meta.main guard: sensor.ts imports X_ARTICLE_CONSTRAINTS from this file to build its
+// task-description text from the same source of truth the validator enforces — the guard makes
+// that import side-effect-free (main() only runs when cli.ts is the entry point).
+if (import.meta.main) {
+  main().catch((error) => {
+    process.stderr.write(`Error: ${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
+    process.exit(1);
+  });
+}
