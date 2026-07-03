@@ -506,8 +506,23 @@ export async function refreshLeads(opts: {
   // AI-018/031: fold unprocessed outbound X replies into arc_replies_to_them.
   // This runs on every refresh (forum-only or X+forum) so reply_log entries are
   // never left stranded even when the X fetch itself is skipped.
-  await processXReplyLog(store, log);
+  //
+  // P5 arc-demand-flywheel fix (dev-council kleppmann, CONFIRMED HIGH): the save
+  // below was previously gated ONLY on forum/x channel status, but
+  // processXReplyLog() durably marks x_reply_log rows `consumed_at` in SQLite
+  // regardless of channel status. If both channels are no-key/fetch-failed (a
+  // recurring condition — see the dispatch-OAuth-headless memory entry) while a
+  // fresh reply-log row exists, the row got permanently marked consumed while
+  // its arc_replies_to_them increment lived only in the now-discarded in-memory
+  // store — an ack-before-persist loss with no replay path (the row is never
+  // re-selected). Track whether anything was actually bumped and save whenever
+  // it was, independent of channel status. A residual, much narrower window
+  // remains (a crash between the SQLite consume-commit and this save) — closing
+  // that fully would mean moving the durability boundary into the store itself
+  // (e.g. recording consumed row-ids in the store) and is left as a documented
+  // follow-up, not silently dropped.
+  const bumped = await processXReplyLog(store, log);
 
-  if (forum.status === "ok" || x.status === "ok") saveLeadStore(store);
+  if (forum.status === "ok" || x.status === "ok" || bumped > 0) saveLeadStore(store);
   return { forum, x, total_leads: Object.keys(store.users).length };
 }

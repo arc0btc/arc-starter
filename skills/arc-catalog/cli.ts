@@ -52,7 +52,7 @@ function extractSensorInterval(sensorPath: string): number | null {
   try {
     const content = readFileSync(sensorPath, "utf-8");
     // Match INTERVAL_MINUTES = N or intervalMinutes = N patterns
-    const match = content.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+    const match = content.match(/(?<![A-Za-z0-9_])INTERVAL_MINUTES\s*=\s*(\d+)/);
     if (match) return parseInt(match[1], 10);
     // Also try claimSensorRun(name, N) pattern
     const claimMatch = content.match(/claimSensorRun\([^,]+,\s*(\d+)\)/);

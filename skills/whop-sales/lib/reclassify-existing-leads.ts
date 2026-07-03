@@ -19,33 +19,24 @@
 // Always backs up the store first. Usage:
 //   bun skills/whop-sales/lib/reclassify-existing-leads.ts [--dry-run]
 
-import { existsSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
+import { existsSync, copyFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { isLikelySpam } from "./lead-source.ts";
+// Reuse the canonical loader/saver + types (dev-council kleppmann/hohpe finding,
+// P5): a hand-rolled readFileSync/writeFileSync + locally-redefined types risked
+// type drift AND reintroduced the exact non-atomic-write hazard saveLeadStore()
+// was built to retire (temp-file-then-rename so a concurrent refresh tick or a
+// crash mid-write can never observe/leave a torn store).
+import { isLikelySpam, loadLeadStore, saveLeadStore } from "./lead-source.ts";
+import type { RelationshipStore } from "../../whop/lib/relationships.ts";
 
 const DRY_RUN = process.argv.includes("--dry-run");
+// loadLeadStore()/saveLeadStore() resolve the canonical path themselves; this
+// constant is only needed for the existsSync check and the backup copy.
 const LEAD_STORE_PATH = resolve(import.meta.dir, "../../../db/whop-leads.json");
 
 // Hardcoded, matching skills/whop-sales/sensor.ts's own OPERATOR_USER_ID —
 // the operator is never a lead, spam-flagged or not.
 const OPERATOR_USER_ID = "user_WQ6WyvnFOZ6bY";
-
-interface Interaction {
-  snippet?: string;
-  [k: string]: unknown;
-}
-
-interface Relationship {
-  user_id: string;
-  username: string | null;
-  recent_interactions: Interaction[];
-  [k: string]: unknown;
-}
-
-interface RelationshipStore {
-  updated_at: string;
-  users: Record<string, Relationship>;
-}
 
 function log(msg: string) {
   console.log(`[${new Date().toISOString()}] [reclassify-existing-leads] ${msg}`);
@@ -57,8 +48,7 @@ async function main() {
     return;
   }
 
-  const raw = readFileSync(LEAD_STORE_PATH, "utf8");
-  const store = JSON.parse(raw) as RelationshipStore;
+  const store: RelationshipStore = loadLeadStore();
   const beforeCount = Object.keys(store.users).length;
 
   const removed: Array<{ user_id: string; username: string | null; reasons: string[] }> = [];
@@ -104,8 +94,7 @@ async function main() {
   log(`Backed up store to ${backupPath}`);
 
   for (const r of removed) delete store.users[r.user_id];
-  store.updated_at = new Date().toISOString();
-  writeFileSync(LEAD_STORE_PATH, JSON.stringify(store, null, 2) + "\n", "utf8");
+  saveLeadStore(store); // atomic temp-then-rename — same primitive every other writer uses
 
   const afterCount = Object.keys(store.users).length;
   log(`After: ${afterCount} users (removed ${removed.length}, kept ${kept.length}). Complete.`);

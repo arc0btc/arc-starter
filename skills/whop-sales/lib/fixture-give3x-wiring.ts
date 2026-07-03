@@ -21,6 +21,21 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 async function main() {
+  // Safety guard (dev-council kleppmann, latent finding): this fixture's
+  // isolation depends entirely on being the FIRST thing in the process to
+  // trigger src/db.ts's initDatabase() singleton. If this file were ever
+  // imported into a long-running process that already opened the real
+  // db/arc.sqlite (instead of run standalone via `bun run <this file>`),
+  // getDatabase() would silently return the REAL handle post-chdir, and
+  // processXReplyLog would mark real x_reply_log rows consumed. Refuse to run
+  // any other way than as the direct entrypoint.
+  if (!import.meta.main) {
+    throw new Error(
+      "fixture-give3x-wiring.ts must be run standalone (bun run skills/whop-sales/lib/fixture-give3x-wiring.ts), " +
+        "never imported into another process — isolation depends on being first to touch src/db.ts's singleton.",
+    );
+  }
+
   const tmpRoot = mkdtempSync(join(tmpdir(), "give3x-fixture-"));
   const dbDir = join(tmpRoot, "db");
   mkdirSync(dbDir, { recursive: true });

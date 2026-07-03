@@ -1691,7 +1691,7 @@ function handleSensors(): Response {
         const sensorPath = join(skill.path, "sensor.ts");
         if (existsSync(sensorPath)) {
           const sensorContent = readFileSync(sensorPath, "utf-8");
-          const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+          const match = sensorContent.match(/(?<![A-Za-z0-9_])INTERVAL_MINUTES\s*=\s*(\d+)/);
           if (match) interval = parseInt(match[1], 10);
         }
 
@@ -1725,7 +1725,7 @@ function handleSensors(): Response {
       const sensorPath = join(skill.path, "sensor.ts");
       if (existsSync(sensorPath)) {
         const sensorContent = readFileSync(sensorPath, "utf-8");
-        const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+        const match = sensorContent.match(/(?<![A-Za-z0-9_])INTERVAL_MINUTES\s*=\s*(\d+)/);
         if (match) interval = parseInt(match[1], 10);
       }
       sensors.push({
@@ -1841,7 +1841,7 @@ function handleSensorSchedule(): Response {
         const sensorPath = join(skill.path, "sensor.ts");
         if (existsSync(sensorPath)) {
           const sensorContent = readFileSync(sensorPath, "utf-8");
-          const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+          const match = sensorContent.match(/(?<![A-Za-z0-9_])INTERVAL_MINUTES\s*=\s*(\d+)/);
           if (match) interval = parseInt(match[1], 10);
         }
 
@@ -1892,7 +1892,7 @@ function handleSensorSchedule(): Response {
       const sensorPath = join(skill.path, "sensor.ts");
       if (existsSync(sensorPath)) {
         const sensorContent = readFileSync(sensorPath, "utf-8");
-        const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+        const match = sensorContent.match(/(?<![A-Za-z0-9_])INTERVAL_MINUTES\s*=\s*(\d+)/);
         if (match) interval = parseInt(match[1], 10);
       }
       sensors.push({
