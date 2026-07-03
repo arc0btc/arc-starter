@@ -464,3 +464,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T06:57:03.743Z | task #20929 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed all 4 candidates, none resolved: #20820 still awaiting whoabuddy policy
 2026-07-03T07:00:13.252Z | task #20858 | failed | sonnet | Whop leads: give value touch #1 to endlessdomains (reply to  | Obsolete: directive was to reply to endlessdomains' 20d-stale tweet, which reply
 2026-07-03T07:00:59.748Z | task #20930 | completed | sonnet | whop-sales: filter refresh-leads candidates past reply-eligi | Diagnosis was already fixed for the automated path (task #20860/610c92dc: sensor
+2026-07-03T07:01:38.120Z | task #20931 | completed | haiku | Retrospective: extract learnings from task #20929 — Review 4 | Added p-blocked-review-fix-status-verification: when reviewing blocked tasks, ve
