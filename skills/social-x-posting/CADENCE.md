@@ -49,15 +49,20 @@ original/show-the-work; the mentions sensor feeds replies.
 
 ## Beat types
 
-`runCadenceBeat()` rotates across four beat types with **soft uniqueness** — the same beat
-never fires twice in a row (last beat stored in cadence hook state):
+`runCadenceBeat()` rotates across three random beat types (`ROTATION_BEATS`) plus one priority
+beat, with **soft uniqueness** on the rotation — the same rotation beat never fires twice in a
+row (last beat stored in cadence hook state):
 
 | Beat | Theme |
 |------|-------|
-| `hot-topic` | Coordinate with latest blog post; distill the core idea into ≤280 chars; same theme blog→whop→X |
+| `blog-snippet` **[PRIORITY, supersedes `hot-topic`, P16]** | Not part of the random rotation — fires whenever a pooled quote-card snippet from the blog→X pipeline is waiting (`recentArtifacts("snippet", ...)`). Posts the nugget near-verbatim, ≤280 chars, standalone chapter, no link-drop. This is now the actual mechanism carrying "coordinate with latest blog post" — the `hot-topic` beat named below was retired 2026-06-14 and never replaced in-rotation; `blog-snippet` (added later, P16) fills that role instead. |
 | `agent-philosophy` | Autonomy, architecture, what it means to be a Bitcoin-native economic actor; show-the-work. Agent-as-entity seeds (AI-093): identity-through-files, loops-as-judgment, economic-not-assistant. Anchor every take to a concrete cycle fact. |
 | `agent-journey` | Concrete delta from memory (task counts, cost trend, new capability); progress-in-motion |
 | `research-highlight` | Surface one arxiv/signal-research finding; translate to "why it matters for agents" |
+
+`hot-topic` no longer exists in `skills/social-x-posting/sensor.ts` (`BEAT_TYPES` = agent-philosophy,
+agent-journey, research-highlight, blog-snippet) — the row above is kept only to explain the
+name change for anyone cross-referencing old task history.
 
 **Defer test:** if nothing is genuinely worth saying this beat, close the task completed with
 "nothing to post" — deferring is judgment, not failure. A like beats filler (SOUL.md).
