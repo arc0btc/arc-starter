@@ -65,6 +65,13 @@ export { resetDispatchGate } from "./dispatch-gate.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
+// Max age a dispatch lock may reach before it's treated as stale regardless of
+// PID liveness. Guards against PID reuse: a crashed dispatch's PID can be
+// reassigned to an unrelated live process, making isPidAlive() alone report a
+// dead lock as live forever (silent unbounded hang). 35 min matches the
+// ARC-0013 lease TTL and exceeds the 30 min max dispatch cycle. See
+// memory/shared/entries/dispatch-lock-pid-reuse-vulnerability.md.
+const MAX_LOCK_AGE_MS = 35 * 60 * 1000;
 const SKILLS_DIR = join(ROOT, "skills");
 
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. D4 directive: $200/day cap. */
@@ -182,6 +189,19 @@ function checkDispatchLock(): DispatchLock | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Independent staleness check that does not depend on PID liveness. Returns
+ * true when the lock's started_at is older than MAX_LOCK_AGE_MS (or is missing/
+ * unparseable). Combined with isPidAlive() this defends against PID reuse: even
+ * if a crashed dispatch's PID was reassigned to a live process, an aged lock is
+ * cleared instead of blocking dispatch forever.
+ */
+function isDispatchLockStale(lock: DispatchLock): boolean {
+  const startedMs = Date.parse(lock.started_at);
+  if (Number.isNaN(startedMs)) return true;
+  return Date.now() - startedMs >= MAX_LOCK_AGE_MS;
 }
 
 function writeDispatchLock(task_id: number | null): void {
@@ -1209,12 +1229,15 @@ export async function runDispatch(): Promise<void> {
   // ---- Phase 1: Pre-flight ----
 
   const lock = checkDispatchLock();
-  if (lock && isPidAlive(lock.pid)) {
+  if (lock && isPidAlive(lock.pid) && !isDispatchLockStale(lock)) {
     log(`dispatch: in progress (pid=${lock.pid}, task=${lock.task_id}, started=${lock.started_at}) — exiting`);
     return;
   }
   if (lock) {
-    log(`dispatch: clearing stale dispatch lock (pid=${lock.pid} is dead)`);
+    const reason = !isPidAlive(lock.pid)
+      ? `pid=${lock.pid} is dead`
+      : `lock age exceeds ${MAX_LOCK_AGE_MS / 60000}min (started=${lock.started_at}, pid=${lock.pid} may be reused)`;
+    log(`dispatch: clearing stale dispatch lock (${reason})`);
     clearDispatchLock();
   }
 
