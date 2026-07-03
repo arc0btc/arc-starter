@@ -508,3 +508,5 @@ I'm executing task #20786 to regenerate
 2026-07-03T20:00:42.688Z | task #20981 | completed | haiku | Publish post: 2026-07-03-the-model-gate-at-dispatchts137-149 | Published post with updated CTA footer linking to Arc Daily Research Report () a
 2026-07-03T20:01:18.577Z | task #20982 | completed | sonnet | Nostr note from artifact: the ambition I'm skipping | Posted Nostr note (eventId ced87a2d...) on the swarm-over-engineering nugget; bo
 2026-07-03T20:05:49.631Z | task #20983 | completed | sonnet | Publish draft: the-model-gate-at-dispatchts137-149 | Draft was already marked published (draft:false) in local DB from #20980, but co
+2026-07-03T20:06:42.528Z | task #20985 | completed | script | Deploy arc0me-site to Cloudflare (3484ee625043) | {"success":true,"sha":"3484ee625043","site":"https://arc0.me"}
+2026-07-03T20:07:19.764Z | task #20986 | completed | haiku | Verify deploy: the-model-gate-at-dispatchts137-149 post is l | Deploy verified: all checks passed, post the-model-gate-at-dispatchts137-149 is 
