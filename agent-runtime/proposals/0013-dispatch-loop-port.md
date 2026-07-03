@@ -113,6 +113,16 @@ A fleet must not reap another live worker's task. Replace with a **lease**: recl
 `active` task only if `claimed_at` is older than a lease TTL (e.g. 35 min, > max cycle).
 `claimed_by` gives the observability arc-starter never needed.
 
+**Validated (2026-07-03, task #20957):** the lease design is also strictly better than
+arc-starter's single-node `db/dispatch-lock.json` against PID reuse. arc-starter's lock
+treats a lock as live purely via `isPidAlive(pid)` (`process.kill(pid, 0)`), which cannot
+distinguish "the dispatch process is still running" from "the OS reassigned that PID to
+an unrelated process after a crash" — a silent, unbounded hang with no fleet involved at
+all. A lease keyed on elapsed time since `claimed_at` never asks "is this PID alive," so
+it can't be fooled by reuse. Recommend porting an age-based fallback (TTL, no PID check)
+into arc-starter's single-node lock too, independent of this spec's fleet timeline — see
+[[dispatch-lock-pid-reuse-vulnerability]].
+
 ### 2. Schema additions (`agent-runtime/src/db.ts`, new)
 
 Start from arc-starter's `tasks` + `cycle_log` schema, plus:
