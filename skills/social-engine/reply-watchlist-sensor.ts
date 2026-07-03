@@ -10,6 +10,11 @@
  *   3. Sends replies autonomously via sendReply() (canonical lane, all P4 guards intact).
  *   4. Tracks 403-reply-restriction failures per account: 2 consecutive skips = 7-day
  *      circuit-breaker (reply_locked_until). Count resets on lock expiry AND on success.
+ *   5. P5 arc-demand-flywheel (2026-07-03): discovery now PRE-FILTERS by
+ *      consecutive_403_count (ASC, primary sort key) so 0-count ("clean") targets get
+ *      priority over already-dinged-once-but-not-yet-locked targets — the lane stops
+ *      re-attempting a target that already showed one 403 while a clean target is
+ *      available, instead of waiting for a second failure to trigger the lock.
  *
  * Spam guards (DO NOT REGRESS — enforced by sendReply / admission.ts):
  *   GUARD 1: target-age fail-closed (tweetCreatedAt required, > 48h = blocked)
@@ -117,7 +122,11 @@ async function run() {
 
   // ── Phase 1: Discovery — find eligible in-network accounts ───────────────
   // Only following accounts; skip if reply_locked_until is in the future.
-  // ORDER BY COALESCE(target_last_tweet_at, '1970-01-01') ASC for rotation fairness.
+  // P5 arc-demand-flywheel: ORDER BY consecutive_403_count ASC first — clean (0-count)
+  // targets get discovery priority over targets that already showed one 403 but
+  // haven't hit the 2-strike lock yet, so the lane routes toward reachable targets
+  // up front instead of burning a second turn on a likely-403 account. Ties within
+  // the same 403-count band keep the original rotation-fairness ordering.
   const accounts = db.query(`
     SELECT id, handle, follow_state, follow_target_id, reach_fit_tier,
            target_last_tweet_id, target_last_tweet_at,
@@ -126,7 +135,7 @@ async function run() {
     WHERE follow_state='following'
       AND targeting_status='eligible'
       AND (reply_locked_until IS NULL OR reply_locked_until < ?)
-    ORDER BY COALESCE(target_last_tweet_at, '1970-01-01') ASC
+    ORDER BY consecutive_403_count ASC, COALESCE(target_last_tweet_at, '1970-01-01') ASC
     LIMIT ?
   `).all(nowIsoStr, MAX_DISCOVERY_PER_RUN) as WatchlistAccount[];
 

@@ -30,6 +30,8 @@ const KEYWORDS = [
   "LLM routing agents",
   "agent tools AI",
   "AI developer tools",
+  // P5 arc-demand-flywheel (2026-07-03): sharpen the trending-agent-development signal.
+  "autonomous coding agent",
 ];
 
 const log = createSensorLogger(SENSOR_NAME);

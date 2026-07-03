@@ -38,6 +38,8 @@ import { admitAction, deferAction } from './admission.ts';
 | `008-p5-research-inputs.ts` | P5 migration: adds `research_nugget`, `nugget_source_delivery`, `research_source_config` tables |
 | `009-p5-seed-source-config.ts` | P5 seed: populates `research_source_config` with ingestion sources |
 | `011-p7-moltbook.ts` | P7 migration: adds `moltbook_post` table and seeds `checkout_config` |
+| `research-input-loop.ts` | P5 arc-demand-flywheel: derives X handles from research-corpus consumption frequency (`source_url` frontmatter), folds new ones into `social_accounts` (idempotent, re-runnable, never auto-follows) |
+| `reply-watchlist-sensor.ts` | P2 arc-reach-unblock autonomous reply-guy sensor: discovers + replies to in-network watchlist tweets, 403 circuit-breaker (2 consecutive = 7-day lock), P5 pre-filters discovery by `consecutive_403_count` |
 
 ### Producers
 Ingest external content into `research_nugget` rows. READ-ONLY ingestion.
