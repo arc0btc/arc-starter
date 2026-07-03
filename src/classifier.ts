@@ -151,6 +151,14 @@ const GLM_PATTERNS: RegExp[] = [
   /\bintegrate\s+\w+\s+into\s+\S+\.ts\b/i,                  // integrate X into file.ts
 ];
 
+// Skill/CLI-name phrasing: "<skill-name>: <verb> ..." or "<skill-name> cli ..." with no
+// literal file path in the subject. Real follow-ups are often phrased around the skill or
+// CLI name rather than the underlying file (e.g. "arc-skill-manager: add grep-verify step
+// to lint-skills"). These are bounded but the exact file is ambiguous, so route to GLM
+// (more tool iterations to locate the right file) rather than devstral.
+const SKILL_PREFIX_PATTERN = /^([a-z][\w-]{2,40}):\s+\S/i;
+const CLI_NAME_PATTERN = /\bcli\b/i;
+
 // ---- OPERATIONAL signals ----
 
 const OPERATIONAL_PATTERNS: RegExp[] = [
@@ -229,9 +237,25 @@ function matchesAny(text: string, patterns: RegExp[]): string | null {
 export function classifyTask(
   subject: string,
   description?: string,
+  file?: string,
 ): TaskClassification {
-  const text = [subject, description ?? ""].join(" ");
+  const text = [subject, description ?? "", file ?? ""].join(" ");
   const subjectLower = subject.toLowerCase();
+
+  // 0. Explicit --file target: caller named the file directly, bypassing subject-text
+  // parsing entirely. Still requires a bounded action verb to avoid misrouting judgment
+  // calls (e.g. "audit src/dispatch.ts" with --file src/dispatch.ts stays ineligible below).
+  if (file) {
+    const fileIsCoreInfra = matchesAny(file, CORE_INFRA_PATTERNS);
+    if (fileIsCoreInfra) {
+      return {
+        type: "infrastructure",
+        recommended_model: MODEL_FOR_TYPE["infrastructure"],
+        confidence: "high",
+        reason: `--file targets core infrastructure file (${fileIsCoreInfra})`,
+      };
+    }
+  }
 
   // 1. Check core infra files → infrastructure (opus)
   const infraFile = matchesAny(text, CORE_INFRA_PATTERNS);
@@ -321,7 +345,23 @@ export function classifyTask(
     };
   }
 
-  // 5b. File ref + action verb combo → bounded-code (catches "Add X helper to file.ts" variants)
+  // 5b. Explicit --file target + action verb in subject → bounded-code, high confidence.
+  // Caller named the file directly, so we don't need a literal path in the subject text.
+  // Checked before the generic file-ref heuristic below so an explicit --file always wins
+  // with high confidence, even though it also satisfies FILE_REF_PATTERN via `text`.
+  if (file) {
+    const verbMatch = matchesAny(subject, DEVSTRAL_ACTION_VERBS);
+    if (verbMatch) {
+      return {
+        type: "bounded-code",
+        recommended_model: MODEL_FOR_TYPE["bounded-code"],
+        confidence: "high",
+        reason: `action verb (${verbMatch}) + explicit --file target (${file})`,
+      };
+    }
+  }
+
+  // 5c. File ref + action verb combo → bounded-code (catches "Add X helper to file.ts" variants)
   if (FILE_REF_PATTERN.test(text)) {
     const verbMatch = matchesAny(subject, DEVSTRAL_ACTION_VERBS);
     if (verbMatch) {
@@ -330,6 +370,36 @@ export function classifyTask(
         recommended_model: MODEL_FOR_TYPE["bounded-code"],
         confidence: "low",
         reason: `action verb (${verbMatch}) + file reference in subject`,
+      };
+    }
+  }
+
+  // 5d. Skill/CLI-name phrasing ("<skill-name>: <verb> ...") with no literal file path —
+  // bounded work described around the skill rather than the file. Route to GLM: the
+  // extra tool iterations help it locate the right file without a literal path.
+  const skillPrefixMatch = subject.match(SKILL_PREFIX_PATTERN);
+  if (skillPrefixMatch && !FILE_REF_PATTERN.test(text)) {
+    const verbMatch = matchesAny(subject, DEVSTRAL_ACTION_VERBS);
+    if (verbMatch) {
+      return {
+        type: "bounded-code-glm",
+        recommended_model: MODEL_FOR_TYPE["bounded-code-glm"],
+        confidence: "low",
+        reason: `skill-prefixed subject (${skillPrefixMatch[1]}) + action verb (${verbMatch}), no literal file path`,
+      };
+    }
+  }
+
+  // 5e. "<skill-name> cli" phrasing (no colon prefix) with action verb, no literal file —
+  // e.g. "add --verbose flag to whop-sales cli". Same rationale as 5d.
+  if (!skillPrefixMatch && CLI_NAME_PATTERN.test(subject) && !FILE_REF_PATTERN.test(text)) {
+    const verbMatch = matchesAny(subject, DEVSTRAL_ACTION_VERBS);
+    if (verbMatch) {
+      return {
+        type: "bounded-code-glm",
+        recommended_model: MODEL_FOR_TYPE["bounded-code-glm"],
+        confidence: "low",
+        reason: `CLI-name phrasing + action verb (${verbMatch}), no literal file path`,
       };
     }
   }

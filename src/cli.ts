@@ -38,10 +38,12 @@ import { classifyTask } from "./classifier.ts";
 const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT --model MODEL|auto [--description TEXT] [--priority N] [--source TEXT]\n' +
-    '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"]\n' +
+    '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"] [--file PATH]\n' +
     '              [--max-retries N (HANDOFF threshold, default 7)]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]\n' +
-    '              (--model auto runs the task-type classifier to pick devstral/glm/haiku/sonnet/opus)',
+    '              (--model auto runs the task-type classifier to pick devstral/glm/haiku/sonnet/opus;\n' +
+    '               --file names the target file explicitly when the subject is phrased around a\n' +
+    '               skill/CLI name instead of a literal path, e.g. --file skills/foo/cli.ts)',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
@@ -237,7 +239,7 @@ function cmdTasksAdd(args: string[]): void {
     process.exit(1);
   }
   if (modelFlag === "auto") {
-    const classification = classifyTask(subject, flags["description"]);
+    const classification = classifyTask(subject, flags["description"], flags["file"]);
     modelFlag = classification.recommended_model;
     process.stdout.write(
       `Classifier: type=${classification.type} model=${modelFlag} confidence=${classification.confidence} reason="${classification.reason}"\n`
@@ -1014,11 +1016,12 @@ COMMANDS
   logs [--limit N] [--level info|warn|error] [--service NAME] [--task ID]
     Show structured service log events (dispatch task lifecycle, errors, retries).
 
-  classify --subject TEXT [--description TEXT]
+  classify --subject TEXT [--description TEXT] [--file PATH]
     Run the task-type classifier and print the recommended model.
     Same logic used by --model auto in tasks add.
     Types: bounded-code (devstral), bounded-code-glm (glm), operational (haiku),
            content (sonnet), research (sonnet), infrastructure (opus), unknown (sonnet).
+    --file names the target file explicitly for skill/CLI-name-phrased subjects.
 
   help
     Show this help message.
@@ -1053,7 +1056,7 @@ function cmdClassify(args: string[]): void {
     process.stderr.write("Error: --subject is required\nUsage: arc classify --subject TEXT [--description TEXT]\n");
     process.exit(1);
   }
-  const result = classifyTask(subject, flags["description"]);
+  const result = classifyTask(subject, flags["description"], flags["file"]);
   process.stdout.write(
     `type:        ${result.type}\n` +
     `model:       ${result.recommended_model}\n` +
