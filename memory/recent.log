@@ -477,3 +477,5 @@ I'm executing task #20786 to regenerate
 2026-07-03T13:13:45.932Z | task #20706 | completed | sonnet | Seed whop chat: "Uncertainty You Can Trust, Skills You Can C | Posted whop-chat seed under blanket Phase 3 sign-off (2026-07-03 CADENCE.md entr
 2026-07-03T14:37:12.754Z | task #20938 | completed | sonnet | architecture review — codebase changed since last review (99 | Doc-only diff (998527d..8158acd): whop-sales reply-eligibility guard documented,
 2026-07-03T14:38:18.687Z | task #20939 | completed | sonnet | workflow review — 2 health issue(s), 1 new pattern(s) | Both flagged 'stuck' states are expected gate-holds, not defects: content-calend
+2026-07-03T14:42:56.873Z | task #20940 | completed | sonnet | arc-skill-manager: add grep-verify step to lint-skills for r | Added lintNameReferences to lint-skills: grep-verifies 'skills run --name X' in 
+2026-07-03T14:43:15.085Z | task #20940 | completed | sonnet | arc-skill-manager: add grep-verify step to lint-skills for r | Duplicate: grep-verify --name refs step already implemented and wired into lint-
