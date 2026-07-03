@@ -313,6 +313,43 @@ function lintAgentMd(filePath: string, content: string, installedSkills: Set<str
   return violations;
 }
 
+/**
+ * Grep-verify skill name references via `--name <skill>` (e.g. `arc skills run --name X`).
+ * Catches stale references left behind after a skill directory/name is renamed — the
+ * exact drift class found in arc-architecture-review (formerly "architect") where
+ * AGENT.md, SKILL.md, and cli.ts usage comments kept citing the old name after the
+ * rename, breaking the documented CLI invocation.
+ */
+// Generic placeholder tokens used in template/example text, not real skill names.
+const NAME_PLACEHOLDER_RE = /^(x|name|skill|skill-name|my-skill|your-skill)$/i;
+
+function lintNameReferences(filePath: string, content: string, installedSkills: Set<string>): LintViolation[] {
+  const violations: LintViolation[] = [];
+  const lines = content.split("\n");
+  // Scoped to the `skills run --name X` invocation syntax specifically, not any
+  // arbitrary `--name` flag a skill's own CLI might define (e.g. a BNS name argument).
+  const nameRe = /skills\s+run\s+--name\s+([\w-]+)/g;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let match: RegExpExecArray | null;
+    nameRe.lastIndex = 0;
+    while ((match = nameRe.exec(line)) !== null) {
+      const name = match[1];
+      if (NAME_PLACEHOLDER_RE.test(name)) continue;
+      if (!installedSkills.has(name)) {
+        violations.push({
+          file: filePath,
+          line: i + 1,
+          message: `'skills run --name ${name}' references unknown skill — likely stale after a rename, not found in skills/`,
+        });
+      }
+    }
+  }
+
+  return violations;
+}
+
 /** Abbreviated variable name patterns that violate verbose naming convention. */
 const ABBREVIATED_VAR_RE = /\bconst\s+(res|val|err|ret|r|v|e)\s*[=:]/;
 
@@ -357,18 +394,19 @@ function cmdLintSkills(args: string[]): void {
   } else if (staged) {
     targetFiles = getStagedFiles();
   } else {
-    // Lint all SKILL.md, AGENT.md and sensor.ts files under skills/
+    // Lint all SKILL.md, AGENT.md, cli.ts, and sensor.ts files under skills/
     const skillMds = Bun.spawnSync(["git", "ls-files", "skills/"], { cwd: ROOT });
     targetFiles = skillMds.stdout
       .toString()
       .trim()
       .split("\n")
-      .filter((f) => f.endsWith("/SKILL.md") || f.endsWith("/AGENT.md") || f.endsWith("/sensor.ts"));
+      .filter((f) => f.endsWith("/SKILL.md") || f.endsWith("/AGENT.md") || f.endsWith("/sensor.ts") || f.endsWith("/cli.ts"));
   }
 
   const skillMdFiles = targetFiles.filter((f) => /skills\/[^/]+\/SKILL\.md$/.test(f));
   const agentMdFiles = targetFiles.filter((f) => /skills\/[^/]+\/AGENT\.md$/.test(f));
   const sensorFiles = targetFiles.filter((f) => /skills\/[^/]+\/sensor\.ts$/.test(f));
+  const cliTsFiles = targetFiles.filter((f) => /skills\/[^/]+\/cli\.ts$/.test(f));
 
   // Build installed skill name set for AGENT.md validation
   const installedSkills = new Set(discoverSkills().map((s) => s.name));
@@ -380,6 +418,7 @@ function cmdLintSkills(args: string[]): void {
     if (!existsSync(fullPath)) continue;
     const content = readFileSync(fullPath, "utf-8");
     allViolations.push(...lintSkillMd(file, content));
+    allViolations.push(...lintNameReferences(file, content, installedSkills));
   }
 
   for (const file of agentMdFiles) {
@@ -387,6 +426,7 @@ function cmdLintSkills(args: string[]): void {
     if (!existsSync(fullPath)) continue;
     const content = readFileSync(fullPath, "utf-8");
     allViolations.push(...lintAgentMd(file, content, installedSkills));
+    allViolations.push(...lintNameReferences(file, content, installedSkills));
   }
 
   for (const file of sensorFiles) {
@@ -396,8 +436,15 @@ function cmdLintSkills(args: string[]): void {
     allViolations.push(...lintSensorTs(file, content));
   }
 
+  for (const file of cliTsFiles) {
+    const fullPath = join(ROOT, file);
+    if (!existsSync(fullPath)) continue;
+    const content = readFileSync(fullPath, "utf-8");
+    allViolations.push(...lintNameReferences(file, content, installedSkills));
+  }
+
   if (allViolations.length === 0) {
-    process.stdout.write(`OK — ${skillMdFiles.length} SKILL.md + ${agentMdFiles.length} AGENT.md + ${sensorFiles.length} sensor.ts checked, no violations.\n`);
+    process.stdout.write(`OK — ${skillMdFiles.length} SKILL.md + ${agentMdFiles.length} AGENT.md + ${sensorFiles.length} sensor.ts + ${cliTsFiles.length} cli.ts checked, no violations.\n`);
     return;
   }
 
@@ -555,10 +602,12 @@ SUBCOMMANDS
     Memory consolidation. 'check' reports stats (default). 'commit' stages and commits.
 
   lint-skills [--staged] [--files FILE1,FILE2,...]
-    Validate SKILL.md frontmatter, AGENT.md skill name refs, and sensor.ts variable naming.
+    Validate SKILL.md frontmatter, AGENT.md skill name refs, sensor.ts variable naming,
+    and --name/--skills references (in SKILL.md, AGENT.md, cli.ts) against installed
+    skill names — catches stale refs left behind after a skill rename.
     --staged: lint only git-staged files (used by pre-commit hook)
     --files:  lint specific comma-separated file paths
-    (no flags): lint all skills/ SKILL.md, AGENT.md, and sensor.ts files
+    (no flags): lint all skills/ SKILL.md, AGENT.md, sensor.ts, and cli.ts files
 
   install-hooks
     Install .git/hooks/pre-commit to run lint-skills on every commit.

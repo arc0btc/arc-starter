@@ -5,7 +5,7 @@
 // CLI for architecture review: state machine diagrams, context auditing,
 // and simplification reports.
 //
-// Usage: arc skills run --name architect -- <subcommand>
+// Usage: arc skills run --name arc-architecture-review -- <subcommand>
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -419,7 +419,7 @@ function printUsage(): void {
   process.stdout.write(`architect CLI
 
 USAGE
-  arc skills run --name architect -- <subcommand>
+  arc skills run --name arc-architecture-review -- <subcommand>
 
 SUBCOMMANDS
   diagram   Generate/update the Mermaid state machine diagram
