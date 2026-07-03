@@ -151,6 +151,10 @@ function printHelp(): void {
       "                         bare SKU would ship a buyer an empty product) — attach later via attach-deliverable",
       "  attach-deliverable --product prod_xxx [--title <t>] [--report <md>] [--file <html/pdf>] [--quiz <json>]",
       "                         (re-)attach the per-SKU course deliverable; idempotent, refreshes content",
+      "  unlock-all --product prod_xxx [--plan plan_xxx] [--title <t>] [--skip-chat]",
+      "                         P3: membership entitlement — create-or-find a 100%-off unlimited promo scoped",
+      "                         to the product, announce the $0 redemption link once in the members chat",
+      "                         (idempotent; --skip-chat mints/reads the promo without posting)",
       "                                         mint a HIDDEN one-time product SKU (create-or-find by route;",
       "                                         30% global+member affiliate) → prints prod_/plan_ ids + PRODUCT_* constants",
       "  create-chapter --course cou_xxx --title <t>",
@@ -1050,6 +1054,96 @@ async function cmdListPromoCodes(apiKey: string): Promise<void> {
   }
 }
 
+// P3 (arc-demand-flywheel, 2026-07-03): unlock-all — membership entitlement to newly-packaged
+// $9 SKUs. There is NO server-side "grant membership" call in @whop/sdk (checked every
+// resources/*.d.ts — no memberships.create); the only real primitive is a promo code applied
+// at checkout. So "unlock" means: create-or-find a 100%-off, unlimited-stock, product_id-scoped
+// promo code (the same primitive already live for FREEMONTH_PROMO_ID on the membership itself),
+// then announce the $0 redemption link ONCE into the members-only "AI Prefers Bitcoin" chat
+// (paid-chat posting has blanket pre-approval, CADENCE.md 2026-07-03) so every current AND
+// future $49/mo member can self-redeem — no per-member loop, no webhook needed. Idempotent:
+// re-running finds the existing promo by product_id scope instead of stacking a duplicate, and
+// the chat announcement is deduped via the existing whop_post_log (--source key).
+async function cmdUnlockAll(apiKey: string, appApiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("unlock-all requires --product prod_xxx");
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("unlock-all requires creds key company_id (biz_xxx)");
+  const client = whopClient(apiKey);
+
+  // create-or-find: scan promo codes already scoped to this product (mirrors create-product's
+  // idempotent route lookup) before minting a new one.
+  const existingPage = await client.promoCodes.list({ company_id: companyId, product_ids: [flags.product], first: 25 });
+  type PromoRow = { id: string; code: string; status: string; amount_off: number; unlimited_stock: boolean };
+  let promo = (existingPage.data as PromoRow[]).find((p) => p.status !== "archived") ?? null;
+  let created = false;
+  if (!promo) {
+    const codeSuffix = flags.product.replace(/[^a-zA-Z0-9]/g, "").slice(-8).toUpperCase();
+    const code = `MEMBERUNLOCK${codeSuffix}`;
+    const p = (await client.promoCodes.create({
+      amount_off: 100,
+      base_currency: "usd",
+      code,
+      company_id: companyId,
+      new_users_only: false, // members HAVE purchased before (the membership itself)
+      existing_memberships_only: false, // this grants a NEW product, not a retention discount
+      one_per_customer: true, // one free redemption per member is the entitlement, not stackable
+      promo_duration_months: 1, // irrelevant for a one_time plan; SDK requires a value
+      promo_type: "percentage",
+      product_id: flags.product,
+      unlimited_stock: true,
+    })) as PromoRow;
+    promo = p;
+    created = true;
+    process.stderr.write(`whop: created unlock-all promo ${promo.id} ("${promo.code}") for ${flags.product}\n`);
+  } else {
+    process.stderr.write(`whop: unlock-all promo already exists for ${flags.product} (${promo.id}) — reusing (idempotent)\n`);
+  }
+
+  const planId = flags.plan ?? (await findOneTimePlan(client, companyId, flags.product))?.id ?? null;
+  if (!planId) fail(`unlock-all: could not resolve a plan for product ${flags.product} — pass --plan plan_xxx explicitly`);
+  const checkoutUrl = `https://whop.com/checkout/${planId}?promoCode=${promo.code}&a=member-unlock`;
+
+  let chatMessageId: string | null = null;
+  let chatSkipped = false;
+  if (!flags["skip-chat"]) {
+    const source = `packaging:unlock-all:${flags.product}`;
+    if (await dedupSkip(source)) {
+      chatSkipped = true;
+    } else {
+      const content = flags.title
+        ? `**New for members: ${flags.title}**\n\nFree with your membership — grab it at $0: ${checkoutUrl}`
+        : `**New research report unlocked for members** — free with your membership at $0: ${checkoutUrl}`;
+      const channel = await getCredential("whop", "chat_channel_id");
+      const message = await whopClient(appApiKey).messages.create(
+        { channel_id: channel!, content },
+        { idempotencyKey: source },
+      );
+      chatMessageId = createdId(message);
+      await recordPost(source, channel!, chatMessageId);
+    }
+  }
+
+  process.stdout.write(
+    JSON.stringify(
+      {
+        product_id: flags.product,
+        plan_id: planId,
+        promo_id: promo.id,
+        promo_code: promo.code,
+        promo_created: created,
+        amount_off: promo.amount_off,
+        unlimited_stock: promo.unlimited_stock,
+        checkout_url: checkoutUrl,
+        chat_message_id: chatMessageId,
+        chat_skipped: chatSkipped,
+        note: "no server-side membership grant exists in @whop/sdk — this promo code IS the entitlement mechanism; verify via promo-codes read-back + a checkout URL 200, not a membership row.",
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
 // AI-080: list-members — richer than memberships.list() for M0 classification.
 // Returns most_recent_action, usd_total_spent, joined_at per member across the company.
 async function cmdListMembers(apiKey: string): Promise<void> {
@@ -1161,6 +1255,12 @@ async function main(): Promise<void> {
     case "attach-deliverable": {
       const apiKey = await requireApiKey();
       await cmdAttachDeliverable(apiKey, flags);
+      break;
+    }
+    case "unlock-all": {
+      const apiKey = await requireApiKey();
+      const appApiKey = flags["skip-chat"] ? "" : await requireAppApiKey();
+      await cmdUnlockAll(apiKey, appApiKey, flags);
       break;
     }
     case "create-chapter": {
