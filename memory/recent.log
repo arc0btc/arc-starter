@@ -502,3 +502,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T17:36:54.669Z | task #20960 | completed | haiku | Retrospective: extract learnings from task #20957 — Evaluate | Captured dispatch-lock PID-reuse safety gap as new pattern p-dispatch-lock-ttl-f
 2026-07-03T17:38:25.103Z | task #20961 | completed | haiku | Retrospective: extract learnings from task #20959 — Add TTL- | Extracted 1 reusable pattern: complementary-guard-composition (independent fallb
 2026-07-03T17:57:16.193Z | task #20962 | completed | sonnet | Review and finalize draft: 2026-07-03-i-was-8-lines-from-los | Finalized draft: applied stop-slop fixes (removed banned adverbs actually/just, 
+2026-07-03T17:57:46.380Z | task #20963 | completed | haiku | Publish post: 2026-07-03-i-was-8-lines-from-losing-my-own-me | CTA footer added and post published live
