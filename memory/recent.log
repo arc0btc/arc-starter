@@ -1,29 +1,3 @@
-2026-06-30T22:02:30.847Z | task #20545 | completed | sonnet | Email watch report to whoabuddy — 2026-04-18T02:46 | Skipped sending — report (2026-04-18) is 2+ months stale from a backfilled workf
-2026-06-30T22:03:34.587Z | task #20548 | completed | sonnet | Email watch report to whoabuddy — 2026-04-13T02:37 | Stale workflow 1513 (created 2026-04-13, ~78 days old) — report file was already
-2026-06-30T22:04:44.077Z | task #20549 | completed | sonnet | Email watch report to whoabuddy — 2026-04-19T02:48 | Skipped sending stale 2026-04-19 watch report — workflow #1738 dormant 2.5mo, co
-2026-06-30T22:05:36.751Z | task #20550 | completed | sonnet | Email watch report to whoabuddy — 2026-04-19T14:49 | Skipped email send: workflow #1750 ceo-review was 2.5mo stale (created 2026-04-1
-2026-06-30T22:06:29.812Z | task #20551 | completed | sonnet | Email watch report to whoabuddy — 2026-04-25T02:57 | Skipped send: report was found in reports/archive/ (not reports/) and IS fully r
-2026-06-30T22:07:26.564Z | task #20552 | completed | sonnet | Email watch report to whoabuddy — 2026-04-30T03:04 | Report file 2026-04-30T01_02_30Z_watch_report.html does not exist (stale 62-day-
-2026-06-30T22:08:56.217Z | task #20553 | completed | sonnet | Email watch report to whoabuddy — 2026-04-30T15:05 | Report file path in task desc was wrong dir — actual file lives in reports/archi
-2026-06-30T22:10:53.958Z | task #20561 | completed | sonnet | Email watch report to whoabuddy — 2026-04-21T14:52 | Sent backfilled 2026-04-21 watch report (months-late delivery, originally blocke
-2026-06-30T22:12:29.144Z | task #20562 | completed | sonnet | Email watch report to whoabuddy — 2026-04-22T02:53 | Sent backfilled watch report (2026-04-22T01:01:52Z, found in reports/archive/) t
-2026-06-30T22:13:03.573Z | task #20563 | completed | sonnet | Email watch report to whoabuddy — 2026-05-02T03:05 | Skipped email send: workflow #2127 (ceo-review) was created 2026-05-02 but dorma
-2026-06-30T22:14:11.077Z | task #20476 | completed | sonnet | self-review: run health check for 2026-04-01 | Self-review 2026-04-01: dispatch healthy, 0 unexpected failures, no skill syntax
-2026-06-30T22:15:33.696Z | task #20478 | completed | sonnet | self-review: run health check for 2026-04-02 | Self-review for 2026-04-02 backfill: services healthy, queue normal (69 pending/
-2026-06-30T22:18:10.459Z | task #20480 | completed | sonnet | self-review: run health check for 2026-04-03 | Fixed real bug: arc-daily-read sensor created tasks with no model field, causing
-2026-06-30T22:18:42.998Z | task #20568 | completed | sonnet | Retry: Post Arc's Daily Read — Edition 1 (model fix applied) | Daily Read Edition 1 posted live: 4-tweet beat (root+2 replies+CTA), tweet 20720
-2026-06-30T22:19:32.997Z | task #20481 | completed | sonnet | self-review: run health check for 2026-04-04 | Self-review clean: 69 pending/1 active, 154 done today, 4.3/5 quality, 100% acce
-2026-06-30T22:20:43.928Z | task #20483 | completed | sonnet | self-review: run health check for 2026-04-15 | Self-review clean: 70 pending (no stale backlog), 2 failures today both already-
-2026-06-30T22:23:03.454Z | task #20485 | completed | sonnet | self-review triage: 1 issue(s) found | Stale self-review workflow #1634 from 2026-04-16, resurfaced today. Issue (Hiro 
-2026-06-30T22:24:23.908Z | task #20489 | completed | sonnet | Assess release: aibtcdev/skills skills-v0.38.1 | skills-v0.38.1 (2026-04-08) only bug fix: sponsor-builder 0x prefix on serialize
-2026-06-30T22:27:54.201Z | task #20573 | completed | opus | Email from whoabuddy (1 unread): Re: Arc's Daily Read — Edit | whoabuddy diagnostic: Edition 1 NOT a duplicate (daily_read_log has 1 row, poste
-2026-06-30T22:32:04.774Z | task #20575 | completed | opus | Add staleness guard to workflow email stage — re-activated o | Staleness guards shipped (state-machine.ts): CeoReviewMachine.emailing suppresse
-2026-06-30T22:32:41.049Z | task #20491 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript bedrock- | No action: bedrock-sdk-v0.28.1 is AWS Bedrock variant of anthropic-sdk-typescrip
-2026-06-30T22:33:39.077Z | task #20493 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.8 | sdk-v0.87.0 (anthropic-sdk-typescript): minor feature release adding beta adviso
-2026-06-30T22:34:54.039Z | task #20494 | completed | sonnet | self-review: run health check for 2026-04-10 | Self-review clean: all services healthy, 5 failures today all pre-known/tracked,
-2026-06-30T22:35:43.381Z | task #20496 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.47.1 | Reviewed mcp-server-v1.47.1 (single bug fix: inbox 202 staged-delivery handling)
-2026-06-30T22:36:52.916Z | task #20580 | completed | haiku | noop-check-20485 | accidental stray task created during triage, no-op
-2026-06-30T22:37:53.505Z | task #20497 | completed | sonnet | self-review triage: 3 issue(s) found | Stale workflow 1509 (instance_key 2026-04-13, ~78d dormant) resurfaced; verified
 2026-06-30T22:39:29.148Z | task #20524 | completed | sonnet | Thread whop forum teardown: "The Five Subsystems of an Agent | Posted whop-forum teardown (post_1CcaFK4E28udmtbEgNPsvv, exp_dlYgb6mrXuRIq8) on 
 2026-06-30T22:39:39.250Z | task #20542 | completed | sonnet | Whop synthesis [2026-06-30T21]: read the room, defer or post | DEFER: window had only Arc's own prior post (ship-log nudge), zero human replies
 2026-06-30T22:40:46.343Z | task #20558 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-30-22) — | Deferred: daily tweet cap exhausted (6/6 today). Drafted post ready for next cad
@@ -524,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-03T20:47:37.123Z | task #20997 | completed | sonnet | Nostr note from artifact: Architecture vs default | Posted Nostr note eventId 76eaa385... on architecture-vs-default (source nostr:2
 2026-07-03T20:53:38.409Z | task #20998 | completed | sonnet | Nostr note from artifact: 3% gap vs 18% gap | Posted Nostr note on 3%/18% benchmark gap nuance; eventId 730251a3..., both rela
 2026-07-03T20:59:59.741Z | task #20999 | completed | sonnet | Nostr note from artifact: A stranger's numbers | Posted Nostr note (eventId 0b37bae6...) on corroboration-beats-backtesting, both
+2026-07-03T21:04:27.364Z | task #21000 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-03T21:05:42.224Z | task #21001 | completed | haiku | arc-opensource: sync 176 commit(s) to GitHub | Synced 176 commits to origin/main. Build validation passed. Push successful.
