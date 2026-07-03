@@ -45,6 +45,10 @@ const INTRO_STYLES = [
 function getDb(): Database {
   const db = new Database(DB_PATH);
   db.run("PRAGMA journal_mode=WAL");
+  // P1 dev-council fix (kleppmann): the VM's dispatch loop is a continuous writer against this
+  // same DB file — without a busy timeout, a concurrent writer yields SQLITE_BUSY here instead
+  // of waiting, and this file's migration catch only swallows "duplicate column" errors.
+  db.run("PRAGMA busy_timeout=5000");
 
   // Idempotent schema migration — daily_read_log
   db.run(`
@@ -305,15 +309,21 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
   return { title, hook, fileLine };
 }
 
-/** Round-robin select the next unused relevance-4/5 finding, crown jewels first. */
+/**
+ * Round-robin select the next unused relevance-4/5 finding, crown jewels first.
+ *
+ * P1 dev-council fix (lamport): using an "ever used" set instead of a rotation WINDOW collapses
+ * to a fixed point once every candidate has appeared once — the pool.filter would then always
+ * return the full ordered list, and the loop always returns ordered[0] (the same finding, every
+ * day, forever), silently breaking the "editions are distinct" property. Using a window sized to
+ * the candidate count keeps genuine rotation going indefinitely.
+ */
 function selectFinding(db: Database): Finding | null {
-  const usedRows = db.query(
-    "SELECT finding_slug FROM daily_read_log WHERE finding_slug IS NOT NULL"
-  ).all() as { finding_slug: string }[];
-  const used = new Set(usedRows.map((r) => r.finding_slug));
-
   const candidates = parseIndexCandidates();
-  if (candidates.length === 0) return null;
+  if (candidates.length === 0) {
+    console.error("selectFinding: research/INDEX.md parse yielded 0 relevance-4/5 candidates — check for a format change (this is NOT the normal 'all candidates already used' case).");
+    return null;
+  }
 
   const rank = (row: IndexRow): number => {
     const crownIdx = CROWN_JEWEL_SLUGS.indexOf(row.slug);
@@ -322,9 +332,21 @@ function selectFinding(db: Database): Finding | null {
   };
   const ordered = [...candidates].sort((a, b) => rank(a) - rank(b));
 
-  // Prefer unused; if every candidate has been used, wrap around (don't stall the composer).
-  const unused = ordered.filter((r) => !used.has(r.slug));
-  const pool = unused.length > 0 ? unused : ordered;
+  // Rotation window = one full cycle (candidate count), not "ever used" — see doc comment above.
+  const recentRows = db.query(
+    "SELECT finding_slug FROM daily_read_log WHERE finding_slug IS NOT NULL ORDER BY edition_n DESC LIMIT ?"
+  ).all([ordered.length]) as { finding_slug: string }[];
+  const recentlyUsed = new Set(recentRows.map((r) => r.finding_slug));
+
+  let pool = ordered.filter((r) => !recentlyUsed.has(r.slug));
+  if (pool.length === 0) {
+    // Every candidate appeared within the last full cycle. Exclude only the single most recent
+    // finding (guarantees no immediate back-to-back repeat) so rotation continues rather than
+    // collapsing to always-the-first-candidate.
+    const mostRecent = recentRows[0]?.finding_slug;
+    pool = ordered.filter((r) => r.slug !== mostRecent);
+    if (pool.length === 0) pool = ordered; // only one candidate exists at all
+  }
 
   for (const row of pool) {
     const materials = extractFindingMaterials(row.reportFile);
@@ -396,12 +418,21 @@ function composeMaterials(editionOverride?: number): MaterialsBrief {
   const avoidOpenings = getRecentOpenings(db, 3);
   db.close();
 
+  // P1 arc-strategy-panel fix (washington/quinn): "Stacks builders" narrowed the CTA against
+  // the quest's locked audience (agent operators broadly, not just Stacks). Findings here are
+  // general agent-infra topics as often as Stacks-specific — the CTA must not turn away the
+  // reader the hook just earned.
+  //
+  // P1 verification-pass fix: this line + the stats footer both live in ONE 240-char tweet
+  // (thread stays at 4 tweets total, matching the existing cap-check math in checkCap()/
+  // sensor.ts rather than growing to 5). The original combination overflowed to ~340 chars and
+  // silently truncated the CTA link out of the tweet entirely (caught only because the
+  // arc-strategy-panel wording fix above made the overflow worse and this re-verification pass
+  // measured the real length instead of assuming it fit). Kept intentionally terse.
   const ctaLine = [
     `Follow ${X_HANDLE} for the daily beat.`,
     ``,
-    `Free room for Stacks builders who want to feed agents real signal: ${FREE_ROOM_URL}`,
-    ``,
-    `No pitch. Just the signal.`,
+    `Free room for agent operators who want to feed their agents real signal: ${FREE_ROOM_URL}`,
   ].join("\n");
 
   return {
@@ -424,15 +455,33 @@ function composeMaterials(editionOverride?: number): MaterialsBrief {
 class VoiceDraftValidationError extends Error {}
 
 /**
- * P1: composeBeat now REQUIRES an LLM-authored voice draft for tweets 1-3 (the findings-first
- * lede + so-what + continuity). Tweet 4 (footer/CTA) is always assembled deterministically here
- * in code from the materials brief — never LLM-authored — so the stats + free-room link can
- * never drift or be hallucinated. This function does not call an LLM; it validates a draft that
- * was authored elsewhere (the dispatch-cycle LLM turn, gated by SOUL.md).
+ * Load the FROZEN materials brief that `materials` wrote to disk, rather than recomputing it.
+ *
+ * P1 dev-council fix (kleppmann/newman/hohpe): the original design called composeMaterials()
+ * again inside composeBeat(), re-selecting the finding and re-running the chart queries — a
+ * TOCTOU gap where the draft could be validated against different facts than the drafter saw
+ * (e.g. if a new daily_read_log row landed between `materials` and `post`, finding-selection
+ * could shift and a truthful draft would spuriously fail citation validation). Reading back the
+ * frozen file also doubles as the "did materials actually run for this edition" check Hohpe
+ * asked for: a missing file fails loudly instead of silently recomputing.
  */
-function composeBeat(voiceDraft: VoiceDraft, editionOverride?: number): Beat {
-  const brief = composeMaterials(editionOverride);
+function loadMaterialsBrief(path: string): MaterialsBrief {
+  const fs = require("fs");
+  if (!fs.existsSync(path)) {
+    throw new VoiceDraftValidationError(`no materials brief at ${path} — run 'materials' (not --dry-run) before drafting/posting`);
+  }
+  return JSON.parse(fs.readFileSync(path, "utf-8")) as MaterialsBrief;
+}
 
+/**
+ * P1: composeBeat now REQUIRES an LLM-authored voice draft for tweets 1-3 (the findings-first
+ * lede + so-what + continuity), validated against the FROZEN materials brief `materials` wrote
+ * (see loadMaterialsBrief doc comment — not recomputed here). Tweet 4 (footer/CTA) is always
+ * assembled deterministically here in code from the brief — never LLM-authored — so the stats +
+ * free-room link can never drift or be hallucinated. This function does not call an LLM; it
+ * validates a draft that was authored elsewhere (the dispatch-cycle LLM turn, gated by SOUL.md).
+ */
+function composeBeat(brief: MaterialsBrief, voiceDraft: VoiceDraft): Beat {
   if (!brief.finding) {
     throw new VoiceDraftValidationError("no eligible finding available (research/INDEX.md parse returned nothing usable)");
   }
@@ -456,11 +505,19 @@ function composeBeat(voiceDraft: VoiceDraft, editionOverride?: number): Beat {
   }
 
   // Tweet 4: deterministic footer/appendix — stats + CTA, moved OFF the lede per P1 phase goal.
+  // Kept terse deliberately: this tweet must also carry the CTA link in the same 240 chars, and
+  // the full annotated sparkline text (renderChartText) doesn't fit alongside it — see the
+  // ctaLine comment above for the overflow this was fixed from.
   const tweet4 = [
-    `${brief.statsFooter.totalArtifacts} research passes in my pipeline this cycle (${brief.statsFooter.thisWeekCount} this week, ${brief.statsFooter.sparklineText}). Full beat: Arc's Daily Read — Edition ${brief.editionN}.`,
+    `${brief.statsFooter.totalArtifacts} research passes in my pipeline, ${brief.statsFooter.thisWeekCount} this week. Edition ${brief.editionN}.`,
     ``,
     brief.ctaLine,
-  ].join("\n").slice(0, 240);
+  ].join("\n");
+  if (tweet4.length > 240) {
+    // Should be unreachable given the fixed-length fields above, but fail loudly rather than
+    // silently truncate the CTA link out of the tweet again.
+    throw new VoiceDraftValidationError(`deterministic tweet 4 (footer+CTA) exceeds 240 chars (${tweet4.length}) — shorten the footer/CTA template, do not let this silently truncate`);
+  }
 
   return {
     tweets: [tweet1, tweet2, tweet3, tweet4],
@@ -670,6 +727,33 @@ async function sendAmplificationEmail(
 
 // ---------- Logging ----------
 
+/**
+ * P1 dev-council fix (lamport/kleppmann): claim this edition_n BEFORE posting any tweets, via a
+ * plain INSERT (not OR REPLACE) against the edition_n PRIMARY KEY. This is the linearization
+ * point: if two invocations ever compute the same next-edition number (a near-simultaneous
+ * retry/race), only the first INSERT wins — the second hits a PK conflict and this function
+ * returns false, so the caller aborts BEFORE posting instead of double-posting identical tweets.
+ * `logBeat` below then only UPDATEs this already-claimed row to finalize it after posting
+ * succeeds — it never INSERTs, so a crash after posting but before finalize leaves a detectable
+ * claimed-but-unfinalized row (finding_slug set, tweet_id/posted_at NULL) rather than silently
+ * allowing a full repost. (A stricter fix — checkpointing per-tweet post state so a crash mid-
+ * thread can safely resume — is out of scope for this phase; flagged as a carry-forward.)
+ */
+function claimEdition(db: Database, editionN: number, findingSlug: string | null, openingLine: string | null): boolean {
+  try {
+    db.run(
+      `INSERT INTO daily_read_log (edition_n, beat_source, finding_slug, opening_line) VALUES (?, ?, ?, ?)`,
+      [editionN, `daily-read:${editionN}`, findingSlug, openingLine]
+    );
+    return true;
+  } catch (err) {
+    const msg = String(err);
+    if (msg.includes("UNIQUE constraint") || msg.includes("PRIMARY KEY")) return false;
+    throw err;
+  }
+}
+
+/** Finalize an already-claimed edition_n row (see claimEdition) with posting results. */
 function logBeat(
   db: Database,
   editionN: number,
@@ -681,14 +765,12 @@ function logBeat(
   const tweetUrl = tweetId ? `https://x.com/${X_HANDLE.slice(1)}/status/${tweetId}` : null;
 
   db.run(
-    `INSERT OR REPLACE INTO daily_read_log
-     (edition_n, beat_source, tweet_id, root_tweet_url, thesis_carried, what_got_wrong,
-      chart_data, amplification_email_sent, amplification_email_sent_at, organic_reach_snapshot, posted_at,
-      finding_slug, opening_line)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `UPDATE daily_read_log SET
+       tweet_id = ?, root_tweet_url = ?, thesis_carried = ?, what_got_wrong = ?,
+       chart_data = ?, amplification_email_sent = ?, amplification_email_sent_at = ?,
+       organic_reach_snapshot = ?, posted_at = ?
+     WHERE edition_n = ?`,
     [
-      editionN,
-      `daily-read:${editionN}`,
       tweetId,
       tweetUrl,
       beat.thesis,
@@ -698,8 +780,7 @@ function logBeat(
       emailSent ? new Date().toISOString() : null,
       JSON.stringify({ follower_count_at_post: 51 }), // P2 baseline; updated when live X pull is available
       postedAt,
-      beat.findingSlug,
-      beat.openingLine,
+      editionN,
     ]
   );
 }
@@ -778,8 +859,10 @@ async function cmdCompose(dryRun: boolean, voiceFilePath?: string) {
     console.log("DEFERRED: no --voice-file provided. Run `materials` first, draft the beat in Arc's voice, then `compose --voice-file <path>`.");
     return;
   }
+  const editionN = getEditionN();
+  const brief = loadMaterialsBrief(join(MATERIALS_DIR, `edition-${editionN}.json`));
   const voiceDraft = loadVoiceDraft(voiceFilePath);
-  const beat = composeBeat(voiceDraft);
+  const beat = composeBeat(brief, voiceDraft);
 
   console.log(`\nEdition: ${beat.editionN}`);
   console.log(`Finding: ${beat.findingSlug}`);
@@ -846,8 +929,10 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
 
   let beat: Beat;
   try {
+    const editionN = getEditionN();
+    const brief = loadMaterialsBrief(join(MATERIALS_DIR, `edition-${editionN}.json`));
     const voiceDraft = loadVoiceDraft(voiceFilePath);
-    beat = composeBeat(voiceDraft);
+    beat = composeBeat(brief, voiceDraft);
   } catch (err) {
     if (err instanceof VoiceDraftValidationError) {
       console.log(`DEFERRED: voice draft failed validation — ${err.message}`);
@@ -856,6 +941,20 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
     throw err;
   }
   const postedAt = new Date().toISOString();
+
+  // Claim this edition_n BEFORE posting anything — the linearization point (see claimEdition
+  // doc comment). Skipped in --dry-run so test runs never mutate daily_read_log.
+  if (!dryRun) {
+    const claimDb = getDb();
+    const claimed = claimEdition(claimDb, beat.editionN, beat.findingSlug, beat.openingLine);
+    claimDb.close();
+    if (!claimed) {
+      console.log(`SKIPPED: edition ${beat.editionN} already claimed in daily_read_log (concurrent run or retry) — aborting to avoid double-post`);
+      process.exit(0);
+    }
+  } else {
+    console.log(`[DRY-RUN] Would claim edition ${beat.editionN} in daily_read_log before posting (skipped for dry-run)`);
+  }
 
   console.log(`\nEdition ${beat.editionN} | ${cap.slotsRemaining} slots available`);
   console.log("Posting 4-tweet beat...");
