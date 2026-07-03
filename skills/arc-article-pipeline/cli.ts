@@ -218,16 +218,26 @@ function selectFinding(db: Database, slugOverride?: string): Finding | null {
   };
   const ordered = [...candidates].sort((a, b) => rank(a) - rank(b));
 
-  const recentRows = db.query(
-    "SELECT finding_slug FROM article_queue_log WHERE finding_slug IS NOT NULL ORDER BY article_n DESC LIMIT ?"
-  ).all([ordered.length]) as { finding_slug: string }[];
-  const recentlyUsed = new Set(recentRows.map((r) => r.finding_slug));
+  const recentRows = getRecentSlugRows(db, ordered.length);
+  const recentlyUsed = new Set(recentRows);
 
   let pool = ordered.filter((r) => !recentlyUsed.has(r.slug));
   if (pool.length === 0) {
-    const mostRecent = recentRows[0]?.finding_slug;
-    pool = ordered.filter((r) => r.slug !== mostRecent);
-    if (pool.length === 0) pool = ordered;
+    // P2 dev-council fix (lamport): the original fallback excluded only the single
+    // most-recent slug, which for a small candidate pool (e.g. N=3) produces a repeat at
+    // gap=2 (…A,_,A,_…) — well inside one rotation cycle, not the "no repeat within a full
+    // cycle" property the design intends. Shrink the exclusion window progressively from
+    // the full recent history down to 1 until a candidate survives, instead of jumping
+    // straight to "exclude only the last one."
+    for (let k = recentRows.length; k >= 1; k--) {
+      const excludeSet = new Set(recentRows.slice(0, k));
+      const candidatePool = ordered.filter((r) => !excludeSet.has(r.slug));
+      if (candidatePool.length > 0) {
+        pool = candidatePool;
+        break;
+      }
+    }
+    if (pool.length === 0) pool = ordered; // only one candidate exists at all
   }
 
   for (const row of pool) {
@@ -243,10 +253,20 @@ function getArticleN(db: Database): number {
   return (row?.max_n ?? 0) + 1;
 }
 
-function getRecentSlugs(db: Database, n: number = 5): string[] {
+/**
+ * P2 dev-council fix (hohpe): `selectFinding()`'s rotation exclusion and the materials brief's
+ * `avoidSlugs` (informational, shown to the drafting LLM) were computed via two independently
+ * sized queries (rotation used `ordered.length`, avoidSlugs used a hardcoded 5) — a dual
+ * source of truth for "recent" that could disagree (for small candidate pools, avoidSlugs
+ * could be WIDER than the rotation's actual exclusion, so `validateDraft()`'s avoidSlugs check
+ * could reject a finding `selectFinding()` legitimately, correctly chose). Both callers now
+ * share this one function with the same window size (the live candidate count), so the two
+ * checks can no longer diverge.
+ */
+function getRecentSlugRows(db: Database, windowSize: number): string[] {
   const rows = db.query(
     "SELECT finding_slug FROM article_queue_log WHERE finding_slug IS NOT NULL ORDER BY article_n DESC LIMIT ?"
-  ).all([n]) as { finding_slug: string }[];
+  ).all([windowSize]) as { finding_slug: string }[];
   return rows.map((r) => r.finding_slug);
 }
 
@@ -273,7 +293,11 @@ function composeMaterials(articleOverride?: number, slugOverride?: string): Mate
   const articleN = articleOverride ?? getArticleN(db);
   const finding = selectFinding(db, slugOverride);
   const introStyle = chooseIntroStyle(articleN);
-  const avoidSlugs = getRecentSlugs(db, 5);
+  // Same window size selectFinding() uses internally (candidate count) — see
+  // getRecentSlugRows()'s doc comment (hohpe P2 fix) for why this must not be a different
+  // hardcoded number.
+  const candidateCount = Math.max(parseIndexCandidates().length, 1);
+  const avoidSlugs = getRecentSlugRows(db, candidateCount);
   db.close();
 
   return {
@@ -415,21 +439,36 @@ function buildXCtaTweet(postId: string, finding: Finding): string {
 
 // ---------- Claim (linearization, before any side effects) ----------
 
-function claimArticle(db: Database, articleN: number, finding: Finding): boolean {
+type ClaimResult = "claimed" | "resume" | "already-staged";
+
+/**
+ * P2 dev-council fix (kleppmann/lamport, both flagged this as the top finding): the original
+ * design treated ANY existing row as a hard abort ("already claimed, retry-safe abort"). But
+ * `status='staging'` is not a terminal state — it means "claimed, side effects in progress OR
+ * crashed mid-flight," and the code had no way to tell those apart, permanently wedging an
+ * article number if `stage` died between the claim and `finalizeArticle`. Only `status='staged'`
+ * is genuinely terminal (finished, do not redo). A `status='staging'` row is now a RESUME
+ * signal, not an abort signal — `cmdStage` re-attempts the side effects (createBlogDraft /
+ * writeBlogBody / deployPreview are all safe to re-run for the same slug: blog-publishing's
+ * `create` warns-and-continues on an existing directory rather than crashing, and the preview
+ * build/deploy is naturally idempotent — same content in, same site out).
+ */
+function claimArticle(db: Database, articleN: number, finding: Finding): ClaimResult {
+  const existing = db.query("SELECT status FROM article_queue_log WHERE article_n = ?").get([articleN]) as { status: string } | null;
+  if (existing) {
+    return existing.status === "staged" ? "already-staged" : "resume";
+  }
   try {
     db.run(
       `INSERT INTO article_queue_log (article_n, finding_slug, status, hook, file_line) VALUES (?, ?, 'staging', ?, ?)`,
       [articleN, finding.slug, finding.hook, finding.fileLine]
     );
-    return true;
+    return "claimed";
   } catch (err) {
     const msg = String(err);
-    if (msg.includes("UNIQUE constraint") || msg.includes("PRIMARY KEY")) {
-      // Resumable: a prior attempt claimed the row but failed before finalizeArticle
-      // (e.g. preview build error). Only 'staged' (fully finalized) blocks a retry.
-      const row = db.query("SELECT status FROM article_queue_log WHERE article_n = ?").get(articleN) as { status: string } | undefined;
-      return row?.status === "staging";
-    }
+    // Lost a race against a concurrent claimer between the SELECT above and this INSERT —
+    // treat identically to finding it already existed.
+    if (msg.includes("UNIQUE constraint") || msg.includes("PRIMARY KEY")) return "resume";
     throw err;
   }
 }
@@ -451,7 +490,12 @@ async function runCommand(command: string[], cwd: string, env?: Record<string, s
 }
 
 function slugify(text: string): string {
-  return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+  // P2 fix (found live, 2026-07-03): the original regex DELETED punctuation instead of
+  // replacing it with a separator, so a title containing a file:line citation like
+  // "dispatch.ts:137-149" collapsed to the illegible "dispatchts137-149" (dot and colon
+  // vanished with no boundary left behind). Convert any run of non-alphanumeric characters
+  // to a single hyphen instead, so word boundaries survive.
+  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 function resolveFnmBinDir(): string {
@@ -479,20 +523,6 @@ function resolveNodeBin(bin: string, fnmBinDir: string): string {
  * called by this pipeline) syncs a post into src/content/docs/blog/, which is the only
  * directory the deployed site actually serves.
  */
-function findExistingBlogDraft(slug: string): { postId: string; indexPath: string } | null {
-  const contentDir = join(LIVE_SITE_DIR, "content");
-  if (!fs.existsSync(contentDir)) return null;
-  for (const year of fs.readdirSync(contentDir)) {
-    const yearDir = join(contentDir, year);
-    if (!fs.statSync(yearDir).isDirectory()) continue;
-    for (const date of fs.readdirSync(yearDir)) {
-      const indexPath = join(yearDir, date, slug, "index.md");
-      if (fs.existsSync(indexPath)) return { postId: `${date}-${slug}`, indexPath };
-    }
-  }
-  return null;
-}
-
 async function createBlogDraft(title: string, slug: string, tags: string[]): Promise<{ postId: string; indexPath: string }> {
   const args = ["skills", "run", "--name", "blog-publishing", "--", "create", "--title", title, "--slug", slug];
   if (tags.length > 0) args.push("--tags", tags.join(","));
@@ -526,19 +556,69 @@ async function ensurePreviewSiteCopy(): Promise<void> {
   if (fs.existsSync(PREVIEW_SITE_DIR)) return;
   log(`no preview scratch copy yet — rsyncing ${LIVE_SITE_DIR} -> ${PREVIEW_SITE_DIR} (one-time, ~1.3GB)`);
   fs.mkdirSync(join(ARC_STARTER_ROOT, "db/article-pipeline-preview"), { recursive: true });
+  // P2 dev-council fix (kleppmann): rsync into a temp dir and atomically rename into place —
+  // existsSync() on PREVIEW_SITE_DIR would otherwise flip true the instant mkdirSync runs,
+  // before rsync finishes, letting a concurrent stage build against a half-populated tree.
+  const tmpDir = `${PREVIEW_SITE_DIR}.rsync-tmp-${process.pid}`;
   const result = await runCommand(
-    ["rsync", "-a", "--exclude=/.git", "--exclude=/dist", `${LIVE_SITE_DIR}/`, `${PREVIEW_SITE_DIR}/`],
+    ["rsync", "-a", "--exclude=.git", "--exclude=dist", `${LIVE_SITE_DIR}/`, `${tmpDir}/`],
     ARC_STARTER_ROOT
   );
   if (result.exitCode !== 0) throw new Error(`rsync preview copy failed: ${result.stderr}`);
+  if (fs.existsSync(PREVIEW_SITE_DIR)) {
+    // Another process won the race and finished first — discard our copy, keep theirs.
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    return;
+  }
+  fs.renameSync(tmpDir, PREVIEW_SITE_DIR);
+}
+
+const BUILD_LOCK_PATH = join(ARC_STARTER_ROOT, "db/article-pipeline-preview/.build-lock");
+
+/**
+ * P2 dev-council fix (kleppmann/hohpe): the preview build directory is shared mutable state —
+ * two overlapping `stage` calls running `npm run build` in the same directory would collide on
+ * `dist/` and produce a nondeterministic deploy. The dispatch engine's systemd-timer model
+ * (fresh process, exits before the next fires) makes this latent today, not impossible
+ * (Newman/Hohpe both flagged "true by accident, not by contract"). A simple exclusive lockfile
+ * makes the assumption explicit and enforced instead of implicit.
+ */
+async function withBuildLock<T>(fn: () => Promise<T>): Promise<T> {
+  fs.mkdirSync(join(ARC_STARTER_ROOT, "db/article-pipeline-preview"), { recursive: true });
+  let fd: number;
+  try {
+    fd = fs.openSync(BUILD_LOCK_PATH, "wx");
+  } catch {
+    throw new Error(`preview build lock held (${BUILD_LOCK_PATH} exists) — another stage is mid-build/deploy. Retry once it finishes.`);
+  }
+  fs.writeSync(fd, String(process.pid));
+  fs.closeSync(fd);
+  try {
+    return await fn();
+  } finally {
+    fs.rmSync(BUILD_LOCK_PATH, { force: true });
+  }
 }
 
 async function deployPreview(postId: string, mdxContent: string): Promise<string> {
+  return withBuildLock(() => deployPreviewLocked(postId, mdxContent));
+}
+
+async function deployPreviewLocked(postId: string, mdxContent: string): Promise<string> {
   await ensurePreviewSiteCopy();
+
+  // P2 fix (found live, 2026-07-03): Starlight/Astro's docs collection does not generate an
+  // HTML page for a `draft: true` entry at all (only the custom listing pages were filtering
+  // it — individual page ROUTING skips it too, confirmed by two live preview deploys 404ing
+  // despite a successful build). The scratch preview copy is isolated, non-git, and only ever
+  // deployed to the `staging` workers.dev subdomain (never `arc0.me`) — flipping draft:false
+  // in THIS COPY ONLY (never the canonical content/ source file `stage` read it from) is safe
+  // and is what actually makes "?a=wb-amp preview URL (200)" possible.
+  const previewMdx = mdxContent.replace(/^draft:\s*true/m, "draft: false");
 
   const blogDocsDir = join(PREVIEW_SITE_DIR, "src/content/docs/blog");
   fs.mkdirSync(blogDocsDir, { recursive: true });
-  fs.writeFileSync(join(blogDocsDir, `${postId}.mdx`), mdxContent);
+  fs.writeFileSync(join(blogDocsDir, `${postId}.mdx`), previewMdx);
 
   const { getCloudflareCredentials } = await import(join(ARC_STARTER_ROOT, "src/cloudflare.ts"));
   const { creds, error } = await getCloudflareCredentials();
@@ -612,18 +692,20 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   }
 
   const db = getDb();
-  const claimed = claimArticle(db, articleN, finding);
-  if (!claimed) {
-    console.error(`Article ${articleN} was already claimed (retry-safe abort) — check status.`);
+  const claim = claimArticle(db, articleN, finding);
+  if (claim === "already-staged") {
+    console.error(`Article ${articleN} is already staged — nothing to do (idempotent no-op, not an error).`);
     db.close();
-    process.exit(1);
+    return;
+  }
+  if (claim === "resume") {
+    console.log(`Article ${articleN} was claimed but not finalized (a prior 'stage' run was interrupted) — resuming, not aborting.`);
   }
 
   const slug = slugify(draft.blogTitle);
   const tags = [finding.slug.split("-")[0]].filter(Boolean);
-  const existing = findExistingBlogDraft(slug);
-  const { postId, indexPath } = existing ?? (await createBlogDraft(draft.blogTitle, slug, tags));
-  console.log(existing ? `Reusing existing blog draft from prior attempt: ${postId} (${indexPath})` : `Created blog draft: ${postId} (${indexPath})`);
+  const { postId, indexPath } = await createBlogDraft(draft.blogTitle, slug, tags);
+  console.log(`Created blog draft: ${postId} (${indexPath})`);
 
   const closing = buildBlogClosing(finding, postId);
   writeBlogBody(indexPath, draft.blogTitle, draft.blogBody, closing);
@@ -668,6 +750,42 @@ async function cmdStatus(): Promise<void> {
   console.log(JSON.stringify(rows, null, 2));
 }
 
+/**
+ * Operational command: re-run the isolated preview build+deploy for an already-staged article,
+ * reading its CANONICAL content/ source (never the scratch copy) so the preview always reflects
+ * the current on-disk draft. Idempotent — safe to run any time a preview URL needs refreshing
+ * (e.g. after a `deployPreview` bug fix, as happened live 2026-07-03: the first two staged
+ * articles' preview_urls 404'd because the scratch copy still had `draft: true`, which
+ * Starlight's page routing skips entirely, not just its listing pages).
+ */
+async function cmdFixPreview(articleN: number): Promise<void> {
+  const db = getDb();
+  const row = db.query("SELECT post_id FROM article_queue_log WHERE article_n = ?").get([articleN]) as { post_id: string } | null;
+  db.close();
+  if (!row?.post_id) {
+    console.error(`Article ${articleN} has no post_id on record (not staged yet?) — nothing to redeploy.`);
+    process.exit(1);
+  }
+  const postId = row.post_id;
+  const date = postId.substring(0, 10);
+  const year = date.substring(0, 4);
+  const slug = postId.substring(11);
+  const indexPath = join(LIVE_SITE_DIR, "content", year, date, slug, "index.md");
+  if (!fs.existsSync(indexPath)) {
+    console.error(`Canonical source not found at ${indexPath}`);
+    process.exit(1);
+  }
+  const content = fs.readFileSync(indexPath, "utf-8");
+  const previewBase = await deployPreview(postId, content);
+  const previewPostUrl = `${previewBase}/blog/${postId}/`;
+
+  const db2 = getDb();
+  db2.run("UPDATE article_queue_log SET preview_url = ? WHERE article_n = ?", [previewPostUrl, articleN]);
+  db2.close();
+
+  console.log(JSON.stringify({ success: true, article_n: articleN, post_id: postId, preview_url: previewPostUrl }, null, 2));
+}
+
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
@@ -695,6 +813,13 @@ async function main() {
       break;
     case "status":
       await cmdStatus();
+      break;
+    case "fix-preview":
+      if (articleOverride === undefined) {
+        console.error("Usage: bun cli.ts fix-preview --article <N>");
+        process.exit(1);
+      }
+      await cmdFixPreview(articleOverride);
       break;
     default:
       console.log("Usage: bun cli.ts <materials|stage|status> [--article N] [--slug <slug>] [--dry-run]");
