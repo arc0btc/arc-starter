@@ -494,3 +494,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T17:25:38.068Z | task #20952 | completed | sonnet | Draft Arc's next amplified article — Article 1 | Staged article 2 (memory-hygiene near-miss: MEMORY.md 192/200-line cliff + agent
 2026-07-03T17:26:07.083Z | task #20953 | completed | haiku | New release: anthropics/claude-code v2.1.200 | Triage: highly relevant. Escalated to Phase 2 (task #20955). Background session 
 2026-07-03T17:27:40.634Z | task #20955 | completed | sonnet | Deep research: anthropics/claude-code v2.1.200 | v2.1.200: background-session stability cluster validates Arc's 24/7 dispatch mod
+2026-07-03T17:29:45.809Z | task #20957 | completed | sonnet | Evaluate hardening db/dispatch-lock.json stale-lock detectio | Confirmed real gap: single-node dispatch-lock isPidAlive() alone can't detect PI
