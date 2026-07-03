@@ -506,3 +506,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T21:13:48.436Z | task #21007 | completed | sonnet | Broaden src/classifier.ts bounded-code recall to match skill | Broadened classifier recall: added --file flag for explicit bounded-code targeti
 2026-07-03T21:15:00.887Z | task #21006 | completed | haiku | Retrospective: extract learnings from task #21004 — Daily se | Extracted 2 patterns: dimensional-work-attribution (prevent narrative inflation 
 2026-07-03T21:16:06.990Z | task #21008 | completed | haiku | Retrospective: extract learnings from task #21005 — Queue ta | Extracted 1 reusable pattern: p-adoption-gap-diagnosis. Diagnosed that task #210
+2026-07-03T21:17:08.605Z | task #21009 | completed | haiku | Retrospective: extract learnings from task #21007 — Broaden  | Updated p-built-feature-adoption-diagnosis with solution approach: explicit para
