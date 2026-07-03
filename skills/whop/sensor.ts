@@ -8,13 +8,13 @@
 //    Whop App routes (/whop/discover, /whop/experience/*, /whop/dashboard/*) show
 //    a liveness footer without requiring SSR.
 //
-// 2. BLOG → PAID-CHAT HOT-TOPIC (gated, 360min cadence)
-//    Detects the newest published arc0.me blog post and queues ONE sonnet dispatch
-//    task to distill it into a hot-topic for the hash-it-out chat room.
-//    GATE: disabled by default. Flip WHOP_SENSOR_ENABLED to true only after:
-//      a. the company API key is scoped `chat:message:create` (POST /v1/messages),
-//      b. the first hot-topic has landed and whoabuddy approved the voice, and
-//      c. whoabuddy signed off on a recurring auto-post cadence.
+// 2. RETIRED (P5 arc-demand-flywheel, 2026-07-03) — this slot was "BLOG → PAID-CHAT
+//    HOT-TOPIC", gated behind a hardcoded `WHOP_SENSOR_ENABLED = false` const (never
+//    an env var, so it could never actually be flipped on without a code edit — dead
+//    since inception) awaiting a key-scope + voice sign-off that never happened.
+//    Removed: superseded by the live blog → forum/chat fanout pipeline (5 snippets →
+//    5 Nostr notes + public-forum/whop-forum threads per post). Its per-cycle
+//    "disabled" log line is gone with it.
 //
 // 3. REACTIVE REPLY LANE (gated, 5min cadence)  →  pollWhopReplies()
 //    Polls /api/v1/messages, runs whyReply() with anti-spiral guards, queues
@@ -68,9 +68,6 @@ import {
 } from "../../src/artifacts.ts";
 
 const SENSOR_NAME = "whop";
-// Check on a ~6h cadence; actual posting is naturally throttled by new blog
-// posts plus durable per-slug dedup, matching arc0.me's 3-7d freshness.
-const INTERVAL_MINUTES = 360;
 
 const STATE_WRITER_SENSOR_NAME = "whop-state-writer";
 const STATE_WRITER_INTERVAL_MINUTES = 60;
@@ -101,15 +98,7 @@ const ARC0ME_SITE_CANDIDATES = [
 ];
 const WHOP_STATE_REL = "src/data/whop-state.json";
 
-// Human-review gate. See header. Until true, the sensor self-logs and skips.
-const WHOP_SENSOR_ENABLED = false;
-
-// Only consider a post published within this window — avoids spamming the room
-// with backlog the first time the gate is opened, and avoids re-posting stale work.
-const FRESH_WINDOW_DAYS = 7;
-
 const BLOG_DIR = resolve(import.meta.dir, "../../github/arc0btc/arc0me-site/src/content/docs/blog");
-const BLOG_BASE_URL = "https://arc0.me/blog";
 
 const PATTERNS_FILE = resolve(import.meta.dir, "../../memory/patterns.md");
 const PATTERNS_STATE_FILE = resolve(import.meta.dir, "../../db/patterns-library-state.json");
@@ -174,14 +163,6 @@ function newestPublishedPost(): BlogPost | null {
     if (!post.draft) return post;
   }
   return null;
-}
-
-function withinFreshWindow(publishedAt: string | null): boolean {
-  if (!publishedAt) return false;
-  const published = Date.parse(publishedAt);
-  if (Number.isNaN(published)) return false;
-  const ageDays = (Date.now() - published) / (1000 * 60 * 60 * 24);
-  return ageDays >= 0 && ageDays <= FRESH_WINDOW_DAYS;
 }
 
 /** Write arc0me-site/src/data/whop-state.json with live agent stats. */
@@ -1512,57 +1493,9 @@ export default async function whopSensor(): Promise<string> {
     }
   }
 
-  // --- Part 2: blog → chat hot-topic (gated) ---
-  if (!WHOP_SENSOR_ENABLED) {
-    // Self-gate so the line is visible in sensor logs without burning a claim.
-    log("disabled (WHOP_SENSOR_ENABLED=false) — awaiting key scope + voice sign-off");
-    return result;
-  }
-
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return result;
-
-  const post = newestPublishedPost();
-  if (!post) {
-    log("no published blog post found");
-    return result;
-  }
-
-  if (!withinFreshWindow(post.publishedAt)) {
-    log(`newest post '${post.slug}' is outside the ${FRESH_WINDOW_DAYS}d fresh window — skip`);
-    return result;
-  }
-
-  // Durable dedup: one hot-topic per blog slug, ever (checks all task statuses).
-  const source = `sensor:whop:${post.slug}`;
-  if (taskExistsForSource(source)) {
-    log(`already queued/posted a hot-topic for '${post.slug}' — skip`);
-    return result;
-  }
-
-  const url = `${BLOG_BASE_URL}/${post.slug}`;
-  const taskId = insertTask({
-    subject: `Whop hot-topic: distill "${post.title}" into the hash-it-out chat room`,
-    description: [
-      `New blog post detected: "${post.title}"`,
-      url,
-      "",
-      "Compose ONE hot-topic for the paid 'AI Prefers Bitcoin' chat room (hash-it-out):",
-      "a single structural pull-quote plus one genuine open question for the room.",
-      "Voice: arc-brand-voice + SOUL — add information, ask a real question, or make",
-      "someone want to respond. No platitudes, no ship-log spam. Link the post.",
-      "",
-      "Post via:",
-      `  arc skills run --name whop -- post-chat --content "<markdown>"`,
-      "(uses the stored chat_channel_id). post-chat is non-idempotent — if re-dispatched,",
-      "confirm the room does not already have this hot-topic before re-posting.",
-    ].join("\n"),
-    skills: JSON.stringify(["whop", "arc-brand-voice"]),
-    priority: 4,
-    model: "sonnet",
-    source,
-  });
-
-  log(`queued task ${taskId} — hot-topic for '${post.slug}'`);
-  return "ok";
+  // Part 2 ("blog → chat hot-topic") retired here — see the file header note
+  // above Part 1 (P5 arc-demand-flywheel, 2026-07-03): it was dead code behind
+  // a hardcoded-false, non-env-var flag and is superseded by the live blog →
+  // forum/chat fanout pipeline.
+  return result;
 }
