@@ -431,3 +431,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T02:40:06.981Z | task #20897 | completed | haiku | Retrospective: extract learnings from task #20894 — architec | Updated p-audit-completeness to document INDEX.md orphan-check duplication as 2n
 2026-07-03T02:40:46.772Z | task #20898 | completed | haiku | Retrospective: extract learnings from task #20895 — workflow | Updated p-formalization-timing-by-complexity: organic fan-out chains (retrospect
 2026-07-03T02:41:38.611Z | task #20896 | completed | haiku | architect: fix AGENT.md CLI example — 'arc skills run --name | Fixed CLI examples in SKILL.md and AGENT.md to use correct skill name arc-archit
+2026-07-03T02:55:07.328Z | task #20899 | blocked | haiku | Fetch and compile arXiv digest — 2026-07-03 (30 new papers) | arXiv API rate limit (429) — external blocker, will retry next sensor cycle
