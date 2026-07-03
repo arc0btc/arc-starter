@@ -123,19 +123,90 @@ export function forumPostToMessage(p: ForumPost): ChatMessage {
   };
 }
 
+// ---- Spam/bot filtering (P5 arc-demand-flywheel, 2026-07-03) ---------------
+//
+// P0 baseline confirmed db/whop-leads.json's 13 candidates were ~92% spam/noise
+// (memory: whop-sales-give-3x-blocks-fresh-leads.md, "expect ~1 genuine signal
+// per ~12 raw candidates"). Two real content shapes account for it, both drawn
+// from the live store: (1) generic ad-spam copy ("ZERO CREATIVE BLOCKS
+// FOREVER...", "Master the Art of Intentional Dating...") posted as forum
+// replies that happen to thread under an Arc post, and (2) X "reply-chain
+// noise" — a multi-@-mention group-thread pile-on where @arc0btc is one of many
+// tags and the actual content is a few words/emoji (e.g. "@Piplord_10 @Stacks
+// @3hunnatheArtist @GrimaldoRemade @PeaceLoveMusicG @MarkKilaghbian @NycanWeb3
+// @arc0btc Dude this is a..."). Filtering happens at FOLD TIME — before a
+// record ever enters the store — so the pool doesn't need retroactive cleanup
+// on every refresh (see skills/whop-sales/lib/reclassify-existing-leads.ts for
+// the one-time pass over what already got in before this filter existed).
+//
+// Deliberately content/structure-based, not account-age-based: neither the
+// forum API nor the X mentions fetch used here exposes account-creation date
+// without an extra, budget-costed lookup call per candidate — not worth
+// spending read budget on accounts that are filtered out anyway. This is a
+// starting set, not exhaustive (CHECKPOINTS.md default, non-blocking): expand
+// the phrase list as new spam shapes are observed.
+const SPAM_PHRASE_PATTERNS: RegExp[] = [
+  /\bzero creative blocks\b/i,
+  /\bmaster the art of\b/i,
+  /\btransform your\b.*\b(life|dating|business)\b/i,
+  /\bskills pay the bills\b/i,
+  /\breply ['"]?i'?m in['"]?\b/i,
+  /\bfirst \d+ get\b/i,
+  /\b(dm|message) me\b.*\b(link|guide|access)\b/i,
+];
+
+function matchesSpamPhrase(content: string): boolean {
+  return SPAM_PHRASE_PATTERNS.some((re) => re.test(content));
+}
+
+/** A short multi-@-mention reply with almost no content beyond the tags/emoji
+ * is a group-thread pile-on, not a substantive engagement signal — e.g. seven
+ * @-mentions and three words of actual text. */
+function isReplyChainNoise(content: string): boolean {
+  const mentions = (content.match(/@\w+/g) ?? []).length;
+  const withoutMentions = content.replace(/@\w+/g, "").trim();
+  return mentions >= 3 && withoutMentions.length < 40;
+}
+
+/** Two-plus emoji-numeral markers (1️⃣ 2️⃣ 3️⃣...) is a scripted step-by-step drip
+ * format used by bot campaigns (live example: "Build flow: 1️⃣ Fork ... 2️⃣ npx
+ * ... 3️⃣ Build one DeFi skil…" — same account also sent the two phrase-matched
+ * messages this pattern is paired with in db/whop-leads.json). */
+function hasEmojiNumberedListSpam(content: string): boolean {
+  const matches = content.match(/[0-9]️?⃣/g) ?? [];
+  return matches.length >= 2;
+}
+
+export function isLikelySpam(content: string): { spam: boolean; reason: string | null } {
+  if (!content) return { spam: false, reason: null };
+  if (matchesSpamPhrase(content)) return { spam: true, reason: "ad_spam_phrase" };
+  if (isReplyChainNoise(content)) return { spam: true, reason: "reply_chain_noise" };
+  if (hasEmojiNumberedListSpam(content)) return { spam: true, reason: "emoji_numbered_list_spam" };
+  return { spam: false, reason: null };
+}
+
 /**
  * Fold a batch of free-forum posts (top-level posts AND comments) into the lead
- * store. ADVISORS are dropped before mapping so they never enter the store. Arc
- * authorship MUST stay in the batch — updateFromMessages needs it to attribute
- * "replied to Arc" (Class A); Arc + operator are filtered downstream by the
- * sensor's NON_PROSPECT gate. Idempotent by post id. Returns user_ids touched.
+ * store. ADVISORS are dropped before mapping so they never enter the store.
+ * Spam/ad-copy and reply-chain noise (isLikelySpam) are dropped before mapping
+ * too (P5) — they never reach updateFromMessages, so they never become a lead.
+ * Arc authorship MUST stay in the batch — updateFromMessages needs it to
+ * attribute "replied to Arc" (Class A); Arc + operator are filtered downstream
+ * by the sensor's NON_PROSPECT gate. Idempotent by post id. Returns user_ids
+ * touched.
  */
 export function updateLeadsFromForum(
   store: RelationshipStore,
   posts: ForumPost[],
+  log: (m: string) => void = () => {},
 ): string[] {
   const batch = posts
     .filter((p) => p.user?.id && !ADVISOR_USER_IDS.has(p.user.id))
+    .filter((p) => {
+      const { spam, reason } = isLikelySpam(p.content ?? "");
+      if (spam) log(`updateLeadsFromForum: dropped spam post ${p.id} (${reason})`);
+      return !spam;
+    })
     .map(forumPostToMessage);
   return updateFromMessages(store, batch);
 }
@@ -189,16 +260,22 @@ export function xMentionToMessages(m: XMention, arcXUserId: string): ChatMessage
  * separate id namespace from the Whop NON_PROSPECT gate). Idempotent by tweet id.
  * Returns the user_ids touched.
  *
- * GIVE-3X OBSERVABILITY GAP (known, documented for dev-council): value_touches =
- * arc_replies_to_them, and the mentions feed is INBOUND-only — Arc's outbound X
- * replies never appear here, so X leads accrue value_touches=0 and the BLOCKING
- * give-3x gate (≥3 gives before an ask) correctly holds them back from AUTO-posting.
- * That makes X a SURFACING channel today: warm X repliers show up in the lane's
- * blocked list (operator-visible for manual engagement), and auto-assist activates
- * only once Arc's give-history is observable. Closing the gap (fold Arc's own
- * outbound replies via /users/{id}/tweets, OR a council decision on a warm-reply-
- * assist give-3x exception since the assist itself leads with value) is a tracked
- * follow-up — NOT weakened here, because give-3x is a hardened safety rail.
+ * GIVE-3X OBSERVABILITY GAP — CLOSED (AI-018/031, see processXReplyLog below;
+ * re-confirmed via isolated fixture in P5 arc-demand-flywheel, 2026-07-03): the
+ * mentions feed here is still INBOUND-only, so a fresh X lead still starts at
+ * value_touches=0 — but refreshLeads() also calls processXReplyLog() on every
+ * run, which folds Arc's own outbound X replies (x_reply_log, written by
+ * skills/social-x-posting/cli.ts on every reply send) into arc_replies_to_them.
+ * The BLOCKING give-3x gate (≥3 gives before an ask) now clears organically once
+ * Arc has actually replied to a lead 3 times — the remaining constraint is
+ * outbound reply VOLUME (see reply-watchlist-sensor.ts's 403-pre-filter), not
+ * missing wiring. Live evidence as of this phase: x_reply_log has exactly 1 row
+ * ever (its author wasn't yet a lead at consume-time, so it correctly logged
+ * "will credit on next refresh" and moved on — not a bug).
+ *
+ * P5 arc-demand-flywheel: spam/ad-copy and reply-chain noise (isLikelySpam) are
+ * now dropped before folding, same as the forum channel — a bare multi-mention
+ * pile-on or an ad-spam quote-tweet never becomes an X lead.
  *
  * IMPORTANT (council lumen #1): the Class-A-only auto-post gate (sensor.ts:
  * autoPostEligible) is the SECOND, INDEPENDENT rail that keeps noisy multi-tag
@@ -210,12 +287,18 @@ export function updateLeadsFromX(
   store: RelationshipStore,
   mentions: XMention[],
   arcXUserId: string,
+  log: (m: string) => void = () => {},
 ): string[] {
   const batch: ChatMessage[] = [];
   for (const m of mentions) {
     if (!m.author_id) continue;
     if (m.author_id === arcXUserId) continue; // Arc's own account
     if (m.author_username && OPERATOR_X_USERNAMES.has(m.author_username.toLowerCase())) continue;
+    const { spam, reason } = isLikelySpam(m.text ?? "");
+    if (spam) {
+      log(`updateLeadsFromX: dropped spam mention ${m.id} (${reason})`);
+      continue;
+    }
     batch.push(...xMentionToMessages(m, arcXUserId));
   }
   const touched = updateFromMessages(store, batch);
@@ -393,7 +476,7 @@ export async function refreshLeads(opts: {
     else log("refresh-leads: no whop company_api_key — skipping forum fetch (forum leads unchanged)");
     if (posts) {
       forum.fetched = posts.length;
-      forum.touched = updateLeadsFromForum(store, posts).length;
+      forum.touched = updateLeadsFromForum(store, posts, log).length;
       forum.status = "ok";
     }
   } catch (e) {
@@ -411,7 +494,7 @@ export async function refreshLeads(opts: {
       else log("refresh-leads: no X creds — skipping mentions fetch (X leads unchanged)");
       if (result) {
         x.fetched = result.mentions.length;
-        x.touched = updateLeadsFromX(store, result.mentions, result.arc_user_id).length;
+        x.touched = updateLeadsFromX(store, result.mentions, result.arc_user_id, log).length;
         x.status = "ok";
       }
     } catch (e) {
