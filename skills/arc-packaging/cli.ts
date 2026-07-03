@@ -7,16 +7,28 @@
 // relevance>=4 sku_candidate off the backlog, the dispatch-cycle LLM drafts dual-audience-frame
 // copy (SOUL.md-gated), and stage deterministically mints the Whop SKU (whop create-product),
 // closes the loop on the research shelf (arc-link-research mark-packaged), and grants members
-// a free redemption path (whop unlock-all). Mirrors arc-article-pipeline's (P2) materials ->
-// LLM draft -> deterministic stage contract — same shape, different destination.
+// a free redemption path (whop unlock-all, entitlement-only by default — see below). Mirrors
+// arc-article-pipeline's (P2) materials -> LLM draft -> deterministic stage contract.
 //
 // New Whop products are created HIDDEN by create-product's own existing default; this pipeline
-// does not need an operator gate to mint (no money moves, nothing goes public until the
-// operator flips visibility) — it stops at "packaged", same posture as P1's daily-read.
+// does not need an operator gate to MINT (no money moves, nothing is publicly discoverable
+// until the operator's separate visibility flip). It DOES gate on the operator before any
+// member-facing announcement fires — see the unlock-all call in cmdStage below (dev-council:
+// Newman flagged the original design's automatic chat post as a real premature-exposure risk
+// even though it isn't a QUEST.md hard gate; fixed here by defaulting to --skip-chat and
+// notifying the operator by email instead, mirroring Hohpe's "no operator feedback loop"
+// finding — one fix closes both).
+//
+// dev-council + arc-strategy-panel (5-lens + 7-expert, run as parallel subagents — the
+// `Workflow` tool was unavailable this session, same substitute P1/P2 used) reviewed this code
+// and the SKU copy before deploy. Every CONFIRMED finding is fixed here; PLAUSIBLE/deferred
+// items are documented in the phase's verify artifact, not silently dropped.
 
 import { Database } from "bun:sqlite";
 import { join } from "path";
 import * as fs from "fs";
+import { runCommand, slugify } from "../../src/utils.ts";
+import { selectCandidate } from "./lib/backlog.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const DB_PATH = process.env.ARC_PACKAGING_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc.sqlite");
@@ -25,7 +37,6 @@ const INDEX_PATH = join(RESEARCH_DIR, "INDEX.md");
 const MATERIALS_DIR = join(ARC_STARTER_ROOT, "db/packaging-materials");
 
 const DEFAULT_PRICE_USD = 9;
-const SKU_BACKLOG_HEADING = "## SKU backlog — sku_candidate, not yet packaged";
 
 function log(message: string): void {
   console.log(`[${new Date().toISOString()}] [arc-packaging/cli] ${message}`);
@@ -58,88 +69,6 @@ function getDb(): Database {
   return db;
 }
 
-// ---------- SKU backlog parsing (research/INDEX.md's own pre-filtered table — already
-// sku_candidate:y AND packaged:n, no need to re-derive those flags here) ----------
-
-interface BacklogRow {
-  relevance: number;
-  topics: string;
-  repos: string;
-  skuWhy: string;
-  reportFile: string;
-}
-
-function parseSkuBacklog(): BacklogRow[] {
-  const text = fs.readFileSync(INDEX_PATH, "utf-8");
-  const lines = text.split("\n");
-  const startIdx = lines.findIndex((l) => l.trim() === SKU_BACKLOG_HEADING);
-  if (startIdx === -1) return [];
-
-  const rows: BacklogRow[] = [];
-  let sawHeader = false;
-  for (let i = startIdx + 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.startsWith("## ")) break;
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("|")) continue;
-
-    const parts = trimmed.split("|").map((s) => s.trim());
-    // parts[0] = "" (leading pipe), [1]=relevance, [2]=topics, [3]=repos, [4]=sku_why, [5]=report link, [6]="" (trailing pipe)
-    if (!sawHeader) {
-      if (/^relevance$/i.test(parts[1] ?? "")) sawHeader = true;
-      continue;
-    }
-    if (/^:?-+:?$/.test((parts[1] ?? "").replace(/\s/g, ""))) continue; // markdown separator row
-
-    const relevance = parseInt(parts[1] ?? "", 10);
-    if (!Number.isFinite(relevance)) continue;
-    const linkMatch = (parts[5] ?? "").match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (!linkMatch) continue;
-
-    rows.push({
-      relevance,
-      topics: parts[2] ?? "",
-      repos: parts[3] ?? "",
-      skuWhy: parts[4] ?? "",
-      reportFile: linkMatch[2],
-    });
-  }
-  return rows;
-}
-
-/**
- * Pick the next candidate: relevance descending, then FIFO (oldest report filename first —
- * report filenames lead with an ISO timestamp) within a relevance tier, skipping anything
- * already present in packaging_queue_log (queued, claimed, or packaged — a report only ever
- * gets ONE row, the natural key is report_file).
- */
-function selectCandidate(db: Database, reportOverride?: string): BacklogRow | null {
-  const rows = parseSkuBacklog().filter((r) => r.relevance >= 4);
-  if (rows.length === 0) return null;
-
-  if (reportOverride) {
-    return rows.find((r) => r.reportFile === reportOverride) ?? null;
-  }
-
-  const queued = new Set(
-    (db.query("SELECT report_file FROM packaging_queue_log").all() as { report_file: string }[]).map(
-      (r) => r.report_file,
-    ),
-  );
-  const ordered = [...rows].sort((a, b) => {
-    if (b.relevance !== a.relevance) return b.relevance - a.relevance;
-    return a.reportFile.localeCompare(b.reportFile);
-  });
-  return ordered.find((r) => !queued.has(r.reportFile)) ?? null;
-}
-
-function slugify(text: string): string {
-  // Same fix as arc-article-pipeline's slugify (P2, found live 2026-07-03): replace runs of
-  // non-alphanumeric characters with a single hyphen instead of deleting them, so word
-  // boundaries survive (e.g. a title containing "dispatch.ts:137" doesn't collapse illegibly).
-  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
 function slugFromReportFile(reportFile: string): string {
   return reportFile.replace(/^\d{4}-\d{2}-\d{2}T[\d:-]+Z_/, "").replace(/\.md$/, "");
 }
@@ -168,6 +97,39 @@ function sanitizeScan(text: string): string[] {
   return hits;
 }
 
+// ---------- Deliverable cleanup (dev-council/arc-strategy-panel: Kim, 2026-07-03) ----------
+//
+// A raw research report is written for ARC'S OWN engineering backlog, not for a paying
+// stranger: it carries a "Recommendations" table tagged effort/impact/risk/target-repo (Arc's
+// roadmap, not the buyer's), a "Provenance" section with internal cache-file hashes and
+// dispatch task IDs, and `[[wiki-link]]`-style cross-references into Arc's own memory system
+// that resolve to nothing outside it. Kim's review: this is a DIFFERENT failure mode than the
+// operator's "dry and programmatic" complaint (that was about voice; this is about a buyer
+// finding they're holding Arc's internal homework) — and it is fixable with a deterministic,
+// no-new-authoring strip pass, so it runs automatically here rather than being a per-report
+// manual chore. Applied to every future SKU, not just this phase's batch.
+function cleanDeliverableMarkdown(text: string): string {
+  let out = text;
+
+  // Drop the "## Recommendations" section entirely (own-backlog planning, not customer content).
+  // Stops at the next "## " heading or "---" divider, whichever comes first.
+  out = out.replace(/\n## Recommendations\b[\s\S]*?(?=\n## |\n---\n|$)/, "\n");
+
+  // [[wiki-link]] -> plain text (strip the double brackets, keep the readable label).
+  out = out.replace(/\[\[([^\]]+)\]\]/g, "$1");
+
+  // Relabel "## Provenance" as customer-facing, and drop internal-only lines (cache paths,
+  // task IDs) while keeping the plain-English source/date claims that back the "tested against
+  // a live agent" proof.
+  out = out.replace(/\n## Provenance\b/, "\n## How this was verified");
+  out = out
+    .split("\n")
+    .filter((line) => !/cache[`:]|task[_ ]?#?\d|task_id/i.test(line) || !line.trim().startsWith("-"))
+    .join("\n");
+
+  return out.trim() + "\n";
+}
+
 // ---------- Materials brief ----------
 
 interface MaterialsBrief {
@@ -177,6 +139,7 @@ interface MaterialsBrief {
   relevance: number;
   skuWhy: string;
   reportPath: string;
+  reportMarkdown: string;
   suggestedPriceUsd: number;
   voiceInstructions: {
     human: string;
@@ -187,12 +150,13 @@ interface MaterialsBrief {
 
 function composeMaterials(reportOverride?: string): { db: Database; brief: MaterialsBrief | null } {
   const db = getDb();
-  const candidate = selectCandidate(db, reportOverride);
+  const candidate = selectCandidate(db, INDEX_PATH, reportOverride);
   if (!candidate) return { db, brief: null };
 
   const slug = slugFromReportFile(candidate.reportFile);
   const route = slugify(slug);
   const reportPath = join(RESEARCH_DIR, candidate.reportFile);
+  const reportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
 
   db.run(
     `INSERT OR IGNORE INTO packaging_queue_log (report_file, slug, route, relevance, sku_why, status) VALUES (?, ?, ?, ?, ?, 'queued')`,
@@ -206,20 +170,23 @@ function composeMaterials(reportOverride?: string): { db: Database; brief: Mater
     relevance: candidate.relevance,
     skuWhy: candidate.skuWhy,
     reportPath,
+    reportMarkdown,
     suggestedPriceUsd: DEFAULT_PRICE_USD,
     voiceInstructions: {
       human:
         'Description MUST include the human frame, verbatim or near-verbatim: "operator: give this to your agent". ' +
-        "The buyer is a human agent-operator who hands this report to their own AI agent to read/use — audience is LOCKED to agent operators (QUEST.md #11), not general Bitcoin/Stacks readers.",
+        "The buyer is a human agent-operator who hands this report to their own AI agent to read/use — audience is LOCKED to agent operators (QUEST.md #11), not general Bitcoin/Stacks readers. " +
+        "Lead with the report's real measured hook/number in the FIRST sentence — do not bury it in sentence two or three (arc-strategy-panel/Hale finding).",
       agent:
         'Description MUST include the agent frame, verbatim or near-verbatim: "read this content". ' +
-        "An autonomous agent reading the product description directly should understand it can pay via this Whop checkout now to read the report immediately; you may mention arc0btc.com's x402 rail exists for direct agent-to-agent payment, but do not invent a specific new endpoint URL — P3 does not wire new x402 catalog entries.",
+        "Do NOT claim x402 delivers this product 'immediately' or 'now' — the x402 rail is not yet wired to this specific catalog entry. Say payment is via the Whop checkout below, and that direct x402 agent-to-agent payment for this catalog is coming (point to arc0btc.com for endpoints that ARE live now). Overclaiming a payment path that doesn't work yet is a real broken-transaction risk for an agent buyer, not a soft marketing exaggeration (arc-strategy-panel/Voss finding).",
     },
     sanitizationChecklist: [
       "no API keys, tokens, passwords, private-key material",
       "no internal IPs / VM hostnames / SSH details",
       "no un-redacted credential-adjacent operational detail",
       "no unreleased strategic plans not meant for a paying stranger",
+      'vary the closing sentence PER SKU — do not reuse the same closing across multiple products, that is the "same intro every time" problem relocated to the paywall (arc-strategy-panel/Reyes finding)',
     ],
   };
 
@@ -243,7 +210,7 @@ async function cmdMaterials(reportOverride?: string): Promise<void> {
   if (!fs.existsSync(MATERIALS_DIR)) fs.mkdirSync(MATERIALS_DIR, { recursive: true });
   const outPath = join(MATERIALS_DIR, `${brief.slug}.json`);
   fs.writeFileSync(outPath, JSON.stringify(brief, null, 2));
-  console.log(`\nWrote brief to ${outPath}`);
+  console.log(`\nWrote brief to ${outPath} (includes the report's full text — reportMarkdown).`);
   console.log(`Next: draft { "title": "...", "headline": "...", "description": "..." } to`);
   console.log(`  ${join(MATERIALS_DIR, `${brief.slug}.draft.json`)}`);
   console.log(`Then run: bun cli.ts stage --report ${brief.reportFile}`);
@@ -262,15 +229,37 @@ interface Draft {
 function loadDraft(slug: string): Draft {
   const p = join(MATERIALS_DIR, `${slug}.draft.json`);
   if (!fs.existsSync(p)) {
-    throw new Error(`missing draft: ${p} — write { title, headline, description } first (see materials output)`);
+    throw new Error(`DEFERRED — missing draft: ${p}. Write { title, headline, description } first (see materials output), then re-run stage.`);
   }
-  return JSON.parse(fs.readFileSync(p, "utf-8"));
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fs.readFileSync(p, "utf-8"));
+  } catch (e) {
+    throw new Error(
+      `DEFERRED — ${p} is not valid JSON (${e instanceof Error ? e.message : String(e)}). Fix the file's JSON syntax and re-run stage — do not delete it, the draft content may still be salvageable.`,
+    );
+  }
+  if (typeof parsed !== "object" || parsed === null) {
+    throw new Error(`DEFERRED — ${p} must be a JSON object with { title, description } (got ${typeof parsed}).`);
+  }
+  const d = parsed as Record<string, unknown>;
+  if (typeof d.title !== "string" || !d.title.trim()) {
+    throw new Error(`DEFERRED — ${p} is missing a non-empty string "title".`);
+  }
+  if (typeof d.description !== "string" || !d.description.trim()) {
+    throw new Error(`DEFERRED — ${p} is missing a non-empty string "description".`);
+  }
+  if (d.headline !== undefined && typeof d.headline !== "string") {
+    throw new Error(`DEFERRED — ${p}'s "headline" must be a string if present.`);
+  }
+  if (d.price !== undefined && typeof d.price !== "number") {
+    throw new Error(`DEFERRED — ${p}'s "price" must be a number if present.`);
+  }
+  return d as unknown as Draft;
 }
 
-function validateDraft(draft: Draft, reportMarkdown: string): string[] {
+function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: boolean): string[] {
   const errors: string[] = [];
-  if (!draft.title) errors.push("draft.title missing");
-  if (!draft.description) errors.push("draft.description missing");
   const descLower = (draft.description ?? "").toLowerCase();
   if (!descLower.includes("operator") || !descLower.includes("give this to your agent")) {
     errors.push('description missing the required human frame ("operator: give this to your agent")');
@@ -278,21 +267,13 @@ function validateDraft(draft: Draft, reportMarkdown: string): string[] {
   if (!descLower.includes("read this content")) {
     errors.push('description missing the required agent frame ("read this content")');
   }
-  const scanText = [reportMarkdown, draft.title, draft.headline ?? "", draft.description].join("\n");
-  for (const hit of sanitizeScan(scanText)) {
-    errors.push(`SANITIZATION: ${hit}`);
+  if (!forceSanitization) {
+    const scanText = [reportMarkdown, draft.title, draft.headline ?? "", draft.description].join("\n");
+    for (const hit of sanitizeScan(scanText)) {
+      errors.push(`SANITIZATION: ${hit}`);
+    }
   }
   return errors;
-}
-
-async function runCommand(
-  command: string[],
-  cwd: string,
-): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn(command, { cwd, stdin: "ignore", stdout: "pipe", stderr: "pipe" });
-  const [stdout, stderr] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text()]);
-  const exitCode = await proc.exited;
-  return { exitCode, stdout, stderr };
 }
 
 function parseJsonTail(stdout: string): Record<string, unknown> {
@@ -301,7 +282,40 @@ function parseJsonTail(stdout: string): Record<string, unknown> {
   return JSON.parse(stdout.slice(jsonStart));
 }
 
-async function cmdStage(reportFile: string, dryRun: boolean): Promise<void> {
+type ClaimResult = "claimed" | "resumed" | "already-packaged";
+
+/**
+ * Atomic-enough claim via compare-and-swap on the row's status (dev-council: Kleppmann flagged
+ * the earlier bare UPDATE as lacking the linearization point P2's claimArticle() has via its
+ * INSERT+UNIQUE-catch — this restores an equivalent guarantee for an already-inserted row using
+ * an `UPDATE ... WHERE status = 'queued'` guard and checking the SQLite `changes` count). Three
+ * outcomes: freshly claimed (proceed), resumed (a prior attempt was interrupted after this
+ * process's own claim — proceed, same as P2), or already-packaged (idempotent no-op).
+ */
+function claimCandidate(db: Database, reportFile: string): ClaimResult {
+  const before = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
+    | { status: string }
+    | null;
+  if (!before) throw new Error(`claimCandidate: no row for ${reportFile} — run materials first`);
+  if (before.status === "packaged") return "already-packaged";
+  if (before.status === "claimed") return "resumed"; // this process (or a prior run) already holds it
+
+  const result = db.run(
+    `UPDATE packaging_queue_log SET status = 'claimed', claimed_at = ? WHERE report_file = ? AND status = 'queued'`,
+    [new Date().toISOString(), reportFile],
+  );
+  if (result.changes === 0) {
+    // Lost the race (or the row moved between the SELECT above and this UPDATE) — re-read and
+    // resolve rather than assume.
+    const after = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as {
+      status: string;
+    };
+    return after.status === "packaged" ? "already-packaged" : "resumed";
+  }
+  return "claimed";
+}
+
+async function cmdStage(reportFile: string, dryRun: boolean, forceSanitization: boolean): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
   const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
@@ -318,30 +332,51 @@ async function cmdStage(reportFile: string, dryRun: boolean): Promise<void> {
     return;
   }
 
-  const draft = loadDraft(row.slug);
+  let draft: Draft;
+  try {
+    draft = loadDraft(row.slug);
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : String(e));
+    db.close();
+    process.exit(1);
+  }
+
   const reportPath = join(RESEARCH_DIR, reportFile);
-  const reportMarkdown = fs.readFileSync(reportPath, "utf-8");
-  const errors = validateDraft(draft, reportMarkdown);
+  const rawReportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
+  const errors = validateDraft(draft, rawReportMarkdown, forceSanitization);
   if (errors.length > 0) {
     console.error("DEFERRED — stage validation failed:");
     errors.forEach((e) => console.error(`  - ${e}`));
+    if (!forceSanitization && errors.some((e) => e.startsWith("SANITIZATION:"))) {
+      console.error(
+        "  (a sanitization hit can be a false positive on legitimate research content — re-run with --force-sanitization ONLY after a human confirms the flagged text is not actually a secret; this flag is never used by the automated sensor path)",
+      );
+    }
     db.close();
     process.exit(1);
   }
 
   if (dryRun) {
-    console.log("[DRY-RUN] validation + sanitization scan passed. Would claim, create-product, mark-packaged, unlock-all.");
+    console.log("[DRY-RUN] validation + sanitization scan passed. Would claim, create-product, mark-packaged, unlock-all (silent).");
     db.close();
     return;
   }
 
-  // Resume-tolerant claim (P2's exact fix: no hard-abort on crash, just mark claimed and move on).
-  db.run(
-    `UPDATE packaging_queue_log SET status = 'claimed', claimed_at = ? WHERE report_file = ? AND status != 'packaged'`,
-    [new Date().toISOString(), reportFile],
-  );
+  const claim = claimCandidate(db, reportFile);
+  if (claim === "already-packaged") {
+    console.log(`${reportFile} is already packaged — idempotent no-op, not an error.`);
+    db.close();
+    return;
+  }
+  if (claim === "resumed") {
+    console.log(`${reportFile} was claimed but not finalized (a prior 'stage' run was interrupted) — resuming, not aborting.`);
+  }
 
   const price = draft.price ?? DEFAULT_PRICE_USD;
+  const cleanedMarkdown = cleanDeliverableMarkdown(rawReportMarkdown);
+  const cleanedPath = join(MATERIALS_DIR, `${row.slug}.deliverable.md`);
+  fs.writeFileSync(cleanedPath, cleanedMarkdown);
+
   const createArgs = [
     "skills",
     "run",
@@ -359,9 +394,9 @@ async function cmdStage(reportFile: string, dryRun: boolean): Promise<void> {
     draft.description,
     ...(draft.headline ? ["--headline", draft.headline] : []),
     "--report",
-    reportPath,
+    cleanedPath,
   ];
-  const createResult = await runCommand(["bash", "bin/arc", ...createArgs], ARC_STARTER_ROOT);
+  const createResult = await runCommand("bash", ["bin/arc", ...createArgs]);
   if (createResult.exitCode !== 0) {
     throw new Error(`whop create-product failed (exit ${createResult.exitCode}): ${createResult.stderr || createResult.stdout}`);
   }
@@ -371,46 +406,78 @@ async function cmdStage(reportFile: string, dryRun: boolean): Promise<void> {
     constants?: { PRODUCT_CHECKOUT_URL?: string };
   };
   console.log(`Created Whop product: ${createJson.product_id} (plan ${createJson.plan_id})`);
+  // Record the irreversible external effect (a real Whop product now exists) the instant it's
+  // known, before the next subprocess call, so a crash after this point is still fully
+  // auditable from the DB alone (dev-council: Kleppmann's audit-gap note).
+  db.run(`UPDATE packaging_queue_log SET product_id = ?, plan_id = ? WHERE report_file = ?`, [
+    createJson.product_id,
+    createJson.plan_id,
+    reportFile,
+  ]);
 
-  const markResult = await runCommand(
-    ["bash", "bin/arc", "skills", "run", "--name", "arc-link-research", "--", "mark-packaged", "--report", reportFile, "--product", createJson.product_id],
-    ARC_STARTER_ROOT,
-  );
+  const markResult = await runCommand("bash", [
+    "bin/arc",
+    "skills",
+    "run",
+    "--name",
+    "arc-link-research",
+    "--",
+    "mark-packaged",
+    "--report",
+    reportFile,
+    "--product",
+    createJson.product_id,
+  ]);
   if (markResult.exitCode !== 0) {
     throw new Error(`arc-link-research mark-packaged failed (exit ${markResult.exitCode}): ${markResult.stderr || markResult.stdout}`);
   }
   console.log("Marked packaged in research/INDEX.md.");
 
-  const unlockResult = await runCommand(
-    [
-      "bash",
-      "bin/arc",
-      "skills",
-      "run",
-      "--name",
-      "whop",
-      "--",
-      "unlock-all",
-      "--product",
-      createJson.product_id,
-      "--plan",
-      createJson.plan_id,
-      "--title",
-      draft.title,
-    ],
-    ARC_STARTER_ROOT,
-  );
+  // Entitlement only, silent by default — no automatic member-facing announcement. dev-council
+  // (Newman): the original design's automatic chat post fired a live $0 checkout link to real
+  // paying members three subprocesses deep with no operator visibility, contradicting the
+  // "nothing public until the operator's visibility flip" framing (a real premature-exposure
+  // risk, even though a single paid-chat post isn't a QUEST.md hard gate). The operator email
+  // below (Hohpe's "no feedback loop" fix) gives the operator everything needed to post the
+  // announcement themselves once they've reviewed the SKU, or to explicitly ask Arc to.
+  const unlockResult = await runCommand("bash", [
+    "bin/arc",
+    "skills",
+    "run",
+    "--name",
+    "whop",
+    "--",
+    "unlock-all",
+    "--product",
+    createJson.product_id,
+    "--plan",
+    createJson.plan_id,
+    "--title",
+    draft.title,
+    "--skip-chat",
+  ]);
   if (unlockResult.exitCode !== 0) {
     throw new Error(`whop unlock-all failed (exit ${unlockResult.exitCode}): ${unlockResult.stderr || unlockResult.stdout}`);
   }
   const unlockJson = parseJsonTail(unlockResult.stdout) as { promo_id?: string; checkout_url?: string };
-  console.log(`Membership unlock-all wired: promo ${unlockJson.promo_id ?? "?"}`);
+  console.log(`Membership unlock-all wired (silent — promo ${unlockJson.promo_id ?? "?"}, no chat post fired).`);
 
   db.run(
-    `UPDATE packaging_queue_log SET status = 'packaged', product_id = ?, plan_id = ?, promo_code_id = ?, packaged_at = ? WHERE report_file = ?`,
-    [createJson.product_id, createJson.plan_id, unlockJson.promo_id ?? null, new Date().toISOString(), reportFile],
+    `UPDATE packaging_queue_log SET status = 'packaged', promo_code_id = ?, packaged_at = ? WHERE report_file = ?`,
+    [unlockJson.promo_id ?? null, new Date().toISOString(), reportFile],
   );
   db.close();
+
+  const productPageUrl = createJson.constants?.PRODUCT_CHECKOUT_URL ?? null;
+  const emailSent = await sendPackagingReviewEmail({
+    reportFile,
+    title: draft.title,
+    productId: createJson.product_id,
+    planId: createJson.plan_id,
+    checkoutUrl: productPageUrl,
+    promoId: unlockJson.promo_id ?? null,
+    memberCheckoutUrl: unlockJson.checkout_url ?? null,
+  });
 
   console.log(
     JSON.stringify(
@@ -420,14 +487,69 @@ async function cmdStage(reportFile: string, dryRun: boolean): Promise<void> {
         product_id: createJson.product_id,
         plan_id: createJson.plan_id,
         promo_id: unlockJson.promo_id ?? null,
-        checkout_url: createJson.constants?.PRODUCT_CHECKOUT_URL ?? null,
+        checkout_url: productPageUrl,
         unlock_checkout_url: unlockJson.checkout_url ?? null,
+        operator_review_email_sent: emailSent,
         status: "packaged",
       },
       null,
       2,
     ),
   );
+}
+
+// ---------- Operator notification (dev-council: Hohpe's "no feedback loop" finding) ----------
+//
+// Reuses arc-daily-read's/arc-article-pipeline's established email lane (email/api_base_url,
+// email/admin_api_key, email/report_recipient via src/credentials.ts, POST {base}/api/send)
+// rather than inventing a second one. One email per packaged SKU — not a bulk send.
+async function sendPackagingReviewEmail(info: {
+  reportFile: string;
+  title: string;
+  productId: string;
+  planId: string;
+  checkoutUrl: string | null;
+  promoId: string | null;
+  memberCheckoutUrl: string | null;
+}): Promise<boolean> {
+  try {
+    const { getCredential } = await import(join(ARC_STARTER_ROOT, "src/credentials.ts"));
+    const apiBaseUrl = await getCredential("email", "api_base_url");
+    const adminKey = await getCredential("email", "admin_api_key");
+    const recipient = await getCredential("email", "report_recipient");
+    if (!apiBaseUrl || !adminKey || !recipient) {
+      log("email credentials not configured — skipping packaging review email");
+      return false;
+    }
+
+    const subject = `New Whop SKU packaged — "${info.title}" (hidden, ready for your review)`;
+    const plainText = [
+      `Arc packaged a new $9 SKU from ${info.reportFile}: "${info.title}".`,
+      ``,
+      `Status: HIDDEN — not on the public storefront, reachable only by direct link. Nothing`,
+      `changes for buyers or members until you flip visibility.`,
+      ``,
+      `Product page / checkout: ${info.checkoutUrl ?? "(see whop dashboard, product " + info.productId + ")"}`,
+      `Product ID: ${info.productId} | Plan ID: ${info.planId}`,
+      ``,
+      `Membership unlock-all is wired (silent — no announcement has been posted yet):`,
+      `  Promo: ${info.promoId ?? "(none)"}`,
+      `  Member $0 redemption link: ${info.memberCheckoutUrl ?? "(none)"}`,
+      ``,
+      `When you're ready: flip the product visible, and post the member redemption link into`,
+      `the paid chat yourself (or ask Arc to) — packaging stops here on purpose so a real`,
+      `person reviews a new SKU before it reaches a paying member.`,
+    ].join("\n");
+    const res = await fetch(`${apiBaseUrl}/api/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${adminKey}` },
+      body: JSON.stringify({ to: recipient, subject, text: plainText }),
+    });
+    return res.ok;
+  } catch (e) {
+    log(`packaging review email failed (non-fatal): ${e instanceof Error ? e.message : String(e)}`);
+    return false;
+  }
 }
 
 async function cmdStatus(): Promise<void> {
@@ -457,7 +579,7 @@ async function main() {
         console.error("stage requires --report <filename-in-research/>");
         process.exit(1);
       }
-      await cmdStage(report, args.includes("--dry-run"));
+      await cmdStage(report, args.includes("--dry-run"), args.includes("--force-sanitization"));
       break;
     }
     case "status": {
@@ -469,9 +591,12 @@ async function main() {
         [
           "arc-packaging CLI — the standing packaging pipeline stage",
           "",
-          "  materials [--report <filename-in-research/>]   pick the next backlog candidate, write a materials brief",
-          "  stage --report <filename> [--dry-run]          validate the draft + sanitization scan, then mint the SKU",
-          "  status                                          show packaging_queue_log",
+          "  materials [--report <filename-in-research/>]                pick the next backlog candidate, write a materials brief",
+          "  stage --report <filename> [--dry-run] [--force-sanitization]  validate the draft (+ sanitization scan unless forced), then mint the SKU",
+          "  status                                                        show packaging_queue_log",
+          "",
+          "  --force-sanitization: human-only escape hatch for a confirmed sanitizer false positive.",
+          "  Never used by the automated sensor path.",
         ].join("\n"),
       );
       process.exit(command ? 1 : 0);

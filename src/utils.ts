@@ -84,3 +84,20 @@ export function pad(s: string, width: number): string {
 export function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 1) + "~" : s;
 }
+
+/**
+ * URL-safe slug from arbitrary text. Replaces RUNS of non-alphanumeric characters with a
+ * single hyphen (never deletes them) so word boundaries survive — e.g. a title containing a
+ * file:line citation like "dispatch.ts:137-149" doesn't collapse into the illegible
+ * "dispatchts137-149". Fixed live in `arc-article-pipeline` (P2, 2026-07-03) after the delete-
+ * don't-replace version shipped that exact bug; extracted here (P3, 2026-07-03) after a third
+ * skill (`arc-packaging`) needed the identical function — dev-council (Fowler) flagged the
+ * rule-of-three threshold as crossed for this specific pure string transform (no per-pipeline
+ * semantics, so no divergence-safety reason to keep copies independent, unlike the INDEX.md
+ * table parsers which genuinely differ in shape). Existing call sites in arc-daily-read /
+ * arc-article-pipeline are left as-is (already shipped, already verified) — only new code
+ * imports this one.
+ */
+export function slugify(text: string): string {
+  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
