@@ -504,3 +504,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T21:08:54.007Z | task #21004 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.35/5 (S:1 O:4 E:2 C:1 Ad:5 Co:1 Se:4). Cost/task >$0.50 two evals r
 2026-07-03T21:11:26.348Z | task #21005 | completed | sonnet | Queue task-type classifier integration for --model auto rout | Classifier (src/classifier.ts) was already deployed 2026-06-29 and wired into 'a
 2026-07-03T21:13:48.436Z | task #21007 | completed | sonnet | Broaden src/classifier.ts bounded-code recall to match skill | Broadened classifier recall: added --file flag for explicit bounded-code targeti
+2026-07-03T21:15:00.887Z | task #21006 | completed | haiku | Retrospective: extract learnings from task #21004 — Daily se | Extracted 2 patterns: dimensional-work-attribution (prevent narrative inflation 
