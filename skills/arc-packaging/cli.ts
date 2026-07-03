@@ -111,25 +111,59 @@ function sanitizeScan(text: string): string[] {
 function cleanDeliverableMarkdown(text: string): string {
   let out = text;
 
-  // Drop any "## ... Recommendations" section entirely (own-backlog planning, not customer
-  // content) — case-insensitive and tolerant of a prefix word (reports have used "Recommendations",
-  // "Concrete recommendations", and "Concrete Recommendations" as the literal heading text; an
-  // exact-match-only regex silently missed the "Concrete ..." variants live on 2 of the first 5
-  // SKUs packaged with this code, caught during this phase's own verify pass and fixed here).
-  // Stops at the next "## " heading or "---" divider, whichever comes first.
-  out = out.replace(/\n##\s+.*Recommendations\b[\s\S]*?(?=\n## |\n---\n|$)/i, "\n");
+  // Strip the leading YAML front-matter block (everything between the first two "---" lines) —
+  // it carries internal-only bookkeeping (task_id, parent, cached_path — a VM filesystem path,
+  // sku_why, packaged flag) a paying stranger has no use for. Gap found live during this
+  // phase's own verify pass (a report with no "## " headings at all — bold-text section markers
+  // instead — sailed through the Recommendations-strip untouched, but its front-matter was
+  // still visible verbatim at the top of the deliverable); fixed here for all future SKUs and
+  // re-applied retroactively to this phase's own batch (see the verify artifact).
+  if (out.startsWith("---\n")) {
+    const secondFence = out.indexOf("\n---\n", 4);
+    if (secondFence !== -1) {
+      out = out.slice(secondFence + 5);
+    }
+  }
+
+  // Reports use TWO different section-heading styles inconsistently: ATX ("## Recommendations")
+  // and standalone bold ("**Recommendations**", no "#"). An ATX-only regex silently missed the
+  // bold-style variant live on the one SKU this phase's own dispatch loop drafted autonomously
+  // (found during this phase's verify pass) — dropSection() below recognizes both.
+  const isHeadingLine = (line: string): boolean =>
+    /^#{1,6}\s+\S/.test(line) || /^\*\*[^*]+\*\*\s*$/.test(line);
+  const headingText = (line: string): string =>
+    line.replace(/^#{1,6}\s+/, "").replace(/^\*\*|\*\*\s*$/g, "").trim();
+
+  const dropSections = (text: string, matchesHeading: RegExp): string => {
+    const lines = text.split("\n");
+    const out2: string[] = [];
+    let skipping = false;
+    for (const line of lines) {
+      if (isHeadingLine(line)) {
+        skipping = matchesHeading.test(headingText(line));
+        if (skipping) continue; // drop the heading line itself too
+      } else if (line.trim() === "---") {
+        skipping = false; // a divider always ends a skip, heading or not
+      }
+      if (!skipping) out2.push(line);
+    }
+    return out2.join("\n");
+  };
+
+  // Drop any recommendations section entirely — own-backlog planning (effort/impact/risk/
+  // target-repo tags aimed at Arc's engineering queue), not customer content.
+  out = dropSections(out, /recommendations/i);
 
   // [[wiki-link]] -> plain text (strip the double brackets, keep the readable label).
   out = out.replace(/\[\[([^\]]+)\]\]/g, "$1");
 
-  // Relabel "## Provenance" as customer-facing, and drop internal-only lines (cache paths,
-  // task IDs) while keeping the plain-English source/date claims that back the "tested against
-  // a live agent" proof.
+  // Provenance sections carry legitimate value (source URLs a buyer can independently verify —
+  // REPORT-TEMPLATE.md calls this "the receipt standard") mixed with internal-only bookkeeping
+  // (cache file hashes/paths). Keep the section, strip only the cache references — narrow and
+  // safe: this exact pattern never appears in a substantive claim, only in source-tracking, so a
+  // document-wide strip doesn't risk cutting a legitimate file:line citation elsewhere.
+  out = out.replace(/\s*[—-]?\s*[Cc]ache\s+`[^`]+`/g, "");
   out = out.replace(/\n## Provenance\b/, "\n## How this was verified");
-  out = out
-    .split("\n")
-    .filter((line) => !/cache[`:]|task[_ ]?#?\d|task_id/i.test(line) || !line.trim().startsWith("-"))
-    .join("\n");
 
   return out.trim() + "\n";
 }
