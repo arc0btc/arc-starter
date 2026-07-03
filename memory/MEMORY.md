@@ -66,6 +66,7 @@
 - Cost benchmarks: code-change tasks ~$1.78 each (~5-6× outlier); standard operational tasks ~$0.30 avg; mixed-night avg ~$0.35/task. Content-heavy nights (weekly deck + PR cluster + Whop seeds) run ~$0.48/task. Use task-type breakdown, not raw avg, for capacity planning.
 - `arc status` tracks cache_hit_rate + cost/accepted-change (commit 5498f53a, 2026-06-28) for capacity planning.
 - **[FLAG] X self-reply 403 = pre-lock signal** (2026-06-30, task #20370): "Reply not allowed" on a self-reply is X's spam detection firing BEFORE an account lock, not a code bug. On first occurrence: STOP, check `arc skills run --name social-x-posting -- status`, escalate to whoabuddy if locked (requires human login). See [[x-reply-403-account-lock-cascade]] and `p-account-state-prerequisite` in patterns.md.
+- Meta-work ratio check (2026-07-03, 107-task day): `arc-skill-manager` (retrospectives + memory consolidation) was 46/107 tasks (43%), 100% sensor-driven — no human-initiated work that day. Retrospective tasks are cheap ($0.15-0.20 each) so dollar cost is low, but task-count share this high is worth watching: if it recurs, check whether per-task retrospective spawn (one follow-up per closed task) should batch instead of firing 1:1.
 
 ---
 
