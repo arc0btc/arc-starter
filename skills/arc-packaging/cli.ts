@@ -111,9 +111,13 @@ function sanitizeScan(text: string): string[] {
 function cleanDeliverableMarkdown(text: string): string {
   let out = text;
 
-  // Drop the "## Recommendations" section entirely (own-backlog planning, not customer content).
+  // Drop any "## ... Recommendations" section entirely (own-backlog planning, not customer
+  // content) — case-insensitive and tolerant of a prefix word (reports have used "Recommendations",
+  // "Concrete recommendations", and "Concrete Recommendations" as the literal heading text; an
+  // exact-match-only regex silently missed the "Concrete ..." variants live on 2 of the first 5
+  // SKUs packaged with this code, caught during this phase's own verify pass and fixed here).
   // Stops at the next "## " heading or "---" divider, whichever comes first.
-  out = out.replace(/\n## Recommendations\b[\s\S]*?(?=\n## |\n---\n|$)/, "\n");
+  out = out.replace(/\n##\s+.*Recommendations\b[\s\S]*?(?=\n## |\n---\n|$)/i, "\n");
 
   // [[wiki-link]] -> plain text (strip the double brackets, keep the readable label).
   out = out.replace(/\[\[([^\]]+)\]\]/g, "$1");
@@ -576,10 +580,15 @@ async function sendPackagingReviewEmail(info: {
     ].join("\n");
     const res = await fetch(`${apiBaseUrl}/api/send`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${adminKey}` },
-      body: JSON.stringify({ to: recipient, subject, text: plainText }),
+      headers: { "X-Admin-Key": adminKey, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(15_000),
+      body: JSON.stringify({ to: recipient, subject, body: plainText }),
     });
-    return res.ok;
+    if (!res.ok) {
+      log(`packaging review email failed (non-fatal): HTTP ${res.status} — ${await res.text()}`);
+      return false;
+    }
+    return true;
   } catch (e) {
     log(`packaging review email failed (non-fatal): ${e instanceof Error ? e.message : String(e)}`);
     return false;
@@ -603,6 +612,22 @@ function argValue(args: string[], flag: string): string | undefined {
 async function main() {
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
+    case "clean-deliverable": {
+      // Debug/recovery command: regenerate a cleaned deliverable from a raw research report
+      // without going through the full materials/stage flow — used to recover a product whose
+      // attached deliverable predates a cleanDeliverableMarkdown fix (re-run, then
+      // `whop attach-deliverable --product <id> --report <out-path>` to refresh Whop's copy).
+      const report = argValue(args, "--report");
+      const out = argValue(args, "--out");
+      if (!report || !out) {
+        console.error("clean-deliverable requires --report <filename-in-research/> --out <path>");
+        process.exit(1);
+      }
+      const raw = fs.readFileSync(join(RESEARCH_DIR, report), "utf-8");
+      fs.writeFileSync(out, cleanDeliverableMarkdown(raw));
+      console.log(`Wrote cleaned deliverable to ${out}`);
+      break;
+    }
     case "materials": {
       await cmdMaterials(argValue(args, "--report"), argValue(args, "--slug"));
       break;
