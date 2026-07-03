@@ -76,21 +76,49 @@ export default async function arcDailyReadSensor(): Promise<string> {
     editionN = 1;
   }
 
-  // Queue the dispatch task
+  // Queue the dispatch task.
+  // P1 (arc-demand-flywheel): the composer is now findings-first and requires an LLM voice
+  // pass. The sensor still only decides WHEN (time gate, cap, kill switch, dedup — all
+  // deterministic, unchanged above); the drafting work below happens in THIS dispatch cycle's
+  // own LLM turn, which already has SOUL.md loaded as system context. No separate LLM call is
+  // introduced — this is the same dispatch turn that used to just run `cli.ts post` verbatim,
+  // now asked to actually draft the beat instead of executing a template.
   const taskId = insertTaskDeduped({
     subject: `Post Arc's Daily Read — Edition ${editionN}`,
     description: [
-      `Arc's Daily Read Edition ${editionN} is due. UTC 13:00 window.`,
+      `Arc's Daily Read Edition ${editionN} is due. UTC 13:00 window. Findings-first (P1) —`,
+      `the subject is a research finding, not pipeline volume. Follow these 3 steps:`,
       ``,
-      `Run: bun ~/arc-starter/skills/arc-daily-read/cli.ts post`,
+      `STEP 1 — materials (deterministic, run this first):`,
+      `  bun ~/arc-starter/skills/arc-daily-read/cli.ts materials`,
+      `  Selects the next unused relevance-4/5 finding from research/INDEX.md (crown jewels`,
+      `  first), extracts its measured-claim hook + a real file:line citation, computes the`,
+      `  deterministic stats footer, and assigns this edition's intro-style + the list of prior`,
+      `  editions' openings to avoid repeating. Writes the brief to`,
+      `  db/daily-read-materials/edition-${editionN}.json.`,
       ``,
-      `This will:`,
-      `1. Generate the real-data chart from distilled_artifacts (NO AI art)`,
-      `2. Compose the 4-tweet beat (root + reply-2 + reply-3 + CTA)`,
-      `3. Check cap (need 4/${DAILY_TWEET_CAP} slots; ${slotsRemaining} available)`,
-      `4. Post via existing X client (honors kill switch + dedup)`,
-      `5. Fire amplification email to operator (D4 — required, non-blocking)`,
-      `6. Log edition to daily_read_log`,
+      `STEP 2 — draft (you, this dispatch turn, in Arc's voice per SOUL.md):`,
+      `  Read the brief. Write tweets 1-3 as JSON`,
+      `  { "tweets": ["<tweet1>", "<tweet2>", "<tweet3>", "<ignored>"] } to`,
+      `  db/daily-read-materials/edition-${editionN}.draft.json. Requirements (validated`,
+      `  deterministically by 'post' — DEFERRED, not a crash, if any fail):`,
+      `    - Tweet 1 leads with the finding's hook and quotes its file:line citation literally`,
+      `      ("tested against a live agent" proof) — this is the lede, not an afterthought.`,
+      `    - Tweet 1's opening line must NOT match any of the brief's avoidOpenings.`,
+      `    - Follow the brief's assigned introStyle for tweet 1's framing.`,
+      `    - Every tweet ≤240 chars.`,
+      `    - Honor SOUL.md's voice rules (banned openers/adverbs/emphasis crutches, no`,
+      `      binary-contrast or rhetorical-question structures, active voice).`,
+      `    - Do NOT author tweet 4 — the stats footer + free-room CTA link are assembled`,
+      `      deterministically by the code, never by you, so the URL can't be wrong.`,
+      ``,
+      `STEP 3 — post (deterministic, run last):`,
+      `  bun ~/arc-starter/skills/arc-daily-read/cli.ts post --voice-file db/daily-read-materials/edition-${editionN}.draft.json`,
+      `  Re-validates the draft, then runs the unchanged deterministic pipeline: cap check`,
+      `  (need 4/${DAILY_TWEET_CAP} slots; ${slotsRemaining} available), kill switch, dedup,`,
+      `  X post, amplification email (D4 — required, non-blocking), and daily_read_log logging.`,
+      `  If the draft fails validation or is missing, this DEFERS (exits cleanly) rather than`,
+      `  falling back to the old pipeline-stats template.`,
       ``,
       `Reach-proof carry-forward: ≥10 consecutive beats needed (cannot fit this quest window).`,
       `Target: ≥15 net followers + ≥1 external RT within 7 days of Edition 1.`,
