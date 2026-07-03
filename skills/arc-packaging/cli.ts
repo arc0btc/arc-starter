@@ -10,10 +10,17 @@
 // a free redemption path (whop unlock-all, entitlement-only by default — see below). Mirrors
 // arc-article-pipeline's (P2) materials -> LLM draft -> deterministic stage contract.
 //
-// New Whop products are created HIDDEN by create-product's own existing default; this pipeline
-// does not need an operator gate to MINT (no money moves, nothing is publicly discoverable
-// until the operator's separate visibility flip). It DOES gate on the operator before any
-// member-facing announcement fires — see the unlock-all call in cmdStage below (dev-council:
+// New Whop products PUBLISH BY DEFAULT (operator directive 2026-07-03: "the SKUs are up to arc
+// to manage/publish and don't need my review either. same as the blog"). stage mints hidden
+// (create-product's unchanged default), wires mark-packaged + the member unlock promo, and
+// then — as the TERMINAL mutation — flips product+plan visible via whop set-visibility
+// (dev-council/Newman 2026-07-03: publish is the commit step, so the public storefront never
+// shows a SKU whose deliverable or member promo isn't wired yet; a failed flip leaves the row
+// 'claimed' for resume, and the operator email reports the READ-BACK visibility, not intent).
+// --keep-hidden opts a single stage run back into the old hidden-awaiting-flip behavior.
+// The pipeline still gates on the operator before any member-facing ANNOUNCEMENT fires
+// (publishing to the storefront ≠ pushing into paying members' chat) — see the unlock-all
+// call in cmdStage below (dev-council:
 // Newman flagged the original design's automatic chat post as a real premature-exposure risk
 // even though it isn't a QUEST.md hard gate; fixed here by defaulting to --skip-chat and
 // notifying the operator by email instead, mirroring Hohpe's "no operator feedback loop"
@@ -372,6 +379,7 @@ async function cmdStage(
   dryRun: boolean,
   forceSanitization: boolean,
   deliverableOverride?: string,
+  keepHidden = false,
 ): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
@@ -414,7 +422,9 @@ async function cmdStage(
   }
 
   if (dryRun) {
-    console.log("[DRY-RUN] validation + sanitization scan passed. Would claim, create-product, mark-packaged, unlock-all (silent).");
+    console.log(
+      `[DRY-RUN] validation + sanitization scan passed. Would claim, create-product (hidden), mark-packaged, unlock-all (silent)${keepHidden ? ", then stop (--keep-hidden)" : ", then set-visibility visible (live on the storefront)"}.`,
+    );
     db.close();
     return;
   }
@@ -507,11 +517,13 @@ async function cmdStage(
 
   // Entitlement only, silent by default — no automatic member-facing announcement. dev-council
   // (Newman): the original design's automatic chat post fired a live $0 checkout link to real
-  // paying members three subprocesses deep with no operator visibility, contradicting the
-  // "nothing public until the operator's visibility flip" framing (a real premature-exposure
-  // risk, even though a single paid-chat post isn't a QUEST.md hard gate). The operator email
-  // below (Hohpe's "no feedback loop" fix) gives the operator everything needed to post the
-  // announcement themselves once they've reviewed the SKU, or to explicitly ask Arc to.
+  // paying members three subprocesses deep with no operator visibility (a real premature-
+  // exposure risk, even though a single paid-chat post isn't a QUEST.md hard gate). Note the
+  // storefront itself is NO LONGER operator-gated (2026-07-03 directive: SKUs publish
+  // autonomously) — this --skip-chat gate survives on member-chat grounds alone: a push into
+  // paying members' chat is a different act than a new item appearing in a public catalog.
+  // The operator email below (Hohpe's "no feedback loop" fix) gives the operator everything
+  // needed to post the announcement themselves, or to explicitly ask Arc to.
   const unlockResult = await runCommand("bash", [
     "bin/arc",
     "skills",
@@ -534,6 +546,47 @@ async function cmdStage(
   const unlockJson = parseJsonTail(unlockResult.stdout) as { promo_id?: string; checkout_url?: string };
   console.log(`Membership unlock-all wired (silent — promo ${unlockJson.promo_id ?? "?"}, no chat post fired).`);
 
+  // Publish LAST — the commit step (operator directive 2026-07-03: SKUs publish autonomously,
+  // same as the blog; dev-council/Newman: publish must be the TERMINAL mutation so the public
+  // storefront never shows a SKU whose deliverable or member $0 promo isn't wired yet). This
+  // runs before the status='packaged' update on purpose: a crash or a failed flip leaves the
+  // row 'claimed', so the resume path re-runs the whole (idempotent) chain including this
+  // flip, instead of stranding a packaged-but-hidden SKU. `published` is read back from what
+  // Whop actually returned, never assumed from the flag (dev-council: Kleppmann/Lamport/Hohpe).
+  let published = false;
+  if (!keepHidden) {
+    const visResult = await runCommand("bash", [
+      "bin/arc",
+      "skills",
+      "run",
+      "--name",
+      "whop",
+      "--",
+      "set-visibility",
+      "--product",
+      createJson.product_id,
+      "--plan",
+      createJson.plan_id,
+      "--visibility",
+      "visible",
+    ]);
+    if (visResult.exitCode !== 0) {
+      throw new Error(`whop set-visibility failed (exit ${visResult.exitCode}): ${visResult.stderr || visResult.stdout}`);
+    }
+    const visJson = parseJsonTail(visResult.stdout) as {
+      after?: { visibility?: string; plan?: { visibility?: string } | null };
+    };
+    published = visJson.after?.visibility === "visible" && visJson.after?.plan?.visibility === "visible";
+    if (!published) {
+      throw new Error(
+        `set-visibility read-back did not confirm visible (got ${JSON.stringify(visJson.after)}) — row left 'claimed' for resume`,
+      );
+    }
+    console.log(`Published — product ${createJson.product_id} + plan ${createJson.plan_id} visible on the storefront (read back).`);
+  } else {
+    console.log("Kept hidden (--keep-hidden) — publish later via `whop set-visibility ... --visibility visible`.");
+  }
+
   db.run(
     `UPDATE packaging_queue_log SET status = 'packaged', promo_code_id = ?, packaged_at = ? WHERE report_file = ?`,
     [unlockJson.promo_id ?? null, new Date().toISOString(), reportFile],
@@ -549,6 +602,8 @@ async function cmdStage(
     checkoutUrl: productPageUrl,
     promoId: unlockJson.promo_id ?? null,
     memberCheckoutUrl: unlockJson.checkout_url ?? null,
+    published,
+    priceUsd: price,
   });
 
   console.log(
@@ -583,6 +638,8 @@ async function sendPackagingReviewEmail(info: {
   checkoutUrl: string | null;
   promoId: string | null;
   memberCheckoutUrl: string | null;
+  published: boolean;
+  priceUsd: number;
 }): Promise<boolean> {
   try {
     const { getCredential } = await import(join(ARC_STARTER_ROOT, "src/credentials.ts"));
@@ -594,12 +651,36 @@ async function sendPackagingReviewEmail(info: {
       return false;
     }
 
-    const subject = `New Whop SKU packaged — "${info.title}" (hidden, ready for your review)`;
+    const subject = info.published
+      ? `New Whop SKU published — "${info.title}" (live on the storefront)`
+      : `New Whop SKU packaged — "${info.title}" (hidden, ready for your review)`;
+    const statusLines = info.published
+      ? [
+          `Status: PUBLISHED — live and buyable on the public storefront (product + plan visible).`,
+          `Per your 2026-07-03 directive, SKUs publish autonomously, same as the blog. No action`,
+          `needed; this email is your visibility, not a review gate.`,
+        ]
+      : [
+          `Status: HIDDEN — not on the public storefront, reachable only by direct link. Nothing`,
+          `changes for buyers or members until you flip visibility.`,
+        ];
+    const closingLines = info.published
+      ? [
+          `The member announcement stays operator-gated — the redemption link has NOT been posted`,
+          `into the paid chat. Post it yourself or ask Arc to.`,
+          ``,
+          `Rollback (pulls it off the storefront):`,
+          `  bash bin/arc skills run --name whop -- set-visibility --product ${info.productId} --plan ${info.planId} --visibility hidden`,
+        ]
+      : [
+          `When you're ready: flip the product visible, and post the member redemption link into`,
+          `the paid chat yourself (or ask Arc to) — packaging stops here on purpose so a real`,
+          `person reviews a new SKU before it reaches a paying member.`,
+        ];
     const plainText = [
-      `Arc packaged a new $9 SKU from ${info.reportFile}: "${info.title}".`,
+      `Arc packaged a new $${info.priceUsd} SKU from ${info.reportFile}: "${info.title}".`,
       ``,
-      `Status: HIDDEN — not on the public storefront, reachable only by direct link. Nothing`,
-      `changes for buyers or members until you flip visibility.`,
+      ...statusLines,
       ``,
       `Product page / checkout: ${info.checkoutUrl ?? "(see whop dashboard, product " + info.productId + ")"}`,
       `Product ID: ${info.productId} | Plan ID: ${info.planId}`,
@@ -608,9 +689,7 @@ async function sendPackagingReviewEmail(info: {
       `  Promo: ${info.promoId ?? "(none)"}`,
       `  Member $0 redemption link: ${info.memberCheckoutUrl ?? "(none)"}`,
       ``,
-      `When you're ready: flip the product visible, and post the member redemption link into`,
-      `the paid chat yourself (or ask Arc to) — packaging stops here on purpose so a real`,
-      `person reviews a new SKU before it reaches a paying member.`,
+      ...closingLines,
     ].join("\n");
     const res = await fetch(`${apiBaseUrl}/api/send`, {
       method: "POST",
@@ -672,7 +751,13 @@ async function main() {
         console.error("stage requires --report <filename-in-research/>");
         process.exit(1);
       }
-      await cmdStage(report, args.includes("--dry-run"), args.includes("--force-sanitization"), argValue(args, "--deliverable"));
+      await cmdStage(
+        report,
+        args.includes("--dry-run"),
+        args.includes("--force-sanitization"),
+        argValue(args, "--deliverable"),
+        args.includes("--keep-hidden"),
+      );
       break;
     }
     case "status": {
@@ -687,10 +772,12 @@ async function main() {
           "  materials [--report <filename-in-research/>] [--slug <slug>]  pick the next backlog candidate, write a materials brief",
           "                                                                (--slug overrides the auto-derived slug/route for a report whose",
           "                                                                filename has no descriptive part, e.g. a batch-triage file)",
-          "  stage --report <filename> [--dry-run] [--force-sanitization] [--deliverable <path>]",
-          "                                                                validate the draft (+ sanitization scan unless forced), then mint the SKU",
+          "  stage --report <filename> [--dry-run] [--force-sanitization] [--deliverable <path>] [--keep-hidden]",
+          "                                                                validate the draft (+ sanitization scan unless forced), then mint AND",
+          "                                                                PUBLISH the SKU (visible on the storefront — operator directive 2026-07-03)",
           "  status                                                        show packaging_queue_log",
           "",
+          "  --keep-hidden: mint without publishing (old behavior — hidden until a set-visibility flip).",
           "  --force-sanitization: human-only escape hatch for a confirmed sanitizer false positive.",
           "  Never used by the automated sensor path.",
           "  --deliverable <path>: ship an already-polished standalone file instead of the raw",

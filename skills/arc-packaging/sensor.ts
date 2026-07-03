@@ -24,10 +24,12 @@ import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSourc
 import { selectCandidate } from "./lib/backlog.ts";
 
 const SENSOR_NAME = "arc-packaging";
-const CADENCE_MINUTES = 60 * 24; // 24h — a supply-side backlog stage (mints HIDDEN products
-// only, no member-facing announcement fires automatically — see cli.ts's stage — so it can
-// safely run faster than P2's 48h demand-channel floor without risking "looks spammy on
-// turn-on," which only applies to public/member-facing content).
+const CADENCE_MINUTES = 60 * 24; // 24h — a supply-side backlog stage. Since 2026-07-03 the
+// stage PUBLISHES each SKU to the storefront (operator directive: SKUs are Arc-managed, like
+// the blog — a growing corpus + consistent automated operations). One new catalog item per
+// day is catalog growth, not feed spam — it pushes nothing into anyone's timeline or chat;
+// the member-facing ANNOUNCEMENT still never fires automatically (see cli.ts's stage), which
+// is what "looks spammy on turn-on" actually guards.
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const INDEX_PATH = join(ARC_STARTER_ROOT, "research/INDEX.md");
@@ -107,13 +109,14 @@ export default async function arcPackagingSensor(): Promise<string> {
       `  bun skills/arc-packaging/cli.ts stage --report ${candidate.reportFile}`,
       `  Validates the draft (dual-frame check + sanitization scan), strips internal-only`,
       `  content (Arc's own recommendations table, wiki-links, cache/task-id provenance lines)`,
-      `  from the deliverable, mints the Whop SKU (HIDDEN — no operator gate needed to mint;`,
-      `  nothing goes public), marks the report packaged in research/INDEX.md, and wires`,
-      `  membership unlock-all SILENTLY (a $0 promo code — no chat announcement fires`,
-      `  automatically). Emails whoabuddy a review summary with the product/checkout/promo`,
-      `  links. This is the end of the pipeline for this report — the operator flips`,
-      `  visibility AND posts the member announcement on their own timeline, once they've`,
-      `  reviewed the SKU (packaging stops on purpose before anything reaches a paying member).`,
+      `  from the deliverable, mints the Whop SKU, marks the report packaged in`,
+      `  research/INDEX.md, wires membership unlock-all SILENTLY (a $0 promo code — no chat`,
+      `  announcement fires automatically), and finally makes the SKU visible on the public`,
+      `  storefront (operator directive 2026-07-03: SKUs are Arc-managed, no operator review,`,
+      `  same as the blog). Emails whoabuddy a summary with the product/checkout/promo links`,
+      `  for visibility (not a review gate). This is the end of the pipeline for this report —`,
+      `  the member-chat announcement stays operator-gated; do NOT post the SKU, checkout`,
+      `  link, or redemption link anywhere yourself (no chat, forum, X, or blog mention).`,
     ].join("\n"),
     skills: JSON.stringify(["arc-packaging"]),
     priority: 4,

@@ -503,3 +503,4 @@ I'm executing task #20786 to regenerate
 2026-07-03T19:34:23.116Z | task #20976 | completed | sonnet | Nostr note from artifact: the discipline that transfers | Posted Nostr note on dead_ends/MEMORY.md as convergent solutions to no-memory-be
 2026-07-03T19:40:19.468Z | task #20977 | completed | sonnet | Nostr note from artifact: what the swarm actually is | Posted nostr note on swarm-as-platform-not-API framing (eventId 8efa7dfa..., bot
 2026-07-03T19:46:29.761Z | task #20978 | completed | sonnet | Nostr note from artifact: the wrong version number | Posted Nostr note on the alias-bug artifact (eventId 25621b57...); confirmed on 
+2026-07-03T19:53:20.088Z | task #20979 | completed | sonnet | Nostr note from artifact: generate cheap, verify expensive | Posted Nostr note on generate-cheap/verify-expensive split; eventId ee07e29a...,

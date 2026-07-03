@@ -1,6 +1,6 @@
 ---
 name: arc-packaging
-description: The standing SKU-packaging pipeline stage — turns a fresh relevance-4/5 research report into a hidden Whop SKU with dual-audience-frame copy and membership unlock-all, automatically
+description: The standing SKU-packaging pipeline stage — turns a fresh relevance-4/5 research report into a published Whop SKU with dual-audience-frame copy and membership unlock-all, automatically
 updated: 2026-07-03
 tags:
   - monetization
@@ -38,13 +38,21 @@ to remember to work; this sensor consumes it on a cadence so it no longer grows 
      `[[wiki-links]]` to plain text, relabels "Provenance" as customer-facing and drops
      cache-hash/task-ID lines; a raw research report is written for Arc's own engineering
      backlog, not a paying stranger)
-   - mints the SKU via `whop create-product` (HIDDEN by that command's own existing default —
-     no operator gate needed to mint; nothing is public until a separate visibility flip)
+   - mints the SKU via `whop create-product` (still created hidden at this point)
    - closes the loop via `arc-link-research mark-packaged`
    - wires **membership unlock-all SILENTLY** (`--skip-chat` — a $0 promo code is created, but
      no announcement is posted; see below)
-   - emails the operator a review summary (product/checkout/promo links) so packaging has a
-     real feedback loop instead of piling up silent HIDDEN products
+   - **PUBLISHES as the terminal step** via `whop set-visibility --visibility visible` (product
+     + plan) — operator directive 2026-07-03: "the SKUs are up to arc to manage/publish and
+     don't need my review either. same as the blog." Terminal on purpose (dev-council/Newman):
+     the storefront never shows a SKU whose deliverable or member promo isn't wired yet, and a
+     failed flip leaves the queue row `claimed` so the resume path re-runs the idempotent
+     chain. Pass `--keep-hidden` to `stage` for the old hidden-until-operator-flip behavior;
+     rollback for any published SKU is
+     `bash bin/arc skills run --name whop -- set-visibility --product <prod_> --plan <plan_> --visibility hidden`
+   - emails the operator a summary (product/checkout/promo links + rollback command) reporting
+     the READ-BACK visibility — since the 2026-07-03 directive this is operator visibility,
+     not a review gate
 
 ## Membership unlock-all (`whop unlock-all`)
 
@@ -74,7 +82,7 @@ chat line; flagged as a carry-forward, not built this phase (scope).
 
 ```
 bun skills/arc-packaging/cli.ts materials [--report <filename-in-research/>]
-bun skills/arc-packaging/cli.ts stage --report <filename> [--dry-run] [--force-sanitization]
+bun skills/arc-packaging/cli.ts stage --report <filename> [--dry-run] [--force-sanitization] [--keep-hidden]
 bun skills/arc-packaging/cli.ts status
 ```
 
@@ -95,9 +103,10 @@ actual selector can no longer disagree.
 
 ## Sensor
 
-Cadence: every 24h. This is a supply-side stage (mints HIDDEN products, no automatic member-
-facing exposure) so it can run faster than P2's 48h demand-channel floor without the "looks
-spammy on turn-on" risk that applies to public/member-facing content. Dedup key is the
+Cadence: every 24h. This is a supply-side stage: since 2026-07-03 it publishes each SKU to the
+storefront, but a new catalog item pushes nothing into any feed, timeline, or chat — the
+member-facing announcement still never fires automatically, which is what the "looks spammy on
+turn-on" risk (and P2's 48h demand-channel floor) actually guards against. Dedup key is the
 candidate's own `report_file` (not a count-derived pseudo-sequence — dev-council/Lamport flagged
 the earlier scheme as driftable under concurrent or manual runs). Kill-switch
 (`outbound_enabled`) checked. **Never mints anything itself** — stops at queuing a dispatch
@@ -132,6 +141,14 @@ multi-part vision for this quest — see that entry for the full rationale and r
   50/100 rows respectively (pre-existing `whop/cli.ts` behavior, not changed by P3) — this
   pipeline is exactly what pushes the catalog toward that ceiling over time; paginate those
   scans before the catalog crosses ~50 products.
+- `packaging_queue_log` has no `visibility` column — published-vs-hidden lives only on Whop
+  (read back per flip) and in the verify artifacts, not the local ledger (dev-council/
+  Kleppmann, 2026-07-03 publish-by-default review; acceptable while status='packaged' implies
+  a confirmed-visible flip, revisit if `--keep-hidden` gets real use).
+- `create-product`'s plan create-or-find has no serialization point (dev-council/Lamport,
+  same review, pre-existing): a manual `stage` racing the dispatched task on the SAME report
+  could stack two one-time plans on one product. The queue layer's claim CAS protects the
+  sensor path; don't run manual stages concurrently with a live dispatch claim.
 
 ## When to Load
 

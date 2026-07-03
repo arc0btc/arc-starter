@@ -145,12 +145,17 @@ function printHelp(): void {
       "  rename-experience --id exp_xxx --title <new title>",
       "  create-course --experience exp_xxx --title <t>",
       "  create-product --title <t> --route <slug> [--price 9] [--description <d>] [--headline <h>]",
-      "                [--report <md-path>] [--file <html/pdf-path>] [--quiz <json-path>] [--allow-empty]",
-      "                         mint a hidden SKU; deliverable flags auto-attach a course (report + quiz) so",
+      "                [--report <md-path>] [--file <html/pdf-path>] [--quiz <json-path>] [--allow-empty] [--publish]",
+      "                         mint a SKU; deliverable flags auto-attach a course (report + quiz) so",
       "                         checkout delivers. With NO deliverable flags it FAILS unless --allow-empty (a",
-      "                         bare SKU would ship a buyer an empty product) — attach later via attach-deliverable",
+      "                         bare SKU would ship a buyer an empty product) — attach later via attach-deliverable.",
+      "                         Default HIDDEN; --publish flips product+plan visible after the deliverable",
+      "                         attaches (refused with --allow-empty — never publish an empty product)",
       "  attach-deliverable --product prod_xxx [--title <t>] [--report <md>] [--file <html/pdf>] [--quiz <json>]",
       "                         (re-)attach the per-SKU course deliverable; idempotent, refreshes content",
+      "  set-visibility --product prod_xxx --visibility visible|hidden [--plan plan_xxx]",
+      "                         flip a product (and its plan — pass --plan when publishing, or the page shows",
+      "                         no price) live/hidden; prints before/after read-back + a paste-ready rollback",
       "  unlock-all --product prod_xxx [--plan plan_xxx] [--title <t>] [--skip-chat]",
       "                         P3: membership entitlement — create-or-find a 100%-off unlimited promo scoped",
       "                         to the product, announce the $0 redemption link once in the members chat",
@@ -405,8 +410,9 @@ async function cmdCreateLesson(apiKey: string, flags: Record<string, string>): P
 // --- Product SKU creation (P10A — productize a research report as a one-time SKU) ---
 // create-product mints ONE Whop product per report, each with a ONE-TIME plan (no
 // subscription; the $49/mo membership stays the only recurring plan). Created HIDDEN
-// (accessible by direct link, off the public store) so the report can be attached and
-// a $0 test-purchase run before the operator flips it visible at go-live. The 30% global
+// (accessible by direct link, off the public store) so the plan + deliverable attach before
+// anything is buyer-visible; --publish then flips product+plan visible in the same run
+// (operator directive 2026-07-03: SKUs publish autonomously, like the blog). The 30% global
 // + member affiliate mirrors the membership product so a `?a=arc0btc` sale is attributable.
 
 interface PlanSummary {
@@ -563,6 +569,43 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
     );
   }
 
+  // --publish (operator directive 2026-07-03: SKUs publish autonomously, same as the blog —
+  // no hidden-awaiting-operator staging). Flip visible only AFTER the plan and deliverable
+  // both exist, so the mint-hidden→attach→publish sequence never exposes a buyer to an empty
+  // or unpriced product page. The bare --allow-empty path has `deliverable === null` and is
+  // refused — a visible SKU with no deliverable ships a buyer an EMPTY product, which is the
+  // one thing this flow exists to prevent.
+  //
+  // Ordering matters (dev-council 2026-07-03, Kleppmann+Lamport, CONFIRMED): flip the PLAN
+  // visible first, the PRODUCT second. The two updates are separate network calls; a crash
+  // between them must leave the product still hidden (harmless — a hidden product with a
+  // visible plan exposes nothing) rather than live-but-unpriced on the storefront. Both
+  // visibilities below are READ BACK from the update responses, not assumed, so the JSON
+  // output reports what Whop actually did (a re-run of create-product/stage re-flips both —
+  // self-healing for a mid-publish crash).
+  let productVisibility = existing?.visibility ?? "hidden";
+  // Match the file's flag idiom (`=== "true"`, like --member/--disable): parseFlags maps a
+  // bare --publish to "true", but --publish=false must not read as truthy (dev-council/Fowler).
+  if (flags.publish === "true") {
+    if (!deliverable) {
+      fail(
+        "create-product: --publish requires a deliverable attached in this run (it cannot combine with " +
+          "--allow-empty). Attach via the deliverable flags, or attach-deliverable later and then flip with " +
+          "`set-visibility --product <prod_> --plan <plan_> --visibility visible`.",
+      );
+    }
+    const publishedPlan = (await client.plans.update(planId, { visibility: "visible" })) as {
+      visibility?: string;
+    };
+    plan.visibility = publishedPlan.visibility ?? "visible";
+    const publishedProduct = await client.products.update(productId, { visibility: "visible" });
+    productVisibility = publishedProduct.visibility;
+    process.stderr.write(
+      `whop: published — plan ${planId} then product ${productId} flipped visible (rollback: ` +
+        `${SET_VISIBILITY_CMD} --product ${productId} --plan ${planId} --visibility hidden)\n`,
+    );
+  }
+
   process.stdout.write(
     JSON.stringify(
       {
@@ -570,7 +613,8 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
         product_id: productId,
         plan_id: planId,
         route,
-        visibility: "hidden",
+        visibility: productVisibility,
+        plan_visibility: plan.visibility,
         price_usd: plan.initial_price,
         plan_type: plan.plan_type,
         affiliate: PAID_ROOM_AFFILIATE,
@@ -582,7 +626,89 @@ async function cmdCreateProduct(apiKey: string, flags: Record<string, string>): 
           PRODUCT_CHECKOUT_URL: checkoutUrl,
         },
         deliverable,
-        note: "wire `constants` into src/constants.ts PRODUCT_*; product is HIDDEN until the operator flips it visible at go-live",
+        note:
+          "wire `constants` into src/constants.ts PRODUCT_*; " +
+          (productVisibility === "visible"
+            ? "product is LIVE on the public storefront (published this run)"
+            : "product is HIDDEN — publish with set-visibility, or re-run with --publish"),
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
+// ---- set-visibility: flip a product (and optionally its plan) between visible/hidden ----
+//
+// The publish/unpublish mutation as a first-class auditable command (operator directive
+// 2026-07-03: SKU visibility is Arc-managed). Prints a before/after read-back plus a paste-ready
+// rollback command so every flip is ledger-able. When flipping TO visible, the plan should
+// normally be flipped too (a visible product whose only plan is hidden shows no purchasable
+// price on the product page — the catalog's visible products all carry visible plans).
+
+// The one invocation form this repo actually runs (bin/arc resolves creds + PATH) — used for
+// every printed rollback so "paste-ready" is literally true (dev-council/Fowler 2026-07-03).
+const SET_VISIBILITY_CMD = "bash bin/arc skills run --name whop -- set-visibility";
+async function cmdSetVisibility(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("set-visibility requires --product prod_xxx");
+  const target = flags.visibility;
+  if (target !== "visible" && target !== "hidden") {
+    fail("set-visibility requires --visibility visible|hidden (archived/quick_link are dashboard-only ops)");
+  }
+  const client = whopClient(apiKey);
+
+  const before = await client.products.retrieve(flags.product);
+  if (target === "visible" && !flags.plan) {
+    process.stderr.write(
+      "whop: set-visibility note — no --plan given; a visible product with only hidden plans shows no " +
+        "buyable price on its page. Pass --plan plan_xxx to publish the price too.\n",
+    );
+  }
+  let planBefore: { id: string; visibility: string } | null = null;
+  if (flags.plan) {
+    const pb = (await client.plans.retrieve(flags.plan)) as { id: string; visibility: string };
+    planBefore = { id: pb.id, visibility: pb.visibility };
+  }
+
+  // Update ORDER depends on direction (dev-council 2026-07-03, Kleppmann/Lamport/Newman): the
+  // two updates are separate network calls, so a crash between them must never strand the
+  // "visible product, hidden plan = live-but-unpriced page" state. Going visible: plan first,
+  // product second (crash leaves everything effectively hidden). Going hidden: product first,
+  // plan second (crash leaves a hidden product with a still-visible plan — exposes nothing).
+  let planAfter: { id: string; visibility: string } | null = null;
+  if (flags.plan && target === "visible") {
+    const pa = (await client.plans.update(flags.plan, { visibility: target })) as { id: string; visibility: string };
+    planAfter = { id: pa.id, visibility: pa.visibility };
+  }
+  const after = await client.products.update(flags.product, { visibility: target });
+  if (flags.plan && target === "hidden") {
+    const pa = (await client.plans.update(flags.plan, { visibility: target })) as { id: string; visibility: string };
+    planAfter = { id: pa.id, visibility: pa.visibility };
+  }
+
+  // Paste-ready rollback in the SAME invocation form the repo actually runs (dev-council/
+  // Fowler: three inconsistent spellings defeat "paste-ready"). Restores each entity to its
+  // own prior state — two commands only when product and plan had diverged before this flip.
+  const rollback: string[] = [];
+  if (planBefore && planBefore.visibility !== before.visibility) {
+    rollback.push(`${SET_VISIBILITY_CMD} --product ${flags.product} --plan ${flags.plan} --visibility ${planBefore.visibility}`);
+    rollback.push(`${SET_VISIBILITY_CMD} --product ${flags.product} --visibility ${before.visibility}`);
+  } else {
+    rollback.push(
+      `${SET_VISIBILITY_CMD} --product ${flags.product}` +
+        (flags.plan ? ` --plan ${flags.plan}` : "") +
+        ` --visibility ${before.visibility}`,
+    );
+  }
+
+  process.stdout.write(
+    JSON.stringify(
+      {
+        product_id: after.id,
+        route: (after as { route?: string }).route ?? null,
+        before: { visibility: before.visibility, plan: planBefore },
+        after: { visibility: after.visibility, plan: planAfter },
+        rollback,
       },
       null,
       2,
@@ -1255,6 +1381,11 @@ async function main(): Promise<void> {
     case "attach-deliverable": {
       const apiKey = await requireApiKey();
       await cmdAttachDeliverable(apiKey, flags);
+      break;
+    }
+    case "set-visibility": {
+      const apiKey = await requireApiKey();
+      await cmdSetVisibility(apiKey, flags);
       break;
     }
     case "unlock-all": {
