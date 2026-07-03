@@ -281,10 +281,10 @@ Commands:
   remove --name NAME        Discard worktree and branch
 
 Examples:
-  arc skills run --name worktrees -- create --name my-feature
-  arc skills run --name worktrees -- validate --name my-feature
-  arc skills run --name worktrees -- merge --name my-feature
-  arc skills run --name worktrees -- remove --name my-feature`);
+  arc skills run --name arc-worktrees -- create --name my-feature
+  arc skills run --name arc-worktrees -- validate --name my-feature
+  arc skills run --name arc-worktrees -- merge --name my-feature
+  arc skills run --name arc-worktrees -- remove --name my-feature`);
 }
 
 // ---- Entry point ----

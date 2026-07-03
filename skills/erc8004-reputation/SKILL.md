@@ -16,17 +16,17 @@ Provides ERC-8004 on-chain agent reputation operations using the reputation-regi
 ## CLI Commands
 
 ```
-arc skills run --name reputation -- give-feedback --agent-id <id> --value <value> [--value-decimals <decimals>] [--tag1 <tag>] [--tag2 <tag>] [--endpoint <endpoint>] [--feedback-uri <uri>] [--feedback-hash <hex>] [--fee <fee>] [--sponsored]
-arc skills run --name reputation -- revoke-feedback --agent-id <id> --index <index> [--fee <fee>] [--sponsored]
-arc skills run --name reputation -- append-response --agent-id <id> --client <address> --index <index> --response-uri <uri> --response-hash <hex> [--fee <fee>] [--sponsored]
-arc skills run --name reputation -- approve-client --agent-id <id> --client <address> --index-limit <limit> [--fee <fee>] [--sponsored]
-arc skills run --name reputation -- get-summary --agent-id <id>
-arc skills run --name reputation -- read-feedback --agent-id <id> --client <address> --index <index>
-arc skills run --name reputation -- read-all-feedback --agent-id <id> [--tag1 <tag>] [--tag2 <tag>] [--include-revoked] [--cursor <cursor>]
-arc skills run --name reputation -- get-clients --agent-id <id> [--cursor <cursor>]
-arc skills run --name reputation -- get-feedback-count --agent-id <id>
-arc skills run --name reputation -- get-approved-limit --agent-id <id> --client <address>
-arc skills run --name reputation -- get-last-index --agent-id <id> --client <address>
+arc skills run --name erc8004-reputation -- give-feedback --agent-id <id> --value <value> [--value-decimals <decimals>] [--tag1 <tag>] [--tag2 <tag>] [--endpoint <endpoint>] [--feedback-uri <uri>] [--feedback-hash <hex>] [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-reputation -- revoke-feedback --agent-id <id> --index <index> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-reputation -- append-response --agent-id <id> --client <address> --index <index> --response-uri <uri> --response-hash <hex> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-reputation -- approve-client --agent-id <id> --client <address> --index-limit <limit> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-reputation -- get-summary --agent-id <id>
+arc skills run --name erc8004-reputation -- read-feedback --agent-id <id> --client <address> --index <index>
+arc skills run --name erc8004-reputation -- read-all-feedback --agent-id <id> [--tag1 <tag>] [--tag2 <tag>] [--include-revoked] [--cursor <cursor>]
+arc skills run --name erc8004-reputation -- get-clients --agent-id <id> [--cursor <cursor>]
+arc skills run --name erc8004-reputation -- get-feedback-count --agent-id <id>
+arc skills run --name erc8004-reputation -- get-approved-limit --agent-id <id> --client <address>
+arc skills run --name erc8004-reputation -- get-last-index --agent-id <id> --client <address>
 ```
 
 ## Subcommands

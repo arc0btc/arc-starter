@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/erc8004-validation/cli.ts
 // Wrapper for validation skill, delegates to upstream aibtcdev/skills implementation.
-// Usage: arc skills run --name validation -- <subcommand> [flags]
+// Usage: arc skills run --name erc8004-validation -- <subcommand> [flags]
 
 import { resolve } from "node:path";
 
@@ -42,7 +42,7 @@ async function main(args: string[]): Promise<void> {
   if (args.length === 0) {
     console.log(`Validation Skill
 
-Usage: arc skills run --name validation -- <subcommand> [options]
+Usage: arc skills run --name erc8004-validation -- <subcommand> [options]
 
 Subcommands:
   request                  Request validation from a validator

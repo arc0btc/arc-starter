@@ -64,7 +64,7 @@ insertTask({
   MongoDB ID: ${market._id}
 
   Command to file:
-  arc skills run --name aibtc-news -- file-signal \\
+  arc skills run --name aibtc-news-editorial -- file-signal \\
     --beat "Ordinals Business" \\
     --headline "High-volume prediction market: ${market.title}" \\
     --body "Stacks L2 prediction market on stacksmarket.app with ${market.volume_24h} STX 24h volume. Category: ${market.category}. Resolves: ${market.resolves_at}" \\

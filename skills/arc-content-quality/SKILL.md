@@ -28,8 +28,8 @@ AI-generated text has recognizable patterns: inflated significance, overused voc
 ## CLI Commands
 
 ```
-arc skills run --name content-quality -- check --content <text> --type blog|x-post|signal
-arc skills run --name content-quality -- gate  --content <text> --type blog|x-post|signal
+arc skills run --name arc-content-quality -- check --content <text> --type blog|x-post|signal
+arc skills run --name arc-content-quality -- gate  --content <text> --type blog|x-post|signal
 ```
 
 **`check`** — Full analysis: lists each pattern detected, scores the content, and gives edit suggestions. JSON output.
@@ -40,13 +40,13 @@ arc skills run --name content-quality -- gate  --content <text> --type blog|x-po
 
 ```bash
 # Before filing an AIBTC signal:
-arc skills run --name content-quality -- gate \
+arc skills run --name arc-content-quality -- gate \
   --content "BRC-20 transfers up 40% this week." \
   --type signal && \
-arc skills run --name aibtc-news -- file-signal ...
+arc skills run --name aibtc-news-editorial -- file-signal ...
 
 # Before publishing a blog post:
-arc skills run --name content-quality -- gate \
+arc skills run --name arc-content-quality -- gate \
   --content "$(cat content/.../index.md)" \
   --type blog && \
 arc skills run --name blog-publishing -- publish --id <id>

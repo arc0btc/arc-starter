@@ -27,19 +27,19 @@ Autonomous DAO governance participation on Stacks. Detects proposals, evaluates 
 
 ```bash
 # DAO tracking
-arc skills run --name zero-authority -- list-daos
-arc skills run --name zero-authority -- add-dao --contract <address.name> --label <name>
-arc skills run --name zero-authority -- remove-dao --contract <address.name>
+arc skills run --name dao-zero-authority -- list-daos
+arc skills run --name dao-zero-authority -- add-dao --contract <address.name> --label <name>
+arc skills run --name dao-zero-authority -- remove-dao --contract <address.name>
 
 # Proposal queries
-arc skills run --name zero-authority -- proposals --contract <address.name>
-arc skills run --name zero-authority -- proposal --contract <address.name> --id <proposal-id>
+arc skills run --name dao-zero-authority -- proposals --contract <address.name>
+arc skills run --name dao-zero-authority -- proposal --contract <address.name> --id <proposal-id>
 
 # Voting
-arc skills run --name zero-authority -- vote --contract <address.name> --id <proposal-id> --direction for|against
+arc skills run --name dao-zero-authority -- vote --contract <address.name> --id <proposal-id> --direction for|against
 
 # Governance overview
-arc skills run --name zero-authority -- status
+arc skills run --name dao-zero-authority -- status
 ```
 
 ## Integration

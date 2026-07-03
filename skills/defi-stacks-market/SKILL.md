@@ -22,22 +22,22 @@ All trades are budget-enforced. The CLI quotes before executing, applies slippag
 
 ```bash
 # Check remaining budget
-arc skills run --name stacks-market -- budget
+arc skills run --name defi-stacks-market -- budget
 
 # Buy YES shares (auto-quotes, checks budget, executes, records)
-arc skills run --name stacks-market -- buy --market-id 1771853629839 --side yes --amount 5 --market-title "BTC above 100k"
+arc skills run --name defi-stacks-market -- buy --market-id 1771853629839 --side yes --amount 5 --market-title "BTC above 100k"
 
 # Sell shares back before resolution
-arc skills run --name stacks-market -- sell --market-id 1771853629839 --side yes --amount 5
+arc skills run --name defi-stacks-market -- sell --market-id 1771853629839 --side yes --amount 5
 
 # Redeem winning shares after resolution (1 winning share = 1 STX)
-arc skills run --name stacks-market -- redeem --market-id 1771853629839
+arc skills run --name defi-stacks-market -- redeem --market-id 1771853629839
 
 # View all positions
-arc skills run --name stacks-market -- positions
+arc skills run --name defi-stacks-market -- positions
 
 # Portfolio summary with P&L
-arc skills run --name stacks-market -- portfolio
+arc skills run --name defi-stacks-market -- portfolio
 ```
 
 **Trade flow:** quote → budget check → size check → execute (wallet auto-unlock) → record position → output result with updated budget.
@@ -57,12 +57,12 @@ arc skills run --name stacks-market -- portfolio
 ## Read-Only Commands
 
 ```bash
-arc skills run --name stacks-market -- list-markets --limit 20
-arc skills run --name stacks-market -- search-markets --query "Bitcoin" --limit 10
-arc skills run --name stacks-market -- get-market --market-id 699c573ea7bb5ad25fee68a0
-arc skills run --name stacks-market -- quote-buy --market-id 1771853629839 --side yes --amount 5
-arc skills run --name stacks-market -- quote-sell --market-id 1771853629839 --side yes --amount 5
-arc skills run --name stacks-market -- get-position --market-id 1771853629839
+arc skills run --name defi-stacks-market -- list-markets --limit 20
+arc skills run --name defi-stacks-market -- search-markets --query "Bitcoin" --limit 10
+arc skills run --name defi-stacks-market -- get-market --market-id 699c573ea7bb5ad25fee68a0
+arc skills run --name defi-stacks-market -- quote-buy --market-id 1771853629839 --side yes --amount 5
+arc skills run --name defi-stacks-market -- quote-sell --market-id 1771853629839 --side yes --amount 5
+arc skills run --name defi-stacks-market -- get-position --market-id 1771853629839
 ```
 
 ## Sensor Behavior

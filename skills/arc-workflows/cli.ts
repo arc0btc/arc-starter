@@ -41,7 +41,7 @@ function printUsage(): void {
   process.stdout.write(`workflows CLI
 
 USAGE
-  arc skills run --name workflows -- <subcommand> [args]
+  arc skills run --name arc-workflows -- <subcommand> [args]
 
 SUBCOMMANDS
   list                                      List all active workflows

@@ -14,16 +14,16 @@ Provides cost, token, and performance breakdowns across model tiers (Opus/Sonnet
 ## CLI Commands
 
 ```
-arc skills run --name performance-analytics -- summary [--period today|week|month|all]
+arc skills run --name arc-performance-analytics -- summary [--period today|week|month|all]
   Cost/token totals by model tier for the given period (default: today).
 
-arc skills run --name performance-analytics -- by-skill [--period today|week|month|all] [--limit N]
+arc skills run --name arc-performance-analytics -- by-skill [--period today|week|month|all] [--limit N]
   Cost/token breakdown per skill. Shows which skills consume the most budget.
 
-arc skills run --name performance-analytics -- cycles [--limit N]
+arc skills run --name arc-performance-analytics -- cycles [--limit N]
   Recent dispatch cycles with model, duration, cost, and token counts.
 
-arc skills run --name performance-analytics -- help
+arc skills run --name arc-performance-analytics -- help
   Print usage.
 ```
 

@@ -32,7 +32,7 @@ Delegate to this agent when:
 ### Step 1 — Get Your Public Key
 
 ```bash
-arc skills run --name taproot-multisig -- get-pubkey
+arc skills run --name bitcoin-taproot-multisig -- get-pubkey
 ```
 
 Share the `internalPubKey` (32-byte hex) with the multisig coordinator.
@@ -51,7 +51,7 @@ The resulting Tapscript looks like:
 ### Step 3 — Sign the Sighash
 
 ```bash
-arc skills run --name wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign
+arc skills run --name bitcoin-wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign
 ```
 
 Returns a 64-byte Schnorr signature and your x-only public key. Submit both to the coordination API.
@@ -59,7 +59,7 @@ Returns a 64-byte Schnorr signature and your x-only public key. Submit both to t
 ### Step 4 — Verify Co-Signers (Recommended)
 
 ```bash
-arc skills run --name taproot-multisig -- verify-cosig \
+arc skills run --name bitcoin-taproot-multisig -- verify-cosig \
   --digest <sighash_hex> \
   --signature <cosig_hex> \
   --public-key <cosigner_pubkey_hex>

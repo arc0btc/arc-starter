@@ -11,7 +11,7 @@ You are setting up or maintaining Arc's MCP server. This server exposes Arc's ta
 ## Key Files
 
 - `skills/arc-mcp-server/server.ts` — Core MCP server with tools + resources
-- `skills/arc-mcp-server/cli.ts` — CLI wrapper for `arc skills run --name mcp-server`
+- `skills/arc-mcp-server/cli.ts` — CLI wrapper for `arc skills run --name arc-mcp-server`
 - `src/db.ts` — Database functions used by tools (getPendingTasks, insertTask, etc.)
 
 ## Tools Registered

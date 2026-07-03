@@ -124,7 +124,7 @@ function cmdInvestigate(args: string[]): void {
 
   if (!pattern) {
     process.stderr.write(
-      "Usage: arc skills run --name failure-triage -- investigate --pattern <text>\n"
+      "Usage: arc skills run --name arc-failure-triage -- investigate --pattern <text>\n"
     );
     process.exit(1);
   }
@@ -181,8 +181,8 @@ function printUsage(): void {
   console.log(`failure-triage — detect recurring failure patterns
 
 Usage:
-  arc skills run --name failure-triage -- scan [--hours 24] [--threshold 3] [--create-tasks]
-  arc skills run --name failure-triage -- investigate --pattern <text>
+  arc skills run --name arc-failure-triage -- scan [--hours 24] [--threshold 3] [--create-tasks]
+  arc skills run --name arc-failure-triage -- investigate --pattern <text>
 
 Commands:
   scan           Review recent failed/blocked tasks, group by error signature

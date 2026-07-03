@@ -27,8 +27,8 @@ Runs every 120 minutes via `claimSensorRun("arc-housekeeping", 120)`. Creates a 
 ## CLI
 
 ```
-arc skills run --name housekeeping -- check    # run all checks, output JSON report
-arc skills run --name housekeeping -- fix      # auto-fix safe issues
+arc skills run --name arc-housekeeping -- check    # run all checks, output JSON report
+arc skills run --name arc-housekeeping -- fix      # auto-fix safe issues
 ```
 
 ### `check`

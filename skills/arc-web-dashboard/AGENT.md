@@ -293,8 +293,8 @@ WantedBy=default.target
 
 ### CLI commands
 ```
-arc skills run --name dashboard -- start [--port 3000]
-arc skills run --name dashboard -- stop
+arc skills run --name arc-web-dashboard -- start [--port 3000]
+arc skills run --name arc-web-dashboard -- stop
 ```
 
 ---

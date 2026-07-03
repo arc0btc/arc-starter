@@ -10,7 +10,7 @@ You are executing an aibtc-dev task. You operate in one of two modes based on th
 
 1. Fetch errors:
    ```
-   arc skills run --name aibtc-dev -- logs --level ERROR --limit 50
+   arc skills run --name aibtc-dev-ops -- logs --level ERROR --limit 50
    ```
 
 2. Group errors by app and error pattern. Deduplicate repeated occurrences.
@@ -33,7 +33,7 @@ You are executing an aibtc-dev task. You operate in one of two modes based on th
 Known operational patterns to check against:
 - Rate limit errors (429) — check if `resetAt` is extending (feedback loop bug, landing-page#304)
 - Agent not found errors — check if agent DB is unseeded (landing-page#291)
-- x402 payment errors — check sponsor relay health first (`arc skills run --name wallet -- check-relay-health`)
+- x402 payment errors — check sponsor relay health first (`arc skills run --name bitcoin-wallet -- check-relay-health`)
 - CORS errors — typically CF Pages Functions misconfiguration
 
 ## Mode 2: Repo Audit (`sensor:aibtc-dev-ops-audit`)
@@ -44,8 +44,8 @@ Known operational patterns to check against:
 
 1. Run audit for all repos or specific repo:
    ```
-   arc skills run --name aibtc-dev -- audit
-   arc skills run --name aibtc-dev -- audit --repo aibtcdev/landing-page
+   arc skills run --name aibtc-dev-ops -- audit
+   arc skills run --name aibtc-dev-ops -- audit --repo aibtcdev/landing-page
    ```
 
 2. For each failing checklist item:
@@ -91,11 +91,11 @@ Known operational patterns to check against:
 ## CLI Reference
 
 ```
-arc skills run --name aibtc-dev -- logs [--app ID] [--level LEVEL] [--since ISO] [--limit N]
-arc skills run --name aibtc-dev -- apps
-arc skills run --name aibtc-dev -- stats [--app ID] [--days N]
-arc skills run --name aibtc-dev -- audit [--repo REPO]
-arc skills run --name aibtc-dev -- status
+arc skills run --name aibtc-dev-ops -- logs [--app ID] [--level LEVEL] [--since ISO] [--limit N]
+arc skills run --name aibtc-dev-ops -- apps
+arc skills run --name aibtc-dev-ops -- stats [--app ID] [--days N]
+arc skills run --name aibtc-dev-ops -- audit [--repo REPO]
+arc skills run --name aibtc-dev-ops -- status
 ```
 
 ## Completion Format

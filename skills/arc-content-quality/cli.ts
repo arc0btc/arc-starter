@@ -317,7 +317,7 @@ async function cmdCheck(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.content || !flags.type) {
-    console.error("Usage: arc skills run --name content-quality -- check --content <text> --type blog|x-post|signal");
+    console.error("Usage: arc skills run --name arc-content-quality -- check --content <text> --type blog|x-post|signal");
     process.exit(1);
   }
 
@@ -339,7 +339,7 @@ async function cmdGate(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.content || !flags.type) {
-    console.error("Usage: arc skills run --name content-quality -- gate --content <text> --type blog|x-post|signal");
+    console.error("Usage: arc skills run --name arc-content-quality -- gate --content <text> --type blog|x-post|signal");
     process.exit(1);
   }
 
@@ -376,8 +376,8 @@ Commands:
   gate   --content <text> --type blog|x-post|signal   Binary pass/fail (exit 0=pass, 2=fail)
 
 Examples:
-  arc skills run --name content-quality -- gate --content "BRC-20 up 40%." --type signal
-  arc skills run --name content-quality -- check --content "..." --type blog
+  arc skills run --name arc-content-quality -- gate --content "BRC-20 up 40%." --type signal
+  arc skills run --name arc-content-quality -- check --content "..." --type blog
 `);
   process.exit(0);
 }

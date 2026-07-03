@@ -70,11 +70,11 @@ Source keys: `sensor:aibtc-dev-ops-logs`, `sensor:aibtc-dev-ops-audit`.
 ## CLI
 
 ```
-arc skills run --name aibtc-dev -- logs [--app ID] [--level LEVEL] [--since ISO] [--limit N]
-arc skills run --name aibtc-dev -- apps
-arc skills run --name aibtc-dev -- stats [--app ID] [--days N]
-arc skills run --name aibtc-dev -- audit [--repo REPO]
-arc skills run --name aibtc-dev -- status
+arc skills run --name aibtc-dev-ops -- logs [--app ID] [--level LEVEL] [--since ISO] [--limit N]
+arc skills run --name aibtc-dev-ops -- apps
+arc skills run --name aibtc-dev-ops -- stats [--app ID] [--days N]
+arc skills run --name aibtc-dev-ops -- audit [--repo REPO]
+arc skills run --name aibtc-dev-ops -- status
 ```
 
 ### `logs`

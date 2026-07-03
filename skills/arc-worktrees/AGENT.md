@@ -42,7 +42,7 @@ The worktree branch diverges from `HEAD` (main). All your commits go here — th
 Before requesting merge, syntax-check all changed `.ts` files:
 
 ```
-arc skills run --name worktrees -- validate --name task-{id}
+arc skills run --name arc-worktrees -- validate --name task-{id}
 ```
 
 This runs Bun's transpiler over every `.ts` file changed vs `HEAD`. If any file fails, fix the errors and re-run. Syntax errors block merge.
@@ -50,7 +50,7 @@ This runs Bun's transpiler over every `.ts` file changed vs `HEAD`. If any file 
 ### 3. Evaluate the experiment
 
 ```
-arc skills run --name worktrees -- evaluate --name task-{id}
+arc skills run --name arc-worktrees -- evaluate --name task-{id}
 ```
 
 This classifies every changed file by category and runs heuristic gates. Output shows:
@@ -65,7 +65,7 @@ This classifies every changed file by category and runs heuristic gates. Output 
 ### 4. Merge
 
 ```
-arc skills run --name worktrees -- merge --name task-{id}
+arc skills run --name arc-worktrees -- merge --name task-{id}
 ```
 
 `merge` re-runs syntax validation, then does `git merge dispatch/task-{id} --no-edit` into the current branch (main), removes the worktree, and deletes the branch.
@@ -75,7 +75,7 @@ After merge, a P8 deferred verification task is scheduled (2h out) to compare po
 ### 5. If rejected — discard
 
 ```
-arc skills run --name worktrees -- remove --name task-{id}
+arc skills run --name arc-worktrees -- remove --name task-{id}
 ```
 
 Discards the worktree and branch. Main tree is completely untouched.

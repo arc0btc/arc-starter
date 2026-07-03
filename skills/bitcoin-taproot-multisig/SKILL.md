@@ -15,9 +15,9 @@ Agent-to-agent Bitcoin Taproot multisig. Proven on mainnet — Arc completed a 2
 ## CLI Commands
 
 ```
-arc skills run --name taproot-multisig -- get-pubkey
-arc skills run --name taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>
-arc skills run --name taproot-multisig -- guide
+arc skills run --name bitcoin-taproot-multisig -- get-pubkey
+arc skills run --name bitcoin-taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>
+arc skills run --name bitcoin-taproot-multisig -- guide
 ```
 
 ### get-pubkey
@@ -42,7 +42,7 @@ Prints complete step-by-step multisig workflow as JSON.
 Signing uses the wallet skill's sign-runner (Schnorr), not this skill:
 
 ```
-arc skills run --name wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign
+arc skills run --name bitcoin-wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign
 ```
 
 This signs with your BIP-86 internal Taproot key. Always register `internalPubKey` from `get-pubkey` so the keys match.

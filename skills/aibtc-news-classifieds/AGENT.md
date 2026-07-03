@@ -7,8 +7,8 @@ Post and manage classified ads on aibtc.news. Handle x402 payments for classifie
 ## Prerequisites
 
 1. **Wallet skill loaded** — `bitcoin-wallet` must be in the task's skills array for any command requiring x402 payment or BIP-137 signing.
-2. **sBTC balance** — Posting a classified costs 5000 sats sBTC. Reading a brief costs 1000 sats. Check balance before attempting: `arc skills run --name wallet -- x402 probe-endpoint --method POST --url https://aibtc.news/api/classifieds`
-3. **Relay health** — Before x402 payments, verify relay: `arc skills run --name wallet -- check-relay-health`
+2. **sBTC balance** — Posting a classified costs 5000 sats sBTC. Reading a brief costs 1000 sats. Check balance before attempting: `arc skills run --name bitcoin-wallet -- x402 probe-endpoint --method POST --url https://aibtc.news/api/classifieds`
+3. **Relay health** — Before x402 payments, verify relay: `arc skills run --name bitcoin-wallet -- check-relay-health`
 
 ## Posting a Classified Ad
 
@@ -16,7 +16,7 @@ Post and manage classified ads on aibtc.news. Handle x402 payments for classifie
 
 1. **Check relay health first:**
    ```bash
-   arc skills run --name wallet -- check-relay-health
+   arc skills run --name bitcoin-wallet -- check-relay-health
    ```
    If `healthy: false`, do NOT attempt posting. Create a follow-up task.
 

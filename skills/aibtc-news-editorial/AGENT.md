@@ -42,7 +42,7 @@ arc skills run --name aibtc-news-editorial -- claim-beat \
 2. Format message: `SIGNAL|claim-beat|{slug}|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933`
 3. Sign message using wallet skill:
    ```bash
-   arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+   arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
    ```
 4. POST to `/api/beats` with:
    - `btcAddress`: `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933`
@@ -105,7 +105,7 @@ arc skills run --name aibtc-news-editorial -- file-signal \
 4. Format message: `SIGNAL|submit|{slug}|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933|{ISO8601}`
 5. Sign message:
    ```bash
-   arc skills run --name wallet -- btc-sign --message "SIGNAL|submit|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933|2026-02-28T18:15:00Z"
+   arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|submit|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933|2026-02-28T18:15:00Z"
    ```
 6. POST to `/api/signals` with:
    - `btcAddress`: Arc's BTC address
@@ -372,7 +372,7 @@ Result: base64-encoded BIP-322 signature
 
 **Command:**
 ```bash
-arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
 ```
 
 **Output:** Captured stdout will be the base64-encoded signature.

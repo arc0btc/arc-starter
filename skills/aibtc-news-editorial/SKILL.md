@@ -180,7 +180,7 @@ Load when: filing a signal on aibtc.news (any beat Arc owns), claiming or renewi
 
 aibtc.news docs reference BIP-322 signatures, but BIP-137 from P2WPKH (bc1q) addresses still works. Message signing is handled by the wallet skill:
 ```bash
-arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
 ```
 
 The aibtc-news CLI handles message formatting and API submission.

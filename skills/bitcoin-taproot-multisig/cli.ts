@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/bitcoin-taproot-multisig/cli.ts
 // Unified CLI for Taproot multisig coordination.
-// Usage: arc skills run --name taproot-multisig -- <subcommand> [flags]
+// Usage: arc skills run --name bitcoin-taproot-multisig -- <subcommand> [flags]
 //
 // get-pubkey: routes through taproot-runner.ts (needs wallet unlock in-process)
 // verify-cosig: BIP-340 Schnorr verification (no wallet needed, runs in-process)
@@ -95,7 +95,7 @@ async function cmdVerifyCosig(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.digest || !flags.signature || !flags["public-key"]) {
-    process.stderr.write("Usage: arc skills run --name taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>\n");
     process.exit(1);
   }
 
@@ -169,7 +169,7 @@ function cmdGuide(): void {
       {
         step: 1,
         title: "Get Your Public Key",
-        command: "arc skills run --name taproot-multisig -- get-pubkey",
+        command: "arc skills run --name bitcoin-taproot-multisig -- get-pubkey",
         note: "Share 'internalPubKey' (32 bytes hex), NOT the tweaked key or address.",
       },
       {
@@ -181,13 +181,13 @@ function cmdGuide(): void {
       {
         step: 3,
         title: "Sign the Sighash",
-        command: "arc skills run --name wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign",
+        command: "arc skills run --name bitcoin-wallet -- schnorr-sign-digest --digest <sighash_hex> --confirm-blind-sign",
         note: "Uses BIP-86 internal key. Matches the internalPubKey from step 1.",
       },
       {
         step: 4,
         title: "Verify Co-Signers (Recommended)",
-        command: "arc skills run --name taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>",
+        command: "arc skills run --name bitcoin-taproot-multisig -- verify-cosig --digest <hex> --signature <hex> --public-key <hex>",
         note: "Repeat for each co-signer.",
       },
       {
@@ -214,7 +214,7 @@ function printUsage(): void {
   process.stdout.write(`taproot-multisig CLI
 
 USAGE
-  arc skills run --name taproot-multisig -- <subcommand> [flags]
+  arc skills run --name bitcoin-taproot-multisig -- <subcommand> [flags]
 
 SUBCOMMANDS
   get-pubkey
@@ -229,9 +229,9 @@ SUBCOMMANDS
     Print complete step-by-step multisig workflow as JSON.
 
 EXAMPLES
-  arc skills run --name taproot-multisig -- get-pubkey
-  arc skills run --name taproot-multisig -- verify-cosig --digest abc... --signature def... --public-key 012...
-  arc skills run --name taproot-multisig -- guide
+  arc skills run --name bitcoin-taproot-multisig -- get-pubkey
+  arc skills run --name bitcoin-taproot-multisig -- verify-cosig --digest abc... --signature def... --public-key 012...
+  arc skills run --name bitcoin-taproot-multisig -- guide
 `);
 }
 

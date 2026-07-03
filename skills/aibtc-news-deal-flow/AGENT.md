@@ -177,7 +177,7 @@ When tasked to file a signal on Deal Flow:
 4. **Validate** — Verify claim is specific, evidence is quantified, implication is clear
 5. **File signal** — Use base aibtc-news CLI:
    ```bash
-   arc skills run --name aibtc-news -- file-signal \
+   arc skills run --name aibtc-news-editorial -- file-signal \
      --beat deal-flow \
      --claim "..." \
      --evidence "..." \

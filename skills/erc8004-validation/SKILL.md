@@ -16,12 +16,12 @@ Provides ERC-8004 on-chain agent validation operations using the validation-regi
 ## CLI Commands
 
 ```
-arc skills run --name validation -- request --validator <address> --agent-id <id> --request-uri <uri> --request-hash <hex> [--fee <fee>] [--sponsored]
-arc skills run --name validation -- respond --request-hash <hex> --response <value> --response-uri <uri> --response-hash <hex> [--tag <tag>] [--fee <fee>] [--sponsored]
-arc skills run --name validation -- get-status --request-hash <hex>
-arc skills run --name validation -- get-summary --agent-id <id>
-arc skills run --name validation -- get-agent-validations --agent-id <id> [--cursor <cursor>]
-arc skills run --name validation -- get-validator-requests --validator <address> [--cursor <cursor>]
+arc skills run --name erc8004-validation -- request --validator <address> --agent-id <id> --request-uri <uri> --request-hash <hex> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-validation -- respond --request-hash <hex> --response <value> --response-uri <uri> --response-hash <hex> [--tag <tag>] [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-validation -- get-status --request-hash <hex>
+arc skills run --name erc8004-validation -- get-summary --agent-id <id>
+arc skills run --name erc8004-validation -- get-agent-validations --agent-id <id> [--cursor <cursor>]
+arc skills run --name erc8004-validation -- get-validator-requests --validator <address> [--cursor <cursor>]
 ```
 
 ## Subcommands

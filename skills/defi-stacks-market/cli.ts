@@ -7,7 +7,7 @@
  * positions in SQLite, and use trade-runner.ts for wallet-aware execution.
  *
  * Usage:
- *   arc skills run --name stacks-market -- <subcommand> [flags]
+ *   arc skills run --name defi-stacks-market -- <subcommand> [flags]
  */
 
 import { spawn } from "bun";
@@ -190,7 +190,7 @@ async function cmdBuy(args: string[]): Promise<void> {
     console.log(JSON.stringify({
       success: false,
       error: "Required: --market-id <id> --side yes|no --amount <shares>",
-      usage: "arc skills run --name stacks-market -- buy --market-id <epochMs> --side yes|no --amount <shares> [--market-title <title>] [--mongo-id <id>]",
+      usage: "arc skills run --name defi-stacks-market -- buy --market-id <epochMs> --side yes|no --amount <shares> [--market-title <title>] [--mongo-id <id>]",
     }));
     process.exit(1);
   }
@@ -596,7 +596,7 @@ function printUsage(): void {
   process.stdout.write(`stacks-market CLI — prediction market trading with budget enforcement
 
 USAGE
-  arc skills run --name stacks-market -- <subcommand> [flags]
+  arc skills run --name defi-stacks-market -- <subcommand> [flags]
 
 TRADING COMMANDS (budget-enforced, wallet required)
   buy --market-id <epochMs> --side yes|no --amount <shares> [--market-title <title>] [--mongo-id <id>]
@@ -625,10 +625,10 @@ BUDGET
   Total: ${ustxToStx(BUDGET_USTX)} STX | Max per trade: ${ustxToStx(MAX_POSITION_USTX)} STX | Slippage: ${SLIPPAGE_PCT}%
 
 EXAMPLES
-  arc skills run --name stacks-market -- budget
-  arc skills run --name stacks-market -- list-markets --limit 10
-  arc skills run --name stacks-market -- buy --market-id 1771853629839 --side yes --amount 5 --market-title "BTC above 100k"
-  arc skills run --name stacks-market -- portfolio
+  arc skills run --name defi-stacks-market -- budget
+  arc skills run --name defi-stacks-market -- list-markets --limit 10
+  arc skills run --name defi-stacks-market -- buy --market-id 1771853629839 --side yes --amount 5 --market-title "BTC above 100k"
+  arc skills run --name defi-stacks-market -- portfolio
 `);
 }
 

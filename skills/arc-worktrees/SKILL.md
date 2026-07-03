@@ -36,12 +36,12 @@ After merge, a P8 verification task is scheduled to compare post-experiment metr
 ## CLI
 
 ```
-arc skills run --name worktrees -- create [--name NAME]    # create a worktree
-arc skills run --name worktrees -- list                     # list all worktrees
-arc skills run --name worktrees -- validate --name NAME     # syntax-check .ts files
-arc skills run --name worktrees -- evaluate --name NAME     # run experiment evaluation gates
-arc skills run --name worktrees -- merge --name NAME        # validate + merge + clean up
-arc skills run --name worktrees -- remove --name NAME       # discard worktree + branch
+arc skills run --name arc-worktrees -- create [--name NAME]    # create a worktree
+arc skills run --name arc-worktrees -- list                     # list all worktrees
+arc skills run --name arc-worktrees -- validate --name NAME     # syntax-check .ts files
+arc skills run --name arc-worktrees -- evaluate --name NAME     # run experiment evaluation gates
+arc skills run --name arc-worktrees -- merge --name NAME        # validate + merge + clean up
+arc skills run --name arc-worktrees -- remove --name NAME       # discard worktree + branch
 ```
 
 ### Name Parameter

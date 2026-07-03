@@ -26,7 +26,7 @@ If `sync` reports `detectedMissing`, those nonces were consumed but never confir
 - Wait — they may still be in mempool
 - Fill gaps with minimal self-transfers (1 uSTX to self) at the missing nonce values:
   ```
-  arc skills run --name wallet -- stx-send --recipient <your-stx-address> --amount-stx 0.000001 --memo "gap fill nonce N"
+  arc skills run --name bitcoin-wallet -- stx-send --recipient <your-stx-address> --amount-stx 0.000001 --memo "gap fill nonce N"
   ```
 
 ### Stale state

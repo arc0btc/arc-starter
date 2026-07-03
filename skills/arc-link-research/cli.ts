@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/arc-link-research/cli.ts
 // CLI for the research skill. Processes link batches into mission-relevant reports.
-// Usage: arc skills run --name research -- <subcommand> [flags]
+// Usage: arc skills run --name arc-link-research -- <subcommand> [flags]
 
 import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -772,7 +772,7 @@ async function cmdProcess(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.links) {
-    process.stderr.write("Usage: arc skills run --name research -- process --links \"url1,url2,...\"\n");
+    process.stderr.write("Usage: arc skills run --name arc-link-research -- process --links \"url1,url2,...\"\n");
     process.exit(1);
   }
 

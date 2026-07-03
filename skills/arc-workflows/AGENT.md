@@ -24,16 +24,16 @@ Use the workflow CLI to manage state:
 
 ```bash
 # Create a new workflow
-arc skills run --name workflows -- create <template> <instance_key> <initial_state>
+arc skills run --name arc-workflows -- create <template> <instance_key> <initial_state>
 
 # Check current state
-arc skills run --name workflows -- show <id>
+arc skills run --name arc-workflows -- show <id>
 
 # Move to next state
-arc skills run --name workflows -- transition <id> <new_state> --context '{"key":"value"}'
+arc skills run --name arc-workflows -- transition <id> <new_state> --context '{"key":"value"}'
 
 # Mark as done
-arc skills run --name workflows -- complete <id>
+arc skills run --name arc-workflows -- complete <id>
 ```
 
 ## Patterns
@@ -48,7 +48,7 @@ Use deterministic instance keys so you can find your workflow later:
 Query for an existing workflow by instance key before creating a new one:
 
 ```bash
-arc skills run --name workflows -- show-by-key <template> <instance_key>
+arc skills run --name arc-workflows -- show-by-key <template> <instance_key>
 ```
 
 ### Context
@@ -56,7 +56,7 @@ arc skills run --name workflows -- show-by-key <template> <instance_key>
 Store workflow-specific data as JSON. Example:
 
 ```bash
-arc skills run --name workflows -- transition 5 review \
+arc skills run --name arc-workflows -- transition 5 review \
   --context '{"title":"My Post","draft_url":"..."}'
 ```
 
@@ -96,26 +96,26 @@ This links the workflow to the task that created it, making debugging easier.
 
 1. **Task creates workflow:**
    ```bash
-   arc skills run --name workflows -- create blog-post blog-post-2026-02-28 draft
+   arc skills run --name arc-workflows -- create blog-post blog-post-2026-02-28 draft
    # Returns: { "id": 5, ... }
    ```
 
 2. **Write draft, transition to review:**
    ```bash
-   arc skills run --name workflows -- transition 5 review \
+   arc skills run --name arc-workflows -- transition 5 review \
      --context '{"url":"...","author":"Arc"}'
    ```
 
 3. **Next dispatch, task resumes:**
    ```bash
-   arc skills run --name workflows -- show 5
+   arc skills run --name arc-workflows -- show 5
    # Returns: { "current_state": "review", "context": {...} }
    ```
 
 4. **Publish and complete:**
    ```bash
-   arc skills run --name workflows -- transition 5 published
-   arc skills run --name workflows -- complete 5
+   arc skills run --name arc-workflows -- transition 5 published
+   arc skills run --name arc-workflows -- complete 5
    ```
 
 That's it. Workflows are a simple, durable way to track multi-step work.

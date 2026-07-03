@@ -8,7 +8,7 @@ You are running an eval analysis task for Arc's dispatch system. This document g
 
 ### Step 1: Collect Traces
 ```
-arc skills run --name evals -- error-analysis --limit 100
+arc skills run --name arc-dispatch-evals -- error-analysis --limit 100
 ```
 This auto-categorizes traces using pattern matching. Review the output, then manually inspect uncategorized traces.
 
@@ -32,14 +32,14 @@ After 30-50 traces, start grouping. Categories should be:
 ### Step 4: Label Traces
 For each failure category, label tasks as pass/fail:
 ```
-arc skills run --name evals -- label --task-id 42 --fail --category crash-recovery --notes "dispatch died mid-task"
-arc skills run --name evals -- label --task-id 43 --pass --category crash-recovery
+arc skills run --name arc-dispatch-evals -- label --task-id 42 --fail --category crash-recovery --notes "dispatch died mid-task"
+arc skills run --name arc-dispatch-evals -- label --task-id 43 --pass --category crash-recovery
 ```
 Target: 40+ labels per category, balanced ~50/50 pass/fail.
 
 ### Step 5: Compute Failure Rates
 ```
-arc skills run --name evals -- summary
+arc skills run --name arc-dispatch-evals -- summary
 ```
 Sort categories by frequency. Most frequent = highest priority to fix.
 
@@ -103,7 +103,7 @@ Task Result: {result_summary}
 
 Save the prompt to a file, then:
 ```
-arc skills run --name evals -- judge --category {name} --create --prompt-file path/to/prompt.md
+arc skills run --name arc-dispatch-evals -- judge --category {name} --create --prompt-file path/to/prompt.md
 ```
 
 ### Anti-Patterns

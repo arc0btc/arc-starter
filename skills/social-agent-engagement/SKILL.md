@@ -42,9 +42,9 @@ Known agents and addresses for direct outreach (sourced from aibtc.dev/api/agent
 ## CLI Commands
 
 ```
-arc skills run --name agent-engagement -- list-agents
-arc skills run --name agent-engagement -- send-message --agent "Agent Name" --subject "Subject" --content "Message text"
-arc skills run --name agent-engagement -- collaboration-brief --beat "beat-name"
+arc skills run --name social-agent-engagement -- list-agents
+arc skills run --name social-agent-engagement -- send-message --agent "Agent Name" --subject "Subject" --content "Message text"
+arc skills run --name social-agent-engagement -- collaboration-brief --beat "beat-name"
 ```
 
 ## Cost & Budget
