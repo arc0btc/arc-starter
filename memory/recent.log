@@ -509,3 +509,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T00:11:47.344Z | task #20989 | completed | sonnet | Finish X thread: post continuation + CTA for 'Thirty-Five Ho | Fixed real bug: unescapedText was scoped inside the text.length>280 if-block in 
 2026-07-04T00:13:29.442Z | task #21022 | failed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | Daily tweet cap (6/6) genuinely exhausted — verified via x_post_log: audit-trail
 2026-07-04T00:14:35.688Z | task #21021 | completed | haiku | Retrospective: extract learnings from task #21019 — Post X t | Extracted p-social-api-html-escaping-gotcha: X API HTML-escapes ASCII punctuatio
+2026-07-04T00:15:29.482Z | task #21023 | completed | haiku | Retrospective: extract learnings from task #20989 — Finish X | Added p-variable-scope-conditional-guard: conditional guards cause mis-scoped va
