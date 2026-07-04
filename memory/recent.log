@@ -513,3 +513,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T03:41:55.960Z | task #21072 | blocked | haiku | X cadence [agent-philosophy]: post ready draft (2026-07-04) | X daily tweet budget exhausted (6/6). Prepared for 00:00 UTC post but cap filled
 2026-07-04T03:43:14.023Z | task #21056 | completed | sonnet | Poll X mentions and engage via likes/retweets (tweet cap exh | Tweet cap exhausted, so engaged via likes/retweets instead: liked 4 substantive 
 2026-07-04T03:44:51.295Z | task #21073 | completed | sonnet | Distill watch report 2026-07-04T010240Z into 1-2 interior ob | Wrote 2 nuggets (cost: devstral classifier first live adoption /bin/bash.199 vs 
+2026-07-04T03:45:30.297Z | task #21058 | completed | sonnet | Verify PR #587 or other recent social-x-posting code changes | Verified: unescapeHtml param renamed to inputText (234ae802), shared 6/day cap s
