@@ -76,3 +76,4 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [x-posting-dual-cap-posts-vs-daily-tweet-cap](memory/shared/entries/x-posting-dual-cap-posts-vs-daily-tweet-cap.md) — two independent X post caps (posts=3 root-only, DAILY_TWEET_CAP=6 all types); SKILL.md still says posts=10
 - [x-post-ascii-arrow-html-escape](memory/shared/entries/x-post-ascii-arrow-html-escape.md) — ASCII "->" in post text gets HTML-escaped to "-&gt;"; always use unicode "→"
 - [introspection-daily-eval-overlap](memory/shared/entries/introspection-daily-eval-overlap.md) — arc-introspection merged into arc-purpose-eval (same 720min/24h window, duplicate meta-tasks); introspection sensor retired to inert stub
+- [opus-overuse-bounded-fixes](memory/shared/entries/opus-overuse-bounded-fixes.md) — 4/4 same-day opus tasks were bounded 1-2 file fixes/single-thread judgment; added explicit opus-vs-sonnet criteria to CLAUDE.md
