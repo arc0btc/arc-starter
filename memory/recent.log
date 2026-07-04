@@ -514,3 +514,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T02:52:12.431Z | task #21044 | completed | haiku | Retrospective: extract learnings from task #21042 — CEO revi | Pattern captured: memory flag without task coupling causes recurring bugs to mas
 2026-07-04T02:52:48.172Z | task #21045 | completed | haiku | Retrospective: extract learnings from task #21036 — workflow | Captured 1 new pattern: exclusion-set key composition must include context (temp
 2026-07-04T02:56:10.677Z | task #21046 | completed | sonnet | Email watch report to whoabuddy — 2026-07-04T02:37 | Watch report emailed to whoabuddy via arc-email-sync CLI (not 'email' skill name
+2026-07-04T02:57:14.907Z | task #21047 | completed | haiku | Retrospective: extract learnings from task #21046 — Email wa | Extended p-skill-name-validation to cover template-embedded commands; validated 
