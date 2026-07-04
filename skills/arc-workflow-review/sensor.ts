@@ -42,6 +42,18 @@ const PASSIVE_WAITING_STATES = new Set([
   "content-calendar:public_forum_teaser",
 ]);
 
+// Templates whose intended full cycle spans many days, so at any instant most
+// instances are legitimately mid-pipeline rather than complete. A raw
+// `completionRate < 70` snapshot flags these as "unhealthy" every review cycle
+// even when 0 instances are stuck or stale (see task #21122 / #21107). Stuck-state
+// and stale-count checks still apply — only the raw completion-rate threshold is
+// waived. Same rationale as PASSIVE_WAITING_STATES, at template granularity.
+// content-calendar is a 30-day multi-hop pipeline:
+// whop_chat(T+2h) -> whop_forum(T+2d) -> public_forum_teaser(T+4d) -> course_candidate(T+30d).
+const LONG_CADENCE_TEMPLATES = new Set([
+  "content-calendar",
+]);
+
 const log = createSensorLogger(SENSOR_NAME);
 
 /** Known process patterns that already have workflow templates or dedicated sensors. */
@@ -422,7 +434,10 @@ export default async function workflowReviewSensor(): Promise<string> {
   const { health, staleCount, orphanCount } = evaluateTemplateHealth(db);
 
   const unhealthy = health.filter(
-    (h) => h.completionRate < 70 || h.stuckStates.length > 0 || h.stale > 0
+    (h) =>
+      (h.completionRate < 70 && !LONG_CADENCE_TEMPLATES.has(h.template)) ||
+      h.stuckStates.length > 0 ||
+      h.stale > 0
   );
   const unused = health.filter((h) => h.total === 0);
 
