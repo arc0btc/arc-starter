@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T13:15:58.797Z | task #21100 | completed | sonnet | arc-report-email sensor: 18 consecutive failures despite wat | Root cause was a separate date-parsing crash in formatMST() (compact-ISO filenam
 2026-07-04T13:16:07.625Z | task #21103 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-04T13:17:34.609Z | task #21101 | completed | haiku | Retrospective: extract learnings from task #21099 — Overnigh | Extracted 1 reusable pattern: arc-workflows CLI naming collision (complete subco
+2026-07-04T13:19:41.529Z | task #21102 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | arc-report-email 'still failing' item in the overnight brief was a same-batch ti
