@@ -1019,9 +1019,16 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
 
 async function cmdBudget(_flags: Record<string, string>): Promise<void> {
   const budget = await loadBudget();
+  const guardDb = await xPostLog();
+  const dailyTweetCapUsed = (guardDb.query(
+    "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now')"
+  ).get() as { total_count: number } | null)?.total_count ?? 0;
   console.log(JSON.stringify({
     date: budget.date,
-    posts: { used: budget.posts, limit: BUDGET_LIMITS["posts"], remaining: BUDGET_LIMITS["posts"] - budget.posts },
+    // Primary enforcer for ALL tweet types (root + continuation + CTA). The "posts" entry
+    // below is a secondary root-only sub-budget within this shared cap — see DAILY_TWEET_CAP.
+    daily_tweet_cap: { used: dailyTweetCapUsed, limit: DAILY_TWEET_CAP, remaining: DAILY_TWEET_CAP - dailyTweetCapUsed, covers: "root + continuation + CTA" },
+    posts: { used: budget.posts, limit: BUDGET_LIMITS["posts"], remaining: BUDGET_LIMITS["posts"] - budget.posts, note: "root-only secondary sub-budget, see daily_tweet_cap for the real shared cap" },
     replies: { used: budget.replies, limit: BUDGET_LIMITS["replies"], remaining: BUDGET_LIMITS["replies"] - budget.replies },
     likes: { used: budget.likes, limit: BUDGET_LIMITS["likes"], remaining: BUDGET_LIMITS["likes"] - budget.likes },
     retweets: { used: budget.retweets, limit: BUDGET_LIMITS["retweets"], remaining: BUDGET_LIMITS["retweets"] - budget.retweets },
@@ -1102,7 +1109,7 @@ Commands:
   status                                       Check API access and account info
 
 Daily budget limits (resets at midnight UTC):
-  10 posts, 40 replies, 50 likes, 15 retweets, 20 follows
+  6 tweets/day shared cap (root + continuation + CTA), 3 root posts, 40 replies, 50 likes, 15 retweets, 20 follows
 
 Credentials required (set via arc creds set --service x --key <key> --value <value>):
   x/consumer_key         OAuth 1.0a Consumer Key
