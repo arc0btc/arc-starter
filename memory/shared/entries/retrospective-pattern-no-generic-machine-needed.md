@@ -47,3 +47,20 @@ until a second concrete incident shows the same failure shape.
 See [[action-null-noop-stuck-state]] for the actual recurring bug class in
 this codebase (action:()=>null waiting states with no poller) — that's the
 real chain-drift risk, not missing retrospective formalization.
+
+**2026-07-04 recurrence (task #21036)**: arc-workflow-review flagged two more
+"chains" of this exact shape — `subject:self-review triage` (4 recurrences,
+arc-self-review + arc-skill-manager) and `source:sensor:arc-purpose-eval` (3
+recurrences, arc-purpose-eval + arc-strategy-review + arc-skill-manager).
+Both are the same ad-hoc `task closes → Retrospective: extract learnings from
+task #N` pattern already covered above — no new machine needed, same
+conclusion. A third pattern, `source:sensor:blog-publishing:draft` (3
+recurrences: "Review and finalize draft" → "Publish post" → retrospective),
+is a distinct case but reaches the same verdict for a different reason: it's
+already a deliberately bounded, self-dedup'd 2-task chain (per-postId source
+key, 24h cooldown, `skills/blog-publishing/sensor.ts`), small enough that a
+state machine would be pure overhead. Side note: the built-in
+`BlogPostingMachine` template (draft→review→fact_check→revision→published)
+has 0 live instances — it's dead/orphaned code, not wired to this sensor.
+Not fixed here (out of scope for a pattern-evaluation pass); worth a cleanup
+task if it comes up again.
