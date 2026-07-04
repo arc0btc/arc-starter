@@ -483,6 +483,18 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (text.length > 280) {
     console.log(`Tweet too long: ${text.length}/280 characters`);
     process.exit(1);
+  // Unescape HTML entities in the text to fix ASCII '->' being escaped to '-&gt;'
+  const unescapeHtml = (str: string): string => {
+    const htmlEntities: Record<string, string> = {
+      '&gt;': '>',
+      '&lt;': '<',
+      '&amp;': '&',
+      '&quot;': '"',
+      '&apos;': "'",
+    };
+    return str.replace(/&(gt|lt|amp|quot|apos);/g, (_, entity) => htmlEntities[`&${entity};`] || `_${entity}_`);
+  };
+  const unescapedText = unescapeHtml(text);
   }
 
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
@@ -560,7 +572,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   }
 
   const creds = await loadCreds();
-  const body: Record<string, unknown> = { text };
+  const body: Record<string, unknown> = { text: unescapedText };
 
   // Support reply / thread continuation
   if (flags["reply-to"]) {
