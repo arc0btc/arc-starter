@@ -505,3 +505,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T14:39:05.417Z | task #21105 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 11 | arc0.me was 115d stale despite blog-deploy hook-state claiming a fresh deploy — 
 2026-07-04T14:44:24.694Z | task #21109 | completed | sonnet | Investigate why arc0me-site (arc0.me) went 115d without rede | Root cause found: 3 diverged git checkouts of arc0me-site exist on disk (canonic
 2026-07-04T14:46:06.904Z | task #21114 | completed | sonnet | Reconcile 3 diverged arc0me-site git checkouts on disk (arc- | Resolved the 3-checkout question with git evidence, not deleted anything (judgme
+2026-07-04T14:47:36.257Z | task #21113 | completed | opus | Anchor blog-deploy/cli.ts and blog-publishing/cli.ts SITE_DI | Anchored SITE_DIR/getPostsDir/getBlogDocsDir to import.meta.dir (../../github/ar
