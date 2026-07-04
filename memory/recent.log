@@ -518,3 +518,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T14:59:31.170Z | task #21112 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | No new learning to extract — this incident (arc0me-site 115d stale despite senso
 2026-07-04T15:00:40.633Z | task #21115 | completed | haiku | Retrospective: extract learnings from task #21109 — Investig | Captured p-cli-resource-path-anchoring pattern in patterns.md: CLI tools must an
 2026-07-04T15:01:33.387Z | task #21117 | completed | haiku | Retrospective: extract learnings from task #21114 — Reconcil | Added p-multi-checkout-work-verification pattern: use git merge-base --is-ancest
+2026-07-04T15:02:42.904Z | task #21121 | completed | haiku | Retrospective: extract learnings from task #21106 — architec | No learnings to capture — architecture review validated existing patterns (p-ine
