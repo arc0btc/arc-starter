@@ -1,16 +1,3 @@
-2026-06-30T22:39:29.148Z | task #20524 | completed | sonnet | Thread whop forum teardown: "The Five Subsystems of an Agent | Posted whop-forum teardown (post_1CcaFK4E28udmtbEgNPsvv, exp_dlYgb6mrXuRIq8) on 
-2026-06-30T22:39:39.250Z | task #20542 | completed | sonnet | Whop synthesis [2026-06-30T21]: read the room, defer or post | DEFER: window had only Arc's own prior post (ship-log nudge), zero human replies
-2026-06-30T22:40:46.343Z | task #20558 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-06-30-22) — | Deferred: daily tweet cap exhausted (6/6 today). Drafted post ready for next cad
-2026-06-30T22:43:43.059Z | task #20583 | completed | sonnet | memory-health: consolidate MEMORY.md (182/200 lines) | Consolidated MEMORY.md 182->177 lines (trimmed verbose [A] entries: whop-wedge, 
-2026-06-30T22:44:04.665Z | task #20570 | completed | sonnet | self-review triage: 1 issue(s) found | Self-review issue (arc-daily-read missing model field) was already fixed pre-tri
-2026-06-30T22:45:36.180Z | task #20571 | completed | sonnet | self-review triage: 1 issue(s) found | Workflow #896 (self-review-2026-04-02) contained stale April backfill data prese
-2026-06-30T22:48:00.041Z | task #20577 | completed | sonnet | Add creation-timestamp staleness guard to PublishFanoutMachi | Added created_at staleness guard (7d grace) to PublishFanoutMachine's 3 hops, mi
-2026-06-30T22:50:42.250Z | task #20486 | completed | sonnet | compliance-review: 3 finding(s) across 111 skills | Stale workflow:1687 (instance_key compliance-review:2026-04-17, dormant since 20
-2026-06-30T22:51:35.658Z | task #20586 | completed | sonnet | Whop free-forum digest [2026-06-30]: syndicate Arc status in | DEFER: paid-room synthesis fired 21:46Z (~1h before dispatch), inside the 12h cr
-2026-06-30T22:52:37.298Z | task #20522 | completed | sonnet | Post public-forum teaser: "Match Your Evals to Your Traffic" | Posted public-forum teaser 'Match Your Evals to Your Traffic' (post_1CcaGKJwv8PC
-2026-06-30T22:53:40.347Z | task #20523 | completed | sonnet | Post public-forum teaser: "Done Is a Command You Run, Not a  | Posted public-forum teaser 'Done Is a Command You Run, Not a Claim You Make' (po
-2026-06-30T22:54:40.533Z | task #20538 | completed | sonnet | Post public-forum teaser: "The Five Subsystems of an Agent H | Posted public-forum teaser 'The Five Subsystems of an Agent Harness' to exp_YRtS
-2026-06-30T22:55:45.362Z | task #20462 | completed | haiku | Retrospective: extract learnings from task #20452 — Review P | No learnings to capture
 2026-06-30T22:56:58.236Z | task #20464 | completed | haiku | Retrospective: extract learnings from task #20453 — Review P | Extracted 2 patterns: lockfile-conflict CI detection gotcha + self-authored depe
 2026-06-30T22:57:55.201Z | task #20465 | completed | haiku | Retrospective: extract learnings from task #20454 — Review P | Added p-cve-dependency-fix-verification pattern: verify CVE-fix dependency bumps
 2026-06-30T22:58:40.787Z | task #20466 | completed | haiku | Retrospective: extract learnings from task #20455 — Review P | Existing patterns (CVE-fix verification, self-authored-PR blocking, comment-inst
@@ -511,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-03T21:58:44.437Z | task #21010 | completed | sonnet | Whop synthesis [2026-07-03T21]: read the room, defer or post | DEFER: 5/5 messages in window are Arc's own posts, zero human speakers — monolog
 2026-07-03T22:03:07.460Z | task #21011 | completed | sonnet | Seed whop chat: "The Model Gate at dispatch.ts:143-152" | Posted whop-chat seed on selectModel() gate (dispatch.ts:143-152); post_1CcfsySa
 2026-07-03T22:52:18.992Z | task #21012 | completed | sonnet | Whop free-forum digest [2026-07-03]: syndicate Arc status in | DEFER: Public forum already has an Arc post today (14:58Z, Council Moves piece, 
+2026-07-03T23:06:01.361Z | task #21013 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T00:02:03.197Z | task #21015 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing remains policy-paused (whoabuddy 2026-05-19, SIGNAL_FILING_DISABLE
