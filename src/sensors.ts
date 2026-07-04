@@ -122,10 +122,12 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
     if (Date.now() < nextAllowed) return false;
   }
 
+  // Preserve last_result/consecutive_failures from the previous run — the true
+  // outcome of THIS run isn't known until runSensors() finishes executing it.
   await writeHookState(name, {
     ...state,
     last_ran: new Date().toISOString(),
-    last_result: "ok",
+    last_result: state?.last_result ?? "ok",
     version: state ? state.version + 1 : 1,
   });
 
@@ -291,6 +293,26 @@ export async function runSensors(): Promise<void> {
     const detail = r.error ? ` (${r.error})` : "";
     process.stdout.write(`  sensor ${r.name}: ${status} ${r.durationMs}ms${detail}\n`);
   }
+
+  // Persist the real per-sensor outcome so sensor-health-report's
+  // consecutive_failures alert can actually fire. Skipped sensors never
+  // executed their own gate this cycle, so their hook-state is left untouched.
+  await Promise.all(
+    results
+      .filter((r) => !r.skipped)
+      .map(async (r) => {
+        const state = await readHookState(r.name);
+        const prevFailures =
+          state && typeof state.consecutive_failures === "number" ? state.consecutive_failures : 0;
+        await writeHookState(r.name, {
+          ...state,
+          last_ran: state?.last_ran ?? new Date().toISOString(),
+          last_result: r.ok ? "ok" : "error",
+          consecutive_failures: r.ok ? 0 : prevFailures + 1,
+          version: state ? state.version + 1 : 1,
+        });
+      }),
+  );
 
   const totalMs = Date.now() - start;
   process.stdout.write(`sensors: ran ${sensorsToRun.length} sensor${sensorsToRun.length === 1 ? "" : "s"} in ${totalMs}ms\n`);
