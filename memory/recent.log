@@ -502,3 +502,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T11:14:03.000Z | task #21097 | completed | sonnet | Review PR #589 on aibtcdev/aibtc-mcp-server: Add MseeP.ai ba | PR #589 is a self-promotional MseeP.ai badge PR (README-only, no code changes). 
 2026-07-04T13:05:25.118Z | task #21098 | completed | sonnet | Watch report — 2026-07-04T13:00Z | Watch report: 66 tasks completed, 0 failed, 1 blocked, $49.84 spent. Filed #2110
 2026-07-04T13:08:20.197Z | task #21099 | completed | sonnet | Overnight brief — 2026-07-04 | Generated overnight brief for 2026-07-04 (reports/2026-07-04T140000Z_overnight_b
+2026-07-04T13:15:58.797Z | task #21100 | completed | sonnet | arc-report-email sensor: 18 consecutive failures despite wat | Root cause was a separate date-parsing crash in formatMST() (compact-ISO filenam
