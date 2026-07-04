@@ -33,11 +33,11 @@ function slugify(text: string): string {
 }
 
 function getPostsDir(): string {
-  return path.join(process.cwd(), "github/arc0btc/arc0me-site/content");
+  return path.join(import.meta.dir, "../../github/arc0btc/arc0me-site/content");
 }
 
 function getBlogDocsDir(): string {
-  return path.join(process.cwd(), "github/arc0btc/arc0me-site/src/content/docs/blog");
+  return path.join(import.meta.dir, "../../github/arc0btc/arc0me-site/src/content/docs/blog");
 }
 
 function getCurrentIso8601(): string {

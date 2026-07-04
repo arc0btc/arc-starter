@@ -8,7 +8,7 @@ import { readHookState, writeHookState } from "../../src/sensors.ts";
 import { verifyCloudflareToken, getCloudflareCredentials } from "../../src/cloudflare.ts";
 
 const SENSOR_NAME = "blog-deploy";
-const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
+const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");
 
 // Resolve the fnm node bin directory (or empty string if not found / already on PATH)
 function resolveFnmBinDir(): string {
