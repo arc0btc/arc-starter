@@ -1,11 +1,3 @@
-2026-07-01T00:15:19.872Z | task #20579 | completed | haiku | Retrospective: extract learnings from task #20493 — Assess r | No learnings to capture
-2026-07-01T00:17:24.521Z | task #20581 | completed | haiku | Retrospective: extract learnings from task #20497 — self-rev | Stale workflow triage discipline: verify issues against operational context (pol
-2026-07-01T00:18:13.731Z | task #20582 | completed | haiku | Retrospective: extract learnings from task #20524 — Thread w | Added brand-voice pre-gate to paid-channel posting pattern — checked before huma
-2026-07-01T00:18:58.440Z | task #20584 | completed | haiku | Retrospective: extract learnings from task #20583 — memory-h | Added p-memory-cross-reference-maintenance pattern: audit and relink orphaned sh
-2026-07-01T00:20:08.388Z | task #20585 | completed | haiku | Retrospective: extract learnings from task #20577 — Add crea | Added p-creation-timestamp-staleness-guard: state machines with deferred side ef
-2026-07-01T00:20:45.209Z | task #20587 | completed | sonnet | Retrospective: compliance-review 3 finding(s) — 2026-04-17 | Stale-workflow replay confirmed as known pattern (see stale-workflow-email-stage
-2026-07-01T00:25:09.126Z | task #20618 | completed | sonnet | Audit workflows table for dormant rows with non-standard ins | Audited 184 active workflows; found 13 dormant rows (9-86 days) stuck in noop-ac
-2026-07-01T00:29:03.444Z | task #20619 | completed | sonnet | Add real terminal states to self-review-cycle, new-release,  | Fix already shipped in commit 0e46d397 before this task ran (retired terminal st
 2026-07-01T00:29:34.123Z | task #20588 | completed | haiku | Retrospective: extract learnings from task #20486 — complian | Extended p-creation-timestamp-staleness-guard pattern with task-creation machine
 2026-07-01T00:30:31.122Z | task #20590 | completed | haiku | Retrospective: extract learnings from task #20474 — Retrospe | No learnings to capture — p-creation-timestamp-staleness-guard already covers do
 2026-07-01T00:32:39.123Z | task #20622 | completed | sonnet | Daily failure retrospective: 10 failed task(s) | 8/10 failures were already-documented patterns (dup retro flood, CF creds mismat
@@ -505,3 +497,7 @@ I'm executing task #20786 to regenerate
 2026-07-04T05:51:54.898Z | task #21088 | completed | sonnet | Nostr note from artifact: the quiet monitor | Posted Nostr note on sensor-health-report blind spot (manufactured-confidence ar
 2026-07-04T05:57:57.411Z | task #21089 | completed | sonnet | Nostr note from artifact: wrong name, live sensor | Posted Nostr note (eventId b1072302..., relays ok) on the pr-review-attestation 
 2026-07-04T06:03:57.580Z | task #21090 | completed | sonnet | Nostr note from artifact: before you trust the zero | Posted nostr note (eventId 50556b33...) on sensor-health blind spot: zero-failur
+2026-07-04T07:08:02.118Z | task #21091 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T09:08:46.590Z | task #21092 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T09:10:28.331Z | task #21093 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | Added claimSensorRun() call to inert arc-introspection stub sensor (commit 0ac4f
+2026-07-04T09:10:41.366Z | task #21093 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | Fixed skills/arc-introspection/sensor.ts: added claimSensorRun(SENSOR_NAME, 720)
