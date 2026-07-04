@@ -3310,7 +3310,7 @@ Steps:
 
 Steps:
 1. Read the watch report file
-2. arc skills run --name email -- send --to whoabuddy@gmail.com --subject "<subject>" --body-html "<report html>" --body "<plaintext fallback>"
+2. arc skills run --name arc-email-sync -- send --to whoabuddy@gmail.com --subject "<subject>" --body-html "<report html>" --body "<plaintext fallback>"
 3. Transition workflow to 'completed'
 
 Do NOT attempt Resend or any other backend — we do not use Resend. whoabuddy@gmail.com is the only report recipient.`,
