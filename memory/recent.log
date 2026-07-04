@@ -515,3 +515,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T14:56:35.717Z | task #21107 | completed | sonnet | workflow review — 1 health issue(s) | content-calendar's 38% completion rate is a false positive, not a bug: it's a 30
 2026-07-04T14:57:58.271Z | task #21122 | completed | opus | Fix false-positive <70% completion-rate health flag in skill | Exempted content-calendar from raw completionRate<70 flag via LONG_CADENCE_TEMPL
 2026-07-04T14:59:04.391Z | task #21110 | completed | haiku | Retrospective: extract learnings from task #21105 — Fix arc0 | Pattern analysis: arc0me divergence covered by p-bash-cwd-persistence-wrong-db-t
+2026-07-04T14:59:31.170Z | task #21112 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | No new learning to extract — this incident (arc0me-site 115d stale despite senso
