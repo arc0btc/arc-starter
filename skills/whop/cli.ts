@@ -1518,10 +1518,13 @@ async function main(): Promise<void> {
     }
     case "revenue": {
       // P22 + P7: revenue + weekly net-new + MRR-ladder + leading indicators, from the
-      // captured Whop events (no separate sensor). DB read only.
-      // P8 (arc-demand-flywheel): formatReadout() is now async (real cached follower read +
-      // arc-attribution summary line) — this case already runs inside an async command
-      // handler, so awaiting it here is a non-breaking change.
+      // captured Whop events (no separate sensor).
+      // P8 (arc-demand-flywheel): formatReadout() is now async and NO LONGER "DB read only" —
+      // it also does a TTL-cached (20h) X API follower read and spawns a local
+      // `arc-attribution` subprocess (its own DB reads + an email-worker HTTP call). Both are
+      // wrapped in their own try/catch with plain-text fallbacks (never crash this command),
+      // and the follower read is cache-backed so most invocations cost zero network calls. This
+      // case already runs inside an async command handler, so awaiting it here is non-breaking.
       const { initDatabase } = await import("../../src/db.ts");
       initDatabase();
       const { formatReadout } = await import("./lib/events.ts");

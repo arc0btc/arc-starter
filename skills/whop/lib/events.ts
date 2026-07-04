@@ -1373,34 +1373,69 @@ export function computeReadout(now: number = Date.now()): ReadoutSummary {
 // ("run this yourself for a live number") to avoid spending an X read on every report tick
 // (AI-003). Fixed for real via the SHARED follower cache (src/follower-cache.ts, 20h TTL) — the
 // same module skills/arc-attribution/lib/report.ts reads, so this report and the Discord
-// north-star monitor never show two different follower counts for the same day. Import is
-// lazy/dynamic (not a top-level import) to avoid a hard circular-risk between this file and
-// arc-attribution's report.ts (which itself imports computeRevenue from THIS file) — both
-// modules only share the leaf follower-cache.ts, never each other, so this is precautionary
-// hygiene rather than a real cycle today.
+// north-star monitor never show two different follower counts for the same day.
+//
+// dev-council (2026-07-05, follow-up pass): wrapped in try/catch — the original version had NO
+// error handling here while its sibling (readAttributionSummaryLine) did, so `Promise.all`'s
+// fail-fast semantics meant a throw in THIS function still crashed the whole CEO readout despite
+// the other function's careful degradation (kleppmann, Finding 1). readCachedFollowers() is not
+// fully throw-proof itself (readHookState/claimSensorRun calls sit outside its internal
+// try/catch) — this wrapper is the actual backstop.
 async function readAudienceGrowthLine(): Promise<string> {
-  const { readCachedFollowers } = await import("../../../src/follower-cache.ts");
-  const f = await readCachedFollowers();
-  if (f.followers === null) {
-    return `unknown (${f.note})`;
+  try {
+    const { readCachedFollowers } = await import("../../../src/follower-cache.ts");
+    const f = await readCachedFollowers();
+    if (f.followers === null) {
+      return `unknown (${f.note})`;
+    }
+    const d24 = f.delta_24h !== null ? `${f.delta_24h >= 0 ? "+" : ""}${f.delta_24h}` : "n/a";
+    const staleFlag = f.degraded ? "  ⚠ stale/degraded read" : "";
+    return `${f.followers} followers (24h: ${d24})  [${f.note}]${staleFlag}`;
+  } catch (err) {
+    return `unavailable (${err instanceof Error ? err.message : String(err)})`;
   }
-  const d24 = f.delta_24h !== null ? `${f.delta_24h >= 0 ? "+" : ""}${f.delta_24h}` : "n/a";
-  const staleFlag = f.degraded ? "  ⚠ stale/degraded read" : "";
-  return `${f.followers} followers (24h: ${d24})  [${f.note}]${staleFlag}`;
 }
 
-/** One-line reach-delta + channel summary sourced from arc-attribution's report — the SAME
- * function the Discord north-star monitor calls (via `cli.ts report --json` over SSH from the
- * manage-agents control plane), so this line and that monitor's numbers can never disagree for
- * the same day. Returns a plain-text fallback (never throws) if the attribution report itself
- * fails, since a reporting-surface hiccup should degrade gracefully, not take down the whole
- * CEO readout. */
+/** One-line reach-delta + channel summary sourced from arc-attribution's report.
+ *
+ * dev-council (2026-07-05, follow-up pass, newman): the first version of this function
+ * dynamically imported `arc-attribution/lib/report.ts` directly — but that module has a
+ * STATIC top-level `import { computeRevenue } from "../../whop/lib/events.ts"`, i.e. THIS file.
+ * That is a genuine A→B→A import cycle (the dynamic/lazy side doesn't make it not a cycle, it
+ * only avoids it manifesting as a load-order bug TODAY). Worse, it gave the CEO report and the
+ * Discord monitor two DIFFERENT code paths to the "same" numbers (a direct import here vs.
+ * `cli.ts report --json` over SSH there) — exactly the kind of drift-risk this whole feature
+ * exists to prevent, should the two paths ever diverge (e.g. one gets a bugfix the other
+ * doesn't).
+ *
+ * Fixed: this now shells out to the EXACT SAME CLI entrypoint the Discord monitor calls
+ * (`bun skills/arc-attribution/cli.ts report --json`, run as a local subprocess — no network
+ * hop needed since both run on this VM). One code path, zero import cycle, whop/lib/events.ts
+ * has no compile-time dependency on arc-attribution at all. Never throws — a subprocess/parse
+ * failure degrades to a plain-text fallback line so a reporting-surface hiccup can't take down
+ * the whole CEO readout. */
 async function readAttributionSummaryLine(): Promise<string> {
   try {
-    const { computeAttributionReport } = await import("../../arc-attribution/lib/report.ts");
-    const r = await computeAttributionReport();
-    const gaps = r.unattributed_dollars.length > 0 ? `  ⚠ ${r.unattributed_dollars.length} unattributed-dollar flag(s)` : "";
-    return `daily-read ${r.reach.daily_read_editions_posted} eds · articles ${r.reach.articles_published} published/${r.reach.articles_staged_unfired} staged · packaging backlog ${r.reach.packaging_backlog_remaining ?? "?"} · email subs ${r.pipeline.email_subscribers_confirmed ?? "?"} confirmed${gaps}  [full report: bun skills/arc-attribution/cli.ts report]`;
+    const proc = Bun.spawn(
+      ["bun", "skills/arc-attribution/cli.ts", "report", "--json"],
+      { cwd: new URL("../../../", import.meta.url).pathname, stdout: "pipe", stderr: "pipe" },
+    );
+    const [stdout] = await Promise.all([
+      new Response(proc.stdout).text(),
+      proc.exited,
+    ]);
+    const raw = stdout.trim();
+    if (!raw) return "unavailable (no output from arc-attribution cli)";
+    const r = JSON.parse(raw) as {
+      status: "ok" | "error";
+      error?: string;
+      reach?: { daily_read_editions_posted: number; articles_published: number; articles_staged_unfired: number; packaging_backlog_remaining: number | null };
+      pipeline?: { email_subscribers_confirmed: number | null };
+      unattributed_dollars?: Array<{ detail: string }>;
+    };
+    if (r.status === "error") return `unavailable (arc-attribution reported: ${r.error?.slice(0, 150)})`;
+    const gaps = (r.unattributed_dollars?.length ?? 0) > 0 ? `  ⚠ ${r.unattributed_dollars!.length} unattributed-dollar flag(s)` : "";
+    return `daily-read ${r.reach?.daily_read_editions_posted ?? "?"} eds · articles ${r.reach?.articles_published ?? "?"} published/${r.reach?.articles_staged_unfired ?? "?"} staged · packaging backlog ${r.reach?.packaging_backlog_remaining ?? "?"} · email subs ${r.pipeline?.email_subscribers_confirmed ?? "?"} confirmed${gaps}  [full report: bun skills/arc-attribution/cli.ts report]`;
   } catch (err) {
     return `unavailable (${err instanceof Error ? err.message : String(err)}) — run \`bun skills/arc-attribution/cli.ts report\` directly`;
   }
