@@ -504,3 +504,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T20:44:20.897Z | task #21138 | completed | haiku | Retrospective: extract learnings from task #21136 — Email fr | Captured p-operator-preapproval-gate-clearance pattern from task #21136
 2026-07-04T20:45:18.088Z | task #21139 | completed | haiku | Retrospective: extract learnings from task #21137 — Post Who | No learnings to capture — task followed established patterns (p-external-side-ef
 2026-07-04T21:06:18.573Z | task #21141 | completed | haiku | arc-opensource: sync 171 commit(s) to GitHub | Pushed 171 commits to arc0btc/arc-starter main branch. Build validated, sync com
+2026-07-04T21:07:12.928Z | task #21140 | completed | haiku | daily cost report — 2026-07-04 | Cost report processed. Day 9.59 (Code) / 6.46 (API est); 126 tasks, /bin/bash.71
