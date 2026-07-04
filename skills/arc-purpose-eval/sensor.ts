@@ -47,6 +47,30 @@ interface EvalMetrics {
   totalTasks: number;
 }
 
+// ---- Narrative types (merged from arc-introspection, 2026-07-04) ----
+
+interface CompletedTask {
+  id: number;
+  subject: string;
+  skills: string | null;
+  priority: number;
+  status: string;
+  source: string | null;
+  result_summary: string | null;
+  cost_usd: number;
+  model: string | null;
+  duration_ms: number | null;
+}
+
+interface NarrativeData {
+  completed: CompletedTask[];
+  failed: CompletedTask[];
+  modelDistribution: Record<string, number>;
+  skillFrequency: Record<string, number>;
+  sourceBreakdown: Record<string, number>;
+  topCostTasks: CompletedTask[];
+}
+
 // ---- Weights from PURPOSE.md ----
 
 const WEIGHTS = {
@@ -158,6 +182,190 @@ function collectMetrics(): EvalMetrics {
     prReviewCount: prRow.count,
     totalTasks: total,
   };
+}
+
+// ---- Narrative Collection (merged from arc-introspection, 2026-07-04) ----
+
+function categorizeSource(source: string | null): string {
+  if (!source) return "unknown";
+  if (source === "human") return "human";
+  if (source.startsWith("sensor:")) return "sensor";
+  if (source.startsWith("task:")) return "follow-up";
+  return "other";
+}
+
+function collectNarrativeData(): NarrativeData {
+  const db = getDatabase();
+
+  const completedRows = db
+    .query(
+      `SELECT t.id, t.subject, t.skills, t.priority, t.status, t.source,
+              t.result_summary, t.model,
+              COALESCE(t.cost_usd, 0) as cost_usd,
+              (SELECT SUM(c.duration_ms) FROM cycle_log c WHERE c.task_id = t.id) as duration_ms
+       FROM tasks t
+       WHERE t.status = 'completed'
+         AND t.completed_at > datetime('now', '-1 day')
+       ORDER BY t.completed_at DESC`
+    )
+    .all() as CompletedTask[];
+
+  const failedRows = db
+    .query(
+      `SELECT t.id, t.subject, t.skills, t.priority, t.status, t.source,
+              t.result_summary, t.model,
+              COALESCE(t.cost_usd, 0) as cost_usd,
+              (SELECT SUM(c.duration_ms) FROM cycle_log c WHERE c.task_id = t.id) as duration_ms
+       FROM tasks t
+       WHERE t.status = 'failed'
+         AND t.completed_at > datetime('now', '-1 day')
+       ORDER BY t.completed_at DESC`
+    )
+    .all() as CompletedTask[];
+
+  const modelDistribution: Record<string, number> = {};
+  const skillFrequency: Record<string, number> = {};
+  const sourceBreakdown: Record<string, number> = {};
+
+  for (const task of [...completedRows, ...failedRows]) {
+    const model = task.model ?? "unknown";
+    modelDistribution[model] = (modelDistribution[model] ?? 0) + 1;
+
+    if (task.skills) {
+      try {
+        const skills = JSON.parse(task.skills) as string[];
+        for (const skill of skills) {
+          skillFrequency[skill] = (skillFrequency[skill] ?? 0) + 1;
+        }
+      } catch {
+        // skip unparseable
+      }
+    }
+
+    const sourceType = categorizeSource(task.source);
+    sourceBreakdown[sourceType] = (sourceBreakdown[sourceType] ?? 0) + 1;
+  }
+
+  const topCostTasks = [...completedRows, ...failedRows]
+    .sort((a, b) => b.cost_usd - a.cost_usd)
+    .slice(0, 5);
+
+  return {
+    completed: completedRows,
+    failed: failedRows,
+    modelDistribution,
+    skillFrequency,
+    sourceBreakdown,
+    topCostTasks,
+  };
+}
+
+function formatNarrative(data: NarrativeData): string {
+  const sections: string[] = [];
+
+  if (Object.keys(data.modelDistribution).length > 0) {
+    const modelLines = Object.entries(data.modelDistribution)
+      .sort(([, a], [, b]) => b - a)
+      .map(([model, count]) => `- ${model}: ${count} tasks`);
+    sections.push(`## Model Distribution\n${modelLines.join("\n")}`);
+  }
+
+  if (Object.keys(data.sourceBreakdown).length > 0) {
+    const sourceLines = Object.entries(data.sourceBreakdown)
+      .sort(([, a], [, b]) => b - a)
+      .map(([source, count]) => `- ${source}: ${count}`);
+    sections.push(`## Work Sources\n${sourceLines.join("\n")}`);
+  }
+
+  if (Object.keys(data.skillFrequency).length > 0) {
+    const skillLines = Object.entries(data.skillFrequency)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([skill, count]) => `- ${skill}: ${count}`);
+    sections.push(`## Active Skill Domains (top 10)\n${skillLines.join("\n")}`);
+  }
+
+  if (data.completed.length > 0) {
+    const taskLines = data.completed.slice(0, 20).map((t) => {
+      const cost = t.cost_usd > 0 ? ` ($${t.cost_usd.toFixed(3)})` : "";
+      const summary = t.result_summary
+        ? ` — ${t.result_summary.slice(0, 80)}`
+        : "";
+      return `- [#${t.id}] ${t.subject.slice(0, 60)}${cost}${summary}`;
+    });
+    sections.push(`## Completed Tasks\n${taskLines.join("\n")}`);
+  }
+
+  if (data.failed.length > 0) {
+    const failLines = data.failed.map((t) => {
+      const summary = t.result_summary
+        ? ` — ${t.result_summary.slice(0, 80)}`
+        : "";
+      return `- [#${t.id}] ${t.subject.slice(0, 60)}${summary}`;
+    });
+    sections.push(`## Failed Tasks\n${failLines.join("\n")}`);
+  }
+
+  if (data.topCostTasks.length > 0 && data.topCostTasks[0].cost_usd > 0) {
+    const costLines = data.topCostTasks
+      .filter((t) => t.cost_usd > 0)
+      .map(
+        (t) =>
+          `- [#${t.id}] $${t.cost_usd.toFixed(3)} — ${t.subject.slice(0, 60)}`
+      );
+    sections.push(`## Highest Cost Tasks\n${costLines.join("\n")}`);
+  }
+
+  return sections.join("\n\n");
+}
+
+function generateReflectionPrompts(data: NarrativeData): string {
+  const prompts: string[] = [];
+  const total = data.completed.length + data.failed.length;
+
+  if (data.failed.length > 0) {
+    const rate = ((data.failed.length / total) * 100).toFixed(0);
+    prompts.push(
+      `- ${data.failed.length} tasks failed (${rate}% failure rate). Are there common patterns? Should any be retried or deprioritized?`
+    );
+  }
+
+  const sensorCount = data.sourceBreakdown["sensor"] ?? 0;
+  const humanCount = data.sourceBreakdown["human"] ?? 0;
+  if (sensorCount > 0 && humanCount === 0) {
+    prompts.push(
+      `- All work was sensor-driven (${sensorCount} tasks). No human-initiated tasks. Is the agent working on what matters, or just what's detected?`
+    );
+  }
+
+  const topSkill = Object.entries(data.skillFrequency).sort(
+    ([, a], [, b]) => b - a
+  )[0];
+  if (topSkill && topSkill[1] > total * 0.4 && total > 5) {
+    prompts.push(
+      `- ${topSkill[0]} dominated today (${topSkill[1]}/${total} tasks). Is this proportional to its importance, or crowding out other work?`
+    );
+  }
+
+  if (total < 5) {
+    prompts.push(
+      `- Only ${total} tasks in 24h. Is the queue starved, or was this intentional low-activity?`
+    );
+  }
+
+  if (total > 50) {
+    prompts.push(
+      `- ${total} tasks in 24h is high volume. Is the queue creating busywork, or is this genuine throughput?`
+    );
+  }
+
+  if (prompts.length === 0) {
+    prompts.push(
+      `- Routine day. What's the most valuable thing accomplished? What should tomorrow prioritize?`
+    );
+  }
+
+  return prompts.join("\n");
 }
 
 // ---- Scoring Functions (from PURPOSE.md rubric) ----
@@ -338,6 +546,10 @@ export default async function purposeEvalSensor(): Promise<string> {
   const scores = computeScores(metrics);
   const report = formatReport(scores, metrics);
 
+  const narrativeData = collectNarrativeData();
+  const narrative = formatNarrative(narrativeData);
+  const reflectionPrompts = generateReflectionPrompts(narrativeData);
+
   log(
     `scores: signal=${scores.signal} ops=${scores.ops} eco=${scores.ecosystem} cost=${scores.cost} weighted=${scores.weighted}`,
   );
@@ -367,8 +579,11 @@ export default async function purposeEvalSensor(): Promise<string> {
     subject: `PURPOSE eval: ${scores.weighted}/5 — S:${scores.signal} O:${scores.ops} E:${scores.ecosystem} C:${scores.cost}`,
     description:
       report +
+      "\n\n## Narrative (merged from arc-introspection, 2026-07-04)\n\n" +
+      narrative +
+      `\n\n### Reflection Prompts\n${reflectionPrompts}` +
       "\n\n## Instructions\n" +
-      "1. Review the data-driven scores above\n" +
+      "1. Review the data-driven scores and narrative above\n" +
       "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
       "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
       "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
@@ -378,8 +593,9 @@ export default async function purposeEvalSensor(): Promise<string> {
       "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
       "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
       "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
-      `5. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
-      "6. Close this task with the final 7-dimension score",
+      "5. Write a concise 3-5 sentence self-assessment (what went well, what didn't, what to focus on) using the narrative + reflection prompts above\n" +
+      `6. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
+      "7. Close this task with the final 7-dimension score and one-line summary of the reflection",
     skills: '["arc-purpose-eval", "arc-strategy-review"]',
     source: TASK_SOURCE,
     priority: 6,

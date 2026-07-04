@@ -212,7 +212,7 @@ export default async function arcMemorySensor(): Promise<string> {
       `4. Update the timestamp at the top of patterns.md\n` +
       `5. If decision frameworks need updating, edit memory/frameworks.md\n` +
       `6. Close this task with a summary of patterns added`,
-    skills: '["arc-memory", "arc-introspection"]',
+    skills: '["arc-memory"]',
     source: TASK_SOURCE,
     priority: 7,
     model: "sonnet",

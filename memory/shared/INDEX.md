@@ -75,3 +75,4 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [lint-skills-name-reference-drift](memory/shared/entries/lint-skills-name-reference-drift.md) — new `skills run --name X` grep-verify check (task #20940) surfaced ~280 pre-existing stale refs, filed as #20944
 - [x-posting-dual-cap-posts-vs-daily-tweet-cap](memory/shared/entries/x-posting-dual-cap-posts-vs-daily-tweet-cap.md) — two independent X post caps (posts=3 root-only, DAILY_TWEET_CAP=6 all types); SKILL.md still says posts=10
 - [x-post-ascii-arrow-html-escape](memory/shared/entries/x-post-ascii-arrow-html-escape.md) — ASCII "->" in post text gets HTML-escaped to "-&gt;"; always use unicode "→"
+- [introspection-daily-eval-overlap](memory/shared/entries/introspection-daily-eval-overlap.md) — arc-introspection merged into arc-purpose-eval (same 720min/24h window, duplicate meta-tasks); introspection sensor retired to inert stub

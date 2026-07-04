@@ -25,7 +25,7 @@ Load this skill when the task involves:
 - Failure triage: diagnosed a systemic issue, not just a one-off
 - Cost analysis: daily/weekly cost review tasks
 - Dispatch evaluation: reviewing Arc's own behavior
-- Any task tagged with `arc-introspection` or `arc-dispatch-eval`
+- Any task tagged with `arc-purpose-eval` or `arc-dispatch-eval`
 
 Do NOT load for routine domain tasks (DeFi, X posting, PR reviews) — the frameworks add context overhead without benefit.
 

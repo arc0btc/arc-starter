@@ -51,7 +51,8 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-self-audit",
   "sensor:compliance-review",
   "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
-  "sensor:arc-introspection",        // introspection reports summarize recent task subjects verbatim
+  "sensor:arc-introspection",        // retired 2026-07-04, kept for archival tasks predating the merge
+  "sensor:arc-purpose-eval",         // eval reports embed a merged introspection narrative (task subjects verbatim) since 2026-07-04
   "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
   "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
   "sensor:arc-blocked-review",       // descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks

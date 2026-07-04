@@ -1,7 +1,7 @@
 ---
 name: arc-purpose-eval
 description: Data-driven PURPOSE.md evaluation sensor — scores dimensions from SQL queries on tasks/cycle_log
-updated: 2026-04-08
+updated: 2026-07-04
 tags:
   - evaluation
   - metrics
@@ -36,6 +36,10 @@ Three dimensions (20% weight) remain LLM-evaluated: Adaptation (10%), Collaborat
   - Cost = 1 → cost optimization review
   - Ecosystem ≤ 1 → PR review sweep
 - **State**: Persists last scores + metrics to `db/hook-state/arc-purpose-eval.json`
+
+## Qualitative Narrative (merged from arc-introspection, 2026-07-04)
+
+The daily eval task description also includes a narrative section — completed/failed task lists, model distribution, skill-domain frequency, work-source breakdown, top-cost tasks, and reflection prompts — previously produced by a separate `arc-introspection` sensor. Both sensors fired on the identical 720min/24h-window schedule and queried the same `tasks`+`cycle_log` rows, so they were merged into this single daily task rather than running two redundant meta-tasks per day. `arc-introspection`'s sensor is retired (stub, always `skip`); its SKILL.md points here.
 
 ## Relationship to arc-strategy-review
 
