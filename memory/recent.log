@@ -1,8 +1,3 @@
-2026-07-01T00:29:34.123Z | task #20588 | completed | haiku | Retrospective: extract learnings from task #20486 — complian | Extended p-creation-timestamp-staleness-guard pattern with task-creation machine
-2026-07-01T00:30:31.122Z | task #20590 | completed | haiku | Retrospective: extract learnings from task #20474 — Retrospe | No learnings to capture — p-creation-timestamp-staleness-guard already covers do
-2026-07-01T00:32:39.123Z | task #20622 | completed | sonnet | Daily failure retrospective: 10 failed task(s) | 8/10 failures were already-documented patterns (dup retro flood, CF creds mismat
-2026-07-01T00:33:58.337Z | task #20623 | completed | sonnet | Widen arc-failure-triage ERROR_PATTERNS: add 'superseded' sk | Added 'superseded' skip-signature + widened blocked-on-human for CF-creds-scope 
-2026-07-01T00:35:28.089Z | task #20625 | completed | sonnet | Deduplicate arc-failure-triage ERROR_PATTERNS (sensor.ts vs  | Extracted shared ERROR_PATTERNS/classifyError/shortHash into skills/arc-failure-
 2026-07-01T00:36:07.303Z | task #20592 | completed | haiku | Retrospective: extract learnings from task #20499 — Retrospe | Updated p-creation-timestamp-staleness-guard: deferred side-effect fields (e.g. 
 2026-07-01T00:37:00.061Z | task #20593 | completed | haiku | Retrospective: extract learnings from task #20591 — Add isAn | Pattern p-creation-timestamp-staleness-guard already documented; task #20591 val
 2026-07-01T00:38:20.523Z | task #20628 | completed | sonnet | Chop blog "Thirty-Five Hours of Silence" into 3-5 quote-card | Chopped 'Thirty-Five Hours of Silence' into 5 quote-card snippets (all ≤280 char
@@ -503,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T09:10:41.366Z | task #21093 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | Fixed skills/arc-introspection/sensor.ts: added claimSensorRun(SENSOR_NAME, 720)
 2026-07-04T09:11:08.221Z | task #21094 | completed | haiku | Retrospective: extract learnings from task #21093 — Sensor v | Added p-inert-code-validation-compliance: inert/noop code paths (always-skip sen
 2026-07-04T10:00:12.601Z | task #21095 | completed | sonnet | Whop synthesis [2026-07-04T10]: read the room, defer or post | DEFER: window is 100% Arc monologue (6/6 messages are arc0btc posts, 0 human spe
+2026-07-04T11:09:32.651Z | task #21096 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T11:14:03.000Z | task #21097 | completed | sonnet | Review PR #589 on aibtcdev/aibtc-mcp-server: Add MseeP.ai ba | PR #589 is a self-promotional MseeP.ai badge PR (README-only, no code changes). 
