@@ -10,6 +10,13 @@
 // Kept as an inert stub rather than deleted so the skill directory (SKILL.md,
 // history) stays intact. Always returns "skip".
 
+import { claimSensorRun } from "../../src/sensors.ts";
+
+const SENSOR_NAME = "arc-introspection";
+const INTERVAL_MINUTES = 720;
+
 export default async function introspectionSensor(): Promise<string> {
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
   return "skip";
 }
