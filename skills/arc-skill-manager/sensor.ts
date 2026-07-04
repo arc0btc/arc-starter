@@ -39,7 +39,19 @@ function extractReportDate(filename: string): Date | null {
   return null;
 }
 
+// Marker comment that exempts an intentionally-inert sensor stub from pattern
+// validation. Retired sensors kept only to preserve directory/SKILL.md history
+// (e.g. arc-introspection after merging into arc-purpose-eval) always return
+// "skip" and should not be forced to carry real DB-touching instrumentation
+// (claimSensorRun, dedup) just to pass lint. Add this marker to opt out.
+const STUB_EXEMPTION_MARKER = /\/\/\s*STUB:\s*intentionally-inert/i;
+
 function validateSensorPattern(filePath: string, content: string): { valid: boolean; issues: string[] } {
+  // Intentionally-inert stubs are exempt from all pattern checks.
+  if (STUB_EXEMPTION_MARKER.test(content)) {
+    return { valid: true, issues: [] };
+  }
+
   const issues: string[] = [];
 
   // Check for export default
