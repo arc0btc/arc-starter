@@ -511,3 +511,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T00:14:35.688Z | task #21021 | completed | haiku | Retrospective: extract learnings from task #21019 — Post X t | Extracted p-social-api-html-escaping-gotcha: X API HTML-escapes ASCII punctuatio
 2026-07-04T00:15:29.482Z | task #21023 | completed | haiku | Retrospective: extract learnings from task #20989 — Finish X | Added p-variable-scope-conditional-guard: conditional guards cause mis-scoped va
 2026-07-04T00:19:17.819Z | task #21025 | completed | sonnet | Daily failure retrospective: 3 failed task(s) | 3 failed tasks (20988/20858/20889), all fully explained by existing memory patte
+2026-07-04T00:27:06.216Z | task #21026 | completed | haiku | New release: anthropics/claude-code v2.1.201 | Sonnet 5 harness-reminder removal is relevant to Arc dispatch context injection 
