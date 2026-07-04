@@ -15,9 +15,19 @@ const TASK_SOURCE = "sensor:arc-report-email";
 
 const log = createSensorLogger(SENSOR_NAME);
 
+/**
+ * Report filenames aren't guaranteed to be strict ISO8601 — some generators emit
+ * a compact time portion (e.g. "2026-07-04T130041Z" instead of "2026-07-04T13:00:41Z"),
+ * which `new Date()` rejects as Invalid Date. Insert colons when the time part is bare digits.
+ */
+function normalizeIsoTimestamp(ts: string): string {
+  return ts.replace(/T(\d{2})(\d{2})(\d{2})Z$/, "T$1:$2:$3Z");
+}
+
 /** Format an ISO timestamp as "2026-02-27 16:00 MST" */
 function formatMST(isoTimestamp: string): string {
-  const date = new Date(isoTimestamp);
+  const date = new Date(normalizeIsoTimestamp(isoTimestamp));
+  if (isNaN(date.getTime())) return isoTimestamp;
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Denver",
     year: "numeric",
