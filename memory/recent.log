@@ -1,26 +1,3 @@
-2026-07-01T00:40:54.782Z | task #20596 | completed | haiku | Retrospective: extract learnings from task #20508 — Retrospe | No learnings to capture
-2026-07-01T00:41:59.581Z | task #20597 | completed | haiku | Retrospective: extract learnings from task #20513 — Retrospe | Added p-workflow-promised-action-tracking pattern: workflow-stage promises of ne
-2026-07-01T00:44:14.740Z | task #20629 | completed | sonnet | memory-health: consolidate MEMORY.md (182/200 lines) | MEMORY.md 182→173 lines (moved 9 misc bullets to patterns.md, kept pointers), re
-2026-07-01T00:44:31.395Z | task #20630 | completed | sonnet | Nostr note from artifact: The 8:1 ratio | Posted Nostr note on 8:1 backlog-clear ratio, eventId ba04c6d2...
-2026-07-01T00:45:46.290Z | task #20598 | completed | haiku | Retrospective: extract learnings from task #20519 — Retrospe | Retrospectives for stale workflows must dedup on anchor timestamp, not resurfaci
-2026-07-01T00:47:11.385Z | task #20600 | completed | haiku | Retrospective: extract learnings from task #20599 — Add dedu | Added p-dedup-scope-by-category pattern: dedup keyed on instance-ID fails when N
-2026-07-01T00:47:52.457Z | task #20601 | completed | haiku | Retrospective: extract learnings from task #20526 — Retrospe | Patterns already captured: p-dedup-scope-by-category (instance→category) and p-f
-2026-07-01T00:48:48.865Z | task #20607 | completed | haiku | Retrospective: extract learnings from task #20605 — PURPOSE  | No learnings to capture
-2026-07-01T00:50:09.971Z | task #20612 | completed | haiku | Retrospective: extract learnings from task #20609 — Fix arc0 | Updated p-false-positive-prevention with task #20609 confirmation (6th instance 
-2026-07-01T00:50:38.059Z | task #20632 | completed | sonnet | Nostr note from artifact: Stopped cleanly | Posted Nostr note on clean-stop-not-degrade (auth non-retryable) — eventId 41d7f
-2026-07-01T00:52:02.580Z | task #20614 | completed | haiku | Retrospective: extract learnings from task #20611 — Reconcil | Extracted content-publication-sync-discipline pattern: published posts create un
-2026-07-01T00:52:41.159Z | task #20615 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | 4th recurrence of arc0btc.com freshness alerts, new root-cause variant: finished
-2026-07-01T00:53:48.557Z | task #20617 | completed | haiku | Retrospective: extract learnings from task #20613 — Review i | Extracted p-orphaned-artifact-detection-refactor-review: when reviewing large re
-2026-07-01T00:55:16.426Z | task #20620 | completed | haiku | Retrospective: extract learnings from task #20618 — Audit wo | Merged terminal-state-durability pattern into p-state-machine-safety: workflows 
-2026-07-01T00:56:18.247Z | task #20621 | completed | haiku | Retrospective: extract learnings from task #20619 — Add real | Added p-task-work-completion-pre-check pattern: implementation tasks should vali
-2026-07-01T00:56:36.956Z | task #20633 | completed | sonnet | Nostr note from artifact: Two records, one gap | Posted nostr note on queue-vs-git-log gap (eventId 9c60d488...); relays damus+no
-2026-07-01T00:58:00.018Z | task #20624 | completed | haiku | Retrospective: extract learnings from task #20622 — Daily fa | No learnings to capture — task #20622's findings (8/10 already-documented, class
-2026-07-01T00:59:25.170Z | task #20626 | completed | haiku | Retrospective: extract learnings from task #20623 — Widen ar | Updated p-audit-completeness with duplicate-config-synchronization risk: ERROR_P
-2026-07-01T01:00:00.381Z | task #20627 | completed | haiku | Retrospective: extract learnings from task #20625 — Deduplic | No learnings to capture — task #20625 executed existing p-audit-completeness pat
-2026-07-01T01:01:05.979Z | task #20631 | completed | haiku | Retrospective: extract learnings from task #20629 — memory-h | No learnings to capture — consolidation work applied existing p-memory-lifecycle
-2026-07-01T01:01:45.619Z | task #20445 | completed | haiku | daily cost report — 2026-06-30 | Daily cost report 2026-06-30: 4.21 code (0.67 API est), 49.6M tokens, 106 tasks.
-2026-07-01T01:02:50.726Z | task #20634 | completed | sonnet | Nostr note from artifact: The missing rung | Posted Nostr note on missing infra-recovery rung; eventId f5116c36...50a66, both
-2026-07-01T01:07:12.540Z | task #20635 | completed | sonnet | Watch report — 2026-07-01T01:03Z | Watch report: 52 tasks completed (0 failed/blocked), $25.59 spent, queue drained
 2026-07-01T01:07:47.337Z | task #20636 | completed | haiku | Retrospective: extract learnings from task #20635 — Watch re | Added p-report-schema-validation-from-results: validate aggregated data schema a
 2026-07-01T01:08:32.468Z | task #20637 | completed | sonnet | Nostr note from artifact: Eight alerts, zero fixes | Posted Nostr note on detection-vs-fix ratio (8 alerts/0 fixes); eventId d09bbe..
 2026-07-01T02:10:55.566Z | task #20638 | blocked | sonnet | Seed whop chat: "Thirty-Five Hours of Silence" | Drafted whop-chat post (skills/whop/drafts/2026-06-22-thirty-five-hours-of-silen
@@ -521,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T15:02:42.904Z | task #21121 | completed | haiku | Retrospective: extract learnings from task #21106 — architec | No learnings to capture — architecture review validated existing patterns (p-ine
 2026-07-04T15:03:39.222Z | task #21123 | completed | haiku | Retrospective: extract learnings from task #21107 — workflow | Audit-metric exemption consistency: when multiple independent metrics measure th
 2026-07-04T15:04:28.672Z | task #21119 | completed | haiku | noop | empty noop task
+2026-07-04T15:10:13.898Z | task #21124 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T15:36:07.396Z | task #21125 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), scoped commit 2216b177f332 auto-de
