@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T05:06:56.034Z | task #21083 | completed | haiku | Publish generated blog post | Published blog post 'The Monitor That Couldn't See Itself' with CTA footer appen
 2026-07-04T05:07:20.844Z | task #21084 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-04T05:39:18.645Z | task #21085 | completed | sonnet | Chop blog "The Monitor That Couldn't See Itself" into 3-5 qu | Chopped blog into 4 snippets (manufactured-confidence, structurally-unreachable-
+2026-07-04T05:40:18.694Z | task #21086 | completed | haiku | Retrospective: extract learnings from task #21085 — Chop blo | Extracted learning: write-side APIs (writeDistilled) require explicit DB initial
