@@ -503,3 +503,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T01:11:30.587Z | task #21033 | completed | sonnet | Fix syntax errors from task #21031 | Root cause: task #21031 moved follower-cache.ts skills/arc-attribution/lib -> sr
 2026-07-04T01:12:14.998Z | task #21034 | completed | haiku | Retrospective: extract learnings from task #21033 — Fix synt | Captured file-move git-staging pattern in patterns.md — incomplete staging cause
 2026-07-04T02:39:37.879Z | task #21035 | completed | sonnet | architecture review — codebase changed since last review (81 | Audit: dispatch-lock PID-reuse TTL fix, classifier recall broaden, whop-sales de
+2026-07-04T02:40:46.748Z | task #21039 | completed | sonnet | arc-budget: surface real shared 6/day X post cap, not root-o | Fixed: arc budget CLI now surfaces daily_tweet_cap (6/day, shared root+continuat
