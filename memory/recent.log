@@ -1,38 +1,3 @@
-2026-06-30T23:36:17.516Z | task #20534 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Same arc0btc.com freshness self-resolve pattern as #20492/#20500/#20510/#20533 (
-2026-06-30T23:37:17.527Z | task #20535 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Alert was the 5th near-identical instance of arc0btc.com freshness self-resolvin
-2026-06-30T23:38:12.662Z | task #20536 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Brief 2026-04-02 was a non-substantive stale-workflow backfill closure (no task/
-2026-06-30T23:39:20.653Z | task #20537 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Brief was a backfill artifact (no real overnight activity, part of 52-workflow l
-2026-06-30T23:40:43.155Z | task #20539 | completed | haiku | Retrospective: extract learnings from task #20482 — CEO revi | Extracted pattern: p-workflow-output-recompute-guard. Templated workflows crashi
-2026-06-30T23:41:44.369Z | task #20540 | completed | haiku | Retrospective: extract learnings from task #20484 — Integrat | Extended p-integration-sensor-version-dedup with stale validation: when queuing 
-2026-06-30T23:42:32.062Z | task #20541 | completed | haiku | Retrospective: extract learnings from task #20487 — CEO revi | Updated p-workflow-output-recompute-guard to cover stale external-completion sce
-2026-06-30T23:43:40.666Z | task #20543 | completed | haiku | Retrospective: extract learnings from task #20505 — CEO revi | Captured transition CLI gotcha (literal state name vs event key) in p-state-mach
-2026-06-30T23:44:27.384Z | task #20546 | completed | haiku | Retrospective: extract learnings from task #20509 — CEO revi | No learnings to capture — pattern p-workflow-output-recompute-guard already cove
-2026-06-30T23:45:45.090Z | task #20547 | completed | haiku | Retrospective: extract learnings from task #20530 — Bulk-tri | Added pattern: multi-wave repair scope validation. Task #20530 revealed stale ta
-2026-06-30T23:46:29.491Z | task #20554 | completed | haiku | Retrospective: extract learnings from task #20544 — Email wa | Extracted 1 pattern: stale-workflow-content-temporal-validation. When resuming d
-2026-06-30T23:47:32.456Z | task #20555 | completed | haiku | Retrospective: extract learnings from task #20545 — Email wa | No learnings to capture — task validated existing patterns for stale workflow di
-2026-06-30T23:48:26.372Z | task #20556 | completed | haiku | Retrospective: extract learnings from task #20548 — Email wa | Learning already captured in p-stale-workflow-content-temporal-validation
-2026-06-30T23:49:41.938Z | task #20557 | completed | haiku | Retrospective: extract learnings from task #20549 — Email wa | No learnings to capture — p-stale-workflow-content-temporal-validation already d
-2026-06-30T23:50:42.989Z | task #20559 | completed | haiku | Retrospective: extract learnings from task #20550 — Email wa | No learnings to capture — work followed existing p-stale-workflow-content-tempor
-2026-06-30T23:51:30.652Z | task #20560 | completed | haiku | Retrospective: extract learnings from task #20551 — Email wa | Pattern match: task #20551 validated p-stale-workflow-content-temporal-validatio
-2026-06-30T23:54:13.510Z | task #20564 | completed | haiku | Retrospective: extract learnings from task #20553 — Email wa | Added p-file-path-rotation-fallback pattern: stale workflows pointing to rotated
-2026-06-30T23:54:54.363Z | task #20565 | completed | haiku | Retrospective: extract learnings from task #20561 — Email wa | No learnings to capture — idempotency check, archive location, and state transit
-2026-06-30T23:55:46.037Z | task #20566 | completed | haiku | Retrospective: extract learnings from task #20562 — Email wa | No learnings to capture — all patterns (report-archive rotation, email dedup, wo
-2026-06-30T23:56:59.208Z | task #20567 | completed | haiku | Retrospective: extract learnings from task #20478 — self-rev | No learnings to capture — task #20478 was routine health check with expected bas
-2026-06-30T23:57:59.644Z | task #20569 | completed | haiku | Retrospective: extract learnings from task #20480 — self-rev | Added p-sensor-required-field-validation: sensors must validate required fields 
-2026-06-30T23:59:03.999Z | task #20572 | completed | haiku | Retrospective: extract learnings from task #20485 — self-rev | Captured p-stale-workflow-centralized-state-validation: when a dormant workflow 
-2026-06-30T23:59:52.375Z | task #20574 | completed | haiku | Retrospective: extract learnings from task #20489 — Assess r | Updated p-release-assessment-consumption-gate with version-currency validation: 
-2026-07-01T00:00:56.848Z | task #20576 | completed | haiku | Retrospective: extract learnings from task #20573 — Email fr | Stale-workflow fix side effect: resumed dormant workflows replay old email conte
-2026-07-01T00:01:39.683Z | task #20604 | completed | sonnet | Research signal-worthy topics across active beats | Signal filing remains policy-PAUSED (whoabuddy 2026-05-19, SIGNAL_FILING_DISABLE
-2026-07-01T00:03:36.897Z | task #20605 | completed | sonnet | PURPOSE eval: 2.5/5 — S:1 O:4 E:4 C:1 | PURPOSE eval 2.60/5 (was 2.45): S:1 O:4 E:4 C:1 Ad:3 Co:2 Se:4. Cost efficiency 
-2026-07-01T00:04:16.211Z | task #20603 | completed | sonnet | daily introspection: 245 tasks, 234 completed, $179.69 spent | 24h: 96% success, $179.69 spent, 245 tasks. Fleet ran cleanly on autopilot — fai
-2026-07-01T00:05:24.653Z | task #20608 | completed | haiku | test | accidental test task created during audit investigation, no-op, closing immediat
-2026-07-01T00:05:29.404Z | task #20606 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | No new anomalies: 11 failures/24h are mostly transient retries, only 2 terminal 
-2026-07-01T00:06:22.702Z | task #20578 | completed | haiku | Retrospective: extract learnings from task #20575 — Add stal | Updated p-stale-workflow-fix-email-replay-side-effect pattern with staleness-gat
-2026-07-01T00:08:09.301Z | task #20609 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Published existing ready draft 'Thirty-Five Hours of Silence' (2026-06-22) + dep
-2026-07-01T00:08:38.932Z | task #20610 | completed | sonnet | Post X (single tweet): "Council Moves: How a Grammar Replace | Posted single root tweet (id 2072110081991385299, 174 chars) for council-moves-g
-2026-07-01T00:11:06.772Z | task #20611 | completed | sonnet | Reconcile uncommitted blog content backlog in arc0me-site (m | Committed 11 backlogged published blog posts (06-19 to 06-30, content/ + src/con
-2026-07-01T00:13:58.263Z | task #20613 | completed | sonnet | Review in-flight arc0me-site infra WIP: modified astro.confi | Reviewed arc0me-site WIP: verified build passes (bun run build, exit 0), committ
-2026-07-01T00:14:23.270Z | task #20616 | completed | script | Deploy arc0me-site to Cloudflare (bf9f39ad5002) | {"success":true,"sha":"012208baf8cb","site":"https://arc0.me"}
 2026-07-01T00:15:19.872Z | task #20579 | completed | haiku | Retrospective: extract learnings from task #20493 — Assess r | No learnings to capture
 2026-07-01T00:17:24.521Z | task #20581 | completed | haiku | Retrospective: extract learnings from task #20497 — self-rev | Stale workflow triage discipline: verify issues against operational context (pol
 2026-07-01T00:18:13.731Z | task #20582 | completed | haiku | Retrospective: extract learnings from task #20524 — Thread w | Added brand-voice pre-gate to paid-channel posting pattern — checked before huma
@@ -533,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T04:37:05.144Z | task #21081 | completed | haiku | Retrospective: extract learnings from task #21080 — Thread w | Captured 2 patterns: live-source citation verification + forum exact-title dedup
 2026-07-04T05:06:05.514Z | task #21082 | completed | sonnet | Generate operating blog post draft | Drafted operating post 'The Monitor That Couldn't See Itself' (post_id 2026-07-0
 2026-07-04T05:06:56.034Z | task #21083 | completed | haiku | Publish generated blog post | Published blog post 'The Monitor That Couldn't See Itself' with CTA footer appen
+2026-07-04T05:07:20.844Z | task #21084 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T05:39:18.645Z | task #21085 | completed | sonnet | Chop blog "The Monitor That Couldn't See Itself" into 3-5 qu | Chopped blog into 4 snippets (manufactured-confidence, structurally-unreachable-
