@@ -1,20 +1,3 @@
-2026-06-30T23:19:28.824Z | task #20514 | completed | sonnet | Retrospective: health alert — stale lock | Stale-lock alert was false positive: PID 2964588 belonged to live dispatch cycle
-2026-06-30T23:21:16.269Z | task #20515 | completed | sonnet | Retrospective: health alert — dispatch stale | dispatch-stale alert was a transient stall during a high-volume retrospective ba
-2026-06-30T23:21:30.861Z | task #20516 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert was a known FP category (already documented in patterns.md 
-2026-06-30T23:22:44.317Z | task #20517 | completed | sonnet | Retrospective: health alert — dispatch stale | FP confirmed: dispatch healthy, daily $200 cost ceiling tripped budget gate at 2
-2026-06-30T23:23:32.994Z | task #20518 | completed | sonnet | Retrospective: health alert — dispatch stale | Duplicate of #20515/20516/20517 — dispatch-stale FP already documented in patter
-2026-06-30T23:25:34.685Z | task #20519 | completed | sonnet | Retrospective: extract learnings from collaboration with Fra | Duplicate replay of workflow:2244 — Fractal Swift retrospective already ran 5x i
-2026-06-30T23:25:50.454Z | task #20521 | completed | sonnet | Retrospective: health alert — dispatch stale | Health alert dispatch-stale was a false positive: lock PID matched active dispat
-2026-06-30T23:27:26.935Z | task #20525 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert confirmed FP (already documented in patterns.md). Real find
-2026-06-30T23:30:24.311Z | task #20599 | completed | sonnet | Add dedup guard to retrospective workflow (3054) to prevent  | Fixed: HealthAlertMachine.retrospective_pending now sets action.source=retrospec
-2026-06-30T23:31:36.600Z | task #20527 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
-2026-06-30T23:31:36.639Z | task #20528 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
-2026-06-30T23:31:36.676Z | task #20529 | failed | sonnet | Retrospective: health alert — dispatch stale | superseded by task #20526 — duplicate dispatch-stale retrospective from pre-fix 
-2026-06-30T23:31:41.098Z | task #20526 | completed | sonnet | Retrospective: health alert — dispatch stale | Confirmed recurring flood, not one-off: dispatch-stale alert FP is known pattern
-2026-06-30T23:32:28.697Z | task #20531 | completed | haiku | Retrospective: extract learnings from task #20477 — Overnigh | Added p-stale-workflow-repair-sweep-bulk-triage pattern: when repair sweeps surf
-2026-06-30T23:33:22.200Z | task #20532 | completed | haiku | Retrospective: extract learnings from task #20479 — Overnigh | Stale workflow backfill pattern: zero-data windows → disposition note + retrospe
-2026-06-30T23:34:38.100Z | task #20533 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | arc0btc.com freshness alert was the 4th near-identical self-resolved instance (#
-2026-06-30T23:35:58.999Z | task #20602 | completed | sonnet | Fix arc0btc.com health sensor: re-verify freshness immediate | Sensor now re-runs only the failed checks once immediately before alerting; tran
 2026-06-30T23:36:17.516Z | task #20534 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Same arc0btc.com freshness self-resolve pattern as #20492/#20500/#20510/#20533 (
 2026-06-30T23:37:17.527Z | task #20535 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Alert was the 5th near-identical instance of arc0btc.com freshness self-resolvin
 2026-06-30T23:38:12.662Z | task #20536 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Brief 2026-04-02 was a non-substantive stale-workflow backfill closure (no task/
@@ -515,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T02:52:48.172Z | task #21045 | completed | haiku | Retrospective: extract learnings from task #21036 — workflow | Captured 1 new pattern: exclusion-set key composition must include context (temp
 2026-07-04T02:56:10.677Z | task #21046 | completed | sonnet | Email watch report to whoabuddy — 2026-07-04T02:37 | Watch report emailed to whoabuddy via arc-email-sync CLI (not 'email' skill name
 2026-07-04T02:57:14.907Z | task #21047 | completed | haiku | Retrospective: extract learnings from task #21046 — Email wa | Extended p-skill-name-validation to cover template-embedded commands; validated 
+2026-07-04T03:06:40.624Z | task #21048 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T03:12:24.677Z | task #21049 | completed | sonnet | self-review: run health check for 2026-07-04 | Self-review 2026-07-04: clean, no new issues. Services healthy, recent.log thres
