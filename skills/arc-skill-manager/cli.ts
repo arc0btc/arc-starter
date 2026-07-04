@@ -479,6 +479,39 @@ function cmdInstallHooks(): void {
   process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
 }
 
+/**
+ * Resolve a sensor's internal state key and task-source prefix from its sensor.ts.
+ *
+ * Sensors key their hook-state file and task source on an internal SENSOR_NAME
+ * constant, which can differ from the skill directory name (e.g. skill
+ * `arc0btc-pr-review` uses SENSOR_NAME "pr-review-attestation" and
+ * TASK_SOURCE_PREFIX "sensor:pr-review-attestation"). The health report must
+ * resolve these, or it reports false "last_run: never" / "no tasks" for a live
+ * sensor. Falls back to the directory/frontmatter name when no const is found.
+ */
+function resolveSensorIdentity(
+  sensorPath: string,
+  fallbackName: string
+): { stateKey: string; sourcePrefix: string } {
+  let stateKey = fallbackName;
+  let sourcePrefix = `sensor:${fallbackName}`;
+  try {
+    const source = readFileSync(sensorPath, "utf-8");
+    const nameMatch = source.match(/const\s+SENSOR_NAME\s*=\s*["'`]([^"'`]+)["'`]/);
+    if (nameMatch) {
+      stateKey = nameMatch[1];
+      sourcePrefix = `sensor:${stateKey}`;
+    }
+    const prefixMatch = source.match(/const\s+TASK_SOURCE_PREFIX\s*=\s*["'`]([^"'`]+)["'`]/);
+    if (prefixMatch) {
+      sourcePrefix = prefixMatch[1];
+    }
+  } catch {
+    // unreadable sensor source — fall back to the directory/frontmatter name
+  }
+  return { stateKey, sourcePrefix };
+}
+
 function cmdSensorHealthReport(): void {
   initDatabase();
   const db = getDatabase();
@@ -500,13 +533,30 @@ function cmdSensorHealthReport(): void {
   const alerts: string[] = [];
 
   for (const sensor of sensors) {
-    // Collect candidate state files: exact match first, then sub-sensor files (e.g. arc-reporting-watch.json)
-    const exactFile = join(hookStateDir, `${sensor.name}.json`);
-    const candidateFiles: string[] = existsSync(exactFile) ? [exactFile] : [];
+    // Resolve the sensor's internal state key + task-source prefix. These can
+    // differ from the skill directory name; using the directory name blindly
+    // produces false "last_run: never" / "no tasks" for live sensors.
+    const { stateKey, sourcePrefix } = resolveSensorIdentity(
+      join(sensor.path, "sensor.ts"),
+      sensor.name
+    );
+
+    // Collect candidate state files keyed on the internal name, falling back to
+    // the directory name. Exact match first, then sub-sensor files (e.g.
+    // arc-reporting-watch.json).
+    const nameKeys = stateKey === sensor.name ? [stateKey] : [stateKey, sensor.name];
+    const candidateFiles: string[] = [];
+    for (const key of nameKeys) {
+      const exactFile = join(hookStateDir, `${key}.json`);
+      if (existsSync(exactFile)) candidateFiles.push(exactFile);
+    }
     if (candidateFiles.length === 0 && existsSync(hookStateDir)) {
-      for (const f of readdirSync(hookStateDir)) {
-        if (f.startsWith(`${sensor.name}-`) && f.endsWith(".json")) {
-          candidateFiles.push(join(hookStateDir, f));
+      const dirEntries = readdirSync(hookStateDir);
+      for (const key of nameKeys) {
+        for (const f of dirEntries) {
+          if (f.startsWith(`${key}-`) && f.endsWith(".json")) {
+            candidateFiles.push(join(hookStateDir, f));
+          }
         }
       }
     }
@@ -542,13 +592,13 @@ function cmdSensorHealthReport(): void {
       else lastRun = `${Math.round(ageMin / 1440)}d ago`;
     }
 
-    // Find most recent task from this sensor
-    const sourcePattern = `sensor:${sensor.name}`;
+    // Find most recent task from this sensor. Match the exact source prefix and
+    // any suffixed variant (e.g. `sensor:pr-review-attestation:task:123`).
     const lastTaskRow = db
       .query(
-        "SELECT completed_at, status FROM tasks WHERE source = ? ORDER BY id DESC LIMIT 1"
+        "SELECT completed_at, status FROM tasks WHERE source = ? OR source LIKE ? ORDER BY id DESC LIMIT 1"
       )
-      .get(sourcePattern) as { completed_at: string | null; status: string } | null;
+      .get(sourcePrefix, `${sourcePrefix}:%`) as { completed_at: string | null; status: string } | null;
 
     let lastTaskAt = "none";
     if (lastTaskRow?.completed_at) {
