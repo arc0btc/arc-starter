@@ -15,7 +15,7 @@ import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSourc
 import { X_ARTICLE_CONSTRAINTS } from "./cli.ts";
 
 const SENSOR_NAME = "arc-article-pipeline";
-const CADENCE_MINUTES = 60 * 48; // every-other-day floor ("faster" is fine, this is the ceiling gate)
+const INTERVAL_MINUTES = 60 * 48; // every-other-day floor ("faster" is fine, this is the ceiling gate)
 // v2 = the X-Article draft schema (xArticle object, NOT the retired xThread array) — bumped on
 // the breaking contract change (dev-council: newman) so a stale pre-rework pending task can
 // never suppress the correctly-shaped replacement via the pendingTaskExistsForSource dedup.
@@ -24,7 +24,7 @@ const SOURCE_VERSION = "v2";
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function arcArticlePipelineSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, CADENCE_MINUTES);
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
   initDatabase();

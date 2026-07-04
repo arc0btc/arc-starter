@@ -272,7 +272,7 @@ async function cmdSendTest(args: string[]) {
   }
 
   console.log(`[LIVE] Sending digest to seed recipient: ${to}`);
-  const res = await fetch(`${apiBaseUrl}/api/send-digest`, {
+  const response = await fetch(`${apiBaseUrl}/api/send-digest`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
     body: JSON.stringify({
@@ -283,11 +283,11 @@ async function cmdSendTest(args: string[]) {
     }),
   });
 
-  if (!res.ok) {
-    console.error(`Send failed: HTTP ${res.status} — ${await res.text()}`);
+  if (!response.ok) {
+    console.error(`Send failed: HTTP ${response.status} — ${await response.text()}`);
     process.exit(1);
   }
-  const result = await res.json();
+  const result = await response.json();
   console.log("Result:", JSON.stringify(result, null, 2));
 }
 

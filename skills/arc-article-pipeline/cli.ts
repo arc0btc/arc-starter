@@ -564,9 +564,9 @@ function assembleXArticle(finding: Finding, postId: string, x: XArticleDraft): X
 // — a crash mid-write can never leave a torn/half-written file for a later JSON.parse to choke
 // on (P2-rework dev-council: kleppmann F3).
 function writeFileAtomic(path: string, content: string): void {
-  const tmp = `${path}.tmp-${process.pid}`;
-  fs.writeFileSync(tmp, content);
-  fs.renameSync(tmp, path);
+  const tempFilePath = `${path}.tmp-${process.pid}`;
+  fs.writeFileSync(tempFilePath, content);
+  fs.renameSync(tempFilePath, path);
 }
 
 /**
@@ -645,12 +645,12 @@ function claimArticle(db: Database, articleN: number, finding: Finding): ClaimRe
       [articleN, finding.slug, finding.hook, finding.fileLine]
     );
     return "claimed";
-  } catch (err) {
-    const msg = String(err);
+  } catch (error) {
+    const errorMessage = String(error);
     // Lost a race against a concurrent claimer between the SELECT above and this INSERT —
     // treat identically to finding it already existed.
-    if (msg.includes("UNIQUE constraint") || msg.includes("PRIMARY KEY")) return "resume";
-    throw err;
+    if (errorMessage.includes("UNIQUE constraint") || errorMessage.includes("PRIMARY KEY")) return "resume";
+    throw error;
   }
 }
 
@@ -881,7 +881,7 @@ const BUILD_LOCK_PATH = join(ARC_STARTER_ROOT, "db/article-pipeline-preview/.bui
  * (Newman/Hohpe both flagged "true by accident, not by contract"). A simple exclusive lockfile
  * makes the assumption explicit and enforced instead of implicit.
  */
-async function withBuildLock<T>(fn: () => Promise<T>): Promise<T> {
+async function withBuildLock<T>(run: () => Promise<T>): Promise<T> {
   fs.mkdirSync(join(ARC_STARTER_ROOT, "db/article-pipeline-preview"), { recursive: true });
   let fd: number;
   try {
@@ -892,7 +892,7 @@ async function withBuildLock<T>(fn: () => Promise<T>): Promise<T> {
   fs.writeSync(fd, String(process.pid));
   fs.closeSync(fd);
   try {
-    return await fn();
+    return await run();
   } finally {
     fs.rmSync(BUILD_LOCK_PATH, { force: true });
   }
@@ -1275,8 +1275,8 @@ async function cmdFixPreview(articleN: number): Promise<void> {
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
-  const idx = process.argv.indexOf(flag);
-  return idx !== -1 ? process.argv[idx + 1] : undefined;
+  const argIndex = process.argv.indexOf(flag);
+  return argIndex !== -1 ? process.argv[argIndex + 1] : undefined;
 }
 
 async function main() {

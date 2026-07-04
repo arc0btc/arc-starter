@@ -691,14 +691,14 @@ async function sendPackagingReviewEmail(info: {
       ``,
       ...closingLines,
     ].join("\n");
-    const res = await fetch(`${apiBaseUrl}/api/send`, {
+    const response = await fetch(`${apiBaseUrl}/api/send`, {
       method: "POST",
       headers: { "X-Admin-Key": adminKey, "Content-Type": "application/json" },
       signal: AbortSignal.timeout(15_000),
       body: JSON.stringify({ to: recipient, subject, body: plainText }),
     });
-    if (!res.ok) {
-      log(`packaging review email failed (non-fatal): HTTP ${res.status} — ${await res.text()}`);
+    if (!response.ok) {
+      log(`packaging review email failed (non-fatal): HTTP ${response.status} — ${await response.text()}`);
       return false;
     }
     return true;

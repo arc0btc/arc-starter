@@ -77,9 +77,9 @@ function getDb(): Database {
   ]) {
     try {
       db.run(migration);
-    } catch (err) {
-      const msg = String(err);
-      if (!msg.includes("duplicate column")) throw err;
+    } catch (error) {
+      const errorMessage = String(error);
+      if (!errorMessage.includes("duplicate column")) throw error;
     }
   }
 
@@ -746,10 +746,10 @@ function claimEdition(db: Database, editionN: number, findingSlug: string | null
       [editionN, `daily-read:${editionN}`, findingSlug, openingLine]
     );
     return true;
-  } catch (err) {
-    const msg = String(err);
-    if (msg.includes("UNIQUE constraint") || msg.includes("PRIMARY KEY")) return false;
-    throw err;
+  } catch (error) {
+    const errorMessage = String(error);
+    if (errorMessage.includes("UNIQUE constraint") || errorMessage.includes("PRIMARY KEY")) return false;
+    throw error;
   }
 }
 
@@ -1031,8 +1031,8 @@ async function cmdStatus() {
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
-  const idx = process.argv.indexOf(flag);
-  return idx !== -1 ? process.argv[idx + 1] : undefined;
+  const argIndex = process.argv.indexOf(flag);
+  return argIndex !== -1 ? process.argv[argIndex + 1] : undefined;
 }
 
 const command = process.argv[2];

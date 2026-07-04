@@ -81,8 +81,8 @@ function renderHuman(r: AttributionReport): string {
 
 async function main() {
   const args = process.argv.slice(2);
-  const cmd = args[0];
-  if (cmd !== "report") {
+  const command = args[0];
+  if (command !== "report") {
     console.error("Usage: bun skills/arc-attribution/cli.ts report [--json]");
     process.exit(2);
     return;
@@ -92,12 +92,12 @@ async function main() {
   let report: AttributionReport;
   try {
     report = await computeAttributionReport();
-  } catch (err) {
+  } catch (error) {
     const errorPayload = {
       schema_version: SCHEMA_VERSION,
       status: "error" as const,
       generated_at: new Date().toISOString(),
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
     // Always emit parseable JSON, even in human-readable mode — a crash should never produce
     // blank/unparseable output to a caller shelling this out over SSH.

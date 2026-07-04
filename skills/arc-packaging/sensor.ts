@@ -24,7 +24,7 @@ import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSourc
 import { selectCandidate } from "./lib/backlog.ts";
 
 const SENSOR_NAME = "arc-packaging";
-const CADENCE_MINUTES = 60 * 24; // 24h — a supply-side backlog stage. Since 2026-07-03 the
+const INTERVAL_MINUTES = 60 * 24; // 24h — a supply-side backlog stage. Since 2026-07-03 the
 // stage PUBLISHES each SKU to the storefront (operator directive: SKUs are Arc-managed, like
 // the blog — a growing corpus + consistent automated operations). One new catalog item per
 // day is catalog growth, not feed spam — it pushes nothing into anyone's timeline or chat;
@@ -37,7 +37,7 @@ const INDEX_PATH = join(ARC_STARTER_ROOT, "research/INDEX.md");
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function arcPackagingSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, CADENCE_MINUTES);
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
   initDatabase();
