@@ -506,3 +506,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T03:28:02.115Z | task #21061 | completed | sonnet | Merge arc-introspection into arc-purpose-eval (skills/arc-in | Merged arc-introspection's narrative into arc-purpose-eval/sensor.ts (single dai
 2026-07-04T03:28:21.848Z | task #21053 | completed | sonnet | Run lint-skills across full skill tree and fix any violation | lint-skills full-tree run: 130 SKILL.md + 63 AGENT.md + 85 sensor.ts + 84 cli.ts
 2026-07-04T03:31:47.955Z | task #21054 | completed | sonnet | Audit sensor-health-report output for stale/dead sensors | sensor-health-report showed 85/85 ok with zero alerts, but audit found the repor
+2026-07-04T03:33:20.151Z | task #21064 | completed | sonnet | sensors.ts: persist per-sensor ok/error/skip result to hook- | Fixed: runSensors() now persists real last_result + consecutive_failures (increm
