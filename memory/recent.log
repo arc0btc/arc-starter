@@ -502,3 +502,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T13:17:34.609Z | task #21101 | completed | haiku | Retrospective: extract learnings from task #21099 — Overnigh | Extracted 1 reusable pattern: arc-workflows CLI naming collision (complete subco
 2026-07-04T13:19:41.529Z | task #21102 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | arc-report-email 'still failing' item in the overnight brief was a same-batch ti
 2026-07-04T13:20:21.512Z | task #21104 | completed | haiku | Retrospective: extract learnings from task #21100 — arc-repo | Added p-similar-symptom-path-isolation and p-timestamp-format-filename-normaliza
+2026-07-04T14:39:05.417Z | task #21105 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 11 | arc0.me was 115d stale despite blog-deploy hook-state claiming a fresh deploy — 
