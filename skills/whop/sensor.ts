@@ -90,11 +90,14 @@ const EVENTS_LOOKBACK_DAYS = 7;
 const EVENTS_PAGE_SIZE = 50;
 const eventsLog = createSensorLogger(EVENTS_SENSOR_NAME);
 
-// Candidate paths for the arc0me-site working copy (arc-starter-relative first,
-// then the development checkout as fallback).
+// Canonical arc0me-site working copy — the ONLY clone Arc automation builds/deploys from
+// (LIVE_SITE_DIR in arc-article-pipeline/cli.ts uses the same anchor). A second clone at
+// /home/dev/arc0me-site existed as a stale fallback candidate here but was removed 2026-07-04
+// (arc-email-esp quest P4 incident — see manage-agents CHECKPOINTS.md) after it caused a
+// silent-revert production incident. Do not re-add a bare "/home/dev/..." fallback path here;
+// if a candidate-path list is ever needed again, anchor every entry via import.meta.dir.
 const ARC0ME_SITE_CANDIDATES = [
   resolve(import.meta.dir, "../../github/arc0btc/arc0me-site"),
-  "/home/dev/arc0me-site",
 ];
 const WHOP_STATE_REL = "src/data/whop-state.json";
 
