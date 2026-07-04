@@ -24,10 +24,23 @@ const LOOKBACK_DAYS = 7;
 const MIN_RECURRENCES = 3;
 const STALE_WORKFLOW_DAYS = 30;
 
-// States that are passive waiting states — designed to hold indefinitely until
-// an external event occurs. Excluded from 7-day stuck detection since it's normal
-// for them to sit for weeks (e.g. issue-opened waits for a PR to link).
-const PASSIVE_WAITING_STATES = new Set(["issue-opened", "changes-requested"]);
+// (template, state) pairs that are passive waiting states — designed to hold indefinitely
+// until an external event occurs. Excluded from 7-day stuck detection since it's normal for
+// them to sit for weeks. Keyed by template because state names (e.g. "approved") are reused
+// across templates with very different waiting semantics — pr-lifecycle's "approved" is a
+// harmless wait on an external maintainer, but validation-request's "approved" (PSBT sign-off)
+// staying stuck could mean a signing task silently failed, which we still want flagged.
+const PASSIVE_WAITING_STATES = new Set([
+  "pr-lifecycle:issue-opened",
+  "pr-lifecycle:changes-requested",
+  // Arc's review is done, waiting on an external maintainer to merge — the sensor
+  // deliberately does not auto-transition on merge (see workflow context
+  // `reason: "externally-pending"`). Weeks-long waits here are normal, not stuck.
+  "pr-lifecycle:approved",
+  // Holds until the T+30d course-candidacy cadence gate opens (ContentCalendarMachine).
+  // A month-long wait is the intended cadence, not stuck.
+  "content-calendar:public_forum_teaser",
+]);
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -346,7 +359,11 @@ function evaluateTemplateHealth(db: ReturnType<typeof getDatabase>): {
       existing.lastActivity = row.last_update;
     }
 
-    if (row.stuck_cnt > 0 && row.completed_cnt === 0 && !PASSIVE_WAITING_STATES.has(row.current_state)) {
+    if (
+      row.stuck_cnt > 0 &&
+      row.completed_cnt === 0 &&
+      !PASSIVE_WAITING_STATES.has(`${row.template}:${row.current_state}`)
+    ) {
       existing.stuckStates.push(`${row.current_state} (${row.stuck_cnt})`);
     }
 
