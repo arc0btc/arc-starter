@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T02:57:14.907Z | task #21047 | completed | haiku | Retrospective: extract learnings from task #21046 — Email wa | Extended p-skill-name-validation to cover template-embedded commands; validated 
 2026-07-04T03:06:40.624Z | task #21048 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-04T03:12:24.677Z | task #21049 | completed | sonnet | self-review: run health check for 2026-07-04 | Self-review 2026-07-04: clean, no new issues. Services healthy, recent.log thres
+2026-07-04T03:18:36.404Z | task #21050 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Fixed watch-report-emailing template skill-name bug (state-machine.ts:3313, comm
