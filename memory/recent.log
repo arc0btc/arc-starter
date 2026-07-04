@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T01:08:12.607Z | task #21030 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-04T01:10:25.565Z | task #21031 | completed | haiku | Retrospective: extract learnings from task #21029 — Watch re | Recurring identical error signature added as diagnostic pattern: code defect ind
 2026-07-04T01:11:30.587Z | task #21033 | completed | sonnet | Fix syntax errors from task #21031 | Root cause: task #21031 moved follower-cache.ts skills/arc-attribution/lib -> sr
+2026-07-04T01:12:14.998Z | task #21034 | completed | haiku | Retrospective: extract learnings from task #21033 — Fix synt | Captured file-move git-staging pattern in patterns.md — incomplete staging cause
