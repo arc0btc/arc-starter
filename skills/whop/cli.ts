@@ -1519,10 +1519,13 @@ async function main(): Promise<void> {
     case "revenue": {
       // P22 + P7: revenue + weekly net-new + MRR-ladder + leading indicators, from the
       // captured Whop events (no separate sensor). DB read only.
+      // P8 (arc-demand-flywheel): formatReadout() is now async (real cached follower read +
+      // arc-attribution summary line) — this case already runs inside an async command
+      // handler, so awaiting it here is a non-breaking change.
       const { initDatabase } = await import("../../src/db.ts");
       initDatabase();
       const { formatReadout } = await import("./lib/events.ts");
-      console.log(formatReadout());
+      console.log(await formatReadout());
       break;
     }
     default:

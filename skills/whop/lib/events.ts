@@ -1369,14 +1369,57 @@ export function computeReadout(now: number = Date.now()): ReadoutSummary {
   };
 }
 
+// P8 (arc-demand-flywheel) — audience-growth was a hardcoded pointer to a manual command
+// ("run this yourself for a live number") to avoid spending an X read on every report tick
+// (AI-003). Fixed for real via the SHARED follower cache (src/follower-cache.ts, 20h TTL) — the
+// same module skills/arc-attribution/lib/report.ts reads, so this report and the Discord
+// north-star monitor never show two different follower counts for the same day. Import is
+// lazy/dynamic (not a top-level import) to avoid a hard circular-risk between this file and
+// arc-attribution's report.ts (which itself imports computeRevenue from THIS file) — both
+// modules only share the leaf follower-cache.ts, never each other, so this is precautionary
+// hygiene rather than a real cycle today.
+async function readAudienceGrowthLine(): Promise<string> {
+  const { readCachedFollowers } = await import("../../../src/follower-cache.ts");
+  const f = await readCachedFollowers();
+  if (f.followers === null) {
+    return `unknown (${f.note})`;
+  }
+  const d24 = f.delta_24h !== null ? `${f.delta_24h >= 0 ? "+" : ""}${f.delta_24h}` : "n/a";
+  const staleFlag = f.degraded ? "  ⚠ stale/degraded read" : "";
+  return `${f.followers} followers (24h: ${d24})  [${f.note}]${staleFlag}`;
+}
+
+/** One-line reach-delta + channel summary sourced from arc-attribution's report — the SAME
+ * function the Discord north-star monitor calls (via `cli.ts report --json` over SSH from the
+ * manage-agents control plane), so this line and that monitor's numbers can never disagree for
+ * the same day. Returns a plain-text fallback (never throws) if the attribution report itself
+ * fails, since a reporting-surface hiccup should degrade gracefully, not take down the whole
+ * CEO readout. */
+async function readAttributionSummaryLine(): Promise<string> {
+  try {
+    const { computeAttributionReport } = await import("../../arc-attribution/lib/report.ts");
+    const r = await computeAttributionReport();
+    const gaps = r.unattributed_dollars.length > 0 ? `  ⚠ ${r.unattributed_dollars.length} unattributed-dollar flag(s)` : "";
+    return `daily-read ${r.reach.daily_read_editions_posted} eds · articles ${r.reach.articles_published} published/${r.reach.articles_staged_unfired} staged · packaging backlog ${r.reach.packaging_backlog_remaining ?? "?"} · email subs ${r.pipeline.email_subscribers_confirmed ?? "?"} confirmed${gaps}  [full report: bun skills/arc-attribution/cli.ts report]`;
+  } catch (err) {
+    return `unavailable (${err instanceof Error ? err.message : String(err)}) — run \`bun skills/arc-attribution/cli.ts report\` directly`;
+  }
+}
+
 const TREND_GLYPH = { up: "▲", down: "▼", flat: "→" } as const;
 
 /**
  * Human-readable readout for the whop CLI + watch-report (arc-reporting) + CEO review
  * (arc-strategy-review) — the superset of formatRevenue(). Stubs are labeled inline with
  * the phase that wires them, so a clearly-stubbed line is never mistaken for a real zero.
+ *
+ * P8 (arc-demand-flywheel): now async — the audience-growth line reads a real (TTL-cached)
+ * follower count and a new closing line sources reach/channel numbers from arc-attribution's
+ * report, both so this CEO-facing readout and the Discord north-star monitor draw from the same
+ * numbers for the same day. The only call site (skills/whop/cli.ts's `revenue` case) already
+ * runs inside an async command handler, so `await formatReadout()` is a safe, non-breaking change.
  */
-export function formatReadout(r: ReadoutSummary = computeReadout()): string {
+export async function formatReadout(r: ReadoutSummary = computeReadout()): Promise<string> {
   const nn = r.netNew;
   const trail = nn.buckets
     .map((b) => `${b.startsAt} ${b.netNew >= 0 ? "+" : ""}${b.netNew}`)
@@ -1420,6 +1463,14 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
       : `N/A (no paying product buyers yet — pre-first-sale)  [will show 7d spend ÷ paying product buyers]`;
   const sgn = (n: number) => (n >= 0 ? "+" : "") + n;
 
+  // P8: fetch these concurrently — neither depends on the other, no reason to serialize two
+  // independent async reads (one hits the TTL follower cache, the other hits arc-attribution's
+  // own DB snapshot + email API call).
+  const [audienceGrowthLine, attributionSummaryLine] = await Promise.all([
+    readAudienceGrowthLine(),
+    readAttributionSummaryLine(),
+  ]);
+
   return [
     formatRevenue(r.revenue),
     "",
@@ -1436,11 +1487,10 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     `  current MRR:        ${usd(r.ladder.mrrCents)}  ·  $10k: ${r.ladder.pctTo10k}%  ·  $50k: ${r.ladder.pctTo50k}%`,
     "",
     "leading indicators (move before the member count does):",
-    // AI-003: follower count lives in X API — `arc skills run --name social-x-posting -- status`
-    // returns JSON with {followers, following, tweets} from GET /users/me?user.fields=public_metrics.
-    // NOT wired here (live API call per readout tick adds X read-budget pressure — see db/x-budget.json).
-    // Operator: run `arc skills run --name social-x-posting -- status` for current follower count.
-    `  audience growth:    (run \`arc skills run --name social-x-posting -- status\` for live followers — X API, not wired per-tick to preserve read budget)`,
+    // P8 (arc-demand-flywheel): AI-003's stub replaced with a real, TTL-cached (20h) follower
+    // read shared with arc-attribution's report and the Discord north-star monitor — no more
+    // per-tick X-budget spend (the cache absorbs that), and no more "run this yourself" pointer.
+    `  audience growth:    ${audienceGrowthLine}`,
     `  cadence adherence:  ${cadence ? `X posts today: ${cadence.xPosts} (${cadence.date}) | 7d trailing: ${cadence.trailing7dPosts !== null ? cadence.trailing7dPosts + " posts" : "(no history yet)"}` : "X budget unavailable"}  ·  planned-cap: ~2/day (12h CADENCE_INTERVAL)  [AI-005]`,
     // AI-004: right-audience engagement — X replies to leads tracked in x_reply_log (social-x-posting
     // skill's SQLite, not the main arc.sqlite). `arc skills run --name social-x-posting -- budget`
@@ -1449,10 +1499,19 @@ export function formatReadout(r: ReadoutSummary = computeReadout()): string {
     "",
     "inherited proof lines (P5/P4 hand-offs):",
     `  day-60 retention:   ${retLine}`,
-    // AI-002: 7d ship-log — post-M0; requires ship-board skill to track member ship-log posts.
-    `  7d ship-log count:  (post-M0 — ship-board skill needed; track members posting an attributable ship-log within 7d)`,
+    // AI-002: 7d ship-log remains unbuilt (no ship-board skill exists; structurally moot before
+    // any $49 member exists to have a ship-log). P8: pointed at ONE place to look instead of a
+    // bare unexplained stub — arc-attribution's known_gaps carries the same disclosure so this
+    // line and that report never offer two different explanations for the same gap.
+    `  7d ship-log count:  (post-M0 — ship-board skill needed; see arc-attribution's known_gaps for the standing disclosure)`,
     `  $/recurring-member-served: ${guardLine}`,
     `  product CAC:        ${productCacLine}`,
+    "",
+    // P8: the same numbers (reach delta, channel breakdown) the Discord north-star monitor
+    // reports — sourced from the SAME function, so the two surfaces cannot disagree for a given
+    // day. Full detail: `bun skills/arc-attribution/cli.ts report`.
+    "attribution / reach (P8 — source of truth: skills/arc-attribution):",
+    `  ${attributionSummaryLine}`,
   ].join("\n");
 }
 

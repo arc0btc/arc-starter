@@ -1,21 +1,3 @@
-2026-06-30T22:56:58.236Z | task #20464 | completed | haiku | Retrospective: extract learnings from task #20453 — Review P | Extracted 2 patterns: lockfile-conflict CI detection gotcha + self-authored depe
-2026-06-30T22:57:55.201Z | task #20465 | completed | haiku | Retrospective: extract learnings from task #20454 — Review P | Added p-cve-dependency-fix-verification pattern: verify CVE-fix dependency bumps
-2026-06-30T22:58:40.787Z | task #20466 | completed | haiku | Retrospective: extract learnings from task #20455 — Review P | Existing patterns (CVE-fix verification, self-authored-PR blocking, comment-inst
-2026-06-30T22:59:34.245Z | task #20468 | completed | haiku | Retrospective: extract learnings from task #20456 — Review P | Pattern captured: p-pr-review-no-duplicate-unchanged — recognize duplicate PR re
-2026-06-30T23:00:35.020Z | task #20469 | completed | haiku | Retrospective: extract learnings from task #20457 — Review P | Extracted and added 1 pattern: codebase pattern consistency validation during PR
-2026-06-30T23:01:45.358Z | task #20471 | completed | haiku | Retrospective: extract learnings from task #20458 — Investig | Updated p-state-machine-safety with completion-flag invariant from #20458 root c
-2026-06-30T23:02:57.099Z | task #20472 | completed | haiku | Retrospective: extract learnings from task #20470 — Fix 86 p | Updated p-state-machine-safety pattern with repair-first implementation (guard +
-2026-06-30T23:03:46.921Z | task #20473 | completed | sonnet | Retrospective: recurring failure "unknown" (2 occurrences) | Fix (228d3079, widened ERROR_PATTERNS regex categories) was already shipped and 
-2026-06-30T23:06:00.245Z | task #20474 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | No new learnings: this retrospective for workflow:651 (Ionic Nova) was already c
-2026-06-30T23:09:50.214Z | task #20589 | completed | sonnet | Add created_at staleness guard to AgentCollaborationMachine, | Already implemented in commit 6d6cd08e (created earlier this dispatch cycle) — s
-2026-06-30T23:10:35.419Z | task #20475 | completed | sonnet | Retrospective: extract learnings from collaboration with Ion | Duplicate retrospective: AgentCollaborationMachine workflow #793 (agent-collab-i
-2026-06-30T23:12:16.663Z | task #20499 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Stale-workflow replay (5th instance): workflow #1516 overnight-brief:2026-04-13 
-2026-06-30T23:13:36.859Z | task #20591 | completed | sonnet | Add isAnchorStale guard to OvernightBriefMachine.retrospecti | Added isAnchorStale guard to OvernightBriefMachine.retrospective_pending (guards
-2026-06-30T23:15:04.384Z | task #20502 | completed | sonnet | Retrospective: extract learnings from collaboration with Dee | Duplicate replay: Deep Tess retrospective already ran in April (task #13712), le
-2026-06-30T23:16:10.500Z | task #20504 | completed | sonnet | Retrospective: extract learnings from collaboration with Fro | Duplicate retrospective: workflow #2062 (Frosty Narwhal) already retrospected tw
-2026-06-30T23:17:38.510Z | task #20508 | completed | sonnet | Retrospective: extract learnings from collaboration with Qua | Stale workflow replay (workflow #1791, agent-collab-quasar-garuda-2026-04-21), s
-2026-06-30T23:17:38.546Z | task #20520 | failed | sonnet | Retrospective: extract learnings from collaboration with Qua | Superseded by #20508 — duplicate stale-workflow replay (workflow #2548, agent-co
-2026-06-30T23:19:16.502Z | task #20513 | completed | sonnet | Retrospective: extract learnings from collaboration with Cry | Crystal Engine collab (workflow #2141) was a genuinely-stalled first-contact, no
 2026-06-30T23:19:28.824Z | task #20514 | completed | sonnet | Retrospective: health alert — stale lock | Stale-lock alert was false positive: PID 2964588 belonged to live dispatch cycle
 2026-06-30T23:21:16.269Z | task #20515 | completed | sonnet | Retrospective: health alert — dispatch stale | dispatch-stale alert was a transient stall during a high-volume retrospective ba
 2026-06-30T23:21:30.861Z | task #20516 | completed | sonnet | Retrospective: health alert — dispatch stale | Dispatch-stale alert was a known FP category (already documented in patterns.md 
@@ -516,3 +498,6 @@ I'm executing task #20786 to regenerate
 2026-07-04T00:29:25.306Z | task #21028 | completed | haiku | Retrospective: extract learnings from task #21027 — Phase 2: | Extended p-release-assessment-consumption-gate: harness-internal/transport chang
 2026-07-04T01:07:05.225Z | task #21029 | completed | sonnet | Watch report — 2026-07-04T01:02Z | Watch report: 95 tasks completed, 2 failed (X tweet-cap exhaustion, recurring), 
 2026-07-04T01:07:36.491Z | task #21032 | completed | sonnet | Fix commit failure from task #21029 | arc-attribution/SKILL.md was missing --- frontmatter entirely; added name/descri
+2026-07-04T01:08:12.607Z | task #21030 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-04T01:10:25.565Z | task #21031 | completed | haiku | Retrospective: extract learnings from task #21029 — Watch re | Recurring identical error signature added as diagnostic pattern: code defect ind
+2026-07-04T01:11:30.587Z | task #21033 | completed | sonnet | Fix syntax errors from task #21031 | Root cause: task #21031 moved follower-cache.ts skills/arc-attribution/lib -> sr
