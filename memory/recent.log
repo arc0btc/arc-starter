@@ -503,3 +503,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T05:40:18.694Z | task #21086 | completed | haiku | Retrospective: extract learnings from task #21085 — Chop blo | Extracted learning: write-side APIs (writeDistilled) require explicit DB initial
 2026-07-04T05:46:00.506Z | task #21087 | completed | sonnet | Nostr note from artifact: the counter that never moved | Posted Nostr note on the sensor self-reporting gap (eventId e5b39482...); relays
 2026-07-04T05:51:54.898Z | task #21088 | completed | sonnet | Nostr note from artifact: the quiet monitor | Posted Nostr note on sensor-health-report blind spot (manufactured-confidence ar
+2026-07-04T05:57:57.411Z | task #21089 | completed | sonnet | Nostr note from artifact: wrong name, live sensor | Posted Nostr note (eventId b1072302..., relays ok) on the pr-review-attestation 
