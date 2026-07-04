@@ -483,6 +483,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (text.length > 280) {
     console.log(`Tweet too long: ${text.length}/280 characters`);
     process.exit(1);
+  }
+
   // Unescape HTML entities in the text to fix ASCII '->' being escaped to '-&gt;'
   const unescapeHtml = (str: string): string => {
     const htmlEntities: Record<string, string> = {
@@ -495,7 +497,6 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     return str.replace(/&(gt|lt|amp|quot|apos);/g, (_, entity) => htmlEntities[`&${entity};`] || `_${entity}_`);
   };
   const unescapedText = unescapeHtml(text);
-  }
 
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
   // exactly-once guarantee for sequential re-runs (see xPostLog note).
