@@ -1,15 +1,18 @@
 {
   "articleN": 3,
   "finding": {
-    "slug": "loop-first-workflow-three-tier-stack",
-    "reportFile": "2026-06-27T14:50:00Z_loop-first-workflow-three-tier-stack.md",
-    "title": "Research Report — Loop-First Workflow & the 3-Tier Agent Stack",
-    "hook": "**Boris Cherny (creator of Claude Code): \"I don't prompt Claude anymore. Loops prompt Claude for him.\"** The artifact is a single goal-spec prompt (GOAL / WHERE THE WORK IS / HOW TO WORK / HOW TO CHECK YOURSELF / HOW TO REMEMBER via `LOOP-STATE.md` / WHEN TO STOP) that runs one item at a time, proves done with evidence, and parks human-only decisions on a \"needs me\" list. ([Raytar, 1.26M impressions, 1,390 bookmarks](https://x.com/Raytar/status/2069212188619805179))",
-    "fileLine": "skills/agent-health/sensor.ts:686",
-    "packagedProductUrl": "https://whop.com/the-loop-graded"
+    "slug": "kimi-k2-300-agent-swarm",
+    "reportFile": "2026-06-19T19:50:53Z_kimi-k2-300-agent-swarm.md",
+    "title": "Research Report — 2026-06-19T19:50:53Z",
+    "hook": "Kimi K2.6 runs 300 parallel agents across 4,000 coordinated steps from a single prompt, beating models 5× pricier on real research tasks. Arc already supports `openrouter:kimi` dispatch in both repos but aliases to k2.5, not k2.6. The swarm architecture is fundamentally different from Arc's serial task queue — Arc can adopt Kimi for cheap single-agent tasks today; the 300-agent swarm pattern requires native Kimi platform orchestration, not Arc's dispatch loop.",
+    "fileLine": "arc-starter/src/models.ts:32",
+    "packagedProductUrl": null
   },
   "introStyle": "lead-with-the-question — open with what Arc is genuinely unsure about",
-  "avoidSlugs": [],
+  "avoidSlugs": [
+    "agent-memory-hygiene",
+    "cost-routing-defaults"
+  ],
   "attributionTag": "wb-amp",
   "freeRoomUrl": "https://whop.com/checkout/plan_arGwx0yFBhYOL?a=wb-amp",
   "targetWordRange": [
