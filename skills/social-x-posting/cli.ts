@@ -486,7 +486,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   }
 
   // Unescape HTML entities in the text to fix ASCII '->' being escaped to '-&gt;'
-  const unescapeHtml = (str: string): string => {
+  const unescapeHtml = (inputText: string): string => {
     const htmlEntities: Record<string, string> = {
       '&gt;': '>',
       '&lt;': '<',
@@ -494,7 +494,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       '&quot;': '"',
       '&apos;': "'",
     };
-    return str.replace(/&(gt|lt|amp|quot|apos);/g, (_, entity) => htmlEntities[`&${entity};`] || `_${entity}_`);
+    return inputText.replace(/&(gt|lt|amp|quot|apos);/g, (_, entity) => htmlEntities[`&${entity};`] || `_${entity}_`);
   };
   const unescapedText = unescapeHtml(text);
 
