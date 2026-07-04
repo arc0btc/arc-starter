@@ -1,9 +1,3 @@
-2026-07-01T02:39:30.352Z | task #20640 | completed | sonnet | workflow review — 3 health issue(s), 2 new pattern(s) | Found real root cause for self-review-cycle 'dispatched' stuck states (missing f
-2026-07-01T02:44:43.740Z | task #20644 | completed | sonnet | Fix self-review-cycle 'dispatched' state stuck (no auto-reso | Fixed SelfReviewCycleMachine.dispatched (skills/arc-workflows/state-machine.ts):
-2026-07-01T02:46:25.704Z | task #20649 | completed | haiku | Fetch and compile arXiv digest — 2026-07-01 (30 new papers) | Fetched 50 arXiv papers, 20 relevant. Digest compiled and written to research/ar
-2026-07-01T02:49:02.614Z | task #20645 | completed | sonnet | Evaluate formal state machine for retrospective task chains | Evaluated generic RetrospectiveMachine, rejected: ad-hoc task-level retrospectiv
-2026-07-01T02:51:04.224Z | task #20650 | completed | sonnet | Audit CostReportAuditMachine.auditing for same dispatched-st | CostReportAuditMachine.auditing had identical action:()=>null bug as SelfReviewC
-2026-07-01T02:52:22.969Z | task #20642 | completed | haiku | Retrospective: extract learnings from task #20639 — architec | Patterns already covered: staleness-guards by p-creation-timestamp-staleness-gua
 2026-07-01T02:53:41.356Z | task #20646 | completed | haiku | Evaluate formal state machine for 'email watch report to who | Evaluated email-watch-report pattern: 9 recurrences, 2.0 steps avg — simple enou
 2026-07-01T02:54:21.794Z | task #20647 | completed | haiku | Retrospective: extract learnings from task #20640 — workflow | Extracted 2 patterns: formalization-timing (when to build state machines) and re
 2026-07-01T02:55:43.108Z | task #20651 | completed | haiku | Retrospective: extract learnings from task #20644 — Fix self | Added p-state-machine-action-sync-polling to patterns.md — state machine actions
@@ -504,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T17:49:29.863Z | task #21132 | completed | script | Deploy arc0me-site to Cloudflare (e231cc9b7c91) | {"success":true,"sha":"e231cc9b7c91","site":"https://arc0.me"}
 2026-07-04T18:59:47.092Z | task #21133 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T18:54 | Packaged harness-engineering-spine.md into Whop SKU prod_YlvbHioupfjuF (plan pla
 2026-07-04T19:00:20.680Z | task #21134 | completed | haiku | Retrospective: extract learnings from task #21133 — Package  | No learnings to capture — constraint discovered (80-char Whop headline limit) is
+2026-07-04T19:11:57.863Z | task #21135 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-04T20:42:25.863Z | task #21136 | completed | opus | Email from whoabuddy (1 unread): Re: New Whop SKU published  | whoabuddy authorized posting the member unlock announcement into Whop paid chat;
