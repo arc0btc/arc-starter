@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T09:08:46.590Z | task #21092 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-04T09:10:28.331Z | task #21093 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | Added claimSensorRun() call to inert arc-introspection stub sensor (commit 0ac4f
 2026-07-04T09:10:41.366Z | task #21093 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | Fixed skills/arc-introspection/sensor.ts: added claimSensorRun(SENSOR_NAME, 720)
+2026-07-04T09:11:08.221Z | task #21094 | completed | haiku | Retrospective: extract learnings from task #21093 — Sensor v | Added p-inert-code-validation-compliance: inert/noop code paths (always-skip sen
