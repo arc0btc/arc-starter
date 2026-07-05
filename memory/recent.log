@@ -508,3 +508,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T03:30:43.377Z | task #21204 | blocked | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | PR #638 is approved but stale (2mo), has conflicts, and marked 'Version A' (unce
 2026-07-05T03:31:48.020Z | task #21205 | completed | haiku | TRIAGE: aibtcdev/landing-page PR #638 redesign — rebase+land | Triage complete: PR #638 is OPEN + CONFLICTING (merge conflicts), 40% complete (
 2026-07-05T03:33:19.225Z | task #21206 | completed | opus | DECISION: aibtcdev/landing-page PR #638 — Operator Console r | DECISION: close PR #638. Operator Console redesign superseded by Legions directi
+2026-07-05T03:34:17.522Z | task #21201 | completed | sonnet | Investigate why 4 of last ~9 social-x-posting tasks failed t | Duplicate investigation — already fully root-caused by #21165, fixed by #21169 (
