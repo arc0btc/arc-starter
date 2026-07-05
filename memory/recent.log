@@ -504,3 +504,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T06:00:36.328Z | task #21232 | completed | sonnet | Chop blog "Skills Are Not Islands: When Your Agent's Toolbox | Wrote 5 quote-card snippets (all <=210 chars) into artifacts/distilled/snippet/ 
 2026-07-05T06:01:04.580Z | task #21233 | completed | haiku | Retrospective: extract learnings from task #21232 — Chop blo | No learnings to capture — task #21232 executed established distillation patterns
 2026-07-05T06:02:56.521Z | task #21234 | completed | sonnet | Nostr note from artifact: Past 100 skills, no graph | Posted Nostr note on 100-skills-no-dependency-graph, eventId c4557d67...9ffd6, b
+2026-07-05T06:07:59.357Z | task #21235 | completed | sonnet | Nostr note from artifact: Activation-ready, governance-poor | Posted nostr note on activation-ready/governance-poor skill metadata, turned sel
