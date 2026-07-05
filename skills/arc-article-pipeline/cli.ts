@@ -560,6 +560,168 @@ function assembleXArticle(finding: Finding, postId: string, x: XArticleDraft): X
   return { ...x, finalBody: `${x.body.trim()}\n\n${buildXArticleClosing(finding, postId)}` };
 }
 
+// ---------- Mention-map pre-fill (arc-demand-gen P3) ----------
+//
+// Pre-fills @-mentions for accounts an Article genuinely references, drawn from an
+// operator-curated map (social_accounts.mention_candidate=1, aliases in mention_aliases —
+// see ops/migrations/2026-07-05-p3-mention-map.ts). MAP-GATED ONLY: an entity not in the map is
+// never invented as an @-tag, and an alias that does not literally appear in the drafted text
+// produces no mention at all — this is deterministic text-matching against operator-curated
+// data, never LLM guessing. Mirrors the existing "never LLM-authored, code-assembled" discipline
+// buildXArticleClosing already uses for links.
+//
+// dev-council (5-lens) reviewed this section against the live diff. Design fixed per unanimous/
+// convergent findings: (1) Lamport + Fowler independently proved the original "mutate `result`
+// as you go" approach could re-match a JUST-INSERTED "(@handle)" annotation as a fresh
+// occurrence of an unrelated alias (e.g. two candidates sharing a nested alias) — detection now
+// runs ONLY against the immutable original `text`; insertions are computed as a batch of
+// (position, candidate) pairs and applied right-to-left (descending position) so no earlier
+// offset ever shifts and no injected text is ever re-scanned. (2) `loadMentionCandidates` now
+// orders `ORDER BY id` so candidate order — and therefore which insertions land — is
+// deterministic across runs (Fowler, Lamport). (3) Kleppmann + Hohpe: logging moved out of this
+// function entirely — `prefillMentions` now returns the matches instead of writing
+// `article_mention_log` itself, so the CALLER logs only after `writeXArticleFiles` has durably
+// written the article to disk (see cmdStage/cmdReworkX) — the log no longer asserts a mention
+// was "surfaced" before the artifact that surfaces it exists. (4) Kleppmann: `recordMentionEvents`
+// uses `INSERT OR IGNORE` (a structural idempotency guarantee) instead of string-matching
+// "UNIQUE constraint" in a thrown error's message.
+
+interface MentionCandidate {
+  accountId: number;
+  handle: string;
+  aliases: string[];
+}
+
+export function loadMentionCandidates(db: Database): MentionCandidate[] {
+  const rows = db
+    .query(
+      "SELECT id, handle, mention_aliases FROM social_accounts WHERE mention_candidate = 1 AND mention_aliases IS NOT NULL ORDER BY id"
+    )
+    .all() as { id: number; handle: string; mention_aliases: string }[];
+  const candidates: MentionCandidate[] = [];
+  for (const row of rows) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(row.mention_aliases);
+    } catch {
+      log(`WARN: mention_aliases for social_accounts.id=${row.id} (${row.handle}) is not valid JSON — skipping this candidate`);
+      continue;
+    }
+    if (!Array.isArray(parsed)) continue;
+    const aliases = parsed.filter((a): a is string => typeof a === "string" && a.trim().length > 0);
+    if (aliases.length === 0) continue;
+    for (const alias of aliases) {
+      if (alias.length < 4) {
+        log(`WARN: mention_aliases for social_accounts.id=${row.id} (${row.handle}) includes a short alias "${alias}" — short aliases risk matching unrelated mid-prose text; consider a more specific alias`);
+      }
+    }
+    candidates.push({ accountId: row.id, handle: row.handle, aliases });
+  }
+  return candidates;
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+interface MentionMatch {
+  accountId: number;
+  handle: string;
+  alias: string;
+  field: "body" | "companionPost";
+}
+
+/**
+ * Case-insensitive whole-word/phrase match of each candidate's aliases against the ORIGINAL
+ * `text` only (never against a partially-annotated copy — see the design note above). On the
+ * FIRST match of an alias, an insertion of " (@handle)" is scheduled right after that
+ * occurrence; insertions are then applied right-to-left so earlier positions (computed against
+ * the original string) stay valid. If a candidate's insertion would push the field past
+ * `maxLength` (used for companionPost's 240-char X limit), that one insertion is skipped rather
+ * than silently blowing the budget the pipeline's own validator enforces. If `@handle` is
+ * already present anywhere in `text` (a rework re-run), the candidate is skipped entirely — no
+ * double-tag.
+ */
+export function applyMentionPrefill(
+  text: string,
+  candidates: MentionCandidate[],
+  field: "body" | "companionPost",
+  maxLength?: number
+): { text: string; matches: MentionMatch[] } {
+  type Insertion = { at: number; candidate: MentionCandidate; alias: string };
+  const insertions: Insertion[] = [];
+  for (const candidate of candidates) {
+    if (new RegExp(`@${escapeRegExp(candidate.handle)}\\b`, "i").test(text)) continue;
+    for (const alias of candidate.aliases) {
+      const match = new RegExp(`\\b${escapeRegExp(alias)}\\b`, "i").exec(text);
+      if (!match) continue;
+      insertions.push({ at: match.index + match[0].length, candidate, alias });
+      break; // one insertion per candidate per field — first matching alias wins
+    }
+  }
+
+  // Apply right-to-left: an insertion at a larger offset never invalidates the offset of one
+  // computed at a smaller offset against the same original `text`.
+  insertions.sort((a, b) => b.at - a.at);
+  let result = text;
+  const matches: MentionMatch[] = [];
+  for (const ins of insertions) {
+    const candidateResult = `${result.slice(0, ins.at)} (@${ins.candidate.handle})${result.slice(ins.at)}`;
+    if (maxLength !== undefined && candidateResult.length > maxLength) {
+      log(`Mention pre-fill: skipping @${ins.candidate.handle} in ${field} — insertion would exceed the ${maxLength}-char limit`);
+      continue;
+    }
+    result = candidateResult;
+    matches.push({ accountId: ins.candidate.accountId, handle: ins.candidate.handle, alias: ins.alias, field });
+  }
+  matches.reverse(); // restore original (left-to-right) order for readable logs/log rows
+  return { text: result, matches };
+}
+
+/**
+ * Persists mention events. Idempotent via a structural DB guarantee (INSERT OR IGNORE against
+ * source_key's UNIQUE constraint), not error-message string-matching — a different UNIQUE
+ * violation (e.g. a source_key collision bug) is never silently swallowed as "already logged"
+ * because there is nothing to catch; SQLite itself decides whether the row is new.
+ */
+export function recordMentionEvents(db: Database, articleN: number, matches: MentionMatch[]): void {
+  for (const m of matches) {
+    const sourceKey = `article-mention:${articleN}:${m.accountId}:${m.field}`;
+    db.run(
+      `INSERT OR IGNORE INTO article_mention_log (source_key, article_n, account_id, handle, matched_alias, surfaced_in) VALUES (?, ?, ?, ?, ?, ?)`,
+      [sourceKey, articleN, m.accountId, m.handle, m.alias, m.field]
+    );
+  }
+}
+
+/**
+ * Applies the mention-map to both fields of an X Article draft. Called AFTER validateXArticle
+ * (so validation runs against the drafting LLM's authentic text, never against pipeline-inserted
+ * annotations) and BEFORE assembleXArticle (so the pre-filled text is what gets written to disk
+ * and emailed). Returns the matches for the CALLER to persist via recordMentionEvents() — only
+ * after writeXArticleFiles has durably written the article, so the log never asserts a mention
+ * was surfaced in an artifact that doesn't yet exist on disk.
+ */
+export function prefillMentions(
+  db: Database,
+  x: XArticleDraft
+): { draft: XArticleDraft; matches: MentionMatch[] } {
+  const candidates = loadMentionCandidates(db);
+  if (candidates.length === 0) return { draft: x, matches: [] };
+  const bodyResult = applyMentionPrefill(x.body, candidates, "body");
+  const companionResult = applyMentionPrefill(
+    x.companionPost,
+    candidates,
+    "companionPost",
+    X_ARTICLE_CONSTRAINTS.companionMaxChars
+  );
+  const allMatches = [...bodyResult.matches, ...companionResult.matches];
+  if (allMatches.length > 0) {
+    log(`Mention pre-fill: ${allMatches.length} @-mention(s): ${allMatches.map((m) => `@${m.handle} (${m.field})`).join(", ")}`);
+  }
+  return { draft: { title: x.title, body: bodyResult.text, companionPost: companionResult.text }, matches: allMatches };
+}
+
 // Atomic single-file write (temp + rename, same discipline ensurePreviewSiteCopy already uses)
 // — a crash mid-write can never leave a torn/half-written file for a later JSON.parse to choke
 // on (P2-rework dev-council: kleppmann F3).
@@ -1039,9 +1201,15 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   syncToPublishLane(postId, finalMdx);
   console.log("Synced to blog-publishing's discovery path (src/content/docs/blog/) — Arc's own sensor will queue review+publish on its normal cadence, no operator gate.");
 
-  const xArticle = assembleXArticle(finding, postId, draft.xArticle);
+  // P3 (arc-demand-gen): pre-fill operator-curated @-mentions before assembling the final
+  // body/companionPost — map-gated text matching, never LLM-invented (see prefillMentions()).
+  const { draft: prefilledXArticle, matches: mentionMatches } = prefillMentions(db, draft.xArticle);
+  const xArticle = assembleXArticle(finding, postId, prefilledXArticle);
   const xVariantPath = writeXArticleFiles(articleN, finding, postId, xArticle);
   console.log(`Wrote X Article variant: ${xVariantPath}`);
+  // Log mentions only now that the article is durably on disk (dev-council kleppmann/hohpe: the
+  // log must never assert a mention was surfaced before the artifact that surfaces it exists).
+  recordMentionEvents(db, articleN, mentionMatches);
 
   // P2 AMENDMENT: deliver the X Article to Jason via Arc's EXISTING email lane (the same
   // mechanism arc-daily-read's sendAmplificationEmail already uses), not left as a file for
@@ -1205,11 +1373,17 @@ async function cmdReworkX(articleN: number, supersede: boolean, dryRun: boolean)
     return;
   }
 
-  const xArticle = assembleXArticle(finding, postId, draft);
+  // P3 (arc-demand-gen): pre-fill operator-curated @-mentions before assembling the final
+  // body/companionPost — map-gated text matching, never LLM-invented (see prefillMentions()).
+  const db = getDb();
+  const { draft: prefilledDraft, matches: mentionMatches } = prefillMentions(db, draft);
+  const xArticle = assembleXArticle(finding, postId, prefilledDraft);
   const xVariantPath = writeXArticleFiles(articleN, finding, postId, xArticle);
   console.log(`Wrote X Article variant: ${xVariantPath}`);
+  // Log mentions only now that the article is durably on disk (same ordering discipline as
+  // cmdStage — see the comment there).
+  recordMentionEvents(db, articleN, mentionMatches);
 
-  const db = getDb();
   db.run("UPDATE article_queue_log SET x_variant_path = ? WHERE article_n = ?", [xVariantPath, articleN]);
   db.close();
 
