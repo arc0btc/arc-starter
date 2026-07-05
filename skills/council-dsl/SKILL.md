@@ -7,6 +7,7 @@ tags:
   - dsl
   - validation
   - orchestration
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # council-dsl

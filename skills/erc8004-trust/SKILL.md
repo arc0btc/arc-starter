@@ -7,6 +7,7 @@ tags:
   - reputation
   - validation
   - read-only
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Trust Score Skill

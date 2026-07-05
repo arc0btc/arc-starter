@@ -7,6 +7,7 @@ tags:
   - mempool
   - fees
   - monitoring
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # mempool-watch

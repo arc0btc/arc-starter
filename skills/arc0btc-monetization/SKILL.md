@@ -5,6 +5,7 @@ updated: 2026-03-05
 tags:
   - strategy
   - site
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc0btc-monetization

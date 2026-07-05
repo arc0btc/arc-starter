@@ -7,6 +7,7 @@ tags:
   - self-assessment
   - retired
 updated: 2026-07-04
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-introspection (RETIRED)

@@ -6,6 +6,7 @@ tags:
   - content
   - external-communication
   - thesis
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # agent-pitch

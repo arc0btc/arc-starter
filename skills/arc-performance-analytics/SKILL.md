@@ -5,6 +5,7 @@ updated: 2026-03-05
 tags:
   - analytics
   - ops
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # performance-analytics

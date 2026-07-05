@@ -7,6 +7,7 @@ tags:
   - smart-contracts
   - validation
   - stacks
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # clarity-check

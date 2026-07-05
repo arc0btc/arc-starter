@@ -6,6 +6,7 @@ tags:
   - monitoring
   - cost
   - reporting
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-cost-reporting

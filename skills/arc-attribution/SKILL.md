@@ -6,6 +6,7 @@ tags:
   - reporting
   - attribution
   - revenue
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-attribution

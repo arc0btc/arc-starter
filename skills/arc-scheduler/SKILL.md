@@ -6,6 +6,7 @@ tags:
   - scheduling
   - tasks
   - core
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Scheduler Skill

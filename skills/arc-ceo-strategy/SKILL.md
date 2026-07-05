@@ -3,6 +3,7 @@ name: arc-ceo-strategy
 description: Strategic operating manual — treat yourself as CEO of a one-entity company
 updated: 2026-03-05
 tags: [strategy, decision-making, core]
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # CEO Operating Manual
