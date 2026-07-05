@@ -528,3 +528,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T04:14:45.330Z | task #21190 | completed | haiku | Retrospective: extract learnings from task #21188 — self-rev | Duplicate-detected failures skip new escalation when already retrospected; added
 2026-07-05T04:16:20.747Z | task #21193 | completed | haiku | Retrospective: extract learnings from task #21189 — Consolid | Added p-consolidation-compound-structure pattern: use compound statements (Two X
 2026-07-05T04:16:53.652Z | task #21202 | completed | haiku | Retrospective: extract learnings from task #21191 — Auto-que | Captured p-constraint-fallback-queueing: queue independent work using separate b
+2026-07-05T04:18:02.658Z | task #21207 | completed | haiku | Retrospective: extract learnings from task #21201 — Investig | Updated p-health-check-duplicate-failure-dedup to cover symptom-triggered invest
