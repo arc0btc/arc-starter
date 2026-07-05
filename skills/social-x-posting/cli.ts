@@ -596,11 +596,14 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // to the legacy poster.
     const engineRow = engineDb
       .query(
-        `SELECT id, lane, budget_day, is_root, atomic_group_id, status FROM outbound_action
-         WHERE source_key=?`
+        `SELECT id, lane, budget_day, is_root, atomic_group_id, status, earliest_utc_time, latest_utc_time
+         FROM outbound_action WHERE source_key=?`
       )
       .get(flags["source"]) as
-      | { id: number; lane: string; budget_day: string; is_root: number; atomic_group_id: string | null; status: string }
+      | {
+          id: number; lane: string; budget_day: string; is_root: number; atomic_group_id: string | null;
+          status: string; earliest_utc_time: string | null; latest_utc_time: string | null;
+        }
       | null;
 
     if (engineRow && engineRow.status !== "queued") {
@@ -612,6 +615,40 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     }
 
     if (engineRow) { // status === 'queued'
+      // ── P3 arc-posting-scheduler: per-lane time-window enforcement at drain time ──
+      // reserve-group stored earliest_utc_time/latest_utc_time on this row (NULL/NULL
+      // = anytime, unchanged legacy behavior). Checked here, not at admission, because
+      // admission and drain can be minutes apart (daily-read/content-calendar draft
+      // then post in the same dispatch turn, but a retry could land later).
+      const nowHHMM = new Date().toISOString().slice(11, 16); // "HH:MM" UTC
+      if (engineRow.latest_utc_time && nowHHMM > engineRow.latest_utc_time) {
+        // Window CLOSED with no post — the exact "loud, not silent" alert the predecessor
+        // panel required (daily-read's arc-daily-read.json hook-state write, task 2 of
+        // this phase, sources its defer reason from THIS branch). Release this row AND
+        // the rest of its group so the reservation doesn't linger past a window that will
+        // never reopen today.
+        log(`WINDOW CLOSED — no post: source=${flags["source"]} (outbound_action id=${engineRow.id}, lane=${engineRow.lane}) window was ${engineRow.earliest_utc_time ?? "anytime"}-${engineRow.latest_utc_time} UTC, now=${nowHHMM} — releasing reservation`);
+        releaseSingleReservation(engineDb, engineRow.id, `window closed with no post (latest_utc_time=${engineRow.latest_utc_time}, now=${nowHHMM})`);
+        if (engineRow.atomic_group_id) {
+          releaseGroupRemainder(engineDb, engineRow.atomic_group_id, `window closed with no post for source=${flags["source"]}`);
+        }
+        console.log(JSON.stringify({
+          skipped: true, reason: "window_closed_no_post", source: flags["source"],
+          earliest_utc_time: engineRow.earliest_utc_time, latest_utc_time: engineRow.latest_utc_time, now: nowHHMM,
+        }));
+        process.exit(3);
+      }
+      if (engineRow.earliest_utc_time && nowHHMM < engineRow.earliest_utc_time) {
+        // Window hasn't opened yet — defer WITHOUT releasing. The reservation stays
+        // valid; the caller (or its own retry) tries again later, still inside the window.
+        log(`window not open yet: source=${flags["source"]} (outbound_action id=${engineRow.id}, lane=${engineRow.lane}) opens at ${engineRow.earliest_utc_time} UTC, now=${nowHHMM} — deferring, reservation kept`);
+        console.log(JSON.stringify({
+          deferred: true, reason: "window_not_open_yet", source: flags["source"],
+          earliest_utc_time: engineRow.earliest_utc_time, now: nowHHMM,
+        }));
+        process.exit(2);
+      }
+
       await checkCreditsDepleted();
       const claimed = claimForSend(engineDb, engineRow.id);
       if (!claimed) {
@@ -933,19 +970,26 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
 async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   const sourcesFlag = flags["sources"];
   if (!sourcesFlag) {
-    console.log("Usage: reserve-group --sources <comma-separated source keys, root first> --thread-ref <key> [--lane post]");
+    console.log("Usage: reserve-group --sources <comma-separated source keys, root first> --thread-ref <key> [--lane post] [--earliest-time HH:MM] [--latest-time HH:MM] [--budget-day YYYY-MM-DD]");
     process.exit(1);
   }
   const sourceKeys = sourcesFlag.split(",").map((s) => s.trim()).filter(Boolean);
   const threadRef = flags["thread-ref"] ?? sourceKeys[0];
   const lane = (flags["lane"] ?? "post") as EngineLane;
+  // P3 arc-posting-scheduler: per-lane window (HH:MM UTC, both optional — NULL/NULL means
+  // anytime, unchanged for the reply lane and any caller that doesn't pass these).
+  const earliestUtcTime = flags["earliest-time"];
+  const latestUtcTime = flags["latest-time"];
 
   const payloadRefs = sourceKeys.map((s) => `reserve-${createHash("sha256").update(s).digest("hex").slice(0, 12)}`);
   const payloadHashes = sourceKeys.map((s) => createHash("sha256").update(s).digest("hex"));
   const isRootFlags = sourceKeys.map((_, i) => i === 0);
 
   const db = await xPostLog();
-  const budgetDay = todayDateStr();
+  // --budget-day is a TEST-ONLY override (disposable-date dry runs against a real DB
+  // without touching today's real production counters) — real callers (daily-read,
+  // content-calendar) never pass it, so production always uses todayDateStr().
+  const budgetDay = flags["budget-day"] ?? todayDateStr();
 
   // dev-council/Lamport (CONFIRMED gap): releaseAbandonedReservations() had ZERO
   // callers anywhere — dead code, so a crashed/abandoned reservation would leak until
@@ -965,6 +1009,10 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   const result = admitGroup(db, {
     sourceKeys, lane, threadRef, budgetDay, cap: DAILY_TWEET_CAP,
     payloadRefs, payloadHashes, isRootFlags,
+    earliestUtcTime, latestUtcTime,
+    // P3: DAILY_TWEET_CAP doubles as the cross-lane global backstop — same value, same
+    // constant, so raising the lane's own cap can never widen the absolute daily ceiling.
+    globalCap: DAILY_TWEET_CAP,
   });
 
   if (result.ok) {
@@ -1459,10 +1507,15 @@ Commands:
                                                 If --source matches a reserve-group-admitted row,
                                                 this drains it through the atomic queue instead of
                                                 the legacy guard stack.)
-  reserve-group --sources <k1,k2,...> [--thread-ref <key>] [--lane post]
-             P2 arc-posting-scheduler: atomically reserve a WHOLE thread+CTA (root first,
-             <=5 tweets) as one unit — all-or-nothing, upfront. Follow with one 'post
-             --source <ki>' call per key, in order, to drain the group.
+  reserve-group --sources <k1,k2,...> [--thread-ref <key>] [--lane post|reply|daily-read|content-calendar]
+                [--earliest-time HH:MM] [--latest-time HH:MM]
+             P2/P3 arc-posting-scheduler: atomically reserve a WHOLE thread+CTA (root first,
+             <=5 tweets) as one unit — all-or-nothing, upfront, in its own lane's budget PLUS
+             the cross-lane DAILY_TWEET_CAP backstop. --earliest-time/--latest-time (P3) set
+             the UTC HH:MM window this group may drain within (omit = anytime). Follow with
+             one 'post --source <ki>' call per key, in order, to drain the group — cmdPost
+             enforces the window at drain time (window_not_open_yet defers without
+             releasing; window_closed_no_post releases the whole remaining group, loud).
   reply      --text <text> --tweet-id <id> [--source <key>] [--x-lead-id <author_id>]
              Reply to a tweet. --source: idempotent re-run. --x-lead-id: log as give-3x value_touch for this X lead.
   delete     --tweet-id <id>                   Delete a tweet

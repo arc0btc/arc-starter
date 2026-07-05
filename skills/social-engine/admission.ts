@@ -40,7 +40,11 @@ import type { Database } from "bun:sqlite";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type Lane = "post" | "reply";
+// P3 arc-posting-scheduler (2026-07-05): two new lane VALUES so daily-read and
+// content-calendar each get their OWN budget_ledger row/cap — real per-lane separation,
+// not a shared 'post' lane. See admitGroup()'s globalCap param for how DAILY_TWEET_CAP
+// stays an absolute cross-lane backstop even though each lane now has its own quota.
+export type Lane = "post" | "reply" | "daily-read" | "content-calendar";
 
 export interface AdmitOpts {
   sourceKey: string;
@@ -100,6 +104,21 @@ export interface AdmitGroupOpts {
   isRootFlags: boolean[];
   accountId?: number;
   notes?: string;
+  /** P3 arc-posting-scheduler: HH:MM (UTC) window this group may drain within. NULL/
+   *  undefined on either end = anytime on that end (matches today's implicit behavior —
+   *  existing rows/lanes with no window keep working unchanged). Stored on every row in
+   *  the group (outbound_action.earliest_utc_time/latest_utc_time, migration 014). */
+  earliestUtcTime?: string;
+  latestUtcTime?: string;
+  /** P3 arc-posting-scheduler: the ABSOLUTE cross-lane tweet-total ceiling for the day
+   *  (DAILY_TWEET_CAP=6) — distinct from `cap`, which is this GROUP's own lane's cap.
+   *  When supplied, admitGroup() ALSO CAS-reserves M slots against a sentinel
+   *  `lane='__global__'` budget_ledger row in the SAME transaction, so no combination of
+   *  lanes can push today's real tweet total past this value, even though each lane has
+   *  its own separate quota. Omitted (undefined) = no global check (back-compat for any
+   *  caller that doesn't pass it, e.g. tests).
+   */
+  globalCap?: number;
 }
 
 export type AdmitGroupResult =
@@ -113,7 +132,13 @@ export type AdmitGroupFailReason =
   | "group_too_large"          // CHECKPOINTS.md #2: >5 tweets/action
   | "actions_per_day_exceeded" // CHECKPOINTS.md #2: >=3 groups already admitted today for this lane
   | "budget_exhausted"         // whole-group headroom check failed — NEITHER slot reserved nor row inserted
+  | "global_cap_exceeded"      // P3: per-lane headroom was fine but the cross-lane DAILY_TWEET_CAP backstop isn't
   | "admission_txn_failed";
+
+/** Sentinel lane value for the cross-lane global backstop counter — never a real lane,
+ *  never matched by any `WHERE lane='post'`/`'reply'`/etc. query elsewhere in the
+ *  codebase. Keyed on (channel, utc_day) only, one row per day. */
+const GLOBAL_BACKSTOP_LANE = "__global__";
 
 /**
  * CHECKPOINTS.md #2 safety rail (arc-posting-scheduler): 3 actions/day x 5 tweets/action.
@@ -372,7 +397,7 @@ export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
 export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult {
   const {
     sourceKeys, lane, threadRef, budgetDay, cap, payloadRefs, payloadHashes,
-    isRootFlags, accountId, notes,
+    isRootFlags, accountId, notes, earliestUtcTime, latestUtcTime, globalCap,
   } = opts;
 
   const m = sourceKeys.length;
@@ -478,15 +503,49 @@ export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult
       };
     }
 
+    // ── P3 arc-posting-scheduler: cross-lane global backstop ────────────────────
+    // The per-lane CAS above only proves THIS lane has headroom — it says nothing about
+    // the OTHER lanes' reservations today. DAILY_TWEET_CAP must stay an absolute
+    // cross-lane ceiling (CHECKPOINTS.md #2), so when the caller supplies `globalCap`,
+    // CAS-reserve the SAME M slots against a sentinel `lane='__global__'` row in this
+    // SAME transaction. If this second CAS fails, the whole transaction rolls back —
+    // including the per-lane reservation just above — so neither counter moves and the
+    // group stays fully unadmitted (never a partial "lane says yes, global says no"
+    // state).
+    if (globalCap !== undefined) {
+      db.run(
+        `INSERT OR IGNORE INTO budget_ledger(channel, utc_day, lane, reserved_count, sent_count, cap)
+         VALUES ('x', ?, ?, 0, 0, ?)`,
+        [budgetDay, GLOBAL_BACKSTOP_LANE, globalCap]
+      );
+      const globalUp = db.run(
+        `UPDATE budget_ledger SET reserved_count=reserved_count+?
+         WHERE channel='x' AND utc_day=? AND lane=? AND reserved_count+? <= cap`,
+        [m, budgetDay, GLOBAL_BACKSTOP_LANE, m]
+      );
+      if (globalUp.changes !== 1) {
+        db.exec("ROLLBACK");
+        const currentGlobal = db
+          .query("SELECT reserved_count, cap FROM budget_ledger WHERE channel='x' AND utc_day=? AND lane=?")
+          .get(budgetDay, GLOBAL_BACKSTOP_LANE) as { reserved_count: number; cap: number } | null;
+        return {
+          ok: false, reason: "global_cap_exceeded",
+          detail: `M=${m} would exceed the cross-lane global backstop (reserved=${currentGlobal?.reserved_count ?? "?"}/${currentGlobal?.cap ?? globalCap}) — lane=${lane} had its own headroom, but the absolute daily ceiling doesn't; whole group deferred, zero rows admitted, lane reservation rolled back too`,
+        };
+      }
+    }
+
     for (let i = 0; i < m; i++) {
       const insertRes = db.run(
         `INSERT INTO outbound_action
            (source_key, platform, lane, status, payload_ref, payload_hash,
-            is_root, thread_ref, defer_count, budget_day, account_id, atomic_group_id)
-         VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, 0, ?, ?, ?)`,
+            is_root, thread_ref, defer_count, budget_day, account_id, atomic_group_id,
+            earliest_utc_time, latest_utc_time, global_reserved)
+         VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?)`,
         [
           sourceKeys[i], lane, payloadRefs[i], payloadHashes[i],
           isRootFlags[i] ? 1 : 0, threadRef, budgetDay, accountId ?? null, atomicGroupId,
+          earliestUtcTime ?? null, latestUtcTime ?? null, globalCap !== undefined ? 1 : 0,
         ]
       );
       const actionId = insertRes.lastInsertRowid as number;
@@ -589,11 +648,11 @@ export function releaseAbandonedReservations(
     db.exec("BEGIN");
     const abandoned = db
       .query(
-        `SELECT id, lane, budget_day FROM outbound_action
+        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
          WHERE status='sending' AND provider_post_id IS NULL
            AND lease_expires_at IS NOT NULL AND lease_expires_at < ?`
       )
-      .all(cutoff) as { id: number; lane: string; budget_day: string }[];
+      .all(cutoff) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
 
     for (const row of abandoned) {
       const flip = db.run(
@@ -609,6 +668,16 @@ export function releaseAbandonedReservations(
          WHERE channel='x' AND utc_day=? AND lane=?`,
         [row.budget_day, row.lane]
       );
+      // P3 arc-posting-scheduler: this row also reserved a cross-lane global-backstop
+      // slot at admission (admitGroup with globalCap) — release that too, or the
+      // global counter leaks upward exactly like the per-lane one used to.
+      if (row.global_reserved) {
+        db.run(
+          `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+           WHERE channel='x' AND utc_day=? AND lane=?`,
+          [row.budget_day, GLOBAL_BACKSTOP_LANE]
+        );
+      }
       db.run(
         `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
         [row.id, `lease expired with no send evidence — reservation released by releaseAbandonedReservations() (grace=${opts.leaseGraceMinutes ?? "n/a"}min)`]
@@ -637,8 +706,8 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
   try {
     db.exec("BEGIN");
     const row = db
-      .query(`SELECT lane, budget_day, status FROM outbound_action WHERE id=?`)
-      .get(actionId) as { lane: string; budget_day: string; status: string } | null;
+      .query(`SELECT lane, budget_day, status, global_reserved FROM outbound_action WHERE id=?`)
+      .get(actionId) as { lane: string; budget_day: string; status: string; global_reserved: number } | null;
     if (!row || row.status === "sent") {
       db.exec("ROLLBACK");
       return false;
@@ -656,6 +725,15 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
        WHERE channel='x' AND utc_day=? AND lane=?`,
       [row.budget_day, row.lane]
     );
+    // P3: release the matching cross-lane global-backstop slot too (see the identical
+    // note in releaseAbandonedReservations above).
+    if (row.global_reserved) {
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [row.budget_day, GLOBAL_BACKSTOP_LANE]
+      );
+    }
     db.run(
       `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
       [actionId, reasonNote]
@@ -682,15 +760,19 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
  */
 export function releaseGroupRemainder(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
   const remaining = db
-    .query(`SELECT id, lane, budget_day FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
-    .all(atomicGroupId) as { id: number; lane: string; budget_day: string }[];
+    .query(`SELECT id, lane, budget_day, global_reserved FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
+    .all(atomicGroupId) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
 
   if (remaining.length === 0) return [];
 
   const byGroup = new Map<string, number>();
+  const byGlobalDay = new Map<string, number>(); // P3: budget_day -> count of global-reserved rows
   for (const row of remaining) {
     const key = `${row.lane}|${row.budget_day}`;
     byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
+    if (row.global_reserved) {
+      byGlobalDay.set(row.budget_day, (byGlobalDay.get(row.budget_day) ?? 0) + 1);
+    }
   }
 
   const released: ReleasedRow[] = [];
@@ -702,6 +784,16 @@ export function releaseGroupRemainder(db: Database, atomicGroupId: string, reaso
         `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
          WHERE channel='x' AND utc_day=? AND lane=?`,
         [count, budgetDay, lane]
+      );
+    }
+    // P3: release the matching cross-lane global-backstop slots too (see the identical
+    // note in releaseAbandonedReservations above) — one decrement per budget_day, sized
+    // to however many of the released rows were actually global-reserved.
+    for (const [budgetDay, count] of byGlobalDay) {
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [count, budgetDay, GLOBAL_BACKSTOP_LANE]
       );
     }
     for (const row of remaining) {
