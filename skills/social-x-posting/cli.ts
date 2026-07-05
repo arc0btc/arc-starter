@@ -5,6 +5,18 @@
 import { getCredential } from "../../src/credentials.ts";
 import { join } from "path";
 import { createHash } from "crypto";
+// P2 arc-posting-scheduler (2026-07-05): the shared atomic-admission engine. See
+// skills/social-engine/admission.ts's module header for the admission-vs-publication
+// distinction. cli.ts routes pre-admitted groups (via `reserve-group`) through this
+// engine; unmigrated lanes (daily-read, content-calendar, cadence beat — P3 territory)
+// keep using the guard stack below unchanged, with one addition: every legacy send now
+// also writes budget_ledger (see cmdPost) so guard #3's arbiter-fix read (below) has a
+// complete, single counter of truth from day one, not just once P3 migrates real traffic.
+import {
+  admitGroup, claimForSend, markSent as engineMarkSent, releaseGroupRemainder,
+  releaseSingleReservation, releaseAbandonedReservations,
+  type Lane as EngineLane,
+} from "../social-engine/admission.ts";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
@@ -561,6 +573,112 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   };
   const unescapedText = unescapeHtml(text);
 
+  // ── P2 arc-posting-scheduler: pre-admitted-group fast path ─────────────────────
+  // If --source matches an outbound_action row (admitted upfront via `reserve-group`),
+  // the WHOLE guard stack below (dedup/kill-switch/DAILY_TWEET_CAP/reservation/
+  // content-calendar-cap) was already enforced atomically at admission time —
+  // re-running it here would be redundant AND wrong (the group's budget is already
+  // reserved; re-checking headroom against it would double-count). Instead: fence-claim
+  // the row, send, and markSent (dual-writes x_post_log). This is the ONLY path this
+  // phase adds that actually drains the new engine; every other lane (daily-read,
+  // content-calendar, cadence beat) still takes the unchanged legacy path below until
+  // P3 migrates their callers onto `reserve-group`.
+  if (flags["source"]) {
+    const engineDb = await xPostLog(); // shared arc.sqlite handle; xPostLog() also ensures x_post_log exists
+
+    // dev-council/Kleppmann (CONFIRMED gap, F1 — double-publication): the original
+    // lookup filtered `AND status='queued'`, so once claimForSend flipped a row to
+    // 'sending' a RETRY of the same --source found preAdmitted=null and fell through
+    // to the LEGACY path below, which posts unconditionally (its own dedupSkip only
+    // checks x_post_log, which the in-flight drainer hasn't written yet) — a real
+    // double-post. Fix: look up the row by source_key alone (no status filter) so ANY
+    // engine-known row — regardless of status — is recognized and NEVER falls through
+    // to the legacy poster.
+    const engineRow = engineDb
+      .query(
+        `SELECT id, lane, budget_day, is_root, atomic_group_id, status FROM outbound_action
+         WHERE source_key=?`
+      )
+      .get(flags["source"]) as
+      | { id: number; lane: string; budget_day: string; is_root: number; atomic_group_id: string | null; status: string }
+      | null;
+
+    if (engineRow && engineRow.status !== "queued") {
+      // This source was already handled by the new engine (sent/sending/unknown/
+      // skipped) — never let it fall through to an ungated legacy POST.
+      log(`source=${flags["source"]} already known to the engine (outbound_action id=${engineRow.id}, status=${engineRow.status}) — refusing to re-post via legacy path`);
+      console.log(JSON.stringify({ skipped: true, reason: "already_handled_by_engine", source: flags["source"], existingStatus: engineRow.status }));
+      return;
+    }
+
+    if (engineRow) { // status === 'queued'
+      await checkCreditsDepleted();
+      const claimed = claimForSend(engineDb, engineRow.id);
+      if (!claimed) {
+        log(`reserve-group row id=${engineRow.id} source=${flags["source"]} could not be claimed (status changed since admission) — skipping`);
+        console.log(JSON.stringify({ skipped: true, reason: "claim_failed", source: flags["source"] }));
+        process.exit(3);
+      }
+
+      // dev-council/Fowler (CONFIRMED gap): admitGroup() only checks the kill switch
+      // ONCE, at admission time. A kill switch flipped false mid-drain (between
+      // reserve-group and this send) must still stop the send — "kill switch" means
+      // stop NOW, not "was I enabled when queued." Re-check right before the API call.
+      const ksRow = engineDb.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as { value: string } | null;
+      if (ksRow?.value !== "true") {
+        log(`kill switch active (outbound_enabled=${ksRow?.value ?? "missing"}) mid-drain — halting reserved-group send for source=${flags["source"]}`);
+        releaseSingleReservation(engineDb, engineRow.id, "kill switch went false between admission and send");
+        console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: ksRow?.value ?? "missing" }));
+        return;
+      }
+
+      const creds = await loadCreds();
+      const body: Record<string, unknown> = { text: unescapedText };
+      if (flags["reply-to"]) body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
+
+      log(`Posting tweet via reserved group (${text.length} chars, ${flags["reply-to"] ? "continuation" : "root"}, atomic_group_id=${engineRow.atomic_group_id})...`);
+      let groupResult: Awaited<ReturnType<typeof apiRequest>>;
+      try {
+        groupResult = await apiRequest("POST", "/tweets", creds, body);
+      } catch (err) {
+        if ((err as { status?: number })?.status === 403) {
+          // Same terminal-skip-no-retry posture as the legacy path (guard #4, kept
+          // as-is) — PLUS release BOTH this row's own reservation (dev-council/Fowler+
+          // Lamport, CONFIRMED: the original only released still-'queued' SIBLINGS,
+          // never the failed row itself — every terminal 403 leaked exactly 1) AND the
+          // rest of the group's reservation, so a mid-group truncation doesn't inflate
+          // reserved_count forever.
+          log(`X 403 on reserved-group send (source=${flags["source"]}) — backing off, NO retry.`);
+          releaseSingleReservation(engineDb, engineRow.id, `terminal 403 on source_key=${flags["source"]}`);
+          if (engineRow.atomic_group_id) {
+            const released = releaseGroupRemainder(
+              engineDb, engineRow.atomic_group_id,
+              `terminal 403 on source_key=${flags["source"]}`
+            );
+            log(`Released own row + ${released.length} remaining queued row(s) in atomic_group_id=${engineRow.atomic_group_id}`);
+          }
+          console.log(JSON.stringify({
+            skipped: true, reason: "x_403_backoff", retry: false,
+            source: flags["source"],
+            detail: ((err as Error).message ?? "403 Forbidden").slice(0, 300),
+          }));
+          process.exit(3);
+        }
+        throw err;
+      }
+      const groupData = groupResult["data"] as Record<string, string> | undefined;
+      if (groupData) {
+        engineMarkSent(engineDb, engineRow.id, groupData["id"], engineRow.lane as EngineLane, engineRow.budget_day);
+        console.log(JSON.stringify({ id: groupData["id"], text: groupData["text"] }, null, 2));
+        log(`Tweet posted (reserved-group): ${groupData["id"]}`);
+      } else {
+        console.log(JSON.stringify(groupResult, null, 2));
+      }
+      return; // done — never falls through to the legacy guard stack below
+    }
+  }
+
+  // ── Legacy path (unmigrated lanes — P3 territory) — UNCHANGED guard stack ──────
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
   // exactly-once guarantee for sequential re-runs (see xPostLog note).
   if (await dedupSkip(flags["source"])) return;
@@ -583,8 +701,34 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
 
     // Total-tweet daily cap. Panel target (arc-strategy-panel 2026-06-27): 6 tweets/day.
     // Primary enforcer; BUDGET_LIMITS.posts=3 is a secondary root-only guard.
+    //
+    // P2 arc-posting-scheduler arbiter fix (dev-council/Hohpe+Kleppmann+Lamport,
+    // CONFIRMED — most severe P0 finding): this used to be a fresh
+    // `SELECT COUNT(*) FROM x_post_log`, a SECOND independently-updated counter of
+    // "budget left today" alongside budget_ledger.reserved_count — no stated winner
+    // between them. Reading budget_ledger's aggregate here instead makes it the SINGLE
+    // counter both this reservation guard and admitGroup()'s headroom check read.
+    // Sound from day one (not just once P3 migrates lanes onto reserve-group) because
+    // every legacy successful send below (search "legacy budget_ledger dual-write")
+    // ALSO increments budget_ledger, so this aggregate reflects ALL of today's tweets —
+    // legacy-path and reserve-group-path alike — not just migrated-lane traffic.
+    //
+    // dev-council/Hohpe (CONFIRMED, HIGH — implementation review): the design spec's
+    // own text said "summed across lanes," but a literal cross-lane SUM silently pulls
+    // the REPLY lane's budget_ledger row into this count. Replies write budget_ledger
+    // via admitAction() but never wrote x_post_log (see the dedupSkip note above) —
+    // this guard and DAILY_TWEET_CAP have NEVER counted replies (cli.ts's own P1
+    // comment: "Mention replies do NOT go through this guard... they cannot consume
+    // this reservation"). An un-scoped SUM would shrink the post envelope by however
+    // many replies fire and could arm the daily-read reservation off reply volume
+    // alone — a real behavior change with no sign-off. Scoped to lane='post' here,
+    // correcting the design doc's literal wording to match its own stated intent (verify
+    // criterion #4: existing lane timing/semantics unchanged this phase). P3, when it
+    // adds daily-read/content-calendar as real lane VALUES, must decide explicitly
+    // whether this aggregate should then span those new lanes too — that decision is
+    // out of P2's scope and is carried forward, not resolved here.
     const todayCount = (guardDb.query(
-      "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now')"
+      "SELECT COALESCE(SUM(reserved_count),0) as total_count FROM budget_ledger WHERE channel='x' AND utc_day=date('now') AND lane='post'"
     ).get() as { total_count: number } | null)?.total_count ?? 0;
 
     const source = flags["source"] ?? "";
@@ -734,10 +878,103 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // Only root posts burn the 3/day secondary root budget counter (primary is DAILY_TWEET_CAP=6).
     if (!isContinuation) await incrementBudget("posts");
     if (flags["source"]) await recordPost(flags["source"], data["id"], !isContinuation);
+    // P2 arc-posting-scheduler: legacy budget_ledger dual-write. This lane hasn't
+    // migrated onto reserve-group yet (P3), but the arbiter fix above (guard #3's
+    // todayCount) now reads budget_ledger as the single counter of truth — so every
+    // legacy send must ALSO feed it, or budget_ledger would undercount real traffic
+    // and the reservation guard would under-protect daily-read. reserved_count and
+    // sent_count both bump together here because for a legacy send, admission and
+    // send are the same moment (unlike admitGroup's separate reserve-then-drain).
+    {
+      const guardDb = await xPostLog();
+      guardDb.run(
+        `INSERT OR IGNORE INTO budget_ledger(channel, utc_day, lane, reserved_count, sent_count, cap)
+         VALUES ('x', date('now'), 'post', 0, 0, ?)`,
+        [DAILY_TWEET_CAP]
+      );
+      // dev-council/Lamport (CONFIRMED): unlike admitGroup's doubly-bound CAS, this
+      // legacy write previously had no headroom guard at all — bound it the same way
+      // admitAction's own single-row CAS does (`reserved_count < cap`), for defense in
+      // depth. This does not fully close the check-then-act race between the
+      // DAILY_TWEET_CAP check earlier in this function and this UPDATE — that residual
+      // window matches this codebase's existing accepted-risk posture elsewhere (e.g.
+      // dedupSkip's own documented "concurrent same-source posts... unreachable under
+      // single-threaded per-agent dispatch") — but it stops this counter from being
+      // driven silently past cap even under an ordinary code-path mistake.
+      guardDb.run(
+        `UPDATE budget_ledger SET reserved_count=reserved_count+1, sent_count=sent_count+1
+         WHERE channel='x' AND utc_day=date('now') AND lane='post' AND reserved_count < cap`
+      );
+    }
     console.log(JSON.stringify({ id: data["id"], text: data["text"] }, null, 2));
     log(`Tweet posted: ${data["id"]}`);
   } else {
     console.log(JSON.stringify(result, null, 2));
+  }
+}
+
+// ---- reserve-group (P2 arc-posting-scheduler) ----
+//
+// Atomic whole-action admission: reserves budget for an entire thread+CTA (M tweets,
+// M<=5 per CHECKPOINTS.md #2) in ONE transaction — either all M source keys get a
+// 'queued' outbound_action row sharing one atomic_group_id, or the whole group defers
+// (zero rows admitted). Callers (P3: ContentCalendarMachine's x_thread hop,
+// arc-daily-read's composer) compute the full ordered list of source keys up front
+// (the deterministic suffix convention already in use: `<slug>:x`, `<slug>:x:reply-2`,
+// `<slug>:x:reply-3`, `<slug>:x-cta`) and call this ONCE before posting the first tweet.
+// Each subsequent `post --source <one of those keys>` call then drains one row (see
+// cmdPost's pre-admitted-group fast path above).
+//
+// Known simplification (disclosed): payload_ref/payload_hash here are derived from the
+// source key alone, not the actual tweet text (which isn't decided until the calling
+// LLM composes it turn-by-turn in today's architecture) — payload_hash's role at this
+// pre-admission step is dedup-shape only, matching how existing rows already use it
+// loosely, not a content-integrity guarantee.
+async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
+  const sourcesFlag = flags["sources"];
+  if (!sourcesFlag) {
+    console.log("Usage: reserve-group --sources <comma-separated source keys, root first> --thread-ref <key> [--lane post]");
+    process.exit(1);
+  }
+  const sourceKeys = sourcesFlag.split(",").map((s) => s.trim()).filter(Boolean);
+  const threadRef = flags["thread-ref"] ?? sourceKeys[0];
+  const lane = (flags["lane"] ?? "post") as EngineLane;
+
+  const payloadRefs = sourceKeys.map((s) => `reserve-${createHash("sha256").update(s).digest("hex").slice(0, 12)}`);
+  const payloadHashes = sourceKeys.map((s) => createHash("sha256").update(s).digest("hex"));
+  const isRootFlags = sourceKeys.map((_, i) => i === 0);
+
+  const db = await xPostLog();
+  const budgetDay = todayDateStr();
+
+  // dev-council/Lamport (CONFIRMED gap): releaseAbandonedReservations() had ZERO
+  // callers anywhere — dead code, so a crashed/abandoned reservation would leak until
+  // the next UTC-midnight day rollover (self-healing only because budget_ledger keys
+  // on utc_day, but still a real same-day starvation risk this quest exists to kill).
+  // reserve-group is the natural self-healing hook: sweep stale reservations before
+  // checking headroom for a NEW one, so the sweep actually runs in practice.
+  try {
+    const released = releaseAbandonedReservations(db, { leaseGraceMinutes: 0 });
+    if (released.length > 0) {
+      log(`reserve-group: swept ${released.length} abandoned reservation(s) before admitting (releaseAbandonedReservations)`);
+    }
+  } catch (err) {
+    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const result = admitGroup(db, {
+    sourceKeys, lane, threadRef, budgetDay, cap: DAILY_TWEET_CAP,
+    payloadRefs, payloadHashes, isRootFlags,
+  });
+
+  if (result.ok) {
+    log(`reserve-group admitted M=${sourceKeys.length} atomic_group_id=${result.atomicGroupId}`);
+    console.log(JSON.stringify(result, null, 2));
+    process.exit(0);
+  } else {
+    log(`reserve-group deferred (reason=${result.reason}): ${result.detail}`);
+    console.log(JSON.stringify({ deferred: true, ...result }, null, 2));
+    process.exit(2);
   }
 }
 
@@ -1170,6 +1407,9 @@ async function main(): Promise<void> {
     case "post":
       await cmdPost(flags);
       break;
+    case "reserve-group":
+      await cmdReserveGroup(flags);
+      break;
     case "reply":
       await cmdReply(flags);
       break;
@@ -1215,7 +1455,14 @@ async function main(): Promise<void> {
 Commands:
   post       --text <text> [--source <key>]    Post a tweet (max 280 chars)
                                                (--source: a re-run with the same key is suppressed
-                                                by the local x_post_log ledger — no double-post)
+                                                by the local x_post_log ledger — no double-post.
+                                                If --source matches a reserve-group-admitted row,
+                                                this drains it through the atomic queue instead of
+                                                the legacy guard stack.)
+  reserve-group --sources <k1,k2,...> [--thread-ref <key>] [--lane post]
+             P2 arc-posting-scheduler: atomically reserve a WHOLE thread+CTA (root first,
+             <=5 tweets) as one unit — all-or-nothing, upfront. Follow with one 'post
+             --source <ki>' call per key, in order, to drain the group.
   reply      --text <text> --tweet-id <id> [--source <key>] [--x-lead-id <author_id>]
              Reply to a tweet. --source: idempotent re-run. --x-lead-id: log as give-3x value_touch for this X lead.
   delete     --tweet-id <id>                   Delete a tweet

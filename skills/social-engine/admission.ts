@@ -13,6 +13,27 @@
  *     entry — fail with 'missing_account_id' rather than silently omitting it.
  *
  * Both guards fail CLOSED (block-with-log) not open (skip-and-continue).
+ *
+ * P2 arc-posting-scheduler (2026-07-05, dev-council 5-lens reviewed design spec —
+ * docs/specs/2026-07-05-posting-scheduler-design.md, this repo's control plane): the
+ * atomic-action unit of account. `admitAction()` above admits ONE `outbound_action` ROW
+ * (one tweet) per call — nothing stops a root being admitted and a later continuation
+ * call failing, starving a thread mid-chain. `admitGroup()` below admits a whole POSTING
+ * ACTION (a thread + its CTA, M tweets) in ONE transaction: either M budget slots are
+ * reserved AND M `outbound_action` rows are inserted, or NEITHER happens. Terminology
+ * note (dev-council/Fowler): "action" here is the domain unit (M tweets); the
+ * `outbound_action` TABLE's row is still one tweet — do not conflate the two.
+ *
+ * Precise invariant (dev-council/Kleppmann + Lamport): `admitGroup()` proves ATOMIC
+ * ADMISSION only — the DB transitions atomically. It does NOT prove ATOMIC PUBLICATION —
+ * the drain loop (cli.ts) still POSTs each row's tweet one external API call at a time,
+ * non-transactionally, so a crash/403 between tweets can still truncate the thread ON X
+ * even though the DB stays fully consistent. `nextUnsentInGroup()` is the DB-side
+ * resumable-drain primitive for that residual case; `claimForSend()` adds a fencing CAS at
+ * the actual send moment (closing the "lease expires while still mid-flight" double-send
+ * gap `lease_expires_at` alone doesn't close); `releaseAbandonedReservations()` decrements
+ * `budget_ledger.reserved_count` for abandoned rows so reservations don't climb forever
+ * (Lamport/Kleppmann's named leak: reserved_count only ever incremented before this).
  */
 
 import type { Database } from "bun:sqlite";
@@ -60,6 +81,53 @@ export type DeferResult =
   | { ok: true; terminal: false; newDeferCount: number }
   | { ok: true; terminal: true; reason: "max_defer_count_reached" }
   | { ok: false; reason: "not_future_day" | "update_failed" | "max_defer_already_terminal"; detail?: string };
+
+// ── admitGroup types (P2 arc-posting-scheduler) ───────────────────────────────
+
+/** One posting ACTION = M tweets (root + continuations + CTA), admitted as one unit. */
+export interface AdmitGroupOpts {
+  /** Source keys in POST ORDER — sourceKeys[0] is the root (isRootFlags[0] must be true). */
+  sourceKeys: string[];
+  lane: Lane;
+  threadRef: string;
+  budgetDay: string; // YYYY-MM-DD
+  /** Tweet-TOTAL cap for this lane/day (e.g. DAILY_TWEET_CAP=6) — distinct from
+   *  getCapForLane()'s ROOT-only cap. Caller-supplied because admitGroup reserves
+   *  M *tweets*, not M *roots*. */
+  cap: number;
+  payloadRefs: string[];
+  payloadHashes: string[];
+  isRootFlags: boolean[];
+  accountId?: number;
+  notes?: string;
+}
+
+export type AdmitGroupResult =
+  | { ok: true; actionIds: number[]; atomicGroupId: string }
+  | { ok: false; reason: AdmitGroupFailReason; detail?: string; existingId?: number; existingStatus?: string };
+
+export type AdmitGroupFailReason =
+  | "kill_switch_off"
+  | "invalid_opts"
+  | "already_exists"
+  | "group_too_large"          // CHECKPOINTS.md #2: >5 tweets/action
+  | "actions_per_day_exceeded" // CHECKPOINTS.md #2: >=3 groups already admitted today for this lane
+  | "budget_exhausted"         // whole-group headroom check failed — NEITHER slot reserved nor row inserted
+  | "admission_txn_failed";
+
+/**
+ * CHECKPOINTS.md #2 safety rail (arc-posting-scheduler): 3 actions/day x 5 tweets/action.
+ * dev-council/Fowler (noted): MAX_ACTIONS_PER_DAY is enforced PER LANE (admitGroup's
+ * query is `WHERE lane=? AND budget_day=?`), while CHECKPOINTS.md #2's "3 actions/day"
+ * was framed against today's single-lane reality (BUDGET_LIMITS.posts=3 roots/day,
+ * across all posting). While only the 'post' lane is live (this phase), per-lane and
+ * global are the same number — no behavior difference. The moment P3 adds new lane
+ * VALUES (daily-read/content-calendar), "3/lane" and "3 total" diverge; deciding which
+ * one CHECKPOINTS.md #2 actually meant at that point is P3's job, not silently
+ * inherited from this constant's current per-lane scope.
+ */
+export const MAX_TWEETS_PER_ACTION = 5;
+export const MAX_ACTIONS_PER_DAY = 3;
 
 // ── Config helpers ────────────────────────────────────────────────────────────
 
@@ -283,6 +351,376 @@ export function admitAction(db: Database, opts: AdmitOpts): AdmitResult {
   return { ok: true, actionId, engQueuedId, engClaimedId };
 }
 
+// ── admitGroup (P2 arc-posting-scheduler) ─────────────────────────────────────
+
+/**
+ * Admit a whole posting ACTION (M tweets: root + continuations + CTA) as ONE atomic
+ * unit — either M budget slots are reserved AND M `outbound_action` rows are inserted
+ * (status='queued', sharing one atomic_group_id), or NEITHER happens. This directly
+ * kills the starvation class the quest exists to fix: a mid-thread "insufficient
+ * slots" defer can never happen again, because the whole group either has headroom
+ * for all M tweets or it doesn't — there is no partial-admission state.
+ *
+ * Does NOT auto-claim (queued→sending) the way admitAction() does — a group's rows
+ * stay 'queued' until the caller drains them one at a time via claimForSend(), since
+ * the actual send happens externally, one X API call per tweet, over what may be
+ * several separate cli.ts invocations.
+ *
+ * Precise scope (dev-council/Kleppmann + Lamport): this proves ATOMIC ADMISSION only.
+ * See the module header for the admission-vs-publication distinction.
+ */
+export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult {
+  const {
+    sourceKeys, lane, threadRef, budgetDay, cap, payloadRefs, payloadHashes,
+    isRootFlags, accountId, notes,
+  } = opts;
+
+  const m = sourceKeys.length;
+  if (
+    m === 0 ||
+    payloadRefs.length !== m ||
+    payloadHashes.length !== m ||
+    isRootFlags.length !== m ||
+    !isRootFlags[0]
+  ) {
+    return {
+      ok: false, reason: "invalid_opts",
+      detail: `sourceKeys/payloadRefs/payloadHashes/isRootFlags must all be length ${m}>0 and isRootFlags[0] must be true (first key is the root)`,
+    };
+  }
+
+  // ── Kill-switch ───────────────────────────────────────────────────────────
+  const cfg = db.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as
+    | { value: string } | null;
+  if (!cfg || cfg.value !== "true") {
+    return { ok: false, reason: "kill_switch_off", detail: `outbound_enabled=${cfg?.value ?? "missing"}` };
+  }
+
+  // ── Idempotency — whole group, not per-row (a partial re-admit would defeat the
+  //    atomic-unit guarantee: if key 1 of 4 already exists, we must NOT admit keys 2-4
+  //    as a smaller group under a new atomic_group_id). ─────────────────────────────
+  for (const sourceKey of sourceKeys) {
+    const existing = db
+      .query("SELECT id, status FROM outbound_action WHERE source_key=?")
+      .get(sourceKey) as { id: number; status: string } | null;
+    if (existing) {
+      return {
+        ok: false, reason: "already_exists",
+        existingId: existing.id, existingStatus: existing.status,
+        detail: `source_key=${sourceKey} outbound_action id=${existing.id} status=${existing.status} — whole group rejected, not partially admitted`,
+      };
+    }
+  }
+
+  // ── CHECKPOINTS.md #2 shape rail: tweets/action ──────────────────────────────────
+  if (m > MAX_TWEETS_PER_ACTION) {
+    return {
+      ok: false, reason: "group_too_large",
+      detail: `M=${m} exceeds ${MAX_TWEETS_PER_ACTION} tweets/action`,
+    };
+  }
+
+  // ── Atomic transaction: actions/day recheck + whole-group headroom check + reserve
+  //    + insert. dev-council/Kleppmann (CONFIRMED): the actions/day COUNT DISTINCT
+  //    check is only race-free if it runs INSIDE the same transaction as the
+  //    reservation — read-then-act outside a txn lets two concurrent admitGroup()
+  //    calls both read count=2 and both admit a 4th action. Moved inside BEGIN below
+  //    (the shape-rail rejections above — invalid_opts/kill_switch/already_exists/
+  //    group_too_large — are cheap, pre-DB-write checks where a race just means an
+  //    occasional less-precise error message, not a correctness violation, so they
+  //    stay outside the txn; ONLY the two checks that gate an actual DB mutation
+  //    (actions/day, budget headroom) need transactional protection).
+  const atomicGroupId = crypto.randomUUID();
+  const actionIds: number[] = [];
+
+  try {
+    db.exec("BEGIN");
+
+    const actionsToday = db
+      .query(
+        `SELECT COUNT(DISTINCT atomic_group_id) as cnt FROM outbound_action
+         WHERE lane=? AND budget_day=? AND atomic_group_id IS NOT NULL`
+      )
+      .get(lane, budgetDay) as { cnt: number };
+    if (actionsToday.cnt >= MAX_ACTIONS_PER_DAY) {
+      db.exec("ROLLBACK");
+      return {
+        ok: false, reason: "actions_per_day_exceeded",
+        detail: `${actionsToday.cnt}/${MAX_ACTIONS_PER_DAY} actions already admitted today for lane=${lane}/${budgetDay}`,
+      };
+    }
+
+    // Ensure budget row exists (caller-supplied cap — the TWEET-TOTAL cap, e.g.
+    // DAILY_TWEET_CAP=6, distinct from getCapForLane()'s ROOT-only cap used by
+    // admitAction()'s single-tweet post-lane path).
+    db.run(
+      `INSERT OR IGNORE INTO budget_ledger(channel, utc_day, lane, reserved_count, sent_count, cap)
+       VALUES ('x', ?, ?, 0, 0, ?)`,
+      [budgetDay, lane, cap]
+    );
+
+    // CAS reserve-the-whole-group-or-nothing: reserved_count+M bound twice so the
+    // UPDATE only matches (and only takes effect) if there is headroom for ALL M —
+    // never a partial reservation.
+    const budgetUp = db.run(
+      `UPDATE budget_ledger SET reserved_count=reserved_count+?
+       WHERE channel='x' AND utc_day=? AND lane=? AND reserved_count+? <= cap`,
+      [m, budgetDay, lane, m]
+    );
+    if (budgetUp.changes !== 1) {
+      db.exec("ROLLBACK");
+      const current = db
+        .query("SELECT reserved_count, cap FROM budget_ledger WHERE channel='x' AND utc_day=? AND lane=?")
+        .get(budgetDay, lane) as { reserved_count: number; cap: number } | null;
+      return {
+        ok: false, reason: "budget_exhausted",
+        detail: `M=${m} would exceed headroom (reserved=${current?.reserved_count ?? "?"}/${current?.cap ?? cap}) — whole group deferred, zero rows admitted`,
+      };
+    }
+
+    for (let i = 0; i < m; i++) {
+      const insertRes = db.run(
+        `INSERT INTO outbound_action
+           (source_key, platform, lane, status, payload_ref, payload_hash,
+            is_root, thread_ref, defer_count, budget_day, account_id, atomic_group_id)
+         VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, 0, ?, ?, ?)`,
+        [
+          sourceKeys[i], lane, payloadRefs[i], payloadHashes[i],
+          isRootFlags[i] ? 1 : 0, threadRef, budgetDay, accountId ?? null, atomicGroupId,
+        ]
+      );
+      const actionId = insertRes.lastInsertRowid as number;
+      actionIds.push(actionId);
+
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'queued', ?)`,
+        [actionId, notes ?? `admitted by admitGroup (lane=${lane}, atomic_group_id=${atomicGroupId}, ${i + 1}/${m})`]
+      );
+    }
+
+    db.exec("COMMIT");
+  } catch (err: any) {
+    try { db.exec("ROLLBACK"); } catch {}
+    return { ok: false, reason: "admission_txn_failed", detail: String(err?.message ?? err) };
+  }
+
+  return { ok: true, actionIds, atomicGroupId };
+}
+
+// ── claimForSend (P2 arc-posting-scheduler) ───────────────────────────────────
+
+/**
+ * Fencing CAS immediately before the actual X API POST call — distinct from
+ * admitAction()'s admission-time claim. `lease_expires_at` alone (kept as-is) lets a
+ * slow-not-crashed worker's lease expire while still mid-flight, so a second drainer
+ * could claim the same row and BOTH call POST /tweets (Kleppmann, CONFIRMED gap — no
+ * fencing token today). Calling this right before the send means a stale claim is
+ * rejected at the DB layer even if the caller's own lease bookkeeping is stale.
+ */
+export function claimForSend(db: Database, actionId: number): boolean {
+  const leaseSeconds = getConfigInt(db, "claim_lease_seconds", 300);
+  const leaseUntil = new Date(Date.now() + leaseSeconds * 1000).toISOString();
+  const casUp = db.run(
+    `UPDATE outbound_action
+     SET status='sending', lease_expires_at=?, updated_at=?
+     WHERE id=? AND status='queued'`,
+    [leaseUntil, utcNow(), actionId]
+  );
+  return casUp.changes === 1;
+}
+
+// ── nextUnsentInGroup (P2 arc-posting-scheduler) ──────────────────────────────
+
+/**
+ * Resumable-drain primitive: the first not-yet-sent row in an atomic group, in post
+ * order. Disclosed honestly (dev-council review): this is a DB-side primitive only —
+ * true AUTOMATIC resumption after a crash still needs a caller (or a future daemon) to
+ * actually query this on retry. No current caller does yet; this phase provides the
+ * primitive, not the daemon.
+ */
+export function nextUnsentInGroup(db: Database, atomicGroupId: string): { id: number; source_key: string } | null {
+  return db
+    .query(
+      `SELECT id, source_key FROM outbound_action
+       WHERE atomic_group_id=? AND status='queued'
+       ORDER BY id ASC LIMIT 1`
+    )
+    .get(atomicGroupId) as { id: number; source_key: string } | null;
+}
+
+// ── releaseAbandonedReservations (P2 arc-posting-scheduler) ──────────────────
+
+export interface ReleasedRow {
+  actionId: number;
+  lane: string;
+  budgetDay: string;
+}
+
+/**
+ * Closes the reservation-release gap (Lamport/Kleppmann, CONFIRMED): admitAction()
+ * and admitGroup() both only ever INCREMENT budget_ledger.reserved_count. If a
+ * reservation is abandoned (lease expired mid-send, no provider_post_id ever
+ * recorded), nothing released it — reserved_count inflates monotonically, causing
+ * FALSE cap-exhaustion and self-starvation, the exact failure class this quest
+ * fights. Finds abandoned rows (status='sending', lease expired, never sent),
+ * decrements budget_ledger.reserved_count per (lane, budget_day) by the count
+ * released (clamped at 0), and marks the rows 'unknown' (markUnknown's pattern).
+ */
+export function releaseAbandonedReservations(
+  db: Database,
+  opts: { leaseGraceMinutes?: number } = {}
+): ReleasedRow[] {
+  const graceMs = (opts.leaseGraceMinutes ?? 0) * 60 * 1000;
+  const cutoff = new Date(Date.now() - graceMs).toISOString();
+
+  // dev-council/Kleppmann (CONFIRMED gap, F3): the original version SELECTed its
+  // target set OUTSIDE any transaction, then unconditionally decremented +
+  // overwrote status — a slow-but-completing drainer's markSent() racing between
+  // this SELECT and its UPDATE would get its just-'sent' row clobbered back to
+  // 'unknown' AND double-decrement reserved_count (corrupting both ledgers,
+  // under-counting reserved → over-admission → the exact SafetyBudget breach this
+  // module exists to prevent). Fix: SELECT and the per-row flip both run inside ONE
+  // transaction, and the flip UPDATE RE-CHECKS the same status/provider_post_id
+  // conditions at write time — if a row completed in the meantime, this UPDATE's
+  // `changes` is 0 and we skip it (no decrement, no clobber) rather than trusting
+  // the SELECT's now-stale snapshot.
+  const released: ReleasedRow[] = [];
+  try {
+    db.exec("BEGIN");
+    const abandoned = db
+      .query(
+        `SELECT id, lane, budget_day FROM outbound_action
+         WHERE status='sending' AND provider_post_id IS NULL
+           AND lease_expires_at IS NOT NULL AND lease_expires_at < ?`
+      )
+      .all(cutoff) as { id: number; lane: string; budget_day: string }[];
+
+    for (const row of abandoned) {
+      const flip = db.run(
+        `UPDATE outbound_action SET status='unknown', updated_at=?
+         WHERE id=? AND status='sending' AND provider_post_id IS NULL`,
+        [utcNow(), row.id]
+      );
+      if (flip.changes !== 1) continue; // raced with a concurrent completion — do not release
+
+      // Clamp at 0 — never let a bookkeeping race drive reserved_count negative.
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [row.budget_day, row.lane]
+      );
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `lease expired with no send evidence — reservation released by releaseAbandonedReservations() (grace=${opts.leaseGraceMinutes ?? "n/a"}min)`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+    }
+    db.exec("COMMIT");
+  } catch (err) {
+    try { db.exec("ROLLBACK"); } catch {}
+    throw err;
+  }
+
+  return released;
+}
+
+// ── releaseSingleReservation (P2 arc-posting-scheduler) ───────────────────────
+
+/**
+ * Compensating action for exactly ONE row (dev-council/Fowler + Lamport, CONFIRMED
+ * gap: `releaseGroupRemainder` only released a failed row's still-'queued' SIBLINGS,
+ * never the failed row itself, which `claimForSend` had already flipped to
+ * 'sending' — every terminal 403 leaked exactly 1 reservation). Refuses to release a
+ * row that has already reached 'sent' (a concurrent success must never be clobbered).
+ */
+export function releaseSingleReservation(db: Database, actionId: number, reasonNote: string): boolean {
+  try {
+    db.exec("BEGIN");
+    const row = db
+      .query(`SELECT lane, budget_day, status FROM outbound_action WHERE id=?`)
+      .get(actionId) as { lane: string; budget_day: string; status: string } | null;
+    if (!row || row.status === "sent") {
+      db.exec("ROLLBACK");
+      return false;
+    }
+    const flip = db.run(
+      `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status != 'sent'`,
+      [utcNow(), actionId]
+    );
+    if (flip.changes !== 1) {
+      db.exec("ROLLBACK");
+      return false;
+    }
+    db.run(
+      `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+       WHERE channel='x' AND utc_day=? AND lane=?`,
+      [row.budget_day, row.lane]
+    );
+    db.run(
+      `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+      [actionId, reasonNote]
+    );
+    db.exec("COMMIT");
+    return true;
+  } catch (err) {
+    try { db.exec("ROLLBACK"); } catch {}
+    throw err;
+  }
+}
+
+// ── releaseGroupRemainder (P2 arc-posting-scheduler) ──────────────────────────
+
+/**
+ * Compensating action for a mid-group terminal failure (e.g. a 403 on tweet 2 of a
+ * 4-tweet group — guard #4's terminal-skip-no-retry behavior, kept as-is, means the
+ * rest of the group will never be sent). Releases every remaining 'queued' row
+ * sharing `atomicGroupId` (marks 'unknown', decrements budget_ledger.reserved_count
+ * by the count released) so the abandoned remainder doesn't inflate reserved_count
+ * forever — the same leak `releaseAbandonedReservations()` closes for lease-expiry,
+ * named separately here because this fires immediately at the point of failure
+ * (caller-driven) rather than being discovered later by a lease-expiry sweep.
+ */
+export function releaseGroupRemainder(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
+  const remaining = db
+    .query(`SELECT id, lane, budget_day FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
+    .all(atomicGroupId) as { id: number; lane: string; budget_day: string }[];
+
+  if (remaining.length === 0) return [];
+
+  const byGroup = new Map<string, number>();
+  for (const row of remaining) {
+    const key = `${row.lane}|${row.budget_day}`;
+    byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
+  }
+
+  const released: ReleasedRow[] = [];
+  try {
+    db.exec("BEGIN");
+    for (const [key, count] of byGroup) {
+      const [lane, budgetDay] = key.split("|");
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [count, budgetDay, lane]
+      );
+    }
+    for (const row of remaining) {
+      db.run(`UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=?`, [utcNow(), row.id]);
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `atomic_group_id=${atomicGroupId} remainder released: ${reasonNote}`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+    }
+    db.exec("COMMIT");
+  } catch (err) {
+    try { db.exec("ROLLBACK"); } catch {}
+    throw err;
+  }
+
+  return released;
+}
+
 // ── deferAction ───────────────────────────────────────────────────────────────
 
 export function deferAction(db: Database, opts: DeferOpts): DeferResult {
@@ -392,20 +830,75 @@ export function markUnknown(db: Database, actionId: number, reason: string): voi
 
 // ── markSent ─────────────────────────────────────────────────────────────────
 
+/**
+ * P2 arc-posting-scheduler dual-write (dev-council/Newman, CONFIRMED gap): `.bak`
+ * restores roll back CODE, not ROWS written under the new schema mid-migration. If
+ * cli.ts is reverted mid-soak, the OLD code reads x_post_log, not outbound_action —
+ * anything sent through the new engine would be invisible to reverted code (silently
+ * dropped, or double-posted since the old dedup ledger never learned about it).
+ * Every successful send through admission.ts now ALSO writes an x_post_log row, so
+ * x_post_log stays a complete, authoritative fallback ledger for the whole soak — a
+ * code-only `.bak` rollback is then sufficient. x_post_log's schema/table is owned by
+ * social-x-posting/cli.ts; we CREATE TABLE IF NOT EXISTS here defensively (same DDL
+ * cli.ts uses) so this module has no hard load-order dependency on cli.ts having run
+ * first in a given process.
+ */
+function dualWriteXPostLog(db: Database, sourceKey: string, providerPostId: string, isRoot: boolean): void {
+  db.run(
+    `CREATE TABLE IF NOT EXISTS x_post_log (
+       source TEXT PRIMARY KEY,
+       tweet_id TEXT,
+       posted_at TEXT NOT NULL,
+       is_root INTEGER NOT NULL DEFAULT 0
+     )`
+  );
+  db.run(
+    `INSERT OR IGNORE INTO x_post_log (source, tweet_id, posted_at, is_root) VALUES (?, ?, ?, ?)`,
+    [sourceKey, providerPostId, utcNow(), isRoot ? 1 : 0]
+  );
+}
+
+/**
+ * dev-council/Kleppmann (CONFIRMED gap, F2): the original version ran 4 separate
+ * autocommit statements — a crash after the outbound_action UPDATE but before the
+ * x_post_log dual-write left `status='sent'` with NO x_post_log row, defeating the
+ * exact rollback-safety guarantee the dual-write exists for (a `.bak` code revert
+ * reads an empty x_post_log and re-posts). Fix: wrap the whole function in one
+ * transaction — either all four writes land, or none do, so there is no
+ * crash-reachable partial state.
+ */
 export function markSent(db: Database, actionId: number, providerPostId: string, lane: Lane, budgetDay: string): void {
-  db.run(
-    `UPDATE outbound_action SET status='sent', provider_post_id=?, updated_at=? WHERE id=?`,
-    [providerPostId, utcNow(), actionId]
-  );
-  db.run(
-    `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'sent', ?)`,
-    [actionId, `provider_post_id=${providerPostId}`]
-  );
-  db.run(
-    `UPDATE budget_ledger SET sent_count=sent_count+1
-     WHERE channel='x' AND utc_day=? AND lane=?`,
-    [budgetDay, lane]
-  );
+  try {
+    db.exec("BEGIN");
+
+    // Read back source_key/is_root FIRST (before the row's own status changes) so
+    // callers don't need to pass them redundantly.
+    const row = db
+      .query("SELECT source_key, is_root FROM outbound_action WHERE id=?")
+      .get(actionId) as { source_key: string; is_root: number } | null;
+
+    db.run(
+      `UPDATE outbound_action SET status='sent', provider_post_id=?, updated_at=? WHERE id=?`,
+      [providerPostId, utcNow(), actionId]
+    );
+    db.run(
+      `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'sent', ?)`,
+      [actionId, `provider_post_id=${providerPostId}`]
+    );
+    db.run(
+      `UPDATE budget_ledger SET sent_count=sent_count+1
+       WHERE channel='x' AND utc_day=? AND lane=?`,
+      [budgetDay, lane]
+    );
+    if (row) {
+      dualWriteXPostLog(db, row.source_key, providerPostId, row.is_root === 1);
+    }
+
+    db.exec("COMMIT");
+  } catch (err) {
+    try { db.exec("ROLLBACK"); } catch {}
+    throw err;
+  }
 }
 
 // ── retryToQueued ─────────────────────────────────────────────────────────────
