@@ -64,3 +64,18 @@ state machine would be pure overhead. Side note: the built-in
 has 0 live instances — it's dead/orphaned code, not wired to this sensor.
 Not fixed here (out of scope for a pattern-evaluation pass); worth a cleanup
 task if it comes up again.
+
+**2026-07-05 recurrence (task #21183)**: arc-workflow-review flagged
+`source:sensor:arc-strategy-review` (6 recurrences, avg 7.8 steps) — same
+ad-hoc daily-eval → retrospective shape, same verdict. This time, rather than
+re-evaluate and reject a 4th time, added actual exemptions to the sensor's
+`KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` lists (`skills/arc-workflow-review/
+sensor.ts`) so it stops re-surfacing: `sensor:arc-strategy-review` (this
+pattern), plus `self-review` and `fix arc0btc.com health issue` (a genuinely
+different case — already modeled by `SelfReviewCycleMachine` and
+`SiteHealthAlertMachine` respectively, but each instance's `source` is a
+unique `workflow:<id>` so it never groups under `bySource` and only surfaces
+via `bySubject`, making it look unmodeled when it's the machine working
+correctly). Lesson: this detector had no memory of prior verdicts, so the
+same non-issue kept re-firing task after task — the fix belongs in the
+detector's exemption list, not in another round of manual evaluation.

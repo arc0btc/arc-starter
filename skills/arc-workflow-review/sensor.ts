@@ -69,6 +69,11 @@ const KNOWN_PATTERNS = new Set([
   "sensor:aibtc-heartbeat",
   "sensor:arc-service-health",
   "sensor:arc-memory-consolidate",
+  // Daily self-eval → ad-hoc "Retrospective: extract learnings" chain. Same shape as
+  // sensor:arc-purpose-eval, already evaluated task #20645/#21036 — a generic
+  // RetrospectiveMachine was rejected, ad-hoc per-task retrospectives self-dedup by
+  // construction. See memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md.
+  "sensor:arc-strategy-review",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -80,6 +85,14 @@ const SKIP_SOURCE_PREFIXES = ["human:"];
 const KNOWN_SUBJECT_PREFIXES = [
   "[github-issue-monitor]",
   "for re-review",
+  // Already modeled by SiteHealthAlertMachine (alert→fixing→retrospective_pending→completed).
+  // Falls through source-grouping because each instance's source is a unique "workflow:<id>",
+  // so it only ever surfaces via subject-grouping — this is the machine working as intended.
+  "fix arc0btc.com health issue",
+  // Already modeled by SelfReviewCycleMachine; the "self-review triage" sub-chain was
+  // separately evaluated (task #21036) and confirmed as the same ad-hoc retrospective
+  // shape, no generic machine needed.
+  "self-review",
 ];
 
 function normalizeSource(source: string | null): string {
