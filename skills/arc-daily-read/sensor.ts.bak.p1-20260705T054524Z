@@ -56,25 +56,6 @@ export default async function arcDailyReadSensor(): Promise<string> {
 
   if (slotsRemaining < 4) {
     log(`cap insufficient: ${slotsRemaining} slots remaining, need 4 — deferring to tomorrow`);
-    // arc-demand-gen P1: this branch used to return "skip" with NO state write, so a
-    // multi-day starvation (2026-06-30..2026-07-04, root cause: content-calendar threads
-    // exhausting the shared cap near UTC midnight, see
-    // docs/specs/2026-07-05-daily-read-scheduling-fix-decision.md in the control-plane repo)
-    // was completely invisible — last_ran kept ticking while last_queued_date silently went
-    // stale. Record the defer so ops/monitor/arc-flywheel-health.ts (control-plane, daily cron)
-    // can alert on it instead of relying on someone noticing days later. The reservation added
-    // in skills/social-x-posting/cli.ts this same phase should make this branch rare going
-    // forward — this write is the safety net for if it isn't.
-    const priorState = await readHookState(SENSOR_NAME);
-    await writeHookState(SENSOR_NAME, {
-      ...(priorState ?? { version: 0, last_ran: new Date().toISOString(), last_result: "skip" as const }),
-      last_ran: new Date().toISOString(),
-      last_result: "skip" as const,
-      version: ((priorState?.version as number) ?? 0) + 1,
-      last_defer_reason: "cap_insufficient",
-      last_defer_at: new Date().toISOString(),
-      last_slots_remaining: slotsRemaining,
-    });
     return "skip";
   }
 

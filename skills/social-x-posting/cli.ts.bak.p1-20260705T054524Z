@@ -199,58 +199,6 @@ const DAILY_TWEET_CAP = 6;
 // because tasks already queued before this fix still need to be throttled at post time.
 const CONTENT_CALENDAR_X_THREAD_DAILY_CAP = 1;
 
-// Daily-read scheduling fix (arc-demand-gen P1). arc-daily-read's sensor needs 4 of the shared
-// 6 slots free at its UTC 13:00 window, but content-calendar threads and the proactive cadence
-// beat both converge on THIS post-time guard and were front-loading the shared cap near UTC
-// midnight — silently starving daily-read for days (hook state showed last_ran ticking every
-// 30 min while last_queued_date stayed stuck). Mention replies do NOT go through this guard —
-// they call providerReplySend() directly (below) against a separate budget_ledger table, never
-// x_post_log — so they cannot consume this reservation and are not a lane this fix needs to
-// gate; dev-council flagged this as worth confirming explicitly rather than assuming from the
-// `--reply-to` flag shape alone (verified 2026-07-05: skills/social-engine/reply-send.ts calls
-// providerReplySend, not cmdPost).
-//
-// arc-strategy-panel (7-lens, docs/specs/2026-07-05-daily-read-scheduling-fix-decision.md, this
-// quest's control-plane repo) confirmed a reservation at this single shared enforcement point
-// survives lane rotation — unlike retiming any one lane — and UNANIMOUSLY required it gate NEW
-// thread starts (root posts) only, never truncate an in-progress thread mid-chain.
-// DAILY_TWEET_CAP=6 above is UNCHANGED — this is a reservation layered on top, lifted the moment
-// arc-daily-read posts today or its window has closed for the day.
-//
-// HONEST LIMIT (dev-council/Lamport, 2026-07-05): "never truncate" and "guarantee 4 free slots"
-// are in real tension once a permitted thread's OWN continuations are exempt from this cap (they
-// must be, or the no-truncation mandate breaks) — a single permitted thread can still run to
-// 4-5 tweets and eat into the reserved 4, same as it could pre-fix. What this fix DOES guarantee:
-// at most ONE non-daily-read thread gets to start before daily-read's window resolves, not an
-// unbounded pile-up of several. That's why the gate below is "any non-daily-read post already
-// today blocks a NEW one from starting" (todayCount > 0), not merely "fewer than 2 have posted" —
-// the original 2-slot threshold would let a SECOND lane's root start too, compounding the exact
-// overrun risk this paragraph describes. Residual risk (one thread overrunning) is accepted by
-// the panel as strictly better than truncating a thread mid-chain.
-function isDailyReadSource(source: string): boolean {
-  return /^daily-read:/.test(source);
-}
-
-// Sensor's window is 13:00-13:29 UTC; by 14:00 the day's window has fully resolved (posted or
-// not) so holding other lanes back any longer would waste capacity for no remaining benefit.
-const DAILY_READ_WINDOW_CLOSE_UTC_HOUR = 14;
-
-/** True if arc-daily-read already logged an edition today (readonly check, table may not exist yet). */
-function dailyReadPostedToday(db: { query: (sql: string) => { get: () => unknown } }): boolean {
-  try {
-    const row = db.query(
-      "SELECT COUNT(*) as n FROM daily_read_log WHERE date(posted_at) = date('now')",
-    ).get() as { n: number } | null;
-    return (row?.n ?? 0) > 0;
-  } catch (err) {
-    // daily_read_log doesn't exist yet on a fresh install — nothing posted today by definition,
-    // keep reserving (safe default). Logged (dev-council/Kleppmann) so a DIFFERENT, transient
-    // failure (lock contention, corruption) isn't silently indistinguishable from that case.
-    log(`dailyReadPostedToday query failed, defaulting to "not posted" (keeps reservation active): ${err instanceof Error ? err.message : String(err)}`);
-    return false;
-  }
-}
-
 const BUDGET_LIMITS: Record<string, number> = {
   // GTM cadence dial-down (2026-06-15): hard daily X-post ceiling lowered 10 → 3 so the
   // account reads as lean/high-signal (~1-2 substantive items/day), reserving posts for
@@ -586,46 +534,6 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     const todayCount = (guardDb.query(
       "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now')"
     ).get() as { total_count: number } | null)?.total_count ?? 0;
-
-    const source = flags["source"] ?? "";
-    const isDailyRead = isDailyReadSource(source);
-    const isNewNonDailyReadThreadStart = !isDailyRead && !flags["reply-to"];
-
-    // Daily-read reservation (arc-demand-gen P1): while the day's daily-read window hasn't
-    // resolved yet (before UTC 14:00 and no daily_read_log row for today), a NEW non-daily-read
-    // thread cannot START at all if ANYTHING has already posted today (todayCount > 0). Only
-    // gates root/new-thread-start posts (panel-mandated "defer whole hop, never truncate") — a
-    // thread already underway (--reply-to set) is exempt here and only bound by the unchanged
-    // absolute DAILY_TWEET_CAP below, so it always finishes atomically once started.
-    //
-    // Threshold is 0, not "fewer than N have posted" (dev-council/Lamport, 2026-07-05): since
-    // continuations aren't capped by this reservation once a root is allowed through, letting a
-    // SECOND independent lane also start a root would let two unbounded threads both eat into
-    // daily-read's reserved territory instead of at most one. Restricting to "nothing has posted
-    // yet today" bounds the residual overrun risk to a single thread — see the HONEST LIMIT note
-    // above DAILY_READ_WINDOW_CLOSE_UTC_HOUR.
-    let reservationActive = false;
-    if (isNewNonDailyReadThreadStart) {
-      const nowUtcHour = new Date().getUTCHours();
-      reservationActive =
-        nowUtcHour < DAILY_READ_WINDOW_CLOSE_UTC_HOUR && todayCount > 0 && !dailyReadPostedToday(guardDb);
-    }
-
-    if (reservationActive) {
-      log(
-        `daily-read reservation active (arc-daily-read hasn't posted today, window open until ` +
-        `${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC, ${todayCount} tweet(s) already posted today): ` +
-        `blocking a NEW non-daily-read thread start — deferring "${source}" whole (not truncating)`
-      );
-      console.log(JSON.stringify({
-        deferred: true,
-        reason: "daily_read_slots_reserved",
-        detail: `${todayCount} tweet(s) already posted today; new non-daily-read thread starts are blocked until arc-daily-read posts or its window closes at ${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC (of the shared ${DAILY_TWEET_CAP}/day cap)`,
-        planned_for: "later today (after arc-daily-read's window resolves) or tomorrow",
-      }));
-      process.exit(2);
-    }
-
     if (todayCount >= DAILY_TWEET_CAP) {
       log(`daily tweet cap exhausted (${todayCount}/${DAILY_TWEET_CAP} total tweets today) — deferring`);
       console.log(JSON.stringify({
@@ -640,6 +548,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // Content-calendar x_thread secondary cap: only the root post of a new thread
     // (source === "content-calendar:<slug>:x", not ":x:reply-N" or ":x-cta") burns this slot —
     // those source keys are set by ContentCalendarMachine's whop_chat_seeded action.
+    const source = flags["source"] ?? "";
     const isContentCalendarXThreadRoot = /^content-calendar:[^:]+:x$/.test(source);
     if (isContentCalendarXThreadRoot) {
       const ccTodayCount = (guardDb.query(

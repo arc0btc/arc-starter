@@ -111,28 +111,6 @@ limit and will not auto-recover; it needs a credit top-up from whoabuddy. The ca
 auto-resumes when credits return (or after the 30-day TTL on `db/x-credits-depleted.json`). So
 the mechanism is live and correct; only the act of posting waits on the top-up.
 
-## Daily-read slot reservation (arc-demand-gen P1, 2026-07-05)
-
-`arc-daily-read` needs 4 of the shared 6/day `DAILY_TWEET_CAP` free at its UTC 13:00 window, but
-every other lane on this page (content-calendar threads, the proactive cadence beat above,
-mention replies) converges on the SAME post-time guard in `cli.ts` and was front-loading the cap
-near UTC midnight, silently starving daily-read for days. Root cause + the arc-strategy-panel
-(7-lens) decision live in `docs/specs/2026-07-05-daily-read-scheduling-fix-decision.md` in the
-control-plane repo (`manage-agents`).
-
-Fix (in `cli.ts`'s post-time guard, NOT a change to `DAILY_TWEET_CAP=6` itself): while it's
-before UTC 14:00 AND `daily_read_log` has no row for today, a NEW non-daily-read thread
-(`source` not matching `^daily-read:`, and not a `--reply-to` continuation) is capped at
-`DAILY_TWEET_CAP - 4 = 2` instead of the full 6. This reservation gates only new thread STARTS —
-per the panel's unanimous requirement, an already-started thread's continuations are exempt and
-always finish atomically (never truncated mid-chain). The reservation lifts automatically the
-moment daily-read posts today, or once its window has closed for the day (14:00 UTC) — whichever
-comes first — so unused reserved capacity isn't wasted.
-
-Practical effect: content-calendar threads and the proactive cadence beat above should expect to
-mostly fire in the afternoon/evening UTC on days when daily-read hasn't posted yet, not at
-midnight. This is intentional, not a bug.
-
 ## Pause switch
 
 Flip `X_CADENCE_ENABLED = false` in `skills/social-x-posting/sensor.ts` to pause the proactive
