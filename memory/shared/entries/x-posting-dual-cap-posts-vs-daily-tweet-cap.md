@@ -30,8 +30,14 @@ thread (thirty-five-hours-of-silence) hit "cap exhausted" again even though that
 had only posted 2 tweets (root + reply-2). Root cause: a different thread
 (audit-trail-is-the-point) posted its full 5-tweet run the same UTC day, and `x_post_log`'s
 `COUNT(*) WHERE date(posted_at)=date('now')` counts across all sources. 2+5=7 > 6, cap tripped.
-**Lesson**: when triaging a "cap exhausted" defer, don't assume it's about the named thread —
-query `x_post_log` directly (`db/arc.sqlite`, table `x_post_log`, column `posted_at`) to see
-which sources actually consumed the day's budget before deciding whether/when a retry will
-succeed. `arc skills run --name social-x-posting -- budget` won't show this at all (only the
-3/day root-only counter).
+
+**[FIXED 2026-07-05, task #21024]**: `budget` CLI now directly surfaces the real shared counter
+as a `daily_tweet_cap` field (`{used, limit, remaining, covers}`, `cli.ts:1062`) alongside the
+old `posts` field (now annotated as "root-only secondary sub-budget, see daily_tweet_cap for the
+real shared cap", `cli.ts:1063`). The manual `x_post_log` cross-check below is no longer
+necessary — trust `arc skills run --name social-x-posting -- budget`'s `daily_tweet_cap` field
+directly. Left the original detail for history:
+
+Manual cross-check (no longer needed, kept for context): query `x_post_log` directly
+(`db/arc.sqlite`, table `x_post_log`, column `posted_at`) to see which sources actually consumed
+the day's budget.
