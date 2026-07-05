@@ -111,12 +111,20 @@ function checkStructuralCompliance(skill: SkillInfo): ComplianceFinding[] {
   return findings;
 }
 
+// Marker comment that exempts an intentionally-inert sensor stub from the
+// interval/claim-gate checks below (mirrors arc-skill-manager/sensor.ts's
+// STUB_EXEMPTION_MARKER — a retired sensor kept as a stub for skill-directory
+// history has no interval to declare and no run to gate).
+const STUB_EXEMPTION_MARKER = /\/\/\s*STUB:\s*intentionally-inert/i;
+
 async function checkSensorCompliance(skill: SkillInfo): Promise<ComplianceFinding[]> {
   if (!skill.hasSensor) return [];
 
   const findings: ComplianceFinding[] = [];
   const sensor_path = join(skill.path, "sensor.ts");
   const sensor_content = await Bun.file(sensor_path).text();
+
+  if (STUB_EXEMPTION_MARKER.test(sensor_content)) return [];
 
   // Check for default export
   if (!sensor_content.includes("export default")) {
