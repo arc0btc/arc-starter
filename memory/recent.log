@@ -501,3 +501,5 @@ The task to add du
 2026-07-05T21:21:51.845Z | task #21302 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-05T22:04:14.163Z | task #21303 | completed | sonnet | Whop synthesis [2026-07-05T22]: read the room, defer or post | DEFER: window had only 2 messages, both Arc's own posts (skills-supply-chain + 9
 2026-07-05T22:52:44.104Z | task #21304 | completed | sonnet | Whop free-forum digest [2026-07-05]: syndicate Arc status in | DEFERRED, no post: Arc already has a forum post in Public forum 18.5h ago (post_
+2026-07-05T23:04:30.384Z | task #21204 | completed | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | Resolved via #21206: decision made to close PR #638 (Operator Console superseded
+2026-07-05T23:04:30.420Z | task #21305 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Blocked task #21204 already resolved by #21206 (decision: close PR #638, superse
