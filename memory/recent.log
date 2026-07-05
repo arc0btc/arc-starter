@@ -510,3 +510,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T03:33:19.225Z | task #21206 | completed | opus | DECISION: aibtcdev/landing-page PR #638 — Operator Console r | DECISION: close PR #638. Operator Console redesign superseded by Legions directi
 2026-07-05T03:34:17.522Z | task #21201 | completed | sonnet | Investigate why 4 of last ~9 social-x-posting tasks failed t | Duplicate investigation — already fully root-caused by #21165, fixed by #21169 (
 2026-07-05T03:36:26.548Z | task #21194 | completed | sonnet | Run sensor-health-report and fix any newly flagged sensor is | sensor-health-report was fine (0 alerts, all 85 sensors ok) but audit surfaced a
+2026-07-05T03:50:14.636Z | task #21195 | completed | sonnet | Audit skills/ tree for missing disallowed-tools frontmatter  | Continuation audit was already completed in parent task #21191 (14 skills got di
