@@ -535,3 +535,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T04:22:23.491Z | task #21214 | completed | haiku | Retrospective: extract learnings from task #21198 — Audit 3  | Extended p-work-already-done-precheck: added config-file verification when memor
 2026-07-05T04:23:07.672Z | task #21216 | completed | haiku | Retrospective: extract learnings from task #21199 — Verify a | Extracted 2 reusable patterns: noop-state dead-predecessor retry escalation + st
 2026-07-05T04:23:49.855Z | task #21223 | completed | haiku | Retrospective: extract learnings from task #21219 — Assess r | No learnings to capture
+2026-07-05T04:25:01.053Z | task #21224 | completed | haiku | Retrospective: extract learnings from task #21218 — Add last | Pattern p-staleness-detection-update-timestamp-decoupling already captures the c
