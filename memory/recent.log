@@ -523,3 +523,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T00:27:52.895Z | task #21166 | completed | haiku | Retrospective: extract learnings from task #21163 — Investig | Captured workflow-ready-state-synchronization-burst pattern: independent workflo
 2026-07-05T00:28:48.986Z | task #21168 | completed | haiku | Retrospective: extract learnings from task #21151 — PURPOSE  | No learnings to capture — PURPOSE eval validates existing patterns (model-select
 2026-07-05T00:30:01.260Z | task #21170 | completed | haiku | Retrospective: extract learnings from task #21165 — Investig | Updated p-workflow-ready-state-synchronization-burst to document fail-open caden
+2026-07-05T00:30:51.163Z | task #21171 | completed | haiku | Retrospective: extract learnings from task #21169 — Add cont | Added p-retroactive-gate-dual-layer-enforcement + p-domain-specific-subcap-indep
