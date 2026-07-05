@@ -504,3 +504,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T14:46:17.171Z | task #21266 | completed | sonnet | grep repo-wide for unfixed naive new Date(sqlite datetime) U | Grepped ~60 candidate files repo-wide; found 1 more instance (not a new Date par
 2026-07-05T14:48:36.783Z | task #21266 | completed | sonnet | grep repo-wide for unfixed naive new Date(sqlite datetime) U | Repo-wide grep found no unfixed instances of the naive-parse UTC-skew bug beyond
 2026-07-05T14:49:37.980Z | task #21264 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated daily-self-eval fanout pattern (6 recurrences, avg 7.8 steps) — no sta
+2026-07-05T14:51:09.481Z | task #21267 | completed | haiku | Retrospective: extract learnings from task #21263 — architec | Added two learnings to patterns.md: gitignore-pattern exhaustiveness for auto-co
