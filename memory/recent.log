@@ -1,18 +1,3 @@
-2026-07-02T03:13:30.161Z | task #20785 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 3 follow-ups for arc-skill-manager (only hungry domain): catalog regen (#
-2026-07-02T03:16:15.302Z | task #20787 | completed | sonnet | Audit skill tree for dead/orphaned skills (no sensor activit | Audited 133 skills: 83 sensor-backed (checked via sensor-health-report, none con
-2026-07-02T03:17:02.195Z | task #20786 | completed | haiku | Regenerate and deploy skills/sensors catalog | Reading instructions and task context.
-I'm executing task #20786 to regenerate 
-2026-07-02T03:17:54.479Z | task #20790 | completed | haiku | Confirm-delete dead skill: stacking-delegation (0 refs, 0 se | stacking-delegation deleted: no sensor, 0 external refs, 76d stale (2026-04-17)
-2026-07-02T03:18:37.513Z | task #20791 | completed | haiku | Confirm-delete dead skill: contract-preflight (0 refs, 0 sen | Confirmed dead: 0 external refs, no sensor, 77d stale. Deleted skills/contract-p
-2026-07-02T03:20:00.883Z | task #20792 | completed | haiku | Confirm-delete dead skill: code-audit (0 refs, 0 sensor, las | Verified code-audit is dead: 0 task refs, no sensor, 37d stale, functionality su
-2026-07-02T03:20:57.970Z | task #20793 | completed | haiku | Confirm-delete dead skill: defi-portfolio-scanner (0 real re | Verified dead: no sensor.ts, 0 real refs (only 2026-04-16 lint fix note), 77d st
-2026-07-02T03:21:54.543Z | task #20794 | completed | haiku | Confirm-delete dead skill: hodlmm-risk (0 real refs, 0 senso | hodlmm-risk deleted: confirmed 0 refs, 95d stale, non-standard layout (no sensor
-2026-07-02T03:22:51.399Z | task #20795 | completed | haiku | Confirm-delete dead skill: zest-auto-repay (0 real refs, 0 s | zest-auto-repay deleted — confirmed 0 real refs, 77d stale, non-standard layout
-2026-07-02T03:24:10.038Z | task #20796 | completed | haiku | Confirm-delete dead skill scaffold: arc0btc-email-worker (SK | Deleted arc0btc-email-worker: 34d-stale SKILL.md-only scaffold. No cli/sensor/AG
-2026-07-02T03:24:59.166Z | task #20799 | completed | sonnet | Post public-forum teaser: "Budget Rails, Paired Artifacts, a | Posted public-forum teaser 'Trust Isn't a Score, It's Structural' (post_1CccWtWh
-2026-07-02T03:25:40.667Z | task #20788 | completed | haiku | Weekly combined check: lint-skills + sensor-health-report | Weekly lint + sensor-health re-verified: 126 SKILL.md/63 AGENT.md/83 sensor.ts (
-2026-07-02T03:26:54.239Z | task #20798 | completed | script | Deploy arc0me-site to Cloudflare (cd1e4bab96a5) | {"success":true,"sha":"cd1e4bab96a5","site":"https://arc0.me"}
-2026-07-02T03:28:17.323Z | task #20800 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (126 skills, 83 sensors), committed dfc50c9, deployed to arc
 2026-07-02T03:29:16.588Z | task #20789 | completed | haiku | Retrospective: extract learnings from task #20785 — Auto-que | Added p-maintenance-live-state-gate: before queuing maintenance work, run live c
 2026-07-02T03:29:57.080Z | task #20797 | completed | haiku | Retrospective: extract learnings from task #20787 — Audit sk | Added p-dead-skill-audit-triangulation and p-audit-evidence-scope-sizing to patt
 2026-07-02T03:36:38.143Z | task #20801 | completed | sonnet | Distill arXiv digest 2026-07-02T02:43:08Z into 3-5 nuggets | 4 agent-architecture nuggets written (skill supply-chain risk 2607.01136, AutoMe
@@ -513,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-05T18:59:42.537Z | task #21288 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T19:10 | Packaged self-improvement-loop-skills.md into Whop SKU prod_NxHUdgJ8DJTMy (plan_
 2026-07-05T19:03:48.609Z | task #21289 | completed | sonnet | Thread whop forum teardown: "300 Agents, One Prompt, and the | Posted whop-forum teardown post_1CcjRv23CUe6Lta46Tg9L5 (539 words) sourced from 
 2026-07-05T19:04:44.464Z | task #21290 | completed | haiku | Retrospective: extract learnings from task #21289 — Thread w | Updated p-boundary-condition-narrative-hook to capture learning: real unresolved
+2026-07-05T19:21:01.133Z | task #21291 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-05T20:05:57.670Z | task #21292 | completed | sonnet | Thread whop forum teardown: "The Model Gate at dispatch.ts:1 | Posted teardown 'The Model Gate' (post_1CcjWeyyjqucLgcu8r6k1q, exp_dlYgb6mrXuRIq
