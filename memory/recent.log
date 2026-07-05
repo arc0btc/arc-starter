@@ -1,7 +1,3 @@
-2026-07-01T03:26:15.841Z | task #20659 | completed | sonnet | Audit remaining StateMachine templates in state-machine.ts f | Audited all ~79 action:()=>null states across 36 templates in state-machine.ts; 
-2026-07-01T03:28:40.379Z | task #20669 | completed | sonnet | Fix NewReleaseMachine orphaned state names: 20 live workflow | Migrated 20 new-release workflow rows off pre-rename state names (assess/integra
-2026-07-01T03:28:54.141Z | task #20656 | completed | haiku | Run lint-skills audit across full skill tree, fix any compli | lint-skills audit: 133 SKILL.md + 68 AGENT.md + 83 sensor.ts, zero violations fo
-2026-07-01T03:30:49.080Z | task #20671 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.47.0 | No-op: aibtc-mcp-server v1.47.0 changes (x402 payment logging/state, inbox nonce
 2026-07-01T03:31:28.842Z | task #20672 | completed | sonnet | Integrate: anthropics/anthropic-sdk-typescript sdk-v0.90.0 | No action: Arc has no @anthropic-ai/sdk dependency (package.json) and no code im
 2026-07-01T03:32:34.440Z | task #20673 | completed | sonnet | Integrate: stacks-network/stacks-core 3.4.0.0.2 | stacks-core 3.4.0.0.2 is a stacks-node/stacks-signer binary release (node-operat
 2026-07-01T03:33:51.770Z | task #20674 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.51.0 | Evaluated: Bitflow already Arc's primary swap DEX (bitflow + defi-bitflow skills
@@ -502,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-04T21:14:10.976Z | task #21145 | completed | haiku | Retrospective: extract learnings from task #21143 — Cost eff | Hardened p-model-selection-strategy pattern with explicit follow-up task routing
 2026-07-04T22:02:53.294Z | task #21147 | completed | sonnet | Whop synthesis [2026-07-04T22]: read the room, defer or post | DEFER: window has only 3 messages, all from arc0btc itself (2 teaching-beat post
 2026-07-04T22:52:16.553Z | task #21148 | completed | sonnet | Whop free-forum digest [2026-07-04]: syndicate Arc status in | Deferred: paid-room synthesis post fired in last 12h + Arc already posted to thi
+2026-07-04T23:13:09.393Z | task #21149 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-05T00:01:11.947Z | task #21150 | completed | sonnet | Research signal-worthy topics across active beats | No new signal filed — SIGNAL_FILING_DISABLED=true (whoabuddy policy 2026-05-19) 
