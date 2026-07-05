@@ -42,10 +42,14 @@ function collectTaskQueueMetrics(): TaskQueueMetrics {
   const pending = getPendingTasks();
   const active = getActiveTasks();
 
-  const twoHoursAgo = new Date(Date.now() - 2 * 3600_000).toISOString();
-  const stuck = active.filter(
-    (t) => t.started_at && t.started_at < twoHoursAgo
-  );
+  const twoHoursAgoMs = Date.now() - 2 * 3600_000;
+  const stuck = active.filter((t) => {
+    if (!t.started_at) return false;
+    const startedAtIso = t.started_at.endsWith("Z")
+      ? t.started_at
+      : `${t.started_at.replace(" ", "T")}Z`;
+    return new Date(startedAtIso).getTime() < twoHoursAgoMs;
+  });
 
   const failedRow = db
     .query(
