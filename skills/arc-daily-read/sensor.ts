@@ -62,9 +62,19 @@ export default async function arcDailyReadSensor(): Promise<string> {
     // docs/specs/2026-07-05-daily-read-scheduling-fix-decision.md in the control-plane repo)
     // was completely invisible — last_ran kept ticking while last_queued_date silently went
     // stale. Record the defer so ops/monitor/arc-flywheel-health.ts (control-plane, daily cron)
-    // can alert on it instead of relying on someone noticing days later. The reservation added
-    // in skills/social-x-posting/cli.ts this same phase should make this branch rare going
-    // forward — this write is the safety net for if it isn't.
+    // can alert on it instead of relying on someone noticing days later.
+    //
+    // P3 arc-posting-scheduler (2026-07-05): daily-read now reserves its 4-tweet beat in
+    // its OWN `lane='daily-read'` budget_ledger row (via reserve-group, called from
+    // arc-daily-read/cli.ts's cmdPost — see reserveDailyReadGroup()/
+    // writeDailyReadDeferState() there) — the shared 'post'-lane/x_post_log count checked
+    // HERE is a SOFT, early pre-check only (skip drafting-cost when the shared legacy cap
+    // is obviously still exhausted), not the authoritative gate anymore. The real
+    // cap+window arbiter is reserve-group's own admission (its lane's cap AND the
+    // cross-lane DAILY_TWEET_CAP backstop), enforced later in the same dispatch turn once
+    // the beat is drafted. This branch is kept — still a legitimate reason to skip
+    // drafting early — but its own defer-write below is now a SECONDARY safety net;
+    // cmdPost's writeDailyReadDeferState() is the primary, queue-sourced one.
     const priorState = await readHookState(SENSOR_NAME);
     await writeHookState(SENSOR_NAME, {
       ...(priorState ?? { version: 0, last_ran: new Date().toISOString(), last_result: "skip" as const }),

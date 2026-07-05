@@ -539,6 +539,16 @@ interface CapStatus {
   killSwitch: boolean;
 }
 
+// P3 arc-posting-scheduler (2026-07-05): daily-read now has its OWN `lane='daily-read'`
+// budget_ledger row (reserved atomically via reserve-group in cmdPost, below) instead of
+// sharing the 'post' lane's cap with content-calendar/the cadence beat — the whole point
+// of this migration. `checkCap()`'s old `slotsRemaining >= 4` gate read the SHARED
+// x_post_log/`post`-lane count, which is no longer the right arbiter for whether
+// daily-read itself has room — reserve-group (against its own lane + the cross-lane
+// DAILY_TWEET_CAP global backstop) is now authoritative for that. `allowed` below is
+// narrowed to kill-switch-only; `todayCount`/`slotsRemaining` are kept on the returned
+// shape (still logged/displayed by `cmdCompose`/`cmdStatus`) purely as an early
+// visibility signal — NOT used to block posting anymore.
 function checkCap(): CapStatus {
   const db = new Database(DB_PATH, { readonly: true });
 
@@ -546,7 +556,7 @@ function checkCap(): CapStatus {
   const ksRow = db.query("SELECT value FROM agent_config WHERE key = 'outbound_enabled'").get() as { value: string } | null;
   const killSwitch = ksRow?.value === "false";
 
-  // Daily tweet count
+  // Daily tweet count (legacy shared-cap visibility only, see comment above — not a gate)
   const countRow = db.query(
     "SELECT COUNT(*) as n FROM x_post_log WHERE date(posted_at) = date('now')"
   ).get() as { n: number };
@@ -556,10 +566,9 @@ function checkCap(): CapStatus {
   const DAILY_TWEET_CAP = 6;
   const todayCount = countRow.n;
   const slotsRemaining = DAILY_TWEET_CAP - todayCount;
-  const TWEETS_PER_BEAT = 4;
 
   return {
-    allowed: !killSwitch && slotsRemaining >= TWEETS_PER_BEAT,
+    allowed: !killSwitch, // P3: cap/window gating now happens via reserve-group in cmdPost
     todayCount,
     cap: DAILY_TWEET_CAP,
     slotsRemaining,
@@ -615,6 +624,82 @@ async function postTweet(
   const tweetId = match?.[1] ?? null;
   console.log(`  Posted ${source}: tweet_id=${tweetId ?? "unknown"}`);
   return tweetId;
+}
+
+// ---------- P3 arc-posting-scheduler: atomic whole-beat reservation ----------
+//
+// Reserves the WHOLE 4-tweet beat (root + reply-2 + reply-3 + cta) as ONE atomic group,
+// in daily-read's OWN `lane='daily-read'`, inside its 13:00-14:00 UTC window, BEFORE any
+// tweet is sent — replacing the old "check a shared cap, then post 4 times and hope"
+// sequence with the same atomic-admission guarantee P2 built for content-calendar.
+// Each subsequent `postTweet()` call below drains one already-admitted row via cli.ts's
+// pre-admitted-group fast path (source keys match exactly — see cmdPost's callers).
+interface ReserveGroupResult {
+  ok: boolean;
+  reason?: string;
+  detail?: string;
+  atomicGroupId?: string;
+}
+
+async function reserveDailyReadGroup(editionN: number, dryRun: boolean): Promise<ReserveGroupResult> {
+  const sources = [
+    `daily-read:${editionN}:root`,
+    `daily-read:${editionN}:reply-2`,
+    `daily-read:${editionN}:reply-3`,
+    `daily-read:${editionN}:cta`,
+  ];
+  if (dryRun) {
+    console.log(`  [DRY-RUN] Would reserve-group (lane=daily-read, 13:00-14:00 UTC): ${sources.join(", ")}`);
+    return { ok: true, atomicGroupId: "dry-run-atomic-group-id" };
+  }
+
+  const args = [
+    join(ARC_STARTER_ROOT, "skills/social-x-posting/cli.ts"),
+    "reserve-group",
+    "--sources", sources.join(","),
+    "--thread-ref", sources[0],
+    "--lane", "daily-read",
+    "--earliest-time", "13:00",
+    "--latest-time", "14:00",
+  ];
+  const proc = Bun.spawn(["bun", ...args], { cwd: ARC_STARTER_ROOT, stdout: "pipe", stderr: "pipe" });
+  const stdout = await new Response(proc.stdout).text();
+  const stderr = await new Response(proc.stderr).text();
+  const exitCode = await proc.exited;
+
+  let parsed: Record<string, unknown> = {};
+  try { parsed = JSON.parse(stdout); } catch { /* fall through with empty parsed */ }
+
+  if (exitCode === 0 && parsed["ok"]) {
+    return { ok: true, atomicGroupId: parsed["atomicGroupId"] as string | undefined };
+  }
+  return {
+    ok: false,
+    reason: (parsed["reason"] as string | undefined) ?? "reserve_group_failed",
+    detail: (parsed["detail"] as string | undefined) ?? stderr.slice(0, 300) ?? `exit ${exitCode}`,
+  };
+}
+
+// Writes the SAME hook-state shape sensor.ts already writes to
+// db/hook-state/arc-daily-read.json (last_ran/last_result/version/last_defer_reason/
+// last_defer_at) so ops/monitor/arc-flywheel-health.ts (control-plane repo) keeps seeing
+// the identical contract it already reads — now sourced from reserve-group's OWN defer
+// reason (queue-native) instead of the old ad hoc "cap_insufficient" literal. This is the
+// "loud, not silent" no-show alert the predecessor panel required, preserved through the
+// migration rather than dropped.
+async function writeDailyReadDeferState(reason: string, detail?: string): Promise<void> {
+  const { readHookState, writeHookState } = await import("../../src/sensors.ts");
+  const SENSOR_NAME = "arc-daily-read";
+  const priorState = await readHookState(SENSOR_NAME);
+  await writeHookState(SENSOR_NAME, {
+    ...(priorState ?? { version: 0, last_ran: new Date().toISOString(), last_result: "skip" as const }),
+    last_ran: new Date().toISOString(),
+    last_result: "skip" as const,
+    version: ((priorState?.version as number) ?? 0) + 1,
+    last_defer_reason: reason,
+    last_defer_detail: detail,
+    last_defer_at: new Date().toISOString(),
+  });
 }
 
 // ---------- Amplification email ----------
@@ -893,15 +978,13 @@ async function cmdCompose(dryRun: boolean, voiceFilePath?: string) {
 async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
   console.log(`=== Arc Daily Read — Post ${dryRun ? "(DRY-RUN)" : "(LIVE)"} ===`);
 
-  // Kill switch + cap check — fully deterministic, unchanged by the P1 voice-pass rework.
+  // Kill switch check — fully deterministic, unchanged by the P1 voice-pass rework.
+  // P3 arc-posting-scheduler: cap/window gating moved to reserve-group below (its own
+  // lane + the cross-lane DAILY_TWEET_CAP backstop) — checkCap()'s slots-remaining count
+  // is legacy/shared-cap visibility only now, not a gate (see checkCap's own comment).
   const cap = checkCap();
   if (cap.killSwitch) {
     console.log("HALTED: kill switch active (outbound_enabled=false)");
-    process.exit(0);
-  }
-  if (!cap.allowed) {
-    console.log(`DEFERRED: cap exhausted or insufficient slots (${cap.slotsRemaining} remaining, need 4)`);
-    console.log(`Today's tweets: ${cap.todayCount}/${cap.cap}`);
     process.exit(0);
   }
 
@@ -941,6 +1024,22 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
     throw err;
   }
   const postedAt = new Date().toISOString();
+
+  // P3 arc-posting-scheduler: reserve the WHOLE 4-tweet beat as ONE atomic group, in
+  // daily-read's OWN lane + its 13:00-14:00 UTC window, BEFORE claiming the edition
+  // number or sending anything — so a deferred/rejected reservation never burns an
+  // edition_n that would then never post. This is now the authoritative cap/window
+  // check (replacing the old shared-cap `checkCap().allowed` gate above).
+  const reservation = await reserveDailyReadGroup(beat.editionN, dryRun);
+  if (!reservation.ok) {
+    console.log(`DEFERRED: reserve-group rejected this edition's beat — reason=${reservation.reason}`);
+    console.log(`  detail: ${reservation.detail ?? "(none)"}`);
+    if (!dryRun) {
+      await writeDailyReadDeferState(reservation.reason ?? "reserve_group_failed", reservation.detail);
+    }
+    process.exit(0);
+  }
+  console.log(`Reservation OK — atomic_group_id=${reservation.atomicGroupId}`);
 
   // Claim this edition_n BEFORE posting anything — the linearization point (see claimEdition
   // doc comment). Skipped in --dry-run so test runs never mutate daily_read_log.

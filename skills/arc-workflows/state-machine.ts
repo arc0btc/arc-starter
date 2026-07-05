@@ -589,6 +589,25 @@ function contentCalendarXThreadCapAvailable(): boolean {
   return (row?.count ?? 0) < CONTENT_CALENDAR_X_THREAD_DAILY_CAP;
 }
 
+/**
+ * P3 arc-posting-scheduler (2026-07-05): content-calendar's own posting window
+ * (CHECKPOINTS.md #1 — 15:00-18:00 UTC), replacing "fires the instant the T+1d cadence
+ * offset elapses" (which lands near UTC midnight whenever the blog anchor does — the root
+ * defect this quest's design spec names, docs/specs/2026-07-05-posting-scheduler-design.md
+ * §1 guard #7). This is an ADDITIONAL gate alongside cadenceGateOpen() and
+ * contentCalendarXThreadCapAvailable() — the hop only creates its post task once the
+ * offset has elapsed AND today's cap has room AND the current UTC hour is in-window.
+ * The task itself then reserves via reserve-group (lane=content-calendar, this same
+ * window) before actually posting, so the window is enforced twice: once here (avoid
+ * even DRAFTING outside the window) and once again at drain time in cli.ts's fast path
+ * (the authoritative check, in case a drafting turn runs long and crosses the window
+ * boundary before posting).
+ */
+function contentCalendarWindowOpen(): boolean {
+  const utcHour = new Date().getUTCHours();
+  return utcHour >= 15 && utcHour < 18;
+}
+
 /** Shared blog context lines appended to every downstream hop's task description. */
 function contentCalendarBlogRef(ctx: ContentCalendarContext): string {
   const urlLine = ctx.url ? `\nBlog: ${ctx.url}` : "";
@@ -686,6 +705,15 @@ Guardrails (members pay real money):
         if (!contentCalendarXThreadCapAvailable()) {
           return { type: "noop" };
         }
+        // P3 arc-posting-scheduler (2026-07-05, CHECKPOINTS.md #1): content-calendar gets
+        // its OWN 15:00-18:00 UTC window instead of firing the instant the T+1d offset
+        // elapses (which lands near UTC midnight whenever the blog's cadence_anchor does).
+        // Hold here — no state consumed, safe to retry indefinitely — until the window
+        // opens; the task's own instructions reserve-group this same window again at post
+        // time (task 1's cmdPost fast path is the authoritative drain-time enforcement).
+        if (!contentCalendarWindowOpen()) {
+          return { type: "noop" };
+        }
         // ANTI-LOCK GUARDRAIL (2026-06-30, task #20420 — see [[x-reply-403-account-lock-cascade]]):
         // rapid root→self-reply thread-chaining tripped X's automated spam detection and locked
         // @arc0btc (self-reply 403 cascade, task #20397). Until X_THREAD_CHAINING_ENABLED === "true",
@@ -711,8 +739,9 @@ Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/C
 Steps:
 1. Compose ONE standalone tweet (≤280 chars) — the single strongest observation from this work-piece.
 2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up; source-dedup fires it once when credits return.
-3. Post a SINGLE root tweet: arc skills run --name social-x-posting -- post --text "<=280 chars>" --source content-calendar:${ctx.slug}:x
-4. Verify the tweet is live. If posting returns a 403 of any kind, STOP — do not retry — and escalate to whoabuddy (a 403 is a pre-lock signal, [[x-reply-403-account-lock-cascade]]).`,
+3. Reserve this single-tweet action in content-calendar's OWN lane + window (P3 arc-posting-scheduler) BEFORE posting: arc skills run --name social-x-posting -- reserve-group --sources content-calendar:${ctx.slug}:x --thread-ref content-calendar:${ctx.slug}:x --lane content-calendar --earliest-time 15:00 --latest-time 18:00 — if this returns deferred (budget/window/actions-per-day exhausted), STOP, post nothing; the hop retries next tick.
+4. Post the reserved root tweet: arc skills run --name social-x-posting -- post --text "<=280 chars>" --source content-calendar:${ctx.slug}:x
+5. Verify the tweet is live. If posting returns a 403 of any kind, STOP — do not retry — and escalate to whoabuddy (a 403 is a pre-lock signal, [[x-reply-403-account-lock-cascade]]).`,
           };
         }
         return {
@@ -730,10 +759,11 @@ Voice: read skills/arc-brand-voice/CHANNELS.md §x and skills/social-x-posting/C
 CTA placement (P3 rev #1 — the M0-critical change): keep the room link OUT of every thread tweet. The final thread tweet lands the payoff (link-free, full reach). THEN post ONE reply to the thread carrying the value-first ask + the attributed link + the first-month-free code, framed as a continuation — e.g. "this is the kind of thing I work through in the room → ${PAID_ROOM_PRODUCT_URL} — first month's on me, code ${PROMO_CODE} at checkout (new members)." Use that EXACT link verbatim (its ?a= referral param attributes the free→paid conversion to Arc's affiliate record — how this funnel is measured) and the EXACT promo code ${PROMO_CODE}. One ask only — never a CTA on a thread tweet, never hype. Mirror the public-forum teaser's tone. (A blog link, if the thread carries one, may sit in an earlier thread tweet as before.)
 
 Steps:
-1. Compose the thread (2–3 posts), all link-free for the room CTA; the final tweet lands the payoff. Compose the SEPARATE first-reply CTA (link + ${PROMO_CODE}).
+1. Compose the thread (2–3 posts), all link-free for the room CTA; the final tweet lands the payoff. Compose the SEPARATE first-reply CTA (link + ${PROMO_CODE}). You now know the EXACT tweet count M (thread posts + the CTA reply, e.g. 3 or 4).
 2. Credit check: X API 402 = CreditsDepleted (NOT rate limit; won't auto-recover — MEMORY [P]). If 402, stop and escalate to whoabuddy for a top-up. The workflow has auto-advanced; source-dedup prevents a double-post, so it fires once credits return.
-3. Post the first tweet (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; concurrent/crash window documented in cli.ts), then chain the rest of the thread with post --reply-to, then post the CTA as the final thread tweet. IMPORTANT (2026-06-20 reply-lane consolidation): this is the POST lane (your own thread continuation), NOT the reply-guy lane. Use post --reply-to (post budget + x_post_log dedup), never the reply command — the reply command is reserved for replying to OTHER accounts and routes through the social-engine reply lane. Commands: arc skills run --name social-x-posting -- post --text "<text>" --source content-calendar:${ctx.slug}:x then arc skills run --name social-x-posting -- post --text "<text>" --reply-to <id> --source content-calendar:${ctx.slug}:x:reply-2 (each intermediate thread tweet uses a sequential source like content-calendar:${ctx.slug}:x:reply-2, content-calendar:${ctx.slug}:x:reply-3) then post the CTA as the FINAL thread tweet: arc skills run --name social-x-posting -- post --text "<CTA text>" --reply-to <last_tweet_id> --source content-calendar:${ctx.slug}:x-cta (the --source key ensures the CTA tweet lands in x_post_log for dedup + auditing — AI-090).
-4. Verify the thread is live and the CTA reply is attached beneath it.`,
+3. Reserve the WHOLE action (all M tweets) as ONE atomic group, in content-calendar's OWN lane + 15:00-18:00 UTC window (P3 arc-posting-scheduler), BEFORE posting anything — this replaces the old "post one at a time and hope" sequence with an upfront, all-or-nothing reservation: arc skills run --name social-x-posting -- reserve-group --sources content-calendar:${ctx.slug}:x,content-calendar:${ctx.slug}:x:reply-2,content-calendar:${ctx.slug}:x-cta --thread-ref content-calendar:${ctx.slug}:x --lane content-calendar --earliest-time 15:00 --latest-time 18:00 (list EXACTLY the M source keys you composed, root first, in post order — e.g. add ,content-calendar:${ctx.slug}:x:reply-3 before the -cta key if your thread has 3 body tweets, not 2). If this returns deferred (budget/window/actions-per-day exhausted), STOP — post nothing; the hop retries next tick, no state is consumed.
+4. Post the first tweet (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; concurrent/crash window documented in cli.ts), then chain the rest of the thread with post --reply-to, then post the CTA as the final thread tweet. IMPORTANT (2026-06-20 reply-lane consolidation): this is the POST lane (your own thread continuation), NOT the reply-guy lane. Use post --reply-to (post budget + x_post_log dedup), never the reply command — the reply command is reserved for replying to OTHER accounts and routes through the social-engine reply lane. Commands: arc skills run --name social-x-posting -- post --text "<text>" --source content-calendar:${ctx.slug}:x then arc skills run --name social-x-posting -- post --text "<text>" --reply-to <id> --source content-calendar:${ctx.slug}:x:reply-2 (each intermediate thread tweet uses a sequential source like content-calendar:${ctx.slug}:x:reply-2, content-calendar:${ctx.slug}:x:reply-3 — matching EXACTLY the source keys you reserved in step 3) then post the CTA as the FINAL thread tweet: arc skills run --name social-x-posting -- post --text "<CTA text>" --reply-to <last_tweet_id> --source content-calendar:${ctx.slug}:x-cta (each post call drains one pre-admitted row via cli.ts's fast path — the --source key ensures the CTA tweet lands in x_post_log for dedup + auditing — AI-090).
+5. Verify the thread is live and the CTA reply is attached beneath it.`,
         };
       },
     },
