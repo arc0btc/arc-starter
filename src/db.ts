@@ -96,6 +96,7 @@ export interface Workflow {
   context: string; // JSON string
   created_at: string;
   updated_at: string;
+  last_progress_at: string | null;
   completed_at: string | null;
 }
 
@@ -398,6 +399,14 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_workflows_template ON workflows(template)");
   db.run("CREATE INDEX IF NOT EXISTS idx_workflows_instance_key ON workflows(instance_key)");
+
+  // last_progress_at tracks real state transitions only (set by updateWorkflowState),
+  // distinct from updated_at which also moves on context-only touches and bulk repairs —
+  // this keeps arc-workflow-review's stale-TTL sweep from being masked by non-progress writes.
+  addColumn("workflows", "last_progress_at", "TEXT");
+  db.run(
+    "UPDATE workflows SET last_progress_at = updated_at WHERE last_progress_at IS NULL"
+  );
 
   db.run(`
     CREATE TABLE IF NOT EXISTS market_positions (
@@ -1431,7 +1440,7 @@ export function insertWorkflow(fields: InsertWorkflow): number {
   const db = getDatabase();
   const result = db
     .query(
-      "INSERT INTO workflows (template, instance_key, current_state, context) VALUES (?, ?, ?, ?)"
+      "INSERT INTO workflows (template, instance_key, current_state, context, last_progress_at) VALUES (?, ?, ?, ?, datetime('now'))"
     )
     .run(fields.template, fields.instance_key, fields.current_state, fields.context ?? null);
   return Number(result.lastInsertRowid);
@@ -1516,7 +1525,7 @@ export function updateWorkflowState(id: number, newState: string, context?: stri
   // Without this, a workflow that completes then later reopens (e.g. a closed PR reopened
   // on GitHub) keeps its stale completed_at forever and silently drops out of evaluation.
   db.query(
-    "UPDATE workflows SET current_state = ?, context = ?, completed_at = NULL, updated_at = datetime('now') WHERE id = ?"
+    "UPDATE workflows SET current_state = ?, context = ?, completed_at = NULL, updated_at = datetime('now'), last_progress_at = datetime('now') WHERE id = ?"
   ).run(newState, context ?? null, id);
 }
 

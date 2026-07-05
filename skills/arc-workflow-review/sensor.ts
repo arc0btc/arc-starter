@@ -332,10 +332,10 @@ function evaluateTemplateHealth(db: ReturnType<typeof getDatabase>): {
         template,
         current_state,
         count(*) as cnt,
-        max(updated_at) as last_update,
+        max(last_progress_at) as last_update,
         sum(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) as completed_cnt,
-        sum(CASE WHEN completed_at IS NULL AND updated_at < datetime('now', '-7 days') THEN 1 ELSE 0 END) as stuck_cnt,
-        sum(CASE WHEN completed_at IS NULL AND updated_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days') THEN 1 ELSE 0 END) as stale_cnt
+        sum(CASE WHEN completed_at IS NULL AND last_progress_at < datetime('now', '-7 days') THEN 1 ELSE 0 END) as stuck_cnt,
+        sum(CASE WHEN completed_at IS NULL AND last_progress_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days') THEN 1 ELSE 0 END) as stale_cnt
       FROM workflows
       GROUP BY template, current_state
       ORDER BY template, cnt DESC`
@@ -416,7 +416,7 @@ function autoStaleWorkflows(db: ReturnType<typeof getDatabase>): number {
        SET current_state = 'closed-stale', completed_at = datetime('now')
        WHERE completed_at IS NULL
          AND current_state != 'closed-stale'
-         AND updated_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days')`
+         AND last_progress_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days')`
     )
     .run();
   return result.changes;
