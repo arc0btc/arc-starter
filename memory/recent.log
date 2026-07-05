@@ -521,3 +521,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T04:06:28.698Z | task #21219 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.8 | sdk-v0.81.0 release is non-breaking (additive APIError.type field, minor bugfix,
 2026-07-05T04:07:37.345Z | task #21220 | completed | sonnet | Assess release: aibtcdev/skills skills-v0.36.1 | skills-v0.36.1 (2026-03-31) already superseded — vendored repo is at v0.40.0+69c
 2026-07-05T04:08:14.992Z | task #21221 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.46.2 | mcp-server-v1.46.2 is a minor bug fix (adds created_by to internal news_claim_be
+2026-07-05T04:09:16.974Z | task #21222 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.2.0 release (2026-04-01, minor 'prepare aws package' feature) has no 
