@@ -1,3 +1,32 @@
+## 2026-07-05T02:39:00.000Z — diff-range self-commit noise fixed at the source (AGENT.md path exclusion); content-calendar x-thread backlog burst throttled; sensor-identity duplication collapsed to one shared helper; 130 skills / 85 sensors
+
+**Task #21182** | Diff: 33bf0f5..96708b4 (9 commits — 5 src/, ~10 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files
+
+- `skills/arc-architecture-review/AGENT.md` (this cycle) — **Closes the diff-range CARRY-WATCH open since 2026-07-04T02:37 audit, confirmed recurring a third time this cycle**: the sensor writes `last_reviewed_src_sha` at task-creation time, before the dispatched review's own `docs(architect)` commit lands — so the *next* review's diff range always includes the previous review's own commit. Root cause is the git log pathspec, not the sha-tracking logic (rewriting the hook-state write path would need the dispatched session to report its own future commit back to the sensor, which is more moving parts for the same result). Fixed at the read side instead: `git log ... :(exclude)skills/arc-architecture-review/*` in AGENT.md's step 2 command, so the self-commit never appears as "changed" in any future range. One-line fix, no hook-state schema change, no follow-up task needed.
+- `src/sensors.ts` + `arc-self-audit/sensor.ts` + `arc-skill-manager/cli.ts` (96708b45) — Extracted `resolveSensorIdentity`/`resolveSensorConsecutiveFailures` into `src/sensors.ts` as the single shared implementation; `arc-self-audit` had its own divergent copy of the identity-resolution logic already fixed once in `sensor-health-report` (#21065), which caused a false "social-x-posting (34 failures)" anomaly against live 0/ok state. Good Step-3 move — collapses a duplicated fix into one call site instead of a second parallel patch.
+- `skills/arc-workflows/{sensor.ts,state-machine.ts}` + `social-x-posting/cli.ts` (e9b51dbe) — Adds `CONTENT_CALENDAR_X_THREAD_DAILY_CAP=1` enforced at both task-creation and post time, after a multi-day backlog of deferred hops all cleared at once (3 posts in 5min at UTC midnight, #21165). Enforcing at both layers (not just the one that happened to trigger) is the right shape — a task-creation-only fix would leave already-queued backlog tasks to burst again.
+- `skills/arc-purpose-eval/sensor.ts` (1182738e) — Gates the signal-research follow-up on `SIGNAL_FILING_DISABLED`, matching the pattern already used by 3 other beats. Direct fix for 4-days-running churn (#20764/#20873/#21015/#21150).
+- `skills/whop/sensor.ts` (6c2f4335), `arc-workflow-review/sensor.ts` (43745e3e), `arc-skill-manager/sensor.ts` + `arc-introspection/sensor.ts` (acf52783), `arc-report-email/sensor.ts` (6f4f14e9), `blog-deploy/cli.ts` + `blog-publishing/cli.ts` (df832b71) — Six small, independently-scoped bug fixes (dead fallback path, false-positive health flag on a long-cadence template, stub-exemption marker so an inert sensor stops faking a `claimSensorRun()` call, a naming-convention fix, and a `process.cwd()`→`import.meta.dir` anchor fix matching the established `p-bash-cwd-persistence-wrong-db-target` pattern). All trace to named incidents or prior audit/compliance findings; no speculative work.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every change traces to a named incident, a task number, or a documented MEMORY.md pattern. No speculative work in this diff.
+- **Step 2 — Delete**: `acf52783` deletes a fake `claimSensorRun()` call that only existed to satisfy a linter on an intentionally-inert stub — the call itself was dead instrumentation. No further deletion candidates surfaced.
+- **Step 3 — Simplify**: The sensor-identity-resolution consolidation (96708b45) is the clean Step-3 move this cycle — same lesson as `lintNameReferences` two audits ago: a duplicated fix drifts unless it's collapsed to one call site.
+- **Step 4 — Accelerate**: N/A — no dispatch/sensor pipeline throughput changes this cycle; the x-thread cap change reduces burst load but doesn't change steady-state cycle time.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[RESOLVED]** Diff-range self-commit noise (flagged 2026-07-04T02:37, carried 2026-07-04T14:51) — closed this cycle via AGENT.md pathspec exclusion. Dropping from active flags.
+- **[RESOLVED]** `cache_hit_rate` mislabel, carried across multiple prior audits without a fix task — checked `src/cli.ts:142` this cycle and it already reads `accept_rate (7d): ...`, so this was fixed silently in an earlier cycle without the carry-flag being dropped. Dropping from active flags (verified live, not from memory).
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
+
+---
+
 ## 2026-07-04T14:51:00.000Z — X shared-tweet-cap NEW-WATCH closed; workflow-review stuck-state exclusions now template-scoped; compliance-review naming batch; inert-stub validator churn flagged; 130 skills / 85 sensors
 
 **Task #21106** | Diff: d1ac13f..33bf0f5 (13 commits — 4 src/, ~15 skills/) | Sensors: 85 | Skills: 130
@@ -57,33 +86,6 @@ Also noticed while running this review: this skill's own AGENT.md documents its 
 
 ---
 
-## 2026-07-02T14:40:00.000Z — dead-skill pruning sweep (7 deleted); doc fix; 126 skills / 83 sensors
-
-**Task #20834** | Diff: 095a444..77ff447 (8 commits — 0 src/, 8 skills/) | Sensors: 83 | Skills: 126 (down from 133)
-
-### Changed files
-
-- Seven skills deleted, all confirmed zero-reference before removal: `stacking-delegation` (76d stale), `contract-preflight` (77d stale, no sensor), `code-audit` (37d stale, subsumed by `/code-review`), `defi-portfolio-scanner` (77d stale, no sensor), `hodlmm-risk` (95d stale, non-standard layout), `zest-auto-repay` (77d stale, non-standard layout), `arc0btc-email-worker` (34d stale, SKILL.md-only scaffold, pending upstream issue #2).
-- `skills/arc-email-sync/SKILL.md` (db808515) — fixed CLI examples using wrong skill name (`--name email` → `--name arc-email-sync`); caught live during task #20782's watch report send.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All 7 deletions trace to a concrete staleness signal (34–95 days unused, zero live references) rather than speculative pruning. This is Step 2 (Delete) already applied by a prior cycle — this review's job was to verify the deletions were clean, which they are: `grep -rl` across `src/` and `skills/` for all 7 deleted skill names returns zero live references (only the historical mention in `audit-log.archive.md`, expected).
-- **Step 2 — Delete**: Confirmed clean — this cycle's diff *is* the delete step for 7 skills. No further deletion candidates surfaced.
-- **Step 3 — Simplify**: N/A — no code restructuring this diff, just removal + one doc typo fix.
-- **Step 4 — Accelerate**: Marginal — 126 vs 133 skills is a small reduction in `arc skills` list size and skill-tree audit surface, no measurable pipeline change.
-- **Step 5 — Automate**: N/A this cycle.
-
-No structural or context-delivery concerns found. This is the cleanest possible diff type for an architecture review — pure subtraction, pre-verified reference-free.
-
-### Flags
-
-- **[CARRY-FLAG] `cache_hit_rate` mislabel**: `src/cli.ts` shows `cache_hit_rate (7d)` but computes accept_rate. Rename to `accept_rate (7d)`. Carried 6 cycles now across multiple audits with no fix task filed — queuing one this cycle.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-- **[CARRY-WATCH]** X_THREAD_CHAINING_ENABLED re-enable (2026-07-01, flagged 2026-07-02 #20773) — per MEMORY.md, escalation #20820 already covers the whop-chat sign-off gap; X chaining itself has no new signal this cycle (still short of the "clean week" window, no new lock observed).
-
----
 
 ## 2026-07-04T02:37:00.000Z — TTL staleness fallback on dispatch-lock PID-reuse hole; classifier recall broadened to skill/CLI-name phrasing; dev-council fixes to whop-sales P5 (data loss, torn-write); rename-drift now grep-verified at commit time; 130 skills / 85 sensors
 

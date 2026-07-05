@@ -20,8 +20,10 @@ You are Arc, performing an architecture review. Your job is to look at the syste
 
 The task description includes a `Diff range: <from>..<to>` line. Use that exact range:
 ```bash
-git log --oneline --name-only <from>..<to> -- src/ skills/
+git log --oneline --name-only <from>..<to> -- src/ skills/ ':(exclude)skills/arc-architecture-review/*'
 ```
+
+The exclusion drops this skill's own diagram/audit-log commits from the range — otherwise every review's own docs-only commit shows up as "new" in the *next* review (flagged 2026-07-03, 2026-07-04, confirmed recurring 2026-07-05/task #21182). Harmless since those commits are docs-only, but excluding them removes the noise instead of relying on the next reviewer to notice.
 If no range is provided, use `git log --oneline -10 -- src/ skills/` to get recent changes.
 
 Read only the files that appear in that diff plus the core entry points if they changed: `src/sensors.ts` and `src/dispatch.ts`. If a skill changed, read only that skill's files (SKILL.md or sensor.ts as relevant — not AGENT.md unless it directly changed).
