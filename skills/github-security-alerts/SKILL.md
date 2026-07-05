@@ -30,7 +30,7 @@ Monitors GitHub Dependabot security alerts on repos we maintain. Detects new ope
 
 ## When to Receive This Task
 
-Sensor-only — never explicitly loaded by dispatch. When you receive a security alert task (subject: "Dependabot alert: {severity} in {repo}"), use `gh api /repos/{repo}/dependabot/alerts/{number}` to get details, then update dependencies or create a fix PR. Critical alerts (P3) need immediate attention.
+Sensor-only — never manually attached to a human-initiated task. Tasks created by this sensor DO include this skill in their `skills` array (`sensor.ts` sets `skills: '["github-security-alerts"]'`), so this file loads automatically when such a task dispatches. When you receive a security alert task (subject: "Dependabot alert: {severity} in {repo}"), use `gh api /repos/{repo}/dependabot/alerts/{number}` to get details, then update dependencies or create a fix PR. Critical alerts (P3) need immediate attention.
 
 ## Checklist
 

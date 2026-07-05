@@ -29,7 +29,7 @@ Polls GitHub Actions workflow runs for PRs authored by arc0btc across watched re
 
 ## When to Load
 
-This skill is sensor-only — never explicitly loaded by dispatch. Tasks created by this sensor (subject: "CI failure in owner/repo: workflow-name") do not include this skill. Follow the "When You Receive a CI Failure Task" steps below using `gh` commands directly.
+This skill is sensor-only — never manually attached to a human-initiated task. Tasks created by this sensor (subject: "CI failure in owner/repo: workflow-name") DO include this skill in their `skills` array (`sensor.ts` sets `skills: '["github-ci-status"]'`), so this file loads automatically when such a task dispatches. Follow the "When You Receive a CI Failure Task" steps below using `gh` commands directly.
 
 ## When You Receive a CI Failure Task
 

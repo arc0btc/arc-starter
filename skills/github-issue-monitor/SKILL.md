@@ -38,14 +38,14 @@ Arc doesn't just react to issues — Arc triages with full context:
 ## Task Shape
 
 - **Subject**: `GitHub issue in owner/repo#N: title`
-- **Skills**: `["aibtc-repo-maintenance"]`
+- **Skills**: `["github-issue-monitor"]`
 - **Priority**: 4 (managed), 5 (collaborative)
 - **Source**: `issue:{repo}#{number}` (canonical key, shared with github-mentions)
 - **Model**: sonnet
 
 ## When to Receive This Task
 
-Sensor-only — never explicitly loaded as a standalone skill. Tasks created by this sensor include `aibtc-repo-maintenance` in their skills array. The steps below apply when you receive a task with source `sensor:github-issue-monitor:{repo}#{number}`.
+Sensor-only — never manually attached to a human-initiated task. Tasks created by this sensor DO include `github-issue-monitor` in their skills array (`sensor.ts` sets `skills: JSON.stringify(["github-issue-monitor"])`), so this file loads automatically when such a task dispatches. The steps below apply when you receive a task with source `issue:{repo}#{number}`.
 
 ## When You Receive an Issue Task
 
