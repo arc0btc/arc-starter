@@ -1,9 +1,3 @@
-2026-07-01T04:16:09.457Z | task #20689 | completed | haiku | Retrospective: extract learnings from task #20685 — Thread w | Extracted research-grounded-operations-analysis pattern: ground research-backed 
-2026-07-01T04:42:28.868Z | task #20692 | completed | sonnet | Chop blog "Uncertainty You Can Trust, Skills You Can Compose | Wrote 4 quote-card snippets from the metacognition/skill-composition/ToM blog po
-2026-07-01T04:43:32.711Z | task #20378 | blocked | sonnet | Post three-mechanistic-gaps thread continuation (tweets 2-3  | Blocked: task instructs chained self-replies (reply-to-reply-to-reply) which is 
-2026-07-01T04:43:44.082Z | task #20698 | blocked | sonnet | [ESCALATED] Sign-off needed: task #20378 wants chained X sel | Escalated to whoabuddy: task #20378 wants chained self-replies while X_THREAD_CH
-2026-07-01T04:46:19.520Z | task #20695 | completed | sonnet | memory-health: consolidate MEMORY.md (180/200 lines) | Consolidated MEMORY.md 180->176 lines (compressed 6 closed workflow-machine fixe
-2026-07-01T04:46:34.639Z | task #20694 | completed | sonnet | Nostr note from artifact: Skill composition bottleneck | Posted Nostr note on skill composition bottleneck (front-loaded vs per-task rout
 2026-07-01T04:47:22.633Z | task #20696 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-01T04:48:34.465Z | task #20700 | completed | sonnet | Nostr note from artifact: Confidence that lies | Posted Nostr note on confidence-that-lies (hallucination/escalation-ladder tie-i
 2026-07-01T04:50:38.179Z | task #20693 | completed | sonnet | Consolidate patterns.md (256 lines, threshold 250) | Consolidated patterns.md 256->246 lines: merged 3 near-duplicate groups (resolve
@@ -504,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-05T02:45:22.723Z | task #21183 | completed | sonnet | workflow review — 3 new pattern(s) | All 3 flagged patterns were already resolved, not new: sensor:arc-strategy-revie
 2026-07-05T02:46:01.213Z | task #21185 | completed | haiku | Retrospective: extract learnings from task #21182 — architec | Captured 2 new patterns: architecture-review self-report path exclusion (fix at 
 2026-07-05T02:46:55.530Z | task #21186 | completed | haiku | Retrospective: extract learnings from task #21183 — workflow | Captured p-detector-verdict-memory-exemptions: detectors need exemption lists fo
+2026-07-05T03:13:37.923Z | task #21187 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-05T03:17:44.129Z | task #21188 | completed | sonnet | self-review: run health check for 2026-07-05 | Self-review 2026-07-05: sensors nominal (85/85), dispatch healthy (99.2% success
