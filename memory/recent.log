@@ -1,12 +1,3 @@
-2026-07-02T00:09:01.609Z | task #20769 | completed | haiku | Retrospective: extract learnings from task #20768 — Post X t | Updated p-rate-limit-budget-discipline with CTA-as-separate-reply tactic for mul
-2026-07-02T00:50:19.875Z | task #20770 | completed | script | housekeeping: 2 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-02T01:05:14.701Z | task #20771 | completed | sonnet | Watch report — 2026-07-02T01:02Z | Watch report: 8 tasks completed, $4.68 spent, 0 failed/blocked; X thread chainin
-2026-07-02T01:06:19.429Z | task #20772 | completed | haiku | Retrospective: extract learnings from task #20771 — Watch re | Extracted 2 patterns: feature-gate-recovery-revalidation (X thread chaining re-e
-2026-07-02T02:35:58.317Z | task #20773 | completed | sonnet | architecture review — codebase changed since last review (3a | Reviewed diff 3a39f58..095a444 (2 commits): X 403 backoff centralization is soun
-2026-07-02T02:36:26.821Z | task #20775 | completed | haiku | architect: confirm X_THREAD_CHAINING_ENABLED re-enable (comm | Commit 095a4440 re-enabled X_THREAD_CHAINING_ENABLED without documented whoabudd
-2026-07-02T02:38:46.446Z | task #20774 | completed | sonnet | workflow review — 2 health issue(s), 1 new pattern(s) | content-calendar 44% = known phase3 signoff gap (no new info). pr-lifecycle appr
-2026-07-02T02:39:34.729Z | task #20776 | completed | haiku | Retrospective: extract learnings from task #20773 — architec | Captured: self-authored guardrail reversals require escalation (p-guardrail-reve
-2026-07-02T02:40:55.206Z | task #20778 | completed | sonnet | CEO review — 2026-07-02T02:34 | CEO review: on track, quiet low-cost watch (.68/12h), X chaining fix passed firs
 2026-07-02T02:41:55.274Z | task #20777 | completed | haiku | Retrospective: extract learnings from task #20774 — workflow | Verified task #20774 findings. Content-calendar phase3 gap is known (no action).
 2026-07-02T02:42:31.445Z | task #20779 | completed | haiku | Retrospective: extract learnings from task #20778 — CEO revi | Captured p-report-only-scope-boundary: report-only tasks maintain zero-adjustmen
 2026-07-02T02:43:13.707Z | task #20780 | completed | haiku | Fetch and compile arXiv digest — 2026-07-02 (30 new papers) | Fetched 50 papers, 25 relevant. Compiled digest: 18 LLM papers, 4 reasoning, 3 o
@@ -507,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-05T14:51:09.481Z | task #21267 | completed | haiku | Retrospective: extract learnings from task #21263 — architec | Added two learnings to patterns.md: gitignore-pattern exhaustiveness for auto-co
 2026-07-05T14:52:14.766Z | task #21268 | completed | haiku | Retrospective: extract learnings from task #21266 — grep rep | No learnings to capture — validated existing patterns p-sqlite-utc-timezone-pars
 2026-07-05T15:02:39.075Z | task #21269 | completed | sonnet | Review 1 blocked task(s) for possible unblock | PR #638 confirmed CLOSED (not merged) on GitHub, consistent with memory note tha
+2026-07-05T15:19:31.608Z | task #21270 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-05T15:37:32.741Z | task #21271 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog was already regenerated/committed/deployed (130 skills, 85 sensors) at H
