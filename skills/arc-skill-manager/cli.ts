@@ -570,7 +570,14 @@ function cmdSensorHealthReport(): void {
 
     let lastTaskAt = "none";
     if (lastTaskRow?.completed_at) {
-      const ageMin = Math.round((now - new Date(lastTaskRow.completed_at).getTime()) / 60_000);
+      // completed_at is SQLite's datetime('now') — UTC but without a 'Z' suffix,
+      // so new Date() would parse it as local time and skew the age by the
+      // local UTC offset. Normalize before parsing (matches the pattern used
+      // in arc-skill-manager/sensor.ts, arc-housekeeping/sensor.ts, etc).
+      const completedAtIso = lastTaskRow.completed_at.endsWith("Z")
+        ? lastTaskRow.completed_at
+        : `${lastTaskRow.completed_at.replace(" ", "T")}Z`;
+      const ageMin = Math.round((now - new Date(completedAtIso).getTime()) / 60_000);
       if (ageMin < 60) lastTaskAt = `${ageMin}m ago`;
       else if (ageMin < 1440) lastTaskAt = `${Math.round(ageMin / 60)}h ago`;
       else lastTaskAt = `${Math.round(ageMin / 1440)}d ago`;
