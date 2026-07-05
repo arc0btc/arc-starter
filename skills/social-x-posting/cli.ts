@@ -242,11 +242,11 @@ function dailyReadPostedToday(db: { query: (sql: string) => { get: () => unknown
       "SELECT COUNT(*) as n FROM daily_read_log WHERE date(posted_at) = date('now')",
     ).get() as { n: number } | null;
     return (row?.n ?? 0) > 0;
-  } catch (err) {
+  } catch (error) {
     // daily_read_log doesn't exist yet on a fresh install — nothing posted today by definition,
     // keep reserving (safe default). Logged (dev-council/Kleppmann) so a DIFFERENT, transient
     // failure (lock contention, corruption) isn't silently indistinguishable from that case.
-    log(`dailyReadPostedToday query failed, defaulting to "not posted" (keeps reservation active): ${err instanceof Error ? err.message : String(err)}`);
+    log(`dailyReadPostedToday query failed, defaulting to "not posted" (keeps reservation active): ${error instanceof Error ? error.message : String(error)}`);
     return false;
   }
 }
