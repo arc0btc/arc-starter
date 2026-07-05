@@ -74,6 +74,24 @@ function renderHuman(r: AttributionReport): string {
     lines.push(`No unattributed dollars.`);
   }
   lines.push("");
+  lines.push(`Demand-gen (P5, arc-demand-gen):`);
+  const dr = r.demand_gen.daily_read;
+  lines.push(
+    `  daily-read: last_queued=${dr.last_queued_date ?? "unknown"} (${dr.days_stale ?? "?"}d stale)` +
+      (dr.last_defer_reason ? ` | last defer: ${dr.last_defer_reason} @ ${dr.last_defer_at}` : "") +
+      (dr.hook_state_error ? ` | ERROR: ${dr.hook_state_error}` : ""),
+  );
+  lines.push(
+    `  x402 listing: checked directly by ops/monitor/arc-demand-gen-health.ts (manage-agents repo), not this report — see that monitor's output`,
+  );
+  lines.push(
+    `  mention pre-fill: ${r.demand_gen.mention_pipeline.mention_events_total} event(s) logged, ${r.demand_gen.mention_pipeline.candidates_curated} candidate(s) curated` +
+      (r.demand_gen.mention_pipeline.last_mention_at
+        ? ` | last: article ${r.demand_gen.mention_pipeline.last_mention_article_n} @ ${r.demand_gen.mention_pipeline.last_mention_at}`
+        : ""),
+  );
+  lines.push(`  seed-batch actions logged: ${r.demand_gen.seed_batch.operator_channel_actions_logged}`);
+  lines.push("");
   lines.push(`Known gaps:`);
   for (const g of r.known_gaps) lines.push(`  - ${g}`);
   return lines.join("\n");

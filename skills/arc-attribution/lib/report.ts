@@ -26,18 +26,31 @@
 // Schema: this JSON is a published, cross-machine contract (the Discord monitor on a SEPARATE
 // host parses `cli.ts report --json`'s stdout — it cannot import this module). `schema_version`
 // must bump on any breaking field change.
+//
+// P5 (arc-demand-gen close-out, 2026-07-05) added `demand_gen` — the single source of truth for
+// 3 of the 4 lanes that quest shipped that are Arc's OWN state (daily-read scheduling via
+// hook-state, mention pre-fill + seed batch via arc.sqlite), so
+// `ops/monitor/arc-demand-gen-health.ts` (manage-agents repo) has one number to read instead of
+// re-deriving a second, possibly-disagreeing count. The 4th lane (x402 directory listing status)
+// is deliberately NOT here — dev-council (Hohpe/Newman, 2026-07-05) flagged that scan.stacksx402.com's
+// listing state is third-party-owned data, not Arc's, and belongs in the control-plane monitor
+// that already owns other third-party checks (SPF/DKIM/DMARC, boundary spot-checks), not proxied
+// through this VM-side revenue-reporting module. Additive field, but bumped schema_version anyway
+// per this file's own rule above.
 
 import { getDatabase, initDatabase } from "../../../src/db.ts";
 import { computeRevenue, type RevenueSummary } from "../../whop/lib/events.ts";
 import { getCredential } from "../../../src/credentials.ts";
 import { parseSkuBacklog } from "../../arc-packaging/lib/backlog.ts";
 import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { readCachedFollowers } from "../../../src/follower-cache.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../../");
 const INDEX_PATH = join(ARC_STARTER_ROOT, "research/INDEX.md");
+const DAILY_READ_HOOK_STATE_PATH = join(ARC_STARTER_ROOT, "db/hook-state/arc-daily-read.json");
 
-export const SCHEMA_VERSION = "1.0.0";
+export const SCHEMA_VERSION = "1.1.0";
 
 // P0 baseline (2026-07-03T160204Z) — cite, don't re-derive. See
 // ops/verify/arc-demand-flywheel/2026-07-03T160204Z-p0-baseline.md
@@ -116,6 +129,57 @@ export interface AttributionReport {
   before_after: Array<{ metric: string; before: number | string; after: number | string }>;
   unattributed_dollars: Array<{ detail: string; gap_count: number }>;
   known_gaps: string[];
+  /** P5 (arc-demand-gen close-out): the single source of truth for the 4 lanes that quest shipped
+   * (P1 daily-read scheduling, P2 x402 listing, P3 mention pre-fill, P4 seed batch). Added so
+   * `ops/monitor/arc-demand-gen-health.ts` (manage-agents repo) reads these numbers rather than
+   * re-deriving a second, possibly-disagreeing count — see that file's header comment. */
+  demand_gen: {
+    daily_read: {
+      /** date string (YYYY-MM-DD, UTC) the sensor last successfully queued an edition, or null if
+       * the hook-state file is missing/unreadable/never set. */
+      last_queued_date: string | null;
+      /** whole days between `last_queued_date` and today (UTC midnight to UTC midnight) — the
+       * same durable, cron-timing-independent staleness signal
+       * `ops/monitor/arc-flywheel-health.ts`'s `checkDailyReadStarvation()` already uses; null if
+       * `last_queued_date` is unavailable. */
+      days_stale: number | null;
+      /** most recent defer reason recorded on the sensor's defer branch (e.g.
+       * "cap_insufficient"), regardless of age — null if never recorded. */
+      last_defer_reason: string | null;
+      last_defer_at: string | null;
+      last_slots_remaining: number | null;
+      /** non-null only if the hook-state file couldn't be read/parsed at all (missing file is
+       * NOT an error — a brand-new VM would have none yet — but a malformed file is). */
+      hook_state_error: string | null;
+    };
+    // NOTE (dev-council, 2026-07-05, Hohpe+Newman independently, 5/5 lenses flagged the original
+    // substring-match implementation as unsound): x402 listing status is intentionally NOT
+    // reported here. Unlike the 3 lanes above (Arc's own hook-state file, Arc's own arc.sqlite
+    // tables), whether scan.stacksx402.com lists arc0btc.com is a THIRD PARTY's data, not Arc's —
+    // this module would need to know that site's URL/response shape to check it, which is
+    // exactly the kind of external coupling `ops/monitor/arc-flywheel-health.ts` already keeps
+    // OUT of arc-attribution for its own third-party checks (SPF/DKIM/DMARC via `dig`, boundary
+    // spot-checks via `curl`, done directly in the control-plane monitor, not proxied through the
+    // VM). `ops/monitor/arc-demand-gen-health.ts` performs this check directly for the same
+    // reason: it can parse the real JSON response and treat network failure as "unknown," not a
+    // silent false, without adding third-party HTTP latency to every attribution report run.
+    mention_pipeline: {
+      /** `social_accounts` rows curated as mention candidates (P3). */
+      candidates_curated: number;
+      /** total rows in `article_mention_log` (P3) — every pre-filled @-mention the pipeline has
+       * ever recorded, across all articles. */
+      mention_events_total: number;
+      last_mention_article_n: number | null;
+      last_mention_at: string | null;
+    };
+    seed_batch: {
+      /** `outbound_action` rows with platform IN ('jason-x','jason-email') — the schema P4's
+       * playbook names for Arc to log an operator-channel action AFTER Jason reports one back.
+       * 0 is the correct, hard-gate-compliant state until that happens — not a failure signal. */
+      operator_channel_actions_logged: number;
+      note: string;
+    };
+  };
 }
 
 function bucketProvenance(rows: Array<{ provenance: string | null }>): ProvenanceBucket {
@@ -177,6 +241,79 @@ async function fetchEmailSubscriberStats(): Promise<{ confirmed: number | null; 
   }
 }
 
+/** Whole UTC-midnight-to-UTC-midnight days between a YYYY-MM-DD date string and now — identical
+ * formula to `ops/monitor/arc-flywheel-health.ts`'s `daysSinceUtcDateString()` (manage-agents
+ * repo; can't be imported cross-repo, reimplemented here intentionally kept in lockstep). Returns
+ * null (not NaN) if `dateStr` doesn't parse to a real date — a malformed hook-state value must
+ * surface as "unknown," never silently serialize as a number-shaped non-number (dev-council,
+ * Lamport, 2026-07-05: `JSON.stringify(NaN) === "null"` would otherwise make a garbage string and
+ * an honestly-absent value indistinguishable on the wire, and diverge between this JSON path and
+ * cli.ts's human-readable `?? "?"` path, which prints literal "NaN"). */
+function daysSinceUtcDateString(dateStr: string, nowUtc: Date): number | null {
+  const then = new Date(`${dateStr}T00:00:00.000Z`).getTime();
+  if (!Number.isFinite(then)) return null;
+  const today = new Date(`${nowUtc.toISOString().slice(0, 10)}T00:00:00.000Z`).getTime();
+  return Math.round((today - then) / 86_400_000);
+}
+
+interface DailyReadHookState {
+  last_defer_reason?: string;
+  last_defer_at?: string;
+  last_slots_remaining?: number;
+  last_queued_date?: string;
+  [key: string]: unknown;
+}
+
+/** Reads `arc-daily-read`'s hook-state file directly (this runs ON the VM — no SSH needed, unlike
+ * the manage-agents monitor's equivalent read). Never throws: a missing/malformed file surfaces
+ * as `hook_state_error`, not a crash of the whole report (P5, arc-demand-gen).
+ *
+ * HONEST LIMIT (dev-council, Lamport/Kleppmann, 2026-07-05): this file read happens AFTER
+ * `readDbSnapshot()`'s transaction has already committed, at a distinct wall-clock instant from
+ * the DB snapshot and from `generated_at`. Arc's dispatch loop can write a `daily_read_log` row
+ * and this hook-state file at different moments; a run landing between those two writes will
+ * report a `daily_read_editions_posted` count and a `last_queued_date` that describe different
+ * instants. This is consistent with how `fetchEmailSubscriberStats()`/`readCachedFollowers()`
+ * already behave (independent best-effort point reads, not covered by the SQLite snapshot
+ * guarantee) — not a regression, but worth stating plainly rather than implying the whole report
+ * is one atomic snapshot. The DB-only consistency guarantee is exactly that: DB-only. */
+function readDailyReadHookState(): AttributionReport["demand_gen"]["daily_read"] {
+  try {
+    const raw = readFileSync(DAILY_READ_HOOK_STATE_PATH, "utf8");
+    const state = JSON.parse(raw) as DailyReadHookState;
+    const nowUtc = new Date();
+    const rawLastQueuedDate = typeof state.last_queued_date === "string" ? state.last_queued_date : null;
+    const daysStale = rawLastQueuedDate ? daysSinceUtcDateString(rawLastQueuedDate, nowUtc) : null;
+    // Invariant: days_stale is null IFF last_queued_date is unavailable — a present-but-unparseable
+    // date string (daysSinceUtcDateString returned null despite a non-null input) must NOT be
+    // reported as a valid date either; both collapse to the honest-unknown state together.
+    const lastQueuedDateValid = rawLastQueuedDate !== null && daysStale !== null;
+    return {
+      last_queued_date: lastQueuedDateValid ? rawLastQueuedDate : null,
+      days_stale: daysStale,
+      last_defer_reason: typeof state.last_defer_reason === "string" ? state.last_defer_reason : null,
+      last_defer_at: typeof state.last_defer_at === "string" ? state.last_defer_at : null,
+      last_slots_remaining: typeof state.last_slots_remaining === "number" ? state.last_slots_remaining : null,
+      hook_state_error: rawLastQueuedDate !== null && !lastQueuedDateValid
+        ? `last_queued_date "${rawLastQueuedDate}" is not a parseable date`
+        : null,
+    };
+  } catch (err) {
+    // A missing file (ENOENT) is expected on a fresh install, not a real error — but we can't
+    // tell the difference from a malformed-JSON error without inspecting the code, and both are
+    // equally "we don't know the real state" from this report's point of view. Surface it plainly
+    // rather than guessing; a human reading `hook_state_error` can tell ENOENT from a parse error.
+    return {
+      last_queued_date: null,
+      days_stale: null,
+      last_defer_reason: null,
+      last_defer_at: null,
+      last_slots_remaining: null,
+      hook_state_error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 /**
  * All synchronous, arc.sqlite-only reads needed for the report, run inside ONE transaction so
  * they observe a single consistent snapshot (lamport, dev-council 2026-07-05: separate top-level
@@ -185,6 +322,13 @@ async function fetchEmailSubscriberStats(): Promise<{ confirmed: number | null; 
  * up in one count and not another within the same emitted report). computeRevenue() is called
  * INSIDE the same transaction (same connection, synchronous call, no awaits in between) so its
  * internal reads participate in the same snapshot.
+ *
+ * VERIFIED (dev-council, Kleppmann, 2026-07-05, flagged as an unconfirmed assumption in the
+ * original comment; confirmed this phase): `src/db.ts`'s `getDatabase()` returns a cached
+ * module-level singleton (`_db`), never a fresh connection — `skills/whop/lib/events.ts`'s
+ * `computeRevenue()` calls the identical `getDatabase()` accessor (confirmed by direct grep of
+ * that file), so it participates in this same transaction/connection. The snapshot guarantee
+ * this comment describes actually holds.
  */
 function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
   let result!: {
@@ -196,6 +340,10 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
     dailyReadEditions: number;
     articlesPublished: number;
     articlesStaged: number;
+    mentionCandidatesCurated: number;
+    mentionEventsTotal: number;
+    lastMention: { article_n: number; created_at: string } | null;
+    seedBatchActionsLogged: number;
   };
   const tx = db.transaction(() => {
     const revenue = computeRevenue();
@@ -224,6 +372,30 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
     const articlesStaged = (
       db.query("SELECT COUNT(*) c FROM article_queue_log WHERE status='staged'").get() as { c: number }
     ).c;
+    // P5 (arc-demand-gen close-out) — P3's mention pre-fill + P4's seed-batch signals, read in
+    // the same snapshot transaction as everything else above (lamport/dev-council's
+    // read-skew-avoidance pattern applies equally to these new tables). DISCLOSED, not fixed
+    // (dev-council, Fowler, 2026-07-05): unlike `readDailyReadHookState()`'s explicit
+    // missing-file tolerance, these 3 queries assume `social_accounts`/`article_mention_log`/
+    // `outbound_action` already exist — consistent with every other query in this transaction
+    // (e.g. `daily_read_log`, `article_queue_log` above make the identical assumption), so this
+    // is not a new risk this phase introduces, just an existing pattern extended to 3 more
+    // tables. A genuinely fresh VM predating P1-P4's migrations would see this whole report fail
+    // with `status:"error"` rather than degrade gracefully — real, but out of this phase's scope.
+    const mentionCandidatesCurated = (
+      db.query("SELECT COUNT(*) c FROM social_accounts WHERE mention_candidate=1").get() as { c: number }
+    ).c;
+    const mentionEventsTotal = (
+      db.query("SELECT COUNT(*) c FROM article_mention_log").get() as { c: number }
+    ).c;
+    const lastMention = db
+      .query("SELECT article_n, created_at FROM article_mention_log ORDER BY created_at DESC LIMIT 1")
+      .get() as { article_n: number; created_at: string } | null;
+    const seedBatchActionsLogged = (
+      db
+        .query("SELECT COUNT(*) c FROM outbound_action WHERE platform IN ('jason-x','jason-email')")
+        .get() as { c: number }
+    ).c;
     result = {
       revenue,
       whopSaleRows,
@@ -233,6 +405,10 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
       dailyReadEditions,
       articlesPublished,
       articlesStaged,
+      mentionCandidatesCurated,
+      mentionEventsTotal,
+      lastMention,
+      seedBatchActionsLogged,
     };
   });
   tx.deferred();
@@ -244,7 +420,19 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
   const db = getDatabase();
 
   const snap = readDbSnapshot(db);
-  const { revenue, whopSaleRows, x402SaleRows, freeRoomJoins, dailyReadEditions, articlesPublished, articlesStaged } = snap;
+  const {
+    revenue,
+    whopSaleRows,
+    x402SaleRows,
+    freeRoomJoins,
+    dailyReadEditions,
+    articlesPublished,
+    articlesStaged,
+    mentionCandidatesCurated,
+    mentionEventsTotal,
+    lastMention,
+    seedBatchActionsLogged,
+  } = snap;
   const checkoutConfigParams = new Set(snap.checkoutConfigParams);
 
   const whopProvenance = bucketProvenance(whopSaleRows);
@@ -301,6 +489,7 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
   const emailStats = await fetchEmailSubscriberStats();
   const followerCache = await readCachedFollowers();
   const backlog = parseBacklogRemaining();
+  const dailyReadHookState = readDailyReadHookState();
 
   const beforeAfter: AttributionReport["before_after"] = [
     { metric: "X followers", before: P0_BASELINE.followers, after: followerCache.followers ?? "unknown (degraded)" },
@@ -358,6 +547,23 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
       "7d ship-log count (CEO report) remains unbuilt — no ship-board skill exists to track member ship-log posts; structurally impossible before any $49 member exists.",
       "Email subscriber counts depend on arc-email-worker's live API; email_api_error is non-null if that call failed or returned an unexpected shape this run.",
       "mrr.mrr_cents is Whop's own captured truth (whop_event_log), not independently provenance-confirmed — see mrr.provenance_caveat.",
+      "Arc's x402 rail is still unlisted on scan.stacksx402.com — P2 (arc-demand-gen) hit a schema mismatch with the crawler and did not fix arc0btc-worker's response shape; carry-forward, not yet built. Checked directly by ops/monitor/arc-demand-gen-health.ts (manage-agents repo), not this report — it's third-party-owned data, not Arc's own state.",
+      "demand_gen.seed_batch.operator_channel_actions_logged has been 0 since P4 (arc-demand-gen) shipped its playbook — this is the expected, hard-gate-compliant state (no bulk send occurred), not a broken lane; it will only move once Jason reports an operator-channel action back for Arc to log.",
+      "demand_gen.seed_batch counts outbound_action rows by a hardcoded platform IN ('jason-x','jason-email') list (dev-council, Kleppmann, 2026-07-05) — a real future-proofing gap: a third operator channel added later would silently undercount unless this list is also updated, or the schema evolves to a data-side is_operator_channel flag instead. Not fixed this phase (P4 built no insert path yet — 0 rows exist to migrate); flagged for whoever adds the next channel.",
     ],
+    demand_gen: {
+      daily_read: dailyReadHookState,
+      mention_pipeline: {
+        candidates_curated: mentionCandidatesCurated,
+        mention_events_total: mentionEventsTotal,
+        last_mention_article_n: lastMention?.article_n ?? null,
+        last_mention_at: lastMention?.created_at ?? null,
+      },
+      seed_batch: {
+        operator_channel_actions_logged: seedBatchActionsLogged,
+        note:
+          "0 is expected/correct until Jason reports an operator-channel (X reply or email) action back to Arc per the P4 playbook (docs/specs/2026-07-05-arc-demand-gen-operator-playbook.md Part A §5) — Arc then logs the row. A non-zero value here is real signal the playbook is being used, not a bug. Counted via a hardcoded platform-value list, see known_gaps.",
+      },
+    },
   };
 }
