@@ -678,8 +678,20 @@ export default async function workflowsSensor(): Promise<string> {
     // Full content-calendar fan-out (gated off by default; supersedes blog-to-x when enabled)
     totalActions += await syncContentCalendar();
 
-    // Evaluate all active workflows and process their actions
-    const workflows = getAllActiveWorkflows();
+    // Evaluate all active workflows and process their actions.
+    // Backlog throttle (task #21169): getAllActiveWorkflows() orders by updated_at DESC, which
+    // does not reliably surface the oldest-anchored content-calendar work-piece first. Since only
+    // CONTENT_CALENDAR_X_THREAD_DAILY_CAP (1/day) x_thread hop may fire per day, sort
+    // whop_chat_seeded content-calendar workflows by cadence_anchor ascending so a multi-day
+    // backlog claims the day's slot oldest-first instead of whichever was touched most recently.
+    const workflows = getAllActiveWorkflows().sort((a, b) => {
+      const aEligible = a.template === "content-calendar" && a.current_state === "whop_chat_seeded";
+      const bEligible = b.template === "content-calendar" && b.current_state === "whop_chat_seeded";
+      if (!aEligible || !bEligible) return 0;
+      const aAnchor = new Date(JSON.parse(a.context || "{}")?.cadence_anchor ?? 0).getTime();
+      const bAnchor = new Date(JSON.parse(b.context || "{}")?.cadence_anchor ?? 0).getTime();
+      return (isNaN(aAnchor) ? 0 : aAnchor) - (isNaN(bAnchor) ? 0 : bAnchor);
+    });
     const skipReasons: Record<string, number> = {};
     const bumpSkip = (reason: string) => { skipReasons[reason] = (skipReasons[reason] ?? 0) + 1; };
     for (const workflow of workflows) {

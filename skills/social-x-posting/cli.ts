@@ -188,6 +188,17 @@ interface DailyBudget {
 // BUDGET_LIMITS.posts=3 remains as a secondary root-only guard.
 const DAILY_TWEET_CAP = 6;
 
+// Content-calendar x_thread backlog throttle (task #21169, root cause: task #21165).
+// cadenceGateOpen() in state-machine.ts only checks elapsed time since cadence_anchor, with no
+// memory of prior cap-exhaustion deferrals — once a backlog of anchors builds up (e.g. deferred
+// across several days by DAILY_TWEET_CAP exhaustion), every eligible hop fires in the same burst
+// the moment the shared cap resets at UTC midnight. This is a distinct, smaller secondary cap
+// specific to content-calendar x_thread ROOT posts (the ":x" source, not replies/CTA) so a
+// multi-day backlog spreads out across days instead of draining a freshly-reset DAILY_TWEET_CAP
+// in one burst. Enforced here (post-time) as well as in state-machine.ts (task-creation-time)
+// because tasks already queued before this fix still need to be throttled at post time.
+const CONTENT_CALENDAR_X_THREAD_DAILY_CAP = 1;
+
 const BUDGET_LIMITS: Record<string, number> = {
   // GTM cadence dial-down (2026-06-15): hard daily X-post ceiling lowered 10 → 3 so the
   // account reads as lean/high-signal (~1-2 substantive items/day), reserving posts for
@@ -532,6 +543,27 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
         planned_for: "tomorrow",
       }));
       process.exit(2);
+    }
+
+    // Content-calendar x_thread secondary cap: only the root post of a new thread
+    // (source === "content-calendar:<slug>:x", not ":x:reply-N" or ":x-cta") burns this slot —
+    // those source keys are set by ContentCalendarMachine's whop_chat_seeded action.
+    const source = flags["source"] ?? "";
+    const isContentCalendarXThreadRoot = /^content-calendar:[^:]+:x$/.test(source);
+    if (isContentCalendarXThreadRoot) {
+      const ccTodayCount = (guardDb.query(
+        "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now') AND is_root = 1 AND source LIKE 'content-calendar:%:x'"
+      ).get() as { total_count: number } | null)?.total_count ?? 0;
+      if (ccTodayCount >= CONTENT_CALENDAR_X_THREAD_DAILY_CAP) {
+        log(`content-calendar x_thread daily cap exhausted (${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP}) — deferring "${source}"`);
+        console.log(JSON.stringify({
+          deferred: true,
+          reason: "content_calendar_x_thread_cap_exhausted",
+          detail: `${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP} content-calendar x_thread roots posted today`,
+          planned_for: "tomorrow",
+        }));
+        process.exit(2);
+      }
     }
   }
 

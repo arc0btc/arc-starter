@@ -1,4 +1,4 @@
-import { Workflow, getTaskById } from "../../src/db.ts";
+import { Workflow, getTaskById, getDatabase } from "../../src/db.ts";
 import { PAID_ROOM_PRODUCT_URL, PROMO_CODE } from "../../src/constants.ts";
 
 /**
@@ -563,6 +563,32 @@ function cadenceGateOpen(anchorIso: string | undefined, offsetMs: number): boole
   return now >= fireTime;
 }
 
+/**
+ * Secondary daily cap on content-calendar x_thread hops (task #21169, root cause: task #21165).
+ * cadenceGateOpen() only checks elapsed time since cadence_anchor with no memory of prior
+ * cap-exhaustion deferrals, so once a backlog of anchors builds up (each deferred on a different
+ * day by the shared DAILY_TWEET_CAP in social-x-posting/cli.ts), every backlogged hop goes
+ * 'ready' at once and fires in the same burst the instant the shared cap resets at UTC midnight
+ * (observed 2026-07-05: 3 threads posted within 5 min of 00:00 UTC). This counts x_thread ROOT
+ * task creations today (source `content-calendar:<slug>:x`, state-suffixed by the sensor) so at
+ * most CONTENT_CALENDAR_X_THREAD_DAILY_CAP new threads are queued per day — the backlog spreads
+ * out instead of draining a freshly-reset cap in one burst. Mirrored at post-time in
+ * social-x-posting/cli.ts (queued tasks created before this fix still need throttling there).
+ */
+const CONTENT_CALENDAR_X_THREAD_DAILY_CAP = 1;
+
+function contentCalendarXThreadCapAvailable(): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE DATE(created_at) = DATE('now')
+       AND source LIKE 'content-calendar:%:x:%'`
+    )
+    .get() as { count: number } | null;
+  return (row?.count ?? 0) < CONTENT_CALENDAR_X_THREAD_DAILY_CAP;
+}
+
 /** Shared blog context lines appended to every downstream hop's task description. */
 function contentCalendarBlogRef(ctx: ContentCalendarContext): string {
   const urlLine = ctx.url ? `\nBlog: ${ctx.url}` : "";
@@ -650,6 +676,14 @@ Guardrails (members pay real money):
       action: (ctx) => {
         if (!ctx.slug) return null;
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.x_thread)) {
+          return { type: "noop" };
+        }
+        // Secondary backlog throttle (task #21169): hold in whop_chat_seeded — no state is
+        // consumed, so this is safe to retry indefinitely — until today's x_thread slot is free.
+        // sensor.ts sorts eligible whop_chat_seeded content-calendar workflows by cadence_anchor
+        // ascending before evaluation, so the oldest-anchored backlogged work-piece claims the
+        // day's slot first rather than whichever the meta-sensor happens to reach first.
+        if (!contentCalendarXThreadCapAvailable()) {
           return { type: "noop" };
         }
         // ANTI-LOCK GUARDRAIL (2026-06-30, task #20420 — see [[x-reply-403-account-lock-cascade]]):
