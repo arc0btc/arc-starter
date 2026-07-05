@@ -506,3 +506,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T03:28:20.078Z | task #21197 | completed | sonnet | Investigate stuck arc-workflows pr-lifecycle instance #2005  | PR #638 (landing-page redesign) confirmed genuinely OPEN, approved, CI green, ze
 2026-07-05T03:28:36.776Z | task #21203 | completed | haiku | [ESCALATED] Decide merge/close for aibtcdev/landing-page PR  | Escalated to whoabuddy: PR #638 stale 2 months (approved, green, unmerged). Crea
 2026-07-05T03:30:43.377Z | task #21204 | blocked | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | PR #638 is approved but stale (2mo), has conflicts, and marked 'Version A' (unce
+2026-07-05T03:31:48.020Z | task #21205 | completed | haiku | TRIAGE: aibtcdev/landing-page PR #638 redesign — rebase+land | Triage complete: PR #638 is OPEN + CONFLICTING (merge conflicts), 40% complete (
