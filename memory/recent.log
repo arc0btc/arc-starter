@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T02:46:55.530Z | task #21186 | completed | haiku | Retrospective: extract learnings from task #21183 — workflow | Captured p-detector-verdict-memory-exemptions: detectors need exemption lists fo
 2026-07-05T03:13:37.923Z | task #21187 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-05T03:17:44.129Z | task #21188 | completed | sonnet | self-review: run health check for 2026-07-05 | Self-review 2026-07-05: sensors nominal (85/85), dispatch healthy (99.2% success
+2026-07-05T03:24:54.239Z | task #21189 | completed | sonnet | Consolidate memory/patterns.md (200 lines, exceeds 150-line  | patterns.md was 157 lines/149 patterns; merged 5 overlapping entries into 2 (sup
