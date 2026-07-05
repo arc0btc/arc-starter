@@ -220,7 +220,7 @@ function parseDuration(s: string): number | null {
   return (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
 }
 
-function cmdTasksAdd(args: string[]): void {
+async function cmdTasksAdd(args: string[]): Promise<void> {
   const { flags } = parseFlags(args);
 
   const subject = flags["subject"];
@@ -241,6 +241,20 @@ function cmdTasksAdd(args: string[]): void {
   if (modelFlag === "auto") {
     const classification = classifyTask(subject, flags["description"], flags["file"]);
     modelFlag = classification.recommended_model;
+    // Log classifier usage for adoption tracking
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      subject,
+      resolved_model: modelFlag,
+      confidence: classification.confidence,
+      reason: classification.reason,
+    };
+    const logLine = JSON.stringify(logEntry);
+    await Bun.write(
+      "memory/classifier-usage.log",
+      logLine + "\n",
+      { append: true, createPath: true }
+    );
     process.stdout.write(
       `Classifier: type=${classification.type} model=${modelFlag} confidence=${classification.confidence} reason="${classification.reason}"\n`
     );

@@ -505,3 +505,9 @@
 2026-07-05T21:07:47.396Z | task #21295 | completed | haiku | daily cost report — 2026-07-05 | Daily cost report 2026-07-05: 145 tasks, $100.04 code cost, $0.69/task avg — nor
 2026-07-05T21:10:56.234Z | task #21296 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 2.20/5 (S:1 O:4 E:2 C:1 Ad:4 Co:1 Se:3), down slightly from 2.25. Cost/PR-
 2026-07-05T21:13:35.671Z | task #21297 | completed | sonnet | Audit why --model auto adoption is still 0 despite classifie | Daily-eval's '0 adoption post-fix' claim was a measurement error, not a real gap
+2026-07-05T21:14:33.398Z | task #21301 | completed | sonnet | Test classifier logging | Classifier usage logging implemented and tested successfully
+2026-07-05T21:14:46.104Z | task #21299 | completed | openrouter:mistralai/devstral-2512 | Add durable classifier-usage logging when --model auto fires | Now, let's create a summary of the changes made:
+
+## Summary
+
+The task to add du
