@@ -22,6 +22,10 @@ import {
 const SENSOR_NAME = "arc-purpose-eval";
 const INTERVAL_MINUTES = 720; // 12 hours — twice daily
 const TASK_SOURCE = "sensor:arc-purpose-eval";
+// Mirrors the local SIGNAL_FILING_DISABLED flag in aibtc-news-editorial/bitcoin-macro/arxiv-research
+// (policy, whoabuddy 2026-05-19, task #17094). Signal filing is categorically impossible while true —
+// don't spawn a "go research signals" follow-up for a capability that can't act on its findings.
+const SIGNAL_FILING_DISABLED = true;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -442,8 +446,9 @@ function generateFollowUps(
     description: string;
   }> = [];
 
-  // Low signals → research task to find signal-worthy topics
-  if (scores.signal <= 2 && metrics.signalCount < 3) {
+  // Low signals → research task to find signal-worthy topics (skip while filing is disabled —
+  // there's nothing to file the research into, so it's pure churn)
+  if (scores.signal <= 2 && metrics.signalCount < 3 && !SIGNAL_FILING_DISABLED) {
     followUps.push({
       subject: "Research signal-worthy topics across active beats",
       skills: '["aibtc-news-editorial", "aibtc-agent-trading"]',
@@ -517,6 +522,12 @@ function formatReport(scores: PurposeScores, metrics: EvalMetrics): string {
     "",
     `_Unmeasured: Adaptation (10%), Collaboration (5%), Security (5%) — require LLM eval_`,
   ];
+  if (SIGNAL_FILING_DISABLED && scores.signal <= 2) {
+    lines.push(
+      "",
+      `_Signal Quality low because signal filing is policy-PAUSED (whoabuddy, 2026-05-19) — not a research gap. No follow-up spawned._`,
+    );
+  }
   return lines.join("\n");
 }
 
