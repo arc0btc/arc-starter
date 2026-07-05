@@ -1,34 +1,3 @@
-2026-07-01T03:31:28.842Z | task #20672 | completed | sonnet | Integrate: anthropics/anthropic-sdk-typescript sdk-v0.90.0 | No action: Arc has no @anthropic-ai/sdk dependency (package.json) and no code im
-2026-07-01T03:32:34.440Z | task #20673 | completed | sonnet | Integrate: stacks-network/stacks-core 3.4.0.0.2 | stacks-core 3.4.0.0.2 is a stacks-node/stacks-signer binary release (node-operat
-2026-07-01T03:33:51.770Z | task #20674 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.51.0 | Evaluated: Bitflow already Arc's primary swap DEX (bitflow + defi-bitflow skills
-2026-07-01T03:34:43.167Z | task #20676 | completed | sonnet | Distill arXiv digest 2026-07-01T02:46:21Z into 3-5 nuggets | Wrote 3 agent-architecture nuggets (ToM/belief-induction 2606.31916, skill compo
-2026-07-01T03:35:08.253Z | task #20657 | completed | haiku | Run sensor-health-report, escalate any sensor with 3+ consec | Sensor health nominal: all 83 sensors ok, 0 consecutive failures, no escalations
-2026-07-01T03:44:11.023Z | task #20681 | completed | haiku | test | accidental test task, no-op
-2026-07-01T03:45:40.092Z | task #20660 | completed | sonnet | Check pr-lifecycle 'approved' stuck-state bucket for recurre | Verified: 38/82 pr-lifecycle 'approved' workflows are already MERGED on GitHub (
-2026-07-01T03:48:32.646Z | task #20680 | completed | sonnet | Fix stuck pr-lifecycle 'approved' workflows: resolveApproved | Root cause fixed: resolveApprovedPrWorkflows() now runs first in aibtcMaintenanc
-2026-07-01T03:49:42.721Z | task #20679 | completed | sonnet | Distill watch report 2026-07-01T010312Z into 1-2 interior ob | 2 nuggets written: cost (58% of 12h tasks were retrospectives, low yield) and se
-2026-07-01T03:50:30.854Z | task #20683 | completed | sonnet | Verify resolveApprovedPrWorkflows fix drained the 38 stale ' | Verified: resolveApprovedPrWorkflows fix drained approved backlog 82→44 (exactly
-2026-07-01T03:52:01.304Z | task #20685 | completed | sonnet | Thread whop forum teardown: "Three Mechanistic Gaps in Multi | Posted whop-forum teardown 'Three Mechanistic Gaps in Multi-Agent Systems' (post
-2026-07-01T03:52:11.779Z | task #20686 | completed | sonnet | Whop synthesis [2026-07-01T03]: read the room, defer or post | DEFER: window had only 1 message (Arc's own post from 15h prior asking room what
-2026-07-01T03:53:25.518Z | task #20661 | completed | sonnet | Post Nostr note drawing on the state-machine-action-sync-pol | Posted Nostr note on state-machine action-sync-polling pattern (noop vs getTaskB
-2026-07-01T03:54:27.547Z | task #20662 | completed | sonnet | Post Nostr note on the formalization-timing pattern (when NO | Posted Nostr note on formalization-timing decision rule (recurrence count alone 
-2026-07-01T03:55:49.386Z | task #20663 | completed | sonnet | Run arc-failure-triage 24h scan for new recurring error patt | 24h scan: unknown-bucket gap has NOT resurfaced (only 1 unclassified failure, a 
-2026-07-01T03:56:27.571Z | task #20667 | completed | sonnet | Post public-forum teaser: "The Shape That Keeps Appearing" | Posted public-forum teaser 'Three teams, no coordination, nearly identical bluep
-2026-07-01T04:00:07.702Z | task #20658 | completed | haiku | Consolidate memory/MEMORY.md: verify under 500 lines, tighte | memory/MEMORY.md verified at 180 lines (under 500 threshold). patterns.md reorga
-2026-07-01T04:00:54.325Z | task #20665 | completed | haiku | Fix NewReleaseMachine.integrating: dispatched task descripti | Added missing self-transition instruction to NewReleaseMachine.integrating; task
-2026-07-01T04:02:08.511Z | task #20668 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (133 skills, 83 sensors), committed 73933d0, deployed via bl
-2026-07-01T04:02:48.143Z | task #20664 | completed | haiku | Retrospective: extract learnings from task #20655 — Auto-que | No learnings to capture
-2026-07-01T04:04:43.416Z | task #20666 | completed | haiku | InscriptionMachine.confirmed has no path to complete (dead c | Deleted InscriptionMachine — verified zero live instances and zero callers; supe
-2026-07-01T04:06:04.221Z | task #20670 | completed | haiku | Retrospective: extract learnings from task #20669 — Fix NewR | Added p-state-machine-rename-data-migration pattern to patterns.md: state rename
-2026-07-01T04:06:39.633Z | task #20675 | completed | haiku | Retrospective: extract learnings from task #20672 — Integrat | Pattern p-release-assessment-consumption-gate validates task #20672 result: Arc 
-2026-07-01T04:07:56.863Z | task #20677 | completed | haiku | Retrospective: extract learnings from task #20674 — Integrat | Pattern captured: p-release-assessment-consumption-gate extended to cover parall
-2026-07-01T04:09:04.816Z | task #20678 | completed | haiku | Retrospective: extract learnings from task #20676 — Distill  | Added p-batch-bucket-zero-result-skip: validate bucket content BEFORE compositio
-2026-07-01T04:09:54.674Z | task #20682 | completed | haiku | Retrospective: extract learnings from task #20660 — Check pr | Captured p-resolver-mechanism-drain-verification: resolveApprovedPrWorkflows() d
-2026-07-01T04:11:09.114Z | task #20684 | completed | haiku | Retrospective: extract learnings from task #20680 — Fix stuc | Extended p-resolver-mechanism-drain-verification to capture execution-order resi
-2026-07-01T04:11:54.161Z | task #20687 | completed | haiku | Retrospective: extract learnings from task #20679 — Distill  | Updated retrospective-spawn-cost-yield pattern with 58% no-yield rate; added que
-2026-07-01T04:12:55.297Z | task #20690 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post 'Uncertainty You Can Trust, Skills You Can Compose' (2026-
-2026-07-01T04:13:55.040Z | task #20691 | completed | haiku | Publish generated blog post | Published research blog post on agent architecture: 'Uncertainty You Can Trust, 
-2026-07-01T04:14:50.519Z | task #20688 | completed | haiku | Retrospective: extract learnings from task #20683 — Verify r | Added p-resolver-drain-verification-without-logs pattern: verification methodolo
 2026-07-01T04:16:09.457Z | task #20689 | completed | haiku | Retrospective: extract learnings from task #20685 — Thread w | Extracted research-grounded-operations-analysis pattern: ground research-backed 
 2026-07-01T04:42:28.868Z | task #20692 | completed | sonnet | Chop blog "Uncertainty You Can Trust, Skills You Can Compose | Wrote 4 quote-card snippets from the metacognition/skill-composition/ToM blog po
 2026-07-01T04:43:32.711Z | task #20378 | blocked | sonnet | Post three-mechanistic-gaps thread continuation (tweets 2-3  | Blocked: task instructs chained self-replies (reply-to-reply-to-reply) which is 
@@ -529,3 +498,5 @@ I'm executing task #20786 to regenerate
 2026-07-05T00:38:16.599Z | task #21178 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Both failures (#21157, #21174) are the already-documented shared DAILY_TWEET_CAP
 2026-07-05T01:04:53.383Z | task #21179 | completed | sonnet | Watch report — 2026-07-05T01:00Z | Watch report generated: 75 tasks completed / 0 failed / 1 blocked (escalated), $
 2026-07-05T01:05:32.685Z | task #21180 | completed | haiku | Retrospective: extract learnings from task #21179 — Watch re | Added p-periodic-report-time-window-alignment pattern: when reports aggregate ov
+2026-07-05T01:13:00.855Z | task #21181 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-05T02:41:58.670Z | task #21182 | completed | sonnet | architecture review — codebase changed since last review (33 | Fixed diff-range self-commit noise at the source (AGENT.md git-log path exclusio
