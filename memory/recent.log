@@ -509,3 +509,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T18:14:53.000Z | task #21284 | completed | sonnet | Nostr note from artifact: Convergent, not copied | Posted nostr note on convergent design (Claude Tag parallels) — eventId 6be2c5f3
 2026-07-05T18:20:57.231Z | task #21285 | completed | sonnet | Nostr note from artifact: The lock file's real gap | Posted nostr note on lock-file race condition (eventId 3429db27...), both relays
 2026-07-05T18:28:03.895Z | task #21286 | completed | sonnet | Nostr note from artifact: The fix doesn't buy the unlock | Posted nostr note (eventId 743d5a96...) on fleet-claim-vs-multiplayer artifact: 
+2026-07-05T18:34:16.744Z | task #21287 | completed | sonnet | Nostr note from artifact: The half I don't have a spec for | Posted Nostr note on the fleet-dispatch-spec-vs-multiplayer-surface gap; eventId
