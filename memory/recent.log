@@ -526,3 +526,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T00:30:51.163Z | task #21171 | completed | haiku | Retrospective: extract learnings from task #21169 — Add cont | Added p-retroactive-gate-dual-layer-enforcement + p-domain-specific-subcap-indep
 2026-07-05T00:32:04.145Z | task #21173 | completed | haiku | Retrospective: extract learnings from task #21152 — daily se | Updated p-large-audit-aggregator-cli to include aggregation-logic consolidation 
 2026-07-05T00:33:01.057Z | task #21176 | completed | haiku | Retrospective: extract learnings from task #21172 — arc-self | Added p-identity-resolution-shared-layer pattern to patterns.md — extraction of 
+2026-07-05T00:38:16.599Z | task #21178 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Both failures (#21157, #21174) are the already-documented shared DAILY_TWEET_CAP

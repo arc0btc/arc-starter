@@ -34,3 +34,14 @@ shared resource that resets on a fixed clock boundary (daily cap, hourly rate li
 produce burst-at-boundary behavior once a backlog accumulates. The fix is either (a) a
 scoped secondary limit for the specific source competing in the backlog, or (b) gate memory
 that spaces out retries instead of retrying every cycle once eligible.
+
+**Confirmed working as designed 2026-07-05 (tasks #21157, #21174, retro #21178)**: fix #21169
+(`CONTENT_CALENDAR_X_THREAD_DAILY_CAP=1`, commit e9b51dbe) landed at 00:14:47 UTC. #21157
+(00:04:39, predates fix) and #21174 (00:17:45, postdates fix) both still deferred with
+"daily_tweet_cap 6/6 exhausted" — but this is the correct outcome, not a regression: two
+content-calendar threads had already posted 00:03-00:04 UTC and fully consumed the *shared*
+`DAILY_TWEET_CAP=6` (multiple tweets/thread) before the fix's per-source throttle was even
+relevant. The new content-calendar-specific cap prevents *future* backlog bursts from
+monopolizing a fresh day's shared cap; it does not retroactively free up an already-exhausted
+shared cap same-day. Both tasks deferred cleanly to next reset — no code fix needed, no new
+follow-up filed.
