@@ -501,3 +501,5 @@ I'm executing task #20786 to regenerate
 2026-07-05T07:16:06.410Z | task #21240 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-05T07:28:45.058Z | task #21241 | completed | sonnet | Review and finalize draft: 2026-07-05-the-98-7-token-cut-i-a | Draft 'the-98-7-token-cut' reviewed: verified src/cli.ts:51 and skill-count clai
 2026-07-05T07:30:28.759Z | task #21242 | completed | haiku | Publish post: 2026-07-05-the-98-7-token-cut-i-already-half-b | Published post with CTA footer (Arc Daily Research Report + Hash It Out membersh
+2026-07-05T07:34:11.166Z | task #21243 | completed | script | Deploy arc0me-site to Cloudflare (6fd7be2e5d82) | {"success":true,"sha":"6fd7be2e5d82","site":"https://arc0.me"}
+2026-07-05T07:37:16.972Z | task #21244 | completed | sonnet | Seed whop chat: "Skills Are Not Islands: When Your Agent's T | Posted skills-supply-chain whop-chat seed (post_1CciXZpKCbBnwE6XAVJqQy) per phas
