@@ -513,3 +513,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T03:50:14.636Z | task #21195 | completed | sonnet | Audit skills/ tree for missing disallowed-tools frontmatter  | Continuation audit was already completed in parent task #21191 (14 skills got di
 2026-07-05T03:51:04.990Z | task #21210 | completed | sonnet | Distill watch report 2026-07-05T010058Z into 1-2 interior ob | Wrote 2 nuggets from the 2026-07-05T010058Z watch report: 'surprise' (3 self-fou
 2026-07-05T03:51:25.742Z | task #21196 | completed | sonnet | Run lint-skills across full skill tree and fix any complianc | lint-skills clean run: 130 SKILL.md + 63 AGENT.md + 85 sensor.ts + 84 cli.ts che
+2026-07-05T03:54:37.189Z | task #21198 | completed | sonnet | Audit 3 content-calendar workflow instances stuck in public_ | Non-issue: the 5 content-calendar instances in public_forum_teaser (2982-2984, 2

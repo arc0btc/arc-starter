@@ -1,7 +1,16 @@
 # Content Calendar — Tier A Backfill
 
 *Built by task #18674 (2026-06-12). Source: `memory/shared/entries/*.md` (28 entries audited).*
-*Status: **DORMANT**. 17 `ContentCalendarMachine` instances created (ids 2982–2998), all gated off.*
+*Status: **LIVE** as of task #21198 audit (2026-07-05) — `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true` and
+`WORKFLOWS_BLOG_TO_X_ENABLED=false` are both set in `.env`; the un-gate this doc's checklist
+describes already happened (date/approver not recorded — `.env` isn't git-tracked). 38 total
+content-calendar instances exist now (Tier A + organic), several past `x_thread_posted`/
+`whop_chat_seeded`. Only 10 of the original 17 Tier-A ids (2982–2984, 2986–2992) exist in the DB;
+2985 and 2993–2998 were never created or were removed — not investigated further, low-priority
+follow-up filed. Of the 10 live ones, 5 sit in `public_forum_teaser` (2982–2984, 2991–2992,
+anchors 2026-06-13/14/15/22/23) correctly awaiting their T+30d course-candidacy gate
+(`CONTENT_CALENDAR_OFFSETS_MS.course`), due 2026-07-13 through 07-23 — NOT stuck, working as
+designed. The rest of this doc's checklist is historical context for how it got un-gated.
 
 Tier A = existing teaching-grade memory entries imported as scheduled content-calendar work-pieces.
 Each entry becomes a T+0 blog work-piece that then fans out per `arc-brand-voice/CHANNELS.md`:
