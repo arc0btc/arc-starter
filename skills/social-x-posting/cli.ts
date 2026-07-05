@@ -622,21 +622,44 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       // then post in the same dispatch turn, but a retry could land later).
       const nowHHMM = new Date().toISOString().slice(11, 16); // "HH:MM" UTC
       if (engineRow.latest_utc_time && nowHHMM > engineRow.latest_utc_time) {
-        // Window CLOSED with no post — the exact "loud, not silent" alert the predecessor
-        // panel required (daily-read's arc-daily-read.json hook-state write, task 2 of
-        // this phase, sources its defer reason from THIS branch). Release this row AND
-        // the rest of its group so the reservation doesn't linger past a window that will
-        // never reopen today.
-        log(`WINDOW CLOSED — no post: source=${flags["source"]} (outbound_action id=${engineRow.id}, lane=${engineRow.lane}) window was ${engineRow.earliest_utc_time ?? "anytime"}-${engineRow.latest_utc_time} UTC, now=${nowHHMM} — releasing reservation`);
-        releaseSingleReservation(engineDb, engineRow.id, `window closed with no post (latest_utc_time=${engineRow.latest_utc_time}, now=${nowHHMM})`);
-        if (engineRow.atomic_group_id) {
-          releaseGroupRemainder(engineDb, engineRow.atomic_group_id, `window closed with no post for source=${flags["source"]}`);
+        // dev-council/Hohpe (CONFIRMED HIGH — the phase's most severe finding): the
+        // ORIGINAL version of this branch released the row + its atomic-group remainder
+        // unconditionally the instant the window closed — including when the ROOT of
+        // this exact group had ALREADY been sent (e.g. root posts at 13:59, reply-2's
+        // drain call lands at 14:01). That left a live, PARTIALLY-PUBLISHED thread on X
+        // (an orphaned root with no body/CTA) while the DB's release made the ledger
+        // believe the whole group never happened — the precise "atomic admission,
+        // NOT atomic publication" gap this module's own header warns about, made
+        // concrete and worse by a mid-drain time boundary. Fix: once ANY sibling in the
+        // group has actually posted, the group is committed — finish it regardless of
+        // the wall clock, matching this quest's "never truncate a thread mid-chain"
+        // mandate (extended here to the window boundary, not just the budget boundary
+        // the original mandate was written for).
+        const groupHasSentSibling = engineRow.atomic_group_id
+          ? engineDb.query(
+              `SELECT 1 FROM outbound_action WHERE atomic_group_id=? AND status='sent' LIMIT 1`
+            ).get(engineRow.atomic_group_id) != null
+          : false;
+
+        if (!groupHasSentSibling) {
+          // Window CLOSED with no post yet AT ALL for this group — safe to release. This
+          // is the exact "loud, not silent" alert the predecessor panel required
+          // (daily-read's arc-daily-read.json hook-state write, task 2 of this phase,
+          // sources its defer reason from THIS branch).
+          log(`WINDOW CLOSED — no post: source=${flags["source"]} (outbound_action id=${engineRow.id}, lane=${engineRow.lane}) window was ${engineRow.earliest_utc_time ?? "anytime"}-${engineRow.latest_utc_time} UTC, now=${nowHHMM} — releasing reservation`);
+          releaseSingleReservation(engineDb, engineRow.id, `window closed with no post (latest_utc_time=${engineRow.latest_utc_time}, now=${nowHHMM})`);
+          if (engineRow.atomic_group_id) {
+            releaseGroupRemainder(engineDb, engineRow.atomic_group_id, `window closed with no post for source=${flags["source"]}`);
+          }
+          console.log(JSON.stringify({
+            skipped: true, reason: "window_closed_no_post", source: flags["source"],
+            earliest_utc_time: engineRow.earliest_utc_time, latest_utc_time: engineRow.latest_utc_time, now: nowHHMM,
+          }));
+          process.exit(3);
         }
-        console.log(JSON.stringify({
-          skipped: true, reason: "window_closed_no_post", source: flags["source"],
-          earliest_utc_time: engineRow.earliest_utc_time, latest_utc_time: engineRow.latest_utc_time, now: nowHHMM,
-        }));
-        process.exit(3);
+        log(`window closed but atomic_group_id=${engineRow.atomic_group_id} already has a SENT sibling — finishing the group rather than truncating it (source=${flags["source"]}, now=${nowHHMM})`);
+        // Falls through to the claim+send flow below — this tweet completes its
+        // already-committed group instead of being released.
       }
       if (engineRow.earliest_utc_time && nowHHMM < engineRow.earliest_utc_time) {
         // Window hasn't opened yet — defer WITHOUT releasing. The reservation stays
@@ -715,6 +738,35 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     }
   }
 
+  // dev-council/Fowler+Hohpe(C3)+Lamport(F4)+Newman(#2), CONFIRMED HIGH — all four lenses
+  // independently found the same real gap: content-calendar's reserve-group call lives in
+  // an LLM-executed task-description STRING (state-machine.ts), not enforced code like
+  // daily-read's. If the dispatch-turn LLM composes M tweets but reserves a DIFFERENT
+  // source-key list (a typo, a miscounted thread, a skipped reserve-group step entirely),
+  // any `--source` with no matching `outbound_action` row would — before this fix —
+  // silently fall through to the UNCHANGED legacy guard stack below, which enforces only
+  // the OLD `lane='post'` cap/reservation, completely bypassing the new lane's quota,
+  // its window, and (structurally, since it never reserved) any per-group atomicity. A
+  // desync between "what was reserved" and "what gets posted" would escape this quest's
+  // entire safety mechanism without a single error — the silent-bypass class this quest
+  // exists to kill, reintroduced at exactly the one seam that's still prose instead of code.
+  //
+  // Fix: fail CLOSED, not open. Any `--source` matching a MANAGED lane's key convention
+  // (content-calendar:*, daily-read:*) that reaches this point (no matching
+  // `outbound_action` row at all) is refused with a loud, actionable error instead of
+  // silently posting via the ungated legacy path. This does not affect the reply lane, the
+  // cadence beat, or any other legacy `--source` shape — only the two lanes this phase
+  // gave a reservation requirement to.
+  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read):/;
+  if (flags["source"] && MANAGED_LANE_SOURCE_PREFIX.test(flags["source"])) {
+    log(`REFUSING legacy fallthrough: source=${flags["source"]} matches a managed-lane prefix but has no reserve-group admission (outbound_action row) — this lane MUST reserve before posting. Not falling through to the ungated legacy path.`);
+    console.log(JSON.stringify({
+      halted: true, reason: "reservation_required", source: flags["source"],
+      detail: "This source's lane requires a prior 'reserve-group' admission (see cli.ts's fast path). No matching outbound_action row was found — refusing to post via the legacy guard stack to avoid silently bypassing this lane's quota/window.",
+    }));
+    process.exit(1);
+  }
+
   // ── Legacy path (unmigrated lanes — P3 territory) — UNCHANGED guard stack ──────
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
   // exactly-once guarantee for sequential re-runs (see xPostLog note).
@@ -750,22 +802,30 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // ALSO increments budget_ledger, so this aggregate reflects ALL of today's tweets —
     // legacy-path and reserve-group-path alike — not just migrated-lane traffic.
     //
-    // dev-council/Hohpe (CONFIRMED, HIGH — implementation review): the design spec's
-    // own text said "summed across lanes," but a literal cross-lane SUM silently pulls
-    // the REPLY lane's budget_ledger row into this count. Replies write budget_ledger
+    // dev-council/Hohpe (CONFIRMED, HIGH — P2 implementation review): the design spec's
+    // own text said "summed across lanes," but a literal cross-lane SUM would silently
+    // pull the REPLY lane's budget_ledger row into this count. Replies write budget_ledger
     // via admitAction() but never wrote x_post_log (see the dedupSkip note above) —
     // this guard and DAILY_TWEET_CAP have NEVER counted replies (cli.ts's own P1
     // comment: "Mention replies do NOT go through this guard... they cannot consume
-    // this reservation"). An un-scoped SUM would shrink the post envelope by however
-    // many replies fire and could arm the daily-read reservation off reply volume
-    // alone — a real behavior change with no sign-off. Scoped to lane='post' here,
-    // correcting the design doc's literal wording to match its own stated intent (verify
-    // criterion #4: existing lane timing/semantics unchanged this phase). P3, when it
-    // adds daily-read/content-calendar as real lane VALUES, must decide explicitly
-    // whether this aggregate should then span those new lanes too — that decision is
-    // out of P2's scope and is carried forward, not resolved here.
+    // this reservation"). P2 scoped this to `lane='post'` only, and explicitly carried
+    // forward the decision of whether P3's new lane VALUES should be included.
+    //
+    // P3 decision (dev-council/Lamport F3 + Newman #1, CONFIRMED HIGH — this WAS the
+    // carried-forward gap, and leaving it unresolved was a real bug): once daily-read/
+    // content-calendar got their OWN budget_ledger rows, scoping this arbiter to
+    // `lane='post'` ALONE means it is BLIND to their reservations — the legacy guard
+    // stack (this code) and admitGroup()'s cross-lane backstop (admission.ts) became TWO
+    // independent counters instead of one, each capped at DAILY_TWEET_CAP=6, so the
+    // system's real worst-case daily volume silently became up to ~2x the intended
+    // envelope (exactly what CHECKPOINTS.md #2 says must not happen). Fix: widen the
+    // scope to `lane != 'reply'` — every tweet-producing lane except the (deliberately,
+    // pre-existing) reply exclusion — the SAME scope admitGroup()'s own cross-lane
+    // backstop now uses (admission.ts, "P3 arc-posting-scheduler: cross-lane global
+    // backstop"). This is the SAME derived-SUM principle applied on both sides of the
+    // choke point, so a caller on EITHER path sees the SAME true cross-lane total.
     const todayCount = (guardDb.query(
-      "SELECT COALESCE(SUM(reserved_count),0) as total_count FROM budget_ledger WHERE channel='x' AND utc_day=date('now') AND lane='post'"
+      "SELECT COALESCE(SUM(reserved_count),0) as total_count FROM budget_ledger WHERE channel='x' AND utc_day=date('now') AND lane != 'reply'"
     ).get() as { total_count: number } | null)?.total_count ?? 0;
 
     const source = flags["source"] ?? "";
@@ -986,9 +1046,21 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   const isRootFlags = sourceKeys.map((_, i) => i === 0);
 
   const db = await xPostLog();
-  // --budget-day is a TEST-ONLY override (disposable-date dry runs against a real DB
-  // without touching today's real production counters) — real callers (daily-read,
-  // content-calendar) never pass it, so production always uses todayDateStr().
+  // dev-council/Fowler (CONFIRMED — a comment is not an access control): --budget-day is
+  // a TEST-ONLY override (disposable-date dry runs against a real DB without touching
+  // today's real production counters). Originally guarded only by a code comment saying
+  // "real callers never pass it" — but nothing stopped a future task-description string,
+  // a copy-pasted command, or an LLM "let me try a clean day" improvisation from actually
+  // passing it in production and reserving into a phantom budget day, invisibly stepping
+  // around every real counter. Gate it behind an explicit env var so production is
+  // PHYSICALLY incapable of using it without a deliberate operator opt-in.
+  if (flags["budget-day"] && Bun.env.ARC_ALLOW_BUDGET_DAY_OVERRIDE !== "true") {
+    console.log(JSON.stringify({
+      error: true, reason: "budget_day_override_not_allowed",
+      detail: "--budget-day requires ARC_ALLOW_BUDGET_DAY_OVERRIDE=true (test/dry-run use only — never set in production).",
+    }));
+    process.exit(1);
+  }
   const budgetDay = flags["budget-day"] ?? todayDateStr();
 
   // dev-council/Lamport (CONFIRMED gap): releaseAbandonedReservations() had ZERO

@@ -135,9 +135,14 @@ export type AdmitGroupFailReason =
   | "global_cap_exceeded"      // P3: per-lane headroom was fine but the cross-lane DAILY_TWEET_CAP backstop isn't
   | "admission_txn_failed";
 
-/** Sentinel lane value for the cross-lane global backstop counter — never a real lane,
- *  never matched by any `WHERE lane='post'`/`'reply'`/etc. query elsewhere in the
- *  codebase. Keyed on (channel, utc_day) only, one row per day. */
+// SUPERSEDED (dev-council/Newman, applied — see admitGroup()'s global-backstop comment):
+// this sentinel-row approach was replaced by a derived cross-lane SUM. `GLOBAL_BACKSTOP_LANE`
+// is kept defined only because the three release functions below still reference it in a
+// dead branch (`if (row.global_reserved)` — always false now, since admitGroup() always
+// inserts `global_reserved=0`) guarding backward-compat for any historical row from this
+// phase's own brief live-testing window (all cleaned up). Left in place deliberately rather
+// than excised mid-fix-pass — removing it is a safe, no-behavior-change follow-up, not a
+// live risk (an always-false `if` is inert).
 const GLOBAL_BACKSTOP_LANE = "__global__";
 
 /**
@@ -459,7 +464,15 @@ export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult
   const actionIds: number[] = [];
 
   try {
-    db.exec("BEGIN");
+    // dev-council/Kleppmann (P3 fix, CONFIRMED robustness gap): a plain `BEGIN` opens a
+    // DEFERRED transaction — its first statement here is the SELECT below, so under real
+    // concurrency a second admitter that established its read snapshot first can hit
+    // SQLITE_BUSY_SNAPSHOT on this transaction's later write-upgrade, which `busy_timeout`
+    // does NOT retry (it's a snapshot conflict, not a lock wait). That surfaces as a
+    // spurious `admission_txn_failed` rather than a lock-wait honoring busy_timeout.
+    // `BEGIN IMMEDIATE` takes the write lock up front, turning contention into a bounded
+    // wait instead of an abort.
+    db.exec("BEGIN IMMEDIATE");
 
     const actionsToday = db
       .query(
@@ -503,34 +516,40 @@ export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult
       };
     }
 
-    // ── P3 arc-posting-scheduler: cross-lane global backstop ────────────────────
-    // The per-lane CAS above only proves THIS lane has headroom — it says nothing about
-    // the OTHER lanes' reservations today. DAILY_TWEET_CAP must stay an absolute
-    // cross-lane ceiling (CHECKPOINTS.md #2), so when the caller supplies `globalCap`,
-    // CAS-reserve the SAME M slots against a sentinel `lane='__global__'` row in this
-    // SAME transaction. If this second CAS fails, the whole transaction rolls back —
-    // including the per-lane reservation just above — so neither counter moves and the
-    // group stays fully unadmitted (never a partial "lane says yes, global says no"
-    // state).
+    // ── P3 arc-posting-scheduler: cross-lane global backstop (dev-council/Newman,
+    //    CONFIRMED HIGH — revised from the original sentinel-row design) ───────────────
+    // ORIGINAL DESIGN (superseded): a separate `lane='__global__'` sentinel row,
+    // CAS-reserved alongside the per-lane row. Newman's review found this was a
+    // distributed-write invariant that was ALREADY violated on day one: the pre-existing
+    // legacy 'post'-lane path (cli.ts's un-migrated guard stack, still live for the
+    // cadence beat and any caller that never migrates) writes its own budget_ledger
+    // updates directly and was never taught to also bump the sentinel — so the "absolute
+    // ceiling" was only absolute for reserve-group callers, while the legacy path could
+    // independently add up to DAILY_TWEET_CAP MORE tweets on top, unseen. Worst case:
+    // ~2x the intended envelope (exactly what CHECKPOINTS.md #2 says must NOT happen).
+    //
+    // REVISED (this fix): no sentinel row, no separate counter to keep in sync. Compute
+    // the cross-lane total as a live SUM over budget_ledger — the same rows EVERY path
+    // already writes (the per-lane CAS above, and the legacy path's own existing
+    // dual-write) — read inside this SAME transaction, immediately after the per-lane
+    // CAS succeeds (so the SUM already includes this group's own M). `lane != 'reply'`
+    // preserves the pre-existing, deliberate design decision (arc-demand-gen P1, restated
+    // in this module's own admitAction() docs) that replies have NEVER counted toward
+    // DAILY_TWEET_CAP — a global ceiling scoped to "every tweet-producing lane except
+    // replies" is what CHECKPOINTS.md #2 actually means, made explicit here rather than
+    // left for a future phase to guess (P2's own carried-forward disclosure).
     if (globalCap !== undefined) {
-      db.run(
-        `INSERT OR IGNORE INTO budget_ledger(channel, utc_day, lane, reserved_count, sent_count, cap)
-         VALUES ('x', ?, ?, 0, 0, ?)`,
-        [budgetDay, GLOBAL_BACKSTOP_LANE, globalCap]
-      );
-      const globalUp = db.run(
-        `UPDATE budget_ledger SET reserved_count=reserved_count+?
-         WHERE channel='x' AND utc_day=? AND lane=? AND reserved_count+? <= cap`,
-        [m, budgetDay, GLOBAL_BACKSTOP_LANE, m]
-      );
-      if (globalUp.changes !== 1) {
+      const crossLaneTotal = db
+        .query(
+          `SELECT COALESCE(SUM(reserved_count),0) as total FROM budget_ledger
+           WHERE channel='x' AND utc_day=? AND lane != 'reply'`
+        )
+        .get(budgetDay) as { total: number };
+      if (crossLaneTotal.total > globalCap) {
         db.exec("ROLLBACK");
-        const currentGlobal = db
-          .query("SELECT reserved_count, cap FROM budget_ledger WHERE channel='x' AND utc_day=? AND lane=?")
-          .get(budgetDay, GLOBAL_BACKSTOP_LANE) as { reserved_count: number; cap: number } | null;
         return {
           ok: false, reason: "global_cap_exceeded",
-          detail: `M=${m} would exceed the cross-lane global backstop (reserved=${currentGlobal?.reserved_count ?? "?"}/${currentGlobal?.cap ?? globalCap}) — lane=${lane} had its own headroom, but the absolute daily ceiling doesn't; whole group deferred, zero rows admitted, lane reservation rolled back too`,
+          detail: `cross-lane total (all non-reply lanes, INCLUDING this group's own M=${m}) = ${crossLaneTotal.total} exceeds globalCap=${globalCap} — lane=${lane} had its own headroom, but the absolute daily ceiling doesn't; whole group deferred, zero rows admitted, lane reservation rolled back too`,
         };
       }
     }
@@ -543,9 +562,14 @@ export function admitGroup(db: Database, opts: AdmitGroupOpts): AdmitGroupResult
             earliest_utc_time, latest_utc_time, global_reserved)
          VALUES (?, 'x', ?, 'queued', ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?)`,
         [
+          // global_reserved is always 0 now — the global backstop (above) is a derived
+          // SUM over budget_ledger, not a separately-reserved counter, so there is no
+          // per-row "did this consume a global slot" fact to record anymore (dev-council/
+          // Newman fix — see the comment on the global-backstop check above). The column
+          // is kept in the schema (harmless, already migrated) for any historical rows.
           sourceKeys[i], lane, payloadRefs[i], payloadHashes[i],
           isRootFlags[i] ? 1 : 0, threadRef, budgetDay, accountId ?? null, atomicGroupId,
-          earliestUtcTime ?? null, latestUtcTime ?? null, globalCap !== undefined ? 1 : 0,
+          earliestUtcTime ?? null, latestUtcTime ?? null, 0,
         ]
       );
       const actionId = insertRes.lastInsertRowid as number;
@@ -645,7 +669,7 @@ export function releaseAbandonedReservations(
   // the SELECT's now-stale snapshot.
   const released: ReleasedRow[] = [];
   try {
-    db.exec("BEGIN");
+    db.exec("BEGIN IMMEDIATE");
     const abandoned = db
       .query(
         `SELECT id, lane, budget_day, global_reserved FROM outbound_action
@@ -668,9 +692,8 @@ export function releaseAbandonedReservations(
          WHERE channel='x' AND utc_day=? AND lane=?`,
         [row.budget_day, row.lane]
       );
-      // P3 arc-posting-scheduler: this row also reserved a cross-lane global-backstop
-      // slot at admission (admitGroup with globalCap) — release that too, or the
-      // global counter leaks upward exactly like the per-lane one used to.
+      // Dead branch now (global_reserved is always 0 post-Newman-fix) — see
+      // GLOBAL_BACKSTOP_LANE's comment. Kept for any historical row.
       if (row.global_reserved) {
         db.run(
           `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
@@ -684,6 +707,56 @@ export function releaseAbandonedReservations(
       );
       released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
     }
+
+    // ── P3 arc-posting-scheduler (dev-council/Kleppmann, "finding A", CONFIRMED
+    //    durability gap) ─────────────────────────────────────────────────────────
+    // A group reserved via admitGroup() but never drained stays `status='queued'`
+    // with `lease_expires_at=NULL` FOREVER — the sweep above only targets 'sending'
+    // rows with an expired lease, so a `window_not_open_yet` park (cli.ts, this
+    // phase) that's then abandoned (process crash, caller never retries) leaks its
+    // reservation on both the lane and the (now-derived) cross-lane total for the
+    // rest of the UTC day. P2's reserve→drain gap was sub-second (same dispatch
+    // turn); P3's window parking stretches that gap to up to ~an hour, widening
+    // this exposure. Reclaim `queued` rows whose window has PERMANENTLY closed —
+    // either a past budget_day, or today with `latest_utc_time` already behind
+    // wall-clock — mirroring cli.ts's own `window_closed_no_post` logic but as a
+    // caller-independent, time-based sweep rather than requiring someone to retry
+    // the exact `--source`.
+    const windowExpired = db
+      .query(
+        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
+         WHERE status='queued' AND latest_utc_time IS NOT NULL
+           AND (budget_day < date('now')
+                OR (budget_day = date('now') AND latest_utc_time < strftime('%H:%M','now')))`
+      )
+      .all() as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+
+    for (const row of windowExpired) {
+      const flip = db.run(
+        `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
+        [utcNow(), row.id]
+      );
+      if (flip.changes !== 1) continue; // raced with a concurrent claim/release — do not double-release
+
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [row.budget_day, row.lane]
+      );
+      if (row.global_reserved) {
+        db.run(
+          `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+           WHERE channel='x' AND utc_day=? AND lane=?`,
+          [row.budget_day, GLOBAL_BACKSTOP_LANE]
+        );
+      }
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `window permanently closed with no drain attempt — reservation released by releaseAbandonedReservations()'s time-based sweep`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+    }
+
     db.exec("COMMIT");
   } catch (err) {
     try { db.exec("ROLLBACK"); } catch {}
@@ -704,7 +777,7 @@ export function releaseAbandonedReservations(
  */
 export function releaseSingleReservation(db: Database, actionId: number, reasonNote: string): boolean {
   try {
-    db.exec("BEGIN");
+    db.exec("BEGIN IMMEDIATE");
     const row = db
       .query(`SELECT lane, budget_day, status, global_reserved FROM outbound_action WHERE id=?`)
       .get(actionId) as { lane: string; budget_day: string; status: string; global_reserved: number } | null;
@@ -712,8 +785,17 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
       db.exec("ROLLBACK");
       return false;
     }
+    // dev-council/Kleppmann (P3 fix, CONFIRMED gap): the original guard was
+    // `status != 'sent'`, which ALSO matches `'unknown'` — so calling this function
+    // TWICE on the same already-released row (a real risk once cli.ts's window-closed
+    // branch can be reached by overlapping/retried drains) would flip 'unknown'->'unknown'
+    // (a no-op status-wise) but the UPDATE still reports changes=1, so the caller would
+    // decrement reserved_count a SECOND time for a slot already released — driving the
+    // ledger to under-count reserved (over-admission risk, the exact failure this module
+    // exists to prevent). Narrowing to `IN ('queued','sending')` makes a second call on an
+    // already-'unknown' row a genuine no-op (0 rows matched, returns false, no decrement).
     const flip = db.run(
-      `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status != 'sent'`,
+      `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status IN ('queued','sending')`,
       [utcNow(), actionId]
     );
     if (flip.changes !== 1) {
@@ -759,25 +841,48 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
  * (caller-driven) rather than being discovered later by a lease-expiry sweep.
  */
 export function releaseGroupRemainder(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
-  const remaining = db
-    .query(`SELECT id, lane, budget_day, global_reserved FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
-    .all(atomicGroupId) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
-
-  if (remaining.length === 0) return [];
-
-  const byGroup = new Map<string, number>();
-  const byGlobalDay = new Map<string, number>(); // P3: budget_day -> count of global-reserved rows
-  for (const row of remaining) {
-    const key = `${row.lane}|${row.budget_day}`;
-    byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
-    if (row.global_reserved) {
-      byGlobalDay.set(row.budget_day, (byGlobalDay.get(row.budget_day) ?? 0) + 1);
-    }
-  }
-
+  // dev-council/Kleppmann (P3 fix, CONFIRMED gap): the original SELECT ran BEFORE any
+  // transaction, so its snapshot could go stale if a concurrent/retried call raced this
+  // one (or a legitimate drain completed a row) between the SELECT and the flip below —
+  // the old code decremented budget_ledger by the STALE snapshot count regardless of
+  // whether each row's flip actually took effect. Fix: SELECT, per-row flip (re-checking
+  // status='queued' at write time), and the ledger decrements ALL run inside ONE
+  // transaction, and the decrement amount is the ACTUAL number of rows this call flipped
+  // (`changes`), never the pre-transaction snapshot count — so two overlapping calls on
+  // the same group can each only release what's genuinely still 'queued' at their own
+  // flip moment, never double-decrementing the same row's reservation.
   const released: ReleasedRow[] = [];
   try {
-    db.exec("BEGIN");
+    db.exec("BEGIN IMMEDIATE");
+    const remaining = db
+      .query(`SELECT id, lane, budget_day, global_reserved FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
+      .all(atomicGroupId) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+
+    if (remaining.length === 0) {
+      db.exec("ROLLBACK");
+      return [];
+    }
+
+    const byGroup = new Map<string, number>();
+    const byGlobalDay = new Map<string, number>(); // dead-branch bookkeeping, see GLOBAL_BACKSTOP_LANE comment
+    for (const row of remaining) {
+      const flip = db.run(
+        `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
+        [utcNow(), row.id]
+      );
+      if (flip.changes !== 1) continue; // raced with a concurrent completion/release — do not double-count
+      const key = `${row.lane}|${row.budget_day}`;
+      byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
+      if (row.global_reserved) {
+        byGlobalDay.set(row.budget_day, (byGlobalDay.get(row.budget_day) ?? 0) + 1);
+      }
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `atomic_group_id=${atomicGroupId} remainder released: ${reasonNote}`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+    }
+
     for (const [key, count] of byGroup) {
       const [lane, budgetDay] = key.split("|");
       db.run(
@@ -786,23 +891,12 @@ export function releaseGroupRemainder(db: Database, atomicGroupId: string, reaso
         [count, budgetDay, lane]
       );
     }
-    // P3: release the matching cross-lane global-backstop slots too (see the identical
-    // note in releaseAbandonedReservations above) — one decrement per budget_day, sized
-    // to however many of the released rows were actually global-reserved.
     for (const [budgetDay, count] of byGlobalDay) {
       db.run(
         `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
          WHERE channel='x' AND utc_day=? AND lane=?`,
         [count, budgetDay, GLOBAL_BACKSTOP_LANE]
       );
-    }
-    for (const row of remaining) {
-      db.run(`UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=?`, [utcNow(), row.id]);
-      db.run(
-        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
-        [row.id, `atomic_group_id=${atomicGroupId} remainder released: ${reasonNote}`]
-      );
-      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
     }
     db.exec("COMMIT");
   } catch (err) {

@@ -6,6 +6,11 @@
 
 import { Database } from "bun:sqlite";
 import { join } from "path";
+// dev-council/Lamport (P3 fix, CONFIRMED CRITICAL — F1): reserveDailyReadGroup() commits
+// its reservation in a SEPARATE subprocess/transaction from claimEdition(). If claimEdition
+// fails or throws AFTER a successful reservation, nothing released it — see cmdPost's use
+// below for the full scenario (orphaned rows, permanent same-edition starvation).
+import { releaseGroupRemainder } from "../social-engine/admission.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 // P1 (arc-demand-flywheel): env override lets verification/testing point at a scratch copy
@@ -615,7 +620,24 @@ async function postTweet(
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
-    console.error(`X post failed (source: ${source}): ${stderr}`);
+    // dev-council/Hohpe (P3 fix, CONFIRMED HIGH — C2): this used to flatten EVERY non-zero
+    // exit into a generic console.error with NO hook-state write — so the single WORST
+    // outcome this quest can produce (a mid-drain `window_closed_no_post`, which can leave
+    // an orphaned, partially-published thread live on X — see cli.ts's fast-path fix) was
+    // exactly the one that never rang the alert `ops/monitor/arc-flywheel-health.ts`
+    // watches. The reservation-stage failure (reserveDailyReadGroup, above) already writes
+    // loud hook-state; the DRAIN-stage failure must too, using the SAME contract, so a
+    // human sees "daily-read broke mid-post" and not just a stale "last reservation was
+    // fine" state.
+    let parsedReason = "post_failed_non_zero_exit";
+    let parsedDetail = stderr.slice(0, 300) || `exit ${exitCode}`;
+    try {
+      const parsed = JSON.parse(stdout) as Record<string, unknown>;
+      if (typeof parsed["reason"] === "string") parsedReason = parsed["reason"];
+      parsedDetail = JSON.stringify(parsed).slice(0, 300);
+    } catch { /* stdout wasn't JSON — keep the stderr-derived defaults */ }
+    console.error(`X post failed (source: ${source}, reason=${parsedReason}): ${stderr}`);
+    await writeDailyReadDeferState(parsedReason, `mid-drain failure on source=${source}: ${parsedDetail}`);
     return null;
   }
 
@@ -1043,12 +1065,41 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
 
   // Claim this edition_n BEFORE posting anything — the linearization point (see claimEdition
   // doc comment). Skipped in --dry-run so test runs never mutate daily_read_log.
+  //
+  // dev-council/Lamport (P3 fix, CONFIRMED CRITICAL — F1): the ORIGINAL version of this
+  // block exited on `!claimed` (or would have propagated an exception) WITHOUT releasing
+  // the reservation `reserveDailyReadGroup()` just committed. Because `source_key` is
+  // UNIQUE and `getEditionN()` reads `daily_read_log` (untouched by the orphaned
+  // `outbound_action` rows), the NEXT tick recomputes the SAME edition N, composes the
+  // SAME `daily-read:N:*` keys, and `reserve-group`'s idempotency check finds them
+  // already `queued` → `already_exists` → deferred, forever. That is a PERMANENT,
+  // self-inflicted starvation of daily-read — the exact failure class this quest exists
+  // to kill, reintroduced through this seam. Fix: release the reservation on ANY
+  // claim-failure path (`!claimed` OR an exception) before exiting/rethrowing.
   if (!dryRun) {
     const claimDb = getDb();
-    const claimed = claimEdition(claimDb, beat.editionN, beat.findingSlug, beat.openingLine);
+    let claimed = false;
+    try {
+      claimed = claimEdition(claimDb, beat.editionN, beat.findingSlug, beat.openingLine);
+    } catch (claimErr) {
+      claimDb.close();
+      console.log(`ERROR: claimEdition threw — releasing reservation before rethrowing: ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
+      if (reservation.atomicGroupId && reservation.atomicGroupId !== "dry-run-atomic-group-id") {
+        const releaseDb = getDb();
+        releaseGroupRemainder(releaseDb, reservation.atomicGroupId, `claimEdition threw for edition ${beat.editionN} — releasing reservation to avoid a permanently-stuck edition`);
+        releaseDb.close();
+      }
+      throw claimErr;
+    }
     claimDb.close();
     if (!claimed) {
-      console.log(`SKIPPED: edition ${beat.editionN} already claimed in daily_read_log (concurrent run or retry) — aborting to avoid double-post`);
+      console.log(`SKIPPED: edition ${beat.editionN} already claimed in daily_read_log (concurrent run or retry) — releasing this run's reservation and aborting to avoid double-post`);
+      if (reservation.atomicGroupId && reservation.atomicGroupId !== "dry-run-atomic-group-id") {
+        const releaseDb = getDb();
+        const released = releaseGroupRemainder(releaseDb, reservation.atomicGroupId, `edition ${beat.editionN} already claimed elsewhere — releasing this run's now-redundant reservation`);
+        releaseDb.close();
+        console.log(`  released ${released.length} reserved row(s) for atomic_group_id=${reservation.atomicGroupId}`);
+      }
       process.exit(0);
     }
   } else {
