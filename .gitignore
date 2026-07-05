@@ -13,6 +13,7 @@ logs/
 .env.bak-*
 *.bak
 *.bak-*
+*.bak.*
 .planning/
 credentials.enc
 github/

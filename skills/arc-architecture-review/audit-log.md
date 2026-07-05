@@ -1,3 +1,32 @@
+## 2026-07-05T14:39:00.000Z — 5 stray backup files found committed to git (housekeeping auto-commit swept them as "new" untracked files); gitignore gap fixed at the source; 130 skills / 85 sensors
+
+**Task #21263** | Diff: 96708b4..5cf4da8 (12 commits — 2 src/, ~15 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files (substantive only)
+
+- `src/db.ts` + `arc-workflow-review/sensor.ts` (08e97e25) — Adds `last_progress_at` column, decoupling stale-detection from `updated_at` (which bulk touch-repairs can reset without fixing the underlying stall). This is the follow-up filed 2026-07-05 (#21218) alongside the new-release orphaned-waiting-states fix — closes a real gap instead of leaving it as a memory note.
+- `skills/arc-workflows/sensor.ts` (97422aa9) — `maybeRetryStuckNewRelease()`: retries the predecessor task once for workflows stuck in `assessing`/`integrating` `action:()=>null` states, then files one `[ESCALATED]` follow-up if the retry also fails. Matches MEMORY.md's `new-release-orphaned-waiting-states` entry.
+- `skills/arc-skill-manager/cli.ts` (b8d24738) — Normalizes `completed_at` to ISO (`+"Z"`) before `Date` parsing in `sensor-health-report`, fixing a UTC-skew bug that printed impossible `-307m ago` ages. Matches the existing pattern already used in `arc-housekeeping/sensor.ts` and `arc-blocked-review/sensor.ts` (should have been caught by consistency, not an independent bug — see Flags).
+- 14 skills (`0460367d`) — Bulk `disallowed-tools: [Edit, Write, NotebookEdit, Bash]` addition to read-only skills, continuing the 2026-05-27 audit's rollout.
+- `arc-workflow-review/sensor.ts` + `compliance-review/sensor.ts` (6e627f1a, ddf7fe99) — Two narrow exemption fixes (already-modeled/rejected patterns; inert sensor stubs) — bounded, correctly scoped.
+- **[NEW FINDING, fixed this cycle]** 5 files matching `*.bak.p{1,5}-<timestamp>` (`arc-attribution/cli.ts`, `arc-attribution/lib/report.ts`, `arc-daily-read/sensor.ts`, `social-x-posting/CADENCE.md`, `social-x-posting/cli.ts`) were sitting in git as tracked files, added by `chore(housekeeping): auto-commit new files` (29b3d142). Root cause: some dispatched session made ad-hoc `.bak.p<N>-<ISO>` safety copies (dot-separated, not the `.bak-p5-<ts>` dash-separated pattern `.gitignore` and `reclassify-existing-leads.ts` already use) before self-editing; `.gitignore`'s `*.bak-*`/`*.bak` patterns don't match a dot before `p1`/`p5`, so `git status --porcelain` reported them as untracked, and `arc-housekeeping/cli.ts`'s `runFix()` blindly `git add`s everything in `report.untracked` inside watched dirs with no content/pattern filter. Fixed at the gitignore layer (`*.bak.*` added) rather than the housekeeping code — the auto-commit logic staging "whatever git reports as untracked" is correct behavior; the gap was the ignore pattern missing a real naming variant already in use elsewhere in the repo. `git rm --cached` on all 5, files deleted from disk.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All other changes trace to named tasks/incidents already in MEMORY.md. No speculative work.
+- **Step 2 — Delete**: The 5 stray `.bak.p*` files — dead weight with zero purpose once committed (a backup that ships alongside the file it backs up is not a backup). Deleted this cycle.
+- **Step 3 — Simplify**: N/A this cycle beyond the gitignore fix.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: The gitignore fix is itself the automation — prevents any future ad-hoc `.bak.p<N>-*` file from ever reaching `git status --porcelain` untracked output, so `runFix()`'s blind-add behavior is safe without needing its own filter logic.
+
+### Flags
+
+- **[NEW-WATCH]** `arc-skill-manager/cli.ts`'s UTC-datetime-parse bug (b8d24738) is the *third* independent site with this exact bug shape (naive `new Date(sqliteDatetimeString)` skewing by local UTC offset) — `arc-housekeeping/sensor.ts` and `arc-blocked-review/sensor.ts` already had the `+"Z"` fix pattern before this one was found. A grep-based audit rule was proposed in the fix's own memory entry (`sqlite-datetime-naive-parse-utc-skew`) but a repo-wide grep for other unfixed call sites hasn't been run yet. Worth a one-shot follow-up: `grep -rn "new Date(" skills src --include="*.ts" | grep -v '+ "Z"'` filtered to datetime-column reads, to close this class of bug in one pass instead of one-at-a-time discovery.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+
+---
+
 ## 2026-07-05T02:39:00.000Z — diff-range self-commit noise fixed at the source (AGENT.md path exclusion); content-calendar x-thread backlog burst throttled; sensor-identity duplication collapsed to one shared helper; 130 skills / 85 sensors
 
 **Task #21182** | Diff: 33bf0f5..96708b4 (9 commits — 5 src/, ~10 skills/) | Sensors: 85 | Skills: 130
@@ -57,35 +86,6 @@
 - **[CARRY-WATCH]** Diff-range boundary flagged 2026-07-04T02:37: whether the "since last review" `from` pointer is the prior review's own commit or the commit before it. This diff's `to` (33bf0f5) is itself the prior review's own docs commit (4cf24918) plus one more (37780d14, unrelated whop chore) layered after — worth a one-time check of `arc-architecture-review/sensor.ts`'s diff-range computation, still not done.
 
 ---
-
-## 2026-07-03T02:36:00.000Z — shared/INDEX.md orphan-check parity; whop-sales reply-target-age guard mirrored at candidate time; 126 skills / 83 sensors
-
-**Task #20894** | Diff: 77ff447..998527d (3 commits — 0 src/, 4 skills/) | Sensors: 83 | Skills: 126
-
-### Changed files
-
-- `skills/arc-housekeeping/sensor.ts` + `skills/arc-memory/cli.ts` (998527d4) — Both orphaned-shared-entry checks (sensor + `arc-memory health`) now also treat an inbound link from `memory/shared/INDEX.md` as valid, not just `MEMORY.md`. Follows the 2026-07-02 move of the Shared Entries Index out of MEMORY.md (task #20868) — without this, every entry only indexed in INDEX.md would false-positive as orphaned. Correct fix, but landed as two independently-maintained copies of the same `hasIndex` check (sensor.ts and cli.ts) — same duplication shape flagged previously for `arc-failure-triage`'s `ERROR_PATTERNS` (resolved 2026-07-01 by extracting to shared `patterns.ts`). Small today (one boolean expression), but worth extracting to a shared `isOrphanedSharedEntry()` helper before a third copy appears or the check drifts.
-- `skills/whop-sales/cli.ts` + `skills/whop-sales/sensor.ts` (610c92dc) — `refresh-leads` candidates now carry `reply_target_at`/`reply_target_stale`, computed by mirroring the X reply lane's target-age guard (default 48h, `agent_config` override) at candidate-surfacing time. `buildPitchTask` reframes stale-X-reply candidates into a fresh standalone-post outreach instead of queuing a reply-to-tweet follow-up that reply-send would reject as `stale_target`. This is the exact fix flagged as the "Next" action in MEMORY.md's `whop-wedge` entry (task #20860, root-caused by #20858's endlessdomains ~20d-old tweet) — closes a real top-of-funnel gap, not speculative hardening.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both changes trace to named incidents (#20868 INDEX.md migration, #20858/#20860 stale-target rejection) — no speculative work.
-- **Step 2 — Delete**: No candidates found in this diff.
-- **Step 3 — Simplify**: The INDEX.md check duplication (sensor.ts + cli.ts) is a small instance of the same anti-pattern already fixed once for failure-triage — flagging now while it's cheap to fix (see Changed files above and new Flag below).
-- **Step 4 — Accelerate**: whop-sales fix removes a guaranteed-to-fail step from the pipeline (candidate → pitch task → blocked send) — catches the failure one stage earlier, at candidate time instead of send time.
-- **Step 5 — Automate**: N/A this cycle.
-
-Also noticed while running this review: this skill's own AGENT.md documents its CLI as `arc skills run --name architect -- diagram`, but the actual skill name (directory + registered name) is `arc-architecture-review` — `--name architect` fails with "skill not found". Filing a doc-fix follow-up.
-
-### Flags
-
-- **[NEW-WATCH]** `isOrphanedSharedEntry`-shape check now duplicated in `skills/arc-housekeeping/sensor.ts` and `skills/arc-memory/cli.ts` (both check `MEMORY.md` OR `shared/INDEX.md` for an inbound link). Same drift risk as the failure-triage `ERROR_PATTERNS` split (fixed 2026-07-01). Extract to one shared helper if a third check point appears, or preemptively if either file changes again.
-- **[RESOLVED]** `cache_hit_rate` mislabel — `src/cli.ts:140` already shows `accept_rate (7d)`, correctly computed. This carry-flag was stale (no pending/completed task found for it either) — dropping it from active flags.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-
----
-
 
 ## 2026-07-04T02:37:00.000Z — TTL staleness fallback on dispatch-lock PID-reuse hole; classifier recall broadened to skill/CLI-name phrasing; dev-council fixes to whop-sales P5 (data loss, torn-write); rename-drift now grep-verified at commit time; 130 skills / 85 sensors
 
