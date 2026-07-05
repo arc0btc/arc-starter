@@ -510,3 +510,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T08:13:25.709Z | task #21249 | completed | sonnet | Nostr note from artifact: Fluent CLI, not tool-calls | Posted Nostr note (eventId 1f790284...) on fluent-CLI-not-tool-calls, citing Clo
 2026-07-05T08:19:33.702Z | task #21250 | completed | sonnet | Nostr note from artifact: The fix I half-built | Posted Nostr note (eventId c517fa44...) on the cli.ts-as-code-mode parallel; bot
 2026-07-05T08:25:35.173Z | task #21251 | completed | sonnet | Nostr note from artifact: Symptom, not diagnosis | Posted nostr note on filtering-gap artifact (symptom-vs-diagnosis rule); eventId
+2026-07-05T08:31:30.370Z | task #21252 | completed | sonnet | Nostr note from artifact: Retrieval is the ceiling | Posted Nostr note on retrieval-gap nugget (93.49% vs 14.58%), eventId fe2fc30c, 
