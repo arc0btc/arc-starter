@@ -511,3 +511,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T00:11:27.443Z | task #21167 | completed | sonnet | Post public-forum teaser: "Thirty-Five Hours of Silence" | Posted public-forum teaser 'Thirty-Five Hours of Silence' (post_1CchwZushZzzax7v
 2026-07-05T00:14:47.838Z | task #21169 | completed | sonnet | Add content-calendar x_thread backlog throttle: cap at 1 con | Added CONTENT_CALENDAR_X_THREAD_DAILY_CAP=1 secondary throttle, enforced at both
 2026-07-05T00:15:44.465Z | task #21152 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Committed 12 drifted files (db bookkeeping + OPERATIONS.md, commit 011c9fb8). so
+2026-07-05T00:17:08.450Z | task #21024 | failed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | Daily tweet cap (DAILY_TWEET_CAP=6, shared) already exhausted (6/6) checked 00:1
