@@ -5,9 +5,8 @@
 // P7 audit task per day with structured findings.
 // Pure TypeScript — no LLM.
 
-import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState, resolveSensorConsecutiveFailures } from "../../src/sensors.ts";
 import {
   insertTask,
   pendingTaskExistsForSource,
@@ -120,26 +119,17 @@ interface SkillHealthMetrics {
   sensorFailures: string[]; // sensor names with consecutive_failures > 0
 }
 
-async function collectSkillHealthMetrics(): Promise<SkillHealthMetrics> {
+function collectSkillHealthMetrics(): SkillHealthMetrics {
   const skills = discoverSkills();
   const sensorsWithIssues: string[] = [];
 
-  const hookStateDir = join(ROOT, "db/hook-state");
-  if (existsSync(hookStateDir)) {
-    const files = readdirSync(hookStateDir).filter((f) => f.endsWith(".json"));
-    for (const file of files) {
-      try {
-        const name = file.replace(".json", "");
-        const state = await readHookState(name);
-        if (state && state.consecutive_failures) {
-          const failures = state.consecutive_failures as number;
-          if (failures > 0) {
-            sensorsWithIssues.push(`${name} (${failures} failures)`);
-          }
-        }
-      } catch {
-        // skip unreadable state files
-      }
+  for (const skill of skills.filter((s) => s.hasSensor)) {
+    const failures = resolveSensorConsecutiveFailures(
+      join(skill.path, "sensor.ts"),
+      skill.name
+    );
+    if (failures > 0) {
+      sensorsWithIssues.push(`${skill.name} (${failures} failures)`);
     }
   }
 
@@ -360,7 +350,7 @@ export default async function selfAuditSensor(): Promise<string> {
   // Gather all metrics
   const taskMetrics = collectTaskQueueMetrics();
   const costMetrics = collectCostMetrics();
-  const skillMetrics = await collectSkillHealthMetrics();
+  const skillMetrics = collectSkillHealthMetrics();
   const codebaseMetrics = collectCodebaseMetrics();
   const cycleMetrics = collectRecentCycleMetrics();
 

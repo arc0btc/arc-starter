@@ -8,7 +8,7 @@
 //
 // State files live in db/hook-state/{name}.json (already in .gitignore).
 
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
@@ -53,6 +53,82 @@ export async function readHookState(name: string): Promise<HookState | null> {
 export async function writeHookState(name: string, state: HookState): Promise<void> {
   const filePath = join(HOOK_STATE_DIR, `${name}.json`);
   await Bun.write(filePath, JSON.stringify(state));
+}
+
+// ---- Identity resolution ----
+
+/**
+ * Resolve a sensor's internal SENSOR_NAME / TASK_SOURCE_PREFIX from its source file,
+ * falling back to the directory name. Shared by arc-skill-manager's sensor-health-report
+ * and any other consumer that needs to match hook-state files to a sensor's real identity
+ * (directory name and internal SENSOR_NAME can diverge, e.g. arc0btc-pr-review vs
+ * pr-review-attestation).
+ */
+export function resolveSensorIdentity(
+  sensorPath: string,
+  fallbackName: string
+): { stateKey: string; sourcePrefix: string } {
+  let stateKey = fallbackName;
+  let sourcePrefix = `sensor:${fallbackName}`;
+  try {
+    const source = readFileSync(sensorPath, "utf-8");
+    const nameMatch = source.match(/const\s+SENSOR_NAME\s*=\s*["'`]([^"'`]+)["'`]/);
+    if (nameMatch) {
+      stateKey = nameMatch[1];
+      sourcePrefix = `sensor:${stateKey}`;
+    }
+    const prefixMatch = source.match(/const\s+TASK_SOURCE_PREFIX\s*=\s*["'`]([^"'`]+)["'`]/);
+    if (prefixMatch) {
+      sourcePrefix = prefixMatch[1];
+    }
+  } catch {
+    // unreadable sensor source — fall back to the directory/frontmatter name
+  }
+  return { stateKey, sourcePrefix };
+}
+
+/**
+ * Resolve the live consecutive_failures count for a sensor, using the same
+ * identity-resolution + candidate-file matching as sensor-health-report
+ * (task #21065). Avoids false positives from reading hook-state keyed on
+ * a stale directory name instead of the sensor's real SENSOR_NAME.
+ */
+export function resolveSensorConsecutiveFailures(
+  sensorPath: string,
+  fallbackName: string
+): number {
+  const { stateKey } = resolveSensorIdentity(sensorPath, fallbackName);
+  const nameKeys = stateKey === fallbackName ? [stateKey] : [stateKey, fallbackName];
+
+  const candidateFiles: string[] = [];
+  for (const key of nameKeys) {
+    const exactFile = join(HOOK_STATE_DIR, `${key}.json`);
+    if (existsSync(exactFile)) candidateFiles.push(exactFile);
+  }
+  if (candidateFiles.length === 0 && existsSync(HOOK_STATE_DIR)) {
+    const dirEntries = readdirSync(HOOK_STATE_DIR);
+    for (const key of nameKeys) {
+      for (const f of dirEntries) {
+        if (f.startsWith(`${key}-`) && f.endsWith(".json")) {
+          candidateFiles.push(join(HOOK_STATE_DIR, f));
+        }
+      }
+    }
+  }
+
+  let consecutiveFailures = 0;
+  for (const stateFile of candidateFiles) {
+    try {
+      const raw = JSON.parse(readFileSync(stateFile, "utf-8"));
+      if (typeof raw.consecutive_failures === "number" && raw.consecutive_failures > consecutiveFailures) {
+        consecutiveFailures = raw.consecutive_failures;
+      }
+    } catch {
+      // unreadable state
+    }
+  }
+
+  return consecutiveFailures;
 }
 
 // ---- Logging ----

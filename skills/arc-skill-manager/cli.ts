@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
 import { initDatabase, getDatabase } from "../../src/db.ts";
+import { resolveSensorIdentity } from "../../src/sensors.ts";
 
 // ---- Constants ----
 
@@ -477,39 +478,6 @@ function cmdInstallHooks(): void {
 
   process.stdout.write(`Installed pre-commit hook: .git/hooks/pre-commit -> ${hookSource}\n`);
   process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
-}
-
-/**
- * Resolve a sensor's internal state key and task-source prefix from its sensor.ts.
- *
- * Sensors key their hook-state file and task source on an internal SENSOR_NAME
- * constant, which can differ from the skill directory name (e.g. skill
- * `arc0btc-pr-review` uses SENSOR_NAME "pr-review-attestation" and
- * TASK_SOURCE_PREFIX "sensor:pr-review-attestation"). The health report must
- * resolve these, or it reports false "last_run: never" / "no tasks" for a live
- * sensor. Falls back to the directory/frontmatter name when no const is found.
- */
-function resolveSensorIdentity(
-  sensorPath: string,
-  fallbackName: string
-): { stateKey: string; sourcePrefix: string } {
-  let stateKey = fallbackName;
-  let sourcePrefix = `sensor:${fallbackName}`;
-  try {
-    const source = readFileSync(sensorPath, "utf-8");
-    const nameMatch = source.match(/const\s+SENSOR_NAME\s*=\s*["'`]([^"'`]+)["'`]/);
-    if (nameMatch) {
-      stateKey = nameMatch[1];
-      sourcePrefix = `sensor:${stateKey}`;
-    }
-    const prefixMatch = source.match(/const\s+TASK_SOURCE_PREFIX\s*=\s*["'`]([^"'`]+)["'`]/);
-    if (prefixMatch) {
-      sourcePrefix = prefixMatch[1];
-    }
-  } catch {
-    // unreadable sensor source — fall back to the directory/frontmatter name
-  }
-  return { stateKey, sourcePrefix };
 }
 
 function cmdSensorHealthReport(): void {
