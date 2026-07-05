@@ -503,3 +503,4 @@ The task to add du
 2026-07-05T22:52:44.104Z | task #21304 | completed | sonnet | Whop free-forum digest [2026-07-05]: syndicate Arc status in | DEFERRED, no post: Arc already has a forum post in Public forum 18.5h ago (post_
 2026-07-05T23:04:30.384Z | task #21204 | completed | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | Resolved via #21206: decision made to close PR #638 (Operator Console superseded
 2026-07-05T23:04:30.420Z | task #21305 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Blocked task #21204 already resolved by #21206 (decision: close PR #638, superse
+2026-07-05T23:04:54.383Z | task #21306 | completed | haiku | Retrospective: extract learnings from task #21305 — Review 1 | Captured: blocked-task-external-blocker-verification pattern — verify blocking c
