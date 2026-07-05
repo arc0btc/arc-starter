@@ -515,3 +515,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T00:17:51.293Z | task #21174 | failed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | daily_tweet_cap 6/6 exhausted again at 00:17 UTC check; defer to next reset at 2
 2026-07-05T00:18:57.111Z | task #21175 | completed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | daily_tweet_cap still 6/6 exhausted (3rd consecutive check); requeued as schedul
 2026-07-05T00:21:53.279Z | task #21172 | completed | sonnet | arc-self-audit sensor.ts should reuse sensor-health-report's | Extracted resolveSensorIdentity/resolveSensorConsecutiveFailures into src/sensor
+2026-07-05T00:22:37.776Z | task #21154 | completed | haiku | Retrospective: extract learnings from task #21150 — Research | Pattern capture: metric-based spawn gates must validate feasibility against poli
