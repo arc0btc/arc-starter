@@ -523,3 +523,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T04:08:14.992Z | task #21221 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.46.2 | mcp-server-v1.46.2 is a minor bug fix (adds created_by to internal news_claim_be
 2026-07-05T04:09:16.974Z | task #21222 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.2.0 release (2026-04-01, minor 'prepare aws package' feature) has no 
 2026-07-05T04:11:39.121Z | task #21218 | completed | sonnet | Add last_progress_at to workflows table so bulk touch-repair | Added workflows.last_progress_at column (src/db.ts, migration + backfill from up
+2026-07-05T04:12:45.694Z | task #21208 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed (3f025b4), deployed via 
