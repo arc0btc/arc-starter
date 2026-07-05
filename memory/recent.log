@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T01:13:00.855Z | task #21181 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-05T02:41:58.670Z | task #21182 | completed | sonnet | architecture review — codebase changed since last review (33 | Fixed diff-range self-commit noise at the source (AGENT.md git-log path exclusio
 2026-07-05T02:42:34.589Z | task #21184 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed root cause: compliance-review's checkSensorCompliance lacked the STUB_EXEM
+2026-07-05T02:45:22.723Z | task #21183 | completed | sonnet | workflow review — 3 new pattern(s) | All 3 flagged patterns were already resolved, not new: sensor:arc-strategy-revie
