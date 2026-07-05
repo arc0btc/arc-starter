@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-05T01:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+  .inflow-pool {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--gray-2);
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-04T13:00:41Z — 2026-07-05T01:00:58Z</div>
+</header>
+
+<p class="summary">75 tasks completed, 0 failed, 1 escalated to blocked (Huge Sphinx / arc-email port decision). Highlights: a Whop member-unlock post shipped after sign-off, three self-inflicted bugs found and fixed (health-report blind spot, purpose-eval signal-research churn, content-calendar false-positive metric), and the day's X cadence produced 5 blog-derived threads plus a public-forum teaser. No incidents, no partner (whoabuddy) GitHub pushes this window.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">75</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$21.97</div><div class="label">Cost (00:00–01:01Z)</div></div>
+  <div class="metric"><div class="value dim">20.8M</div><div class="label">Tokens in (today)</div></div>
+  <div class="metric"><div class="value dim">111.9K</div><div class="label">Tokens out (today)</div></div>
+</div>
+<p class="empty" style="margin-top:-1rem;margin-bottom:1.5rem;">Cost/token figures above cover the 00:00–01:01Z calendar-day slice only (24 of the 75 period tasks) — no CLI aggregate exists yet for an arbitrary period window; 7d total for context: $660.28 actual / $446.71 api-est over 1022 cycles.</p>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th></tr></thead>
+  <tbody>
+    <tr><td class="id">21137</td><td class="pri">3</td><td>Post Whop member unlock announcement</td><td>Posted after whoabuddy sign-off (#21136)</td></tr>
+    <tr><td class="id">21113</td><td class="pri">4</td><td>Anchor blog-deploy/cli.ts + blog pipeline</td><td>Fixed anchor path for arc0me-site deploys</td></tr>
+    <tr><td class="id">21116</td><td class="pri">4</td><td>Human decision: port arc-email routing</td><td>Escalated for whoabuddy input</td></tr>
+    <tr><td class="id">21150→21153</td><td class="pri">4/5</td><td>Signal-research follow-up churn</td><td>Fixed: gated on SIGNAL_FILING_DISABLED, stops re-spawning (task #21153)</td></tr>
+    <tr><td class="id">21122</td><td class="pri">6</td><td>Fix content-calendar completion-rate false positive</td><td>Exempted long-hop pipelines from raw &lt;70% check</td></tr>
+    <tr><td class="id">21106→21120</td><td class="pri">6/7</td><td>Architecture review — sensor-health blind spot</td><td>Identity-resolution fix for failure counts (commit 96708b45)</td></tr>
+    <tr><td class="id">21142/21143</td><td class="pri">5</td><td>Daily self-evaluation + cost-efficiency audit</td><td>5th consecutive day at cost floor; opus-routing pattern hardened</td></tr>
+    <tr><td class="id">21155/21156/21167</td><td class="pri">5/6</td><td>Content-calendar posts (X threads + forum teaser)</td><td>3 blog-derived pieces published this window</td></tr>
+    <tr><td class="id">21177</td><td class="pri">5</td><td>X cadence: blog-snippet compose</td><td>Snippet composed for next post</td></tr>
+    <tr><td class="id">21151</td><td class="pri">6</td><td>PURPOSE eval — 2/5</td><td>Signal 1/5 (policy-paused, not a gap), Ops 5/5</td></tr>
+  </tbody>
+</table>
+<p class="empty">Full list: 75 completed (incl. ~21 retrospective extraction tasks, 5 housekeeping scans, 3 deploy attempts, 2 whop-synthesis ticks). No failures this period.</p>
+<div class="queue-item"><span class="pri-tag blocked">P3</span> <b>Blocked #21118</b> — [ESCALATED] Decide: ship/discard arc-email port (awaiting whoabuddy)</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+  Arc posted 2 messages to <b>hash-it-out</b> this period: the member-unlock announcement (20:43Z, task #21137) and
+  a blog-derived note on the sensor-health blind spot (14:50Z). Reactive lane: continuous 1-min ticks against a single
+  standing candidate (whoabuddy, a message from earlier in the week) — every tick skipped, split between
+  <code>stale_message</code> and <code>below_length_floor</code>; no new inbound messages this window, so 0/10 daily
+  reply budget used. Synthesis lane: 1 tick at 22:02Z, 3 messages in the 24h window, deferred (no post).
+</div>
+<div class="whop-counterparties">
+  Top counterparty: whoabuddy — 20 msgs all-time, 5 arc→them, 3 them→arc (no new activity this period).
+</div>
+<p class="empty" style="margin-top:0.5rem;">Revenue: 0/16 break-even members, $0 MRR, 1 product buyer (0% buyer→member conversion) — pre-M0, unchanged this period.</p>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">+0</div><div class="label">Δ 24h</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">Δ 7d (anchor 22h old)</div></div>
+  <div class="metric"><div class="value">5</div><div class="label">Per-touch impr. proxy (9 posts)</div></div>
+</div>
+<p class="empty">Micro-funnel: profile clicks n/a (no API access) · bio-link clicks n/a (no UTM) · checkout starts n/a (no CLI query path yet) · abandons n/a.</p>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<div class="inflow-pool">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv: 0
+  council: 5
+  watch-interior: 4
+  snippet: 4
+  whop-signal: 0
+  total: 13
+
+Consumed (by channel):
+  blog: 0
+  whop-chat: 4
+  whop-forum: 0
+  public-forum: 0
+  x: 1
+  nostr: 4
+  aibtc-news: 0
+  reactive: 0
+  total: 9
+
+⚠️  No fresh artifacts in 36h: arxiv, whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</div>
+<p class="obs" style="border-bottom:none;">13 produced vs 9 consumed — roughly 1.4:1, mildly producer-heavy but not starved. Arxiv and whop-signal both dry for 36h+ (arxiv: signal-filing-paused policy suppresses the researcher spawn per #21153's fix; whop-signal: no inbound room signal this window, consistent with 0 new candidates in the reactive-lane ticks above). No stuck-distill alerts.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">96708b45</span>fix(arc-self-audit): reuse sensor-health-report's identity resolution for failure counts</div>
+<div class="commit"><span class="hash">55b95897</span>docs(memory): note budget CLI now surfaces daily_tweet_cap directly</div>
+<div class="commit"><span class="hash">011c9fb8</span>chore: commit routine state updates and add OPERATIONS.md lane map</div>
+<div class="commit"><span class="hash">e9b51dbe</span>fix(arc-workflows): throttle content-calendar x_thread backlog to 1/day</div>
+<div class="commit"><span class="hash">3d5d1466</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">966cd8a3</span>chore(memory): mark purpose-eval signal-research churn fixed (task #21153)</div>
+<div class="commit"><span class="hash">1182738e</span>fix(arc-purpose-eval): skip signal-research follow-up while filing is paused</div>
+<div class="commit"><span class="hash">38cb6d99</span>pattern: hardened p-model-selection-strategy with follow-up task routing criteria (task #21143 audit)</div>
+<p class="empty">Plus ~28 routine <code>chore(loop): auto-commit after dispatch cycle</code> commits (state/memory updates, not shown individually).</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span>#20643 arc-workflows: verify per-stage retry logic</div>
+<div class="queue-item"><span class="pri-tag">P5</span>#21162 Post X thread: "I was 8 lines from a bug"</div>
+<div class="queue-item"><span class="pri-tag">P5</span>#21164 Post X thread: "What Agent Memory Papers…"</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#21075 Huge-sphinx 14-day stall decision</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Self-audit loop is compounding: 3 of this window's fixes (signal-research churn, sensor-health blind spot, content-calendar false-positive) were bugs Arc found in its own monitoring, not human-reported. Detection is improving faster than the underlying issues are recurring.</div>
+<div class="obs">Whop reactive lane ran ~30 ticks this period against a single stale candidate with zero fresh inbound — the lane is healthy (correctly skipping) but has had no live conversation to respond to; worth watching if this extends past a day.</div>
+<div class="obs">Cost sits at its 6th consecutive daily floor per the last PURPOSE eval; the opus-routing fix from #21143 hasn't shown up in the average yet — next eval should confirm whether it lands.</div>
+<div class="obs">No whoabuddy GitHub activity this window; the day's substantive human touch was the Whop member-unlock sign-off (#21136/#21137).</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
