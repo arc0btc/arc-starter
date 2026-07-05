@@ -14,6 +14,7 @@ import {
   insertWorkflow,
   completeWorkflow,
   getDatabase,
+  type Workflow,
 } from "../../src/db.ts";
 
 import {
@@ -22,6 +23,7 @@ import {
   getTemplateByName,
   AUTOMATED_PR_PATTERNS,
   type WorkflowAction,
+  type StateMachine,
 } from "./state-machine.ts";
 
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
@@ -32,6 +34,76 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 const SENSOR_NAME = "arc-workflows";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
+
+// new-release "waiting" states have action:()=>null — they exist only to wait for the task
+// spawned by the predecessor state (autoAdvanceState) to report back via a transition. If that
+// task fails, nothing retries it and the workflow sits orphaned forever (task #21215, 9 stuck
+// instances found 2026-07-05). Maps each waiting state to the predecessor state whose action
+// created the task now being waited on.
+const NEW_RELEASE_WAITING_STATES: Record<string, string> = {
+  assessing: "detected",
+  integrating: "integration_pending",
+};
+
+/**
+ * Detect and recover a new-release workflow stuck in assessing/integrating because the task
+ * that was supposed to move it forward failed. Retries once (source suffixed ":retry1"); if the
+ * retry also fails, files a single [ESCALATED] follow-up rather than looping forever.
+ * Returns true if a retry or escalation task was created this cycle.
+ */
+function maybeRetryStuckNewRelease(
+  workflow: Workflow,
+  template: StateMachine<unknown>
+): boolean {
+  const predecessorState = NEW_RELEASE_WAITING_STATES[workflow.current_state];
+  if (workflow.template !== "new-release" || !predecessorState) return false;
+
+  const originalSource = `workflow:${workflow.id}:${predecessorState}`;
+  if (getTaskStatusForSource(originalSource) !== "failed") return false;
+
+  const retrySource = `${originalSource}:retry1`;
+  if (pendingTaskExistsForSource(retrySource)) return false; // retry already in flight
+
+  if (getTaskStatusForSource(retrySource) === "failed") {
+    // Retry also failed — stop looping, escalate once (checked via 7-day cooldown on the
+    // escalation source itself so this doesn't spam every 5-minute tick).
+    const escalationSource = `${originalSource}:escalated`;
+    if (!recentTaskExistsForSource(escalationSource, 60 * 24 * 7)) {
+      insertTask({
+        subject: `[ESCALATED] new-release workflow ${workflow.id} (${workflow.instance_key}) stuck in "${workflow.current_state}"`,
+        description: `Workflow ${workflow.id} entered "${workflow.current_state}" but both the original task (source ${originalSource}) and its retry (source ${retrySource}) failed. Manual triage needed: inspect the failures (\`arc tasks --status failed\`, filter by source), fix the underlying blocker, then either complete the assessment/integration manually or transition the workflow forward with \`arc skills run --name arc-workflows -- transition ${workflow.id} <state>\`.`,
+        priority: 3,
+        model: "sonnet",
+        skills: ["arc-workflows"],
+        source: escalationSource,
+      });
+      log(`escalate: wf:${workflow.id} (${workflow.instance_key}) stuck in "${workflow.current_state}" — retry also failed`);
+    }
+    return true;
+  }
+
+  if (recentTaskExistsForSource(retrySource, 60)) return false; // don't duplicate within the hour
+
+  // Re-fire the predecessor state's action to retry the task that failed to move this workflow
+  // forward. The workflow itself stays in its current state — only a fresh attempt is queued.
+  const predecessorConfig = template.states[predecessorState];
+  const context = workflow.context ? JSON.parse(workflow.context) : {};
+  const retryAction = predecessorConfig?.action?.(context);
+  if (!retryAction || retryAction.type !== "create-task") return false;
+
+  insertTask({
+    subject: retryAction.subject ?? "",
+    description: retryAction.description
+      ? retryAction.description.replaceAll("{WORKFLOW_ID}", String(workflow.id))
+      : null,
+    priority: retryAction.priority || 5,
+    model: retryAction.model || "sonnet",
+    skills: retryAction.skills ? JSON.stringify(retryAction.skills) : null,
+    source: retrySource,
+  });
+  log(`retry: wf:${workflow.id} (${workflow.instance_key}) re-fired "${predecessorState}" task after failure (source ${retrySource})`);
+  return true;
+}
 
 
 interface GithubPR {
@@ -909,6 +981,11 @@ export default async function workflowsSensor(): Promise<string> {
           workflow.context
         );
         totalActions++;
+      } else if (action.type === "noop") {
+        bumpSkip("noop");
+        if (maybeRetryStuckNewRelease(workflow, template)) {
+          totalActions++;
+        }
       }
     }
 
