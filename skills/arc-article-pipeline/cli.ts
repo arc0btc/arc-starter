@@ -646,7 +646,8 @@ export function applyMentionPrefill(
   text: string,
   candidates: MentionCandidate[],
   field: "body" | "companionPost",
-  maxLength?: number
+  maxLength?: number,
+  maxMatches?: number
 ): { text: string; matches: MentionMatch[] } {
   type Insertion = { at: number; candidate: MentionCandidate; alias: string };
   const insertions: Insertion[] = [];
@@ -660,12 +661,19 @@ export function applyMentionPrefill(
     }
   }
 
+  // arc-strategy-panel (washington): curation-completeness pressure should never become a
+  // per-article tagging quota. Cap at the first N matches in reading order (ascending
+  // position), not an arbitrary subset -- a reader sees the earliest-referenced entities
+  // tagged, not a random sample.
+  insertions.sort((a, b) => a.at - b.at);
+  const capped = maxMatches !== undefined ? insertions.slice(0, Math.max(0, maxMatches)) : insertions;
+
   // Apply right-to-left: an insertion at a larger offset never invalidates the offset of one
   // computed at a smaller offset against the same original `text`.
-  insertions.sort((a, b) => b.at - a.at);
+  capped.sort((a, b) => b.at - a.at);
   let result = text;
   const matches: MentionMatch[] = [];
-  for (const ins of insertions) {
+  for (const ins of capped) {
     const candidateResult = `${result.slice(0, ins.at)} (@${ins.candidate.handle})${result.slice(ins.at)}`;
     if (maxLength !== undefined && candidateResult.length > maxLength) {
       log(`Mention pre-fill: skipping @${ins.candidate.handle} in ${field} — insertion would exceed the ${maxLength}-char limit`);
@@ -702,18 +710,25 @@ export function recordMentionEvents(db: Database, articleN: number, matches: Men
  * after writeXArticleFiles has durably written the article, so the log never asserts a mention
  * was surfaced in an artifact that doesn't yet exist on disk.
  */
+// arc-strategy-panel (washington): a hard ceiling on distinct accounts tagged per Article,
+// independent of how many candidates are curated -- prevents curation-completeness pressure
+// ("we have 6 candidates, so tag all 6 whenever they match") from becoming a tagging quota.
+export const MAX_MENTIONS_PER_ARTICLE = 3;
+
 export function prefillMentions(
   db: Database,
   x: XArticleDraft
 ): { draft: XArticleDraft; matches: MentionMatch[] } {
   const candidates = loadMentionCandidates(db);
   if (candidates.length === 0) return { draft: x, matches: [] };
-  const bodyResult = applyMentionPrefill(x.body, candidates, "body");
+  const bodyResult = applyMentionPrefill(x.body, candidates, "body", undefined, MAX_MENTIONS_PER_ARTICLE);
+  const remainingBudget = MAX_MENTIONS_PER_ARTICLE - bodyResult.matches.length;
   const companionResult = applyMentionPrefill(
     x.companionPost,
     candidates,
     "companionPost",
-    X_ARTICLE_CONSTRAINTS.companionMaxChars
+    X_ARTICLE_CONSTRAINTS.companionMaxChars,
+    remainingBudget
   );
   const allMatches = [...bodyResult.matches, ...companionResult.matches];
   if (allMatches.length > 0) {
