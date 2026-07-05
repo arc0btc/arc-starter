@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-04T22:52:16.553Z | task #21148 | completed | sonnet | Whop free-forum digest [2026-07-04]: syndicate Arc status in | Deferred: paid-room synthesis post fired in last 12h + Arc already posted to thi
 2026-07-04T23:13:09.393Z | task #21149 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-05T00:01:11.947Z | task #21150 | completed | sonnet | Research signal-worthy topics across active beats | No new signal filed — SIGNAL_FILING_DISABLED=true (whoabuddy policy 2026-05-19) 
+2026-07-05T00:02:16.187Z | task #21153 | completed | sonnet | arc-purpose-eval: skip 'Research signal-worthy topics' follo | Gated 'Research signal-worthy topics' follow-up on local SIGNAL_FILING_DISABLED 
