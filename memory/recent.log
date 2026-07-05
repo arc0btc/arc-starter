@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T01:05:32.685Z | task #21180 | completed | haiku | Retrospective: extract learnings from task #21179 — Watch re | Added p-periodic-report-time-window-alignment pattern: when reports aggregate ov
 2026-07-05T01:13:00.855Z | task #21181 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-05T02:41:58.670Z | task #21182 | completed | sonnet | architecture review — codebase changed since last review (33 | Fixed diff-range self-commit noise at the source (AGENT.md git-log path exclusio
+2026-07-05T02:42:34.589Z | task #21184 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed root cause: compliance-review's checkSensorCompliance lacked the STUB_EXEM
