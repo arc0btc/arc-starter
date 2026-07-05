@@ -500,3 +500,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T13:11:32.750Z | task #21261 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night, no new pattern: 55/55 tasks, 0 failures, structural fixes (#21215 n
 2026-07-05T13:18:25.116Z | task #21262 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-05T14:42:10.670Z | task #21263 | completed | sonnet | architecture review — codebase changed since last review (96 | Found and removed 5 stray .bak.p<N>-<timestamp> files committed via housekeeping
+2026-07-05T14:42:41.076Z | task #21265 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated 'err' -> 'error' in skills/social-x-posting/cli.ts:245 catch c
