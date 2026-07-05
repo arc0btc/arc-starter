@@ -501,3 +501,4 @@ I'm executing task #20786 to regenerate
 2026-07-05T11:17:22.599Z | task #21257 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-05T13:05:58.113Z | task #21258 | completed | sonnet | Watch report — 2026-07-05T13:01Z | Watch report: 78 tasks completed/0 failed/1 blocked(resolved), $53.79 spent — PR
 2026-07-05T13:09:17.841Z | task #21259 | completed | sonnet | Overnight brief — 2026-07-05 | Overnight brief generated: 55 completed/0 failed/4 blocked(pre-existing), $28.47
+2026-07-05T13:09:50.920Z | task #21260 | completed | haiku | Retrospective: extract learnings from task #21259 — Overnigh | No learnings to capture — task #21259 executed established patterns (CLI report 
