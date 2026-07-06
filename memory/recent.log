@@ -500,3 +500,4 @@ The task to add du
 2026-07-06T13:27:13.348Z | task #21375 | completed | haiku | Retrospective: extract learnings from task #21373 — Fix blan | Added p-api-field-name-consistency-distributed: field-name mismatches across dis
 2026-07-06T13:29:47.123Z | task #21376 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-06T14:16:05.896Z | task #21378 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Arc Watch Repo | whoabuddy 'go and fix' the email HTML bug — already shipped (task #21373, commit
+2026-07-06T14:17:39.758Z | task #21377 | completed | sonnet | Review PR #853 on aibtcdev/agent-news: perf(init): global KV | reviewed PR #853 on aibtcdev/agent-news — approved KV cache in front of /init DO
