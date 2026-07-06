@@ -502,3 +502,4 @@ The task to add du
 2026-07-06T00:04:35.956Z | task #21309 | completed | sonnet | Review cost efficiency — daily spend elevated | Audited today's model mix (95 sonnet/50 haiku/13 script) — whop-synthesis/digest
 2026-07-06T00:05:21.017Z | task #21310 | completed | sonnet | PURPOSE eval: 1.75/5 — S:1 O:4 E:1 C:1 | Score 2.00/5 (S:1 O:4 E:1 C:1 Ad:4 Co:1 Se:3), down from 2.20. Ecosystem Impact 
 2026-07-06T00:09:37.552Z | task #21308 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies were non-issues: social-x-posting 31 failures = daily X read budg
+2026-07-06T00:10:43.571Z | task #21311 | completed | haiku | Retrospective: extract learnings from task #21309 — Review c | Added p-review-task-confirmed-resolution-closure to patterns.md: when review tas
