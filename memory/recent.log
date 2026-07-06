@@ -1,20 +1,3 @@
-2026-07-03T13:11:02.089Z | task #20937 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief 2026-07-03 reviewed: clean run (18/18, 142/142 sensors healthy),
-2026-07-03T13:12:46.578Z | task #20638 | completed | sonnet | Seed whop chat: "Thirty-Five Hours of Silence" | Posted per 2026-07-03 blanket sign-off (CADENCE.md) — post_1CcfBXiLZs65emmmaGcfM
-2026-07-03T13:13:45.932Z | task #20706 | completed | sonnet | Seed whop chat: "Uncertainty You Can Trust, Skills You Can C | Posted whop-chat seed under blanket Phase 3 sign-off (2026-07-03 CADENCE.md entr
-2026-07-03T14:37:12.754Z | task #20938 | completed | sonnet | architecture review — codebase changed since last review (99 | Doc-only diff (998527d..8158acd): whop-sales reply-eligibility guard documented,
-2026-07-03T14:38:18.687Z | task #20939 | completed | sonnet | workflow review — 2 health issue(s), 1 new pattern(s) | Both flagged 'stuck' states are expected gate-holds, not defects: content-calend
-2026-07-03T14:42:56.873Z | task #20940 | completed | sonnet | arc-skill-manager: add grep-verify step to lint-skills for r | Added lintNameReferences to lint-skills: grep-verifies 'skills run --name X' in 
-2026-07-03T14:43:15.085Z | task #20940 | completed | sonnet | arc-skill-manager: add grep-verify step to lint-skills for r | Duplicate: grep-verify --name refs step already implemented and wired into lint-
-2026-07-03T14:44:09.070Z | task #20943 | completed | sonnet | CEO review — 2026-07-03T14:36 | CEO review written to report (needs adjustment: meta-work heavy, Whop M0 stalled
-2026-07-03T14:46:47.860Z | task #20944 | completed | sonnet | arc-skill-manager: sweep ~280 stale 'skills run --name X' re | Fixed all ~282 stale 'skills run --name X' refs across 65 files by mapping each 
-2026-07-03T14:47:25.401Z | task #20941 | completed | haiku | Retrospective: extract learnings from task #20938 — architec | Extended p-skill-name-validation pattern: renamed/doc-fix commits commonly miss 
-2026-07-03T14:48:15.800Z | task #20942 | completed | haiku | Retrospective: extract learnings from task #20939 — workflow | Workflow 'stuck' states validation pattern: distinguish design gate-holds from d
-2026-07-03T14:49:52.249Z | task #20945 | completed | haiku | Retrospective: extract learnings from task #20944 — arc-skil | Added p-distributed-ref-canonical-mapping to patterns.md: centralizing distribut
-2026-07-03T14:53:29.002Z | task #20946 | completed | sonnet | Email watch report to whoabuddy — 2026-07-03T14:36 | Sent 01:02Z-13:00Z watch report to whoabuddy@gmail.com via arc-email-sync (CF wo
-2026-07-03T14:58:27.591Z | task #20947 | completed | sonnet | Post public-forum teaser: "Council Moves: How a Grammar Repl | Posted public-forum teaser (post_1CcfKb78pfoW5MTN67a3Pa) to exp_YRtS3kgMVeBGzu w
-2026-07-03T15:32:45.149Z | task #20948 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (126 skills, 83 sensors) — output byte-identical to last com
-2026-07-03T15:43:09.735Z | task #20949 | completed | sonnet | Distill watch report 2026-07-03T130043Z into 1-2 interior ob | Distilled 2 nuggets from 130043Z watch report: sensor-anomaly (118 reactive-lane
-2026-07-03T15:58:36.359Z | task #20950 | completed | sonnet | Whop synthesis [2026-07-03T15]: read the room, defer or post | DEFER: window had 2 messages, both Arc's own posts, zero human speakers — monolo
 2026-07-03T16:30:36.436Z | task #20951 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Issue #33 (1btc-news/news-client) mention was Iskander's DRI daily status report
 2026-07-03T17:23:02.384Z | task #20952 | completed | sonnet | Draft Arc's next amplified article — Article 1 | Staged Article 1 (cost-routing-defaults, dispatch.ts:137-149) for whoabuddy qual
 2026-07-03T17:25:38.068Z | task #20952 | completed | sonnet | Draft Arc's next amplified article — Article 1 | Staged article 2 (memory-hygiene near-miss: MEMORY.md 192/200-line cliff + agent
@@ -515,3 +498,5 @@ The task to add du
 2026-07-06T21:22:32.190Z | task #21442 | completed | haiku | Retrospective: extract learnings from task #21440 — Email fr | Captured 1 pattern: p-partner-amplification-reciprocal-engagement — when partner
 2026-07-06T21:23:27.146Z | task #21443 | completed | haiku | Retrospective: extract learnings from task #21441 — Quote/en | No learnings to capture — task executed per p-partner-amplification-reciprocal-e
 2026-07-06T21:24:11.283Z | task #21432 | completed | haiku | daily cost report — 2026-07-06 | Daily cost report reviewed. High costs driven by legitimate debugging work (cont
+2026-07-06T21:32:59.373Z | task #21444 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-06T22:03:01.436Z | task #21445 | completed | opus | Email from whoabuddy (1 unread): X Follower Count | north-star 'can't get X follower count' = daily X read budget exhausted (100/100
