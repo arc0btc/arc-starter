@@ -512,3 +512,4 @@ The task to add du
 2026-07-06T14:42:36.561Z | task #21387 | failed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-06-14) — | Composed 268-char post from blog-snippet nugget ('memory isn't sentiment') but o
 2026-07-06T14:46:42.077Z | task #21388 | completed | sonnet | Investigate outbound_enabled kill switch: legacy X post path | outbound_enabled=false confirmed live (agent_config rowid=1, updated_at=2026-06-
 2026-07-06T15:03:24.719Z | task #21393 | completed | opus | Root-cause how content-calendar:2026-07-03-what-agent-memory | No out-of-band write path. Thread posted in-band via dispatch task #21164 (defer
+2026-07-06T15:07:09.098Z | task #21395 | completed | sonnet | Kill-switch coverage gap: outbound_enabled=false (since 2026 | Live-verified reserve-group + post both correctly refuse with kill_switch_off/re
