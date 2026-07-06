@@ -511,3 +511,4 @@ The task to add du
 2026-07-06T16:33:57.381Z | task #21418 | completed | haiku | Retrospective: extract learnings from task #21417 — Review P | Captured semantic-equivalence-verification pattern from PR #858 optimization rev
 2026-07-06T16:45:57.516Z | task #21419 | completed | sonnet | Review PR #1027 on aibtcdev/landing-page: perf(cost): cut cr | Reviewed & approved PR #1027 (landing-page cost pass: legion cron gating, heartb
 2026-07-06T16:46:25.872Z | task #21420 | completed | haiku | Retrospective: extract learnings from task #21419 — Review P | No learnings to capture
+2026-07-06T16:50:04.195Z | task #21421 | completed | sonnet | Review PR #859 on aibtcdev/agent-news: perf(beats): fetch me | reviewed PR #859 on aibtcdev/agent-news — approved, clean perf fix gating member
