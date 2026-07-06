@@ -74,20 +74,37 @@ const KNOWN_PATTERNS = new Set([
   // RetrospectiveMachine was rejected, ad-hoc per-task retrospectives self-dedup by
   // construction. See memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md.
   "sensor:arc-strategy-review",
-  // arc-purpose-eval itself was evaluated task #21036 with the same verdict, but only
-  // arc-strategy-review made it into this list — the ":followup" suffix variant (task
-  // #21317) slipped through because normalizeSource keeps 3-part sources as-is. Exempting
-  // both the base and the followup-suffixed source so this stops re-flagging.
+  // arc-purpose-eval itself was evaluated task #21036 with the same verdict. Listed here
+  // as a bare "sensor:X" entry — isKnownPattern() below treats these as prefixes, so any
+  // suffixed variant (e.g. ":followup") is covered automatically without a separate entry.
   "sensor:arc-purpose-eval",
-  "sensor:arc-purpose-eval:followup",
   // Already fully modeled by EmailThreadMachine (received→triaged→reply_pending→completed),
   // wired into skills/arc-email-sync/sensor.ts (insertWorkflow per thread). Not a gap —
-  // this is the machine working as intended (task #21317).
-  "sensor:arc-email-sync:thread",
+  // this is the machine working as intended (task #21317). Bare entry so any suffixed
+  // variant (e.g. ":thread") is covered via prefix matching.
+  "sensor:arc-email-sync",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
 ]);
+
+/**
+ * Matches a normalized source against KNOWN_PATTERNS. Bare "sensor:X" entries (exactly
+ * two colon-separated parts) act as prefixes: they match "sensor:X" itself and any
+ * suffixed variant "sensor:X:*". This prevents the recurring failure where a sensor
+ * source gets re-flagged every time it's used with a new suffix (e.g. ":followup",
+ * ":thread") even though the base sensor was already evaluated and exempted.
+ * See memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md.
+ */
+function isKnownPattern(src: string): boolean {
+  if (KNOWN_PATTERNS.has(src)) return true;
+  for (const pattern of KNOWN_PATTERNS) {
+    if (!pattern.startsWith("sensor:")) continue;
+    if (pattern.split(":").length !== 2) continue;
+    if (src.startsWith(`${pattern}:`)) return true;
+  }
+  return false;
+}
 
 /** Source prefixes to skip — human-initiated tasks are inherently varied. */
 const SKIP_SOURCE_PREFIXES = ["human:"];
@@ -233,7 +250,7 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
 
   for (const [src, group] of bySource) {
     if (group.length < MIN_RECURRENCES) continue;
-    if (KNOWN_PATTERNS.has(src)) continue;
+    if (isKnownPattern(src)) continue;
     if (SKIP_SOURCE_PREFIXES.some((p) => src.startsWith(p))) continue;
 
     const avgSteps =
