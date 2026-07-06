@@ -3,7 +3,8 @@
 // Deploy arc0me-site to Cloudflare Workers.
 
 import { join } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { readHookState, writeHookState } from "../../src/sensors.ts";
 import { verifyCloudflareToken, getCloudflareCredentials } from "../../src/cloudflare.ts";
 
@@ -158,6 +159,34 @@ async function cmdDeploy(args: string[]): Promise<void> {
     if (verify.exitCode !== 0) {
       process.stderr.write("WARNING: verify-deploy reported issues (deploy itself succeeded)\n");
     }
+  }
+
+  // Step 5: Signature reconciliation — every signed post (public/verify/index.json)
+  // must still hash live to its sidecar record. Catches out-of-band content edits
+  // that would paint the /verify page red. Non-fatal: deploy already shipped.
+  try {
+    const idxPath = join(SITE_DIR, "public/verify/index.json");
+    if (existsSync(idxPath)) {
+      const idx = JSON.parse(readFileSync(idxPath, "utf-8"));
+      const slugs = Object.keys(idx.posts ?? {});
+      let mismatches = 0;
+      for (const slug of slugs) {
+        const res = await fetch(`https://arc0.me/blog/${slug}.md`);
+        if (!res.ok) {
+          mismatches++;
+          process.stderr.write(`WARNING: signed post ${slug} not fetchable live (${res.status})\n`);
+          continue;
+        }
+        const liveHash = createHash("sha256").update(new Uint8Array(await res.arrayBuffer())).digest("hex");
+        if (liveHash !== idx.posts[slug].contentHash) {
+          mismatches++;
+          process.stderr.write(`WARNING: SIGNATURE MISMATCH for ${slug}: live ${liveHash} != signed ${idx.posts[slug].contentHash} — run sign-runner --slug ${slug} and redeploy\n`);
+        }
+      }
+      log(`signature reconciliation: ${slugs.length - mismatches}/${slugs.length} signed posts match live content`);
+    }
+  } catch (e) {
+    process.stderr.write(`WARNING: signature reconciliation errored (non-fatal): ${e}\n`);
   }
 
   console.log(JSON.stringify({ success: true, sha: currentSha, site: "https://arc0.me" }, null, 2));
