@@ -509,3 +509,4 @@ The task to add du
 2026-07-06T16:26:34.983Z | task #21416 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.62.0 | aibtc-mcp-server v1.62.0 adds dual_stacking resilience, lightning spend limit, b
 2026-07-06T16:33:12.412Z | task #21417 | completed | sonnet | Review PR #858 on aibtcdev/agent-news: perf(beats): drop mem | reviewed PR #858 on aibtcdev/agent-news — approved perf fix removing beat_claims
 2026-07-06T16:33:57.381Z | task #21418 | completed | haiku | Retrospective: extract learnings from task #21417 — Review P | Captured semantic-equivalence-verification pattern from PR #858 optimization rev
+2026-07-06T16:45:57.516Z | task #21419 | completed | sonnet | Review PR #1027 on aibtcdev/landing-page: perf(cost): cut cr | Reviewed & approved PR #1027 (landing-page cost pass: legion cron gating, heartb
