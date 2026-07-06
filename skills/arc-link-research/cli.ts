@@ -482,6 +482,27 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
 
 // ---- Fetch & Analyze ----
 
+const HIDDEN_STYLE_PATTERN =
+  /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0*\.?0+\b|font-size\s*:\s*0(?:px)?\b|color\s*:\s*(?:white|#fff(?:fff)?)\b/i;
+
+// Best-effort removal of elements whose inline style hides them from a human reader
+// (display:none/visibility:hidden/opacity:0/font-size:0/color:white) — prevents hidden
+// prompt-injection text from surviving the generic tag-strip as indistinguishable plaintext.
+// Iterates to catch newly-exposed hidden wrappers after each pass; lazy same-tag matching
+// means deeply nested same-tag hidden containers may not be fully removed.
+function stripHiddenElements(html: string): string {
+  const TAG_WITH_STYLE = /<([a-z][a-z0-9]*)\b[^>]*?\sstyle\s*=\s*(["'])([^"']*)\2[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+  let result = html;
+  let previous: string;
+  do {
+    previous = result;
+    result = result.replace(TAG_WITH_STYLE, (match, _tag, _quote, style) =>
+      HIDDEN_STYLE_PATTERN.test(style) ? "" : match
+    );
+  } while (result !== previous);
+  return result;
+}
+
 async function fetchRawContent(url: string): Promise<CachedContent> {
   const timestamp = new Date().toISOString();
 
@@ -629,9 +650,11 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
   const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
 
-  const stripped = html
+  const withoutScriptsAndStyles = html
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+
+  const stripped = stripHiddenElements(withoutScriptsAndStyles)
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim()
