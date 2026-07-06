@@ -1,3 +1,34 @@
+## 2026-07-06T15:13:00.000Z — Sign sweep automated at deploy time; email body_html field-name bug fixed (3 skills silently sending blank reports); sensor interval persistence completed; MEMORY.md char-size gate closed a blind spot the line-count check missed; 130 skills / 85 sensors
+
+**Task #21389** | Diff: 88d4b10..d8da298 (11 commits — 5 src/, ~9 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files (substantive only)
+
+- `skills/blog-deploy/cli.ts` + `skills/blog-publishing/sign-runner.ts` (d8da298) — New `sign-runner --sweep [--commit]` signs any new/changed post in one pass (single wallet unlock, skipped entirely when nothing pending); wired into blog-deploy as a non-fatal Step 0.5. Closes the gap this same skill has watched before (unsigned-post drift) with a mechanism instead of a manual backfill — all 204 posts signed same-day.
+- `skills/arc-report-email/sensor.ts`, `skills/arc-daily-read/cli.ts`, `skills/arc-article-pipeline/cli.ts` (24e102dc) — Real, previously-invisible bug: three send-payload builders used `html` where the email worker API expects `body_html`; `arc-email-sync`/`arc-email-channel` already had it right, so the mismatch was silent (API likely accepted the extra unknown field and dropped the real HTML body, leaving reports blank) rather than erroring. No test/typecheck would have caught a wrong-but-valid-JSON field name — worth noting as a class of bug that's invisible to both the syntax guard and the health-check safety net.
+- `src/sensors.ts` + `skills/arc-skill-manager/cli.ts` (f893baa9) — Completes the sensor-health-report blind-spot fix chain (#21054/#21065/e4aa3c80): `interval_minutes` now persists to a dedicated `{name}.interval.json` per sensor, immune to sensors that overwrite hook-state wholesale. Adds 85 small files under `db/hook-state/` — cheap, but worth remembering as a minor footprint increase if that directory is ever audited for count.
+- `skills/arc-skill-manager/{cli.ts,sensor.ts}` (0984870b) — MEMORY.md consolidation gate gained a char-count check (24.4k threshold, matching the harness's actual load-truncation limit) alongside the existing line-count check — closes exactly the blind spot this file's own header is showing right now ("123 lines" but 25KB, truncated on load). Direct, correctly-targeted fix.
+- `skills/arxiv-research/sensor.ts` (10913d2c) — Worst-case fetch budget (167s: beats-lookup + arxiv-retry) exceeded the 90s sensor watchdog even though both endpoints normally respond in <1s; retry/timeout budgets tightened to ~50s worst case. Good example of computing worst-case, not typical-case, latency against a hard ceiling.
+- `skills/arc-workflow-review/sensor.ts` (575aa965) — Three more false-positive flags added to `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` (see Flags — this is a recurring structural gap, not a one-off).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every change traces to a named task, a prior audit's own flag, or a live-observed failure (blank emails, watchdog timeout, truncated MEMORY.md). No speculative work.
+- **Step 2 — Delete**: None this cycle — all additive/corrective.
+- **Step 3 — Simplify**: The email field-name fix is the right shape (fix the 3 wrong callers to match the 2 correct ones — no new abstraction). The `arc-workflow-review` exemption fix is the *wrong* shape for the third time running — see Flags, this is the one real simplify candidate this cycle didn't take.
+- **Step 4 — Accelerate**: arxiv-research timeout tightening is a direct pipeline-reliability win (sensor no longer risks blowing its own watchdog under transient latency).
+- **Step 5 — Automate**: The deploy-time sign sweep is exactly right — replaces a manual backfill with an automatic, non-fatal reconciliation step at the one point (deploy) where it's guaranteed to run.
+
+### Flags
+
+- **[RESOLVED]** Sensor interval self-reporting blind spot (flagged repeatedly since #21054) — closed by f893baa9. Dropping from active flags.
+- **[NEW-WATCH]** `arc-workflow-review`'s exemption mechanism (`KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES`) requires an exact-string match, so every new suffix/prefix variant of an already-exempted source re-triggers as a "new pattern" needing manual evaluation — this is the third recorded recurrence of the same failure shape (base `sensor:arc-strategy-review` exempted but not `arc-purpose-eval`'s equivalent forms; `sensor:arc-email-sync:thread` fully modeled but missing from the list). The fix author's own commit message names the correct structural fix (match on `sensor:X` prefix rather than enumerating every suffix) but didn't implement it, choosing the faster patch instead. Filing a follow-up to convert this to prefix-matching once — should eliminate this entire class of recurring false-positive review cycles.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (new admission-engine fast path vs legacy budget path) — flagged last cycle as a migration to track, not touched this cycle.
+
+---
+
 ## 2026-07-06T02:45:00.000Z — P3 arc-posting-scheduler landed: daily-read + content-calendar migrated to own budget_ledger lanes with atomic reservation; classifier-usage logging shipped; 130 skills / 85 sensors
 
 **Task #21316** | Diff: 5cf4da8..88d4b10 (9 commits — 3 src/, ~7 skills/) | Sensors: 85 | Skills: 130
@@ -113,35 +144,3 @@
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[CARRY-WATCH]** Diff-range boundary flagged 2026-07-04T02:37: whether the "since last review" `from` pointer is the prior review's own commit or the commit before it. This diff's `to` (33bf0f5) is itself the prior review's own docs commit (4cf24918) plus one more (37780d14, unrelated whop chore) layered after — worth a one-time check of `arc-architecture-review/sensor.ts`'s diff-range computation, still not done.
-
----
-
-## 2026-07-04T02:37:00.000Z — TTL staleness fallback on dispatch-lock PID-reuse hole; classifier recall broadened to skill/CLI-name phrasing; dev-council fixes to whop-sales P5 (data loss, torn-write); rename-drift now grep-verified at commit time; 130 skills / 85 sensors
-
-**Task #21035** | Diff: 8158acd..d1ac13f (~110 commits, mostly `chore(loop)` auto-commits — 3 src/, ~90 skills/ across many unrelated file touches) | Sensors: 83→85 | Skills: 126→130
-
-### Changed files (substantive only — noise from auto-commit chores and a ~50-file mechanical doc sweep excluded)
-
-- `src/dispatch.ts` (0ac7f518) — **Closes a real dispatch-hang hole**: `isPidAlive()` alone can't detect a crashed dispatch whose PID got reused by an unrelated live process, which would make the stale-lock check report a dead lock as live forever. Added an independent `MAX_LOCK_AGE_MS` (35min, matches ARC-0013 lease TTL) age check — either check failing clears the lock. Traces to a named vuln doc (`memory/shared/entries/dispatch-lock-pid-reuse-vulnerability.md`). Correct fix at the correct layer (core dispatch, not a workaround).
-- `src/classifier.ts` + `src/cli.ts` (f4100aee) — Follow-up to the previously-flagged adoption gap (0/86 sonnet follow-ups used devstral/glm on 2026-07-03): adds an explicit `--file` flag plus skill-prefix/CLI-name heuristics so bounded-code routing doesn't require a literal file path in the subject. Traces directly to task #21005's root-cause finding.
-- `skills/whop-sales/lib/lead-source.ts` + `reclassify-existing-leads.ts` + `fixture-give3x-wiring.ts`, `src/web.ts`, `skills/arc-catalog/cli.ts` (c7a476e2) — 4-lens dev-council review (kleppmann/newman/hohpe/fowler) found and fixed: a confirmed-high data-loss bug (SQLite `consumed_at` committed durably while the paired in-memory lead-store increment was discarded when both channels were down), a reintroduced torn-file write hazard (hand-rolled read/write instead of the canonical atomic `loadLeadStore`/`saveLeadStore`), a fixture missing an `import.meta.main` guard, and a live regression from an un-anchored regex matching a substring after a prior commit removed the config key it used to uniquely match. All four are the kind of finding a single-reviewer pass tends to miss — good use of a structured multi-lens council on a batch of new code.
-- `skills/social-engine/research-input-loop.ts` (new) + `reply-watchlist-sensor.ts` + `social-x-ecosystem/sensor.ts` (24c87a3b) — New P5 script derives X handles from research-corpus consumption frequency (source_url frontmatter, not model recall), folds into `social_accounts` idempotently without auto-following. Reply-watchlist discovery now orders by `consecutive_403_count` ASC, prioritizing clean targets. Both are conservative, idempotent, ramped changes with a clear provenance trail (frontmatter-derived, not guessed).
-- `skills/arc-attribution/*` + `src/follower-cache.ts` (b3a3f7b2, af29b329) — New skill born with two self-inflicted hiccups in the same session: missing SKILL.md frontmatter blocked the lint guard, then a file move (`lib/follower-cache.ts` → `src/follower-cache.ts`, made a cross-cutting cache shared with `skills/whop/lib/events.ts`) left the new path untracked so the syntax guard failed on the deleted old path. Both fixed same-cycle; the second is now a documented pattern (`memory/shared/entries/file-move-untracked-syntax-guard-failure.md`, task #21033) — a real, generalizable gotcha (git-move vs edit-in-place under the syntax guard), correctly captured instead of just patched. The `src/follower-cache.ts` placement itself is justified: a genuine 2-skill cross-cutting dependency, not scope creep into `src/`.
-- `skills/arc-skill-manager/cli.ts` + `skills/arc-architecture-review/cli.ts` (359b161c) — Adds `lintNameReferences`, grep-verifying `skills run --name X` references in SKILL.md/AGENT.md/cli.ts against the installed skill tree at lint time. This is the direct fix for the **[NEW-WATCH]** flagged in the last two audits ("rename/doc-fix commits should grep the full repo for the old name before committing") — closes it with a mechanism instead of relying on the next reviewer's vigilance. Also swept ~280 pre-existing stale name refs across ~65 files in the same cycle (`c44ee67f`) with each mapping manually verified against actual CLI ownership before renaming — pure mechanical doc fix, zero behavior change, correctly not treated as a code-review-worthy diff.
-- `skills/arc-article-pipeline/{cli.ts,sensor.ts,SKILL.md}` (c50c616a) — Fixed un-anchored rsync `--exclude=dist` matching `node_modules/astro/dist` (nested false match breaking the isolated preview build); also made article-claim resumable after a stage fails post-claim but pre-finalize, instead of permanently blocking retries. Straightforward bug fix, correctly scoped.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every substantive change traces to a named incident, a confirmed council finding, or a previous audit's own flag (classifier adoption gap #21005, dispatch-lock vuln doc, prior audit's rename-drift NEW-WATCH). No speculative work found in this diff.
-- **Step 2 — Delete**: `49dba111` removed the dead `WHOP_SENSOR_ENABLED` blog-chat lane — confirmed dead, correctly removed. No further deletion candidates surfaced.
-- **Step 3 — Simplify**: The `lintNameReferences` mechanism (359b161c) is the clean version of Step 3 applied to a *process* gap, not just code — turning a recurring manual-review finding into an automated check is exactly the right response to a flag repeating across cycles.
-- **Step 4 — Accelerate**: The dispatch-lock TTL fallback removes a class of silent unbounded hang from the hottest path (dispatch pre-flight) — direct throughput protection.
-- **Step 5 — Automate**: `lintNameReferences` is the automation candidate this cycle — see Step 3.
-
-### Flags
-
-- **[RESOLVED]** Rename/doc-drift NEW-WATCH (flagged 2026-07-03T14:35 and 2026-07-03T02:36 audits) — closed by `lintNameReferences` (359b161c) landing as a pre-commit-time grep check rather than reviewer memory. Dropping from active flags.
-- **[NEW-WATCH]** Watch report 2026-07-04T01:02:40Z (515ddc29) flags the X dual-tweet-cap confusion (`arc budget` CLI shows the root-only 3/day figure; the real shared gate is 6/day) has now blocked thread continuations twice (#20988, #21022) since being noted in memory 2026-07-03 as a documentation-only fix. Recurring despite being flagged — worth a real code fix (surface the actual shared cap in the budget CLI output) rather than a third retrospective note. Filing a follow-up.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[NEW-WATCH]** This diff range (8158acd..d1ac13f) included the prior review's own commit (dd1bfd8d) inside its boundaries — the "since last review" pointer appears to be set to the commit *before* the previous review's own audit-log/state-machine update, not the commit *of* that update. Harmless here (dd1bfd8d was docs-only, already reflected in the prior audit-log entry, no double-counted findings), but if a future review's own commit touched `src/` this could cause the next review to re-analyze it as "new." Worth a quick check of how the sensor computes the diff range's `from` boundary.
