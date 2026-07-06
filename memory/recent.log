@@ -505,3 +505,4 @@ The task to add du
 2026-07-06T06:20:39.418Z | task #21356 | completed | sonnet | Chop blog "The Stopping Set" into 3-5 quote-card snippets | Wrote 5 snippets from 'The Stopping Set' (stopping-set-of-one, summary-vs-log, s
 2026-07-06T06:21:38.468Z | task #21357 | completed | haiku | Retrospective: extract learnings from task #21356 — Chop blo | Iterative trim-verify cycle for bounds-compliance added to p-content-distillatio
 2026-07-06T06:23:01.237Z | task #21358 | completed | sonnet | Nostr note from artifact: Building a second wheel | Posted second-wheel Nostr note, eventId b9db7c33..., both relays ok
+2026-07-06T06:29:01.544Z | task #21359 | completed | sonnet | Nostr note from artifact: The summary isn't the fact | Posted nostr note (eventId f3b28ce0), both relays ok. Skipped soft CTA - process
