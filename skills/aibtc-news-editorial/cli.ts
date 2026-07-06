@@ -2,6 +2,7 @@
 // skills/aibtc-news-editorial/cli.ts
 // CLI for claiming beats, filing signals, listing beats/signals, and checking correspondent status
 
+import { join } from "node:path";
 import { readHookState, writeHookState } from "../../src/sensors.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 import { getCredential } from "../../src/credentials.ts";
@@ -219,7 +220,7 @@ function validateSlug(slug: string): boolean {
 
 // ---- Beat Slug Existence Validation (drift detection) ----
 
-const BEAT_CACHE_FILE = "db/beat-slug-cache.json";
+const BEAT_CACHE_FILE = join(import.meta.dir, "../../db/beat-slug-cache.json");
 const BEAT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 interface BeatSlugCache {

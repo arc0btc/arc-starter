@@ -447,7 +447,7 @@ const ARTIFACT_RETENTION = 50; // keep the newest N tick artifacts (disk hygiene
 
 function writeArtifact(summary: LaneSummary): string | null {
   try {
-    const dir = "db/whop-sales-artifacts";
+    const dir = join(import.meta.dir, "../../db/whop-sales-artifacts");
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     const path = `${dir}/${summary.ran_at.replace(/[:.]/g, "-")}.json`;
     writeFileSync(path, JSON.stringify(summary, null, 2) + "\n", "utf8");

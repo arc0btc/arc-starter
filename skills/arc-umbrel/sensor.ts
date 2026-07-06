@@ -9,10 +9,11 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 const SENSOR_NAME = "arc-umbrel";
 const INTERVAL_MINUTES = 30;
-const STATE_FILE = "db/umbrel-sensor-state.json";
+const STATE_FILE = join(import.meta.dir, "../../db/umbrel-sensor-state.json");
 const UMBREL_HOST = "192.168.1.106";
 const UMBREL_USER = "umbrel";
 const UMBREL_PASS = "umbrel";
