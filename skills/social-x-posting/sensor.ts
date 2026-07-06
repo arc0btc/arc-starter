@@ -1,6 +1,13 @@
 // skills/social-x-posting/sensor.ts
-// Polls X mentions every 15 minutes, creates tasks for mentions worth responding to.
+// Polls X mentions every 20 minutes, creates tasks for mentions worth responding to.
 // Deduplicates by storing last-seen tweet ID in hook state.
+//
+// AI-058 (2026-07-06): unconditional read every claimed run — at the prior 15min
+// cadence this alone burned 96/day, effectively the entire general read pool
+// (X_MAX_READS_PER_DAY=100 minus FOLLOWER_RESERVE_SLOTS=5) before any other
+// general consumer (whop-sales lead-source, north-star-gauge post-metrics) got
+// a look-in. Widened to 20min (72/day) to leave real headroom. See
+// FOLLOWER_RESERVE_SLOTS in lib/x-api.ts for the paired reserve-size fix.
 //
 // AI-051/052: OAuth helpers (percentEncode, generateNonce, hmacSha1, OAuthCreds,
 // loadCreds, apiGet) consolidated onto lib/x-api.ts's xApiGet + loadXCreds.
@@ -53,7 +60,7 @@ async function isCreditsDepleted(): Promise<boolean> {
 }
 
 const SENSOR_NAME = "social-x-posting";
-const INTERVAL_MINUTES = 15;
+const INTERVAL_MINUTES = 20;
 
 // Keywords to detect topic-specific context needs for mention reply tasks.
 const BITCOIN_WALLET_KEYWORDS = [

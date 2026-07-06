@@ -93,8 +93,17 @@ export const X_MAX_READS_PER_DAY = 100;
  * north-star monitor fell back to a stale cached follower count). Reserve a
  * small slice of the daily cap exclusively for follower reads so that metric
  * survives even when high-volume consumers (mentions sensor, watchlist search,
- * whop-sales lead source) exhaust the general pool. */
-const FOLLOWER_RESERVE_SLOTS = 5;
+ * whop-sales lead source) exhaust the general pool.
+ *
+ * AI-058 (2026-07-06): the reserve alone wasn't enough — mentions polling at
+ * 96/day left ZERO general-pool headroom for the other real general consumers
+ * (whop-sales lead-source, north-star-gauge's own post-metrics read), and 5
+ * reserved slots was one short of the gauge's documented worst case (up to 6
+ * follower reads/day at the 4h cache TTL / 30min monitor cadence — see
+ * north-star-gauge.ts). Paired fix: mentions sensor cadence widened 15min→20min
+ * (96/day → 72/day, see skills/social-x-posting/sensor.ts), and reserve bumped
+ * 5→6 to cover the documented worst case exactly. */
+const FOLLOWER_RESERVE_SLOTS = 6;
 
 /** The read budget available to ordinary (non-follower) consumers. */
 function generalReadCap(): number {
