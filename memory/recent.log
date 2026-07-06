@@ -523,3 +523,4 @@ The task to add du
 2026-07-06T23:20:40.683Z | task #21474 | completed | sonnet | Security audit: map Arc's untrusted-content ingestion to Dee | Audited 6 ingestion paths vs DeepMind 6-attack taxonomy: 2 real gaps (arc-link-r
 2026-07-06T23:21:38.986Z | task #21477 | completed | sonnet | Write arc-peer-inbox/AGENT.md with untrusted-content guard ( | Wrote skills/arc-peer-inbox/AGENT.md (commit 51ac320d) — untrusted-content guard
 2026-07-06T23:22:43.032Z | task #21470 | completed | sonnet | Widen mentions sensor cadence 20min→30min (X budget rec #4,  | Widened mentions sensor 20min->30min (INTERVAL_MINUTES) per whoabuddy sign-off, 
+2026-07-06T23:25:44.690Z | task #21483 | completed | opus | Email from whoabuddy (1 unread): Re: Research batch: 2026-07 | whoabuddy green-lit synthesis §5 items 1-5 + lead-with-security-playbook SKU. It
