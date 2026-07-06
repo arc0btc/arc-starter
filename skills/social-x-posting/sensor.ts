@@ -1,13 +1,18 @@
 // skills/social-x-posting/sensor.ts
-// Polls X mentions every 20 minutes, creates tasks for mentions worth responding to.
+// Polls X mentions every 30 minutes, creates tasks for mentions worth responding to.
 // Deduplicates by storing last-seen tweet ID in hook state.
 //
-// AI-058 (2026-07-06): unconditional read every claimed run. At 20min cadence this
-// polls ~72 non-owned mention reads/day at $0.005 each ≈ $0.36/day — ~90% of the
-// daily dollar read budget (X_READ_BUDGET_USD_PER_DAY, see lib/x-api.ts). The prior
-// 15min cadence (96/day ≈ $0.48) left almost no headroom for the other consumers
-// (whop-sales lead-source, north-star-gauge). Task #21463 replaced the old
-// 100-reads count ceiling + follower-reserve machinery with a flat dollar budget.
+// AI-059 (2026-07-06, task #21470): widened 20min→30min per whoabuddy sign-off
+// (X-API pay-per-use rec #4, email #21466: "slower is fine unless we see activity
+// ramp up"). At 30min cadence this polls ~48 non-owned mention reads/day at $0.005
+// each ≈ $0.24/day, down from ~$0.36/day at 20min — more headroom for the other
+// X_READ_BUDGET_USD_PER_DAY consumers (whop-sales lead-source, north-star-gauge).
+// WATCH/REVERT: if mention activity ramps up, revert to 20min (see task #21454,
+// commit a91024c3, for the prior value).
+//
+// AI-058 (2026-07-06): unconditional read every claimed run. Task #21463 replaced
+// the old 100-reads count ceiling + follower-reserve machinery with a flat dollar
+// budget (X_READ_BUDGET_USD_PER_DAY, see lib/x-api.ts).
 //
 // AI-051/052: OAuth helpers (percentEncode, generateNonce, hmacSha1, OAuthCreds,
 // loadCreds, apiGet) consolidated onto lib/x-api.ts's xApiGet + loadXCreds.
@@ -60,7 +65,7 @@ async function isCreditsDepleted(): Promise<boolean> {
 }
 
 const SENSOR_NAME = "social-x-posting";
-const INTERVAL_MINUTES = 20;
+const INTERVAL_MINUTES = 30;
 
 // Keywords to detect topic-specific context needs for mention reply tasks.
 const BITCOIN_WALLET_KEYWORDS = [
