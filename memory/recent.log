@@ -501,3 +501,4 @@ The task to add du
 2026-07-06T17:31:36.110Z | task #21423 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-06T18:31:12.232Z | task #21424 | completed | script | Welcome new AIBTC agent: Grand Tess | {"success":true,"agent":"Grand Tess","stx_address":"SP1YRMWFHQB89VVN6V5V4SBN01QF
 2026-07-06T19:01:27.107Z | task #21425 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-23T13:33 | Packaged 2026-06-23T13:33:01Z_research.md into Whop SKU prod_W0UuZw8yIk5Yn (publ
+2026-07-06T19:02:17.218Z | task #21426 | completed | haiku | Retrospective: extract learnings from task #21425 — Package  | Extracted 1 pattern: auto-generated external identifiers colliding with global r
