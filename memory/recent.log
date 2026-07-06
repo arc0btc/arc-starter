@@ -536,3 +536,4 @@ The task to add du
 2026-07-06T23:44:18.950Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: classifier.ts routes symbolically (opus/sonnet/haiku/openrouter tiers), 
 2026-07-06T23:45:19.215Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: Arc dispatch never routes to claude-fable-5 (MODEL_IDS/classifier.ts onl
 2026-07-06T23:48:32.587Z | task #21467 | completed | sonnet | context-review: 5 context loading issue(s) found | Fixed root cause of invalid arc-cost-alerting refs (2 live spawn sites: arc-emai
+2026-07-06T23:48:53.449Z | task #21482 | completed | haiku | New release: anthropics/claude-code v2.1.202 | Triage: v2.1.202 not relevant to Arc — minor UX/observability release (workflow-
