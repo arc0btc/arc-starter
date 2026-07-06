@@ -832,12 +832,18 @@ async function cmdProcess(args: string[]): Promise<void> {
 
   const results: LinkAnalysis[] = [];
   const allEmbeddedUrls: string[] = [];
+  // Audit trail for embedded-URL auto-follow (no allowlist/depth cap exists — see
+  // research/2026-07-06_security-audit-deepmind-6attack-taxonomy.md finding #1).
+  const embeddedUrlAudit: Array<{ source: string; embedded: string; reason: string }> = [];
 
   for (let i = 0; i < analyses.length; i++) {
     const a = analyses[i];
     if (a.status === "fulfilled") {
       results.push(a.value.analysis);
       allEmbeddedUrls.push(...a.value.embeddedUrls);
+      for (const eu of a.value.embeddedUrls) {
+        embeddedUrlAudit.push({ source: urls[i], embedded: eu, reason: "found embedded in fetched content" });
+      }
     } else {
       results.push({
         url: urls[i],
@@ -855,6 +861,7 @@ async function cmdProcess(args: string[]): Promise<void> {
   // Without this, fetchRawContent truncates README at 3000 chars and always returns the first section's links.
   if (section) {
     allEmbeddedUrls.length = 0;
+    embeddedUrlAudit.length = 0;
     for (const inputUrl of urls) {
       const ghMatch = inputUrl.match(/github\.com\/([^/]+)\/([^/?#]+)/);
       if (ghMatch) {
@@ -865,6 +872,9 @@ async function cmdProcess(args: string[]): Promise<void> {
           const sectionUrls = extractSectionUrls(readme, section);
           process.stdout.write(`  Found ${sectionUrls.length} URL(s) in section\n`);
           allEmbeddedUrls.push(...sectionUrls);
+          for (const su of sectionUrls) {
+            embeddedUrlAudit.push({ source: inputUrl, embedded: su, reason: `found in README section "${section}"` });
+          }
         } else {
           process.stderr.write(`  Warning: could not fetch README for ${owner}/${repo}\n`);
         }
@@ -873,7 +883,14 @@ async function cmdProcess(args: string[]): Promise<void> {
   }
 
   // Follow embedded URLs from tweets (e.g. article links) — fetch and cache, then analyze
-  const newEmbedded = allEmbeddedUrls.filter((u) => !urls.includes(u));
+  const newEmbedded = [...new Set(allEmbeddedUrls.filter((u) => !urls.includes(u)))];
+  // Finalize audit: mark which discovered embedded URLs were actually followed vs. skipped as
+  // duplicates of an already-analyzed input link.
+  for (const entry of embeddedUrlAudit) {
+    entry.reason = newEmbedded.includes(entry.embedded)
+      ? `${entry.reason} — auto-followed (no allowlist/depth cap configured)`
+      : `${entry.reason} — not followed (duplicate of an already-analyzed input link)`;
+  }
   if (newEmbedded.length > 0) {
     process.stdout.write(`\nFollowing ${newEmbedded.length} embedded link(s)...\n`);
     const embeddedAnalyses = await Promise.allSettled(newEmbedded.map((u) => fetchAndAnalyze(u)));
@@ -954,6 +971,19 @@ async function cmdProcess(args: string[]): Promise<void> {
     lines.push("");
     for (const s of skippedTweets) {
       lines.push(`- ${s.url} — ${s.reason}`);
+    }
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+  }
+
+  if (embeddedUrlAudit.length > 0) {
+    lines.push("## Embedded URL Audit");
+    lines.push("");
+    lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
+    lines.push("");
+    for (const entry of embeddedUrlAudit) {
+      lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
     }
     lines.push("");
     lines.push("---");
