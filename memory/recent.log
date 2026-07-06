@@ -525,3 +525,4 @@ The task to add du
 2026-07-06T15:20:39.946Z | task #21394 | completed | haiku | Retrospective: extract learnings from task #21388 — Investig | Extracted guard-failure-diagnosis pattern: when testing kill-switches/gates, aud
 2026-07-06T15:22:04.412Z | task #21396 | completed | haiku | Retrospective: extract learnings from task #21393 — Root-cau | Enhanced p-guard-failure-diagnosis with outcome-verification predicate precision
 2026-07-06T15:23:33.029Z | task #21399 | completed | haiku | Retrospective: extract learnings from task #21395 — Kill-swi | Extracted guard-implementation-consistency pattern from task #21395 investigatio
+2026-07-06T15:24:20.496Z | task #21401 | completed | haiku | Retrospective: extract learnings from task #21398 — src/db.t | Generalized p-bash-cwd-persistence-wrong-db-target to cover dispatch-critical in
