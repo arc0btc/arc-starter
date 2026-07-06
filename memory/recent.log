@@ -517,3 +517,4 @@ The task to add du
 2026-07-06T15:09:58.379Z | task #21398 | completed | sonnet | src/db.ts:250 new Database('db/arc.sqlite') uses a RELATIVE  | src/db.ts:250 new Database('db/arc.sqlite') resolved relative to cwd, not repo r
 2026-07-06T15:10:32.157Z | task #21392 | completed | sonnet | Review PR #855 on aibtcdev/agent-news: perf(leaderboard): in | PR #855 (aibtcdev/agent-news) was CLOSED (not merged) before review — pre-flight
 2026-07-06T15:11:33.317Z | task #21391 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Fixed 2 abbreviated-name violations in blog-deploy/cli.ts (idx->verifyIndex, res
+2026-07-06T15:13:27.963Z | task #21400 | completed | sonnet | Same relative-path bug class as src/db.ts:250: skills/aibtc- | Fixed 3 bare 'db/...' cwd-relative path bugs (aibtc-news-editorial/cli.ts BEAT_C
