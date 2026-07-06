@@ -74,6 +74,16 @@ const KNOWN_PATTERNS = new Set([
   // RetrospectiveMachine was rejected, ad-hoc per-task retrospectives self-dedup by
   // construction. See memory/shared/entries/retrospective-pattern-no-generic-machine-needed.md.
   "sensor:arc-strategy-review",
+  // arc-purpose-eval itself was evaluated task #21036 with the same verdict, but only
+  // arc-strategy-review made it into this list — the ":followup" suffix variant (task
+  // #21317) slipped through because normalizeSource keeps 3-part sources as-is. Exempting
+  // both the base and the followup-suffixed source so this stops re-flagging.
+  "sensor:arc-purpose-eval",
+  "sensor:arc-purpose-eval:followup",
+  // Already fully modeled by EmailThreadMachine (received→triaged→reply_pending→completed),
+  // wired into skills/arc-email-sync/sensor.ts (insertWorkflow per thread). Not a gap —
+  // this is the machine working as intended (task #21317).
+  "sensor:arc-email-sync:thread",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -93,6 +103,10 @@ const KNOWN_SUBJECT_PREFIXES = [
   // separately evaluated (task #21036) and confirmed as the same ad-hoc retrospective
   // shape, no generic machine needed.
   "self-review",
+  // Ad-hoc "Assess release: <repo> <tag>" → retrospective chain (task #21317), avg 2.0
+  // steps, single skill (arc-skill-manager) — same already-rejected shape as
+  // retrospective-pattern-no-generic-machine-needed.md.
+  "assess release",
 ];
 
 function normalizeSource(source: string | null): string {

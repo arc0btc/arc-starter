@@ -79,3 +79,25 @@ via `bySubject`, making it look unmodeled when it's the machine working
 correctly). Lesson: this detector had no memory of prior verdicts, so the
 same non-issue kept re-firing task after task — the fix belongs in the
 detector's exemption list, not in another round of manual evaluation.
+
+**2026-07-06 recurrence (task #21317)**: three more flagged patterns, all
+false positives from incomplete exemptions rather than new evaluation work.
+(1) `subject:assess release` (8 recurrences, avg 2.0 steps, arc-skill-manager
+only) — same ad-hoc retrospective shape, added to `KNOWN_SUBJECT_PREFIXES`.
+(2) `source:sensor:arc-purpose-eval:followup` (3 recurrences) — the base
+`sensor:arc-purpose-eval` was evaluated and rejected back in task #21036, but
+only `sensor:arc-strategy-review` actually got added to `KNOWN_PATTERNS` at
+the time; the exact-string match means any suffixed variant (`:followup`)
+slips through even though the underlying sensor is exempted. Added both
+`sensor:arc-purpose-eval` and `sensor:arc-purpose-eval:followup` this time.
+(3) `source:sensor:arc-email-sync:thread` (15 recurrences, avg 4.8 steps) —
+different reason: this one is **not** an ad-hoc retrospective case at all, it's
+already fully modeled by `EmailThreadMachine` (received→triaged→reply_pending→
+completed), wired into `skills/arc-email-sync/sensor.ts` via `insertWorkflow`
+per thread — genuinely working as intended, just missing from the exemption
+list. **Structural gap this exposes**: `normalizeSource` collapses 4+-part
+sources to their first 3 segments, but leaves exactly-3-part sources
+(`sensor:X:suffix`) untouched — so a 2-part exemption (`sensor:X`) never
+matches a 3-part variant of the same sensor. Whoever fixes this class next
+should consider matching on the `sensor:X` prefix rather than requiring an
+exact string in `KNOWN_PATTERNS`, instead of enumerating every suffix by hand.
