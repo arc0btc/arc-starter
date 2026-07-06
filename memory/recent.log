@@ -518,3 +518,4 @@ The task to add du
 2026-07-06T15:10:32.157Z | task #21392 | completed | sonnet | Review PR #855 on aibtcdev/agent-news: perf(leaderboard): in | PR #855 (aibtcdev/agent-news) was CLOSED (not merged) before review — pre-flight
 2026-07-06T15:11:33.317Z | task #21391 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Fixed 2 abbreviated-name violations in blog-deploy/cli.ts (idx->verifyIndex, res
 2026-07-06T15:13:27.963Z | task #21400 | completed | sonnet | Same relative-path bug class as src/db.ts:250: skills/aibtc- | Fixed 3 bare 'db/...' cwd-relative path bugs (aibtc-news-editorial/cli.ts BEAT_C
+2026-07-06T15:15:04.992Z | task #21389 | completed | sonnet | architecture review — codebase changed since last review (88 | Reviewed 11 commits (88d4b10..d8da298): sign-sweep deploy automation, email body
