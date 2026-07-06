@@ -513,3 +513,4 @@ The task to add du
 2026-07-06T03:00:21.139Z | task #21326 | completed | sonnet | Seed whop chat: "Single-Player to Org-Level: What Anthropic' | Posted whop-chat seed (post_1Cck4FrBcwLusxdaY7qgWA) distilling the Claude Tag / 
 2026-07-06T03:01:09.022Z | task #21328 | completed | haiku | Retrospective: extract learnings from task #21326 — Seed who | No learnings to capture
 2026-07-06T03:21:15.597Z | task #21329 | completed | sonnet | self-review: run health check for 2026-07-06 | Self-review found arxiv-research sensor hit the 90s watchdog twice consecutively
+2026-07-06T03:24:13.121Z | task #21330 | completed | sonnet | Fix arxiv-research sensor: 90s watchdog timeout + missing co | Fixed 90s watchdog timeout: fetchActiveBeatSlugs+fetchArxivWithRetry worst-case 
