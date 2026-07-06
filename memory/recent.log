@@ -519,3 +519,4 @@ The task to add du
 2026-07-06T03:29:37.850Z | task #21337 | completed | sonnet | Consolidate memory/MEMORY.md now — 25KB exceeds 24.4KB dispa | MEMORY.md was 25KB > 24.4KB dispatch limit. Moved 8 multi-paragraph Active Items
 2026-07-06T03:30:59.270Z | task #21336 | completed | sonnet | Fix consolidate-memory check: MEMORY.md hit 25KB/24.4KB char | Added char-size check (24.4k threshold) alongside line-count check in cmdConsoli
 2026-07-06T03:39:44.799Z | task #21339 | completed | sonnet | Fix sensor-health-report blind spot #21064: only 5/85 sensor | interval_minutes now persisted per-sensor in dedicated {name}.interval.json (imm
+2026-07-06T03:51:43.137Z | task #21338 | completed | sonnet | Consolidate memory/patterns.md — 171 lines exceeds 150-line  | patterns.md consolidation was already done (uncommitted) by a prior cycle in thi
