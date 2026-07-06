@@ -814,7 +814,7 @@ async function sendAmplificationEmail(
         to: recipient,
         subject,
         body: plainText,
-        html: htmlBody,
+        body_html: htmlBody,
       }),
     });
 

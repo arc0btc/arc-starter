@@ -993,7 +993,7 @@ ${options.previewUrl ? `<p><strong>Working preview</strong> (staging, readable n
       method: "POST",
       headers: { "X-Admin-Key": adminKey, "Content-Type": "application/json" },
       signal: AbortSignal.timeout(15_000),
-      body: JSON.stringify({ to: recipient, subject, body: plainText, html: htmlBody }),
+      body: JSON.stringify({ to: recipient, subject, body: plainText, body_html: htmlBody }),
     });
     if (!response.ok) {
       console.error(`  [EMAIL] send failed: HTTP ${response.status} — ${await response.text()}`);

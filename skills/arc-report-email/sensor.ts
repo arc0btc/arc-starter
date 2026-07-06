@@ -125,7 +125,7 @@ export default async function reportEmailSensor(): Promise<string> {
     last_emailed_report: newestFile,
   });
 
-  // Send via email worker API (html field for themed email, body as plain text fallback)
+  // Send via email worker API (body_html field for themed email, body as plain text fallback)
   const response = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
@@ -137,7 +137,7 @@ export default async function reportEmailSensor(): Promise<string> {
       to: recipient,
       subject,
       body: plainText,
-      html: htmlBody,
+      body_html: htmlBody,
     }),
   });
 
