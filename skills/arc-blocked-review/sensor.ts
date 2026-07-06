@@ -159,14 +159,19 @@ export default async function blockedReviewSensor(): Promise<string> {
   }
 
   // Build a single review task listing all candidates
-  const description = reviewCandidates
-    .map(
-      ({ task, reasons }) =>
-        `### Task #${task.id} (P${task.priority}): ${task.subject}\n` +
-        `Blocked reason: ${task.result_summary ?? "(none)"}\n` +
-        `Signals:\n${reasons.map((r) => `- ${r}`).join("\n")}`
-    )
-    .join("\n\n");
+  const description =
+    reviewCandidates
+      .map(
+        ({ task, reasons }) =>
+          `### Task #${task.id} (P${task.priority}): ${task.subject}\n` +
+          `Blocked reason: ${task.result_summary ?? "(none)"}\n` +
+          `Signals:\n${reasons.map((r) => `- ${r}`).join("\n")}`
+      )
+      .join("\n\n") +
+    "\n\nIf verification confirms a task's blocker is resolved, close it now " +
+    "(`arc tasks close --id <id> --status completed|failed --summary ...`) instead of " +
+    "only reporting — an unclosed blocked task gets re-flagged and re-reviewed at full cost " +
+    "on a later cycle even when the finding hasn't changed.";
 
   // Build valid skill set to filter out renamed/removed skills
   const validSkillNames = new Set(discoverSkills().map((s) => s.name));
