@@ -380,6 +380,7 @@ async function cmdStage(
   forceSanitization: boolean,
   deliverableOverride?: string,
   keepHidden = false,
+  routeOverride?: string,
 ): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
@@ -437,6 +438,15 @@ async function cmdStage(
   }
   if (claim === "resumed") {
     console.log(`${reportFile} was claimed but not finalized (a prior 'stage' run was interrupted) — resuming, not aborting.`);
+  }
+
+  // A --route override lets an operator fix a generic auto-derived route (e.g. "research")
+  // that Whop rejects as already reserved by another creator, without touching the row's slug
+  // (which the draft filename and deliverable path are keyed on) or resorting to raw SQL.
+  if (routeOverride) {
+    const newRoute = slugify(routeOverride);
+    db.run(`UPDATE packaging_queue_log SET route = ? WHERE report_file = ?`, [newRoute, reportFile]);
+    row.route = newRoute;
   }
 
   const price = draft.price ?? DEFAULT_PRICE_USD;
@@ -757,6 +767,7 @@ async function main() {
         args.includes("--force-sanitization"),
         argValue(args, "--deliverable"),
         args.includes("--keep-hidden"),
+        argValue(args, "--route"),
       );
       break;
     }
@@ -772,7 +783,7 @@ async function main() {
           "  materials [--report <filename-in-research/>] [--slug <slug>]  pick the next backlog candidate, write a materials brief",
           "                                                                (--slug overrides the auto-derived slug/route for a report whose",
           "                                                                filename has no descriptive part, e.g. a batch-triage file)",
-          "  stage --report <filename> [--dry-run] [--force-sanitization] [--deliverable <path>] [--keep-hidden]",
+          "  stage --report <filename> [--dry-run] [--force-sanitization] [--deliverable <path>] [--keep-hidden] [--route <slug>]",
           "                                                                validate the draft (+ sanitization scan unless forced), then mint AND",
           "                                                                PUBLISH the SKU (visible on the storefront — operator directive 2026-07-03)",
           "  status                                                        show packaging_queue_log",
@@ -783,6 +794,9 @@ async function main() {
           "  --deliverable <path>: ship an already-polished standalone file instead of the raw",
           "  research report + auto-strip pass (report_file identity/mark-packaged still tracks",
           "  the original research report).",
+          "  --route <slug>: override the auto-derived route (persisted to packaging_queue_log)",
+          "  for when Whop rejects it as already reserved by another creator — e.g. a generic",
+          "  slug like \"research\".",
         ].join("\n"),
       );
       process.exit(command ? 1 : 0);
