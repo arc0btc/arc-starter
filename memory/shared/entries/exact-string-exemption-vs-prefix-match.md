@@ -33,3 +33,18 @@ otherwise every new suffix variant re-triggers the same already-resolved review
 cycle. See [[retrospective-pattern-no-generic-machine-needed]] for the underlying
 "ad-hoc retrospectives are fine, no generic machine needed" verdict this exemption
 set encodes.
+
+**2026-07-06 recurrence, subject side (task #21390):** the fix above only patched
+`KNOWN_PATTERNS` (source-grouped detection). The very next cycle re-flagged the
+identical already-resolved chains via the *other* detector path —
+`KNOWN_SUBJECT_PREFIXES` (subject-grouped detection, `bySubject` in
+`detectPatterns()`) — as three "new" patterns: `subject:email from` (= the
+already-exempted `sensor:arc-email-sync` chains, EmailThreadMachine), `subject:purpose
+eval` (= already-exempted `sensor:arc-purpose-eval` chains, ad-hoc retrospective, no
+machine needed), `subject:seed whop chat` (ContentCalendarMachine's whop-chat hop +
+ad-hoc retrospective, same rejected shape). Same underlying tasks, different grouping
+axis in the same sensor — one exemption list being fixed doesn't cover the other.
+Added `"email from"`, `"purpose eval"`, `"seed whop chat"` to
+`KNOWN_SUBJECT_PREFIXES` in `skills/arc-workflow-review/sensor.ts`. **Lesson:** a
+detector with two independent grouping axes (source, subject) needs its exemption
+audit applied to *both* axes, not just the one that happened to trigger the fix.

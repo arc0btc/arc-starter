@@ -124,6 +124,19 @@ const KNOWN_SUBJECT_PREFIXES = [
   // steps, single skill (arc-skill-manager) — same already-rejected shape as
   // retrospective-pattern-no-generic-machine-needed.md.
   "assess release",
+  // Already fully modeled by EmailThreadMachine (received→triaged→reply_pending→completed).
+  // Same underlying tasks as the "sensor:arc-email-sync" source exemption above (task
+  // #21317) — this is the subject-grouped view of the identical chains, not a new gap
+  // (task #21390).
+  "email from",
+  // Ad-hoc daily-eval → retrospective chain, same shape already evaluated and rejected
+  // for "sensor:arc-purpose-eval" (task #21036/#21317). Subject-grouped view of the same
+  // tasks, not new (task #21390).
+  "purpose eval",
+  // Content-calendar's whop-chat hop (ContentCalendarMachine) followed by the standard
+  // ad-hoc "Retrospective: extract learnings" chain — same already-rejected shape as
+  // retrospective-pattern-no-generic-machine-needed.md, not new (task #21390).
+  "seed whop chat",
 ];
 
 function normalizeSource(source: string | null): string {
