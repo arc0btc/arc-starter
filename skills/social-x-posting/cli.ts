@@ -1035,11 +1035,47 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   }
   const sourceKeys = sourcesFlag.split(",").map((s) => s.trim()).filter(Boolean);
   const threadRef = flags["thread-ref"] ?? sourceKeys[0];
-  const lane = (flags["lane"] ?? "post") as EngineLane;
+  // Soak-day-1 regression (2026-07-06T01:02Z, task 21164): a pre-P3 task-description
+  // string reached this command WITHOUT --lane, the `?? "post"` default admitted a
+  // content-calendar thread into the windowless legacy lane, and 4 real tweets went out
+  // at 01:02 UTC. cmdPost's fail-closed prefix guard can't catch this — the group HAD a
+  // reservation, just in the wrong lane. Same principle as that guard: the lane a managed
+  // source key belongs to is a fact of the KEY, not a caller opinion. Derive lane + the
+  // lane's canonical window (CHECKPOINTS.md #1) from the source-key prefix; refuse mixed
+  // prefixes; log when a caller's explicit flags were overridden. Unmanaged keys keep
+  // caller-supplied lane/window semantics unchanged (reply lane, cadence beat).
+  const MANAGED_LANES: Record<string, { earliest: string; latest: string }> = {
+    "content-calendar": { earliest: "15:00", latest: "18:00" },
+    "daily-read": { earliest: "13:00", latest: "14:00" },
+  };
+  const prefixLanes = new Set(
+    sourceKeys.map((s) => Object.keys(MANAGED_LANES).find((l) => s.startsWith(`${l}:`)) ?? "unmanaged"),
+  );
+  if (prefixLanes.size > 1 && [...prefixLanes].some((l) => l !== "unmanaged")) {
+    console.log(JSON.stringify({
+      error: true, reason: "mixed_lane_group",
+      detail: `reserve-group refuses a group spanning lanes (${[...prefixLanes].join(", ")}) — one atomic group belongs to exactly one lane. Split the reservation per lane.`,
+    }));
+    process.exit(1);
+  }
+  const derivedLane = [...prefixLanes][0] !== "unmanaged" ? [...prefixLanes][0] : undefined;
+  let lane = (flags["lane"] ?? "post") as EngineLane;
   // P3 arc-posting-scheduler: per-lane window (HH:MM UTC, both optional — NULL/NULL means
   // anytime, unchanged for the reply lane and any caller that doesn't pass these).
-  const earliestUtcTime = flags["earliest-time"];
-  const latestUtcTime = flags["latest-time"];
+  let earliestUtcTime = flags["earliest-time"];
+  let latestUtcTime = flags["latest-time"];
+  if (derivedLane) {
+    const win = MANAGED_LANES[derivedLane];
+    if (flags["lane"] && flags["lane"] !== derivedLane) {
+      log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedLane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);
+    }
+    if ((earliestUtcTime && earliestUtcTime !== win.earliest) || (latestUtcTime && latestUtcTime !== win.latest)) {
+      log(`reserve-group: OVERRIDING caller window ${earliestUtcTime ?? "?"}-${latestUtcTime ?? "?"} → ${win.earliest}-${win.latest} (canonical window for lane=${derivedLane}, CHECKPOINTS.md #1)`);
+    }
+    lane = derivedLane as EngineLane;
+    earliestUtcTime = win.earliest;
+    latestUtcTime = win.latest;
+  }
 
   const payloadRefs = sourceKeys.map((s) => `reserve-${createHash("sha256").update(s).digest("hex").slice(0, 12)}`);
   const payloadHashes = sourceKeys.map((s) => createHash("sha256").update(s).digest("hex"));
@@ -1074,8 +1110,8 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
     if (released.length > 0) {
       log(`reserve-group: swept ${released.length} abandoned reservation(s) before admitting (releaseAbandonedReservations)`);
     }
-  } catch (err) {
-    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const result = admitGroup(db, {
