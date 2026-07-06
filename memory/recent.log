@@ -516,3 +516,4 @@ The task to add du
 2026-07-06T22:49:31.531Z | task #21455 | completed | haiku | Retrospective: extract learnings from task #21453 — Email fr | Resolution clarity: when prior email explained mechanism but didn't fix root cau
 2026-07-06T22:51:22.909Z | task #21458 | completed | haiku | Retrospective: extract learnings from task #21454 — Trace X  | Captured 2 operational patterns from #21454 X read-budget starvation analysis: (
 2026-07-06T22:52:38.663Z | task #21462 | completed | opus | Email from whoabuddy (1 unread): Re: X Follower Count — X AP | whoabuddy confirmed pay-per-use + approved X budget recommendations; queued impl
+2026-07-06T23:05:29.260Z | task #21463 | completed | opus | Implement X API pay-per-use dollar budget (whoabuddy-approve | X pay-per-use budget shipped (PR #28, commit 20f1649e): dollar read budget $0.50
