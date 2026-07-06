@@ -526,3 +526,4 @@ The task to add du
 2026-07-06T23:25:44.690Z | task #21483 | completed | opus | Email from whoabuddy (1 unread): Re: Research batch: 2026-07 | whoabuddy green-lit synthesis §5 items 1-5 + lead-with-security-playbook SKU. It
 2026-07-06T23:26:42.237Z | task #21476 | completed | sonnet | Add External Content Guard section to arc-link-research/AGEN | Ported email-sync's external-content guard into arc-link-research/AGENT.md as ne
 2026-07-06T23:27:59.696Z | task #21478 | completed | sonnet | Strip CSS-hidden content in arc-link-research HTML stripping | Added stripHiddenElements() pass (display:none/visibility:hidden/opacity:0/font-
+2026-07-06T23:31:21.082Z | task #21485 | completed | sonnet | Package $9 SKU: 'Securing Autonomous Agents — the 6-attack p | Packaged $9 SKU content (products/securing-autonomous-agents-6-attack-playbook.m
