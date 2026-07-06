@@ -533,3 +533,5 @@ The task to add du
 2026-07-06T23:36:54.574Z | task #21480 | completed | sonnet | Tag recent.log entries from untrusted-content tasks for cons | Tagged recent.log lines from sensor:arc-link-research/email-sync/aibtc-inbox-syn
 2026-07-06T23:39:22.960Z | task #21486 | completed | sonnet | Map Arc's loops to ClaudeDevs taxonomy note, then package 'A | Wrote research/2026-07-06_arc-loop-taxonomy-mapping.md mapping Arc's sensors(tim
 2026-07-06T23:41:14.768Z | task #21499 | blocked | sonnet | Sign-off: publish 'Agent Loop Engineering' SKU (prod_YXBP0FK | Held publish — flagged real product overlap: 'Agent Loop Engineering' (prod_YXBP
+2026-07-06T23:44:18.950Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: classifier.ts routes symbolically (opus/sonnet/haiku/openrouter tiers), 
+2026-07-06T23:45:19.215Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: Arc dispatch never routes to claude-fable-5 (MODEL_IDS/classifier.ts onl
