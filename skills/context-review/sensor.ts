@@ -298,6 +298,18 @@ function checkMissingSkillCoverage(
   // not the execution skills needed. aibtc-news-editorial is all that's required for filing.
   if (/^File \S+ signal:/i.test(task.subject)) return findings;
 
+  // Whop synthesis tasks embed a "Context wells" section — arbitrary, pre-produced source
+  // material (failure clusters, blog excerpts, etc.) quoted verbatim for the model to cite.
+  // That quoted text can mention any domain (e.g. "memory consolidation") incidentally; it
+  // describes what happened elsewhere, not a skill this synthesis task itself needs. whop +
+  // arc-brand-voice is the fixed skill set for all whop-synthesis tasks.
+  if (task.subject.startsWith("Whop synthesis")) return findings;
+
+  // Follow-up tasks that instruct the executor to include a skill on a *different*, future
+  // task (e.g. "Include arc-email-sync in skills for the report send") mention the skill name
+  // as an object of that instruction, not as a requirement for this task's own dispatch.
+  if (/\binclude\s+\S+\s+in\s+skills\s+for\b/i.test(task.description ?? "")) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.

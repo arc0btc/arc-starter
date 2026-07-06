@@ -2336,7 +2336,7 @@ export const CostAlertMachine: StateMachine<{
           type: "create-task",
           subject: `Cost alert: daily spend ${spend}${cap} — review drivers`,
           priority: 7,
-          skills: ["arc-cost-alerting", "arc-skill-manager"],
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
           description: `Cost alert triggered: daily spend is at ${spend}${cap}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
 
 Steps:
