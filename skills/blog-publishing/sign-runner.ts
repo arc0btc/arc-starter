@@ -14,7 +14,12 @@
  * Usage (run from ~/arc-starter so bun loads .env for the credential store):
  *   bun skills/blog-publishing/sign-runner.ts --keys [--dry-run]
  *   bun skills/blog-publishing/sign-runner.ts --slug <slug>
+ *   bun skills/blog-publishing/sign-runner.ts --sweep [--commit]
  *   bun skills/blog-publishing/sign-runner.ts --live-verify <slug>
+ *
+ * --sweep signs every new/changed post in one pass (single wallet unlock) — the
+ * consistency reconciler blog-deploy runs before each build. With --commit it also
+ * commits the sidecar changes to the site repo.
  *
  * Idempotence contract: unchanged content hash => no writes, no revision bump.
  * All sidecar writes are temp-file+rename; index.json is fully regenerated from a
@@ -22,7 +27,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, renameSync, mkdirSync } from "fs";
-import { join } from "path";
+import { join, basename } from "path";
 import { createHash } from "crypto";
 import {
   tupleCV,
@@ -183,7 +188,10 @@ async function cmdKeys(dryRun: boolean): Promise<void> {
   console.log(JSON.stringify({ success: true, action: "keys-written", identityAddress: IDENTITY_ADDRESS, signingAddress }));
 }
 
-async function cmdSign(slug: string): Promise<void> {
+type Signer = { signingKey: string; signingAddress: string };
+
+/** Sign one post if new/changed. Returns the action taken. Throws on self-check failure. */
+function signOne(slug: string, signer: Signer): { action: "noop" | "signed"; contentHash: string; revision: number } {
   const sourcePath = join(BLOG_DIR, `${slug}.mdx`);
   if (!existsSync(sourcePath)) throw new Error(`post source not found: ${sourcePath}`);
   const contentHash = sha256Hex(readFileSync(sourcePath));
@@ -193,24 +201,17 @@ async function cmdSign(slug: string): Promise<void> {
   if (existsSync(sidecarPath)) {
     const existing = JSON.parse(readFileSync(sidecarPath, "utf-8"));
     if (existing.current?.contentHash === contentHash) {
-      console.log(JSON.stringify({ success: true, action: "noop", reason: "content hash unchanged", slug, contentHash, revision: existing.current.revision }));
-      return;
+      return { action: "noop", contentHash, revision: existing.current.revision };
     }
     revision = (existing.current?.revision ?? 0) + 1;
   }
 
-  const keys = loadKeys();
-  const { signingKey, signingAddress } = await deriveAccounts();
-  if (signingAddress !== keys.signing.address) {
-    throw new Error(`derived signing key ${signingAddress} does not match attested key ${keys.signing.address}`);
-  }
-
   const signedAt = new Date().toISOString();
   const message = articleMessageCV(slug, contentHash, revision, signedAt);
-  const signature = signStructuredData({ message, domain: domainCV, privateKey: signingKey });
+  const signature = signStructuredData({ message, domain: domainCV, privateKey: signer.signingKey });
   const recovered = recoverSigner(messageHashHex(message), signature);
-  if (recovered !== signingAddress) {
-    throw new Error(`signature self-check failed: recovered ${recovered} != ${signingAddress}`);
+  if (recovered !== signer.signingAddress) {
+    throw new Error(`signature self-check failed for ${slug}: recovered ${recovered} != ${signer.signingAddress}`);
   }
 
   atomicWriteJson(sidecarPath, {
@@ -218,12 +219,67 @@ async function cmdSign(slug: string): Promise<void> {
     canon: CANON,
     domain: DOMAIN_FIELDS,
     author: IDENTITY_ADDRESS,
-    signer: signingAddress,
+    signer: signer.signingAddress,
     current: { contentHash, revision, signedAt, signature },
     reserved: { prevRecordHash: null, anchor: null, nostrPubkey: null },
   });
-  regenerateIndex();
-  console.log(JSON.stringify({ success: true, action: "signed", slug, contentHash, revision, signedAt, signer: signingAddress }));
+  return { action: "signed", contentHash, revision };
+}
+
+async function getVerifiedSigner(): Promise<Signer> {
+  const keys = loadKeys();
+  const { signingKey, signingAddress } = await deriveAccounts();
+  if (signingAddress !== keys.signing.address) {
+    throw new Error(`derived signing key ${signingAddress} does not match attested key ${keys.signing.address}`);
+  }
+  return { signingKey, signingAddress };
+}
+
+async function cmdSign(slug: string): Promise<void> {
+  const signer = await getVerifiedSigner();
+  const result = signOne(slug, signer);
+  if (result.action === "signed") regenerateIndex();
+  console.log(JSON.stringify({ success: true, slug, signer: signer.signingAddress, ...result }));
+}
+
+async function cmdSweep(commit: boolean): Promise<void> {
+  const slugs = readdirSync(BLOG_DIR)
+    .filter((f) => f.endsWith(".mdx") && f !== "index.mdx")
+    .map((f) => basename(f, ".mdx"));
+
+  // Cheap pre-pass: only unlock the wallet if something actually needs signing.
+  const pending = slugs.filter((slug) => {
+    const sidecarPath = join(VERIFY_DIR, `${slug}.json`);
+    if (!existsSync(sidecarPath)) return true;
+    const existing = JSON.parse(readFileSync(sidecarPath, "utf-8"));
+    return existing.current?.contentHash !== sha256Hex(readFileSync(join(BLOG_DIR, `${slug}.mdx`)));
+  });
+
+  if (pending.length === 0) {
+    console.log(JSON.stringify({ success: true, action: "sweep", total: slugs.length, signed: 0, changes: [] }));
+    return;
+  }
+
+  const signer = await getVerifiedSigner();
+  const changes: { slug: string; revision: number }[] = [];
+  for (const slug of pending) {
+    const result = signOne(slug, signer);
+    if (result.action === "signed") changes.push({ slug, revision: result.revision });
+  }
+  if (changes.length > 0) regenerateIndex();
+
+  if (commit && changes.length > 0) {
+    const list = changes.map((c) => `${c.slug} (rev ${c.revision})`).join(", ");
+    const add = Bun.spawnSync(["git", "add", "public/verify"], { cwd: SITE });
+    const ci = Bun.spawnSync(
+      ["git", "commit", "-m", `chore(verify): sign sweep — ${changes.length} post(s)\n\n${list}`],
+      { cwd: SITE }
+    );
+    if (add.exitCode !== 0 || ci.exitCode !== 0) {
+      throw new Error(`sweep commit failed: ${ci.stderr.toString() || add.stderr.toString()}`);
+    }
+  }
+  console.log(JSON.stringify({ success: true, action: "sweep", total: slugs.length, signed: changes.length, committed: commit && changes.length > 0, changes }));
 }
 
 async function cmdLiveVerify(slug: string): Promise<void> {
@@ -258,10 +314,12 @@ try {
     await cmdKeys(args.includes("--dry-run"));
   } else if (args[0] === "--slug" && args[1]) {
     await cmdSign(args[1]);
+  } else if (args[0] === "--sweep") {
+    await cmdSweep(args.includes("--commit"));
   } else if (args[0] === "--live-verify" && args[1]) {
     await cmdLiveVerify(args[1]);
   } else {
-    console.log("usage: sign-runner.ts --keys [--dry-run] | --slug <slug> | --live-verify <slug>");
+    console.log("usage: sign-runner.ts --keys [--dry-run] | --slug <slug> | --sweep [--commit] | --live-verify <slug>");
     process.exit(1);
   }
 } catch (e) {

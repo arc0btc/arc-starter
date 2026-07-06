@@ -106,6 +106,24 @@ async function cmdDeploy(args: string[]): Promise<void> {
   if (!cfCreds) { process.stderr.write("cloudflare credentials missing after verify — unreachable\n"); process.exit(1); }
   const cfToken = cfCreds.apiToken;
 
+  // Step 0.5: Sign sweep — reconcile SIP-018 sidecars for any new/changed posts so
+  // every deploy ships a consistent signed corpus. Non-fatal: a wallet hiccup must
+  // never block content (a missed post just lacks a badge until the next sweep).
+  try {
+    log("running SIP-018 sign sweep...");
+    const sweep = Bun.spawnSync(
+      [process.execPath, "skills/blog-publishing/sign-runner.ts", "--sweep", "--commit"],
+      { cwd: join(import.meta.dir, "../..") }
+    );
+    const sweepOut = sweep.stdout.toString().trim();
+    if (sweepOut) log(`sign sweep: ${sweepOut}`);
+    if (sweep.exitCode !== 0) {
+      process.stderr.write(`WARNING: sign sweep failed (non-fatal, continuing deploy): ${sweep.stderr.toString().slice(0, 500)}\n`);
+    }
+  } catch (e) {
+    process.stderr.write(`WARNING: sign sweep errored (non-fatal): ${e}\n`);
+  }
+
   // Step 1: Build
   const fnmBinDir = resolveFnmBinDir();
   const nodeEnv: Record<string, string> = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};
