@@ -87,6 +87,20 @@ async function saveFollowerCache(metrics: { followers_count: number; following_c
  * The follower cache (below) further reduces actual consumption. */
 export const X_MAX_READS_PER_DAY = 100;
 
+/** AI-057 (2026-07-06): the mentions-polling sensor alone can burn up to 96
+ * reads/day (15min cadence), leaving the low-volume but high-priority follower
+ * gauge starved on busy days (observed: budget hit 100/100 by mid-afternoon,
+ * north-star monitor fell back to a stale cached follower count). Reserve a
+ * small slice of the daily cap exclusively for follower reads so that metric
+ * survives even when high-volume consumers (mentions sensor, watchlist search,
+ * whop-sales lead source) exhaust the general pool. */
+const FOLLOWER_RESERVE_SLOTS = 5;
+
+/** The read budget available to ordinary (non-follower) consumers. */
+function generalReadCap(): number {
+  return X_MAX_READS_PER_DAY - FOLLOWER_RESERVE_SLOTS;
+}
+
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
   reads: number;
@@ -121,9 +135,33 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
 
 /**
  * Throws if we are over the daily read budget or inside a 429 backoff window.
- * Call BEFORE any GET to the X API from this lib.
+ * Call BEFORE any GET to the X API from this lib. Enforces the general cap
+ * (X_MAX_READS_PER_DAY minus the follower reserve) — see checkFollowerReadBudget
+ * for the reserved, follower-only check.
  */
 export async function checkReadBudget(): Promise<void> {
+  const budget = await loadReadBudget();
+  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
+    throw new Error(
+      `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
+    );
+  }
+  const cap = generalReadCap();
+  if (budget.reads >= cap) {
+    throw new Error(
+      `X read budget exhausted: ${budget.reads}/${cap} general reads today (${FOLLOWER_RESERVE_SLOTS} reserved for follower gauge). Resets at midnight UTC.`,
+    );
+  }
+}
+
+/**
+ * Follower-gauge-only budget check. Dips into the reserved slots (see
+ * FOLLOWER_RESERVE_SLOTS) so the lowest-volume, highest-priority read (live
+ * follower count) survives even when high-volume consumers (mentions polling,
+ * watchlist search) have exhausted the general pool. Still respects the
+ * overall daily cap and any active 429 backoff.
+ */
+export async function checkFollowerReadBudget(): Promise<void> {
   const budget = await loadReadBudget();
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
     throw new Error(
@@ -249,14 +287,21 @@ async function buildOAuthHeader(
 
 /** A signed, read-only GET against the X API v2. Throws on non-2xx.
  * Budget-aware: checks read budget before the call, increments after success,
- * and writes a 429 backoff on rate-limit responses (AI-016). */
+ * and writes a 429 backoff on rate-limit responses (AI-016).
+ * Pass `{ reserved: true }` for follower-gauge reads to dip into the reserved
+ * slots (FOLLOWER_RESERVE_SLOTS) instead of the general pool. */
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
   queryParams: Record<string, string> = {},
+  opts: { reserved?: boolean } = {},
 ): Promise<Record<string, unknown>> {
   // Guard: enforce daily read budget and 429 backoff before touching the network.
-  await checkReadBudget();
+  if (opts.reserved) {
+    await checkFollowerReadBudget();
+  } else {
+    await checkReadBudget();
+  }
 
   const baseUrl = `${API_BASE}${endpoint}`;
   // Build the query string with the SAME percentEncode used to compute the OAuth
@@ -476,7 +521,7 @@ export async function fetchFollowerMetrics(
   const endpoint = arcUserId ? `/users/${arcUserId}` : "/users/me";
   const resp = await xApiGet(endpoint, creds, {
     "user.fields": "public_metrics",
-  });
+  }, { reserved: true });
   const data = (resp["data"] as Record<string, unknown> | undefined) ?? {};
   const metrics = (data["public_metrics"] as Record<string, number> | undefined) ?? {};
   const result = {
@@ -534,8 +579,10 @@ export async function fetchRecentPostMetrics(
   });
 }
 
-/** Check read budget, throwing if fewer than `minSlots` remain today.
- * Use instead of `checkReadBudget()` when a single run consumes multiple reads. */
+/** Check general read budget, throwing if fewer than `minSlots` remain today.
+ * Use instead of `checkReadBudget()` when a single run consumes multiple reads.
+ * Checks against the general pool (excludes the follower reserve) — matches
+ * checkReadBudget()'s cap. */
 export async function checkReadBudgetN(minSlots: number): Promise<void> {
   const budget = await loadReadBudget();
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
@@ -543,19 +590,22 @@ export async function checkReadBudgetN(minSlots: number): Promise<void> {
       `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
     );
   }
-  const remaining = X_MAX_READS_PER_DAY - budget.reads;
+  const cap = generalReadCap();
+  const remaining = cap - budget.reads;
   if (remaining < minSlots) {
     throw new Error(
-      `X read budget low: ${budget.reads}/${X_MAX_READS_PER_DAY} reads today, need ${minSlots} slots. Resets at midnight UTC.`,
+      `X read budget low: ${budget.reads}/${cap} general reads today, need ${minSlots} slots. Resets at midnight UTC.`,
     );
   }
 }
 
-/** Return how many read slots remain today (0 = exhausted). */
+/** Return how many general read slots remain today (0 = exhausted). Excludes
+ * the follower reserve — use for consumers other than the follower gauge. */
 export async function getRemainingReadSlots(): Promise<number> {
   const budget = await loadReadBudget();
   const today = new Date().toISOString().slice(0, 10);
-  if (budget.date !== today) return X_MAX_READS_PER_DAY;
+  const cap = generalReadCap();
+  if (budget.date !== today) return cap;
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) return 0;
-  return Math.max(0, X_MAX_READS_PER_DAY - budget.reads);
+  return Math.max(0, cap - budget.reads);
 }
