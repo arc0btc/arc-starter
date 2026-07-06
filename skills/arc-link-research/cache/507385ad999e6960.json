@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/DanKornas/status/2074211511153861036",
+  "fetchedAt": "2026-07-06T23:10:28.888Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Running one coding agent at a time is the bottleneck.\n\nCLI Agent Orchestrator (C...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Running one coding agent at a time is the bottleneck.\n\nCLI Agent Orchestrator (CAO) is an open-source multi-agent orchestration framework for AI coding CLIs like Claude Code, Codex CLI, Gemini CLI, Hermes Agent, Kiro CLI, and Amazon Q Developer CLI.\n\nIt helps you coordinate real CLI agents by running each one in an isolated tmux session, then letting a supervisor delegate work through MCP primitives.\n\nKey features:\n\n• Supervisor-worker orchestration – one supervisor coordinates specialist workers instead of carrying every task in one context\n• tmux session isolation – each agent runs as a real CLI process with its own terminal, tools, and auth\n• MCP coordination primitives – handoff, assign, and send_message support sync, async, and inter-agent messaging\n• Cross-provider workflows – mix different coding CLIs in the same orchestration session\n• Control planes + scheduling – manage runs through the CLI, bundled Web UI, MCP server, and cron-style Flows\n\nIt’s open-source (Apache-2.0 license).\n\nLink in the reply 👇\nCreated: 2026-07-06T19:18:55.000Z\nMetrics: {\"bookmark_count\":9,\"impression_count\":1561,\"like_count\":10,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":1}",
+  "embeddedUrls": [
+    "https://t.co/slnCwaDOyS"
+  ]
+}
