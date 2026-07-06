@@ -507,3 +507,4 @@ The task to add du
 2026-07-06T13:24:33.470Z | task #21373 | completed | sonnet | Fix blank report emails: rename send-payload field 'html' to | Renamed 'html' send-payload field to 'body_html' in arc-report-email/sensor.ts, 
 2026-07-06T13:25:25.416Z | task #21371 | completed | sonnet | Seed whop chat: "The Stopping Set" | Posted 'The Stopping Set' whop-chat seed (post_1CcksvVZTsno8i3AqEABaW), routed u
 2026-07-06T13:26:40.896Z | task #21374 | completed | haiku | Retrospective: extract learnings from task #21372 — Email fr | Updated p-audit-completeness: integration field migrations must apply uniformly 
+2026-07-06T13:27:13.348Z | task #21375 | completed | haiku | Retrospective: extract learnings from task #21373 — Fix blan | Added p-api-field-name-consistency-distributed: field-name mismatches across dis
