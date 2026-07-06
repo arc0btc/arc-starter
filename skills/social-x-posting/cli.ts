@@ -513,6 +513,38 @@ async function apiRequest(
   return data as Record<string, unknown>;
 }
 
+// ---- Inter-send spacing (2026-07-06, shipped after the X-flag review) -------
+//
+// The 2026-07-06T01:02Z incident posted 4 thread tweets in 11 seconds: each
+// tweet is a separate CLI invocation, and nothing anywhere imposed a gap
+// between consecutive sends. That burst cadence is the platform-manipulation
+// signature X flagged @arc0btc for (review cleared 2026-07-06, label removed).
+// Enforce a minimum ACCOUNT-WIDE gap between any two outbound sends — posts
+// and replies, both ledgers live in the same DB — at the only three call sites
+// that issue POST /tweets. Sleeping inside the CLI is safe: callers are LLM
+// dispatch turns that already block on this process. The wait is bounded so a
+// skewed/garbled ledger timestamp can never hang a dispatch turn.
+const MIN_INTER_SEND_SECONDS = 45;
+const INTER_SEND_JITTER_SECONDS = 45; // effective gap 45-90s, varies per send
+async function enforceInterSendSpacing(context: string): Promise<void> {
+  const db = await xPostLog();
+  await xReplyLog(); // same DB handle; ensures x_reply_log exists before the UNION read
+  const row = db.query(
+    `SELECT MAX(t) as last FROM (
+       SELECT MAX(posted_at) as t FROM x_post_log
+       UNION ALL
+       SELECT MAX(replied_at) as t FROM x_reply_log
+     )`,
+  ).get() as { last: string | null } | null;
+  if (!row?.last) return;
+  const elapsedMs = Date.now() - new Date(row.last).getTime();
+  const requiredMs = (MIN_INTER_SEND_SECONDS + Math.floor(Math.random() * INTER_SEND_JITTER_SECONDS)) * 1000;
+  if (elapsedMs >= requiredMs) return;
+  const waitMs = Math.min(requiredMs - elapsedMs, 120_000);
+  log(`inter-send spacing: last outbound send ${Math.round(elapsedMs / 1000)}s ago (${context}) — waiting ${Math.round(waitMs / 1000)}s before this send`);
+  await Bun.sleep(waitMs);
+}
+
 // ---- Low-level reply provider primitive (single send code path) ------------
 //
 // This is the ONLY function that issues POST /tweets for a reply. It does NO
@@ -540,6 +572,7 @@ export async function providerReplySend(
   }
   // Honor the X-API-credits-depleted gate (402 backpressure) before any send.
   await checkCreditsDepleted();
+  await enforceInterSendSpacing("reply");
   const creds = await loadCreds();
   const body = { text, reply: { in_reply_to_tweet_id: tweetId } };
   const result = await apiRequest("POST", "/tweets", creds, body);
@@ -692,6 +725,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
         return;
       }
 
+      await enforceInterSendSpacing(`reserved-group ${flags["source"] ?? "?"}`);
       const creds = await loadCreds();
       const body: Record<string, unknown> = { text: unescapedText };
       if (flags["reply-to"]) body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
@@ -782,9 +816,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // Kill switch: the social-engine reply lane enforces this via admission.ts; the
     // direct post lane was missing it.
     const ksRow = guardDb.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as { value: string } | null;
-    if (ksRow?.value !== "true") {
-      log("kill switch active (outbound_enabled!=true) — halting post (root or continuation)");
-      console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: ksRow?.value ?? "missing" }));
+    if (ksRow?.value === "false") {
+      log("kill switch active (outbound_enabled=false) — halting post (root or continuation)");
+      console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: "false" }));
       return;
     }
 
@@ -944,6 +978,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
   }
 
+  await enforceInterSendSpacing(`legacy ${flags["source"] ?? "?"}`);
   log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : "root"})...`);
   // ANTI-LOCK 403 BACKOFF (2026-07-01): a 403 on a write — especially a self-reply continuation — is a
   // transient reply-restriction / rate-cooldown signal, NOT a permanent failure. RETRYING it is what
@@ -1110,8 +1145,8 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
     if (released.length > 0) {
       log(`reserve-group: swept ${released.length} abandoned reservation(s) before admitting (releaseAbandonedReservations)`);
     }
-  } catch (error) {
-    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${error instanceof Error ? error.message : String(error)}`);
+  } catch (err) {
+    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${err instanceof Error ? err.message : String(err)}`);
   }
 
   const result = admitGroup(db, {
