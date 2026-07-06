@@ -502,3 +502,4 @@ The task to add du
 2026-07-06T14:16:05.896Z | task #21378 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Arc Watch Repo | whoabuddy 'go and fix' the email HTML bug — already shipped (task #21373, commit
 2026-07-06T14:17:39.758Z | task #21377 | completed | sonnet | Review PR #853 on aibtcdev/agent-news: perf(init): global KV | reviewed PR #853 on aibtcdev/agent-news — approved KV cache in front of /init DO
 2026-07-06T14:18:05.553Z | task #21379 | completed | haiku | Retrospective: extract learnings from task #21378 — Email fr | No learnings to capture — task #21378 validated existing patterns: idempotency c
+2026-07-06T14:19:35.444Z | task #21380 | completed | haiku | Retrospective: extract learnings from task #21377 — Review P | Captured operational-grounding pattern for infrastructure PR reviews — validate 
