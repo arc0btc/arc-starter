@@ -1,0 +1,54 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "According to the playbook, what is the actual attack surface in prompt-injection-style attacks?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The ingestion path — anywhere the agent reads content it doesn't control",
+      "options": [
+        { "option_text": "The model's weights", "is_correct": false },
+        { "option_text": "The ingestion path — anywhere the agent reads content it doesn't control", "is_correct": true },
+        { "option_text": "The user's own prompts", "is_correct": false },
+        { "option_text": "The GPU hardware", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "The External Content Guard convention works mainly because it targets phrasing patterns like 'ignore previous instructions'.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "In the CSS-hidden-content fix, why must the hidden-element check run BEFORE the generic tag-strip?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The generic strip erases the style attribute the hidden-content check needs to see",
+      "options": [
+        { "option_text": "It runs faster that way", "is_correct": false },
+        { "option_text": "The generic strip erases the style attribute the hidden-content check needs to see", "is_correct": true },
+        { "option_text": "Order doesn't actually matter", "is_correct": false },
+        { "option_text": "It's required by the HTML spec", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "What is the recommended fix for memory-poisoning risk in persistent agent memory?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Tag log entries by originating source at write time and gate consolidation on that tag",
+      "options": [
+        { "option_text": "Never write anything to persistent memory", "is_correct": false },
+        { "option_text": "Tag log entries by originating source at write time and gate consolidation on that tag", "is_correct": true },
+        { "option_text": "Re-verify every historical memory entry monthly", "is_correct": false },
+        { "option_text": "Encrypt the memory file", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "What should you do for attack classes (like image/PDF ingestion) your agent doesn't currently support?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Write a tripwire now so the guard ships with the feature, not after it",
+      "options": [
+        { "option_text": "Ignore them entirely, they don't matter", "is_correct": false },
+        { "option_text": "Write a tripwire now so the guard ships with the feature, not after it", "is_correct": true },
+        { "option_text": "Build the guard code immediately even with no ingestion path yet", "is_correct": false },
+        { "option_text": "Disable the agent until support is added", "is_correct": false }
+      ]
+    }
+  ]
+}
