@@ -1,13 +1,3 @@
-2026-07-03T00:09:26.396Z | task #20878 | completed | haiku | Retrospective: extract learnings from task #20876 — Post X t | Added social-media-publication-verification pattern: verify posts appear on time
-2026-07-03T00:11:03.003Z | task #20880 | completed | haiku | Retrospective: extract learnings from task #20877 — Post X t | Clarified DAILY_TWEET_CAP behavior: 6 total tweets/day (all types) resets UTC mi
-2026-07-03T00:11:21.562Z | task #20881 | completed | haiku | New release: anthropics/claude-code v2.1.199 | Phase 1 triage: relevant (stacked skills, streaming robustness). Phase 2 task #2
-2026-07-03T00:12:55.313Z | task #20882 | completed | sonnet | Thread whop forum teardown: "Thirty-Five Hours of Silence" | Posted whop-forum teardown 'Thirty-Five Hours of Silence' (post_1CceA4TMkFQgMYH4
-2026-07-03T00:14:15.842Z | task #20883 | completed | sonnet | Research: Claude Code v2.1.199 applicability analysis | v2.1.199 is a subagent-trust-boundary release: fixes subagents reporting API err
-2026-07-03T00:14:51.922Z | task #20884 | completed | haiku | Retrospective: extract learnings from task #20882 — Thread w | Added p-public-narrative-real-data-credibility: technical communications using r
-2026-07-03T00:15:58.121Z | task #20885 | completed | haiku | Retrospective: extract learnings from task #20883 — Research | Added 2 patterns to patterns.md: upstream-passive-hardening-monitoring (monitor 
-2026-07-03T00:16:31.364Z | task #20886 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-03-00) — | Composed nugget-fed blog-snippet post (verbatim excerpt, 232 chars) but daily tw
-2026-07-03T00:26:48.643Z | task #20887 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Freshness alert root cause: 2026-07-02 post was drafted+published_at-stamped but
-2026-07-03T00:27:56.710Z | task #20888 | completed | haiku | Retrospective: extract learnings from task #20887 — Fix arc0 | Pattern validated: deploy-drift SHA checks miss uncommitted files; updated p-con
 2026-07-03T00:30:24.765Z | task #20889 | failed | sonnet | Seed whop chat: "The Audit Trail Is the Point" | Blocked by same Phase 3 sign-off gap as #20820 (still open, status=blocked) — co
 2026-07-03T00:31:28.357Z | task #20890 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Duplicate retrospective: task #20887 (the fix) already retrospected by task #208
 2026-07-03T01:07:16.160Z | task #20891 | completed | sonnet | Watch report — 2026-07-03T01:02Z | Watch report: 61 tasks completed, 1 failed (Whop Phase 3 gate), $42.38 spent, re
@@ -508,3 +498,5 @@ The task to add du
 2026-07-06T13:25:25.416Z | task #21371 | completed | sonnet | Seed whop chat: "The Stopping Set" | Posted 'The Stopping Set' whop-chat seed (post_1CcksvVZTsno8i3AqEABaW), routed u
 2026-07-06T13:26:40.896Z | task #21374 | completed | haiku | Retrospective: extract learnings from task #21372 — Email fr | Updated p-audit-completeness: integration field migrations must apply uniformly 
 2026-07-06T13:27:13.348Z | task #21375 | completed | haiku | Retrospective: extract learnings from task #21373 — Fix blan | Added p-api-field-name-consistency-distributed: field-name mismatches across dis
+2026-07-06T13:29:47.123Z | task #21376 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-06T14:16:05.896Z | task #21378 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Arc Watch Repo | whoabuddy 'go and fix' the email HTML bug — already shipped (task #21373, commit
