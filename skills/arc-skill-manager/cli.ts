@@ -14,6 +14,7 @@ const SKILLS_ROOT = join(ROOT, "skills");
 const MEMORY_PATH = join(ROOT, "memory/MEMORY.md");
 const PATTERNS_PATH = join(ROOT, "memory/patterns.md");
 const MEMORY_LINE_THRESHOLD = 500;
+const MEMORY_CHAR_THRESHOLD = 24_400; // matches the harness's MEMORY.md load-truncation limit
 const PATTERNS_LINE_THRESHOLD = 150;
 const MEMORY_TOKEN_ESTIMATE_RATIO = 0.75; // ~0.75 tokens per word
 
@@ -155,16 +156,22 @@ function cmdMemoryCheck(): void {
   const content = readFileSync(MEMORY_PATH, "utf-8");
   const lines = content.split("\n");
   const lineCount = lines.length;
+  const charCount = content.length;
   const wordCount = content.split(/\s+/).filter(Boolean).length;
   const estimatedTokens = Math.round(wordCount * MEMORY_TOKEN_ESTIMATE_RATIO);
-  const needsConsolidation = lineCount > MEMORY_LINE_THRESHOLD;
+  const overLineLimit = lineCount > MEMORY_LINE_THRESHOLD;
+  const overCharLimit = charCount > MEMORY_CHAR_THRESHOLD;
+  const needsConsolidation = overLineLimit || overCharLimit;
 
   process.stdout.write(`memory/MEMORY.md stats:\n`);
-  process.stdout.write(`  lines:            ${lineCount}\n`);
+  process.stdout.write(`  lines:            ${lineCount} (threshold ${MEMORY_LINE_THRESHOLD})\n`);
+  process.stdout.write(`  chars:            ${charCount} (threshold ${MEMORY_CHAR_THRESHOLD})\n`);
   process.stdout.write(`  words:            ${wordCount}\n`);
   process.stdout.write(`  estimated tokens: ${estimatedTokens}\n`);
-  process.stdout.write(`  threshold:        ${MEMORY_LINE_THRESHOLD} lines\n`);
   process.stdout.write(`  status:           ${needsConsolidation ? "NEEDS CONSOLIDATION" : "OK"}\n`);
+  if (overCharLimit && !overLineLimit) {
+    process.stdout.write(`  note:             char limit exceeded despite low line count — entries are too dense/verbose, tighten prose not just line count\n`);
+  }
 
   // Also check patterns.md
   if (existsSync(PATTERNS_PATH)) {

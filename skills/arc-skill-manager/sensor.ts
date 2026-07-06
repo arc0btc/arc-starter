@@ -15,6 +15,7 @@ const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
 const PATTERNS_PATH = join(import.meta.dir, "../../memory/patterns.md");
 const RECENT_LOG_PATH = join(import.meta.dir, "../../memory/recent.log");
 const LINE_THRESHOLD = 500;
+const CHAR_THRESHOLD = 24_400; // matches the harness's MEMORY.md load-truncation limit
 const PATTERNS_LINE_THRESHOLD = 250;
 const PATTERNS_COOLDOWN_MINUTES = 720; // 12h to prevent oscillation when file hovers near threshold
 const RECENT_LOG_ARCHIVE_AGE_DAYS = 14;
@@ -129,17 +130,25 @@ export default async function manageSkillsSensor(): Promise<string> {
     if (existsSync(MEMORY_PATH)) {
       const content = readFileSync(MEMORY_PATH, "utf-8");
       const lineCount = content.split("\n").length;
+      const charCount = content.length;
+      const overLineLimit = lineCount > LINE_THRESHOLD;
+      const overCharLimit = charCount > CHAR_THRESHOLD;
 
-      if (lineCount > LINE_THRESHOLD && !pendingTaskExistsForSource(TASK_SOURCE)) {
+      if ((overLineLimit || overCharLimit) && !pendingTaskExistsForSource(TASK_SOURCE)) {
+        const reason = overLineLimit && overCharLimit
+          ? `${lineCount} lines (threshold ${LINE_THRESHOLD}) and ${charCount} chars (threshold ${CHAR_THRESHOLD})`
+          : overCharLimit
+            ? `${charCount} chars (threshold ${CHAR_THRESHOLD}) despite only ${lineCount} lines — entries too dense/verbose`
+            : `${lineCount} lines (threshold ${LINE_THRESHOLD})`;
         insertTask({
-          subject: `Consolidate MEMORY.md (${lineCount} lines, threshold ${LINE_THRESHOLD})`,
+          subject: `Consolidate MEMORY.md (${reason})`,
           description: [
             "MEMORY.md has grown past the consolidation threshold.",
             "",
             "Steps:",
             "1. Run: arc skills run --name manage-skills -- consolidate-memory check",
             "2. Read memory/MEMORY.md and compress: merge duplicates, remove stale entries, tighten prose",
-            "3. Keep under 5k tokens and 500 lines (balance usable knowledge with compression)",
+            "3. Keep under 5k tokens, 500 lines, and 24.4k chars (balance usable knowledge with compression)",
             "4. Run: arc skills run --name manage-skills -- consolidate-memory commit",
           ].join("\n"),
           skills: '["arc-skill-manager"]',
