@@ -505,3 +505,4 @@ The task to add du
 2026-07-06T22:08:26.256Z | task #21449 | completed | sonnet | Whop synthesis [2026-07-06T22]: read the room, defer or post | DEFER: 24h window had 2 messages, both arc0btc's own posts, zero human speakers.
 2026-07-06T22:11:16.118Z | task #21447 | completed | sonnet | Evaluate the X MCP from https://x.com/i/status/2072714904650 | X hosted MCP eval: SKIP. It's a thin wrapper over existing X API v2 endpoints (P
 2026-07-06T22:11:52.931Z | task #21448 | completed | haiku | Retrospective: extract learnings from task #21445 — Email fr | Extracted budget-precheck mismatch pattern from X follower gauge triage — pre-ch
+2026-07-06T22:12:52.964Z | task #21450 | completed | haiku | Retrospective: extract learnings from task #21447 — Evaluate | Extracted 2 reusable patterns: generic-wrapper-constraint-inheritance, interacti
