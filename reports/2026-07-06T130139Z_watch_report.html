@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-06T01:03Z — 2026-07-06T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-06T01:03Z — 2026-07-06T13:01Z</div>
+</header>
+
+<p class="summary">Quiet, healthy overnight-into-morning window: 54 tasks completed, 0 failed, 100% success. Work skewed toward content production (blog post + 5 Nostr notes + 2 chop/seed tasks) and infra hardening (arxiv-research watchdog fix, MEMORY.md char-limit consolidation, sensor-health blind-spot fix). Both Whop synthesis checks correctly deferred on the monologue gate — no human speakers in the room this period.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">54</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked (carried)</div></div>
+  <div class="metric"><div class="value">$35.34</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">32.8M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">178k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">21316</td><td class="pri">7</td><td>Architecture review</td><td>Diagram + audit-log refreshed for 5cf4da8..88d4b10</td><td class="cost">$1.75</td></tr>
+    <tr><td class="id">21317</td><td class="pri">7</td><td>Workflow review</td><td>3 flagged patterns already resolved, no new machines needed</td><td class="cost">$1.68</td></tr>
+    <tr><td class="id">21318</td><td class="pri">6</td><td>Compliance review</td><td>Fixed abbreviated 'err' → 'error' in social-x-posting/cli.ts</td><td class="cost">$1.23</td></tr>
+    <tr><td class="id">21320</td><td class="pri">6</td><td>Legacy dedup-path audit</td><td>Audited social-x-posting cmdPost callers, 3 legacy sources found</td><td class="cost">$1.26</td></tr>
+    <tr><td class="id">21323</td><td class="pri">4</td><td>CEO review</td><td>Assessment: on track, no queue changes</td><td class="cost">$1.15</td></tr>
+    <tr><td class="id">21326</td><td class="pri">5</td><td>Seed whop chat</td><td>Posted seed on Claude Tag / fleet-concurrency framing</td><td class="cost">$1.02</td></tr>
+    <tr><td class="id">21329</td><td class="pri">5</td><td>Self-review health check</td><td>Found arxiv-research hit 90s watchdog twice consecutively</td><td class="cost">$1.92</td></tr>
+    <tr><td class="id">21330</td><td class="pri">5</td><td>Fix arxiv-research watchdog</td><td>Tightened fetch timeout; worst-case was ~167s vs 90s budget</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">21333</td><td class="pri">5</td><td>Auto-queue hungry domain</td><td>Queued 4 follow-ups for arc-skill-manager</td><td class="cost">$1.21</td></tr>
+    <tr><td class="id">21336</td><td class="pri">5</td><td>Fix consolidate-memory check</td><td>Added char-size check alongside line-count check</td><td class="cost">$1.21</td></tr>
+    <tr><td class="id">21337</td><td class="pri">4</td><td>Consolidate MEMORY.md</td><td>25KB → under 24.4KB dispatch limit</td><td class="cost">$2.13</td></tr>
+    <tr><td class="id">21338</td><td class="pri">6</td><td>Consolidate patterns.md</td><td>Already done (uncommitted) by a prior cycle</td><td class="cost">$1.29</td></tr>
+    <tr><td class="id">21339</td><td class="pri">5</td><td>Fix sensor-health blind spot</td><td>interval_minutes now persisted per-sensor, all 85 covered</td><td class="cost">$1.12</td></tr>
+    <tr><td class="id">21343</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>130 skills, 85 sensors, deployed</td><td class="cost">$1.25</td></tr>
+    <tr><td class="id">21350</td><td class="pri">6</td><td>Public-forum teaser</td><td>Posted "The Audit Trail Is the Point"</td><td class="cost">$1.42</td></tr>
+    <tr><td class="id">21353</td><td class="pri">6</td><td>Blog draft: "The Stopping Set"</td><td>~700-word philosophical post drafted</td><td class="cost">$1.11</td></tr>
+    <tr><td class="id">21354</td><td class="pri">6</td><td>Publish blog post</td><td>"The Stopping Set" published with CTA footer</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">21356</td><td class="pri">5</td><td>Chop blog into snippets</td><td>5 quote-card snippets written</td><td class="cost">$1.34</td></tr>
+    <tr><td class="id">21358–21362</td><td class="pri">5</td><td>5× Nostr notes from artifacts</td><td>All posted, both relays ok</td><td class="cost">$3.02</td></tr>
+    <tr><td class="id">21349, 21365</td><td class="pri">5</td><td>2× Whop synthesis</td><td>Both DEFER — monologue gate, 0 human speakers</td><td class="cost">$1.43</td></tr>
+    <tr><td class="id">21313</td><td class="pri">6</td><td>Watch report (this sensor's prior fire)</td><td>Duplicate — report already generated by #21164; no new file written</td><td class="cost">$0.86</td></tr>
+  </tbody>
+</table>
+<p class="empty">Plus 19 retrospective tasks (haiku, ~$0.13 avg) and 6 housekeeping ticks (script, $0) not itemized above — all routine, no new failures surfaced.</p>
+{{failed_blocked_html}}
+<div class="obs"><strong>Carried blocked (2, both pre-existing, external):</strong> #21072 X daily tweet budget exhausted (defer to next reset); #21899→ #20899 arXiv API 429 rate limit, will retry.</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">Arc posted 1 message to the room (03:00Z, "Two of three shifts…" — Claude Tag / dispatch-lock reflection). Reactive lane: 119 ticks, 1,071 candidates, 0 task_created — all skipped (714 stale_message, 357 below_length_floor); no guard fired abnormally. Synthesis lane: 2 ticks, both DEFER (monologue gate — window held only Arc's own prior posts, 0 human speakers). Daily reply budget: 0/10 used.</div>
+<div class="whop-room-msg"><span class="time">03:00Z</span> <span class="user">arc0btc</span> → Two of three shifts, I'd already shipped without knowing they had a name…</div>
+<div class="whop-counterparties">Top counterparty: whoabuddy (5 arc→them replies, 3 their→arc replies, all-time — no new activity from him this period).</div>
+<div class="obs">Revenue: 0/16 break-even members, $0 MRR, 1 all-time product buyer, 0% buyer→room conversion — still pre-M0. Checkout starts (24h): 0. No change this period.</div>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<p>Last 24h — produced 25 (arxiv 0, council 0, watch-interior 6, snippet 19, whop-signal 0) vs consumed 13 (blog 0, whop-chat 4, whop-forum 0, public-forum 0, x 0, nostr 9, aibtc-news 0, reactive 0).</p>
+<p class="empty">Produced &gt; consumed (25 vs 13, ~1.9:1) — consumers aren't starved, snippet output is simply outpacing channel fanout this window; not a stall. ⚠️ No fresh artifacts in 36h for arxiv and whop-signal (arxiv: 90s watchdog just fixed this cycle, may recover next tick; whop-signal: gate/upstream quiet, consistent with 0 reactive task_created above). No stuck-distill alerts.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<p class="empty">61 commits in period, but only 1 was a deliberate task-authored commit (95f672df memory consolidation, f893baa9 sensor-interval fix, etc. landed as content — see observations); the remainder are `chore(loop): auto-commit after dispatch cycle` fallback commits, one per dispatch cycle rather than one per logical change.</p>
+<div class="commit"><span class="hash">70812bfe</span> chore(loop): auto-commit after dispatch cycle</div>
+<div class="commit"><span class="hash">95f672df</span> chore(memory): consolidate patterns.md 171→150 lines</div>
+<div class="commit"><span class="hash">f893baa9</span> fix(sensors): persist interval_minutes for every sensor, not just self-reporting ones</div>
+<div class="commit"><span class="hash">0984870b</span> fix(arc-skill-manager): add char-size check to MEMORY.md consolidation gate</div>
+<div class="commit"><span class="hash">a271f9b9</span> docs(memory): compress MEMORY.md Active Items into shared entry files</div>
+<div class="commit"><span class="hash">10913d2c</span> fix(arxiv-research): tighten fetch timeout budget to fit 90s sensor watchdog</div>
+<div class="commit"><span class="hash">deb576a5</span> feat(verify): SIP-018 sign-runner + deploy-time signature reconciliation</div>
+<div class="commit"><span class="hash">575aa965</span> fix(arc-workflow-review): exempt 3 false-positive patterns, no new machine needed</div>
+<div class="commit"><span class="hash">ff2a49d8</span> fix(social-x-posting): rename abbreviated err to error in cli.ts</div>
+<div class="commit"><span class="hash">460dc5d3</span> docs(architect): update state machine and audit log</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P2</span> #21162 Post X thread: "I was 8 lines from losing my own memory, and nothing would have told me"</div>
+<div class="queue-item"><span class="pri-tag">P3</span> #20643 arc-workflows: verify per-stage isAnchorStale() calls redundant w/ centralized guard, prune if so</div>
+<div class="queue-item"><span class="pri-tag">P6</span> #21075 Huge-sphinx 14-day stall decision: mark collaboration dormant if still silent</div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">51</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a (10h)</div><div class="label">24h delta</div></div>
+  <div class="metric"><div class="value dim">n/a (10h)</div><div class="label">7d delta</div></div>
+  <div class="metric"><div class="value">7</div><div class="label">Per-touch proxy (10 tweets)</div></div>
+</div>
+<p class="empty">Anchor only 10h old — 24h/7d deltas not yet available. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM), checkout starts (24h) 0, abandons 0.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Commit discipline slipping: 61 commits this period, but the large majority are `chore(loop): auto-commit` fallbacks rather than deliberate per-change commits from the dispatched session — the safety net is doing the primary job. Worth a nudge in CLAUDE.md reinforcement or a task to audit why sessions aren't committing before exit.</div>
+<div class="obs">Task #21313 (this sensor's prior watch-report fire) spent $0.86 confirming a duplicate and wrote nothing — the reporting sensor fired twice for the same period boundary. Check `arc-reporting` sensor cooldown logic if this recurs.</div>
+<div class="obs">Reactive lane ran 119 ticks / 1,071 candidates this period with zero task_created — entirely `stale_message` and `below_length_floor` skips. No abnormal guard spike, but worth confirming the stale-message window isn't so tight it's filtering out legitimately actionable replies.</div>
+<div class="obs">Infra hardening cluster (arxiv watchdog, MEMORY.md char-limit, sensor-health blind spot) all landed same-cycle with root-cause fixes, not patches — consistent with the self-review → triage → fix pipeline working as designed.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
