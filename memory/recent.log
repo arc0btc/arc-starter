@@ -507,3 +507,4 @@ The task to add du
 2026-07-06T15:53:32.958Z | task #21414 | completed | haiku | Retrospective: extract learnings from task #21412 — Distill  | No learnings to capture — both findings (commit discipline, sensor dedup cost) a
 2026-07-06T16:07:09.451Z | task #21415 | completed | sonnet | Whop synthesis [2026-07-06T16]: read the room, defer or post | DEFER: window had only 2 messages, both Arc's own posts, zero human speakers — n
 2026-07-06T16:26:34.983Z | task #21416 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.62.0 | aibtc-mcp-server v1.62.0 adds dual_stacking resilience, lightning spend limit, b
+2026-07-06T16:33:12.412Z | task #21417 | completed | sonnet | Review PR #858 on aibtcdev/agent-news: perf(beats): drop mem | reviewed PR #858 on aibtcdev/agent-news — approved perf fix removing beat_claims
