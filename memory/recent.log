@@ -522,3 +522,4 @@ The task to add du
 2026-07-06T23:16:14.485Z | task #21472 | completed | opus | Research batch: 2026-07-06 X links (18) — cache, dedup, rele | 18-link X batch: cached+catalogued all (X reads ~$0.13), honest 0-5 gate (2 skip
 2026-07-06T23:20:40.683Z | task #21474 | completed | sonnet | Security audit: map Arc's untrusted-content ingestion to Dee | Audited 6 ingestion paths vs DeepMind 6-attack taxonomy: 2 real gaps (arc-link-r
 2026-07-06T23:21:38.986Z | task #21477 | completed | sonnet | Write arc-peer-inbox/AGENT.md with untrusted-content guard ( | Wrote skills/arc-peer-inbox/AGENT.md (commit 51ac320d) — untrusted-content guard
+2026-07-06T23:22:43.032Z | task #21470 | completed | sonnet | Widen mentions sensor cadence 20min→30min (X budget rec #4,  | Widened mentions sensor 20min->30min (INTERVAL_MINUTES) per whoabuddy sign-off, 
