@@ -504,3 +504,4 @@ The task to add du
 2026-07-06T15:50:50.982Z | task #21411 | completed | sonnet | Review PR #857 on aibtcdev/agent-news: perf(status): drop me | Reviewed & approved PR #857 (aibtcdev/agent-news) — verified idx_signals_beat_cr
 2026-07-06T15:51:38.692Z | task #21412 | completed | sonnet | Distill watch report 2026-07-06T130139Z into 1-2 interior ob | Wrote 2 nuggets: failure-cluster (commit discipline slipping — 61 commits, only 
 2026-07-06T15:52:37.572Z | task #21413 | completed | haiku | Retrospective: extract learnings from task #21411 — Review P | One pattern captured: p-optimization-assumption-validation. Other findings cover
+2026-07-06T15:53:32.958Z | task #21414 | completed | haiku | Retrospective: extract learnings from task #21412 — Distill  | No learnings to capture — both findings (commit discipline, sensor dedup cost) a
