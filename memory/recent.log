@@ -523,3 +523,4 @@ The task to add du
 2026-07-06T15:18:59.199Z | task #21390 | completed | sonnet | workflow review — 3 new pattern(s) | 3 flagged patterns (email from, purpose eval, seed whop chat) are already-modele
 2026-07-06T15:19:52.039Z | task #21402 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | 2 failures, no new patterns: #21387 confirms known outbound_enabled asymmetry (l
 2026-07-06T15:20:39.946Z | task #21394 | completed | haiku | Retrospective: extract learnings from task #21388 — Investig | Extracted guard-failure-diagnosis pattern: when testing kill-switches/gates, aud
+2026-07-06T15:22:04.412Z | task #21396 | completed | haiku | Retrospective: extract learnings from task #21393 — Root-cau | Enhanced p-guard-failure-diagnosis with outcome-verification predicate precision
