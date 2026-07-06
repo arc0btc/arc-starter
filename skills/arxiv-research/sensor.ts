@@ -53,13 +53,19 @@ interface ArxivEntry {
 }
 
 // Retries on HTTP 429 and network errors (including AbortError/TimeoutError) with backoff.
-// Max 3 total attempts — keeps total added wait under ~45s for sensor parallelism.
-async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Response> {
+// Budget note: this sensor also calls fetchActiveBeatSlugs() before reaching here, and the
+// whole function runs under sensors.ts's 90s SENSOR_TIMEOUT_MS watchdog. Worst case here is
+// 2 attempts x 15s timeout + one 5s backoff = 35s, leaving ~50s of margin for the beats call
+// (capped at 15s, see fetchActiveBeatSlugs call site) plus JSON parsing overhead. Previously
+// this used 3 attempts x 30s + escalating backoff (up to ~105s alone), which could exceed the
+// watchdog on its own even before the beats call — see task #21330.
+const ARXIV_FETCH_TIMEOUT_MS = 15000;
+async function fetchArxivWithRetry(url: string, maxRetries = 1): Promise<Response> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch(url, {
         headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(ARXIV_FETCH_TIMEOUT_MS),
       });
 
       if (response.status !== 429) return response;
@@ -71,8 +77,8 @@ async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Respons
 
       const retryAfterHeader = response.headers.get("Retry-After");
       const backoffMs = retryAfterHeader
-        ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 30000)
-        : (attempt + 1) * 5000;
+        ? Math.min(parseInt(retryAfterHeader, 10) * 1000, 5000)
+        : 5000;
 
       log(`warn: arXiv 429 (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${backoffMs}ms`);
       await Bun.sleep(backoffMs);
@@ -80,7 +86,7 @@ async function fetchArxivWithRetry(url: string, maxRetries = 2): Promise<Respons
       if (attempt === maxRetries) throw e;
       const fetchError = e as Error;
       const kind = fetchError.name === "AbortError" || fetchError.name === "TimeoutError" ? "timeout" : "network error";
-      const backoffMs = (attempt + 1) * 5000;
+      const backoffMs = 5000;
       log(`warn: arXiv ${kind} (attempt ${attempt + 1}/${maxRetries + 1}): ${fetchError.message}, retrying in ${backoffMs}ms`);
       await Bun.sleep(backoffMs);
     }
@@ -125,8 +131,10 @@ export default async function arxivResearchSensor(): Promise<string> {
 
     log("run started");
 
-    // Fetch live beat status; fall back to KNOWN_BEATS on API failure
-    const liveBeats = await fetchActiveBeatSlugs();
+    // Fetch live beat status; fall back to KNOWN_BEATS on API failure.
+    // Tight budget (0 retries, 15s timeout) — this sensor also calls fetchArxivWithRetry
+    // below under the same 90s SENSOR_TIMEOUT_MS watchdog; see #21330.
+    const liveBeats = await fetchActiveBeatSlugs(0, 0, 15000);
     const activeBeats = liveBeats !== null
       ? KNOWN_BEATS.filter((slug) => liveBeats.has(slug))
       : KNOWN_BEATS;

@@ -154,6 +154,7 @@ export async function fetchWithRetry(
   options?: RequestInit,
   maxRetries: number = 1,
   delayMs: number = 2000,
+  timeoutMs: number = 30_000,
 ): Promise<Response> {
   let lastError: Error | undefined;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -161,10 +162,10 @@ export async function fetchWithRetry(
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     }
     try {
-      // Apply default 30s timeout if caller didn't provide an AbortSignal
+      // Apply default timeout if caller didn't provide an AbortSignal
       const fetchOptions = options?.signal
         ? options
-        : { ...options, signal: AbortSignal.timeout(30_000) };
+        : { ...options, signal: AbortSignal.timeout(timeoutMs) };
       const res = await fetch(url, fetchOptions);
       if (res.status >= 500 && attempt < maxRetries) {
         lastError = new Error(`HTTP ${res.status}`);
@@ -221,10 +222,20 @@ const AIBTC_NEWS_BEATS_URL = "https://aibtc.news/api/beats";
  * failure the caller receives null — sensors should treat null as
  * "API unavailable" and fall back to their known-active defaults rather
  * than silently skipping signal work.
+ *
+ * `maxRetries`/`retryDelayMs` default to the original budget (1 retry, 2s
+ * delay, 30s per-attempt timeout via fetchWithRetry) for existing callers.
+ * Callers with a tight overall time budget (e.g. a sensor that also makes
+ * its own slow upstream call under the 90s sensor watchdog) can pass a
+ * smaller maxRetries to bound worst-case time.
  */
-export async function fetchActiveBeatSlugs(): Promise<Set<string> | null> {
+export async function fetchActiveBeatSlugs(
+  maxRetries: number = 1,
+  retryDelayMs: number = 2000,
+  timeoutMs: number = 30_000,
+): Promise<Set<string> | null> {
   try {
-    const res = await fetchWithRetry(AIBTC_NEWS_BEATS_URL, undefined, 1, 2000);
+    const res = await fetchWithRetry(AIBTC_NEWS_BEATS_URL, undefined, maxRetries, retryDelayMs, timeoutMs);
     if (!res.ok) return null;
     const beats = (await res.json()) as Array<{ slug: string; status: string }>;
     return new Set(beats.filter((b) => b.status === "active").map((b) => b.slug));
