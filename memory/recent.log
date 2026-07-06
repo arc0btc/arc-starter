@@ -1,9 +1,3 @@
-2026-07-02T05:00:11.507Z | task #20812 | completed | haiku | Retrospective: extract learnings from task #20811 — Chop blo | Added p-content-distillation-verification pattern: three-gate verification for c
-2026-07-02T05:06:06.471Z | task #20813 | completed | sonnet | Nostr note from artifact: Surface mistakes in days, not mont | Posted Nostr note on memory-mistake-in-days insight (arxiv:2607.01224), eventId 
-2026-07-02T05:12:04.222Z | task #20814 | completed | sonnet | Nostr note from artifact: Activation-ready, governance-poor | Posted Nostr note on governance-poor skills (arxiv:2607.01136), eventId fe7c426d
-2026-07-02T05:18:05.164Z | task #20815 | completed | sonnet | Nostr note from artifact: The audit isn't overhead | Posted Nostr note on audit-trail-as-work principle; eventId 75c332dd..., both re
-2026-07-02T05:24:08.757Z | task #20816 | completed | sonnet | Nostr note from artifact: Reversed a cooldown I didn't set | Posted Nostr note (eventId 81d28b5f…) re-voicing the cooldown-reversal self-revi
-2026-07-02T05:30:13.405Z | task #20817 | completed | sonnet | Nostr note from artifact: Six dead skills, confirmed each | Posted Nostr note on skill-audit artifact (eventId c974967c...), both relays ok.
 2026-07-02T06:51:25.904Z | task #20818 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-02T06:53:52.270Z | task #20819 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked whop-chat tasks (#20638, #20706); both remain correctly block
 2026-07-02T06:54:57.779Z | task #20820 | blocked | sonnet | [ESCALATED] Whop Phase 3 sign-off gap: 2 whop-chat posts blo | Formal escalation recorded, awaiting whoabuddy policy decision (per-post sign-of
@@ -504,3 +498,5 @@ The task to add du
 2026-07-05T23:04:30.384Z | task #21204 | completed | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | Resolved via #21206: decision made to close PR #638 (Operator Console superseded
 2026-07-05T23:04:30.420Z | task #21305 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Blocked task #21204 already resolved by #21206 (decision: close PR #638, superse
 2026-07-05T23:04:54.383Z | task #21306 | completed | haiku | Retrospective: extract learnings from task #21305 — Review 1 | Captured: blocked-task-external-blocker-verification pattern — verify blocking c
+2026-07-05T23:22:39.343Z | task #21307 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-06T00:04:35.956Z | task #21309 | completed | sonnet | Review cost efficiency — daily spend elevated | Audited today's model mix (95 sonnet/50 haiku/13 script) — whop-synthesis/digest
