@@ -192,12 +192,38 @@ interface DailyBudget {
   likes: number;
   retweets: number;
   follows: number;
+  // Pay-per-use dollar tracking (2026-07-06, task #21463). X billing is pay-per-use:
+  // a plain post costs $0.015, a post containing a LINK costs $0.20 (= the price of
+  // 40 reads — the single largest X line item). These fields log write spend and
+  // count link posts for the soft daily LINK_POST_DAILY_CAP. Optional so pre-existing
+  // on-disk budget files (which lack them) still parse.
+  link_posts?: number;      // count of link-bearing posts today ($0.20 tier)
+  write_spend_usd?: number; // dollars spent on writes today
+}
+
+// Pay-per-use write rates (2026 X API). See research/2026-07-06_x-api-budget-ground-truth.md.
+const WRITE_COST_PLAIN_USD = 0.015;
+const WRITE_COST_LINK_USD = 0.2;
+// Link posts are the dominant X cost line. Soft daily cap so an automated burst
+// (e.g. blog→X announcements) can't silently run up the bill. Enforced on ROOT
+// legacy posts only — thread CTAs and pre-admitted reserved-group sends are logged
+// but never blocked mid-chain (the "never truncate a thread" invariant).
+const LINK_POST_DAILY_CAP = 3;
+
+/** True when a tweet's text carries a URL — X bills these at the $0.20 link tier.
+ * Matches explicit http(s):// links and bare t.co short links (the real cases:
+ * blog posts, whop links). Bare auto-linked domains are not detected to avoid
+ * false positives that would wrongly bill a plain post at the link rate. */
+function postContainsLink(text: string): boolean {
+  return /https?:\/\/\S+/i.test(text) || /(^|\s)t\.co\/\S+/i.test(text);
 }
 
 // P2 arc-funnel-hardening (2026-06-27): primary daily cap covering ALL tweet types
-// (roots + thread continuations + CTA tweets). Panel target: 6/day.
-// Real X Basic-tier ceiling: ~500k reads/month = ~16k/day. 6/day is 0.04% of that.
-// BUDGET_LIMITS.posts=3 remains as a secondary root-only guard.
+// (roots + thread continuations + CTA tweets). Panel target: 6/day. This cap is a
+// quality/cadence control, not a cost ceiling — X billing is pay-per-use, so cost is
+// governed by the per-post dollar rates ($0.015 plain / $0.20 link) and the
+// LINK_POST_DAILY_CAP, not a tweet count. BUDGET_LIMITS.posts=3 remains a secondary
+// root-only guard.
 const DAILY_TWEET_CAP = 6;
 
 // Content-calendar x_thread backlog throttle (task #21169, root cause: task #21165).
@@ -301,7 +327,7 @@ async function loadBudget(): Promise<DailyBudget> {
   } catch {
     // corrupt file, start fresh
   }
-  return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0 };
+  return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
 }
 
 async function saveBudget(budget: DailyBudget): Promise<void> {
@@ -336,6 +362,39 @@ async function incrementBudget(action: string): Promise<DailyBudget> {
   }
   await saveBudget(budget);
   return budget;
+}
+
+/** Soft daily cap on LINK posts ($0.20 each — the dominant X cost). Throws
+ * BudgetExhaustedError when the cap is hit so callers route it through the same
+ * exit-2 defer path as the post-count budget. Enforced on root legacy posts only. */
+async function checkLinkPostBudget(): Promise<void> {
+  const budget = await loadBudget();
+  const used = budget.link_posts ?? 0;
+  if (used >= LINK_POST_DAILY_CAP) {
+    throw new BudgetExhaustedError(
+      `Daily LINK-post budget exhausted: ${used}/${LINK_POST_DAILY_CAP} link posts today ($0.20 each). Resets at midnight UTC.`
+    );
+  }
+}
+
+/** Record a completed post's pay-per-use write cost (plain $0.015 / link $0.20)
+ * and, for link posts, bump the link_posts counter. Logs the per-post dollar
+ * amount. Best-effort accounting — never throws into the caller's send path. */
+async function recordWriteSpend(hasLink: boolean): Promise<void> {
+  try {
+    const budget = await loadBudget();
+    const cost = hasLink ? WRITE_COST_LINK_USD : WRITE_COST_PLAIN_USD;
+    budget.write_spend_usd = Math.round(((budget.write_spend_usd ?? 0) + cost) * 1e6) / 1e6;
+    if (hasLink) budget.link_posts = (budget.link_posts ?? 0) + 1;
+    await saveBudget(budget);
+    log(
+      `X write cost: $${cost.toFixed(3)} (${hasLink ? "LINK post — $0.20 tier" : "plain post"}); ` +
+        `today writes=$${budget.write_spend_usd.toFixed(3)}` +
+        (hasLink ? `, link_posts=${budget.link_posts}/${LINK_POST_DAILY_CAP}` : "")
+    );
+  } catch (e) {
+    log(`recordWriteSpend failed (non-fatal): ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 
 // ---- Helpers ----
@@ -606,6 +665,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   };
   const unescapedText = unescapeHtml(text);
 
+  // Pay-per-use write tier: a link post costs $0.20 vs $0.015 plain (task #21463).
+  const hasLink = postContainsLink(unescapedText);
+
   // ── P2 arc-posting-scheduler: pre-admitted-group fast path ─────────────────────
   // If --source matches an outbound_action row (admitted upfront via `reserve-group`),
   // the WHOLE guard stack below (dedup/kill-switch/DAILY_TWEET_CAP/reservation/
@@ -763,6 +825,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       const groupData = groupResult["data"] as Record<string, string> | undefined;
       if (groupData) {
         engineMarkSent(engineDb, engineRow.id, groupData["id"], engineRow.lane as EngineLane, engineRow.budget_day);
+        // Pay-per-use accounting: log the dollar cost + link-post count. Reserved
+        // groups are NOT cap-blocked (already atomically admitted) but ARE metered.
+        await recordWriteSpend(hasLink);
         console.log(JSON.stringify({ id: groupData["id"], text: groupData["text"] }, null, 2));
         log(`Tweet posted (reserved-group): ${groupData["id"]}`);
       } else {
@@ -943,6 +1008,10 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // status=failed on a budget-over condition; exit 2 signals deferrable.
     try {
       await checkBudget("posts");
+      // Link posts are the dominant cost line — soft-cap them on root posts.
+      // A capped link post defers (exit 2) the same way an exhausted post budget
+      // does. Only root posts are gated; thread CTAs are never blocked mid-chain.
+      if (hasLink) await checkLinkPostBudget();
     } catch (e: unknown) {
       if (e instanceof BudgetExhaustedError) {
         const sourceKey = flags["source"] ?? `budget-defer:${createHash("sha256").update(text).digest("hex").slice(0, 12)}:${todayDateStr()}`;
@@ -1009,6 +1078,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (data) {
     // Only root posts burn the 3/day secondary root budget counter (primary is DAILY_TWEET_CAP=6).
     if (!isContinuation) await incrementBudget("posts");
+    // Pay-per-use accounting: log this send's dollar cost + link-post count (task #21463).
+    await recordWriteSpend(hasLink);
     if (flags["source"]) await recordPost(flags["source"], data["id"], !isContinuation);
     // P2 arc-posting-scheduler: legacy budget_ledger dual-write. This lane hasn't
     // migrated onto reserve-group yet (P3), but the arbiter fix above (guard #3's

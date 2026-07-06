@@ -79,7 +79,8 @@ async function fetchFollowing(creds: XCreds): Promise<{ usernames: Set<string>; 
   do {
     const params: Record<string, string> = { max_results: "1000", "user.fields": "username" };
     if (token) params["pagination_token"] = token;
-    const resp = await xApiGet(`/users/${ARC_X_USER_ID}/following`, creds, params);
+    // Arc's own following list → owned read ($0.001, not the $0.005 non-owned rate).
+    const resp = await xApiGet(`/users/${ARC_X_USER_ID}/following`, creds, params, { owned: true });
     const data = (resp["data"] as Array<Record<string, unknown>> | undefined) ?? [];
     for (const u of data) {
       if (u["username"]) usernames.add(String(u["username"]).toLowerCase());

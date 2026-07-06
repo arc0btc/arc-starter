@@ -17,11 +17,17 @@
 // verbatim from cli.ts (HMAC-SHA1 OAuth 1.0a), READ-only: no budget, no
 // credits-depleted side-effects, GET requests only.
 //
-// READ BUDGET GUARD (AI-016): fetchArcMentions is guarded by a daily read cap
-// (X_MAX_READS_PER_DAY, default 50) persisted in db/x-read-budget.json. On 429,
-// a backoff_until timestamp is written (15 min) and subsequent calls fast-fail
-// until the window clears. This prevents runaway consumption on the free tier
-// (500k reads/month free; 50/day = ~1.5k/month = well under cap).
+// READ BUDGET GUARD (AI-016; pay-per-use dollar model 2026-07-06, task #21463):
+// every read is metered — X discontinued tiered pricing 2026-02-06 and made
+// pay-per-use the default (whoabuddy confirmed the account is on it, task #21462).
+// Reads are guarded by a daily DOLLAR budget (X_READ_BUDGET_USD_PER_DAY, default
+// $0.50) persisted in db/x-read-budget.json, replacing the old 100-reads COUNT
+// ceiling. Non-owned reads (mentions, search) cost $0.005; owned reads (own posts,
+// followers, lists — since 2026-04-20) cost $0.001. On 429 a backoff_until
+// timestamp is written (15 min) and subsequent calls fast-fail until it clears.
+// 402 = balance/prepaid credits exhausted; 429 = rate limit.
+// Ground truth + math: research/2026-07-06_x-api-budget-ground-truth.md,
+// memory entry x-api-pay-per-use-cost-model.
 
 import { getCredential } from "../../../src/credentials.ts";
 import { join } from "path";
@@ -81,38 +87,23 @@ async function saveFollowerCache(metrics: { followers_count: number; following_c
   renameSync(tmp, FOLLOWER_CACHE_PATH);
 }
 
-/** Daily cap for X API read calls from this lib (GET /mentions, /users/me).
- * P2 arc-funnel-hardening (2026-06-27): raised 50 → 100.
- * Real X Basic-tier ceiling: ~500k reads/month = ~16,667/day. 100/day = 0.6% of that.
- * The follower cache (below) further reduces actual consumption. */
-export const X_MAX_READS_PER_DAY = 100;
+/** Per-read pay-per-use rates (2026 X API). Non-owned reads (mentions, search)
+ * are $0.005; OWNED reads (own posts, followers, lists — the discount X shipped
+ * 2026-04-20) are $0.001. */
+export const READ_COST_USD = 0.005;
+export const OWNED_READ_COST_USD = 0.001;
 
-/** AI-057 (2026-07-06): the mentions-polling sensor alone can burn up to 96
- * reads/day (15min cadence), leaving the low-volume but high-priority follower
- * gauge starved on busy days (observed: budget hit 100/100 by mid-afternoon,
- * north-star monitor fell back to a stale cached follower count). Reserve a
- * small slice of the daily cap exclusively for follower reads so that metric
- * survives even when high-volume consumers (mentions sensor, watchlist search,
- * whop-sales lead source) exhaust the general pool.
- *
- * AI-058 (2026-07-06): the reserve alone wasn't enough — mentions polling at
- * 96/day left ZERO general-pool headroom for the other real general consumers
- * (whop-sales lead-source, north-star-gauge's own post-metrics read), and 5
- * reserved slots was one short of the gauge's documented worst case (up to 6
- * follower reads/day at the 4h cache TTL / 30min monitor cadence — see
- * north-star-gauge.ts). Paired fix: mentions sensor cadence widened 15min→20min
- * (96/day → 72/day, see skills/social-x-posting/sensor.ts), and reserve bumped
- * 5→6 to cover the documented worst case exactly. */
-const FOLLOWER_RESERVE_SLOTS = 6;
-
-/** The read budget available to ordinary (non-follower) consumers. */
-function generalReadCap(): number {
-  return X_MAX_READS_PER_DAY - FOLLOWER_RESERVE_SLOTS;
-}
+/** Daily DOLLAR ceiling for X API reads from this lib. ~$0.50/day is the
+ * dollar-equivalent of the old 100-reads/day count ceiling (100 × $0.005);
+ * steady-state use is ~$0.38/day (the mentions poll is ~90% of it). This flat
+ * budget replaces the AI-057/058 follower-reserve machinery, which rationed only
+ * ~$0.006/day of owned reads — the complexity outweighed the spend. */
+export const X_READ_BUDGET_USD_PER_DAY = 0.5;
 
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
-  reads: number;
+  spend_usd: number;   // dollars spent on reads today — the control surface
+  reads: number;       // read count today (observability only, not enforced)
   backoff_until?: string; // ISO8601 — set on 429, cleared when expired
 }
 
@@ -125,13 +116,23 @@ async function loadReadBudget(): Promise<XReadBudget> {
   try {
     const file = Bun.file(READ_BUDGET_PATH);
     if (await file.exists()) {
-      const data = (await file.json()) as XReadBudget;
-      if (data.date === today) return data;
+      const data = (await file.json()) as Partial<XReadBudget>;
+      if (data.date === today) {
+        // Migration: a same-day file written by the old count-only schema has
+        // `reads` but no `spend_usd` — estimate spend from the read count at the
+        // non-owned rate so mid-day rollovers don't reset the budget to zero.
+        return {
+          date: today,
+          spend_usd: data.spend_usd ?? (data.reads ?? 0) * READ_COST_USD,
+          reads: data.reads ?? 0,
+          backoff_until: data.backoff_until,
+        };
+      }
     }
   } catch {
     // corrupt or missing — start fresh
   }
-  return { date: today, reads: 0 };
+  return { date: today, spend_usd: 0, reads: 0 };
 }
 
 async function saveReadBudget(budget: XReadBudget): Promise<void> {
@@ -143,50 +144,32 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
 }
 
 /**
- * Throws if we are over the daily read budget or inside a 429 backoff window.
- * Call BEFORE any GET to the X API from this lib. Enforces the general cap
- * (X_MAX_READS_PER_DAY minus the follower reserve) — see checkFollowerReadBudget
- * for the reserved, follower-only check.
+ * Throws if the projected read spend would exceed the daily dollar budget, or if
+ * a 429 backoff window is active. Call BEFORE any GET to the X API from this lib.
+ * `costUsd` is the price of the read about to be made — READ_COST_USD (non-owned,
+ * default) or OWNED_READ_COST_USD (own posts/followers/lists).
  */
-export async function checkReadBudget(): Promise<void> {
+export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
   const budget = await loadReadBudget();
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
     throw new Error(
       `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
     );
   }
-  const cap = generalReadCap();
-  if (budget.reads >= cap) {
+  if (budget.spend_usd + costUsd > X_READ_BUDGET_USD_PER_DAY) {
     throw new Error(
-      `X read budget exhausted: ${budget.reads}/${cap} general reads today (${FOLLOWER_RESERVE_SLOTS} reserved for follower gauge). Resets at midnight UTC.`,
+      `X read budget exhausted: $${budget.spend_usd.toFixed(3)}/$${X_READ_BUDGET_USD_PER_DAY.toFixed(2)} spent today ` +
+        `(${budget.reads} reads), next read costs $${costUsd.toFixed(3)}. Resets at midnight UTC.`,
     );
   }
 }
 
-/**
- * Follower-gauge-only budget check. Dips into the reserved slots (see
- * FOLLOWER_RESERVE_SLOTS) so the lowest-volume, highest-priority read (live
- * follower count) survives even when high-volume consumers (mentions polling,
- * watchlist search) have exhausted the general pool. Still respects the
- * overall daily cap and any active 429 backoff.
- */
-export async function checkFollowerReadBudget(): Promise<void> {
+/** Add a completed read's cost to the daily budget after a successful GET.
+ * `costUsd` must match the value passed to checkReadBudget for this read. */
+export async function incrementReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
   const budget = await loadReadBudget();
-  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
-    throw new Error(
-      `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
-    );
-  }
-  if (budget.reads >= X_MAX_READS_PER_DAY) {
-    throw new Error(
-      `X read budget exhausted: ${budget.reads}/${X_MAX_READS_PER_DAY} reads today. Resets at midnight UTC.`,
-    );
-  }
-}
-
-/** Increment the read counter after a successful GET. */
-export async function incrementReadBudget(): Promise<void> {
-  const budget = await loadReadBudget();
+  // Round to micro-dollars so repeated float adds don't drift the persisted value.
+  budget.spend_usd = Math.round((budget.spend_usd + costUsd) * 1e6) / 1e6;
   budget.reads += 1;
   await saveReadBudget(budget);
 }
@@ -295,22 +278,19 @@ async function buildOAuthHeader(
 }
 
 /** A signed, read-only GET against the X API v2. Throws on non-2xx.
- * Budget-aware: checks read budget before the call, increments after success,
- * and writes a 429 backoff on rate-limit responses (AI-016).
- * Pass `{ reserved: true }` for follower-gauge reads to dip into the reserved
- * slots (FOLLOWER_RESERVE_SLOTS) instead of the general pool. */
+ * Budget-aware: checks the daily dollar read budget before the call, adds the
+ * read's cost after success, and writes a 429 backoff on rate-limit responses
+ * (AI-016). Pass `{ owned: true }` for OWNED reads (own posts, followers, lists)
+ * so they bill at the $0.001 rate instead of the $0.005 non-owned rate. */
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
   queryParams: Record<string, string> = {},
-  opts: { reserved?: boolean } = {},
+  opts: { owned?: boolean } = {},
 ): Promise<Record<string, unknown>> {
-  // Guard: enforce daily read budget and 429 backoff before touching the network.
-  if (opts.reserved) {
-    await checkFollowerReadBudget();
-  } else {
-    await checkReadBudget();
-  }
+  // Guard: enforce daily dollar read budget and 429 backoff before the network.
+  const costUsd = opts.owned ? OWNED_READ_COST_USD : READ_COST_USD;
+  await checkReadBudget(costUsd);
 
   const baseUrl = `${API_BASE}${endpoint}`;
   // Build the query string with the SAME percentEncode used to compute the OAuth
@@ -339,8 +319,8 @@ export async function xApiGet(
     throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(data)}`);
   }
 
-  // Success — consume one read unit.
-  await incrementReadBudget();
+  // Success — bill this read against the daily dollar budget.
+  await incrementReadBudget(costUsd);
 
   return data as Record<string, unknown>;
 }
@@ -394,7 +374,7 @@ export async function fetchArcMentions(opts: {
   let arcUserId = opts.arcUserId ?? "";
   let arcUsername: string | null = null;
   if (!arcUserId) {
-    const me = await xApiGet("/users/me", opts.creds, { "user.fields": "id,username" });
+    const me = await xApiGet("/users/me", opts.creds, { "user.fields": "id,username" }, { owned: true });
     const meData = (me["data"] ?? {}) as Record<string, unknown>;
     arcUserId = meData["id"] ? String(meData["id"]) : "";
     arcUsername = (meData["username"] as string | undefined) ?? null;
@@ -530,7 +510,7 @@ export async function fetchFollowerMetrics(
   const endpoint = arcUserId ? `/users/${arcUserId}` : "/users/me";
   const resp = await xApiGet(endpoint, creds, {
     "user.fields": "public_metrics",
-  }, { reserved: true });
+  }, { owned: true });
   const data = (resp["data"] as Record<string, unknown> | undefined) ?? {};
   const metrics = (data["public_metrics"] as Record<string, number> | undefined) ?? {};
   const result = {
@@ -567,10 +547,11 @@ export async function fetchRecentPostMetrics(
 ): Promise<PostTouchMetrics[]> {
   if (tweetIds.length === 0) return [];
   const ids = tweetIds.slice(0, 10).join(",");
+  // Arc's own posts → owned read ($0.001).
   const resp = await xApiGet("/tweets", creds, {
     ids,
     "tweet.fields": "created_at,public_metrics",
-  });
+  }, { owned: true });
   const data = (resp["data"] as Array<Record<string, unknown>> | undefined) ?? [];
   return data.map((t) => {
     const m = (t["public_metrics"] as Record<string, number> | undefined) ?? {};
@@ -588,33 +569,11 @@ export async function fetchRecentPostMetrics(
   });
 }
 
-/** Check general read budget, throwing if fewer than `minSlots` remain today.
- * Use instead of `checkReadBudget()` when a single run consumes multiple reads.
- * Checks against the general pool (excludes the follower reserve) — matches
- * checkReadBudget()'s cap. */
-export async function checkReadBudgetN(minSlots: number): Promise<void> {
+/** Dollars remaining in today's read budget (0 = exhausted). Use for consumers
+ * that want to check headroom before a multi-read run. */
+export async function getRemainingReadBudgetUsd(): Promise<number> {
   const budget = await loadReadBudget();
-  if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
-    throw new Error(
-      `X read API: 429 backoff active until ${budget.backoff_until} — skipping read`,
-    );
-  }
-  const cap = generalReadCap();
-  const remaining = cap - budget.reads;
-  if (remaining < minSlots) {
-    throw new Error(
-      `X read budget low: ${budget.reads}/${cap} general reads today, need ${minSlots} slots. Resets at midnight UTC.`,
-    );
-  }
-}
-
-/** Return how many general read slots remain today (0 = exhausted). Excludes
- * the follower reserve — use for consumers other than the follower gauge. */
-export async function getRemainingReadSlots(): Promise<number> {
-  const budget = await loadReadBudget();
-  const today = new Date().toISOString().slice(0, 10);
-  const cap = generalReadCap();
-  if (budget.date !== today) return cap;
+  if (budget.date !== todayUTC()) return X_READ_BUDGET_USD_PER_DAY;
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) return 0;
-  return Math.max(0, cap - budget.reads);
+  return Math.max(0, X_READ_BUDGET_USD_PER_DAY - budget.spend_usd);
 }

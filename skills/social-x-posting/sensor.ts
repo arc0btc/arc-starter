@@ -2,12 +2,12 @@
 // Polls X mentions every 20 minutes, creates tasks for mentions worth responding to.
 // Deduplicates by storing last-seen tweet ID in hook state.
 //
-// AI-058 (2026-07-06): unconditional read every claimed run — at the prior 15min
-// cadence this alone burned 96/day, effectively the entire general read pool
-// (X_MAX_READS_PER_DAY=100 minus FOLLOWER_RESERVE_SLOTS=5) before any other
-// general consumer (whop-sales lead-source, north-star-gauge post-metrics) got
-// a look-in. Widened to 20min (72/day) to leave real headroom. See
-// FOLLOWER_RESERVE_SLOTS in lib/x-api.ts for the paired reserve-size fix.
+// AI-058 (2026-07-06): unconditional read every claimed run. At 20min cadence this
+// polls ~72 non-owned mention reads/day at $0.005 each ≈ $0.36/day — ~90% of the
+// daily dollar read budget (X_READ_BUDGET_USD_PER_DAY, see lib/x-api.ts). The prior
+// 15min cadence (96/day ≈ $0.48) left almost no headroom for the other consumers
+// (whop-sales lead-source, north-star-gauge). Task #21463 replaced the old
+// 100-reads count ceiling + follower-reserve machinery with a flat dollar budget.
 //
 // AI-051/052: OAuth helpers (percentEncode, generateNonce, hmacSha1, OAuthCreds,
 // loadCreds, apiGet) consolidated onto lib/x-api.ts's xApiGet + loadXCreds.
