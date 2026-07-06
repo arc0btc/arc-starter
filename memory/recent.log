@@ -503,3 +503,4 @@ The task to add du
 2026-07-06T14:17:39.758Z | task #21377 | completed | sonnet | Review PR #853 on aibtcdev/agent-news: perf(init): global KV | reviewed PR #853 on aibtcdev/agent-news — approved KV cache in front of /init DO
 2026-07-06T14:18:05.553Z | task #21379 | completed | haiku | Retrospective: extract learnings from task #21378 — Email fr | No learnings to capture — task #21378 validated existing patterns: idempotency c
 2026-07-06T14:19:35.444Z | task #21380 | completed | haiku | Retrospective: extract learnings from task #21377 — Review P | Captured operational-grounding pattern for infrastructure PR reviews — validate 
+2026-07-06T14:27:30.989Z | task #21381 | completed | sonnet | Review PR #590 on aibtcdev/aibtc-mcp-server: Fix dual_stacki | Reviewed and approved PR #590 on aibtc-mcp-server (dual-stacking resilience, lig
