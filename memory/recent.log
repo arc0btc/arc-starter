@@ -511,3 +511,4 @@ The task to add du
 2026-07-06T14:36:29.530Z | task #21386 | completed | haiku | Retrospective: extract learnings from task #21384 — Review P | No learnings to capture
 2026-07-06T14:42:36.561Z | task #21387 | failed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-06-14) — | Composed 268-char post from blog-snippet nugget ('memory isn't sentiment') but o
 2026-07-06T14:46:42.077Z | task #21388 | completed | sonnet | Investigate outbound_enabled kill switch: legacy X post path | outbound_enabled=false confirmed live (agent_config rowid=1, updated_at=2026-06-
+2026-07-06T15:03:24.719Z | task #21393 | completed | opus | Root-cause how content-calendar:2026-07-03-what-agent-memory | No out-of-band write path. Thread posted in-band via dispatch task #21164 (defer
