@@ -1062,6 +1062,23 @@ export function markTaskActive(id: number): void {
   ).run(id);
 }
 
+// ARC-0011 memory-poisoning mitigation: tasks whose source is one of these sensors
+// processed untrusted external content (email, link previews, peer messages). Their
+// recent.log lines get a provenance tag so consolidation can flag them for a second
+// look before folding the learning verbatim into MEMORY.md, which loads unconditionally
+// into every future dispatch. See research/2026-07-06_security-audit-deepmind-6attack-taxonomy.md.
+const UNTRUSTED_CONTENT_SOURCE_PREFIXES = [
+  "sensor:arc-link-research",
+  "sensor:arc-email-sync",
+  "sensor:aibtc-inbox-sync",
+  "sensor:arc-peer-inbox",
+];
+
+function isUntrustedContentSource(source: string | null | undefined): boolean {
+  if (!source) return false;
+  return UNTRUSTED_CONTENT_SOURCE_PREFIXES.some((prefix) => source.startsWith(prefix));
+}
+
 function appendTaskReflection(id: number, status: string, summary: string): void {
   try {
     const task = getTaskById(id);
@@ -1071,7 +1088,8 @@ function appendTaskReflection(id: number, status: string, summary: string): void
     const model = task.model ?? "unknown";
     const subject = task.subject.substring(0, 60).replace(/\|/g, "•");
     const summaryClean = summary.substring(0, 80).replace(/\|/g, "•");
-    const line = `${now} | task #${id} | ${status} | ${model} | ${subject} | ${summaryClean}`;
+    const tag = isUntrustedContentSource(task.source) ? "[UNTRUSTED-SRC] " : "";
+    const line = `${tag}${now} | task #${id} | ${status} | ${model} | ${subject} | ${summaryClean}`;
 
     const logPath = "memory/recent.log";
     mkdirSync("memory", { recursive: true });
