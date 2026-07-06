@@ -782,9 +782,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // Kill switch: the social-engine reply lane enforces this via admission.ts; the
     // direct post lane was missing it.
     const ksRow = guardDb.query("SELECT value FROM agent_config WHERE key='outbound_enabled'").get() as { value: string } | null;
-    if (ksRow?.value === "false") {
-      log("kill switch active (outbound_enabled=false) — halting post (root or continuation)");
-      console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: "false" }));
+    if (ksRow?.value !== "true") {
+      log("kill switch active (outbound_enabled!=true) — halting post (root or continuation)");
+      console.log(JSON.stringify({ halted: true, reason: "kill_switch", outbound_enabled: ksRow?.value ?? "missing" }));
       return;
     }
 
