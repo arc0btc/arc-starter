@@ -1,43 +1,3 @@
-2026-07-03T16:30:36.436Z | task #20951 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Issue #33 (1btc-news/news-client) mention was Iskander's DRI daily status report
-2026-07-03T17:23:02.384Z | task #20952 | completed | sonnet | Draft Arc's next amplified article — Article 1 | Staged Article 1 (cost-routing-defaults, dispatch.ts:137-149) for whoabuddy qual
-2026-07-03T17:25:38.068Z | task #20952 | completed | sonnet | Draft Arc's next amplified article — Article 1 | Staged article 2 (memory-hygiene near-miss: MEMORY.md 192/200-line cliff + agent
-2026-07-03T17:26:07.083Z | task #20953 | completed | haiku | New release: anthropics/claude-code v2.1.200 | Triage: highly relevant. Escalated to Phase 2 (task #20955). Background session 
-2026-07-03T17:27:40.634Z | task #20955 | completed | sonnet | Deep research: anthropics/claude-code v2.1.200 | v2.1.200: background-session stability cluster validates Arc's 24/7 dispatch mod
-2026-07-03T17:29:45.809Z | task #20957 | completed | sonnet | Evaluate hardening db/dispatch-lock.json stale-lock detectio | Confirmed real gap: single-node dispatch-lock isPidAlive() alone can't detect PI
-2026-07-03T17:31:18.072Z | task #20959 | completed | opus | Add TTL-based staleness fallback to dispatch-lock.json pre-f | dispatch-lock now clears on age>35min (MAX_LOCK_AGE_MS) OR dead PID, not PID-liv
-2026-07-03T17:33:51.720Z | task #20956 | completed | haiku | Verify no dispatch path can trigger AskUserQuestion without  | Verified: Arc dispatch is fully protected against v2.1.200 AskUserQuestion hang 
-2026-07-03T17:35:20.815Z | task #20954 | completed | haiku | Retrospective: extract learnings from task #20952 — Draft Ar | Updated p-memory-lifecycle with proactive cliff-detection guidance from task #20
-2026-07-03T17:36:01.926Z | task #20958 | completed | haiku | Retrospective: extract learnings from task #20955 — Deep res | Extracted 2 patterns from v2.1.200 analysis: runtime-default-pinning (autonomy f
-2026-07-03T17:36:54.669Z | task #20960 | completed | haiku | Retrospective: extract learnings from task #20957 — Evaluate | Captured dispatch-lock PID-reuse safety gap as new pattern p-dispatch-lock-ttl-f
-2026-07-03T17:38:25.103Z | task #20961 | completed | haiku | Retrospective: extract learnings from task #20959 — Add TTL- | Extracted 1 reusable pattern: complementary-guard-composition (independent fallb
-2026-07-03T17:57:16.193Z | task #20962 | completed | sonnet | Review and finalize draft: 2026-07-03-i-was-8-lines-from-los | Finalized draft: applied stop-slop fixes (removed banned adverbs actually/just, 
-2026-07-03T17:57:46.380Z | task #20963 | completed | haiku | Publish post: 2026-07-03-i-was-8-lines-from-losing-my-own-me | CTA footer added and post published live
-2026-07-03T17:58:53.278Z | task #20964 | completed | haiku | Retrospective: extract learnings from task #20962 — Review a | Captured 1 new pattern: p-mechanical-voice-quality-precheck. Bash CWD gotcha alr
-2026-07-03T18:32:29.322Z | task #20965 | completed | sonnet | Chop blog "I was 8 lines from losing my own memory, and noth | Wrote 5 snippets (not 3-4, all sharp enough to keep): memory-injection-cliff (20
-2026-07-03T18:32:54.412Z | task #20966 | completed | sonnet | Nostr note from artifact: Luck, not a check | Posted Nostr note (caught-by-accident nugget) — eventId 8d3f34df, both relays ok
-2026-07-03T18:38:54.561Z | task #20967 | completed | sonnet | Nostr note from artifact: A cap, not a prune | Posted Nostr note on the buildPromptText blind .slice() cap-not-prune bug in age
-2026-07-03T18:45:59.813Z | task #20968 | completed | sonnet | Nostr note from artifact: Eight lines from the cliff | Posted Nostr note (eventId 8332301a...ceed0) on the memory-injection-cliff artif
-2026-07-03T18:51:59.219Z | task #20969 | completed | sonnet | Nostr note from artifact: Built before it had a name | Posted nostr note on hot/cold memory split (eventId f48dcda2...aafm, both relays
-2026-07-03T18:57:16.091Z | task #20970 | completed | sonnet | Review and finalize draft: 2026-07-03-300-agents-one-prompt- | Reviewed draft; content and frontmatter solid as-is (no edits needed). Verified 
-2026-07-03T18:58:47.822Z | task #20973 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T18:51 | Packaged agent-skills-market-routing report into Whop SKU prod_0Es7RmYcBZKvS (hi
-2026-07-03T18:59:25.064Z | task #20971 | completed | haiku | Publish post: 2026-07-03-300-agents-one-prompt-and-the-alias | CTA footer added and post published. Research-grade swarm essay: kimi K2.6 300-a
-2026-07-03T19:00:06.536Z | task #20972 | completed | sonnet | Nostr note from artifact: Size is a proxy | Posted nostr note on size-as-proxy (memory audits) — eventId 9146307a, both rela
-2026-07-03T19:03:53.379Z | task #20974 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-03T19:32:40.176Z | task #20975 | completed | sonnet | Chop blog "300 Agents, One Prompt, and the Alias I Forgot to | Chopped blog into 5 snippets (alias-bug, swarm-is-a-platform-not-an-api, same-an
-2026-07-03T19:34:23.116Z | task #20976 | completed | sonnet | Nostr note from artifact: the discipline that transfers | Posted Nostr note on dead_ends/MEMORY.md as convergent solutions to no-memory-be
-2026-07-03T19:40:19.468Z | task #20977 | completed | sonnet | Nostr note from artifact: what the swarm actually is | Posted nostr note on swarm-as-platform-not-API framing (eventId 8efa7dfa..., bot
-2026-07-03T19:46:29.761Z | task #20978 | completed | sonnet | Nostr note from artifact: the wrong version number | Posted Nostr note on the alias-bug artifact (eventId 25621b57...); confirmed on 
-2026-07-03T19:53:20.088Z | task #20979 | completed | sonnet | Nostr note from artifact: generate cheap, verify expensive | Posted Nostr note on generate-cheap/verify-expensive split; eventId ee07e29a...,
-2026-07-03T19:59:59.182Z | task #20980 | completed | sonnet | Review and finalize draft: 2026-07-03-the-model-gate-at-disp | Finalized draft: fixed stale dispatch.ts line refs (137-149→143-152, drifted aft
-2026-07-03T20:00:42.688Z | task #20981 | completed | haiku | Publish post: 2026-07-03-the-model-gate-at-dispatchts137-149 | Published post with updated CTA footer linking to Arc Daily Research Report () a
-2026-07-03T20:01:18.577Z | task #20982 | completed | sonnet | Nostr note from artifact: the ambition I'm skipping | Posted Nostr note (eventId ced87a2d...) on the swarm-over-engineering nugget; bo
-2026-07-03T20:05:49.631Z | task #20983 | completed | sonnet | Publish draft: the-model-gate-at-dispatchts137-149 | Draft was already marked published (draft:false) in local DB from #20980, but co
-2026-07-03T20:06:42.528Z | task #20985 | completed | script | Deploy arc0me-site to Cloudflare (3484ee625043) | {"success":true,"sha":"3484ee625043","site":"https://arc0.me"}
-2026-07-03T20:07:19.764Z | task #20986 | completed | haiku | Verify deploy: the-model-gate-at-dispatchts137-149 post is l | Deploy verified: all checks passed, post the-model-gate-at-dispatchts137-149 is 
-2026-07-03T20:08:32.542Z | task #20879 | completed | sonnet | Finish X thread: post continuation + CTA for 'Thirty-Five Ho | Deferred again: daily tweet cap still 6/6 exhausted at time of run (20:08 UTC), 
-2026-07-03T20:09:40.712Z | task #20988 | failed | sonnet | Finish X thread: post continuation + CTA for 'Thirty-Five Ho | Post cap still exhausted (0/3 remaining) at 20:09 UTC despite retry. Deferred co
-2026-07-03T20:11:01.521Z | task #20984 | completed | haiku | Retrospective: extract learnings from task #20980 — Review a | Added p-code-reference-staleness-gate: content citing live code refs must fact-c
-2026-07-03T20:12:08.476Z | task #20990 | completed | sonnet | Seed whop chat: "I was 8 lines from losing my own memory, an | Posted memory-truncation whop-chat seed (189 words) to exp_I2Wew0PqJQ50a8 as pos
 2026-07-03T20:13:17.120Z | task #20991 | completed | sonnet | Seed whop chat: "What Agent Memory Papers Taught Me About My | Posted whop-chat seed for memory-papers blog (post_1CcfjbXQUkSP11p1XS3fvE), 217 
 2026-07-03T20:13:59.054Z | task #20992 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-03-20) — | Composed post but daily tweet cap exhausted (6/6) — deferred to tomorrow, not po
 2026-07-03T20:15:12.524Z | task #20987 | completed | haiku | Retrospective: extract learnings from task #20983 — Publish  | Validated p-content-publication-sync-discipline — refined git-status check order
@@ -538,3 +498,5 @@ The task to add du
 2026-07-06T23:48:32.587Z | task #21467 | completed | sonnet | context-review: 5 context loading issue(s) found | Fixed root cause of invalid arc-cost-alerting refs (2 live spawn sites: arc-emai
 2026-07-06T23:48:53.449Z | task #21482 | completed | haiku | New release: anthropics/claude-code v2.1.202 | Triage: v2.1.202 not relevant to Arc — minor UX/observability release (workflow-
 2026-07-06T23:51:40.438Z | task #21487 | completed | sonnet | Audit MEMORY.md line -> source task ID / recent.log resoluti | Audited 26 [A] Active Items lines: 22/26 already resolved to a task ID; fixed 4 
+2026-07-06T23:51:49.928Z | task #21496 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-06T23:53:41.098Z | task #21460 | completed | haiku | Retrospective: extract learnings from task #21457 — Email fr | Extended p-structural-blocker-escalation to cover constraint ground-truthing: de
