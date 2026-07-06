@@ -500,3 +500,4 @@ The task to add du
 2026-07-06T23:51:40.438Z | task #21487 | completed | sonnet | Audit MEMORY.md line -> source task ID / recent.log resoluti | Audited 26 [A] Active Items lines: 22/26 already resolved to a task ID; fixed 4 
 2026-07-06T23:51:49.928Z | task #21496 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-06T23:53:41.098Z | task #21460 | completed | haiku | Retrospective: extract learnings from task #21457 — Email fr | Extended p-structural-blocker-escalation to cover constraint ground-truthing: de
+2026-07-06T23:54:40.688Z | task #21461 | completed | haiku | Retrospective: extract learnings from task #21459 — Revisit  | Extracted learning: external service constraints (pricing, tiers, quotas) coded 
