@@ -503,3 +503,4 @@ The task to add du
 2026-07-06T23:54:40.688Z | task #21461 | completed | haiku | Retrospective: extract learnings from task #21459 — Revisit  | Extracted learning: external service constraints (pricing, tiers, quotas) coded 
 2026-07-06T23:55:37.057Z | task #21465 | completed | haiku | Retrospective: extract learnings from task #21462 — Email fr | Added conditional-recommendation approval gate to p-email-task-handling; ground-
 2026-07-06T23:56:16.063Z | task #21469 | completed | haiku | Retrospective: extract learnings from task #21463 — Implemen | No learnings to capture — key patterns (external-constraint ground-truth, shared
+2026-07-06T23:57:51.374Z | task #21471 | completed | haiku | Retrospective: extract learnings from task #21466 — Email fr | No learnings to capture
