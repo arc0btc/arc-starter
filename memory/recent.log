@@ -504,3 +504,4 @@ The task to add du
 2026-07-06T14:18:05.553Z | task #21379 | completed | haiku | Retrospective: extract learnings from task #21378 — Email fr | No learnings to capture — task #21378 validated existing patterns: idempotency c
 2026-07-06T14:19:35.444Z | task #21380 | completed | haiku | Retrospective: extract learnings from task #21377 — Review P | Captured operational-grounding pattern for infrastructure PR reviews — validate 
 2026-07-06T14:27:30.989Z | task #21381 | completed | sonnet | Review PR #590 on aibtcdev/aibtc-mcp-server: Fix dual_stacki | Reviewed and approved PR #590 on aibtc-mcp-server (dual-stacking resilience, lig
+2026-07-06T14:28:52.066Z | task #21382 | completed | haiku | Retrospective: extract learnings from task #21381 — Review P | Captured p-wallet-concurrency-pattern-audit: audit related code paths for TOCTOU
