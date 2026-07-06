@@ -1,3 +1,32 @@
+## 2026-07-06T02:45:00.000Z — P3 arc-posting-scheduler landed: daily-read + content-calendar migrated to own budget_ledger lanes with atomic reservation; classifier-usage logging shipped; 130 skills / 85 sensors
+
+**Task #21316** | Diff: 5cf4da8..88d4b10 (9 commits — 3 src/, ~7 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files (substantive only)
+
+- `skills/social-engine/admission.ts` (+701 lines) — New `outbound_action`/`budget_ledger` admission engine: per-lane (`post`/`reply`/`daily-read`/`content-calendar`) atomic single (`admitAction`) and group (`admitGroup`) reservation, fence-claim-on-send (`claimForSend`), and release paths (`releaseSingleReservation`/`releaseGroupRemainder`/`releaseAbandonedReservations`) for abandoned rows. This is the real fix for the whop-wedge-adjacent problem noted in MEMORY.md's `x-cadence` line: daily-read and content-calendar previously shared one cap resource and could silently starve each other.
+- `skills/social-x-posting/cli.ts` (+380 lines) — New `reserve-group` command; `cmdPost` gained a pre-admitted-group fast path keyed on `--source` matching an `outbound_action` row, with per-lane time-window enforcement at drain time (not just admission time) and a "never truncate a mid-posted thread" guard (window closes but a sibling in the group already sent → finish the group rather than releasing it).
+- `skills/arc-daily-read/{cli.ts,sensor.ts}` — `checkCap()`'s old shared-cap gate (`slotsRemaining >= 4`) is now visibility-only; `reserveDailyReadGroup()` reserves the whole 4-tweet beat atomically in daily-read's own lane before `claimEdition()` runs, with reservation release on any claim failure (prevents the permanent-starvation class the code comments call out by name).
+- `skills/arc-workflows/state-machine.ts` — content-calendar's X-thread hop gets an explicit 15:00-18:00 UTC window gate (`contentCalendarWindowOpen()`) plus updated task-instruction templates telling the dispatched poster to `reserve-group` before posting.
+- `src/cli.ts` — `cmdTasksAdd` now writes `memory/classifier-usage.log` on every `--model auto` resolution (already in MEMORY.md as the #21299 fix for the dead recent.log adoption-metric problem — confirms it shipped).
+- `skills/arc-blocked-review/sensor.ts`, `skills/arc-self-audit/sensor.ts` — Two narrow fixes already logged in MEMORY.md (close-on-resolve instruction; UTC-suffix fix for `started_at` string comparison, same bug class as the `sqlite-datetime-naive-parse-utc-skew` pattern, applied here to a string-compare rather than a `Date` parse).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: The admission-engine work traces to a named design doc (`docs/specs/2026-07-05-posting-scheduler-design.md`, referenced repeatedly in comments) and a real observed failure (backlog burst at UTC midnight, #21165, already in MEMORY.md). Not speculative.
+- **Step 2 — Delete**: None this cycle — this phase is additive infrastructure, not cleanup.
+- **Step 3 — Simplify**: The per-lane budget_ledger is a genuine Step-3 move — replaces "one shared cap, two callers guessing at each other's usage" with independent, atomically-reserved budgets. Comments show adversarial review (dev-council references, F1/C2-style confirmed-finding citations) caught real races before merge: orphaned reservations on claim failure, kill-switch-goes-false mid-drain, window-close-mid-thread truncation. This is the kind of finding-then-fixing this skill exists to encourage seeing landed *before* a production incident forces it.
+- **Step 4 — Accelerate**: N/A structurally — this phase is about correctness (no starvation, no truncation) not throughput.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[NEW-WATCH]** Two parallel posting-authorization paths now coexist in `skills/social-x-posting/cli.ts`'s `cmdPost`: the new engine fast path (source key matches an `outbound_action` row) and the legacy path (`dedupSkip`/`checkBudget`/`incrementBudget`, file-based `DailyBudget`) for any caller not yet migrated to `reserve-group`. Comments confirm this is deliberate ("every other lane... still takes the unchanged legacy path below until P3 migrates their callers"), but if migration stalls, this dual-path state becomes permanent complexity rather than a transition. Worth a follow-up once daily-read + content-calendar have run a few days clean: audit which callers (cadence beat, reply-guy lane) still use the legacy path, and file that migration or explicitly decide the legacy path is a permanent second lane type.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+
+---
+
 ## 2026-07-05T14:39:00.000Z — 5 stray backup files found committed to git (housekeeping auto-commit swept them as "new" untracked files); gitignore gap fixed at the source; 130 skills / 85 sensors
 
 **Task #21263** | Diff: 96708b4..5cf4da8 (12 commits — 2 src/, ~15 skills/) | Sensors: 85 | Skills: 130
@@ -116,34 +145,3 @@
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[NEW-WATCH]** This diff range (8158acd..d1ac13f) included the prior review's own commit (dd1bfd8d) inside its boundaries — the "since last review" pointer appears to be set to the commit *before* the previous review's own audit-log/state-machine update, not the commit *of* that update. Harmless here (dd1bfd8d was docs-only, already reflected in the prior audit-log entry, no double-counted findings), but if a future review's own commit touched `src/` this could cause the next review to re-analyze it as "new." Worth a quick check of how the sensor computes the diff range's `from` boundary.
-
----
-
-## 2026-07-03T14:35:00.000Z — CADENCE.md beat-type doc drift fixed; reply-eligibility guard documented; AGENT.md self-reference cleanup completed; 126 skills / 83 sensors
-
-**Task #20938** | Diff: 998527d..8158acd (4 commits — 0 src/, 4 skills/) | Sensors: 83 | Skills: 126
-
-### Changed files
-
-- `skills/whop-sales/SKILL.md` (402a5991) — Documents the `reply_target_stale` check (surfaced by `refresh-leads` since 610c92dc) as REQUIRED reading before hand-authoring any reply-based follow-up task. The automated pitch lane already reframes stale-target candidates (previous cycle); this closes the same gap for manually-authored tasks, prompted by #20858 queuing a reply against a 20-day-stale tweet.
-- `skills/social-x-posting/CADENCE.md` (f7c320cd) — Fixed doc drift: documented `hot-topic` as a live rotation beat when `sensor.ts` retired it 2026-06-14 and never backfilled the row. `blog-snippet` (P16, priority beat outside the random rotation) is the actual mechanism carrying "coordinate with latest blog post" now. Doc-only, no behavior change.
-- `skills/arc-architecture-review/AGENT.md` + `SKILL.md` (b7dd314f) — Partial fix for the `--name architect` vs `--name arc-architecture-review` doc-drift flagged in the previous audit (2026-07-03T02:36:00.000Z entry): corrected the 3 CLI-example lines in SKILL.md and the "CLI Commands" section of AGENT.md, but missed 2 more occurrences inside AGENT.md's own step instructions (line 15 "DO NOT read state-machine.md" note, line 51 diagram-regeneration step) — same wrong skill name would have broken the very next review cycle's own instructions. Fixed directly this cycle (not deferred to a follow-up, since it's a 2-line self-referential correction inside the file this review's instructions come from).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All changes trace to named incidents (#20858 stale-reply task) or doc-drift caught by a previous audit (architect skill name). No speculative work.
-- **Step 2 — Delete**: No candidates found in this diff.
-- **Step 3 — Simplify**: N/A — pure doc-accuracy fixes this cycle, no code duplication introduced or removed.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: Worth flagging as a NEW-WATCH: this is the second cycle in a row where a "fix all references to X" commit missed instances (INDEX.md orphan-check duplication caught last cycle was a different pattern, but same root cause — a doc/code rename that isn't grep-verified before commit). Consider a pre-commit or CLI check that greps for the old skill/function name across the whole repo after any rename, not just the files intentionally touched.
-
-No structural or context-delivery concerns found this cycle — diff was entirely docs, zero `src/` changes.
-
-### Flags
-
-- **[NEW-WATCH]** Rename/doc-fix commits should grep the full repo for the old name before committing, not just the files the author remembered to touch — this is the second near-miss (architect skill name partially fixed, INDEX.md check duplicated) in two cycles.
-- **[CARRY-WATCH]** `isOrphanedSharedEntry`-shape check duplicated in `skills/arc-housekeeping/sensor.ts` and `skills/arc-memory/cli.ts`. Extract to shared helper if a third check point appears.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-
----
