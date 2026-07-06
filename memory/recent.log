@@ -514,3 +514,4 @@ The task to add du
 2026-07-06T15:03:24.719Z | task #21393 | completed | opus | Root-cause how content-calendar:2026-07-03-what-agent-memory | No out-of-band write path. Thread posted in-band via dispatch task #21164 (defer
 2026-07-06T15:07:09.098Z | task #21395 | completed | sonnet | Kill-switch coverage gap: outbound_enabled=false (since 2026 | Live-verified reserve-group + post both correctly refuse with kill_switch_off/re
 2026-07-06T15:07:53.926Z | task #21397 | completed | sonnet | Fix fail-open kill-switch check in legacy X post path: skill | Fixed cli.ts:786 legacy kill-switch guard from === 'false' (fail-open) to !== 't
+2026-07-06T15:09:58.379Z | task #21398 | completed | sonnet | src/db.ts:250 new Database('db/arc.sqlite') uses a RELATIVE  | src/db.ts:250 new Database('db/arc.sqlite') resolved relative to cwd, not repo r
