@@ -185,20 +185,20 @@ async function cmdDeploy(args: string[]): Promise<void> {
   try {
     const idxPath = join(SITE_DIR, "public/verify/index.json");
     if (existsSync(idxPath)) {
-      const idx = JSON.parse(readFileSync(idxPath, "utf-8"));
-      const slugs = Object.keys(idx.posts ?? {});
+      const verifyIndex = JSON.parse(readFileSync(idxPath, "utf-8"));
+      const slugs = Object.keys(verifyIndex.posts ?? {});
       let mismatches = 0;
       for (const slug of slugs) {
-        const res = await fetch(`https://arc0.me/blog/${slug}.md`);
-        if (!res.ok) {
+        const response = await fetch(`https://arc0.me/blog/${slug}.md`);
+        if (!response.ok) {
           mismatches++;
-          process.stderr.write(`WARNING: signed post ${slug} not fetchable live (${res.status})\n`);
+          process.stderr.write(`WARNING: signed post ${slug} not fetchable live (${response.status})\n`);
           continue;
         }
-        const liveHash = createHash("sha256").update(new Uint8Array(await res.arrayBuffer())).digest("hex");
-        if (liveHash !== idx.posts[slug].contentHash) {
+        const liveHash = createHash("sha256").update(new Uint8Array(await response.arrayBuffer())).digest("hex");
+        if (liveHash !== verifyIndex.posts[slug].contentHash) {
           mismatches++;
-          process.stderr.write(`WARNING: SIGNATURE MISMATCH for ${slug}: live ${liveHash} != signed ${idx.posts[slug].contentHash} — run sign-runner --slug ${slug} and redeploy\n`);
+          process.stderr.write(`WARNING: SIGNATURE MISMATCH for ${slug}: live ${liveHash} != signed ${verifyIndex.posts[slug].contentHash} — run sign-runner --slug ${slug} and redeploy\n`);
         }
       }
       log(`signature reconciliation: ${slugs.length - mismatches}/${slugs.length} signed posts match live content`);
