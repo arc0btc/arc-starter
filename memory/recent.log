@@ -511,3 +511,4 @@ The task to add du
 2026-07-06T22:35:27.408Z | task #21453 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: X Follower Cou | Replied to whoabuddy re: X follower gauge — honest update that it's not fixed (s
 2026-07-06T22:39:41.599Z | task #21454 | completed | sonnet | Trace X read-API consumers exhausting 100/day before followe | Root cause: mentions sensor's 15min unconditional polling (96 reads/day) was cro
 2026-07-06T22:40:55.543Z | task #21457 | completed | opus | Email from whoabuddy (1 unread, 3 total): Re: X Follower Cou | whoabuddy reframed X read-limit fix: revisit ALL X budget limits from real credi
+2026-07-06T22:46:45.969Z | task #21459 | completed | opus | Revisit X API budget limits from actual credit-cost ground t | X API moved to pay-per-use 2026-02-06; 100-reads/day ceiling rests on stale 'fre
