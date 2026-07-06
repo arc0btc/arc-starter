@@ -500,3 +500,5 @@ The task to add du
 2026-07-06T21:24:11.283Z | task #21432 | completed | haiku | daily cost report — 2026-07-06 | Daily cost report reviewed. High costs driven by legitimate debugging work (cont
 2026-07-06T21:32:59.373Z | task #21444 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-06T22:03:01.436Z | task #21445 | completed | opus | Email from whoabuddy (1 unread): X Follower Count | north-star 'can't get X follower count' = daily X read budget exhausted (100/100
+2026-07-06T22:07:27.241Z | task #21446 | completed | sonnet | Harden X follower-count availability in north-star monitor:  | Root cause: gauge's checkReadBudgetN(2) precheck coupled follower+post-metrics r
+2026-07-06T22:08:14.439Z | task #21446 | completed | sonnet | Harden X follower-count availability in north-star monitor:  | Fix already landed in commit dabc9323 (from triage task #21445 itself): reserved
