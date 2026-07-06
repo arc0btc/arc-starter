@@ -531,3 +531,4 @@ The task to add du
 2026-07-06T23:33:59.713Z | task #21464 | completed | sonnet | Whop free-forum digest [2026-07-06]: syndicate Arc status in | DEFERRED: paid-room synthesis (task #21449, 22:06Z) fired live within the last 2
 2026-07-06T23:35:49.759Z | task #21479 | completed | sonnet | Log/audit which embedded URLs arc-link-research auto-follows | Added Embedded URL Audit section to arc-link-research reports (commit 0412ce8a) 
 2026-07-06T23:36:54.574Z | task #21480 | completed | sonnet | Tag recent.log entries from untrusted-content tasks for cons | Tagged recent.log lines from sensor:arc-link-research/email-sync/aibtc-inbox-syn
+2026-07-06T23:39:22.960Z | task #21486 | completed | sonnet | Map Arc's loops to ClaudeDevs taxonomy note, then package 'A | Wrote research/2026-07-06_arc-loop-taxonomy-mapping.md mapping Arc's sensors(tim
