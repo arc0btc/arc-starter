@@ -190,6 +190,32 @@ export async function shouldRun(name: string, intervalMinutes: number): Promise<
   return Date.now() >= nextAllowed;
 }
 
+/**
+ * Record a sensor's configured interval to its own small metadata file
+ * (`{name}.interval.json`), separate from the main hook-state file that
+ * individual sensors read/write freely for their own bookkeeping. Several
+ * sensors overwrite their hook-state wholesale (not spreading prior fields),
+ * which would silently wipe interval_minutes if it lived in the same file —
+ * a dedicated file keeps it immune to that (task #21339).
+ */
+async function recordIntervalMinutes(name: string, intervalMinutes: number): Promise<void> {
+  const filePath = join(HOOK_STATE_DIR, `${name}.interval.json`);
+  await Bun.write(filePath, JSON.stringify({ interval_minutes: intervalMinutes }));
+}
+
+/** Read a sensor's recorded interval from its `{name}.interval.json` file. Null if missing/unreadable. */
+export async function readIntervalMinutes(name: string): Promise<number | null> {
+  const filePath = join(HOOK_STATE_DIR, `${name}.interval.json`);
+  try {
+    const file = Bun.file(filePath);
+    if (!(await file.exists())) return null;
+    const raw = (await file.json()) as { interval_minutes?: number };
+    return typeof raw.interval_minutes === "number" ? raw.interval_minutes : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function claimSensorRun(name: string, intervalMinutes: number): Promise<boolean> {
   const state = await readHookState(name);
 
@@ -198,6 +224,10 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
     const nextAllowed = new Date(state.last_ran).getTime() + intervalMs;
     if (Date.now() < nextAllowed) return false;
   }
+
+  // Record the configured interval every time a sensor is claimed — cheap,
+  // and self-healing if the file is ever lost.
+  await recordIntervalMinutes(name, intervalMinutes);
 
   // Preserve last_result/consecutive_failures from the previous run — the true
   // outcome of THIS run isn't known until runSensors() finishes executing it.

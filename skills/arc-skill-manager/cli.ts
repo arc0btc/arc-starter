@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
 import { initDatabase, getDatabase } from "../../src/db.ts";
-import { resolveSensorIdentity } from "../../src/sensors.ts";
+import { resolveSensorIdentity, readIntervalMinutes } from "../../src/sensors.ts";
 
 // ---- Constants ----
 
@@ -487,7 +487,7 @@ function cmdInstallHooks(): void {
   process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
 }
 
-function cmdSensorHealthReport(): void {
+async function cmdSensorHealthReport(): Promise<void> {
   initDatabase();
   const db = getDatabase();
   const skills = discoverSkills();
@@ -538,7 +538,6 @@ function cmdSensorHealthReport(): void {
 
     let lastRun = "never";
     let consecutiveFailures = 0;
-    let intervalMinutes: number | null = null;
 
     for (const stateFile of candidateFiles) {
       try {
@@ -552,12 +551,18 @@ function cmdSensorHealthReport(): void {
         if (typeof raw.consecutive_failures === "number" && raw.consecutive_failures > consecutiveFailures) {
           consecutiveFailures = raw.consecutive_failures;
         }
-        if (typeof raw.interval_minutes === "number" && intervalMinutes === null) {
-          intervalMinutes = raw.interval_minutes;
-        }
       } catch {
         // unreadable state
       }
+    }
+
+    // interval_minutes lives in its own {name}.interval.json file, written
+    // only by claimSensorRun — kept out of the shared hook-state file so a
+    // sensor's own wholesale writeHookState() calls can't wipe it (#21339).
+    let intervalMinutes: number | null = null;
+    for (const key of nameKeys) {
+      intervalMinutes = await readIntervalMinutes(key);
+      if (intervalMinutes !== null) break;
     }
 
     if (lastRun !== "never") {
@@ -687,7 +692,7 @@ async function main(): Promise<void> {
       await cmdInstallHooks();
       break;
     case "sensor-health-report":
-      cmdSensorHealthReport();
+      await cmdSensorHealthReport();
       break;
     case "help":
     case "--help":
