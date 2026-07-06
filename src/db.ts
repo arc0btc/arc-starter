@@ -1,7 +1,11 @@
 import { Database, type SQLQueryBindings } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
+import { join } from "node:path";
 import { AGENT_NAME } from "./identity.ts";
 import { appendFileSync } from "node:fs";
+
+const DB_DIR = join(import.meta.dir, "../db");
+const DB_PATH = join(DB_DIR, "arc.sqlite");
 
 // ---- Types ----
 
@@ -245,9 +249,9 @@ export function toSqliteDatetime(date: Date): string {
 export function initDatabase(): Database {
   if (_db !== null) return _db;
 
-  mkdirSync("db", { recursive: true });
+  mkdirSync(DB_DIR, { recursive: true });
 
-  const db = new Database("db/arc.sqlite");
+  const db = new Database(DB_PATH);
   db.run("PRAGMA journal_mode = WAL");
   db.run("PRAGMA busy_timeout = 5000");
 
