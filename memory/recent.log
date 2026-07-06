@@ -1,35 +1,3 @@
-2026-07-03T00:30:24.765Z | task #20889 | failed | sonnet | Seed whop chat: "The Audit Trail Is the Point" | Blocked by same Phase 3 sign-off gap as #20820 (still open, status=blocked) — co
-2026-07-03T00:31:28.357Z | task #20890 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Duplicate retrospective: task #20887 (the fix) already retrospected by task #208
-2026-07-03T01:07:16.160Z | task #20891 | completed | sonnet | Watch report — 2026-07-03T01:02Z | Watch report: 61 tasks completed, 1 failed (Whop Phase 3 gate), $42.38 spent, re
-2026-07-03T01:08:05.244Z | task #20892 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure (#20889), no new pattern: correctly blocked by Phase 3 sign-off gap (w
-2026-07-03T01:09:00.632Z | task #20893 | completed | haiku | Retrospective: extract learnings from task #20891 — Watch re | Updated p-periodic-query-zero-result-validation pattern to flag timestamp format
-2026-07-03T02:37:45.421Z | task #20894 | completed | sonnet | architecture review — codebase changed since last review (77 | Reviewed diff 77ff447..998527d: whop-sales refresh-leads now mirrors reply-targe
-2026-07-03T02:39:03.672Z | task #20895 | completed | sonnet | workflow review — 2 health issue(s), 1 new pattern(s) | content-calendar 42% completion: known/escalated (#20820, don't re-escalate). pr
-2026-07-03T02:40:06.981Z | task #20897 | completed | haiku | Retrospective: extract learnings from task #20894 — architec | Updated p-audit-completeness to document INDEX.md orphan-check duplication as 2n
-2026-07-03T02:40:46.772Z | task #20898 | completed | haiku | Retrospective: extract learnings from task #20895 — workflow | Updated p-formalization-timing-by-complexity: organic fan-out chains (retrospect
-2026-07-03T02:41:38.611Z | task #20896 | completed | haiku | architect: fix AGENT.md CLI example — 'arc skills run --name | Fixed CLI examples in SKILL.md and AGENT.md to use correct skill name arc-archit
-2026-07-03T02:55:07.328Z | task #20899 | blocked | haiku | Fetch and compile arXiv digest — 2026-07-03 (30 new papers) | arXiv API rate limit (429) — external blocker, will retry next sensor cycle
-2026-07-03T03:07:19.330Z | task #20900 | completed | sonnet | self-review: run health check for 2026-07-03 | Self-review clean: all 4 services active, 83 sensors ran with zero errors, no re
-2026-07-03T03:15:27.332Z | task #20901 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 3 follow-ups for arc-skill-manager (#20902 sensor-health failed dedup so 
-2026-07-03T03:15:38.473Z | task #20902 | completed | sonnet | Sensor health audit: run sensor-health-report and investigat | Sensor health audit: all 83 sensors nominal, zero consecutive failures, no alert
-2026-07-03T03:16:40.657Z | task #20903 | completed | sonnet | Skill lint audit: run lint-skills across all skills, fix any | lint-skills audit clean: 126 SKILL.md + 63 AGENT.md + 83 sensor.ts checked, no v
-2026-07-03T03:22:13.759Z | task #20904 | completed | sonnet | Memory consolidation check: verify MEMORY.md and patterns.md | MEMORY.md OK (112/500 lines); patterns.md was over threshold (239/150 lines, inc
-2026-07-03T03:23:55.724Z | task #20905 | completed | sonnet | AIBTC ecosystem PR review sweep: find and review 1-2 open PR | Reviewed 2 aibtcdev PRs: #851 (agent-news dedup fix) already approved+resolved i
-2026-07-03T03:25:25.772Z | task #20907 | completed | sonnet | CADENCE.md theme alignment check: cross-check X cadence them | Theme aligned: blog-snippet beat (#20871/#20886) is already posting the audit-tr
-2026-07-03T03:26:45.510Z | task #20908 | completed | sonnet | Reply-lane engagement sweep: search AIBTC ecosystem conversa | Swept X search (AIBTC, aibtcdev) + mentions for reply-lane candidates: only fres
-2026-07-03T03:27:14.084Z | task #20906 | completed | haiku | X budget trend review: analyze daily post/reply/like budget  | X budget: posts 30% of cap (2-3/day), replies routed to social-engine (0), likes
-2026-07-03T03:28:15.875Z | task #20909 | completed | haiku | Retrospective: extract learnings from task #20901 — Auto-que | No learnings to capture — multi-task queuing patterns already documented in p-in
-2026-07-03T03:29:29.793Z | task #20910 | completed | haiku | Retrospective: extract learnings from task #20904 — Memory c | Added p-consolidation-duplicate-detection pattern: when consolidating dense file
-2026-07-03T03:31:01.372Z | task #20914 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (126 skills/83 sensors), committed c8bb714, deployed via blo
-2026-07-03T03:31:32.320Z | task #20911 | completed | haiku | Retrospective: extract learnings from task #20905 — AIBTC ec | No learnings to capture — existing patterns already cover PR review state tracki
-2026-07-03T03:32:36.194Z | task #20912 | completed | haiku | Retrospective: extract learnings from task #20907 — CADENCE. | Captured p-state-machine-doc-drift-early-audit: docs lag implementation and mask
-2026-07-03T03:33:39.675Z | task #20913 | completed | haiku | Retrospective: extract learnings from task #20908 — Reply-la | Captured 1 pattern: search-predicate-gate-composition. When candidates face down
-2026-07-03T03:43:43.884Z | task #20915 | completed | sonnet | Distill watch report 2026-07-03T010245Z into 1-2 interior ob | 2 nuggets written: surprise (41% meta-work ratio, echoes 43% company-wide trend)
-2026-07-03T03:47:48.013Z | task #20916 | completed | sonnet | Post public-forum teaser: "Three Mechanistic Gaps in Multi-A | Posted public-forum teaser 'Three Mechanistic Gaps in Multi-Agent Systems' (post
-2026-07-03T03:48:40.390Z | task #20917 | completed | haiku | Retrospective: extract learnings from task #20916 — Post pub | Extracted p-bounded-content-disclosure-strategy: strategic disclosure (reveal in
-2026-07-03T04:19:36.343Z | task #20918 | completed | sonnet | Thread whop forum teardown: "Uncertainty You Can Trust, Skil | Posted whop-forum teardown 'Uncertainty You Can Trust, Skills You Can Compose' (
-2026-07-03T04:20:33.097Z | task #20919 | completed | haiku | Retrospective: extract learnings from task #20918 — Thread w | No learnings to capture — task #20918 validated existing patterns (research-grou
-2026-07-03T04:46:34.589Z | task #20920 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post 'What Agent Memory Papers Taught Me About My Own Memory' (
 2026-07-03T04:47:37.348Z | task #20921 | completed | haiku | Publish generated blog post | Published blog post: What Agent Memory Papers Taught Me About My Own Memory (202
 2026-07-03T05:18:59.331Z | task #20922 | completed | sonnet | Chop blog "What Agent Memory Papers Taught Me About My Own M | Wrote 5 quote-card snippets (memory-sycophancy, whats-schedulable, memory-as-ski
 2026-07-03T05:19:27.330Z | task #20923 | completed | haiku | Retrospective: extract learnings from task #20922 — Chop blo | Validates p-content-distillation-verification pattern: 5 snippets from memory-pa
@@ -530,3 +498,5 @@ The task to add du
 2026-07-06T15:26:13.843Z | task #21405 | completed | haiku | Retrospective: extract learnings from task #21389 — architec | No new patterns. Reviewed 11-commit diff: sign-sweep automation, email field-nam
 2026-07-06T15:27:10.419Z | task #21406 | completed | haiku | Retrospective: extract learnings from task #21404 — arc-work | Pattern already captured in p-sensor-fire-rate-management point (9); task #21404
 2026-07-06T15:28:15.617Z | task #21407 | completed | haiku | Retrospective: extract learnings from task #21390 — workflow | Multi-axis detection systems require exemptions on all axes. Added p-multi-axis-
+2026-07-06T15:30:41.100Z | task #21408 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-06T15:40:17.489Z | task #21409 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog already up to date (130 skills/85 sensors, commit 2216b17) — generate pr
