@@ -501,3 +501,4 @@ The task to add du
 2026-07-06T01:24:35.867Z | task #21315 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-06T02:42:39.931Z | task #21318 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated 'err' -> 'error' in social-x-posting/cli.ts:1113-1114 (reserve
 2026-07-06T02:44:48.269Z | task #21316 | completed | sonnet | architecture review — codebase changed since last review (5c | Diagram + audit-log refreshed for 5cf4da8..88d4b10: P3 arc-posting-scheduler (ad
+2026-07-06T02:45:58.379Z | task #21320 | completed | sonnet | audit remaining social-x-posting callers on legacy dedup/che | Audited all social-x-posting cmdPost callers: 3 legacy-path sources (sensor:x-ca
