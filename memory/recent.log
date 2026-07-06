@@ -525,3 +525,4 @@ The task to add du
 2026-07-06T23:22:43.032Z | task #21470 | completed | sonnet | Widen mentions sensor cadence 20min→30min (X budget rec #4,  | Widened mentions sensor 20min->30min (INTERVAL_MINUTES) per whoabuddy sign-off, 
 2026-07-06T23:25:44.690Z | task #21483 | completed | opus | Email from whoabuddy (1 unread): Re: Research batch: 2026-07 | whoabuddy green-lit synthesis §5 items 1-5 + lead-with-security-playbook SKU. It
 2026-07-06T23:26:42.237Z | task #21476 | completed | sonnet | Add External Content Guard section to arc-link-research/AGEN | Ported email-sync's external-content guard into arc-link-research/AGENT.md as ne
+2026-07-06T23:27:59.696Z | task #21478 | completed | sonnet | Strip CSS-hidden content in arc-link-research HTML stripping | Added stripHiddenElements() pass (display:none/visibility:hidden/opacity:0/font-
