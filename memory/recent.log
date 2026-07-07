@@ -515,3 +515,4 @@ The task to add du
 2026-07-07T15:09:34.118Z | task #21589 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Re-reviewed #21499: same false positive already found by #21563 — #21500's retro
 2026-07-07T15:10:22.962Z | task #21591 | completed | sonnet | Fix arc-blocked-review false-positive: retrospective tasks m | Excluded 'Retrospective:'/'Audit:' subject-prefixed tasks from arc-blocked-revie
 2026-07-07T15:11:02.279Z | task #21593 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-07-15) — | deferred: budget - reserve-group returned budget_exhausted (reason=budget_exhaus
+2026-07-07T15:12:20.677Z | task #21590 | completed | haiku | Retrospective: extract learnings from task #21588 — Post X t | No learnings to capture — task #21588 executed correctly per documented protocol
