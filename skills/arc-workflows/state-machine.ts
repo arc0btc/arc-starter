@@ -1853,6 +1853,10 @@ Steps:
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
         if (!ctx.sender) return null;
+        // KEEP THIS CHECK (audited task #20643): NOT redundant with the centralized guard in
+        // evaluateWorkflow() — created_at is deliberately excluded from
+        // STALE_CONTENT_ANCHOR_FIELDS (see comment there), so the centralized guard never fires
+        // for this field. This is the sole staleness protection for this state.
         if (isAnchorStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         return {
           type: "create-task",
@@ -2262,13 +2266,10 @@ Steps:
     retrospective_pending: {
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
-        // Staleness guard (task #20591, mirrors ComplianceReviewMachine.scan_complete /
-        // AgentCollaborationMachine.retrospective_pending / self-review-cycle.issues_found):
-        // a re-activated dormant workflow (e.g. workflow #1516, overnight-brief:2026-04-13)
-        // replayed this action 2.5 months stale (task #20499), dispatching a retrospective
-        // quoting a brief summary that's no longer relevant. date is set once at workflow
-        // creation; once >7d old, skip the duplicate retrospective and complete instead.
-        if (isAnchorStale(ctx.date)) return { type: "transition", nextState: "completed" };
+        // Staleness (task #20591) is now handled by the centralized guard in evaluateWorkflow()
+        // (commit 71dd3d59) — this state's `date` field is in STALE_CONTENT_ANCHOR_FIELDS and its
+        // autoAdvanceState below ("completed") matches what the centralized guard would pick, so a
+        // per-stage check here would be pure duplication (task #20643).
         const date = ctx.date || "unknown date";
         return {
           type: "create-task",
@@ -2944,6 +2945,10 @@ Then complete the health check:
         // triage task quoting issueSummary's point-in-time cost/queue stats as if observed today.
         // cycleDate is set once at workflow creation (triggered state); once >7d old, skip the
         // duplicate triage and complete honestly instead of re-triaging stale data.
+        // KEEP THIS CHECK (audited task #20643): NOT redundant with the centralized guard in
+        // evaluateWorkflow(). That guard's fallback would pick this action's autoAdvanceState
+        // ("triaging") over "resolved" since it's checked first in the skip-target list — pruning
+        // this would leave the workflow parked in "triaging" with no triage task ever created.
         if (isAnchorStale(ctx.cycleDate)) return { type: "transition", nextState: "resolved" };
         const count = ctx.issueCount || 1;
         const cost = ctx.costToday ? `, $${ctx.costToday} today` : "";
@@ -3510,8 +3515,10 @@ Steps:
  *   scanDate       — ISO date of the scan (for dedup / reference); also doubles as the
  *     staleness anchor (task #20589) — scan_complete skips creating a review task for findings
  *     >7d old (a re-activated dormant workflow's stale aggregate counts can't be re-verified
- *     against the current skill tree), transitioning straight to retrospective_pending with an
- *     honest staleness note instead. Missing/invalid scanDate fails open. See workflow #1687.
+ *     against the current skill tree), transitioning straight to completed instead of dispatching
+ *     a stale review. Now enforced by the centralized guard in evaluateWorkflow() (commit
+ *     71dd3d59) rather than a per-stage check (task #20643). Missing/invalid scanDate fails open.
+ *     See workflow #1687.
  *   taskRef        — "task:{id}" of the compliance review task
  *   learningsSummary — brief summary of what was learned
  */
@@ -3530,7 +3537,10 @@ export const ComplianceReviewMachine: StateMachine<{
       action: (ctx) => {
         const count = ctx.findingCount ?? 0;
         if (count === 0) return { type: "transition", nextState: "clean" };
-        if (isAnchorStale(ctx.scanDate)) return { type: "transition", nextState: "completed" };
+        // Staleness (task #20589) is handled by the centralized guard in evaluateWorkflow() —
+        // scanDate is in STALE_CONTENT_ANCHOR_FIELDS and this action has no autoAdvanceState, so
+        // the guard's fallback ("completed") matches; a per-stage check here is duplication
+        // (task #20643).
         const skills = ctx.skillCount ? ` across ${ctx.skillCount} skills` : "";
         const date = ctx.scanDate || new Date().toISOString().slice(0, 10);
         return {
