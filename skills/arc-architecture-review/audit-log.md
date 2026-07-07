@@ -1,3 +1,28 @@
+## 2026-07-07T14:47:14.104Z — legacy cmdPost guard stack fully retired (last 2 callers migrated to reserve-group); 2/4 per-stage staleness checks pruned after nextState verification; blog-publishing + per-repo PR-review chains exempted; 130 skills / 85 sensors
+
+**Task #21580** | Diff: 64f3092..6156824 (6 commits — 1 src/, 6 skills/) | Sensors: 85 | Skills: 130
+
+- `skills/social-engine/admission.ts` + `social-x-posting/{cli,sensor}.ts` + `whop-sales/sensor.ts` (bb9516e2) — Implements the follow-up filed 2026-07-07 (#21524) from the prior legacy-path-consolidation assessment (#21521): whop-sales GTM and the x-cadence beat, the last two `cmdPost` callers not on `reserve-group`, now reserve first. `reserve-group`'s prefix-match key is decoupled from its lane value so multi-segment prefixes (`quest:gtm`, `sensor:x-cadence`) map to single-token lanes; fail-closed refusal widened to cover both new prefixes; the now-unreachable content-calendar `x_thread` cap block in `cmdPost` deleted. Reviewed the `mixed_lane_group` Set-dedup logic (matched-entry objects vs `null`) for a false-positive/negative on the multi-lane refusal path — correct: single managed lane never triggers, any managed+unmanaged or managed+managed mix does.
+- `skills/arc-workflows/state-machine.ts` (61568249) — Audited the 4 remaining per-stage `isAnchorStale()` calls left after the centralized guard (71dd3d59); pruned 2 confirmed genuinely redundant (field in `STALE_CONTENT_ANCHOR_FIELDS` AND `nextState` matches the centralized guard's skip-target), kept 2 that looked redundant but weren't (`created_at` excluded from the centralized field list; a `nextState`/`autoAdvanceState` mismatch that would silently reroute a workflow if pruned). Good instance of the audit's own lesson from `per-stage-isanchorstale-partial-redundancy.md` — same-field presence isn't sufficient proof, verify the resulting state too.
+- `skills/arc-workflow-review/sensor.ts` (9f84f1e4) — Two more instances of the already-rejected ad-hoc generate→publish/review→retrospective chain (blog-publishing `:content-generation` suffix, per-repo PR-review on aibtcdev/agent-news) added to the exemption sets. Correctly bare-prefix, not one-off, so future suffix variants are covered.
+- `skills/social-x-posting/cli.ts` (2d9cc15b) — Compliance-flagged `err`→`error` rename, no behavior change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All five changes trace to named tasks (#21524, #20643, #21516, compliance audit). No speculative work.
+- **Step 2 — Delete**: bb9516e2 deletes the unreachable content-calendar `x_thread` cap block in `cmdPost` (dead since content-calendar's earlier reserve-group migration) — correct catch, matches last cycle's assessment that flagged it as dead but deferred removal.
+- **Step 3 — Simplify**: 61568249's per-stage staleness audit is the clean example this cycle — resisted the urge to prune all 4 just because the centralized guard superficially covers the same field.
+- **Step 4 — Accelerate**: N/A — no pipeline throughput changes.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[RESOLVED]** `social-x-posting-legacy-path-consolidation` (#21521/#21524, MEMORY.md active item) — the last two `cmdPost` legacy callers are migrated; the legacy path itself is now unused for all known managed-lane sources. Worth one follow-up check next cycle: does `cmdPost`'s legacy guard stack still serve any live purpose, or can the whole branch be deleted (not just the dead cap block)?
+- **[BASELINE, unchanged]** `audit` CLI still reports 45 findings (38 warn / 7 info) — dedup-check gaps on ~30 low-frequency sensors, several oversized SKILL.md files (whop 4285 tokens, aibtc-news-editorial 3719), MEMORY.md at 3803 tokens. None touch this cycle's diff; same baseline as prior audits, not re-triaged here.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+
+---
 ## 2026-07-07T02:46:00.000Z — arc-workflow-review exemption matching converted to prefix-based (closes 3-recurrence NEW-WATCH); stray-sqlite root cause fixed at import.meta.dir; memory-poisoning provenance tagging shipped; X pay-per-use budget + kill-switch fail-closed landed; 130 skills / 85 sensors
 
 **Task #21517** | Diff: d8da298..64f3092 (25 commits — 5 src/, ~15 skills/) | Sensors: 85 | Skills: 130
@@ -119,32 +144,3 @@
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 
----
-
-## 2026-07-05T02:39:00.000Z — diff-range self-commit noise fixed at the source (AGENT.md path exclusion); content-calendar x-thread backlog burst throttled; sensor-identity duplication collapsed to one shared helper; 130 skills / 85 sensors
-
-**Task #21182** | Diff: 33bf0f5..96708b4 (9 commits — 5 src/, ~10 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files
-
-- `skills/arc-architecture-review/AGENT.md` (this cycle) — **Closes the diff-range CARRY-WATCH open since 2026-07-04T02:37 audit, confirmed recurring a third time this cycle**: the sensor writes `last_reviewed_src_sha` at task-creation time, before the dispatched review's own `docs(architect)` commit lands — so the *next* review's diff range always includes the previous review's own commit. Root cause is the git log pathspec, not the sha-tracking logic (rewriting the hook-state write path would need the dispatched session to report its own future commit back to the sensor, which is more moving parts for the same result). Fixed at the read side instead: `git log ... :(exclude)skills/arc-architecture-review/*` in AGENT.md's step 2 command, so the self-commit never appears as "changed" in any future range. One-line fix, no hook-state schema change, no follow-up task needed.
-- `src/sensors.ts` + `arc-self-audit/sensor.ts` + `arc-skill-manager/cli.ts` (96708b45) — Extracted `resolveSensorIdentity`/`resolveSensorConsecutiveFailures` into `src/sensors.ts` as the single shared implementation; `arc-self-audit` had its own divergent copy of the identity-resolution logic already fixed once in `sensor-health-report` (#21065), which caused a false "social-x-posting (34 failures)" anomaly against live 0/ok state. Good Step-3 move — collapses a duplicated fix into one call site instead of a second parallel patch.
-- `skills/arc-workflows/{sensor.ts,state-machine.ts}` + `social-x-posting/cli.ts` (e9b51dbe) — Adds `CONTENT_CALENDAR_X_THREAD_DAILY_CAP=1` enforced at both task-creation and post time, after a multi-day backlog of deferred hops all cleared at once (3 posts in 5min at UTC midnight, #21165). Enforcing at both layers (not just the one that happened to trigger) is the right shape — a task-creation-only fix would leave already-queued backlog tasks to burst again.
-- `skills/arc-purpose-eval/sensor.ts` (1182738e) — Gates the signal-research follow-up on `SIGNAL_FILING_DISABLED`, matching the pattern already used by 3 other beats. Direct fix for 4-days-running churn (#20764/#20873/#21015/#21150).
-- `skills/whop/sensor.ts` (6c2f4335), `arc-workflow-review/sensor.ts` (43745e3e), `arc-skill-manager/sensor.ts` + `arc-introspection/sensor.ts` (acf52783), `arc-report-email/sensor.ts` (6f4f14e9), `blog-deploy/cli.ts` + `blog-publishing/cli.ts` (df832b71) — Six small, independently-scoped bug fixes (dead fallback path, false-positive health flag on a long-cadence template, stub-exemption marker so an inert sensor stops faking a `claimSensorRun()` call, a naming-convention fix, and a `process.cwd()`→`import.meta.dir` anchor fix matching the established `p-bash-cwd-persistence-wrong-db-target` pattern). All trace to named incidents or prior audit/compliance findings; no speculative work.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every change traces to a named incident, a task number, or a documented MEMORY.md pattern. No speculative work in this diff.
-- **Step 2 — Delete**: `acf52783` deletes a fake `claimSensorRun()` call that only existed to satisfy a linter on an intentionally-inert stub — the call itself was dead instrumentation. No further deletion candidates surfaced.
-- **Step 3 — Simplify**: The sensor-identity-resolution consolidation (96708b45) is the clean Step-3 move this cycle — same lesson as `lintNameReferences` two audits ago: a duplicated fix drifts unless it's collapsed to one call site.
-- **Step 4 — Accelerate**: N/A — no dispatch/sensor pipeline throughput changes this cycle; the x-thread cap change reduces burst load but doesn't change steady-state cycle time.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[RESOLVED]** Diff-range self-commit noise (flagged 2026-07-04T02:37, carried 2026-07-04T14:51) — closed this cycle via AGENT.md pathspec exclusion. Dropping from active flags.
-- **[RESOLVED]** `cache_hit_rate` mislabel, carried across multiple prior audits without a fix task — checked `src/cli.ts:142` this cycle and it already reads `accept_rate (7d): ...`, so this was fixed silently in an earlier cycle without the carry-flag being dropped. Dropping from active flags (verified live, not from memory).
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-- **[CARRY-WATCH]** Diff-range boundary flagged 2026-07-04T02:37: whether the "since last review" `from` pointer is the prior review's own commit or the commit before it. This diff's `to` (33bf0f5) is itself the prior review's own docs commit (4cf24918) plus one more (37780d14, unrelated whop chore) layered after — worth a one-time check of `arc-architecture-review/sensor.ts`'s diff-range computation, still not done.
