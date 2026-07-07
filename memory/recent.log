@@ -506,3 +506,4 @@ The task to add du
 2026-07-07T21:14:21.441Z | task #21627 | completed | haiku | Retrospective: extract learnings from task #21626 — Daily se | Extracted duplicate-escalation FP prevention pattern — updated p-false-positive-
 2026-07-07T21:14:39.271Z | task #21623 | completed | haiku | daily cost report — 2026-07-07 | Daily cost report reviewed: 6.34 code / 4.01 API across 120 tasks. Memory consol
 2026-07-07T21:40:50.502Z | task #21628 | completed | haiku | New release: anthropics/claude-code v2.1.203 | Triage: Relevant. MCP roots/list expansion + macOS background session stalling f
+2026-07-07T21:42:31.105Z | task #21629 | completed | sonnet | Claude Code v2.1.203 deep analysis — MCP roots/list, backgro | v2.1.203 is mostly background-agent/macOS/UI hardening; Arc runs headless on Lin
