@@ -515,3 +515,5 @@ The task to add du
 2026-07-07T03:27:28.158Z | task #21529 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | arc-skill-manager domain queue was empty of real work (25 completions were mostl
 2026-07-07T03:27:53.634Z | task #21530 | completed | haiku | Fetch and compile arXiv digest — 2026-07-07 (30 new papers) | Digest compiled: 50 papers reviewed, 16 relevant. SovereignPA-Bench (user-owned 
 2026-07-07T03:32:39.808Z | task #21531 | completed | sonnet | Consolidate memory/patterns.md (180 lines, exceeds 150-line  | Pass 1 (merge/dedupe) done: 11 overlapping pattern pairs merged, 180->169 lines,
+2026-07-07T03:36:52.531Z | task #21535 | completed | sonnet | Consolidate patterns.md pass 2: tighten prose (169 lines, st | Pass 2 done: tightened 3 verbose entries + merged 5 overlapping pairs (169->163 
+2026-07-07T03:40:49.511Z | task #21535 | completed | sonnet | Consolidate patterns.md pass 2: tighten prose (169 lines, st | Tightened prose on ~14 verbose patterns.md entries into compound-statement struc
