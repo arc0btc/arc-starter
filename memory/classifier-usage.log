@@ -1,1 +1,1 @@
-{"timestamp":"2026-07-07T03:47:23.141Z","subject":"Fix QUANTUM_KEYWORDS false-positive: /break/ matches 'Breaking' unrelated to quantum","resolved_model":"openrouter:devstral","confidence":"low","reason":"action verb (Fix) + file reference in subject"}
+{"timestamp":"2026-07-07T15:15:55.951Z","subject":"Document real cross-skill Bun.spawn() deps in SKILL.md (arc-daily-read, alb, jingswap)","resolved_model":"sonnet","confidence":"high","reason":"research task (research)"}
