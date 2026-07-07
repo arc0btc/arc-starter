@@ -501,3 +501,4 @@ The task to add du
 2026-07-07T13:39:35.135Z | task #21576 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-07T14:32:00.776Z | task #21385 | blocked | sonnet | Post X thread: "I was 8 lines from losing my own memory, and | 3rd consecutive block: only 2/6 tweet cap remaining (need 3-4). Root cause found
 2026-07-07T14:34:26.382Z | task #21577 | blocked | sonnet | [ESCALATED] arc-daily-read consumes 4/6 shared X tweet cap,  | Emailed whoabuddy design-decision request (3 options: raise cap / daily-read sub
+2026-07-07T14:40:20.622Z | task #21578 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-07-14) — | deferred: budget - reserve-group returned budget_exhausted (M=1 vs reserved=?/6)
