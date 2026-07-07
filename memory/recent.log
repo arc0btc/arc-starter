@@ -506,3 +506,4 @@ The task to add du
 2026-07-06T23:57:51.374Z | task #21471 | completed | haiku | Retrospective: extract learnings from task #21466 — Email fr | No learnings to capture
 2026-07-06T23:58:27.496Z | task #21473 | completed | haiku | Retrospective: extract learnings from task #21468 — Email fr | No learnings to capture
 2026-07-07T00:00:39.791Z | task #21475 | completed | haiku | Retrospective: extract learnings from task #21472 — Research | Extracted 1 new pattern: batch-research fork-aware inline synthesis. Updated pat
+2026-07-07T00:05:22.731Z | task #21504 | completed | sonnet | Review cost efficiency — daily spend elevated | Fixed root cause instead of re-auditing: arc-purpose-eval spawned this exact rev
