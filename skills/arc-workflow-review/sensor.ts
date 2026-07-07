@@ -83,6 +83,13 @@ const KNOWN_PATTERNS = new Set([
   // this is the machine working as intended (task #21317). Bare entry so any suffixed
   // variant (e.g. ":thread") is covered via prefix matching.
   "sensor:arc-email-sync",
+  // Ad-hoc "Generate <category> blog post draft" -> "Publish generated blog post" ->
+  // retrospective chain. Evaluated 2026-07-04 (task #20645 addendum) as the ":draft"
+  // suffix variant and rejected (deliberately bounded, self-dedup'd 2-task chain, too
+  // small for a state machine). Recurring 2026-07-07 (task #21516) under the
+  // ":content-generation" suffix — same underlying sensor (skills/blog-publishing/
+  // sensor.ts), same verdict. Bare entry so future suffix variants are covered too.
+  "sensor:blog-publishing",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -137,6 +144,10 @@ const KNOWN_SUBJECT_PREFIXES = [
   // ad-hoc "Retrospective: extract learnings" chain — same already-rejected shape as
   // retrospective-pattern-no-generic-machine-needed.md, not new (task #21390).
   "seed whop chat",
+  // "Review PR #N on aibtcdev/agent-news: <title>" -> retrospective, avg 2.0 steps,
+  // single skill pair (aibtc-repo-maintenance + arc-skill-manager) — same already-rejected
+  // ad-hoc retrospective shape, just a per-repo PR review variant (task #21516).
+  "review pr #",
 ];
 
 function normalizeSource(source: string | null): string {
