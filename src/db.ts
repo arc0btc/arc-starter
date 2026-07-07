@@ -1136,6 +1136,25 @@ export function countRecentFailuresForSubject(subject: string, days: number = 7)
   return row?.count ?? 0;
 }
 
+/**
+ * Cooldown helper for recurring follow-up generators (e.g. arc-purpose-eval): count tasks
+ * with the same subject that reached a terminal state within the last `days` days. Used to
+ * avoid re-spawning an identical review/audit task every cycle a metric stays low, when a
+ * prior run already reached and recorded a conclusion.
+ */
+export function countRecentTasksBySubject(subject: string, days: number = 7): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE subject = ?
+         AND status IN ('completed', 'failed', 'blocked')
+         AND completed_at >= datetime('now', '-' || ? || ' days')`
+    )
+    .get(subject, days) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
 export function markTaskFailed(id: number, summary: string, detail?: string, quality?: number): void {
   const db = getDatabase();
   db.query(

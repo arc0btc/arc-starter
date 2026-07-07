@@ -14,6 +14,7 @@ import {
   writeHookState,
 } from "../../src/sensors.ts";
 import {
+  countRecentTasksBySubject,
   getDatabase,
   insertTask,
   pendingTaskExistsForSource,
@@ -26,6 +27,12 @@ const TASK_SOURCE = "sensor:arc-purpose-eval";
 // (policy, whoabuddy 2026-05-19, task #17094). Signal filing is categorically impossible while true —
 // don't spawn a "go research signals" follow-up for a capability that can't act on its findings.
 const SIGNAL_FILING_DISABLED = true;
+// Cost score stays at/near the floor under normal legitimate operation (baseline daily spend
+// runs $100-160/day, well above the PURPOSE.md $70/day "5-point" threshold) — without a cooldown
+// this follow-up re-fires every 12h sensor cycle even the day after a review already concluded
+// "root lever unchanged, no new action" (see task #21309 -> #21504, same-day duplicate audit).
+const COST_REVIEW_SUBJECT = "Review cost efficiency — daily spend elevated";
+const COST_REVIEW_COOLDOWN_DAYS = 2;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -500,10 +507,15 @@ function generateFollowUps(
     });
   }
 
-  // High cost → cost optimization review
-  if (scores.cost <= 1 && metrics.costPerDay > 70) {
+  // High cost → cost optimization review (cooldown-gated: don't re-spawn an identical
+  // audit while a prior one is still fresh — see COST_REVIEW_COOLDOWN_DAYS above)
+  if (
+    scores.cost <= 1 &&
+    metrics.costPerDay > 70 &&
+    countRecentTasksBySubject(COST_REVIEW_SUBJECT, COST_REVIEW_COOLDOWN_DAYS) === 0
+  ) {
     followUps.push({
-      subject: "Review cost efficiency — daily spend elevated",
+      subject: COST_REVIEW_SUBJECT,
       skills: '["arc-cost-reporting"]',
       priority: 5,
       model: "sonnet",
