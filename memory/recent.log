@@ -509,3 +509,4 @@ The task to add du
 2026-07-07T14:51:59.659Z | task #21584 | completed | sonnet | social-x-posting: migrate publish-fanout:*:x blog-fanout cal | publish-fanout (blog→X hop) migrated onto reserve-group in its own lane, same pa
 2026-07-07T14:53:34.176Z | task #21581 | completed | haiku | Retrospective: extract learnings from task #21579 — workflow | Updated p-cross-path-guard-completeness with validation from task #21579 — multi
 2026-07-07T14:55:17.688Z | task #21583 | completed | haiku | Retrospective: extract learnings from task #21580 — architec | Captured audit-follow-up verification in p-architecture-review-discipline
+2026-07-07T14:56:01.236Z | task #21586 | completed | haiku | Retrospective: extract learnings from task #21582 — architec | Updated p-audit-discipline with lesson on enumeration vs assumed-complete caller
