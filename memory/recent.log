@@ -520,3 +520,4 @@ The task to add du
 2026-07-07T15:15:49.601Z | task #21595 | completed | sonnet | Scope-check inter-skill Bun.spawn() calls — should cli.ts sh | No enforcement needed: actual cross-skill spawn is 4 files (arc-daily-read->link
 2026-07-07T15:16:46.282Z | task #21592 | completed | haiku | Retrospective: extract learnings from task #21589 — Review 1 | Captured p-false-positive-prevention category 8: review-cycle FP churn preventio
 2026-07-07T15:18:30.171Z | task #21596 | completed | haiku | Retrospective: extract learnings from task #21594 — Thread w | Extracted 2 reusable patterns from #21594 whop forum teardown: inter-skill spawn
+2026-07-07T15:19:13.040Z | task #21597 | completed | sonnet | Document real cross-skill Bun.spawn() deps in SKILL.md (arc- | Added 'Composes with' one-liners to arc-daily-read, alb, jingswap SKILL.md docum
