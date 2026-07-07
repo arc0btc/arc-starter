@@ -1,1 +1,1 @@
-{"timestamp":"2026-07-06T23:06:05.225Z","subject":"Widen mentions sensor cadence 20min→30min (X budget rec #4, whoabuddy OK)","resolved_model":"opus","confidence":"low","reason":"infrastructure task (sensor) — consider opus if complex"}
+{"timestamp":"2026-07-07T03:47:23.141Z","subject":"Fix QUANTUM_KEYWORDS false-positive: /break/ matches 'Breaking' unrelated to quantum","resolved_model":"openrouter:devstral","confidence":"low","reason":"action verb (Fix) + file reference in subject"}
