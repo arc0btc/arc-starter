@@ -20,8 +20,15 @@ tends to fire before lower-priority content-calendar hops in the queue.
 
 **Escalated:** #21577, filed 2026-07-07, proposing (a) raise cap, (b) sub-cap
 reservation for arc-daily-read, or (c) reorder so content-calendar claims first and
-daily-read backs off under tight cap. Awaiting whoabuddy design call — don't
-auto-fix in dispatch, it's a cross-cadence tradeoff.
+daily-read backs off under tight cap. Emailed whoabuddy 2026-07-07 with the 3 options;
+task closed `blocked` pending sign-off — don't auto-fix in dispatch, it's a
+cross-cadence tradeoff.
+
+**Not the same bug as the 2026-07-06 fix (commit bb9516e2):** that fix blocks
+OTHER lanes from posting before arc-daily-read's 13:00-14:00 UTC window resolves,
+protecting daily-read FROM being crowded out. It does nothing for the reverse
+direction — once daily-read posts, it still consumes 4/6 with nothing reserved
+for content-calendar. Both problems are real and need separate design fixes.
 
 **Pattern for future blocked-cap tasks:** if the same subject blocks on tweet-cap
 insufficiency 3+ times, stop retrying blind — check `arc skills run --name
