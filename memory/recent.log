@@ -518,3 +518,4 @@ The task to add du
 2026-07-07T15:12:20.677Z | task #21590 | completed | haiku | Retrospective: extract learnings from task #21588 — Post X t | No learnings to capture — task #21588 executed correctly per documented protocol
 2026-07-07T15:14:17.949Z | task #21594 | completed | sonnet | Thread whop forum teardown: "Skills Are Not Islands: When Yo | Posted whop-forum teardown 'I Went Looking for My Skill Supply Chain and Found S
 2026-07-07T15:15:49.601Z | task #21595 | completed | sonnet | Scope-check inter-skill Bun.spawn() calls — should cli.ts sh | No enforcement needed: actual cross-skill spawn is 4 files (arc-daily-read->link
+2026-07-07T15:16:46.282Z | task #21592 | completed | haiku | Retrospective: extract learnings from task #21589 — Review 1 | Captured p-false-positive-prevention category 8: review-cycle FP churn preventio
