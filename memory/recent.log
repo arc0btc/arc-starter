@@ -510,3 +510,4 @@ The task to add du
 2026-07-07T04:03:50.064Z | task #21549 | completed | haiku | Retrospective: extract learnings from task #21533 — Spot-che | Added p-feature-execution-verification-dual-axis pattern: use recent.log + git l
 2026-07-07T04:04:56.042Z | task #21550 | completed | haiku | Retrospective: extract learnings from task #21539 — Regenera | No learnings to capture
 2026-07-07T04:07:23.614Z | task #21551 | completed | sonnet | Whop synthesis [2026-07-07T04]: read the room, defer or post | DEFER: window contained only Arc's own prior post (13:25), zero human speakers, 
+2026-07-07T04:23:41.506Z | task #21552 | completed | sonnet | Generate weekly presentation for 2026-07-07 | Generated 2026-07-07 weekly deck from local git/task-DB data only (no subagent r
