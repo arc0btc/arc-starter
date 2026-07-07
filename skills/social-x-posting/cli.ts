@@ -859,7 +859,11 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   // sensor:x-cadence: (this skill's own cadence beat) migrated onto reserve-group —
   // the last two legacy cmdPost callers. Same fail-closed principle as content-calendar/
   // daily-read: no silent fallthrough for ANY known managed-lane source shape.
-  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read|quest:gtm|sensor:x-cadence):/;
+  // Widened again 2026-07-07 (task #21584): publish-fanout: (blog→X hop,
+  // PublishFanoutMachine's blog_published/x_pending states) was the LAST unmigrated
+  // legacy cmdPost caller — now reserves via reserve-group before posting, same as
+  // every other managed lane.
+  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read|quest:gtm|sensor:x-cadence|publish-fanout):/;
   if (flags["source"] && MANAGED_LANE_SOURCE_PREFIX.test(flags["source"])) {
     log(`REFUSING legacy fallthrough: source=${flags["source"]} matches a managed-lane prefix but has no reserve-group admission (outbound_action row) — this lane MUST reserve before posting. Not falling through to the ungated legacy path.`);
     console.log(JSON.stringify({
@@ -1137,13 +1141,17 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   // trailing ":") is distinct from the LANE VALUE stored in budget_ledger/outbound_action
   // — quest:gtm:* and sensor:x-cadence:* have multi-segment prefixes but map to single-
   // token lane names (task #21524, migrating whop-sales GTM + x-cadence off legacy cmdPost).
-  // earliest/latest are optional: quest-gtm and x-cadence have no fixed posting window
-  // (unlike content-calendar/daily-read) — undefined means anytime, same as legacy behavior.
+  // earliest/latest are optional: quest-gtm, x-cadence, and publish-fanout have no fixed
+  // posting window (unlike content-calendar/daily-read) — undefined means anytime, same
+  // as legacy behavior.
   const MANAGED_LANES: Array<{ prefix: string; lane: string; earliest?: string; latest?: string }> = [
     { prefix: "content-calendar", lane: "content-calendar", earliest: "15:00", latest: "18:00" },
     { prefix: "daily-read", lane: "daily-read", earliest: "13:00", latest: "14:00" },
     { prefix: "quest:gtm", lane: "quest-gtm" },
     { prefix: "sensor:x-cadence", lane: "x-cadence" },
+    // task #21584: blog→X hop (PublishFanoutMachine) — fires at most once per blog
+    // publish, no fixed time-of-day window.
+    { prefix: "publish-fanout", lane: "publish-fanout" },
   ];
   const matchedEntries = new Set(
     sourceKeys.map((s) => MANAGED_LANES.find((m) => s.startsWith(`${m.prefix}:`)) ?? null),

@@ -306,7 +306,10 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Reserve this single-tweet action in the publish-fanout lane BEFORE posting — this is a managed lane, cmdPost refuses to fall through to the legacy guard stack without a prior reservation:
+   arc skills run --name social-x-posting -- reserve-group --sources publish-fanout:${ctx.slug}:x --thread-ref publish-fanout:${ctx.slug}:x
+   If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close this task as failed with that reason in the summary (source-dedup prevents re-fire; a future blog post gets its own fresh key).
+4. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
           };
         }
 
@@ -372,7 +375,10 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Reserve this single-tweet action in the publish-fanout lane BEFORE posting — this is a managed lane, cmdPost refuses to fall through to the legacy guard stack without a prior reservation:
+   arc skills run --name social-x-posting -- reserve-group --sources publish-fanout:${ctx.slug}:x --thread-ref publish-fanout:${ctx.slug}:x
+   If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close this task as failed with that reason in the summary (source-dedup prevents re-fire; a future blog post gets its own fresh key).
+4. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
         };
       },
     },
