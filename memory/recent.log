@@ -503,3 +503,4 @@ The task to add du
 2026-07-07T14:34:26.382Z | task #21577 | blocked | sonnet | [ESCALATED] arc-daily-read consumes 4/6 shared X tweet cap,  | Emailed whoabuddy design-decision request (3 options: raise cap / daily-read sub
 2026-07-07T14:40:20.622Z | task #21578 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-07-14) — | deferred: budget - reserve-group returned budget_exhausted (M=1 vs reserved=?/6)
 2026-07-07T14:46:32.377Z | task #21579 | completed | sonnet | workflow review — 4 new pattern(s) | All 4 'patterns' were false positives, not new workflow candidates: same ad-hoc 
+2026-07-07T14:48:52.977Z | task #21580 | completed | sonnet | architecture review — codebase changed since last review (64 | Diff 64f3092..6156824: 6 clean commits, all traced to named tasks. Legacy cmdPos
