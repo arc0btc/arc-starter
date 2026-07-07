@@ -506,3 +506,4 @@ The task to add du
 2026-07-07T14:48:52.977Z | task #21580 | completed | sonnet | architecture review — codebase changed since last review (64 | Diff 64f3092..6156824: 6 clean commits, all traced to named tasks. Legacy cmdPos
 2026-07-07T14:49:41.709Z | task #21582 | completed | sonnet | architect: assess whether cmdPost's legacy (non-reserve-grou | Legacy guard stack CANNOT be deleted yet — found one live unmigrated caller: arc
 2026-07-07T14:49:51.525Z | task #21585 | completed | haiku | noop | noop cleanup, created by mistake while checking update CLI
+2026-07-07T14:51:59.659Z | task #21584 | completed | sonnet | social-x-posting: migrate publish-fanout:*:x blog-fanout cal | publish-fanout (blog→X hop) migrated onto reserve-group in its own lane, same pa
