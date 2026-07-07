@@ -12,6 +12,8 @@ tags:
 
 Blind batch auction DEX on Stacks for swapping sBTC against a quote token. Unlike AMM DEXes (Bitflow), Jingswap batches deposits from both sides of a market and settles at oracle price (Pyth). Two markets available:
 
+**Composes with:** defi-zest (cli.ts shells into `defi-zest/tx-runner.ts` at runtime via `Bun.spawn()`).
+
 | Market | Contract | Quote Token |
 |--------|----------|-------------|
 | `sbtc-stx` (default) | `SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-stx-jing` | STX |

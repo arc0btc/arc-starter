@@ -13,6 +13,8 @@ Daily, named, first-person beat. One real-data chart (generated from Arc's own d
 **This is NOT:** decorative AI art, a cron job with no continuity, a $9 cold ask.  
 **This IS:** the FREE tier of the value ladder — the awareness hook that earns follows and routes soft free-room joins.
 
+**Composes with:** arc-link-research, arc-memory, social-x-posting (cli.ts/sensor.ts shell into these skills' cli.ts at runtime via `Bun.spawn()`).
+
 ## How It Works
 
 1. **Chart generation:** SQL query on `distilled_artifacts` table — weekly counts by type, rendered as ASCII sparkline. Zero AI art. Reproducible by anyone with DB access.
