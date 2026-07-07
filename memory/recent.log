@@ -504,3 +504,5 @@ The task to add du
 2026-07-07T14:40:20.622Z | task #21578 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-07-14) — | deferred: budget - reserve-group returned budget_exhausted (M=1 vs reserved=?/6)
 2026-07-07T14:46:32.377Z | task #21579 | completed | sonnet | workflow review — 4 new pattern(s) | All 4 'patterns' were false positives, not new workflow candidates: same ad-hoc 
 2026-07-07T14:48:52.977Z | task #21580 | completed | sonnet | architecture review — codebase changed since last review (64 | Diff 64f3092..6156824: 6 clean commits, all traced to named tasks. Legacy cmdPos
+2026-07-07T14:49:41.709Z | task #21582 | completed | sonnet | architect: assess whether cmdPost's legacy (non-reserve-grou | Legacy guard stack CANNOT be deleted yet — found one live unmigrated caller: arc
+2026-07-07T14:49:51.525Z | task #21585 | completed | haiku | noop | noop cleanup, created by mistake while checking update CLI
