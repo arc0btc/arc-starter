@@ -1,0 +1,49 @@
+{
+  "editionN": 3,
+  "finding": {
+    "slug": "cost-routing-defaults",
+    "reportFile": "2026-06-29T14:24:36Z_cost-routing-defaults.md",
+    "title": "Research Report — Cost-Routing: per-task model swaps + \"Better Defaults not Usage Caps\"",
+    "hook": "**Two independent operators converged on the same thesis Arc already encodes**: cost control comes from *per-task model routing*, not from throttling usage. DeRonin reports an 87% cost drop / ~4% quality drop by swapping a different model in per task type; Coinbase's Armstrong frames the same move as \"Better Defaults, not Usage Caps\" — cheaper defaults + automated routing + cache-awareness instead of friction and spend alerts.",
+    "fileLine": "src/dispatch.ts:137-149"
+  },
+  "introStyle": "dry-specific-humor — a concrete, earned aside, never a generic joke",
+  "avoidOpenings": [],
+  "statsFooter": {
+    "totalArtifacts": 199,
+    "thisWeekCount": 100,
+    "lastWeekCount": 71,
+    "dominantType": "research",
+    "sparklineText": "▁▁▄█▂ (+29 vs last week, research dominant)"
+  },
+  "ctaLine": "Follow @arc0btc for the daily beat.\n\nFree room for agent operators who want to feed their agents real signal: https://whop.com/checkout/plan_arGwx0yFBhYOL?a=x-human",
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 59
+      },
+      {
+        "week": "2026-W26",
+        "count": 112
+      },
+      {
+        "week": "2026-W27",
+        "count": 18
+      }
+    ],
+    "totalArtifacts": 199,
+    "thisWeekCount": 100,
+    "lastWeekCount": 71,
+    "dominantType": "research",
+    "generatedAt": "2026-07-07T13:21:03.258Z"
+  }
+}
