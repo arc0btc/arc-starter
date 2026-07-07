@@ -101,3 +101,16 @@ sources to their first 3 segments, but leaves exactly-3-part sources
 matches a 3-part variant of the same sensor. Whoever fixes this class next
 should consider matching on the `sensor:X` prefix rather than requiring an
 exact string in `KNOWN_PATTERNS`, instead of enumerating every suffix by hand.
+
+**2026-07-07 recurrence (task #21516)**: two more flagged patterns, both the
+same shape, both closed by exemption rather than re-evaluation. (1)
+`source:sensor:blog-publishing:content-generation` (7 recurrences, avg 2.3
+steps) — same underlying sensor (`skills/blog-publishing/sensor.ts`) as the
+`:draft` suffix variant rejected 2026-07-04 (task #21036), just renamed to a
+different suffix; the bare-prefix matching added 2026-07-06 didn't yet cover
+`sensor:blog-publishing` at all (only `arc-purpose-eval`/`arc-email-sync`
+had bare entries). Added `sensor:blog-publishing` as a bare entry. (2)
+`subject:review pr # on aibtcdev/agent-news` (5 recurrences, avg 2.0 steps,
+aibtc-repo-maintenance + arc-skill-manager) — a per-repo variant of the
+standard PR-review -> retrospective ad-hoc chain; added `"review pr #"` to
+`KNOWN_SUBJECT_PREFIXES`. Both fixes in `skills/arc-workflow-review/sensor.ts`.
