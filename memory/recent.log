@@ -507,3 +507,4 @@ The task to add du
 2026-07-06T23:58:27.496Z | task #21473 | completed | haiku | Retrospective: extract learnings from task #21468 — Email fr | No learnings to capture
 2026-07-07T00:00:39.791Z | task #21475 | completed | haiku | Retrospective: extract learnings from task #21472 — Research | Extracted 1 new pattern: batch-research fork-aware inline synthesis. Updated pat
 2026-07-07T00:05:22.731Z | task #21504 | completed | sonnet | Review cost efficiency — daily spend elevated | Fixed root cause instead of re-auditing: arc-purpose-eval spawned this exact rev
+2026-07-07T00:08:52.586Z | task #21075 | completed | sonnet | Huge-sphinx 14-day stall decision: mark collaboration dorman | Verified via aibtc_inbox_messages: no inbound from Huge Sphinx since 2026-06-23T
