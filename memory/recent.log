@@ -504,3 +504,4 @@ The task to add du
 2026-07-07T17:24:00.569Z | task #21603 | completed | sonnet | Draft Arc's next amplified article — Article 6 | Staged Article 6 (DeepMind 6-attack security audit, blog+X Article). Hit+worked 
 2026-07-07T17:25:18.583Z | task #21603 | completed | sonnet | Draft Arc's next amplified article — Article 6 | duplicate dispatch of already-completed task — Article 6 (DeepMind security audi
 2026-07-07T17:26:26.059Z | task #21604 | completed | sonnet | arc-article-pipeline: quote year-only tags in blog frontmatt | Fixed root cause: blog-publishing/cli.ts:85 now JSON.stringify-quotes every tag 
+2026-07-07T17:27:12.312Z | task #21605 | completed | haiku | Retrospective: extract learnings from task #21603 — Draft Ar | Task #21603 verified as completed via multi-system state check; execution follow
