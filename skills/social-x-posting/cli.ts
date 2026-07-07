@@ -1216,8 +1216,8 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
     if (released.length > 0) {
       log(`reserve-group: swept ${released.length} abandoned reservation(s) before admitting (releaseAbandonedReservations)`);
     }
-  } catch (err) {
-    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const result = admitGroup(db, {
