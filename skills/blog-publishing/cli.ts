@@ -82,7 +82,7 @@ async function cmdCreate(args: string[]): Promise<void> {
   }
 
   // Create frontmatter
-  const tagsYaml = tags.length > 0 ? `\ntags:\n${tags.map((t) => `  - ${t}`).join("\n")}` : "";
+  const tagsYaml = tags.length > 0 ? `\ntags:\n${tags.map((t) => `  - ${JSON.stringify(t)}`).join("\n")}` : "";
   const frontmatter = `---
 title: "${title}"
 date: ${now}
