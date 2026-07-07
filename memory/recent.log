@@ -1,29 +1,3 @@
-2026-07-04T00:15:29.482Z | task #21023 | completed | haiku | Retrospective: extract learnings from task #20989 — Finish X | Added p-variable-scope-conditional-guard: conditional guards cause mis-scoped va
-2026-07-04T00:19:17.819Z | task #21025 | completed | sonnet | Daily failure retrospective: 3 failed task(s) | 3 failed tasks (20988/20858/20889), all fully explained by existing memory patte
-2026-07-04T00:27:06.216Z | task #21026 | completed | haiku | New release: anthropics/claude-code v2.1.201 | Sonnet 5 harness-reminder removal is relevant to Arc dispatch context injection 
-2026-07-04T00:28:55.991Z | task #21027 | completed | sonnet | Phase 2: Claude Code v2.1.201 — Sonnet 5 system role change | v2.1.201 is a single-line changelog (Sonnet 5 no longer uses mid-conversation sy
-2026-07-04T00:29:25.306Z | task #21028 | completed | haiku | Retrospective: extract learnings from task #21027 — Phase 2: | Extended p-release-assessment-consumption-gate: harness-internal/transport chang
-2026-07-04T01:07:05.225Z | task #21029 | completed | sonnet | Watch report — 2026-07-04T01:02Z | Watch report: 95 tasks completed, 2 failed (X tweet-cap exhaustion, recurring), 
-2026-07-04T01:07:36.491Z | task #21032 | completed | sonnet | Fix commit failure from task #21029 | arc-attribution/SKILL.md was missing --- frontmatter entirely; added name/descri
-2026-07-04T01:08:12.607Z | task #21030 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-04T01:10:25.565Z | task #21031 | completed | haiku | Retrospective: extract learnings from task #21029 — Watch re | Recurring identical error signature added as diagnostic pattern: code defect ind
-2026-07-04T01:11:30.587Z | task #21033 | completed | sonnet | Fix syntax errors from task #21031 | Root cause: task #21031 moved follower-cache.ts skills/arc-attribution/lib -> sr
-2026-07-04T01:12:14.998Z | task #21034 | completed | haiku | Retrospective: extract learnings from task #21033 — Fix synt | Captured file-move git-staging pattern in patterns.md — incomplete staging cause
-2026-07-04T02:39:37.879Z | task #21035 | completed | sonnet | architecture review — codebase changed since last review (81 | Audit: dispatch-lock PID-reuse TTL fix, classifier recall broaden, whop-sales de
-2026-07-04T02:40:46.748Z | task #21039 | completed | sonnet | arc-budget: surface real shared 6/day X post cap, not root-o | Fixed: arc budget CLI now surfaces daily_tweet_cap (6/day, shared root+continuat
-2026-07-04T02:42:41.351Z | task #21037 | completed | sonnet | compliance-review: 15 finding(s) [batch 1/2] | Fixed all 15 batch-1 findings: renamed CADENCE_MINUTES->INTERVAL_MINUTES in arc-
-2026-07-04T02:43:50.578Z | task #21042 | completed | sonnet | CEO review — 2026-07-04T02:37 | CEO review: needs adjustment on cost (4th day >$0.65/task) though real shipping 
-2026-07-04T02:44:12.223Z | task #21038 | completed | sonnet | compliance-review: 1 finding(s) [batch 2/2] | Fixed abbreviated param 'str' -> 'inputText' in social-x-posting/cli.ts:489 (une
-2026-07-04T02:47:54.335Z | task #21036 | completed | sonnet | workflow review — 2 health issue(s), 3 new pattern(s) | Both health issues were false positives from PASSIVE_WAITING_STATES being keyed 
-2026-07-04T02:48:43.769Z | task #21040 | completed | haiku | Retrospective: extract learnings from task #21035 — architec | Extracted 1 pattern: p-recurring-manual-check-to-lint — when manual reviewer vig
-2026-07-04T02:49:45.146Z | task #21041 | completed | haiku | Retrospective: extract learnings from task #21039 — arc-budg | Extended p-rate-limit-budget-discipline to capture CLI-surface requirement for m
-2026-07-04T02:51:11.686Z | task #21043 | completed | haiku | Retrospective: extract learnings from task #21037 — complian | Extracted 1 reusable pattern: convention-naming-standardization (when same conce
-2026-07-04T02:52:12.431Z | task #21044 | completed | haiku | Retrospective: extract learnings from task #21042 — CEO revi | Pattern captured: memory flag without task coupling causes recurring bugs to mas
-2026-07-04T02:52:48.172Z | task #21045 | completed | haiku | Retrospective: extract learnings from task #21036 — workflow | Captured 1 new pattern: exclusion-set key composition must include context (temp
-2026-07-04T02:56:10.677Z | task #21046 | completed | sonnet | Email watch report to whoabuddy — 2026-07-04T02:37 | Watch report emailed to whoabuddy via arc-email-sync CLI (not 'email' skill name
-2026-07-04T02:57:14.907Z | task #21047 | completed | haiku | Retrospective: extract learnings from task #21046 — Email wa | Extended p-skill-name-validation to cover template-embedded commands; validated 
-2026-07-04T03:06:40.624Z | task #21048 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-04T03:12:24.677Z | task #21049 | completed | sonnet | self-review: run health check for 2026-07-04 | Self-review 2026-07-04: clean, no new issues. Services healthy, recent.log thres
 2026-07-04T03:18:36.404Z | task #21050 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Fixed watch-report-emailing template skill-name bug (state-machine.ts:3313, comm
 2026-07-04T03:23:26.539Z | task #21051 | completed | sonnet | Consolidate memory/patterns.md — 170 lines, over 150-line th | patterns.md consolidation already done uncommitted in working tree from prior cy
 2026-07-04T03:24:30.341Z | task #21052 | completed | sonnet | Follow up on introspection-daily-eval-overlap: check for dup | Confirmed both sensors fire on identical 720min/24h-window schedule (same source
@@ -524,3 +498,5 @@ The task to add du
 2026-07-07T03:51:03.337Z | task #21547 | completed | sonnet | Distill watch report 2026-07-07T010408Z into 1-2 interior ob | Wrote 2 nuggets (cost, failure-cluster) from 2026-07-07T010408Z watch report: $1
 2026-07-07T03:51:51.029Z | task #21545 | completed | openrouter:mistralai/devstral-2512 | Fix QUANTUM_KEYWORDS false-positive: /break/ matches 'Breaki | Fixed QUANTUM_KEYWORDS false-positive by updating regex pattern to require crypt
 2026-07-07T03:53:33.594Z | task #21533 | completed | sonnet | Spot-check the 14 skills that got disallowed-tools added (20 | No dispatch errors found for the 14 disallowed-tools skills since 2026-07-05 aud
+2026-07-07T03:53:59.691Z | task #21537 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-07T03:56:10.824Z | task #21539 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed scoped to catalog files 
