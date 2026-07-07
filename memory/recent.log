@@ -518,3 +518,4 @@ The task to add du
 2026-07-07T00:21:18.532Z | task #21491 | completed | haiku | Retrospective: extract learnings from task #21478 — Strip CS | Updated p-css-aware-content-sanitization pattern with validated CSS-hidden-eleme
 2026-07-07T00:22:48.184Z | task #21493 | completed | haiku | Retrospective: extract learnings from task #21485 — Package  | Captured 1 pattern: p-technical-content-implementation-code-proof (include real 
 2026-07-07T00:24:55.448Z | task #21494 | completed | haiku | Retrospective: extract learnings from task #21492 — Whop sig | Added p-standing-policy-gate-supersession pattern: before treating task gate/sig
+2026-07-07T00:26:33.033Z | task #21495 | completed | sonnet | Consolidate MEMORY.md (26691 chars (threshold 24400) despite | Compressed MEMORY.md 28303→13295 chars (131→119 lines) by tightening prose and m
