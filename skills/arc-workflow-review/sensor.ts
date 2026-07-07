@@ -90,6 +90,11 @@ const KNOWN_PATTERNS = new Set([
   // ":content-generation" suffix — same underlying sensor (skills/blog-publishing/
   // sensor.ts), same verdict. Bare entry so future suffix variants are covered too.
   "sensor:blog-publishing",
+  // Ad-hoc "Watch report — <timestamp>" -> retrospective chain (task #21579), avg 2.4
+  // steps, skills arc-reporting + arc-skill-manager — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md. Bare entry
+  // so ":interior-<timestamp>" and other suffix variants are covered too.
+  "sensor:arc-reporting-watch",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -148,6 +153,11 @@ const KNOWN_SUBJECT_PREFIXES = [
   // single skill pair (aibtc-repo-maintenance + arc-skill-manager) — same already-rejected
   // ad-hoc retrospective shape, just a per-repo PR review variant (task #21516).
   "review pr #",
+  // "Email watch report to whoabuddy" -> retrospective chain (task #21579), avg 2.0 steps,
+  // arc-email-sync + arc-skill-manager. Source is "workflow:<id>:emailing" (unique per
+  // instance, so it never dedups via source-grouping) — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "email watch report to whoabuddy",
 ];
 
 function normalizeSource(source: string | null): string {
@@ -310,6 +320,7 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     if (group.length < MIN_RECURRENCES) continue;
     const src = normalizeSource(group[0].rootSource);
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
+    if (isKnownPattern(src)) continue;
     if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
 
     const avgSteps =

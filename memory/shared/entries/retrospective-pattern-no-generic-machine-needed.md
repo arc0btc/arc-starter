@@ -114,3 +114,31 @@ had bare entries). Added `sensor:blog-publishing` as a bare entry. (2)
 aibtc-repo-maintenance + arc-skill-manager) — a per-repo variant of the
 standard PR-review -> retrospective ad-hoc chain; added `"review pr #"` to
 `KNOWN_SUBJECT_PREFIXES`. Both fixes in `skills/arc-workflow-review/sensor.ts`.
+
+**2026-07-07 recurrence (task #21579) — actual root-cause fix, not another exemption**:
+four flagged patterns. (1) `source:sensor:arc-reporting-watch` (10 recurrences,
+avg 2.4 steps, arc-reporting + arc-skill-manager) — same ad-hoc `Watch report
+-> retrospective` shape; added as a bare `KNOWN_PATTERNS` entry. (2)
+`subject:email watch report to whoabuddy` (11 recurrences, avg 2.0 steps,
+arc-email-sync + arc-skill-manager) — source is `workflow:<id>:emailing`
+(unique per instance, never dedups via `bySource`), same shape as the
+`fix arc0btc.com health issue`/`self-review` cases from 2026-07-05; added to
+`KNOWN_SUBJECT_PREFIXES`. (3)+(4) `subject:review and finalize draft` (5
+recurrences) and `subject:generate research blog post draft` (3 recurrences)
+— **both already bare-exempted** via `sensor:blog-publishing` (added
+2026-07-07 in the prior recurrence) but still surfaced, because the `bySubject`
+loop in `detectPatterns()` never called `isKnownPattern(src)` — it only
+skipped a subject group if that *exact* source string had already produced a
+pattern *this run* (`patterns.some(p => p.key === source:${src})`), which
+doesn't consult the historical exemption list at all. This is the structural
+gap flagged-but-not-fixed in the 2026-07-06 entry above ("normalizeSource...
+leaves exactly-3-part sources untouched") wearing a different hat: prefix
+matching existed and worked fine for `bySource`, but `bySubject` had its own,
+separate, incomplete gate. Fixed by adding `if (isKnownPattern(src)) continue;`
+to the `bySubject` loop (`skills/arc-workflow-review/sensor.ts`) — this closes
+the whole class, not just these two subjects. Any future subject-grouped
+pattern whose root source is already in `KNOWN_PATTERNS` is now caught
+automatically instead of needing its own hand-added `KNOWN_SUBJECT_PREFIXES`
+entry. Lesson: when a detector has two independent grouping passes (by source,
+by subject), an exemption list needs to be consulted by both — check the code
+path, not just "does this string appear in the exemption list somewhere."
