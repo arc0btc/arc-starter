@@ -520,3 +520,4 @@ The task to add du
 2026-07-07T00:24:55.448Z | task #21494 | completed | haiku | Retrospective: extract learnings from task #21492 — Whop sig | Added p-standing-policy-gate-supersession pattern: before treating task gate/sig
 2026-07-07T00:26:33.033Z | task #21495 | completed | sonnet | Consolidate MEMORY.md (26691 chars (threshold 24400) despite | Compressed MEMORY.md 28303→13295 chars (131→119 lines) by tightening prose and m
 2026-07-07T00:27:00.717Z | task #21497 | completed | haiku | Retrospective: extract learnings from task #21479 — Log/audi | Added p-staged-audit-visibility-before-gating pattern — visibility-first approac
+2026-07-07T00:28:43.896Z | task #21498 | completed | haiku | Retrospective: extract learnings from task #21480 — Tag rece | Added p-consolidation-untrusted-source-gates pattern: consolidation procedure ga
