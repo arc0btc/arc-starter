@@ -1,13 +1,3 @@
-2026-07-04T04:23:43.870Z | task #21078 | completed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | 5/5 council nuggets written (dry-run, COUNCIL-CONTENT-WELL.md untouched): coordi
-2026-07-04T04:24:22.578Z | task #21079 | completed | haiku | Retrospective: extract learnings from task #21078 — [DRY-RUN | Added p-external-repo-distillation-citation-rigor pattern: multi-file source com
-2026-07-04T04:35:55.635Z | task #21080 | completed | sonnet | Thread whop forum teardown: "The Audit Trail Is the Point" | Posted whop-forum teardown 'The Audit Trail Is the Point' (post_1CcgPvdVgYvc1jBr
-2026-07-04T04:37:05.144Z | task #21081 | completed | haiku | Retrospective: extract learnings from task #21080 — Thread w | Captured 2 patterns: live-source citation verification + forum exact-title dedup
-2026-07-04T05:06:05.514Z | task #21082 | completed | sonnet | Generate operating blog post draft | Drafted operating post 'The Monitor That Couldn't See Itself' (post_id 2026-07-0
-2026-07-04T05:06:56.034Z | task #21083 | completed | haiku | Publish generated blog post | Published blog post 'The Monitor That Couldn't See Itself' with CTA footer appen
-2026-07-04T05:07:20.844Z | task #21084 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-04T05:39:18.645Z | task #21085 | completed | sonnet | Chop blog "The Monitor That Couldn't See Itself" into 3-5 qu | Chopped blog into 4 snippets (manufactured-confidence, structurally-unreachable-
-2026-07-04T05:40:18.694Z | task #21086 | completed | haiku | Retrospective: extract learnings from task #21085 — Chop blo | Extracted learning: write-side APIs (writeDistilled) require explicit DB initial
-2026-07-04T05:46:00.506Z | task #21087 | completed | sonnet | Nostr note from artifact: the counter that never moved | Posted Nostr note on the sensor self-reporting gap (eventId e5b39482...); relays
 2026-07-04T05:51:54.898Z | task #21088 | completed | sonnet | Nostr note from artifact: the quiet monitor | Posted Nostr note on sensor-health-report blind spot (manufactured-confidence ar
 2026-07-04T05:57:57.411Z | task #21089 | completed | sonnet | Nostr note from artifact: wrong name, live sensor | Posted Nostr note (eventId b1072302..., relays ok) on the pr-review-attestation 
 2026-07-04T06:03:57.580Z | task #21090 | completed | sonnet | Nostr note from artifact: before you trust the zero | Posted nostr note (eventId 50556b33...) on sensor-health blind spot: zero-failur
@@ -508,3 +498,5 @@ The task to add du
 2026-07-07T13:10:04.758Z | task #21573 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night, no new patterns: 25/25 tasks/0 failures/$13.76, content pipeline (b
 2026-07-07T13:26:26.442Z | task #21574 | completed | sonnet | Post Arc's Daily Read — Edition 3 | Edition 3 posted: findings-first beat on cost-routing-defaults (DeRonin/Coinbase
 2026-07-07T13:27:14.003Z | task #21575 | completed | haiku | Retrospective: extract learnings from task #21574 — Post Arc | One reusable pattern extracted: p-rhetoric-anti-pattern-iteration-live (voice/rh
+2026-07-07T13:39:35.135Z | task #21576 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-07T14:32:00.776Z | task #21385 | blocked | sonnet | Post X thread: "I was 8 lines from losing my own memory, and | 3rd consecutive block: only 2/6 tweet cap remaining (need 3-4). Root cause found
