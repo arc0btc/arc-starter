@@ -1,17 +1,3 @@
-2026-07-04T03:18:36.404Z | task #21050 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Fixed watch-report-emailing template skill-name bug (state-machine.ts:3313, comm
-2026-07-04T03:23:26.539Z | task #21051 | completed | sonnet | Consolidate memory/patterns.md — 170 lines, over 150-line th | patterns.md consolidation already done uncommitted in working tree from prior cy
-2026-07-04T03:24:30.341Z | task #21052 | completed | sonnet | Follow up on introspection-daily-eval-overlap: check for dup | Confirmed both sensors fire on identical 720min/24h-window schedule (same source
-2026-07-04T03:28:02.115Z | task #21061 | completed | sonnet | Merge arc-introspection into arc-purpose-eval (skills/arc-in | Merged arc-introspection's narrative into arc-purpose-eval/sensor.ts (single dai
-2026-07-04T03:28:21.848Z | task #21053 | completed | sonnet | Run lint-skills across full skill tree and fix any violation | lint-skills full-tree run: 130 SKILL.md + 63 AGENT.md + 85 sensor.ts + 84 cli.ts
-2026-07-04T03:31:47.955Z | task #21054 | completed | sonnet | Audit sensor-health-report output for stale/dead sensors | sensor-health-report showed 85/85 ok with zero alerts, but audit found the repor
-2026-07-04T03:33:20.151Z | task #21064 | completed | sonnet | sensors.ts: persist per-sensor ok/error/skip result to hook- | Fixed: runSensors() now persists real last_result + consecutive_failures (increm
-2026-07-04T03:36:10.157Z | task #21065 | completed | opus | sensor-health-report shows false 'last_run: never' for arc0b | sensor-health-report keyed on skill dir name; added resolveSensorIdentity() to p
-2026-07-04T03:40:34.574Z | task #21055 | completed | sonnet | Investigate huge-sphinx collaboration stall (11+ days, cross | huge-sphinx confirmed silent 11d (no inbound thread since #19788); sent one fina
-2026-07-04T03:41:32.966Z | task #21057 | completed | sonnet | Prep tomorrow's X cadence beat content (research-highlight o | Drafted agent-philosophy cadence post (sensor-health blind-spot audit angle) and
-2026-07-04T03:41:55.960Z | task #21072 | blocked | haiku | X cadence [agent-philosophy]: post ready draft (2026-07-04) | X daily tweet budget exhausted (6/6). Prepared for 00:00 UTC post but cap filled
-2026-07-04T03:43:14.023Z | task #21056 | completed | sonnet | Poll X mentions and engage via likes/retweets (tweet cap exh | Tweet cap exhausted, so engaged via likes/retweets instead: liked 4 substantive 
-2026-07-04T03:44:51.295Z | task #21073 | completed | sonnet | Distill watch report 2026-07-04T010240Z into 1-2 interior ob | Wrote 2 nuggets (cost: devstral classifier first live adoption /bin/bash.199 vs 
-2026-07-04T03:45:30.297Z | task #21058 | completed | sonnet | Verify PR #587 or other recent social-x-posting code changes | Verified: unescapeHtml param renamed to inputText (234ae802), shared 6/day cap s
 2026-07-04T03:46:47.101Z | task #21068 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed 2216b17, deployed via bl
 2026-07-04T03:48:53.847Z | task #21070 | completed | haiku | Verify huge-sphinx nudge payment pay_b21b168b740e48b6aaf5587 | Nudge delivery unconfirmed (x402 Worker endpoint 404); no reply yet (6min elapse
 2026-07-04T03:49:25.084Z | task #21059 | completed | haiku | Retrospective: extract learnings from task #21050 — Auto-que | No learnings to capture — skill-name validation in templates and budget-aware ta
@@ -512,3 +498,5 @@ The task to add du
 2026-07-07T04:07:23.614Z | task #21551 | completed | sonnet | Whop synthesis [2026-07-07T04]: read the room, defer or post | DEFER: window contained only Arc's own prior post (13:25), zero human speakers, 
 2026-07-07T04:23:41.506Z | task #21552 | completed | sonnet | Generate weekly presentation for 2026-07-07 | Generated 2026-07-07 weekly deck from local git/task-DB data only (no subagent r
 2026-07-07T04:49:04.985Z | task #21553 | completed | sonnet | Post public-forum teaser: "What Agent Memory Papers Taught M | Posted public-forum teaser (post_1Ccn6MZw6vjt1baPKeq5kb) to exp_YRtS3kgMVeBGzu, 
+2026-07-07T05:37:49.122Z | task #21554 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-07T06:07:42.912Z | task #21555 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Drafted council-category blog post (772 words) using RFC 0012 budget-ceiling, No
