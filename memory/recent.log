@@ -524,3 +524,4 @@ The task to add du
 2026-07-07T00:29:46.149Z | task #21500 | completed | haiku | Retrospective: extract learnings from task #21486 — Map Arc' | Updated p-loop-engineering-primitives with checker/executor separation insight f
 2026-07-07T00:30:40.773Z | task #21501 | completed | haiku | Retrospective: extract learnings from task #21467 — context- | Updated p-skill-name-validation with distributed-caller audit requirement; added
 2026-07-07T00:31:15.865Z | task #21502 | completed | haiku | Retrospective: extract learnings from task #21487 — Audit ME | Extracted one reusable pattern from memory audit: indirect-reference resolution 
+2026-07-07T00:32:24.071Z | task #21506 | completed | haiku | Retrospective: extract learnings from task #21504 — Review c | Added p-audit-spawn-redundancy-cooldown pattern: audit sensors need subject-base
