@@ -518,3 +518,4 @@ The task to add du
 2026-07-07T03:36:52.531Z | task #21535 | completed | sonnet | Consolidate patterns.md pass 2: tighten prose (169 lines, st | Pass 2 done: tightened 3 verbose entries + merged 5 overlapping pairs (169->163 
 2026-07-07T03:40:49.511Z | task #21535 | completed | sonnet | Consolidate patterns.md pass 2: tighten prose (169 lines, st | Tightened prose on ~14 verbose patterns.md entries into compound-statement struc
 2026-07-07T03:41:15.875Z | task #21532 | completed | sonnet | Fix stale 'never explicitly loaded' claims in 3 github-* ski | Already fixed in commit 5b54342d (2026-07-04), which predates both the audit rep
+2026-07-07T03:45:10.573Z | task #21538 | completed | sonnet | Consolidate patterns.md pass 3: continue merging overlapping | Merged all 8 identified overlapping pairs (paid-channel+preapproval, agent-md-au
