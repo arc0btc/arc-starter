@@ -413,6 +413,12 @@ export default async function xMentionsSensor(): Promise<string> {
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       log(`warn: mentions fetch failed — ${errorMessage}`);
+      // Budget exhaustion is an expected, self-resolving guard (resets at
+      // midnight UTC) — not a malfunction. Classifying it as "error" pollutes
+      // consecutive_failures and fires false sensor-health alerts.
+      if (errorMessage.includes("read budget exhausted")) {
+        return "skip";
+      }
       return "error";
     }
 
