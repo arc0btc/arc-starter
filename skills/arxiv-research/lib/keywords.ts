@@ -28,7 +28,7 @@ export const AIBTC_SPECIFIC_KEYWORDS: readonly RegExp[] = [
 export const QUANTUM_KEYWORDS: readonly RegExp[] = [
   /\bpost[-\s]?quantum/i,
   /\bquantum[-\s]?(attack|threat|resist|safe|secur)/i,
-  /\b(break|break.*ECDSA|attack.*ECDSA|ECDSA.*break)/i,
+  /\b(break.*ECDSA|attack.*ECDSA|ECDSA.*break|break.*cipher|break.*crypto|cipher.*break|crypto.*break|ECDSA.*breakthrough)\b/i,
   /\bquantum.*bitcoin/i,
   /\bbitcoin.*quantum/i,
   /\bquantum.*cryptocurren/i,
