@@ -515,3 +515,4 @@ The task to add du
 2026-07-07T00:18:22.153Z | task #21510 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Both failures already tracked/resolved: #21387 (legacy X post kill-switch halt) 
 2026-07-07T00:19:34.320Z | task #21489 | completed | haiku | Retrospective: extract learnings from task #21483 — Email fr | Added p-approval-batch-item-triage-dispatch pattern — partner approval triage wo
 2026-07-07T00:20:10.674Z | task #21490 | completed | haiku | Retrospective: extract learnings from task #21476 — Add Exte | Extended p-untrusted-content-ingestion-audit-completeness with guard-systematiza
+2026-07-07T00:21:18.532Z | task #21491 | completed | haiku | Retrospective: extract learnings from task #21478 — Strip CS | Updated p-css-aware-content-sanitization pattern with validated CSS-hidden-eleme
