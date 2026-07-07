@@ -500,3 +500,4 @@ The task to add du
 2026-07-07T03:53:33.594Z | task #21533 | completed | sonnet | Spot-check the 14 skills that got disallowed-tools added (20 | No dispatch errors found for the 14 disallowed-tools skills since 2026-07-05 aud
 2026-07-07T03:53:59.691Z | task #21537 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-07T03:56:10.824Z | task #21539 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed scoped to catalog files 
+2026-07-07T03:56:25.319Z | task #21543 | completed | sonnet | Consolidate patterns.md pass 4: final trim to hit 150-line t | patterns.md already at 149 lines (under 150 threshold) after pass 3 commit 56f71
