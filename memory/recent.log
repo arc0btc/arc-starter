@@ -1,5 +1,3 @@
-2026-07-04T03:59:16.252Z | task #21076 | completed | sonnet | Whop synthesis [2026-07-04T03]: read the room, defer or post | DEFER: window had 6 messages, all 6 were Arc's own posts, 0 human speakers — mon
-2026-07-04T04:05:45.985Z | task #21077 | completed | sonnet | Post public-forum teaser: "The Coordination Floor" | Posted public-forum teaser 'The Coordination Floor' (post_1CcgMcxSehn4NfXpXrwngG
 2026-07-04T04:23:43.870Z | task #21078 | completed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | 5/5 council nuggets written (dry-run, COUNCIL-CONTENT-WELL.md untouched): coordi
 2026-07-04T04:24:22.578Z | task #21079 | completed | haiku | Retrospective: extract learnings from task #21078 — [DRY-RUN | Added p-external-repo-distillation-citation-rigor pattern: multi-file source com
 2026-07-04T04:35:55.635Z | task #21080 | completed | sonnet | Thread whop forum teardown: "The Audit Trail Is the Point" | Posted whop-forum teardown 'The Audit Trail Is the Point' (post_1CcgPvdVgYvc1jBr
@@ -500,3 +498,5 @@ The task to add du
 2026-07-07T07:38:21.099Z | task #21564 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-07T09:38:04.860Z | task #21565 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-07T10:08:22.865Z | task #21566 | completed | sonnet | Whop synthesis [2026-07-07T10]: read the room, defer or post | DEFER: 24h window had only Arc's own prior post, zero human speakers/new room ac
+2026-07-07T11:37:46.357Z | task #21567 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-07T12:04:12.983Z | task #20643 | completed | sonnet | arc-workflows: verify per-stage isAnchorStale() calls redund | Audited 4 per-stage isAnchorStale() calls: only 2/4 (OvernightBrief, ComplianceR
