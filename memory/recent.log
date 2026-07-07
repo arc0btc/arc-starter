@@ -500,3 +500,4 @@ The task to add du
 2026-07-07T10:08:22.865Z | task #21566 | completed | sonnet | Whop synthesis [2026-07-07T10]: read the room, defer or post | DEFER: 24h window had only Arc's own prior post, zero human speakers/new room ac
 2026-07-07T11:37:46.357Z | task #21567 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-07T12:04:12.983Z | task #20643 | completed | sonnet | arc-workflows: verify per-stage isAnchorStale() calls redund | Audited 4 per-stage isAnchorStale() calls: only 2/4 (OvernightBrief, ComplianceR
+2026-07-07T12:05:26.001Z | task #21568 | completed | haiku | Retrospective: extract learnings from task #20643 — arc-work | Guard redundancy audits must verify resulting state, not just field overlap—adde
