@@ -230,12 +230,11 @@ const DAILY_TWEET_CAP = 6;
 // cadenceGateOpen() in state-machine.ts only checks elapsed time since cadence_anchor, with no
 // memory of prior cap-exhaustion deferrals — once a backlog of anchors builds up (e.g. deferred
 // across several days by DAILY_TWEET_CAP exhaustion), every eligible hop fires in the same burst
-// the moment the shared cap resets at UTC midnight. This is a distinct, smaller secondary cap
-// specific to content-calendar x_thread ROOT posts (the ":x" source, not replies/CTA) so a
-// multi-day backlog spreads out across days instead of draining a freshly-reset DAILY_TWEET_CAP
-// in one burst. Enforced here (post-time) as well as in state-machine.ts (task-creation-time)
-// because tasks already queued before this fix still need to be throttled at post time.
-const CONTENT_CALENDAR_X_THREAD_DAILY_CAP = 1;
+// the moment the shared cap resets at UTC midnight. state-machine.ts enforces its own
+// CONTENT_CALENDAR_X_THREAD_DAILY_CAP at task-creation-time; the post-time enforcement that used
+// to live here (this constant) became dead code once content-calendar fully migrated onto
+// reserve-group (branch 1 of cmdPost intercepts every content-calendar: source before reaching
+// this legacy guard stack) — removed 2026-07-07 (task #21524).
 
 // Daily-read scheduling fix (arc-demand-gen P1). arc-daily-read's sensor needs 4 of the shared
 // 6 slots free at its UTC 13:00 window, but content-calendar threads and the proactive cadence
@@ -856,7 +855,11 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   // silently posting via the ungated legacy path. This does not affect the reply lane, the
   // cadence beat, or any other legacy `--source` shape — only the two lanes this phase
   // gave a reservation requirement to.
-  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read):/;
+  // Widened 2026-07-07 (task #21524): quest:gtm: (whop-sales GTM acquisition) and
+  // sensor:x-cadence: (this skill's own cadence beat) migrated onto reserve-group —
+  // the last two legacy cmdPost callers. Same fail-closed principle as content-calendar/
+  // daily-read: no silent fallthrough for ANY known managed-lane source shape.
+  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read|quest:gtm|sensor:x-cadence):/;
   if (flags["source"] && MANAGED_LANE_SOURCE_PREFIX.test(flags["source"])) {
     log(`REFUSING legacy fallthrough: source=${flags["source"]} matches a managed-lane prefix but has no reserve-group admission (outbound_action row) — this lane MUST reserve before posting. Not falling through to the ungated legacy path.`);
     console.log(JSON.stringify({
@@ -975,26 +978,6 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
         planned_for: "tomorrow",
       }));
       process.exit(2);
-    }
-
-    // Content-calendar x_thread secondary cap: only the root post of a new thread
-    // (source === "content-calendar:<slug>:x", not ":x:reply-N" or ":x-cta") burns this slot —
-    // those source keys are set by ContentCalendarMachine's whop_chat_seeded action.
-    const isContentCalendarXThreadRoot = /^content-calendar:[^:]+:x$/.test(source);
-    if (isContentCalendarXThreadRoot) {
-      const ccTodayCount = (guardDb.query(
-        "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now') AND is_root = 1 AND source LIKE 'content-calendar:%:x'"
-      ).get() as { total_count: number } | null)?.total_count ?? 0;
-      if (ccTodayCount >= CONTENT_CALENDAR_X_THREAD_DAILY_CAP) {
-        log(`content-calendar x_thread daily cap exhausted (${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP}) — deferring "${source}"`);
-        console.log(JSON.stringify({
-          deferred: true,
-          reason: "content_calendar_x_thread_cap_exhausted",
-          detail: `${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP} content-calendar x_thread roots posted today`,
-          planned_for: "tomorrow",
-        }));
-        process.exit(2);
-      }
     }
   }
 
@@ -1150,37 +1133,49 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   // lane's canonical window (CHECKPOINTS.md #1) from the source-key prefix; refuse mixed
   // prefixes; log when a caller's explicit flags were overridden. Unmanaged keys keep
   // caller-supplied lane/window semantics unchanged (reply lane, cadence beat).
-  const MANAGED_LANES: Record<string, { earliest: string; latest: string }> = {
-    "content-calendar": { earliest: "15:00", latest: "18:00" },
-    "daily-read": { earliest: "13:00", latest: "14:00" },
-  };
-  const prefixLanes = new Set(
-    sourceKeys.map((s) => Object.keys(MANAGED_LANES).find((l) => s.startsWith(`${l}:`)) ?? "unmanaged"),
+  // Prefix → lane derivation table. The MATCH KEY (source-key prefix, minus its
+  // trailing ":") is distinct from the LANE VALUE stored in budget_ledger/outbound_action
+  // — quest:gtm:* and sensor:x-cadence:* have multi-segment prefixes but map to single-
+  // token lane names (task #21524, migrating whop-sales GTM + x-cadence off legacy cmdPost).
+  // earliest/latest are optional: quest-gtm and x-cadence have no fixed posting window
+  // (unlike content-calendar/daily-read) — undefined means anytime, same as legacy behavior.
+  const MANAGED_LANES: Array<{ prefix: string; lane: string; earliest?: string; latest?: string }> = [
+    { prefix: "content-calendar", lane: "content-calendar", earliest: "15:00", latest: "18:00" },
+    { prefix: "daily-read", lane: "daily-read", earliest: "13:00", latest: "14:00" },
+    { prefix: "quest:gtm", lane: "quest-gtm" },
+    { prefix: "sensor:x-cadence", lane: "x-cadence" },
+  ];
+  const matchedEntries = new Set(
+    sourceKeys.map((s) => MANAGED_LANES.find((m) => s.startsWith(`${m.prefix}:`)) ?? null),
   );
-  if (prefixLanes.size > 1 && [...prefixLanes].some((l) => l !== "unmanaged")) {
+  const managedMatches = [...matchedEntries].filter((m): m is (typeof MANAGED_LANES)[number] => m !== null);
+  const distinctLanes = new Set(managedMatches.map((m) => m.lane));
+  if (matchedEntries.size > 1 && managedMatches.length > 0) {
+    // Either a mix of managed + unmanaged keys, or keys spanning >1 managed lane —
+    // both are refused: one atomic group belongs to exactly one lane.
+    const seen = managedMatches.length === matchedEntries.size ? [...distinctLanes] : [...distinctLanes, "unmanaged"];
     console.log(JSON.stringify({
       error: true, reason: "mixed_lane_group",
-      detail: `reserve-group refuses a group spanning lanes (${[...prefixLanes].join(", ")}) — one atomic group belongs to exactly one lane. Split the reservation per lane.`,
+      detail: `reserve-group refuses a group spanning lanes (${seen.join(", ")}) — one atomic group belongs to exactly one lane. Split the reservation per lane.`,
     }));
     process.exit(1);
   }
-  const derivedLane = [...prefixLanes][0] !== "unmanaged" ? [...prefixLanes][0] : undefined;
+  const derivedEntry = managedMatches[0];
   let lane = (flags["lane"] ?? "post") as EngineLane;
   // P3 arc-posting-scheduler: per-lane window (HH:MM UTC, both optional — NULL/NULL means
   // anytime, unchanged for the reply lane and any caller that doesn't pass these).
   let earliestUtcTime = flags["earliest-time"];
   let latestUtcTime = flags["latest-time"];
-  if (derivedLane) {
-    const win = MANAGED_LANES[derivedLane];
-    if (flags["lane"] && flags["lane"] !== derivedLane) {
-      log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedLane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);
+  if (derivedEntry) {
+    if (flags["lane"] && flags["lane"] !== derivedEntry.lane) {
+      log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedEntry.lane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);
     }
-    if ((earliestUtcTime && earliestUtcTime !== win.earliest) || (latestUtcTime && latestUtcTime !== win.latest)) {
-      log(`reserve-group: OVERRIDING caller window ${earliestUtcTime ?? "?"}-${latestUtcTime ?? "?"} → ${win.earliest}-${win.latest} (canonical window for lane=${derivedLane}, CHECKPOINTS.md #1)`);
+    if ((earliestUtcTime && earliestUtcTime !== derivedEntry.earliest) || (latestUtcTime && latestUtcTime !== derivedEntry.latest)) {
+      log(`reserve-group: OVERRIDING caller window ${earliestUtcTime ?? "?"}-${latestUtcTime ?? "?"} → ${derivedEntry.earliest ?? "anytime"}-${derivedEntry.latest ?? "anytime"} (canonical window for lane=${derivedEntry.lane}, CHECKPOINTS.md #1)`);
     }
-    lane = derivedLane as EngineLane;
-    earliestUtcTime = win.earliest;
-    latestUtcTime = win.latest;
+    lane = derivedEntry.lane as EngineLane;
+    earliestUtcTime = derivedEntry.earliest;
+    latestUtcTime = derivedEntry.latest;
   }
 
   const payloadRefs = sourceKeys.map((s) => `reserve-${createHash("sha256").update(s).digest("hex").slice(0, 12)}`);
