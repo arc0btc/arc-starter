@@ -89,7 +89,10 @@ export default async function blockedReviewSensor(): Promise<string> {
     // 3. Check if tasks referencing this blocked task's ID in their subject/description completed.
     // Excludes retrospective/audit tasks, which mention many unrelated task IDs by design
     // (e.g. "Retrospective: extract learnings from task #N...") and are not signals that
-    // task #N's actual blocker was resolved.
+    // task #N's actual blocker was resolved. Also excludes this sensor's own review-cycle
+    // output tasks and their direct follow-ups — otherwise reviewing a still-blocked task
+    // manufactures a new "completed task mentioning #N" every cycle, permanently self-triggering
+    // re-review even when nothing about the block has changed.
     const mentioningTasks = db
       .query(
         `SELECT id, subject, status FROM tasks
@@ -98,9 +101,17 @@ export default async function blockedReviewSensor(): Promise<string> {
          AND id != ?
          AND subject NOT LIKE 'Retrospective:%'
          AND subject NOT LIKE 'Audit:%'
+         AND source != ?
+         AND source NOT IN (SELECT 'task:' || id FROM tasks WHERE source = ?)
          LIMIT 5`
       )
-      .all(`%#${task.id}%`, `%#${task.id}%`, task.id) as Array<{
+      .all(
+        `%#${task.id}%`,
+        `%#${task.id}%`,
+        task.id,
+        TASK_SOURCE,
+        TASK_SOURCE
+      ) as Array<{
       id: number;
       subject: string;
       status: string;
