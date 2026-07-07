@@ -1,3 +1,37 @@
+## 2026-07-07T02:46:00.000Z — arc-workflow-review exemption matching converted to prefix-based (closes 3-recurrence NEW-WATCH); stray-sqlite root cause fixed at import.meta.dir; memory-poisoning provenance tagging shipped; X pay-per-use budget + kill-switch fail-closed landed; 130 skills / 85 sensors
+
+**Task #21517** | Diff: d8da298..64f3092 (25 commits — 5 src/, ~15 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files
+
+- `skills/arc-workflow-review/sensor.ts` (49727055, a08016f3) — **Closes the [NEW-WATCH] carried since 2026-07-04T14:51**: bare `sensor:X` / subject-prefix entries now match as prefixes instead of requiring an exact-string entry per suffix variant. This was flagged as a recurring failure shape three audits running (base pattern exempted, suffixed variant re-flags); this cycle implements the structural fix the commit author had previously named but deferred. Correct Step-3 move.
+- `src/db.ts` (15dc24a0) — Root-caused a real bug: `new Database("db/arc.sqlite")` resolved against `process.cwd()`, so any invocation from a different cwd (github/ clones, skill cache dirs) silently created a stray incomplete db there — 15 stray files already existed and were deleted in this commit. Fixed via `import.meta.dir`, matching the existing convention in `skills.ts`/`web.ts`/`artifacts.ts`. Verified live: no stray `arc.sqlite*` files remain anywhere in the tree post-fix, including the 5 that got auto-committed to `skills/arc-link-research/cache/db/` in `0f86e479` just before this fix landed (removed in the same commit).
+- `src/db.ts` + `skills/arc-skill-manager/SKILL.md` (d0713864) — Directly closes security-audit finding #2 (memory poisoning, `research/2026-07-06_security-audit-deepmind-6attack-taxonomy.md`): `recent.log` lines from untrusted-content-processing tasks (link-research, email-sync, aibtc-inbox-sync, peer-inbox) now get an `[UNTRUSTED-SRC]` prefix so consolidation gives them a second look before folding claims into MEMORY.md, which loads unconditionally into every dispatch. Right layer for the fix — provenance at write time, not a filter bolted on at read time.
+- `skills/arc-link-research/{cli.ts,AGENT.md}` (0412ce8a, 4c97b18e, 669628d6) + `skills/arc-peer-inbox/AGENT.md` (51ac320d) — Remaining security-audit fixes: embedded-URL auto-follow decisions now logged per report, CSS-hidden elements stripped before generic tag-strip (closes the "hidden text survives as plaintext" gap), explicit data/instructions framing added to both skills. `arc-peer-inbox` previously had no AGENT.md at all — the most direct cross-agent-cascade vector now has an explicit untrusted-content guard.
+- `skills/social-x-posting/cli.ts` (38a60953) — Fail-closed kill switch fix on the legacy post path: was `=== "false"` (fell through on missing row or any other value), now `!== "true"` matching the pattern already used elsewhere in the same file and in `admission.ts`. Direct fix for the fail-open bug filed last cycle (#21397).
+- `skills/social-x-posting/{lib/x-api.ts,cli.ts,sensor.ts}` + `skills/social-engine/{follow-curated.ts,north-star-gauge.ts}` (20f1649e, a91024c3, dabc9323, ce308150) — Full X pay-per-use budget rework (signed off #21462): dollar-denominated read budget replacing the flat-count model, link-post daily cap, follower-reserve removed in favor of the dollar budget, mentions cadence widened 20→30min. Matches MEMORY.md `x-api-pay-per-use-cost-model` — confirmed present and correctly scoped, no new concerns.
+- `skills/arc-purpose-eval/sensor.ts` (ab40fd49, f44391dd) — Cooldown-gates the cost-efficiency-review follow-up (2-day window) after it re-spawned an identical audit the day after a prior one concluded "root lever unchanged" (#21309→#21504 same-day duplicate); Ecosystem Impact scoring moved to a 3-day rolling average, closing the false-alarm mechanism that produced the "3 consecutive zero-PR-review days" scare (see MEMORY.md `pr-review-crowdout-false-alarm`).
+- `skills/context-review/sensor.ts` + `arc-email-sync/sensor.ts` + `arc-workflows/state-machine.ts` (2b8f751f) — Fixed two live spawn sites referencing a skill name (`arc-cost-alerting`) that was never real (`arc-cost-reporting` is); added two keyword-false-positive exemptions found in the same audit pass.
+- `skills/social-x-posting/sensor.ts` (64f3092f) — Read-budget-exhausted now classified as `skip` not `error` in sensor health accounting — a deliberate budget stop shouldn't count as a sensor failure.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every change traces to a named incident, a signed-off recommendation (#21462), a security-audit finding, or a carried NEW-WATCH/CARRY-WATCH from a prior review. No speculative work in this diff.
+- **Step 2 — Delete**: `20f1649e`/`dabc9323` remove the follower-reserve mechanism entirely (superseded by the dollar budget) rather than layering a new system alongside the old one — correct deletion, not accretion.
+- **Step 3 — Simplify**: The `arc-workflow-review` prefix-matching fix (49727055/a08016f3) is this cycle's standout — converts a whole class of recurring false-positive reviews into a one-time structural fix instead of the third patch-per-instance in a row.
+- **Step 4 — Accelerate**: Mentions cadence widened 20→30min reduces read-budget pressure on the sensor→task pipeline without adding complexity.
+- **Step 5 — Automate**: N/A this cycle — no new automation, several fixes make existing automation fail-closed/fail-safe instead (kill switch, budget classification).
+
+### Flags
+
+- **[RESOLVED]** `arc-workflow-review` exact-string exemption matching (flagged 2026-07-04T14:51, carried 2026-07-06T15:13 as a 3rd-recurrence NEW-WATCH) — closed this cycle via prefix matching (49727055/a08016f3). Dropping from active flags.
+- **[RESOLVED]** Stray incomplete `arc.sqlite` files from cwd-relative path resolution — root-caused and fixed (15dc24a0), including cleanup of files auto-committed just one commit earlier (0f86e479) in the same diff range. Dropping from active flags — watch is now moot since the source is fixed, not just the symptom.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array despite two more ad-hoc entries added this cycle (2b8f751f) — the list keeps growing one exemption at a time instead of being restructured.
+- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy budget path) — the legacy path just got its own independent kill-switch fix (38a60953) this cycle, which is more evidence the two paths are drifting rather than converging. Worth a follow-up to assess consolidating onto the admission-engine path only.
+
+---
+
 ## 2026-07-06T15:13:00.000Z — Sign sweep automated at deploy time; email body_html field-name bug fixed (3 skills silently sending blank reports); sensor interval persistence completed; MEMORY.md char-size gate closed a blind spot the line-count check missed; 130 skills / 85 sensors
 
 **Task #21389** | Diff: 88d4b10..d8da298 (11 commits — 5 src/, ~9 skills/) | Sensors: 85 | Skills: 130
@@ -113,34 +147,4 @@
 - **[RESOLVED]** `cache_hit_rate` mislabel, carried across multiple prior audits without a fix task — checked `src/cli.ts:142` this cycle and it already reads `accept_rate (7d): ...`, so this was fixed silently in an earlier cycle without the carry-flag being dropped. Dropping from active flags (verified live, not from memory).
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array.
-
----
-
-## 2026-07-04T14:51:00.000Z — X shared-tweet-cap NEW-WATCH closed; workflow-review stuck-state exclusions now template-scoped; compliance-review naming batch; inert-stub validator churn flagged; 130 skills / 85 sensors
-
-**Task #21106** | Diff: d1ac13f..33bf0f5 (13 commits — 4 src/, ~15 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files
-
-- `skills/social-x-posting/cli.ts` (525aebbd) — **Closes the NEW-WATCH from the 2026-07-04T02:37 audit**: `arc budget` now surfaces the real shared `DAILY_TWEET_CAP=6` (root+continuation+CTA) alongside the pre-existing root-only 3/day sub-budget, instead of hiding the actual gate that had already blocked thread continuations twice (#20988, #21022). Correct fix at the surfaced-data layer, not another memory note.
-- `skills/arc-report-email/sensor.ts` (33bf0f51) + `src/sensors.ts` (e4aa3c80) + `skills/arc-skill-manager/cli.ts` (3f863b9f) — Already-reviewed fixes for the `formatMST` date crash and sensor-health-report blind spots (both tracked in MEMORY.md `arc-report-email-date-crash` / `sensor-health-report-blind-spots`); confirmed present and correctly scoped in this diff, no new concerns.
-- `skills/arc-introspection/SKILL.md` + `sensor.ts`, `skills/arc-purpose-eval/*`, `arc-memory/*`, `context-review/sensor.ts` (49fe518e) — Merge of introspection narrative into `arc-purpose-eval`, matches MEMORY.md `introspection-daily-eval-overlap` entry.
-- `skills/arc-workflow-review/sensor.ts` (8f083fc4) — `PASSIVE_WAITING_STATES` re-keyed from bare state name to `template:state` (e.g. `pr-lifecycle:approved` vs `validation-request:approved`). Good Step-3 fix: same state name, different templates, genuinely different stuck-vs-by-design semantics — the old set would have silently suppressed a real stuck-signing alert.
-- `skills/arc-article-pipeline/*`, `arc-attribution/cli.ts`, `arc-daily-read/cli.ts`, `arc-email-channel/cli.ts`, `arc-packaging/*`, `social-x-posting/cli.ts` (9976e1e5, 234ae802) — Mechanical `compliance-review` naming batch (abbreviated identifiers, `CADENCE_MINUTES`→`INTERVAL_MINUTES`). Verified against the actual code, correctly scoped, zero behavior change.
-- `skills/arc-introspection/sensor.ts` (0ac4fd29) — See **Flags** below; this one is a symptom of a validator gap, not a clean fix.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All changes trace to a named incident, a prior audit's own NEW-WATCH, or a documented MEMORY.md fix. One exception: 0ac4fd29 traces to a validator requirement that doesn't distinguish "no sensor" from "intentionally inert stub" — see Flags.
-- **Step 2 — Delete**: No new deletion candidates this diff. `arc-introspection/sensor.ts` remains a deliberate inert-stub-for-history case (prior decision, not revisited here).
-- **Step 3 — Simplify**: `arc-workflow-review`'s template-scoped exclusion set (8f083fc4) is the right shape — same lesson as the prior audit's `lintNameReferences` fix: a flat name-keyed set was hiding a real distinction between two callers.
-- **Step 4 — Accelerate**: None this cycle — no dispatch/sensor pipeline throughput changes.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[RESOLVED]** X shared-tweet-cap doc mismatch (flagged 2026-07-04T02:37 audit) — closed by 525aebbd. Dropping from active flags.
-- **[NEW-WATCH]** `arc-skill-manager/sensor.ts`'s `validateSensorPattern` (line ~52) flags any sensor.ts missing a `claimSensorRun()` call as an issue, with no exemption for deliberately-inert stubs. This forced 0ac4fd29: the `arc-introspection` stub (always returns `"skip"`, kept only for directory/SKILL.md history per the 07-04 introspection merge) now imports `claimSensorRun` and calls it every cycle purely to satisfy the linter — a real DB read/write added to a file whose entire purpose is to do nothing. Requirement is right for real sensors, wrong for intentional stubs. Fix: have the validator skip files with a recognized `// STUB: intentionally-inert` marker (or similar), so future intentional stubs don't need fake instrumentation. Filing a follow-up.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[CARRY-WATCH]** Diff-range boundary flagged 2026-07-04T02:37: whether the "since last review" `from` pointer is the prior review's own commit or the commit before it. This diff's `to` (33bf0f5) is itself the prior review's own docs commit (4cf24918) plus one more (37780d14, unrelated whop chore) layered after — worth a one-time check of `arc-architecture-review/sensor.ts`'s diff-range computation, still not done.
