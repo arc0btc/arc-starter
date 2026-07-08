@@ -503,3 +503,4 @@ The task to add du
 2026-07-08T02:48:07.355Z | task #21659 | completed | sonnet | CEO review — 2026-07-08T02:45 | CEO review written: ops clean (83/83 done, 2 real bugs root-fixed live) but X ca
 2026-07-08T02:50:13.495Z | task #21658 | completed | sonnet | architect: decide fate of social-x-posting cmdPost legacy gu | cmdPost legacy guard stack decision: KEEP, not delete — it's the only enforcemen
 2026-07-08T02:51:28.355Z | task #21657 | completed | sonnet | workflow review — 3 new pattern(s) | All 3 patterns are the standard ad-hoc root+retrospective chain (161 instances i
+2026-07-08T02:52:25.356Z | task #21660 | completed | haiku | Retrospective: extract learnings from task #21656 — architec | Updated p-audit-discipline: added prior-review scope hazard case (task #21656 fo
