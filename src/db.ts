@@ -1072,6 +1072,13 @@ const UNTRUSTED_CONTENT_SOURCE_PREFIXES = [
   "sensor:arc-email-sync",
   "sensor:aibtc-inbox-sync",
   "sensor:arc-peer-inbox",
+  // arc-storefront-revamp P4 (2026-07-08): Whop chat has THREE task-source prefixes —
+  // sensor:whop-replies:<msg_id>, sensor:whop-synthesis:<bucket>, sensor:whop-free-forum:
+  // <bucket> — all reading the same untrusted paid-chat stream. dev-council review
+  // (Hohpe/Newman, CONFIRMED): a single "sensor:whop" entry covers all three (and any future
+  // whop lane) via the existing startsWith match, rather than enumerating one prefix and
+  // silently missing the other two — the exact class of gap this list exists to close.
+  "sensor:whop",
 ];
 
 function isUntrustedContentSource(source: string | null | undefined): boolean {

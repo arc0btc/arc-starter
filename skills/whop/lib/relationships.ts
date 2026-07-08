@@ -9,6 +9,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { scanForInjection, redactedPlaceholder, sanitizeUsername } from "./chat-sanitizer.ts";
 
 export const ARC_USER_ID = "user_cd5Q1fTcrgua1";
 
@@ -182,16 +183,23 @@ export function updateFromMessages(
     }
 
     const rel = ensureUser(store, msg);
-    rel.username = msg.user.username ?? rel.username;
-    rel.display_name = msg.user.name ?? rel.display_name;
+    rel.username = msg.user.username ? sanitizeUsername(msg.user.username) : rel.username;
+    rel.display_name = msg.user.name ? sanitizeUsername(msg.user.name) : rel.display_name;
     rel.first_seen = min(rel.first_seen, msg.created_at);
     rel.last_seen = max(rel.last_seen, msg.created_at);
+    // dev-council finding (Kleppmann, CONFIRMED — the review's most novel finding): this
+    // store persists BEFORE any per-tick trigger/scan runs in the reactive lane, and its
+    // snippets are later replayed verbatim, unfenced, into fresh task descriptions via
+    // `renderRelationshipForTask` — a durable, cross-session injection-replay vector
+    // independent of whether the ORIGINAL message ever became a reply task. Scan and redact
+    // at the point of storage, not just at the point of embedding.
+    const memberScan = scanForInjection(msg.content ?? "");
     appendInteraction(rel, {
       at: msg.created_at,
       msg_id: msg.id,
       direction: "from_user",
       in_reply_to: msg.replying_to_message_id ?? undefined,
-      snippet: snippet(msg.content),
+      snippet: memberScan.flagged ? redactedPlaceholder(memberScan.matches) : snippet(msg.content),
     }, arcAuthoredMessageIds);
     touched.add(msg.user.id);
   }
