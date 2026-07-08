@@ -151,7 +151,13 @@ function printHelp(): void {
       "                         bare SKU would ship a buyer an empty product) — attach later via attach-deliverable.",
       "                         Default HIDDEN; --publish flips product+plan visible after the deliverable",
       "                         attaches (refused with --allow-empty — never publish an empty product)",
-      "  attach-deliverable --product prod_xxx [--title <t>] [--report <md>] [--file <html/pdf>] [--quiz <json>]",
+            "  get-product --product prod_xxx         read the full live product (title/headline/description/gallery_images/etc)",
+      "  update-product --product prod_xxx [--title <t>] [--headline <text>] [--description-file <path>] [--cover <img>]",
+      "                         (re-)set an existing product's marketing fields; only passed flags are written (partial update);",
+      "                         --cover uploads an image and sets gallery_images to it; prints before/after read-back",
+      "  update-company [--description-file <path>] [--logo <img>]",
+      "                         (re-)set the store-level (company) description and/or logo; prints before/after read-back",
+"  attach-deliverable --product prod_xxx [--title <t>] [--report <md>] [--file <html/pdf>] [--quiz <json>]",
       "                         (re-)attach the per-SKU course deliverable; idempotent, refreshes content",
       "  set-visibility --product prod_xxx --visibility visible|hidden [--plan plan_xxx]",
       "                         flip a product (and its plan — pass --plan when publishing, or the page shows",
@@ -987,6 +993,152 @@ async function cmdAttachDeliverable(apiKey: string, flags: Record<string, string
   process.stdout.write(JSON.stringify({ ...refs, product_id: flags.product }, null, 2) + "\n");
 }
 
+
+// --- P2 (arc-storefront-revamp): read/update an EXISTING product's marketing fields, and the
+// company (store-level) description/logo. Neither existed before this phase — create-product only
+// sets these at MINT time, and set-visibility only ever touched `visibility`. Both new commands
+// reuse the same file-upload primitive (`uploadImageFile`) that `attachDeliverable`'s report-file
+// path already validated live: POST /v1/files (content-type inferred from filename) -> PUT the
+// presigned S3 URL -> the returned file id references into the target field.
+//
+// Scope note (SKILL.md's endpoint table, verified empirically pre-2026-07-08): `access_pass:update`
+// (products.update) is confirmed granted to the company key. `company:update` (companies.update) is
+// NOT separately documented as granted — the company key is described elsewhere as "full-admin
+// against v1" (only /v1/apps and /v1/access_tokens distinguish company- vs app-key auth), so this is
+// expected to work; if it 403s, `cmdUpdateCompany` fails loud with the missing-scope message rather
+// than a raw SDK stack trace.
+
+/** Upload a local image file to Whop's file-upload endpoint via the SDK, return its file id. */
+async function uploadImageFile(
+  client: ReturnType<typeof whopClient>,
+  path: string,
+): Promise<string> {
+  const filename = path.split("/").pop() || "image.png";
+  const contentType = filename.endsWith(".jpg") || filename.endsWith(".jpeg")
+    ? "image/jpeg"
+    : filename.endsWith(".gif")
+      ? "image/gif"
+      : "image/png";
+  const bytes = readFileSync(path);
+  const file = new File([bytes], filename, { type: contentType });
+  const uploaded = (await client.files.upload(file)) as { id: string };
+  return uploaded.id;
+}
+
+async function cmdGetProduct(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("get-product requires --product prod_xxx");
+  const product = await whopClient(apiKey).products.retrieve(flags.product);
+  process.stdout.write(JSON.stringify(product, null, 2) + "\n");
+}
+
+async function cmdUpdateProduct(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("update-product requires --product prod_xxx");
+  if (!flags.title && !flags.headline && !flags["description-file"] && !flags.cover) {
+    fail(
+      "update-product requires at least one of --title <t> | --headline <text> | " +
+        "--description-file <path> | --cover <image-path>",
+    );
+  }
+  const client = whopClient(apiKey);
+  const before = await client.products.retrieve(flags.product);
+
+  // Partial update: only send fields the caller actually passed, so an omitted flag never clobbers
+  // an existing value (e.g. re-running with just --cover must not blank out headline/description).
+  const body: { title?: string; headline?: string; description?: string; gallery_images?: Array<{ id: string }> } = {};
+  if (flags.title) body.title = flags.title;
+  if (flags.headline) body.headline = flags.headline;
+  if (flags["description-file"]) {
+    const description = readFileSync(flags["description-file"], "utf8").trim();
+    if (!description) fail("--description-file is empty");
+    body.description = description;
+  }
+  if (flags.cover) {
+    try {
+      const fileId = await uploadImageFile(client, flags.cover);
+      body.gallery_images = [{ id: fileId }];
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      fail(`update-product: cover upload failed: ${msg}`);
+    }
+  }
+
+  let after;
+  try {
+    after = await client.products.update(flags.product, body);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (/403|access_pass:update|permission|forbidden/i.test(msg)) {
+      fail(
+        `products.update rejected (likely missing access_pass:update scope on the company key): ${msg}\n` +
+          "Fallback: edit the product in the Whop dashboard directly.",
+      );
+    }
+    throw error;
+  }
+  process.stdout.write(
+    JSON.stringify(
+      {
+        product_id: flags.product,
+        before: { title: before.title, headline: before.headline, description: before.description, gallery_images: before.gallery_images },
+        after: { title: after.title, headline: after.headline, description: after.description, gallery_images: after.gallery_images },
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
+async function cmdUpdateCompany(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags["description-file"] && !flags.logo) {
+    fail("update-company requires at least one of --description-file <path> | --logo <image-path>");
+  }
+  const companyId = await getCredential("whop", "company_id");
+  if (!companyId) fail("update-company requires creds key company_id (biz_xxx)");
+  const client = whopClient(apiKey);
+  const before = await client.companies.retrieve(companyId);
+
+  const body: { description?: string; logo?: { id: string } } = {};
+  if (flags["description-file"]) {
+    const description = readFileSync(flags["description-file"], "utf8").trim();
+    if (!description) fail("--description-file is empty");
+    body.description = description;
+  }
+  if (flags.logo) {
+    try {
+      const fileId = await uploadImageFile(client, flags.logo);
+      body.logo = { id: fileId };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      fail(`update-company: logo upload failed: ${msg}`);
+    }
+  }
+
+  let after;
+  try {
+    after = await client.companies.update(companyId, body);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    if (/403|company:update|permission|forbidden/i.test(msg)) {
+      fail(
+        `companies.update rejected (likely missing company:update scope on the company key): ${msg}\n` +
+          "Fallback: edit the store description/logo in the Whop dashboard directly.",
+      );
+    }
+    throw error;
+  }
+  process.stdout.write(
+    JSON.stringify(
+      {
+        company_id: companyId,
+        before: { description: before.description, logo: before.logo },
+        after: { description: after.description, logo: after.logo },
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
 // --- Affiliate / referral program (Whop native: % of revenue for referrers) ---
 // All of these are reversible company/product CONFIG writes — no sats. The paid
 // product carries the global program (`global_affiliate_percentage` +
@@ -1381,6 +1533,21 @@ async function main(): Promise<void> {
     case "attach-deliverable": {
       const apiKey = await requireApiKey();
       await cmdAttachDeliverable(apiKey, flags);
+      break;
+    }
+    case "get-product": {
+      const apiKey = await requireApiKey();
+      await cmdGetProduct(apiKey, flags);
+      break;
+    }
+    case "update-product": {
+      const apiKey = await requireApiKey();
+      await cmdUpdateProduct(apiKey, flags);
+      break;
+    }
+    case "update-company": {
+      const apiKey = await requireApiKey();
+      await cmdUpdateCompany(apiKey, flags);
       break;
     }
     case "set-visibility": {
