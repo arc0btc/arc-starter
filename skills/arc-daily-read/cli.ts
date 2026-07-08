@@ -10,7 +10,11 @@ import { join } from "path";
 // its reservation in a SEPARATE subprocess/transaction from claimEdition(). If claimEdition
 // fails or throws AFTER a successful reservation, nothing released it — see cmdPost's use
 // below for the full scenario (orphaned rows, permanent same-edition starvation).
-import { releaseGroupRemainder } from "../social-engine/admission.ts";
+import { releaseGroupRemainder, type Lane } from "../social-engine/admission.ts";
+// arc-day-n-publishing P1 (design spec §3.6): the blog-publish task descriptor is shared
+// with ContentCalendarMachine (extract-and-reuse, not a reimplementation — see the module's
+// own doc comment for why).
+import { buildBlogPublishTask } from "../arc-workflows/blog-render.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 // P1 (arc-demand-flywheel): env override lets verification/testing point at a scratch copy
@@ -20,8 +24,28 @@ const DB_PATH = process.env.DAILY_READ_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc
 const RESEARCH_DIR = join(ARC_STARTER_ROOT, "research");
 const INDEX_PATH = join(RESEARCH_DIR, "INDEX.md");
 const MATERIALS_DIR = join(ARC_STARTER_ROOT, "db/daily-read-materials");
-const FREE_ROOM_URL = "https://whop.com/checkout/plan_arGwx0yFBhYOL?a=x-human";
+// arc-day-n-publishing P0/P1: the design spec's CTA menu is "$9 report or /subscribe, NEVER
+// $49" — this used to be misworded as "Free room" while linking a $9 checkout URL under an
+// `x-human` affiliate tag unrelated to Arc's canonical attribution. Retired; see ctaLine().
+const SUBSCRIBE_URL = "https://arc0.me/subscribe?src=day-n-x";
 const X_HANDLE = "@arc0btc";
+// arc-day-n-publishing P1 (dev-council/Fowler, design spec §2 finding #8, CONFIRMED-applied):
+// named constant for the lane the merged Day-N unit enqueues under, instead of hardcoding
+// the string literal "daily-read" at every call site. Does NOT touch admission.ts's closed
+// `Lane` union (off-limits) — centralizes the ONE place that changes if the lane is ever
+// renamed (rename trigger: edition_n's live-shipped-streak reaching 30, tracked in
+// CHECKPOINTS.md, same milestone that lifts the "don't say daily" copy embargo below).
+const PRIMARY_THREAD_LANE: Lane = "daily-read";
+
+/** Build a `${PRIMARY_THREAD_LANE}:<edition>:<suffix>` source key — the one place this
+ *  shape is assembled, so the lane-rename follow-up (see constant above) is a one-line edit. */
+function sourceKey(editionN: number, suffix: string): string {
+  return `${PRIMARY_THREAD_LANE}:${editionN}:${suffix}`;
+}
+
+/** Streak length required before public copy may say "daily" (QUEST.md mandate: the word
+ *  "daily" is not marketed until 30 consecutive editions ship) — see canUseDailyWord(). */
+const DAILY_WORD_STREAK_THRESHOLD = 30;
 
 // Crown jewels named explicitly in QUEST.md — drafted first, before falling through to the
 // rest of the relevance-4/5 backlog.
@@ -56,9 +80,13 @@ function getDb(): Database {
   db.run("PRAGMA busy_timeout=5000");
 
   // Idempotent schema migration — daily_read_log
+  // arc-day-n-publishing P1 (dev-council/Lamport+Kleppmann, design spec §3.3, CONFIRMED-applied):
+  // AUTOINCREMENT (not bare INTEGER PRIMARY KEY, which is max(rowid)+1 and CAN be reused if the
+  // top row is ever deleted) — this only affects a FRESH table; the live table predates this fix
+  // and is upgraded in place by migrateEditionNAutoincrement() below.
   db.run(`
     CREATE TABLE IF NOT EXISTS daily_read_log (
-      edition_n INTEGER PRIMARY KEY,
+      edition_n INTEGER PRIMARY KEY AUTOINCREMENT,
       beat_source TEXT NOT NULL,
       tweet_id TEXT,
       root_tweet_url TEXT,
@@ -74,11 +102,24 @@ function getDb(): Database {
   `);
 
   // P1 (arc-demand-flywheel): additive columns for findings-first tracking.
+  // arc-day-n-publishing P1 (design spec §3.1, §3.6, CONFIRMED-applied): additive outbox-status
+  // columns (status/void_reason) and the blog-slug cross-reference syncContentCalendar() checks
+  // to avoid double-owning a Day-N-sourced blog post (arc-workflows/sensor.ts).
   // SQLite has no "ADD COLUMN IF NOT EXISTS" — catch-and-ignore duplicate-column errors,
   // matching this file's existing CREATE TABLE IF NOT EXISTS idempotency style.
   for (const migration of [
     "ALTER TABLE daily_read_log ADD COLUMN finding_slug TEXT",
     "ALTER TABLE daily_read_log ADD COLUMN opening_line TEXT",
+    // Outbox-pattern status (§3.1): 'reserving' (claimed, not yet drained) → 'shipped' (every
+    // planned tweet posted) / 'partial' (root posted, a continuation didn't) / 'void' (root
+    // itself never posted — nothing went live). Existing rows (all 4 pre-P1 editions, confirmed
+    // fully shipped in the P0 live-state re-read) backfill to 'shipped' via this DEFAULT.
+    "ALTER TABLE daily_read_log ADD COLUMN status TEXT NOT NULL DEFAULT 'shipped'",
+    "ALTER TABLE daily_read_log ADD COLUMN void_reason TEXT",
+    // Set by cmdPost after queuing the Day-N blog-publish task (§3.6); read by
+    // arc-workflows/sensor.ts's syncContentCalendar() to skip Day-N-owned slugs when
+    // DAYN_MERGED=true, so they never get a second, redundant ContentCalendarMachine instance.
+    "ALTER TABLE daily_read_log ADD COLUMN blog_slug TEXT",
   ]) {
     try {
       db.run(migration);
@@ -88,7 +129,75 @@ function getDb(): Database {
     }
   }
 
+  migrateEditionNAutoincrement(db);
+
   return db;
+}
+
+/**
+ * arc-day-n-publishing P1 (dev-council/Lamport+Kleppmann, design spec §3.3, CONFIRMED-applied):
+ * one-time, idempotent upgrade of a pre-existing `daily_read_log` table (created before this
+ * phase, hence WITHOUT `AUTOINCREMENT`) to the AUTOINCREMENT-backed shape. SQLite cannot ALTER a
+ * column to add AUTOINCREMENT — it requires rebuilding the table. Guarded by checking
+ * `sqlite_sequence` for an existing row (present only once a table WAS created with
+ * AUTOINCREMENT), so this is a no-op after the first successful run — matching this file's own
+ * catch-and-ignore migration idiom elsewhere. Runs inside a single transaction: create the new
+ * table, copy every row verbatim (explicit `edition_n` values are honored and backfill
+ * `sqlite_sequence` to their max — see SQLite docs on AUTOINCREMENT + explicit rowids), drop the
+ * old table, rename. Never touches row VALUES — this is a structural migration only.
+ */
+function migrateEditionNAutoincrement(db: Database): void {
+  const seqRow = db.query("SELECT 1 FROM sqlite_sequence WHERE name = 'daily_read_log'").get();
+  if (seqRow) return; // already AUTOINCREMENT-backed
+
+  const tableExists = db
+    .query("SELECT 1 FROM sqlite_master WHERE type='table' AND name='daily_read_log'")
+    .get();
+  if (!tableExists) return; // fresh DB — the CREATE TABLE above already used AUTOINCREMENT
+
+  db.run("BEGIN IMMEDIATE");
+  try {
+    db.run(`
+      CREATE TABLE daily_read_log_p1migration (
+        edition_n INTEGER PRIMARY KEY AUTOINCREMENT,
+        beat_source TEXT NOT NULL,
+        tweet_id TEXT,
+        root_tweet_url TEXT,
+        thesis_carried TEXT,
+        what_got_wrong TEXT,
+        chart_data TEXT,
+        amplification_email_sent INTEGER NOT NULL DEFAULT 0,
+        amplification_email_sent_at TEXT,
+        organic_reach_snapshot TEXT,
+        posted_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+        finding_slug TEXT,
+        opening_line TEXT,
+        status TEXT NOT NULL DEFAULT 'shipped',
+        void_reason TEXT,
+        blog_slug TEXT
+      )
+    `);
+    db.run(`
+      INSERT INTO daily_read_log_p1migration
+        (edition_n, beat_source, tweet_id, root_tweet_url, thesis_carried, what_got_wrong,
+         chart_data, amplification_email_sent, amplification_email_sent_at,
+         organic_reach_snapshot, posted_at, created_at, finding_slug, opening_line,
+         status, void_reason, blog_slug)
+      SELECT
+        edition_n, beat_source, tweet_id, root_tweet_url, thesis_carried, what_got_wrong,
+        chart_data, amplification_email_sent, amplification_email_sent_at,
+        organic_reach_snapshot, posted_at, created_at, finding_slug, opening_line,
+        status, void_reason, blog_slug
+      FROM daily_read_log
+    `);
+    db.run("DROP TABLE daily_read_log");
+    db.run("ALTER TABLE daily_read_log_p1migration RENAME TO daily_read_log");
+    db.run("COMMIT");
+  } catch (error) {
+    db.run("ROLLBACK");
+    throw error;
+  }
 }
 
 // ---------- Chart generation (NO AI art — pure SQL on distilled_artifacts) ----------
@@ -217,6 +326,75 @@ function alreadyPostedToday(): boolean {
   ).get() as { n: number };
   db.close();
   return row.n > 0;
+}
+
+interface ResumableEdition {
+  edition_n: number;
+  status: string;
+}
+
+/**
+ * arc-day-n-publishing P1 (dev-council/Kleppmann+Lamport, design spec §3.2, CONFIRMED-applied):
+ * "crash-resume must NOT redraft." Without this check, a producer run that finds edition N
+ * already claimed (a prior run's INSERT succeeded, but the process crashed/was killed before
+ * `logBeat`/`finalizeEditionStatus` ran) would call `getEditionN()` — a bare `MAX(edition_n)+1`
+ * — and allocate N+1, orphaning N's reservation forever and posting divergent tweet text under
+ * a NEW public number for what the reader may have already partially seen. This function finds
+ * that not-yet-finalized row so the caller resumes the SAME edition_n with the SAME stored
+ * materials/draft files, rather than drafting fresh content under a new number. Producer-side
+ * (not `admission.ts`-side) by design — see CHECKPOINTS.md's disclosed `admitGroup`
+ * idempotent-resume follow-up for why this isn't an engine-level fix.
+ */
+function findResumableEdition(db: Database): ResumableEdition | null {
+  return db
+    .query(
+      `SELECT edition_n, status FROM daily_read_log
+       WHERE status IN ('reserving', 'partial') AND date(created_at) = date('now')
+       ORDER BY edition_n DESC LIMIT 1`
+    )
+    .get() as ResumableEdition | null;
+}
+
+/**
+ * arc-day-n-publishing P1 (dev-council/Lamport+Kleppmann, design spec §3.3, CONFIRMED-applied):
+ * the PUBLIC streak is NOT the raw edition_n (never-skip keeps that contiguous by
+ * construction, so a bare PK-gap check can never detect a void — it always trivially equals
+ * the row count). This folds over `(edition_n, status)` from the most recent edition
+ * backwards, stopping at the first `void` — a voided edition is a real break the public saw,
+ * and it must render as one even though the underlying counter stays contiguous.
+ */
+function computeStreak(db: Database): number {
+  const rows = db
+    .query("SELECT status FROM daily_read_log ORDER BY edition_n DESC")
+    .all() as { status: string }[];
+  let streak = 0;
+  for (const row of rows) {
+    if (row.status === "shipped" || row.status === "partial") {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+/**
+ * QUEST.md mandate: the word "daily" is not marketed in public copy until 30 consecutive
+ * editions ship. Encoded as a gate function (not a manual reminder) — see ctaLine() below,
+ * the one place in this file's deterministic copy where "daily"/"Day N" branding is chosen.
+ */
+function canUseDailyWord(streak: number): boolean {
+  return streak >= DAILY_WORD_STREAK_THRESHOLD;
+}
+
+/**
+ * arc-day-n-publishing P1 (design spec §3.6/§4): read the merged-unit rollout toggle. Mirrors
+ * arc-workflows/sensor.ts's isDaynMergedEnabled() — same `agent_config` row, same convention
+ * (DB toggle, not env var, for an instant single-value rollback). Defaults OFF.
+ */
+function isDaynMergedEnabled(db: Database): boolean {
+  const row = db.query("SELECT value FROM agent_config WHERE key = 'DAYN_MERGED'").get() as { value: string } | null;
+  return row?.value === "true";
 }
 
 // ---------- Finding selection (P1 — findings-first, replaces pipeline-stats lede) ----------
@@ -378,9 +556,12 @@ interface Beat {
   tweets: string[];
   editionN: number;
   thesis: string;
-  chartData: ChartData;
+  chartData: ChartData | null;
   findingSlug: string | null;
   openingLine: string | null;
+  /** arc-day-n-publishing P1 (design spec §3.4): true for the 1-tweet never-skip fallback —
+   *  the streak still advances, but no blog-publish task is queued (nothing to mirror). */
+  isMinimal: boolean;
 }
 
 interface VoiceDraft {
@@ -402,8 +583,35 @@ interface MaterialsBrief {
     dominantType: string;
     sparklineText: string;
   };
+  /** Empty string on editions with no CTA (see hasCta doc below) — never omit the field. */
   ctaLine: string;
+  /** arc-day-n-publishing P1 (design spec §3.5): "no ROUTINE CTA tweet... when a CTA is used
+   *  (not every edition)". Deterministic, not a coin flip — every 3rd edition carries a CTA so
+   *  the rule is auditable from edition_n alone, not a hidden random draw. */
+  hasCta: boolean;
   chartData: ChartData;
+}
+
+/**
+ * arc-day-n-publishing P1 (design spec §3.5, §3.3): deterministic footer/CTA copy for a given
+ * edition. "No routine CTA tweet" (§3.5) → hasCta is false on 2 of every 3 editions; when
+ * present, it points at $9-report-or-/subscribe, NEVER $49 (fixes the pre-P1 template, which
+ * linked a $9 checkout URL under a "Free room" label — misleading either way). The "daily" word
+ * is gated on canUseDailyWord(streak) (QUEST.md: not marketed before a 30-edition streak).
+ */
+function buildCtaLine(editionN: number, streak: number): { ctaLine: string; hasCta: boolean } {
+  const hasCta = editionN % 3 === 0;
+  if (!hasCta) return { ctaLine: "", hasCta: false };
+
+  const followLine = canUseDailyWord(streak)
+    ? `Follow ${X_HANDLE} for the daily read.`
+    : `Follow ${X_HANDLE} for Day ${editionN} · Read #${editionN}.`;
+  const ctaLine = [
+    followLine,
+    ``,
+    `Get the full write-up + findings the day they land: ${SUBSCRIBE_URL}`,
+  ].join("\n");
+  return { ctaLine, hasCta };
 }
 
 /**
@@ -421,6 +629,7 @@ function composeMaterials(editionOverride?: number): MaterialsBrief {
   const finding = selectFinding(db);
   const introStyle = chooseIntroStyle(editionN);
   const avoidOpenings = getRecentOpenings(db, 3);
+  const streak = computeStreak(db);
   db.close();
 
   // P1 arc-strategy-panel fix (washington/quinn): "Stacks builders" narrowed the CTA against
@@ -434,11 +643,7 @@ function composeMaterials(editionOverride?: number): MaterialsBrief {
   // silently truncated the CTA link out of the tweet entirely (caught only because the
   // arc-strategy-panel wording fix above made the overflow worse and this re-verification pass
   // measured the real length instead of assuming it fit). Kept intentionally terse.
-  const ctaLine = [
-    `Follow ${X_HANDLE} for the daily beat.`,
-    ``,
-    `Free room for agent operators who want to feed their agents real signal: ${FREE_ROOM_URL}`,
-  ].join("\n");
+  const { ctaLine, hasCta } = buildCtaLine(editionN, streak);
 
   return {
     editionN,
@@ -453,6 +658,7 @@ function composeMaterials(editionOverride?: number): MaterialsBrief {
       sparklineText,
     },
     ctaLine,
+    hasCta,
     chartData,
   };
 }
@@ -509,19 +715,20 @@ function composeBeat(brief: MaterialsBrief, voiceDraft: VoiceDraft): Beat {
     );
   }
 
-  // Tweet 4: deterministic footer/appendix — stats + CTA, moved OFF the lede per P1 phase goal.
-  // Kept terse deliberately: this tweet must also carry the CTA link in the same 240 chars, and
-  // the full annotated sparkline text (renderChartText) doesn't fit alongside it — see the
-  // ctaLine comment above for the overflow this was fixed from.
+  // Tweet 4: deterministic footer/appendix — stats + (sometimes) CTA, moved OFF the lede per P1
+  // phase goal. Kept terse deliberately: on CTA editions this tweet must also carry the CTA
+  // link in the same 240 chars, and the full annotated sparkline text (renderChartText) doesn't
+  // fit alongside it — see buildCtaLine's comment for the overflow this was fixed from.
+  // arc-day-n-publishing P1 (design spec §3.5): "no ROUTINE CTA tweet" — brief.hasCta is false
+  // on 2 of every 3 editions (buildCtaLine), so ctaLine is "" and this tweet is stats-only.
   const tweet4 = [
-    `${brief.statsFooter.totalArtifacts} research passes in my pipeline, ${brief.statsFooter.thisWeekCount} this week. Edition ${brief.editionN}.`,
-    ``,
-    brief.ctaLine,
+    `${brief.statsFooter.totalArtifacts} research passes in my pipeline, ${brief.statsFooter.thisWeekCount} this week. Day ${brief.editionN} · Read #${brief.editionN}.`,
+    ...(brief.hasCta ? ["", brief.ctaLine] : []),
   ].join("\n");
   if (tweet4.length > 240) {
     // Should be unreachable given the fixed-length fields above, but fail loudly rather than
     // silently truncate the CTA link out of the tweet again.
-    throw new VoiceDraftValidationError(`deterministic tweet 4 (footer+CTA) exceeds 240 chars (${tweet4.length}) — shorten the footer/CTA template, do not let this silently truncate`);
+    throw new VoiceDraftValidationError(`deterministic tweet 4 (footer${brief.hasCta ? "+CTA" : ""}) exceeds 240 chars (${tweet4.length}) — shorten the footer/CTA template, do not let this silently truncate`);
   }
 
   return {
@@ -531,6 +738,58 @@ function composeBeat(brief: MaterialsBrief, voiceDraft: VoiceDraft): Beat {
     chartData: brief.chartData, // reuse — avoid a second identical generateChart() DB round-trip
     findingSlug: brief.finding.slug,
     openingLine,
+    isMinimal: false,
+  };
+}
+
+/**
+ * arc-day-n-publishing P1 (design spec §3.4, dev-council/Lamport F5, CONFIRMED-applied):
+ * NEVER-SKIP degradation. When the full read→post→thread pipeline cannot complete (no voice
+ * draft, a validation failure, a missing/thin finding), the producer emits a 1-tweet minimal
+ * edition rather than skipping the day — the streak counter advances instead of resetting.
+ * Fully deterministic (no LLM call, by design — this is the exact fallback for when the LLM
+ * turn is what failed). Uses the finding's hook + file:line citation when available (still
+ * receipts-first); falls back to a bare, honest placeholder when even that isn't available
+ * (research/INDEX.md parse returned nothing) so the streak survives the worst case too.
+ *
+ * Scope, disclosed (§3.4): this covers "thin content" / "drafting failed" — it does NOT cover
+ * "the producer never ran at all" (VM down, expired token, timer miss). That gap is handed to
+ * P5's monitor extension + the operator-loop dead-man's-switch (an in-producer fallback cannot
+ * fire if the producer itself never executes).
+ */
+function composeMinimalBeat(brief: MaterialsBrief): Beat {
+  const tweet = brief.finding
+    ? `Day ${brief.editionN} · Read #${brief.editionN} (minimal edition — full read deferred). ${brief.finding.hook} ${brief.finding.fileLine}`
+    : `Day ${brief.editionN} · Read #${brief.editionN} (minimal edition — full read deferred; no eligible finding available this cycle). The streak carries forward; the full read lands next cycle.`;
+
+  if (tweet.length > 240) {
+    // Truncate the finding hook, never the file:line citation (the receipt is the point).
+    const overflow = tweet.length - 240;
+    const truncatedHook = brief.finding
+      ? `${brief.finding.hook.slice(0, Math.max(0, brief.finding.hook.length - overflow - 1))}…`
+      : "";
+    const rebuilt = brief.finding
+      ? `Day ${brief.editionN} · Read #${brief.editionN} (minimal edition). ${truncatedHook} ${brief.finding.fileLine}`
+      : tweet.slice(0, 240);
+    return {
+      tweets: [rebuilt],
+      editionN: brief.editionN,
+      thesis: brief.finding?.hook ?? "(no finding available)",
+      chartData: brief.chartData ?? null,
+      findingSlug: brief.finding?.slug ?? null,
+      openingLine: rebuilt,
+      isMinimal: true,
+    };
+  }
+
+  return {
+    tweets: [tweet],
+    editionN: brief.editionN,
+    thesis: brief.finding?.hook ?? "(no finding available)",
+    chartData: brief.chartData ?? null,
+    findingSlug: brief.finding?.slug ?? null,
+    openingLine: tweet,
+    isMinimal: true,
   };
 }
 
@@ -641,6 +900,29 @@ async function postTweet(
     return null;
   }
 
+  // arc-day-n-publishing P1 (design spec §3.2 resume path): social-x-posting/cli.ts's
+  // pre-admitted-group fast path is idempotent by source_key — a resumed run that re-issues
+  // `post --source ${source}` for a tweet ALREADY sent in a prior (crashed) run gets back
+  // `{skipped:true, reason:"already_handled_by_engine"}` with NO tweet_id in that JSON (it never
+  // re-posts, which is correct — it must not double-publish). Without this branch, the resume
+  // path would misread that as a FAILED send (tweetId=null) and wrongly void an edition whose
+  // root actually already shipped. Recover the real id from x_post_log (same source_key), the
+  // engine's own record of what actually posted.
+  try {
+    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    if (parsed["skipped"] === true && parsed["reason"] === "already_handled_by_engine") {
+      const db = getDb();
+      const priorRow = db.query("SELECT tweet_id FROM x_post_log WHERE source = ?").get(source) as { tweet_id: string | null } | null;
+      db.close();
+      if (priorRow?.tweet_id) {
+        console.log(`  RESUMED ${source}: already sent in a prior run — recovered tweet_id=${priorRow.tweet_id} from x_post_log (not re-posted)`);
+        return priorRow.tweet_id;
+      }
+      console.log(`  RESUMED ${source}: engine reports already-handled (status=${parsed["existingStatus"]}) but x_post_log has no tweet_id for it — treating as unrecoverable, not re-posting`);
+      return null;
+    }
+  } catch { /* stdout wasn't JSON — fall through to the normal tweet_id parse below */ }
+
   // Parse tweet ID from output
   const match = stdout.match(/tweet_id[:\s]+(\d+)/i) || stdout.match(/"id":\s*"(\d+)"/);
   const tweetId = match?.[1] ?? null;
@@ -650,9 +932,10 @@ async function postTweet(
 
 // ---------- P3 arc-posting-scheduler: atomic whole-beat reservation ----------
 //
-// Reserves the WHOLE 4-tweet beat (root + reply-2 + reply-3 + cta) as ONE atomic group,
-// in daily-read's OWN `lane='daily-read'`, inside its 13:00-14:00 UTC window, BEFORE any
-// tweet is sent — replacing the old "check a shared cap, then post 4 times and hope"
+// Reserves the WHOLE beat (normally root + reply-2 + reply-3 + cta; ONE root tweet for the
+// arc-day-n-publishing P1 never-skip minimal edition — see composeMinimalBeat) as ONE atomic
+// group, in daily-read's OWN `lane=${PRIMARY_THREAD_LANE}`, inside its 13:00-14:00 UTC window,
+// BEFORE any tweet is sent — replacing the old "check a shared cap, then post 4 times and hope"
 // sequence with the same atomic-admission guarantee P2 built for content-calendar.
 // Each subsequent `postTweet()` call below drains one already-admitted row via cli.ts's
 // pre-admitted-group fast path (source keys match exactly — see cmdPost's callers).
@@ -663,15 +946,18 @@ interface ReserveGroupResult {
   atomicGroupId?: string;
 }
 
-async function reserveDailyReadGroup(editionN: number, dryRun: boolean): Promise<ReserveGroupResult> {
-  const sources = [
-    `daily-read:${editionN}:root`,
-    `daily-read:${editionN}:reply-2`,
-    `daily-read:${editionN}:reply-3`,
-    `daily-read:${editionN}:cta`,
-  ];
+// Standard 4-tweet beat suffixes, in root-first order. The 1-tweet never-skip minimal edition
+// (composeMinimalBeat) reserves just `["root"]` — see reserveDailyReadGroup's `suffixes` param.
+const FULL_BEAT_SUFFIXES = ["root", "reply-2", "reply-3", "cta"];
+
+async function reserveDailyReadGroup(
+  editionN: number,
+  dryRun: boolean,
+  suffixes: string[] = FULL_BEAT_SUFFIXES
+): Promise<ReserveGroupResult> {
+  const sources = suffixes.map((suffix) => sourceKey(editionN, suffix));
   if (dryRun) {
-    console.log(`  [DRY-RUN] Would reserve-group (lane=daily-read, 13:00-14:00 UTC): ${sources.join(", ")}`);
+    console.log(`  [DRY-RUN] Would reserve-group (lane=${PRIMARY_THREAD_LANE}, 13:00-14:00 UTC): ${sources.join(", ")}`);
     return { ok: true, atomicGroupId: "dry-run-atomic-group-id" };
   }
 
@@ -680,7 +966,7 @@ async function reserveDailyReadGroup(editionN: number, dryRun: boolean): Promise
     "reserve-group",
     "--sources", sources.join(","),
     "--thread-ref", sources[0],
-    "--lane", "daily-read",
+    "--lane", PRIMARY_THREAD_LANE,
     "--earliest-time", "13:00",
     "--latest-time", "14:00",
   ];
@@ -752,7 +1038,11 @@ async function sendAmplificationEmail(
 
   const tweetLink = tweetUrl ? `<a href="${tweetUrl}">${tweetUrl}</a>` : "(tweet URL pending)";
 
-  const suggestedQuoteTweet = `My agent Arc just dropped Edition ${editionN} of its Daily Read. ${beat.chartData.totalArtifacts} research passes in the pipeline. Worth a look if you're building on Stacks.`;
+  // beat.chartData is null on a never-skip minimal edition (composeMinimalBeat) — there was no
+  // full chart pull for that cycle; fall back to a chart-free line rather than crashing on null.
+  const suggestedQuoteTweet = beat.chartData
+    ? `My agent Arc just dropped Edition ${editionN} of its Daily Read. ${beat.chartData.totalArtifacts} research passes in the pipeline. Worth a look if you're building on Stacks.`
+    : `My agent Arc just dropped Edition ${editionN} of its Daily Read (a minimal edition today — full read next cycle). Worth a look if you're building on Stacks.`;
 
   const htmlBody = `
 <!DOCTYPE html>
@@ -840,17 +1130,22 @@ async function sendAmplificationEmail(
  * point: if two invocations ever compute the same next-edition number (a near-simultaneous
  * retry/race), only the first INSERT wins — the second hits a PK conflict and this function
  * returns false, so the caller aborts BEFORE posting instead of double-posting identical tweets.
- * `logBeat` below then only UPDATEs this already-claimed row to finalize it after posting
- * succeeds — it never INSERTs, so a crash after posting but before finalize leaves a detectable
- * claimed-but-unfinalized row (finding_slug set, tweet_id/posted_at NULL) rather than silently
- * allowing a full repost. (A stricter fix — checkpointing per-tweet post state so a crash mid-
- * thread can safely resume — is out of scope for this phase; flagged as a carry-forward.)
+ * `finalizeEditionStatus` below then only UPDATEs this already-claimed row — it never INSERTs, so
+ * a crash after posting but before finalize leaves a detectable claimed-but-unfinalized row
+ * (status='reserving', tweet_id/posted_at NULL) that findResumableEdition() picks up and resumes
+ * (arc-day-n-publishing P1, design spec §3.2) rather than a stricter per-tweet checkpoint scheme
+ * (still out of scope; the resumable-row check is the producer-side workaround for that).
+ *
+ * arc-day-n-publishing P1 (design spec §3.1): explicitly sets status='reserving' — the column's
+ * table-level DEFAULT is 'shipped', which is correct ONLY for the 4 pre-P1 rows the additive
+ * migration backfilled (all confirmed fully shipped in the P0 live-state re-read); a FRESH claim
+ * has shipped nothing yet and must never silently inherit that default.
  */
 function claimEdition(db: Database, editionN: number, findingSlug: string | null, openingLine: string | null): boolean {
   try {
     db.run(
-      `INSERT INTO daily_read_log (edition_n, beat_source, finding_slug, opening_line) VALUES (?, ?, ?, ?)`,
-      [editionN, `daily-read:${editionN}`, findingSlug, openingLine]
+      `INSERT INTO daily_read_log (edition_n, beat_source, finding_slug, opening_line, status) VALUES (?, ?, ?, ?, 'reserving')`,
+      [editionN, `${PRIMARY_THREAD_LANE}:${editionN}`, findingSlug, openingLine]
     );
     return true;
   } catch (error) {
@@ -860,14 +1155,23 @@ function claimEdition(db: Database, editionN: number, findingSlug: string | null
   }
 }
 
-/** Finalize an already-claimed edition_n row (see claimEdition) with posting results. */
-function logBeat(
+/**
+ * Finalize an already-claimed edition_n row (see claimEdition) with posting results AND its
+ * outbox-derived status (arc-day-n-publishing P1, design spec §3.1): 'shipped' only when every
+ * planned tweet posted (a captured tweetId for each); 'partial' when the root posted but a
+ * continuation didn't (partial-degraded still counts toward the public streak — computeStreak);
+ * 'void' when the root itself never posted (nothing went live — does NOT count toward the
+ * streak). Status is derived from send outcomes here, never asserted by the caller.
+ */
+function finalizeEditionStatus(
   db: Database,
   editionN: number,
   beat: Beat,
   tweetId: string | null,
+  status: "shipped" | "partial" | "void",
+  voidReason: string | null,
   emailSent: boolean,
-  postedAt: string
+  postedAt: string | null
 ): void {
   const tweetUrl = tweetId ? `https://x.com/${X_HANDLE.slice(1)}/status/${tweetId}` : null;
 
@@ -875,18 +1179,20 @@ function logBeat(
     `UPDATE daily_read_log SET
        tweet_id = ?, root_tweet_url = ?, thesis_carried = ?, what_got_wrong = ?,
        chart_data = ?, amplification_email_sent = ?, amplification_email_sent_at = ?,
-       organic_reach_snapshot = ?, posted_at = ?
+       organic_reach_snapshot = ?, posted_at = ?, status = ?, void_reason = ?
      WHERE edition_n = ?`,
     [
       tweetId,
       tweetUrl,
       beat.thesis,
       null, // what_got_wrong is set on the NEXT beat, looking back
-      JSON.stringify(beat.chartData),
+      beat.chartData ? JSON.stringify(beat.chartData) : null,
       emailSent ? 1 : 0,
       emailSent ? new Date().toISOString() : null,
       JSON.stringify({ follower_count_at_post: 51 }), // P2 baseline; updated when live X pull is available
       postedAt,
+      status,
+      voidReason,
       editionN,
     ]
   );
@@ -943,7 +1249,8 @@ async function cmdMaterials(dryRun: boolean, editionOverride?: number) {
   console.log(`Intro style (this edition): ${brief.introStyle}`);
   console.log(`Avoid repeating these openings: ${brief.avoidOpenings.length ? brief.avoidOpenings.join(" | ") : "(none yet — first editions)"}`);
   console.log(`Stats footer (deterministic, goes in tweet 4 only): ${JSON.stringify(brief.statsFooter)}`);
-  console.log(`CTA line (deterministic, do not rewrite the URL): ${brief.ctaLine}`);
+  console.log(`CTA this edition (no-routine-CTA gate, design spec §3.5): ${brief.hasCta ? "YES" : "no — 2 of every 3 editions carry no CTA"}`);
+  if (brief.hasCta) console.log(`CTA line (deterministic, do not rewrite the URL): ${brief.ctaLine}`);
 
   const fs = require("fs");
   if (!fs.existsSync(MATERIALS_DIR)) fs.mkdirSync(MATERIALS_DIR, { recursive: true });
@@ -997,7 +1304,18 @@ async function cmdCompose(dryRun: boolean, voiceFilePath?: string) {
   }
 }
 
-async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
+/** Strict frozen-brief read (TOCTOU-safe, see loadMaterialsBrief) with a lenient fallback for
+ *  the never-skip path, where "materials never ran either" is itself a valid failure to survive. */
+function loadOrComposeMaterialsBrief(editionN: number): MaterialsBrief {
+  try {
+    return loadMaterialsBrief(join(MATERIALS_DIR, `edition-${editionN}.json`));
+  } catch {
+    console.log(`  (no frozen materials brief for edition ${editionN} — composing fresh for the never-skip fallback)`);
+    return composeMaterials(editionN);
+  }
+}
+
+async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure: boolean = false) {
   console.log(`=== Arc Daily Read — Post ${dryRun ? "(DRY-RUN)" : "(LIVE)"} ===`);
 
   // Kill switch check — fully deterministic, unchanged by the P1 voice-pass rework.
@@ -1016,43 +1334,66 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
     process.exit(0);
   }
 
+  // arc-day-n-publishing P1 (design spec §3.2, dev-council/Kleppmann+Lamport, CONFIRMED-applied):
+  // crash-resume check BEFORE allocating a new edition number. If a prior run claimed an
+  // edition but crashed before finalizing it, resume THAT edition_n with its stored materials
+  // — never allocate N+1 and redraft under a new, divergent number (see findResumableEdition).
+  const resumeDb = getDb();
+  const resumable = findResumableEdition(resumeDb);
+  resumeDb.close();
+  const editionN = resumable ? resumable.edition_n : getEditionN();
+  if (resumable) {
+    console.log(`RESUMING edition ${editionN} (status=${resumable.status}) — a prior run claimed this edition but did not finish draining. Using its stored materials/draft, not drafting fresh content or allocating a new number.`);
+  }
+
   // P1: no LLM call happens here — this only reads a voice draft file that was authored
-  // upstream by the SOUL.md-gated dispatch-cycle LLM turn. If it's missing, DEFER — never
-  // silently fall back to the old pipeline-stats template (that would regress the exact
-  // problem this phase fixes).
-  if (!voiceFilePath) {
+  // upstream by the SOUL.md-gated dispatch-cycle LLM turn. If it's missing, the never-skip
+  // fallback below fires instead of deferring (arc-day-n-publishing P1 — deferring forever is
+  // exactly the failure class this quest exists to kill).
+  if (!voiceFilePath && !simulateFailure) {
     const fs = require("fs");
-    const defaultPath = join(MATERIALS_DIR, `edition-${getEditionN()}.draft.json`);
-    if (fs.existsSync(defaultPath)) {
-      voiceFilePath = defaultPath;
-    } else {
-      console.log("DEFERRED: no voice draft available — run 'materials' then draft the beat before 'post'");
-      console.log(`  expected: ${defaultPath}`);
-      process.exit(0);
-    }
+    const defaultPath = join(MATERIALS_DIR, `edition-${editionN}.draft.json`);
+    if (fs.existsSync(defaultPath)) voiceFilePath = defaultPath;
   }
 
   let beat: Beat;
+  let usedNeverSkipFallback = false;
+  let fallbackReason = "";
   try {
-    const editionN = getEditionN();
+    if (simulateFailure) {
+      throw new VoiceDraftValidationError("--simulate-failure: forcing the never-skip minimal-edition path (verification of design spec §3.4)");
+    }
+    if (!voiceFilePath) {
+      throw new VoiceDraftValidationError(`no voice draft available at ${join(MATERIALS_DIR, `edition-${editionN}.draft.json`)}`);
+    }
+    // Strict, TOCTOU-safe read (dev-council/kleppmann+newman+hohpe, see loadMaterialsBrief doc
+    // comment) — a missing frozen brief here is itself a "full edition can't be produced"
+    // signal and falls through to the never-skip minimal edition below, not a silent recompute.
     const brief = loadMaterialsBrief(join(MATERIALS_DIR, `edition-${editionN}.json`));
     const voiceDraft = loadVoiceDraft(voiceFilePath);
     beat = composeBeat(brief, voiceDraft);
   } catch (err) {
-    if (err instanceof VoiceDraftValidationError) {
-      console.log(`DEFERRED: voice draft failed validation — ${err.message}`);
-      process.exit(0);
-    }
-    throw err;
+    if (!(err instanceof VoiceDraftValidationError)) throw err;
+    // arc-day-n-publishing P1 (design spec §3.4, dev-council/Lamport F5, CONFIRMED-applied):
+    // NEVER-SKIP degradation. The full edition can't be produced (thin content, drafting or
+    // validation failure, or an explicit --simulate-failure proving this path) — emit the
+    // 1-tweet minimal edition instead of deferring. The streak still advances.
+    console.log(`FULL EDITION UNAVAILABLE (${err.message})`);
+    console.log(`NEVER-SKIP: falling back to the 1-tweet minimal edition for edition ${editionN} instead of deferring.`);
+    usedNeverSkipFallback = true;
+    fallbackReason = err.message;
+    const brief = loadOrComposeMaterialsBrief(editionN);
+    beat = composeMinimalBeat(brief);
   }
   const postedAt = new Date().toISOString();
 
-  // P3 arc-posting-scheduler: reserve the WHOLE 4-tweet beat as ONE atomic group, in
-  // daily-read's OWN lane + its 13:00-14:00 UTC window, BEFORE claiming the edition
-  // number or sending anything — so a deferred/rejected reservation never burns an
-  // edition_n that would then never post. This is now the authoritative cap/window
-  // check (replacing the old shared-cap `checkCap().allowed` gate above).
-  const reservation = await reserveDailyReadGroup(beat.editionN, dryRun);
+  // P3 arc-posting-scheduler: reserve the WHOLE beat (4 tweets normally; 1 for a never-skip
+  // minimal edition) as ONE atomic group, in daily-read's OWN lane + its 13:00-14:00 UTC
+  // window, BEFORE claiming the edition number or sending anything — so a deferred/rejected
+  // reservation never burns an edition_n that would then never post. This is the authoritative
+  // cap/window check (replacing the old shared-cap `checkCap().allowed` gate above).
+  const suffixes = beat.isMinimal ? ["root"] : FULL_BEAT_SUFFIXES;
+  const reservation = await reserveDailyReadGroup(beat.editionN, dryRun, suffixes);
   if (!reservation.ok) {
     console.log(`DEFERRED: reserve-group rejected this edition's beat — reason=${reservation.reason}`);
     console.log(`  detail: ${reservation.detail ?? "(none)"}`);
@@ -1061,22 +1402,19 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
     }
     process.exit(0);
   }
-  console.log(`Reservation OK — atomic_group_id=${reservation.atomicGroupId}`);
+  console.log(`Reservation OK — atomic_group_id=${reservation.atomicGroupId} (${suffixes.length}-tweet ${beat.isMinimal ? "MINIMAL never-skip" : "full"} beat)`);
 
   // Claim this edition_n BEFORE posting anything — the linearization point (see claimEdition
-  // doc comment). Skipped in --dry-run so test runs never mutate daily_read_log.
+  // doc comment). Skipped entirely when resuming (already claimed by the prior run) and
+  // skipped in --dry-run so test runs never mutate daily_read_log.
   //
   // dev-council/Lamport (P3 fix, CONFIRMED CRITICAL — F1): the ORIGINAL version of this
   // block exited on `!claimed` (or would have propagated an exception) WITHOUT releasing
   // the reservation `reserveDailyReadGroup()` just committed. Because `source_key` is
-  // UNIQUE and `getEditionN()` reads `daily_read_log` (untouched by the orphaned
-  // `outbound_action` rows), the NEXT tick recomputes the SAME edition N, composes the
-  // SAME `daily-read:N:*` keys, and `reserve-group`'s idempotency check finds them
-  // already `queued` → `already_exists` → deferred, forever. That is a PERMANENT,
-  // self-inflicted starvation of daily-read — the exact failure class this quest exists
-  // to kill, reintroduced through this seam. Fix: release the reservation on ANY
-  // claim-failure path (`!claimed` OR an exception) before exiting/rethrowing.
-  if (!dryRun) {
+  // UNIQUE and a claimed-but-unfinalized row is now resumed (not recomputed to N+1 — see
+  // findResumableEdition), releasing on any claim-failure path remains required so a
+  // concurrent/retried run doesn't strand this run's reservation forever.
+  if (!dryRun && !resumable) {
     const claimDb = getDb();
     let claimed = false;
     try {
@@ -1102,49 +1440,119 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
       }
       process.exit(0);
     }
-  } else {
+  } else if (dryRun) {
     console.log(`[DRY-RUN] Would claim edition ${beat.editionN} in daily_read_log before posting (skipped for dry-run)`);
+  } else {
+    console.log(`Edition ${beat.editionN} already claimed (resuming this run) — not calling claimEdition a second time.`);
   }
 
-  console.log(`\nEdition ${beat.editionN} | ${cap.slotsRemaining} slots available`);
-  console.log("Posting 4-tweet beat...");
+  console.log(`\nEdition ${beat.editionN} | posting ${beat.tweets.length}-tweet beat...`);
 
-  // Post root
-  const rootId = await postTweet(beat.tweets[0], `daily-read:${beat.editionN}:root`, undefined, true, dryRun);
+  // arc-day-n-publishing P1: generalized the old hardcoded root/reply-2/reply-3/cta 4-slot
+  // sequence to any beat length (1 for the never-skip minimal edition). dev-council/Kleppmann
+  // finding #10: an 'unknown'/failed send has no valid reply target — stop draining rather
+  // than chain --reply-to a null parent (the beat's status is then derived as 'partial'/'void'
+  // below, never silently treated as fully shipped).
+  const postedIds: (string | null)[] = [];
+  let priorId: string | undefined;
+  for (let i = 0; i < beat.tweets.length; i++) {
+    const suffix = suffixes[i] ?? `tweet-${i + 1}`;
+    const id = await postTweet(beat.tweets[i], sourceKey(beat.editionN, suffix), priorId, i === 0, dryRun);
+    postedIds.push(id);
+    if (id) {
+      priorId = id;
+    } else {
+      console.log(`  halting drain at tweet ${i + 1}/${beat.tweets.length} — no valid parent for a further --reply-to chain`);
+      break;
+    }
+  }
+  while (postedIds.length < beat.tweets.length) postedIds.push(null);
 
-  // Post reply-2
-  const reply2Id = await postTweet(beat.tweets[1], `daily-read:${beat.editionN}:reply-2`, rootId ?? undefined, false, dryRun);
-
-  // Post reply-3
-  const reply3Id = await postTweet(beat.tweets[2], `daily-read:${beat.editionN}:reply-3`, reply2Id ?? undefined, false, dryRun);
-
-  // Post CTA
-  const ctaId = await postTweet(beat.tweets[3], `daily-read:${beat.editionN}:cta`, reply3Id ?? undefined, false, dryRun);
-
+  const rootId = postedIds[0] ?? null;
   const tweetUrl = rootId ? `https://x.com/arc0btc/status/${rootId}` : null;
 
-  // Send amplification email (REQUIRED per D4)
-  console.log("\nFiring amplification email (D4 — required)...");
-  const emailSent = await sendAmplificationEmail(beat.editionN, tweetUrl, beat, dryRun);
+  // arc-day-n-publishing P1 (design spec §3.1): status derived from send outcomes, never
+  // asserted. 'shipped' = every planned tweet posted; 'partial' = root posted but a
+  // continuation didn't (still counts toward the public streak, computeStreak); 'void' = the
+  // root itself never posted — nothing went live, does not count toward the streak.
+  let status: "shipped" | "partial" | "void";
+  let voidReason: string | null = null;
+  if (!rootId) {
+    status = "void";
+    voidReason = "root_post_failed";
+  } else if (postedIds.every((id) => id !== null)) {
+    status = "shipped";
+  } else {
+    status = "partial";
+  }
 
-  if (!emailSent) {
-    console.warn("  Amplification email FAILED — logging: 'shipped without amplification (operator offline) — dead reach expected'");
+  // Send amplification email (REQUIRED per D4) — skip for a void edition (nothing to amplify).
+  let emailSent = false;
+  if (status !== "void") {
+    console.log("\nFiring amplification email (D4 — required)...");
+    emailSent = await sendAmplificationEmail(beat.editionN, tweetUrl, beat, dryRun);
+    if (!emailSent) {
+      console.warn("  Amplification email FAILED — logging: 'shipped without amplification (operator offline) — dead reach expected'");
+    }
   }
 
   // Log the beat
   if (!dryRun) {
     const db = getDb();
-    logBeat(db, beat.editionN, beat, rootId, emailSent, postedAt);
+    finalizeEditionStatus(db, beat.editionN, beat, rootId, status, voidReason, emailSent, status === "void" ? null : postedAt);
     db.close();
-    console.log(`\nLogged Edition ${beat.editionN} to daily_read_log`);
+    console.log(`\nLogged Edition ${beat.editionN} to daily_read_log (status=${status})`);
   } else {
-    console.log(`\n[DRY-RUN] Would log Edition ${beat.editionN} to daily_read_log`);
+    console.log(`\n[DRY-RUN] Would log Edition ${beat.editionN} to daily_read_log (status=${status})`);
     console.log(`  tweet_id: ${rootId}`);
     console.log(`  email_sent: ${emailSent}`);
     console.log(`  thesis: ${beat.thesis}`);
   }
 
+  // arc-day-n-publishing P1 (design spec §3.6): queue the SAME-edition blog-publish task via
+  // the shared blog-render module — one read = one blog post = one thread. Only for a full
+  // (non-minimal) edition that actually shipped or partially shipped (something real to
+  // mirror), only when DAYN_MERGED is on, and only once per edition (blog_slug column doubles
+  // as the "already queued" guard, so a resumed/retried run never double-queues it).
+  if (!beat.isMinimal && status !== "void") {
+    const gateDb = getDb();
+    const merged = isDaynMergedEnabled(gateDb);
+    const already = gateDb.query("SELECT blog_slug FROM daily_read_log WHERE edition_n = ?").get(beat.editionN) as { blog_slug: string | null } | null;
+    if (dryRun) {
+      console.log(`[DRY-RUN] Would check DAYN_MERGED (currently ${merged ? "ON" : "off"}) and ${merged ? "queue" : "skip queuing"} a blog-publish task for edition ${beat.editionN}.`);
+    } else if (merged && !already?.blog_slug) {
+      const blogSlug = `${postedAt.slice(0, 10)}-day-${beat.editionN}-${beat.findingSlug ?? "read"}`;
+      const built = buildBlogPublishTask({
+        slug: blogSlug,
+        title: `Day ${beat.editionN} — ${beat.thesis.slice(0, 80)}`,
+        sourceArtifactPath: join(MATERIALS_DIR, `edition-${beat.editionN}.json`),
+        extraContext: `This is a Day-N merged unit (arc-day-n-publishing P1) — mirror the SAME finding + thread just posted (edition ${beat.editionN}${tweetUrl ? `, tweet ${tweetUrl}` : ""}). Do not draft a separate, independent narrative — one story, one number, one edition.`,
+      });
+      const { insertTaskDeduped } = await import("../../src/db.ts");
+      const blogTaskId = insertTaskDeduped({
+        subject: built.subject,
+        description: built.description,
+        skills: JSON.stringify(built.skills),
+        priority: built.priority,
+        model: built.model,
+        source: sourceKey(beat.editionN, "blog"),
+      });
+      if (blogTaskId) {
+        gateDb.run("UPDATE daily_read_log SET blog_slug = ? WHERE edition_n = ?", [blogSlug, beat.editionN]);
+        console.log(`Queued blog-publish task (id=${blogTaskId}, slug=${blogSlug}) — one read = one blog post = one thread.`);
+      } else {
+        console.log(`Blog-publish task not queued (duplicate source/subject) — slug ${blogSlug} may already be handled.`);
+      }
+    } else if (!merged) {
+      console.log("DAYN_MERGED is off — not queuing a blog-publish task (pre-merge behavior unchanged).");
+    } else {
+      console.log(`Edition ${beat.editionN} already has a blog-publish task queued (blog_slug=${already?.blog_slug}) — not queuing a second one.`);
+    }
+    gateDb.close();
+  }
+
   console.log("\n=== Complete ===");
+  console.log(`Status: ${status}${usedNeverSkipFallback ? ` (NEVER-SKIP fallback fired: ${fallbackReason})` : ""}`);
   console.log(`Amplification: ${emailSent ? "email sent to operator" : "not sent — dead reach expected"}`);
   console.log(`Organic baseline: 51 followers (P2, 2026-06-27)`);
   console.log(`Reach proof status: CARRIED FORWARD (target ≥10 consecutive beats — see daily_read_log)`);
@@ -1153,8 +1561,10 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string) {
 async function cmdStatus() {
   const db = getDb();
   const rows = db.query(
-    "SELECT edition_n, posted_at, thesis_carried, amplification_email_sent, tweet_id FROM daily_read_log ORDER BY edition_n DESC LIMIT 5"
+    "SELECT edition_n, posted_at, thesis_carried, amplification_email_sent, tweet_id, status, blog_slug FROM daily_read_log ORDER BY edition_n DESC LIMIT 5"
   ).all() as any[];
+  const streak = computeStreak(db);
+  const merged = isDaynMergedEnabled(db);
   db.close();
 
   const cap = checkCap();
@@ -1164,12 +1574,18 @@ async function cmdStatus() {
   console.log(`Today's tweet count: ${cap.todayCount}/${cap.cap} (${cap.slotsRemaining} slots remaining)`);
   console.log(`Kill switch: ${cap.killSwitch ? "ACTIVE" : "inactive"}`);
   console.log(`Today posted: ${alreadyPostedToday()}`);
+  // arc-day-n-publishing P1 (design spec §3.3/§3.6): public streak (status-derived, not a raw
+  // PK count — see computeStreak) and the DAYN_MERGED rollout toggle (agent_config, instant
+  // single-value rollback lever, §4).
+  console.log(`Public streak (consecutive shipped/partial editions): ${streak}`);
+  console.log(`"Daily" word allowed in copy: ${canUseDailyWord(streak) ? "YES" : `no (needs streak ≥ ${DAILY_WORD_STREAK_THRESHOLD})`}`);
+  console.log(`DAYN_MERGED (merged unit + blog-task queuing): ${merged ? "ON" : "off"}`);
   console.log(`\nRecent beats:`);
   if (rows.length === 0) {
     console.log("  No beats yet. Edition 1 pending.");
   } else {
     rows.forEach((r) => {
-      console.log(`  Edition ${r.edition_n} | posted: ${r.posted_at ?? "not yet"} | email: ${r.amplification_email_sent ? "sent" : "not sent"} | tweet: ${r.tweet_id ?? "n/a"}`);
+      console.log(`  Edition ${r.edition_n} | status: ${r.status ?? "shipped"} | posted: ${r.posted_at ?? "not yet"} | email: ${r.amplification_email_sent ? "sent" : "not sent"} | tweet: ${r.tweet_id ?? "n/a"} | blog: ${r.blog_slug ?? "n/a"}`);
     });
   }
   console.log(`\nReach-proof carry-forward target: ≥10 consecutive beats at UTC 13:00`);
@@ -1190,6 +1606,9 @@ const dryRun = process.argv.includes("--dry-run");
 const voiceFileArg = argValue("--voice-file");
 const editionArg = argValue("--edition");
 const editionOverride = editionArg ? parseInt(editionArg, 10) : undefined;
+// arc-day-n-publishing P1 (design spec §3.4): explicit test hook to prove the never-skip
+// minimal-edition path on demand, rather than relying on an organic failure to demonstrate it.
+const simulateFailure = process.argv.includes("--simulate-failure");
 
 switch (command) {
   case "chart":
@@ -1202,17 +1621,18 @@ switch (command) {
     await cmdCompose(dryRun, voiceFileArg);
     break;
   case "post":
-    await cmdPost(dryRun, voiceFileArg);
+    await cmdPost(dryRun, voiceFileArg, simulateFailure);
     break;
   case "status":
     await cmdStatus();
     break;
   default:
-    console.log("Usage: bun cli.ts <chart|materials|compose|post|status> [--dry-run] [--voice-file <path>] [--edition N]");
-    console.log("  chart           Show real-data ASCII chart from distilled_artifacts");
-    console.log("  materials       (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
-    console.log("  compose         Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
-    console.log("  post            Post the daily beat (use --dry-run to simulate; requires a voice draft, see 'materials')");
-    console.log("  status          Show edition log and cap state");
+    console.log("Usage: bun cli.ts <chart|materials|compose|post|status> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
+    console.log("  chart              Show real-data ASCII chart from distilled_artifacts");
+    console.log("  materials          (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
+    console.log("  compose            Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
+    console.log("  post               Post the daily beat (use --dry-run to simulate; requires a voice draft, see 'materials')");
+    console.log("  post --simulate-failure   (P1) Force the never-skip 1-tweet minimal-edition path, for verification");
+    console.log("  status             Show edition log, streak, DAYN_MERGED state, and cap state");
     process.exit(1);
 }

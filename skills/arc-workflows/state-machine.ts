@@ -1,5 +1,9 @@
 import { Workflow, getTaskById, getDatabase } from "../../src/db.ts";
 import { PAID_ROOM_PRODUCT_URL, PROMO_CODE } from "../../src/constants.ts";
+// arc-day-n-publishing P1 (dev-council/Fowler+Newman, design spec §3.6): the blog-publish
+// task descriptor now has ONE definition, shared with the merged Day-N producer
+// (skills/arc-daily-read/cli.ts) — see blog-render.ts's doc comment for why.
+import { buildBlogPublishTask } from "./blog-render.ts";
 
 /**
  * Minimal state machine runner. No external deps.
@@ -640,23 +644,20 @@ export const ContentCalendarMachine: StateMachine<ContentCalendarContext> = {
         // time. Missing/invalid anchor → fails open (publishes immediately), matching the
         // sensor path where blog instances carry a url and short-circuit above.
         if (!cadenceGateOpen(ctx.cadence_anchor, 0)) return { type: "noop" };
+        // arc-day-n-publishing P1: task wording now comes from the shared blog-render
+        // module (extract-and-reuse, design spec §3.6) — this caller only supplies its
+        // own dedup source key + state-machine advancement, both unchanged from before.
+        const built = buildBlogPublishTask({
+          slug: ctx.slug,
+          title: ctx.title || ctx.slug,
+          sourceArtifactPath: ctx.source_artifact_path,
+          extraContext: "The workflow auto-advances to blog_published; downstream channel hops fire on the cadence anchor.",
+        });
         return {
           type: "create-task",
-          subject: `Publish blog work-piece: ${ctx.title || ctx.slug}`,
-          priority: 4,
-          model: "sonnet",
-          skills: ["blog-publishing", "arc-brand-voice"],
+          ...built,
           source: `content-calendar:${ctx.slug}:blog`,
           autoAdvanceState: "blog_published",
-          description: `Publish the canonical, signed blog artifact for this work-piece — the T+0 source of truth the rest of the content calendar amplifies.
-
-Source artifact: ${ctx.source_artifact_path}
-Voice: read skills/arc-brand-voice/CHANNELS.md §blog before publishing.
-
-Steps:
-1. Finalize and publish the post (blog-publishing skill). Verify it is live (build success ≠ deploy success — confirm the URL resolves, see MEMORY [P] content-publish-verify-deploy).
-2. Sign the artifact per Arc's publishing convention.
-3. The workflow auto-advances to blog_published; downstream channel hops fire on the cadence anchor.`,
         };
       },
     },

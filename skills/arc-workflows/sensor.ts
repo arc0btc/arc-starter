@@ -461,6 +461,21 @@ function getBlogDir(): string {
 }
 
 /**
+ * arc-day-n-publishing P1 (design spec §3.6/§4): the merged Day-N unit's rollout toggle.
+ * Read from `agent_config` (same mechanism as the `outbound_enabled` kill switch), NOT an
+ * env var — an env-var flip requires an SSH edit + `.bak` + parse-check to reach the VM's
+ * `.env`; a DB toggle is a single `UPDATE` and is the "instant, single-value rollback lever"
+ * the design spec calls for (§3.6, dev-council/Newman). Defaults OFF (missing row = false)
+ * so a fresh/scratch DB (e.g. verification runs against `DAILY_READ_DB_PATH` overrides)
+ * never silently activates the merge.
+ */
+function isDaynMergedEnabled(): boolean {
+  const db = getDatabase();
+  const row = db.query("SELECT value FROM agent_config WHERE key = 'DAYN_MERGED'").get() as { value: string } | null;
+  return row?.value === "true";
+}
+
+/**
  * True only when `url` actually resolves live (HTTP 200). Both syncBlogPublishes and
  * syncContentCalendar previously trusted "file exists locally with draft:false" as proof the
  * post was published — but a drafted .mdx can sit uncommitted/unpushed indefinitely, so the
@@ -644,6 +659,25 @@ async function syncContentCalendar(): Promise<number> {
 
     const instanceKey = `content-calendar:${postId}`;
     if (getWorkflowByInstanceKey(instanceKey)) continue; // already handled this slug
+
+    // arc-day-n-publishing P1 (design spec §3.6, dev-council/Hohpe+Newman, CONFIRMED-applied):
+    // Day-N-sourced blog posts already get their own bare blog-publish task queued directly
+    // by skills/arc-daily-read/cli.ts (source `daily-read:<edition>:blog`, recorded in
+    // `daily_read_log.blog_slug`) — they must NOT also get a ContentCalendarMachine instance,
+    // which would resurrect the whop-chat/x-thread/public-forum-$49-CTA saga this quest
+    // retires for Day-N content (coordinated with this quest's own P3 paid-room-seeding
+    // pause, not a side effect). Gated behind the `DAYN_MERGED` agent_config toggle (§4) so
+    // this is a no-op until the merge is actually cut over — the same instant, single-value
+    // rollback lever the daily-read producer itself checks.
+    if (isDaynMergedEnabled()) {
+      const owned = getDatabase()
+        .query("SELECT 1 FROM daily_read_log WHERE blog_slug = ?")
+        .get(postId);
+      if (owned) {
+        log(`content-calendar: skipping "${postId}" — Day-N-owned blog post (daily_read_log.blog_slug), no ContentCalendarMachine instance created (DAYN_MERGED=true)`);
+        continue;
+      }
+    }
 
     let fm: BlogFrontmatter;
     let excerpt = "";
