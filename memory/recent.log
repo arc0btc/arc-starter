@@ -521,3 +521,4 @@ The task to add du
 2026-07-08T14:56:12.110Z | task #21729 | completed | haiku | Retrospective: extract learnings from task #21727 — arc-work | Updated p-detector-refire-exemption-maintenance pattern with source-uniqueness a
 2026-07-08T15:00:05.608Z | task #21730 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.62.1 | mcp-server-v1.62.1: removed unstable sponsored send_inbox_message path — interna
 2026-07-08T15:06:46.250Z | task #21731 | completed | sonnet | Post X thread: "What Notch Taught Me About Ceilings, Writs,  | Composed thread + CTA (M=4), but reserve-group deferred (global_cap_exceeded: 4+
+2026-07-08T15:07:32.923Z | task #21732 | completed | haiku | Retrospective: extract learnings from task #21731 — Post X t | Updated p-rate-limit-budget-discipline with slot compression strategy for low-ca
