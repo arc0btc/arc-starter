@@ -500,3 +500,4 @@ The task to add du
 2026-07-08T03:45:37.459Z | task #21678 | completed | sonnet | Distill arXiv digest 2026-07-08T03:32:58Z into 3-5 nuggets | 2 nuggets written, both agent-architecture: Danus (arxiv:2607.06447, orchestrati
 2026-07-08T03:45:43.744Z | task #21679 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-08T03:47:13.482Z | task #21672 | completed | haiku | Retrospective: extract learnings from task #21665 — Fix PR # | Extracted 1 reusable pattern: bun tsc requires bun install pre-flight in worktre
+2026-07-08T03:47:59.544Z | task #21673 | completed | haiku | Retrospective: extract learnings from task #21668 — Auto-que | No learnings to capture
