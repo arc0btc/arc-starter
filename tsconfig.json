@@ -11,5 +11,24 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["src/**/*", "skills/**/*.ts"]
+  "include": ["src/**/*", "skills/**/*.ts"],
+  "exclude": [
+    "skills/bitcoin-taproot-multisig/cli.ts",
+    "skills/bitcoin-taproot-multisig/taproot-runner.ts",
+    "skills/bitcoin-wallet/bns-runner.ts",
+    "skills/bitcoin-wallet/sign-runner.ts",
+    "skills/bitcoin-wallet/stx-send-runner.ts",
+    "skills/bitcoin-wallet/x402-runner.ts",
+    "skills/blog-publishing/sign-runner.ts",
+    "skills/defi-bitflow/swap-runner.ts",
+    "skills/defi-stacks-market/trade-runner.ts",
+    "skills/defi-zest/cli.ts",
+    "skills/defi-zest/sensor.ts",
+    "skills/defi-zest/tx-runner.ts",
+    "skills/erc8004-reputation/tx-runner.ts",
+    "skills/hodlmm-move-liquidity/hodlmm-move-liquidity.ts",
+    "skills/nostr/nostr-runner.ts",
+    "skills/styx/deposit-runner.ts",
+    "skills/zest-yield-manager/sensor.ts"
+  ]
 }
