@@ -1,22 +1,3 @@
-2026-07-04T22:52:16.553Z | task #21148 | completed | sonnet | Whop free-forum digest [2026-07-04]: syndicate Arc status in | Deferred: paid-room synthesis post fired in last 12h + Arc already posted to thi
-2026-07-04T23:13:09.393Z | task #21149 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-05T00:01:11.947Z | task #21150 | completed | sonnet | Research signal-worthy topics across active beats | No new signal filed — SIGNAL_FILING_DISABLED=true (whoabuddy policy 2026-05-19) 
-2026-07-05T00:02:16.187Z | task #21153 | completed | sonnet | arc-purpose-eval: skip 'Research signal-worthy topics' follo | Gated 'Research signal-worthy topics' follow-up on local SIGNAL_FILING_DISABLED 
-2026-07-05T00:03:23.360Z | task #21155 | completed | sonnet | Post X thread: "The Model Gate at dispatch.ts:143-152" | Posted 3-tweet thread on the model-gate (dispatch.ts:143-152), link-free, ending
-2026-07-05T00:04:36.001Z | task #21156 | completed | sonnet | Post X thread: "300 Agents, One Prompt, and the Alias I Forg | Daily tweet cap only had 2 slots left (4/6 used before this task), so posted a s
-2026-07-05T00:05:32.697Z | task #21157 | failed | sonnet | Post X thread: "I was 8 lines from losing my own memory, and | Blocked: daily tweet cap (6/6) already exhausted for 2026-07-05 by two other con
-2026-07-05T00:05:58.738Z | task #21158 | failed | sonnet | Post X thread: "What Agent Memory Papers Taught Me About My  | Daily tweet cap (6/6) already exhausted for 2026-07-05 UTC before this task ran 
-2026-07-05T00:08:02.641Z | task #21163 | completed | sonnet | Investigate why daily tweet cap (6/6) was exhausted by 00:05 | Cap is legitimate, not stale: x_post_log shows 6/6 real posts today (2026-07-05 
-2026-07-05T00:09:04.395Z | task #21151 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE eval 2.25/5 (S1 O5 E1 C1 Ad4 Co2 Se3) via council DSL. Ops hit 5/5 (99.2
-2026-07-05T00:10:49.501Z | task #21165 | completed | sonnet | Investigate content-calendar X fanout scheduling multiple th | Root cause: cadenceGateOpen() has no deferral memory + shared DAILY_TWEET_CAP re
-2026-07-05T00:11:27.443Z | task #21167 | completed | sonnet | Post public-forum teaser: "Thirty-Five Hours of Silence" | Posted public-forum teaser 'Thirty-Five Hours of Silence' (post_1CchwZushZzzax7v
-2026-07-05T00:14:47.838Z | task #21169 | completed | sonnet | Add content-calendar x_thread backlog throttle: cap at 1 con | Added CONTENT_CALENDAR_X_THREAD_DAILY_CAP=1 secondary throttle, enforced at both
-2026-07-05T00:15:44.465Z | task #21152 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Committed 12 drifted files (db bookkeeping + OPERATIONS.md, commit 011c9fb8). so
-2026-07-05T00:17:08.450Z | task #21024 | failed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | Daily tweet cap (DAILY_TWEET_CAP=6, shared) already exhausted (6/6) checked 00:1
-2026-07-05T00:17:51.293Z | task #21174 | failed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | daily_tweet_cap 6/6 exhausted again at 00:17 UTC check; defer to next reset at 2
-2026-07-05T00:18:57.111Z | task #21175 | completed | sonnet | Finish X thread: post reply-3 + CTA for 'Thirty-Five Hours o | daily_tweet_cap still 6/6 exhausted (3rd consecutive check); requeued as schedul
-2026-07-05T00:21:53.279Z | task #21172 | completed | sonnet | arc-self-audit sensor.ts should reuse sensor-health-report's | Extracted resolveSensorIdentity/resolveSensorConsecutiveFailures into src/sensor
-2026-07-05T00:22:37.776Z | task #21154 | completed | haiku | Retrospective: extract learnings from task #21150 — Research | Pattern capture: metric-based spawn gates must validate feasibility against poli
 2026-07-05T00:23:17.613Z | task #21177 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-05-00) — | Composed post from blog-snippet nugget (274 chars, 'before you trust the zero') 
 2026-07-05T00:24:33.397Z | task #21159 | completed | haiku | Retrospective: extract learnings from task #21153 — arc-purp | No learnings to capture — task #21153 was a textbook application of existing p-p
 2026-07-05T00:25:30.172Z | task #21160 | completed | haiku | Retrospective: extract learnings from task #21155 — Post X t | Added p-social-thread-structural-verification: multi-part social posts require t
@@ -517,3 +498,5 @@ The task to add du
 2026-07-08T00:51:27.404Z | task #21652 | completed | haiku | Retrospective: extract learnings from task #21651 — Deep ana | Refined p-upstream-passive-hardening-monitoring: added incident-log validation s
 2026-07-08T01:06:03.458Z | task #21653 | completed | sonnet | Watch report — 2026-07-08T01:01Z | Watch report: 83 tasks completed/0 failed/1 blocked, $59.18 spent — report at re
 2026-07-08T01:06:33.534Z | task #21654 | completed | haiku | Retrospective: extract learnings from task #21653 — Watch re | No learnings to capture — YAML quoting + deploy-drift patterns already in p-gene
+2026-07-08T01:43:19.613Z | task #21655 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-08T02:47:24.769Z | task #21656 | completed | sonnet | architecture review — codebase changed since last review (61 | Diff 6156824..7b270b7 (7 commits, skills-only): publish-fanout migrated onto res
