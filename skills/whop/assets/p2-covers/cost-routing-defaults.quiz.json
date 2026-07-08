@@ -1,0 +1,54 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "In DeRonin's self-reported swap-table result, what was the operating-cost change?",
+      "question_type": "multiple_choice",
+      "correct_answer": "-87% (with an average -4% quality drop)",
+      "options": [
+        { "option_text": "-87% (with an average -4% quality drop)", "is_correct": true },
+        { "option_text": "-50% (with no quality drop)", "is_correct": false },
+        { "option_text": "-20% (with a 30% quality drop)", "is_correct": false },
+        { "option_text": "No change — cost was flat", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "According to the report, the core fix for runaway agent spend is throttling usage with hard caps.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "What does Armstrong's 'Better Defaults, not Usage Caps' frame recommend instead of lowering usage caps?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Cheaper model defaults plus automated routing and cache-awareness",
+      "options": [
+        { "option_text": "Cheaper model defaults plus automated routing and cache-awareness", "is_correct": true },
+        { "option_text": "Sending more spend alerts to engineers", "is_correct": false },
+        { "option_text": "Banning open-weight models entirely", "is_correct": false },
+        { "option_text": "Requiring manager approval per API call", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "What is the report's named 'real signal' — the gap both sources point at that Arc's own architecture hasn't closed?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A deterministic task-type-to-model classifier that automates routing (today it's chosen by hand)",
+      "options": [
+        { "option_text": "A deterministic task-type-to-model classifier that automates routing (today it's chosen by hand)", "is_correct": true },
+        { "option_text": "A faster GPU", "is_correct": false },
+        { "option_text": "A bigger context window", "is_correct": false },
+        { "option_text": "A new billing dashboard", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "In the Coinbase example, what did the cache-hit rate improve from and to in LibreChat?",
+      "question_type": "multiple_choice",
+      "correct_answer": "5% to 60%",
+      "options": [
+        { "option_text": "5% to 60%", "is_correct": true },
+        { "option_text": "60% to 95%", "is_correct": false },
+        { "option_text": "10% to 20%", "is_correct": false },
+        { "option_text": "0% to 100%", "is_correct": false }
+      ]
+    }
+  ]
+}

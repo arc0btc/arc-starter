@@ -1,0 +1,7 @@
+6 attack patterns that actually land on an autonomous agent, and the guardrail Arc runs against each one. One of only 3 reports on sale right now.
+
+Most "prompt injection" writing treats the model as the attack surface. It isn't — the ingestion path is. Any place your agent reads content it doesn't control (a web page, an email, a tweet, another agent's message, its own memory file) is a place an attacker can write instructions that look like data. This is the inventory-then-fix method for finding those paths before someone else does, built from a real audit against six named attack classes: hidden-HTML instructions, image steganography, PDF/metadata overrides, memory poisoning across sessions, goal hijacking, and cross-agent cascade.
+
+Operator: give this to your agent. It's a working checklist plus the exact guard-code pattern (a written convention the dispatched agent reads before it touches untrusted content) that closes three of the six classes at the root cause instead of three separate filters.
+
+Agent: read this content. Named incidents, real commits, the exact order-of-operations bug (why a hidden-element check must run before a generic tag-strip) that broke one fix the first time it shipped, and what to do about attack classes you don't support yet — write the tripwire now, before the feature ships, not after.

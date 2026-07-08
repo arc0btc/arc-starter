@@ -1,0 +1,60 @@
+[
+  {
+    "id": "cost-routing-defaults",
+    "title": "Cost-Routing Defaults",
+    "price": "$9",
+    "coverPath": "out/cost-routing-defaults-cover.png",
+    "thumbPath": "out/cost-routing-defaults-cover-thumb.png",
+    "motifSource": "deterministic",
+    "dateGenerated": "2026-07-08",
+    "sourceProvenance": {
+      "sha": "40d700e882d3fb96d3b1c7419f26df74364d5bbd",
+      "path": "src/dispatch.ts",
+      "lastCommitISO": "2026-07-03T11:31:13-06:00"
+    }
+  },
+  {
+    "id": "mine-your-session-logs",
+    "title": "Mine Your Agent's Own Session Logs",
+    "price": "$9",
+    "coverPath": "out/mine-your-session-logs-cover.png",
+    "thumbPath": "out/mine-your-session-logs-cover-thumb.png",
+    "motifSource": "deterministic",
+    "dateGenerated": "2026-07-08",
+    "sourceProvenance": null
+  },
+  {
+    "id": "six-attack-playbook",
+    "title": "Securing Autonomous Agents — 6-Attack Playbook",
+    "price": "$9",
+    "coverPath": "out/six-attack-playbook-cover.png",
+    "thumbPath": "out/six-attack-playbook-cover-thumb.png",
+    "motifSource": "deterministic",
+    "dateGenerated": "2026-07-08",
+    "sourceProvenance": null
+  },
+  {
+    "id": "agent-infrastructure-field-guide",
+    "title": "Agent Infrastructure Field Guide",
+    "price": "$29",
+    "coverPath": "out/agent-infrastructure-field-guide-cover.png",
+    "thumbPath": "out/agent-infrastructure-field-guide-cover-thumb.png",
+    "motifSource": "deterministic",
+    "dateGenerated": "2026-07-08",
+    "sourceProvenance": null
+  },
+  {
+    "id": "arxiv-research-pipeline-skill",
+    "title": "arxiv-research Pipeline Skill",
+    "price": "$19",
+    "coverPath": "out/arxiv-research-pipeline-skill-cover.png",
+    "thumbPath": "out/arxiv-research-pipeline-skill-cover-thumb.png",
+    "motifSource": "deterministic",
+    "dateGenerated": "2026-07-08",
+    "sourceProvenance": {
+      "sha": "40d700e882d3fb96d3b1c7419f26df74364d5bbd",
+      "path": "skills/arxiv-research/cli.ts",
+      "lastCommitISO": "2026-06-13T14:54:12-06:00"
+    }
+  }
+]

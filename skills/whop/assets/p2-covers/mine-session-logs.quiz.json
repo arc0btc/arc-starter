@@ -1,0 +1,54 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "What does the session-mining prompt read to find improvement opportunities?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The agent's last ~20 session transcripts (Claude Code / Codex logs)",
+      "options": [
+        { "option_text": "The agent's last ~20 session transcripts (Claude Code / Codex logs)", "is_correct": true },
+        { "option_text": "The model's training data", "is_correct": false },
+        { "option_text": "A random sample of the internet", "is_correct": false },
+        { "option_text": "The agent's future planned tasks", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "The prompt automatically applies every proposal it finds without human review.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "Which of these is NOT one of the prompt's destination-routing categories for a found pattern?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Delete the session log",
+      "options": [
+        { "option_text": "A CLAUDE.md line", "is_correct": false },
+        { "option_text": "A new skill", "is_correct": false },
+        { "option_text": "A hook", "is_correct": false },
+        { "option_text": "Delete the session log", "is_correct": true }
+      ]
+    },
+    {
+      "question_text": "What kind of moments does the prompt weight as the highest-signal evidence?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Errored-then-retried commands and explicit human corrections (\"no, actually\")",
+      "options": [
+        { "option_text": "Errored-then-retried commands and explicit human corrections (\"no, actually\")", "is_correct": true },
+        { "option_text": "The longest sessions by token count", "is_correct": false },
+        { "option_text": "Sessions with the most tool calls", "is_correct": false },
+        { "option_text": "Sessions run at night", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "Why is this described as a sensor rather than a one-off chat tool for Arc's own architecture?",
+      "question_type": "multiple_choice",
+      "correct_answer": "It should run on a schedule (e.g. weekly) and queue a proposals task into the existing task queue",
+      "options": [
+        { "option_text": "It should run on a schedule (e.g. weekly) and queue a proposals task into the existing task queue", "is_correct": true },
+        { "option_text": "It needs to run continuously in real time", "is_correct": false },
+        { "option_text": "It replaces the dispatch loop entirely", "is_correct": false },
+        { "option_text": "It requires no human approval step ever", "is_correct": false }
+      ]
+    }
+  ]
+}

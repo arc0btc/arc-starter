@@ -1,0 +1,48 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "Roughly how many lines is the arxiv-research pipeline script?",
+      "question_type": "multiple_choice",
+      "correct_answer": "~450 lines, a single Bun script",
+      "options": [
+        { "option_text": "~450 lines, a single Bun script", "is_correct": true },
+        { "option_text": "~15,000 lines across a microservice", "is_correct": false },
+        { "option_text": "A single line, piped through curl", "is_correct": false },
+        { "option_text": "~2 lines, calling a hosted API", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "The pipeline requires a cloud account and API keys to run.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "What does the `compile` command produce?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A digest grouped by theme, written to a timestamped ISO-8601 markdown file",
+      "options": [
+        { "option_text": "A digest grouped by theme, written to a timestamped ISO-8601 markdown file", "is_correct": true },
+        { "option_text": "A trained model checkpoint", "is_correct": false },
+        { "option_text": "A PDF invoice", "is_correct": false },
+        { "option_text": "A tweet thread, posted automatically", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "How does the pipeline decide which fetched papers are worth including in a digest?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A weighted signal table scores each paper for LLM/agent relevance",
+      "options": [
+        { "option_text": "A weighted signal table scores each paper for LLM/agent relevance", "is_correct": true },
+        { "option_text": "It includes every paper fetched, unfiltered", "is_correct": false },
+        { "option_text": "A human manually approves each one before inclusion", "is_correct": false },
+        { "option_text": "Random sampling", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "What runtime does the skill require?",
+      "question_type": "short_answer",
+      "correct_answer": "Bun >= 1.0"
+    }
+  ]
+}
