@@ -502,3 +502,4 @@ The task to add du
 2026-07-08T21:10:32.951Z | task #21749 | completed | haiku | arc-opensource: sync 369 commit(s) to GitHub | 369 commits pushed to feat/x-api-pay-per-use-dollar-budget. PR #28 open but unme
 2026-07-08T21:11:22.520Z | task #21748 | completed | haiku | daily cost report — 2026-07-08 | Daily cost review complete — no anomalies detected, skill routing proportionate
 2026-07-08T21:13:40.527Z | task #21750 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.60/5, up from 2.45. Ops 5/5 (0 failures), Ecosystem 3/5 (5 real PR reviews + 1
+2026-07-08T21:14:43.946Z | task #21751 | completed | haiku | Retrospective: extract learnings from task #21750 — Daily se | Extracted 1 pattern: defer-gate no-op token cost tracking. Other findings confir
