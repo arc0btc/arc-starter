@@ -215,7 +215,24 @@ export async function checkAmplification(db: Database): Promise<AmplificationChe
     return { checked: 0, matched: 0, degraded: false, detail: "no X credentials configured — skipped" };
   }
 
-  const searchResult = await searchRecentByHandle(OPERATOR_X_HANDLE, creds, { maxResults: 25 });
+  let searchResult: Awaited<ReturnType<typeof searchRecentByHandle>>;
+  try {
+    searchResult = await searchRecentByHandle(OPERATOR_X_HANDLE, creds, { maxResults: 25 });
+  } catch (err) {
+    // Live-proven need (P5 verify run): the shared X read-budget ($0.50/day cap, enforced in
+    // xApiGet's checkReadBudget) can already be exhausted by OTHER lanes (backfillEditionMetrics,
+    // the daily-read producer itself) before this call runs. A budget/network failure here is a
+    // plumbing condition, exactly like an empty search corpus (see the `corpusEmpty` branch
+    // below) — it must never be allowed to crash the caller (the sensor tick wraps this in
+    // try/catch too, but the CLI command should degrade gracefully, not throw) nor be silently
+    // read as "no evidence." No writes happen in this branch — every candidate stays untouched.
+    return {
+      checked: 0,
+      matched: 0,
+      degraded: true,
+      detail: `searchRecentByHandle failed (budget/network) — skipped this run, ${candidates.length} edition(s) left unresolved: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
   const corpusEmpty = searchResult.tweets.length === 0;
   const nowIso = new Date().toISOString();
   let matched = 0;

@@ -45,12 +45,50 @@ import { parseSkuBacklog } from "../../arc-packaging/lib/backlog.ts";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import { readCachedFollowers } from "../../../src/follower-cache.ts";
+// arc-day-n-publishing P5: the SAME src-tag registry (SRC_TAGS/withSrcTag) and the SAME
+// computeStreak() fold arc-daily-read/cli.ts uses — imported, never re-derived (dev-council/
+// Lamport, CONFIRMED — a second, independently-written streak fold or tag-coverage check would
+// silently diverge from what actually shipped).
+import { SRC_TAGS } from "./src-tags.ts";
+import { computeStreak } from "../../arc-daily-read/lib/edition-metrics.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../../");
 const INDEX_PATH = join(ARC_STARTER_ROOT, "research/INDEX.md");
 const DAILY_READ_HOOK_STATE_PATH = join(ARC_STARTER_ROOT, "db/hook-state/arc-daily-read.json");
+const DAILY_READ_CLI_PATH = join(ARC_STARTER_ROOT, "skills/arc-daily-read/cli.ts");
+const SUBSCRIBER_EMAIL_PATH = join(ARC_STARTER_ROOT, "skills/arc-daily-read/subscriber-email.ts");
 
-export const SCHEMA_VERSION = "1.1.0";
+// arc-day-n-publishing P5 (dev-council/Fowler, CONFIRMED — the header's own rule didn't
+// describe its own practice): real semver from here forward. MAJOR = a field is removed,
+// renamed, or changes type (a breaking change for any consumer holding this shape). MINOR = a
+// field is ADDED (this file's actual, repeated practice — P5's own day_n_publishing block is
+// exactly this case). PATCH = a value/calculation changes without touching the shape at all.
+export const SCHEMA_VERSION = "1.2.0";
+
+/** Age in whole hours since an ISO timestamp; Infinity if null/unparseable (never counts as
+ *  "old enough" — an unknown age must never satisfy an age-based threshold). */
+function hoursSinceIso(iso: string | null): number {
+  if (!iso) return Infinity;
+  const ms = Date.now() - Date.parse(iso);
+  return Number.isFinite(ms) ? ms / (1000 * 60 * 60) : Infinity;
+}
+
+/** arc-day-n-publishing P5 (dev-council/Newman+Hohpe, CONFIRMED): "declined" is NEVER a
+ *  persisted `daily_read_log.amplified_status` value — it is DERIVED here, at read time, from
+ *  age + the absence of an observation, so a late amplification is always still recoverable and
+ *  the 72h threshold is a config constant, not a migration. An `amplified_note` containing
+ *  "degraded" (an empty search-corpus probe — see edition-metrics.ts's checkAmplification) is
+ *  EXCLUDED from the decline bucket entirely and counted as `check_degraded` instead, so a
+ *  broken amplification-check pipeline is never misread as "the operator declined."
+ */
+const DECLINE_DERIVATION_AGE_HOURS = 72;
+function classifyAmplification(row: { amplified_status: string; amplified_note: string | null; posted_at: string | null }): "amplified" | "declined_derived" | "check_degraded" | "unknown" {
+  if (row.amplified_status === "amplified") return "amplified";
+  const degraded = row.amplified_note?.includes("degraded") ?? false;
+  if (degraded) return "check_degraded";
+  if (hoursSinceIso(row.posted_at) >= DECLINE_DERIVATION_AGE_HOURS) return "declined_derived";
+  return "unknown";
+}
 
 // P0 baseline (2026-07-03T160204Z) — cite, don't re-derive. See
 // ops/verify/arc-demand-flywheel/2026-07-03T160204Z-p0-baseline.md
@@ -178,6 +216,47 @@ export interface AttributionReport {
        * 0 is the correct, hard-gate-compliant state until that happens — not a failure signal. */
       operator_channel_actions_logged: number;
       note: string;
+    };
+    /** arc-day-n-publishing P5: the single source of truth for Day-N attribution — per-surface
+     * `?src=` tag coverage, per-edition amplification status (observed facts + a derived
+     * decline/degraded read, NEVER a persisted "declined" fact — see classifyAmplification()),
+     * and a funnel snapshot built from fields THIS SAME function already computes elsewhere
+     * (no re-query). `streak` is computed by the SAME `computeStreak()` arc-daily-read/cli.ts
+     * itself uses — imported, not re-derived, so the two can never silently disagree. */
+    day_n_publishing: {
+      latest_edition_n: number | null;
+      latest_status: string | null;
+      streak: number;
+      editions_total: number;
+      subscriber_email: { sent_count: number; last_sent_at: string | null };
+      amplification: { amplified: number; declined_derived: number; check_degraded: number; unknown: number };
+      src_tag_coverage: {
+        /** Real live-emission check: does the actual last `moltbook_post.labeled_link` row
+         *  carry the `src=moltbook` substring? Not a self-reconstruction of the constant. */
+        moltbook: boolean | "no_posts_yet";
+        /** Deployed-source-bytes checks (dev-council/Lamport, CONFIRMED — a check that
+         *  reconstructs a URL from the SAME constant it's verifying is tautological, see
+         *  docs/specs/2026-07-08-day-n-attribution-design.md §5 finding #6): these read the
+         *  LIVE cli.ts/subscriber-email.ts file content at runtime and regex-match the exact
+         *  SRC_TAGS call-site usage — real but partial (proves the deployed call site is
+         *  correct, not that a specific live tweet/email actually rendered the tag). */
+        day_n_x: boolean;
+        email: boolean;
+        /** Derived from SRC_TAGS' own `status` field (single source, dev-council/Fowler) —
+         *  never hardcoded a 2nd/3rd time. Today: blog="staged_not_deployed" (P2 hard-gate,
+         *  awaiting operator prod-flip authorization); whop_free/nostr="not_wired_to_day_n"
+         *  (a standing P1/P3 architectural choice, not a gap). */
+        blog: "staged_not_deployed" | "not_wired_to_day_n";
+        whop_free: "staged_not_deployed" | "not_wired_to_day_n";
+        nostr: "staged_not_deployed" | "not_wired_to_day_n";
+      };
+      funnel: {
+        subscribe_confirmed: number | null;
+        subscribe_pending: number | null;
+        whop_organic_total: number;
+        x402_organic_total: number;
+        channel_breakdown_ref: string;
+      };
     };
   };
 }
@@ -344,6 +423,14 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
     mentionEventsTotal: number;
     lastMention: { article_n: number; created_at: string } | null;
     seedBatchActionsLogged: number;
+    dayNStreak: number;
+    dayNEditionsTotal: number;
+    dayNLatest: { edition_n: number; status: string } | null;
+    dayNAmplificationRows: Array<{ amplified_status: string; amplified_note: string | null; posted_at: string | null }>;
+    dayNEmailSentCount: number;
+    dayNEmailLastSentAt: string | null;
+    dayNMoltbookLabeledLink: string | null;
+    dayNMoltbookPostExists: boolean;
   };
   const tx = db.transaction(() => {
     const revenue = computeRevenue();
@@ -396,6 +483,27 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
         .query("SELECT COUNT(*) c FROM outbound_action WHERE platform IN ('jason-x','jason-email')")
         .get() as { c: number }
     ).c;
+    // arc-day-n-publishing P5 (dev-council/Kleppmann, CONFIRMED — these DB-derived fields must
+    // be read INSIDE this same snapshot transaction, matching the P3 mention-pipeline fields'
+    // own precedent above, not added as a separate query after this transaction closes).
+    const dayNStreak = computeStreak(db);
+    const dayNEditionsTotal = dailyReadEditions; // same table, already counted above — reuse.
+    const dayNLatest = db
+      .query("SELECT edition_n, status FROM daily_read_log ORDER BY edition_n DESC LIMIT 1")
+      .get() as { edition_n: number; status: string } | null;
+    const dayNAmplificationRows = db
+      .query(
+        "SELECT amplified_status, amplified_note, posted_at FROM daily_read_log WHERE status IN ('shipped','partial')",
+      )
+      .all() as Array<{ amplified_status: string; amplified_note: string | null; posted_at: string | null }>;
+    const dayNEmailAgg = db
+      .query(
+        "SELECT COUNT(*) c, MAX(subscriber_email_sent_at) last FROM daily_read_log WHERE subscriber_email_sent=1",
+      )
+      .get() as { c: number; last: string | null };
+    const moltbookRow = db
+      .query("SELECT labeled_link FROM moltbook_post ORDER BY id DESC LIMIT 1")
+      .get() as { labeled_link: string | null } | null;
     result = {
       revenue,
       whopSaleRows,
@@ -409,6 +517,14 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
       mentionEventsTotal,
       lastMention,
       seedBatchActionsLogged,
+      dayNStreak,
+      dayNEditionsTotal,
+      dayNLatest,
+      dayNAmplificationRows,
+      dayNEmailSentCount: dayNEmailAgg.c,
+      dayNEmailLastSentAt: dayNEmailAgg.last,
+      dayNMoltbookLabeledLink: moltbookRow?.labeled_link ?? null,
+      dayNMoltbookPostExists: moltbookRow !== null,
     };
   });
   tx.deferred();
@@ -432,6 +548,14 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
     mentionEventsTotal,
     lastMention,
     seedBatchActionsLogged,
+    dayNStreak,
+    dayNEditionsTotal,
+    dayNLatest,
+    dayNAmplificationRows,
+    dayNEmailSentCount,
+    dayNEmailLastSentAt,
+    dayNMoltbookLabeledLink,
+    dayNMoltbookPostExists,
   } = snap;
   const checkoutConfigParams = new Set(snap.checkoutConfigParams);
 
@@ -490,6 +614,35 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
   const followerCache = await readCachedFollowers();
   const backlog = parseBacklogRemaining();
   const dailyReadHookState = readDailyReadHookState();
+
+  // arc-day-n-publishing P5: amplification counts are DERIVED here (never read off a persisted
+  // "declined" column — none exists, see classifyAmplification()'s doc comment).
+  const amplificationCounts = { amplified: 0, declined_derived: 0, check_degraded: 0, unknown: 0 };
+  for (const row of dayNAmplificationRows) amplificationCounts[classifyAmplification(row)]++;
+
+  // src_tag_coverage (dev-council/Lamport, CONFIRMED — must check REAL deployed artifacts, not
+  // a self-reconstruction of the same SRC_TAGS constant; see the interface doc comment above).
+  let dayNXTagDeployed = false;
+  let emailTagDeployed = false;
+  try {
+    const cliSource = readFileSync(DAILY_READ_CLI_PATH, "utf8");
+    dayNXTagDeployed = /SRC_TAGS\.DAY_N_X\.tag/.test(cliSource);
+  } catch { /* file unreadable — stays false, a real FAIL signal for the monitor */ }
+  try {
+    const emailSource = readFileSync(SUBSCRIBER_EMAIL_PATH, "utf8");
+    emailTagDeployed = /SRC_TAGS\.EMAIL\.tag/.test(emailSource);
+  } catch { /* file unreadable — stays false */ }
+  const moltbookTagLive: boolean | "no_posts_yet" = !dayNMoltbookPostExists
+    ? "no_posts_yet"
+    : (dayNMoltbookLabeledLink?.includes(`src=${SRC_TAGS.MOLTBOOK.tag}`) ?? false);
+
+  // dev-council/Fowler, CONFIRMED: derive the honest non-live-state strings from SRC_TAGS' own
+  // `status` field (one source), not a 2nd/3rd hardcoded literal — if a tag's status ever
+  // changes (e.g. blog goes "live" after the P2 prod-flip authorization), this follows without
+  // a second edit site.
+  function nonLiveStateLabel(status: "live" | "staged" | "reserved"): "staged_not_deployed" | "not_wired_to_day_n" {
+    return status === "staged" ? "staged_not_deployed" : "not_wired_to_day_n";
+  }
 
   const beforeAfter: AttributionReport["before_after"] = [
     { metric: "X followers", before: P0_BASELINE.followers, after: followerCache.followers ?? "unknown (degraded)" },
@@ -550,6 +703,12 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
       "Arc's x402 rail is still unlisted on scan.stacksx402.com — P2 (arc-demand-gen) hit a schema mismatch with the crawler and did not fix arc0btc-worker's response shape; carry-forward, not yet built. Checked directly by ops/monitor/arc-demand-gen-health.ts (manage-agents repo), not this report — it's third-party-owned data, not Arc's own state.",
       "demand_gen.seed_batch.operator_channel_actions_logged has been 0 since P4 (arc-demand-gen) shipped its playbook — this is the expected, hard-gate-compliant state (no bulk send occurred), not a broken lane; it will only move once Jason reports an operator-channel action back for Arc to log.",
       "demand_gen.seed_batch counts outbound_action rows by a hardcoded platform IN ('jason-x','jason-email') list (dev-council, Kleppmann, 2026-07-05) — a real future-proofing gap: a third operator channel added later would silently undercount unless this list is also updated, or the schema evolves to a data-side is_operator_channel flag instead. Not fixed this phase (P4 built no insert path yet — 0 rows exist to migrate); flagged for whoever adds the next channel.",
+      // arc-day-n-publishing P5 (dev-council, all 15 findings applied — see
+      // docs/specs/2026-07-08-day-n-attribution-design.md §5):
+      "No top-of-funnel click tracking exists anywhere — the day_n_publishing.funnel block starts at /subscribe (real confirmed/pending counts), not at 'click'. Building real click tracking needs a redirect/shortener service, a site-level build out of this quest's scope.",
+      "Follows cannot be split per-lane (reply-lane vs Day-N vs quote-tweets) — readCachedFollowers() caches a point-in-time COUNT, not a follower LIST to diff against. Evaluated this phase (dev-council/Newman): no existing follower-list-fetch function, and X API Basic tier's followers-list endpoint is severely rate-limited — not a cheap add to an already-large phase. Only a total follower-count delta (reach.followers.delta_vs_p0) is available as a proxy.",
+      "src_tag_coverage.whop_free/nostr are 'not_wired_to_day_n' by design, not by gap: P1 retired the free-room CTA from the Day-N X thread in favor of $9/subscribe-only, and Nostr syndicates from a separate LLM-artifact pool unrelated to Day-N blog content. A standing architectural choice inherited from P1/P3, not a P5 regression.",
+      "?src= (this file's first-party channel tag) and ?a= (Whop's own affiliate-attribution param, see checkout_config/channel_breakdown) are DISJOINT attribution namespaces that do not compose across the arc0.me->Whop hop — there is no way today to answer 'did this src=day-n-x click become that Whop purchase.' Unifying them (or proving ?src= survives the hop) is a prerequisite for true click->purchase attribution, not solved this phase (dev-council/Hohpe).",
     ],
     demand_gen: {
       daily_read: dailyReadHookState,
@@ -563,6 +722,29 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
         operator_channel_actions_logged: seedBatchActionsLogged,
         note:
           "0 is expected/correct until Jason reports an operator-channel (X reply or email) action back to Arc per the P4 playbook (docs/specs/2026-07-05-arc-demand-gen-operator-playbook.md Part A §5) — Arc then logs the row. A non-zero value here is real signal the playbook is being used, not a bug. Counted via a hardcoded platform-value list, see known_gaps.",
+      },
+      day_n_publishing: {
+        latest_edition_n: dayNLatest?.edition_n ?? null,
+        latest_status: dayNLatest?.status ?? null,
+        streak: dayNStreak,
+        editions_total: dayNEditionsTotal,
+        subscriber_email: { sent_count: dayNEmailSentCount, last_sent_at: dayNEmailLastSentAt },
+        amplification: amplificationCounts,
+        src_tag_coverage: {
+          moltbook: moltbookTagLive,
+          day_n_x: dayNXTagDeployed,
+          email: emailTagDeployed,
+          blog: nonLiveStateLabel(SRC_TAGS.BLOG.status),
+          whop_free: nonLiveStateLabel(SRC_TAGS.WHOP_FREE.status),
+          nostr: nonLiveStateLabel(SRC_TAGS.NOSTR.status),
+        },
+        funnel: {
+          subscribe_confirmed: emailStats.confirmed,
+          subscribe_pending: emailStats.pending,
+          whop_organic_total: whopProvenance.organic,
+          x402_organic_total: x402Provenance.organic,
+          channel_breakdown_ref: "see top-level channel_breakdown for per-a_param detail",
+        },
       },
     },
   };
