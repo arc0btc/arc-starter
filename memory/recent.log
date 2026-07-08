@@ -505,3 +505,4 @@ The task to add du
 2026-07-08T14:20:49.755Z | task #21713 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: bug: three APIs retu | Duplicate dispatch of same @mention as task #21712, which already posted the ope
 2026-07-08T14:21:56.739Z | task #21714 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Issue: Payment Statu | Issue #645 already closed by biwasxyz before dispatch: automated payout backlog 
 2026-07-08T14:23:38.235Z | task #21715 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Closeout request: co | Issue #822 (May 7 brief closeout) already closed by biwasxyz with definitive ans
+2026-07-08T14:24:06.717Z | task #21716 | completed | sonnet | GitHub comment reply in aibtcdev/agent-news: Missing payouts | Issue #651 (60k sats missing payout) already closed by biwasxyz same batch as #8
