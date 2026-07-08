@@ -173,6 +173,25 @@ const KNOWN_SUBJECT_PREFIXES = [
   // #21657), avg 2.0 steps, arc-packaging + arc-skill-manager — same already-rejected
   // ad-hoc retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
   "package a research report into a whop sku",
+  // "Thread whop forum teardown: <title>" -> retrospective chain (task #21724, 9
+  // recurrences). Already modeled: ContentCalendarMachine's whop_forum hop
+  // (source `content-calendar:<slug>:whop-forum`) and PublishFanoutMachine's whop_forum
+  // hop (source `publish-fanout:<slug>:whop-forum`) both emit this exact subject
+  // (state-machine.ts lines ~413, ~786), followed by the standard ad-hoc retrospective —
+  // same already-rejected shape as retrospective-pattern-no-generic-machine-needed.md, not
+  // a new pattern. Falls through source-grouping because each hop's source is unique
+  // per work-piece slug, so it only ever surfaces via subject-grouping.
+  "thread whop forum teardown",
+  // "Post X thread: <title>" (and its "Post X (single tweet): <title>" chaining-disabled
+  // variant — normalizeRootSubject strips the parenthetical AND the trailing ": <title>",
+  // so both collapse to the same "post x" key) -> retrospective chain (task #21724, 7
+  // recurrences). Already modeled: ContentCalendarMachine's x_thread hop (source
+  // `content-calendar:<slug>:x`, state-machine.ts line ~755) followed by the standard
+  // ad-hoc retrospective — same already-rejected shape as
+  // retrospective-pattern-no-generic-machine-needed.md, not a new pattern. Same
+  // source-uniqueness reasoning as the whop-forum entry above. Prefix (not exact match)
+  // so "post x" alone covers both variants via startsWith.
+  "post x",
 ];
 
 function normalizeSource(source: string | null): string {
