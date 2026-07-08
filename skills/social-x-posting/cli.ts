@@ -790,8 +790,14 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       const creds = await loadCreds();
       const body: Record<string, unknown> = { text: unescapedText };
       if (flags["reply-to"]) body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
+      // arc-day-n-publishing P4: event-driven quote-tweet support. A quote-tweet is a
+      // regular tweet with an attached reference (X API v2 top-level `quote_tweet_id`),
+      // NOT a reply — it deliberately inherits this exact guard stack (kill switch,
+      // DAILY_TWEET_CAP, budget, enforceInterSendSpacing, terminal-403-no-retry) because,
+      // unlike the reply lane, quote-tweets DO count against the post cap.
+      if (flags["quote-tweet-id"]) body["quote_tweet_id"] = flags["quote-tweet-id"];
 
-      log(`Posting tweet via reserved group (${text.length} chars, ${flags["reply-to"] ? "continuation" : "root"}, atomic_group_id=${engineRow.atomic_group_id})...`);
+      log(`Posting tweet via reserved group (${text.length} chars, ${flags["reply-to"] ? "continuation" : flags["quote-tweet-id"] ? "quote" : "root"}, atomic_group_id=${engineRow.atomic_group_id})...`);
       let groupResult: Awaited<ReturnType<typeof apiRequest>>;
       try {
         groupResult = await apiRequest("POST", "/tweets", creds, body);
@@ -1012,9 +1018,14 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (flags["reply-to"]) {
     body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
   }
+  // arc-day-n-publishing P4: event-driven quote-tweet support (see the reserved-group fast
+  // path above for the full rationale — same X API field, same guard-stack inheritance).
+  if (flags["quote-tweet-id"]) {
+    body["quote_tweet_id"] = flags["quote-tweet-id"];
+  }
 
   await enforceInterSendSpacing(`legacy ${flags["source"] ?? "?"}`);
-  log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : "root"})...`);
+  log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : flags["quote-tweet-id"] ? "quote" : "root"})...`);
   // ANTI-LOCK 403 BACKOFF (2026-07-01): a 403 on a write — especially a self-reply continuation — is a
   // transient reply-restriction / rate-cooldown signal, NOT a permanent failure. RETRYING it is what
   // turned a short cooldown into a multi-hour @arc0btc lock (self-reply 403 cascade, tasks
@@ -1697,12 +1708,20 @@ async function main(): Promise<void> {
       console.log(`x-posting — Post and manage tweets via X API v2
 
 Commands:
-  post       --text <text> [--source <key>]    Post a tweet (max 280 chars)
+  post       --text <text> [--source <key>] [--reply-to <id>] [--quote-tweet-id <id>]
+                                               Post a tweet (max 280 chars)
                                                (--source: a re-run with the same key is suppressed
                                                 by the local x_post_log ledger — no double-post.
                                                 If --source matches a reserve-group-admitted row,
                                                 this drains it through the atomic queue instead of
-                                                the legacy guard stack.)
+                                                the legacy guard stack.
+                                                --quote-tweet-id: arc-day-n-publishing P4 —
+                                                event-driven quote-tweet. Posts as a NORMAL tweet
+                                                with X's native quote-tweet attachment (NOT a
+                                                reply) — counts against DAILY_TWEET_CAP like any
+                                                other post, unlike the separately-budgeted reply
+                                                lane. See skills/social-engine/quote-trigger-detect.ts
+                                                for the trigger + receipt-attachment composition step.)
   reserve-group --sources <k1,k2,...> [--thread-ref <key>] [--lane post|reply|daily-read|content-calendar]
                 [--earliest-time HH:MM] [--latest-time HH:MM]
              P2/P3 arc-posting-scheduler: atomically reserve a WHOLE thread+CTA (root first,
