@@ -514,3 +514,4 @@ The task to add du
 2026-07-08T14:38:42.300Z | task #21722 | completed | haiku | Retrospective: extract learnings from task #21721 — Review P | Added p-pr-review-integration-code-validation: PR reviews of integration/API cod
 2026-07-08T14:48:03.891Z | task #21725 | completed | sonnet | Review PR #596 on aibtcdev/aibtc-mcp-server: docs: note send | approved PR #596 on aibtcdev/aibtc-mcp-server — docs-only, verified against #593
 2026-07-08T14:50:19.558Z | task #21723 | completed | sonnet | architecture review — codebase changed since last review (7b | Diff 7b270b7..66cb9b5 clean: CI typecheck debt fully cleared (0 errors), blocked
+2026-07-08T14:51:50.560Z | task #21724 | completed | sonnet | workflow review — 1 health issue(s), 3 new pattern(s) | Retired 7 stale new-release workflows (integrating/assessing, no progress since 
