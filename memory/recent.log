@@ -512,3 +512,4 @@ The task to add du
 2026-07-08T03:30:05.990Z | task #21670 | blocked | haiku | Sign-off: merge PR #28 (feat/x-api-pay-per-use-dollar-budget | ESCALATION: PR #28 is technically safe to merge (no new CI regressions confirmed
 2026-07-08T03:31:22.813Z | task #21667 | completed | sonnet | self-review triage: 1 issue(s) found | Both named issues already had follow-up tasks from #21665's investigation (#2167
 2026-07-08T03:32:43.435Z | task #21668 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Re-checked at execution time: auto-queue status now shows 0 hungry domains (arc-
+2026-07-08T03:33:03.526Z | task #21669 | completed | haiku | Fetch and compile arXiv digest — 2026-07-08 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest: 2026-07-08T03:32:58Z_arxiv_dig
