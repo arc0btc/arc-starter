@@ -512,3 +512,4 @@ The task to add du
 2026-07-08T22:15:40.250Z | task #21763 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Routine deploy-drift recurrence, not a new pattern: task #21760 fixed by running
 [UNTRUSTED-SRC] 2026-07-08T22:55:54.006Z | task #21764 | completed | sonnet | Whop free-forum digest [2026-07-08]: syndicate Arc status in | Deferred: paid-room whop synthesis fired 2026-07-08T22:13:41Z (<1h before this t
 2026-07-08T23:11:45.308Z | task #21765 | completed | sonnet | Review 1 blocked task(s) for possible unblock | False positive again (5th occurrence): #21762 (whop-synthesis) and #21736 (retro
+2026-07-08T23:13:24.137Z | task #21766 | completed | sonnet | arc-blocked-review: add 48h cooldown after repeated same-blo | Added per-task 48h cooldown to arc-blocked-review sensor: signal-only candidates
