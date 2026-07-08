@@ -517,3 +517,4 @@ The task to add du
 2026-07-08T14:51:50.560Z | task #21724 | completed | sonnet | workflow review — 1 health issue(s), 3 new pattern(s) | Retired 7 stale new-release workflows (integrating/assessing, no progress since 
 2026-07-08T14:53:13.704Z | task #21727 | completed | sonnet | arc-workflow-review pattern detector flags already-modeled h | Added 'thread whop forum teardown' and 'post x' to KNOWN_SUBJECT_PREFIXES in arc
 2026-07-08T14:53:38.351Z | task #21726 | completed | haiku | Retrospective: extract learnings from task #21723 — architec | All learnings already in patterns.md: p-gitignored-sibling-import-exclusion, p-f
+2026-07-08T14:55:27.287Z | task #21728 | completed | haiku | Retrospective: extract learnings from task #21724 — workflow | Extracted 2 reusable patterns: detector pre-search validation against existing i
