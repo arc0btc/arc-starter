@@ -158,6 +158,21 @@ const KNOWN_SUBJECT_PREFIXES = [
   // instance, so it never dedups via source-grouping) — same already-rejected ad-hoc
   // retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
   "email watch report to whoabuddy",
+  // "Post public-forum teaser: <title>" -> retrospective chain (task #21657), avg 2.0
+  // steps, whop + arc-brand-voice + arc-skill-manager — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "post public-forum teaser",
+  // "Draft Arc's next amplified article — Article N" -> retrospective chain (task
+  // #21657), avg 2.7 steps. The multi-step depth here isn't ad-hoc slack — it's already
+  // a formal state machine of its own: arc-article-pipeline's `article_queue_log` table
+  // (post_id/staged_at claim-resume, see cli.ts) tracks draft->stage->publish with
+  // idempotent resume. A second generic workflow template would duplicate that tracking,
+  // not add value.
+  "draft arc's next amplified article",
+  // "Package a research report into a Whop SKU — <file>" -> retrospective chain (task
+  // #21657), avg 2.0 steps, arc-packaging + arc-skill-manager — same already-rejected
+  // ad-hoc retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "package a research report into a whop sku",
 ];
 
 function normalizeSource(source: string | null): string {
