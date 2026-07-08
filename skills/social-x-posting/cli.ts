@@ -873,6 +873,16 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  // ARCHITECT DECISION (task #21658, closing the #21656 audit's open question): the
+  // legacy guard stack below is NOT dead code and must not be deleted. All 5 managed
+  // sensor/workflow lanes now fail closed above, but genuinely ad-hoc/manual posts —
+  // AGENT.md's own canonical worked example composes a thread with NO --source at all —
+  // still take this exact path, and it's the ONLY thing enforcing kill-switch,
+  // DAILY_TWEET_CAP, the daily-read reservation, and the root-post budget for that
+  // traffic. An unrecognized/absent --source failing closed here (matching the managed
+  // lanes' posture) would block legitimate manual composition with no reservation
+  // mechanism offered in its place. Keep this branch as the deliberate manual-post lane.
+
   // ── Legacy path (unmigrated lanes — P3 territory) — UNCHANGED guard stack ──────
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
   // exactly-once guarantee for sequential re-runs (see xPostLog note).
