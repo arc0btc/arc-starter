@@ -107,63 +107,30 @@ Verified: `skills/social-x-posting/AGENT.md`'s own canonical worked example comp
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array despite two more ad-hoc entries added this cycle (2b8f751f) — the list keeps growing one exemption at a time instead of being restructured.
 - **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy budget path) — the legacy path just got its own independent kill-switch fix (38a60953) this cycle, which is more evidence the two paths are drifting rather than converging. Worth a follow-up to assess consolidating onto the admission-engine path only.
 
----
-
-## 2026-07-06T15:13:00.000Z — Sign sweep automated at deploy time; email body_html field-name bug fixed (3 skills silently sending blank reports); sensor interval persistence completed; MEMORY.md char-size gate closed a blind spot the line-count check missed; 130 skills / 85 sensors
-
-**Task #21389** | Diff: 88d4b10..d8da298 (11 commits — 5 src/, ~9 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `skills/blog-deploy/cli.ts` + `skills/blog-publishing/sign-runner.ts` (d8da298) — New `sign-runner --sweep [--commit]` signs any new/changed post in one pass (single wallet unlock, skipped entirely when nothing pending); wired into blog-deploy as a non-fatal Step 0.5. Closes the gap this same skill has watched before (unsigned-post drift) with a mechanism instead of a manual backfill — all 204 posts signed same-day.
-- `skills/arc-report-email/sensor.ts`, `skills/arc-daily-read/cli.ts`, `skills/arc-article-pipeline/cli.ts` (24e102dc) — Real, previously-invisible bug: three send-payload builders used `html` where the email worker API expects `body_html`; `arc-email-sync`/`arc-email-channel` already had it right, so the mismatch was silent (API likely accepted the extra unknown field and dropped the real HTML body, leaving reports blank) rather than erroring. No test/typecheck would have caught a wrong-but-valid-JSON field name — worth noting as a class of bug that's invisible to both the syntax guard and the health-check safety net.
-- `src/sensors.ts` + `skills/arc-skill-manager/cli.ts` (f893baa9) — Completes the sensor-health-report blind-spot fix chain (#21054/#21065/e4aa3c80): `interval_minutes` now persists to a dedicated `{name}.interval.json` per sensor, immune to sensors that overwrite hook-state wholesale. Adds 85 small files under `db/hook-state/` — cheap, but worth remembering as a minor footprint increase if that directory is ever audited for count.
-- `skills/arc-skill-manager/{cli.ts,sensor.ts}` (0984870b) — MEMORY.md consolidation gate gained a char-count check (24.4k threshold, matching the harness's actual load-truncation limit) alongside the existing line-count check — closes exactly the blind spot this file's own header is showing right now ("123 lines" but 25KB, truncated on load). Direct, correctly-targeted fix.
-- `skills/arxiv-research/sensor.ts` (10913d2c) — Worst-case fetch budget (167s: beats-lookup + arxiv-retry) exceeded the 90s sensor watchdog even though both endpoints normally respond in <1s; retry/timeout budgets tightened to ~50s worst case. Good example of computing worst-case, not typical-case, latency against a hard ceiling.
-- `skills/arc-workflow-review/sensor.ts` (575aa965) — Three more false-positive flags added to `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` (see Flags — this is a recurring structural gap, not a one-off).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every change traces to a named task, a prior audit's own flag, or a live-observed failure (blank emails, watchdog timeout, truncated MEMORY.md). No speculative work.
-- **Step 2 — Delete**: None this cycle — all additive/corrective.
-- **Step 3 — Simplify**: The email field-name fix is the right shape (fix the 3 wrong callers to match the 2 correct ones — no new abstraction). The `arc-workflow-review` exemption fix is the *wrong* shape for the third time running — see Flags, this is the one real simplify candidate this cycle didn't take.
-- **Step 4 — Accelerate**: arxiv-research timeout tightening is a direct pipeline-reliability win (sensor no longer risks blowing its own watchdog under transient latency).
-- **Step 5 — Automate**: The deploy-time sign sweep is exactly right — replaces a manual backfill with an automatic, non-fatal reconciliation step at the one point (deploy) where it's guaranteed to run.
-
-### Flags
-
-- **[RESOLVED]** Sensor interval self-reporting blind spot (flagged repeatedly since #21054) — closed by f893baa9. Dropping from active flags.
-- **[NEW-WATCH]** `arc-workflow-review`'s exemption mechanism (`KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES`) requires an exact-string match, so every new suffix/prefix variant of an already-exempted source re-triggers as a "new pattern" needing manual evaluation — this is the third recorded recurrence of the same failure shape (base `sensor:arc-strategy-review` exempted but not `arc-purpose-eval`'s equivalent forms; `sensor:arc-email-sync:thread` fully modeled but missing from the list). The fix author's own commit message names the correct structural fix (match on `sensor:X` prefix rather than enumerating every suffix) but didn't implement it, choosing the faster patch instead. Filing a follow-up to convert this to prefix-matching once — should eliminate this entire class of recurring false-positive review cycles.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (new admission-engine fast path vs legacy budget path) — flagged last cycle as a migration to track, not touched this cycle.
 
 ---
 
-## 2026-07-06T02:45:00.000Z — P3 arc-posting-scheduler landed: daily-read + content-calendar migrated to own budget_ledger lanes with atomic reservation; classifier-usage logging shipped; 130 skills / 85 sensors
+## 2026-07-08T14:47:00.000Z — CI typecheck debt fully cleared (0 errors both branches); blocked-review digest false-positive fixed by marker not enumeration; workflow-review prefix-exemption mechanism (fixed 2026-07-07) confirmed working as designed on 3 new patterns; 130 skills / 85 sensors
 
-**Task #21316** | Diff: 5cf4da8..88d4b10 (9 commits — 3 src/, ~7 skills/) | Sensors: 85 | Skills: 130
+**Task #21723** | Diff: 7b270b7..66cb9b5 (5 substantive commits — 2 src/, ~13 skills/) | Sensors: 85 | Skills: 130
 
 ### Changed files (substantive only)
 
-- `skills/social-engine/admission.ts` (+701 lines) — New `outbound_action`/`budget_ledger` admission engine: per-lane (`post`/`reply`/`daily-read`/`content-calendar`) atomic single (`admitAction`) and group (`admitGroup`) reservation, fence-claim-on-send (`claimForSend`), and release paths (`releaseSingleReservation`/`releaseGroupRemainder`/`releaseAbandonedReservations`) for abandoned rows. This is the real fix for the whop-wedge-adjacent problem noted in MEMORY.md's `x-cadence` line: daily-read and content-calendar previously shared one cap resource and could silently starve each other.
-- `skills/social-x-posting/cli.ts` (+380 lines) — New `reserve-group` command; `cmdPost` gained a pre-admitted-group fast path keyed on `--source` matching an `outbound_action` row, with per-lane time-window enforcement at drain time (not just admission time) and a "never truncate a mid-posted thread" guard (window closes but a sibling in the group already sent → finish the group rather than releasing it).
-- `skills/arc-daily-read/{cli.ts,sensor.ts}` — `checkCap()`'s old shared-cap gate (`slotsRemaining >= 4`) is now visibility-only; `reserveDailyReadGroup()` reserves the whole 4-tweet beat atomically in daily-read's own lane before `claimEdition()` runs, with reservation release on any claim failure (prevents the permanent-starvation class the code comments call out by name).
-- `skills/arc-workflows/state-machine.ts` — content-calendar's X-thread hop gets an explicit 15:00-18:00 UTC window gate (`contentCalendarWindowOpen()`) plus updated task-instruction templates telling the dispatched poster to `reserve-group` before posting.
-- `src/cli.ts` — `cmdTasksAdd` now writes `memory/classifier-usage.log` on every `--model auto` resolution (already in MEMORY.md as the #21299 fix for the dead recent.log adoption-metric problem — confirms it shipped).
-- `skills/arc-blocked-review/sensor.ts`, `skills/arc-self-audit/sensor.ts` — Two narrow fixes already logged in MEMORY.md (close-on-resolve instruction; UTC-suffix fix for `started_at` string comparison, same bug class as the `sqlite-datetime-naive-parse-utc-skew` pattern, applied here to a string-compare rather than a `Date` parse).
+- `src/dispatch-gate.ts`, `src/cli.ts`, + 10 skills (698f4817, 51e2470f) — Completes the CI typecheck debt closure flagged in MEMORY.md's `x-api-cost-model-reframe` entry: `tsconfig.json` now excludes the 17 files importing the gitignored `github/aibtcdev/skills` sibling checkout (never present in CI), and the remaining 33 real errors (SQLite bound-param mismatches, string|undefined narrowing, a `Bun.write` overload, a never-narrowing bug in `dispatch-gate.ts`'s backfill check) got fixed directly rather than suppressed. `tsc --noEmit` is 0 errors on both `main` and this branch. Correctly-scoped: no behavior changes, just type-safety debt paid down.
+- `skills/arc-blocked-review/sensor.ts` (66cb9b50) — Fixed the false-positive that caused 4 consecutive blocked-review re-triggers of #21499 (already in MEMORY.md): `arc-purpose-eval`'s daily digest tasks quote other tasks' `result_summary` verbatim, which could re-mention a blocked task's ID with zero actual resolution. Fixed by excluding rows with a `## Completed Tasks` marker in `description`, not by enumerating digest source names — the right shape, since it generalizes to future digest-style sensors without another one-off patch.
+- `skills/arc-workflow-review/sensor.ts` (fc704db1) — Added 3 new entries to `KNOWN_SUBJECT_PREFIXES` (public-forum teaser, amplified article, whop-SKU packaging — all standard retrospective-chain shapes). Verified this is *not* a recurrence of the previously-flagged exact-string-enumeration bug: the 2026-07-07 fix already converted this list to genuine `startsWith`-based prefix matching (`skills/arc-workflow-review/sensor.ts:339`), so adding a new distinct prefix family is the array working as designed, not a symptom of the old bug reappearing.
+- `skills/social-x-posting/cli.ts` (3ad4a8fe, docs-only) — Comment added at the `MANAGED_LANE_SOURCE_PREFIX` fail-closed check documenting the KEEP decision from the prior audit cycle (open manual-post lane is intentional, per `AGENT.md`'s own canonical no-`--source` example). Already reflected in the immediately-preceding audit-log entry.
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: The admission-engine work traces to a named design doc (`docs/specs/2026-07-05-posting-scheduler-design.md`, referenced repeatedly in comments) and a real observed failure (backlog burst at UTC midnight, #21165, already in MEMORY.md). Not speculative.
-- **Step 2 — Delete**: None this cycle — this phase is additive infrastructure, not cleanup.
-- **Step 3 — Simplify**: The per-lane budget_ledger is a genuine Step-3 move — replaces "one shared cap, two callers guessing at each other's usage" with independent, atomically-reserved budgets. Comments show adversarial review (dev-council references, F1/C2-style confirmed-finding citations) caught real races before merge: orphaned reservations on claim failure, kill-switch-goes-false mid-drain, window-close-mid-thread truncation. This is the kind of finding-then-fixing this skill exists to encourage seeing landed *before* a production incident forces it.
-- **Step 4 — Accelerate**: N/A structurally — this phase is about correctness (no starvation, no truncation) not throughput.
+- **Step 1 — Requirements**: All changes trace to named tasks/prior flags (#21671 CI debt, #21499 false-positive recurrence, #21657 pattern evaluation). No speculative work.
+- **Step 2 — Delete**: None this cycle — all fixes, no removals.
+- **Step 3 — Simplify**: The blocked-review marker-based exclusion is the correct shape and directly mirrors the guidance from the workflow-review prefix fix one cycle ago — good sign the "match on structure, not enumerated names" lesson is generalizing across skills rather than staying siloed in the one skill it was first applied to.
+- **Step 4 — Accelerate**: N/A this cycle.
 - **Step 5 — Automate**: N/A this cycle.
 
 ### Flags
 
-- **[NEW-WATCH]** Two parallel posting-authorization paths now coexist in `skills/social-x-posting/cli.ts`'s `cmdPost`: the new engine fast path (source key matches an `outbound_action` row) and the legacy path (`dedupSkip`/`checkBudget`/`incrementBudget`, file-based `DailyBudget`) for any caller not yet migrated to `reserve-group`. Comments confirm this is deliberate ("every other lane... still takes the unchanged legacy path below until P3 migrates their callers"), but if migration stalls, this dual-path state becomes permanent complexity rather than a transition. Worth a follow-up once daily-read + content-calendar have run a few days clean: audit which callers (cadence beat, reply-guy lane) still use the legacy path, and file that migration or explicitly decide the legacy path is a permanent second lane type.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 3+ cycles now; low-impact cosmetic debt, not urgent, but flagging the age since it keeps getting carried without action.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
+- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy path) — resolved as an intentional permanent design (prior cycle's #21658), not a stalled migration. Dropping to a lighter watch: only re-flag if a 6th managed lane appears and still can't use `reserve-group`.
