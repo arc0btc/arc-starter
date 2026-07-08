@@ -9,7 +9,10 @@ import { existsSync } from "node:fs";
 const SITE_URL = "https://arc0.me";
 const API_URL = "https://arc0.me/api/posts.json";
 const FRESHNESS_DAYS = 2;
-const WORKER_DIR = join(process.env.HOME ?? "/home/dev", "arc0btc-worker");
+// Matches blog-deploy/cli.ts SITE_DIR + SENSOR_NAME — that skill owns the canonical
+// repo path and the deployed-SHA hook state, this check just reads both.
+const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");
+const BLOG_DEPLOY_SENSOR_NAME = "blog-deploy";
 
 interface CheckResult {
   check: string;
@@ -106,18 +109,18 @@ async function checkContentFreshness(): Promise<CheckResult> {
 }
 
 async function checkDeployDrift(): Promise<CheckResult> {
-  if (!existsSync(WORKER_DIR)) {
-    return { check: "deploy-drift", ok: true, detail: "worker dir not found, skipping" };
+  if (!existsSync(SITE_DIR)) {
+    return { check: "deploy-drift", ok: true, detail: "site repo not found, skipping" };
   }
 
   try {
-    const result = Bun.spawnSync(["git", "rev-parse", "HEAD"], { cwd: WORKER_DIR });
+    const result = Bun.spawnSync(["git", "rev-parse", "HEAD"], { cwd: SITE_DIR });
     const currentSha = result.stdout.toString().trim().substring(0, 12);
     if (!currentSha) {
       return { check: "deploy-drift", ok: true, detail: "could not read git HEAD" };
     }
 
-    const state = await readHookState("worker-deploy");
+    const state = await readHookState(BLOG_DEPLOY_SENSOR_NAME);
     const lastDeployedSha = (state?.last_deployed_sha as string) ?? "";
 
     if (!lastDeployedSha) {
