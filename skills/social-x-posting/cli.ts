@@ -944,44 +944,13 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       "SELECT COALESCE(SUM(reserved_count),0) as total_count FROM budget_ledger WHERE channel='x' AND utc_day=date('now') AND lane != 'reply'"
     ).get() as { total_count: number } | null)?.total_count ?? 0;
 
-    const source = flags["source"] ?? "";
-    const isDailyRead = isDailyReadSource(source);
-    const isNewNonDailyReadThreadStart = !isDailyRead && !flags["reply-to"];
-
-    // Daily-read reservation (arc-demand-gen P1): while the day's daily-read window hasn't
-    // resolved yet (before UTC 14:00 and no daily_read_log row for today), a NEW non-daily-read
-    // thread cannot START at all if ANYTHING has already posted today (todayCount > 0). Only
-    // gates root/new-thread-start posts (panel-mandated "defer whole hop, never truncate") — a
-    // thread already underway (--reply-to set) is exempt here and only bound by the unchanged
-    // absolute DAILY_TWEET_CAP below, so it always finishes atomically once started.
-    //
-    // Threshold is 0, not "fewer than N have posted" (dev-council/Lamport, 2026-07-05): since
-    // continuations aren't capped by this reservation once a root is allowed through, letting a
-    // SECOND independent lane also start a root would let two unbounded threads both eat into
-    // daily-read's reserved territory instead of at most one. Restricting to "nothing has posted
-    // yet today" bounds the residual overrun risk to a single thread — see the HONEST LIMIT note
-    // above DAILY_READ_WINDOW_CLOSE_UTC_HOUR.
-    let reservationActive = false;
-    if (isNewNonDailyReadThreadStart) {
-      const nowUtcHour = new Date().getUTCHours();
-      reservationActive =
-        nowUtcHour < DAILY_READ_WINDOW_CLOSE_UTC_HOUR && todayCount > 0 && !dailyReadPostedToday(guardDb);
-    }
-
-    if (reservationActive) {
-      log(
-        `daily-read reservation active (arc-daily-read hasn't posted today, window open until ` +
-        `${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC, ${todayCount} tweet(s) already posted today): ` +
-        `blocking a NEW non-daily-read thread start — deferring "${source}" whole (not truncating)`
-      );
-      console.log(JSON.stringify({
-        deferred: true,
-        reason: "daily_read_slots_reserved",
-        detail: `${todayCount} tweet(s) already posted today; new non-daily-read thread starts are blocked until arc-daily-read posts or its window closes at ${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC (of the shared ${DAILY_TWEET_CAP}/day cap)`,
-        planned_for: "later today (after arc-daily-read's window resolves) or tomorrow",
-      }));
-      process.exit(2);
-    }
+    // P1 daily-read reservation RETIRED 2026-07-08 (arc-posting-scheduler CHECKPOINTS.md #5):
+    // the bar was ">=2 distinct clean-window daily-read 'sent' days post-fix, no out-of-window
+    // rows" — met 2026-07-07 (13:23-13:26Z) + 2026-07-08 (13:02-13:06Z). Daily-read's window
+    // priority is now enforced by reserve-group admission (admission.ts lane windows) and every
+    // managed lane fail-closes above (MANAGED_LANE_SOURCE_PREFIX refusal), so this legacy-path
+    // reservation guarded only unmanaged legacy sources against a lane that no longer posts
+    // through this path. Restore point: cli.ts.bak-20260708-p1retire.
 
     if (todayCount >= DAILY_TWEET_CAP) {
       log(`daily tweet cap exhausted (${todayCount}/${DAILY_TWEET_CAP} total tweets today) — deferring`);
