@@ -1,3 +1,33 @@
+## 2026-07-08T02:45:42.000Z — publish-fanout was the real last legacy cmdPost caller (prior cycle's "fully retired" was premature); YAML tag frontmatter root-fix shipped; deploy-drift check pointed at a dead path, now reads canonical repo; blocked-review mention signal false-positive on its own review-cycle output fixed; 130 skills / 85 sensors
+
+**Task #21656** | Diff: 6156824..7b270b7 (7 commits — 0 src/, 7 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files (substantive only)
+
+- `skills/social-engine/admission.ts`, `skills/social-x-posting/cli.ts`, `skills/arc-workflows/state-machine.ts` (230e37bb, task #21584) — Migrates `publish-fanout` (blog→X hop, `PublishFanoutMachine`) onto `reserve-group`, adding a `publish-fanout` lane with no fixed time window (same shape as `quest-gtm`/`x-cadence`). This directly answers the open question from the prior review's `[RESOLVED]` flag ("does cmdPost's legacy guard stack still serve any live purpose?") — the answer was *yes*, one caller was missed. Verified by grep: all 5 known `--source` prefixes that call `social-x-posting -- post` (`content-calendar`, `daily-read`, `quest:gtm`, `sensor:x-cadence`, `publish-fanout`) now match `MANAGED_LANE_SOURCE_PREFIX` and fail closed without a reservation. The legacy guard stack in `cmdPost` is now genuinely unreachable for every known lane — it remains live only as the fallback for unrecognized/ad-hoc `--source` values.
+- `skills/blog-publishing/cli.ts` (6dcd0c19) — `tagsYaml` now JSON-quotes each tag value. This is the root fix for #21604 (MEMORY.md `article-6-staged-tag-frontmatter-bug`): date-prefixed slugs produce a bare-year tag (`"2026"` unquoted) that YAML parses as a number, failing Astro's `string[]` schema. Was worked around live during staging; now fixed at the source for all future posts.
+- `skills/arc0btc-site-health/{cli,sensor}.ts` (7b270b7c) — `checkDeployDrift()` was reading `~/arc0btc-worker` and a `worker-deploy` hook-state key that don't match `blog-deploy/cli.ts`'s actual `SITE_DIR`/`SENSOR_NAME` — the check has been silently no-op'ing (`existsSync` false → `ok: true, skipping`) rather than actually comparing deployed vs. HEAD sha. Fixed to read the same repo path and hook-state key `blog-deploy` owns.
+- `skills/arc-blocked-review/sensor.ts` (86d1b3f0, 64476c61) — The "did anything reference this blocked task's ID and complete" check was matching the sensor's own review-cycle output tasks and retrospective/audit tasks that legitimately mention many unrelated task IDs — both false-positive completion signals that could mark a still-blocked task as resolved. Both excluded now (subject prefix + source-chain check).
+- `skills/arc-workflow-review/sensor.ts` (3c62be43) — `isKnownPattern()` check added before subject-prefix matching in `detectPatterns()`, closing a gap where a source already in `KNOWN_PATTERNS` could still re-trigger if its subject also happened to start with a `KNOWN_SUBJECT_PREFIXES` entry — belt-and-suspenders, not a live bug this cycle, but the two exemption lists (`sensor:arc-reporting-watch`, `"email watch report to whoabuddy"`) added alongside it are for real recurring chains (#21579).
+- `skills/{alb,arc-daily-read,jingswap}/SKILL.md` (4e936211) — Docs-only: documents cross-skill `Bun.spawn()` dependencies. No behavior change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All seven changes trace to named tasks/incidents already in MEMORY.md or the prior audit-log entry (#21584, #21604, #21579, deploy-drift observed live). No speculative work.
+- **Step 2 — Delete**: None this cycle — no dead code surfaced.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[RESOLVED]** `social-x-posting-legacy-path-consolidation` — genuinely done now; all 5 known managed lanes reserve before posting. The prior review's premature "fully retired" claim is the lesson here: a diff-scoped review can only confirm what's *in the diff*, not that no caller was missed elsewhere. Worth remembering for future "is X fully migrated" claims — grep the full caller set, not just the diff, before declaring a migration complete.
+- **[NEW-WATCH]** `cmdPost`'s legacy guard stack (dedup/kill-switch/`DAILY_TWEET_CAP`/reservation/content-calendar-cap) is now dead code for every known `--source` prefix, alive only as a fallback for unrecognized ones. Worth a follow-up: should an unrecognized `--source` fail closed too (matching the "every known lane" fail-closed posture already established), or is an open fallback for genuinely ad-hoc/manual posts intentional? If the latter, say so in a comment; if the former, the whole legacy branch can go.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
+- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
+
+---
+
 ## 2026-07-07T14:47:14.104Z — legacy cmdPost guard stack fully retired (last 2 callers migrated to reserve-group); 2/4 per-stage staleness checks pruned after nextState verification; blog-publishing + per-repo PR-review chains exempted; 130 skills / 85 sensors
 
 **Task #21580** | Diff: 64f3092..6156824 (6 commits — 1 src/, 6 skills/) | Sensors: 85 | Skills: 130
@@ -113,34 +143,5 @@
 
 - **[NEW-WATCH]** Two parallel posting-authorization paths now coexist in `skills/social-x-posting/cli.ts`'s `cmdPost`: the new engine fast path (source key matches an `outbound_action` row) and the legacy path (`dedupSkip`/`checkBudget`/`incrementBudget`, file-based `DailyBudget`) for any caller not yet migrated to `reserve-group`. Comments confirm this is deliberate ("every other lane... still takes the unchanged legacy path below until P3 migrates their callers"), but if migration stalls, this dual-path state becomes permanent complexity rather than a transition. Worth a follow-up once daily-read + content-calendar have run a few days clean: audit which callers (cadence beat, reply-guy lane) still use the legacy path, and file that migration or explicitly decide the legacy path is a permanent second lane type.
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-
----
-
-## 2026-07-05T14:39:00.000Z — 5 stray backup files found committed to git (housekeeping auto-commit swept them as "new" untracked files); gitignore gap fixed at the source; 130 skills / 85 sensors
-
-**Task #21263** | Diff: 96708b4..5cf4da8 (12 commits — 2 src/, ~15 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `src/db.ts` + `arc-workflow-review/sensor.ts` (08e97e25) — Adds `last_progress_at` column, decoupling stale-detection from `updated_at` (which bulk touch-repairs can reset without fixing the underlying stall). This is the follow-up filed 2026-07-05 (#21218) alongside the new-release orphaned-waiting-states fix — closes a real gap instead of leaving it as a memory note.
-- `skills/arc-workflows/sensor.ts` (97422aa9) — `maybeRetryStuckNewRelease()`: retries the predecessor task once for workflows stuck in `assessing`/`integrating` `action:()=>null` states, then files one `[ESCALATED]` follow-up if the retry also fails. Matches MEMORY.md's `new-release-orphaned-waiting-states` entry.
-- `skills/arc-skill-manager/cli.ts` (b8d24738) — Normalizes `completed_at` to ISO (`+"Z"`) before `Date` parsing in `sensor-health-report`, fixing a UTC-skew bug that printed impossible `-307m ago` ages. Matches the existing pattern already used in `arc-housekeeping/sensor.ts` and `arc-blocked-review/sensor.ts` (should have been caught by consistency, not an independent bug — see Flags).
-- 14 skills (`0460367d`) — Bulk `disallowed-tools: [Edit, Write, NotebookEdit, Bash]` addition to read-only skills, continuing the 2026-05-27 audit's rollout.
-- `arc-workflow-review/sensor.ts` + `compliance-review/sensor.ts` (6e627f1a, ddf7fe99) — Two narrow exemption fixes (already-modeled/rejected patterns; inert sensor stubs) — bounded, correctly scoped.
-- **[NEW FINDING, fixed this cycle]** 5 files matching `*.bak.p{1,5}-<timestamp>` (`arc-attribution/cli.ts`, `arc-attribution/lib/report.ts`, `arc-daily-read/sensor.ts`, `social-x-posting/CADENCE.md`, `social-x-posting/cli.ts`) were sitting in git as tracked files, added by `chore(housekeeping): auto-commit new files` (29b3d142). Root cause: some dispatched session made ad-hoc `.bak.p<N>-<ISO>` safety copies (dot-separated, not the `.bak-p5-<ts>` dash-separated pattern `.gitignore` and `reclassify-existing-leads.ts` already use) before self-editing; `.gitignore`'s `*.bak-*`/`*.bak` patterns don't match a dot before `p1`/`p5`, so `git status --porcelain` reported them as untracked, and `arc-housekeeping/cli.ts`'s `runFix()` blindly `git add`s everything in `report.untracked` inside watched dirs with no content/pattern filter. Fixed at the gitignore layer (`*.bak.*` added) rather than the housekeeping code — the auto-commit logic staging "whatever git reports as untracked" is correct behavior; the gap was the ignore pattern missing a real naming variant already in use elsewhere in the repo. `git rm --cached` on all 5, files deleted from disk.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All other changes trace to named tasks/incidents already in MEMORY.md. No speculative work.
-- **Step 2 — Delete**: The 5 stray `.bak.p*` files — dead weight with zero purpose once committed (a backup that ships alongside the file it backs up is not a backup). Deleted this cycle.
-- **Step 3 — Simplify**: N/A this cycle beyond the gitignore fix.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: The gitignore fix is itself the automation — prevents any future ad-hoc `.bak.p<N>-*` file from ever reaching `git status --porcelain` untracked output, so `runFix()`'s blind-add behavior is safe without needing its own filter logic.
-
-### Flags
-
-- **[NEW-WATCH]** `arc-skill-manager/cli.ts`'s UTC-datetime-parse bug (b8d24738) is the *third* independent site with this exact bug shape (naive `new Date(sqliteDatetimeString)` skewing by local UTC offset) — `arc-housekeeping/sensor.ts` and `arc-blocked-review/sensor.ts` already had the `+"Z"` fix pattern before this one was found. A grep-based audit rule was proposed in the fix's own memory entry (`sqlite-datetime-naive-parse-utc-skew`) but a repo-wide grep for other unfixed call sites hasn't been run yet. Worth a one-shot follow-up: `grep -rn "new Date(" skills src --include="*.ts" | grep -v '+ "Z"'` filtered to datetime-column reads, to close this class of bug in one pass instead of one-at-a-time discovery.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 
