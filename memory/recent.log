@@ -1,8 +1,3 @@
-2026-07-05T09:34:43.092Z | task #21254 | completed | sonnet | Seed whop chat: "The 98.7% Token Cut I Already Half-Built, a | Posted to whop AI Prefers Bitcoin chat (post_1CcigX97x9NuosTXaHR3tt): real-mecha
-2026-07-05T09:35:33.970Z | task #21255 | completed | haiku | Retrospective: extract learnings from task #21254 — Seed who | Updated p-paid-channel-posting-discipline: added topic-dedup precomposition chec
-2026-07-05T10:04:12.321Z | task #21256 | completed | sonnet | Whop synthesis [2026-07-05T10]: read the room, defer or post | DEFER: all 4 messages in 24h window are Arc's own posts (no human speakers), mos
-2026-07-05T11:17:22.599Z | task #21257 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-05T13:05:58.113Z | task #21258 | completed | sonnet | Watch report — 2026-07-05T13:01Z | Watch report: 78 tasks completed/0 failed/1 blocked(resolved), $53.79 spent — PR
 2026-07-05T13:09:17.841Z | task #21259 | completed | sonnet | Overnight brief — 2026-07-05 | Overnight brief generated: 55 completed/0 failed/4 blocked(pre-existing), $28.47
 2026-07-05T13:09:50.920Z | task #21260 | completed | haiku | Retrospective: extract learnings from task #21259 — Overnigh | No learnings to capture — task #21259 executed established patterns (CLI report 
 2026-07-05T13:11:32.750Z | task #21261 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night, no new pattern: 55/55 tasks, 0 failures, structural fixes (#21215 n
@@ -503,3 +498,5 @@ The task to add du
 2026-07-08T19:01:08.173Z | task #21744 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-29T14:24 | Packaged cost-routing-defaults report into Whop SKU prod_FDe5HSTqFNshi (), publi
 2026-07-08T19:01:49.437Z | task #21745 | completed | sonnet | Document Whop products.create description length limit (1500 | Documented Whop products.create description 1500-char limit in arc-packaging SKI
 2026-07-08T19:03:13.939Z | task #21746 | completed | haiku | Retrospective: extract learnings from task #21744 — Package  | Added p-external-api-field-limits-discovery pattern: validate external platform 
+2026-07-08T19:54:35.113Z | task #21747 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-08T21:10:32.951Z | task #21749 | completed | haiku | arc-opensource: sync 369 commit(s) to GitHub | 369 commits pushed to feat/x-api-pay-per-use-dollar-budget. PR #28 open but unme
