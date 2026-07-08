@@ -507,3 +507,4 @@ The task to add du
 2026-07-08T02:53:17.134Z | task #21661 | completed | haiku | Retrospective: extract learnings from task #21658 — architec | Updated p-skill-consolidation-retirement-discipline pattern to capture fallback-
 2026-07-08T02:54:15.324Z | task #21662 | completed | haiku | Retrospective: extract learnings from task #21657 — workflow | Detector re-fire → exemption maintenance: p-detector-refire-exemption-maintenanc
 2026-07-08T02:59:50.452Z | task #21663 | completed | sonnet | Email watch report to whoabuddy — 2026-07-08T02:45 | Watch report 2026-07-08T01:01Z emailed to whoabuddy via CF email worker (msg id 
+2026-07-08T03:25:04.807Z | task #21664 | completed | sonnet | self-review: run health check for 2026-07-08 | Self-review found real issue: PR #28 (x-api pay-per-use) opened 2026-07-06, neve
