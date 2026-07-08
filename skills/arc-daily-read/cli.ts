@@ -15,6 +15,10 @@ import { releaseGroupRemainder, type Lane } from "../social-engine/admission.ts"
 // with ContentCalendarMachine (extract-and-reuse, not a reimplementation — see the module's
 // own doc comment for why).
 import { buildBlogPublishTask } from "../arc-workflows/blog-render.ts";
+// arc-day-n-publishing P2: the subscriber-facing same-day Day-N email (real Resend list) —
+// a distinct mechanism from sendAmplificationEmail() below (that one is operator-only). See
+// subscriber-email.ts's module header for why this is its own file/caller.
+import { sendDayNSubscriberEmail, type DayNEmailInput } from "./subscriber-email.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 // P1 (arc-demand-flywheel): env override lets verification/testing point at a scratch copy
@@ -120,6 +124,13 @@ function getDb(): Database {
     // arc-workflows/sensor.ts's syncContentCalendar() to skip Day-N-owned slugs when
     // DAYN_MERGED=true, so they never get a second, redundant ContentCalendarMachine instance.
     "ALTER TABLE daily_read_log ADD COLUMN blog_slug TEXT",
+    // arc-day-n-publishing P2: mirrors amplification_email_sent's shape for the DIFFERENT,
+    // subscriber-facing send (see subscriber-email.ts) — kept as its own pair of columns so
+    // the two mechanisms' send history is never conflated in daily_read_log or downstream
+    // monitors (P5 attribution reads this column, not amplification_email_sent).
+    "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_sent INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_sent_at TEXT",
+    "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_recipient_count INTEGER",
   ]) {
     try {
       db.run(migration);
@@ -394,6 +405,18 @@ function canUseDailyWord(streak: number): boolean {
  */
 function isDaynMergedEnabled(db: Database): boolean {
   const row = db.query("SELECT value FROM agent_config WHERE key = 'DAYN_MERGED'").get() as { value: string } | null;
+  return row?.value === "true";
+}
+
+/**
+ * arc-day-n-publishing P2: read the subscriber-email cadence toggle. Same convention as
+ * DAYN_MERGED (DB row, not env var — instant single-value rollback: `UPDATE agent_config SET
+ * value='false' WHERE key='DAYN_EMAIL_ENABLED'`). Defaults OFF until the careful-verify
+ * test-send (QUEST.md hard gate #2) has been confirmed and this phase's verify artifact
+ * records the flip.
+ */
+function isDaynEmailEnabled(db: Database): boolean {
+  const row = db.query("SELECT value FROM agent_config WHERE key = 'DAYN_EMAIL_ENABLED'").get() as { value: string } | null;
   return row?.value === "true";
 }
 
@@ -1509,6 +1532,44 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure:
   if (!dryRun) {
     const db = getDb();
     finalizeEditionStatus(db, beat.editionN, beat, rootId, status, voidReason, emailSent, status === "void" ? null : postedAt);
+
+    // arc-day-n-publishing P2: same-day subscriber-facing email (real Resend list) — a
+    // DIFFERENT mechanism from the (now-retired, arc-operator-loop P3) amplification email
+    // above, see subscriber-email.ts's module header. Fires whenever this edition shipped or
+    // partially shipped (something real to send), gated on its OWN toggle
+    // (DAYN_EMAIL_ENABLED, off by default until the phase's careful-verify test-send is
+    // confirmed — QUEST.md hard gate #2). blog_slug is intentionally not read here: blog
+    // publishing is an async LLM dispatch task queued below and typically not yet authored at
+    // this point in the flow, so the email carries the tweet content + thread link directly
+    // (same "don't block on the slower leg" choice sendAmplificationEmail already made).
+    if (status !== "void") {
+      if (isDaynEmailEnabled(db)) {
+        console.log("\nFiring same-day subscriber email (arc-day-n-publishing P2)...");
+        const streak = computeStreak(db);
+        const emailInput: DayNEmailInput = {
+          editionN: beat.editionN,
+          streak,
+          thesisCarried: beat.thesis,
+          openingLine: beat.openingLine,
+          tweetUrl,
+          blogSlug: null,
+          tweets: beat.tweets,
+          isMinimal: beat.isMinimal,
+          status,
+        };
+        const result = await sendDayNSubscriberEmail(emailInput);
+        db.run(
+          "UPDATE daily_read_log SET subscriber_email_sent = ?, subscriber_email_sent_at = ?, subscriber_email_recipient_count = ? WHERE edition_n = ?",
+          [result.attempted && result.sent > 0 ? 1 : 0, result.attempted && result.sent > 0 ? new Date().toISOString() : null, result.recipients.length, beat.editionN]
+        );
+        if (!result.attempted || result.failed > 0) {
+          console.warn(`  Subscriber email issue — attempted=${result.attempted} sent=${result.sent} failed=${result.failed}${result.error ? ` error=${result.error}` : ""}`);
+        }
+      } else {
+        console.log("\nDAYN_EMAIL_ENABLED is off — not sending the subscriber-facing email this edition (see CHECKPOINTS.md for the careful-verify rollout plan).");
+      }
+    }
+
     db.close();
     console.log(`\nLogged Edition ${beat.editionN} to daily_read_log (status=${status})`);
   } else {
@@ -1516,6 +1577,7 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure:
     console.log(`  tweet_id: ${rootId}`);
     console.log(`  email_sent: ${emailSent}`);
     console.log(`  thesis: ${beat.thesis}`);
+    console.log(`  [DRY-RUN] Would check DAYN_EMAIL_ENABLED and send the subscriber-facing email if on.`);
   }
 
   // arc-day-n-publishing P1 (design spec §3.6): queue the SAME-edition blog-publish task via
@@ -1603,6 +1665,56 @@ async function cmdStatus() {
   console.log(`P2 baseline: 51 followers (2026-06-27), 0 external engagement`);
 }
 
+/**
+ * arc-day-n-publishing P2: standalone test-send for the subscriber-facing Day-N email,
+ * independent of a live posting cycle — pulls an ALREADY-SHIPPED edition's row from
+ * daily_read_log and re-renders/re-sends its email without touching X, daily_read_log's
+ * tweet/status columns, or the scheduler. This is the careful-verify vehicle (QUEST.md hard
+ * gate #2): `--to <addr>` sends to exactly one explicit address (bypasses the subscriber-list
+ * query entirely), matching arc-email-channel's `send-test [--to]` convention. Dry-run by
+ * default; requires `--live` to actually call mail.arc0.me.
+ */
+async function cmdSendSubscriberEmail(editionN: number, toOverride: string | undefined, live: boolean) {
+  const db = getDb();
+  const row = db
+    .query(
+      "SELECT edition_n, thesis_carried, opening_line, root_tweet_url, blog_slug, status FROM daily_read_log WHERE edition_n = ?"
+    )
+    .get(editionN) as
+    | { edition_n: number; thesis_carried: string | null; opening_line: string | null; root_tweet_url: string | null; blog_slug: string | null; status: string }
+    | null;
+  const streak = computeStreak(db);
+  db.close();
+
+  if (!row) {
+    console.error(`No daily_read_log row found for edition ${editionN}.`);
+    process.exit(1);
+  }
+  if (row.status === "void") {
+    console.error(`Edition ${editionN} is status=void (nothing shipped) — refusing to send a test email for it.`);
+    process.exit(1);
+  }
+
+  const input: DayNEmailInput = {
+    editionN: row.edition_n,
+    streak,
+    thesisCarried: row.thesis_carried,
+    openingLine: row.opening_line,
+    tweetUrl: row.root_tweet_url,
+    blogSlug: row.blog_slug,
+    tweets: [], // historical tweet text isn't stored verbatim in daily_read_log; the rendered
+    // email falls back to the blog/thread links for a re-send of an already-shipped edition,
+    // which is exactly what a test-send needs to prove (render + unsubscribe + ?src=email).
+    isMinimal: false,
+    status: row.status as "shipped" | "partial",
+  };
+
+  console.log(`${live ? "LIVE SEND" : "DRY-RUN"} — subscriber email for edition ${editionN}${toOverride ? ` to ${toOverride}` : " to the full confirmed subscriber list"}`);
+  const result = await sendDayNSubscriberEmail(input, { testRecipient: toOverride, dryRun: !live });
+  console.log(JSON.stringify(result, null, 2));
+  if (live && (!result.attempted || result.failed > 0)) process.exit(1);
+}
+
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
@@ -1635,13 +1747,24 @@ switch (command) {
   case "status":
     await cmdStatus();
     break;
+  case "send-subscriber-email": {
+    if (editionOverride === undefined) {
+      console.error("send-subscriber-email requires --edition N");
+      process.exit(1);
+    }
+    const toOverride = argValue("--to");
+    const live = process.argv.includes("--live");
+    await cmdSendSubscriberEmail(editionOverride, toOverride, live);
+    break;
+  }
   default:
-    console.log("Usage: bun cli.ts <chart|materials|compose|post|status> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
+    console.log("Usage: bun cli.ts <chart|materials|compose|post|status|send-subscriber-email> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
     console.log("  chart              Show real-data ASCII chart from distilled_artifacts");
     console.log("  materials          (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
     console.log("  compose            Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
     console.log("  post               Post the daily beat (use --dry-run to simulate; requires a voice draft, see 'materials')");
     console.log("  post --simulate-failure   (P1) Force the never-skip 1-tweet minimal-edition path, for verification");
     console.log("  status             Show edition log, streak, DAYN_MERGED state, and cap state");
+    console.log("  send-subscriber-email --edition N [--to <email>] [--live]   (P2) Test-send/re-send the subscriber email for an already-shipped edition. Dry-run by default; --to bypasses the real list for a single-address careful-verify test-send.");
     process.exit(1);
 }

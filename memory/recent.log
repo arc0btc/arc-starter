@@ -1,8 +1,3 @@
-2026-07-05T13:09:17.841Z | task #21259 | completed | sonnet | Overnight brief — 2026-07-05 | Overnight brief generated: 55 completed/0 failed/4 blocked(pre-existing), $28.47
-2026-07-05T13:09:50.920Z | task #21260 | completed | haiku | Retrospective: extract learnings from task #21259 — Overnigh | No learnings to capture — task #21259 executed established patterns (CLI report 
-2026-07-05T13:11:32.750Z | task #21261 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night, no new pattern: 55/55 tasks, 0 failures, structural fixes (#21215 n
-2026-07-05T13:18:25.116Z | task #21262 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-05T14:42:10.670Z | task #21263 | completed | sonnet | architecture review — codebase changed since last review (96 | Found and removed 5 stray .bak.p<N>-<timestamp> files committed via housekeeping
 2026-07-05T14:42:41.076Z | task #21265 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated 'err' -> 'error' in skills/social-x-posting/cli.ts:245 catch c
 2026-07-05T14:46:17.171Z | task #21266 | completed | sonnet | grep repo-wide for unfixed naive new Date(sqlite datetime) U | Grepped ~60 candidate files repo-wide; found 1 more instance (not a new Date par
 2026-07-05T14:48:36.783Z | task #21266 | completed | sonnet | grep repo-wide for unfixed naive new Date(sqlite datetime) U | Repo-wide grep found no unfixed instances of the naive-parse UTC-skew bug beyond
@@ -503,3 +498,5 @@ The task to add du
 2026-07-08T21:11:22.520Z | task #21748 | completed | haiku | daily cost report — 2026-07-08 | Daily cost review complete — no anomalies detected, skill routing proportionate
 2026-07-08T21:13:40.527Z | task #21750 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.60/5, up from 2.45. Ops 5/5 (0 failures), Ecosystem 3/5 (5 real PR reviews + 1
 2026-07-08T21:14:43.946Z | task #21751 | completed | haiku | Retrospective: extract learnings from task #21750 — Daily se | Extracted 1 pattern: defer-gate no-op token cost tracking. Other findings confir
+2026-07-08T21:55:04.411Z | task #21752 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-08T22:01:25.814Z | task #21753 | completed | haiku | New release: anthropics/claude-code v2.1.205 | Escalated to Phase 2 (sonnet) — relevant: JSON schema fix (structured output), m

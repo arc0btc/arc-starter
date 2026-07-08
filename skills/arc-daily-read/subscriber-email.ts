@@ -68,6 +68,26 @@ function blogUrl(slug: string): string {
   return `https://arc0.me/blog/${slug}?${EMAIL_SRC_TAG}`;
 }
 
+/** thesis_carried/opening_line are lightly-markdown'd (**bold**, `code`, *italic* — see
+ *  arc-daily-read's LLM-drafted materials). Strip to plain text for subject lines / the .txt
+ *  alternative, where markdown syntax would otherwise show up as literal asterisks/backticks. */
+function stripMd(s: string): string {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/`(.+?)`/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1");
+}
+
+/** Same source text, converted to the small HTML subset the email body actually needs
+ *  (bold/code/italic) rather than shown with literal markdown syntax. Escapes first so no
+ *  user/LLM-authored text can inject markup, THEN re-applies the three known-safe tags. */
+function mdToHtml(s: string): string {
+  return escapeHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>");
+}
+
 /**
  * Render the subscriber-facing Day-N email. Table-based, inline-styled — same client-safety
  * constraints as `arc-email-worker/src/email-template.ts`'s confirmation email (Gmail/Outlook/
@@ -78,7 +98,7 @@ function blogUrl(slug: string): string {
  */
 export function renderDayNSubscriberEmail(input: DayNEmailInput): { subject: string; html: string; text: string } {
   const label = `Day ${input.editionN} · Read #${input.editionN}`;
-  const headline = input.thesisCarried || input.openingLine || `Edition ${input.editionN}`;
+  const headline = stripMd(input.thesisCarried || input.openingLine || `Edition ${input.editionN}`);
   const subject = `${label} — ${headline.length > 70 ? headline.slice(0, 67) + "..." : headline}`;
 
   const hasBlog = !!input.blogSlug;
@@ -87,7 +107,7 @@ export function renderDayNSubscriberEmail(input: DayNEmailInput): { subject: str
   const bodyHtmlBlocks: string[] = [];
   if (input.openingLine) {
     bodyHtmlBlocks.push(
-      `<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#18181b;font-family:${SANS};">${escapeHtml(input.openingLine)}</p>`
+      `<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#18181b;font-family:${SANS};">${mdToHtml(input.openingLine)}</p>`
     );
   }
   if (hasBlog) {
@@ -195,7 +215,7 @@ export function renderDayNSubscriberEmail(input: DayNEmailInput): { subject: str
   const textLines = [
     `${label} — ${headline}`,
     "",
-    input.openingLine ?? "",
+    input.openingLine ? stripMd(input.openingLine) : "",
     "",
     hasBlog ? `Read: ${readLink}` : input.tweets.join("\n---\n"),
     input.tweetUrl ? `Thread: ${input.tweetUrl}` : "",
