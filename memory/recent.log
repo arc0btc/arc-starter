@@ -501,3 +501,4 @@ The task to add du
 2026-07-08T17:53:22.145Z | task #21742 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-08T18:21:41.493Z | task #21743 | completed | sonnet | weekly pattern extraction: 1002 tasks, 11 failed, $710.84 sp | Added 2 patterns to patterns.md: p-meta-consolidation-self-timeout (decompose la
 2026-07-08T19:01:08.173Z | task #21744 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-29T14:24 | Packaged cost-routing-defaults report into Whop SKU prod_FDe5HSTqFNshi (), publi
+2026-07-08T19:01:49.437Z | task #21745 | completed | sonnet | Document Whop products.create description length limit (1500 | Documented Whop products.create description 1500-char limit in arc-packaging SKI
