@@ -48,6 +48,21 @@ const DWELL_WINDOWS: Record<string, number> = {
 };
 
 // Stage capacity limits
+//
+// NOTE (arc-day-n-publishing P4, 2026-07-08): these STAGE_CAPS are used ONLY by this
+// monitor's own health/gate math (baseline recording, dwell-window advancement checks) —
+// they are NOT written back to `agent_config.reply_daily_cap`, which is the SEPARATE value
+// `admission.ts`'s `getReplyCap()` actually reads to enforce the live daily reply budget.
+// The two drifted apart: this monitor advanced `live_rollout_stage` to 'steady' on
+// 2026-06-28, but `reply_daily_cap` stayed frozen at '3' (a research_core-era value) for the
+// next 10 days, silently capping the reply lane at 3/day despite being cleared for 40. P4
+// fixed the live value directly (`agent_config.reply_daily_cap = '15'`, PHASES.md's explicit
+// 10-15/day target — deliberately below this stage's 40 ceiling, an editorial choice, not a
+// technical one) but did NOT wire an auto-sync here, since the two caps serve different
+// purposes (this one gates rollout advancement; that one gates today's actual sends) and a
+// blind sync would silently override the deliberate 15 with 40. If `reply_daily_cap` ever
+// needs to move again, change it directly in `agent_config` — do not assume this constant
+// drives it.
 const STAGE_CAPS: Record<string, number> = {
   control: 1,
   research_core: 3,
