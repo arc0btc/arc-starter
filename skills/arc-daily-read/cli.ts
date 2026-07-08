@@ -1486,13 +1486,22 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure:
     status = "partial";
   }
 
-  // Send amplification email (REQUIRED per D4) — skip for a void edition (nothing to amplify).
+  // arc-operator-loop P3 (2026-07-08): standalone amplification email RETIRED — folded into the
+  // daily operator brief's Shipped section (new tweet link) and Verify & Share section (this
+  // edition's x_post_log rows). Rollback: flip DAILY_READ_EMAIL_RETIRED to false (one line), or
+  // `git revert` this VM-local commit. sendAmplificationEmail() itself is left intact below (dead
+  // code, not deleted) so re-enabling is a one-line flip, not a rewrite.
+  const DAILY_READ_EMAIL_RETIRED = true;
   let emailSent = false;
   if (status !== "void") {
-    console.log("\nFiring amplification email (D4 — required)...");
-    emailSent = await sendAmplificationEmail(beat.editionN, tweetUrl, beat, dryRun);
-    if (!emailSent) {
-      console.warn("  Amplification email FAILED — logging: 'shipped without amplification (operator offline) — dead reach expected'");
+    if (DAILY_READ_EMAIL_RETIRED) {
+      console.log("\nAmplification email retired (arc-operator-loop P3) — covered by the daily operator brief instead");
+    } else {
+      console.log("\nFiring amplification email (D4 — required)...");
+      emailSent = await sendAmplificationEmail(beat.editionN, tweetUrl, beat, dryRun);
+      if (!emailSent) {
+        console.warn("  Amplification email FAILED — logging: 'shipped without amplification (operator offline) — dead reach expected'");
+      }
     }
   }
 
