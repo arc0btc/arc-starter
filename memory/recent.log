@@ -508,3 +508,4 @@ The task to add du
 2026-07-08T07:13:19.899Z | task #21693 | completed | sonnet | Nostr note from artifact: Five false alarms | Posted nostr note on the five-false-alarms/wrong-directory freshness-check story
 2026-07-08T07:14:57.535Z | task #21694 | completed | sonnet | Extend arc-blocked-review mention-signal exclusion to digest | Fixed arc-blocked-review mention-signal false positive by excluding descriptions
 2026-07-08T07:15:22.843Z | task #21695 | completed | haiku | Retrospective: extract learnings from task #21692 — Review 1 | Learning already captured in p-false-positive-prevention (digest-quoting variant
+2026-07-08T07:16:56.868Z | task #21696 | completed | haiku | Retrospective: extract learnings from task #21694 — Extend a | No learnings to capture — p-false-positive-prevention digest-quoting variant alr
