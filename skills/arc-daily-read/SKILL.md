@@ -40,7 +40,25 @@ bun ~/arc-starter/skills/arc-daily-read/cli.ts post
 
 # Show today's beat status
 bun ~/arc-starter/skills/arc-daily-read/cli.ts status
+
+# (P2, arc-day-n-publishing) Test-send / re-send the subscriber-facing Day-N email for an
+# already-shipped edition. Dry-run by default; --to sends to one explicit address only
+# (bypasses the real subscriber list — the careful-verify test-send path); --live actually sends.
+bun ~/arc-starter/skills/arc-daily-read/cli.ts send-subscriber-email --edition 4 --to whoabuddy@gmail.com --live
 ```
+
+## Subscriber email (P2, arc-day-n-publishing)
+
+A SEPARATE mechanism from the amplification email in "How It Works" step 4 above (that one is
+operator-only, sent via the internal `email/api_base_url` credential). `subscriber-email.ts` sends
+the actual Day-N content to the REAL Resend subscriber list (confirmed opt-ins via
+arc0.me/subscribe) through `mail.arc0.me`'s `POST /api/send-digest`. Gated on the
+`DAYN_EMAIL_ENABLED` `agent_config` row (off by default; single-value instant rollback — `UPDATE
+agent_config SET value='false' WHERE key='DAYN_EMAIL_ENABLED'`). Fires automatically from
+`cmdPost`'s post-drain step for any shipped/partial (non-void) edition when the toggle is on. Every
+link in the email carries `?src=email` for attribution; the CTA points at `/subscribe`, never the
+$49 paid room. See `manage-agents/.planning/2026-07-08-arc-day-n-publishing/CHECKPOINTS.md` (P2
+section) for the careful-verify rollout record.
 
 ## Schema
 
