@@ -253,9 +253,8 @@ async function run() {
       if (dwellOk) {
         // Check: no dup/unknown actions in research_core cohort
         const badActions = db.query(
-          `SELECT COUNT(*) as cnt FROM outbound_action WHERE status IN ('unknown') AND budget_day >= ?`,
-          [stageEnteredAt.toISOString().slice(0, 10)]
-        ).get() as { cnt: number };
+          `SELECT COUNT(*) as cnt FROM outbound_action WHERE status IN ('unknown') AND budget_day >= ?`
+        ).get(stageEnteredAt.toISOString().slice(0, 10)) as { cnt: number };
 
         if (badActions.cnt === 0) {
           log("Research-core gate: PASS — no dup/unknown actions. Advancing to tier_a.");

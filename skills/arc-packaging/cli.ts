@@ -352,7 +352,7 @@ type ClaimResult = "claimed" | "resumed" | "already-packaged";
  * process's own claim — proceed, same as P2), or already-packaged (idempotent no-op).
  */
 function claimCandidate(db: Database, reportFile: string): ClaimResult {
-  const before = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
+  const before = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as
     | { status: string }
     | null;
   if (!before) throw new Error(`claimCandidate: no row for ${reportFile} — run materials first`);
@@ -366,7 +366,7 @@ function claimCandidate(db: Database, reportFile: string): ClaimResult {
   if (result.changes === 0) {
     // Lost the race (or the row moved between the SELECT above and this UPDATE) — re-read and
     // resolve rather than assume.
-    const after = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as {
+    const after = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as {
       status: string;
     };
     return after.status === "packaged" ? "already-packaged" : "resumed";
@@ -384,7 +384,7 @@ async function cmdStage(
 ): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
-  const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
+  const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as
     | { report_file: string; slug: string; route: string; status: string }
     | null;
   if (!row) {

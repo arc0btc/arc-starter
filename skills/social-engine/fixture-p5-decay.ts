@@ -215,8 +215,8 @@ assert(
 // (We can only verify no unintended mutation happened — the scripts don't touch these columns)
 assert(
   "conversion_score is a SELECT result, not a stored column (no conversion_score col in social_accounts)",
-  db.prepare("PRAGMA table_info(social_accounts)").all()
-    .every((col: Record<string, string | number>) => col.name !== "conversion_score")
+  (db.prepare("PRAGMA table_info(social_accounts)").all() as Record<string, string | number>[])
+    .every((col) => col.name !== "conversion_score")
 );
 
 db.close();

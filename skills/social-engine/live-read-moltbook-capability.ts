@@ -91,7 +91,7 @@ check(
 );
 check(
   "moltbook labeled link is observed-class (no whop_sale rows)",
-  db.query("SELECT COUNT(*) as cnt FROM whop_sale WHERE a_param='moltbook'").get<{ cnt: number }>()!.cnt === 0,
+  (db.query("SELECT COUNT(*) as cnt FROM whop_sale WHERE a_param='moltbook'").get() as { cnt: number }).cnt === 0,
   "no whop_sale rows with a_param=moltbook"
 );
 

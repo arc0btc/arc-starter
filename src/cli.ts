@@ -250,11 +250,7 @@ async function cmdTasksAdd(args: string[]): Promise<void> {
       reason: classification.reason,
     };
     const logLine = JSON.stringify(logEntry);
-    await Bun.write(
-      "memory/classifier-usage.log",
-      logLine + "\n",
-      { append: true, createPath: true }
-    );
+    appendFileSync("memory/classifier-usage.log", logLine + "\n");
     process.stdout.write(
       `Classifier: type=${classification.type} model=${modelFlag} confidence=${classification.confidence} reason="${classification.reason}"\n`
     );

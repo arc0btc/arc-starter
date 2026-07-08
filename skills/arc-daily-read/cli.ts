@@ -340,7 +340,7 @@ function selectFinding(db: Database): Finding | null {
   // Rotation window = one full cycle (candidate count), not "ever used" — see doc comment above.
   const recentRows = db.query(
     "SELECT finding_slug FROM daily_read_log WHERE finding_slug IS NOT NULL ORDER BY edition_n DESC LIMIT ?"
-  ).all([ordered.length]) as { finding_slug: string }[];
+  ).all(ordered.length) as { finding_slug: string }[];
   const recentlyUsed = new Set(recentRows.map((r) => r.finding_slug));
 
   let pool = ordered.filter((r) => !recentlyUsed.has(r.slug));
@@ -368,7 +368,7 @@ function chooseIntroStyle(editionN: number): string {
 function getRecentOpenings(db: Database, n: number = 3): string[] {
   const rows = db.query(
     "SELECT opening_line FROM daily_read_log WHERE opening_line IS NOT NULL ORDER BY edition_n DESC LIMIT ?"
-  ).all([n]) as { opening_line: string }[];
+  ).all(n) as { opening_line: string }[];
   return rows.map((r) => r.opening_line);
 }
 

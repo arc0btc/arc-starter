@@ -74,7 +74,7 @@ function maybeRetryStuckNewRelease(
         description: `Workflow ${workflow.id} entered "${workflow.current_state}" but both the original task (source ${originalSource}) and its retry (source ${retrySource}) failed. Manual triage needed: inspect the failures (\`arc tasks --status failed\`, filter by source), fix the underlying blocker, then either complete the assessment/integration manually or transition the workflow forward with \`arc skills run --name arc-workflows -- transition ${workflow.id} <state>\`.`,
         priority: 3,
         model: "sonnet",
-        skills: ["arc-workflows"],
+        skills: JSON.stringify(["arc-workflows"]),
         source: escalationSource,
       });
       log(`escalate: wf:${workflow.id} (${workflow.instance_key}) stuck in "${workflow.current_state}" — retry also failed`);

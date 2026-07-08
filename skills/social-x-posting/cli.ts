@@ -1182,8 +1182,8 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   let lane = (flags["lane"] ?? "post") as EngineLane;
   // P3 arc-posting-scheduler: per-lane window (HH:MM UTC, both optional — NULL/NULL means
   // anytime, unchanged for the reply lane and any caller that doesn't pass these).
-  let earliestUtcTime = flags["earliest-time"];
-  let latestUtcTime = flags["latest-time"];
+  let earliestUtcTime: string | undefined = flags["earliest-time"];
+  let latestUtcTime: string | undefined = flags["latest-time"];
   if (derivedEntry) {
     if (flags["lane"] && flags["lane"] !== derivedEntry.lane) {
       log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedEntry.lane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);

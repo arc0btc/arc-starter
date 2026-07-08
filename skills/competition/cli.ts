@@ -9,6 +9,8 @@
  *   arc skills run --name competition -- allowlist
  */
 
+export {};
+
 const API_BASE =
   process.env.AIBTC_CAMPAIGN_API_URL ?? "https://aibtc.com/api/competition";
 const ARC_STACKS_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";

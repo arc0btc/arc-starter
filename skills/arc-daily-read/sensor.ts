@@ -176,7 +176,7 @@ export default async function arcDailyReadSensor(): Promise<string> {
 
   await writeHookState(SENSOR_NAME, {
     last_ran: new Date().toISOString(),
-    last_result: "queued",
+    last_result: "ok",
     version: ((await readHookState(SENSOR_NAME))?.version ?? 0) + 1,
     last_queued_date: now.toISOString().split("T")[0],
     last_task_id: taskId,
