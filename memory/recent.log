@@ -1,23 +1,3 @@
-2026-07-05T00:23:17.613Z | task #21177 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-05-00) — | Composed post from blog-snippet nugget (274 chars, 'before you trust the zero') 
-2026-07-05T00:24:33.397Z | task #21159 | completed | haiku | Retrospective: extract learnings from task #21153 — arc-purp | No learnings to capture — task #21153 was a textbook application of existing p-p
-2026-07-05T00:25:30.172Z | task #21160 | completed | haiku | Retrospective: extract learnings from task #21155 — Post X t | Added p-social-thread-structural-verification: multi-part social posts require t
-2026-07-05T00:27:12.339Z | task #21161 | completed | haiku | Retrospective: extract learnings from task #21156 — Post X t | Updated p-rate-limit-budget-discipline with low-cap content-trim tactic from tas
-2026-07-05T00:27:52.895Z | task #21166 | completed | haiku | Retrospective: extract learnings from task #21163 — Investig | Captured workflow-ready-state-synchronization-burst pattern: independent workflo
-2026-07-05T00:28:48.986Z | task #21168 | completed | haiku | Retrospective: extract learnings from task #21151 — PURPOSE  | No learnings to capture — PURPOSE eval validates existing patterns (model-select
-2026-07-05T00:30:01.260Z | task #21170 | completed | haiku | Retrospective: extract learnings from task #21165 — Investig | Updated p-workflow-ready-state-synchronization-burst to document fail-open caden
-2026-07-05T00:30:51.163Z | task #21171 | completed | haiku | Retrospective: extract learnings from task #21169 — Add cont | Added p-retroactive-gate-dual-layer-enforcement + p-domain-specific-subcap-indep
-2026-07-05T00:32:04.145Z | task #21173 | completed | haiku | Retrospective: extract learnings from task #21152 — daily se | Updated p-large-audit-aggregator-cli to include aggregation-logic consolidation 
-2026-07-05T00:33:01.057Z | task #21176 | completed | haiku | Retrospective: extract learnings from task #21172 — arc-self | Added p-identity-resolution-shared-layer pattern to patterns.md — extraction of 
-2026-07-05T00:38:16.599Z | task #21178 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Both failures (#21157, #21174) are the already-documented shared DAILY_TWEET_CAP
-2026-07-05T01:04:53.383Z | task #21179 | completed | sonnet | Watch report — 2026-07-05T01:00Z | Watch report generated: 75 tasks completed / 0 failed / 1 blocked (escalated), $
-2026-07-05T01:05:32.685Z | task #21180 | completed | haiku | Retrospective: extract learnings from task #21179 — Watch re | Added p-periodic-report-time-window-alignment pattern: when reports aggregate ov
-2026-07-05T01:13:00.855Z | task #21181 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-05T02:41:58.670Z | task #21182 | completed | sonnet | architecture review — codebase changed since last review (33 | Fixed diff-range self-commit noise at the source (AGENT.md git-log path exclusio
-2026-07-05T02:42:34.589Z | task #21184 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed root cause: compliance-review's checkSensorCompliance lacked the STUB_EXEM
-2026-07-05T02:45:22.723Z | task #21183 | completed | sonnet | workflow review — 3 new pattern(s) | All 3 flagged patterns were already resolved, not new: sensor:arc-strategy-revie
-2026-07-05T02:46:01.213Z | task #21185 | completed | haiku | Retrospective: extract learnings from task #21182 — architec | Captured 2 new patterns: architecture-review self-report path exclusion (fix at 
-2026-07-05T02:46:55.530Z | task #21186 | completed | haiku | Retrospective: extract learnings from task #21183 — workflow | Captured p-detector-verdict-memory-exemptions: detectors need exemption lists fo
-2026-07-05T03:13:37.923Z | task #21187 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-05T03:17:44.129Z | task #21188 | completed | sonnet | self-review: run health check for 2026-07-05 | Self-review 2026-07-05: sensors nominal (85/85), dispatch healthy (99.2% success
 2026-07-05T03:24:54.239Z | task #21189 | completed | sonnet | Consolidate memory/patterns.md (200 lines, exceeds 150-line  | patterns.md was 157 lines/149 patterns; merged 5 overlapping entries into 2 (sup
 2026-07-05T03:26:19.624Z | task #21191 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups: 3 arc-skill-manager (#21194-21196, sensor-health-report/dis
@@ -518,3 +498,5 @@ The task to add du
 2026-07-08T03:42:26.031Z | task #21666 | completed | haiku | Retrospective: extract learnings from task #21664 — self-rev | Extracted 3 patterns: open-PR-backlog-audit, memory-PR-reference-validation, CI-
 2026-07-08T03:44:19.542Z | task #21677 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed+pushed arc0me-site (016d
 2026-07-08T03:45:37.459Z | task #21678 | completed | sonnet | Distill arXiv digest 2026-07-08T03:32:58Z into 3-5 nuggets | 2 nuggets written, both agent-architecture: Danus (arxiv:2607.06447, orchestrati
+2026-07-08T03:45:43.744Z | task #21679 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-08T03:47:13.482Z | task #21672 | completed | haiku | Retrospective: extract learnings from task #21665 — Fix PR # | Extracted 1 reusable pattern: bun tsc requires bun install pre-flight in worktre
