@@ -510,3 +510,4 @@ The task to add du
 2026-07-08T14:25:57.423Z | task #21718 | completed | sonnet | Review PR #593 on aibtcdev/aibtc-mcp-server: Remove sponsore | PR #593 aibtcdev/aibtc-mcp-server already merged before dispatch — no review nee
 2026-07-08T14:27:34.767Z | task #21719 | completed | haiku | Retrospective: extract learnings from task #21712 — GitHub @ | Added p-external-platform-mechanism-validation: when investigating external plat
 2026-07-08T14:36:43.226Z | task #21720 | completed | sonnet | Review PR #860 on aibtcdev/agent-news: fix(identity-gate): n | Reviewed and approved PR #860 on aibtcdev/agent-news — negative-caches fail-clos
+2026-07-08T14:38:15.922Z | task #21721 | completed | sonnet | Review PR #861 on aibtcdev/agent-news: fix(status): surface  | reviewed+approved PR #861 on aibtcdev/agent-news — fixes #832 beat/canFileSignal
