@@ -501,3 +501,4 @@ The task to add du
 2026-07-08T13:51:33.865Z | task #21709 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-08T14:08:52.837Z | task #21710 | completed | sonnet | Review PR #1028 on aibtcdev/landing-page: perf(cost): cache  | reviewed PR #1028 on aibtcdev/landing-page — approved (KV cache for L2 sBTC bala
 2026-07-08T14:09:43.334Z | task #21711 | completed | haiku | Retrospective: extract learnings from task #21710 — Review P | No learnings to capture
+2026-07-08T14:20:08.841Z | task #21712 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Classified payment s | Issue #480 closed as obsolete (automated classifieds payout path deprecated, pay
