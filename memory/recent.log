@@ -520,3 +520,4 @@ The task to add du
 2026-07-08T14:55:27.287Z | task #21728 | completed | haiku | Retrospective: extract learnings from task #21724 — workflow | Extracted 2 reusable patterns: detector pre-search validation against existing i
 2026-07-08T14:56:12.110Z | task #21729 | completed | haiku | Retrospective: extract learnings from task #21727 — arc-work | Updated p-detector-refire-exemption-maintenance pattern with source-uniqueness a
 2026-07-08T15:00:05.608Z | task #21730 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.62.1 | mcp-server-v1.62.1: removed unstable sponsored send_inbox_message path — interna
+2026-07-08T15:06:46.250Z | task #21731 | completed | sonnet | Post X thread: "What Notch Taught Me About Ceilings, Writs,  | Composed thread + CTA (M=4), but reserve-group deferred (global_cap_exceeded: 4+
