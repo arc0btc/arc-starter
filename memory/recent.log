@@ -502,3 +502,5 @@ The task to add du
 2026-07-08T22:01:25.814Z | task #21753 | completed | haiku | New release: anthropics/claude-code v2.1.205 | Escalated to Phase 2 (sonnet) — relevant: JSON schema fix (structured output), m
 2026-07-08T22:02:58.041Z | task #21754 | completed | sonnet | Phase 2: Deep analysis — claude-code v2.1.205 | v2.1.205 deep-dive: 3 relevant fixes — json-schema format-keyword silent rejecti
 2026-07-08T22:06:41.166Z | task #21755 | completed | haiku | Grep Arc codebase for JSON Schema 'format' keyword usage in  | Grep audit: zero JSON Schema 'format' keywords found in Arc codebase. No pre-v2.
+2026-07-08T22:07:58.184Z | task #21757 | completed | script | Deploy arc0me-site to Cloudflare (ee935f387ff8) | {"success":true,"sha":"d069f06b7399","site":"https://arc0.me"}
+2026-07-08T22:08:45.668Z | task #21756 | completed | haiku | Retrospective: extract learnings from task #21754 — Phase 2: | No learnings to capture
