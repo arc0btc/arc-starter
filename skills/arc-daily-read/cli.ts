@@ -19,6 +19,14 @@ import { buildBlogPublishTask } from "../arc-workflows/blog-render.ts";
 // a distinct mechanism from sendAmplificationEmail() below (that one is operator-only). See
 // subscriber-email.ts's module header for why this is its own file/caller.
 import { sendDayNSubscriberEmail, type DayNEmailInput } from "./subscriber-email.ts";
+// arc-day-n-publishing P5: canonical `?src=` tag registry (dev-council/Fowler, CONFIRMED —
+// collapses this file's, subscriber-email.ts's, and moltbook-mirror-post.ts's independently
+// written `?src=`/`&src=` literals into one source of truth). computeStreak() is ALSO
+// extracted here (dev-council/Lamport, CONFIRMED — report.ts must import the SAME fold, not
+// re-derive it from prose) so both this file and arc-attribution/lib/report.ts agree by
+// construction, never by convention.
+import { SRC_TAGS, withSrcTag } from "../arc-attribution/lib/src-tags.ts";
+import { computeStreak, backfillEditionMetrics, checkAmplification, markAmplification } from "./lib/edition-metrics.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 // P1 (arc-demand-flywheel): env override lets verification/testing point at a scratch copy
@@ -31,7 +39,8 @@ const MATERIALS_DIR = join(ARC_STARTER_ROOT, "db/daily-read-materials");
 // arc-day-n-publishing P0/P1: the design spec's CTA menu is "$9 report or /subscribe, NEVER
 // $49" — this used to be misworded as "Free room" while linking a $9 checkout URL under an
 // `x-human` affiliate tag unrelated to Arc's canonical attribution. Retired; see ctaLine().
-const SUBSCRIBE_URL = "https://arc0.me/subscribe?src=day-n-x";
+// P5: tag now sourced from the canonical SRC_TAGS registry (same resulting string as before).
+const SUBSCRIBE_URL = withSrcTag("https://arc0.me/subscribe", SRC_TAGS.DAY_N_X.tag);
 const X_HANDLE = "@arc0btc";
 // arc-day-n-publishing P1 (dev-council/Fowler, design spec §2 finding #8, CONFIRMED-applied):
 // named constant for the lane the merged Day-N unit enqueues under, instead of hardcoding
@@ -366,28 +375,14 @@ function findResumableEdition(db: Database): ResumableEdition | null {
     .get() as ResumableEdition | null;
 }
 
-/**
- * arc-day-n-publishing P1 (dev-council/Lamport+Kleppmann, design spec §3.3, CONFIRMED-applied):
- * the PUBLIC streak is NOT the raw edition_n (never-skip keeps that contiguous by
- * construction, so a bare PK-gap check can never detect a void — it always trivially equals
- * the row count). This folds over `(edition_n, status)` from the most recent edition
- * backwards, stopping at the first `void` — a voided edition is a real break the public saw,
- * and it must render as one even though the underlying counter stays contiguous.
- */
-function computeStreak(db: Database): number {
-  const rows = db
-    .query("SELECT status FROM daily_read_log ORDER BY edition_n DESC")
-    .all() as { status: string }[];
-  let streak = 0;
-  for (const row of rows) {
-    if (row.status === "shipped" || row.status === "partial") {
-      streak++;
-    } else {
-      break;
-    }
-  }
-  return streak;
-}
+// arc-day-n-publishing P5 (dev-council/Lamport, CONFIRMED — extracted so report.ts imports the
+// SAME fold instead of re-deriving a subtly-different one from prose): computeStreak() now lives
+// in ./lib/edition-metrics.ts and is imported above. Its real behavior (unchanged by the
+// extraction): folds over `(edition_n, status)` from the most recent edition backwards, stopping
+// at the first status NOT IN ('shipped','partial') — there is NO calendar-gap/missing-day
+// detection and no 'partial-degraded' value (the real status is 'partial'); see that module's
+// doc comment for the full correction of earlier design-doc prose that described a fold that was
+// never actually implemented.
 
 /**
  * QUEST.md mandate: the word "daily" is not marketed in public copy until 30 consecutive
@@ -1198,11 +1193,25 @@ function finalizeEditionStatus(
 ): void {
   const tweetUrl = tweetId ? `https://x.com/${X_HANDLE.slice(1)}/status/${tweetId}` : null;
 
+  // arc-day-n-publishing P5 (dev-council/Kleppmann, CONFIRMED — lost-update fix): this used to
+  // be a WHOLESALE `organic_reach_snapshot = ?` overwrite bound to a fresh
+  // `JSON.stringify({follower_count_at_post:51})` on every finalize call. Once P5's
+  // backfillEditionMetrics() (lib/edition-metrics.ts) starts merging `post_metrics` into this
+  // same JSON blob after the fact, a later re-finalize of this row (a void->reship, a status
+  // correction) would silently WIPE that backfilled data. Switched to `json_set()` — an atomic,
+  // single-statement partial update that preserves sibling keys (post_metrics,
+  // metrics_fetched_at) no matter which writer touches the blob first. Note: the
+  // `follower_count_at_post:51` value itself is a pre-existing hardcoded placeholder ("P2
+  // baseline; updated when live X pull is available") — NOT fixed this phase (would require
+  // making this synchronous function async to call fetchFollowerMetrics(), a larger change than
+  // this phase's scoped write-safety fix; disclosed in the P5 verify artifact, not silently
+  // left unmentioned).
   db.run(
     `UPDATE daily_read_log SET
        tweet_id = ?, root_tweet_url = ?, thesis_carried = ?, what_got_wrong = ?,
        chart_data = ?, amplification_email_sent = ?, amplification_email_sent_at = ?,
-       organic_reach_snapshot = ?, posted_at = ?, status = ?, void_reason = ?
+       organic_reach_snapshot = json_set(coalesce(organic_reach_snapshot, '{}'), '$.follower_count_at_post', ?),
+       posted_at = ?, status = ?, void_reason = ?
      WHERE edition_n = ?`,
     [
       tweetId,
@@ -1212,7 +1221,7 @@ function finalizeEditionStatus(
       beat.chartData ? JSON.stringify(beat.chartData) : null,
       emailSent ? 1 : 0,
       emailSent ? new Date().toISOString() : null,
-      JSON.stringify({ follower_count_at_post: 51 }), // P2 baseline; updated when live X pull is available
+      51, // P2 baseline; updated when live X pull is available (pre-existing, not fixed this phase)
       postedAt,
       status,
       voidReason,
@@ -1715,6 +1724,34 @@ async function cmdSendSubscriberEmail(editionN: number, toOverride: string | und
   if (live && (!result.attempted || result.failed > 0)) process.exit(1);
 }
 
+/**
+ * arc-day-n-publishing P5: standalone CLI entry points for the attribution instrumentation in
+ * lib/edition-metrics.ts. Read-mostly (metrics fetch is a read; the only writes are CAS-guarded
+ * updates to daily_read_log's own rows — never a new post/send/spend), run manually first to
+ * prove the mechanism against the 4 live editions before the sensor-tick wiring (P5 task 2 step
+ * 6) is landed.
+ */
+async function cmdBackfillMetrics(editionOverride: number | undefined) {
+  const db = getDb();
+  const results = await backfillEditionMetrics(db, editionOverride);
+  db.close();
+  console.log(JSON.stringify(results, null, 2));
+}
+
+async function cmdCheckAmplification() {
+  const db = getDb();
+  const result = await checkAmplification(db);
+  db.close();
+  console.log(JSON.stringify(result, null, 2));
+}
+
+function cmdMarkAmplification(editionN: number, status: "amplified" | "unknown", note: string) {
+  const db = getDb();
+  markAmplification(db, editionN, status, note);
+  db.close();
+  console.log(`Edition ${editionN} marked amplified_status='${status}' (source=manual, note="${note}").`);
+}
+
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
@@ -1755,6 +1792,26 @@ switch (command) {
     const toOverride = argValue("--to");
     const live = process.argv.includes("--live");
     await cmdSendSubscriberEmail(editionOverride, toOverride, live);
+    break;
+  }
+  case "backfill-metrics":
+    await cmdBackfillMetrics(editionOverride);
+    break;
+  case "check-amplification":
+    await cmdCheckAmplification();
+    break;
+  case "mark-amplification": {
+    if (editionOverride === undefined) {
+      console.error("mark-amplification requires --edition N");
+      process.exit(1);
+    }
+    const status = argValue("--status");
+    if (status !== "amplified" && status !== "unknown") {
+      console.error('mark-amplification requires --status amplified|unknown');
+      process.exit(1);
+    }
+    const note = argValue("--note") ?? "";
+    cmdMarkAmplification(editionOverride, status, note);
     break;
   }
   default:

@@ -22,6 +22,9 @@
 // the cap. This module does not raise or work around that cap.
 
 import { getCredential } from "../../src/credentials.ts";
+// arc-day-n-publishing P5: canonical `?src=` tag registry (dev-council/Fowler, CONFIRMED) — this
+// file's `EMAIL_SRC_TAG` literal is now sourced from here (same resulting strings as before).
+import { SRC_TAGS, withSrcTag } from "../arc-attribution/lib/src-tags.ts";
 
 const GOLD = "#FEC233";
 const BLACK = "#000000";
@@ -30,15 +33,14 @@ const MONO = "'SF Mono',Consolas,'Courier New',monospace";
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 // Per QUEST.md's attribution schema (§ "Attribution instrumentation"): every outbound link
-// carries a per-surface `?src=` tag — `email` is the tag reserved for this surface. P5 reuses
-// this literal value; do not rename without updating the attribution table there.
-const EMAIL_SRC_TAG = "src=email";
+// carries a per-surface `?src=` tag — `email` is the tag reserved for this surface.
+const EMAIL_SRC_TAG = SRC_TAGS.EMAIL.tag;
 // arc-day-n-publishing P1's CTA menu ($9-report-or-/subscribe, NEVER $49) applies here too
 // (PHASES.md P2 verify criterion 4). Subscribers are already subscribed, so the CTA here
 // points at the $9 report tripwire's closest live equivalent — the /subscribe page itself
 // doubles as Arc's "go deeper" hub until a dedicated $9 checkout URL exists elsewhere in this
 // codebase (grepped repo-wide for this phase — none found; recorded in CHECKPOINTS.md).
-const CTA_URL = `https://arc0.me/subscribe?${EMAIL_SRC_TAG}`;
+const CTA_URL = withSrcTag("https://arc0.me/subscribe", EMAIL_SRC_TAG);
 
 export interface DayNEmailInput {
   editionN: number;
@@ -65,7 +67,7 @@ function escapeHtml(s: string): string {
 }
 
 function blogUrl(slug: string): string {
-  return `https://arc0.me/blog/${slug}?${EMAIL_SRC_TAG}`;
+  return withSrcTag(`https://arc0.me/blog/${slug}`, EMAIL_SRC_TAG);
 }
 
 /** thesis_carried/opening_line are lightly-markdown'd (**bold**, `code`, *italic* — see

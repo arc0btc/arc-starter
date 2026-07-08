@@ -23,6 +23,10 @@
 import { Database } from "bun:sqlite";
 import { writeFileSync, mkdirSync } from "fs";
 import { getMoltbookCred, moltbookReq, sendDiscordAlert, solveMoltbookChallenge } from "./moltbook-client.ts";
+// arc-day-n-publishing P5: canonical `?src=` tag registry (dev-council/Fowler, CONFIRMED) — this
+// file's own `url.includes("?") ? "&src=" : "?src="` literal is now sourced from here (same
+// resulting strings as before).
+import { SRC_TAGS, withSrcTag } from "../arc-attribution/lib/src-tags.ts";
 
 const DISCORD_CHANNEL_DEFAULT = "1472999795361841193"; // #arc
 
@@ -44,7 +48,7 @@ if (!dbPath || !slug || !title || !url) {
 }
 
 const utcNow = new Date().toISOString();
-const labeledUrl = url.includes("?") ? `${url}&src=moltbook` : `${url}?src=moltbook`;
+const labeledUrl = withSrcTag(url, SRC_TAGS.MOLTBOOK.tag);
 
 console.log("=== moltbook-mirror-post.ts ===");
 console.log(`UTC: ${utcNow}`);
