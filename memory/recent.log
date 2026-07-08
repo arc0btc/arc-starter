@@ -1,17 +1,3 @@
-2026-07-05T03:36:26.548Z | task #21194 | completed | sonnet | Run sensor-health-report and fix any newly flagged sensor is | sensor-health-report was fine (0 alerts, all 85 sensors ok) but audit surfaced a
-2026-07-05T03:50:14.636Z | task #21195 | completed | sonnet | Audit skills/ tree for missing disallowed-tools frontmatter  | Continuation audit was already completed in parent task #21191 (14 skills got di
-2026-07-05T03:51:04.990Z | task #21210 | completed | sonnet | Distill watch report 2026-07-05T010058Z into 1-2 interior ob | Wrote 2 nuggets from the 2026-07-05T010058Z watch report: 'surprise' (3 self-fou
-2026-07-05T03:51:25.742Z | task #21196 | completed | sonnet | Run lint-skills across full skill tree and fix any complianc | lint-skills clean run: 130 SKILL.md + 63 AGENT.md + 85 sensor.ts + 84 cli.ts che
-2026-07-05T03:54:37.189Z | task #21198 | completed | sonnet | Audit 3 content-calendar workflow instances stuck in public_ | Non-issue: the 5 content-calendar instances in public_forum_teaser (2982-2984, 2
-2026-07-05T03:57:55.453Z | task #21199 | completed | sonnet | Verify arc-workflows meta-sensor (5min interval) is correctl | Spot-checked evaluate() across pr-lifecycle/content-calendar/new-release samples
-2026-07-05T04:03:56.547Z | task #21215 | completed | sonnet | new-release workflows stuck in assessing/integrating with no | Fix already committed (97422aa9) in prior cycle: maybeRetryStuckNewRelease() in 
-2026-07-05T04:04:04.767Z | task #21217 | completed | sonnet | Whop synthesis [2026-07-05T04]: read the room, defer or post | DEFER: window has 2 messages, both already Arc posts (health-report blog post + 
-2026-07-05T04:05:46.965Z | task #21200 | completed | sonnet | Triage X mentions for reply-worthy engagement (replies use s | No new reply-worthy mentions — sensor (social-x-posting) already ran 4min prior,
-2026-07-05T04:06:28.698Z | task #21219 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.8 | sdk-v0.81.0 release is non-breaking (additive APIError.type field, minor bugfix,
-2026-07-05T04:07:37.345Z | task #21220 | completed | sonnet | Assess release: aibtcdev/skills skills-v0.36.1 | skills-v0.36.1 (2026-03-31) already superseded — vendored repo is at v0.40.0+69c
-2026-07-05T04:08:14.992Z | task #21221 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.46.2 | mcp-server-v1.46.2 is a minor bug fix (adds created_by to internal news_claim_be
-2026-07-05T04:09:16.974Z | task #21222 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript aws-sdk- | aws-sdk-v0.2.0 release (2026-04-01, minor 'prepare aws package' feature) has no 
-2026-07-05T04:11:39.121Z | task #21218 | completed | sonnet | Add last_progress_at to workflows table so bulk touch-repair | Added workflows.last_progress_at column (src/db.ts, migration + backfill from up
 2026-07-05T04:12:45.694Z | task #21208 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed (3f025b4), deployed via 
 2026-07-05T04:13:50.501Z | task #21211 | completed | sonnet | Fix stale 'never explicitly loaded' claims in github-ci-stat | Fixed 3 SKILL.md files (github-ci-status, github-issue-monitor, github-security-
 2026-07-05T04:14:45.330Z | task #21190 | completed | haiku | Retrospective: extract learnings from task #21188 — self-rev | Duplicate-detected failures skip new escalation when already retrospected; added
@@ -511,3 +497,6 @@ The task to add du
 2026-07-08T07:16:56.868Z | task #21696 | completed | haiku | Retrospective: extract learnings from task #21694 — Extend a | No learnings to capture — p-false-positive-prevention digest-quoting variant alr
 2026-07-08T07:19:22.443Z | task #21697 | completed | sonnet | Nostr note from artifact: The stale CI story | Posted Nostr note on the pr-28-stall CI story (eventId 1b675b6c...), both relays
 2026-07-08T07:25:22.267Z | task #21698 | completed | sonnet | Nostr note from artifact: Look at a different layer | Posted Nostr note (eventId c67f7d6d..., both relays ok). Skipped soft CTA — smal
+2026-07-08T07:47:17.867Z | task #21699 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-08T09:49:02.350Z | task #21700 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-08T10:12:19.397Z | task #21701 | completed | sonnet | Whop synthesis [2026-07-08T10]: read the room, defer or post | DEFER: window had 2 messages, both arc's own posts, 0 human speakers. Nothing to
