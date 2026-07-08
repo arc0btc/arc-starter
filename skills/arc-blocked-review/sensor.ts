@@ -93,6 +93,11 @@ export default async function blockedReviewSensor(): Promise<string> {
     // output tasks and their direct follow-ups — otherwise reviewing a still-blocked task
     // manufactures a new "completed task mentioning #N" every cycle, permanently self-triggering
     // re-review even when nothing about the block has changed.
+    // Also excludes digest/rollup tasks (e.g. arc-purpose-eval's "PURPOSE eval: N/5" reports),
+    // which quote other tasks' result_summary text verbatim under a "## Completed Tasks"
+    // section — this can re-mention a blocked task's ID with zero actual resolution. Matched
+    // by marker rather than enumerating sources by name so future digest-style sensors don't
+    // reintroduce the same false positive.
     const mentioningTasks = db
       .query(
         `SELECT id, subject, status FROM tasks
@@ -103,6 +108,7 @@ export default async function blockedReviewSensor(): Promise<string> {
          AND subject NOT LIKE 'Audit:%'
          AND source != ?
          AND source NOT IN (SELECT 'task:' || id FROM tasks WHERE source = ?)
+         AND (description IS NULL OR description NOT LIKE '%## Completed Tasks%')
          LIMIT 5`
       )
       .all(
