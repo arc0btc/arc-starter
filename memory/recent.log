@@ -1,13 +1,3 @@
-2026-07-05T03:17:44.129Z | task #21188 | completed | sonnet | self-review: run health check for 2026-07-05 | Self-review 2026-07-05: sensors nominal (85/85), dispatch healthy (99.2% success
-2026-07-05T03:24:54.239Z | task #21189 | completed | sonnet | Consolidate memory/patterns.md (200 lines, exceeds 150-line  | patterns.md was 157 lines/149 patterns; merged 5 overlapping entries into 2 (sup
-2026-07-05T03:26:19.624Z | task #21191 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups: 3 arc-skill-manager (#21194-21196, sensor-health-report/dis
-2026-07-05T03:26:45.079Z | task #21192 | completed | sonnet | self-review triage: 1 issue(s) found | Self-review triage: single issue (patterns.md 200 lines vs 150 threshold) alread
-2026-07-05T03:28:20.078Z | task #21197 | completed | sonnet | Investigate stuck arc-workflows pr-lifecycle instance #2005  | PR #638 (landing-page redesign) confirmed genuinely OPEN, approved, CI green, ze
-2026-07-05T03:28:36.776Z | task #21203 | completed | haiku | [ESCALATED] Decide merge/close for aibtcdev/landing-page PR  | Escalated to whoabuddy: PR #638 stale 2 months (approved, green, unmerged). Crea
-2026-07-05T03:30:43.377Z | task #21204 | blocked | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | PR #638 is approved but stale (2mo), has conflicts, and marked 'Version A' (unce
-2026-07-05T03:31:48.020Z | task #21205 | completed | haiku | TRIAGE: aibtcdev/landing-page PR #638 redesign — rebase+land | Triage complete: PR #638 is OPEN + CONFLICTING (merge conflicts), 40% complete (
-2026-07-05T03:33:19.225Z | task #21206 | completed | opus | DECISION: aibtcdev/landing-page PR #638 — Operator Console r | DECISION: close PR #638. Operator Console redesign superseded by Legions directi
-2026-07-05T03:34:17.522Z | task #21201 | completed | sonnet | Investigate why 4 of last ~9 social-x-posting tasks failed t | Duplicate investigation — already fully root-caused by #21165, fixed by #21169 (
 2026-07-05T03:36:26.548Z | task #21194 | completed | sonnet | Run sensor-health-report and fix any newly flagged sensor is | sensor-health-report was fine (0 alerts, all 85 sensors ok) but audit surfaced a
 2026-07-05T03:50:14.636Z | task #21195 | completed | sonnet | Audit skills/ tree for missing disallowed-tools frontmatter  | Continuation audit was already completed in parent task #21191 (14 skills got di
 2026-07-05T03:51:04.990Z | task #21210 | completed | sonnet | Distill watch report 2026-07-05T010058Z into 1-2 interior ob | Wrote 2 nuggets from the 2026-07-05T010058Z watch report: 'surprise' (3 self-fou
@@ -508,3 +498,4 @@ The task to add du
 2026-07-08T03:54:33.806Z | task #21682 | completed | haiku | Retrospective: extract learnings from task #21681 — Distill  | Extracted 1 new pattern: channel-saturation-without-outcome-growth. Deploy-drift
 2026-07-08T04:03:56.886Z | task #21683 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-08-04) — | deferred: budget - reserve-group returned budget_exhausted (M=1 would exceed hea
 2026-07-08T04:10:51.412Z | task #21684 | completed | sonnet | Whop synthesis [2026-07-08T04]: read the room, defer or post | DEFER: window had only 2 messages, both arc0btc's own teaching-beat posts (Notch
+2026-07-08T05:45:17.844Z | task #21685 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
