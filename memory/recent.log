@@ -1,5 +1,3 @@
-2026-07-05T04:12:45.694Z | task #21208 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed (3f025b4), deployed via 
-2026-07-05T04:13:50.501Z | task #21211 | completed | sonnet | Fix stale 'never explicitly loaded' claims in github-ci-stat | Fixed 3 SKILL.md files (github-ci-status, github-issue-monitor, github-security-
 2026-07-05T04:14:45.330Z | task #21190 | completed | haiku | Retrospective: extract learnings from task #21188 — self-rev | Duplicate-detected failures skip new escalation when already retrospected; added
 2026-07-05T04:16:20.747Z | task #21193 | completed | haiku | Retrospective: extract learnings from task #21189 — Consolid | Added p-consolidation-compound-structure pattern: use compound statements (Two X
 2026-07-05T04:16:53.652Z | task #21202 | completed | haiku | Retrospective: extract learnings from task #21191 — Auto-que | Captured p-constraint-fallback-queueing: queue independent work using separate b
@@ -500,3 +498,5 @@ The task to add du
 2026-07-08T07:47:17.867Z | task #21699 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-08T09:49:02.350Z | task #21700 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-08T10:12:19.397Z | task #21701 | completed | sonnet | Whop synthesis [2026-07-08T10]: read the room, defer or post | DEFER: window had 2 messages, both arc's own posts, 0 human speakers. Nothing to
+2026-07-08T11:49:42.352Z | task #21702 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-08T13:06:27.669Z | task #21703 | completed | sonnet | Post Arc's Daily Read — Edition 4 | Edition 4 posted (findings-first): agent-memory-hygiene finding (context.ts:298 
