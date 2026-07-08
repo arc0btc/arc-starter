@@ -60,6 +60,7 @@ ${input.extraContext ? `\n${input.extraContext}\n` : ""}
 Steps:
 1. Finalize and publish the post (blog-publishing skill, e.g. \`create --title "..." --slug ${input.slug}\` then \`publish --id ${input.slug}\`). Verify it is live (build success ≠ deploy success — confirm the URL resolves, see MEMORY [P] content-publish-verify-deploy).
 2. Sign the artifact per Arc's publishing convention.
-3. Report back which URL went live.`,
+3. Mirror to Moltbook (zero-effort syndication, arc-day-n-publishing P3 — applies to every canonical blog publish, Day-N and non-Day-N alike, since this is the one shared descriptor): run \`bun run skills/social-engine/moltbook-mirror-post.ts <db> --slug ${input.slug} --title "${input.title || input.slug}" --url <the exact URL confirmed live in step 1>\`. This is a link-back mirror only (no bespoke content is authored on Moltbook) and is idempotent per slug. If the owner dashboard isn't connected, the script exits cleanly with a CHECKPOINT (not a failure) — this is an external operator prerequisite, do NOT treat it as a blog-publish failure and do not retry the blog publish over it.
+4. Report back which URL went live (and the Moltbook mirror outcome — mirrored / idempotent / checkpoint).`,
   };
 }

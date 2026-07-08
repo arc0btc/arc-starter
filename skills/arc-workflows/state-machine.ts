@@ -618,6 +618,28 @@ function contentCalendarWindowOpen(): boolean {
   return utcHour >= 15 && utcHour < 18;
 }
 
+/**
+ * arc-day-n-publishing P3 (QUEST.md: "pause paid-room seeding until an organic member
+ * exists" — coordinated with the parallel arc-storefront-revamp quest, which owns the room
+ * itself). Reads agent_config so the pause is a single-value, instantly-reversible flip (same
+ * convention as DAYN_MERGED / DAYN_EMAIL_ENABLED in arc-daily-read/cli.ts) rather than deleting
+ * hops outright. Fails toward PAUSED if the row is ever missing — an empty room should never
+ * get accidentally re-seeded by a missing config row. Gates: blog_published's whop-chat-seed
+ * task, whop_chat_seeded's X-thread task (which embeds a $49 CTA-reply step when
+ * X_THREAD_CHAINING_ENABLED=true — paused as a whole rather than surgically stripping just the
+ * CTA out of that large templated description; Day-N's own X thread from P1 is unaffected and
+ * remains the public thread channel during the pause), x_thread_posted's whop-forum-thread
+ * task, and whop_forum_threaded's $49-CTA-carrying public-forum-teaser task. Reversal:
+ * UPDATE agent_config SET value='false' WHERE key='PAID_ROOM_SEEDING_PAUSED'.
+ */
+function paidRoomSeedingPaused(): boolean {
+  const db = getDatabase();
+  const row = db.query("SELECT value FROM agent_config WHERE key = 'PAID_ROOM_SEEDING_PAUSED'").get() as
+    | { value: string }
+    | null;
+  return row?.value !== "false";
+}
+
 /** Shared blog context lines appended to every downstream hop's task description. */
 function contentCalendarBlogRef(ctx: ContentCalendarContext): string {
   const urlLine = ctx.url ? `\nBlog: ${ctx.url}` : "";
@@ -675,6 +697,11 @@ export const ContentCalendarMachine: StateMachine<ContentCalendarContext> = {
         // next sensor tick; no state is consumed, so this is safe to retry indefinitely.
         if (!isUrlLive(ctx.url)) {
           return { type: "noop" };
+        }
+        // arc-day-n-publishing P3: paid-room seeding paused — skip the paid whop-chat post,
+        // still advance so the downstream (non-paid) X-thread hop stays on schedule.
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "whop_chat_seeded" };
         }
         return {
           type: "create-task",
@@ -751,6 +778,16 @@ Steps:
 5. Verify the tweet is live. If posting returns a 403 of any kind, STOP — do not retry — and escalate to whoabuddy (a 403 is a pre-lock signal, [[x-reply-403-account-lock-cascade]]).`,
           };
         }
+        // arc-day-n-publishing P3: the chaining-branch thread below embeds a $49-CTA-reply
+        // step (paid-room funnel) — while paid-room seeding is paused, skip this task
+        // entirely rather than surgically stripping the CTA out of the templated
+        // description below, and advance state so downstream hops stay on schedule. Day-N's
+        // own X thread (P1, unaffected by this flag) remains the public thread channel
+        // during the pause; content-calendar's own (non-Day-N) X-thread hop resumes
+        // automatically once PAID_ROOM_SEEDING_PAUSED flips back to 'false'.
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "x_thread_posted" };
+        }
         return {
           type: "create-task",
           subject: `Post X thread: "${ctx.title || ctx.slug}"`,
@@ -782,6 +819,12 @@ Steps:
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.whop_forum)) {
           return { type: "noop" };
         }
+        // arc-day-n-publishing P3: paid-room seeding paused — skip the paid whop-forum
+        // post, still advance so the downstream public-forum-teaser hop stays on schedule
+        // (that hop is ALSO gated below, so nothing actually fires while paused).
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "whop_forum_threaded" };
+        }
         return {
           type: "create-task",
           subject: `Thread whop forum teardown: "${ctx.title || ctx.slug}"`,
@@ -805,6 +848,12 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
         if (!ctx.slug) return null;
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.public_forum)) {
           return { type: "noop" };
+        }
+        // arc-day-n-publishing P3: paid-room seeding paused — this hop's entire purpose is
+        // a $49/mo paid-room CTA (FREEMONTH code), so skip it and advance straight to the
+        // terminal course-candidacy assessment state (which does no paid-room work itself).
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "public_forum_teaser" };
         }
         return {
           type: "create-task",
