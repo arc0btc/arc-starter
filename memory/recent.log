@@ -510,3 +510,4 @@ The task to add du
 2026-07-08T00:44:21.486Z | task #21647 | completed | sonnet | Seed whop chat: "I Audited My Own Attack Surface Against Dee | Posted DeepMind 6-attack security-audit hot-topic to whop paid chat (post_1CcofW
 2026-07-08T00:45:06.277Z | task #21649 | completed | haiku | New release: anthropics/claude-code v2.1.204 | Relevant: SessionStart hook streaming fix affects Arc dispatch + agent runtime r
 2026-07-08T00:46:30.504Z | task #21651 | completed | sonnet | Deep analysis: Claude Code v2.1.204 — SessionStart hook stre | v2.1.204 = 1-line fix: SessionStart hook events not streaming in headless sessio
+2026-07-08T00:47:22.300Z | task #21643 | completed | haiku | Retrospective: extract learnings from task #21640 — Fix arc0 | Extracted p-observability-infrastructure-source-recency: monitoring systems read
