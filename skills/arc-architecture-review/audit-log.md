@@ -1,3 +1,25 @@
+## 2026-07-08T02:48:28.000Z — cmdPost legacy guard stack: decided KEEP, documented as the intentional manual-post lane, closing prior cycle's [NEW-WATCH]
+
+**Task #21658** (spawned from #21656's flag) | No src/skills diff other than a doc comment | Sensors: 85 | Skills: 130
+
+### Decision
+
+The prior cycle's `[NEW-WATCH]` asked whether `cmdPost`'s legacy guard stack (dedup/kill-switch/`DAILY_TWEET_CAP`/reservation/budget) — now unreachable for all 5 managed lanes — should also fail closed for unrecognized `--source` values, or whether an open fallback is intentional.
+
+Verified: `skills/social-x-posting/AGENT.md`'s own canonical worked example composes a manual thread (`post --text "First tweet 1/3"` → `--reply-to`) with **no `--source` at all**. This is real, current, documented usage — not a stale caller. The legacy path is the *only* enforcement (kill-switch, `DAILY_TWEET_CAP`, daily-read reservation, root budget, dedup) that applies to that traffic; there's no reservation mechanism offered for manual/ad-hoc composition, so failing it closed would block legitimate posts with nothing to replace the guard. **Decision: keep the branch as-is.** Added a comment at the `MANAGED_LANE_SOURCE_PREFIX` fail-closed check (`skills/social-x-posting/cli.ts`, commit 3ad4a8fe) stating this explicitly so the branch stops being re-flagged as dead code in future audits.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traced to a person (the manual-post use case in `AGENT.md`, written for dispatch sessions composing ad-hoc threads) — real requirement, not speculative.
+- **Step 2 — Delete**: Considered and rejected — deleting removes the only guard on manual posting.
+- **Step 3–5**: N/A — doc-only change.
+
+### Flags
+
+- **[RESOLVED]** `cmdPost`'s legacy guard stack open question (prior cycle's `[NEW-WATCH]`) — intentional manual-post lane, now documented in code.
+
+---
+
 ## 2026-07-08T02:45:42.000Z — publish-fanout was the real last legacy cmdPost caller (prior cycle's "fully retired" was premature); YAML tag frontmatter root-fix shipped; deploy-drift check pointed at a dead path, now reads canonical repo; blocked-review mention signal false-positive on its own review-cycle output fixed; 130 skills / 85 sensors
 
 **Task #21656** | Diff: 6156824..7b270b7 (7 commits — 0 src/, 7 skills/) | Sensors: 85 | Skills: 130
