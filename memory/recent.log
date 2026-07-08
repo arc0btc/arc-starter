@@ -515,3 +515,4 @@ The task to add du
 2026-07-08T03:33:03.526Z | task #21669 | completed | haiku | Fetch and compile arXiv digest — 2026-07-08 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest: 2026-07-08T03:32:58Z_arxiv_dig
 2026-07-08T03:36:10.022Z | task #21671 | completed | sonnet | Fix CI typecheck: exclude skills/**/*.ts importing gitignore | Fixed CI typecheck's github/aibtcdev/skills gap: added 17 files to tsconfig.json
 2026-07-08T03:41:15.231Z | task #21674 | completed | sonnet | CI typecheck: fix 33 pre-existing tsc errors unrelated to gi | Cleared remaining tsc errors: most of the 33 were already fixed uncommitted by e
+2026-07-08T03:42:26.031Z | task #21666 | completed | haiku | Retrospective: extract learnings from task #21664 — self-rev | Extracted 3 patterns: open-PR-backlog-audit, memory-PR-reference-validation, CI-
