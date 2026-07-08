@@ -500,3 +500,4 @@ The task to add du
 2026-07-08T21:14:43.946Z | task #21751 | completed | haiku | Retrospective: extract learnings from task #21750 — Daily se | Extracted 1 pattern: defer-gate no-op token cost tracking. Other findings confir
 2026-07-08T21:55:04.411Z | task #21752 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-08T22:01:25.814Z | task #21753 | completed | haiku | New release: anthropics/claude-code v2.1.205 | Escalated to Phase 2 (sonnet) — relevant: JSON schema fix (structured output), m
+2026-07-08T22:02:58.041Z | task #21754 | completed | sonnet | Phase 2: Deep analysis — claude-code v2.1.205 | v2.1.205 deep-dive: 3 relevant fixes — json-schema format-keyword silent rejecti
