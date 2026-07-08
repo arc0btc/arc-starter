@@ -511,3 +511,4 @@ The task to add du
 2026-07-08T00:45:06.277Z | task #21649 | completed | haiku | New release: anthropics/claude-code v2.1.204 | Relevant: SessionStart hook streaming fix affects Arc dispatch + agent runtime r
 2026-07-08T00:46:30.504Z | task #21651 | completed | sonnet | Deep analysis: Claude Code v2.1.204 — SessionStart hook stre | v2.1.204 = 1-line fix: SessionStart hook events not streaming in headless sessio
 2026-07-08T00:47:22.300Z | task #21643 | completed | haiku | Retrospective: extract learnings from task #21640 — Fix arc0 | Extracted p-observability-infrastructure-source-recency: monitoring systems read
+2026-07-08T00:48:17.922Z | task #21645 | completed | haiku | Retrospective: extract learnings from task #21642 — arc0btc- | Extracted health-check source-multiplicity pattern: silent ok:true from stale/wr
