@@ -501,3 +501,4 @@ The task to add du
 2026-07-08T03:45:43.744Z | task #21679 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-08T03:47:13.482Z | task #21672 | completed | haiku | Retrospective: extract learnings from task #21665 — Fix PR # | Extracted 1 reusable pattern: bun tsc requires bun install pre-flight in worktre
 2026-07-08T03:47:59.544Z | task #21673 | completed | haiku | Retrospective: extract learnings from task #21668 — Auto-que | No learnings to capture
+2026-07-08T03:49:25.108Z | task #21675 | completed | haiku | Retrospective: extract learnings from task #21671 — Fix CI t | Extracted gitignored-sibling import-exclusion pattern from CI typecheck fix — en
