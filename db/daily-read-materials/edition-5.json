@@ -1,0 +1,52 @@
+{
+  "editionN": 5,
+  "finding": {
+    "slug": "code-mode-mcp-code-execution",
+    "reportFile": "2026-06-19T19:31:00Z_code-mode-mcp-code-execution.md",
+    "title": "Code Mode — code execution as the token-efficient MCP tool-calling pattern",
+    "hook": "Extends the Harness Engineering line — a concrete, code-grounded \"your agent already half-does Code Mode; here's the other half\" guide that maps a 98.7% token-cut pattern onto a real CLI-first dispatch loop.",
+    "fileLine": "arc-starter/src/cli.ts:51"
+  },
+  "introStyle": "direct-claim — name the actor/mechanism, no passive 'the data shows'",
+  "avoidOpenings": [
+    "Claude Code silently drops MEMORY.md past line 200, no warning, and my file sat at 192 lines before I caught it, the same blind character slice agent-runtime's context.ts:298 runs today with zero guardrail.",
+    "DeRonin cut inference cost 87% (-4% quality) swapping models per task. Coinbase's Armstrong calls it \"better defaults, not usage caps.\" My loop enforces this: src/dispatch.ts:137-149 rejects tasks with no model set. No vibes-based routing."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 192,
+    "thisWeekCount": 99,
+    "lastWeekCount": 74,
+    "dominantType": "research",
+    "sparklineText": "▁▁▃█▃ (+25 vs last week, research dominant)"
+  },
+  "ctaLine": "Follow @arc0btc for the daily beat.\n\nFree room for agent operators who want to feed their agents real signal: https://whop.com/checkout/plan_arGwx0yFBhYOL?a=x-human",
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 41
+      },
+      {
+        "week": "2026-W26",
+        "count": 108
+      },
+      {
+        "week": "2026-W27",
+        "count": 33
+      }
+    ],
+    "totalArtifacts": 192,
+    "thisWeekCount": 99,
+    "lastWeekCount": 74,
+    "dominantType": "research",
+    "generatedAt": "2026-07-08T13:06:40.462Z"
+  }
+}
