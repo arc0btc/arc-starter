@@ -1,29 +1,3 @@
-2026-07-06T02:49:58.111Z | task #21319 | completed | haiku | Retrospective: extract learnings from task #21318 — complian | Extracted git-state dispatch learning: bundled staged changes need pre-commit ve
-2026-07-06T02:51:11.617Z | task #21321 | completed | haiku | Retrospective: extract learnings from task #21316 — architec | Captured parallel-implementation calcification pattern: dual code paths need exp
-2026-07-06T02:51:59.430Z | task #21322 | completed | haiku | Retrospective: extract learnings from task #21320 — audit re | Extended p-audit-completeness with dual-path migration verification pattern — ve
-2026-07-06T02:52:57.543Z | task #21324 | completed | haiku | Retrospective: extract learnings from task #21317 — workflow | Captured 1 reusable pattern: exemption-list exact-string matching fails to gener
-2026-07-06T02:54:00.930Z | task #21325 | completed | haiku | Retrospective: extract learnings from task #21323 — CEO revi | No learnings to capture — assessment patterns already in p-purpose-loop / p-poli
-2026-07-06T02:59:05.013Z | task #21327 | completed | sonnet | Email watch report to whoabuddy — 2026-07-06T02:42 | Sent watch report (2026-07-06T010305Z) to whoabuddy@gmail.com via CF email worke
-2026-07-06T03:00:21.139Z | task #21326 | completed | sonnet | Seed whop chat: "Single-Player to Org-Level: What Anthropic' | Posted whop-chat seed (post_1Cck4FrBcwLusxdaY7qgWA) distilling the Claude Tag / 
-2026-07-06T03:01:09.022Z | task #21328 | completed | haiku | Retrospective: extract learnings from task #21326 — Seed who | No learnings to capture
-2026-07-06T03:21:15.597Z | task #21329 | completed | sonnet | self-review: run health check for 2026-07-06 | Self-review found arxiv-research sensor hit the 90s watchdog twice consecutively
-2026-07-06T03:24:13.121Z | task #21330 | completed | sonnet | Fix arxiv-research sensor: 90s watchdog timeout + missing co | Fixed 90s watchdog timeout: fetchActiveBeatSlugs+fetchArxivWithRetry worst-case 
-2026-07-06T03:24:50.462Z | task #21332 | completed | sonnet | self-review triage: 1 issue(s) found | Triage confirmed fix already dispatched: #21330 (commit 10913d2c) tightened arxi
-2026-07-06T03:26:30.629Z | task #21333 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 4 follow-ups for hungry arc-skill-manager domain: fix consolidate-memory'
-2026-07-06T03:29:37.850Z | task #21337 | completed | sonnet | Consolidate memory/MEMORY.md now — 25KB exceeds 24.4KB dispa | MEMORY.md was 25KB > 24.4KB dispatch limit. Moved 8 multi-paragraph Active Items
-2026-07-06T03:30:59.270Z | task #21336 | completed | sonnet | Fix consolidate-memory check: MEMORY.md hit 25KB/24.4KB char | Added char-size check (24.4k threshold) alongside line-count check in cmdConsoli
-2026-07-06T03:39:44.799Z | task #21339 | completed | sonnet | Fix sensor-health-report blind spot #21064: only 5/85 sensor | interval_minutes now persisted per-sensor in dedicated {name}.interval.json (imm
-2026-07-06T03:51:43.137Z | task #21338 | completed | sonnet | Consolidate memory/patterns.md — 171 lines exceeds 150-line  | patterns.md consolidation was already done (uncommitted) by a prior cycle in thi
-2026-07-06T03:53:17.242Z | task #21345 | completed | sonnet | Distill watch report 2026-07-06T010305Z into 1-2 interior ob | Wrote 2 nuggets: 'surprise' (Arc self-corrected a false zero-adoption claim on -
-2026-07-06T03:53:24.379Z | task #21334 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-06T03:56:12.031Z | task #21343 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed index.mdx (3e39b042a141)
-2026-07-06T03:56:49.173Z | task #21331 | completed | haiku | Retrospective: extract learnings from task #21329 — self-rev | Added p-sensor-timeout-external-dependency-discrepancy pattern; consecutive_fail
-2026-07-06T03:57:52.634Z | task #21335 | completed | haiku | Retrospective: extract learnings from task #21330 — Fix arxi | Added p-prior-generic-fix-discovery pattern: check for prior system-level implem
-2026-07-06T03:58:41.771Z | task #21340 | completed | haiku | Retrospective: extract learnings from task #21333 — Auto-que | Added p-dual-constraint-checker-alignment pattern: when enforcement mechanisms m
-2026-07-06T03:59:52.132Z | task #21341 | completed | haiku | Retrospective: extract learnings from task #21337 — Consolid | Updated p-memory-lifecycle to explicitly surface 24.4KB char-count constraint (b
-2026-07-06T04:01:30.353Z | task #21342 | completed | haiku | Retrospective: extract learnings from task #21336 — Fix cons | Patterns #102 (#21336) and #152 (#21340) already capture dual-constraint learnin
-2026-07-06T04:02:29.375Z | task #21344 | completed | haiku | Retrospective: extract learnings from task #21339 — Fix sens | Added p-monitor-state-isolation-from-aggregator-overwrites: when health-reportin
-2026-07-06T04:03:57.913Z | task #21346 | completed | haiku | Retrospective: extract learnings from task #21338 — Consolid | No learnings to capture — consolidation followed established patterns successful
 2026-07-06T04:05:03.367Z | task #21347 | completed | haiku | Retrospective: extract learnings from task #21345 — Distill  | Updated p-built-feature-adoption-diagnosis with same-cycle measurement-error det
 2026-07-06T04:05:15.859Z | task #21349 | completed | sonnet | Whop synthesis [2026-07-06T04]: read the room, defer or post | DEFER: window held only Arc's own 3 prior posts, 0 human speakers — monologue ga
 2026-07-06T04:06:46.765Z | task #21348 | completed | haiku | Retrospective: extract learnings from task #21343 — Regenera | No learnings to capture
@@ -524,3 +498,5 @@
 2026-07-09T13:44:15.015Z | task #21838 | completed | sonnet | Nostr note from artifact: Description vs Boundary | Posted Nostr note on disallowed-tools-not-enforced boundary-illusion finding, ev
 2026-07-09T13:51:14.627Z | task #21839 | completed | sonnet | Nostr note from artifact: No Other Channel | Posted Nostr note on write-only self-knowledge (eventId b06bc4d7...), both relay
 2026-07-09T13:57:21.617Z | task #21840 | completed | sonnet | Nostr note from artifact: Stop Trusting Your Own Output | Posted Nostr note on check-the-world habit (grep source, fetch head SHA); eventI
+2026-07-09T14:02:03.357Z | task #21841 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-09T14:21:56.039Z | task #21842 | completed | sonnet | Chop blog "Code Mode: Arc Already Built Half of It" into 3-5 | Chopped blog post into 5 quote-card snippets (code-mode-cost, boring-decision, f
