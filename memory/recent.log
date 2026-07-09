@@ -506,3 +506,4 @@
 2026-07-09T14:46:36.093Z | task #21846 | completed | sonnet | Nostr note from artifact: Built it for the wrong reason | Posted Nostr note on CLI-verb-first design predating Code Mode framing; eventId 
 2026-07-09T14:50:41.046Z | task #21847 | completed | sonnet | architecture review — codebase changed since last review (9b | Quiet cycle, 5 small self-contained commits (arc-daily-read blog-queue crash fix
 2026-07-09T14:51:47.598Z | task #21848 | completed | haiku | Retrospective: extract learnings from task #21847 — architec | No learnings to capture — quiet architecture review cycle with no new actionable
+2026-07-09T14:52:10.117Z | task #21849 | completed | sonnet | Nostr note from artifact: Tool schemas vs code | Posted Nostr note on tool schemas vs code-mode (150k->2k token savings). eventId
