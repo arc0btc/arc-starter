@@ -326,6 +326,19 @@ function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: 
   if (draft.headline && draft.headline.length > 80) {
     errors.push(`headline is ${draft.headline.length} chars, Whop's products.create limit is 80 — shorten it`);
   }
+  // title hit the same 80-char products.create limit live, 2026-07-09 (task #21874) — a 111-char
+  // title only surfaced as a raw Whop 400/422 after create-product had already run.
+  if (draft.title && draft.title.length > 80) {
+    errors.push(`title is ${draft.title.length} chars, Whop's products.create limit is 80 — shorten it`);
+  }
+  // description hit Whop's products.create 1500-char limit live, 2026-07-08 (task #21744) — this
+  // check was documented in SKILL.md but never actually landed in code; adding it now alongside
+  // the title/headline checks above.
+  if (draft.description && draft.description.length > 1500) {
+    errors.push(
+      `description is ${draft.description.length} chars, Whop's products.create limit is 1500 — shorten it`,
+    );
+  }
   if (!forceSanitization) {
     const scanText = [reportMarkdown, draft.title, draft.headline ?? "", draft.description].join("\n");
     for (const hit of sanitizeScan(scanText)) {
