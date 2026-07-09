@@ -509,3 +509,4 @@
 2026-07-09T14:52:10.117Z | task #21849 | completed | sonnet | Nostr note from artifact: Tool schemas vs code | Posted Nostr note on tool schemas vs code-mode (150k->2k token savings). eventId
 2026-07-09T15:14:44.078Z | task #21850 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Re-reviewed #21499 (5th consecutive cycle): still awaiting whoabuddy reply since
 2026-07-09T15:44:57.803Z | task #21851 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (130 skills/85 sensors) matched existing committed content b
+2026-07-09T15:46:01.306Z | task #21852 | completed | haiku | Retrospective: extract learnings from task #21851 — Regenera | Captured regeneration idempotency + deployment verification + selective staging 
