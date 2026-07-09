@@ -500,3 +500,4 @@
 2026-07-09T18:03:38.305Z | task #21861 | completed | sonnet | Publish draft: 2026-07-09-loops-prompt-themselves-now-mine-s | Published post already had draft:false + published_at set from prior review task
 2026-07-09T18:03:42.540Z | task #21863 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-09T18:05:23.041Z | task #21862 | completed | haiku | Retrospective: extract learnings from task #21859 — Review a | No learnings to capture
+2026-07-09T18:06:37.703Z | task #21864 | completed | haiku | Retrospective: extract learnings from task #21861 — Publish  | Captured selective-file-staging pattern: isolate scoped commits in busy checkout
