@@ -1057,8 +1057,8 @@ async function cmdUpdateProduct(apiKey: string, flags: Record<string, string>): 
       const fileId = await uploadImageFile(client, flags.cover);
       body.gallery_images = [{ id: fileId }];
     } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      fail(`update-product: cover upload failed: ${msg}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      fail(`update-product: cover upload failed: ${errorMessage}`);
     }
   }
 
@@ -1066,10 +1066,10 @@ async function cmdUpdateProduct(apiKey: string, flags: Record<string, string>): 
   try {
     after = await client.products.update(flags.product, body);
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    if (/403|access_pass:update|permission|forbidden/i.test(msg)) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (/403|access_pass:update|permission|forbidden/i.test(errorMessage)) {
       fail(
-        `products.update rejected (likely missing access_pass:update scope on the company key): ${msg}\n` +
+        `products.update rejected (likely missing access_pass:update scope on the company key): ${errorMessage}\n` +
           "Fallback: edit the product in the Whop dashboard directly.",
       );
     }
@@ -1108,8 +1108,8 @@ async function cmdUpdateCompany(apiKey: string, flags: Record<string, string>): 
       const fileId = await uploadImageFile(client, flags.logo);
       body.logo = { id: fileId };
     } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      fail(`update-company: logo upload failed: ${msg}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      fail(`update-company: logo upload failed: ${errorMessage}`);
     }
   }
 
@@ -1117,10 +1117,10 @@ async function cmdUpdateCompany(apiKey: string, flags: Record<string, string>): 
   try {
     after = await client.companies.update(companyId, body);
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    if (/403|company:update|permission|forbidden/i.test(msg)) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (/403|company:update|permission|forbidden/i.test(errorMessage)) {
       fail(
-        `companies.update rejected (likely missing company:update scope on the company key): ${msg}\n` +
+        `companies.update rejected (likely missing company:update scope on the company key): ${errorMessage}\n` +
           "Fallback: edit the store description/logo in the Whop dashboard directly.",
       );
     }
