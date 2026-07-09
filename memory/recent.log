@@ -512,3 +512,4 @@ The task to add du
 2026-07-09T03:33:51.947Z | task #21786 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | arc-skill-manager domain: patterns.md is 189 lines (threshold 150, NEEDS CONSOLI
 2026-07-09T03:35:49.541Z | task #21787 | completed | sonnet | Consolidate 'Operational Patterns' section of memory/pattern | Consolidated Operational Patterns section: merged p-sensor-required-field-valida
 2026-07-09T03:37:41.387Z | task #21788 | completed | sonnet | Consolidate 'Core Patterns' and 'Agent Design' sections of m | Merged 3 overlapping multi-dim-eval entries into p-observability-eval-design; cr
+2026-07-09T03:39:49.262Z | task #21791 | completed | sonnet | Consolidate 'Agent Design' section of memory/patterns.md | Merged 9 overlapping entries into 4 in Agent Design section (171->166 lines): se
