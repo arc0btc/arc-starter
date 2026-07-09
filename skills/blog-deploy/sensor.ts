@@ -3,6 +3,26 @@
 //
 // State tracked via hook-state:
 //   last_deployed_sha — git HEAD SHA of arc0me-site at last successful deploy
+//
+// DEPLOY-HOLD CONVENTION (added 2026-07-09, arc-storefront-revamp P7 / C-P7-1 fix):
+//   Every VM-local commit to arc0me-site is a production deploy within ~5 minutes by default --
+//   there is no way to distinguish "staged, awaiting operator sign-off" from routine blog
+//   publishing at the commit level. C-P7-1 found this defeated the prod-site-flip hard gate twice
+//   (this quest's P3, arc-day-n-publishing's P2) without either phase knowing.
+//
+//   To stage a change without triggering an auto-deploy, create a hold marker file at:
+//     github/arc0btc/arc0me-site/.deploy-hold
+//   (an empty file or one with a short reason is fine; content is not parsed). While the file is
+//   present, this sensor logs a clear skip reason and does NOT queue a deploy task, no matter how
+//   many commits land. Committing freely is safe during a hold.
+//
+//   To ship the held change (operator sign-off), delete the hold file:
+//     rm github/arc0btc/arc0me-site/.deploy-hold
+//   The very next sensor tick (up to 5 min) will queue the deploy for current HEAD, same as normal.
+//
+//   DEFAULT (no hold file present) = unchanged prior behavior: commit to arc0me-site main = deploy.
+//   This is deliberate -- Arc's daily blog posts must keep flowing untouched; the hold is opt-in,
+//   not opt-out.
 
 import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
@@ -13,6 +33,7 @@ const SENSOR_NAME = "blog-deploy";
 const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:blog-deploy";
 const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");
+const DEPLOY_HOLD_FILE = join(SITE_DIR, ".deploy-hold");
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -32,6 +53,11 @@ export default async function blogDeploySensor(): Promise<string> {
 
     if (!existsSync(SITE_DIR)) {
       log("arc0me-site not found, skipping");
+      return "skip";
+    }
+
+    if (existsSync(DEPLOY_HOLD_FILE)) {
+      log(`deploy hold active (${DEPLOY_HOLD_FILE} present) — skipping auto-deploy until hold is removed (operator sign-off)`);
       return "skip";
     }
 
