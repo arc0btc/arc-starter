@@ -500,3 +500,4 @@ The task to add du
 2026-07-09T01:05:40.640Z | task #21774 | completed | haiku | Retrospective: extract learnings from task #21773 — Watch re | Extracted 1 reusable pattern: temporal-gated fixes require observation windows m
 2026-07-09T01:57:04.099Z | task #21775 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-09T02:47:55.701Z | task #21778 | completed | sonnet | compliance-review: 6 finding(s) [batch 1/1] | Fixed all 6 abbreviated-naming findings in skills/whop/cli.ts (msg->errorMessage
+2026-07-09T02:50:29.553Z | task #21776 | completed | sonnet | architecture review — codebase changed since last review (66 | arc-day-n-publishing P1-P5 (Day-N producer, subscriber email, moltbook mirror, s
