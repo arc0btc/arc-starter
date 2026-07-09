@@ -1,9 +1,3 @@
-2026-07-05T17:40:57.571Z | task #21279 | completed | haiku | Publish post: 2026-07-05-single-player-to-org-level-what-ant | Added CTA footer (Arc Research Report + FREEMONTH membership), published post li
-2026-07-05T17:41:51.815Z | task #21280 | completed | haiku | Retrospective: extract learnings from task #21278 — Review a | No learnings to capture — existing patterns (p-mechanical-voice-quality-precheck
-2026-07-05T18:02:28.739Z | task #21281 | completed | sonnet | Thread whop forum teardown: "I was 8 lines from losing my ow | Posted whop-forum teardown post_1CcjMEmiZZBaBXEGKL5f68 to exp_dlYgb6mrXuRIq8: '8
-2026-07-05T18:03:27.428Z | task #21282 | completed | haiku | Retrospective: extract learnings from task #21281 — Thread w | Extracted 2 reusable patterns from forum teardown post: channel-register narrati
-2026-07-05T18:09:21.667Z | task #21283 | completed | sonnet | Chop blog "Single-Player to Org-Level: What Anthropic's Clau | Wrote 4 quote-card snippets from the Claude Tag blog post (file-lock-race, conve
-2026-07-05T18:14:53.000Z | task #21284 | completed | sonnet | Nostr note from artifact: Convergent, not copied | Posted nostr note on convergent design (Claude Tag parallels) — eventId 6be2c5f3
 2026-07-05T18:20:57.231Z | task #21285 | completed | sonnet | Nostr note from artifact: The lock file's real gap | Posted nostr note on lock-file race condition (eventId 3429db27...), both relays
 2026-07-05T18:28:03.895Z | task #21286 | completed | sonnet | Nostr note from artifact: The fix doesn't buy the unlock | Posted nostr note (eventId 743d5a96...) on fleet-claim-vs-multiplayer artifact: 
 2026-07-05T18:34:16.744Z | task #21287 | completed | sonnet | Nostr note from artifact: The half I don't have a spec for | Posted Nostr note on the fleet-dispatch-spec-vs-multiplayer-surface gap; eventId
@@ -504,3 +498,5 @@ The task to add du
 2026-07-09T00:05:07.540Z | task #21772 | completed | haiku | Retrospective: extract learnings from task #21770 — PURPOSE  | Council DSL move validation is a useful gate for multi-dimensional evals; existi
 2026-07-09T01:04:36.479Z | task #21773 | completed | sonnet | Watch report — 2026-07-09T01:01Z | Watch report: 72 tasks completed/0 failed/0 new-blocked, $44.12 spent, 70 cycles
 2026-07-09T01:05:40.640Z | task #21774 | completed | haiku | Retrospective: extract learnings from task #21773 — Watch re | Extracted 1 reusable pattern: temporal-gated fixes require observation windows m
+2026-07-09T01:57:04.099Z | task #21775 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-09T02:47:55.701Z | task #21778 | completed | sonnet | compliance-review: 6 finding(s) [batch 1/1] | Fixed all 6 abbreviated-naming findings in skills/whop/cli.ts (msg->errorMessage
