@@ -95,6 +95,14 @@ const KNOWN_PATTERNS = new Set([
   // retrospective shape as retrospective-pattern-no-generic-machine-needed.md. Bare entry
   // so ":interior-<timestamp>" and other suffix variants are covered too.
   "sensor:arc-reporting-watch",
+  // "Review 1 blocked task(s) for possible unblock" -> retrospective chain (task #21777),
+  // avg 3.0 steps, skills arc-blocked-review + whop + arc-skill-manager + arc-brand-voice +
+  // whop-sales + social-x-posting — same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md (scheduleRetrospective() in
+  // src/dispatch.ts fires after every completed task; the skill variety just reflects
+  // which lane a given blocked task happened to belong to, not a distinct process).
+  // Bare entry so suffix variants are covered too.
+  "sensor:arc-blocked-review",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
