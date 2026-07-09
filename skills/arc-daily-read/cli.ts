@@ -1608,7 +1608,8 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure:
         sourceArtifactPath: join(MATERIALS_DIR, `edition-${beat.editionN}.json`),
         extraContext: `This is a Day-N merged unit (arc-day-n-publishing P1) — mirror the SAME finding + thread just posted (edition ${beat.editionN}${tweetUrl ? `, tweet ${tweetUrl}` : ""}). Do not draft a separate, independent narrative — one story, one number, one edition.`,
       });
-      const { insertTaskDeduped } = await import("../../src/db.ts");
+      const { initDatabase, insertTaskDeduped } = await import("../../src/db.ts");
+      initDatabase();
       const blogTaskId = insertTaskDeduped({
         subject: built.subject,
         description: built.description,
