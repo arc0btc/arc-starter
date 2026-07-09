@@ -504,3 +504,4 @@ The task to add du
 2026-07-09T02:51:46.274Z | task #21780 | completed | sonnet | CEO review — 2026-07-09T02:47 | CEO review: on track operationally (72/72 clean, real fix shipped for blocked-re
 2026-07-09T02:52:28.590Z | task #21777 | completed | sonnet | workflow review — 1 new pattern(s) | Not a new workflow pattern — same already-rejected ad-hoc retrospective chain sh
 2026-07-09T02:53:47.234Z | task #21779 | completed | haiku | Retrospective: extract learnings from task #21778 — complian | Updated p-recurring-identical-error-code-defect-signal pattern: added compliance
+2026-07-09T02:56:05.919Z | task #21781 | completed | haiku | Retrospective: extract learnings from task #21776 — architec | Extracted 2 reusable patterns from architecture review #21776: (1) p-quest-scope
