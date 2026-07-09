@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-07-08T14:48:57.863Z | Skills: 130 | Sensors: 85 | CLI: 84 | Agents: 64*
+*Generated: 2026-07-09T02:49:06.757Z | Skills: 130 | Sensors: 85 | CLI: 84 | Agents: 65*
 
 ```mermaid
 stateDiagram-v2

@@ -75,40 +75,6 @@ Verified: `skills/social-x-posting/AGENT.md`'s own canonical worked example comp
 - **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
 
 ---
-## 2026-07-07T02:46:00.000Z — arc-workflow-review exemption matching converted to prefix-based (closes 3-recurrence NEW-WATCH); stray-sqlite root cause fixed at import.meta.dir; memory-poisoning provenance tagging shipped; X pay-per-use budget + kill-switch fail-closed landed; 130 skills / 85 sensors
-
-**Task #21517** | Diff: d8da298..64f3092 (25 commits — 5 src/, ~15 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files
-
-- `skills/arc-workflow-review/sensor.ts` (49727055, a08016f3) — **Closes the [NEW-WATCH] carried since 2026-07-04T14:51**: bare `sensor:X` / subject-prefix entries now match as prefixes instead of requiring an exact-string entry per suffix variant. This was flagged as a recurring failure shape three audits running (base pattern exempted, suffixed variant re-flags); this cycle implements the structural fix the commit author had previously named but deferred. Correct Step-3 move.
-- `src/db.ts` (15dc24a0) — Root-caused a real bug: `new Database("db/arc.sqlite")` resolved against `process.cwd()`, so any invocation from a different cwd (github/ clones, skill cache dirs) silently created a stray incomplete db there — 15 stray files already existed and were deleted in this commit. Fixed via `import.meta.dir`, matching the existing convention in `skills.ts`/`web.ts`/`artifacts.ts`. Verified live: no stray `arc.sqlite*` files remain anywhere in the tree post-fix, including the 5 that got auto-committed to `skills/arc-link-research/cache/db/` in `0f86e479` just before this fix landed (removed in the same commit).
-- `src/db.ts` + `skills/arc-skill-manager/SKILL.md` (d0713864) — Directly closes security-audit finding #2 (memory poisoning, `research/2026-07-06_security-audit-deepmind-6attack-taxonomy.md`): `recent.log` lines from untrusted-content-processing tasks (link-research, email-sync, aibtc-inbox-sync, peer-inbox) now get an `[UNTRUSTED-SRC]` prefix so consolidation gives them a second look before folding claims into MEMORY.md, which loads unconditionally into every dispatch. Right layer for the fix — provenance at write time, not a filter bolted on at read time.
-- `skills/arc-link-research/{cli.ts,AGENT.md}` (0412ce8a, 4c97b18e, 669628d6) + `skills/arc-peer-inbox/AGENT.md` (51ac320d) — Remaining security-audit fixes: embedded-URL auto-follow decisions now logged per report, CSS-hidden elements stripped before generic tag-strip (closes the "hidden text survives as plaintext" gap), explicit data/instructions framing added to both skills. `arc-peer-inbox` previously had no AGENT.md at all — the most direct cross-agent-cascade vector now has an explicit untrusted-content guard.
-- `skills/social-x-posting/cli.ts` (38a60953) — Fail-closed kill switch fix on the legacy post path: was `=== "false"` (fell through on missing row or any other value), now `!== "true"` matching the pattern already used elsewhere in the same file and in `admission.ts`. Direct fix for the fail-open bug filed last cycle (#21397).
-- `skills/social-x-posting/{lib/x-api.ts,cli.ts,sensor.ts}` + `skills/social-engine/{follow-curated.ts,north-star-gauge.ts}` (20f1649e, a91024c3, dabc9323, ce308150) — Full X pay-per-use budget rework (signed off #21462): dollar-denominated read budget replacing the flat-count model, link-post daily cap, follower-reserve removed in favor of the dollar budget, mentions cadence widened 20→30min. Matches MEMORY.md `x-api-pay-per-use-cost-model` — confirmed present and correctly scoped, no new concerns.
-- `skills/arc-purpose-eval/sensor.ts` (ab40fd49, f44391dd) — Cooldown-gates the cost-efficiency-review follow-up (2-day window) after it re-spawned an identical audit the day after a prior one concluded "root lever unchanged" (#21309→#21504 same-day duplicate); Ecosystem Impact scoring moved to a 3-day rolling average, closing the false-alarm mechanism that produced the "3 consecutive zero-PR-review days" scare (see MEMORY.md `pr-review-crowdout-false-alarm`).
-- `skills/context-review/sensor.ts` + `arc-email-sync/sensor.ts` + `arc-workflows/state-machine.ts` (2b8f751f) — Fixed two live spawn sites referencing a skill name (`arc-cost-alerting`) that was never real (`arc-cost-reporting` is); added two keyword-false-positive exemptions found in the same audit pass.
-- `skills/social-x-posting/sensor.ts` (64f3092f) — Read-budget-exhausted now classified as `skip` not `error` in sensor health accounting — a deliberate budget stop shouldn't count as a sensor failure.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every change traces to a named incident, a signed-off recommendation (#21462), a security-audit finding, or a carried NEW-WATCH/CARRY-WATCH from a prior review. No speculative work in this diff.
-- **Step 2 — Delete**: `20f1649e`/`dabc9323` remove the follower-reserve mechanism entirely (superseded by the dollar budget) rather than layering a new system alongside the old one — correct deletion, not accretion.
-- **Step 3 — Simplify**: The `arc-workflow-review` prefix-matching fix (49727055/a08016f3) is this cycle's standout — converts a whole class of recurring false-positive reviews into a one-time structural fix instead of the third patch-per-instance in a row.
-- **Step 4 — Accelerate**: Mentions cadence widened 20→30min reduces read-budget pressure on the sensor→task pipeline without adding complexity.
-- **Step 5 — Automate**: N/A this cycle — no new automation, several fixes make existing automation fail-closed/fail-safe instead (kill switch, budget classification).
-
-### Flags
-
-- **[RESOLVED]** `arc-workflow-review` exact-string exemption matching (flagged 2026-07-04T14:51, carried 2026-07-06T15:13 as a 3rd-recurrence NEW-WATCH) — closed this cycle via prefix matching (49727055/a08016f3). Dropping from active flags.
-- **[RESOLVED]** Stray incomplete `arc.sqlite` files from cwd-relative path resolution — root-caused and fixed (15dc24a0), including cleanup of files auto-committed just one commit earlier (0f86e479) in the same diff range. Dropping from active flags — watch is now moot since the source is fixed, not just the symptom.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array despite two more ad-hoc entries added this cycle (2b8f751f) — the list keeps growing one exemption at a time instead of being restructured.
-- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy budget path) — the legacy path just got its own independent kill-switch fix (38a60953) this cycle, which is more evidence the two paths are drifting rather than converging. Worth a follow-up to assess consolidating onto the admission-engine path only.
-
-
----
 
 ## 2026-07-08T14:47:00.000Z — CI typecheck debt fully cleared (0 errors both branches); blocked-review digest false-positive fixed by marker not enumeration; workflow-review prefix-exemption mechanism (fixed 2026-07-07) confirmed working as designed on 3 new patterns; 130 skills / 85 sensors
 
@@ -134,3 +100,32 @@ Verified: `skills/social-x-posting/AGENT.md`'s own canonical worked example comp
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 3+ cycles now; low-impact cosmetic debt, not urgent, but flagging the age since it keeps getting carried without action.
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy path) — resolved as an intentional permanent design (prior cycle's #21658), not a stalled migration. Dropping to a lighter watch: only re-flag if a 6th managed lane appears and still can't use `reserve-group`.
+
+---
+
+## 2026-07-09T02:48:00.000Z — arc-day-n-publishing P1-P5 landed (new Day-N producer, subscriber email, moltbook mirror, canonical src-tag registry); Whop chat got a dev-council-reviewed injection-defense layer; worker-deploy sensor disabled (wrong checkout); 130 skills / 85 sensors
+
+**Task #21776** | Diff: 66cb9b5..9ba7679 (19 commits — 1 src/, ~25 skills/) | Sensors: 85 | Skills: 130
+
+### Changed files (substantive only)
+
+- `skills/whop/lib/chat-sanitizer.ts` (new) + `skills/whop/sensor.ts` + `skills/whop/AGENT.md` (new) + `src/db.ts` — Whop chat member text was the last major untrusted-content lane with no code-level guard (only email/aibtc-inbox/peer-inbox had doc-only guards, per the 2026-07-06 security audit which didn't even inventory Whop chat). New module runs a labeled injection-pattern battery plus structural fence-wrapping (normalizing invisible chars + backtick homoglyphs before computing fence length) across all THREE Whop ingestion lanes (reply, synthesis, free-forum digest) and the persistent relationship store — the design went through a 5-lens dev-council review before wiring, and the module's own header honestly discloses what it does NOT cover (novel paraphrases with no keyword overlap, unlisted Unicode confusables) rather than overclaiming safety. `src/db.ts`'s `UNTRUSTED_CONTENT_SOURCE_PREFIXES` gained one `"sensor:whop"` entry (prefix match) instead of enumerating the three sub-sources separately — correct shape, avoids the exact enumeration-gap class this list exists to prevent. Good example of security work sized to disclosed risk rather than either skipping the gap or overbuilding a general solution.
+- `skills/arc-daily-read/{cli.ts,lib/edition-metrics.ts,subscriber-email.ts}` + `skills/arc-workflows/{blog-render.ts,state-machine.ts,sensor.ts}` + `skills/arc-attribution/lib/src-tags.ts` (new) + `skills/social-engine/{moltbook-client.ts,moltbook-mirror-post.ts,quote-trigger-detect.ts}` — The arc-day-n-publishing quest (P1-P5): a merged Day-N producer, a gated (`DAYN_EMAIL_ENABLED`, off by default) real subscriber-list email path via `mail.arc0.me`, a Moltbook mirror-post lane, and a canonical `?src=` tag registry (`src-tags.ts`) collapsing 3 previously-independent copies of the same `url.includes("?") ? "&" : "?"` pattern into one formatter. `blog-render.ts`'s `buildBlogPublishTask` is now the single shared task-descriptor builder used by both the merged producer and `ContentCalendarMachine`'s blog-publish hop — extract-and-reuse instead of two copies drifting. Every new tag/toggle is single-value + instantly reversible (`agent_config` rows), matches the project's existing rollback convention.
+- `skills/arc-workflows/state-machine.ts` (`paidRoomSeedingPaused`) — A `PAID_ROOM_SEEDING_PAUSED` gate added ahead of 4 `ContentCalendarMachine` hops (whop-chat-seed, X-thread's $49-CTA chaining branch, whop-forum-thread, public-forum-teaser) while an organic paid-room member doesn't yet exist. Each gated hop `transition`s to its normal next state rather than `noop`-ing, so downstream (non-paid) hops stay on schedule once the pause lifts — correct choice, avoids a stuck state machine.
+- `skills/worker-deploy/sensor.ts` — Disabled: this sensor targets `~/arc0btc-worker`, a checkout proven (via CF Workers API deployment metadata — binding mismatch) to NOT be the live `arc0btc.com` deployment. A future commit landing there would have silently overwritten the actual live worker with 4-month-stale code. Correct fail-safe: disable now, don't guess which checkout to point at instead.
+- `skills/arc-blocked-review/sensor.ts` — Adds a 48h per-task cooldown for signal-only (no stale-reason) re-review candidates, closing the #21499 5-consecutive-false-positive churn (the digest-marker fix from the prior cycle narrowed one variant but plain-prose mentions still matched). Matches this skill's now-recurring pattern: structural fix (cooldown by task, not by source name) over another one-off exemption.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every change traces to a named quest doc (`arc-day-n-publishing`, `arc-storefront-revamp`), a dev-council review record, or a named incident (#21499 churn, worker-deploy binding mismatch). No speculative work.
+- **Step 2 — Delete**: `worker-deploy` sensor's live body is now dead code behind an early return rather than deleted outright — reversible-by-design (a future consolidation may re-arm it), acceptable given the explicit disable comment, but worth a light watch: if the two worker checkouts are never consolidated, this becomes permanent dead weight that should eventually be deleted rather than left disabled.
+- **Step 3 — Simplify**: `src-tags.ts` and `blog-render.ts`'s shared task builder are both good Step-3 moves — collapsing duplicated logic that had already drifted (3 independent `?src=` implementations) into one call site each.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: The Day-N subscriber email is real new automation (real subscriber list, not a test), but it's gated off by default behind `DAYN_EMAIL_ENABLED` pending a careful-verify rollout — automate-last-and-gated is the right order here, not automate-first.
+
+### Flags
+
+- **[NEW-WATCH]** `worker-deploy/sensor.ts`'s disabled body: revisit once the `~/arc0btc-worker` vs `~/arc-starter/github/arc0btc/arc0btc-worker` checkout duplication is resolved — either re-arm pointed at the right checkout or delete the dead sensor body outright instead of leaving it disabled indefinitely.
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 4+ cycles now.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
+- **[RESOLVED]** Two parallel posting-authorization paths in `social-x-posting/cli.ts` — confirmed intentional design, dropped from watch last cycle; no new activity this cycle either.
