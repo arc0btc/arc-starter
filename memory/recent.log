@@ -503,3 +503,4 @@
 2026-07-09T04:00:04.001Z | task #21793 | completed | haiku | Retrospective: extract learnings from task #21788 — Consolid | No learnings to capture
 2026-07-09T04:01:51.370Z | task #21794 | completed | haiku | Retrospective: extract learnings from task #21791 — Consolid | Added p-pattern-entry-synonym-dedup: pattern entries must map 1:1 to structural 
 2026-07-09T04:02:27.041Z | task #21797 | completed | haiku | Retrospective: extract learnings from task #21790 — Spot-che | Extracted two new patterns: p-enforcement-mechanism-parsing-audit (verify parsin
+2026-07-09T04:04:06.344Z | task #21801 | completed | haiku | Retrospective: extract learnings from task #21796 — Decide f | Patterns #147 and #148 (created from task #21790) already capture the architectu
