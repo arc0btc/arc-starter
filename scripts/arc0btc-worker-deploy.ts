@@ -1,3 +1,19 @@
+// scripts/arc0btc-worker-deploy.ts
+// Manual deploy driver for the LIVE arc0btc-worker checkout: usage
+//   bun scripts/arc0btc-worker-deploy.ts <checkout-dir> [--dry-run]
+// checkout-dir is normally github/arc0btc/arc0btc-worker (the checkout confirmed live via CF
+// Workers API deployment history -- see docs/specs/2026-07-08-arc0btc-worker-deployed-source.md,
+// manage-agents repo). ~/arc0btc-worker is a stale, non-live checkout; its sensor is disabled
+// (skills/worker-deploy/sensor.ts) specifically so it can't silently overwrite production.
+//
+// CAUTION (arc-storefront-revamp P7, C-P7-1 sibling gap): `wrangler deploy` bundles the ENTIRE
+// on-disk source tree of checkout-dir for its dependency graph, not just files a given phase
+// intentionally touched. If ANY other staged/uncommitted edits (yours or another phase's) are
+// sitting in this checkout when you run this script, they ship as an undisclosed side effect --
+// no commit will exist to point to, so `git log` will look unchanged even though production
+// isn't. Before running: `git -C <checkout-dir> status` and confirm nothing unrelated is staged
+// or uncommitted. This is how P3's catalog.ts/landing.ts fix went live during P5's unrelated x402
+// manifest deploy in this quest's own history -- verify clean state, don't assume it.
 import { getCloudflareCredentials, verifyCloudflareToken } from "../src/cloudflare.ts";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
