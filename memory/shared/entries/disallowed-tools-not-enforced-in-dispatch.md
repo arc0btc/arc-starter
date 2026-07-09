@@ -69,6 +69,13 @@ native Claude Code skill objects (no `.claude/skills/` dir), and per-skill tool 
 no meaning inside a single concatenated subprocess. The security boundary Arc actually has
 is elsewhere (worktree isolation, pre-commit syntax guard, post-commit service health check).
 
+## Sign-off request sent (2026-07-09, #21800)
+
+Emailed whoabuddy the Option A tradeoff (intersection semantics + drop bypassPermissions),
+recommending against building it — intersection will almost always resolve to an empty
+deny-set given how skills get co-loaded, so payoff looks small next to a dispatch-wide
+behavior change. Task closed `blocked` pending reply, not auto-built.
+
 ## Related
 
 Supersedes the "untested" framing in `disallowed-tools-spotcheck-2026-07-07` — it's now
