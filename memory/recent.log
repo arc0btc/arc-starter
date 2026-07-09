@@ -501,3 +501,4 @@
 2026-07-09T05:58:13.105Z | task #21809 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-09T06:26:34.531Z | task #21810 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-09-06) — | deferred: budget — reserve-group returned budget_exhausted (reserved=?/6), poste
 2026-07-09T07:14:16.306Z | task #21811 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both candidates confirmed still-blocked, no email reply since 2026-07-06T23:21:3
+2026-07-09T07:15:03.508Z | task #21812 | completed | haiku | Retrospective: extract learnings from task #21811 — Review 2 | No learnings to capture — patterns for false-positive signals, retrospective noi
