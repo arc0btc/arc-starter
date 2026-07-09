@@ -39,18 +39,35 @@ a silent write." That claim is false under Arc's own dispatch config. Anyone (in
 future-Arc) auditing these 14 "read-only" skills and trusting the frontmatter would be
 wrong.
 
-## Fix options (not yet decided, needs owner sign-off)
+## Decision: C (docs reframe) — DONE 2026-07-09, task #21796
 
-- **A**: Real enforcement — parse `disallowed-tools` in `resolveSkillContext()` /
-  `runDispatchCycle()` and pass an actual `--disallowedTools` flag to the Claude Code
-  subprocess (needs checking whether v2.1.x supports a CLI flag for this, since
-  bypassPermissions may still override it — needs verification).
-- **B**: Prompt-level soft guard — inject explicit "do not use X tool" instruction text
-  derived from the frontmatter (weaker, LLM-followed not enforced, but works under
-  bypassPermissions).
-- **C**: Documentation fix only — remove the "fails before executes" claim from
-  `arc-skill-manager/SKILL.md`, reframe `disallowed-tools` as intent-signaling for
-  human/agent readers, not a technical control.
+Options weighed:
+
+- **A**: Real enforcement — parse `disallowed-tools` and pass a `--disallowedTools` flag
+  to the subprocess. The flag *does* exist (v2.1.174, `--disallowedTools/--disallowed-tools`),
+  but it is **subprocess-scoped** while `disallowed-tools` is **per-skill**. Dispatch
+  routinely co-loads a read-only skill with a write-needing one (#21642:
+  `arc0btc-site-health` + `blog-deploy`); a subprocess-wide `--disallowedTools Bash` would
+  break the write skill. The only sound semantics is *intersection* (deny a tool only if
+  EVERY loaded skill denies it) — almost always empty, surprising, near-zero value — plus
+  dropping bypassPermissions. Architecturally incompatible with Arc's concatenate-all-skills
+  → one-bypass-subprocess dispatch model. Rejected as a general fix; deferred as a possible
+  future feature behind sign-off.
+- **B**: Prompt-level soft guard — inject "do not use X" text from frontmatter. Same
+  multi-skill conflict: contradicts the write skill in the same task; advisory only under
+  bypassPermissions. Rejected.
+- **C** (chosen): Reframe `disallowed-tools` as intent-signaling documentation. Removed the
+  false "Claude Code fails the operation before it executes" claim from
+  `skills/arc-skill-manager/SKILL.md`, added an explicit "not enforced under Arc dispatch"
+  banner + a "Making it real" note capturing the A prerequisites (intersection + drop
+  bypass) for a future owner decision. Strictly better than status quo (removes a
+  false-security claim) and within autonomous docs scope; A left as a sign-off-gated
+  follow-up, not blocked.
+
+Root architectural reason C is correct, not just cheap: skills in Arc are prompt text, not
+native Claude Code skill objects (no `.claude/skills/` dir), and per-skill tool scoping has
+no meaning inside a single concatenated subprocess. The security boundary Arc actually has
+is elsewhere (worktree isolation, pre-commit syntax guard, post-commit service health check).
 
 ## Related
 

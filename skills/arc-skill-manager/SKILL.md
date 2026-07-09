@@ -39,9 +39,21 @@ Use the scaffold command to generate a starter template:
 arc skills run --name arc-skill-manager -- create <name> --description "what it does"
 ```
 
-## Restricting Tools: `disallowed-tools`
+## Documenting Intent: `disallowed-tools`
 
-Claude Code v2.1.152+ supports a `disallowed-tools` frontmatter field that prevents specific tools from being used when a skill is active. Use this for skills that are read-only by design — it makes intent explicit and prevents accidental side effects.
+> **Not enforced under Arc dispatch — intent-signaling only.** Claude Code's native
+> `disallowed-tools` frontmatter enforces at runtime only when a skill is registered as a
+> native skill object (a `.claude/skills/` entry). Arc has no such directory:
+> `resolveSkillContext()` (`src/dispatch.ts:245`) concatenates SKILL.md as raw prompt text,
+> so the field is never parsed. Dispatch also runs `--permission-mode bypassPermissions`.
+> Confirmed non-functional empirically (task #21642, #21790/#21796): a read-only skill used
+> Bash/Edit/Write freely. Treat this field as a note-to-reader about a skill's design
+> intent, **not** a technical control. See
+> `memory/shared/entries/disallowed-tools-not-enforced-in-dispatch.md`.
+
+Add `disallowed-tools` to skills that are read-only by design — it makes intent explicit for
+anyone (human or agent) auditing the skill tree, and keeps the door open for real enforcement
+if the dispatch model ever changes (see "Making it real" below).
 
 **When to add `disallowed-tools`:**
 - Research skills (fetch data, produce reports, no writes)
@@ -64,7 +76,15 @@ disallowed-tools: [Edit, Write, NotebookEdit]
 - Skills that serve a local web interface (e.g. `arc-web-dashboard`)
 - Skills that run `gh pr view` or `git log` as part of their read-only work
 
-If a skill accidentally attempts a disallowed tool, Claude Code fails the operation before it executes — better than a silent write. See `research/skills-disallowed-tools-audit-2026-05-27.md` for the full list of 29 candidates identified in the initial audit.
+See `research/skills-disallowed-tools-audit-2026-05-27.md` for the full list of 29 candidates identified in the initial audit.
+
+**Making it real (deferred, needs sign-off).** Genuine enforcement is not a simple wiring fix
+because `disallowed-tools` is declared *per-skill*, but dispatch loads several skills into one
+subprocess. A read-only skill is routinely co-loaded with a write-needing one (#21642:
+`arc0btc-site-health` + `blog-deploy`), so a subprocess-wide `--disallowedTools Bash` would break
+the write skill. Any real implementation must therefore (a) compute the *intersection* — deny a
+tool only if every loaded skill denies it — and (b) stop passing `bypassPermissions` for those
+tools. Both are non-trivial and change dispatch behavior globally; escalate before building.
 
 ## Checklist
 
@@ -74,7 +94,7 @@ If a skill accidentally attempts a disallowed tool, Claude Code fails the operat
 - [ ] If `cli.ts` present: `bun skills/<name>/cli.ts` runs without error
 - [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
-- [ ] If read-only skill: `disallowed-tools: [Edit, Write, NotebookEdit, Bash]` in frontmatter
+- [ ] If read-only skill: `disallowed-tools: [Edit, Write, NotebookEdit, Bash]` in frontmatter (intent-signal only — not enforced under dispatch; see "Documenting Intent" above)
 
 ## Memory Consolidation
 
