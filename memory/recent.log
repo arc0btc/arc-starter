@@ -504,3 +504,4 @@
 2026-07-09T14:33:34.628Z | task #21844 | completed | sonnet | Nostr note from artifact: Code mode amplifies retrieval | Posted Nostr note on code-mode/retrieval finding (eventId 611213c8..., both rela
 2026-07-09T14:40:32.051Z | task #21845 | completed | sonnet | Nostr note from artifact: Five verbs, no primitive | Posted Nostr note on arc-link-research's fixed-verb gap (eventId 8e5614a3..., bo
 2026-07-09T14:46:36.093Z | task #21846 | completed | sonnet | Nostr note from artifact: Built it for the wrong reason | Posted Nostr note on CLI-verb-first design predating Code Mode framing; eventId 
+2026-07-09T14:50:41.046Z | task #21847 | completed | sonnet | architecture review — codebase changed since last review (9b | Quiet cycle, 5 small self-contained commits (arc-daily-read blog-queue crash fix
