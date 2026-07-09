@@ -1753,6 +1753,81 @@ function cmdMarkAmplification(editionN: number, status: "amplified" | "unknown",
   console.log(`Edition ${editionN} marked amplified_status='${status}' (source=manual, note="${note}").`);
 }
 
+/**
+ * Admin recovery path: queues the blog-publish task for an already-shipped edition whose
+ * cmdPost run crashed BEFORE reaching the blog-queue block (e.g. #21827/#21828 —
+ * insertTaskDeduped threw for want of initDatabase()). Mirrors cmdPost's own blog-queue
+ * logic exactly, reading the edition's already-logged row instead of a freshly-composed
+ * beat. Same blog_slug-is-null guard, so it is safe to run against an edition that already
+ * has a task queued (no-op) or one still mid-flight (--dry-run to preview first).
+ */
+async function cmdQueueBlogTask(editionN: number, dryRun: boolean) {
+  const db = getDb();
+  const row = db.query(
+    "SELECT edition_n, status, root_tweet_url, thesis_carried, posted_at, finding_slug, blog_slug FROM daily_read_log WHERE edition_n = ?"
+  ).get(editionN) as
+    | { edition_n: number; status: string | null; root_tweet_url: string | null; thesis_carried: string | null; posted_at: string | null; finding_slug: string | null; blog_slug: string | null }
+    | null;
+
+  if (!row) {
+    console.error(`No daily_read_log row for edition ${editionN}.`);
+    db.close();
+    process.exit(1);
+  }
+  if (row.status === "void") {
+    console.log(`Edition ${editionN} is void — nothing to mirror, not queuing a blog-publish task.`);
+    db.close();
+    return;
+  }
+  if (row.blog_slug) {
+    console.log(`Edition ${editionN} already has a blog-publish task queued (blog_slug=${row.blog_slug}) — not queuing a second one.`);
+    db.close();
+    return;
+  }
+  const merged = isDaynMergedEnabled(db);
+  if (!merged) {
+    console.log("DAYN_MERGED is off — not queuing a blog-publish task.");
+    db.close();
+    return;
+  }
+  if (!row.posted_at) {
+    console.error(`Edition ${editionN} has no posted_at — cannot derive blog slug.`);
+    db.close();
+    process.exit(1);
+  }
+
+  const blogSlug = `${row.posted_at.slice(0, 10)}-day-${editionN}-${row.finding_slug ?? "read"}`;
+  if (dryRun) {
+    console.log(`[DRY-RUN] Would queue blog-publish task for edition ${editionN} (slug=${blogSlug}).`);
+    db.close();
+    return;
+  }
+
+  const built = buildBlogPublishTask({
+    slug: blogSlug,
+    title: `Day ${editionN} — ${(row.thesis_carried ?? "").slice(0, 80)}`,
+    sourceArtifactPath: join(MATERIALS_DIR, `edition-${editionN}.json`),
+    extraContext: `This is a Day-N merged unit (arc-day-n-publishing P1) — mirror the SAME finding + thread just posted (edition ${editionN}${row.root_tweet_url ? `, tweet ${row.root_tweet_url}` : ""}). Do not draft a separate, independent narrative — one story, one number, one edition.`,
+  });
+  const { initDatabase, insertTaskDeduped } = await import("../../src/db.ts");
+  initDatabase();
+  const blogTaskId = insertTaskDeduped({
+    subject: built.subject,
+    description: built.description,
+    skills: JSON.stringify(built.skills),
+    priority: built.priority,
+    model: built.model,
+    source: sourceKey(editionN, "blog"),
+  });
+  if (blogTaskId) {
+    db.run("UPDATE daily_read_log SET blog_slug = ? WHERE edition_n = ?", [blogSlug, editionN]);
+    console.log(`Queued blog-publish task (id=${blogTaskId}, slug=${blogSlug}) — one read = one blog post = one thread.`);
+  } else {
+    console.log(`Blog-publish task not queued (duplicate source/subject) — slug ${blogSlug} may already be handled.`);
+  }
+  db.close();
+}
+
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
@@ -1815,8 +1890,16 @@ switch (command) {
     cmdMarkAmplification(editionOverride, status, note);
     break;
   }
+  case "queue-blog-task": {
+    if (editionOverride === undefined) {
+      console.error("queue-blog-task requires --edition N");
+      process.exit(1);
+    }
+    await cmdQueueBlogTask(editionOverride, dryRun);
+    break;
+  }
   default:
-    console.log("Usage: bun cli.ts <chart|materials|compose|post|status|send-subscriber-email> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
+    console.log("Usage: bun cli.ts <chart|materials|compose|post|status|send-subscriber-email|queue-blog-task> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
     console.log("  chart              Show real-data ASCII chart from distilled_artifacts");
     console.log("  materials          (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
     console.log("  compose            Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
@@ -1824,5 +1907,6 @@ switch (command) {
     console.log("  post --simulate-failure   (P1) Force the never-skip 1-tweet minimal-edition path, for verification");
     console.log("  status             Show edition log, streak, DAYN_MERGED state, and cap state");
     console.log("  send-subscriber-email --edition N [--to <email>] [--live]   (P2) Test-send/re-send the subscriber email for an already-shipped edition. Dry-run by default; --to bypasses the real list for a single-address careful-verify test-send.");
+    console.log("  queue-blog-task --edition N [--dry-run]   Admin recovery: queue the blog-publish task for an already-shipped edition whose cmdPost run crashed before reaching the blog-queue block. No-op if already queued.");
     process.exit(1);
 }
