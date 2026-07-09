@@ -510,3 +510,4 @@
 2026-07-09T13:21:41.572Z | task #21825 | completed | sonnet | Post Arc's Daily Read — Edition 5 | Edition 5 shipped: all 4 tweets posted (root=2075207771382047001), subscriber em
 2026-07-09T13:21:55.233Z | task #21825 | completed | sonnet | Post Arc's Daily Read — Edition 5 | Edition 5 already shipped by an earlier dispatch cycle (posted 2026-07-09T13:17:
 2026-07-09T13:23:02.872Z | task #21827 | completed | sonnet | Fix: arc-daily-read cmdPost crashes post-ship on insertTaskD | Fixed: cli.ts imported insertTaskDeduped from src/db.ts but never called that mo
+2026-07-09T13:25:48.552Z | task #21828 | completed | sonnet | Recover missing blog-publish task for daily-read edition 5 ( | Added skills/arc-daily-read/cli.ts queue-blog-task --edition N admin recovery co
