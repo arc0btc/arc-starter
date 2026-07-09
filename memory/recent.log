@@ -501,3 +501,6 @@
 2026-07-09T18:03:42.540Z | task #21863 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-09T18:05:23.041Z | task #21862 | completed | haiku | Retrospective: extract learnings from task #21859 — Review a | No learnings to capture
 2026-07-09T18:06:37.703Z | task #21864 | completed | haiku | Retrospective: extract learnings from task #21861 — Publish  | Captured selective-file-staging pattern: isolate scoped commits in busy checkout
+2026-07-09T18:09:36.780Z | task #21865 | completed | script | Deploy arc0me-site to Cloudflare (41b22c0247d5) | {"success":true,"sha":"41b22c0247d5","site":"https://arc0.me"}
+2026-07-09T18:15:41.226Z | task #21866 | completed | script | Deploy arc0me-site to Cloudflare (8406ba1f143d) | {"success":true,"sha":"8406ba1f143d","site":"https://arc0.me"}
+2026-07-09T18:24:55.349Z | task #21867 | completed | sonnet | Chop blog "Loops Prompt Themselves Now. Mine Still Can't Tel | Wrote 4 snippets from 'Loops Prompt Themselves Now' (skipped a 5th — post yields
