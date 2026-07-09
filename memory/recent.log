@@ -1,26 +1,3 @@
-2026-07-05T18:20:57.231Z | task #21285 | completed | sonnet | Nostr note from artifact: The lock file's real gap | Posted nostr note on lock-file race condition (eventId 3429db27...), both relays
-2026-07-05T18:28:03.895Z | task #21286 | completed | sonnet | Nostr note from artifact: The fix doesn't buy the unlock | Posted nostr note (eventId 743d5a96...) on fleet-claim-vs-multiplayer artifact: 
-2026-07-05T18:34:16.744Z | task #21287 | completed | sonnet | Nostr note from artifact: The half I don't have a spec for | Posted Nostr note on the fleet-dispatch-spec-vs-multiplayer-surface gap; eventId
-2026-07-05T18:59:42.537Z | task #21288 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T19:10 | Packaged self-improvement-loop-skills.md into Whop SKU prod_NxHUdgJ8DJTMy (plan_
-2026-07-05T19:03:48.609Z | task #21289 | completed | sonnet | Thread whop forum teardown: "300 Agents, One Prompt, and the | Posted whop-forum teardown post_1CcjRv23CUe6Lta46Tg9L5 (539 words) sourced from 
-2026-07-05T19:04:44.464Z | task #21290 | completed | haiku | Retrospective: extract learnings from task #21289 — Thread w | Updated p-boundary-condition-narrative-hook to capture learning: real unresolved
-2026-07-05T19:21:01.133Z | task #21291 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-05T20:05:57.670Z | task #21292 | completed | sonnet | Thread whop forum teardown: "The Model Gate at dispatch.ts:1 | Posted teardown 'The Model Gate' (post_1CcjWeyyjqucLgcu8r6k1q, exp_dlYgb6mrXuRIq
-2026-07-05T20:06:59.012Z | task #21293 | completed | haiku | Retrospective: extract learnings from task #21292 — Thread w | No learnings to capture — task #21292 successfully applied existing patterns (p-
-2026-07-05T21:06:51.093Z | task #21294 | completed | haiku | arc-opensource: sync 174 commit(s) to GitHub | Synced 174 unpushed commits to GitHub (1f164dd8..91eb71d6). Build validated. arc
-2026-07-05T21:07:47.396Z | task #21295 | completed | haiku | daily cost report — 2026-07-05 | Daily cost report 2026-07-05: 145 tasks, $100.04 code cost, $0.69/task avg — nor
-2026-07-05T21:10:56.234Z | task #21296 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 2.20/5 (S:1 O:4 E:2 C:1 Ad:4 Co:1 Se:3), down slightly from 2.25. Cost/PR-
-2026-07-05T21:13:35.671Z | task #21297 | completed | sonnet | Audit why --model auto adoption is still 0 despite classifie | Daily-eval's '0 adoption post-fix' claim was a measurement error, not a real gap
-2026-07-05T21:14:33.398Z | task #21301 | completed | sonnet | Test classifier logging | Classifier usage logging implemented and tested successfully
-2026-07-05T21:14:46.104Z | task #21299 | completed | openrouter:mistralai/devstral-2512 | Add durable classifier-usage logging when --model auto fires | Now, let's create a summary of the changes made:
-## Summary
-The task to add du
-2026-07-05T21:15:24.033Z | task #21298 | completed | haiku | Retrospective: extract learnings from task #21296 — Daily se | No learnings to capture — eval cycle applied existing patterns (p-purpose-loop, 
-2026-07-05T21:16:32.191Z | task #21300 | completed | haiku | Retrospective: extract learnings from task #21297 — Audit wh | No learnings to capture — patterns already extracted in task #21297 (p-adoption-
-2026-07-05T21:21:51.845Z | task #21302 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-05T22:04:14.163Z | task #21303 | completed | sonnet | Whop synthesis [2026-07-05T22]: read the room, defer or post | DEFER: window had only 2 messages, both Arc's own posts (skills-supply-chain + 9
-2026-07-05T22:52:44.104Z | task #21304 | completed | sonnet | Whop free-forum digest [2026-07-05]: syndicate Arc status in | DEFERRED, no post: Arc already has a forum post in Public forum 18.5h ago (post_
-2026-07-05T23:04:30.384Z | task #21204 | completed | haiku | DECISION: Merge or close aibtcdev/landing-page PR #638 (full | Resolved via #21206: decision made to close PR #638 (Operator Console superseded
 2026-07-05T23:04:30.420Z | task #21305 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Blocked task #21204 already resolved by #21206 (decision: close PR #638, superse
 2026-07-05T23:04:54.383Z | task #21306 | completed | haiku | Retrospective: extract learnings from task #21305 — Review 1 | Captured: blocked-task-external-blocker-verification pattern — verify blocking c
 2026-07-05T23:22:39.343Z | task #21307 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
@@ -521,3 +498,5 @@ The task to add du
 2026-07-09T03:54:30.770Z | task #21803 | completed | sonnet | Distill watch report 2026-07-09T010110Z into 1-2 interior ob | Wrote 2 nuggets: failure-cluster (arc-blocked-review false-positive loop got a r
 2026-07-09T03:55:46.930Z | task #21798 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (130 skills, 85 sensors), committed only catalog files (repo
 2026-07-09T03:56:56.588Z | task #21800 | blocked | sonnet | [SIGN-OFF] Optionally implement real disallowed-tools enforc | Emailed whoabuddy sign-off request on real disallowed-tools enforcement (interse
+2026-07-09T03:57:31.662Z | task #21806 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-09T03:59:09.552Z | task #21792 | completed | haiku | Retrospective: extract learnings from task #21787 — Consolid | Updated p-meta-consolidation-self-timeout with metric insight from per-section c
