@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-09T01:01Z – 13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-09T01:01:10Z — 2026-07-09T13:00:35Z</div>
+</header>
+
+<p class="summary">46/46 tasks completed, zero failures/blocks. Shipped the disallowed-tools decision (Option C: docs reframe, real enforcement rejected as non-trivial given co-loaded subprocess skills), landed a 3-stage patterns.md consolidation (189→146 lines), published a new blog post, and fixed two small bugs (whop lint naming, arc-workflow-review exemption). Two sign-offs (PR #28, Agent Loop SKU) remain aged on whoabuddy's desk with no reply since 2026-07-06.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">46</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$33.33</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">30300k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">205k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">21773</td><td class="pri">6</td><td>Watch report — 01:01Z</td><td>72 tasks, $44.12 spent, blocked-review 48h cooldown fix shipped</td><td class="cost">$2.24</td></tr>
+    <tr><td class="id">21776</td><td class="pri">4</td><td>Architecture review</td><td>Day-N publishing + Whop chat injection-defense layer landed cleanly, all traced to quests</td><td class="cost">$2.03</td></tr>
+    <tr><td class="id">21778</td><td class="pri">5</td><td>Compliance review (6 findings)</td><td>Fixed 6 abbreviated-naming violations in whop/cli.ts, commit afd9a0ca</td><td class="cost">$1.13</td></tr>
+    <tr><td class="id">21780</td><td class="pri">1</td><td>CEO review — 02:47</td><td>On track ops; PR #28 and Agent Loop SKU sign-offs aging 6d/3d, report-only</td><td class="cost">$1.29</td></tr>
+    <tr><td class="id">21786</td><td class="pri">5</td><td>Auto-queue hungry domain</td><td>patterns.md over 150-line threshold, queued 2 consolidation + 2 follow-up tasks</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">21787</td><td class="pri">5</td><td>Consolidate Operational Patterns</td><td>21→16 entries, 189→185 lines</td><td class="cost">$1.75</td></tr>
+    <tr><td class="id">21788</td><td class="pri">5</td><td>Consolidate Core + Agent Design</td><td>Merged 3 multi-dim-eval entries, 185→171 lines</td><td class="cost">$2.01</td></tr>
+    <tr><td class="id">21790</td><td class="pri">4</td><td>Spot-check disallowed-tools</td><td>Confirmed non-functional — task #21642 used Bash/Edit/Write freely despite restriction</td><td class="cost">$1.54</td></tr>
+    <tr><td class="id">21791</td><td class="pri">5</td><td>Consolidate Agent Design</td><td>9→4 entries, 171→166 lines</td><td class="cost">$1.79</td></tr>
+    <tr><td class="id">21795</td><td class="pri">5</td><td>Consolidate Agent Design (2nd pass)</td><td>Merged 5 pairs, 151→146 lines, back under threshold</td><td class="cost">$2.10</td></tr>
+    <tr><td class="id">21796</td><td class="pri">1</td><td>Decide disallowed-tools fix</td><td>Option C chosen: docs reframe over real enforcement (co-loaded subprocess breaks intersection semantics)</td><td class="cost">$1.59</td></tr>
+    <tr><td class="id">21798</td><td class="pri">4</td><td>Regenerate skills/sensors catalog</td><td>130 skills, 85 sensors, deployed and verified arc0.me/catalog/ 200</td><td class="cost">$0.74</td></tr>
+    <tr><td class="id">21799</td><td class="pri">4</td><td>Distill arXiv digest</td><td>4 agent-architecture nuggets, zero quantum/aibtc-infra matches</td><td class="cost">$1.10</td></tr>
+    <tr><td class="id">21811</td><td class="pri">4</td><td>Review 2 blocked tasks</td><td>Both confirmed still-blocked, no email reply since 2026-07-06T23:21Z</td><td class="cost">$1.52</td></tr>
+    <tr><td class="id">21817</td><td class="pri">5</td><td>Generate blog post draft</td><td>"What I Told Myself I Could Do" (864 words) — disallowed-tools self-discovery as central image</td><td class="cost">$1.19</td></tr>
+    <tr><td class="id">21818</td><td class="pri">5</td><td>Publish blog post</td><td>Published 2026-07-09-what-i-told-myself-i-could-do with CTA footer</td><td class="cost">$0.19</td></tr>
+  </tbody>
+</table>
+<p class="empty">Remaining 30 tasks: 4 housekeeping sweeps (fixed 1 issue each, $0), 4 whop synthesis/blog-deploy ticks, and 10 retrospective extractions on the above — all completed, $0.13–$0.26 each.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+  No new posts to AI Prefers Bitcoin this period (last post was 2026-07-08T22:11Z, prior period). Reactive lane: 118 ticks, 1,062 candidates, 100% skip (708 stale_message, 354 below_length_floor) — zero live posts. Synthesis lane: 2 ticks (04:13Z, 10:15Z), both DEFER (window's only message was Arc's own prior post, correctly avoided self-paraphrase) — 2/2 defer, healthy. Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+  Only tracked counterparty: whoabuddy (20 msgs lifetime, 5 arc→them, 3 them→arc) — no other room members in the relationship store.
+</div>
+<div class="whop-summary" style="margin-top:0.75rem">
+  Revenue: 1 customer, 0 paying, $0 MRR, 0/16 break-even. Product→room conversion 0% (0/1 buyer activated). Leading indicators: 49 followers (cached, gauge degraded — read budget exhausted), 0 X posts today, 7d trailing 31 posts.
+</div>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">a90c753e</span>fix(bitcoin-wallet): relax overly-strict mainnet address length regex</div>
+<div class="commit"><span class="hash">980d85d5</span>feat(p8): scripts for signed bounty_create, identity_set_wallet verification, and outreach send</div>
+<div class="commit"><span class="hash">7e51609a</span>docs(scripts): warn that wrangler deploy bundles the whole checkout tree</div>
+<div class="commit"><span class="hash">fb5793c3</span>chore(memory): record disallowed-tools enforcement sign-off request (#21800)</div>
+<div class="commit"><span class="hash">78b63296</span>chore(memory): consolidate Agent Design section of patterns.md</div>
+<div class="commit"><span class="hash">1d70ab25</span>docs(arc-skill-manager): reframe disallowed-tools as intent-signal, not enforced control</div>
+<div class="commit"><span class="hash">9483c62c</span>chore(memory): consolidate Agent Design section of patterns.md</div>
+<div class="commit"><span class="hash">3574b32c</span>chore(memory): consolidate Core Patterns and Agent Design sections of patterns.md</div>
+<div class="commit"><span class="hash">25c6ec7b</span>chore(memory): consolidate Operational Patterns section of patterns.md</div>
+<div class="commit"><span class="hash">074ea656</span>fix(arc-workflow-review): exempt arc-blocked-review retrospective chain</div>
+<div class="commit"><span class="hash">1561f70b</span>docs(report): CEO review — on track ops, two aging sign-offs need human decision</div>
+<div class="commit"><span class="hash">09459b56</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">afd9a0ca</span>fix(whop): rename abbreviated msg to errorMessage in cli.ts</div>
+<p class="empty">Plus 27 chore(loop) auto-commits (routine dispatch snapshots, omitted).</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">6</span>Watch report — 2026-07-09T13:00Z (this task)</div>
+<p class="empty">No other pending/active tasks — queue is otherwise clear.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Inflow pool — last 24h: produced 17 (arxiv 6, watch-interior 6, snippet 5), consumed 9 (whop-chat 6, x 3). Ratio ~1.9:1 produced:consumed — producers running ahead of consumers, not starved but not fully drawn down either. No stuck-distill alerts. whop-signal source quiet 36h+ (gate/upstream, not a bug).</div>
+<div class="obs">Meta-work stayed heavy but bounded: patterns.md took 4 separate consolidation passes (21787/88/91/95) across the period to get from 189 to 146 lines — per-section decomposition worked (no timeout) but the entry-count-vs-line-count mismatch (21→16 entries yielded only 189→185 lines on the first pass) is now a documented pattern rather than a surprise.</div>
+<div class="obs">disallowed-tools saga closed for now: spot-check (21790) confirmed zero enforcement, decision task (21796) chose a docs-only reframe over building real enforcement, and a follow-up sign-off request for real enforcement went out same period (21800) — still awaiting reply.</div>
+<div class="obs">X read budget exhausted ($0.50/0.50 spent, 124 reads) mid-period — north-star gauge degraded gracefully (returned last-known follower count instead of failing). Whop reactive lane's 708 stale_message skips out of 1,062 candidates confirms the lane is scanning a fixed 50-message window every ~4 minutes with heavy overlap — working as designed, not a bug.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
