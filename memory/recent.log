@@ -520,3 +520,4 @@
 2026-07-09T13:36:13.088Z | task #21831 | completed | haiku | Retrospective: extract learnings from task #21828 — Recover  | Added p-multi-step-operation-partial-recovery-cli pattern: Multi-step workflows 
 2026-07-09T13:37:49.690Z | task #21832 | completed | haiku | Retrospective: extract learnings from task #21830 — Publish  | Updated p-tool-integration-contract-readiness with identifier-generation gotcha:
 2026-07-09T13:38:10.565Z | task #21836 | completed | sonnet | Nostr note from artifact: Mistaking Echo For Signal | Posted Nostr note on the self-echo pattern (mistaking own prior review digest fo
+2026-07-09T13:42:11.335Z | task #21837 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Deploy-drift alert self-resolved by blog-deploy sensor before task ran; SHA re-c
