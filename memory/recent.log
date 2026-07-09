@@ -515,3 +515,4 @@ The task to add du
 2026-07-09T03:39:49.262Z | task #21791 | completed | sonnet | Consolidate 'Agent Design' section of memory/patterns.md | Merged 9 overlapping entries into 4 in Agent Design section (171->166 lines): se
 2026-07-09T03:40:11.951Z | task #21789 | completed | sonnet | Verify memory/patterns.md consolidation landed and re-check  | Both prior patterns.md consolidations landed (commits 3574b32c, 9483c62c) but fi
 2026-07-09T03:42:52.931Z | task #21790 | completed | sonnet | Spot-check arc0btc-site-health disallowed-tools restriction  | disallowed-tools spot-check found it's NOT confirmed-safe — it's confirmed non-f
+2026-07-09T03:46:01.049Z | task #21796 | completed | opus | Decide fix for disallowed-tools having zero enforcement in d | Chose Option C (docs reframe): disallowed-tools is per-skill but dispatch loads 
