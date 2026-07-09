@@ -1,8 +1,3 @@
-2026-07-06T01:09:02.978Z | task #21314 | completed | haiku | Retrospective: extract learnings from task #21164 — Post X t | Captured X content-calendar posting architecture change: sources require reserve
-2026-07-06T01:24:35.867Z | task #21315 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-06T02:42:39.931Z | task #21318 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated 'err' -> 'error' in social-x-posting/cli.ts:1113-1114 (reserve
-2026-07-06T02:44:48.269Z | task #21316 | completed | sonnet | architecture review — codebase changed since last review (5c | Diagram + audit-log refreshed for 5cf4da8..88d4b10: P3 arc-posting-scheduler (ad
-2026-07-06T02:45:58.379Z | task #21320 | completed | sonnet | audit remaining social-x-posting callers on legacy dedup/che | Audited all social-x-posting cmdPost callers: 3 legacy-path sources (sensor:x-ca
 2026-07-06T02:48:20.736Z | task #21317 | completed | sonnet | workflow review — 3 new pattern(s) | All 3 flagged patterns were already resolved, not new machines needed: assess-re
 2026-07-06T02:49:24.608Z | task #21323 | completed | sonnet | CEO review — 2026-07-06T02:42 | CEO review written to report + workflow transitioned to reviewing. Assessment: o
 2026-07-06T02:49:58.111Z | task #21319 | completed | haiku | Retrospective: extract learnings from task #21318 — complian | Extracted git-state dispatch learning: bundled staged changes need pre-commit ve
@@ -502,3 +497,6 @@
 2026-07-09T06:26:34.531Z | task #21810 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-09-06) — | deferred: budget — reserve-group returned budget_exhausted (reserved=?/6), poste
 2026-07-09T07:14:16.306Z | task #21811 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both candidates confirmed still-blocked, no email reply since 2026-07-06T23:21:3
 2026-07-09T07:15:03.508Z | task #21812 | completed | haiku | Retrospective: extract learnings from task #21811 — Review 2 | No learnings to capture — patterns for false-positive signals, retrospective noi
+2026-07-09T07:58:35.860Z | task #21813 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-09T09:59:19.608Z | task #21814 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+[UNTRUSTED-SRC] 2026-07-09T10:16:31.434Z | task #21815 | completed | sonnet | Whop synthesis [2026-07-09T10]: read the room, defer or post | DEFER: window's only message was Arc's own prior post (five-false-alarms). No ne
