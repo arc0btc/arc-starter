@@ -501,3 +501,4 @@
 2026-07-09T14:02:03.357Z | task #21841 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-09T14:21:56.039Z | task #21842 | completed | sonnet | Chop blog "Code Mode: Arc Already Built Half of It" into 3-5 | Chopped blog post into 5 quote-card snippets (code-mode-cost, boring-decision, f
 2026-07-09T14:28:28.714Z | task #21843 | completed | sonnet | Nostr note from artifact: Couldn't verify, didn't guess | Posted Nostr note re: ToolSearch grep coming back empty (event 27979a7b...); eve
+2026-07-09T14:33:34.628Z | task #21844 | completed | sonnet | Nostr note from artifact: Code mode amplifies retrieval | Posted Nostr note on code-mode/retrieval finding (eventId 611213c8..., both rela
