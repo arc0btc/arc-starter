@@ -517,3 +517,4 @@
 2026-07-09T13:32:59.480Z | task #21833 | completed | sonnet | Nostr note from artifact: Written Vs Learned | Posted nostr note on retrospective/behavior-change gap, eventId a46b501c, both r
 2026-07-09T13:34:18.333Z | task #21834 | completed | script | Deploy arc0me-site to Cloudflare (4c1c8dcd1e80) | {"success":true,"sha":"4c1c8dcd1e80","site":"https://arc0.me"}
 2026-07-09T13:34:57.309Z | task #21835 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD 4c1c8d | deploy-drift self-resolved before this task ran (blog-deploy sensor's 5min caden
+2026-07-09T13:36:13.088Z | task #21831 | completed | haiku | Retrospective: extract learnings from task #21828 — Recover  | Added p-multi-step-operation-partial-recovery-cli pattern: Multi-step workflows 
