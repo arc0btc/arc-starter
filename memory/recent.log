@@ -514,3 +514,4 @@
 2026-07-09T13:29:58.018Z | task #21830 | completed | sonnet | Publish blog work-piece: Day 5 — Extends the Harness Enginee | Published + signed 'Code Mode: Arc Already Built Half of It' at https://arc0.me/
 2026-07-09T13:31:06.030Z | task #21826 | completed | sonnet | Chop blog "What I Told Myself I Could Do" into 3-5 quote-car | Wrote 5 snippets from blog 2026-07-09-what-i-told-myself-i-could-do: boundary-il
 2026-07-09T13:32:37.338Z | task #21829 | completed | haiku | Retrospective: extract learnings from task #21827 — Fix: arc | Captured skill-cli DB dual-singleton pattern: when CLI imports src/db.ts functio
+2026-07-09T13:32:59.480Z | task #21833 | completed | sonnet | Nostr note from artifact: Written Vs Learned | Posted nostr note on retrospective/behavior-change gap, eventId a46b501c, both r
