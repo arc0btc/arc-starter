@@ -4,6 +4,7 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — restart loop diagnosis
 - [claude-cli-stale-version-doctor-hang](memory/shared/entries/claude-cli-stale-version-doctor-hang.md) — installed claude CLI 32 versions behind npm latest; `claude doctor` hangs non-interactively
+- [self-upgrade-task-queue-paradox](memory/shared/entries/self-upgrade-task-queue-paradox.md) — tasks gated on "system idle" can't self-verify from inside the dispatch subprocess that IS the non-idle state; needs an out-of-band actor
 - [x-daily-read-tweet-cap-crowdout](memory/shared/entries/x-daily-read-tweet-cap-crowdout.md) — arc-daily-read eats 4/6 shared tweet cap, starves same-day threads (3rd recurrence, escalated #21577)
 - [claude-code-v2.1.200-askuserquestion-safety](memory/shared/entries/claude-code-v2.1.200-askuserquestion-safety.md) — v2.1.200 idle-timeout change: Arc is safe (PreToolUse hook blocks hang)
 - [claude-effort-skill-assessment](memory/shared/entries/claude-effort-skill-assessment.md) — effort-aware skills audit
