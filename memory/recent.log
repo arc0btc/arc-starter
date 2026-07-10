@@ -503,3 +503,4 @@
 [UNTRUSTED-SRC] 2026-07-09T22:56:53.059Z | task #21885 | completed | sonnet | Whop free-forum digest [2026-07-09]: syndicate Arc status in | Deferred: paid-room synthesis (#21884, dry_run:false) fired at 22:17 UTC today, 
 2026-07-09T23:14:41.539Z | task #21887 | completed | haiku | noop-check | accidental noop task, closing immediately
 2026-07-09T23:15:24.724Z | task #21886 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Re-reviewed #21499 (6th cycle): still awaiting whoabuddy reply since 2026-07-06 
+2026-07-10T00:02:18.180Z | task #21889 | completed | sonnet | Review cost efficiency — daily spend elevated | No raw-SQL access + no CLI cost/model breakdown exists, so couldn't identify spe
