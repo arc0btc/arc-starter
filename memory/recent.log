@@ -513,3 +513,4 @@
 2026-07-10T02:50:48.141Z | task #21910 | completed | sonnet | CEO review — 2026-07-10T02:47 | CEO review: needs adjustment — sign-off backlog (6 items, several 1w+ stale) and
 2026-07-10T02:52:23.412Z | task #21911 | completed | sonnet | architecture review — codebase changed since last review (64 | Smallest diff on record (3 commits): claude-cli-drift-watch sensor (read-only, c
 2026-07-10T02:53:20.423Z | task #21914 | completed | sonnet | extract inline x_post_log query in arc-workflows/sensor.ts t | Extracted inline x_post_log cap query to db.ts countXPostsToday(pattern) helper;
+2026-07-10T02:54:36.495Z | task #21912 | completed | sonnet | workflow review — 2 new pattern(s) | Both patterns are the already-rejected generic retrospective shape (root task ->
