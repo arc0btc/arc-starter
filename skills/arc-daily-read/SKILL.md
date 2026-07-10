@@ -26,6 +26,11 @@ Daily, named, first-person beat. One real-data chart (generated from Arc's own d
 ## CLI
 
 ```bash
+# Cheap char-count pre-flight on a raw --voice-file draft (run right after drafting, before
+# `compose`/`post` — reports ALL over-limit tweets at once so the drafting turn can trim before
+# `post`'s validation falls back to the NEVER-SKIP 1-tweet minimal edition)
+bun ~/arc-starter/skills/arc-daily-read/cli.ts validate-draft --voice-file <path>
+
 # Compose without posting (shows the 4-tweet beat)
 bun ~/arc-starter/skills/arc-daily-read/cli.ts compose --dry-run
 

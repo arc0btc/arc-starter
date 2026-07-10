@@ -1296,7 +1296,50 @@ async function cmdMaterials(dryRun: boolean, editionOverride?: number) {
   console.log(`\nNext step: draft tweets 1-3 in Arc's voice (SOUL.md), save as`);
   console.log(`  ${join(MATERIALS_DIR, `edition-${brief.editionN}.draft.json`)}`);
   console.log(`  shape: { "tweets": ["<tweet1 with hook + file:line>", "<tweet2>", "<tweet3>"] } (3 only — footer/CTA is deterministic, do not draft a tweet 4)`);
+  console.log(`Then run: bun cli.ts validate-draft --voice-file ${join(MATERIALS_DIR, `edition-${brief.editionN}.draft.json`)}  (cheap char-count pre-flight)`);
   console.log(`Then run: bun cli.ts post --voice-file ${join(MATERIALS_DIR, `edition-${brief.editionN}.draft.json`)}`);
+}
+
+/**
+ * arc-daily-read char-count pre-flight (#21953): a cheap, dependency-free check the drafting
+ * turn can run on a --voice-file BEFORE calling `post`, so an oversize tweet is caught while
+ * there's still room to revise instead of falling straight to the 1-tweet NEVER-SKIP fallback.
+ * Deliberately does NOT load the materials brief or run composeBeat's citation/repeat-opening
+ * checks — this is only the char-count gate, the one `post`-time failure mode that's cheap to
+ * self-correct (trim and re-check) versus the others (re-select a finding, redraft the hook).
+ * Reads tweets 1-3 straight off the draft file's raw JSON so a violation on tweet 1 doesn't stop
+ * tweets 2-3 from being reported too (composeBeat throws on the first bad tweet it finds).
+ */
+async function cmdValidateDraft(voiceFilePath?: string) {
+  console.log("=== Arc Daily Read — Draft Char-Count Pre-Flight ===");
+  if (!voiceFilePath) {
+    console.error("validate-draft requires --voice-file <path>");
+    process.exit(1);
+  }
+  const fs = require("fs");
+  if (!fs.existsSync(voiceFilePath)) {
+    console.error(`no draft file at ${voiceFilePath}`);
+    process.exit(1);
+  }
+  const raw = JSON.parse(fs.readFileSync(voiceFilePath, "utf-8"));
+  if (!Array.isArray(raw.tweets) || raw.tweets.length !== 3 || raw.tweets.some((t: unknown) => typeof t !== "string")) {
+    console.error(`voice draft at ${voiceFilePath} must be JSON { tweets: [t1, t2, t3] } (3 strings)`);
+    process.exit(1);
+  }
+
+  let anyOver = false;
+  raw.tweets.forEach((t: string, i: number) => {
+    const charCount = t.length;
+    const over = charCount > 240;
+    if (over) anyOver = true;
+    console.log(`[tweet ${i + 1}] ${charCount}/240 chars — ${over ? `FAIL (over by ${charCount - 240})` : "OK"}`);
+  });
+
+  if (anyOver) {
+    console.error("\nFAIL: trim the over-limit tweet(s) above and re-run before calling `post`.");
+    process.exit(1);
+  }
+  console.log("\nPASS: all 3 tweets within the 240-char limit.");
 }
 
 async function cmdCompose(dryRun: boolean, voiceFilePath?: string) {
@@ -1854,6 +1897,9 @@ switch (command) {
   case "compose":
     await cmdCompose(dryRun, voiceFileArg);
     break;
+  case "validate-draft":
+    await cmdValidateDraft(voiceFileArg);
+    break;
   case "post":
     await cmdPost(dryRun, voiceFileArg, simulateFailure);
     break;
@@ -1899,9 +1945,10 @@ switch (command) {
     break;
   }
   default:
-    console.log("Usage: bun cli.ts <chart|materials|compose|post|status|send-subscriber-email|queue-blog-task> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
+    console.log("Usage: bun cli.ts <chart|materials|compose|validate-draft|post|status|send-subscriber-email|queue-blog-task> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
     console.log("  chart              Show real-data ASCII chart from distilled_artifacts");
     console.log("  materials          (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
+    console.log("  validate-draft --voice-file <path>   Cheap char-count pre-flight on a raw draft file (no materials brief needed) — run before `post` to catch oversize tweets while there's still room to trim");
     console.log("  compose            Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
     console.log("  post               Post the daily beat (use --dry-run to simulate; requires a voice draft, see 'materials')");
     console.log("  post --simulate-failure   (P1) Force the never-skip 1-tweet minimal-edition path, for verification");
