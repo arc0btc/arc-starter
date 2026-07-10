@@ -530,3 +530,4 @@
 2026-07-10T03:46:24.861Z | task #21928 | completed | sonnet | Distill arXiv digest 2026-07-10T03:33:06Z into 3-5 nuggets | Wrote 4 agent-architecture nuggets (WebSwarm recursive delegation, Workflow-as-K
 2026-07-10T03:46:52.334Z | task #21929 | completed | haiku | Retrospective: extract learnings from task #21928 — Distill  | No learnings to capture — task #21928 executed existing p-selective-slot-distill
 2026-07-10T03:56:17.415Z | task #21930 | completed | sonnet | Distill watch report 2026-07-10T010211Z into 1-2 interior ob | Wrote 2 nuggets: surprise (cost-review self-fix — #21889 blocked on missing CLI,
+2026-07-10T03:58:02.939Z | task #21931 | completed | haiku | Retrospective: extract learnings from task #21930 — Distill  | Updated p-selective-slot-distillation with observation-ranking guidance (surpris
