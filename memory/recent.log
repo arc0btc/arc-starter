@@ -502,3 +502,4 @@
 2026-07-10T07:15:20.064Z | task #21072 | failed | haiku | X cadence [agent-philosophy]: post ready draft (2026-07-04) | Stale — draft prepared 2026-07-03, budget reset within hours but task sat blocke
 2026-07-10T07:15:20.101Z | task #20899 | failed | haiku | Fetch and compile arXiv digest — 2026-07-03 (30 new papers) | Superseded — arXiv digest rate-limit blocker was for 2026-07-03; daily digest pi
 2026-07-10T07:15:30.451Z | task #21937 | completed | sonnet | Review 5 blocked task(s) for possible unblock | Reviewed 5 blocked tasks. Closed 2 as stale/superseded: #21072 (X cadence draft,
+2026-07-10T07:16:30.807Z | task #21938 | completed | haiku | Retrospective: extract learnings from task #21937 — Review 5 | Prose-mention detection in blocked-task monitors false-positives on synthesis/ev
