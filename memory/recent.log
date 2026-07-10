@@ -1,36 +1,3 @@
-2026-07-06T22:12:52.964Z | task #21450 | completed | haiku | Retrospective: extract learnings from task #21447 — Evaluate | Extracted 2 reusable patterns: generic-wrapper-constraint-inheritance, interacti
-2026-07-06T22:25:57.107Z | task #21451 | completed | sonnet | Assess release: hirosystems/clarinet v3.21.1 | clarinet v3.21.1 is a chore-only release (pox5 + stacks-core dep bump, PR #2452)
-2026-07-06T22:26:51.086Z | task #21452 | completed | haiku | Retrospective: extract learnings from task #21451 — Assess r | No learnings to capture — task #21451 successfully applied p-release-assessment-
-2026-07-06T22:35:27.408Z | task #21453 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: X Follower Cou | Replied to whoabuddy re: X follower gauge — honest update that it's not fixed (s
-2026-07-06T22:39:41.599Z | task #21454 | completed | sonnet | Trace X read-API consumers exhausting 100/day before followe | Root cause: mentions sensor's 15min unconditional polling (96 reads/day) was cro
-2026-07-06T22:40:55.543Z | task #21457 | completed | opus | Email from whoabuddy (1 unread, 3 total): Re: X Follower Cou | whoabuddy reframed X read-limit fix: revisit ALL X budget limits from real credi
-2026-07-06T22:46:45.969Z | task #21459 | completed | opus | Revisit X API budget limits from actual credit-cost ground t | X API moved to pay-per-use 2026-02-06; 100-reads/day ceiling rests on stale 'fre
-2026-07-06T22:47:10.988Z | task #21456 | completed | script | Welcome new AIBTC agent: Shining Nova | {"success":true,"agent":"Shining Nova","stx_address":"SP3CG9HKK0VRAD1F521Y9643K0
-2026-07-06T22:49:31.531Z | task #21455 | completed | haiku | Retrospective: extract learnings from task #21453 — Email fr | Resolution clarity: when prior email explained mechanism but didn't fix root cau
-2026-07-06T22:51:22.909Z | task #21458 | completed | haiku | Retrospective: extract learnings from task #21454 — Trace X  | Captured 2 operational patterns from #21454 X read-budget starvation analysis: (
-2026-07-06T22:52:38.663Z | task #21462 | completed | opus | Email from whoabuddy (1 unread): Re: X Follower Count — X AP | whoabuddy confirmed pay-per-use + approved X budget recommendations; queued impl
-2026-07-06T23:05:29.260Z | task #21463 | completed | opus | Implement X API pay-per-use dollar budget (whoabuddy-approve | X pay-per-use budget shipped (PR #28, commit 20f1649e): dollar read budget $0.50
-2026-07-06T23:07:03.524Z | task #21466 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: X Follower Cou | whoabuddy OK'd mentions cadence 20→30min (rec #4, 'slower is fine unless activit
-2026-07-06T23:08:17.449Z | task #21468 | completed | opus | Email from whoabuddy (1 unread): 2026-06-06 Research Tasks | Triaged whoabuddy's 18-link research batch: created orchestrator task #21472 (P2
-2026-07-06T23:16:14.485Z | task #21472 | completed | opus | Research batch: 2026-07-06 X links (18) — cache, dedup, rele | 18-link X batch: cached+catalogued all (X reads ~$0.13), honest 0-5 gate (2 skip
-2026-07-06T23:20:40.683Z | task #21474 | completed | sonnet | Security audit: map Arc's untrusted-content ingestion to Dee | Audited 6 ingestion paths vs DeepMind 6-attack taxonomy: 2 real gaps (arc-link-r
-2026-07-06T23:21:38.986Z | task #21477 | completed | sonnet | Write arc-peer-inbox/AGENT.md with untrusted-content guard ( | Wrote skills/arc-peer-inbox/AGENT.md (commit 51ac320d) — untrusted-content guard
-2026-07-06T23:22:43.032Z | task #21470 | completed | sonnet | Widen mentions sensor cadence 20min→30min (X budget rec #4,  | Widened mentions sensor 20min->30min (INTERVAL_MINUTES) per whoabuddy sign-off, 
-2026-07-06T23:25:44.690Z | task #21483 | completed | opus | Email from whoabuddy (1 unread): Re: Research batch: 2026-07 | whoabuddy green-lit synthesis §5 items 1-5 + lead-with-security-playbook SKU. It
-2026-07-06T23:26:42.237Z | task #21476 | completed | sonnet | Add External Content Guard section to arc-link-research/AGEN | Ported email-sync's external-content guard into arc-link-research/AGENT.md as ne
-2026-07-06T23:27:59.696Z | task #21478 | completed | sonnet | Strip CSS-hidden content in arc-link-research HTML stripping | Added stripHiddenElements() pass (display:none/visibility:hidden/opacity:0/font-
-2026-07-06T23:31:21.082Z | task #21485 | completed | sonnet | Package $9 SKU: 'Securing Autonomous Agents — the 6-attack p | Packaged $9 SKU content (products/securing-autonomous-agents-6-attack-playbook.m
-2026-07-06T23:33:05.152Z | task #21492 | completed | sonnet | Whop sign-off: create $9 SKU 'Securing Autonomous Agents' pr | Sign-off already covered (2026-07-03 standing directive: SKUs publish autonomous
-2026-07-06T23:33:59.713Z | task #21464 | completed | sonnet | Whop free-forum digest [2026-07-06]: syndicate Arc status in | DEFERRED: paid-room synthesis (task #21449, 22:06Z) fired live within the last 2
-2026-07-06T23:35:49.759Z | task #21479 | completed | sonnet | Log/audit which embedded URLs arc-link-research auto-follows | Added Embedded URL Audit section to arc-link-research reports (commit 0412ce8a) 
-2026-07-06T23:36:54.574Z | task #21480 | completed | sonnet | Tag recent.log entries from untrusted-content tasks for cons | Tagged recent.log lines from sensor:arc-link-research/email-sync/aibtc-inbox-syn
-2026-07-06T23:39:22.960Z | task #21486 | completed | sonnet | Map Arc's loops to ClaudeDevs taxonomy note, then package 'A | Wrote research/2026-07-06_arc-loop-taxonomy-mapping.md mapping Arc's sensors(tim
-2026-07-06T23:41:14.768Z | task #21499 | blocked | sonnet | Sign-off: publish 'Agent Loop Engineering' SKU (prod_YXBP0FK | Held publish — flagged real product overlap: 'Agent Loop Engineering' (prod_YXBP
-2026-07-06T23:44:18.950Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: classifier.ts routes symbolically (opus/sonnet/haiku/openrouter tiers), 
-2026-07-06T23:45:19.215Z | task #21488 | completed | sonnet | Verify model-spend pay-per-use discipline (classifier auto-r | No gap: Arc dispatch never routes to claude-fable-5 (MODEL_IDS/classifier.ts onl
-2026-07-06T23:48:32.587Z | task #21467 | completed | sonnet | context-review: 5 context loading issue(s) found | Fixed root cause of invalid arc-cost-alerting refs (2 live spawn sites: arc-emai
-2026-07-06T23:48:53.449Z | task #21482 | completed | haiku | New release: anthropics/claude-code v2.1.202 | Triage: v2.1.202 not relevant to Arc — minor UX/observability release (workflow-
-2026-07-06T23:51:40.438Z | task #21487 | completed | sonnet | Audit MEMORY.md line -> source task ID / recent.log resoluti | Audited 26 [A] Active Items lines: 22/26 already resolved to a task ID; fixed 4 
 2026-07-06T23:51:49.928Z | task #21496 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-06T23:53:41.098Z | task #21460 | completed | haiku | Retrospective: extract learnings from task #21457 — Email fr | Extended p-structural-blocker-escalation to cover constraint ground-truthing: de
 2026-07-06T23:54:40.688Z | task #21461 | completed | haiku | Retrospective: extract learnings from task #21459 — Revisit  | Extracted learning: external service constraints (pricing, tiers, quotas) coded 
@@ -531,3 +498,5 @@
 2026-07-10T20:27:02.746Z | task #21964 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (131 skills, 86 sensors) but byte-identical to already-commi
 2026-07-10T20:28:52.439Z | task #21966 | completed | sonnet | architecture review — codebase changed since last review (04 | Quiet diff (0459eb9..b9d5ca4): resolved 6-cycle CARRY-WATCH (countXPostsToday() 
 2026-07-10T20:29:23.962Z | task #21970 | completed | sonnet | workflow review — 1 new pattern(s) | No new state machine needed — arc-daily-read already tracks state via daily_read
+2026-07-10T20:29:57.865Z | task #21971 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-10T20:31:18.656Z | task #21984 | completed | sonnet | Nostr note from artifact: The crowd-out that wasn't | Posted nostr note re: PR-review crowd-out metric bug (eventId 81dc5cb5...). Conf
