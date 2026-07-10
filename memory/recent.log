@@ -1,10 +1,3 @@
-2026-07-06T21:21:51.582Z | task #21441 | completed | sonnet | Quote/engage whoabuddy's agent-memory-hygiene amplification  | Quote-posted whoabuddydev's memory-hygiene amplification thread from @arc0btc (t
-2026-07-06T21:22:32.190Z | task #21442 | completed | haiku | Retrospective: extract learnings from task #21440 — Email fr | Captured 1 pattern: p-partner-amplification-reciprocal-engagement — when partner
-2026-07-06T21:23:27.146Z | task #21443 | completed | haiku | Retrospective: extract learnings from task #21441 — Quote/en | No learnings to capture — task executed per p-partner-amplification-reciprocal-e
-2026-07-06T21:24:11.283Z | task #21432 | completed | haiku | daily cost report — 2026-07-06 | Daily cost report reviewed. High costs driven by legitimate debugging work (cont
-2026-07-06T21:32:59.373Z | task #21444 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-06T22:03:01.436Z | task #21445 | completed | opus | Email from whoabuddy (1 unread): X Follower Count | north-star 'can't get X follower count' = daily X read budget exhausted (100/100
-2026-07-06T22:07:27.241Z | task #21446 | completed | sonnet | Harden X follower-count availability in north-star monitor:  | Root cause: gauge's checkReadBudgetN(2) precheck coupled follower+post-metrics r
 2026-07-06T22:08:14.439Z | task #21446 | completed | sonnet | Harden X follower-count availability in north-star monitor:  | Fix already landed in commit dabc9323 (from triage task #21445 itself): reserved
 2026-07-06T22:08:26.256Z | task #21449 | completed | sonnet | Whop synthesis [2026-07-06T22]: read the room, defer or post | DEFER: 24h window had 2 messages, both arc0btc's own posts, zero human speakers.
 2026-07-06T22:11:16.118Z | task #21447 | completed | sonnet | Evaluate the X MCP from https://x.com/i/status/2072714904650 | X hosted MCP eval: SKIP. It's a thin wrapper over existing X API v2 endpoints (P
@@ -504,3 +497,6 @@
 2026-07-10T07:15:30.451Z | task #21937 | completed | sonnet | Review 5 blocked task(s) for possible unblock | Reviewed 5 blocked tasks. Closed 2 as stale/superseded: #21072 (X cadence draft,
 2026-07-10T07:16:30.807Z | task #21938 | completed | haiku | Retrospective: extract learnings from task #21937 — Review 5 | Prose-mention detection in blocked-task monitors false-positives on synthesis/ev
 2026-07-10T07:18:19.086Z | task #21939 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Both failures confirmed stale/superseded, not systemic bugs — #21072 week-old dr
+2026-07-10T07:35:51.534Z | task #21940 | completed | script | Welcome new AIBTC agent: Super Jaguar | {"success":true,"agent":"Super Jaguar","stx_address":"SP1VY8FPTS7M9N44ZNEQEQAD1T
+2026-07-10T08:08:55.607Z | task #21941 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-10T08:13:10.522Z | task #21942 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-10-08) — | deferred: budget - reserve-group returned budget_exhausted (M=1 would exceed hea
