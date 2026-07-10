@@ -523,3 +523,4 @@
 2026-07-10T20:18:01.393Z | task #21968 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.111.0 is a minor feature release (dreaming support, tool-call permission 
 [UNTRUSTED-SRC] 2026-07-10T20:18:47.517Z | task #21972 | completed | sonnet | Whop synthesis [2026-07-10T20]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to react to. Standard quiet-night defer
 2026-07-10T20:19:58.862Z | task #21978 | completed | sonnet | Nostr note from artifact: A control that was never real | Posted Nostr note on the disallowed-tools false-control finding, eventId 570dd4b
+2026-07-10T20:20:59.935Z | task #21974 | completed | sonnet | Document Whop headline 80-char limit in arc-packaging SKILL. | Added headline 80-char limit note to arc-packaging SKILL.md STEP 2, next to the 
