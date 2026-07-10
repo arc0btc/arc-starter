@@ -1,33 +1,3 @@
-## 2026-07-08T02:45:42.000Z — publish-fanout was the real last legacy cmdPost caller (prior cycle's "fully retired" was premature); YAML tag frontmatter root-fix shipped; deploy-drift check pointed at a dead path, now reads canonical repo; blocked-review mention signal false-positive on its own review-cycle output fixed; 130 skills / 85 sensors
-
-**Task #21656** | Diff: 6156824..7b270b7 (7 commits — 0 src/, 7 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `skills/social-engine/admission.ts`, `skills/social-x-posting/cli.ts`, `skills/arc-workflows/state-machine.ts` (230e37bb, task #21584) — Migrates `publish-fanout` (blog→X hop, `PublishFanoutMachine`) onto `reserve-group`, adding a `publish-fanout` lane with no fixed time window (same shape as `quest-gtm`/`x-cadence`). This directly answers the open question from the prior review's `[RESOLVED]` flag ("does cmdPost's legacy guard stack still serve any live purpose?") — the answer was *yes*, one caller was missed. Verified by grep: all 5 known `--source` prefixes that call `social-x-posting -- post` (`content-calendar`, `daily-read`, `quest:gtm`, `sensor:x-cadence`, `publish-fanout`) now match `MANAGED_LANE_SOURCE_PREFIX` and fail closed without a reservation. The legacy guard stack in `cmdPost` is now genuinely unreachable for every known lane — it remains live only as the fallback for unrecognized/ad-hoc `--source` values.
-- `skills/blog-publishing/cli.ts` (6dcd0c19) — `tagsYaml` now JSON-quotes each tag value. This is the root fix for #21604 (MEMORY.md `article-6-staged-tag-frontmatter-bug`): date-prefixed slugs produce a bare-year tag (`"2026"` unquoted) that YAML parses as a number, failing Astro's `string[]` schema. Was worked around live during staging; now fixed at the source for all future posts.
-- `skills/arc0btc-site-health/{cli,sensor}.ts` (7b270b7c) — `checkDeployDrift()` was reading `~/arc0btc-worker` and a `worker-deploy` hook-state key that don't match `blog-deploy/cli.ts`'s actual `SITE_DIR`/`SENSOR_NAME` — the check has been silently no-op'ing (`existsSync` false → `ok: true, skipping`) rather than actually comparing deployed vs. HEAD sha. Fixed to read the same repo path and hook-state key `blog-deploy` owns.
-- `skills/arc-blocked-review/sensor.ts` (86d1b3f0, 64476c61) — The "did anything reference this blocked task's ID and complete" check was matching the sensor's own review-cycle output tasks and retrospective/audit tasks that legitimately mention many unrelated task IDs — both false-positive completion signals that could mark a still-blocked task as resolved. Both excluded now (subject prefix + source-chain check).
-- `skills/arc-workflow-review/sensor.ts` (3c62be43) — `isKnownPattern()` check added before subject-prefix matching in `detectPatterns()`, closing a gap where a source already in `KNOWN_PATTERNS` could still re-trigger if its subject also happened to start with a `KNOWN_SUBJECT_PREFIXES` entry — belt-and-suspenders, not a live bug this cycle, but the two exemption lists (`sensor:arc-reporting-watch`, `"email watch report to whoabuddy"`) added alongside it are for real recurring chains (#21579).
-- `skills/{alb,arc-daily-read,jingswap}/SKILL.md` (4e936211) — Docs-only: documents cross-skill `Bun.spawn()` dependencies. No behavior change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All seven changes trace to named tasks/incidents already in MEMORY.md or the prior audit-log entry (#21584, #21604, #21579, deploy-drift observed live). No speculative work.
-- **Step 2 — Delete**: None this cycle — no dead code surfaced.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[RESOLVED]** `social-x-posting-legacy-path-consolidation` — genuinely done now; all 5 known managed lanes reserve before posting. The prior review's premature "fully retired" claim is the lesson here: a diff-scoped review can only confirm what's *in the diff*, not that no caller was missed elsewhere. Worth remembering for future "is X fully migrated" claims — grep the full caller set, not just the diff, before declaring a migration complete.
-- **[NEW-WATCH]** `cmdPost`'s legacy guard stack (dedup/kill-switch/`DAILY_TWEET_CAP`/reservation/content-calendar-cap) is now dead code for every known `--source` prefix, alive only as a fallback for unrecognized ones. Worth a follow-up: should an unrecognized `--source` fail closed too (matching the "every known lane" fail-closed posture already established), or is an open fallback for genuinely ad-hoc/manual posts intentional? If the latter, say so in a comment; if the former, the whole legacy branch can go.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-
----
-
 ## 2026-07-08T14:47:00.000Z — CI typecheck debt fully cleared (0 errors both branches); blocked-review digest false-positive fixed by marker not enumeration; workflow-review prefix-exemption mechanism (fixed 2026-07-07) confirmed working as designed on 3 new patterns; 130 skills / 85 sensors
 
 **Task #21723** | Diff: 7b270b7..66cb9b5 (5 substantive commits — 2 src/, ~13 skills/) | Sensors: 85 | Skills: 130
@@ -133,3 +103,30 @@
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 6+ cycles now — this is the longest-carried watch item on record; recommend a bounded follow-up task next cycle rather than continuing to carry it.
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[RESOLVED]** `blog-deploy`'s `.deploy-hold` enforcement-gap watch from last cycle — no second deploy trigger path has been added since; nothing to act on yet, dropping from active watch until one is.
+
+---
+
+## 2026-07-10T20:27:00.000Z — smallest substantive diff on record: longest-carried watch item finally resolved, plus one workflow-review exemption and one daily-read pre-flight command; 131 skills / 86 sensors
+
+**Task #21966** | Diff: 0459eb9..b9d5ca4 (5 commits — 1 src/, 4 skills/; 2 data-sync-only) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `skills/arc-workflows/sensor.ts` + `src/db.ts` (7fc6536c) — Extracts the inline `x_post_log` cap-check SQL into a new `countXPostsToday(sourceLikePattern)` helper in `src/db.ts`, matching the existing `count*Today()` helper family. This is the **[CARRY-WATCH]** item that has been carried unresolved for 6+ consecutive review cycles — closing it here, dropping from active watch.
+- `skills/arc-workflow-review/sensor.ts` (d0faf8cc) — Two more bare-prefix `KNOWN_PATTERNS` entries (`sensor:arc-article-pipeline`, `sensor:arc-catalog`) for the same already-rejected generic-retrospective-chain shape, this time surfacing via source-grouping rather than subject-grouping. Consistent with the established pattern (no new state machine, no enumeration of subject variants).
+- `skills/arc-daily-read/{cli.ts,SKILL.md}` (b9d5ca47) — New `validate-draft --voice-file <path>` command: a cheap char-count-only pre-flight the drafting turn can run before `post`, catching an oversize tweet (edition 6, #21950, 278/240 chars) while there's still room to trim instead of falling to the 1-tweet NEVER-SKIP fallback and losing the finding. Deliberately scoped to only the char-count gate, not the full `composeBeat` validation — the one failure mode that's cheap to self-correct.
+- `skills/arc-link-research/cache/*.json` (bc338170) + `skills/arc-article-pipeline/drafts/article-4-x-article.json` (7ea3eaf2) — data-sync-only, no logic change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All three substantive changes trace to named items — a 6-cycle-old audit-log watch, task #21912's pattern-detection gap, and a live edition-6 posting failure (#21950). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: The `countXPostsToday()` extraction is the textbook Step-3 move this framework has been asking for since 2026-07-04 — one parameterized helper replaces an inline query that would otherwise drift further from the `count*Today()` family each time a new cap check was added elsewhere.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — `validate-draft` is a manual pre-flight step the drafting turn must remember to run, not wired as an automatic gate before `post`. Worth a light watch (below).
+
+### Flags
+
+- **[RESOLVED]** Cross-skill DB read (`arc-workflows/sensor.ts` → `countXPostsToday()`) — the longest-carried watch item on record (6+ cycles) is closed. Dropping from active watch.
+- **[NEW-WATCH]** `validate-draft` is opt-in and unenforced — nothing stops a future drafting turn from skipping straight to `post` and hitting the same oversize-tweet fallback again. Low priority: it's a cheap, fast command and the cost of forgetting it is graceful (fallback to 1-tweet edition, not a crash), but if this recurs, consider having `post` call the same char-count check internally before its full validation rather than relying on the drafting turn to remember a separate command.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item.
