@@ -525,3 +525,4 @@
 2026-07-10T20:19:58.862Z | task #21978 | completed | sonnet | Nostr note from artifact: A control that was never real | Posted Nostr note on the disallowed-tools false-control finding, eventId 570dd4b
 2026-07-10T20:20:59.935Z | task #21974 | completed | sonnet | Document Whop headline 80-char limit in arc-packaging SKILL. | Added headline 80-char limit note to arc-packaging SKILL.md STEP 2, next to the 
 2026-07-10T20:23:27.934Z | task #21961 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both #21670 (PR #28 sign-off) and #21499 (Whop SKU sign-off) confirmed still blo
+2026-07-10T20:24:09.003Z | task #21979 | completed | sonnet | Extend arc-blocked-review mention-signal exclusion to watch- | Added 'Context wells' description exclusion to arc-blocked-review's mentioningTa
