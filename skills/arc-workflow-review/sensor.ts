@@ -103,6 +103,23 @@ const KNOWN_PATTERNS = new Set([
   // which lane a given blocked task happened to belong to, not a distinct process).
   // Bare entry so suffix variants are covered too.
   "sensor:arc-blocked-review",
+  // "Draft Arc's next amplified article — Article N" -> retrospective chain (task #21912,
+  // 3 recurrences, avg 2.7 steps), surfacing via SOURCE-grouping this time
+  // ("sensor:arc-article-pipeline:v2") rather than the subject-grouping already exempted
+  // above ("draft arc's next amplified article", line ~179). Same underlying tasks, same
+  // already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md — arc-article-pipeline's own
+  // article_queue_log already tracks draft->stage->publish with idempotent resume, so a
+  // second generic workflow would duplicate that, not add value. Bare entry so the ":v2"
+  // and future suffix variants are covered too.
+  "sensor:arc-article-pipeline",
+  // "Regenerate and deploy skills/sensors catalog" -> retrospective chain (task #21912,
+  // 3 recurrences, avg 2.0 steps), skills arc-catalog + blog-deploy + arc-skill-manager —
+  // same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md (scheduleRetrospective() fires
+  // after every completed task above the cost/priority threshold; the deploy step is a
+  // single atomic regen+publish action, not a multi-stage process needing dedup).
+  "sensor:arc-catalog",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
