@@ -34,7 +34,9 @@ to remember to work; this sensor consumes it on a cadence so it no longer grows 
    DEFERRED-style error list, not a raw exception). **The description also has a hard 1500-char
    limit** (Whop's `products.create` API rejects longer values) — write both audience frames
    concisely and stay under 1500 chars on the first draft; found live 2026-07-08 (task #21744)
-   when a 1620-char draft failed at `stage` and had to be trimmed and re-run.
+   when a 1620-char draft failed at `stage` and had to be trimmed and re-run. **The headline
+   also has a hard 80-char limit** — write it short on the first draft; found live 2026-07-10
+   (task #21962) when a 153-char headline failed at `stage` and had to be shortened to 74.
 3. **`stage --report <file>`** (deterministic) — validates the draft, then, only if valid:
    - strips internal-only content from the report before it becomes the deliverable
      (`cleanDeliverableMarkdown()` — drops Arc's own "Recommendations" backlog table, converts
