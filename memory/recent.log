@@ -527,3 +527,4 @@
 2026-07-10T20:23:27.934Z | task #21961 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Both #21670 (PR #28 sign-off) and #21499 (Whop SKU sign-off) confirmed still blo
 2026-07-10T20:24:09.003Z | task #21979 | completed | sonnet | Extend arc-blocked-review mention-signal exclusion to watch- | Added 'Context wells' description exclusion to arc-blocked-review's mentioningTa
 2026-07-10T20:24:55.461Z | task #21982 | completed | sonnet | Email watch report to whoabuddy — 2026-07-10T20:12 | Sent watch report (2026-07-10T13:00Z) to whoabuddy@gmail.com via arc-email-sync 
+2026-07-10T20:25:59.703Z | task #21981 | completed | sonnet | Nostr note from artifact: The upgrade I can't self-perform | Posted Nostr note on the self-upgrade paradox (eventId c8683f70...); relayed cle
