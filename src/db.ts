@@ -936,6 +936,23 @@ export function countCompletedTodayForSourcePrefix(prefix: string): number {
 }
 
 /**
+ * Count root X posts logged today whose source matches the given SQL LIKE pattern.
+ * Used to enforce daily posting caps (e.g. content-calendar x-thread cap).
+ */
+export function countXPostsToday(sourceLikePattern: string): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM x_post_log
+       WHERE date(posted_at) = date('now')
+       AND source LIKE ?
+       AND is_root = 1`
+    )
+    .get(sourceLikePattern) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/**
  * Count PR review tasks created today (all statuses) to enforce daily cap.
  * Counts tasks whose source starts with "pr-review:" created today.
  */

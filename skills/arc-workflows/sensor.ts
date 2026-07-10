@@ -14,6 +14,7 @@ import {
   insertWorkflow,
   completeWorkflow,
   getDatabase,
+  countXPostsToday,
   type Workflow,
 } from "../../src/db.ts";
 
@@ -962,10 +963,7 @@ export default async function workflowsSensor(): Promise<string> {
           ) {
             let ccXRootsToday = 0;
             try {
-              const row = getDatabase().query(
-                "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now') AND source LIKE 'content-calendar:%:x' AND is_root = 1"
-              ).get() as { total_count: number } | null;
-              ccXRootsToday = row?.total_count ?? 0;
+              ccXRootsToday = countXPostsToday("content-calendar:%:x");
             } catch { /* non-fatal — if DB unavailable, allow task */ }
             if (ccXRootsToday >= 1) {
               log(`content-calendar daily x-thread cap reached (${ccXRootsToday}/1) — deferring ${action.source} to tomorrow`);
