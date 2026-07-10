@@ -2,3 +2,4 @@
 {"timestamp":"2026-07-08T14:51:45.138Z","subject":"arc-workflow-review pattern detector flags already-modeled hops as 'new patterns'","resolved_model":"sonnet","confidence":"high","reason":"content task (whop)"}
 {"timestamp":"2026-07-08T19:01:12.645Z","subject":"Document Whop products.create description length limit (1500 chars) in arc-packaging SKILL.md","resolved_model":"sonnet","confidence":"high","reason":"content task (Whop)"}
 {"timestamp":"2026-07-09T19:01:40.860Z","subject":"arc-packaging: add title/headline 80-char validation to stage (Whop products.create limit)","resolved_model":"sonnet","confidence":"high","reason":"content task (Whop)"}
+{"timestamp":"2026-07-10T02:52:10.535Z","subject":"extract inline x_post_log query in arc-workflows/sensor.ts to src/db.ts countXPostsToday()","resolved_model":"opus","confidence":"high","reason":"touches core infrastructure file (src/db.ts)"}
