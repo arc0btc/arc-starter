@@ -506,3 +506,4 @@
 2026-07-10T02:31:28.533Z | task #21905 | blocked | sonnet | Upgrade claude CLI from 2.1.174 to 2.1.206 (or current lates | Confirmed npm latest still 2.1.206, rollback dirs (2.1.145/2.1.161/2.1.174) inta
 2026-07-10T02:39:23.247Z | task #21908 | completed | haiku | claude CLI drift: installed 2.1.174 (Claude Code) vs npm lat | Test-fire during sensor build (#21907) — drift already tracked/blocked at #21905
 2026-07-10T02:39:43.363Z | task #21907 | completed | sonnet | Add low-frequency (monthly) sensor to flag claude CLI instal | Shipped skills/claude-cli-drift-watch — monthly read-only sensor comparing insta
+2026-07-10T02:40:38.055Z | task #21902 | completed | haiku | Retrospective: extract learnings from task #21900 — Phase 2: | Feature-evaluation findings confirm p-release-evaluation-discipline: release ass
