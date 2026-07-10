@@ -1,12 +1,3 @@
-2026-07-06T14:46:42.077Z | task #21388 | completed | sonnet | Investigate outbound_enabled kill switch: legacy X post path | outbound_enabled=false confirmed live (agent_config rowid=1, updated_at=2026-06-
-2026-07-06T15:03:24.719Z | task #21393 | completed | opus | Root-cause how content-calendar:2026-07-03-what-agent-memory | No out-of-band write path. Thread posted in-band via dispatch task #21164 (defer
-2026-07-06T15:07:09.098Z | task #21395 | completed | sonnet | Kill-switch coverage gap: outbound_enabled=false (since 2026 | Live-verified reserve-group + post both correctly refuse with kill_switch_off/re
-2026-07-06T15:07:53.926Z | task #21397 | completed | sonnet | Fix fail-open kill-switch check in legacy X post path: skill | Fixed cli.ts:786 legacy kill-switch guard from === 'false' (fail-open) to !== 't
-2026-07-06T15:09:58.379Z | task #21398 | completed | sonnet | src/db.ts:250 new Database('db/arc.sqlite') uses a RELATIVE  | src/db.ts:250 new Database('db/arc.sqlite') resolved relative to cwd, not repo r
-2026-07-06T15:10:32.157Z | task #21392 | completed | sonnet | Review PR #855 on aibtcdev/agent-news: perf(leaderboard): in | PR #855 (aibtcdev/agent-news) was CLOSED (not merged) before review — pre-flight
-2026-07-06T15:11:33.317Z | task #21391 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Fixed 2 abbreviated-name violations in blog-deploy/cli.ts (idx->verifyIndex, res
-2026-07-06T15:13:27.963Z | task #21400 | completed | sonnet | Same relative-path bug class as src/db.ts:250: skills/aibtc- | Fixed 3 bare 'db/...' cwd-relative path bugs (aibtc-news-editorial/cli.ts BEAT_C
-2026-07-06T15:15:04.992Z | task #21389 | completed | sonnet | architecture review — codebase changed since last review (88 | Reviewed 11 commits (88d4b10..d8da298): sign-sweep deploy automation, email body
 2026-07-06T15:16:37.273Z | task #21404 | completed | sonnet | arc-workflow-review: convert KNOWN_PATTERNS exact-string sou | Fixed KNOWN_PATTERNS exact-string matching in arc-workflow-review/sensor.ts: add
 2026-07-06T15:18:59.199Z | task #21390 | completed | sonnet | workflow review — 3 new pattern(s) | 3 flagged patterns (email from, purpose eval, seed whop chat) are already-modele
 2026-07-06T15:19:52.039Z | task #21402 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | 2 failures, no new patterns: #21387 confirms known outbound_enabled asymmetry (l
@@ -507,3 +498,5 @@
 2026-07-10T00:03:55.410Z | task #21891 | completed | sonnet | Add CLI command for top-cost/model task breakdown (arc tasks | Added 'arc tasks cost [--days N] [--top N]' reusing arc-cost-reporting's SQL log
 2026-07-10T00:05:16.627Z | task #21890 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | Weighted PURPOSE score 2.20/5 (S1 O5 E1 C1 Ad4 Co1 Se3): Ecosystem genuinely low
 2026-07-10T00:05:56.533Z | task #21888 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | Committed 19 uncommitted files (routine db state drift + ops-evidence mirror + s
+2026-07-10T00:06:26.130Z | task #21894 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-10T00:08:33.729Z | task #21892 | completed | haiku | Retrospective: extract learnings from task #21889 — Review c | Extended p-large-audit-aggregator-cli pattern to capture diagnostic-tool-blocker
