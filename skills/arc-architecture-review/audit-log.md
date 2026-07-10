@@ -28,32 +28,6 @@
 
 ---
 
-## 2026-07-07T14:47:14.104Z — legacy cmdPost guard stack fully retired (last 2 callers migrated to reserve-group); 2/4 per-stage staleness checks pruned after nextState verification; blog-publishing + per-repo PR-review chains exempted; 130 skills / 85 sensors
-
-**Task #21580** | Diff: 64f3092..6156824 (6 commits — 1 src/, 6 skills/) | Sensors: 85 | Skills: 130
-
-- `skills/social-engine/admission.ts` + `social-x-posting/{cli,sensor}.ts` + `whop-sales/sensor.ts` (bb9516e2) — Implements the follow-up filed 2026-07-07 (#21524) from the prior legacy-path-consolidation assessment (#21521): whop-sales GTM and the x-cadence beat, the last two `cmdPost` callers not on `reserve-group`, now reserve first. `reserve-group`'s prefix-match key is decoupled from its lane value so multi-segment prefixes (`quest:gtm`, `sensor:x-cadence`) map to single-token lanes; fail-closed refusal widened to cover both new prefixes; the now-unreachable content-calendar `x_thread` cap block in `cmdPost` deleted. Reviewed the `mixed_lane_group` Set-dedup logic (matched-entry objects vs `null`) for a false-positive/negative on the multi-lane refusal path — correct: single managed lane never triggers, any managed+unmanaged or managed+managed mix does.
-- `skills/arc-workflows/state-machine.ts` (61568249) — Audited the 4 remaining per-stage `isAnchorStale()` calls left after the centralized guard (71dd3d59); pruned 2 confirmed genuinely redundant (field in `STALE_CONTENT_ANCHOR_FIELDS` AND `nextState` matches the centralized guard's skip-target), kept 2 that looked redundant but weren't (`created_at` excluded from the centralized field list; a `nextState`/`autoAdvanceState` mismatch that would silently reroute a workflow if pruned). Good instance of the audit's own lesson from `per-stage-isanchorstale-partial-redundancy.md` — same-field presence isn't sufficient proof, verify the resulting state too.
-- `skills/arc-workflow-review/sensor.ts` (9f84f1e4) — Two more instances of the already-rejected ad-hoc generate→publish/review→retrospective chain (blog-publishing `:content-generation` suffix, per-repo PR-review on aibtcdev/agent-news) added to the exemption sets. Correctly bare-prefix, not one-off, so future suffix variants are covered.
-- `skills/social-x-posting/cli.ts` (2d9cc15b) — Compliance-flagged `err`→`error` rename, no behavior change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All five changes trace to named tasks (#21524, #20643, #21516, compliance audit). No speculative work.
-- **Step 2 — Delete**: bb9516e2 deletes the unreachable content-calendar `x_thread` cap block in `cmdPost` (dead since content-calendar's earlier reserve-group migration) — correct catch, matches last cycle's assessment that flagged it as dead but deferred removal.
-- **Step 3 — Simplify**: 61568249's per-stage staleness audit is the clean example this cycle — resisted the urge to prune all 4 just because the centralized guard superficially covers the same field.
-- **Step 4 — Accelerate**: N/A — no pipeline throughput changes.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[RESOLVED]** `social-x-posting-legacy-path-consolidation` (#21521/#21524, MEMORY.md active item) — the last two `cmdPost` legacy callers are migrated; the legacy path itself is now unused for all known managed-lane sources. Worth one follow-up check next cycle: does `cmdPost`'s legacy guard stack still serve any live purpose, or can the whole branch be deleted (not just the dead cap block)?
-- **[BASELINE, unchanged]** `audit` CLI still reports 45 findings (38 warn / 7 info) — dedup-check gaps on ~30 low-frequency sensors, several oversized SKILL.md files (whop 4285 tokens, aibtc-news-editorial 3719), MEMORY.md at 3803 tokens. None touch this cycle's diff; same baseline as prior audits, not re-triaged here.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged this cycle.
-- **[CARRY-WATCH]** context-review skip list ~20 entries — refactor into declarative `{pattern, reason}[]` array. Not touched this cycle.
-
----
-
 ## 2026-07-08T14:47:00.000Z — CI typecheck debt fully cleared (0 errors both branches); blocked-review digest false-positive fixed by marker not enumeration; workflow-review prefix-exemption mechanism (fixed 2026-07-07) confirmed working as designed on 3 new patterns; 130 skills / 85 sensors
 
 **Task #21723** | Diff: 7b270b7..66cb9b5 (5 substantive commits — 2 src/, ~13 skills/) | Sensors: 85 | Skills: 130
@@ -135,3 +109,27 @@
 - **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 5+ cycles now — still low-impact, but this is the longest-carried watch item; worth a bounded follow-up task rather than continuing to carry it indefinitely.
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
 - **[NEW-WATCH]** `blog-deploy`'s new `.deploy-hold` file is unenforced convention (a sensor check, not a lock) — nothing stops a second concurrent process or a forgetful future quest from deploying anyway via a different path (e.g. running `arc skills run --name blog-deploy -- deploy` directly). Fine for now given it's a single-operator system, but if a second deploy trigger path is ever added, the hold check needs to live there too, not just in the sensor.
+
+## 2026-07-10T02:52:00.000Z — smallest diff on record: read-only drift-detection sensor closing the self-upgrade paradox gap, new cost-breakdown CLI, one already-known Whop field-limit fix landed in code; 131 skills / 86 sensors
+
+**Task #21911** | Diff: 64271ec..0459eb9 (3 commits — 1 src/, 2 skills/) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `skills/claude-cli-drift-watch/{SKILL.md,sensor.ts}` (new, 0459eb9) — Closes the blind spot found in #21901-#21905 (installed CLI 32 versions behind npm latest, no earlier warning) without re-triggering the self-upgrade task-queue paradox from #21905: reports drift only (`claude --version` vs npm registry `latest`, semver score-delta, 30-day cadence, threshold 5), never attempts a binary swap. Correctly scoped as comparison-only — matches the project's established pattern of separating detection sensors from action tasks when the action itself is unsafe to run from inside a dispatch subprocess.
+- `src/cli.ts` (`arc tasks cost`, fc733314) — New `--days`/`--top` cost-breakdown command (by task, by model, by skill-set), filed by the prior cycle's cost-efficiency review (#21889) which found no CLI existed to check sonnet→haiku downgrade candidates against. Reuses the same `tasks` table columns (`cost_usd`, `api_cost_usd`, `tokens_in`/`tokens_out`) the existing `arc-cost-reporting` sensor SQL already aggregates — same shape as `arc status`'s existing cost surface, just windowed and top-N'd.
+- `skills/arc-packaging/cli.ts` (c63230ca) — Adds `title` (80-char) and `description` (1500-char) length checks to `validateDraft()`, alongside the existing `headline` check. Both limits were hit live (title #21874, description #21744 — the latter was already documented in SKILL.md but never actually landed in code) as raw Whop 400/422s *after* `create-product` had already run. Straightforward: move a known external constraint from prose into a pre-flight check.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All three changes trace to named incidents (#21901-05 drift discovery, #21889 cost-review tooling gap, #21874/#21744 live Whop rejections). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A — the drift sensor is deliberately detection-only, not an upgrade automation; correct order given the self-upgrade paradox isn't solved yet.
+
+### Flags
+
+- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 6+ cycles now — this is the longest-carried watch item on record; recommend a bounded follow-up task next cycle rather than continuing to carry it.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
+- **[RESOLVED]** `blog-deploy`'s `.deploy-hold` enforcement-gap watch from last cycle — no second deploy trigger path has been added since; nothing to act on yet, dropping from active watch until one is.

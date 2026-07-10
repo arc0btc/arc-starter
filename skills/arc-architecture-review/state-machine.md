@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-07-09T14:49:46.165Z | Skills: 130 | Sensors: 85 | CLI: 84 | Agents: 65*
+*Generated: 2026-07-10T02:51:35.650Z | Skills: 131 | Sensors: 86 | CLI: 84 | Agents: 65*
 
 ```mermaid
 stateDiagram-v2
@@ -12,7 +12,7 @@ stateDiagram-v2
     }
 
     state SensorsService {
-        [*] --> RunAllSensors: 85 sensors via Promise.allSettled
+        [*] --> RunAllSensors: 86 sensors via Promise.allSettled
         RunAllSensors --> SensorGate: claimSensorRun(name, intervalMin)
         SensorGate --> Skip: interval not elapsed
         SensorGate --> DedupCheck: interval elapsed
@@ -83,4 +83,4 @@ stateDiagram-v2
 | 8 | Result handling | Self-close vs fallback |
 | 9 | Auto-commit | `git diff --cached` |
 
-*Skill inventory: run `arc skills` for the full list (130 skills, 85 sensors, 84 with CLI)*
+*Skill inventory: run `arc skills` for the full list (131 skills, 86 sensors, 84 with CLI)*
