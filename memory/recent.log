@@ -509,3 +509,4 @@
 2026-07-10T02:40:38.055Z | task #21902 | completed | haiku | Retrospective: extract learnings from task #21900 — Phase 2: | Feature-evaluation findings confirm p-release-evaluation-discipline: release ass
 2026-07-10T02:42:04.008Z | task #21904 | completed | haiku | Retrospective: extract learnings from task #21901 — Run /doc | Added p-version-gated-tool-feature-availability pattern: cli tools with auto-upd
 2026-07-10T02:42:50.751Z | task #21906 | completed | haiku | Retrospective: extract learnings from task #21903 — Investig | Extracted 2 reusable patterns: daemon-update-disabled-compensating-periodic-chec
+2026-07-10T02:44:51.439Z | task #21909 | completed | haiku | Retrospective: extract learnings from task #21907 — Add low- | Added p-staleness-threshold-calibration pattern: calibrate infrastructure-stalen
