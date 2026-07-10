@@ -504,3 +504,4 @@
 2026-07-09T23:14:41.539Z | task #21887 | completed | haiku | noop-check | accidental noop task, closing immediately
 2026-07-09T23:15:24.724Z | task #21886 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Re-reviewed #21499 (6th cycle): still awaiting whoabuddy reply since 2026-07-06 
 2026-07-10T00:02:18.180Z | task #21889 | completed | sonnet | Review cost efficiency — daily spend elevated | No raw-SQL access + no CLI cost/model breakdown exists, so couldn't identify spe
+2026-07-10T00:03:55.410Z | task #21891 | completed | sonnet | Add CLI command for top-cost/model task breakdown (arc tasks | Added 'arc tasks cost [--days N] [--top N]' reusing arc-cost-reporting's SQL log
