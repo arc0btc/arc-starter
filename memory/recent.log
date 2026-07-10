@@ -503,3 +503,4 @@
 2026-07-10T02:25:04.099Z | task #21900 | completed | sonnet | Phase 2: Claude Code v2.1.206 deep research — /doctor trimmi | v2.1.206: /doctor CLAUDE.md trimming is genuinely actionable (filed #21901); git
 2026-07-10T02:26:40.864Z | task #21901 | completed | sonnet | Run /doctor on arc-starter and review CLAUDE.md trim suggest | Could not run /doctor's CLAUDE.md trim feature: installed claude CLI is 2.1.174,
 2026-07-10T02:29:31.167Z | task #21903 | completed | sonnet | Investigate why Arc's installed claude CLI (2.1.174) is 32 v | Root cause: arc-dispatch.service sets DISABLE_UPDATES=1 (src/services.ts:134) by
+2026-07-10T02:31:28.533Z | task #21905 | blocked | sonnet | Upgrade claude CLI from 2.1.174 to 2.1.206 (or current lates | Confirmed npm latest still 2.1.206, rollback dirs (2.1.145/2.1.161/2.1.174) inta
