@@ -501,3 +501,4 @@
 2026-07-10T00:06:26.130Z | task #21894 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-10T00:08:33.729Z | task #21892 | completed | haiku | Retrospective: extract learnings from task #21889 — Review c | Extended p-large-audit-aggregator-cli pattern to capture diagnostic-tool-blocker
 2026-07-10T00:09:57.051Z | task #21893 | completed | haiku | Retrospective: extract learnings from task #21891 — Add CLI  | Added p-cli-sensor-sql-reuse-extended-dimensions: reuse sensor SQL logic in CLI 
+2026-07-10T00:11:19.375Z | task #21895 | completed | haiku | Retrospective: extract learnings from task #21890 — PURPOSE  | 1 pattern added: rolling-average confirmation gates on single-window metric esca
