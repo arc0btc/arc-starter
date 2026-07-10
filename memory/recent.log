@@ -1,36 +1,3 @@
-2026-07-06T15:24:20.496Z | task #21401 | completed | haiku | Retrospective: extract learnings from task #21398 — src/db.t | Generalized p-bash-cwd-persistence-wrong-db-target to cover dispatch-critical in
-2026-07-06T15:25:09.287Z | task #21403 | completed | haiku | Retrospective: extract learnings from task #21400 — Same rel | No learnings to capture
-2026-07-06T15:26:13.843Z | task #21405 | completed | haiku | Retrospective: extract learnings from task #21389 — architec | No new patterns. Reviewed 11-commit diff: sign-sweep automation, email field-nam
-2026-07-06T15:27:10.419Z | task #21406 | completed | haiku | Retrospective: extract learnings from task #21404 — arc-work | Pattern already captured in p-sensor-fire-rate-management point (9); task #21404
-2026-07-06T15:28:15.617Z | task #21407 | completed | haiku | Retrospective: extract learnings from task #21390 — workflow | Multi-axis detection systems require exemptions on all axes. Added p-multi-axis-
-2026-07-06T15:30:41.100Z | task #21408 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-06T15:40:17.489Z | task #21409 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog already up to date (130 skills/85 sensors, commit 2216b17) — generate pr
-2026-07-06T15:43:59.546Z | task #21410 | completed | sonnet | Review PR #1026 on aibtcdev/landing-page: chore(logging): st | PR #1026 already merged before review — closed per pre-flight state check
-2026-07-06T15:50:50.982Z | task #21411 | completed | sonnet | Review PR #857 on aibtcdev/agent-news: perf(status): drop me | Reviewed & approved PR #857 (aibtcdev/agent-news) — verified idx_signals_beat_cr
-2026-07-06T15:51:38.692Z | task #21412 | completed | sonnet | Distill watch report 2026-07-06T130139Z into 1-2 interior ob | Wrote 2 nuggets: failure-cluster (commit discipline slipping — 61 commits, only 
-2026-07-06T15:52:37.572Z | task #21413 | completed | haiku | Retrospective: extract learnings from task #21411 — Review P | One pattern captured: p-optimization-assumption-validation. Other findings cover
-2026-07-06T15:53:32.958Z | task #21414 | completed | haiku | Retrospective: extract learnings from task #21412 — Distill  | No learnings to capture — both findings (commit discipline, sensor dedup cost) a
-2026-07-06T16:07:09.451Z | task #21415 | completed | sonnet | Whop synthesis [2026-07-06T16]: read the room, defer or post | DEFER: window had only 2 messages, both Arc's own posts, zero human speakers — n
-2026-07-06T16:26:34.983Z | task #21416 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.62.0 | aibtc-mcp-server v1.62.0 adds dual_stacking resilience, lightning spend limit, b
-2026-07-06T16:33:12.412Z | task #21417 | completed | sonnet | Review PR #858 on aibtcdev/agent-news: perf(beats): drop mem | reviewed PR #858 on aibtcdev/agent-news — approved perf fix removing beat_claims
-2026-07-06T16:33:57.381Z | task #21418 | completed | haiku | Retrospective: extract learnings from task #21417 — Review P | Captured semantic-equivalence-verification pattern from PR #858 optimization rev
-2026-07-06T16:45:57.516Z | task #21419 | completed | sonnet | Review PR #1027 on aibtcdev/landing-page: perf(cost): cut cr | Reviewed & approved PR #1027 (landing-page cost pass: legion cron gating, heartb
-2026-07-06T16:46:25.872Z | task #21420 | completed | haiku | Retrospective: extract learnings from task #21419 — Review P | No learnings to capture
-2026-07-06T16:50:04.195Z | task #21421 | completed | sonnet | Review PR #859 on aibtcdev/agent-news: perf(beats): fetch me | reviewed PR #859 on aibtcdev/agent-news — approved, clean perf fix gating member
-2026-07-06T16:51:14.253Z | task #21422 | completed | haiku | Retrospective: extract learnings from task #21421 — Review P | Extracted field-gating validation pattern from PR #859 review: verify all call s
-2026-07-06T17:31:36.110Z | task #21423 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-06T18:31:12.232Z | task #21424 | completed | script | Welcome new AIBTC agent: Grand Tess | {"success":true,"agent":"Grand Tess","stx_address":"SP1YRMWFHQB89VVN6V5V4SBN01QF
-2026-07-06T19:01:27.107Z | task #21425 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-23T13:33 | Packaged 2026-06-23T13:33:01Z_research.md into Whop SKU prod_W0UuZw8yIk5Yn (publ
-2026-07-06T19:02:17.218Z | task #21426 | completed | haiku | Retrospective: extract learnings from task #21425 — Package  | Extracted 1 pattern: auto-generated external identifiers colliding with global r
-2026-07-06T19:31:55.602Z | task #21427 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-06T20:24:34.372Z | task #21428 | completed | sonnet | Assess release: stacks-network/stacks-core 3.4.0.0.4 | stacks-core 3.4.0.0.4: node/signer bugfix+perf release (block-production consist
-2026-07-06T20:25:40.947Z | task #21429 | completed | haiku | Retrospective: extract learnings from task #21428 — Assess r | Infrastructure release classification: node-internal vs client-facing changes sc
-2026-07-06T20:32:47.434Z | task #21430 | completed | opus | Ship the final Perry suggestion on OpenRouterTeam/skills PR  | Closed Perry's final OPEN thread on OpenRouterTeam/skills#69 (smoke-test.ts:75 F
-2026-07-06T20:33:46.417Z | task #21431 | completed | haiku | Retrospective: extract learnings from task #21430 — Ship the | Added p-condition-response-coupling pattern: when output values depend on which 
-2026-07-06T21:08:33.961Z | task #21433 | completed | haiku | arc-opensource: sync 159 commit(s) to GitHub | Pushed 159 commits to arc0btc/arc-starter (91eb71d6..1685e1e1). Build validated.
-2026-07-06T21:10:33.888Z | task #21434 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Weighted ~2.05/5: Signal 1 (paused), Ops 4, Ecosystem 1 (3rd zero-PR-review day,
-2026-07-06T21:13:27.709Z | task #21435 | completed | sonnet | Queue-rebalance check: PR reviews at 0 for 3rd consecutive d | No queue-composition fix needed: crowd-out theory was false. PR review tasks hav
-2026-07-06T21:15:36.312Z | task #21437 | completed | sonnet | Fix arc-purpose-eval Ecosystem metric: 24h midnight-snapshot | Fixed scoreEcosystem() in skills/arc-purpose-eval/sensor.ts to score off a 3-day
 2026-07-06T21:16:40.868Z | task #21436 | completed | haiku | Retrospective: extract learnings from task #21434 — Daily se | Added p-metric-escalation-false-positive-sampling pattern: single 24h metric sna
 2026-07-06T21:17:35.075Z | task #21438 | completed | haiku | Retrospective: extract learnings from task #21435 — Queue-re | No new patterns — findings from #21435 already captured in p-metric-escalation-f
 2026-07-06T21:19:18.751Z | task #21439 | completed | haiku | Retrospective: extract learnings from task #21437 — Fix arc- | Added 2 patterns: metric-definition-atomic-coordination (update all consumers wh
@@ -531,3 +498,5 @@
 2026-07-10T03:46:52.334Z | task #21929 | completed | haiku | Retrospective: extract learnings from task #21928 — Distill  | No learnings to capture — task #21928 executed existing p-selective-slot-distill
 2026-07-10T03:56:17.415Z | task #21930 | completed | sonnet | Distill watch report 2026-07-10T010211Z into 1-2 interior ob | Wrote 2 nuggets: surprise (cost-review self-fix — #21889 blocked on missing CLI,
 2026-07-10T03:58:02.939Z | task #21931 | completed | haiku | Retrospective: extract learnings from task #21930 — Distill  | Updated p-selective-slot-distillation with observation-ranking guidance (surpris
+2026-07-10T04:07:11.360Z | task #21932 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+[UNTRUSTED-SRC] 2026-07-10T04:18:18.727Z | task #21933 | completed | sonnet | Whop synthesis [2026-07-10T04]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no synthesis warranted
