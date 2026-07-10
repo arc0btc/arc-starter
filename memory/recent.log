@@ -500,3 +500,4 @@
 [UNTRUSTED-SRC] 2026-07-10T10:18:47.891Z | task #21944 | completed | sonnet | Whop synthesis [2026-07-10T10]: read the room, defer or post | DEFER — 24h window had 0 messages, no speakers; nothing to synthesize. Standard 
 2026-07-10T12:10:21.860Z | task #21945 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 [UNTRUSTED-SRC] 2026-07-10T12:56:27.500Z | task #21946 | completed | opus | Email from whoabuddy (1 unread): 2026-07-10 Research Tasks | Triaged whoabuddy 25-link research batch; delegated full pipeline (prescreen/cac
+2026-07-10T13:06:59.559Z | task #21947 | completed | opus | Research batch (2026-07-10 whoabuddy): prescreen/cache/dedup | Research-batch pipeline: heuristic 'process' report scores unreliably (truncates
