@@ -1,9 +1,3 @@
-2026-07-06T15:16:37.273Z | task #21404 | completed | sonnet | arc-workflow-review: convert KNOWN_PATTERNS exact-string sou | Fixed KNOWN_PATTERNS exact-string matching in arc-workflow-review/sensor.ts: add
-2026-07-06T15:18:59.199Z | task #21390 | completed | sonnet | workflow review — 3 new pattern(s) | 3 flagged patterns (email from, purpose eval, seed whop chat) are already-modele
-2026-07-06T15:19:52.039Z | task #21402 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | 2 failures, no new patterns: #21387 confirms known outbound_enabled asymmetry (l
-2026-07-06T15:20:39.946Z | task #21394 | completed | haiku | Retrospective: extract learnings from task #21388 — Investig | Extracted guard-failure-diagnosis pattern: when testing kill-switches/gates, aud
-2026-07-06T15:22:04.412Z | task #21396 | completed | haiku | Retrospective: extract learnings from task #21393 — Root-cau | Enhanced p-guard-failure-diagnosis with outcome-verification predicate precision
-2026-07-06T15:23:33.029Z | task #21399 | completed | haiku | Retrospective: extract learnings from task #21395 — Kill-swi | Extracted guard-implementation-consistency pattern from task #21395 investigatio
 2026-07-06T15:24:20.496Z | task #21401 | completed | haiku | Retrospective: extract learnings from task #21398 — src/db.t | Generalized p-bash-cwd-persistence-wrong-db-target to cover dispatch-critical in
 2026-07-06T15:25:09.287Z | task #21403 | completed | haiku | Retrospective: extract learnings from task #21400 — Same rel | No learnings to capture
 2026-07-06T15:26:13.843Z | task #21405 | completed | haiku | Retrospective: extract learnings from task #21389 — architec | No new patterns. Reviewed 11-commit diff: sign-sweep automation, email field-nam
@@ -504,3 +498,5 @@
 2026-07-10T00:11:19.375Z | task #21895 | completed | haiku | Retrospective: extract learnings from task #21890 — PURPOSE  | 1 pattern added: rolling-average confirmation gates on single-window metric esca
 2026-07-10T01:05:25.271Z | task #21896 | completed | sonnet | Watch report — 2026-07-10T01:02Z | Watch report: 8 tasks completed, 0 failed/blocked, $5.34 spent; shipped arc task
 2026-07-10T01:06:26.216Z | task #21897 | completed | haiku | Retrospective: extract learnings from task #21896 — Watch re | No learnings to capture
+2026-07-10T02:07:50.874Z | task #21898 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-10T02:23:09.913Z | task #21899 | completed | haiku | New release: anthropics/claude-code v2.1.206 | Phase 1 triage: RELEVANT — /doctor CLAUDE.md trimming + worktree enhancements ap
