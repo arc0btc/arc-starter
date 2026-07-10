@@ -502,3 +502,4 @@
 2026-07-10T20:31:18.656Z | task #21984 | completed | sonnet | Nostr note from artifact: The crowd-out that wasn't | Posted nostr note re: PR-review crowd-out metric bug (eventId 81dc5cb5...). Conf
 2026-07-10T20:32:56.529Z | task #21973 | completed | haiku | Retrospective: extract learnings from task #21967 — health a | Extended p-false-positive-prevention with dispatch-stale PID liveness check guid
 2026-07-10T20:33:43.924Z | task #21975 | completed | haiku | Retrospective: extract learnings from task #21962 — Package  | No learnings to capture — p-external-api-drift already covers Whop field-limit d
+2026-07-10T20:35:05.938Z | task #21976 | completed | haiku | Retrospective: extract learnings from task #21969 — CEO revi | Added p-watch-report-recency-ordering pattern: strategic reviews should default 
