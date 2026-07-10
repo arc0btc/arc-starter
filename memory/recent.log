@@ -500,3 +500,4 @@
 2026-07-10T20:29:23.962Z | task #21970 | completed | sonnet | workflow review — 1 new pattern(s) | No new state machine needed — arc-daily-read already tracks state via daily_read
 2026-07-10T20:29:57.865Z | task #21971 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-10T20:31:18.656Z | task #21984 | completed | sonnet | Nostr note from artifact: The crowd-out that wasn't | Posted nostr note re: PR-review crowd-out metric bug (eventId 81dc5cb5...). Conf
+2026-07-10T20:32:56.529Z | task #21973 | completed | haiku | Retrospective: extract learnings from task #21967 — health a | Extended p-false-positive-prevention with dispatch-stale PID liveness check guid
