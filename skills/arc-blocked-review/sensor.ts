@@ -123,6 +123,10 @@ export default async function blockedReviewSensor(): Promise<string> {
     // section — this can re-mention a blocked task's ID with zero actual resolution. Matched
     // by marker rather than enumerating sources by name so future digest-style sensors don't
     // reintroduce the same false positive.
+    // Also excludes whop-synthesis tasks, which embed a "Context wells" section quoting
+    // watch-report prose that lists blocked-task IDs as narrative content (e.g. a sign-off
+    // backlog sentence), not a resolution signal — same false-positive shape as the
+    // "## Completed Tasks" digest marker above.
     const mentioningTasks = db
       .query(
         `SELECT id, subject, status FROM tasks
@@ -134,6 +138,7 @@ export default async function blockedReviewSensor(): Promise<string> {
          AND source != ?
          AND source NOT IN (SELECT 'task:' || id FROM tasks WHERE source = ?)
          AND (description IS NULL OR description NOT LIKE '%## Completed Tasks%')
+         AND (description IS NULL OR description NOT LIKE '%Context wells%')
          LIMIT 5`
       )
       .all(
