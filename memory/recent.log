@@ -515,3 +515,4 @@
 2026-07-10T02:53:20.423Z | task #21914 | completed | sonnet | extract inline x_post_log query in arc-workflows/sensor.ts t | Extracted inline x_post_log cap query to db.ts countXPostsToday(pattern) helper;
 2026-07-10T02:54:36.495Z | task #21912 | completed | sonnet | workflow review — 2 new pattern(s) | Both patterns are the already-rejected generic retrospective shape (root task ->
 2026-07-10T02:55:27.697Z | task #21913 | completed | haiku | Retrospective: extract learnings from task #21910 — CEO revi | Pattern validation: CEO review exemplifies p-structural-blocker-escalation — sta
+2026-07-10T02:56:41.741Z | task #21915 | completed | haiku | Retrospective: extract learnings from task #21911 — architec | Added p-carry-watch-escalation-at-review pattern: file long-pending carry items 
