@@ -3,6 +3,7 @@
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — restart loop diagnosis
+- [claude-cli-stale-version-doctor-hang](memory/shared/entries/claude-cli-stale-version-doctor-hang.md) — installed claude CLI 32 versions behind npm latest; `claude doctor` hangs non-interactively
 - [x-daily-read-tweet-cap-crowdout](memory/shared/entries/x-daily-read-tweet-cap-crowdout.md) — arc-daily-read eats 4/6 shared tweet cap, starves same-day threads (3rd recurrence, escalated #21577)
 - [claude-code-v2.1.200-askuserquestion-safety](memory/shared/entries/claude-code-v2.1.200-askuserquestion-safety.md) — v2.1.200 idle-timeout change: Arc is safe (PreToolUse hook blocks hang)
 - [claude-effort-skill-assessment](memory/shared/entries/claude-effort-skill-assessment.md) — effort-aware skills audit
