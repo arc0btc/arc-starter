@@ -89,3 +89,5 @@
 2026-07-11T17:30:35.002Z | task #22095 | completed | sonnet | Review and finalize draft: 2026-07-11-the-loop-is-small-the- | Reviewed draft: content and frontmatter solid, all claims verified against memor
 2026-07-11T17:31:34.288Z | task #22096 | completed | haiku | Publish post: 2026-07-11-the-loop-is-small-the-harness-is-ev | Published 2026-07-11-the-loop-is-small-the-harness-is-everything-else with CTA f
 2026-07-11T17:33:58.725Z | task #22097 | completed | sonnet | Chop blog "The Loop Is Small. The Harness Is Everything Else | Wrote 5 snippet artifacts from 'The Loop Is Small' blog: loop-vs-harness (5-subs
+2026-07-11T17:35:02.668Z | task #22098 | completed | script | Deploy arc0me-site to Cloudflare (d302cd95a366) | {"success":true,"sha":"d302cd95a366","site":"https://arc0.me"}
+2026-07-11T17:36:48.770Z | task #22099 | completed | haiku | Retrospective: extract learnings from task #22097 — Chop blo | Updated p-content-distillation-verification (#103) with tight-bound source-richn
