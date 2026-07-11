@@ -30,3 +30,4 @@
 2026-07-11T02:39:27.586Z | task #22030 | completed | sonnet | Re-check disallowed-tools frontmatter adoption against 2026- | Re-audit vs 2026-07-05 list: adoption now 45/131 skills (up from 43 at last audi
 2026-07-11T02:40:51.615Z | task #22034 | completed | haiku | Retrospective: extract learnings from task #22023 — Auto-que | Captured one new pattern: p-discovery-batch-domain-scope-precheck for auto-disco
 2026-07-11T02:41:25.329Z | task #22035 | completed | haiku | Retrospective: extract learnings from task #22031 — Send one | Added p-escalation-consolidation-idempotency pattern: consolidate related escala
+2026-07-11T02:43:07.586Z | task #22036 | completed | haiku | Retrospective: extract learnings from task #22022 — Watch re | No learnings to capture — key findings (terminal state immutability, publication
