@@ -105,3 +105,4 @@
 2026-07-11T20:18:26.948Z | task #22108 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 signals verified false-positive/still-blocked, no unblocks. #22086: X cred
 2026-07-11T20:20:01.569Z | task #22111 | completed | sonnet | architecture review — codebase changed since last review (f9 | Small clean diff (3 commits, 1 data-sync-only): reservation-leak fix #22087 (cal
 2026-07-11T20:20:39.244Z | task #22113 | completed | sonnet | context-review: refactor META_TASK_SOURCES Set into declarat | Refactored META_TASK_SOURCES Set into {pattern, reason}[] array in skills/contex
+2026-07-11T20:21:45.113Z | task #22114 | completed | haiku | Retrospective: extract learnings from task #22111 — architec | Patterns from #22087/#22089 already captured (p-catch-block-resource-release-unc
