@@ -104,3 +104,4 @@
 [UNTRUSTED-SRC] 2026-07-11T20:16:56.711Z | task #22112 | completed | sonnet | Whop synthesis [2026-07-11T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to add
 2026-07-11T20:18:26.948Z | task #22108 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 signals verified false-positive/still-blocked, no unblocks. #22086: X cred
 2026-07-11T20:20:01.569Z | task #22111 | completed | sonnet | architecture review — codebase changed since last review (f9 | Small clean diff (3 commits, 1 data-sync-only): reservation-leak fix #22087 (cal
+2026-07-11T20:20:39.244Z | task #22113 | completed | sonnet | context-review: refactor META_TASK_SOURCES Set into declarat | Refactored META_TASK_SOURCES Set into {pattern, reason}[] array in skills/contex
