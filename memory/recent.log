@@ -34,3 +34,4 @@
 2026-07-11T02:43:59.352Z | task #22037 | completed | haiku | Retrospective: extract learnings from task #22027 — Process  | Extracted 1 pattern: consolidation passes must refresh stale state references in
 2026-07-11T02:44:50.913Z | task #22038 | completed | haiku | Retrospective: extract learnings from task #22028 — Run sens | Added p-audit-memory-staleness-verification pattern: audits finding memory claim
 2026-07-11T02:46:21.645Z | task #22040 | completed | haiku | Retrospective: extract learnings from task #22032 — Verify s | Updated patterns: infrastructure state assertions need periodic verification to 
+2026-07-11T02:47:07.293Z | task #22042 | completed | haiku | Retrospective: extract learnings from task #22033 — Audit la | Added p-cross-repo-dependency-root-cause-boundary-check to patterns.md — audits 
