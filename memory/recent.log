@@ -100,3 +100,4 @@
 2026-07-11T20:13:37.762Z | task #22106 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-06T23-20 | Packaged x-batch-synthesis report as Whop SKU prod_DFg0QuZSRQ5zU ($9), published
 2026-07-11T20:14:43.582Z | task #22107 | completed | haiku | Retrospective: extract learnings from task #22106 — Package  | Extracted staging-checkpoint-determinism pattern from SKU packaging workflow — d
 2026-07-11T20:15:28.190Z | task #22110 | completed | sonnet | Distill watch report 2026-07-11T130042Z into 1-2 interior ob | 2 nuggets: failure-cluster (email threading systemic bug, 0/947+0/551 in_reply_t
+2026-07-11T20:16:24.897Z | task #22109 | completed | sonnet | context-review: 2 context loading issue(s) found | Both findings are false positives: arc-article-pipeline's stage step shells out 
