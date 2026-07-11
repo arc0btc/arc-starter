@@ -19,10 +19,13 @@ the *next* day, generating a near-identical retrospective again. Confirmed live:
 tasks' `completed_at` to `2026-07-10 07:15:20` — they reappeared verbatim in retrospective
 #22005 (2026-07-11) with the same summaries.
 
-**Fix filed:** guard `cmdTasksClose` to reject (or no-op with a warning) re-closing a task
-already in a terminal status, OR have `markTaskFailed`/`markTaskCompleted` only touch
-`completed_at` on the `pending`/`active` → terminal transition, not on terminal → terminal
-summary edits. See follow-up task filed from #22005.
+**Fixed 2026-07-11 (#22006):** `cmdTasksClose` (`src/cli.ts:372`) now checks `task.status`
+before dispatching to `markTaskCompleted`/`markTaskFailed`/`markTaskBlocked` — if the task
+is already `completed`/`failed`/`blocked`, it exits 1 with an error directing the caller to
+write the note to `memory/MEMORY.md` instead. `markTaskFailed`/`markTaskCompleted` themselves
+were left unconditional; the guard lives at the CLI boundary since that's the only call site.
+Verified live against #20899 (already `failed`): re-close attempt now errors instead of
+resetting `completed_at`.
 
 **How to apply:** retrospective/review tasks should write learnings to memory instead of
 re-closing an already-terminal task. If a task's summary needs enriching post-close, that's
