@@ -33,6 +33,14 @@ const SIGNAL_FILING_DISABLED = true;
 // "root lever unchanged, no new action" (see task #21309 -> #21504, same-day duplicate audit).
 const COST_REVIEW_SUBJECT = "Review cost efficiency — daily spend elevated";
 const COST_REVIEW_COOLDOWN_DAYS = 2;
+// Same rationale as COST_REVIEW_COOLDOWN_DAYS: a low prReviewAvgPerDay can legitimately mean
+// "nothing needs Arc's independent review right now" (bot PRs, self-authored PRs already
+// verified via gh pr comment, or substantive PRs already covered by another org agent) rather
+// than a real backlog — #21996 confirmed this directly on 2026-07-11. Without a cooldown this
+// follow-up re-fires every 12h even the cycle after a clean check already concluded there's no
+// actionable gap. See #21998.
+const ECOSYSTEM_REVIEW_SUBJECT = "Check for pending PR reviews across ecosystem repos";
+const ECOSYSTEM_REVIEW_COOLDOWN_DAYS = 2;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -169,13 +177,24 @@ function collectMetrics(): EvalMetrics {
   // reads a legitimate lull as an internal capacity problem (task #21437,
   // investigation #21435 found near-zero queue latency for pr-review tasks —
   // there was no crowd-out, just a 51h gap in external PR volume).
-  // Match subjects like "Review PR #N", "review PR", etc.
+  // Match subjects like "Review PR #N", "review PR", etc. Requires a literal
+  // '#' (every real review subject references a PR number, e.g. "PR #1028" or
+  // "x402-api#126") to rule out two confirmed false positives (#21996,
+  // #21998): SQLite LIKE is case-insensitive, so "%PR%" alone matches "pr" in
+  // unrelated words like "prompt", and this filter previously matched its own
+  // generated follow-up subject ("Check for pending PR reviews across
+  // ecosystem repos"), inflating the count with a task that reviewed nothing.
+  // This also means self-authored CVE-fix PRs verified via `gh pr comment`
+  // (GitHub blocks self-approval) already count here today, since those
+  // completed tasks are titled "Review PR <repo>#<N>: ..." — see #21998.
   const PR_REVIEW_SUBJECT_FILTER = `(
-         subject LIKE 'Review %PR%'
-         OR subject LIKE 'review %PR%'
-         OR subject LIKE '%PR review%'
-         OR subject LIKE '%PR %review%'
-         OR subject LIKE 'Review and%PR%'
+         subject LIKE '%#%' AND (
+           subject LIKE 'Review %PR%'
+           OR subject LIKE 'review %PR%'
+           OR subject LIKE '%PR review%'
+           OR subject LIKE '%PR %review%'
+           OR subject LIKE 'Review and%PR%'
+         )
        )`;
 
   const prRow = db
@@ -530,9 +549,13 @@ function generateFollowUps(
   // average, not the raw 24h count, so a natural lull in external PR volume
   // (no PRs opened, nothing to review) doesn't spawn a queue-rebalance-style
   // task off a bursty single-day snapshot (see #21437 / #21435).
-  if (scores.ecosystem <= 1 && metrics.prReviewAvgPerDay < 3) {
+  if (
+    scores.ecosystem <= 1 &&
+    metrics.prReviewAvgPerDay < 3 &&
+    countRecentTasksBySubject(ECOSYSTEM_REVIEW_SUBJECT, ECOSYSTEM_REVIEW_COOLDOWN_DAYS) === 0
+  ) {
     followUps.push({
-      subject: "Check for pending PR reviews across ecosystem repos",
+      subject: ECOSYSTEM_REVIEW_SUBJECT,
       skills: '["aibtc-repo-maintenance"]',
       priority: 5,
       model: "sonnet",
