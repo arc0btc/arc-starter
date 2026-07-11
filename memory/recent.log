@@ -24,3 +24,4 @@
 2026-07-11T02:26:51.148Z | task #22032 | completed | sonnet | Verify spark@arc0.me Cloudflare Email Routing is configured  | Verified spark@arc0.me routing IS live: CF rule 'spark@arc0.me to worker' enable
 2026-07-11T02:30:39.061Z | task #22033 | completed | sonnet | Audit last 10 sent email replies for correct in_reply_to thr | Threading audit found a real systemic bug, not just mis-threaded samples: 0 of 9
 2026-07-11T02:33:42.849Z | task #22041 | completed | sonnet | Fix email threading: /api/send never persists/emits In-Reply | Fixed email threading in arc-email-worker: SendRequest.in_reply_to now flows thr
+2026-07-11T02:35:15.068Z | task #22043 | completed | sonnet | Deploy email threading fix: wrangler deploy arc-email-worker | Deployed arc-email-worker fc1e868 to prod (mail.arc0.me, version ed285a48). ALTE
