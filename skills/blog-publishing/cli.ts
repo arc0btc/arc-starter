@@ -40,6 +40,10 @@ function getBlogDocsDir(): string {
   return path.join(import.meta.dir, "../../github/arc0btc/arc0me-site/src/content/docs/blog");
 }
 
+function getSiteRepoDir(): string {
+  return path.join(import.meta.dir, "../../github/arc0btc/arc0me-site");
+}
+
 function getCurrentIso8601(): string {
   return new Date().toISOString();
 }
@@ -259,6 +263,31 @@ async function cmdPublish(args: string[]): Promise<void> {
       log(`synced to blog docs: ${mdxPath}`);
     } catch (syncErr) {
       log(`warning: failed to sync to blog docs: ${syncErr instanceof Error ? syncErr.message : String(syncErr)}`);
+    }
+
+    // Commit both files so blog-deploy's commit-triggers-deploy sensor sees them.
+    // Without this, publish silently leaves the post uncommitted until some other
+    // commit to the repo happens to sweep it in (or it never does).
+    const repoDir = getSiteRepoDir();
+    try {
+      const add = Bun.spawn(["git", "add", indexPath, mdxPath], { cwd: repoDir, stdout: "pipe", stderr: "pipe" });
+      await add.exited;
+      const commit = Bun.spawn(
+        ["git", "commit", "-m", `feat(blog): publish "${postId}"`],
+        { cwd: repoDir, stdout: "pipe", stderr: "pipe" }
+      );
+      const [commitOut, commitErr] = await Promise.all([
+        new Response(commit.stdout).text(),
+        new Response(commit.stderr).text(),
+      ]);
+      const commitExit = await commit.exited;
+      if (commitExit === 0) {
+        log(`committed publish for ${postId}`);
+      } else {
+        log(`warning: git commit failed (exit ${commitExit}): ${(commitErr || commitOut).trim()}`);
+      }
+    } catch (gitErr) {
+      log(`warning: failed to commit publish: ${gitErr instanceof Error ? gitErr.message : String(gitErr)}`);
     }
 
     console.log(JSON.stringify({ success: true, post_id: postId, status: "published", published_at: now, mdx_path: mdxPath }, null, 2));
