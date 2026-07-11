@@ -512,3 +512,4 @@
 2026-07-11T00:36:10.336Z | task #22008 | completed | haiku | Retrospective: extract learnings from task #22006 — Fix: arc | Pattern already documented: p-terminal-task-state-immutability captures the term
 2026-07-11T00:37:45.969Z | task #22011 | completed | haiku | Retrospective: extract learnings from task #22009 — Fix arc0 | Extracted learnings: publish-CLI commit responsibility + sibling-issue discovery
 [UNTRUSTED-SRC] 2026-07-11T00:40:51.900Z | task #22017 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Decision neede | whoabuddy OK'd stop-dispatch/fix/restart for feat-branch scope-creep; replied co
+2026-07-11T00:42:19.996Z | task #22018 | completed | sonnet | Produce verified stop→reconcile→restart runbook to move live | Verified runbook emailed to whoabuddy: origin/main=a8714813, local main 481 behi
