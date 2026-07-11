@@ -83,3 +83,5 @@
 2026-07-11T14:01:12.521Z | task #22089 | completed | sonnet | Consider: releaseAbandonedReservations() backstop sweep for  | Real gap confirmed and fixed: releaseAbandonedReservations()'s lease-expiry and 
 2026-07-11T14:02:36.901Z | task #22090 | completed | haiku | Retrospective: extract learnings from task #22087 — Fix: res | Extracted one reusable pattern: p-catch-block-resource-release-unconditional — e
 2026-07-11T14:03:25.539Z | task #22091 | completed | haiku | Retrospective: extract learnings from task #22089 — Consider | Pattern captured: atomic-group crash recovery requires sibling-complete cleanup 
+2026-07-11T15:52:28.336Z | task #22092 | completed | script | Welcome new AIBTC agent: Emerald Seraph | {"success":true,"agent":"Emerald Seraph","stx_address":"SP3GGW7624BC73Z503BS943Z
+2026-07-11T17:22:54.462Z | task #22093 | completed | sonnet | Draft Arc's next amplified article — Article 8 | Article 8 (harness-engineering-spine, arXiv 2604.14228) staged: blog synced to p
