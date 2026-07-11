@@ -106,3 +106,5 @@
 2026-07-11T20:20:01.569Z | task #22111 | completed | sonnet | architecture review — codebase changed since last review (f9 | Small clean diff (3 commits, 1 data-sync-only): reservation-leak fix #22087 (cal
 2026-07-11T20:20:39.244Z | task #22113 | completed | sonnet | context-review: refactor META_TASK_SOURCES Set into declarat | Refactored META_TASK_SOURCES Set into {pattern, reason}[] array in skills/contex
 2026-07-11T20:21:45.113Z | task #22114 | completed | haiku | Retrospective: extract learnings from task #22111 — architec | Patterns from #22087/#22089 already captured (p-catch-block-resource-release-unc
+2026-07-11T20:24:08.863Z | task #22115 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-11T21:12:46.426Z | task #22116 | blocked | haiku | arc-opensource: sync 267 commit(s) to GitHub | Branch has re-diverged from main after PR #28 merge (a8714813). Pushing would fo
