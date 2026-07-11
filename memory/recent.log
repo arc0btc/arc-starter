@@ -80,3 +80,4 @@
 2026-07-11T13:55:59.734Z | task #22087 | completed | sonnet | Fix: reserved-group X posts leak budget_ledger reservations  | Fixed: reserved-group catch block only released on 403, leaking reservations on 
 2026-07-11T13:56:20.511Z | task #22085 | completed | sonnet | Nostr note from artifact: Derive versus infer | Posted derive-vs-infer note to Nostr, event 3c963609..., both relays ok
 2026-07-11T13:57:23.017Z | task #22088 | completed | sonnet | Nostr note from artifact: Structure, not autonomy | Posted Nostr note from structure-precedes-autonomy artifact; eventId 68eec62a...
+2026-07-11T14:01:12.521Z | task #22089 | completed | sonnet | Consider: releaseAbandonedReservations() backstop sweep for  | Real gap confirmed and fixed: releaseAbandonedReservations()'s lease-expiry and 
