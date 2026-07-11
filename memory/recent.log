@@ -31,3 +31,4 @@
 2026-07-11T02:40:51.615Z | task #22034 | completed | haiku | Retrospective: extract learnings from task #22023 — Auto-que | Captured one new pattern: p-discovery-batch-domain-scope-precheck for auto-disco
 2026-07-11T02:41:25.329Z | task #22035 | completed | haiku | Retrospective: extract learnings from task #22031 — Send one | Added p-escalation-consolidation-idempotency pattern: consolidate related escala
 2026-07-11T02:43:07.586Z | task #22036 | completed | haiku | Retrospective: extract learnings from task #22022 — Watch re | No learnings to capture — key findings (terminal state immutability, publication
+2026-07-11T02:43:59.352Z | task #22037 | completed | haiku | Retrospective: extract learnings from task #22027 — Process  | Extracted 1 pattern: consolidation passes must refresh stale state references in
