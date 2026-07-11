@@ -28,3 +28,4 @@
 2026-07-11T02:37:25.001Z | task #22039 | completed | haiku | Document undocumented CF email routes (loom@arc0.me, iris@ar | Documented three undocumented CF email routes (forge@, loom@, iris@arc0.me) via 
 2026-07-11T02:37:32.648Z | task #22025 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-11T02:39:27.586Z | task #22030 | completed | sonnet | Re-check disallowed-tools frontmatter adoption against 2026- | Re-audit vs 2026-07-05 list: adoption now 45/131 skills (up from 43 at last audi
+2026-07-11T02:40:51.615Z | task #22034 | completed | haiku | Retrospective: extract learnings from task #22023 — Auto-que | Captured one new pattern: p-discovery-batch-domain-scope-precheck for auto-disco

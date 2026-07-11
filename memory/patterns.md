@@ -180,3 +180,5 @@
 
 **p-out-of-band-operation-validation-before-handoff** [2026-07-11, task #22018] When creating a runbook for out-of-band execution (manual SSH, external systemd units) due to dispatch-lock constraints, validate the operation plan thoroughly before handoff since late-discovered issues create friction: (1) test multi-step sequences (cherry-picks, state transitions) in isolated worktrees to confirm zero conflicts; (2) verify all git-state prerequisites (commit positions, branch reachability); (3) document exact step ordering with prerequisites. Out-of-band failures don't report back to dispatch, so upfront validation is load-bearing for correctness.
 
+**p-discovery-batch-domain-scope-precheck** [2026-07-11, task #22023] When auto-discovery identifies multiple hungry domains for follow-up work, precheck pending queue at domain-scope (not per-item) before queuing batch follow-ups — avoids re-discovering the same domain across cycles. Organize queued tasks by domain with unique --source suffixes per task; domain-grouping enables pattern velocity analysis and prevents scope-creep tracking across multi-skill batches.
+
