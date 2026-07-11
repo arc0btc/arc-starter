@@ -501,3 +501,4 @@
 2026-07-11T00:14:20.616Z | task #22004 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-11T00:17:24.505Z | task #22005 | completed | sonnet | Daily failure retrospective: 2 failed task(s) | Found real bug, not just a triage repeat: #21072/#20899 reappeared because yeste
 2026-07-11T00:18:40.886Z | task #22006 | completed | sonnet | Fix: arc tasks close resets completed_at on already-terminal | Fixed: cmdTasksClose (src/cli.ts:372) now rejects re-closing already-terminal ta
+2026-07-11T00:19:53.079Z | task #22000 | completed | haiku | Retrospective: extract learnings from task #21998 — Fix ecos | Captured subject-filter literal-matching tactic as category (10) in p-false-posi
