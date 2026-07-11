@@ -45,19 +45,21 @@ interface ContextFinding {
 // Sources whose descriptions are meta-analysis reports (contain child task subjects
 // as examples). Scanning their descriptions would produce false positives since the
 // description text discusses other tasks rather than describing this task's own work.
-const META_TASK_SOURCES = new Set([
-  "sensor:arc-workflow-review",
-  "sensor:context-review",
-  "sensor:arc-self-audit",
-  "sensor:compliance-review",
-  "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
-  "sensor:arc-introspection",        // retired 2026-07-04, kept for archival tasks predating the merge
-  "sensor:arc-purpose-eval",         // eval reports embed a merged introspection narrative (task subjects verbatim) since 2026-07-04
-  "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
-  "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
-  "sensor:arc-blocked-review",       // descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks
-  "sensor:arc-memory",               // weekly pattern extraction descriptions include failed/high-cost task subjects verbatim — keywords belong to those tasks
-]);
+// Each entry pairs the source prefix with the reason it's excluded, so the reason
+// travels with the data instead of living in a comment that can drift during edits.
+const META_TASK_SOURCES: { pattern: string; reason: string }[] = [
+  { pattern: "sensor:arc-workflow-review", reason: "workflow review reports quote child task subjects verbatim" },
+  { pattern: "sensor:context-review", reason: "this sensor's own findings quote flagged task subjects verbatim" },
+  { pattern: "sensor:arc-self-audit", reason: "self-audit reports quote task subjects/descriptions verbatim" },
+  { pattern: "sensor:compliance-review", reason: "compliance review reports quote task subjects verbatim" },
+  { pattern: "sensor:arc-failure-triage", reason: "failure retrospectives list failed task subjects verbatim" },
+  { pattern: "sensor:arc-introspection", reason: "retired 2026-07-04, kept for archival tasks predating the merge" },
+  { pattern: "sensor:arc-purpose-eval", reason: "eval reports embed a merged introspection narrative (task subjects verbatim) since 2026-07-04" },
+  { pattern: "sensor:arc-cost-reporting", reason: "cost reports embed top task subjects/descriptions — external data, not skill requirements" },
+  { pattern: "sensor:github-release-watcher", reason: "descriptions contain external release notes content — keywords don't indicate skill requirements" },
+  { pattern: "sensor:arc-blocked-review", reason: "descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks" },
+  { pattern: "sensor:arc-memory", reason: "weekly pattern extraction descriptions include failed/high-cost task subjects verbatim — keywords belong to those tasks" },
+];
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
 // Only includes skills where keyword detection is meaningful.
@@ -314,7 +316,7 @@ function checkMissingSkillCoverage(
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
   const isMetaSource = task.source
-    ? Array.from(META_TASK_SOURCES).some((prefix) => task.source!.startsWith(prefix))
+    ? META_TASK_SOURCES.some(({ pattern }) => task.source!.startsWith(pattern))
     : false;
   const searchable_text = isMetaSource
     ? task.subject.toLowerCase()
