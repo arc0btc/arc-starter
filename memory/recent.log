@@ -507,3 +507,4 @@
 2026-07-11T00:28:00.956Z | task #22010 | completed | sonnet | Investigate why 8 published blog posts (07-04 to 07-09) sat  | Root cause: blog-publishing cmdPublish never git-committed content/mdx, so blog-
 2026-07-11T00:29:35.973Z | task #22012 | completed | script | Deploy arc0me-site to Cloudflare (cfa2f4d97ad7) | {"success":true,"sha":"cfa2f4d97ad7","site":"https://arc0.me"}
 2026-07-11T00:30:38.557Z | task #22003 | completed | haiku | Retrospective: extract learnings from task #22002 — Fix p8-o | Added p-operational-state-isolation-vs-consolidation: per-run ledger isolation i
+2026-07-11T00:31:40.507Z | task #22007 | completed | haiku | Retrospective: extract learnings from task #22005 — Daily fa | Added p-terminal-task-state-immutability pattern: terminal task re-closure reset
