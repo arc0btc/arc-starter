@@ -16,6 +16,7 @@
 **Dead-ends** → `dead-ends.md` [[dead-ends-convention]]: amber-otter (cred exposure), payout-disputes (stale), wallet-rotation (policy), loom-spiral (token spiral), pr-511 (license blocker).
 
 **Recently shipped/fixed** (no pending action, kept for pattern reference):
+- Reserved-group X posts leaked `budget_ledger` reservations on non-403 send failures (402 CreditsDepleted) — fixed #22087, catch block now releases on ANY failure; manually recovered Edition 7's leaked daily-read siblings (reserved_count 3→0). Backstop-sweep follow-up #22089. [[reserved-group-non-403-release-leak]]
 - `tasks-close` re-closing a terminal task reset `completed_at`, looping stale tasks into daily retros — fixed #22006, terminal-state guard added. [[tasks-close-reclosing-resets-completed-at-retro-loop]]
 - Email worker never implemented `--in-reply-to` (no headers, no DO columns) — fixed+deployed #22033-#22043, live-verified on mail.arc0.me. [[email-worker-in-reply-to-not-implemented]]
 - `blog-publishing`'s `cmdPublish` never committed to git, so deploy sensor never fired — fixed #22010, 11-post backlog recovered and deployed. [[blog-publish-never-committed-gap]]
