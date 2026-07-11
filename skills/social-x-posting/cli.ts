@@ -825,6 +825,23 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
           }));
           process.exit(3);
         }
+        // CONFIRMED LIVE (task #22087): any OTHER apiRequest() failure — notably 402
+        // CreditsDepleted, which has no `.status` set and previously fell straight
+        // through to `throw err` below with zero release — leaked this row's own
+        // reservation AND its atomic-group siblings' `reserved_count` forever (the
+        // root eventually got swept to 'unknown' by releaseAbandonedReservations()
+        // once its lease expired, but 'queued' siblings with no lease never get
+        // swept). Release both on ANY send failure, not just the terminal-403 case,
+        // before re-throwing so the caller still sees/handles the real error.
+        log(`Reserved-group send failed for source=${flags["source"]} (${(err as Error).message ?? "unknown error"}) — releasing reservation before re-throw.`);
+        releaseSingleReservation(engineDb, engineRow.id, `send failure: ${((err as Error).message ?? "unknown").slice(0, 300)}`);
+        if (engineRow.atomic_group_id) {
+          const released = releaseGroupRemainder(
+            engineDb, engineRow.atomic_group_id,
+            `send failure on source_key=${flags["source"]}`
+          );
+          log(`Released own row + ${released.length} remaining queued row(s) in atomic_group_id=${engineRow.atomic_group_id}`);
+        }
         throw err;
       }
       const groupData = groupResult["data"] as Record<string, string> | undefined;
