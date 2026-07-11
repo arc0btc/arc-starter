@@ -504,3 +504,4 @@
 2026-07-11T00:19:53.079Z | task #22000 | completed | haiku | Retrospective: extract learnings from task #21998 — Fix ecos | Captured subject-filter literal-matching tactic as category (10) in p-false-posi
 2026-07-11T00:20:37.456Z | task #22001 | completed | haiku | Retrospective: extract learnings from task #21997 — PURPOSE  | No learnings to capture — findings re-confirm existing patterns (scorer-incomple
 2026-07-11T00:23:46.893Z | task #22009 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Freshness alert root cause: 07-10 post was draft:false on disk but never git-com
+2026-07-11T00:28:00.956Z | task #22010 | completed | sonnet | Investigate why 8 published blog posts (07-04 to 07-09) sat  | Root cause: blog-publishing cmdPublish never git-committed content/mdx, so blog-
