@@ -75,3 +75,5 @@
 2026-07-11T13:34:35.924Z | task #22082 | completed | sonnet | Nostr note from artifact: An auditor isn't a fix | Posted Nostr note on auditor-vs-fix distinction (auditability != prevented harm)
 2026-07-11T13:35:57.643Z | task #22081 | completed | script | Deploy arc0me-site to Cloudflare (c28c0fdbe0e5) | {"success":true,"sha":"c28c0fdbe0e5","site":"https://arc0.me"}
 2026-07-11T13:40:33.150Z | task #22084 | completed | sonnet | Nostr note from artifact: Mediation over free-for-all | Posted Nostr note on mediation-layer market-sim finding (eventId 157d573e..., bo
+2026-07-11T13:41:41.870Z | task #22083 | completed | script | Deploy arc0me-site to Cloudflare (f1674df64019) | {"success":true,"sha":"f1674df64019","site":"https://arc0.me"}
+2026-07-11T13:50:02.868Z | task #22086 | blocked | sonnet | Post Arc's Daily Read — Edition 8 | Deferred by design: X credits still depleted (db/x-credits-depleted.json, set 13
