@@ -36,3 +36,4 @@
 2026-07-11T02:46:21.645Z | task #22040 | completed | haiku | Retrospective: extract learnings from task #22032 — Verify s | Updated patterns: infrastructure state assertions need periodic verification to 
 2026-07-11T02:47:07.293Z | task #22042 | completed | haiku | Retrospective: extract learnings from task #22033 — Audit la | Added p-cross-repo-dependency-root-cause-boundary-check to patterns.md — audits 
 2026-07-11T02:48:29.266Z | task #22044 | completed | haiku | Retrospective: extract learnings from task #22041 — Fix emai | Extracted one reusable pattern: live schema evolution via guarded per-column mig
+2026-07-11T02:49:10.700Z | task #22045 | completed | haiku | Retrospective: extract learnings from task #22043 — Deploy e | Extracted 2 reusable patterns from email threading deploy work: credential envir
