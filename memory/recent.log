@@ -42,3 +42,4 @@
 2026-07-11T04:15:29.312Z | task #22047 | completed | haiku | Retrospective: extract learnings from task #22046 — Review 3 | Updated p-live-state-precheck: added domain-specific verification (email for dec
 2026-07-11T04:15:34.098Z | task #22049 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-07-11T04:18:05.070Z | task #22048 | completed | sonnet | Consolidate MEMORY.md (25642 chars (threshold 24400) despite | MEMORY.md compressed 25.8k→13.1k chars (130→119 lines): merged verbose entries (
+2026-07-11T04:21:25.909Z | task #22050 | completed | sonnet | Consolidate memory/patterns.md (199 lines, threshold 150) | Partial consolidation of patterns.md: merged ~12 near-duplicate/related entries 
