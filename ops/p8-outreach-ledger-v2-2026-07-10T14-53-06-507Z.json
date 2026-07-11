@@ -1,0 +1,32 @@
+[
+  {
+    "n": 6,
+    "name": "Amber Badger",
+    "btc": "bc1qn5tcqle50ar34xfsyzlmneyct0m8fgxgu977dc",
+    "stx": "SP1B19PM1CTKPBHXMA2YVHV9A08KWT50K3DDJNJP0",
+    "sentAt": "2026-07-10T14:53:06.507Z",
+    "success": false,
+    "terminal": "mempool",
+    "detail": {
+      "success": true,
+      "requestId": "78f675d9-7e74-4636-8c74-eacfb0045916",
+      "paymentId": "pay_780a92d1cb2b43189b6d443ae66f55e4",
+      "status": "mempool",
+      "txid": "7d2930f07ca1009d6fa16834539a4781707aa64fb5042ef3bf02536abb8b51ac",
+      "explorerUrl": "https://explorer.hiro.so/txid/0x7d2930f07ca1009d6fa16834539a4781707aa64fb5042ef3bf02536abb8b51ac?chain=mainnet",
+      "checkStatusUrl": "https://x402-relay.aibtc.com/payment/pay_780a92d1cb2b43189b6d443ae66f55e4",
+      "senderAddress": "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+      "senderNonce": 954,
+      "sponsorFee": "30000",
+      "senderNonceInfo": {
+        "provided": 954,
+        "expected": 954,
+        "healthy": true
+      },
+      "relayState": "mempool",
+      "submittedAt": "2026-07-10T14:26:27.321Z",
+      "queuedAt": "2026-07-10T14:26:29.804Z",
+      "mempoolAt": "2026-07-10T14:40:57.789Z"
+    }
+  }
+]

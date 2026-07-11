@@ -1,0 +1,16 @@
+[
+  {
+    "n": 5,
+    "name": "Vivid Manticore",
+    "btc": "bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz",
+    "stx": "SP2SRBT7T1233QNCEAGCQ5VCVNNFCV4X6Q5Y04552",
+    "sentAt": "2026-07-10T09:07:27.121Z",
+    "success": false,
+    "terminal": "send-failed",
+    "detail": {
+      "success": false,
+      "error": "x402 command failed",
+      "detail": "{\"event\":\"payment.accepted\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_b9cb6ef66b394b8280c4914a513af6bf\",\"status\":null,\"terminalReason\":null,\"action\":\"submit_paid_request\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.retry_decision\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_4326bb2c78204b9aa23882b842383bfc\",\"status\":\"not_found\",\"terminalReason\":\"unknown_payment_identity\",\"action\":\"restart\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.accepted\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_e9935a8b1a304ba799c610413f6fbebc\",\"status\":null,\"terminalReason\":null,\"action\":\"submit_paid_request\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.retry_decision\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_4326bb2c78204b9aa23882b842383bfc\",\"status\":\"not_found\",\"terminalReason\":\"unknown_payment_identity\",\"action\":\"restart\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.accepted\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_6d780867c6304cdc8531de22eef618c6\",\"status\":null,\"terminalReason\":null,\"action\":\"submit_paid_request\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.retry_decision\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_4326bb2c78204b9aa23882b842383bfc\",\"status\":\"not_found\",\"terminalReason\":\"unknown_payment_identity\",\"action\":\"restart\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}\n{\"event\":\"payment.finalized\",\"service\":\"skills\",\"tool\":\"x402.send-inbox-message\",\"paymentId\":\"pay_4326bb2c78204b9aa23882b842383bfc\",\"status\":\"not_found\",\"terminalReason\":\"unknown_payment_identity\",\"action\":\"restart\",\"checkStatusUrl_present\":false,\"compat_shim_used\":false,\"repo_version\":\"unknown\"}"
+    }
+  }
+]

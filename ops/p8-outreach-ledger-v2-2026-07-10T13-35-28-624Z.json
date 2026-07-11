@@ -1,0 +1,32 @@
+[
+  {
+    "n": 4,
+    "name": "Serene Spring",
+    "btc": "bc1qqwemz3039st52s373dalyavs5zye3fvzunhwve",
+    "stx": "SP301E0FY52B19281VCHP41SAKKZFR761BMKQH4QE",
+    "sentAt": "2026-07-10T13:35:28.624Z",
+    "success": false,
+    "terminal": "mempool",
+    "detail": {
+      "success": true,
+      "requestId": "61422d59-b208-4518-b95d-e940c12e60ed",
+      "paymentId": "pay_2800a2e20b754751a944bfc28d85e119",
+      "status": "mempool",
+      "txid": "f810e9719cfcaff52aa6745c58f31858d3e1a12ecf1766fc5f3a5a454a4e66e7",
+      "explorerUrl": "https://explorer.hiro.so/txid/0xf810e9719cfcaff52aa6745c58f31858d3e1a12ecf1766fc5f3a5a454a4e66e7?chain=mainnet",
+      "checkStatusUrl": "https://x402-relay.aibtc.com/payment/pay_2800a2e20b754751a944bfc28d85e119",
+      "senderAddress": "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+      "senderNonce": 951,
+      "sponsorFee": "30000",
+      "senderNonceInfo": {
+        "provided": 951,
+        "expected": 951,
+        "healthy": true
+      },
+      "relayState": "mempool",
+      "submittedAt": "2026-07-10T13:35:33.314Z",
+      "queuedAt": "2026-07-10T13:35:35.679Z",
+      "mempoolAt": "2026-07-10T13:40:37.719Z"
+    }
+  }
+]

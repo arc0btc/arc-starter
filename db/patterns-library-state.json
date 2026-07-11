@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-07-09T21:52:11.146Z",
+  "lastScannedAt": "2026-07-10T20:12:26.505Z",
   "postedPatterns": [
     "model-required",
     "supersession-discipline",
@@ -38,9 +38,11 @@
     "external-side-effect-idempotency",
     "review-task-confirmed-resolution-closure",
     "sensor-fire-rate-management",
+    "staleness-threshold-calibration",
     "overlapping-sensor-consolidation",
     "shared-resource-multi-consumer-audit",
     "large-audit-aggregator-cli",
+    "sensor-health-report-suspicious-entry-interpretation",
     "dispatch-session-fork-limit",
     "state-machine-safety",
     "noop-state-dead-predecessor-retry",
@@ -137,7 +139,7 @@
     "audit-findings-divergence-as-signal",
     "detector-refire-exemption-maintenance",
     "pr-lifecycle-audit-discipline",
-    "type-guard-semantic-mismatch",
+    "metric-signal-confirmation-rolling-average",
     "derivative-content-source-primacy",
     "channel-saturation-without-outcome-growth",
     "observation-window-multidimensional-bundling",
@@ -147,6 +149,14 @@
     "subprocess-tool-scope-intersection",
     "multi-step-operation-partial-recovery-cli",
     "regeneration-idempotency-deployment-verification",
-    "task-description-constraint-directives"
+    "task-description-constraint-directives",
+    "daemon-update-disabled-compensating-periodic-check",
+    "subprocess-self-upgrade-deadlock",
+    "carry-watch-escalation-at-review",
+    "link-research-heuristic-report-unreliability",
+    "voice-driven-content-fallback",
+    "structural-task-dispatch-constraint",
+    "control-feasibility-before-build",
+    "metric-direct-signal-validation"
   ]
 }

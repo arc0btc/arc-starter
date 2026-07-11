@@ -1,0 +1,43 @@
+[
+  {
+    "n": 6,
+    "name": "Amber Badger",
+    "btc": "bc1qn5tcqle50ar34xfsyzlmneyct0m8fgxgu977dc",
+    "stx": "SP1B19PM1CTKPBHXMA2YVHV9A08KWT50K3DDJNJP0",
+    "sentAt": "2026-07-10T15:42:15.250Z",
+    "success": false,
+    "terminal": "timeout",
+    "detail": {
+      "success": true,
+      "messageDelivered": false,
+      "message": "Payment is still in flight. Keep polling the same paymentId; do not rebuild or re-sign.",
+      "recipient": {
+        "btcAddress": "bc1qn5tcqle50ar34xfsyzlmneyct0m8fgxgu977dc",
+        "stxAddress": "SP1B19PM1CTKPBHXMA2YVHV9A08KWT50K3DDJNJP0"
+      },
+      "contentLength": 371,
+      "contentHash": "a2b4693f00d3adb5652b4a1abc7f418df03e7ebb185a8ad8d0d2542d94563baa",
+      "inbox": {
+        "success": true,
+        "message": "Payment accepted. Inbox delivery is staged until the relay reports confirmed.",
+        "inbox": {
+          "fromAddress": "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+          "toBtcAddress": "bc1qn5tcqle50ar34xfsyzlmneyct0m8fgxgu977dc",
+          "sentAt": "2026-07-10T15:42:21.697Z",
+          "authenticated": false,
+          "paymentStatus": "pending",
+          "paymentId": "pay_33dfc1702432441fa0065ae2b84b7fd9"
+        },
+        "checkStatusUrl": "https://x402-relay.aibtc.com/payment/pay_33dfc1702432441fa0065ae2b84b7fd9"
+      },
+      "payment": {
+        "amount": "100 sats sBTC",
+        "status": "queued",
+        "action": "poll",
+        "guidance": "Payment is still in flight. Keep polling this paymentId and do not rebuild or re-sign.",
+        "paymentId": "pay_33dfc1702432441fa0065ae2b84b7fd9",
+        "checkUrl": "https://x402-relay.aibtc.com/payment/pay_33dfc1702432441fa0065ae2b84b7fd9"
+      }
+    }
+  }
+]

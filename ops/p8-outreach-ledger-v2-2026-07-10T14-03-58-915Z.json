@@ -1,0 +1,43 @@
+[
+  {
+    "n": 4,
+    "name": "Serene Spring",
+    "btc": "bc1qqwemz3039st52s373dalyavs5zye3fvzunhwve",
+    "stx": "SP301E0FY52B19281VCHP41SAKKZFR761BMKQH4QE",
+    "sentAt": "2026-07-10T14:03:58.915Z",
+    "success": false,
+    "terminal": "timeout",
+    "detail": {
+      "success": true,
+      "messageDelivered": false,
+      "message": "Payment is still in flight. Keep polling the same paymentId; do not rebuild or re-sign.",
+      "recipient": {
+        "btcAddress": "bc1qqwemz3039st52s373dalyavs5zye3fvzunhwve",
+        "stxAddress": "SP301E0FY52B19281VCHP41SAKKZFR761BMKQH4QE"
+      },
+      "contentLength": 371,
+      "contentHash": "a2b4693f00d3adb5652b4a1abc7f418df03e7ebb185a8ad8d0d2542d94563baa",
+      "inbox": {
+        "success": true,
+        "message": "Payment accepted. Inbox delivery is staged until the relay reports confirmed.",
+        "inbox": {
+          "fromAddress": "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+          "toBtcAddress": "bc1qqwemz3039st52s373dalyavs5zye3fvzunhwve",
+          "sentAt": "2026-07-10T14:04:05.646Z",
+          "authenticated": false,
+          "paymentStatus": "pending",
+          "paymentId": "pay_074c15e7924740448026da0740ade588"
+        },
+        "checkStatusUrl": "https://x402-relay.aibtc.com/payment/pay_074c15e7924740448026da0740ade588"
+      },
+      "payment": {
+        "amount": "100 sats sBTC",
+        "status": "queued",
+        "action": "poll",
+        "guidance": "Payment is still in flight. Keep polling this paymentId and do not rebuild or re-sign.",
+        "paymentId": "pay_074c15e7924740448026da0740ade588",
+        "checkUrl": "https://x402-relay.aibtc.com/payment/pay_074c15e7924740448026da0740ade588"
+      }
+    }
+  }
+]
