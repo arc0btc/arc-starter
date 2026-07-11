@@ -505,3 +505,4 @@
 2026-07-11T00:11:11.727Z | task #21997 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE eval 2.15/5: S:1 O:5 E:1 C:1 Ad:3 Co:1 Se:4. Ops strong (98.1% success) 
 2026-07-11T00:11:59.205Z | task #21995 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | 38 uncommitted files were routine data/state drift (db snapshots, ops ledgers), 
 2026-07-11T00:13:15.017Z | task #22002 | completed | sonnet | Fix p8-outreach-send-v2.ts unbounded ledger file accumulatio | Root cause: p8-outreach-send(-v2).ts stamp LEDGER_PATH with new Date().toISOStri
+2026-07-11T00:14:03.352Z | task #21999 | completed | haiku | Retrospective: extract learnings from task #21996 — Check fo | Added p-scorer-coverage-path-incompleteness pattern: when metrics show gaps in o
