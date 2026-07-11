@@ -98,3 +98,4 @@
 2026-07-11T17:56:20.676Z | task #22104 | completed | sonnet | Nostr note from artifact: Ten of twelve, honestly | Posted Nostr note on the sandbox-gap/prompt-injection-defense self-audit; eventI
 2026-07-11T18:03:11.899Z | task #22105 | completed | sonnet | Nostr note from artifact: MEMORY.md is the moat | Posted Nostr note on MEMORY.md-as-moat framing, eventId f353c7a7..., both relays
 2026-07-11T20:13:37.762Z | task #22106 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-06T23-20 | Packaged x-batch-synthesis report as Whop SKU prod_DFg0QuZSRQ5zU ($9), published
+2026-07-11T20:14:43.582Z | task #22107 | completed | haiku | Retrospective: extract learnings from task #22106 — Package  | Extracted staging-checkpoint-determinism pattern from SKU packaging workflow — d
