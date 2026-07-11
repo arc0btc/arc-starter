@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/bY7zNcs41s",
+  "fetchedAt": "2026-07-06T23:10:30.953Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: LLM-as-Judge Evaluation Frameworks for Agents\n\nEvaluating agent outputs manually...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: LLM-as-Judge Evaluation Frameworks for Agents\n\nEvaluating agent outputs manually doesn’t scale. \n\nLLM-as-Judge uses another LLM to score and evaluate agent responses based on defined rubrics, making evaluation faster and more consistent.\n\nThis is becoming essential as more teams run large-scale agent evaluations.\n\nAs a dev, I now use LLM-as-Judge for most agent evaluations.\n\nLLM-as-Judge Cheatsheet:\n\nDefine clear evaluation rubrics\n\nUse LLM to score outputs on multiple dimensions\n\nGet explanations along with scores\n\nCombine with human review for critical cases\n\nTrack evaluation scores over time\n\nPro tip: Start with simple rubrics and gradually add more evaluation criteria\n\nHow are you evaluating your agent outputs at scale? Reply below 👇\n\nFollow @AiCamila_ for daily production AI + DevOps tips.\n\n#LLMAsJudge #AgentEvaluation #ProductionAI #AgenticAI #Evaluation\nCreated: 2026-07-06T02:52:53.000Z\nMetrics: {\"bookmark_count\":25,\"impression_count\":824,\"like_count\":39,\"quote_count\":0,\"reply_count\":4,\"retweet_count\":7}",
+  "embeddedUrls": [
+    "https://t.co/bY7zNcs41s"
+  ]
+}

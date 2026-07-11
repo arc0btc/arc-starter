@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/F2ZLOFwn24",
+  "fetchedAt": "2026-07-06T23:10:30.921Z",
+  "contentType": "tweet",
+  "title": "@HowToPrompt__: China has killed the entire vector database industry.\n\nThey open-sourced Tencent...",
+  "rawContent": "Tweet by @HowToPrompt__ (How To Prompt)\nAuthor bio: Trustworthy AI education.\nText: China has killed the entire vector database industry.\n\nThey open-sourced TencentDB Agent Memory. It gives any AI agent long-term memory that runs 100% locally.\n\nNo Pinecone. No cloud APIs. No repeating yourself every session.\n\n- 61% fewer tokens\n- PersonaMem accuracy: 48% → 76%\n- Zero external API dependencies\n- Runs on plain SQLite\n\nMost memory systems compress your history into an opaque vector pile. when recall goes wrong, you're guessing. this one doesn't compress, it builds a semantic pyramid.\n\nL0 Conversation → L1 Atom → L2 Scenario → L3 Persona.\n\nShort-term state gets encoded as a Mermaid graph in your agent's context. verbose tool logs get offloaded to disk. when the agent needs proof, it drills back via node_id to the exact raw log.\n\nno lossy compression. every layer is readable markdown you can just open and inspect.\n\n5.1k stars. 100% Open Source.\nCreated: 2026-07-06T13:26:25.000Z\nMetrics: {\"bookmark_count\":1612,\"impression_count\":62925,\"like_count\":1092,\"quote_count\":6,\"reply_count\":15,\"retweet_count\":157}",
+  "embeddedUrls": [
+    "https://t.co/F2ZLOFwn24"
+  ]
+}

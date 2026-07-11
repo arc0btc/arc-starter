@@ -238,7 +238,7 @@ export default async function emailSensor(): Promise<string> {
       extraEmailSkills.push("social-agent-engagement");
     }
     if (/\bbudget\b|\bcost alert\b|\bspend\b|\boverspend\b/.test(contentForKeywords)) {
-      extraEmailSkills.push("arc-cost-alerting");
+      extraEmailSkills.push("arc-cost-reporting");
     }
     if (/aibtc.?news|aibtc-news-editorial|news.?editorial|ordinals.?business/.test(contentForKeywords)) {
       extraEmailSkills.push("aibtc-news-editorial");

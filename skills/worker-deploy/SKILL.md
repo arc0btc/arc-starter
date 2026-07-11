@@ -10,6 +10,15 @@ tags:
 
 # Worker Deploy
 
+**DISABLED 2026-07-08** (arc-storefront-revamp P5): the sensor is a documented no-op. It targets
+~/arc0btc-worker, which deployed-source forensics (CF Workers API deployment history) proved is
+NOT the live arc0btc.com deployment -- the arc-starter clone
+(arc-starter/github/arc0btc/arc0btc-worker) is live and is where production edits now happen. If
+this sensor were re-armed while still pointed at the stale checkout, it would silently overwrite
+the live rail on the stale checkout's next commit. See
+docs/specs/2026-07-08-arc0btc-worker-deployed-source.md (manage-agents repo) for full evidence.
+Do not re-enable without first repointing WORKER_DIR or consolidating the two checkouts.
+
 Monitors the `arc0btc-worker` repo for new commits and auto-deploys to Cloudflare Workers (arc0btc.com) via wrangler.
 
 ## How It Works

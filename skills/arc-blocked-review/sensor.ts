@@ -21,6 +21,31 @@ const STALE_BLOCKED_HOURS = 48;
  * Prevents churn on tasks like X-API-402 that cannot be unblocked autonomously.
  */
 const DEAD_END_REVIEW_COOLDOWN_HOURS = 168; // 7 days
+/**
+ * Hours a task must wait before being re-flagged on a repeated signal-only match
+ * (sibling/child/mention) after a review already closed it as still-blocked.
+ * Prevents churn like #21499 (5 consecutive reviews on the same recurring mention
+ * false positive). Only applies when the task has NO stale reason of its own —
+ * if it's already past STALE_BLOCKED_HOURS, that threshold covers re-review structurally
+ * and this cooldown is skipped.
+ */
+const SIGNAL_REVIEW_COOLDOWN_HOURS = 48;
+
+/** Most recent completed-review timestamp for a specific blocked task, or null if never reviewed. */
+function getLastSignalReviewAt(
+  db: ReturnType<typeof getDatabase>,
+  taskId: number
+): string | null {
+  const row = db
+    .query(
+      `SELECT completed_at FROM tasks
+       WHERE source = ? AND status = 'completed' AND completed_at IS NOT NULL
+       AND description LIKE ?
+       ORDER BY completed_at DESC LIMIT 1`
+    )
+    .get(TASK_SOURCE, `%Task #${taskId} (P%`) as { completed_at: string } | null;
+  return row?.completed_at ?? null;
+}
 
 export default async function blockedReviewSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -86,16 +111,38 @@ export default async function blockedReviewSensor(): Promise<string> {
       }
     }
 
-    // 3. Check if tasks referencing this blocked task's ID in their subject/description completed
+    // 3. Check if tasks referencing this blocked task's ID in their subject/description completed.
+    // Excludes retrospective/audit tasks, which mention many unrelated task IDs by design
+    // (e.g. "Retrospective: extract learnings from task #N...") and are not signals that
+    // task #N's actual blocker was resolved. Also excludes this sensor's own review-cycle
+    // output tasks and their direct follow-ups — otherwise reviewing a still-blocked task
+    // manufactures a new "completed task mentioning #N" every cycle, permanently self-triggering
+    // re-review even when nothing about the block has changed.
+    // Also excludes digest/rollup tasks (e.g. arc-purpose-eval's "PURPOSE eval: N/5" reports),
+    // which quote other tasks' result_summary text verbatim under a "## Completed Tasks"
+    // section — this can re-mention a blocked task's ID with zero actual resolution. Matched
+    // by marker rather than enumerating sources by name so future digest-style sensors don't
+    // reintroduce the same false positive.
     const mentioningTasks = db
       .query(
         `SELECT id, subject, status FROM tasks
          WHERE status = 'completed'
          AND (subject LIKE ? OR description LIKE ?)
          AND id != ?
+         AND subject NOT LIKE 'Retrospective:%'
+         AND subject NOT LIKE 'Audit:%'
+         AND source != ?
+         AND source NOT IN (SELECT 'task:' || id FROM tasks WHERE source = ?)
+         AND (description IS NULL OR description NOT LIKE '%## Completed Tasks%')
          LIMIT 5`
       )
-      .all(`%#${task.id}%`, `%#${task.id}%`, task.id) as Array<{
+      .all(
+        `%#${task.id}%`,
+        `%#${task.id}%`,
+        task.id,
+        TASK_SOURCE,
+        TASK_SOURCE
+      ) as Array<{
       id: number;
       subject: string;
       status: string;
@@ -134,6 +181,25 @@ export default async function blockedReviewSensor(): Promise<string> {
     c.reasons.every((r) => r.startsWith("blocked for "))
   );
 
+  // Signal-triggered candidates with no stale reason of their own get a per-task cooldown:
+  // suppress re-flagging within SIGNAL_REVIEW_COOLDOWN_HOURS of the task's last review close.
+  // Tasks that also carry a stale reason are left alone — the stale threshold already forces
+  // their re-review structurally, so this cooldown would be redundant.
+  const activeSignaledCandidates = signaledCandidates.filter((c) => {
+    const hasStaleReason = c.reasons.some((r) => r.startsWith("blocked for "));
+    if (hasStaleReason) return true;
+    const lastReviewedAt = getLastSignalReviewAt(db, c.task.id);
+    if (!lastReviewedAt) return true;
+    const ageHours = (Date.now() - new Date(lastReviewedAt + "Z").getTime()) / 3_600_000;
+    if (ageHours < SIGNAL_REVIEW_COOLDOWN_HOURS) {
+      log(
+        `task #${c.task.id} signal match reviewed ${Math.round(ageHours)}h ago — skipping until ${SIGNAL_REVIEW_COOLDOWN_HOURS}h cooldown clears`
+      );
+      return false;
+    }
+    return true;
+  });
+
   let activeStaleOnly = staleOnlyCandidates;
   if (staleOnlyCandidates.length > 0) {
     const last = getLastCompletedTaskBySource(TASK_SOURCE);
@@ -149,7 +215,7 @@ export default async function blockedReviewSensor(): Promise<string> {
     }
   }
 
-  const reviewCandidates = [...signaledCandidates, ...activeStaleOnly];
+  const reviewCandidates = [...activeSignaledCandidates, ...activeStaleOnly];
 
   if (reviewCandidates.length === 0) {
     log(

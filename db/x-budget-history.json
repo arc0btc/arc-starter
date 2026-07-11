@@ -1,69 +1,5 @@
 [
   {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-26",
-    "posts": 3,
-    "replies": 0,
-    "likes": 11,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-27",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-27",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
     "date": "2026-06-27",
     "posts": 3,
     "replies": 0,
@@ -238,5 +174,71 @@
     "likes": 4,
     "retweets": 1,
     "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-05",
+    "posts": 2,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-06",
+    "posts": 1,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0
+  },
+  {
+    "date": "2026-07-07",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 1,
+    "write_spend_usd": 0.245
   }
 ]

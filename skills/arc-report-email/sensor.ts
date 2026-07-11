@@ -60,6 +60,21 @@ function hasCompletedCeoReview(content: string): boolean {
 }
 
 export default async function reportEmailSensor(): Promise<string> {
+  // arc-operator-loop P3 (2026-07-08): the standalone Watch Report EMAIL is retired in favor of
+  // the daily operator brief (manage-agents/ops/monitor/arc-daily-operator-brief.ts on the control
+  // plane), which folds report content in. The dead-man's-switch
+  // (manage-agents/ops/monitor/lib/dead-mans-switch.ts, proven live in P2 — see
+  // ops/verify/arc-operator-loop/2026-07-08T213709Z-p2-discord-signal-cut.md) now owns the
+  // missing-day-=-outage signal this email used to provide almost by accident; retiring the EMAIL
+  // does NOT retire outage detection. The arc-reporting generation sensor and reports/*.html files
+  // are UNTOUCHED below (the switch reads their filenames) — only this email send is disabled.
+  // Rollback: flip WATCH_REPORT_EMAIL_RETIRED to false (one line), or `git revert` this VM-local commit.
+  const WATCH_REPORT_EMAIL_RETIRED = true;
+  if (WATCH_REPORT_EMAIL_RETIRED) {
+    log("Watch Report email retired (arc-operator-loop P3) — folded into the daily operator brief; dead-man's-switch owns outage detection");
+    return "skip";
+  }
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

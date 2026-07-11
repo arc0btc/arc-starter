@@ -83,6 +83,26 @@ const KNOWN_PATTERNS = new Set([
   // this is the machine working as intended (task #21317). Bare entry so any suffixed
   // variant (e.g. ":thread") is covered via prefix matching.
   "sensor:arc-email-sync",
+  // Ad-hoc "Generate <category> blog post draft" -> "Publish generated blog post" ->
+  // retrospective chain. Evaluated 2026-07-04 (task #20645 addendum) as the ":draft"
+  // suffix variant and rejected (deliberately bounded, self-dedup'd 2-task chain, too
+  // small for a state machine). Recurring 2026-07-07 (task #21516) under the
+  // ":content-generation" suffix — same underlying sensor (skills/blog-publishing/
+  // sensor.ts), same verdict. Bare entry so future suffix variants are covered too.
+  "sensor:blog-publishing",
+  // Ad-hoc "Watch report — <timestamp>" -> retrospective chain (task #21579), avg 2.4
+  // steps, skills arc-reporting + arc-skill-manager — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md. Bare entry
+  // so ":interior-<timestamp>" and other suffix variants are covered too.
+  "sensor:arc-reporting-watch",
+  // "Review 1 blocked task(s) for possible unblock" -> retrospective chain (task #21777),
+  // avg 3.0 steps, skills arc-blocked-review + whop + arc-skill-manager + arc-brand-voice +
+  // whop-sales + social-x-posting — same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md (scheduleRetrospective() in
+  // src/dispatch.ts fires after every completed task; the skill variety just reflects
+  // which lane a given blocked task happened to belong to, not a distinct process).
+  // Bare entry so suffix variants are covered too.
+  "sensor:arc-blocked-review",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -137,6 +157,49 @@ const KNOWN_SUBJECT_PREFIXES = [
   // ad-hoc "Retrospective: extract learnings" chain — same already-rejected shape as
   // retrospective-pattern-no-generic-machine-needed.md, not new (task #21390).
   "seed whop chat",
+  // "Review PR #N on aibtcdev/agent-news: <title>" -> retrospective, avg 2.0 steps,
+  // single skill pair (aibtc-repo-maintenance + arc-skill-manager) — same already-rejected
+  // ad-hoc retrospective shape, just a per-repo PR review variant (task #21516).
+  "review pr #",
+  // "Email watch report to whoabuddy" -> retrospective chain (task #21579), avg 2.0 steps,
+  // arc-email-sync + arc-skill-manager. Source is "workflow:<id>:emailing" (unique per
+  // instance, so it never dedups via source-grouping) — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "email watch report to whoabuddy",
+  // "Post public-forum teaser: <title>" -> retrospective chain (task #21657), avg 2.0
+  // steps, whop + arc-brand-voice + arc-skill-manager — same already-rejected ad-hoc
+  // retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "post public-forum teaser",
+  // "Draft Arc's next amplified article — Article N" -> retrospective chain (task
+  // #21657), avg 2.7 steps. The multi-step depth here isn't ad-hoc slack — it's already
+  // a formal state machine of its own: arc-article-pipeline's `article_queue_log` table
+  // (post_id/staged_at claim-resume, see cli.ts) tracks draft->stage->publish with
+  // idempotent resume. A second generic workflow template would duplicate that tracking,
+  // not add value.
+  "draft arc's next amplified article",
+  // "Package a research report into a Whop SKU — <file>" -> retrospective chain (task
+  // #21657), avg 2.0 steps, arc-packaging + arc-skill-manager — same already-rejected
+  // ad-hoc retrospective shape as retrospective-pattern-no-generic-machine-needed.md.
+  "package a research report into a whop sku",
+  // "Thread whop forum teardown: <title>" -> retrospective chain (task #21724, 9
+  // recurrences). Already modeled: ContentCalendarMachine's whop_forum hop
+  // (source `content-calendar:<slug>:whop-forum`) and PublishFanoutMachine's whop_forum
+  // hop (source `publish-fanout:<slug>:whop-forum`) both emit this exact subject
+  // (state-machine.ts lines ~413, ~786), followed by the standard ad-hoc retrospective —
+  // same already-rejected shape as retrospective-pattern-no-generic-machine-needed.md, not
+  // a new pattern. Falls through source-grouping because each hop's source is unique
+  // per work-piece slug, so it only ever surfaces via subject-grouping.
+  "thread whop forum teardown",
+  // "Post X thread: <title>" (and its "Post X (single tweet): <title>" chaining-disabled
+  // variant — normalizeRootSubject strips the parenthetical AND the trailing ": <title>",
+  // so both collapse to the same "post x" key) -> retrospective chain (task #21724, 7
+  // recurrences). Already modeled: ContentCalendarMachine's x_thread hop (source
+  // `content-calendar:<slug>:x`, state-machine.ts line ~755) followed by the standard
+  // ad-hoc retrospective — same already-rejected shape as
+  // retrospective-pattern-no-generic-machine-needed.md, not a new pattern. Same
+  // source-uniqueness reasoning as the whop-forum entry above. Prefix (not exact match)
+  // so "post x" alone covers both variants via startsWith.
+  "post x",
 ];
 
 function normalizeSource(source: string | null): string {
@@ -299,6 +362,7 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     if (group.length < MIN_RECURRENCES) continue;
     const src = normalizeSource(group[0].rootSource);
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
+    if (isKnownPattern(src)) continue;
     if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
 
     const avgSteps =

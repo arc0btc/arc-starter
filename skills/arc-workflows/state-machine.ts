@@ -1,5 +1,9 @@
 import { Workflow, getTaskById, getDatabase } from "../../src/db.ts";
 import { PAID_ROOM_PRODUCT_URL, PROMO_CODE } from "../../src/constants.ts";
+// arc-day-n-publishing P1 (dev-council/Fowler+Newman, design spec §3.6): the blog-publish
+// task descriptor now has ONE definition, shared with the merged Day-N producer
+// (skills/arc-daily-read/cli.ts) — see blog-render.ts's doc comment for why.
+import { buildBlogPublishTask } from "./blog-render.ts";
 
 /**
  * Minimal state machine runner. No external deps.
@@ -306,7 +310,10 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Reserve this single-tweet action in the publish-fanout lane BEFORE posting — this is a managed lane, cmdPost refuses to fall through to the legacy guard stack without a prior reservation:
+   arc skills run --name social-x-posting -- reserve-group --sources publish-fanout:${ctx.slug}:x --thread-ref publish-fanout:${ctx.slug}:x
+   If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close this task as failed with that reason in the summary (source-dedup prevents re-fire; a future blog post gets its own fresh key).
+4. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
           };
         }
 
@@ -372,7 +379,10 @@ Voice: read skills/social-x-posting/CADENCE.md (AI-prefers-Bitcoin theme spine) 
 Steps:
 1. Compose the post.
 2. Credit check: if X API returns 402 CreditsDepleted, posting credits are exhausted and won't auto-recover. Close this task as failed — the workflow already advanced to completed, and source-dedup (publish-fanout:${ctx.slug}:x) prevents re-fire. Escalate to whoabuddy for credit top-up per MEMORY [P].
-3. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
+3. Reserve this single-tweet action in the publish-fanout lane BEFORE posting — this is a managed lane, cmdPost refuses to fall through to the legacy guard stack without a prior reservation:
+   arc skills run --name social-x-posting -- reserve-group --sources publish-fanout:${ctx.slug}:x --thread-ref publish-fanout:${ctx.slug}:x
+   If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close this task as failed with that reason in the summary (source-dedup prevents re-fire; a future blog post gets its own fresh key).
+4. Post (the --source ledger suppresses sequential re-runs — a retry/replay under single-agent dispatch won't double-post; a documented concurrent/crash window remains, see cli.ts): arc skills run --name social-x-posting -- post --text "<text>" --source publish-fanout:${ctx.slug}:x`,
         };
       },
     },
@@ -608,6 +618,28 @@ function contentCalendarWindowOpen(): boolean {
   return utcHour >= 15 && utcHour < 18;
 }
 
+/**
+ * arc-day-n-publishing P3 (QUEST.md: "pause paid-room seeding until an organic member
+ * exists" — coordinated with the parallel arc-storefront-revamp quest, which owns the room
+ * itself). Reads agent_config so the pause is a single-value, instantly-reversible flip (same
+ * convention as DAYN_MERGED / DAYN_EMAIL_ENABLED in arc-daily-read/cli.ts) rather than deleting
+ * hops outright. Fails toward PAUSED if the row is ever missing — an empty room should never
+ * get accidentally re-seeded by a missing config row. Gates: blog_published's whop-chat-seed
+ * task, whop_chat_seeded's X-thread task (which embeds a $49 CTA-reply step when
+ * X_THREAD_CHAINING_ENABLED=true — paused as a whole rather than surgically stripping just the
+ * CTA out of that large templated description; Day-N's own X thread from P1 is unaffected and
+ * remains the public thread channel during the pause), x_thread_posted's whop-forum-thread
+ * task, and whop_forum_threaded's $49-CTA-carrying public-forum-teaser task. Reversal:
+ * UPDATE agent_config SET value='false' WHERE key='PAID_ROOM_SEEDING_PAUSED'.
+ */
+function paidRoomSeedingPaused(): boolean {
+  const db = getDatabase();
+  const row = db.query("SELECT value FROM agent_config WHERE key = 'PAID_ROOM_SEEDING_PAUSED'").get() as
+    | { value: string }
+    | null;
+  return row?.value !== "false";
+}
+
 /** Shared blog context lines appended to every downstream hop's task description. */
 function contentCalendarBlogRef(ctx: ContentCalendarContext): string {
   const urlLine = ctx.url ? `\nBlog: ${ctx.url}` : "";
@@ -634,23 +666,20 @@ export const ContentCalendarMachine: StateMachine<ContentCalendarContext> = {
         // time. Missing/invalid anchor → fails open (publishes immediately), matching the
         // sensor path where blog instances carry a url and short-circuit above.
         if (!cadenceGateOpen(ctx.cadence_anchor, 0)) return { type: "noop" };
+        // arc-day-n-publishing P1: task wording now comes from the shared blog-render
+        // module (extract-and-reuse, design spec §3.6) — this caller only supplies its
+        // own dedup source key + state-machine advancement, both unchanged from before.
+        const built = buildBlogPublishTask({
+          slug: ctx.slug,
+          title: ctx.title || ctx.slug,
+          sourceArtifactPath: ctx.source_artifact_path,
+          extraContext: "The workflow auto-advances to blog_published; downstream channel hops fire on the cadence anchor.",
+        });
         return {
           type: "create-task",
-          subject: `Publish blog work-piece: ${ctx.title || ctx.slug}`,
-          priority: 4,
-          model: "sonnet",
-          skills: ["blog-publishing", "arc-brand-voice"],
+          ...built,
           source: `content-calendar:${ctx.slug}:blog`,
           autoAdvanceState: "blog_published",
-          description: `Publish the canonical, signed blog artifact for this work-piece — the T+0 source of truth the rest of the content calendar amplifies.
-
-Source artifact: ${ctx.source_artifact_path}
-Voice: read skills/arc-brand-voice/CHANNELS.md §blog before publishing.
-
-Steps:
-1. Finalize and publish the post (blog-publishing skill). Verify it is live (build success ≠ deploy success — confirm the URL resolves, see MEMORY [P] content-publish-verify-deploy).
-2. Sign the artifact per Arc's publishing convention.
-3. The workflow auto-advances to blog_published; downstream channel hops fire on the cadence anchor.`,
         };
       },
     },
@@ -668,6 +697,11 @@ Steps:
         // next sensor tick; no state is consumed, so this is safe to retry indefinitely.
         if (!isUrlLive(ctx.url)) {
           return { type: "noop" };
+        }
+        // arc-day-n-publishing P3: paid-room seeding paused — skip the paid whop-chat post,
+        // still advance so the downstream (non-paid) X-thread hop stays on schedule.
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "whop_chat_seeded" };
         }
         return {
           type: "create-task",
@@ -744,6 +778,16 @@ Steps:
 5. Verify the tweet is live. If posting returns a 403 of any kind, STOP — do not retry — and escalate to whoabuddy (a 403 is a pre-lock signal, [[x-reply-403-account-lock-cascade]]).`,
           };
         }
+        // arc-day-n-publishing P3: the chaining-branch thread below embeds a $49-CTA-reply
+        // step (paid-room funnel) — while paid-room seeding is paused, skip this task
+        // entirely rather than surgically stripping the CTA out of the templated
+        // description below, and advance state so downstream hops stay on schedule. Day-N's
+        // own X thread (P1, unaffected by this flag) remains the public thread channel
+        // during the pause; content-calendar's own (non-Day-N) X-thread hop resumes
+        // automatically once PAID_ROOM_SEEDING_PAUSED flips back to 'false'.
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "x_thread_posted" };
+        }
         return {
           type: "create-task",
           subject: `Post X thread: "${ctx.title || ctx.slug}"`,
@@ -775,6 +819,12 @@ Steps:
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.whop_forum)) {
           return { type: "noop" };
         }
+        // arc-day-n-publishing P3: paid-room seeding paused — skip the paid whop-forum
+        // post, still advance so the downstream public-forum-teaser hop stays on schedule
+        // (that hop is ALSO gated below, so nothing actually fires while paused).
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "whop_forum_threaded" };
+        }
         return {
           type: "create-task",
           subject: `Thread whop forum teardown: "${ctx.title || ctx.slug}"`,
@@ -798,6 +848,12 @@ Guardrails (paid room): idempotency check before posting (MEMORY [P]); human-rev
         if (!ctx.slug) return null;
         if (!cadenceGateOpen(ctx.cadence_anchor, CONTENT_CALENDAR_OFFSETS_MS.public_forum)) {
           return { type: "noop" };
+        }
+        // arc-day-n-publishing P3: paid-room seeding paused — this hop's entire purpose is
+        // a $49/mo paid-room CTA (FREEMONTH code), so skip it and advance straight to the
+        // terminal course-candidacy assessment state (which does no paid-room work itself).
+        if (paidRoomSeedingPaused()) {
+          return { type: "transition", nextState: "public_forum_teaser" };
         }
         return {
           type: "create-task",
@@ -1853,6 +1909,10 @@ Steps:
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
         if (!ctx.sender) return null;
+        // KEEP THIS CHECK (audited task #20643): NOT redundant with the centralized guard in
+        // evaluateWorkflow() — created_at is deliberately excluded from
+        // STALE_CONTENT_ANCHOR_FIELDS (see comment there), so the centralized guard never fires
+        // for this field. This is the sole staleness protection for this state.
         if (isAnchorStale(ctx.created_at)) return { type: "transition", nextState: "completed" };
         return {
           type: "create-task",
@@ -2262,13 +2322,10 @@ Steps:
     retrospective_pending: {
       on: { learnings_extracted: "completed" },
       action: (ctx) => {
-        // Staleness guard (task #20591, mirrors ComplianceReviewMachine.scan_complete /
-        // AgentCollaborationMachine.retrospective_pending / self-review-cycle.issues_found):
-        // a re-activated dormant workflow (e.g. workflow #1516, overnight-brief:2026-04-13)
-        // replayed this action 2.5 months stale (task #20499), dispatching a retrospective
-        // quoting a brief summary that's no longer relevant. date is set once at workflow
-        // creation; once >7d old, skip the duplicate retrospective and complete instead.
-        if (isAnchorStale(ctx.date)) return { type: "transition", nextState: "completed" };
+        // Staleness (task #20591) is now handled by the centralized guard in evaluateWorkflow()
+        // (commit 71dd3d59) — this state's `date` field is in STALE_CONTENT_ANCHOR_FIELDS and its
+        // autoAdvanceState below ("completed") matches what the centralized guard would pick, so a
+        // per-stage check here would be pure duplication (task #20643).
         const date = ctx.date || "unknown date";
         return {
           type: "create-task",
@@ -2336,7 +2393,7 @@ export const CostAlertMachine: StateMachine<{
           type: "create-task",
           subject: `Cost alert: daily spend ${spend}${cap} — review drivers`,
           priority: 7,
-          skills: ["arc-cost-alerting", "arc-skill-manager"],
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
           description: `Cost alert triggered: daily spend is at ${spend}${cap}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
 
 Steps:
@@ -2944,6 +3001,10 @@ Then complete the health check:
         // triage task quoting issueSummary's point-in-time cost/queue stats as if observed today.
         // cycleDate is set once at workflow creation (triggered state); once >7d old, skip the
         // duplicate triage and complete honestly instead of re-triaging stale data.
+        // KEEP THIS CHECK (audited task #20643): NOT redundant with the centralized guard in
+        // evaluateWorkflow(). That guard's fallback would pick this action's autoAdvanceState
+        // ("triaging") over "resolved" since it's checked first in the skip-target list — pruning
+        // this would leave the workflow parked in "triaging" with no triage task ever created.
         if (isAnchorStale(ctx.cycleDate)) return { type: "transition", nextState: "resolved" };
         const count = ctx.issueCount || 1;
         const cost = ctx.costToday ? `, $${ctx.costToday} today` : "";
@@ -3510,8 +3571,10 @@ Steps:
  *   scanDate       — ISO date of the scan (for dedup / reference); also doubles as the
  *     staleness anchor (task #20589) — scan_complete skips creating a review task for findings
  *     >7d old (a re-activated dormant workflow's stale aggregate counts can't be re-verified
- *     against the current skill tree), transitioning straight to retrospective_pending with an
- *     honest staleness note instead. Missing/invalid scanDate fails open. See workflow #1687.
+ *     against the current skill tree), transitioning straight to completed instead of dispatching
+ *     a stale review. Now enforced by the centralized guard in evaluateWorkflow() (commit
+ *     71dd3d59) rather than a per-stage check (task #20643). Missing/invalid scanDate fails open.
+ *     See workflow #1687.
  *   taskRef        — "task:{id}" of the compliance review task
  *   learningsSummary — brief summary of what was learned
  */
@@ -3530,7 +3593,10 @@ export const ComplianceReviewMachine: StateMachine<{
       action: (ctx) => {
         const count = ctx.findingCount ?? 0;
         if (count === 0) return { type: "transition", nextState: "clean" };
-        if (isAnchorStale(ctx.scanDate)) return { type: "transition", nextState: "completed" };
+        // Staleness (task #20589) is handled by the centralized guard in evaluateWorkflow() —
+        // scanDate is in STALE_CONTENT_ANCHOR_FIELDS and this action has no autoAdvanceState, so
+        // the guard's fallback ("completed") matches; a per-stage check here is duplication
+        // (task #20643).
         const skills = ctx.skillCount ? ` across ${ctx.skillCount} skills` : "";
         const date = ctx.scanDate || new Date().toISOString().slice(0, 10);
         return {

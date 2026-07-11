@@ -44,7 +44,13 @@ import type { Database } from "bun:sqlite";
 // content-calendar each get their OWN budget_ledger row/cap — real per-lane separation,
 // not a shared 'post' lane. See admitGroup()'s globalCap param for how DAILY_TWEET_CAP
 // stays an absolute cross-lane backstop even though each lane now has its own quota.
-export type Lane = "post" | "reply" | "daily-read" | "content-calendar";
+// P3-migration (2026-07-07, task #21524): quest-gtm (whop-sales GTM acquisition
+// posts) and x-cadence (social-x-posting's own proactive beat) migrated off the
+// legacy cmdPost guard stack onto reserve-group, same as daily-read/content-calendar.
+// P3-migration (2026-07-07, task #21584): publish-fanout (blog→X hop, state-machine.ts
+// PublishFanoutMachine) is the last unmigrated legacy cmdPost caller — migrated onto
+// its own lane, same pattern as quest-gtm/x-cadence (no fixed posting window).
+export type Lane = "post" | "reply" | "daily-read" | "content-calendar" | "quest-gtm" | "x-cadence" | "publish-fanout";
 
 export interface AdmitOpts {
   sourceKey: string;

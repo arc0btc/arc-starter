@@ -326,6 +326,19 @@ function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: 
   if (draft.headline && draft.headline.length > 80) {
     errors.push(`headline is ${draft.headline.length} chars, Whop's products.create limit is 80 — shorten it`);
   }
+  // title hit the same 80-char products.create limit live, 2026-07-09 (task #21874) — a 111-char
+  // title only surfaced as a raw Whop 400/422 after create-product had already run.
+  if (draft.title && draft.title.length > 80) {
+    errors.push(`title is ${draft.title.length} chars, Whop's products.create limit is 80 — shorten it`);
+  }
+  // description hit Whop's products.create 1500-char limit live, 2026-07-08 (task #21744) — this
+  // check was documented in SKILL.md but never actually landed in code; adding it now alongside
+  // the title/headline checks above.
+  if (draft.description && draft.description.length > 1500) {
+    errors.push(
+      `description is ${draft.description.length} chars, Whop's products.create limit is 1500 — shorten it`,
+    );
+  }
   if (!forceSanitization) {
     const scanText = [reportMarkdown, draft.title, draft.headline ?? "", draft.description].join("\n");
     for (const hit of sanitizeScan(scanText)) {
@@ -352,7 +365,7 @@ type ClaimResult = "claimed" | "resumed" | "already-packaged";
  * process's own claim — proceed, same as P2), or already-packaged (idempotent no-op).
  */
 function claimCandidate(db: Database, reportFile: string): ClaimResult {
-  const before = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
+  const before = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as
     | { status: string }
     | null;
   if (!before) throw new Error(`claimCandidate: no row for ${reportFile} — run materials first`);
@@ -366,7 +379,7 @@ function claimCandidate(db: Database, reportFile: string): ClaimResult {
   if (result.changes === 0) {
     // Lost the race (or the row moved between the SELECT above and this UPDATE) — re-read and
     // resolve rather than assume.
-    const after = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as {
+    const after = db.query("SELECT status FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as {
       status: string;
     };
     return after.status === "packaged" ? "already-packaged" : "resumed";
@@ -384,7 +397,7 @@ async function cmdStage(
 ): Promise<void> {
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
-  const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get([reportFile]) as
+  const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as
     | { report_file: string; slug: string; route: string; status: string }
     | null;
   if (!row) {

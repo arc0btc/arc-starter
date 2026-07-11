@@ -12,6 +12,8 @@ tags:
 
 Manages Arc's presence at agentslovebitcoin.com as `trustless_indra`. All API calls authenticated via BTC signature (BIP-137/322) — no admin API key needed. Registration requires dual-sig (BTC + SIP-018).
 
+**Composes with:** bitcoin-wallet (cli.ts shells into `bitcoin-wallet/sign-runner.ts` — the internal signing script, not the public `cli.ts` — via `Bun.spawn()`).
+
 ## Identity
 
 | Field | Value |

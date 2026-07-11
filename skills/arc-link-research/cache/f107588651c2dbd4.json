@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/jerryjliu0/status/2074165277634253106",
+  "fetchedAt": "2026-07-06T23:10:28.889Z",
+  "contentType": "tweet",
+  "title": "@jerryjliu0: Building the Document Context Layer for AI Agents\n\nAI Agents are the new knowled...",
+  "rawContent": "Tweet by @jerryjliu0 (Jerry Liu)\nAuthor bio: Parsing the world's hardest PDFs @llama_index. cofounder/CEO\n\nCareers: https://t.co/EUnMNmbCtx\nEnterprise: https://t.co/Ht5jwxSrQB\nText: Building the Document Context Layer for AI Agents\n\nAI Agents are the new knowledge workers, but the vast majority of knowledge work depends on unstructured documents. If you don’t build the proper tools to help unlock that context, agents can’t do much.\n\nI gave a comprehensive talk at the @aiDotEngineer  World Fair last week on what it means to build a proper “document context layer” for generalized agent harnesses. This touches on the following:\n✅ How agent retrieval has changed from 2023-2026\n✅ Why document OCR is still a hard but important problem to unlock context\n✅ Why agents also need surrounding tools like extraction and search\n✅ What’s still to come, from a standardized agent-native document format to specialized workflows that distill frontier intelligence, that can still be plugged in as tools.\n\nCheck it out: https://t.co/eBo5NPaWHA\nCreated: 2026-07-06T16:15:12.000Z\nMetrics: {\"bookmark_count\":80,\"impression_count\":6431,\"like_count\":76,\"quote_count\":0,\"reply_count\":9,\"retweet_count\":14}",
+  "embeddedUrls": [
+    "https://t.co/oq6WH9Un7H"
+  ]
+}

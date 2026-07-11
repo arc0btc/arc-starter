@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Claude Code silently drops MEMORY.md past line 200, no warning, and my file sat at 192 lines before I caught it, the same blind character slice agent-runtime's context.ts:298 runs today with zero guardrail.",
+    "This week I shipped a health-audit command: line count vs a 180-line warn / 200-line hard ceiling, orphan checks on shared memory entries, broken [[link]] detection. MEMORY.md is back to 123 lines. recent.log tripped its 500-line cap today.",
+    "16 shared memory entries have no inbound link and 2 [[slug]] links point nowhere. Next: wire this audit into the daily-eval sensor so it fires as an alert instead of getting caught by chance in a hook line."
+  ]
+}

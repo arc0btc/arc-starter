@@ -14,6 +14,7 @@ import {
   writeHookState,
 } from "../../src/sensors.ts";
 import {
+  countRecentTasksBySubject,
   getDatabase,
   insertTask,
   pendingTaskExistsForSource,
@@ -26,6 +27,12 @@ const TASK_SOURCE = "sensor:arc-purpose-eval";
 // (policy, whoabuddy 2026-05-19, task #17094). Signal filing is categorically impossible while true —
 // don't spawn a "go research signals" follow-up for a capability that can't act on its findings.
 const SIGNAL_FILING_DISABLED = true;
+// Cost score stays at/near the floor under normal legitimate operation (baseline daily spend
+// runs $100-160/day, well above the PURPOSE.md $70/day "5-point" threshold) — without a cooldown
+// this follow-up re-fires every 12h sensor cycle even the day after a review already concluded
+// "root lever unchanged, no new action" (see task #21309 -> #21504, same-day duplicate audit).
+const COST_REVIEW_SUBJECT = "Review cost efficiency — daily spend elevated";
+const COST_REVIEW_COOLDOWN_DAYS = 2;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -48,6 +55,8 @@ interface EvalMetrics {
   costPerTask: number;
   costPerDay: number;
   prReviewCount: number;
+  prReviewCount3d: number;
+  prReviewAvgPerDay: number;
   totalTasks: number;
 }
 
@@ -154,20 +163,37 @@ function collectMetrics(): EvalMetrics {
     )
     .get() as { total_cost: number; cycle_count: number };
 
-  // PR reviews completed in last 24h
+  // PR reviews completed in last 24h — kept for display, but scoring uses the
+  // 3-day rolling average below (see prReviewCount3d). A single exact-24h
+  // snapshot is highly sensitive to natural external PR-open burstiness and
+  // reads a legitimate lull as an internal capacity problem (task #21437,
+  // investigation #21435 found near-zero queue latency for pr-review tasks —
+  // there was no crowd-out, just a 51h gap in external PR volume).
   // Match subjects like "Review PR #N", "review PR", etc.
-  const prRow = db
-    .query(
-      `SELECT COUNT(*) as count FROM tasks
-       WHERE status = 'completed'
-       AND completed_at > datetime('now', '-1 day')
-       AND (
+  const PR_REVIEW_SUBJECT_FILTER = `(
          subject LIKE 'Review %PR%'
          OR subject LIKE 'review %PR%'
          OR subject LIKE '%PR review%'
          OR subject LIKE '%PR %review%'
          OR subject LIKE 'Review and%PR%'
-       )`
+       )`;
+
+  const prRow = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE status = 'completed'
+       AND completed_at > datetime('now', '-1 day')
+       AND ${PR_REVIEW_SUBJECT_FILTER}`
+    )
+    .get() as { count: number };
+
+  // Rolling 3-day count, used for scoring instead of the bursty 24h snapshot.
+  const prRow3d = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE status = 'completed'
+       AND completed_at > datetime('now', '-3 day')
+       AND ${PR_REVIEW_SUBJECT_FILTER}`
     )
     .get() as { count: number };
 
@@ -184,6 +210,8 @@ function collectMetrics(): EvalMetrics {
     costPerTask: total > 0 ? costStats.total_cost / total : 0,
     costPerDay: costStats.total_cost,
     prReviewCount: prRow.count,
+    prReviewCount3d: prRow3d.count,
+    prReviewAvgPerDay: prRow3d.count / 3,
     totalTasks: total,
   };
 }
@@ -391,12 +419,15 @@ function scoreOps(successRate: number): number {
   return 1;
 }
 
-function scoreEcosystem(prReviews: number): number {
+function scoreEcosystem(prReviewAvgPerDay: number): number {
   // PURPOSE.md: 1=<3 reviews, 2=3-5, 3=5-10+1skill, 4=10++newskill, 5=10++upstream
-  // Without skill tracking, approximate from PR count alone
-  if (prReviews >= 10) return 4;
-  if (prReviews >= 5) return 3;
-  if (prReviews >= 3) return 2;
+  // Without skill tracking, approximate from PR count alone.
+  // Uses a 3-day rolling average/day (not a single 24h snapshot) so a
+  // legitimate lull in external PR volume doesn't score as a capacity
+  // problem — see the comment on prRow3d in collectMetrics().
+  if (prReviewAvgPerDay >= 10) return 4;
+  if (prReviewAvgPerDay >= 5) return 3;
+  if (prReviewAvgPerDay >= 3) return 2;
   return 1;
 }
 
@@ -412,7 +443,7 @@ function scoreCost(costPerTask: number, costPerDay: number): number {
 function computeScores(m: EvalMetrics): PurposeScores {
   const signal = scoreSignal(m.signalCount, m.signalBeats);
   const ops = scoreOps(m.successRate);
-  const ecosystem = scoreEcosystem(m.prReviewCount);
+  const ecosystem = scoreEcosystem(m.prReviewAvgPerDay);
   const cost = scoreCost(m.costPerTask, m.costPerDay);
 
   // Weighted average normalized to measured dimensions only
@@ -476,10 +507,15 @@ function generateFollowUps(
     });
   }
 
-  // High cost → cost optimization review
-  if (scores.cost <= 1 && metrics.costPerDay > 70) {
+  // High cost → cost optimization review (cooldown-gated: don't re-spawn an identical
+  // audit while a prior one is still fresh — see COST_REVIEW_COOLDOWN_DAYS above)
+  if (
+    scores.cost <= 1 &&
+    metrics.costPerDay > 70 &&
+    countRecentTasksBySubject(COST_REVIEW_SUBJECT, COST_REVIEW_COOLDOWN_DAYS) === 0
+  ) {
     followUps.push({
-      subject: "Review cost efficiency — daily spend elevated",
+      subject: COST_REVIEW_SUBJECT,
       skills: '["arc-cost-reporting"]',
       priority: 5,
       model: "sonnet",
@@ -490,15 +526,21 @@ function generateFollowUps(
     });
   }
 
-  // Low ecosystem → prompt PR review activity
-  if (scores.ecosystem <= 1 && metrics.prReviewCount < 3) {
+  // Low ecosystem → prompt PR review activity. Gated on the 3-day rolling
+  // average, not the raw 24h count, so a natural lull in external PR volume
+  // (no PRs opened, nothing to review) doesn't spawn a queue-rebalance-style
+  // task off a bursty single-day snapshot (see #21437 / #21435).
+  if (scores.ecosystem <= 1 && metrics.prReviewAvgPerDay < 3) {
     followUps.push({
       subject: "Check for pending PR reviews across ecosystem repos",
       skills: '["aibtc-repo-maintenance"]',
       priority: 5,
       model: "sonnet",
       description:
-        `PURPOSE eval: ecosystem score ${scores.ecosystem}/5 (${metrics.prReviewCount} PR reviews in 24h). ` +
+        `PURPOSE eval: ecosystem score ${scores.ecosystem}/5 (${metrics.prReviewCount} PR reviews in 24h, ` +
+        `${metrics.prReviewAvgPerDay.toFixed(1)}/day avg over 3d). ` +
+        `Before filing a queue-rebalance or priority-boost task off this metric, verify pr-review queue latency ` +
+        `directly (time-to-pickup) — a low count can reflect zero external PRs opened, not internal crowd-out. ` +
         `Check for open PRs needing review in aibtcdev repos. Target: 5+ reviews/day for ecosystem contribution.`,
     });
   }
@@ -516,7 +558,7 @@ function formatReport(scores: PurposeScores, metrics: EvalMetrics): string {
     `|-----------|-------|--------|`,
     `| Signal Quality | ${scores.signal}/5 | ${metrics.signalCount} signals, ${metrics.signalBeats.length} beats (${metrics.signalBeats.join(", ") || "none"}) |`,
     `| Operational Health | ${scores.ops}/5 | ${metrics.successRate.toFixed(1)}% success (${metrics.completedCount}/${metrics.totalTasks}) |`,
-    `| Ecosystem Impact | ${scores.ecosystem}/5 | ${metrics.prReviewCount} PR reviews |`,
+    `| Ecosystem Impact | ${scores.ecosystem}/5 | ${metrics.prReviewCount} PR reviews (24h), ${metrics.prReviewAvgPerDay.toFixed(1)}/day avg (3d rolling) |`,
     `| Cost Efficiency | ${scores.cost}/5 | $${metrics.costPerTask.toFixed(3)}/task, $${metrics.costPerDay.toFixed(2)}/day |`,
     `| **Weighted (measured)** | **${scores.weighted}/5** | Signal×25% + Ops×20% + Eco×20% + Cost×15% |`,
     "",
@@ -630,6 +672,8 @@ export default async function purposeEvalSensor(): Promise<string> {
       costPerTask: metrics.costPerTask,
       costPerDay: metrics.costPerDay,
       prReviewCount: metrics.prReviewCount,
+      prReviewCount3d: metrics.prReviewCount3d,
+      prReviewAvgPerDay: metrics.prReviewAvgPerDay,
       totalTasks: metrics.totalTasks,
     },
   });

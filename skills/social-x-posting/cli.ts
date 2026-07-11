@@ -192,24 +192,49 @@ interface DailyBudget {
   likes: number;
   retweets: number;
   follows: number;
+  // Pay-per-use dollar tracking (2026-07-06, task #21463). X billing is pay-per-use:
+  // a plain post costs $0.015, a post containing a LINK costs $0.20 (= the price of
+  // 40 reads — the single largest X line item). These fields log write spend and
+  // count link posts for the soft daily LINK_POST_DAILY_CAP. Optional so pre-existing
+  // on-disk budget files (which lack them) still parse.
+  link_posts?: number;      // count of link-bearing posts today ($0.20 tier)
+  write_spend_usd?: number; // dollars spent on writes today
+}
+
+// Pay-per-use write rates (2026 X API). See research/2026-07-06_x-api-budget-ground-truth.md.
+const WRITE_COST_PLAIN_USD = 0.015;
+const WRITE_COST_LINK_USD = 0.2;
+// Link posts are the dominant X cost line. Soft daily cap so an automated burst
+// (e.g. blog→X announcements) can't silently run up the bill. Enforced on ROOT
+// legacy posts only — thread CTAs and pre-admitted reserved-group sends are logged
+// but never blocked mid-chain (the "never truncate a thread" invariant).
+const LINK_POST_DAILY_CAP = 3;
+
+/** True when a tweet's text carries a URL — X bills these at the $0.20 link tier.
+ * Matches explicit http(s):// links and bare t.co short links (the real cases:
+ * blog posts, whop links). Bare auto-linked domains are not detected to avoid
+ * false positives that would wrongly bill a plain post at the link rate. */
+function postContainsLink(text: string): boolean {
+  return /https?:\/\/\S+/i.test(text) || /(^|\s)t\.co\/\S+/i.test(text);
 }
 
 // P2 arc-funnel-hardening (2026-06-27): primary daily cap covering ALL tweet types
-// (roots + thread continuations + CTA tweets). Panel target: 6/day.
-// Real X Basic-tier ceiling: ~500k reads/month = ~16k/day. 6/day is 0.04% of that.
-// BUDGET_LIMITS.posts=3 remains as a secondary root-only guard.
+// (roots + thread continuations + CTA tweets). Panel target: 6/day. This cap is a
+// quality/cadence control, not a cost ceiling — X billing is pay-per-use, so cost is
+// governed by the per-post dollar rates ($0.015 plain / $0.20 link) and the
+// LINK_POST_DAILY_CAP, not a tweet count. BUDGET_LIMITS.posts=3 remains a secondary
+// root-only guard.
 const DAILY_TWEET_CAP = 6;
 
 // Content-calendar x_thread backlog throttle (task #21169, root cause: task #21165).
 // cadenceGateOpen() in state-machine.ts only checks elapsed time since cadence_anchor, with no
 // memory of prior cap-exhaustion deferrals — once a backlog of anchors builds up (e.g. deferred
 // across several days by DAILY_TWEET_CAP exhaustion), every eligible hop fires in the same burst
-// the moment the shared cap resets at UTC midnight. This is a distinct, smaller secondary cap
-// specific to content-calendar x_thread ROOT posts (the ":x" source, not replies/CTA) so a
-// multi-day backlog spreads out across days instead of draining a freshly-reset DAILY_TWEET_CAP
-// in one burst. Enforced here (post-time) as well as in state-machine.ts (task-creation-time)
-// because tasks already queued before this fix still need to be throttled at post time.
-const CONTENT_CALENDAR_X_THREAD_DAILY_CAP = 1;
+// the moment the shared cap resets at UTC midnight. state-machine.ts enforces its own
+// CONTENT_CALENDAR_X_THREAD_DAILY_CAP at task-creation-time; the post-time enforcement that used
+// to live here (this constant) became dead code once content-calendar fully migrated onto
+// reserve-group (branch 1 of cmdPost intercepts every content-calendar: source before reaching
+// this legacy guard stack) — removed 2026-07-07 (task #21524).
 
 // Daily-read scheduling fix (arc-demand-gen P1). arc-daily-read's sensor needs 4 of the shared
 // 6 slots free at its UTC 13:00 window, but content-calendar threads and the proactive cadence
@@ -301,7 +326,7 @@ async function loadBudget(): Promise<DailyBudget> {
   } catch {
     // corrupt file, start fresh
   }
-  return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0 };
+  return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
 }
 
 async function saveBudget(budget: DailyBudget): Promise<void> {
@@ -336,6 +361,39 @@ async function incrementBudget(action: string): Promise<DailyBudget> {
   }
   await saveBudget(budget);
   return budget;
+}
+
+/** Soft daily cap on LINK posts ($0.20 each — the dominant X cost). Throws
+ * BudgetExhaustedError when the cap is hit so callers route it through the same
+ * exit-2 defer path as the post-count budget. Enforced on root legacy posts only. */
+async function checkLinkPostBudget(): Promise<void> {
+  const budget = await loadBudget();
+  const used = budget.link_posts ?? 0;
+  if (used >= LINK_POST_DAILY_CAP) {
+    throw new BudgetExhaustedError(
+      `Daily LINK-post budget exhausted: ${used}/${LINK_POST_DAILY_CAP} link posts today ($0.20 each). Resets at midnight UTC.`
+    );
+  }
+}
+
+/** Record a completed post's pay-per-use write cost (plain $0.015 / link $0.20)
+ * and, for link posts, bump the link_posts counter. Logs the per-post dollar
+ * amount. Best-effort accounting — never throws into the caller's send path. */
+async function recordWriteSpend(hasLink: boolean): Promise<void> {
+  try {
+    const budget = await loadBudget();
+    const cost = hasLink ? WRITE_COST_LINK_USD : WRITE_COST_PLAIN_USD;
+    budget.write_spend_usd = Math.round(((budget.write_spend_usd ?? 0) + cost) * 1e6) / 1e6;
+    if (hasLink) budget.link_posts = (budget.link_posts ?? 0) + 1;
+    await saveBudget(budget);
+    log(
+      `X write cost: $${cost.toFixed(3)} (${hasLink ? "LINK post — $0.20 tier" : "plain post"}); ` +
+        `today writes=$${budget.write_spend_usd.toFixed(3)}` +
+        (hasLink ? `, link_posts=${budget.link_posts}/${LINK_POST_DAILY_CAP}` : "")
+    );
+  } catch (e) {
+    log(`recordWriteSpend failed (non-fatal): ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 
 // ---- Helpers ----
@@ -606,6 +664,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   };
   const unescapedText = unescapeHtml(text);
 
+  // Pay-per-use write tier: a link post costs $0.20 vs $0.015 plain (task #21463).
+  const hasLink = postContainsLink(unescapedText);
+
   // ── P2 arc-posting-scheduler: pre-admitted-group fast path ─────────────────────
   // If --source matches an outbound_action row (admitted upfront via `reserve-group`),
   // the WHOLE guard stack below (dedup/kill-switch/DAILY_TWEET_CAP/reservation/
@@ -729,8 +790,14 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       const creds = await loadCreds();
       const body: Record<string, unknown> = { text: unescapedText };
       if (flags["reply-to"]) body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
+      // arc-day-n-publishing P4: event-driven quote-tweet support. A quote-tweet is a
+      // regular tweet with an attached reference (X API v2 top-level `quote_tweet_id`),
+      // NOT a reply — it deliberately inherits this exact guard stack (kill switch,
+      // DAILY_TWEET_CAP, budget, enforceInterSendSpacing, terminal-403-no-retry) because,
+      // unlike the reply lane, quote-tweets DO count against the post cap.
+      if (flags["quote-tweet-id"]) body["quote_tweet_id"] = flags["quote-tweet-id"];
 
-      log(`Posting tweet via reserved group (${text.length} chars, ${flags["reply-to"] ? "continuation" : "root"}, atomic_group_id=${engineRow.atomic_group_id})...`);
+      log(`Posting tweet via reserved group (${text.length} chars, ${flags["reply-to"] ? "continuation" : flags["quote-tweet-id"] ? "quote" : "root"}, atomic_group_id=${engineRow.atomic_group_id})...`);
       let groupResult: Awaited<ReturnType<typeof apiRequest>>;
       try {
         groupResult = await apiRequest("POST", "/tweets", creds, body);
@@ -763,6 +830,9 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       const groupData = groupResult["data"] as Record<string, string> | undefined;
       if (groupData) {
         engineMarkSent(engineDb, engineRow.id, groupData["id"], engineRow.lane as EngineLane, engineRow.budget_day);
+        // Pay-per-use accounting: log the dollar cost + link-post count. Reserved
+        // groups are NOT cap-blocked (already atomically admitted) but ARE metered.
+        await recordWriteSpend(hasLink);
         console.log(JSON.stringify({ id: groupData["id"], text: groupData["text"] }, null, 2));
         log(`Tweet posted (reserved-group): ${groupData["id"]}`);
       } else {
@@ -791,7 +861,15 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   // silently posting via the ungated legacy path. This does not affect the reply lane, the
   // cadence beat, or any other legacy `--source` shape — only the two lanes this phase
   // gave a reservation requirement to.
-  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read):/;
+  // Widened 2026-07-07 (task #21524): quest:gtm: (whop-sales GTM acquisition) and
+  // sensor:x-cadence: (this skill's own cadence beat) migrated onto reserve-group —
+  // the last two legacy cmdPost callers. Same fail-closed principle as content-calendar/
+  // daily-read: no silent fallthrough for ANY known managed-lane source shape.
+  // Widened again 2026-07-07 (task #21584): publish-fanout: (blog→X hop,
+  // PublishFanoutMachine's blog_published/x_pending states) was the LAST unmigrated
+  // legacy cmdPost caller — now reserves via reserve-group before posting, same as
+  // every other managed lane.
+  const MANAGED_LANE_SOURCE_PREFIX = /^(content-calendar|daily-read|quest:gtm|sensor:x-cadence|publish-fanout):/;
   if (flags["source"] && MANAGED_LANE_SOURCE_PREFIX.test(flags["source"])) {
     log(`REFUSING legacy fallthrough: source=${flags["source"]} matches a managed-lane prefix but has no reserve-group admission (outbound_action row) — this lane MUST reserve before posting. Not falling through to the ungated legacy path.`);
     console.log(JSON.stringify({
@@ -800,6 +878,16 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     }));
     process.exit(1);
   }
+
+  // ARCHITECT DECISION (task #21658, closing the #21656 audit's open question): the
+  // legacy guard stack below is NOT dead code and must not be deleted. All 5 managed
+  // sensor/workflow lanes now fail closed above, but genuinely ad-hoc/manual posts —
+  // AGENT.md's own canonical worked example composes a thread with NO --source at all —
+  // still take this exact path, and it's the ONLY thing enforcing kill-switch,
+  // DAILY_TWEET_CAP, the daily-read reservation, and the root-post budget for that
+  // traffic. An unrecognized/absent --source failing closed here (matching the managed
+  // lanes' posture) would block legitimate manual composition with no reservation
+  // mechanism offered in its place. Keep this branch as the deliberate manual-post lane.
 
   // ── Legacy path (unmigrated lanes — P3 territory) — UNCHANGED guard stack ──────
   // Local ledger short-circuit BEFORE credits/budget/API — the operative
@@ -862,44 +950,13 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
       "SELECT COALESCE(SUM(reserved_count),0) as total_count FROM budget_ledger WHERE channel='x' AND utc_day=date('now') AND lane != 'reply'"
     ).get() as { total_count: number } | null)?.total_count ?? 0;
 
-    const source = flags["source"] ?? "";
-    const isDailyRead = isDailyReadSource(source);
-    const isNewNonDailyReadThreadStart = !isDailyRead && !flags["reply-to"];
-
-    // Daily-read reservation (arc-demand-gen P1): while the day's daily-read window hasn't
-    // resolved yet (before UTC 14:00 and no daily_read_log row for today), a NEW non-daily-read
-    // thread cannot START at all if ANYTHING has already posted today (todayCount > 0). Only
-    // gates root/new-thread-start posts (panel-mandated "defer whole hop, never truncate") — a
-    // thread already underway (--reply-to set) is exempt here and only bound by the unchanged
-    // absolute DAILY_TWEET_CAP below, so it always finishes atomically once started.
-    //
-    // Threshold is 0, not "fewer than N have posted" (dev-council/Lamport, 2026-07-05): since
-    // continuations aren't capped by this reservation once a root is allowed through, letting a
-    // SECOND independent lane also start a root would let two unbounded threads both eat into
-    // daily-read's reserved territory instead of at most one. Restricting to "nothing has posted
-    // yet today" bounds the residual overrun risk to a single thread — see the HONEST LIMIT note
-    // above DAILY_READ_WINDOW_CLOSE_UTC_HOUR.
-    let reservationActive = false;
-    if (isNewNonDailyReadThreadStart) {
-      const nowUtcHour = new Date().getUTCHours();
-      reservationActive =
-        nowUtcHour < DAILY_READ_WINDOW_CLOSE_UTC_HOUR && todayCount > 0 && !dailyReadPostedToday(guardDb);
-    }
-
-    if (reservationActive) {
-      log(
-        `daily-read reservation active (arc-daily-read hasn't posted today, window open until ` +
-        `${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC, ${todayCount} tweet(s) already posted today): ` +
-        `blocking a NEW non-daily-read thread start — deferring "${source}" whole (not truncating)`
-      );
-      console.log(JSON.stringify({
-        deferred: true,
-        reason: "daily_read_slots_reserved",
-        detail: `${todayCount} tweet(s) already posted today; new non-daily-read thread starts are blocked until arc-daily-read posts or its window closes at ${DAILY_READ_WINDOW_CLOSE_UTC_HOUR}:00 UTC (of the shared ${DAILY_TWEET_CAP}/day cap)`,
-        planned_for: "later today (after arc-daily-read's window resolves) or tomorrow",
-      }));
-      process.exit(2);
-    }
+    // P1 daily-read reservation RETIRED 2026-07-08 (arc-posting-scheduler CHECKPOINTS.md #5):
+    // the bar was ">=2 distinct clean-window daily-read 'sent' days post-fix, no out-of-window
+    // rows" — met 2026-07-07 (13:23-13:26Z) + 2026-07-08 (13:02-13:06Z). Daily-read's window
+    // priority is now enforced by reserve-group admission (admission.ts lane windows) and every
+    // managed lane fail-closes above (MANAGED_LANE_SOURCE_PREFIX refusal), so this legacy-path
+    // reservation guarded only unmanaged legacy sources against a lane that no longer posts
+    // through this path. Restore point: cli.ts.bak-20260708-p1retire.
 
     if (todayCount >= DAILY_TWEET_CAP) {
       log(`daily tweet cap exhausted (${todayCount}/${DAILY_TWEET_CAP} total tweets today) — deferring`);
@@ -910,26 +967,6 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
         planned_for: "tomorrow",
       }));
       process.exit(2);
-    }
-
-    // Content-calendar x_thread secondary cap: only the root post of a new thread
-    // (source === "content-calendar:<slug>:x", not ":x:reply-N" or ":x-cta") burns this slot —
-    // those source keys are set by ContentCalendarMachine's whop_chat_seeded action.
-    const isContentCalendarXThreadRoot = /^content-calendar:[^:]+:x$/.test(source);
-    if (isContentCalendarXThreadRoot) {
-      const ccTodayCount = (guardDb.query(
-        "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now') AND is_root = 1 AND source LIKE 'content-calendar:%:x'"
-      ).get() as { total_count: number } | null)?.total_count ?? 0;
-      if (ccTodayCount >= CONTENT_CALENDAR_X_THREAD_DAILY_CAP) {
-        log(`content-calendar x_thread daily cap exhausted (${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP}) — deferring "${source}"`);
-        console.log(JSON.stringify({
-          deferred: true,
-          reason: "content_calendar_x_thread_cap_exhausted",
-          detail: `${ccTodayCount}/${CONTENT_CALENDAR_X_THREAD_DAILY_CAP} content-calendar x_thread roots posted today`,
-          planned_for: "tomorrow",
-        }));
-        process.exit(2);
-      }
     }
   }
 
@@ -943,6 +980,10 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     // status=failed on a budget-over condition; exit 2 signals deferrable.
     try {
       await checkBudget("posts");
+      // Link posts are the dominant cost line — soft-cap them on root posts.
+      // A capped link post defers (exit 2) the same way an exhausted post budget
+      // does. Only root posts are gated; thread CTAs are never blocked mid-chain.
+      if (hasLink) await checkLinkPostBudget();
     } catch (e: unknown) {
       if (e instanceof BudgetExhaustedError) {
         const sourceKey = flags["source"] ?? `budget-defer:${createHash("sha256").update(text).digest("hex").slice(0, 12)}:${todayDateStr()}`;
@@ -977,9 +1018,14 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (flags["reply-to"]) {
     body["reply"] = { in_reply_to_tweet_id: flags["reply-to"] };
   }
+  // arc-day-n-publishing P4: event-driven quote-tweet support (see the reserved-group fast
+  // path above for the full rationale — same X API field, same guard-stack inheritance).
+  if (flags["quote-tweet-id"]) {
+    body["quote_tweet_id"] = flags["quote-tweet-id"];
+  }
 
   await enforceInterSendSpacing(`legacy ${flags["source"] ?? "?"}`);
-  log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : "root"})...`);
+  log(`Posting tweet (${text.length} chars, ${isContinuation ? "continuation" : flags["quote-tweet-id"] ? "quote" : "root"})...`);
   // ANTI-LOCK 403 BACKOFF (2026-07-01): a 403 on a write — especially a self-reply continuation — is a
   // transient reply-restriction / rate-cooldown signal, NOT a permanent failure. RETRYING it is what
   // turned a short cooldown into a multi-hour @arc0btc lock (self-reply 403 cascade, tasks
@@ -1009,6 +1055,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   if (data) {
     // Only root posts burn the 3/day secondary root budget counter (primary is DAILY_TWEET_CAP=6).
     if (!isContinuation) await incrementBudget("posts");
+    // Pay-per-use accounting: log this send's dollar cost + link-post count (task #21463).
+    await recordWriteSpend(hasLink);
     if (flags["source"]) await recordPost(flags["source"], data["id"], !isContinuation);
     // P2 arc-posting-scheduler: legacy budget_ledger dual-write. This lane hasn't
     // migrated onto reserve-group yet (P3), but the arbiter fix above (guard #3's
@@ -1079,37 +1127,53 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
   // lane's canonical window (CHECKPOINTS.md #1) from the source-key prefix; refuse mixed
   // prefixes; log when a caller's explicit flags were overridden. Unmanaged keys keep
   // caller-supplied lane/window semantics unchanged (reply lane, cadence beat).
-  const MANAGED_LANES: Record<string, { earliest: string; latest: string }> = {
-    "content-calendar": { earliest: "15:00", latest: "18:00" },
-    "daily-read": { earliest: "13:00", latest: "14:00" },
-  };
-  const prefixLanes = new Set(
-    sourceKeys.map((s) => Object.keys(MANAGED_LANES).find((l) => s.startsWith(`${l}:`)) ?? "unmanaged"),
+  // Prefix → lane derivation table. The MATCH KEY (source-key prefix, minus its
+  // trailing ":") is distinct from the LANE VALUE stored in budget_ledger/outbound_action
+  // — quest:gtm:* and sensor:x-cadence:* have multi-segment prefixes but map to single-
+  // token lane names (task #21524, migrating whop-sales GTM + x-cadence off legacy cmdPost).
+  // earliest/latest are optional: quest-gtm, x-cadence, and publish-fanout have no fixed
+  // posting window (unlike content-calendar/daily-read) — undefined means anytime, same
+  // as legacy behavior.
+  const MANAGED_LANES: Array<{ prefix: string; lane: string; earliest?: string; latest?: string }> = [
+    { prefix: "content-calendar", lane: "content-calendar", earliest: "15:00", latest: "18:00" },
+    { prefix: "daily-read", lane: "daily-read", earliest: "13:00", latest: "14:00" },
+    { prefix: "quest:gtm", lane: "quest-gtm" },
+    { prefix: "sensor:x-cadence", lane: "x-cadence" },
+    // task #21584: blog→X hop (PublishFanoutMachine) — fires at most once per blog
+    // publish, no fixed time-of-day window.
+    { prefix: "publish-fanout", lane: "publish-fanout" },
+  ];
+  const matchedEntries = new Set(
+    sourceKeys.map((s) => MANAGED_LANES.find((m) => s.startsWith(`${m.prefix}:`)) ?? null),
   );
-  if (prefixLanes.size > 1 && [...prefixLanes].some((l) => l !== "unmanaged")) {
+  const managedMatches = [...matchedEntries].filter((m): m is (typeof MANAGED_LANES)[number] => m !== null);
+  const distinctLanes = new Set(managedMatches.map((m) => m.lane));
+  if (matchedEntries.size > 1 && managedMatches.length > 0) {
+    // Either a mix of managed + unmanaged keys, or keys spanning >1 managed lane —
+    // both are refused: one atomic group belongs to exactly one lane.
+    const seen = managedMatches.length === matchedEntries.size ? [...distinctLanes] : [...distinctLanes, "unmanaged"];
     console.log(JSON.stringify({
       error: true, reason: "mixed_lane_group",
-      detail: `reserve-group refuses a group spanning lanes (${[...prefixLanes].join(", ")}) — one atomic group belongs to exactly one lane. Split the reservation per lane.`,
+      detail: `reserve-group refuses a group spanning lanes (${seen.join(", ")}) — one atomic group belongs to exactly one lane. Split the reservation per lane.`,
     }));
     process.exit(1);
   }
-  const derivedLane = [...prefixLanes][0] !== "unmanaged" ? [...prefixLanes][0] : undefined;
+  const derivedEntry = managedMatches[0];
   let lane = (flags["lane"] ?? "post") as EngineLane;
   // P3 arc-posting-scheduler: per-lane window (HH:MM UTC, both optional — NULL/NULL means
   // anytime, unchanged for the reply lane and any caller that doesn't pass these).
-  let earliestUtcTime = flags["earliest-time"];
-  let latestUtcTime = flags["latest-time"];
-  if (derivedLane) {
-    const win = MANAGED_LANES[derivedLane];
-    if (flags["lane"] && flags["lane"] !== derivedLane) {
-      log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedLane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);
+  let earliestUtcTime: string | undefined = flags["earliest-time"];
+  let latestUtcTime: string | undefined = flags["latest-time"];
+  if (derivedEntry) {
+    if (flags["lane"] && flags["lane"] !== derivedEntry.lane) {
+      log(`reserve-group: OVERRIDING caller lane=${flags["lane"]} → ${derivedEntry.lane} (lane is derived from the managed source-key prefix, not caller flags — see 2026-07-06 lane-bypass regression)`);
     }
-    if ((earliestUtcTime && earliestUtcTime !== win.earliest) || (latestUtcTime && latestUtcTime !== win.latest)) {
-      log(`reserve-group: OVERRIDING caller window ${earliestUtcTime ?? "?"}-${latestUtcTime ?? "?"} → ${win.earliest}-${win.latest} (canonical window for lane=${derivedLane}, CHECKPOINTS.md #1)`);
+    if ((earliestUtcTime && earliestUtcTime !== derivedEntry.earliest) || (latestUtcTime && latestUtcTime !== derivedEntry.latest)) {
+      log(`reserve-group: OVERRIDING caller window ${earliestUtcTime ?? "?"}-${latestUtcTime ?? "?"} → ${derivedEntry.earliest ?? "anytime"}-${derivedEntry.latest ?? "anytime"} (canonical window for lane=${derivedEntry.lane}, CHECKPOINTS.md #1)`);
     }
-    lane = derivedLane as EngineLane;
-    earliestUtcTime = win.earliest;
-    latestUtcTime = win.latest;
+    lane = derivedEntry.lane as EngineLane;
+    earliestUtcTime = derivedEntry.earliest;
+    latestUtcTime = derivedEntry.latest;
   }
 
   const payloadRefs = sourceKeys.map((s) => `reserve-${createHash("sha256").update(s).digest("hex").slice(0, 12)}`);
@@ -1145,8 +1209,8 @@ async function cmdReserveGroup(flags: Record<string, string>): Promise<void> {
     if (released.length > 0) {
       log(`reserve-group: swept ${released.length} abandoned reservation(s) before admitting (releaseAbandonedReservations)`);
     }
-  } catch (err) {
-    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`reserve-group: releaseAbandonedReservations sweep failed (non-fatal, continuing): ${error instanceof Error ? error.message : String(error)}`);
   }
 
   const result = admitGroup(db, {
@@ -1644,12 +1708,20 @@ async function main(): Promise<void> {
       console.log(`x-posting — Post and manage tweets via X API v2
 
 Commands:
-  post       --text <text> [--source <key>]    Post a tweet (max 280 chars)
+  post       --text <text> [--source <key>] [--reply-to <id>] [--quote-tweet-id <id>]
+                                               Post a tweet (max 280 chars)
                                                (--source: a re-run with the same key is suppressed
                                                 by the local x_post_log ledger — no double-post.
                                                 If --source matches a reserve-group-admitted row,
                                                 this drains it through the atomic queue instead of
-                                                the legacy guard stack.)
+                                                the legacy guard stack.
+                                                --quote-tweet-id: arc-day-n-publishing P4 —
+                                                event-driven quote-tweet. Posts as a NORMAL tweet
+                                                with X's native quote-tweet attachment (NOT a
+                                                reply) — counts against DAILY_TWEET_CAP like any
+                                                other post, unlike the separately-budgeted reply
+                                                lane. See skills/social-engine/quote-trigger-detect.ts
+                                                for the trigger + receipt-attachment composition step.)
   reserve-group --sources <k1,k2,...> [--thread-ref <key>] [--lane post|reply|daily-read|content-calendar]
                 [--earliest-time HH:MM] [--latest-time HH:MM]
              P2/P3 arc-posting-scheduler: atomically reserve a WHOLE thread+CTA (root first,

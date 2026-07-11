@@ -349,8 +349,11 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       `ROUTE: ARC-AUTO (arc0btc X) — STALE REPLY TARGET (their last known tweet is past the ${getReplyTargetAgeHours()}h reply-target-age cutoff; a reply would be blocked as 'stale_target').`,
       `Do NOT call social-engine -- reply against reply_to_msg_id=${c.reply_to_msg_id ?? "<none>"} — it will be rejected.`,
       `Instead, compose a FRESH standalone post that mentions ${who} directly (value first, no link) — a new-signal outreach, not a revived thread:`,
+      `Reserve this single-tweet action in the quest-gtm lane (P3 arc-posting-scheduler) BEFORE posting — the lane is derived automatically from the --sources prefix:`,
+      `  arc skills run --name social-x-posting -- reserve-group --sources quest:gtm:recurring:acquisition:${c.lead_id}:fresh --thread-ref quest:gtm:recurring:acquisition:${c.lead_id}:fresh`,
+      "If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — this lead's outreach retries next tick.",
       `  arc skills run --name social-x-posting -- post --text "<body mentioning ${who}>" --source quest:gtm:recurring:acquisition:${c.lead_id}:fresh`,
-      "If the CTA needs a follow-up, use post --reply-to against the tweet you just posted (your own thread, not theirs).",
+      "If the CTA needs a follow-up, use post --reply-to against the tweet you just posted (your own thread, not theirs) — reserve that CTA's own source key the same way before posting it.",
       "If no fresher engagement signal exists for this lead, treat as C-class / defer rather than forcing an outreach.",
     ].join("\n");
   } else if (isX) {
@@ -365,9 +368,11 @@ function buildPitchTask(c: Candidate, channel: string, body: string, firstReply:
       "then a follow-up (your own thread continuation) carrying the attributed CTA ($9 product link, NO FREEMONTH — promo belongs to the membership step, not the product) + any proof.",
       "Reply to THEIR tweet via the UNIFIED reply lane (2026-06-20 consolidation): canonical source_key dedup (≤1 reply/thread/day) + kill switch + budget:",
       `  arc skills run --name social-engine -- reply --tweet-id ${to} --text "<body>" --x-lead-id ${c.lead_id}`,
-      "Then the follow-up CTA is YOUR OWN thread continuation (POST lane, not the reply lane) — use post --reply-to:",
+      "Then the follow-up CTA is YOUR OWN thread continuation (quest-gtm lane, not the reply lane) — reserve it first, then post --reply-to:",
+      `  arc skills run --name social-x-posting -- reserve-group --sources quest:gtm:recurring:acquisition:${c.lead_id}:cta --thread-ref quest:gtm:recurring:acquisition:${c.lead_id}:cta`,
+      "If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, do not post the CTA — retry next tick (the warm-reply body above already went out via the reply lane, so this only defers the CTA follow-up).",
       `  arc skills run --name social-x-posting -- post --text "<first_reply>" --reply-to <arc_reply_tweet_id> --source quest:gtm:recurring:acquisition:${c.lead_id}:cta`,
-      "The unified reply lane enforces the canonical per-thread reply cap; the post follow-up uses the post budget + x_post_log dedup.",
+      "The unified reply lane enforces the canonical per-thread reply cap; the quest-gtm reservation covers this post's budget + dedup (reserve-group's admission is the enforcement, not a separate legacy check).",
     ].join("\n");
   } else {
     // FREE public-forum venue (exp_YRtS3kgMVeBGzu — discovery surface non-members

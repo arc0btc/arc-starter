@@ -36,10 +36,10 @@ interface DispatchGateState {
 function readGateState(): DispatchGateState {
   try {
     const data = readFileSync(DISPATCH_GATE_FILE, "utf-8");
-    const parsed = JSON.parse(data) as DispatchGateState;
+    const parsed = JSON.parse(data) as Partial<DispatchGateState>;
     // Backfill stopped_until for state files written before this field existed
     if (!("stopped_until" in parsed)) parsed.stopped_until = null;
-    return parsed;
+    return parsed as DispatchGateState;
   } catch {
     return {
       status: "running",

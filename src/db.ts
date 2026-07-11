@@ -1062,6 +1062,30 @@ export function markTaskActive(id: number): void {
   ).run(id);
 }
 
+// ARC-0011 memory-poisoning mitigation: tasks whose source is one of these sensors
+// processed untrusted external content (email, link previews, peer messages). Their
+// recent.log lines get a provenance tag so consolidation can flag them for a second
+// look before folding the learning verbatim into MEMORY.md, which loads unconditionally
+// into every future dispatch. See research/2026-07-06_security-audit-deepmind-6attack-taxonomy.md.
+const UNTRUSTED_CONTENT_SOURCE_PREFIXES = [
+  "sensor:arc-link-research",
+  "sensor:arc-email-sync",
+  "sensor:aibtc-inbox-sync",
+  "sensor:arc-peer-inbox",
+  // arc-storefront-revamp P4 (2026-07-08): Whop chat has THREE task-source prefixes —
+  // sensor:whop-replies:<msg_id>, sensor:whop-synthesis:<bucket>, sensor:whop-free-forum:
+  // <bucket> — all reading the same untrusted paid-chat stream. dev-council review
+  // (Hohpe/Newman, CONFIRMED): a single "sensor:whop" entry covers all three (and any future
+  // whop lane) via the existing startsWith match, rather than enumerating one prefix and
+  // silently missing the other two — the exact class of gap this list exists to close.
+  "sensor:whop",
+];
+
+function isUntrustedContentSource(source: string | null | undefined): boolean {
+  if (!source) return false;
+  return UNTRUSTED_CONTENT_SOURCE_PREFIXES.some((prefix) => source.startsWith(prefix));
+}
+
 function appendTaskReflection(id: number, status: string, summary: string): void {
   try {
     const task = getTaskById(id);
@@ -1071,7 +1095,8 @@ function appendTaskReflection(id: number, status: string, summary: string): void
     const model = task.model ?? "unknown";
     const subject = task.subject.substring(0, 60).replace(/\|/g, "•");
     const summaryClean = summary.substring(0, 80).replace(/\|/g, "•");
-    const line = `${now} | task #${id} | ${status} | ${model} | ${subject} | ${summaryClean}`;
+    const tag = isUntrustedContentSource(task.source) ? "[UNTRUSTED-SRC] " : "";
+    const line = `${tag}${now} | task #${id} | ${status} | ${model} | ${subject} | ${summaryClean}`;
 
     const logPath = "memory/recent.log";
     mkdirSync("memory", { recursive: true });
@@ -1112,6 +1137,25 @@ export function countRecentFailuresForSubject(subject: string, days: number = 7)
       `SELECT COUNT(*) as count FROM tasks
        WHERE subject = ?
          AND status IN ('failed', 'blocked')
+         AND completed_at >= datetime('now', '-' || ? || ' days')`
+    )
+    .get(subject, days) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/**
+ * Cooldown helper for recurring follow-up generators (e.g. arc-purpose-eval): count tasks
+ * with the same subject that reached a terminal state within the last `days` days. Used to
+ * avoid re-spawning an identical review/audit task every cycle a metric stays low, when a
+ * prior run already reached and recorded a conclusion.
+ */
+export function countRecentTasksBySubject(subject: string, days: number = 7): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE subject = ?
+         AND status IN ('completed', 'failed', 'blocked')
          AND completed_at >= datetime('now', '-' || ? || ' days')`
     )
     .get(subject, days) as { count: number } | null;

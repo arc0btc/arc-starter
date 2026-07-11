@@ -6,6 +6,14 @@
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSource } from "../../src/db.ts";
+// arc-day-n-publishing P5 (dev-council/Newman, CONFIRMED — landed only as the LAST step of P5
+// task 2, after backfill-metrics/check-amplification/mark-amplification were proven manually
+// against the 4 live editions): piggybacks the amplification check onto this sensor's existing
+// 30-min tick rather than adding a new cron entry. checkAmplification() is internally cheap on
+// most ticks (it early-returns with NO API call when no edition is in the actionable window —
+// see edition-metrics.ts) and is best-effort/non-blocking here: a failure must never prevent the
+// sensor's real work (queuing the day's read) from proceeding.
+import { checkAmplification } from "./lib/edition-metrics.ts";
 
 const SENSOR_NAME = "arc-daily-read";
 const INTERVAL_MINUTES = 30; // check every 30 min (sensor tick rate)
@@ -19,6 +27,17 @@ export default async function arcDailyReadSensor(): Promise<string> {
 
   initDatabase();
   const db = getDatabase();
+
+  // arc-day-n-publishing P5: attribution concern, not a posting concern — runs regardless of
+  // the kill switch / 13:00 time-window checks below (those gate NEW content going out; this
+  // only reads/updates amplified_status on already-shipped rows). Best-effort: swallow any
+  // failure so it can never block the sensor's actual job.
+  try {
+    const result = await checkAmplification(db);
+    if (result.checked > 0) log(`amplification check: ${result.detail}`);
+  } catch (e) {
+    log(`amplification check failed (non-blocking): ${(e as Error).message}`);
+  }
 
   // Kill switch check
   const ksRow = db.query("SELECT value FROM agent_config WHERE key = 'outbound_enabled'").get() as { value: string } | null;
@@ -176,7 +195,7 @@ export default async function arcDailyReadSensor(): Promise<string> {
 
   await writeHookState(SENSOR_NAME, {
     last_ran: new Date().toISOString(),
-    last_result: "queued",
+    last_result: "ok",
     version: ((await readHookState(SENSOR_NAME))?.version ?? 0) + 1,
     last_queued_date: now.toISOString().split("T")[0],
     last_task_id: taskId,

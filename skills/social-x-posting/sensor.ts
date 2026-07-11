@@ -1,6 +1,18 @@
 // skills/social-x-posting/sensor.ts
-// Polls X mentions every 15 minutes, creates tasks for mentions worth responding to.
+// Polls X mentions every 30 minutes, creates tasks for mentions worth responding to.
 // Deduplicates by storing last-seen tweet ID in hook state.
+//
+// AI-059 (2026-07-06, task #21470): widened 20min→30min per whoabuddy sign-off
+// (X-API pay-per-use rec #4, email #21466: "slower is fine unless we see activity
+// ramp up"). At 30min cadence this polls ~48 non-owned mention reads/day at $0.005
+// each ≈ $0.24/day, down from ~$0.36/day at 20min — more headroom for the other
+// X_READ_BUDGET_USD_PER_DAY consumers (whop-sales lead-source, north-star-gauge).
+// WATCH/REVERT: if mention activity ramps up, revert to 20min (see task #21454,
+// commit a91024c3, for the prior value).
+//
+// AI-058 (2026-07-06): unconditional read every claimed run. Task #21463 replaced
+// the old 100-reads count ceiling + follower-reserve machinery with a flat dollar
+// budget (X_READ_BUDGET_USD_PER_DAY, see lib/x-api.ts).
 //
 // AI-051/052: OAuth helpers (percentEncode, generateNonce, hmacSha1, OAuthCreds,
 // loadCreds, apiGet) consolidated onto lib/x-api.ts's xApiGet + loadXCreds.
@@ -53,7 +65,7 @@ async function isCreditsDepleted(): Promise<boolean> {
 }
 
 const SENSOR_NAME = "social-x-posting";
-const INTERVAL_MINUTES = 15;
+const INTERVAL_MINUTES = 30;
 
 // Keywords to detect topic-specific context needs for mention reply tasks.
 const BITCOIN_WALLET_KEYWORDS = [
@@ -272,7 +284,13 @@ export async function runCadenceBeat(): Promise<void> {
         "'nothing to post' rather than shipping filler (deferring is judgment, not failure).",
         "",
         // The --source key (sensor:x-cadence:<YYYY-MM-DD-HH>) makes this beat's POST
-        // exactly-once via the x_post_log ledger — a retry/replay won't double-post.
+        // exactly-once via reserve-group's outbound_action admission (task #21524
+        // migrated x-cadence off the legacy cmdPost guard stack onto the same
+        // reserve-group primitive content-calendar/daily-read/quest-gtm use) — a
+        // retry/replay won't double-post.
+        "Reserve this single-tweet action in the x-cadence lane (P3 arc-posting-scheduler) BEFORE posting — the lane is derived automatically from the --sources prefix:",
+        `  arc skills run --name social-x-posting -- reserve-group --sources sensor:x-cadence:${beatId} --thread-ref sensor:x-cadence:${beatId}`,
+        "If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close completed with 'deferred: budget' rather than forcing it; this beat retries next cycle.",
         "Post (keep the --source exactly as shown — it dedups a replay of this beat):",
         `  arc skills run --name social-x-posting -- post --text "<=280 chars>" --source sensor:x-cadence:${beatId}`,
         "Full policy: skills/social-x-posting/CADENCE.md.",
@@ -401,6 +419,12 @@ export default async function xMentionsSensor(): Promise<string> {
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       log(`warn: mentions fetch failed — ${errorMessage}`);
+      // Budget exhaustion is an expected, self-resolving guard (resets at
+      // midnight UTC) — not a malfunction. Classifying it as "error" pollutes
+      // consecutive_failures and fires false sensor-health alerts.
+      if (errorMessage.includes("read budget exhausted")) {
+        return "skip";
+      }
       return "error";
     }
 

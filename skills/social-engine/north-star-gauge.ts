@@ -20,14 +20,17 @@
 //   - X API error: degraded=true, last-known from baseline.json, no crash.
 //   - SSH unreachable (when called via spawnSync/ssh): caller catches the error.
 //
-// Budget: consumes UP TO 2 read slots per run (1 for followers, 1 for post metrics).
-// Uses checkReadBudgetN(2) from x-api.ts to pre-check availability before reads.
+// Budget: consumes UP TO 2 reads per run (1 for followers, 1 for post metrics).
+// Both are OWNED reads (own account + own posts) billed at $0.001 each against
+// x-api.ts's daily dollar read budget (task #21463 replaced the old count ceiling
+// + follower-reserve machinery with a single flat dollar budget — owned reads are
+// cheap enough that the reserve gymnastics weren't worth the complexity). A 4h
+// follower cache still avoids re-reading followers on every 30min monitor run.
 
 import { join } from "path";
 import {
   ARC_X_USER_ID,
   loadXCreds,
-  checkReadBudgetN,
   fetchFollowerMetrics,
   fetchRecentPostMetrics,
 } from "../social-x-posting/lib/x-api.ts";
@@ -133,16 +136,10 @@ export async function runGauge(): Promise<NorthStarGaugeResult> {
     return degradedResult(now, baseline, "X credentials not available — using last-known followers");
   }
 
-  // ── Budget pre-check: require ≥2 slots (follower + post-metrics reads) ─────
-  // checkReadBudgetN(2) is exported from x-api.ts — avoids re-reading the budget file.
-  try {
-    await checkReadBudgetN(2);
-  } catch (budgetErr) {
-    log(`Read budget pre-check failed — degraded mode: ${budgetErr}`);
-    return degradedResult(now, baseline, `${String(budgetErr).slice(0, 160)}`);
-  }
-
   // ── Live follower fetch ────────────────────────────────────────────────────
+  // fetchFollowerMetrics checks its 4h cache first, then bills a single OWNED
+  // read ($0.001) against x-api.ts's daily dollar budget if a live read is
+  // needed — no upfront precheck required here.
   let liveFollowers: number;
   try {
     const metrics = await fetchFollowerMetrics(creds, ARC_X_USER_ID);

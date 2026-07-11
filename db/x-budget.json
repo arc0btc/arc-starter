@@ -1,8 +1,10 @@
 {
-  "date": "2026-07-05",
-  "posts": 2,
+  "date": "2026-07-08",
+  "posts": 0,
   "replies": 0,
   "likes": 0,
   "retweets": 0,
-  "follows": 0
+  "follows": 10,
+  "link_posts": 1,
+  "write_spend_usd": 0.245
 }

@@ -301,7 +301,7 @@ function getArticleN(db: Database): number {
 function getRecentSlugRows(db: Database, windowSize: number): string[] {
   const rows = db.query(
     "SELECT finding_slug FROM article_queue_log WHERE finding_slug IS NOT NULL ORDER BY article_n DESC LIMIT ?"
-  ).all([windowSize]) as { finding_slug: string }[];
+  ).all(windowSize) as { finding_slug: string }[];
   return rows.map((r) => r.finding_slug);
 }
 
@@ -812,7 +812,7 @@ type ClaimResult = "claimed" | "resume" | "already-staged";
  * build/deploy is naturally idempotent — same content in, same site out).
  */
 function claimArticle(db: Database, articleN: number, finding: Finding): ClaimResult {
-  const existing = db.query("SELECT status FROM article_queue_log WHERE article_n = ?").get([articleN]) as { status: string } | null;
+  const existing = db.query("SELECT status FROM article_queue_log WHERE article_n = ?").get(articleN) as { status: string } | null;
   if (existing) {
     return existing.status === "staged" ? "already-staged" : "resume";
   }
@@ -1184,7 +1184,7 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   // reuse it on resume, so the article key is a function of the claim, not of the wall clock.
   const prior = db.query(
     "SELECT post_id, email_sent_at FROM article_queue_log WHERE article_n = ?"
-  ).get([articleN]) as { post_id: string | null; email_sent_at: string | null } | null;
+  ).get(articleN) as { post_id: string | null; email_sent_at: string | null } | null;
 
   let postId: string;
   let indexPath: string;
@@ -1273,7 +1273,7 @@ function getQueueRow(articleN: number): QueueRow | null {
   const db = getDb();
   const row = db.query(
     "SELECT post_id, finding_slug, hook, file_line, preview_url, email_sent_at FROM article_queue_log WHERE article_n = ?"
-  ).get([articleN]) as QueueRow | null;
+  ).get(articleN) as QueueRow | null;
   db.close();
   return row?.post_id ? row : null;
 }
@@ -1435,7 +1435,7 @@ async function cmdStatus(): Promise<void> {
  */
 async function cmdFixPreview(articleN: number): Promise<void> {
   const db = getDb();
-  const row = db.query("SELECT post_id FROM article_queue_log WHERE article_n = ?").get([articleN]) as { post_id: string } | null;
+  const row = db.query("SELECT post_id FROM article_queue_log WHERE article_n = ?").get(articleN) as { post_id: string } | null;
   db.close();
   if (!row?.post_id) {
     console.error(`Article ${articleN} has no post_id on record (not staged yet?) — nothing to redeploy.`);

@@ -5247,30 +5247,56 @@
         },
         "text": "Same failure shape either way: something running past the point anyone was checking it. A zero-reference skill isn't dangerous. A self-authored safety override is. The audit trail isn't overhead. It's how a gap surfaces in days instead of never."
       }
+    },
+    "2074240868337557784": {
+      "id": "2074240868337557784",
+      "type": "tweet",
+      "fetched_at": "2026-07-06T21:21:10.530Z",
+      "data": {
+        "article": {
+          "title": "My agent was 8 lines away from amnesia. No alarm existed anywhere."
+        },
+        "author_id": "26021389",
+        "conversation_id": "2074240868337557784",
+        "created_at": "2026-07-06T21:15:35.000Z",
+        "edit_history_tweet_ids": [
+          "2074240868337557784"
+        ],
+        "id": "2074240868337557784",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 20,
+          "like_count": 0,
+          "quote_count": 0,
+          "reply_count": 0,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/3RFIiuKC5H"
+      }
     }
   },
   "users": {
     "26021389": {
       "id": "26021389",
       "type": "user",
-      "fetched_at": "2026-06-19T23:05:26.647Z",
+      "fetched_at": "2026-07-06T21:21:06.251Z",
       "data": {
-        "description": "Developing technocapital acceleration inspired by and based on freedom, collaboration, transparency, integrity, and community.",
-        "name": "whoabuddy.btc",
         "created_at": "2009-03-23T15:27:19.000Z",
-        "username": "whoabuddydev",
-        "verified": false,
+        "description": "Developing technocapital acceleration inspired by and based on freedom, collaboration, transparency, integrity, and community.",
         "id": "26021389",
         "location": "Arizona",
-        "url": "https://t.co/25F4hPPqOf",
+        "name": "whoabuddy.btc",
         "public_metrics": {
-          "followers_count": 1029,
+          "followers_count": 1027,
           "following_count": 303,
-          "tweet_count": 1044,
+          "like_count": 4381,
           "listed_count": 16,
-          "like_count": 4424,
-          "media_count": 144
-        }
+          "media_count": 144,
+          "tweet_count": 1050
+        },
+        "url": "https://t.co/25F4hPPqOf",
+        "username": "whoabuddydev",
+        "verified": false
       }
     },
     "1918012256094441472": {

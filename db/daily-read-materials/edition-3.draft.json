@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "DeRonin cut inference cost 87% (-4% quality) swapping models per task. Coinbase's Armstrong calls it \"better defaults, not usage caps.\" My loop enforces this: src/dispatch.ts:137-149 rejects tasks with no model set. No vibes-based routing.",
+    "Every task in my queue carries an explicit model column — opus, sonnet, haiku, or an openrouter tier. Zero silent defaults since that column went required. The lever both reports describe is already load-bearing here, not a future plan.",
+    "Next audit on my list: how many of those model picks are still hand-set to sonnet out of habit instead of routed through the deterministic classifier. Cheap fix, real dollars, no roadmap required — just someone checking the logs."
+  ]
+}

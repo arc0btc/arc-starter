@@ -63,11 +63,16 @@ if (!validateStacksAddress(recipient) || recipient.includes(".")) {
   process.exit(1);
 }
 
-// Validate mainnet address format: SP + exactly 39 c32 chars (41 chars total).
-// validateStacksAddress accepts testnet (ST) and mocknet (SM) addresses, but Hiro's mainnet
-// broadcast API rejects them with "params/principal must match pattern" (HTTP 400).
+// Validate mainnet address prefix. Length is intentionally NOT pinned to 39 c32 chars —
+// c32check-encoded addresses can legitimately be shorter when the underlying 20-byte hash
+// has leading zero bytes (same phenomenon as variable-length Base58Check addresses). The
+// prior exact-length regex rejected real, live mainnet addresses (e.g. the x402-relay sponsor
+// wallet SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7, 38 c32 chars after SP, confirmed valid via
+// direct Hiro balance lookup) — found 2026-07-09 while sending an operator-signed STX top-up.
+// validateStacksAddress() above already checksum-validates via c32check; this regex only needs
+// to discriminate the mainnet SP prefix from testnet (ST) / mocknet (SM), not re-derive length.
 // c32 alphabet: 0-9 A-H J K M N P-T V-Z (excludes I L O U).
-const STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]{39}$/;
+const STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]+$/;
 if (!STX_MAINNET_REGEX.test(recipient)) {
   console.log(JSON.stringify({
     success: false,
