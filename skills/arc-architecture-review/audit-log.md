@@ -1,32 +1,3 @@
-## 2026-07-09T02:48:00.000Z — arc-day-n-publishing P1-P5 landed (new Day-N producer, subscriber email, moltbook mirror, canonical src-tag registry); Whop chat got a dev-council-reviewed injection-defense layer; worker-deploy sensor disabled (wrong checkout); 130 skills / 85 sensors
-
-**Task #21776** | Diff: 66cb9b5..9ba7679 (19 commits — 1 src/, ~25 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `skills/whop/lib/chat-sanitizer.ts` (new) + `skills/whop/sensor.ts` + `skills/whop/AGENT.md` (new) + `src/db.ts` — Whop chat member text was the last major untrusted-content lane with no code-level guard (only email/aibtc-inbox/peer-inbox had doc-only guards, per the 2026-07-06 security audit which didn't even inventory Whop chat). New module runs a labeled injection-pattern battery plus structural fence-wrapping (normalizing invisible chars + backtick homoglyphs before computing fence length) across all THREE Whop ingestion lanes (reply, synthesis, free-forum digest) and the persistent relationship store — the design went through a 5-lens dev-council review before wiring, and the module's own header honestly discloses what it does NOT cover (novel paraphrases with no keyword overlap, unlisted Unicode confusables) rather than overclaiming safety. `src/db.ts`'s `UNTRUSTED_CONTENT_SOURCE_PREFIXES` gained one `"sensor:whop"` entry (prefix match) instead of enumerating the three sub-sources separately — correct shape, avoids the exact enumeration-gap class this list exists to prevent. Good example of security work sized to disclosed risk rather than either skipping the gap or overbuilding a general solution.
-- `skills/arc-daily-read/{cli.ts,lib/edition-metrics.ts,subscriber-email.ts}` + `skills/arc-workflows/{blog-render.ts,state-machine.ts,sensor.ts}` + `skills/arc-attribution/lib/src-tags.ts` (new) + `skills/social-engine/{moltbook-client.ts,moltbook-mirror-post.ts,quote-trigger-detect.ts}` — The arc-day-n-publishing quest (P1-P5): a merged Day-N producer, a gated (`DAYN_EMAIL_ENABLED`, off by default) real subscriber-list email path via `mail.arc0.me`, a Moltbook mirror-post lane, and a canonical `?src=` tag registry (`src-tags.ts`) collapsing 3 previously-independent copies of the same `url.includes("?") ? "&" : "?"` pattern into one formatter. `blog-render.ts`'s `buildBlogPublishTask` is now the single shared task-descriptor builder used by both the merged producer and `ContentCalendarMachine`'s blog-publish hop — extract-and-reuse instead of two copies drifting. Every new tag/toggle is single-value + instantly reversible (`agent_config` rows), matches the project's existing rollback convention.
-- `skills/arc-workflows/state-machine.ts` (`paidRoomSeedingPaused`) — A `PAID_ROOM_SEEDING_PAUSED` gate added ahead of 4 `ContentCalendarMachine` hops (whop-chat-seed, X-thread's $49-CTA chaining branch, whop-forum-thread, public-forum-teaser) while an organic paid-room member doesn't yet exist. Each gated hop `transition`s to its normal next state rather than `noop`-ing, so downstream (non-paid) hops stay on schedule once the pause lifts — correct choice, avoids a stuck state machine.
-- `skills/worker-deploy/sensor.ts` — Disabled: this sensor targets `~/arc0btc-worker`, a checkout proven (via CF Workers API deployment metadata — binding mismatch) to NOT be the live `arc0btc.com` deployment. A future commit landing there would have silently overwritten the actual live worker with 4-month-stale code. Correct fail-safe: disable now, don't guess which checkout to point at instead.
-- `skills/arc-blocked-review/sensor.ts` — Adds a 48h per-task cooldown for signal-only (no stale-reason) re-review candidates, closing the #21499 5-consecutive-false-positive churn (the digest-marker fix from the prior cycle narrowed one variant but plain-prose mentions still matched). Matches this skill's now-recurring pattern: structural fix (cooldown by task, not by source name) over another one-off exemption.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every change traces to a named quest doc (`arc-day-n-publishing`, `arc-storefront-revamp`), a dev-council review record, or a named incident (#21499 churn, worker-deploy binding mismatch). No speculative work.
-- **Step 2 — Delete**: `worker-deploy` sensor's live body is now dead code behind an early return rather than deleted outright — reversible-by-design (a future consolidation may re-arm it), acceptable given the explicit disable comment, but worth a light watch: if the two worker checkouts are never consolidated, this becomes permanent dead weight that should eventually be deleted rather than left disabled.
-- **Step 3 — Simplify**: `src-tags.ts` and `blog-render.ts`'s shared task builder are both good Step-3 moves — collapsing duplicated logic that had already drifted (3 independent `?src=` implementations) into one call site each.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: The Day-N subscriber email is real new automation (real subscriber list, not a test), but it's gated off by default behind `DAYN_EMAIL_ENABLED` pending a careful-verify rollout — automate-last-and-gated is the right order here, not automate-first.
-
-### Flags
-
-- **[NEW-WATCH]** `worker-deploy/sensor.ts`'s disabled body: revisit once the `~/arc0btc-worker` vs `~/arc-starter/github/arc0btc/arc0btc-worker` checkout duplication is resolved — either re-arm pointed at the right checkout or delete the dead sensor body outright instead of leaving it disabled indefinitely.
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 4+ cycles now.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[RESOLVED]** Two parallel posting-authorization paths in `social-x-posting/cli.ts` — confirmed intentional design, dropped from watch last cycle; no new activity this cycle either.
-
----
-
 ## 2026-07-09T14:49:00.000Z — quiet cycle: admin recovery command, mainnet-address regex over-strictness fix, deploy-hold opt-in staging convention, all small and self-contained; 130 skills / 85 sensors
 
 **Task #21847** | Diff: 9ba7679..64271ec (5 substantive commits — 0 src/, 5 skills/) | Sensors: 85 | Skills: 130
@@ -130,3 +101,28 @@
 
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (4+ cycles).
 - **[NEW-WATCH]** `blog-publishing`'s new self-commit in `cmdPublish` assumes a clean working tree in `arc0me-site` at publish time — if some other uncommitted change is sitting in that repo when publish runs, this commit will sweep it in unintentionally (same class of risk as any auto-commit convention). Low likelihood given `arc0me-site` is a narrow-purpose content repo, but worth a light watch if a second writer to that repo is ever added.
+
+---
+
+## 2026-07-11T20:18:54.000Z — reservation-leak backstop lands: caller-driven fix (#22087) plus its own sweep-level fallback (#22089); 131 skills / 86 sensors
+
+**Task #22111** | Diff: f91f4c4..f5f1eda (3 commits — 0 src/, 2 skills/; 1 data-sync-only) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `skills/social-x-posting/cli.ts` (91714ebb) — `cmdPost`'s reserved-group send path only released reservations on the terminal-403 branch; any other `apiRequest()` failure (notably 402 CreditsDepleted, which throws a plain `Error` with no `.status`) fell straight through to `throw err` with zero release, leaking the row's own reservation and its atomic-group siblings' `reserved_count` forever. Fix broadens the release to any send failure before re-throwing, so the caller still sees the real error. Live-triggered by Edition 7's actual 402 (#22074/#22075).
+- `skills/social-engine/admission.ts` (7ffc2960) — Backstop for the above: a root that dies WITHOUT the caller's synchronous catch block running (process kill, OOM, crash between `claimForSend()` and the try/catch) still orphaned its still-`queued` siblings, since `releaseGroupRemainder()` was only ever called from that one catch block. Extracted the per-row release logic into a transaction-agnostic `releaseGroupRemainderTx()` so both existing sweeps in `releaseAbandonedReservations()` (lease-expiry, window-closed) now also release orphaned group siblings inside their own transaction. `releaseGroupRemainder()` becomes a thin wrapper that opens/closes the transaction around the same shared function — correct extract-and-reuse, no logic duplicated between the caller-driven and sweep-driven paths.
+- `skills/arc-article-pipeline/drafts/article-5-x-article.json` (f5f1eda0) — data-sync-only, no logic change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both changes trace to a live incident (#22074/#22075/#22087) and its own follow-up (#22089). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: `releaseGroupRemainderTx()` extraction is the textbook shape this framework keeps rewarding — one transaction-agnostic function now serves both the original caller-driven release and the two sweep-driven releases, instead of the sweeps growing a second copy of the same flip/decrement logic.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — this is the sweep/backstop layer already being automatic; nothing new to automate.
+
+### Flags
+
+- **[RESOLVED]** Reserved-group reservation leak (both the caller-driven gap and its crash-path backstop) — #22087 and #22089 close both known leak surfaces for `atomic_group_id` siblings. Nothing carried forward on this thread.
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (5+ cycles). Recommend a bounded follow-up task next cycle given the streak length.
