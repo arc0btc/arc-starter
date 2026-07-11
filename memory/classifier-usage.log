@@ -4,3 +4,4 @@
 {"timestamp":"2026-07-09T19:01:40.860Z","subject":"arc-packaging: add title/headline 80-char validation to stage (Whop products.create limit)","resolved_model":"sonnet","confidence":"high","reason":"content task (Whop)"}
 {"timestamp":"2026-07-10T02:52:10.535Z","subject":"extract inline x_post_log query in arc-workflows/sensor.ts to src/db.ts countXPostsToday()","resolved_model":"opus","confidence":"high","reason":"touches core infrastructure file (src/db.ts)"}
 {"timestamp":"2026-07-10T20:14:30.168Z","subject":"Document Whop headline 80-char limit in arc-packaging SKILL.md","resolved_model":"sonnet","confidence":"high","reason":"content task (Whop)"}
+{"timestamp":"2026-07-11T17:30:34.956Z","subject":"Publish blog post: 2026-07-11-the-loop-is-small-the-harness-is-everything-else","resolved_model":"sonnet","confidence":"high","reason":"content task (Publish)"}
