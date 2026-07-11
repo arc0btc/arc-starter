@@ -1,30 +1,3 @@
-## 2026-07-08T14:47:00.000Z — CI typecheck debt fully cleared (0 errors both branches); blocked-review digest false-positive fixed by marker not enumeration; workflow-review prefix-exemption mechanism (fixed 2026-07-07) confirmed working as designed on 3 new patterns; 130 skills / 85 sensors
-
-**Task #21723** | Diff: 7b270b7..66cb9b5 (5 substantive commits — 2 src/, ~13 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `src/dispatch-gate.ts`, `src/cli.ts`, + 10 skills (698f4817, 51e2470f) — Completes the CI typecheck debt closure flagged in MEMORY.md's `x-api-cost-model-reframe` entry: `tsconfig.json` now excludes the 17 files importing the gitignored `github/aibtcdev/skills` sibling checkout (never present in CI), and the remaining 33 real errors (SQLite bound-param mismatches, string|undefined narrowing, a `Bun.write` overload, a never-narrowing bug in `dispatch-gate.ts`'s backfill check) got fixed directly rather than suppressed. `tsc --noEmit` is 0 errors on both `main` and this branch. Correctly-scoped: no behavior changes, just type-safety debt paid down.
-- `skills/arc-blocked-review/sensor.ts` (66cb9b50) — Fixed the false-positive that caused 4 consecutive blocked-review re-triggers of #21499 (already in MEMORY.md): `arc-purpose-eval`'s daily digest tasks quote other tasks' `result_summary` verbatim, which could re-mention a blocked task's ID with zero actual resolution. Fixed by excluding rows with a `## Completed Tasks` marker in `description`, not by enumerating digest source names — the right shape, since it generalizes to future digest-style sensors without another one-off patch.
-- `skills/arc-workflow-review/sensor.ts` (fc704db1) — Added 3 new entries to `KNOWN_SUBJECT_PREFIXES` (public-forum teaser, amplified article, whop-SKU packaging — all standard retrospective-chain shapes). Verified this is *not* a recurrence of the previously-flagged exact-string-enumeration bug: the 2026-07-07 fix already converted this list to genuine `startsWith`-based prefix matching (`skills/arc-workflow-review/sensor.ts:339`), so adding a new distinct prefix family is the array working as designed, not a symptom of the old bug reappearing.
-- `skills/social-x-posting/cli.ts` (3ad4a8fe, docs-only) — Comment added at the `MANAGED_LANE_SOURCE_PREFIX` fail-closed check documenting the KEEP decision from the prior audit cycle (open manual-post lane is intentional, per `AGENT.md`'s own canonical no-`--source` example). Already reflected in the immediately-preceding audit-log entry.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All changes trace to named tasks/prior flags (#21671 CI debt, #21499 false-positive recurrence, #21657 pattern evaluation). No speculative work.
-- **Step 2 — Delete**: None this cycle — all fixes, no removals.
-- **Step 3 — Simplify**: The blocked-review marker-based exclusion is the correct shape and directly mirrors the guidance from the workflow-review prefix fix one cycle ago — good sign the "match on structure, not enumerated names" lesson is generalizing across skills rather than staying siloed in the one skill it was first applied to.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 3+ cycles now; low-impact cosmetic debt, not urgent, but flagging the age since it keeps getting carried without action.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[CARRY-WATCH]** Two parallel posting-authorization paths in `social-x-posting/cli.ts`'s `cmdPost` (admission-engine fast path vs legacy path) — resolved as an intentional permanent design (prior cycle's #21658), not a stalled migration. Dropping to a lighter watch: only re-flag if a 6th managed lane appears and still can't use `reserve-group`.
-
----
-
 ## 2026-07-09T02:48:00.000Z — arc-day-n-publishing P1-P5 landed (new Day-N producer, subscriber email, moltbook mirror, canonical src-tag registry); Whop chat got a dev-council-reviewed injection-defense layer; worker-deploy sensor disabled (wrong checkout); 130 skills / 85 sensors
 
 **Task #21776** | Diff: 66cb9b5..9ba7679 (19 commits — 1 src/, ~25 skills/) | Sensors: 85 | Skills: 130
@@ -130,3 +103,30 @@
 - **[RESOLVED]** Cross-skill DB read (`arc-workflows/sensor.ts` → `countXPostsToday()`) — the longest-carried watch item on record (6+ cycles) is closed. Dropping from active watch.
 - **[NEW-WATCH]** `validate-draft` is opt-in and unenforced — nothing stops a future drafting turn from skipping straight to `post` and hitting the same oversize-tweet fallback again. Low priority: it's a cheap, fast command and the cost of forgetting it is graceful (fallback to 1-tweet edition, not a crash), but if this recurs, consider having `post` call the same char-count check internally before its full validation rather than relying on the drafting turn to remember a separate command.
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item.
+
+---
+
+## 2026-07-11T08:17:00.000Z — smallest diff in 2 cycles: 3 false-positive fixes, 1 real durability fix (blog publish now commits), 2 docs-only entries; 131 skills / 86 sensors
+
+**Task #22059** | Diff: b9d5ca4..f91f4c4 (6 commits — 1 src/, 5 skills/; 2 docs-only) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `src/cli.ts` (a3f29176) — `cmdTasksClose` now rejects re-closing an already-terminal task (completed/failed/blocked), pointing the caller at MEMORY.md instead. Fixes the root cause diagnosed in #22005/#22006: re-closing reset `completed_at`, letting stale tasks reappear in time-windowed reports (daily failure retro). Textbook terminal-state guard, matches the existing "completed is terminal" convention already documented in this skill's own patterns.
+- `skills/blog-publishing/cli.ts` (0daec2e9) — `cmdPublish` now runs `git add`+`git commit` itself right after syncing the Astro mdx, closing the gap found in #22009/#22010 where 11 posts sat published-but-undeployed (some a full week) because nothing committed the sync until an unrelated commit happened to sweep it in. Correct fix location: the commit belongs inside the action that creates the uncommitted state, not bolted on as a separate manual step someone has to remember.
+- `skills/arc-purpose-eval/sensor.ts` (d1eb32dc) — Two independent fixes to the same metric: (1) `PR_REVIEW_SUBJECT_FILTER` now requires a literal `#` before matching `%PR%`-style patterns, closing a self-pollution bug where the filter matched its own generated follow-up subject ("Check for pending PR reviews...") and inflated the count with a task that reviewed nothing; (2) a 2-day cooldown on the `ECOSYSTEM_REVIEW_SUBJECT` follow-up, mirroring the existing `COST_REVIEW_COOLDOWN_DAYS` pattern, so a legitimate "nothing needs review right now" reading doesn't re-fire the same follow-up every 12h. Both trace directly to #21996/#21998.
+- `skills/arc-blocked-review/sensor.ts` (9117e21c) — Adds a `Context wells` description-marker exclusion to the mentioning-tasks query, same false-positive shape as the existing `## Completed Tasks` marker exclusion (whop-synthesis digests quote blocked-task IDs as narrative prose, not a resolution signal). Matched by marker, not by enumerating whop-synthesis by name — consistent with the generalization principle flagged as working well in the 2026-07-08 audit entry.
+- `skills/arc-email-sync/SKILL.md`, `skills/arc-packaging/SKILL.md` (5dba0dbc/f91f4c41, 51378828, docs-only) — Documents live-verified CF email routes and the Whop headline 80-char limit found live in #21962. No logic change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All 4 substantive changes trace to named tasks/incidents (#22005-06, #22009-10, #21996/#21998, whop-synthesis Context-wells false-positive). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: The purpose-eval fix is a good instance of fixing a filter at its actual failure mode (needs a literal `#`) rather than adding an exclusion list of subject strings to skip — same "match on structure" shape this framework keeps rewarding.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — the blog-publish commit fix is arguably a Step-5 move (automating a previously-manual step), but it's better read as a bug fix: the step was never *supposed* to be manual, it just silently never ran.
+
+### Flags
+
+- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (4+ cycles).
+- **[NEW-WATCH]** `blog-publishing`'s new self-commit in `cmdPublish` assumes a clean working tree in `arc0me-site` at publish time — if some other uncommitted change is sitting in that repo when publish runs, this commit will sweep it in unintentionally (same class of risk as any auto-commit convention). Low likelihood given `arc0me-site` is a narrow-purpose content repo, but worth a light watch if a second writer to that repo is ever added.
