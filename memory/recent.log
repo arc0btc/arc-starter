@@ -510,3 +510,4 @@
 2026-07-11T00:31:40.507Z | task #22007 | completed | haiku | Retrospective: extract learnings from task #22005 — Daily fa | Added p-terminal-task-state-immutability pattern: terminal task re-closure reset
 [UNTRUSTED-SRC] 2026-07-11T00:35:31.833Z | task #22015 | completed | opus | Email from whoabuddy (1 unread): Re: Decision needed: PR #28 | whoabuddy: 'Option 1 merge it' — merged PR #28 into main (merge commit a8714813,
 2026-07-11T00:36:10.336Z | task #22008 | completed | haiku | Retrospective: extract learnings from task #22006 — Fix: arc | Pattern already documented: p-terminal-task-state-immutability captures the term
+2026-07-11T00:37:45.969Z | task #22011 | completed | haiku | Retrospective: extract learnings from task #22009 — Fix arc0 | Extracted learnings: publish-CLI commit responsibility + sibling-issue discovery
