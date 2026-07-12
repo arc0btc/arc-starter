@@ -657,7 +657,7 @@ export interface ReleasedRow {
  */
 export function releaseAbandonedReservations(
   db: Database,
-  opts: { leaseGraceMinutes?: number } = {}
+  opts: { leaseGraceMinutes?: number; staleQueuedGraceMinutes?: number } = {}
 ): ReleasedRow[] {
   const graceMs = (opts.leaseGraceMinutes ?? 0) * 60 * 1000;
   const cutoff = new Date(Date.now() - graceMs).toISOString();
@@ -790,6 +790,60 @@ export function releaseAbandonedReservations(
         );
         released.push(...groupReleased);
       }
+    }
+
+    // ── task #22166 (Edition 8 daily-read leak, CONFIRMED): a group reserved via
+    // admitGroup() whose caller aborts BEFORE any row reaches claimForSend() (e.g.
+    // checkCreditsDepleted() throwing pre-send) leaves EVERY row in the group
+    // 'queued' with lease_expires_at=NULL — invisible to the lease-expiry sweep
+    // above (never reached 'sending'). It's ALSO invisible to the window-expiry
+    // sweep whenever the row's window hasn't closed yet: Edition 8's rows carry
+    // earliest=13:00/latest=14:00 (an immediate-send window, not a deliberate
+    // future park), so they sat leaked for up to an hour — long enough to starve
+    // same-day admission (blocked Edition 9's reserve-group call) — before the
+    // window-expiry sweep would eventually reclaim them at 14:00. Reclaim 'queued'
+    // rows whose window has ALREADY OPENED (earliest_utc_time null or <= now) but
+    // have sat un-claimed past a short grace period — this is the drain-never-
+    // started signal, distinct from `windowExpired` above which waits for the
+    // window to fully CLOSE. Deliberately excludes rows whose window has not yet
+    // opened (earliest_utc_time in the future) so legitimate window-parking
+    // (`window_not_open_yet`, cli.ts) is left untouched.
+    const staleGraceMs = (opts.staleQueuedGraceMinutes ?? 10) * 60 * 1000;
+    const staleCutoff = new Date(Date.now() - staleGraceMs).toISOString();
+    const staleQueued = db
+      .query(
+        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
+         WHERE status='queued'
+           AND (earliest_utc_time IS NULL OR earliest_utc_time <= strftime('%H:%M','now'))
+           AND budget_day <= date('now')
+           AND created_at < ?`
+      )
+      .all(staleCutoff) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+
+    for (const row of staleQueued) {
+      const flip = db.run(
+        `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
+        [utcNow(), row.id]
+      );
+      if (flip.changes !== 1) continue; // raced with a concurrent claim/release — do not double-release
+
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [row.budget_day, row.lane]
+      );
+      if (row.global_reserved) {
+        db.run(
+          `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+           WHERE channel='x' AND utc_day=? AND lane=?`,
+          [row.budget_day, GLOBAL_BACKSTOP_LANE]
+        );
+      }
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `stale reservation with no window info and no send evidence — reservation released by releaseAbandonedReservations()'s stale-queued sweep (grace=${opts.staleQueuedGraceMinutes ?? 10}min)`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
     }
 
     db.exec("COMMIT");
