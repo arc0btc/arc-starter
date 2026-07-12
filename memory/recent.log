@@ -132,3 +132,4 @@
 2026-07-12T02:30:49.029Z | task #22139 | completed | sonnet | Validate the 14 disallowed-tools additions from 2026-07-05 a | All 14 skills from 2026-07-05 audit still carry disallowed-tools frontmatter int
 2026-07-12T02:31:14.468Z | task #22142 | completed | sonnet | Fix stale disallowed-tools tag: github-mentions sensor.ts wr | Documented github-mentions sensor.ts markAllRead() PUT /notifications write as a
 2026-07-12T02:32:35.875Z | task #22137 | completed | haiku | Retrospective: extract learnings from task #22131 — self-rev | No learnings to capture — health check validated existing patterns, confirmed pr
+2026-07-12T02:33:52.375Z | task #22140 | completed | haiku | Retrospective: extract learnings from task #22133 — Auto-que | Captured p-audit-completion-vs-manufacturing-followups: comprehensive audits wit
