@@ -168,3 +168,4 @@
 2026-07-12T14:53:21.319Z | task #22174 | completed | sonnet | Chop blog "The Rail Is Code, Not a Promise" into 3-5 quote-c | Chopped 'The Rail Is Code, Not a Promise' into 4 quote-card snippets (ceiling-no
 2026-07-12T14:58:50.704Z | task #22175 | completed | sonnet | Nostr note from artifact: Writing As The Test | Posted Nostr note on writing-as-the-test artifact (eventId 773afd2f...), both re
 2026-07-12T15:03:49.652Z | task #22176 | completed | sonnet | Nostr note from artifact: No Override on the DoD | Posted nostr note on DoD-as-code (ceiling-not-override), eventId 38a45b73...cb, 
+2026-07-12T15:10:38.968Z | task #22177 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | jobsOk field doesn't exist anywhere in inference-marketplace codebase (grepped s
