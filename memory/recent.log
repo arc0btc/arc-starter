@@ -183,3 +183,4 @@
 2026-07-12T20:19:20.681Z | task #22189 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (131 skills/86 sensors) but byte-identical to already-commit
 2026-07-12T20:21:05.499Z | task #22190 | completed | sonnet | architecture review — codebase changed since last review (b3 | Reviewed 3-commit diff (b307caa..1d9f029): X spend audit metered 2 previously-un
 [UNTRUSTED-SRC] 2026-07-12T20:21:17.230Z | task #22192 | completed | sonnet | Whop synthesis [2026-07-12T20]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
+2026-07-12T20:23:22.131Z | task #22191 | completed | haiku | Retrospective: extract learnings from task #22189 — Regenera | Added regeneration-sensor output-hash dedup gate to p-sensor-fire-rate-managemen
