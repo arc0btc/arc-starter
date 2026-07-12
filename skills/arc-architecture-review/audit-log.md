@@ -1,29 +1,3 @@
-## 2026-07-10T02:52:00.000Z — smallest diff on record: read-only drift-detection sensor closing the self-upgrade paradox gap, new cost-breakdown CLI, one already-known Whop field-limit fix landed in code; 131 skills / 86 sensors
-
-**Task #21911** | Diff: 64271ec..0459eb9 (3 commits — 1 src/, 2 skills/) | Sensors: 86 | Skills: 131
-
-### Changed files (substantive only)
-
-- `skills/claude-cli-drift-watch/{SKILL.md,sensor.ts}` (new, 0459eb9) — Closes the blind spot found in #21901-#21905 (installed CLI 32 versions behind npm latest, no earlier warning) without re-triggering the self-upgrade task-queue paradox from #21905: reports drift only (`claude --version` vs npm registry `latest`, semver score-delta, 30-day cadence, threshold 5), never attempts a binary swap. Correctly scoped as comparison-only — matches the project's established pattern of separating detection sensors from action tasks when the action itself is unsafe to run from inside a dispatch subprocess.
-- `src/cli.ts` (`arc tasks cost`, fc733314) — New `--days`/`--top` cost-breakdown command (by task, by model, by skill-set), filed by the prior cycle's cost-efficiency review (#21889) which found no CLI existed to check sonnet→haiku downgrade candidates against. Reuses the same `tasks` table columns (`cost_usd`, `api_cost_usd`, `tokens_in`/`tokens_out`) the existing `arc-cost-reporting` sensor SQL already aggregates — same shape as `arc status`'s existing cost surface, just windowed and top-N'd.
-- `skills/arc-packaging/cli.ts` (c63230ca) — Adds `title` (80-char) and `description` (1500-char) length checks to `validateDraft()`, alongside the existing `headline` check. Both limits were hit live (title #21874, description #21744 — the latter was already documented in SKILL.md but never actually landed in code) as raw Whop 400/422s *after* `create-product` had already run. Straightforward: move a known external constraint from prose into a pre-flight check.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All three changes trace to named incidents (#21901-05 drift discovery, #21889 cost-review tooling gap, #21874/#21744 live Whop rejections). No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A — the drift sensor is deliberately detection-only, not an upgrade automation; correct order given the self-upgrade paradox isn't solved yet.
-
-### Flags
-
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 6+ cycles now — this is the longest-carried watch item on record; recommend a bounded follow-up task next cycle rather than continuing to carry it.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[RESOLVED]** `blog-deploy`'s `.deploy-hold` enforcement-gap watch from last cycle — no second deploy trigger path has been added since; nothing to act on yet, dropping from active watch until one is.
-
----
-
 ## 2026-07-10T20:27:00.000Z — smallest substantive diff on record: longest-carried watch item finally resolved, plus one workflow-review exemption and one daily-read pre-flight command; 131 skills / 86 sensors
 
 **Task #21966** | Diff: 0459eb9..b9d5ca4 (5 commits — 1 src/, 4 skills/; 2 data-sync-only) | Sensors: 86 | Skills: 131
@@ -125,3 +99,30 @@
 
 - **[RESOLVED]** context-review `META_TASK_SOURCES` skip list — refactored to `{pattern, reason}[]`, closing the longest-carried watch item (5+ cycles). Nothing carried forward on this thread.
 - No new watch items this cycle. Diff was small and every change traced cleanly to a prior finding.
+
+---
+
+## 2026-07-12T20:20:00.000Z — X spend audit lands: two unmetered read lanes brought under the shared budget guard, prescreen switched from paid to free oEmbed, plus the queued-reservation leak fix from the prior cycle's follow-up; 131 skills / 86 sensors
+
+**Task #22190** | Diff: b307caa..1d9f029 (3 commits — 0 src/, 4 skills/) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `skills/social-x-posting/lib/x-api.ts` (9dcc49c9) — `incrementReadBudget()` gains a `lane` param and `by_lane` attribution in `x-read-budget.json`; new `endpointLane()` normalizes numeric path segments out of an endpoint for a stable lane key. Daily ceiling raised $0.50 → $1.00, framed explicitly as absorbing previously-invisible spend, not authorizing new spend.
+- `skills/social-x-ecosystem/sensor.ts` (9dcc49c9) — 96 searches/day (~$0.48, the single biggest read spend on the account) were unmetered until now; every search checks `checkReadBudget` first and degrades to a skipped search (not a thrown error) on exhaustion.
+- `skills/arc-link-research/cli.ts` (9dcc49c9, 1d9f0293) — Same budget-guard wiring for both OAuth and bearer clients (lane `link-research`). Second commit same-day reworks `prescreenTweet` from a paid `/tweets/:id` lookup to X's free `publish.x.com/oembed` endpoint (200/404/403 status-coded, 5xx/network falls back to the existing lenient-default), plus a cache short-circuit so an already-cached URL skips prescreening entirely. Net effect: a successful research run now costs 1 paid read per fresh X URL instead of 2, and 0 for cached URLs.
+- `skills/social-engine/admission.ts` (c6498daa) — Fixes #22166 (Edition 8 reservation leak flagged in the prior cycle's audit): `releaseAbandonedReservations()` gets a third sweep reclaiming `queued` rows whose send window has already opened (not just fully closed) past a 10min grace, closing the gap where a group aborted before any row reached `claimForSend()` sat leaked for up to an hour.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All four changes trace to named artifacts — an operator spend-audit doc (`manage-agents docs/observations/2026-07-11-x-api-spend-audit.md`), an explicit operator direction on the prescreen rework, and task #22166 from the prior cycle's own carry-forward. No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: `endpointLane()` plus the shared `checkReadBudget`/`incrementReadBudget` import gives three previously-divergent callers (posting, ecosystem search, link-research) one metering path instead of three ad-hoc ones — same "import the shared guard" shape already used for whop-sales. The oEmbed prescreen swap is a genuine complexity reduction too: it replaces branchy X-API error-shape parsing (`data.errors[0].title` string matching) with a plain HTTP status check.
+- **Step 4 — Accelerate**: The prescreen rework is the clearest Step-4 move this cycle — it removes a paid round-trip from the hot success path of every link-research run, not just a cost optimization but a latency one (oEmbed has no OAuth handshake).
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[NEW-WATCH]** The budget ceiling doubled same-day two new lanes were switched on. The stated intent is "measurement, not new spend authorization," which the `by_lane` breakdown makes auditable — worth one cycle of watching `db/x-read-budget.json`'s actual `by_lane` totals against the pre-metering estimates ($0.48 ecosystem + link-research) to confirm the raise doesn't quietly become headroom for new spend.
+- **[RESOLVED]** #22166 queued-reservation-leak (flagged in the 2026-07-11T20:18:54.000Z entry's memory context, fixed this cycle) — third sweep closes the window-opened-but-not-claimed gap. Nothing carried forward on this thread.
+- No other watch items carried — prior cycle's context-review skip-list watch was already resolved and dropped.
