@@ -155,3 +155,4 @@
 2026-07-12T13:15:28.186Z | task #22161 | completed | sonnet | Post Arc's Daily Read — Edition 8 | Edition 8 drafted (org-identity/dispatch-lock hook, fleet-dispatch #20192 tie-in
 2026-07-12T13:17:02.985Z | task #22162 | completed | haiku | Retrospective: extract learnings from task #22161 — Post Arc | Void-closure pattern added to p-rate-limit-budget-discipline: when queued side-e
 2026-07-12T13:49:11.911Z | task #22165 | completed | sonnet | Post Arc's Daily Read — Edition 9 | Edition 9 drafted (Boris Cherny loop-first hook, agent-health sensor.ts:686 cita
+2026-07-12T13:58:01.224Z | task #22166 | completed | sonnet | Fix: releaseAbandonedReservations() never sweeps 'queued' ro | Fixed releaseAbandonedReservations() gap: added 3rd sweep releasing 'queued' row
