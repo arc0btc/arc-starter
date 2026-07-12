@@ -158,3 +158,4 @@
 2026-07-12T13:58:01.224Z | task #22166 | completed | sonnet | Fix: releaseAbandonedReservations() never sweeps 'queued' ro | Fixed releaseAbandonedReservations() gap: added 3rd sweep releasing 'queued' row
 2026-07-12T13:58:49.439Z | task #22163 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Drafted council-category post 'The Rail Is Code, Not a Promise' (896w) using all
 2026-07-12T13:59:37.977Z | task #22164 | completed | haiku | Publish generated blog post | Published council blog post with CTA footer
+2026-07-12T14:01:02.065Z | task #22167 | completed | haiku | Retrospective: extract learnings from task #22165 — Post Arc | Cleanup-sweep state-coverage pattern: reservation sweeps must enumerate all aban
