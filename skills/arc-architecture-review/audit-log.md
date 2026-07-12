@@ -1,29 +1,3 @@
-## 2026-07-09T14:49:00.000Z — quiet cycle: admin recovery command, mainnet-address regex over-strictness fix, deploy-hold opt-in staging convention, all small and self-contained; 130 skills / 85 sensors
-
-**Task #21847** | Diff: 9ba7679..64271ec (5 substantive commits — 0 src/, 5 skills/) | Sensors: 85 | Skills: 130
-
-### Changed files (substantive only)
-
-- `skills/arc-daily-read/cli.ts` (2c9c231c, 64271ec) — Two-part fix: `cmdPost` was importing `insertTaskDeduped` from `src/db.ts` without calling that module's own `initDatabase()` first (its singleton is separate from `cli.ts`'s own DB connection), crashing *after* posting had already succeeded and silently dropping the blog-publish queue step (#21827). Root cause fixed, then a `queue-blog-task --edition N` admin recovery command added to backfill the one edition (5) that crashed before the fix landed — mirrors `cmdPost`'s own blog-queue logic against the already-logged row, same `blog_slug`-is-null guard so it's safe to re-run. Correctly scoped: fix the bug, then provide recovery for the damage already done, not more.
-- `skills/bitcoin-wallet/stx-send-runner.ts` (a90c753e) — Mainnet address regex relaxed from an exact `{39}` length match to `{1,}` after a real, checksum-valid mainnet address (`SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7`, 38 c32 chars) was rejected mid-operator-signed STX top-up. Correct fix: `validateStacksAddress()` upstream already checksum-validates via c32check, so this regex only needs to discriminate mainnet `SP` from testnet/mocknet prefixes, not re-derive length — length variability is expected (leading zero bytes in the underlying hash), same phenomenon as variable-length Base58Check. Good instance of a bug found live rather than in a test, with the fix scoped to what broke (prefix check) not padded with extra validation.
-- `skills/blog-deploy/{SKILL.md,sensor.ts}` (46502780) — New opt-in `.deploy-hold` marker file convention: presence of `github/arc0btc/arc0me-site/.deploy-hold` makes the sensor skip queuing a deploy no matter how many commits land, until an operator removes it. Closes a real gap (`C-P7-1`) that silently defeated the "prod site-flip is a hard gate, never auto-approved" rule twice already (arc-storefront-revamp P3, arc-day-n-publishing P2) because neither quest's authors knew commit-to-main was an unconditional 5-minute auto-deploy with no way to stage. Default behavior (no hold file) is unchanged — deliberately opt-in, not a global switch, so routine blog publishing isn't affected. Also documents that `wrangler deploy` bundles the whole checkout, so uncommitted edits sitting in the tree during an unrelated deploy ship as a side effect — a sharp, correctly-flagged gotcha for anyone touching that checkout mid-quest.
-- `skills/arc-workflow-review/sensor.ts` (074ea656) — One more `KNOWN_PATTERNS` bare-prefix entry (`sensor:arc-blocked-review`) for the same already-rejected ad-hoc retrospective-chain shape. Consistent with the established pattern of adding bare source-prefix entries rather than one-off subject matches.
-- `skills/whop/cli.ts` (afd9a0ca) — Compliance rename (`msg` → `errorMessage`), no behavior change. `skills/arc-skill-manager/SKILL.md` (1d70ab25) — docs-only reframe of `disallowed-tools`, already reflected in MEMORY.md's `disallowed-tools-not-enforced` entry.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All five changes trace to named incidents (#21827 crash, live STX top-up rejection, C-P7-1 quest finding) or standing compliance rules. No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: The mainnet-regex fix is a good example of trusting an existing validator (`validateStacksAddress`'s checksum check) instead of re-deriving a property (length) that validator already guarantees correctness for — removes redundant, incorrect logic rather than patching around it.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — the deploy-hold convention is a manual opt-in gate, deliberately not automated further (matches the project's "gate first, automate later" posture).
-
-### Flags
-
-- **[CARRY-WATCH]** Cross-skill DB read: `arc-workflows/sensor.ts` queries `x_post_log` inline — extract to `src/db.ts countXPostsToday()`. Unchanged for 5+ cycles now — still low-impact, but this is the longest-carried watch item; worth a bounded follow-up task rather than continuing to carry it indefinitely.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle.
-- **[NEW-WATCH]** `blog-deploy`'s new `.deploy-hold` file is unenforced convention (a sensor check, not a lock) — nothing stops a second concurrent process or a forgetful future quest from deploying anyway via a different path (e.g. running `arc skills run --name blog-deploy -- deploy` directly). Fine for now given it's a single-operator system, but if a second deploy trigger path is ever added, the hold check needs to live there too, not just in the sensor.
-
 ## 2026-07-10T02:52:00.000Z — smallest diff on record: read-only drift-detection sensor closing the self-upgrade paradox gap, new cost-breakdown CLI, one already-known Whop field-limit fix landed in code; 131 skills / 86 sensors
 
 **Task #21911** | Diff: 64271ec..0459eb9 (3 commits — 1 src/, 2 skills/) | Sensors: 86 | Skills: 131
@@ -126,3 +100,28 @@
 
 - **[RESOLVED]** Reserved-group reservation leak (both the caller-driven gap and its crash-path backstop) — #22087 and #22089 close both known leak surfaces for `atomic_group_id` siblings. Nothing carried forward on this thread.
 - **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (5+ cycles). Recommend a bounded follow-up task next cycle given the streak length.
+
+---
+
+## 2026-07-12T08:20:00.000Z — small diff, one long-carried watch item resolved: context-review skip list refactored to declarative array; 131 skills / 86 sensors
+
+**Task #22149** | Diff: f5f1eda..b307caa (3 commits — 0 src/, 3 skills/) | Sensors: 86 | Skills: 131
+
+### Changed files (substantive only)
+
+- `skills/context-review/sensor.ts` (1a92c1d6) — `META_TASK_SOURCES` converted from `Set<string>` with trailing-comment reasons to a declarative `{pattern, reason}[]` array. Matching logic (`Array.some` prefix match) unchanged; each exclusion's rationale now travels with its own entry instead of living in a comment block that could drift during edits. Closes the longest-carried watch item on record (5+ cycles, first flagged 2026-07-08).
+- `skills/social-x-posting/sensor.ts` (93340805) — Sensor now checks `isCreditsDepleted()` before calling `fetchArcMentions`, skipping the fetch entirely when `db/x-credits-depleted.json` already flags the account. Previously the sensor guaranteed a 402 on every 30min run once depleted, inflating `consecutive_failures` to 32 and firing a false sensor-health alert for an expected, already-parked condition. Matches the standing memory pattern "X 402 = CreditsDepleted (park blocked, escalate)" — this fix makes the sensor itself aware of that state instead of relying on the alert to be manually dismissed each time.
+- `skills/github-mentions/SKILL.md` (b307caa1) — Docs-only. Documents `markAllRead()`'s `gh api --method PUT /notifications` as an accepted `disallowed-tools: [..., Bash]` exception, on the same basis as `arc-skill-manager`'s existing read-only exceptions for `gh pr view`/`git log`: it runs inside the sensor process (no LLM), not the dispatched agent's own tool use.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All three changes trace to named incidents or standing watch items (context-review refactor closes a 5+-cycle carry-watch; social-x-posting fix closes a live false-alert; github-mentions docs formalizes an existing de facto exception). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: The context-review refactor is the textbook shape — data (reason) moves next to data (pattern) instead of living in a parallel comment structure that has to be kept in sync by hand.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: The social-x-posting fix is arguably a small Step-5 move — the sensor now automatically recognizes and skips a known-terminal condition instead of re-discovering it via a failed API call every cycle.
+
+### Flags
+
+- **[RESOLVED]** context-review `META_TASK_SOURCES` skip list — refactored to `{pattern, reason}[]`, closing the longest-carried watch item (5+ cycles). Nothing carried forward on this thread.
+- No new watch items this cycle. Diff was small and every change traced cleanly to a prior finding.
