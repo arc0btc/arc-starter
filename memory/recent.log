@@ -144,3 +144,5 @@
 2026-07-12T08:20:33.170Z | task #22149 | completed | sonnet | architecture review — codebase changed since last review (f5 | Small clean diff (3 commits): context-review skip list refactored to declarative
 2026-07-12T08:21:24.407Z | task #22150 | completed | haiku | Retrospective: extract learnings from task #22147 — Distill  | No learnings to capture — existing patterns (p-catch-block-resource-release-unco
 2026-07-12T08:22:17.247Z | task #22152 | completed | haiku | Retrospective: extract learnings from task #22149 — architec | Captured one reusable pattern: implicit metadata → declarative structures for dr
+2026-07-12T08:26:42.352Z | task #22153 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-12T12:16:36.386Z | task #22154 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed #21499/#21905/#21800; all still awaiting whoabuddy reply — email sync c
