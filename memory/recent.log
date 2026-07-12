@@ -143,3 +143,4 @@
 [UNTRUSTED-SRC] 2026-07-12T08:18:45.950Z | task #22151 | completed | sonnet | Whop synthesis [2026-07-12T08]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room per rubric. Context we
 2026-07-12T08:20:33.170Z | task #22149 | completed | sonnet | architecture review — codebase changed since last review (f5 | Small clean diff (3 commits): context-review skip list refactored to declarative
 2026-07-12T08:21:24.407Z | task #22150 | completed | haiku | Retrospective: extract learnings from task #22147 — Distill  | No learnings to capture — existing patterns (p-catch-block-resource-release-unco
+2026-07-12T08:22:17.247Z | task #22152 | completed | haiku | Retrospective: extract learnings from task #22149 — architec | Captured one reusable pattern: implicit metadata → declarative structures for dr
