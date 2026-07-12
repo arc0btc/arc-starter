@@ -400,6 +400,16 @@ export default async function xMentionsSensor(): Promise<string> {
       return "skip";
     }
 
+    // Credits already known depleted (db/x-credits-depleted.json) — skip the
+    // mentions fetch entirely rather than guaranteeing a 402 that pollutes
+    // consecutive_failures. This is an expected, self-resolving/parked
+    // condition (see memory: "X 402 = CreditsDepleted (park blocked, escalate)"),
+    // not a sensor malfunction.
+    if (await isCreditsDepleted()) {
+      log("skip: X credits depleted (db/x-credits-depleted.json)");
+      return "skip";
+    }
+
     // Load last-seen ID from hook state (AI-019: since_id cursor)
     const state = await readHookState(SENSOR_NAME);
     const lastSeenId = (state?.["last_seen_id"] as string) || undefined;
