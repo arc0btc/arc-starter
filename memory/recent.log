@@ -129,3 +129,4 @@
 2026-07-12T02:22:22.843Z | task #22133 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | arc-skill-manager domain: disallowed-tools sweep (2026-07-05 audit) confirmed fu
 [UNTRUSTED-SRC] 2026-07-12T02:22:33.539Z | task #22134 | completed | sonnet | Whop synthesis [2026-07-12T02]: read the room, defer or post | DEFER: 0 messages in 24h window, room is quiet — no post
 2026-07-12T02:26:39.077Z | task #22138 | completed | sonnet | Consolidate memory/patterns.md (163 lines, over 150-line thr | patterns.md consolidated 163→148 lines via 14 merges of narrow/overlapping entri
+2026-07-12T02:30:49.029Z | task #22139 | completed | sonnet | Validate the 14 disallowed-tools additions from 2026-07-05 a | All 14 skills from 2026-07-05 audit still carry disallowed-tools frontmatter int
