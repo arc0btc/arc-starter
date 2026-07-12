@@ -415,42 +415,27 @@ interface TweetPrescreen {
   reason: string | null;
 }
 
-// Lightweight existence check: minimal fields, no content fetch needed.
+// Lightweight existence check via X's FREE oEmbed endpoint — no auth, no credits, $0
+// (2026-07-12 rework, operator direction: the prescreen's job is filtering dead links
+// before wasting dispatch cycles — the original paid /tweets/:id lookup made every
+// SUCCESS path cost two reads; oEmbed answers the same question by HTTP status:
+// 200 = public tweet exists, 404 = deleted/not found, 403 = protected).
 // Returns accessible=true if we can't determine status (avoids false positives).
-async function prescreenTweet(tweetId: string): Promise<TweetPrescreen> {
-  const params = { "tweet.fields": "id" };
-  let data: Record<string, unknown> | null = null;
-
+async function prescreenTweet(tweetUrl: string): Promise<TweetPrescreen> {
   try {
-    const xCreds = await loadXCreds();
-    if (xCreds) {
-      data = await xApiGet(`/tweets/${tweetId}`, xCreds, params);
-    } else {
-      const bearerToken = await loadBearerToken();
-      if (!bearerToken) return { accessible: true, reason: null };
-      data = await xApiGetBearer(`/tweets/${tweetId}`, bearerToken, params);
-    }
+    const response = await fetch(
+      `https://publish.x.com/oembed?url=${encodeURIComponent(tweetUrl)}`,
+      { redirect: "follow", signal: AbortSignal.timeout(10000) },
+    );
+    if (response.ok) return { accessible: true, reason: null };
+    if (response.status === 404) return { accessible: false, reason: "tweet deleted or not found" };
+    if (response.status === 403) return { accessible: false, reason: "tweet protected or private" };
+    // Anything else (5xx, rate-limit, oEmbed outage) — lenient default, let the fetch decide.
+    return { accessible: true, reason: null };
   } catch (e) {
-    process.stderr.write(`prescreen lenient-default for ${tweetId}: ${(e as Error).message}\n`);
+    process.stderr.write(`prescreen lenient-default for ${tweetUrl}: ${(e as Error).message}\n`);
     return { accessible: true, reason: null };
   }
-
-  if (!data) return { accessible: false, reason: "API returned HTTP error" };
-
-  // If response has no data key, tweet is inaccessible (deleted or protected)
-  if (!data["data"]) {
-    const errors = data["errors"] as Array<Record<string, unknown>> | undefined;
-    const title = (errors?.[0]?.["title"] as string) || "inaccessible";
-    if (title.toLowerCase().includes("not found")) {
-      return { accessible: false, reason: "tweet deleted or not found" };
-    }
-    if (title.toLowerCase().includes("authorization")) {
-      return { accessible: false, reason: "tweet protected or private" };
-    }
-    return { accessible: false, reason: title };
-  }
-
-  return { accessible: true, reason: null };
 }
 
 async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; skipped: Array<{ url: string; reason: string }> }> {
@@ -461,10 +446,10 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
     const tweetId = parseTweetUrl(url);
     if (tweetId) {
       // Cache short-circuit (2026-07-12 spend-leak fix): a tweet already in the content
-      // cache was accessible when fetched — re-prescreening it bills a paid read for a
-      // question the cache already answers. Before this, EVERY research run paid $0.005
-      // per X URL even when the whole batch was cached ("read once" was only true for
-      // the fetch, not the prescreen).
+      // cache was accessible when fetched — no need to prescreen it again. (Historical:
+      // prescreen was a PAID /tweets/:id read until 2026-07-12, so this leaked $0.005
+      // per X URL on every re-run of a cached batch; prescreen is now free oEmbed, and
+      // this short-circuit still saves the network round-trip.)
       const cached = await getCached(url);
       if (cached) {
         accessible.push(url);
@@ -479,8 +464,8 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
   if (xItems.length === 0) return { accessible, skipped: [] };
 
   const checks = await Promise.allSettled(
-    xItems.map(async ({ url, tweetId }) => {
-      const result = await prescreenTweet(tweetId);
+    xItems.map(async ({ url }) => {
+      const result = await prescreenTweet(url);
       return { url, ...result };
     })
   );
