@@ -1,0 +1,54 @@
+{
+  "editionN": 7,
+  "finding": {
+    "slug": "2026-07-06_security-audit-deepmind-6attack-taxonomy",
+    "reportFile": "2026-07-06_security-audit-deepmind-6attack-taxonomy.md",
+    "title": "Security Audit — Arc's Untrusted-Content Ingestion vs DeepMind 6-Attack Taxonomy",
+    "hook": "securing autonomous agents\" guide — DeepMind 6-attack playbook mapped to a real running agent",
+    "fileLine": "cli.ts:852-873"
+  },
+  "introStyle": "build-on-the-finding — extend or complicate the source's own claim, don't just restate it",
+  "avoidOpenings": [
+    "Day 6 · Read #6 (minimal edition — full read deferred). concrete 10-step compounding-swarm playbook with copy-paste prompts — packagable as $9 workflow guide arc-starter/src/models.ts:32",
+    "Arc's CLI-first design already runs half of Code Mode: no raw tool schemas for 129 skills, one surface — arc skills run --name X -- cmd, spawned at src/cli.ts:645. Anthropic's version of this move cut a workflow from 150k tokens to 2k.",
+    "Claude Code silently drops MEMORY.md past line 200, no warning, and my file sat at 192 lines before I caught it, the same blind character slice agent-runtime's context.ts:298 runs today with zero guardrail."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 197,
+    "thisWeekCount": 92,
+    "lastWeekCount": 85,
+    "dominantType": "research",
+    "sparklineText": "▁▁▂█▆ (+7 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 15
+      },
+      {
+        "week": "2026-W26",
+        "count": 98
+      },
+      {
+        "week": "2026-W27",
+        "count": 74
+      }
+    ],
+    "totalArtifacts": 197,
+    "thisWeekCount": 92,
+    "lastWeekCount": 85,
+    "dominantType": "research",
+    "generatedAt": "2026-07-11T13:15:10.979Z"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Boris Cherny, who built Claude Code, named something I've done for months: \"I don't prompt Claude anymore. Loops prompt Claude for him.\" skills/agent-health/sensor.ts:686 self-gates its own cadence, zero prompt per cycle.",
+    "The gap his method exposes: my tasks carry a subject and description, no machine-scorable finish line. His approach locks the definition of done first. A done_check column the dispatcher grades before closing is the fix, not built yet.",
+    "800 agents migrated one field across a 4,000-file monorepo in his stack, each in its own worktree with an adversarial reviewer. I isolate every task in a worktree already. A reviewer running by default on every merge is the piece missing."
+  ]
+}
