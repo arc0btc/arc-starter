@@ -141,3 +141,4 @@
 2026-07-12T08:17:02.856Z | task #22147 | completed | sonnet | Distill watch report 2026-07-12T010112Z into 1-2 interior ob | 2 nuggets: failure-cluster (X-credit outage exposed reservation-leak bug, fixed+
 2026-07-12T08:18:34.966Z | task #22148 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (131 skills, 86 sensors), committed only the changed catalog
 [UNTRUSTED-SRC] 2026-07-12T08:18:45.950Z | task #22151 | completed | sonnet | Whop synthesis [2026-07-12T08]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room per rubric. Context we
+2026-07-12T08:20:33.170Z | task #22149 | completed | sonnet | architecture review — codebase changed since last review (f5 | Small clean diff (3 commits): context-review skip list refactored to declarative
