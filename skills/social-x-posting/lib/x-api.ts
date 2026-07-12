@@ -93,18 +93,26 @@ async function saveFollowerCache(metrics: { followers_count: number; following_c
 export const READ_COST_USD = 0.005;
 export const OWNED_READ_COST_USD = 0.001;
 
-/** Daily DOLLAR ceiling for X API reads from this lib. ~$0.50/day is the
- * dollar-equivalent of the old 100-reads/day count ceiling (100 × $0.005);
- * steady-state use is ~$0.38/day (the mentions poll is ~90% of it). This flat
- * budget replaces the AI-057/058 follower-reserve machinery, which rationed only
- * ~$0.006/day of owned reads — the complexity outweighed the spend. */
-export const X_READ_BUDGET_USD_PER_DAY = 0.5;
+/** Daily DOLLAR ceiling for X API reads from this lib. Was $0.50 (the
+ * dollar-equivalent of the old 100-reads/day count ceiling; steady-state
+ * ~$0.38/day, mentions poll ~90% of it). Raised to $1.00 on 2026-07-12 when the
+ * two previously UNMETERED read callers (social-x-ecosystem search ~$0.48/day +
+ * arc-link-research lookups) were routed through this guard — the raise keeps
+ * total permitted spend where it already effectively was, it does not authorize
+ * new spend; per-lane split in x-read-budget.json `by_lane` is the audit trail.
+ * Operator dial: lower it once the ecosystem cadence decision lands. */
+export const X_READ_BUDGET_USD_PER_DAY = 1.0;
 
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
   spend_usd: number;   // dollars spent on reads today — the control surface
   reads: number;       // read count today (observability only, not enforced)
   backoff_until?: string; // ISO8601 — set on 429, cleared when expired
+  // Per-lane attribution (2026-07-12, operator spend audit): who spent what today.
+  // Keys are endpoint families ("tweets/search/recent", "users/mentions", ...) or a
+  // caller-supplied lane ("ecosystem-search", "link-research"). Observability only —
+  // the enforced control surface stays the flat spend_usd above.
+  by_lane?: Record<string, { reads: number; spend_usd: number }>;
 }
 
 function todayUTC(): string {
@@ -126,6 +134,7 @@ async function loadReadBudget(): Promise<XReadBudget> {
           spend_usd: data.spend_usd ?? (data.reads ?? 0) * READ_COST_USD,
           reads: data.reads ?? 0,
           backoff_until: data.backoff_until,
+          by_lane: data.by_lane,
         };
       }
     }
@@ -165,13 +174,29 @@ export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<
 }
 
 /** Add a completed read's cost to the daily budget after a successful GET.
- * `costUsd` must match the value passed to checkReadBudget for this read. */
-export async function incrementReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
+ * `costUsd` must match the value passed to checkReadBudget for this read.
+ * `lane` attributes the spend in by_lane (operator spend audit 2026-07-12) —
+ * pass an endpoint family or caller name; omitted = "unattributed". */
+export async function incrementReadBudget(costUsd: number = READ_COST_USD, lane: string = "unattributed"): Promise<void> {
   const budget = await loadReadBudget();
   // Round to micro-dollars so repeated float adds don't drift the persisted value.
   budget.spend_usd = Math.round((budget.spend_usd + costUsd) * 1e6) / 1e6;
   budget.reads += 1;
+  const lanes = budget.by_lane ?? {};
+  const entry = lanes[lane] ?? { reads: 0, spend_usd: 0 };
+  entry.reads += 1;
+  entry.spend_usd = Math.round((entry.spend_usd + costUsd) * 1e6) / 1e6;
+  lanes[lane] = entry;
+  budget.by_lane = lanes;
   await saveReadBudget(budget);
+}
+
+/** Normalize an endpoint path to a stable lane key for by_lane attribution:
+ * numeric path segments (ids) are dropped, e.g. "/users/195.../mentions" →
+ * "users/mentions", "/tweets/search/recent" → "tweets/search/recent". */
+export function endpointLane(endpoint: string): string {
+  const parts = endpoint.split("?")[0].split("/").filter((p) => p && !/^\d+$/.test(p));
+  return parts.join("/") || "root";
 }
 
 /** Write a 429 backoff (15 min) to the budget file. */
@@ -319,8 +344,8 @@ export async function xApiGet(
     throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(data)}`);
   }
 
-  // Success — bill this read against the daily dollar budget.
-  await incrementReadBudget(costUsd);
+  // Success — bill this read against the daily dollar budget, attributed by endpoint family.
+  await incrementReadBudget(costUsd, endpointLane(endpoint));
 
   return data as Record<string, unknown>;
 }

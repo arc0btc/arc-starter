@@ -11,6 +11,11 @@ import {
 } from "../../src/sensors.ts";
 import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
+// Read-budget guard (2026-07-12 operator spend audit): this sensor's 96 searches/day
+// (~$0.48) were previously UNMETERED — the single biggest read spend on the account,
+// invisible to db/x-read-budget.json. Every search now checks + bills the shared
+// daily dollar budget like all other read lanes.
+import { checkReadBudget, incrementReadBudget, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
 
 const SENSOR_NAME = "social-x-ecosystem";
 const INTERVAL_MINUTES = 15;
@@ -96,6 +101,15 @@ async function apiGet(
   creds: OAuthCreds,
   queryParams: Record<string, string> = {}
 ): Promise<Record<string, unknown> | null> {
+  // Budget guard: skip the read (return null → caller logs "search failed" and
+  // advances the keyword rotation) when the shared daily read budget is spent.
+  try {
+    await checkReadBudget(READ_COST_USD);
+  } catch (budgetErr) {
+    log(`skip read: ${(budgetErr as Error).message}`);
+    return null;
+  }
+
   const baseUrl = `${API_BASE}${endpoint}`;
   const url = Object.keys(queryParams).length > 0
     ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
@@ -134,6 +148,9 @@ async function apiGet(
     log(`warn: API ${response.status} on ${endpoint}`);
     return null;
   }
+
+  // Success — bill the read against the shared daily budget, attributed to this sensor.
+  await incrementReadBudget(READ_COST_USD, "ecosystem-search");
 
   return (await response.json()) as Record<string, unknown>;
 }

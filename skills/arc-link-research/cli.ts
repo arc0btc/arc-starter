@@ -6,6 +6,11 @@
 import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
+// Read-budget guard (2026-07-12 operator spend audit): this skill's X lookups were
+// previously UNMETERED (own OAuth + bearer clients, invisible to x-read-budget.json).
+// Both clients now check + bill the shared daily dollar budget under lane
+// "link-research". Same cross-skill import pattern as whop-sales.
+import { checkReadBudget, incrementReadBudget, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -333,6 +338,8 @@ async function xApiGetBearer(
   bearerToken: string,
   queryParams: Record<string, string> = {}
 ): Promise<Record<string, unknown> | null> {
+  await checkReadBudget(READ_COST_USD); // throws when the daily budget is spent — callers degrade
+
   const baseUrl = `https://api.x.com/2${endpoint}`;
   const url = Object.keys(queryParams).length > 0
     ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
@@ -344,6 +351,7 @@ async function xApiGetBearer(
   });
 
   if (!response.ok) return null;
+  await incrementReadBudget(READ_COST_USD, "link-research");
   return (await response.json()) as Record<string, unknown>;
 }
 
@@ -352,6 +360,8 @@ async function xApiGet(
   creds: XOAuthCreds,
   queryParams: Record<string, string> = {}
 ): Promise<Record<string, unknown> | null> {
+  await checkReadBudget(READ_COST_USD); // throws when the daily budget is spent — callers degrade
+
   const baseUrl = `https://api.x.com/2${endpoint}`;
   const url = Object.keys(queryParams).length > 0
     ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
@@ -390,6 +400,7 @@ async function xApiGet(
     return null;
   }
 
+  await incrementReadBudget(READ_COST_USD, "link-research");
   return (await response.json()) as Record<string, unknown>;
 }
 
@@ -449,6 +460,16 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
   for (const url of urls) {
     const tweetId = parseTweetUrl(url);
     if (tweetId) {
+      // Cache short-circuit (2026-07-12 spend-leak fix): a tweet already in the content
+      // cache was accessible when fetched — re-prescreening it bills a paid read for a
+      // question the cache already answers. Before this, EVERY research run paid $0.005
+      // per X URL even when the whole batch was cached ("read once" was only true for
+      // the fetch, not the prescreen).
+      const cached = await getCached(url);
+      if (cached) {
+        accessible.push(url);
+        continue;
+      }
       xItems.push({ url, tweetId });
     } else {
       accessible.push(url);
