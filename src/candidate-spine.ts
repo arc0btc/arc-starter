@@ -32,7 +32,7 @@ import { getDatabase } from "./db.ts";
  * design, `endpointLane()` derives arbitrary ones — forcing a closed registry
  * there would fight the grain). Add each new lane's literal here as it ships;
  * `list-roster` joins in Phase 4. */
-export type KnownSourceLane = "keyword-rotation" | "news-search";
+export type KnownSourceLane = "keyword-rotation" | "news-search" | "list-roster";
 
 export interface XResearchCandidate {
   id: number;
