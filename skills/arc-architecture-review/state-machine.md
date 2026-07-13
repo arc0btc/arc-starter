@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-07-12T20:19:52.621Z | Skills: 131 | Sensors: 86 | CLI: 84 | Agents: 65*
+*Generated: 2026-07-13T08:24:19.082Z | Skills: 124 | Sensors: 86 | CLI: 78 | Agents: 59*
 
 ```mermaid
 stateDiagram-v2
@@ -83,4 +83,4 @@ stateDiagram-v2
 | 8 | Result handling | Self-close vs fallback |
 | 9 | Auto-commit | `git diff --cached` |
 
-*Skill inventory: run `arc skills` for the full list (131 skills, 86 sensors, 84 with CLI)*
+*Skill inventory: run `arc skills` for the full list (124 skills, 86 sensors, 78 with CLI)*

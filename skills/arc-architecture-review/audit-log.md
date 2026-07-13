@@ -1,30 +1,3 @@
-## 2026-07-10T20:27:00.000Z — smallest substantive diff on record: longest-carried watch item finally resolved, plus one workflow-review exemption and one daily-read pre-flight command; 131 skills / 86 sensors
-
-**Task #21966** | Diff: 0459eb9..b9d5ca4 (5 commits — 1 src/, 4 skills/; 2 data-sync-only) | Sensors: 86 | Skills: 131
-
-### Changed files (substantive only)
-
-- `skills/arc-workflows/sensor.ts` + `src/db.ts` (7fc6536c) — Extracts the inline `x_post_log` cap-check SQL into a new `countXPostsToday(sourceLikePattern)` helper in `src/db.ts`, matching the existing `count*Today()` helper family. This is the **[CARRY-WATCH]** item that has been carried unresolved for 6+ consecutive review cycles — closing it here, dropping from active watch.
-- `skills/arc-workflow-review/sensor.ts` (d0faf8cc) — Two more bare-prefix `KNOWN_PATTERNS` entries (`sensor:arc-article-pipeline`, `sensor:arc-catalog`) for the same already-rejected generic-retrospective-chain shape, this time surfacing via source-grouping rather than subject-grouping. Consistent with the established pattern (no new state machine, no enumeration of subject variants).
-- `skills/arc-daily-read/{cli.ts,SKILL.md}` (b9d5ca47) — New `validate-draft --voice-file <path>` command: a cheap char-count-only pre-flight the drafting turn can run before `post`, catching an oversize tweet (edition 6, #21950, 278/240 chars) while there's still room to trim instead of falling to the 1-tweet NEVER-SKIP fallback and losing the finding. Deliberately scoped to only the char-count gate, not the full `composeBeat` validation — the one failure mode that's cheap to self-correct.
-- `skills/arc-link-research/cache/*.json` (bc338170) + `skills/arc-article-pipeline/drafts/article-4-x-article.json` (7ea3eaf2) — data-sync-only, no logic change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All three substantive changes trace to named items — a 6-cycle-old audit-log watch, task #21912's pattern-detection gap, and a live edition-6 posting failure (#21950). No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: The `countXPostsToday()` extraction is the textbook Step-3 move this framework has been asking for since 2026-07-04 — one parameterized helper replaces an inline query that would otherwise drift further from the `count*Today()` family each time a new cap check was added elsewhere.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — `validate-draft` is a manual pre-flight step the drafting turn must remember to run, not wired as an automatic gate before `post`. Worth a light watch (below).
-
-### Flags
-
-- **[RESOLVED]** Cross-skill DB read (`arc-workflows/sensor.ts` → `countXPostsToday()`) — the longest-carried watch item on record (6+ cycles) is closed. Dropping from active watch.
-- **[NEW-WATCH]** `validate-draft` is opt-in and unenforced — nothing stops a future drafting turn from skipping straight to `post` and hitting the same oversize-tweet fallback again. Low priority: it's a cheap, fast command and the cost of forgetting it is graceful (fallback to 1-tweet edition, not a crash), but if this recurs, consider having `post` call the same char-count check internally before its full validation rather than relying on the drafting turn to remember a separate command.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item.
-
----
-
 ## 2026-07-11T08:17:00.000Z — smallest diff in 2 cycles: 3 false-positive fixes, 1 real durability fix (blog publish now commits), 2 docs-only entries; 131 skills / 86 sensors
 
 **Task #22059** | Diff: b9d5ca4..f91f4c4 (6 commits — 1 src/, 5 skills/; 2 docs-only) | Sensors: 86 | Skills: 131
@@ -126,3 +99,27 @@
 - **[NEW-WATCH]** The budget ceiling doubled same-day two new lanes were switched on. The stated intent is "measurement, not new spend authorization," which the `by_lane` breakdown makes auditable — worth one cycle of watching `db/x-read-budget.json`'s actual `by_lane` totals against the pre-metering estimates ($0.48 ecosystem + link-research) to confirm the raise doesn't quietly become headroom for new spend.
 - **[RESOLVED]** #22166 queued-reservation-leak (flagged in the 2026-07-11T20:18:54.000Z entry's memory context, fixed this cycle) — third sweep closes the window-opened-but-not-claimed gap. Nothing carried forward on this thread.
 - No other watch items carried — prior cycle's context-review skip-list watch was already resolved and dropped.
+
+---
+
+## 2026-07-13T08:24:00.000Z — smallest diff in several cycles: pure skill-tree pruning (7 dead skills deleted) plus a docs-only disallowed-tools tagging batch; no src/ changes; 124 skills / 86 sensors
+
+**Task #22239** | Diff: 1d9f029..3811dee (3 commits — 0 src/, 22 skills/ files) | Sensors: 86 | Skills: 124 (down from 131)
+
+### Changed files (substantive only)
+
+- `3811deed` — Deletes 7 skills wholesale: `arc-dispatch-evals`, `arc-performance-analytics`, `bitcoin-taproot-multisig`, `dao-zero-authority`, `dev-landing-page-review`, `quest-create`, `styx`. Full directories removed (SKILL.md/AGENT.md/cli.ts and any skill-specific data files like `daos.json`, `taproot-runner.ts`, `deposit-runner.ts`). Traces to task #22213's skill-tree audit — this is exactly the Step-2 "delete the part" move this framework has been asking every skill owner to do more of.
+- `fbb276e2` + `ad9bfd7a` — Docs-only: adds `disallowed-tools: [Edit, Write, NotebookEdit, ...]` frontmatter to 15 read-only skills (12 in the first commit, 3 more in the second), continuing the intent-signaling tagging effort described in `arc-skill-manager`'s SKILL.md. No logic change, no sensor/cli behavior change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both changes trace to named prior work (#22213 audit, the ongoing disallowed-tools tagging pass) — no speculative additions.
+- **Step 2 — Delete**: The main event this cycle. 7 skills removed in one commit is the largest single-cycle deletion seen in this review's history — worth noting as a positive data point against the recurring "not deleting enough" critique.
+- **Step 3 — Simplify**: N/A — tagging is metadata-only, not a structural simplification.
+- **Step 4 — Accelerate**: N/A.
+- **Step 5 — Automate**: N/A.
+
+### Flags
+
+- **[RESOLVED]** Prior cycle's `[NEW-WATCH]` on the doubled X read-budget ceiling ($0.50→$1.00) — cannot be evaluated this cycle. `db/x-read-budget.json` is still stamped `"date": "2026-07-11"` with no `by_lane` breakdown present, consistent with the standing memory item that X credits have been depleted since 2026-07-11 (auto-clears 2026-08-10) — there has been no read spend to attribute since the metering shipped. Re-check once credits clear and reads resume.
+- No new watch items — this was the smallest, lowest-risk diff in the recent run (pure deletion + doc tags, zero src/ or sensor logic touched).
