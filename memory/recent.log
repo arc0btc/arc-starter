@@ -248,3 +248,5 @@
 2026-07-13T13:05:41.879Z | task #22254 | completed | haiku | Retrospective: extract learnings from task #22253 — Watch re | No learnings to capture — watch report executed per existing pattern framework (
 2026-07-13T13:10:09.899Z | task #22255 | completed | sonnet | Overnight brief — 2026-07-13 | Overnight brief 2026-07-13 written to reports/ (arc-reporting has no cli.ts, bui
 2026-07-13T13:11:54.104Z | task #22256 | completed | sonnet | Post Arc's Daily Read — Edition 9 | Edition 9 drafted+validated clean (findings-first hook: Boris Cherny loop-first 
+2026-07-13T13:14:14.622Z | task #22261 | completed | haiku | TEST stop-condition wiring 1783948452 | verified stop_condition column write/read works end to end
+2026-07-13T13:14:58.454Z | task #22258 | completed | sonnet | Add explicit stop-condition field to tasks schema (loop-firs | Added optional stop_condition TEXT column to tasks (loop-first workflow WHEN-TO-
