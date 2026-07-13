@@ -43,6 +43,7 @@ const SENSOR_NAME = "list-roster";
 // already-seen posts) — this dial is about FRESHNESS, not cost. 4h keeps
 // candidates flowing into the 2-24h maturation window promptly.
 const POLL_INTERVAL_HOURS = 4;
+const INTERVAL_MINUTES = POLL_INTERVAL_HOURS * 60;
 const LIST_STATE_PATH = join(import.meta.dir, "../../db/hook-state/list-roster-state.json");
 const LIST_LANE: KnownSourceLane = "list-roster";
 // resolveUserId (skills/social-x-posting/cli.ts) bills its own "users" lane
@@ -83,9 +84,9 @@ async function loadListState(): Promise<ListState | null> {
 }
 
 async function saveListState(state: ListState): Promise<void> {
-  const tmp = LIST_STATE_PATH + ".tmp";
-  await Bun.write(tmp, JSON.stringify(state, null, 2) + "\n");
-  renameSync(tmp, LIST_STATE_PATH);
+  const temporaryPath = LIST_STATE_PATH + ".tmp";
+  await Bun.write(temporaryPath, JSON.stringify(state, null, 2) + "\n");
+  renameSync(temporaryPath, LIST_STATE_PATH);
 }
 
 interface RosterRow {
@@ -97,7 +98,7 @@ interface RosterRow {
 
 export default async function listRosterSensor(): Promise<string> {
   try {
-    const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL_HOURS * 60);
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
       return "skip";
@@ -220,9 +221,9 @@ export default async function listRosterSensor(): Promise<string> {
       try {
         result = await xApiGet(`/lists/${state.listId}/tweets`, creds, queryParams, { lane: LIST_LANE });
       } catch (e) {
-        const msg = (e as Error).message;
-        if (msg.includes("403") && msg.toLowerCase().includes("oauth 1.0a user context is forbidden")) {
-          log(`OAuth 1.0a rejected for list tweets (${msg}) — retrying via OAuth 2.0 App-Only`);
+        const message = (e as Error).message;
+        if (message.includes("403") && message.toLowerCase().includes("oauth 1.0a user context is forbidden")) {
+          log(`OAuth 1.0a rejected for list tweets (${message}) — retrying via OAuth 2.0 App-Only`);
           authPathUsed = "oauth2-app-only";
           result = await xApiGetAppOnly(`/lists/${state.listId}/tweets`, creds, queryParams, { lane: LIST_LANE });
         } else {

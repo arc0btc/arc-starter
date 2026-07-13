@@ -58,6 +58,7 @@ const SENSOR_NAME = "x-news-trends";
 // worst case approaches the $1.00/day cap once candidate-maturation's own
 // spend is added.
 const CHECKIN_INTERVAL_HOURS = 24;
+const INTERVAL_MINUTES = CHECKIN_INTERVAL_HOURS * 60;
 
 const TRENDS_LANE = "trends";
 const TRENDS_PERSONALIZED_LANE = "trends-personalized";
@@ -142,7 +143,7 @@ function pickTrendBiasedQueries(trendNames: string[]): { queries: string[]; bias
 
 export default async function xNewsTrendsSensor(): Promise<string> {
   try {
-    const claimed = await claimSensorRun(SENSOR_NAME, CHECKIN_INTERVAL_HOURS * 60);
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
       return "skip";
@@ -185,13 +186,13 @@ export default async function xNewsTrendsSensor(): Promise<string> {
       log(`personalized trends: ${items.length} item(s)`);
       for (const t of items) if (t.trend_name) trendNames.push(t.trend_name);
     } catch (e) {
-      const msg = (e as Error).message;
-      if (msg.includes("401") || msg.includes("403")) {
+      const message = (e as Error).message;
+      if (message.includes("401") || message.includes("403")) {
         log(
-          `blocked: personalized_trends auth rejected (${msg}). Documented blocker — see verify artifact.`,
+          `blocked: personalized_trends auth rejected (${message}). Documented blocker — see verify artifact.`,
         );
       } else {
-        log(`warn: personalized_trends failed (non-auth error): ${msg}`);
+        log(`warn: personalized_trends failed (non-auth error): ${message}`);
       }
     }
 

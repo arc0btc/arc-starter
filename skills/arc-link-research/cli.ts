@@ -1104,7 +1104,7 @@ export async function cmdProcess(args: string[]): Promise<void> {
     followAttemptsThisRun++;
     try {
       const promo = await promoteResearchSourceHandle(handle, {
-        log: (msg) => process.stdout.write(`[follow-policy] ${msg}\n`),
+        log: (message) => process.stdout.write(`[follow-policy] ${message}\n`),
       });
       process.stdout.write(
         `[follow-policy] @${handle}: promoted=${promo.promoted} listAdded=${promo.listAdded} followAttempted=${promo.followAttempted} followed=${promo.followed}${promo.reason ? ` reason=${promo.reason}` : ""}\n`,

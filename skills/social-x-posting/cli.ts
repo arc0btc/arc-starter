@@ -1678,8 +1678,8 @@ export async function resolveUserId(username: string): Promise<string | null> {
     const resp = await xApiGet(`/users/by/username/${username.replace(/^@/, "")}`, xCreds, { "user.fields": "id" }, { costUsd: 0.010, lane: "users" });
     const data = resp["data"] as Record<string, unknown> | undefined;
     return data?.["id"] ? String(data["id"]) : null;
-  } catch (err) {
-    log(`resolveUserId(${username}) failed: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`resolveUserId(${username}) failed: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }
@@ -1744,8 +1744,8 @@ export interface FollowByIdResult {
 export async function followByTargetId(targetId: string): Promise<FollowByIdResult> {
   try {
     await checkBudget("follows");
-  } catch (err) {
-    return { ok: false, deferred: true, error: err instanceof Error ? err.message : String(err) };
+  } catch (error) {
+    return { ok: false, deferred: true, error: error instanceof Error ? error.message : String(error) };
   }
   const creds = await loadCreds();
   const userId = await getMyUserId(creds);
@@ -1826,9 +1826,9 @@ async function recordLikeSpacing(): Promise<void> {
     const { mkdirSync, renameSync } = await import("node:fs");
     const dir = join(import.meta.dir, "..", "..", "db", "hook-state");
     mkdirSync(dir, { recursive: true });
-    const tmp = LIKE_SPACING_STATE_PATH + ".tmp";
-    await Bun.write(tmp, JSON.stringify({ lastLikeAt: new Date().toISOString() }, null, 2) + "\n");
-    renameSync(tmp, LIKE_SPACING_STATE_PATH);
+    const temporaryPath = LIKE_SPACING_STATE_PATH + ".tmp";
+    await Bun.write(temporaryPath, JSON.stringify({ lastLikeAt: new Date().toISOString() }, null, 2) + "\n");
+    renameSync(temporaryPath, LIKE_SPACING_STATE_PATH);
   } catch {
     // best-effort bookkeeping only — never block or fail the like itself over a write hiccup.
   }
@@ -1845,8 +1845,8 @@ export interface LikeByIdResult {
 export async function likeByTargetId(tweetId: string): Promise<LikeByIdResult> {
   try {
     await checkBudget("likes");
-  } catch (err) {
-    return { ok: false, deferred: true, error: err instanceof Error ? err.message : String(err) };
+  } catch (error) {
+    return { ok: false, deferred: true, error: error instanceof Error ? error.message : String(error) };
   }
   await enforceLikeSpacing();
   const creds = await loadCreds();
