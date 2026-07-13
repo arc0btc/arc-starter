@@ -263,3 +263,4 @@
 2026-07-13T14:07:06.954Z | task #22270 | completed | sonnet | Bug: candidate-maturation test-seed task #22270 dispatched b | Confirmed root cause: tasks.id lacks AUTOINCREMENT (bare rowid alias), so a vani
 2026-07-13T14:11:27.521Z | task #22271 | completed | sonnet | Add AUTOINCREMENT to tasks.id to prevent rowid reuse after r | Shipped migrateTasksTableAutoincrement() in src/db.ts (commit 517f8b38) — idempo
 2026-07-13T14:12:45.165Z | task #22273 | completed | sonnet | CEO review — 2026-07-13T14:03 | CEO review: on track, zero failures/48 tasks, highest recent PR-review load. 8 p
+2026-07-13T14:13:25.083Z | task #22274 | completed | sonnet | Generate research blog post draft (1 fresh arxiv nuggets) | Drafted research post 'Recursive Delegation Solves the Depth vs Coverage Tradeof
