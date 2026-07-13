@@ -24,11 +24,17 @@ Four full research reports + one queued for ONE story. At ~$0.7–2.5/research c
 tweet_id per source), and the `arc-link-research check` gate keys on exact URL, so sibling
 tweets read as "not covered."
 
-**Fix direction (follow-up filed):** add an incident-level guard at maturation time —
-before filing, normalize the candidate's `discovery_context` (news title) and/or entity
-set into an incident key and skip if an equivalent-incident candidate already matured to a
-research task within the last N hours. The BridgeMind siblings share a near-identical
-`discovery_context` string, so a normalized-title key collapses them cheaply without an LLM.
+**Fixed 2026-07-13, #22469, commit 414ce89a:** added an incident-level dedup gate.
+`normalizeIncidentKey()` + `getRecentMaturedCandidates()` (`src/candidate-spine.ts`)
+normalize `discovery_context` (lowercase, strip punctuation, collapse whitespace) and
+list matured candidates in the last 24h; `skills/candidate-maturation/sensor.ts` builds
+an in-memory `incidentIndex` once per run (updated as new candidates mature within the
+same run) and, before `insertTask`, skips filing if the normalized key already matched —
+the sibling is marked `matured` against the EXISTING research task id instead. Existing
+per-tweet dedup (`recentTaskExistsForSource`) is untouched; this is a second, independent
+gate. Loop-continuation logic updated so incident-deduped rows still count as a state
+transition (paging doesn't stop early on an all-siblings page). 4 tests in
+`tests/candidate-spine.test.ts` cover collapse/distinct-story/null/whitespace cases.
 
 **How to apply:** when a news-derived signal is the maturation trigger, dedup on the STORY,
 not the carrier tweet. One incident = one research task. See [[deepmind-6attack-taxonomy-ingestion-audit]]

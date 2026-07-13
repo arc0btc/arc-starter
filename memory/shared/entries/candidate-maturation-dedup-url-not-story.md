@@ -38,5 +38,11 @@ rate is low (fast-moving mainstream news with multiple viral tweets). The cheap
 mitigation is the manual reindex-check-before-writing already in the pipeline
 discipline. Escalate to a real fix only if same-story duplicates recur.
 
+**Update 2026-07-13:** same-story duplicates DID recur (BridgeMind/Stripe, 5 sibling
+tweets, #22311) — the escalation condition here was met. Real fix shipped in #22469,
+commit 414ce89a: see [[candidate-maturation-incident-vs-tweet-dedup-churn]] for the
+normalized-title incident key that now gates `candidate-maturation`'s `insertTask` call
+(no LLM/embedding needed — near-identical titles collapse on lowercase+punctuation-strip).
+
 Related: [[reserve-group-lane-default-bypass]] (URL/lane-key assumptions),
 [[retrospective-workflow-3054-duplicate-flood]] (duplicate-work pattern).
