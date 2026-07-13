@@ -40,12 +40,13 @@ const USAGE = {
     'arc tasks add --subject TEXT --model MODEL|auto [--description TEXT] [--priority N] [--source TEXT]\n' +
     '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"] [--file PATH]\n' +
     '              [--max-retries N (HANDOFF threshold, default 7)]\n' +
+    '              [--stop-condition TEXT (declared WHEN-TO-STOP condition, checked at close)]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]\n' +
     '              (--model auto runs the task-type classifier to pick devstral/glm/haiku/sonnet/opus;\n' +
     '               --file names the target file explicitly when the subject is phrased around a\n' +
     '               skill/CLI name instead of a literal path, e.g. --file skills/foo/cli.ts)',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending] [--stop-condition TEXT]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT [--quality 1-5]',
   tasksDeps: 'arc tasks deps --id N',
@@ -327,6 +328,7 @@ async function cmdTasksAdd(args: string[]): Promise<void> {
     scheduled_for: scheduledFor,
     script: scriptFlag,
     max_retries: maxRetries,
+    stop_condition: flags["stop-condition"],
   });
 
   if (scheduledFor) {
@@ -410,6 +412,7 @@ function cmdTasksUpdate(args: string[]): void {
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
   const model = flags["model"] ?? undefined;
   const status = flags["status"] ?? undefined;
+  const stopCondition = flags["stop-condition"] ?? undefined;
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
@@ -421,9 +424,9 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined) {
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined && stopCondition === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, --priority, --model, or --status is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, --model, --status, or --stop-condition is required\n" + usage
     );
     process.exit(1);
   }
@@ -436,8 +439,8 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined) {
-    updateTask(id, { subject, description, priority, model });
+  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined || stopCondition !== undefined) {
+    updateTask(id, { subject, description, priority, model, stop_condition: stopCondition });
   }
   if (status === "pending") {
     requeueTask(id);
@@ -448,6 +451,7 @@ function cmdTasksUpdate(args: string[]): void {
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
   if (model !== undefined) updated.push("model");
+  if (stopCondition !== undefined) updated.push("stop_condition");
   if (status !== undefined) updated.push("status → pending");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
 }

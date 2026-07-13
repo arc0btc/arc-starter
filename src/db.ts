@@ -38,6 +38,7 @@ export interface Task {
   escalation_rung: string;       // ARC-0011: REFINE|PIVOT|WEB-SEARCH|HANDOFF
   pivot_count: number;           // ARC-0011: number of PIVOT transitions
   dead_ends: string | null;      // ARC-0011: JSON array of {approach, reason, attempt}
+  stop_condition: string | null; // loop-first workflow pattern: declared WHEN-TO-STOP condition
 }
 
 export interface InsertTask {
@@ -54,6 +55,7 @@ export interface InsertTask {
   assigned_to?: string | null;
   script?: string | null;
   max_retries?: number;          // ARC-0011: HANDOFF threshold (default 3 in schema, 7 for new CLI tasks)
+  stop_condition?: string | null; // loop-first workflow pattern: declared WHEN-TO-STOP condition
 }
 
 export interface CycleLog {
@@ -333,6 +335,9 @@ export function initDatabase(): Database {
   addColumn("tasks", "escalation_rung", "TEXT DEFAULT 'REFINE'");
   addColumn("tasks", "pivot_count", "INTEGER DEFAULT 0");
   addColumn("tasks", "dead_ends", "TEXT");
+  // loop-first workflow pattern (Boris Cherny / Raytar): declared WHEN-TO-STOP condition,
+  // set at creation, distinct from status flags. Optional — null means no declared condition.
+  addColumn("tasks", "stop_condition", "TEXT");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -1045,6 +1050,7 @@ export function insertTask(fields: InsertTask): number {
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
     "source", "parent_id", "template", "model", "assigned_to", "script", "max_retries",
+    "stop_condition",
   ];
 
   for (const col of optionalColumns) {
@@ -1200,6 +1206,7 @@ export interface UpdateTaskFields {
   description?: string | null;
   priority?: number;
   model?: string | null;
+  stop_condition?: string | null;
 }
 
 export function updateTask(id: number, fields: UpdateTaskFields): void {

@@ -523,6 +523,9 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string, run
     `Source: ${task.source ?? "(none)"}`,
     `Task ID: ${task.id}`,
   ];
+  if (task.stop_condition) {
+    taskLines.push(`Stop condition: ${task.stop_condition}`);
+  }
   if (parentChain) {
     taskLines.push(parentChain);
   }
