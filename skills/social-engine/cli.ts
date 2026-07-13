@@ -40,7 +40,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   const tweetId = flags["tweet-id"];
   if (!text || tweetId === undefined || tweetId === "true") {
     console.log(
-      "Usage: reply --tweet-id <id> --text <reply text> [--account <handle>] [--x-lead-id <author_id>]",
+      "Usage: reply --tweet-id <id> --text <reply text> --tweet-created-at <iso timestamp> [--account <handle>] [--x-lead-id <author_id>]",
     );
     process.exit(1);
   }
@@ -81,8 +81,9 @@ async function main(): Promise<void> {
       console.log(`social-engine — unified outbound reply lane
 
 Commands:
-  reply  --tweet-id <id> --text <text> [--account <handle>] [--x-lead-id <author_id>]
+  reply  --tweet-id <id> --text <text> --tweet-created-at <iso timestamp> [--account <handle>] [--x-lead-id <author_id>]
          Send ONE reply through the canonical admission path (dedup + kill switch + budget).
+         --tweet-created-at is required (ISO8601); omitting it blocks with 'missing_tweet_age'.
          This is the only sanctioned way to reply on X. Exit 0=sent/already-exists,
          3=skipped/blocked (dedup, budget, kill switch, reply-restriction), 1=unknown.
 `);
