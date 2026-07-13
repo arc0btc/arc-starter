@@ -2,6 +2,7 @@
 
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
+- [tasks-close-terminal-guard-overblocks-blocked-resolution](memory/shared/entries/tasks-close-terminal-guard-overblocks-blocked-resolution.md) — #22006 guard wrongly rejects blocked→completed/failed (blocked never sets completed_at)
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — restart loop diagnosis
 - [claude-cli-stale-version-doctor-hang](memory/shared/entries/claude-cli-stale-version-doctor-hang.md) — installed claude CLI 32 versions behind npm latest; `claude doctor` hangs non-interactively
 - [self-upgrade-task-queue-paradox](memory/shared/entries/self-upgrade-task-queue-paradox.md) — tasks gated on "system idle" can't self-verify from inside the dispatch subprocess that IS the non-idle state; needs an out-of-band actor
