@@ -45,7 +45,8 @@ const SENSOR_NAME = "list-roster";
 const POLL_INTERVAL_HOURS = 4;
 const LIST_STATE_PATH = join(import.meta.dir, "../../db/hook-state/list-roster-state.json");
 const LIST_LANE: KnownSourceLane = "list-roster";
-const USERS_LANE = "users";
+// resolveUserId (skills/social-x-posting/cli.ts) bills its own "users" lane
+// internally — no separate lane constant needed here, this is display-only.
 const USER_LOOKUP_COST_USD = 0.01; // Phase 1 console reconciliation: user reads confirmed $0.010/resource
 // Bounds ramp-up read spend: only this many NEW (no cached follow_target_id)
 // username->id lookups are paid for per run. Rows with an existing
@@ -60,6 +61,15 @@ interface ListState {
   listId: string;
   createdAt: string;
   sinceId?: string;
+  // dev-council 2026-07-13 (Lamport lens, CONFIRMED liveness bug): without
+  // this, a handle that permanently fails (X-suspended, or the List owner
+  // rejects the add — both observed live this session) sorts back to the
+  // SAME query position every run and re-consumes a MEMBER_SYNC_CAP_PER_RUN
+  // slot forever, starving the resolvable remainder — a stall, not just slow
+  // progress, once enough dead handles accumulate at the front of the
+  // alphabetical/free-first ordering. Persisted across runs so a failure is
+  // paid for (in read/write cost) at most once, ever, not once per run.
+  failedHandles?: string[];
 }
 
 async function loadListState(): Promise<ListState | null> {
@@ -113,22 +123,28 @@ export default async function listRosterSensor(): Promise<string> {
       log(`using existing List id=${state.listId}`);
     }
 
-    // ---- 2. Membership sync (capped, free-rows first) ----
+    // ---- 2. Membership sync (capped, free-rows first, dead-handle-excluded) ----
     const db = getDatabase();
-    const rows = db
+    const failedHandles = new Set((state.failedHandles ?? []).map((h) => h.toLowerCase()));
+    // Over-fetch (150 > the whole ~138-row roster) so filtering OUT already-known-dead
+    // handles never starves the batch of real candidates to try this run.
+    const allRows = db
       .query(
         `SELECT id, handle, follow_target_id, list_member_added_at
          FROM social_accounts
          WHERE targeting_status IN ('eligible','ingestion_only')
            AND list_member_added_at IS NULL
          ORDER BY (follow_target_id IS NULL) ASC, handle ASC
-         LIMIT 50`,
+         LIMIT 150`,
       )
       .all() as RosterRow[];
+    const rows = allRows.filter((r) => !failedHandles.has(r.handle.toLowerCase()));
+    const skippedDead = allRows.length - rows.length;
 
     let freeAdds = 0;
     let paidLookups = 0;
     let membersAdded = 0;
+    let newlyFailed = 0;
     for (const row of rows) {
       let userId = row.follow_target_id;
       const isFreeRow = userId !== null;
@@ -137,21 +153,39 @@ export default async function listRosterSensor(): Promise<string> {
         userId = await resolveUserId(row.handle);
         paidLookups++;
         if (!userId) {
-          log(`  resolveUserId failed for @${row.handle} — skipping this run`);
+          log(`  resolveUserId failed for @${row.handle} — marking dead, will not retry`);
+          failedHandles.add(row.handle.toLowerCase());
+          newlyFailed++;
           continue;
         }
       }
 
       const addResult = await addListMember(state.listId, userId);
-      if (addResult.ok) {
+      // dev-council (Lamport lens, CONFIRMED): gate on the ACTUAL membership
+      // confirmation (`alreadyMember` = `is_member===true`, see addListMember's
+      // doc comment), not merely `ok` (HTTP 2xx) — a 200-with-unconfirmed
+      // response must not be recorded as a confirmed member.
+      if (addResult.ok && addResult.alreadyMember) {
         db.query(
           `UPDATE social_accounts SET list_member_added_at = ?, follow_target_id = COALESCE(follow_target_id, ?) WHERE id = ?`,
         ).run(new Date().toISOString(), userId, row.id);
         membersAdded++;
         if (isFreeRow) freeAdds++;
       } else {
-        log(`  addListMember failed for @${row.handle}: ${addResult.error ?? addResult.status}`);
+        // Both a hard error (addResult.ok===false, e.g. the two real 403/400
+        // rejections observed live this session) AND an ok-but-unconfirmed
+        // response are treated as "won't succeed on retry" — a List-add
+        // rejection is a property of the (List, account) pair, not a transient
+        // hiccup, so retrying next run would just waste the same read/write again.
+        log(`  addListMember not confirmed for @${row.handle}: ${addResult.error ?? addResult.status ?? "ok=true but is_member!==true"} — marking dead, will not retry`);
+        failedHandles.add(row.handle.toLowerCase());
+        newlyFailed++;
       }
+    }
+
+    if (newlyFailed > 0) {
+      state.failedHandles = Array.from(failedHandles);
+      await saveListState(state);
     }
 
     const remaining = db
@@ -160,7 +194,7 @@ export default async function listRosterSensor(): Promise<string> {
       )
       .get() as { c: number };
     log(
-      `membership sync: ${membersAdded} added this run (${freeAdds} free via cached id, ${paidLookups} paid lookup(s) @ $${USER_LOOKUP_COST_USD}), ${remaining.c} still unsynced`,
+      `membership sync: ${membersAdded} added this run (${freeAdds} free via cached id, ${paidLookups} paid lookup(s) @ $${USER_LOOKUP_COST_USD}), ${remaining.c} still unsynced (${failedHandles.size} permanently dead, ${skippedDead} skipped this run as known-dead)`,
     );
 
     // ---- 3. Tweet poll (since_id-disciplined) ----

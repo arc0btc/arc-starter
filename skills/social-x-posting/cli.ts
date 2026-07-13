@@ -1639,7 +1639,18 @@ export async function createXList(name: string, description: string): Promise<{ 
 /** Add one member to an existing X List. Non-throwing (a batch caller syncing
  * ~138 roster accounts must keep going past one bad id) — mirrors cmdFollow's
  * catch shape. X returns 200 with `is_member: true` on both a fresh add AND a
- * repeat add (same idempotent shape as follow), so a re-run never double-errors. */
+ * repeat add (same idempotent shape as follow), so a re-run never double-errors.
+ *
+ * `alreadyMember` (despite the name — kept for API-compat with the first
+ * version of this function) is the ACTUAL membership-confirmation signal
+ * (`data.is_member === true`), NOT merely "the HTTP call returned 2xx."
+ * dev-council (Lamport lens, 2026-07-13): the ORIGINAL callers gated their
+ * `list_member_added_at` UPDATE on `result.ok` alone and never read this
+ * field — i.e. the one signal that actually confirms membership was computed
+ * and then discarded, so a 200-with-`is_member:false` response (e.g. a
+ * pending/queued add X hasn't confirmed yet) would have been recorded as a
+ * confirmed member. Both call sites (skills/list-roster/sensor.ts,
+ * src/follow-policy.ts) now gate on `result.ok && result.alreadyMember`. */
 export async function addListMember(listId: string, userId: string): Promise<{ ok: boolean; alreadyMember?: boolean; status?: number; error?: string }> {
   try {
     const result = await apiRequest("POST", `/lists/${listId}/members`, await loadCreds(), { user_id: userId });
@@ -1702,6 +1713,55 @@ async function cmdListAddMember(flags: Record<string, string>): Promise<void> {
 // proven OAuth 1.0a helper — no auth duplication. Accept either --username (resolves
 // via /users/by/username) or --target-id (caller pre-resolved the id to save a read).
 // Output is single-line JSON so a batch orchestrator can parse ok/already/error.
+export interface FollowByIdResult {
+  ok: boolean;
+  following?: boolean;
+  pendingFollow?: boolean;
+  deferred?: boolean; // true = daily 20/day cap reached (normal, not a failure)
+  status?: number | null;
+  error?: string;
+}
+
+/**
+ * Follow a pre-resolved user id, IN-PROCESS (no subprocess). Extracted from
+ * `cmdFollow` (2026-07-13, arc-x-research-channel Phase 4, dev-council/Newman
+ * lens — "highest-leverage change... one structural fix retires two
+ * findings"): `src/follow-policy.ts` previously shelled out to
+ * `bun cli.ts follow --target-id ...` and parsed the last stdout line as
+ * JSON — but `checkBudget("follows")` throws BEFORE `cmdFollow`'s try/catch,
+ * so a daily-cap hit propagated to the TOP-LEVEL `main().catch` (stderr-only,
+ * `process.exit(1)`, no stdout JSON at all), making the caller's "budget
+ * exhausted = deferred, not a failure" branch dead code (confirmed
+ * independently by BOTH the Lamport and Newman lenses) — every over-cap
+ * follow was silently misreported as a generic failure. This function
+ * returns a STRUCTURED result instead of throwing/exiting, so a cap hit is a
+ * plain `{ok: false, deferred: true}` value, not a parsed-stdout guess. Also
+ * removes the per-follow subprocess boot (fresh Bun process + cold creds
+ * reload + a fresh `getMyUserId` read, every single follow) `follow-policy.ts`
+ * was paying for no reason — `addListMember`/`resolveUserId` were already
+ * in-process; follow is now consistent with them.
+ */
+export async function followByTargetId(targetId: string): Promise<FollowByIdResult> {
+  try {
+    await checkBudget("follows");
+  } catch (err) {
+    return { ok: false, deferred: true, error: err instanceof Error ? err.message : String(err) };
+  }
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+  try {
+    const result = await apiRequest("POST", `/users/${userId}/following`, creds, { target_user_id: targetId });
+    await incrementBudget("follows");
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, following: data["following"] === true, pendingFollow: data["pending_follow"] === true };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    // Re-following an account you already follow returns 200 with following:true on X,
+    // so a thrown error here is a real failure (429/restriction/etc).
+    return { ok: false, status: e.status ?? null, error: e.message };
+  }
+}
+
 async function cmdFollow(flags: Record<string, string>): Promise<void> {
   const rawHandle = (flags["username"] ?? "").replace(/^@/, "");
   let targetId = flags["target-id"] ?? "";
@@ -1710,11 +1770,8 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
-  await checkBudget("follows");
-  const creds = await loadCreds();
-  const userId = await getMyUserId(creds);
-
   if (!targetId) {
+    const creds = await loadCreds();
     const lk = await apiRequest("GET", `/users/by/username/${rawHandle}`, creds, undefined, { "user.fields": "id" });
     const u = lk["data"] as Record<string, unknown> | undefined;
     if (!u || !u["id"]) {
@@ -1725,19 +1782,14 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
   }
 
   log(`Following ${rawHandle || targetId} (id=${targetId})...`);
-  try {
-    const result = await apiRequest("POST", `/users/${userId}/following`, creds, { target_user_id: targetId });
-    await incrementBudget("follows");
-    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
-    const following = data["following"] === true;
-    const pendingFollow = data["pending_follow"] === true;
-    console.log(JSON.stringify({ ok: true, following, pending_follow: pendingFollow, target_id: targetId, username: rawHandle || null }));
-  } catch (err) {
-    const e = err as Error & { status?: number; body?: unknown };
-    // Re-following an account you already follow returns 200 with following:true on X,
-    // so a thrown error here is a real failure (429/restriction/etc). Surface status so
-    // the orchestrator can back off on 429.
-    console.log(JSON.stringify({ ok: false, status: e.status ?? null, error: e.message, target_id: targetId, username: rawHandle || null }));
+  const result = await followByTargetId(targetId);
+  if (result.ok) {
+    console.log(JSON.stringify({ ok: true, following: result.following, pending_follow: result.pendingFollow, target_id: targetId, username: rawHandle || null }));
+  } else if (result.deferred) {
+    console.log(JSON.stringify({ ok: false, deferred: true, error: result.error, target_id: targetId, username: rawHandle || null }));
+    process.exit(4); // distinct exit code from a real failure (3) — CLI callers can distinguish "cap hit" from "broken"
+  } else {
+    console.log(JSON.stringify({ ok: false, status: result.status ?? null, error: result.error, target_id: targetId, username: rawHandle || null }));
     process.exit(3);
   }
 }

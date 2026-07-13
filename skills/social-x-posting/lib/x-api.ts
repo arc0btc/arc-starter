@@ -198,11 +198,21 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
 // two overlapping ticks can both load the same pre-mutation budget and both save,
 // silently losing one increment (a lost update). This is PRE-EXISTING (identical
 // shape before the 2026-07-13 per-resource metering fix) and NOT worsened by it.
-// Accepted for now: at this system's realistic volume (well under $1.00/day, a
-// handful of processes, cron/dispatch cadence not high concurrency) the exposure
-// is a few cents of under-counted spend, not a broken cap. Revisit (file lock, or
-// move the ledger to a SQLite row with an atomic UPDATE) if cadence tightens or
-// the daily cap is raised enough that a lost update becomes material.
+// Accepted for now, but the materiality of "accepted" has moved (dev-council/
+// Kleppmann lens, Phase 4, 2026-07-13 — CORRECTING this comment's prior "a few
+// cents" characterization, which was accurate when every writer billed 1-15
+// resources per call): list-roster's tweet-poll (Phase 4) can bill up to ~100
+// resources in ONE `applyBill` (a single `/lists/{id}/tweets` page at
+// max_results=100, ~$0.50) — a lost update on THAT call under-counts up to
+// half the daily cap in one shot, not a few cents, and the failure direction
+// is cap UNDER-enforcement on real money (an actually-spent read the ledger
+// never learns about). Four independently-scheduled writers now share this
+// file (ecosystem-search remnant, x-news-trends, candidate-maturation,
+// list-roster). Still not fixed this phase (a full move to an atomic SQLite
+// `UPDATE spend = spend + ?` row is its own change, out of Phase 4's budget) —
+// but Phase 6's budget-fit audit should treat this as a real, not theoretical,
+// gap given the batch sizes now in play. Revisit (file lock, or move the
+// ledger to a SQLite row) before the daily cap or poll batch size grows further.
 
 /**
  * Throws if the projected read spend would exceed the daily dollar budget, or if

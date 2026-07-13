@@ -1050,11 +1050,36 @@ async function cmdProcess(args: string[]): Promise<void> {
   // phase — same class of finding as Phase 3's discovery_context packing).
   // Best-effort: a promotion hiccup must NEVER fail a report that's already
   // written to disk.
+  //
+  // dev-council 2026-07-13 (Hohpe + Fowler, both independently CONFIRMED): the
+  // author-resolution fallback above (~line 618, `authorUsername = author?.
+  // ["username"] || "unknown"`) can produce a literal title of `@unknown: ...`
+  // when X's author lookup misses — that string cheerfully matches
+  // `/^@(\w+):/` and would promote+resolve+follow a junk "unknown" handle,
+  // spending a real metered read and a real follow write on nothing. Filtered
+  // out explicitly, not silently relying on resolveUserId's not-found path
+  // (which would still cost the read before failing).
+  //
+  // dev-council (Newman, CONFIRMED): nothing previously bounded how many
+  // follow-writes ONE `process` invocation could trigger — a batch with many
+  // new X sources could drain the entire shared 20/day follow budget in one
+  // report, starving every other follow consumer that day. Capped here.
+  const MAX_FOLLOWS_PER_PROCESS_RUN = 5;
+  let followAttemptsThisRun = 0;
   for (const r of results) {
     if (r.relevance === "low") continue;
     const m = r.title.match(/^@(\w+):/);
     if (!m) continue;
     const handle = m[1];
+    if (handle.toLowerCase() === "unknown") {
+      process.stdout.write(`[follow-policy] skipping literal "@unknown" (author-resolution fallback, not a real handle)\n`);
+      continue;
+    }
+    if (followAttemptsThisRun >= MAX_FOLLOWS_PER_PROCESS_RUN) {
+      process.stdout.write(`[follow-policy] @${handle}: per-run follow-policy cap (${MAX_FOLLOWS_PER_PROCESS_RUN}) reached this process call — skipping remaining candidates this run\n`);
+      continue;
+    }
+    followAttemptsThisRun++;
     try {
       const promo = await promoteResearchSourceHandle(handle, {
         log: (msg) => process.stdout.write(`[follow-policy] ${msg}\n`),
