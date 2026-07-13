@@ -216,3 +216,5 @@
 2026-07-13T02:45:14.125Z | task #22222 | completed | haiku | Retrospective: extract learnings from task #22220 — Investig | Extracted one learning from task #22220: external service budget exhaustion (API
 2026-07-13T04:17:21.838Z | task #22223 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 blocked tasks re-verified, none resolved: #21499 (whop SKU sign-off), #219
 2026-07-13T04:19:14.133Z | task #22224 | completed | haiku | Retrospective: extract learnings from task #22223 — Review 3 | Extended p-false-positive-prevention entry 29 with blocked-review-task detection
+2026-07-13T04:33:24.599Z | task #22225 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-13T04:38:44.968Z | task #22226 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Agents page: agent n | agent-news #320: source-level check confirms fix (PR#372-375) is live on main, n
