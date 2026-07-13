@@ -21,7 +21,22 @@
 // Join key: `source_url = ? OR content_hash = ?` against the EXISTING research_nugget table,
 // not scoped to source='link_research' — this is what lets an HN-origin nugget and an
 // arc-link-research report about the same underlying URL collapse onto one row regardless of
-// which side wrote first.
+// which side wrote first. LIVE-PROVEN 2026-07-13: a github_release-origin nugget
+// (anthropics/claude-code v2.1.207) got its report_path filled in by this exact join, with
+// fan_in_count 1->2 and fan_in_sources becoming ["github_release","link_research"].
+//
+// DISCLOSED LIMITATION (dev-council 2026-07-13, Fowler/Hohpe/Lamport all independently flagged
+// this): the `content_hash` half of the join is structurally near-inert ACROSS sources —
+// producer-{hn,rss,github-release}.ts hash their OWN title+body bytes, while `contentHashFor`
+// below hashes the arc-link-research REPORT's title+takeaways (mechanically re-extracted
+// content, not the original bytes). Two different algorithms over two different byte streams
+// essentially never collide. In practice the join key that actually does the work is
+// `source_url` exact match — no normalization (trailing slash, http/https, tracking params).
+// The recommended fix (not done this phase — real scope, touches cmdProcess's flag parsing and
+// the task-description format): thread the originating `nugget_ref` through as an explicit EIP
+// Correlation Identifier (task description -> --nugget-ref flag -> BridgeReport) instead of
+// re-deriving identity heuristically. Disclosed in the Phase 5 verify artifact as recommended
+// follow-up work, not silently left implicit.
 //
 // Contract (mirrors follow-policy.ts): the ENTIRE body of bridgeReportToNuggets is wrapped so
 // it never throws — a bridge hiccup must never fail an already-written report.
@@ -149,34 +164,74 @@ export function bridgeReportToNuggets(report: BridgeReport): BridgeSummary {
         if (deliveryCount.n > existing.fan_in_count) summary.faninAdded++;
         summary.updated++;
       } else {
+        // dev-council 2026-07-13 (Kleppmann + Lamport, both CONFIRMED independently): a plain
+        // INSERT here is a check-then-act race — two concurrent cmdProcess subprocesses
+        // processing the same brand-new URL could both take this branch, both INSERT, and the
+        // loser would throw on idx_nugget_source_ref's UNIQUE(source, source_ref). That throw
+        // landed in the per-link catch below, counted as a generic error, and the loser's
+        // provenance (its nugget_source_delivery row, its report_path) was silently dropped —
+        // exactly the fan-in this module exists to produce, lost to a swallowed exception
+        // indistinguishable from a real bug. `INSERT OR IGNORE` + an unconditional re-SELECT
+        // makes the loser converge on the WINNER's row and fall through to the SAME fan-in path
+        // the found-branch above already uses, instead of erroring.
         const nuggetRef = `link_research:${contentHash.slice(0, 12)}`;
-        db.query(
-          `INSERT INTO research_nugget
-             (nugget_ref, source, source_url, source_ref, fetch_ts, content_hash, title, body,
-              rubric_total, rubric_version, rubric_scored_at, is_promotable, fan_in_count,
-              fan_in_sources, report_path, origin_lane, promoted_at)
-           VALUES (?, 'link_research', ?, ?, ?, ?, ?, ?, ?, 'link-research-bridge-v1', ?, ?, 1, ?, ?, ?, ?)`,
-        ).run(
-          nuggetRef,
-          result.url,
-          urlHash(result.url),
-          report.fetchedAt,
-          contentHash,
-          result.title,
-          result.takeaways.join(" "),
-          relevanceToRubricTotal(result.relevance),
-          report.fetchedAt,
-          isPromotable,
-          JSON.stringify(["link_research"]),
-          report.reportPath,
-          originLane,
-          report.fetchedAt,
-        );
-        db.query(
-          `INSERT OR IGNORE INTO nugget_source_delivery (nugget_ref, source, source_url, source_ref, delivered_at)
-           VALUES (?, 'link_research', ?, ?, ?)`,
-        ).run(nuggetRef, result.url, report.reportPath, report.fetchedAt);
-        summary.inserted++;
+        const sourceRef = urlHash(result.url);
+        const insertResult = db
+          .query(
+            `INSERT OR IGNORE INTO research_nugget
+               (nugget_ref, source, source_url, source_ref, fetch_ts, content_hash, title, body,
+                rubric_total, rubric_version, rubric_scored_at, is_promotable, fan_in_count,
+                fan_in_sources, report_path, origin_lane, promoted_at)
+             VALUES (?, 'link_research', ?, ?, ?, ?, ?, ?, ?, 'link-research-bridge-v1', ?, ?, 1, ?, ?, ?, ?)`,
+          )
+          .run(
+            nuggetRef,
+            result.url,
+            sourceRef,
+            report.fetchedAt,
+            contentHash,
+            result.title,
+            result.takeaways.join(" "),
+            relevanceToRubricTotal(result.relevance),
+            report.fetchedAt,
+            isPromotable,
+            JSON.stringify(["link_research"]),
+            report.reportPath,
+            originLane,
+            report.fetchedAt,
+          );
+
+        if (insertResult.changes > 0) {
+          // We won the race (or there was no race) — this call actually created the row.
+          db.query(
+            `INSERT OR IGNORE INTO nugget_source_delivery (nugget_ref, source, source_url, source_ref, delivered_at)
+             VALUES (?, 'link_research', ?, ?, ?)`,
+          ).run(nuggetRef, result.url, report.reportPath, report.fetchedAt);
+          summary.inserted++;
+        } else {
+          // Lost the race — a concurrent call already inserted this exact (source, source_ref).
+          // Re-select the winner's row and fall through to fan-in bookkeeping so THIS call's
+          // provenance (delivery row, report_path) still lands, instead of vanishing silently.
+          const winner = db
+            .query("SELECT nugget_ref, fan_in_count FROM research_nugget WHERE source = 'link_research' AND source_ref = ?")
+            .get(sourceRef) as { nugget_ref: string; fan_in_count: number } | undefined;
+          if (winner) {
+            db.query(
+              `INSERT OR IGNORE INTO nugget_source_delivery (nugget_ref, source, source_url, source_ref, delivered_at)
+               VALUES (?, 'link_research', ?, ?, ?)`,
+            ).run(winner.nugget_ref, result.url, report.reportPath, report.fetchedAt);
+            db.query(
+              `UPDATE research_nugget SET report_path = COALESCE(report_path, ?), promoted_at = COALESCE(promoted_at, ?)
+               WHERE nugget_ref = ?`,
+            ).run(report.reportPath, report.fetchedAt, winner.nugget_ref);
+            summary.updated++;
+          } else {
+            // Should be unreachable (INSERT OR IGNORE with changes=0 means a conflicting row
+            // exists), but never throw past this point — degrade to a logged no-op.
+            summary.errors++;
+            console.log(`[nugget-bridge] ${result.url}: insert ignored but winner row not found on re-select — logged, not fatal`);
+          }
+        }
       }
     } catch (e) {
       summary.errors++;
