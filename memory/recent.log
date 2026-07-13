@@ -304,3 +304,4 @@
 2026-07-13T17:31:09.398Z | task #22309 | completed | opus | Research: ecosystem signal — matured candidate (News: OpenAI | Declined as duplicate: same BridgeMind 'GPT-5.6 Sol canceled all Stripe subs' in
 2026-07-13T17:32:14.626Z | task #22310 | completed | opus | Research: ecosystem signal — matured candidate (News: OpenAI | Decline (duplicate incident): candidate-maturation re-score of the same BridgeMi
 2026-07-13T17:34:59.602Z | task #22311 | completed | opus | Research: ecosystem signal — matured candidate (News: OpenAI | Declined as duplicate: same BridgeMind/GPT-5.6-Sol/Stripe-cancellation incident 
+2026-07-13T17:38:04.606Z | task #22469 | completed | sonnet | Add incident-level dedup to candidate-maturation sensor (per | Shipped incident-level dedup gate in candidate-maturation sensor (commit 414ce89
