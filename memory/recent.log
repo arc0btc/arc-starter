@@ -265,3 +265,4 @@
 2026-07-13T14:12:45.165Z | task #22273 | completed | sonnet | CEO review — 2026-07-13T14:03 | CEO review: on track, zero failures/48 tasks, highest recent PR-review load. 8 p
 2026-07-13T14:13:25.083Z | task #22274 | completed | sonnet | Generate research blog post draft (1 fresh arxiv nuggets) | Drafted research post 'Recursive Delegation Solves the Depth vs Coverage Tradeof
 2026-07-13T14:14:20.721Z | task #22275 | completed | haiku | Publish generated blog post | Published blog post on recursive delegation and the depth/coverage tradeoff, app
+2026-07-13T14:15:38.242Z | task #22272 | completed | haiku | Retrospective: extract learnings from task #22270 — Bug: can | Extracted two reusable patterns from SQLite rowid-reuse investigation: (1) AUTOI

@@ -516,42 +516,25 @@ async function buildOAuthHeader(
  * - `pricingStatus: "estimated"`: tags the lane's `by_lane` ledger entry so a
  *   provisional price is visibly flagged in the persisted budget file itself,
  *   not just in a log line — see `billResourceRead`'s doc comment. */
-export async function xApiGet(
-  endpoint: string,
-  creds: XCreds,
-  queryParams: Record<string, string> = {},
-  opts: {
-    owned?: boolean;
-    lane?: string;
-    costUsd?: number;
-    billMode?: "per-resource" | "flat";
-    pricingStatus?: "confirmed" | "estimated";
-  } = {},
-): Promise<Record<string, unknown>> {
-  // Guard: enforce daily dollar read budget and 429 backoff before the network.
-  // Pre-flight uses the WORST-CASE resource count from the request (max_results /
-  // ids) since the true count returned is only known after the response arrives —
-  // see billResourceRead below for the actual per-resource billing. An explicit
-  // `opts.costUsd` (Phase 3) takes priority over the owned/non-owned default so a
-  // caller-supplied price is respected pre-flight too, not just when billing.
-  const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
-  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
+interface BillingOpts {
+  lane?: string;
+  billMode?: "per-resource" | "flat";
+  pricingStatus?: "confirmed" | "estimated";
+}
 
-  const baseUrl = `${API_BASE}${endpoint}`;
-  // Build the query string with the SAME percentEncode used to compute the OAuth
-  // signature base — URLSearchParams encodes a space as "+" while the signature uses
-  // "%20", so any param with a space (or !*'()) would otherwise mismatch and 401
-  // (cairn #2). Sorting matches the signature-base ordering too.
-  const qs = Object.keys(queryParams)
-    .sort()
-    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
-    .join("&");
-  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
-  const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
-  const response = await fetch(url, {
-    method: "GET",
-    headers: { Authorization: authHeader },
-  });
+/** Shared tail for both `xApiGet` (OAuth 1.0a) and `xApiGetAppOnly` (OAuth 2.0
+ * App-Only Bearer, 2026-07-13 Phase 3): perform the already-built request,
+ * handle 429/error responses identically, then bill the read. Extracted so the
+ * two auth styles can't silently drift apart on billing/error-handling
+ * behavior — only the auth header differs between the two public functions. */
+async function performBilledGet(
+  url: string,
+  headers: Record<string, string>,
+  endpoint: string,
+  costUsd: number,
+  opts: BillingOpts,
+): Promise<Record<string, unknown>> {
+  const response = await fetch(url, { method: "GET", headers });
 
   // Check status BEFORE parsing the body (dev-council/Newman lens, 2026-07-13): X
   // does not guarantee a JSON body on 429/5xx responses. The old ordering parsed
@@ -585,6 +568,122 @@ export async function xApiGet(
   await billResourceRead(costUsd, opts.lane ?? endpointLane(endpoint), resourceIds, opts.pricingStatus);
 
   return typedData;
+}
+
+export async function xApiGet(
+  endpoint: string,
+  creds: XCreds,
+  queryParams: Record<string, string> = {},
+  opts: {
+    owned?: boolean;
+    lane?: string;
+    costUsd?: number;
+    billMode?: "per-resource" | "flat";
+    pricingStatus?: "confirmed" | "estimated";
+  } = {},
+): Promise<Record<string, unknown>> {
+  // Guard: enforce daily dollar read budget and 429 backoff before the network.
+  // Pre-flight uses the WORST-CASE resource count from the request (max_results /
+  // ids) since the true count returned is only known after the response arrives —
+  // see billResourceRead below for the actual per-resource billing. An explicit
+  // `opts.costUsd` (Phase 3) takes priority over the owned/non-owned default so a
+  // caller-supplied price is respected pre-flight too, not just when billing.
+  const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
+
+  const baseUrl = `${API_BASE}${endpoint}`;
+  // Build the query string with the SAME percentEncode used to compute the OAuth
+  // signature base — URLSearchParams encodes a space as "+" while the signature uses
+  // "%20", so any param with a space (or !*'()) would otherwise mismatch and 401
+  // (cairn #2). Sorting matches the signature-base ordering too.
+  const qs = Object.keys(queryParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
+    .join("&");
+  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
+  const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
+  return performBilledGet(url, { Authorization: authHeader }, endpoint, costUsd, opts);
+}
+
+// ---- OAuth 2.0 App-Only (Bearer) auth (2026-07-13, Phase 3 arc-x-research-channel) ---
+
+// Some X API v2 endpoints EXPLICITLY FORBID OAuth 1.0a User Context and require
+// OAuth 2.0 App-Only or User Context instead — confirmed LIVE this phase (not
+// documented anywhere the Phase 1 console reconciliation could reach without
+// browser access): `GET /2/trends/by/woeid/{id}` and `GET /2/news/search` both
+// 403 "Unsupported Authentication...Authenticating with OAuth 1.0a User Context
+// is forbidden for this endpoint. Supported authentication types are [OAuth 2.0
+// User Context, OAuth 2.0 Application-Only]" against xApiGet's existing OAuth
+// 1.0a signer. App-Only is the right fit here (not the interactive User-Context
+// PKCE flow) because these are PUBLIC reads (trending topics, public news
+// stories) with no per-user scope — the standard non-interactive
+// `client_credentials` grant, using the SAME consumer key/secret already
+// stored (no new credential needed, no browser/PKCE flow to build).
+// (`personalized_trends` is the opposite case — confirmed live to ALREADY work
+// via the existing OAuth 1.0a `xApiGet`/`loadXCreds()` path, since it's
+// genuinely user-scoped; no App-Only bearer needed there.)
+
+let cachedBearerToken: string | null = null;
+
+/** Exchange consumer key/secret for an OAuth 2.0 App-Only bearer token via the
+ * `client_credentials` grant. This is an auth-token exchange, not a billed X
+ * API v2 read — never metered. Cached in-memory for the lifetime of this
+ * process only (each scheduled check-in run is its own short-lived process, so
+ * there's no staleness risk from a longer-lived disk cache — a fresh token per
+ * run costs nothing extra). */
+export async function getAppOnlyBearerToken(
+  creds: Pick<XCreds, "apiKey" | "apiSecret">,
+): Promise<string> {
+  if (cachedBearerToken) return cachedBearerToken;
+  const basic = Buffer.from(`${creds.apiKey}:${creds.apiSecret}`).toString("base64");
+  const resp = await fetch("https://api.x.com/oauth2/token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+    },
+    body: "grant_type=client_credentials",
+  });
+  if (!resp.ok) {
+    throw new Error(
+      `X OAuth2 App-Only token exchange failed: ${resp.status} ${await resp.text().catch(() => "<unreadable>")}`,
+    );
+  }
+  const json = (await resp.json()) as { token_type: string; access_token: string };
+  // The token endpoint percent-encodes the access_token (e.g. embeds a "%2F")
+  // — decode it once here so every caller gets the raw bearer value.
+  cachedBearerToken = decodeURIComponent(json.access_token);
+  return cachedBearerToken;
+}
+
+/** A GET against the X API v2 using OAuth 2.0 App-Only (Bearer) auth — for the
+ * subset of endpoints that reject OAuth 1.0a User Context (see the comment
+ * block above). Same budget-guard + per-resource/flat billing tail as
+ * `xApiGet` (`performBilledGet`) — only the auth header differs. `creds` only
+ * needs `apiKey`/`apiSecret` (the App-Only grant doesn't use the user access
+ * token/secret at all). */
+export async function xApiGetAppOnly(
+  endpoint: string,
+  creds: Pick<XCreds, "apiKey" | "apiSecret">,
+  queryParams: Record<string, string> = {},
+  opts: {
+    costUsd?: number;
+    lane?: string;
+    billMode?: "per-resource" | "flat";
+    pricingStatus?: "confirmed" | "estimated";
+  } = {},
+): Promise<Record<string, unknown>> {
+  const costUsd = opts.costUsd ?? READ_COST_USD;
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
+
+  const bearer = await getAppOnlyBearerToken(creds);
+  const baseUrl = `${API_BASE}${endpoint}`;
+  const qs = Object.keys(queryParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
+    .join("&");
+  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
+  return performBilledGet(url, { Authorization: `Bearer ${bearer}` }, endpoint, costUsd, opts);
 }
 
 // ---- Mentions ---------------------------------------------------------------
