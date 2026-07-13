@@ -253,3 +253,4 @@
 2026-07-13T13:16:02.576Z | task #22257 | completed | haiku | Retrospective: extract learnings from task #22255 — Overnigh | No learnings to capture — overnight brief executed cleanly, observations are ope
 2026-07-13T13:17:14.817Z | task #22259 | completed | haiku | Retrospective: extract learnings from task #22256 — Post Arc | Extracted 3 reusable patterns: cleanup-sweep observable verification (confirms #
 2026-07-13T13:17:46.953Z | task #22260 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night retro: 79/79 completed, 0 failed. arc-opensource sync block is the s
+2026-07-13T13:19:12.060Z | task #22263 | completed | haiku | Retrospective: extract learnings from task #22258 — Add expl | Added p-enforcement-deferral-metrics-gate: convention-over-enforcement pattern f
