@@ -471,3 +471,4 @@
 2026-07-13T20:55:56.513Z | task #22491 | completed | sonnet | architecture review — codebase changed since last review (38 | arc-x-research-channel quest (Phases 2-5) landed self-audited — dev-council revi
 2026-07-13T20:59:03.355Z | task #22500 | completed | sonnet | architect: investigate whether skills/social-engine/follow-c | follow-curated.ts NOT dead: 92 eligible/unfollowed social_accounts rows (53 rese
 2026-07-13T21:00:01.867Z | task #22492 | completed | sonnet | workflow review — 1 new pattern(s) | No-op: 'reply to x mention' recurrence is reactive fan-in (independent sensor-cr
+2026-07-13T21:01:20.808Z | task #22496 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed 4 candidates. #22086 (Edition 8 post): confirmed superseded — Edition 8
