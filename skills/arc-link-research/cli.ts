@@ -23,6 +23,11 @@ import { checkReadBudget, billResourceRead, READ_COST_USD } from "../social-x-po
 // time (not a periodic rescan). See src/follow-policy.ts's module header for
 // why this is NOT built on the dormant follow-curated.ts script.
 import { promoteResearchSourceHandle } from "../../src/follow-policy.ts";
+// arc-x-research-channel Phase 5 (2026-07-13): the research-store bridge — every finalized
+// report ALSO lands as a research_nugget row (join key: source_url/content_hash), so the
+// rubric-scored HN/RSS/GitHub-release store and this live research/INDEX.md spine stop being
+// two disagreeing stores. See src/nugget-bridge.ts's module header for the full contract.
+import { bridgeReportToNuggets } from "../../src/nugget-bridge.ts";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -818,7 +823,14 @@ async function fetchAndAnalyze(url: string): Promise<{ analysis: LinkAnalysis; e
 
 // ---- Subcommands ----
 
-async function cmdProcess(args: string[]): Promise<void> {
+// Exported (Phase 5, arc-x-research-channel) so the research-store bridge can be exercised
+// directly in isolation via `bun -e "import{initDatabase}from './src/db.ts';initDatabase();
+// import{cmdProcess}from './skills/arc-link-research/cli.ts';await cmdProcess([...])"` —
+// same reuse pattern already used elsewhere in this codebase (src/follow-policy.ts dynamically
+// imports `addListMember`/`resolveUserId` from skills/social-x-posting/cli.ts). cmdSkillsRun
+// (src/cli.ts) still spawns this file as its own subprocess for normal dispatch — that path is
+// unchanged.
+export async function cmdProcess(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.links) {
@@ -1090,6 +1102,29 @@ async function cmdProcess(args: string[]): Promise<void> {
     } catch (e) {
       process.stdout.write(`[follow-policy] @${handle}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
     }
+  }
+
+  // ---- Research-store bridge (arc-x-research-channel Phase 5, 2026-07-13) ----
+  // Every link in this report lands as a research_nugget row too (join key: source_url /
+  // content_hash) — the shared spine with the HN/RSS/GitHub-release producers'
+  // research_nugget store. Best-effort: never fails an already-written report (see
+  // src/nugget-bridge.ts's own try/catch-per-link contract; this call site can't throw).
+  try {
+    const bridgeSummary = bridgeReportToNuggets({
+      reportPath: `research/${filename}`,
+      fetchedAt: timestamp,
+      results: results.map((r) => ({
+        url: r.url,
+        title: r.title,
+        relevance: r.relevance,
+        takeaways: r.takeaways,
+      })),
+    });
+    process.stdout.write(
+      `[nugget-bridge] ${bridgeSummary.inserted} inserted, ${bridgeSummary.updated} updated, ${bridgeSummary.faninAdded} fan-in, ${bridgeSummary.errors} errors\n`,
+    );
+  } catch (e) {
+    process.stdout.write(`[nugget-bridge] hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
   }
 
   // Keep the catalog current — best-effort so a reindex hiccup never fails the run.
