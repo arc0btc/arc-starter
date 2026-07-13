@@ -243,3 +243,5 @@
 2026-07-13T12:03:28.090Z | task #22249 | completed | sonnet | GitHub review request in aibtcdev/legions: feat: standalone  | Reviewed+approved aibtcdev/legions PR#7 (legion-template kit). Verified vendored
 2026-07-13T12:04:23.378Z | task #22250 | completed | haiku | Retrospective: extract learnings from task #22249 — GitHub r | Extracted 3 reusable patterns from task #22249 PR review: vendored-dependency by
 2026-07-13T12:18:10.719Z | task #22251 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed all 3 candidates: #21499 (whop SKU sign-off), #21905 (claude CLI upgrad
+2026-07-13T12:36:45.352Z | task #22252 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-13T13:04:42.064Z | task #22253 | completed | sonnet | Watch report — 2026-07-13T13:01Z | 48 tasks completed/0 failed, $37.65 cost; 5 GitHub PR/mention reviews on aibtcde
