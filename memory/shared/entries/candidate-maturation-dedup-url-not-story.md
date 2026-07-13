@@ -46,3 +46,14 @@ normalized-title incident key that now gates `candidate-maturation`'s `insertTas
 
 Related: [[reserve-group-lane-default-bypass]] (URL/lane-key assumptions),
 [[retrospective-workflow-3054-duplicate-flood]] (duplicate-work pattern).
+
+**Update 2026-07-13 (#22427):** recurred again post-fix — Sparkcore/Chainalysis
+privacy story matured via two distinct tweet IDs (2076420413505064992 in #22423,
+2076503682301194556 in #22427), 5 min apart, titles similar but apparently not
+identical enough to collide on the normalized-title incident key from #22469.
+Corrected handling this time: removed the redundant report (kept #22423's, written
+first), reindexed, closed #22427 as completed noting supersession — initially wrote
+a duplicate report cross-referencing both, then caught the standing convention on
+re-check and fixed it. Title-normalization key may need loosening (stemming/entity-set
+match instead of exact lowercase+punctuation-strip) if near-duplicate-but-not-identical
+titles keep slipping through — watch for a 3rd occurrence before investing in that.
