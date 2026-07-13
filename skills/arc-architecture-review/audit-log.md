@@ -1,30 +1,3 @@
-## 2026-07-11T08:17:00.000Z — smallest diff in 2 cycles: 3 false-positive fixes, 1 real durability fix (blog publish now commits), 2 docs-only entries; 131 skills / 86 sensors
-
-**Task #22059** | Diff: b9d5ca4..f91f4c4 (6 commits — 1 src/, 5 skills/; 2 docs-only) | Sensors: 86 | Skills: 131
-
-### Changed files (substantive only)
-
-- `src/cli.ts` (a3f29176) — `cmdTasksClose` now rejects re-closing an already-terminal task (completed/failed/blocked), pointing the caller at MEMORY.md instead. Fixes the root cause diagnosed in #22005/#22006: re-closing reset `completed_at`, letting stale tasks reappear in time-windowed reports (daily failure retro). Textbook terminal-state guard, matches the existing "completed is terminal" convention already documented in this skill's own patterns.
-- `skills/blog-publishing/cli.ts` (0daec2e9) — `cmdPublish` now runs `git add`+`git commit` itself right after syncing the Astro mdx, closing the gap found in #22009/#22010 where 11 posts sat published-but-undeployed (some a full week) because nothing committed the sync until an unrelated commit happened to sweep it in. Correct fix location: the commit belongs inside the action that creates the uncommitted state, not bolted on as a separate manual step someone has to remember.
-- `skills/arc-purpose-eval/sensor.ts` (d1eb32dc) — Two independent fixes to the same metric: (1) `PR_REVIEW_SUBJECT_FILTER` now requires a literal `#` before matching `%PR%`-style patterns, closing a self-pollution bug where the filter matched its own generated follow-up subject ("Check for pending PR reviews...") and inflated the count with a task that reviewed nothing; (2) a 2-day cooldown on the `ECOSYSTEM_REVIEW_SUBJECT` follow-up, mirroring the existing `COST_REVIEW_COOLDOWN_DAYS` pattern, so a legitimate "nothing needs review right now" reading doesn't re-fire the same follow-up every 12h. Both trace directly to #21996/#21998.
-- `skills/arc-blocked-review/sensor.ts` (9117e21c) — Adds a `Context wells` description-marker exclusion to the mentioning-tasks query, same false-positive shape as the existing `## Completed Tasks` marker exclusion (whop-synthesis digests quote blocked-task IDs as narrative prose, not a resolution signal). Matched by marker, not by enumerating whop-synthesis by name — consistent with the generalization principle flagged as working well in the 2026-07-08 audit entry.
-- `skills/arc-email-sync/SKILL.md`, `skills/arc-packaging/SKILL.md` (5dba0dbc/f91f4c41, 51378828, docs-only) — Documents live-verified CF email routes and the Whop headline 80-char limit found live in #21962. No logic change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All 4 substantive changes trace to named tasks/incidents (#22005-06, #22009-10, #21996/#21998, whop-synthesis Context-wells false-positive). No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: The purpose-eval fix is a good instance of fixing a filter at its actual failure mode (needs a literal `#`) rather than adding an exclusion list of subject strings to skip — same "match on structure" shape this framework keeps rewarding.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — the blog-publish commit fix is arguably a Step-5 move (automating a previously-manual step), but it's better read as a bug fix: the step was never *supposed* to be manual, it just silently never ran.
-
-### Flags
-
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (4+ cycles).
-- **[NEW-WATCH]** `blog-publishing`'s new self-commit in `cmdPublish` assumes a clean working tree in `arc0me-site` at publish time — if some other uncommitted change is sitting in that repo when publish runs, this commit will sweep it in unintentionally (same class of risk as any auto-commit convention). Low likelihood given `arc0me-site` is a narrow-purpose content repo, but worth a light watch if a second writer to that repo is ever added.
-
----
-
 ## 2026-07-11T20:18:54.000Z — reservation-leak backstop lands: caller-driven fix (#22087) plus its own sweep-level fallback (#22089); 131 skills / 86 sensors
 
 **Task #22111** | Diff: f91f4c4..f5f1eda (3 commits — 0 src/, 2 skills/; 1 data-sync-only) | Sensors: 86 | Skills: 131
@@ -123,3 +96,33 @@
 
 - **[RESOLVED]** Prior cycle's `[NEW-WATCH]` on the doubled X read-budget ceiling ($0.50→$1.00) — cannot be evaluated this cycle. `db/x-read-budget.json` is still stamped `"date": "2026-07-11"` with no `by_lane` breakdown present, consistent with the standing memory item that X credits have been depleted since 2026-07-11 (auto-clears 2026-08-10) — there has been no read spend to attribute since the metering shipped. Re-check once credits clear and reads resume.
 - No new watch items — this was the smallest, lowest-risk diff in the recent run (pure deletion + doc tags, zero src/ or sensor logic touched).
+
+---
+
+## 2026-07-13T20:53:52.000Z — largest structural diff in recent cycles: the arc-x-research-channel quest lands end-to-end (Phases 2-5), self-audited with dev-council review baked into every commit; 128 skills / 90 sensors
+
+**Task #22491** | Diff: 3811dee..dcad7d3 (32 commits — 8 src/, 4 new skills/) | Sensors: 90 (up from 86) | Skills: 128 (up from 124)
+
+### Changed files (substantive only)
+
+- `src/candidate-spine.ts` (new) — store-not-judge fix for `social-x-ecosystem`'s structural bug (engagement checked at discovery time almost never passes; candidates now sit until 2-24h aged, re-scored in one batched read). Shared by 3 discovery lanes (keyword-rotation, news-search, list-roster) via one `x_research_candidate` table.
+- `skills/candidate-maturation/sensor.ts` (new) — consumes the spine; same-day fix (414ce89a) adds an incident-level dedup gate after one viral story matured through 5 sibling tweet_ids and filed 5 redundant research tasks (~$5-10 waste) — ships with a test.
+- `skills/list-roster/`, `skills/x-news-trends/`, `skills/research-nugget-relay/` (new) — Phase 4 List-membership sync + tweet-poll producer, Phase 3 News/Trends discovery, Phase 5 HN/RSS/GitHub-release → arc-link-research fan-in. Each has SKILL.md + sensor.ts, wired into the shared spine/registries rather than forking their own.
+- `src/follow-policy.ts`, `src/nugget-bridge.ts` (new) — both wired into `arc-link-research/cli.ts`'s `cmdProcess` at report-acceptance, both explicitly contracted to never throw (report write must not be endangered by a downstream hook), both self-disclose a known limitation in their own header comments rather than leaving it implicit.
+- `src/db.ts`/`src/dispatch.ts`/`src/cli.ts` — `stop_condition` column (loop-first workflow pattern) threaded through insert/update/prompt-build; plus the already-memory-tracked `tasks.id` AUTOINCREMENT rebuild (#22270/#22271) and a dangling-lock alert.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every commit traces to a named phase of one operator-scoped quest (arc-x-research-channel, PHASES.md) or a live incident (#22270 id-reuse, BridgeMind incident-dedup). No speculative work found.
+- **Step 2 — Delete**: `skills/social-engine/follow-curated.ts` — confirmed still dormant (bare script, no sensor.ts, zero active callers; grep hits are all comment references explaining why `follow-policy.ts` does NOT build on it). It targets a different criterion (curated "accounts of value" batch-follow) than `follow-policy.ts` (per-report research-source promotion), so not a clean duplicate — flagging as "needs investigation" per this skill's own escalation rule rather than recommending deletion outright. See follow-up task.
+- **Step 3 — Simplify**: `candidate-spine.ts` centralizing `extractUrls`/`isHighSignal` (moved verbatim out of `social-x-ecosyston/sensor.ts`) gives 3 discovery lanes one scoring bar instead of 3 forks — same shape as the read-budget consolidation praised in the 2026-07-12 entry.
+- **Step 4 — Accelerate**: `getMaturationBatch`'s 100-candidate cap matches X's `/tweets?ids=` per-call cap specifically so a full day's due candidates fit in ONE batched read instead of N — a real latency/cost win, not just a code shape choice.
+- **Step 5 — Automate**: The whole quest IS a Step-5 move (automating discovery→maturation→research that was previously a broken at-birth judge) — correctly sequenced last, after Phase 1's metering (Step 3/4 work) and the store-not-judge redesign (Step 1) already landed in prior cycles.
+
+### Flags
+
+- **[SELF-DISCLOSED, not mine]** Both new hooks (`follow-policy.ts`, `nugget-bridge.ts`) already document their own known gaps in-file: two promotion thresholds now write `social_accounts` without reconciliation, and `nugget-bridge`'s `content_hash` join is "structurally near-inert across sources" (only `source_url` exact-match actually does the work, no URL normalization). Nothing to add — this cycle's own commits did the audit work usually left to this review.
+- **[NEW-WATCH]** `getMaturationBatch`'s T/Z-vs-space-separated datetime comparison bug (caught via live-testing per the code's own comment) is the kind of silent-wrong-answer class this framework watches for elsewhere (see prior cycles' `sqlite-datetime-naive-parse-utc-skew` entry) — worth one cycle confirming no sibling query in the 4 new sensors has the same unconverted `datetime('now', ...)` vs ISO-string comparison.
+- No carry-forward watch items from the prior 2 cycles — both were resolved or dropped.
+
+---
