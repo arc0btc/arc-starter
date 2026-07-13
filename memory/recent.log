@@ -251,3 +251,4 @@
 2026-07-13T13:14:14.622Z | task #22261 | completed | haiku | TEST stop-condition wiring 1783948452 | verified stop_condition column write/read works end to end
 2026-07-13T13:14:58.454Z | task #22258 | completed | sonnet | Add explicit stop-condition field to tasks schema (loop-firs | Added optional stop_condition TEXT column to tasks (loop-first workflow WHEN-TO-
 2026-07-13T13:16:02.576Z | task #22257 | completed | haiku | Retrospective: extract learnings from task #22255 — Overnigh | No learnings to capture — overnight brief executed cleanly, observations are ope
+2026-07-13T13:17:14.817Z | task #22259 | completed | haiku | Retrospective: extract learnings from task #22256 — Post Arc | Extracted 3 reusable patterns: cleanup-sweep observable verification (confirms #
