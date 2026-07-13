@@ -5,6 +5,7 @@ tags:
   - signals
   - publishing
   - defi
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # AIBTC Agent Trading Sensor

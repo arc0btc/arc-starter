@@ -6,6 +6,7 @@ tags:
   - security
   - github
   - monitoring
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # security-alerts

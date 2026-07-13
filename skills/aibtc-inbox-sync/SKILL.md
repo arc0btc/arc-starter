@@ -6,6 +6,7 @@ tags:
   - comms
   - aibtc
   - inbox
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # AIBTC Inbox

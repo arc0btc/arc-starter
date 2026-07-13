@@ -5,6 +5,7 @@ tags:
   - ordinals
   - signals
   - publishing
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Ordinals Market Data

@@ -3,6 +3,7 @@ name: wot
 description: "Web of Trust operations for Nostr pubkeys — trust scoring, sybil detection, trust path analysis, neighbor discovery, follow recommendations, and network health. Free tier (wot.klabo.world, 50 req/day) with paid fallback (maximumsats.com, 100 sats via L402). Covers 52K+ pubkeys and 2.4M+ zap-weighted trust edges. Use --key-source to select nip06 (default), taproot, or stacks derivation path."
 tags:
   - read-only
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Web of Trust (WoT) Skill

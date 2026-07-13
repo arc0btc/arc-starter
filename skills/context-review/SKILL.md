@@ -6,6 +6,7 @@ tags:
   - infrastructure
   - monitoring
   - context
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # context-review

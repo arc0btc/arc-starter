@@ -5,6 +5,7 @@ updated: 2026-03-05
 tags:
   - sensor
   - github
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # github-issue-monitor

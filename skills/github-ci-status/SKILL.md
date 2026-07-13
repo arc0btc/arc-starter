@@ -6,6 +6,7 @@ tags:
   - sensor
   - github
   - ci
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # ci-status

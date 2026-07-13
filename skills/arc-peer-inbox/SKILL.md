@@ -6,6 +6,7 @@ tags:
   - messaging
   - hooks
   - agent-to-agent
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # arc-peer-inbox

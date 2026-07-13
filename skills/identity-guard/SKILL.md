@@ -5,6 +5,7 @@ updated: 2026-03-27
 tags:
   - infrastructure
   - identity
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # identity-guard
