@@ -129,10 +129,14 @@ export function insertCandidateIfNew(fields: InsertCandidateFields): boolean {
  * ...)` produces the SAME T/Z-separated shape `first_seen` uses (just without the
  * millisecond suffix, which doesn't affect ordering at hour/minute/second
  * granularity) — use it for both boundaries so the comparison is apples-to-apples.
+ *
+ * Params are (minAgeHours, maxAgeHours) — natural reading order (dev-council/
+ * Fowler lens, 2026-07-13: the original (maxAgeHours, minAgeHours) order put the
+ * larger bound first, inviting a transposition bug at the call site).
  */
 export function getMaturationBatch(
-  maxAgeHours: number = 24,
   minAgeHours: number = 2,
+  maxAgeHours: number = 24,
   limit: number = 100
 ): XResearchCandidate[] {
   const db = getDatabase();
@@ -148,24 +152,57 @@ export function getMaturationBatch(
     .all(minAgeHours, maxAgeHours, limit) as XResearchCandidate[];
 }
 
-/** Mark a candidate as matured — a Research: task was filed for it. */
-export function markCandidateMatured(tweetId: string, researchTaskId: number): void {
+/**
+ * Mark a candidate as matured — a Research: task was filed for it (or, when
+ * `researchTaskId` is `null`, a task already existed under this tweet's dedup
+ * source key and its real id wasn't re-looked-up — `research_task_id` is
+ * nullable precisely for this case; NEVER write a sentinel like `0` into a
+ * column declared `REFERENCES tasks(id)` — there is no task id 0
+ * (AUTOINCREMENT starts at 1), and FK enforcement being off means a bad
+ * reference like that fails silently instead of throwing (dev-council/Fowler +
+ * Kleppmann lenses, 2026-07-13, both independently flagged this).
+ *
+ * `AND status = 'pending'` in the WHERE clause (dev-council/Lamport lens,
+ * 2026-07-13) makes this UPDATE the linearization point for the candidate's
+ * state machine: status is monotone pending -> {matured|rejected|expired},
+ * terminal. Without the guard, two overlapping maturation-sensor runs (e.g. a
+ * manual test run overlapping the systemd timer) could both read the same
+ * 'pending' row, both bill the read, and both file a task for it — this makes
+ * only the run that actually flips pending->matured "win"; callers MUST check
+ * the returned `changes` count and treat 0 as "another run already handled
+ * this candidate," not retry/re-file. (The claimSensorRun hook-state gate has
+ * its own pre-existing, Phase-1-disclosed, not-yet-fixed TOCTOU race across
+ * independently-scheduled processes — this guard bounds ITS blast radius at
+ * the data layer without depending on that gate being airtight.)
+ */
+export function markCandidateMatured(tweetId: string, researchTaskId: number | null): { changes: number } {
   const db = getDatabase();
-  db.query(
-    `UPDATE x_research_candidate
-       SET status = 'matured', matured_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), research_task_id = ?
-     WHERE tweet_id = ?`
-  ).run(researchTaskId, tweetId);
+  const result = db
+    .query(
+      `UPDATE x_research_candidate
+         SET status = 'matured', matured_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), research_task_id = ?
+       WHERE tweet_id = ? AND status = 'pending'`
+    )
+    .run(researchTaskId, tweetId);
+  return { changes: result.changes };
 }
 
 /** Mark a candidate as rejected (re-scored, did not clear the bar and won't be
  * reconsidered — used for ids the X API no longer returns, e.g. deleted/protected/
  * suspended since discovery). Candidates that simply haven't cleared the bar YET
  * but are still within the maturation window are left 'pending' by the caller
- * (not rejected) so they get another look as they age further. */
-export function markCandidateRejected(tweetId: string): void {
+ * (not rejected) so they get another look as they age further.
+ *
+ * `AND status = 'pending'` guard — same monotonic-transition reasoning as
+ * `markCandidateMatured` above (dev-council/Lamport lens, 2026-07-13). Returns
+ * the changed-row count so a caller can detect "already handled by another run."
+ */
+export function markCandidateRejected(tweetId: string): { changes: number } {
   const db = getDatabase();
-  db.query(`UPDATE x_research_candidate SET status = 'rejected' WHERE tweet_id = ?`).run(tweetId);
+  const result = db
+    .query(`UPDATE x_research_candidate SET status = 'rejected' WHERE tweet_id = ? AND status = 'pending'`)
+    .run(tweetId);
+  return { changes: result.changes };
 }
 
 /**

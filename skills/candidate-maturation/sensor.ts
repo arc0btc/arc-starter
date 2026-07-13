@@ -57,7 +57,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
     const expiredCount = expireStaleCandidates(24);
     if (expiredCount > 0) log(`expired ${expiredCount} stale candidate(s) (>24h, never matured)`);
 
-    const batch = getMaturationBatch(24, 2, 100);
+    const batch = getMaturationBatch(2, 24, 100);
     if (batch.length === 0) {
       log("no candidates due for maturation (2-24h window empty)");
       return "ok";
@@ -96,9 +96,12 @@ export default async function candidateMaturationSensor(): Promise<string> {
       if (!tweet) {
         // X no longer returns this id (deleted/protected/suspended since
         // discovery) — it will never mature. Reject now rather than re-trying
-        // every cycle until it eventually expires.
-        markCandidateRejected(candidate.tweet_id);
-        rejectedAbsent++;
+        // every cycle until it eventually expires. The `AND status='pending'`
+        // guard inside markCandidateRejected (dev-council/Lamport lens,
+        // 2026-07-13) makes this a no-op (changes: 0) if another overlapping
+        // run already transitioned this row — don't double-count it.
+        const { changes } = markCandidateRejected(candidate.tweet_id);
+        if (changes > 0) rejectedAbsent++;
         continue;
       }
 
@@ -113,10 +116,12 @@ export default async function candidateMaturationSensor(): Promise<string> {
       if (recentTaskExistsForSource(source, 24 * 60)) {
         // Already filed (shouldn't normally happen — a candidate is marked
         // 'matured' in the same pass that files its task — but guards a
-        // partial-write retry). 0 = "matured via a pre-existing task, id not
-        // re-looked-up here" — distinct from insertTask's own -1
-        // (github-escalation-guard) sentinel.
-        markCandidateMatured(candidate.tweet_id, 0);
+        // partial-write retry). `null` = "matured via a pre-existing task, id
+        // not re-looked-up here" — NEVER write a sentinel like 0 into
+        // research_task_id (REFERENCES tasks(id), no task id 0 exists;
+        // dev-council/Fowler + Kleppmann lenses, 2026-07-13), and distinct from
+        // insertTask's own -1 (github-escalation-guard) sentinel handled below.
+        markCandidateMatured(candidate.tweet_id, null);
         continue;
       }
 
@@ -155,9 +160,19 @@ export default async function candidateMaturationSensor(): Promise<string> {
         continue;
       }
 
-      markCandidateMatured(candidate.tweet_id, taskId);
-      matured++;
-      log(`matured candidate ${candidate.tweet_id} -> task ${taskId}`);
+      // `AND status='pending'` inside markCandidateMatured (dev-council/Lamport
+      // lens, 2026-07-13) makes this the linearization point for this
+      // candidate's state transition: changes===0 means another overlapping
+      // run already matured/rejected/expired it first. A task was still filed
+      // above in that (rare, single-systemd-timer-in-practice) race — this
+      // doesn't retract it, it just avoids double-counting the maturation.
+      const { changes } = markCandidateMatured(candidate.tweet_id, taskId);
+      if (changes > 0) {
+        matured++;
+        log(`matured candidate ${candidate.tweet_id} -> task ${taskId}`);
+      } else {
+        log(`warn: candidate ${candidate.tweet_id} was already transitioned by another run — task ${taskId} filed but not counted as this run's maturation`);
+      }
     }
 
     log(
