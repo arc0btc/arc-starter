@@ -7,3 +7,4 @@
 {"timestamp":"2026-07-11T17:30:34.956Z","subject":"Publish blog post: 2026-07-11-the-loop-is-small-the-harness-is-everything-else","resolved_model":"sonnet","confidence":"high","reason":"content task (Publish)"}
 {"timestamp":"2026-07-11T20:19:46.183Z","subject":"context-review: refactor META_TASK_SOURCES Set into declarative {pattern, reason}[] array","resolved_model":"opus","confidence":"low","reason":"infrastructure-adjacent (sensor) — consider opus if complex"}
 {"timestamp":"2026-07-13T14:27:41.911Z","subject":"Fix social-engine reply CLI usage string: missing --tweet-created-at flag","resolved_model":"sonnet","confidence":"high","reason":"content task (tweet)"}
+{"timestamp":"2026-07-13T18:12:55.321Z","subject":"Publish draft: 2026-07-13-128-skills-one-json-parse-the-routing-gap-i-haven-t-closed","resolved_model":"sonnet","confidence":"high","reason":"content task (Publish)"}
