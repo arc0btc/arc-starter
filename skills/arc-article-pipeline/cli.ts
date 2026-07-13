@@ -137,6 +137,7 @@ interface Finding {
   title: string;
   hook: string;
   fileLine: string;
+  fileLineIdentifierHint: string | null;
   packagedProductUrl: string | null;
 }
 
@@ -165,7 +166,7 @@ function parseIndexCandidates(): IndexRow[] {
   return rows;
 }
 
-function extractFindingMaterials(reportFile: string): { title: string; hook: string; fileLine: string; packagedProductUrl: string | null } | null {
+function extractFindingMaterials(reportFile: string): { title: string; hook: string; fileLine: string; fileLineIdentifierHint: string | null; packagedProductUrl: string | null } | null {
   // P2-rework dev-council fix (newman #3): findingFromRow passes "" when a staged article's
   // finding has rotated out of INDEX.md — join(RESEARCH_DIR, "") is RESEARCH_DIR itself, which
   // exists, so readFileSync threw an opaque EISDIR on exactly the recovery commands
@@ -209,6 +210,14 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
   if (!fileLineMatch) return null;
   const fileLine = `${fileLineMatch[1]}:${fileLineMatch[2]}`;
 
+  // Best-effort drift-detection hint: the citation is often immediately followed by a
+  // backtick-quoted identifier (e.g. "`src/dispatch.ts:216` `parseSkillNames()`") naming the
+  // function/symbol the report is actually pointing at. Not always present — drift checking
+  // degrades to "does the file/line still exist" when it's absent (see checkCitationDrift()).
+  const afterCitation = text.slice(fileLineMatch.index! + fileLineMatch[0].length, fileLineMatch.index! + fileLineMatch[0].length + 80);
+  const identifierMatch = afterCitation.match(/^\s*`([\w.]+(?:\(\))?)`/);
+  const fileLineIdentifierHint = identifierMatch ? identifierMatch[1] : null;
+
   let packagedProductUrl: string | null = null;
   const packagedMatch = text.match(/^packaged:\s*y/m);
   const productIdMatch = text.match(/^product_id:\s*(\S+)/m);
@@ -216,7 +225,7 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
     packagedProductUrl = PACKAGED_PRODUCT_URLS[productIdMatch[1]] ?? null;
   }
 
-  return { title, hook, fileLine, packagedProductUrl };
+  return { title, hook, fileLine, fileLineIdentifierHint, packagedProductUrl };
 }
 
 /**
@@ -518,6 +527,49 @@ function validateXArticle(finding: Finding, x: XArticleDraft): string[] {
   }
 
   return errors;
+}
+
+/**
+ * Citation drift check (WARN only, never blocks `stage` — see task #22466). `finding.fileLine`
+ * is frozen verbatim from the research report at the moment research ran; intervening commits
+ * to the live repo can shift the cited line number (or the cited symbol can move/vanish
+ * entirely) without anyone noticing, since `validateDraft()` only checks the draft quotes the
+ * frozen citation string, never that the citation still points at the thing it originally did.
+ * This greps the live file around the cited line for `fileLineIdentifierHint` (the symbol named
+ * immediately after the citation in the report, when extractable) and returns a human-readable
+ * warning if it's missing nearby — a signal for the drafting session to address the drift
+ * explicitly (as Article 9 did by hand), not a hard failure (the citation is still honest
+ * provenance of what was true when the research ran).
+ */
+function checkCitationDrift(finding: Finding): string | null {
+  const [filePart, lineRangePart] = finding.fileLine.split(":");
+  const lineNum = parseInt(lineRangePart, 10);
+  if (!filePart || !Number.isFinite(lineNum)) return null;
+
+  const liveFilePath = join(ARC_STARTER_ROOT, filePart);
+  if (!fs.existsSync(liveFilePath)) {
+    return `citation "${finding.fileLine}" points at ${filePart}, which no longer exists in the live repo — the report's citation is stale`;
+  }
+
+  const liveLines = fs.readFileSync(liveFilePath, "utf-8").split("\n");
+  if (lineNum > liveLines.length) {
+    return `citation "${finding.fileLine}" points past the end of the live file (${liveLines.length} lines) — the cited line has moved or been removed`;
+  }
+
+  if (!finding.fileLineIdentifierHint) {
+    // No symbol hint available from the report text — can't check content, only existence.
+    return null;
+  }
+
+  const windowStart = Math.max(0, lineNum - 1 - 15);
+  const windowEnd = Math.min(liveLines.length, lineNum - 1 + 15);
+  const window = liveLines.slice(windowStart, windowEnd).join("\n");
+  const hintName = finding.fileLineIdentifierHint.replace(/\(\)$/, "");
+  if (!window.includes(hintName)) {
+    return `citation "${finding.fileLine}" — "${finding.fileLineIdentifierHint}" is not found within 15 lines of the cited line in the live file; the line has likely drifted to point at unrelated code since the report was written`;
+  }
+
+  return null;
 }
 
 // ---------- Deterministic link assembly ----------
@@ -1161,6 +1213,14 @@ async function cmdStage(articleN: number, dryRun: boolean): Promise<void> {
   }
   const finding = brief.finding!;
 
+  // Warn-only — the citation is frozen provenance, not a live pointer; this only flags that it
+  // may have drifted since the report ran, so a careless draft doesn't ship a citation pointing
+  // at unrelated code today (task #22466).
+  const driftWarning = checkCitationDrift(finding);
+  if (driftWarning) {
+    console.warn(`WARNING — possible citation drift: ${driftWarning}`);
+  }
+
   if (dryRun) {
     console.log("[DRY-RUN] Draft passed validation. Would claim, create blog post, preview-deploy, write the X Article variant, and email it.");
     return;
@@ -1278,17 +1338,18 @@ function getQueueRow(articleN: number): QueueRow | null {
   return row?.post_id ? row : null;
 }
 
-/** Reconstruct a Finding from a queue row (packagedProductUrl re-resolved from the live INDEX). */
+/** Reconstruct a Finding from a queue row (packagedProductUrl/hint re-resolved from the live INDEX). */
 function findingFromRow(row: QueueRow): Finding {
+  const reportFile = parseIndexCandidates().find((c) => c.slug === row.finding_slug)?.reportFile ?? "";
+  const materials = extractFindingMaterials(reportFile);
   return {
     slug: row.finding_slug,
     reportFile: "",
     title: row.finding_slug,
     hook: row.hook,
     fileLine: row.file_line,
-    packagedProductUrl: extractFindingMaterials(
-      parseIndexCandidates().find((c) => c.slug === row.finding_slug)?.reportFile ?? ""
-    )?.packagedProductUrl ?? null,
+    fileLineIdentifierHint: materials?.fileLineIdentifierHint ?? null,
+    packagedProductUrl: materials?.packagedProductUrl ?? null,
   };
 }
 
