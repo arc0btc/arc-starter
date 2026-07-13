@@ -17,6 +17,13 @@ import {
   releaseSingleReservation, releaseAbandonedReservations,
   type Lane as EngineLane,
 } from "../social-engine/admission.ts";
+// arc-x-research-channel Phase 4 (2026-07-13): username->id resolution for List-membership
+// sync and the follow-policy hook needs to be READ-BUDGET METERED (the confirmed $0.010/
+// resource "user reads" rate — Phase 1 console reconciliation). cmdFollow's own internal
+// username lookup below still uses the unmetered `apiRequest` (a pre-existing gap, out of
+// this phase's scope to refactor) — `resolveUserId` is a NEW call site that does it right
+// from day one instead of perpetuating the gap.
+import { xApiGet, loadXCreds as loadMeteredXCreds } from "./lib/x-api.ts";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
@@ -1603,6 +1610,92 @@ async function cmdUnretweet(flags: Record<string, string>): Promise<void> {
   log(`Unretweeted: ${tweetId}`);
 }
 
+// ---- Lists (arc-x-research-channel Phase 4, 2026-07-13) --------------------
+// Private X List over the curated roster (social_accounts) — the chosen read
+// mechanism (List-poll over Activity API push, decided in Phase 1's console
+// reconciliation §2: cost is a wash, List-poll needs zero new standing
+// infrastructure and fits this codebase's scheduled-poll-per-tick architecture
+// everywhere else). These are WRITES (create the list, add a member) — same
+// proven OAuth 1.0a `apiRequest` path every other write in this file uses, so
+// they live here, not in the read-metered `lib/x-api.ts`. Pricing for List
+// WRITES (create/add-member) is NOT on the public rate card and NOT confirmed
+// this phase — disclosed, not invented (dev-council, Phase 4 verify artifact).
+
+/** Create a private X List. One-time setup call (idempotency is the CALLER's
+ * job — `skills/list-roster/sensor.ts` only calls this once, persisting the
+ * returned id to `db/hook-state/list-roster-state.json` so it's never called
+ * twice). Throws on failure — a failed list-create has no safe fallback for
+ * the caller to paper over. */
+export async function createXList(name: string, description: string): Promise<{ id: string; name: string }> {
+  const creds = await loadCreds();
+  const result = await apiRequest("POST", "/lists", creds, { name, description, private: true });
+  const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+  if (!data["id"]) {
+    throw new Error(`createXList: no id in response — ${JSON.stringify(result)}`);
+  }
+  return { id: String(data["id"]), name: String(data["name"] ?? name) };
+}
+
+/** Add one member to an existing X List. Non-throwing (a batch caller syncing
+ * ~138 roster accounts must keep going past one bad id) — mirrors cmdFollow's
+ * catch shape. X returns 200 with `is_member: true` on both a fresh add AND a
+ * repeat add (same idempotent shape as follow), so a re-run never double-errors. */
+export async function addListMember(listId: string, userId: string): Promise<{ ok: boolean; alreadyMember?: boolean; status?: number; error?: string }> {
+  try {
+    const result = await apiRequest("POST", `/lists/${listId}/members`, await loadCreds(), { user_id: userId });
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, alreadyMember: data["is_member"] === true };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    return { ok: false, status: e.status ?? null as unknown as number, error: e.message };
+  }
+}
+
+/** Resolve a username to its numeric X user id via the METERED read path
+ * (`lib/x-api.ts`'s `xApiGet`, NOT this file's own unmetered `apiRequest` —
+ * Phase 1's console reconciliation confirmed user reads bill $0.010/resource,
+ * a real cost every caller should show up in `db/x-read-budget.json`'s
+ * `by_lane.users`). `cmdFollow` below still does its OWN unmetered lookup —
+ * a pre-existing gap this function does NOT retroactively fix (out of this
+ * phase's scope), it just avoids adding a NEW unmetered call site. Returns
+ * `null` (never throws) on a not-found/failed lookup — a bad handle in a
+ * batch sync shouldn't crash the whole run. */
+export async function resolveUserId(username: string): Promise<string | null> {
+  const xCreds = await loadMeteredXCreds();
+  if (!xCreds) return null;
+  try {
+    const resp = await xApiGet(`/users/by/username/${username.replace(/^@/, "")}`, xCreds, { "user.fields": "id" }, { costUsd: 0.010, lane: "users" });
+    const data = resp["data"] as Record<string, unknown> | undefined;
+    return data?.["id"] ? String(data["id"]) : null;
+  } catch (err) {
+    log(`resolveUserId(${username}) failed: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+async function cmdListCreate(flags: Record<string, string>): Promise<void> {
+  const name = flags["name"];
+  const description = flags["description"] ?? "";
+  if (!name) {
+    console.log("Usage: list-create --name <name> [--description <desc>]");
+    process.exit(1);
+  }
+  const result = await createXList(name, description);
+  console.log(JSON.stringify({ ok: true, ...result }, null, 2));
+}
+
+async function cmdListAddMember(flags: Record<string, string>): Promise<void> {
+  const listId = flags["list-id"];
+  const userId = flags["user-id"];
+  if (!listId || !userId) {
+    console.log("Usage: list-add-member --list-id <id> --user-id <id>");
+    process.exit(1);
+  }
+  const result = await addListMember(listId, userId);
+  console.log(JSON.stringify(result, null, 2));
+  if (!result.ok) process.exit(3);
+}
+
 // ---- Follow (audience exposure + reply-permission) ----
 // Mirrors cmdRetweet/cmdLike exactly: same apiRequest signed-POST path, same daily
 // budget plumbing (the "follows" limit already existed in BUDGET_LIMITS). Reuses the
@@ -1715,6 +1808,12 @@ async function main(): Promise<void> {
     case "follow":
       await cmdFollow(flags);
       break;
+    case "list-create":
+      await cmdListCreate(flags);
+      break;
+    case "list-add-member":
+      await cmdListAddMember(flags);
+      break;
     case "budget":
       await cmdBudget(flags);
       break;
@@ -1756,6 +1855,8 @@ Commands:
   retweet    --tweet-id <id>                   Retweet a tweet
   unretweet  --tweet-id <id>                   Undo a retweet
   follow     --username <handle>|--target-id <id>  Follow an account (audience exposure)
+  list-create --name <name> [--description <desc>] Create a private X List (arc-x-research-channel P4)
+  list-add-member --list-id <id> --user-id <id>     Add a member to an X List
   timeline   [--limit <n>]                     Show recent tweets (default: 10)
   mentions   [--limit <n>]                     Show recent mentions (default: 10)
   search     --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)
