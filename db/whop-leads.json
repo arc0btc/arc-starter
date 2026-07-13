@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-10T23:45:56.540Z",
+  "updated_at": "2026-07-12T23:48:34.666Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
@@ -223,6 +223,26 @@
           "direction": "from_user",
           "in_reply_to": "post_1CcoDoBAqfHF76yn7vqwYQ",
           "snippet": "Ooo"
+        }
+      ],
+      "notes": []
+    },
+    "user_Ma1d16VPiamxk": {
+      "user_id": "user_Ma1d16VPiamxk",
+      "username": "novamintc2",
+      "display_name": "NovaMint",
+      "first_seen": "2026-07-11T23:01:07.768Z",
+      "last_seen": "2026-07-11T23:01:07.768Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-07-11T23:01:07.768Z",
+          "msg_id": "post_1CcxSe9V4XJnnkixNReu5Y",
+          "direction": "from_user",
+          "in_reply_to": "post_1Ccw6iiz6Z1Pubbzped8HX",
+          "snippet": "https://whop.com/novamint-d7f0/the-dropship-room/ Stop watching 3-hour YouTube tutorials from guys who quit dropshipping…"
         }
       ],
       "notes": []
