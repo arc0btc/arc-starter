@@ -38,6 +38,18 @@
 // back-compat wrapper for callers that haven't adopted per-resource billing (and
 // is still CORRECT as-is for genuinely single-resource endpoints like
 // `/tweets/{id}`, which only ever return 1 resource per call).
+//
+// PRICE/BILLING OVERRIDES + APP-ONLY AUTH (2026-07-13, Phase 3): the flat
+// $0.005/$0.001 non-owned/owned split above is the DEFAULT, not the whole
+// story anymore. `xApiGet`/`xApiGetAppOnly`'s `opts` can override the price
+// (`costUsd`, for endpoints with a different or unconfirmed rate — e.g. News
+// search), the billing SHAPE (`billMode: "flat"`, for endpoints X prices per
+// REQUEST rather than per resource returned — e.g. Trends), and tag the
+// ledger with `pricingStatus: "estimated"` when the price isn't on the public
+// rate card. `xApiGetAppOnly` is a second entry point for endpoints that
+// reject OAuth 1.0a User Context and require OAuth 2.0 App-Only instead
+// (confirmed live: WOEID trends, News search) — see the dedicated comment
+// block above `getAppOnlyBearerToken` further down this file.
 
 import { getCredential } from "../../../src/credentials.ts";
 import { join } from "path";
@@ -570,6 +582,23 @@ async function performBilledGet(
   return typedData;
 }
 
+/** Build `${API_BASE}${endpoint}[?querystring]` using the SAME percentEncode
+ * (not URLSearchParams) and sort order `buildOAuthHeader`'s signature base
+ * uses — URLSearchParams encodes a space as "+" while the OAuth 1.0a signature
+ * uses "%20", so any param with a space (or !*'()) would otherwise mismatch
+ * and 401 (cairn #2). Shared by `xApiGet` and `xApiGetAppOnly` (dev-council/
+ * Fowler lens, 2026-07-13 — this was the one piece of real duplication
+ * between the two auth-mode entry points; everything else differs enough
+ * between OAuth 1.0a signing and Bearer auth that it's correctly NOT shared). */
+function buildRequestUrl(endpoint: string, queryParams: Record<string, string>): { baseUrl: string; url: string } {
+  const baseUrl = `${API_BASE}${endpoint}`;
+  const qs = Object.keys(queryParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
+    .join("&");
+  return { baseUrl, url: qs ? `${baseUrl}?${qs}` : baseUrl };
+}
+
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
@@ -591,16 +620,7 @@ export async function xApiGet(
   const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
   await checkReadBudget(costUsd * estimateResourceCount(queryParams));
 
-  const baseUrl = `${API_BASE}${endpoint}`;
-  // Build the query string with the SAME percentEncode used to compute the OAuth
-  // signature base — URLSearchParams encodes a space as "+" while the signature uses
-  // "%20", so any param with a space (or !*'()) would otherwise mismatch and 401
-  // (cairn #2). Sorting matches the signature-base ordering too.
-  const qs = Object.keys(queryParams)
-    .sort()
-    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
-    .join("&");
-  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
+  const { baseUrl, url } = buildRequestUrl(endpoint, queryParams);
   const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
   return performBilledGet(url, { Authorization: authHeader }, endpoint, costUsd, opts);
 }
@@ -676,14 +696,30 @@ export async function xApiGetAppOnly(
   const costUsd = opts.costUsd ?? READ_COST_USD;
   await checkReadBudget(costUsd * estimateResourceCount(queryParams));
 
+  const { url } = buildRequestUrl(endpoint, queryParams);
+
   const bearer = await getAppOnlyBearerToken(creds);
-  const baseUrl = `${API_BASE}${endpoint}`;
-  const qs = Object.keys(queryParams)
-    .sort()
-    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
-    .join("&");
-  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
-  return performBilledGet(url, { Authorization: `Bearer ${bearer}` }, endpoint, costUsd, opts);
+  try {
+    return await performBilledGet(url, { Authorization: `Bearer ${bearer}` }, endpoint, costUsd, opts);
+  } catch (err) {
+    // Self-heal on a stale/revoked token (dev-council/Lamport + Newman lenses,
+    // 2026-07-13): the in-memory bearer cache has no explicit expiry — today's
+    // short-lived scheduled-run processes never live long enough for this to
+    // matter, but a future long-lived resident process would otherwise have
+    // EVERY subsequent App-Only call wedged for the rest of its life once X
+    // revokes/rotates the token, with no recovery path. Clear the cache and
+    // retry ONCE with a freshly-exchanged token before giving up — cheap
+    // insurance that costs nothing extra in the common case where this never
+    // fires (no billing happens on the failed attempt; `performBilledGet`
+    // only bills after a successful response).
+    const message = (err as Error).message;
+    if (message.includes("401") && cachedBearerToken) {
+      cachedBearerToken = null;
+      const freshBearer = await getAppOnlyBearerToken(creds);
+      return performBilledGet(url, { Authorization: `Bearer ${freshBearer}` }, endpoint, costUsd, opts);
+    }
+    throw err;
+  }
 }
 
 // ---- Mentions ---------------------------------------------------------------

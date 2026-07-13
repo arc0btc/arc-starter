@@ -22,6 +22,18 @@ import { getDatabase } from "./db.ts";
 
 // ---- Types ----
 
+/** Known `source_lane` values (2026-07-13, Phase 3, dev-council/Fowler lens:
+ * "the registry threshold: half-crossed, so cross it halfway" — three
+ * `source_lane` values now exist across two phases, which is what Phase 2
+ * deferred a registry until). A lightweight union for compile-time hinting at
+ * producer call sites — deliberately NOT a DB CHECK constraint
+ * (`x_research_candidate.source_lane` stays a free TEXT column) and NOT the
+ * same namespace as `by_lane` billing-lane keys (those are open-ended by
+ * design, `endpointLane()` derives arbitrary ones — forcing a closed registry
+ * there would fight the grain). Add each new lane's literal here as it ships;
+ * `list-roster` joins in Phase 4. */
+export type KnownSourceLane = "keyword-rotation" | "news-search";
+
 export interface XResearchCandidate {
   id: number;
   tweet_id: string;
