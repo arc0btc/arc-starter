@@ -1241,6 +1241,25 @@ export async function runDispatch(): Promise<void> {
       ? `pid=${lock.pid} is dead`
       : `lock age exceeds ${MAX_LOCK_AGE_MS / 60000}min (started=${lock.started_at}, pid=${lock.pid} may be reused)`;
     log(`dispatch: clearing stale dispatch lock (${reason})`);
+    // Task #22270 incident (2026-07-13): a lock's task_id can point at a row
+    // that no longer exists in `tasks` (observed once — cause unconfirmed, but
+    // tasks.id is a bare rowid alias with no AUTOINCREMENT, so a vanished row's
+    // id can be silently reused by the next unrelated insert). Surface this
+    // loudly instead of silently clearing the lock and moving on, since a
+    // dangling task_id here means a prior cycle's `arc tasks close` on this id
+    // would fail or, worse, land on a reused row that isn't the one it thinks.
+    if (lock.task_id !== null) {
+      const lockedTask = getTaskById(lock.task_id);
+      if (!lockedTask) {
+        log(`dispatch: [ALERT] dispatch lock referenced task #${lock.task_id} which no longer exists in tasks table — id may have been reused by a later insert`);
+        insertServiceLog(
+          "error",
+          "dispatch",
+          `dangling dispatch lock: task #${lock.task_id} not found in tasks table (${reason})`,
+          lock.task_id
+        );
+      }
+    }
     clearDispatchLock();
   }
 
