@@ -119,6 +119,16 @@ export function insertCandidateIfNew(fields: InsertCandidateFields): boolean {
  * maxAgeHours since first_seen, oldest first, capped at `limit` (100 by default —
  * matches X's /tweets?ids= per-call cap so ALL due candidates fit in ONE batched
  * read).
+ *
+ * `first_seen` is written by JS callers as `new Date().toISOString()`
+ * (`...T10:49:03.079Z` — T-separated, millisecond precision). SQLite's
+ * `datetime('now', ...)` produces SPACE-separated output (`...  11:50:04`, no T,
+ * no ms) — comparing the two lexicographically is WRONG (the byte at the T/space
+ * position sorts differently and silently breaks every boundary check; caught via
+ * live-testing during Phase 2's end-to-end proof). `strftime('%Y-%m-%dT%H:%M:%SZ',
+ * ...)` produces the SAME T/Z-separated shape `first_seen` uses (just without the
+ * millisecond suffix, which doesn't affect ordering at hour/minute/second
+ * granularity) — use it for both boundaries so the comparison is apples-to-apples.
  */
 export function getMaturationBatch(
   maxAgeHours: number = 24,
@@ -130,8 +140,8 @@ export function getMaturationBatch(
     .query(
       `SELECT * FROM x_research_candidate
        WHERE status = 'pending'
-         AND first_seen <= datetime('now', '-' || ? || ' hours')
-         AND first_seen >= datetime('now', '-' || ? || ' hours')
+         AND first_seen <= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-' || ? || ' hours')
+         AND first_seen >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-' || ? || ' hours')
        ORDER BY first_seen ASC
        LIMIT ?`
     )
@@ -165,12 +175,15 @@ export function markCandidateRejected(tweetId: string): void {
  */
 export function expireStaleCandidates(maxAgeHours: number = 24): number {
   const db = getDatabase();
+  // Same T/Z-format boundary fix as getMaturationBatch — first_seen is ISO8601
+  // (T/Z-separated); datetime('now', ...) alone produces a space-separated
+  // string that compares incorrectly against it.
   const result = db
     .query(
       `UPDATE x_research_candidate
          SET status = 'expired'
        WHERE status = 'pending'
-         AND first_seen < datetime('now', '-' || ? || ' hours')`
+         AND first_seen < strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-' || ? || ' hours')`
     )
     .run(maxAgeHours);
   return result.changes;

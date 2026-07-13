@@ -463,12 +463,18 @@ async function buildOAuthHeader(
  * Budget-aware: checks the daily dollar read budget before the call, adds the
  * read's cost after success, and writes a 429 backoff on rate-limit responses
  * (AI-016). Pass `{ owned: true }` for OWNED reads (own posts, followers, lists)
- * so they bill at the $0.001 rate instead of the $0.005 non-owned rate. */
+ * so they bill at the $0.001 rate instead of the $0.005 non-owned rate. Pass
+ * `{ lane: "..." }` (2026-07-13, arc-x-research-channel Phase 2) to bill under a
+ * caller-chosen NAMED by_lane key instead of the default `endpointLane(endpoint)`
+ * derivation — e.g. the candidate-maturation pass's batched `/tweets?ids=` read
+ * needs its own `"candidate-maturation"` lane, not the generic `"tweets"` lane
+ * `fetchRecentPostMetrics` already uses for the same endpoint. Omitting it keeps
+ * every existing caller's current lane unchanged. */
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
   queryParams: Record<string, string> = {},
-  opts: { owned?: boolean } = {},
+  opts: { owned?: boolean; lane?: string } = {},
 ): Promise<Record<string, unknown>> {
   // Guard: enforce daily dollar read budget and 429 backoff before the network.
   // Pre-flight uses the WORST-CASE resource count from the request (max_results /
@@ -520,7 +526,7 @@ export async function xApiGet(
   // metering, not flat per-call), attributed by endpoint family, with same-UTC-day
   // dedup on repeated ids in this lane.
   const typedData = data as Record<string, unknown>;
-  await billResourceRead(costUsd, endpointLane(endpoint), extractResourceIds(typedData));
+  await billResourceRead(costUsd, opts.lane ?? endpointLane(endpoint), extractResourceIds(typedData));
 
   return typedData;
 }

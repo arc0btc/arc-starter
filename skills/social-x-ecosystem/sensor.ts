@@ -1,7 +1,21 @@
 // skills/social-x-ecosystem/sensor.ts
 // Monitors X for ecosystem keywords, rotating one keyword per 15min cycle.
-// Stores seen tweet IDs to avoid re-fetching. Files URL-bearing tweets as
-// arc-link-research tasks when they show high signal.
+// STORES newly-seen URL-bearing tweets as candidates on the shared
+// candidate-maturation spine (src/candidate-spine.ts) instead of judging them at
+// birth — skills/candidate-maturation/sensor.ts re-scores them once they've aged
+// 2-24h and files the arc-link-research task if they matured.
+//
+// 2026-07-13 (arc-x-research-channel Phase 2): this sensor's OLD behavior judged
+// engagement AT DISCOVERY TIME (`isHighSignal` on a tweet typically seconds-to-
+// minutes old), which almost never passed — 0 research tasks were ever produced
+// across 4+ months of runs. That judge-at-birth logic is REMOVED from this file;
+// see src/candidate-spine.ts for the store + shared scoring primitives, and
+// skills/candidate-maturation/sensor.ts for the re-score pass.
+//
+// KEYWORD_ROTATION_ENABLED (below): the keyword rotation itself is being RETIRED
+// per the 2026-07-13 operator decision (News/Trends/List — Phases 3-4 — replace
+// it; 0 tasks in 4+ months). It ran here transiently, store-only, to prove the
+// candidate spine end-to-end before retirement.
 
 import {
   claimSensorRun,
@@ -9,8 +23,8 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
-import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { insertCandidateIfNew, extractUrls } from "../../src/candidate-spine.ts";
 // Read-budget guard (2026-07-12 operator spend audit): this sensor's 96 searches/day
 // (~$0.48) were previously UNMETERED — the single biggest read spend on the account,
 // invisible to db/x-read-budget.json. Every search now checks + bills the shared
@@ -26,6 +40,13 @@ import { checkReadBudget, billResourceRead, estimateResourceCount, extractResour
 const SENSOR_NAME = "social-x-ecosystem";
 const INTERVAL_MINUTES = 15;
 const API_BASE = "https://api.x.com/2";
+
+// 2026-07-13 operator decision (arc-x-research-channel quest, do not re-ask):
+// keyword rotation RETIRED FULLY — 0 research tasks produced in 4+ months, the
+// gate was structurally closed (judge-at-birth). News search + Trends + the
+// curated-roster List (Phases 3-4) replace it. Revivable later behind the
+// maturation gate if ever needed — flip this back to true, nothing else to undo.
+const KEYWORD_ROTATION_ENABLED = true; // Phase 2 task 3 flips this to false
 
 const KEYWORDS = [
   "Agents Bitcoin",
@@ -181,31 +202,10 @@ interface Tweet {
   };
 }
 
-const URL_RE = /https?:\/\/[^\s)]+/g;
-
-function extractUrls(text: string): string[] {
-  const matches = text.match(URL_RE);
-  if (!matches) return [];
-  return matches.filter((u) => {
-    // Filter out t.co shortlinks (Twitter's own URL wrapping)
-    if (u.startsWith("https://t.co/")) return false;
-    // Filter out x.com/twitter.com self-references — the tweet is already captured via tweet ID
-    try {
-      const host = new URL(u).hostname;
-      if (host === "x.com" || host === "twitter.com") return false;
-    } catch {
-      return false;
-    }
-    return true;
-  });
-}
-
-function isHighSignal(tweet: Tweet): boolean {
-  const metrics = tweet.public_metrics;
-  if (!metrics) return false;
-  // High engagement: 5+ likes or 2+ retweets or 3+ replies
-  return metrics.like_count >= 5 || metrics.retweet_count >= 2 || metrics.reply_count >= 3;
-}
+// extractUrls / isHighSignal moved to src/candidate-spine.ts (2026-07-13, Phase 2)
+// so every producer/consumer of the candidate spine shares one bar instead of
+// forking it. isHighSignal is no longer called from THIS file — it's the
+// candidate-maturation pass's job to judge engagement, at 2-24h age, not here.
 
 // ---- State management ----
 
@@ -223,6 +223,14 @@ const MAX_SEEN_IDS = 500; // cap to prevent unbounded growth
 
 export default async function xEcosystemSensor(): Promise<string> {
   try {
+    if (!KEYWORD_ROTATION_ENABLED) {
+      // Retired 2026-07-13 (arc-x-research-channel Phase 2, operator decision) —
+      // return BEFORE claimSensorRun/credential-load/any API call so a disabled
+      // run is provably zero-cost, not just an early skip that still burns budget.
+      log("disabled: keyword rotation retired 2026-07-13, see candidate-maturation + Phase 3/4 lanes");
+      return "skip";
+    }
+
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
@@ -278,44 +286,35 @@ export default async function xEcosystemSensor(): Promise<string> {
 
     const seenSet = new Set(state.seen_ids);
     let newTweets = 0;
-    let tasksCreated = 0;
+    let candidatesStored = 0;
 
     for (const tweet of tweets) {
       if (seenSet.has(tweet.id)) continue;
       seenSet.add(tweet.id);
       newTweets++;
 
-      // Check for research-worthy tweets: has URLs + high engagement
+      // STORE, don't judge (2026-07-13, Phase 2 fix): a tweet from a search/recent
+      // page is typically seconds-to-minutes old, so checking engagement HERE was
+      // the structurally-closed gate (isHighSignal almost never passes at ~0min).
+      // Any new tweet with at least one real URL becomes a candidate; the
+      // candidate-maturation sensor re-scores it once it's aged 2-24h.
       const urls = extractUrls(tweet.text);
-      if (urls.length > 0 && isHighSignal(tweet)) {
-        const source = `sensor:${SENSOR_NAME}:${tweet.id}`;
-        const linkList = urls.join(", ");
+      if (urls.length > 0) {
         const truncatedText =
           tweet.text.length > 120 ? tweet.text.slice(0, 120) + "..." : tweet.text;
 
-        if (!recentTaskExistsForSource(source, 24 * 60)) {
-          insertTask({
-            subject: `Research: ecosystem signal — ${keyword}`,
-            description: [
-              `Source: X search for "${keyword}"`,
-              `Tweet ID: ${tweet.id}`,
-              `Author ID: ${tweet.author_id}`,
-              `Date: ${tweet.created_at}`,
-              `Text: ${truncatedText}`,
-              `Links: ${linkList}`,
-              "",
-              `Engagement: ${tweet.public_metrics?.like_count ?? 0} likes, ${tweet.public_metrics?.retweet_count ?? 0} RTs, ${tweet.public_metrics?.reply_count ?? 0} replies`,
-              "",
-              "Evaluate these links for mission relevance. Use:",
-              `  arc skills run --name arc-link-research -- process --links "${linkList}"`,
-            ].join("\n"),
-            skills: JSON.stringify(["arc-link-research"]),
-            priority: 7,
-            model: "sonnet",
-            source,
-          });
-          tasksCreated++;
-          log(`task created for tweet ${tweet.id}: "${truncatedText}"`);
+        const inserted = insertCandidateIfNew({
+          tweet_id: tweet.id,
+          source_lane: "keyword-rotation",
+          first_seen: new Date().toISOString(),
+          author_id: tweet.author_id,
+          text_snippet: truncatedText,
+          urls,
+          discovery_context: keyword,
+        });
+        if (inserted) {
+          candidatesStored++;
+          log(`candidate stored for tweet ${tweet.id}: "${truncatedText}"`);
         }
       }
     }
@@ -336,10 +335,10 @@ export default async function xEcosystemSensor(): Promise<string> {
       last_keyword: keyword,
       last_tweet_count: tweets.length,
       last_new_count: newTweets,
-      last_tasks_created: tasksCreated,
+      last_candidates_stored: candidatesStored,
     });
 
-    log(`completed: ${newTweets} new tweets, ${tasksCreated} research tasks created`);
+    log(`completed: ${newTweets} new tweets, ${candidatesStored} candidates stored`);
     return "ok";
   } catch (e) {
     const error = e as Error;
