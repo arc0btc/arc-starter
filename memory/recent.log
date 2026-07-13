@@ -241,3 +241,4 @@
 2026-07-13T10:57:56.686Z | task #22247 | completed | sonnet | Review PR #866 on aibtcdev/agent-news: fix(read-path): degra | Reviewed and approved PR #866 on aibtcdev/agent-news — SWR + try/catch/503 fix f
 2026-07-13T10:59:17.127Z | task #22248 | completed | haiku | Retrospective: extract learnings from task #22247 — Review P | No learnings to capture — existing patterns already cover pattern-reuse validati
 2026-07-13T12:03:28.090Z | task #22249 | completed | sonnet | GitHub review request in aibtcdev/legions: feat: standalone  | Reviewed+approved aibtcdev/legions PR#7 (legion-template kit). Verified vendored
+2026-07-13T12:04:23.378Z | task #22250 | completed | haiku | Retrospective: extract learnings from task #22249 — GitHub r | Extracted 3 reusable patterns from task #22249 PR review: vendored-dependency by
