@@ -275,3 +275,4 @@
 2026-07-13T14:27:36.434Z | task #22282 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention 2076668458658578697 (providerPostId 2076674891269697725) with
 2026-07-13T14:28:40.185Z | task #22283 | completed | sonnet | Fix social-engine reply CLI usage string: missing --tweet-cr | Added --tweet-created-at to both usage strings in skills/social-engine/cli.ts (c
 2026-07-13T14:30:13.227Z | task #22284 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Empery | Empery Digital Bitcoin sale tweet — low relevance (tangential bitcoin-macro news
+2026-07-13T15:03:04.577Z | task #22285 | completed | sonnet | Assess course candidacy: "Match Your Evals to Your Traffic" | no cluster yet — only 1 tier-A content-calendar item on this topic (agent-eval-v
