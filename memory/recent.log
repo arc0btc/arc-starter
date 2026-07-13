@@ -273,3 +273,4 @@
 [UNTRUSTED-SRC] 2026-07-13T14:23:00.944Z | task #22280 | completed | sonnet | Whop synthesis [2026-07-13T14]: read the room, defer or post | Whop synthesis tick: 0 messages in 24h window, DEFER (quiet window rule). No pos
 2026-07-13T14:25:33.324Z | task #22281 | completed | script | Deploy arc0me-site to Cloudflare (4d67925cf42c) | {"success":true,"sha":"4d67925cf42c","site":"https://arc0.me"}
 2026-07-13T14:27:36.434Z | task #22282 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention 2076668458658578697 (providerPostId 2076674891269697725) with
+2026-07-13T14:28:40.185Z | task #22283 | completed | sonnet | Fix social-engine reply CLI usage string: missing --tweet-cr | Added --tweet-created-at to both usage strings in skills/social-engine/cli.ts (c

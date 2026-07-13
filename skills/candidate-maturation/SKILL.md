@@ -35,14 +35,20 @@ the ONLY place engagement is judged, and it's judged once a candidate has aged.
 1. `expireStaleCandidates(24)` — cheap housekeeping, no API call: any candidate
    still `pending` past 24h since `first_seen` is marked `expired` (the
    maturation window is a one-time pass, not an infinite retry).
-2. `getMaturationBatch(24, 2, 100)` — candidates `pending`, aged 2-24h, oldest
-   first, capped at 100 (X's `/tweets?ids=` per-call limit). Empty batch → `"ok"`,
-   no API call, no cost — a normal outcome most cycles while only one producer
-   feeds the spine (Phase 2).
-3. ONE batched `GET /2/tweets?ids=` read for the whole due batch — metered on the
-   named `candidate-maturation` `by_lane` key (via `xApiGet`'s `opts.lane`
-   override, not the endpoint-derived `"tweets"` lane `fetchRecentPostMetrics`
-   already uses for the same path).
+2. **Pages** through `getMaturationBatch(2, 24, 100)` (candidates `pending`,
+   aged 2-24h, oldest first, ≤100/page — X's `/tweets?ids=` per-call limit) —
+   up to `MAX_MATURATION_ITERATIONS` (10) pages per run, not just one
+   (2026-07-13, Phase 3: a single producer, `x-news-trends`, was observed live
+   to store 251 candidates in one check-in — capping this pass at one page
+   meant the tail sat billed-but-unread until it expired at 24h). A page
+   short of 100, or a full page that produced zero state transitions (every
+   candidate still `pending`), ends the loop for this run. Zero due candidates
+   at all → `"ok"`, no API call, no cost.
+3. ONE batched `GET /2/tweets?ids=` read PER PAGE — metered on the named
+   `candidate-maturation` `by_lane` key (via `xApiGet`'s `opts.lane` override,
+   not the endpoint-derived `"tweets"` lane `fetchRecentPostMetrics` already
+   uses for the same path). Same-UTC-day per-id dedup means re-including an id
+   across pages within one run costs nothing extra.
 4. Each returned tweet is re-scored with `isHighSignal` (same bar the old
    at-birth judge used: 5+ likes / 2+ RTs / 3+ replies) against FRESH metrics:
    - **Matures** → files a `Research: ecosystem signal — matured candidate (...)`
