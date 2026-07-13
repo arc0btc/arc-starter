@@ -124,6 +124,14 @@ async function cmdDeploy(args: string[]): Promise<void> {
     process.stderr.write(`WARNING: sign sweep errored (non-fatal): ${e}\n`);
   }
 
+  // Re-read HEAD: the sign sweep above may have committed a signature update,
+  // advancing HEAD past currentSha. Build/deploy below ship whatever HEAD is
+  // now, so the recorded deployed SHA must match post-sweep, not pre-sweep.
+  const deploySha = getCurrentSha() || currentSha;
+  if (deploySha !== currentSha) {
+    log(`sign sweep advanced HEAD ${currentSha} -> ${deploySha}`);
+  }
+
   // Step 1: Build
   const fnmBinDir = resolveFnmBinDir();
   const nodeEnv: Record<string, string> = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};
@@ -133,9 +141,9 @@ async function cmdDeploy(args: string[]): Promise<void> {
   const build = await runCommand([npm, "run", "build"], SITE_DIR, nodeEnv);
   if (build.exitCode !== 0) {
     // Record failed SHA so the sensor won't re-queue the same broken commit
-    if (currentSha) {
+    if (deploySha) {
       const state = (await readHookState(SENSOR_NAME)) ?? {} as Parameters<typeof writeHookState>[1];
-      await writeHookState(SENSOR_NAME, { ...state, last_failed_sha: currentSha } as Parameters<typeof writeHookState>[1]);
+      await writeHookState(SENSOR_NAME, { ...state, last_failed_sha: deploySha } as Parameters<typeof writeHookState>[1]);
     }
     process.stderr.write(`Build failed (exit ${build.exitCode}):\n${build.stderr || build.stdout}\n`);
     process.exit(1);
@@ -159,10 +167,10 @@ async function cmdDeploy(args: string[]): Promise<void> {
   console.log(deploy.stdout || deploy.stderr);
 
   // Step 3: Record deployed SHA in hook state
-  if (currentSha) {
+  if (deploySha) {
     const state = (await readHookState(SENSOR_NAME)) ?? {} as Parameters<typeof writeHookState>[1];
-    await writeHookState(SENSOR_NAME, { ...state, last_deployed_sha: currentSha } as Parameters<typeof writeHookState>[1]);
-    log(`recorded deployed SHA: ${currentSha}`);
+    await writeHookState(SENSOR_NAME, { ...state, last_deployed_sha: deploySha } as Parameters<typeof writeHookState>[1]);
+    log(`recorded deployed SHA: ${deploySha}`);
   }
 
   // Step 4: Verify (optional, non-fatal)
@@ -207,7 +215,7 @@ async function cmdDeploy(args: string[]): Promise<void> {
     process.stderr.write(`WARNING: signature reconciliation errored (non-fatal): ${e}\n`);
   }
 
-  console.log(JSON.stringify({ success: true, sha: currentSha, site: "https://arc0.me" }, null, 2));
+  console.log(JSON.stringify({ success: true, sha: deploySha, site: "https://arc0.me" }, null, 2));
 }
 
 async function cmdStatus(_args: string[]): Promise<void> {
