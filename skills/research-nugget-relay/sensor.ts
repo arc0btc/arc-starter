@@ -54,6 +54,7 @@ import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/s
 import { getDatabase } from "../../src/db.ts";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
+import { standingBriefSteps } from "../../src/research-brief.ts";
 
 // dev-council 2026-07-13 (Newman, CONFIRMED): no timeout previously bounded a producer
 // subprocess — a wedged HTTP fetch in one producer would block the promotion pass (a purely
@@ -110,6 +111,8 @@ function chooseModel(rubricTotal: number): "opus" | "sonnet" {
  * candidate-maturation/sensor.ts's buildStandingBrief — insertTaskIfNew() hasn't
  * run yet when this description is built, so the agent fills in its own known
  * task id (src/dispatch.ts's buildPrompt always states "Task ID: N" up top).
+ * Shared checklist (steps 1-3) lives in src/research-brief.ts (dev-council
+ * 2026-07-13, Fowler lens — this file used to duplicate that text verbatim).
  */
 function buildStandingBrief(nugget: PromotableNugget): string {
   return [
@@ -117,31 +120,10 @@ function buildStandingBrief(nugget: PromotableNugget): string {
     `URL: ${nugget.source_url}`,
     `Published: ${nugget.published_at ?? "unknown"}`,
     "",
-    "--- Standing research brief (mirrors the operator's own email-batch brief shape — #20099/#20111) ---",
+    ...standingBriefSteps(`arc skills run --name arc-link-research -- process --links "${nugget.source_url}" --task <Task ID>`),
     "",
-    "1. Run this FIRST, passing --task with THIS task's own id (shown above in your",
-    "   prompt as \"Task ID: N\") so the report's front-matter carries it:",
-    `     arc skills run --name arc-link-research -- process --links "${nugget.source_url}" --task <Task ID>`,
-    "   This caches/dedups the link and writes a mechanical scaffold report.",
-    "2. Then go BEYOND that scaffold — edit the SAME report file directly:",
-    "   - sku_why: real buyer-facing judgment (would a $9 packaged reader pay for",
-    "     this? why or why not, one line — not left empty).",
-    "   - repos_touched: resolve it by actually reading arc-starter (this VM) and",
-    "     agent-runtime if relevant — never leave it \"unknown\" without having looked.",
-    "   - Write a \"## TL;DR\" (3 lines) and cited \"## Key Takeaways\".",
-    "   - Add an Arc-alignment note: cite a real file/skill where Arc already does",
-    "     this, or state plainly \"no direct code hook\" — never hand-wave.",
-    "   - Run reindex when done: arc skills run --name arc-link-research -- reindex",
-    "3. DECLINE PATH: if, after reading it, this is genuinely low-relevance/",
-    "   tangential — do NOT force a report. Skip step 1-2 entirely and close this",
-    "   task directly with a two-line reasoned decline:",
-    "     arc tasks close --id <Task ID> --status completed --summary \"<why this",
-    "     isn't relevant, 2 lines>\"",
-    "   A short, honest decline is the CORRECT output here, not a failure — a",
-    "   declined nugget correctly stays report_path=NULL forever (see module",
-    "   header: insertTaskIfNew's \"any\"-status dedup means it won't be re-filed,",
-    "   which is the right terminal state for something genuinely not worth a",
-    "   report — not a wedge).",
+    "(A declined nugget's promotion slot is freed immediately, not held forever — see",
+    " promotePendingNuggets' own SELECT, which excludes any nugget with an existing task.)",
   ].join("\n");
 }
 
@@ -225,12 +207,26 @@ async function runProducerIfDue(db: ReturnType<typeof getDatabase>, source: stri
 
 /**
  * Scan/gate on `report_path IS NULL`, NOT `promoted_at` (see module header — `promoted_at`
- * belongs solely to src/nugget-bridge.ts now, meaning exactly "a report exists"). Dedup for
- * "have we already tried this one" is `insertTaskIfNew`'s own source-keyed check
- * (`sensor:research-nugget-relay:${nugget_ref}`, dedupMode="any") — cheap, correct, and
- * self-healing: nothing here permanently marks a nugget as done just because a task was filed,
- * so a nugget whose task died without producing a report simply gets re-considered (and
- * re-deduped, at negligible cost) on the next run instead of vanishing from the queue forever.
+ * belongs solely to src/nugget-bridge.ts now, meaning exactly "a report exists").
+ *
+ * dev-council 2026-07-13 (Phase 7, Kleppmann lens, CONFIRMED — a real bug, not just a doc
+ * issue): an earlier version of this query selected purely on `report_path IS NULL`, ORDER BY
+ * rubric_total DESC LIMIT 3, with no visibility into whether a task already existed for a
+ * nugget. `insertTaskIfNew`'s dedup correctly stopped a RE-FILE, but did nothing to remove an
+ * already-attempted nugget from THIS SELECT — so a nugget whose task legitimately DECLINED
+ * (Phase 7's new decline path: task completes, no report is ever written, `report_path` stays
+ * NULL forever by design) stayed a permanent top-ranked resident of the pending pool. Once
+ * PROMOTE_CAP_PER_RUN (3) high-rubric nuggets had each been declined once, EVERY subsequent
+ * run's top-3-by-rubric SELECT was the same 3 stuck rows — no new nugget could ever reach the
+ * promotion queue again. This is exactly the "declined task wedges the state machine" failure
+ * class this whole quest exists to fix, and an earlier version of this comment wrongly claimed
+ * it was NOT a wedge ("correctly stays report_path=NULL forever... not a wedge") — true for the
+ * ROW's own state, false for the QUEUE's throughput. Fixed: the SELECT now excludes any nugget
+ * that already has ANY task filed for it (regardless of that task's outcome), via the same
+ * source-key pattern `insertTaskIfNew`'s dedup already uses — a nugget only occupies a
+ * promotion slot until its FIRST attempt, declined or not, exactly mirroring
+ * candidate-maturation's own (already-safe) design where `research_task_id` is stamped at
+ * filing time regardless of later outcome.
  */
 function promotePendingNuggets(db: ReturnType<typeof getDatabase>): { promoted: number; filed: number } {
   const pending = db
@@ -238,6 +234,9 @@ function promotePendingNuggets(db: ReturnType<typeof getDatabase>): { promoted: 
       `SELECT nugget_ref, source, source_url, title, rubric_total, published_at
        FROM research_nugget
        WHERE is_promotable = 1 AND report_path IS NULL
+         AND NOT EXISTS (
+           SELECT 1 FROM tasks WHERE source = 'sensor:${SENSOR_NAME}:' || nugget_ref
+         )
        ORDER BY rubric_total DESC
        LIMIT ?`,
     )

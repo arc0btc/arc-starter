@@ -46,6 +46,7 @@ import {
   type XResearchCandidate,
 } from "../../src/candidate-spine.ts";
 import { loadXCreds, xApiGet } from "../social-x-posting/lib/x-api.ts";
+import { standingBriefSteps } from "../../src/research-brief.ts";
 
 const SENSOR_NAME = "candidate-maturation";
 const INTERVAL_MINUTES = 60;
@@ -58,11 +59,16 @@ const log = createSensorLogger(SENSOR_NAME);
  * save tokens" — applied where the signal genuinely warrants it, not blanket-
  * upgraded). This lane has no separate 0-5 relevance score at filing time (only
  * isHighSignal's pass/fail gate) — engagement magnitude is the only signal in
- * hand, so route on it directly. Bar set at roughly 3x isHighSignal's own
- * threshold (5+ likes/2+ RTs/3+ replies) — comfortably past "just cleared the
- * bar" into "genuinely resonating," matching the Phase 6 close-out's own
- * observation that #20099's richest report was the one Opus worked (relevance 4,
- * 8.18M-impression source).
+ * hand, so route on it directly. Thresholds (dev-council 2026-07-13, Lamport
+ * lens, CONFIRMED: an earlier version of this comment claimed "roughly 3x
+ * isHighSignal's own threshold [5 likes/2 RTs/3 replies]" — stated precisely,
+ * the actual multiples are 4x/2.5x/2.67x, and this is a per-dimension OR gate,
+ * not a combined-magnitude score, so e.g. 5 RTs alone routes to opus while 19
+ * likes + 4 RTs + 7 replies together does not): likes>=20 (4x), retweets>=5
+ * (2.5x), OR replies>=8 (2.67x) — comfortably past "just cleared the bar" into
+ * "genuinely resonating" on any ONE dimension, matching the Phase 6 close-out's
+ * own observation that #20099's richest report was the one Opus worked
+ * (relevance 4, 8.18M-impression source).
  */
 function chooseModel(metrics: { like_count: number; retweet_count: number; reply_count: number }): "opus" | "sonnet" {
   if (metrics.like_count >= 20 || metrics.retweet_count >= 5 || metrics.reply_count >= 8) return "opus";
@@ -89,28 +95,7 @@ function buildStandingBrief(candidate: XResearchCandidate, linkList: string, met
     "",
     `Engagement at maturation: ${metrics.like_count} likes, ${metrics.retweet_count} RTs, ${metrics.reply_count} replies (cleared the high-signal re-score bar).`,
     "",
-    "--- Standing research brief (mirrors the operator's own email-batch brief shape — #20099/#20111) ---",
-    "",
-    "1. Run this FIRST, passing --task with THIS task's own id (shown above in your",
-    "   prompt as \"Task ID: N\") so the report's front-matter carries it:",
-    `     arc skills run --name arc-link-research -- process --links "${linkList}" --task <Task ID>`,
-    "   This caches/dedups the link(s) and writes a mechanical scaffold report.",
-    "2. Then go BEYOND that scaffold — edit the SAME report file directly:",
-    "   - sku_why: real buyer-facing judgment (would a $9 packaged reader pay for",
-    "     this? why or why not, one line — not left empty).",
-    "   - repos_touched: resolve it by actually reading arc-starter (this VM) and",
-    "     agent-runtime if relevant — never leave it \"unknown\" without having looked.",
-    "   - Write a \"## TL;DR\" (3 lines) and cited \"## Key Takeaways\".",
-    "   - Add an Arc-alignment note: cite a real file/skill where Arc already does",
-    "     this, or state plainly \"no direct code hook\" — never hand-wave.",
-    "   - Run reindex when done: arc skills run --name arc-link-research -- reindex",
-    "3. DECLINE PATH: if, after reading it, this is genuinely low-relevance/",
-    "   tangential — do NOT force a report. Skip step 1-2 entirely and close this",
-    "   task directly with a two-line reasoned decline:",
-    "     arc tasks close --id <Task ID> --status completed --summary \"<why this",
-    "     isn't relevant, 2 lines>\"",
-    "   A short, honest decline is the CORRECT output here, not a failure — do not",
-    "   pad a thin link into a hollow report just to produce something.",
+    ...standingBriefSteps(`arc skills run --name arc-link-research -- process --links "${linkList}" --task <Task ID>`),
   ].join("\n");
 }
 
@@ -234,7 +219,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
 
         const taskId = insertTask({
           subject: `Research: ecosystem signal — matured candidate (${candidate.discovery_context ?? candidate.source_lane})`,
-          description: buildStandingBrief(candidate as XResearchCandidate, linkList, metrics),
+          description: buildStandingBrief(candidate, linkList, metrics),
           skills: JSON.stringify(["arc-link-research"]),
           priority: 7,
           model: chooseModel(metrics),

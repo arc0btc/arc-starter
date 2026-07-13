@@ -1781,11 +1781,59 @@ export async function followByTargetId(targetId: string): Promise<FollowByIdResu
 // a count cap, same precedent as follows — NOT threaded into x-read-budget.json,
 // which is reads-only by design).
 //
-// dev-council 2026-07-13 (Phase 7): enforceInterSendSpacing was NOT previously
-// called by cmdLike or followByTargetId (it only guards the three POST /tweets
-// call sites per its own header comment) — this is the first write call site to
-// actually invoke it, disclosed as a pre-existing gap for follow/cmdLike, not
-// newly introduced here.
+// dev-council 2026-07-13 (Phase 7, CONFIRMED independently by the Fowler and Hohpe
+// lenses): the FIRST version of this function called the existing
+// `enforceInterSendSpacing("like")` — but that function's clock is
+// MAX(x_post_log.posted_at, x_reply_log.replied_at) (tweet/reply timing), a
+// resource likes never write to. Spacing a like against that clock is both
+// meaningless (a like never advances it, so the "spacing" measures unrelated
+// tweet/reply activity) and expensive (up to 120s bounded sleep, called up to 5x
+// per `process` run — up to ~10 minutes of serial blocking on the research
+// pipeline for a cosmetic side effect that gate wasn't even protecting).
+// enforceInterSendSpacing itself is ALSO not currently called by cmdLike or
+// followByTargetId (it only guards the three POST /tweets call sites per its own
+// header comment) — a pre-existing gap for follow, disclosed not fixed here.
+// Fixed: likes get their OWN dedicated 45-90s clock (enforceLikeSpacing /
+// recordLikeSpacing below, a tiny JSON state file — same atomic tmp+rename
+// pattern as saveFollowerCache above), honoring the operator's explicit
+// "respect the spacing rule" directive against a clock likes actually advance.
+const LIKE_SPACING_MIN_SECONDS = 45;
+const LIKE_SPACING_JITTER_SECONDS = 45; // effective gap 45-90s, matching enforceInterSendSpacing's own shape
+const LIKE_SPACING_STATE_PATH = join(import.meta.dir, "..", "..", "db", "hook-state", "last-like-at.json");
+
+async function enforceLikeSpacing(): Promise<void> {
+  let lastAt: string | null = null;
+  try {
+    const f = Bun.file(LIKE_SPACING_STATE_PATH);
+    if (await f.exists()) {
+      const state = (await f.json()) as { lastLikeAt?: string };
+      lastAt = state.lastLikeAt ?? null;
+    }
+  } catch {
+    // missing/corrupt state = no prior recorded like — proceed immediately, don't block on a
+    // bookkeeping read failure.
+  }
+  if (!lastAt) return;
+  const elapsedMs = Date.now() - new Date(lastAt).getTime();
+  const requiredMs = (LIKE_SPACING_MIN_SECONDS + Math.floor(Math.random() * LIKE_SPACING_JITTER_SECONDS)) * 1000;
+  if (elapsedMs >= requiredMs) return;
+  const waitMs = Math.min(requiredMs - elapsedMs, 120_000);
+  await Bun.sleep(waitMs);
+}
+
+async function recordLikeSpacing(): Promise<void> {
+  try {
+    const { mkdirSync, renameSync } = await import("node:fs");
+    const dir = join(import.meta.dir, "..", "..", "db", "hook-state");
+    mkdirSync(dir, { recursive: true });
+    const tmp = LIKE_SPACING_STATE_PATH + ".tmp";
+    await Bun.write(tmp, JSON.stringify({ lastLikeAt: new Date().toISOString() }, null, 2) + "\n");
+    renameSync(tmp, LIKE_SPACING_STATE_PATH);
+  } catch {
+    // best-effort bookkeeping only — never block or fail the like itself over a write hiccup.
+  }
+}
+
 export interface LikeByIdResult {
   ok: boolean;
   liked?: boolean;
@@ -1800,12 +1848,13 @@ export async function likeByTargetId(tweetId: string): Promise<LikeByIdResult> {
   } catch (err) {
     return { ok: false, deferred: true, error: err instanceof Error ? err.message : String(err) };
   }
-  await enforceInterSendSpacing("like");
+  await enforceLikeSpacing();
   const creds = await loadCreds();
   const userId = await getMyUserId(creds);
   try {
     const result = await apiRequest("POST", `/users/${userId}/likes`, creds, { tweet_id: tweetId });
     await incrementBudget("likes");
+    await recordLikeSpacing();
     const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
     return { ok: true, liked: data["liked"] !== false };
   } catch (err) {
