@@ -1762,6 +1762,61 @@ export async function followByTargetId(targetId: string): Promise<FollowByIdResu
   }
 }
 
+// ---- Like, in-process (arc-x-research-channel Phase 7, 2026-07-13) ----------
+// Extracted the same way followByTargetId was (2026-07-13, Phase 4): a structured
+// result the caller can branch on (ok/deferred/error), no throw, no subprocess.
+// cmdLike (above, ~line 1541) already does this write via apiRequest but as a
+// standalone CLI command with no in-process caller — this is the first in-process
+// caller (arc-link-research's cmdProcess, via a best-effort "like the source
+// tweet" step alongside the existing follow-policy hook).
+//
+// Algo-shaping context (operator directive, 2026-07-13): a READ (personalized_trends,
+// already consumed since Phase 3) reflects Arc's follow graph back — it doesn't
+// feed X's own personalization of what Arc sees. A WRITE (follow/like) is the only
+// plausible signal that shapes it going forward. Same documented-removed-but-
+// empirically-live status as follow writes (2026-04-20 announcement removed
+// follow/like/quote-post from all self-serve tiers; @arc0btc's follows kept
+// working past that date per the 2026-07-13 console reconciliation doc) — treated
+// identically here: live, unpriced in $ terms (goes through BUDGET_LIMITS.likes,
+// a count cap, same precedent as follows — NOT threaded into x-read-budget.json,
+// which is reads-only by design).
+//
+// dev-council 2026-07-13 (Phase 7): enforceInterSendSpacing was NOT previously
+// called by cmdLike or followByTargetId (it only guards the three POST /tweets
+// call sites per its own header comment) — this is the first write call site to
+// actually invoke it, disclosed as a pre-existing gap for follow/cmdLike, not
+// newly introduced here.
+export interface LikeByIdResult {
+  ok: boolean;
+  liked?: boolean;
+  deferred?: boolean; // true = daily likes budget cap reached (normal, not a failure)
+  status?: number | null;
+  error?: string;
+}
+
+export async function likeByTargetId(tweetId: string): Promise<LikeByIdResult> {
+  try {
+    await checkBudget("likes");
+  } catch (err) {
+    return { ok: false, deferred: true, error: err instanceof Error ? err.message : String(err) };
+  }
+  await enforceInterSendSpacing("like");
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+  try {
+    const result = await apiRequest("POST", `/users/${userId}/likes`, creds, { tweet_id: tweetId });
+    await incrementBudget("likes");
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, liked: data["liked"] !== false };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    // Liking an already-liked tweet returns 200 with liked:true on X, so a thrown
+    // error here is a real failure (429/restriction/etc), same reasoning as
+    // followByTargetId's own catch above.
+    return { ok: false, status: e.status ?? null, error: e.message };
+  }
+}
+
 async function cmdFollow(flags: Record<string, string>): Promise<void> {
   const rawHandle = (flags["username"] ?? "").replace(/^@/, "");
   let targetId = flags["target-id"] ?? "";

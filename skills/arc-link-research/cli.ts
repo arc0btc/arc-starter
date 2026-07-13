@@ -23,6 +23,11 @@ import { checkReadBudget, billResourceRead, READ_COST_USD } from "../social-x-po
 // time (not a periodic rescan). See src/follow-policy.ts's module header for
 // why this is NOT built on the dormant follow-curated.ts script.
 import { promoteResearchSourceHandle } from "../../src/follow-policy.ts";
+// arc-x-research-channel Phase 7 (2026-07-13): best-effort like the source tweet
+// alongside the follow-policy hook, same trigger point (report acceptance). See
+// likeByTargetId's own doc comment (skills/social-x-posting/cli.ts) for the
+// algo-shaping rationale and the pre-existing (not newly introduced) spacing gap.
+import { likeByTargetId } from "../social-x-posting/cli.ts";
 // arc-x-research-channel Phase 5 (2026-07-13): the research-store bridge — every finalized
 // report ALSO lands as a research_nugget row (join key: source_url/content_hash), so the
 // rubric-scored HN/RSS/GitHub-release store and this live research/INDEX.md spine stop being
@@ -1078,6 +1083,11 @@ export async function cmdProcess(args: string[]): Promise<void> {
   // report, starving every other follow consumer that day. Capped here.
   const MAX_FOLLOWS_PER_PROCESS_RUN = 5;
   let followAttemptsThisRun = 0;
+  // Phase 7: same per-run discipline for likes as follows (Newman's original follow-cap
+  // finding applies identically — an unbounded like-writer in one batch could drain the
+  // whole shared BUDGET_LIMITS.likes=50/day cap for every other like consumer that day).
+  const MAX_LIKES_PER_PROCESS_RUN = 5;
+  let likeAttemptsThisRun = 0;
   for (const r of results) {
     if (r.relevance === "low") continue;
     const m = r.title.match(/^@(\w+):/);
@@ -1101,6 +1111,32 @@ export async function cmdProcess(args: string[]): Promise<void> {
       );
     } catch (e) {
       process.stdout.write(`[follow-policy] @${handle}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+    }
+
+    // ---- Like the source tweet (arc-x-research-channel Phase 7, 2026-07-13) ----
+    // Best-effort, same medium/high-relevance + X-sourced gate as the follow-policy hook
+    // above (a link only reaches this point if r.relevance !== "low" and its title carries
+    // the "@handle:" prefix set for X-sourced results). Algo-shaping rationale + the
+    // pre-existing (not newly introduced) inter-send-spacing gap are documented on
+    // likeByTargetId itself (skills/social-x-posting/cli.ts). Never fails an
+    // already-written report — same never-throws contract as the follow-policy call above.
+    const tweetId = parseTweetUrl(r.url);
+    if (tweetId && likeAttemptsThisRun < MAX_LIKES_PER_PROCESS_RUN) {
+      likeAttemptsThisRun++;
+      try {
+        const likeResult = await likeByTargetId(tweetId);
+        if (likeResult.ok) {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: liked=${likeResult.liked}\n`);
+        } else if (likeResult.deferred) {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: deferred — daily likes budget cap reached (normal, not a failure)\n`);
+        } else {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: like failed — ${likeResult.error ?? likeResult.status}\n`);
+        }
+      } catch (e) {
+        process.stdout.write(`[like-policy] tweet ${tweetId}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+      }
+    } else if (tweetId) {
+      process.stdout.write(`[like-policy] tweet ${tweetId}: per-run like cap (${MAX_LIKES_PER_PROCESS_RUN}) reached this process call — skipping\n`);
     }
   }
 
