@@ -3,6 +3,7 @@ name: agent-health
 description: External health monitor for Loom (Rising Leviathan). Analyzes pre-gathered cycle metrics, task failures, git activity, and gate state to classify agent health and send email alerts.
 updated: 2026-04-06
 tags: [sensor, monitoring, health]
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # Agent Health Monitor

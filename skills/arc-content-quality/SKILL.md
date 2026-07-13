@@ -7,6 +7,7 @@ tags:
   - quality
   - content
   - gate
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Content Quality Gate

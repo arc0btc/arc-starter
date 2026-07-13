@@ -6,6 +6,7 @@ tags:
   - orchestration
   - scheduling
   - automation
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # auto-queue
