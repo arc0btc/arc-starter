@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2076615036676550933",
+  "fetchedAt": "2026-07-13T17:12:05.579Z",
+  "contentType": "tweet",
+  "title": "@top7ico: Robinhood Opens Crypto Trading to AI Agents\n\nRobinhood announced that eligible U...",
+  "rawContent": "Tweet by @top7ico (Top 7 | Tech, AI & Crypto Analytics)\nAuthor bio: Daily analytics, news and insights on what's shaping big tech, AI & crypto. Follow for your daily Tech On Point\nText: Robinhood Opens Crypto Trading to AI Agents\n\nRobinhood announced that eligible US customers will soon be able to connect third-party AI agents from Anthropic, OpenAI, and SpaceX's Grok to trade crypto on their behalf, with UK users next in line. \n\nThe setup runs through agentic accounts connected via Robinhood's MCP server: you define a strategy, set spending limits and guardrails, and the agent analyzes markets, rebalances, and submits orders without asking approval for every trade. The equities and options beta launched in late May has already pulled in 70,000+ agentic accounts.\n\nRecently, Kraken told CNBC it's putting agentic trading at the core of its app, BNB Chain is building an entire L1 for agent execution, and now Robinhood plugs Claude and GPT directly into brokerage accounts. Three different architectures, one conclusion - the next user of every trading venue isn't a person, it's an agent with a mandate.\nCreated: 2026-07-13T10:29:41.000Z\nMetrics: {\"bookmark_count\":0,\"impression_count\":4198,\"like_count\":9,\"quote_count\":0,\"reply_count\":5,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/StTFd6xASV"
+  ]
+}
