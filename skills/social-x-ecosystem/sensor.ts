@@ -46,7 +46,7 @@ const API_BASE = "https://api.x.com/2";
 // gate was structurally closed (judge-at-birth). News search + Trends + the
 // curated-roster List (Phases 3-4) replace it. Revivable later behind the
 // maturation gate if ever needed — flip this back to true, nothing else to undo.
-const KEYWORD_ROTATION_ENABLED = true; // Phase 2 task 3 flips this to false
+const KEYWORD_ROTATION_ENABLED = false; // RETIRED 2026-07-13 (Phase 2 task 3) — see comment above
 
 const KEYWORDS = [
   "Agents Bitcoin",
