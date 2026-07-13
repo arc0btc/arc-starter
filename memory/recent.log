@@ -214,3 +214,4 @@
 2026-07-13T02:43:18.517Z | task #22219 | completed | haiku | Retrospective: extract learnings from task #22212 — Audit sk | Added 2 patterns from task #22212 audit retrospective: audit-staleness-recovery,
 2026-07-13T02:43:56.167Z | task #22221 | completed | haiku | Retrospective: extract learnings from task #22213 — Skill tr | No learnings to capture — audit validated existing patterns (p-large-audit-aggre
 2026-07-13T02:45:14.125Z | task #22222 | completed | haiku | Retrospective: extract learnings from task #22220 — Investig | Extracted one learning from task #22220: external service budget exhaustion (API
+2026-07-13T04:17:21.838Z | task #22223 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 blocked tasks re-verified, none resolved: #21499 (whop SKU sign-off), #219
