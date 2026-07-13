@@ -10,7 +10,13 @@ import { getCredential } from "../../src/credentials.ts";
 // previously UNMETERED (own OAuth + bearer clients, invisible to x-read-budget.json).
 // Both clients now check + bill the shared daily dollar budget under lane
 // "link-research". Same cross-skill import pattern as whop-sales.
-import { checkReadBudget, incrementReadBudget, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
+// 2026-07-13 (arc-x-research-channel Phase 1 metering fix): both clients here only
+// ever look up ONE tweet per call (`/tweets/{id}`), so the flat-1-unit bill was
+// already numerically correct — but they lacked 24h-UTC dedup, which is the exact
+// leak the 2026-07-11 spend audit named ("every re-research/retry/replay of an
+// X-heavy task re-billed the whole batch"). Routing through billResourceRead with
+// the looked-up tweet's id adds that dedup for free.
+import { checkReadBudget, billResourceRead, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -351,8 +357,14 @@ async function xApiGetBearer(
   });
 
   if (!response.ok) return null;
-  await incrementReadBudget(READ_COST_USD, "link-research");
-  return (await response.json()) as Record<string, unknown>;
+  // Every call here is a single `/tweets/{id}` lookup — 1 resource per call either
+  // way — but bill via billResourceRead with that resource's own id so a same-UTC-
+  // day re-fetch of the SAME tweet (retry/replay/re-research) is free instead of
+  // re-billing every time.
+  const json = (await response.json()) as Record<string, unknown>;
+  const tweetId = ((json["data"] as Record<string, unknown> | undefined)?.["id"]);
+  await billResourceRead(READ_COST_USD, "link-research", tweetId != null ? [String(tweetId)] : undefined);
+  return json;
 }
 
 async function xApiGet(
@@ -400,8 +412,11 @@ async function xApiGet(
     return null;
   }
 
-  await incrementReadBudget(READ_COST_USD, "link-research");
-  return (await response.json()) as Record<string, unknown>;
+  // Same per-id dedup as xApiGetBearer above — see its comment.
+  const json = (await response.json()) as Record<string, unknown>;
+  const tweetId = ((json["data"] as Record<string, unknown> | undefined)?.["id"]);
+  await billResourceRead(READ_COST_USD, "link-research", tweetId != null ? [String(tweetId)] : undefined);
+  return json;
 }
 
 // Extract tweet ID from x.com or twitter.com URLs

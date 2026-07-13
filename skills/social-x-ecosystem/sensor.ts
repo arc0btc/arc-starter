@@ -15,7 +15,13 @@ import { getCredential } from "../../src/credentials.ts";
 // (~$0.48) were previously UNMETERED — the single biggest read spend on the account,
 // invisible to db/x-read-budget.json. Every search now checks + bills the shared
 // daily dollar budget like all other read lanes.
-import { checkReadBudget, incrementReadBudget, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
+// 2026-07-13 (arc-x-research-channel Phase 1 metering fix): this sensor bills per
+// RESOURCE returned (up to 10 tweets/search), not a flat 1 unit per call — see
+// billResourceRead / estimateResourceCount / extractResourceIds in x-api.ts.
+// Reuses the SAME id-extraction helper x-api.ts's own xApiGet uses (dev-council/
+// Fowler + Newman lenses, 2026-07-13) instead of re-deriving it here, so the two
+// copies of "parsed body -> billable ids" can't silently drift apart.
+import { checkReadBudget, billResourceRead, estimateResourceCount, extractResourceIds, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
 
 const SENSOR_NAME = "social-x-ecosystem";
 const INTERVAL_MINUTES = 15;
@@ -103,8 +109,10 @@ async function apiGet(
 ): Promise<Record<string, unknown> | null> {
   // Budget guard: skip the read (return null → caller logs "search failed" and
   // advances the keyword rotation) when the shared daily read budget is spent.
+  // Pre-flight uses the worst-case resource count (max_results) since the actual
+  // count returned is only known after the response arrives.
   try {
-    await checkReadBudget(READ_COST_USD);
+    await checkReadBudget(READ_COST_USD * estimateResourceCount(queryParams));
   } catch (budgetErr) {
     log(`skip read: ${(budgetErr as Error).message}`);
     return null;
@@ -149,10 +157,14 @@ async function apiGet(
     return null;
   }
 
-  // Success — bill the read against the shared daily budget, attributed to this sensor.
-  await incrementReadBudget(READ_COST_USD, "ecosystem-search");
+  // Parse BEFORE billing so we can bill per resource actually returned (a 10-tweet
+  // page costs 10x a 0-tweet page — the previous flat-1-unit bill undercounted this
+  // sensor's whole search rotation). Same-UTC-day dedup on repeated tweet ids in the
+  // "ecosystem-search" lane makes an accidental re-read of the same tweet free.
+  const json = (await response.json()) as Record<string, unknown>;
+  await billResourceRead(READ_COST_USD, "ecosystem-search", extractResourceIds(json));
 
-  return (await response.json()) as Record<string, unknown>;
+  return json;
 }
 
 // ---- Signal detection ----

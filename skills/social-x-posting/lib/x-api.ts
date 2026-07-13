@@ -28,6 +28,16 @@
 // 402 = balance/prepaid credits exhausted; 429 = rate limit.
 // Ground truth + math: research/2026-07-06_x-api-budget-ground-truth.md,
 // memory entry x-api-pay-per-use-cost-model.
+//
+// PER-RESOURCE METERING FIX (2026-07-13, arc-x-research-channel Phase 1): X bills
+// per resource RETURNED, not per request — a search page of 10 posts costs 10x a
+// single lookup (2026-04-20 rate card). `xApiGet` now bills via `billResourceRead`,
+// which extracts the actual resource ids from the response and bills
+// `costUsd × count`, with same-UTC-day dedup so a repeat read of an already-billed
+// id in the same lane is free. `incrementReadBudget` remains as a flat 1-unit
+// back-compat wrapper for callers that haven't adopted per-resource billing (and
+// is still CORRECT as-is for genuinely single-resource endpoints like
+// `/tweets/{id}`, which only ever return 1 resource per call).
 
 import { getCredential } from "../../../src/credentials.ts";
 import { join } from "path";
@@ -113,6 +123,13 @@ interface XReadBudget {
   // caller-supplied lane ("ecosystem-search", "link-research"). Observability only —
   // the enforced control surface stays the flat spend_usd above.
   by_lane?: Record<string, { reads: number; spend_usd: number }>;
+  // Per-resource 24h-UTC dedup ledger (2026-07-13, Phase 1 metering fix): resource
+  // ids already BILLED today, keyed by lane. X bills per resource RETURNED, not per
+  // request — a search page of 10 posts costs 10x a single lookup — and re-reading
+  // an already-billed resource the same UTC day is free. Resets for free on the
+  // existing date rollover (loadReadBudget returns a fresh budget once `date`
+  // no longer matches today).
+  billed_ids?: Record<string, string[]>;
 }
 
 function todayUTC(): string {
@@ -135,6 +152,7 @@ async function loadReadBudget(): Promise<XReadBudget> {
           reads: data.reads ?? 0,
           backoff_until: data.backoff_until,
           by_lane: data.by_lane,
+          billed_ids: data.billed_ids,
         };
       }
     }
@@ -151,6 +169,21 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
   const { renameSync } = await import("node:fs");
   renameSync(tmp, READ_BUDGET_PATH);
 }
+
+// KNOWN LIMITATION (dev-council, all 5 lenses independently raised this, 2026-07-13):
+// loadReadBudget → mutate → saveReadBudget is a read-modify-write across MULTIPLE
+// independently-scheduled processes (the 15-min ecosystem sensor, the 30-min
+// north-star gauge, on-demand link-research, ad-hoc cli runs) sharing this ONE
+// file, with no lock/CAS/version. The tmp-write-renameSync gives atomic file
+// REPLACEMENT (no reader ever sees torn/corrupt JSON) but not mutual exclusion —
+// two overlapping ticks can both load the same pre-mutation budget and both save,
+// silently losing one increment (a lost update). This is PRE-EXISTING (identical
+// shape before the 2026-07-13 per-resource metering fix) and NOT worsened by it.
+// Accepted for now: at this system's realistic volume (well under $1.00/day, a
+// handful of processes, cron/dispatch cadence not high concurrency) the exposure
+// is a few cents of under-counted spend, not a broken cap. Revisit (file lock, or
+// move the ledger to a SQLite row with an atomic UPDATE) if cadence tightens or
+// the daily cap is raised enough that a lost update becomes material.
 
 /**
  * Throws if the projected read spend would exceed the daily dollar budget, or if
@@ -173,22 +206,146 @@ export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<
   }
 }
 
-/** Add a completed read's cost to the daily budget after a successful GET.
- * `costUsd` must match the value passed to checkReadBudget for this read.
- * `lane` attributes the spend in by_lane (operator spend audit 2026-07-12) —
- * pass an endpoint family or caller name; omitted = "unattributed". */
-export async function incrementReadBudget(costUsd: number = READ_COST_USD, lane: string = "unattributed"): Promise<void> {
-  const budget = await loadReadBudget();
+/** Apply `count` billed units of `costUsd` each to the loaded budget (mutates + persists).
+ * Shared tail end of both the per-resource and the flat-unit billing paths so the
+ * dollar math (rounding, by_lane bookkeeping) lives in exactly one place. */
+async function applyBill(
+  budget: XReadBudget,
+  costUsd: number,
+  lane: string,
+  count: number,
+): Promise<{ billedCount: number; spendUsd: number }> {
+  if (count <= 0) return { billedCount: 0, spendUsd: 0 };
+  const spendUsd = Math.round(costUsd * count * 1e6) / 1e6;
   // Round to micro-dollars so repeated float adds don't drift the persisted value.
-  budget.spend_usd = Math.round((budget.spend_usd + costUsd) * 1e6) / 1e6;
-  budget.reads += 1;
+  budget.spend_usd = Math.round((budget.spend_usd + spendUsd) * 1e6) / 1e6;
+  budget.reads += count;
   const lanes = budget.by_lane ?? {};
   const entry = lanes[lane] ?? { reads: 0, spend_usd: 0 };
-  entry.reads += 1;
-  entry.spend_usd = Math.round((entry.spend_usd + costUsd) * 1e6) / 1e6;
+  entry.reads += count;
+  entry.spend_usd = Math.round((entry.spend_usd + spendUsd) * 1e6) / 1e6;
   lanes[lane] = entry;
   budget.by_lane = lanes;
   await saveReadBudget(budget);
+  return { billedCount: count, spendUsd };
+}
+
+/**
+ * Bill a completed read for the resources it ACTUALLY returned (2026-07-13 metering
+ * fix — the load-bearing change of arc-x-research-channel Phase 1). X bills per
+ * resource RETURNED, not per request: a `search/recent` page of 10 posts costs 10x
+ * a single-tweet lookup, and a page of 0 posts costs $0 — the previous meter billed
+ * a flat 1 unit per call regardless of N.
+ *
+ * Pass `resourceIds` = every resource id the response actually returned (tweet ids,
+ * user ids, ...). A same-UTC-day re-read of an id already billed in this SAME lane
+ * is free (X's 24h dedup + our own `since_id` discipline should make re-polls rare,
+ * but retries/replays that re-fetch the same id must not re-bill it — this is the
+ * "every re-research/retry/replay re-billed the whole batch" leak the 2026-07-11
+ * spend audit named).
+ *
+ * Omit `resourceIds` (or pass undefined) for single/unknown-count reads whose
+ * response shape doesn't expose an id list — bills exactly 1 unit, no dedup
+ * tracking possible without an id to key on. This is also the back-compat path for
+ * any caller still using `incrementReadBudget` directly.
+ */
+export async function billResourceRead(
+  costUsd: number,
+  lane: string,
+  resourceIds?: string[],
+): Promise<{ billedCount: number; spendUsd: number }> {
+  const budget = await loadReadBudget();
+
+  if (!resourceIds) {
+    return applyBill(budget, costUsd, lane, 1);
+  }
+  if (resourceIds.length === 0) {
+    // Response returned zero resources — X charges for what it returns, so this is
+    // a genuine $0 read (an empty search page, an empty batch lookup, ...).
+    return { billedCount: 0, spendUsd: 0 };
+  }
+
+  const billedIds = budget.billed_ids ?? {};
+  const laneBilled = new Set(billedIds[lane] ?? []);
+  const newIds = resourceIds.filter((id) => !laneBilled.has(id));
+  if (newIds.length === 0) {
+    return { billedCount: 0, spendUsd: 0 }; // every id already billed today in this lane — free
+  }
+  for (const id of newIds) laneBilled.add(id);
+  billedIds[lane] = Array.from(laneBilled);
+  budget.billed_ids = billedIds;
+
+  return applyBill(budget, costUsd, lane, newIds.length);
+}
+
+/**
+ * @deprecated Use `billResourceRead(costUsd, lane, resourceIds)` directly and pass
+ * the actual resource ids the response returned — this flat 1-unit wrapper is only
+ * numerically correct for genuinely single-resource reads (`/tweets/{id}`), and
+ * gives up the 24h-UTC dedup that `billResourceRead` provides for a same-day
+ * re-read of the same id. Kept only so pre-Phase-1 callers keep working unchanged.
+ *
+ * Add a completed read's cost to the daily budget after a successful GET — flat
+ * 1-unit billing, no per-resource counting or dedup. `lane` attributes the spend
+ * in by_lane (operator spend audit 2026-07-12) — pass an endpoint family or caller
+ * name; omitted = "unattributed". */
+export async function incrementReadBudget(costUsd: number = READ_COST_USD, lane: string = "unattributed"): Promise<void> {
+  await billResourceRead(costUsd, lane, undefined);
+}
+
+/** Estimate the worst-case resource count a read is ABOUT to return, from its
+ * request query params — used as the PRE-FLIGHT `checkReadBudget` ceiling since
+ * the true count is only known after the response arrives. Reads `max_results`
+ * (search/mentions/timeline-style calls) or `ids` (batched `/tweets?ids=` lookups,
+ * comma-separated); defaults to 1 (single-resource reads like `/users/me`). */
+export function estimateResourceCount(queryParams: Record<string, string>): number {
+  const maxResults = queryParams["max_results"];
+  if (maxResults) {
+    const n = parseInt(maxResults, 10);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  const ids = queryParams["ids"];
+  if (ids) {
+    const n = ids.split(",").filter((s) => s.trim().length > 0).length;
+    if (n > 0) return n;
+  }
+  return 1;
+}
+
+/** Extract resource ids from a parsed X API v2 response body for per-resource
+ * billing: `response.data` as an ARRAY → each item's `.id` (a search/mentions/
+ * batch-lookup page — an EMPTY array is a legitimate zero-resource response and
+ * returns `[]`, billing $0, not a flat unit); `response.data` as an OBJECT → its
+ * own `.id` wrapped in a 1-element array (a single-resource read like
+ * `/users/me`). `response.data` MISSING/null/non-object → also `[]`: X commonly
+ * omits `data` entirely on a zero-result page (search/mentions with no matches),
+ * and every endpoint this client calls is known to return either an array or an
+ * object here on success — so an absent `data` key on a 2xx response means "zero
+ * resources returned," never "unknown shape." (The `undefined` "bill 1 flat unit,
+ * no known id" path in `billResourceRead` exists for callers that DON'T go through
+ * this extractor at all — e.g. `incrementReadBudget`'s back-compat wrapper, or
+ * arc-link-research's single-tweet lookup when the id genuinely can't be found —
+ * not for a parsed body that legitimately contains zero resources.) */
+export function extractResourceIds(response: Record<string, unknown>): string[] {
+  const d = response["data"];
+  if (Array.isArray(d)) {
+    // Every X API v2 resource carries an `id` field in practice. An item missing
+    // one still cost money to return, so it must ALWAYS bill and never dedup —
+    // a per-array-INDEX fallback (`__no_id_0`, ...) would be wrong: two different
+    // malformed items landing at the same index on the same UTC day would collide
+    // and the second would be silently deduped to $0 (dev-council/Kleppmann lens,
+    // 2026-07-13). A fresh random id per occurrence guarantees it's billed exactly
+    // once and never mistaken for a repeat.
+    return d.map((item) => {
+      const id = (item as Record<string, unknown>)?.["id"];
+      return id !== undefined && id !== null ? String(id) : `__no_id_${crypto.randomUUID()}`;
+    });
+  }
+  if (d && typeof d === "object") {
+    const id = (d as Record<string, unknown>)["id"];
+    return id !== undefined && id !== null ? [String(id)] : [];
+  }
+  return [];
 }
 
 /** Normalize an endpoint path to a stable lane key for by_lane attribution:
@@ -314,8 +471,11 @@ export async function xApiGet(
   opts: { owned?: boolean } = {},
 ): Promise<Record<string, unknown>> {
   // Guard: enforce daily dollar read budget and 429 backoff before the network.
+  // Pre-flight uses the WORST-CASE resource count from the request (max_results /
+  // ids) since the true count returned is only known after the response arrives —
+  // see billResourceRead below for the actual per-resource billing.
   const costUsd = opts.owned ? OWNED_READ_COST_USD : READ_COST_USD;
-  await checkReadBudget(costUsd);
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
 
   const baseUrl = `${API_BASE}${endpoint}`;
   // Build the query string with the SAME percentEncode used to compute the OAuth
@@ -332,8 +492,12 @@ export async function xApiGet(
     method: "GET",
     headers: { Authorization: authHeader },
   });
-  const data = await response.json();
 
+  // Check status BEFORE parsing the body (dev-council/Newman lens, 2026-07-13): X
+  // does not guarantee a JSON body on 429/5xx responses. The old ordering parsed
+  // first, so a non-JSON error body threw out of `response.json()` and the 429
+  // backoff below never ran — defeating the backoff precisely during a rate-limit
+  // storm, and silently skipping billing for a request that still happened.
   if (response.status === 429) {
     // Rate limit hit — write a 15-min backoff then throw.
     await setReadBackoff();
@@ -341,13 +505,24 @@ export async function xApiGet(
   }
 
   if (!response.ok) {
-    throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(data)}`);
+    let errBody: unknown;
+    try {
+      errBody = await response.json();
+    } catch {
+      errBody = await response.text().catch(() => "<unreadable error body>");
+    }
+    throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(errBody)}`);
   }
 
-  // Success — bill this read against the daily dollar budget, attributed by endpoint family.
-  await incrementReadBudget(costUsd, endpointLane(endpoint));
+  const data = await response.json();
 
-  return data as Record<string, unknown>;
+  // Success — bill this read for the resources it ACTUALLY returned (per-resource
+  // metering, not flat per-call), attributed by endpoint family, with same-UTC-day
+  // dedup on repeated ids in this lane.
+  const typedData = data as Record<string, unknown>;
+  await billResourceRead(costUsd, endpointLane(endpoint), extractResourceIds(typedData));
+
+  return typedData;
 }
 
 // ---- Mentions ---------------------------------------------------------------
