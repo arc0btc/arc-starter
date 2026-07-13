@@ -169,8 +169,8 @@ export default async function xNewsTrendsSensor(): Promise<string> {
       const items = (result["data"] as TrendItem[] | undefined) ?? [];
       log(`WOEID trends (worldwide): ${items.length} item(s)`);
       for (const t of items) if (t.trend_name) trendNames.push(t.trend_name);
-    } catch (e) {
-      log(`warn: WOEID trends failed: ${(e as Error).message}`);
+    } catch (error) {
+      log(`warn: WOEID trends failed: ${(error as Error).message}`);
     }
 
     // ---- Personalized trends (existing OAuth 1.0a path, flat-billed, estimated price) ----
@@ -184,8 +184,8 @@ export default async function xNewsTrendsSensor(): Promise<string> {
       const items = (result["data"] as TrendItem[] | undefined) ?? [];
       log(`personalized trends: ${items.length} item(s)`);
       for (const t of items) if (t.trend_name) trendNames.push(t.trend_name);
-    } catch (e) {
-      const msg = (e as Error).message;
+    } catch (error) {
+      const msg = (error as Error).message;
       if (msg.includes("401") || msg.includes("403")) {
         log(
           `blocked: personalized_trends auth rejected (${msg}). Documented blocker — see verify artifact.`,
@@ -251,8 +251,8 @@ export default async function xNewsTrendsSensor(): Promise<string> {
             if (inserted) candidatesStored++;
           }
         }
-      } catch (e) {
-        log(`warn: news search "${query}" failed: ${(e as Error).message}`);
+      } catch (error) {
+        log(`warn: news search "${query}" failed: ${(error as Error).message}`);
       }
     }
 
@@ -262,9 +262,8 @@ export default async function xNewsTrendsSensor(): Promise<string> {
       } run, ${storiesSeen} stor${storiesSeen === 1 ? "y" : "ies"} seen, ${candidatesStored} candidate(s) stored`,
     );
     return "ok";
-  } catch (e) {
-    const error = e as Error;
-    log(`error: ${error.message}`);
+  } catch (error) {
+    log(`error: ${(error as Error).message}`);
     return "error";
   }
 }
