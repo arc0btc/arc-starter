@@ -40,6 +40,15 @@
 // (is_promotable, promoted_at) rather than (is_promotable, report_path) — at today's table size
 // [~150 rows] this is a non-issue; a future phase should retarget the index if the table grows
 // large enough for it to matter.)
+//
+// STANDING RESEARCH BRIEF + MODEL ROUTING (2026-07-13, Phase 7 quality-fix pass):
+// this sensor's filed tasks had the SAME two-line "run process, done" instruction
+// candidate-maturation's did — same mechanical-scaffold-only outcome, same fix.
+// See skills/candidate-maturation/sensor.ts's header for the full rationale
+// (operator email-batch tasks #20099/#20111 vs the hollow #22284 automated one).
+// buildStandingBrief below mirrors that sensor's brief shape with the data THIS
+// sensor has in hand (rubric_total/source/title/published_at — no engagement
+// metrics, this lane's producers aren't X-sourced).
 
 import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
@@ -83,6 +92,57 @@ interface PromotableNugget {
   title: string;
   rubric_total: number;
   published_at: string | null;
+}
+
+/**
+ * Model routing (operator directive: never downgrade brainpower to save tokens —
+ * applied where the signal warrants it). rubric_total is 0-50; is_promotable
+ * already requires >=35, so every task filed here already cleared that floor.
+ * Route the top of the promotable range to opus (roughly "relevance>=3ish" on a
+ * 0-5 scale translated to this rubric), routine promotable (35-39) to sonnet.
+ */
+function chooseModel(rubricTotal: number): "opus" | "sonnet" {
+  return rubricTotal >= 40 ? "opus" : "sonnet";
+}
+
+/**
+ * The standing brief. Same "Task ID: N" substitution pattern as
+ * candidate-maturation/sensor.ts's buildStandingBrief — insertTaskIfNew() hasn't
+ * run yet when this description is built, so the agent fills in its own known
+ * task id (src/dispatch.ts's buildPrompt always states "Task ID: N" up top).
+ */
+function buildStandingBrief(nugget: PromotableNugget): string {
+  return [
+    `Source: ${nugget.source} producer ingestion (rubric_total=${nugget.rubric_total}/50, is_promotable via >=35 threshold)`,
+    `URL: ${nugget.source_url}`,
+    `Published: ${nugget.published_at ?? "unknown"}`,
+    "",
+    "--- Standing research brief (mirrors the operator's own email-batch brief shape — #20099/#20111) ---",
+    "",
+    "1. Run this FIRST, passing --task with THIS task's own id (shown above in your",
+    "   prompt as \"Task ID: N\") so the report's front-matter carries it:",
+    `     arc skills run --name arc-link-research -- process --links "${nugget.source_url}" --task <Task ID>`,
+    "   This caches/dedups the link and writes a mechanical scaffold report.",
+    "2. Then go BEYOND that scaffold — edit the SAME report file directly:",
+    "   - sku_why: real buyer-facing judgment (would a $9 packaged reader pay for",
+    "     this? why or why not, one line — not left empty).",
+    "   - repos_touched: resolve it by actually reading arc-starter (this VM) and",
+    "     agent-runtime if relevant — never leave it \"unknown\" without having looked.",
+    "   - Write a \"## TL;DR\" (3 lines) and cited \"## Key Takeaways\".",
+    "   - Add an Arc-alignment note: cite a real file/skill where Arc already does",
+    "     this, or state plainly \"no direct code hook\" — never hand-wave.",
+    "   - Run reindex when done: arc skills run --name arc-link-research -- reindex",
+    "3. DECLINE PATH: if, after reading it, this is genuinely low-relevance/",
+    "   tangential — do NOT force a report. Skip step 1-2 entirely and close this",
+    "   task directly with a two-line reasoned decline:",
+    "     arc tasks close --id <Task ID> --status completed --summary \"<why this",
+    "     isn't relevant, 2 lines>\"",
+    "   A short, honest decline is the CORRECT output here, not a failure — a",
+    "   declined nugget correctly stays report_path=NULL forever (see module",
+    "   header: insertTaskIfNew's \"any\"-status dedup means it won't be re-filed,",
+    "   which is the right terminal state for something genuinely not worth a",
+    "   report — not a wedge).",
+  ].join("\n");
 }
 
 function isDue(row: SourceConfigRow): boolean {
@@ -190,22 +250,14 @@ function promotePendingNuggets(db: ReturnType<typeof getDatabase>): { promoted: 
 
   let filed = 0;
   for (const nugget of pending) {
-    const description = [
-      `Source: ${nugget.source} producer ingestion (rubric_total=${nugget.rubric_total}/50, is_promotable via >=35 threshold)`,
-      `URL: ${nugget.source_url}`,
-      `Published: ${nugget.published_at ?? "unknown"}`,
-      "",
-      "Evaluate this link for mission relevance. Use:",
-      `  arc skills run --name arc-link-research -- process --links "${nugget.source_url}"`,
-    ].join("\n");
-
     const taskId = insertTaskIfNew(
       `sensor:${SENSOR_NAME}:${nugget.nugget_ref}`,
       {
         subject: `Research: ecosystem signal — ${nugget.source} nugget (${nugget.title.slice(0, 80)})`,
-        description,
+        description: buildStandingBrief(nugget),
         skills: '["arc-link-research"]',
         priority: 7,
+        model: chooseModel(nugget.rubric_total),
       },
       "any",
     );

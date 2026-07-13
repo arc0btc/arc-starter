@@ -122,8 +122,17 @@ export const OWNED_READ_COST_USD = 0.001;
  * arc-link-research lookups) were routed through this guard — the raise keeps
  * total permitted spend where it already effectively was, it does not authorize
  * new spend; per-lane split in x-read-budget.json `by_lane` is the audit trail.
- * Operator dial: lower it once the ecosystem cadence decision lands. */
-export const X_READ_BUDGET_USD_PER_DAY = 1.0;
+ *
+ * Raised to $2.00 on 2026-07-13 (Phase 7 quality-fix pass, explicit operator
+ * directive: "quality is the priority over spend... raise it to $2.00/day if
+ * useful"). This one console-confirmed day-one spend was $0.956/$1.00 (quest
+ * close-out), all of it live-testing, not steady-state — the operator raised the
+ * ceiling to give the new standing-brief/model-routing work (this phase) and
+ * future lanes headroom without a second approval round-trip, not because
+ * steady-state spend needed it yet. Check-in cadence (24h default, 8h/4h dial)
+ * is a SEPARATE decision, left unchanged by this raise — the 8h dial is now
+ * budget-safer at $2.00 but nobody has asked to actually flip it. */
+export const X_READ_BUDGET_USD_PER_DAY = 2.0;
 
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC

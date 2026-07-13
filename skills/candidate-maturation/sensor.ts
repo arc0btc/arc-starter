@@ -20,6 +20,20 @@
 //
 // Not owned by social-x-ecosystem: this is shared spine infrastructure every
 // future X discovery lane feeds, so it lives as its own skill.
+//
+// STANDING RESEARCH BRIEF (2026-07-13, arc-x-research-channel Phase 7 quality-fix
+// pass): before this, the filed task's ENTIRE instruction was "Evaluate these links
+// for mission relevance. Use: arc-link-research process --links ..." — the
+// dispatched agent ran the mechanical `process` scaffold and stopped (empty
+// sku_why, repos_touched:"unknown", no TL;DR — confirmed live on task #22284, the
+// Phase 5 verify artifact's disclosed quality-parity gap). The operator's own
+// email-batch tasks (#20099 opus, #20111 sonnet — BOTH good even on sonnet) embed a
+// real editorial brief: pre-assessed relevance/angle + an explicit report-shape
+// checklist + "reuse cache, don't re-run process" + a REQUIRED repo-grounded
+// Arc-alignment note. The brief is the driver, not the model. buildStandingBrief
+// mirrors that shape with data this sensor already has (discovery_context,
+// source_lane, tweet text, engagement) — the operator's own "links + a prompt"
+// input pattern, applied to Arc's own X research instead of an email.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
@@ -38,6 +52,67 @@ const INTERVAL_MINUTES = 60;
 const LANE = "candidate-maturation";
 
 const log = createSensorLogger(SENSOR_NAME);
+
+/**
+ * Model routing (operator directive, 2026-07-13: "never downgrade brainpower to
+ * save tokens" — applied where the signal genuinely warrants it, not blanket-
+ * upgraded). This lane has no separate 0-5 relevance score at filing time (only
+ * isHighSignal's pass/fail gate) — engagement magnitude is the only signal in
+ * hand, so route on it directly. Bar set at roughly 3x isHighSignal's own
+ * threshold (5+ likes/2+ RTs/3+ replies) — comfortably past "just cleared the
+ * bar" into "genuinely resonating," matching the Phase 6 close-out's own
+ * observation that #20099's richest report was the one Opus worked (relevance 4,
+ * 8.18M-impression source).
+ */
+function chooseModel(metrics: { like_count: number; retweet_count: number; reply_count: number }): "opus" | "sonnet" {
+  if (metrics.like_count >= 20 || metrics.retweet_count >= 5 || metrics.reply_count >= 8) return "opus";
+  return "sonnet";
+}
+
+/**
+ * The standing brief (replaces the old two-line "run process, done" instruction).
+ * `taskIdPlaceholder` can't be the real numeric id (insertTask() hasn't run yet —
+ * the id doesn't exist until after this description is built) — instead, point at
+ * the "Task ID: N" line src/dispatch.ts's buildPrompt already puts at the top of
+ * every dispatched agent's prompt (confirmed live, ~line 524): the agent always
+ * knows its own task id from context, the same way #20099/#20111's exemplar
+ * descriptions say "task_id:THIS" for the agent to substitute.
+ */
+function buildStandingBrief(candidate: XResearchCandidate, linkList: string, metrics: { like_count: number; retweet_count: number; reply_count: number }): string {
+  return [
+    `Source: candidate-maturation re-score (originally discovered via ${candidate.source_lane}${candidate.discovery_context ? ` — "${candidate.discovery_context}"` : ""})`,
+    `Tweet ID: ${candidate.tweet_id}`,
+    `Author ID: ${candidate.author_id ?? "unknown"}`,
+    `First seen: ${candidate.first_seen}`,
+    `Text: ${candidate.text_snippet ?? ""}`,
+    `Links: ${linkList}`,
+    "",
+    `Engagement at maturation: ${metrics.like_count} likes, ${metrics.retweet_count} RTs, ${metrics.reply_count} replies (cleared the high-signal re-score bar).`,
+    "",
+    "--- Standing research brief (mirrors the operator's own email-batch brief shape — #20099/#20111) ---",
+    "",
+    "1. Run this FIRST, passing --task with THIS task's own id (shown above in your",
+    "   prompt as \"Task ID: N\") so the report's front-matter carries it:",
+    `     arc skills run --name arc-link-research -- process --links "${linkList}" --task <Task ID>`,
+    "   This caches/dedups the link(s) and writes a mechanical scaffold report.",
+    "2. Then go BEYOND that scaffold — edit the SAME report file directly:",
+    "   - sku_why: real buyer-facing judgment (would a $9 packaged reader pay for",
+    "     this? why or why not, one line — not left empty).",
+    "   - repos_touched: resolve it by actually reading arc-starter (this VM) and",
+    "     agent-runtime if relevant — never leave it \"unknown\" without having looked.",
+    "   - Write a \"## TL;DR\" (3 lines) and cited \"## Key Takeaways\".",
+    "   - Add an Arc-alignment note: cite a real file/skill where Arc already does",
+    "     this, or state plainly \"no direct code hook\" — never hand-wave.",
+    "   - Run reindex when done: arc skills run --name arc-link-research -- reindex",
+    "3. DECLINE PATH: if, after reading it, this is genuinely low-relevance/",
+    "   tangential — do NOT force a report. Skip step 1-2 entirely and close this",
+    "   task directly with a two-line reasoned decline:",
+    "     arc tasks close --id <Task ID> --status completed --summary \"<why this",
+    "     isn't relevant, 2 lines>\"",
+    "   A short, honest decline is the CORRECT output here, not a failure — do not",
+    "   pad a thin link into a hollow report just to produce something.",
+  ].join("\n");
+}
 
 interface MaturedTweet {
   id: string;
@@ -159,22 +234,10 @@ export default async function candidateMaturationSensor(): Promise<string> {
 
         const taskId = insertTask({
           subject: `Research: ecosystem signal — matured candidate (${candidate.discovery_context ?? candidate.source_lane})`,
-          description: [
-            `Source: candidate-maturation re-score (originally discovered via ${candidate.source_lane}${candidate.discovery_context ? ` — "${candidate.discovery_context}"` : ""})`,
-            `Tweet ID: ${candidate.tweet_id}`,
-            `Author ID: ${candidate.author_id ?? "unknown"}`,
-            `First seen: ${candidate.first_seen}`,
-            `Text: ${candidate.text_snippet ?? ""}`,
-            `Links: ${linkList}`,
-            "",
-            `Engagement at maturation: ${metrics.like_count} likes, ${metrics.retweet_count} RTs, ${metrics.reply_count} replies`,
-            "",
-            "Evaluate these links for mission relevance. Use:",
-            `  arc skills run --name arc-link-research -- process --links "${linkList}"`,
-          ].join("\n"),
+          description: buildStandingBrief(candidate as XResearchCandidate, linkList, metrics),
           skills: JSON.stringify(["arc-link-research"]),
           priority: 7,
-          model: "sonnet",
+          model: chooseModel(metrics),
           source,
         });
 
