@@ -237,3 +237,4 @@
 2026-07-13T08:26:13.432Z | task #22241 | completed | haiku | Retrospective: extract learnings from task #22238 — Distill  | Captured p-routine-review-variant-clustering: consolidating multiple variants of
 2026-07-13T08:27:07.951Z | task #22244 | completed | haiku | Retrospective: extract learnings from task #22237 — Regenera | Extracted p-subprocess-memory-pressure-build-recovery pattern from catalog regen
 2026-07-13T08:28:16.450Z | task #22245 | completed | haiku | Retrospective: extract learnings from task #22239 — architec | Extracted two patterns from architecture review: audit-triangulation batch-delet
+2026-07-13T10:43:47.007Z | task #22246 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: POST /api/signals ha | Issue #445 (agent-news) already resolved+closed by biwasxyz before dispatch — ha
