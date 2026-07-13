@@ -217,6 +217,52 @@ export function markCandidateRejected(tweetId: string): { changes: number } {
   return { changes: result.changes };
 }
 
+export interface MaturedCandidateSummary {
+  tweet_id: string;
+  discovery_context: string | null;
+  research_task_id: number | null;
+}
+
+/**
+ * Matured candidates within the last `withinHours` (default 24) — feeds the
+ * incident-level dedup gate in skills/candidate-maturation/sensor.ts (see
+ * candidate-maturation-incident-vs-tweet-dedup-churn memory entry, 2026-07-13:
+ * one viral story matured through 5 distinct sibling tweet_ids and filed 5
+ * separate research tasks because the existing dedup keys on tweet_id, not the
+ * underlying incident). Callers compare `normalizeIncidentKey(discovery_context)`
+ * across rows to collapse near-identical stories without an LLM.
+ */
+export function getRecentMaturedCandidates(withinHours: number = 24): MaturedCandidateSummary[] {
+  const db = getDatabase();
+  return db
+    .query(
+      `SELECT tweet_id, discovery_context, research_task_id
+       FROM x_research_candidate
+       WHERE status = 'matured'
+         AND matured_at >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-' || ? || ' hours')`
+    )
+    .all(withinHours) as MaturedCandidateSummary[];
+}
+
+/**
+ * Normalize a `discovery_context` string (news title / search context) into an
+ * incident key: lowercase, strip punctuation, collapse whitespace. Near-identical
+ * titles for the same viral story ("BridgeMind: GPT-5.6 Sol cancels ALL Stripe
+ * subscriptions!" vs "bridgemind gpt 5.6 sol cancels all stripe subscriptions")
+ * collapse to the same key without any LLM call. Returns `null` for empty/missing
+ * context — callers must treat `null` as "no incident key, can't dedup this way"
+ * rather than matching it against other nulls (an empty context isn't an incident).
+ */
+export function normalizeIncidentKey(discoveryContext: string | null | undefined): string | null {
+  if (!discoveryContext) return null;
+  const normalized = discoveryContext
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 /**
  * Housekeeping, no API call: retire any candidate still 'pending' once it's aged
  * past maxAgeHours (default 24) without maturing — the maturation window is a

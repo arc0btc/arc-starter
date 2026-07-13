@@ -43,7 +43,10 @@ import {
   markCandidateMatured,
   markCandidateRejected,
   isHighSignal,
+  getRecentMaturedCandidates,
+  normalizeIncidentKey,
   type XResearchCandidate,
+  type MaturedCandidateSummary,
 } from "../../src/candidate-spine.ts";
 import { loadXCreds, xApiGet } from "../social-x-posting/lib/x-api.ts";
 import { standingBriefSteps } from "../../src/research-brief.ts";
@@ -145,10 +148,27 @@ export default async function candidateMaturationSensor(): Promise<string> {
     // nothing extra if a page happens to overlap a previous one — X only
     // bills for ids not already billed in this lane today.
     const MAX_MATURATION_ITERATIONS = 10; // bounds worst case at 1000 candidates/cycle
+    const INCIDENT_DEDUP_WINDOW_HOURS = 24;
+
+    // Incident-level dedup gate (fix for candidate-maturation-incident-vs-tweet-
+    // dedup-churn, 2026-07-13): the existing per-tweet_id dedup above can't catch
+    // sibling tweets of the SAME viral story — each has a distinct tweet_id, so
+    // each cleared the source-based dedup and filed its own research task (one
+    // incident matured 5x, ~$5-10 redundant work). Build a normalized-title index
+    // of everything already matured in the window ONCE up front, then keep it
+    // updated in-memory as this run matures more candidates (no re-query needed
+    // page-to-page).
+    const incidentIndex = new Map<string, MaturedCandidateSummary>();
+    for (const m of getRecentMaturedCandidates(INCIDENT_DEDUP_WINDOW_HOURS)) {
+      const key = normalizeIncidentKey(m.discovery_context);
+      if (key && !incidentIndex.has(key)) incidentIndex.set(key, m);
+    }
+
     let totalDue = 0;
     let totalMatured = 0;
     let totalStillPending = 0;
     let totalRejected = 0;
+    let totalIncidentDeduped = 0;
     let iterations = 0;
 
     while (iterations < MAX_MATURATION_ITERATIONS) {
@@ -177,6 +197,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
       let maturedThisPage = 0;
       let rejectedThisPage = 0;
       let stillPendingThisPage = 0;
+      let incidentDedupedThisPage = 0;
 
       for (const candidate of batch as XResearchCandidate[]) {
         const tweet = returnedById.get(candidate.tweet_id);
@@ -213,6 +234,22 @@ export default async function candidateMaturationSensor(): Promise<string> {
           continue;
         }
 
+        // Incident-level gate: skip filing if an equivalent-incident candidate
+        // already matured to a research task within the window, even though
+        // THIS tweet_id is distinct (viral-story sibling). Keep the existing
+        // per-tweet dedup above as-is — this is a second, independent gate.
+        const incidentKey = normalizeIncidentKey(candidate.discovery_context);
+        const incidentMatch = incidentKey ? incidentIndex.get(incidentKey) : undefined;
+        if (incidentMatch) {
+          log(
+            `incident-dedup: candidate ${candidate.tweet_id} skipped — same incident as ${incidentMatch.tweet_id} ` +
+              `(task ${incidentMatch.research_task_id}), key="${incidentKey}"`
+          );
+          markCandidateMatured(candidate.tweet_id, incidentMatch.research_task_id);
+          incidentDedupedThisPage++;
+          continue;
+        }
+
         const urls: string[] = candidate.urls ? JSON.parse(candidate.urls) : [];
         const linkList = urls.join(", ");
         const metrics = tweet.public_metrics!;
@@ -245,6 +282,9 @@ export default async function candidateMaturationSensor(): Promise<string> {
         const { changes } = markCandidateMatured(candidate.tweet_id, taskId);
         if (changes > 0) {
           maturedThisPage++;
+          if (incidentKey && !incidentIndex.has(incidentKey)) {
+            incidentIndex.set(incidentKey, { tweet_id: candidate.tweet_id, discovery_context: candidate.discovery_context, research_task_id: taskId });
+          }
           log(`matured candidate ${candidate.tweet_id} -> task ${taskId}`);
         } else {
           log(`warn: candidate ${candidate.tweet_id} was already transitioned by another run — task ${taskId} filed but not counted as this run's maturation`);
@@ -254,14 +294,17 @@ export default async function candidateMaturationSensor(): Promise<string> {
       totalMatured += maturedThisPage;
       totalStillPending += stillPendingThisPage;
       totalRejected += rejectedThisPage;
+      totalIncidentDeduped += incidentDedupedThisPage;
 
       // Stop paging once a page comes back short of the 100-id cap (there's
       // nothing left due right now) OR once a FULL page produced zero state
       // transitions (every candidate in it is still 'pending' — re-querying
       // the identical oldest-100 set again THIS run would just re-read the
       // same rows for no new outcome; they'll be picked up again next cycle
-      // as they age further).
-      if (batch.length < 100 || (maturedThisPage === 0 && rejectedThisPage === 0)) break;
+      // as they age further). Incident-deduped candidates ARE a state
+      // transition (pending -> matured, just without filing a new task) so
+      // they count toward "keep paging" the same as matured/rejected.
+      if (batch.length < 100 || (maturedThisPage === 0 && rejectedThisPage === 0 && incidentDedupedThisPage === 0)) break;
     }
 
     if (totalDue === 0) {
@@ -270,7 +313,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
     }
 
     log(
-      `completed: ${iterations} page(s), ${totalDue} due, ${totalMatured} matured (task filed), ${totalStillPending} still pending, ${totalRejected} rejected (absent from response)`
+      `completed: ${iterations} page(s), ${totalDue} due, ${totalMatured} matured (task filed), ${totalIncidentDeduped} incident-deduped (no task filed), ${totalStillPending} still pending, ${totalRejected} rejected (absent from response)`
     );
     return "ok";
   } catch (e) {
