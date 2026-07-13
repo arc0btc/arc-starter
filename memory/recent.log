@@ -260,3 +260,4 @@
 2026-07-13T13:45:46.341Z | task #22267 | completed | haiku | Retrospective: extract learnings from task #22266 — Post Arc | No learnings to capture
 2026-07-13T13:57:52.569Z | task #22268 | completed | sonnet | Reply to X mention from user 26021389 | Replied to thread partner (26021389) asking what would have caught the dispatch-
 2026-07-13T13:59:07.247Z | task #22269 | completed | haiku | Retrospective: extract learnings from task #22268 — Reply to | Updated p-tool-integration-contract-readiness pattern with required-flag-discove
+2026-07-13T14:07:06.954Z | task #22270 | completed | sonnet | Bug: candidate-maturation test-seed task #22270 dispatched b | Confirmed root cause: tasks.id lacks AUTOINCREMENT (bare rowid alias), so a vani
