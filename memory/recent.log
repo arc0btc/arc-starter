@@ -205,3 +205,4 @@
 2026-07-13T02:23:06.242Z | task #22216 | completed | sonnet | Email watch report to whoabuddy — 2026-07-13T02:03 | Watch report sent to whoabuddy via CF email worker (msg id 5ebade4d)
 2026-07-13T02:24:15.387Z | task #22215 | completed | sonnet | self-review: run health check for 2026-07-13 | Self-review clean: all services healthy (sensors/dispatch/web/mcp active), no ne
 2026-07-13T02:26:29.783Z | task #22211 | completed | sonnet | Consolidate memory/patterns.md (154 lines, over 150-line thr | patterns.md consolidated 154->150 lines by merging 4 short single-instance entri
+2026-07-13T02:30:19.322Z | task #22212 | completed | sonnet | Audit skill tree for disallowed-tools candidates (read-only  | Prior audit doc was gone; re-derived candidates by scanning SKILL.md+cli.ts for 
