@@ -246,6 +246,75 @@ export function toSqliteDatetime(date: Date): string {
   return date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
 }
 
+/**
+ * One-time rebuild: tasks.id was a bare INTEGER PRIMARY KEY (rowid alias, no AUTOINCREMENT),
+ * so a vanished row's id could be silently reused by the next unrelated insert (see #22270 —
+ * a reused id caused dispatch to misattribute a brand-new task's row to a prior task's closure
+ * and re-dispatch it). SQLite can't ALTER TABLE to add AUTOINCREMENT to an existing column, so
+ * this does a full table rebuild: create tasks_new with AUTOINCREMENT, copy rows (explicit ids
+ * preserved — verified empirically that sqlite_sequence tracks the max explicit id inserted,
+ * so no manual sqlite_sequence seeding is needed), drop old, rename. Idempotent: checks the
+ * live schema text for "AUTOINCREMENT" and no-ops if already migrated. Runs before the index
+ * block below, which recreates the indexes dropped along with the old table.
+ */
+function migrateTasksTableAutoincrement(db: Database): void {
+  const row = db
+    .query("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+    .get() as { sql: string } | null;
+  if (row === null || row.sql.includes("AUTOINCREMENT")) return;
+
+  const columns = [
+    "id", "subject", "description", "skills", "priority", "status", "source",
+    "parent_id", "template", "scheduled_for", "created_at", "started_at",
+    "completed_at", "result_summary", "result_detail", "cost_usd", "api_cost_usd",
+    "tokens_in", "tokens_out", "attempt_count", "max_retries", "model",
+    "assigned_to", "result_quality", "script", "escalation_rung", "pivot_count",
+    "dead_ends", "stop_condition",
+  ];
+  const columnList = columns.join(", ");
+
+  const rebuild = db.transaction(() => {
+    db.run(`
+      CREATE TABLE tasks_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject TEXT NOT NULL,
+        description TEXT,
+        skills TEXT,
+        priority INTEGER DEFAULT 5,
+        status TEXT DEFAULT 'pending',
+        source TEXT,
+        parent_id INTEGER,
+        template TEXT,
+        scheduled_for TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        started_at TEXT,
+        completed_at TEXT,
+        result_summary TEXT,
+        result_detail TEXT,
+        cost_usd REAL DEFAULT 0,
+        api_cost_usd REAL DEFAULT 0,
+        tokens_in INTEGER DEFAULT 0,
+        tokens_out INTEGER DEFAULT 0,
+        attempt_count INTEGER DEFAULT 0,
+        max_retries INTEGER DEFAULT 3,
+        model TEXT,
+        assigned_to TEXT,
+        result_quality INTEGER,
+        script TEXT,
+        escalation_rung TEXT DEFAULT 'REFINE',
+        pivot_count INTEGER DEFAULT 0,
+        dead_ends TEXT,
+        stop_condition TEXT,
+        FOREIGN KEY (parent_id) REFERENCES tasks(id)
+      )
+    `);
+    db.run(`INSERT INTO tasks_new (${columnList}) SELECT ${columnList} FROM tasks`);
+    db.run("DROP TABLE tasks");
+    db.run("ALTER TABLE tasks_new RENAME TO tasks");
+  });
+  rebuild();
+}
+
 // ---- Database lifecycle ----
 
 export function initDatabase(): Database {
@@ -338,6 +407,8 @@ export function initDatabase(): Database {
   // loop-first workflow pattern (Boris Cherny / Raytar): declared WHEN-TO-STOP condition,
   // set at creation, distinct from status flags. Optional — null means no declared condition.
   addColumn("tasks", "stop_condition", "TEXT");
+
+  migrateTasksTableAutoincrement(db);
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
