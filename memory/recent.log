@@ -209,3 +209,5 @@
 2026-07-13T02:35:12.349Z | task #22213 | completed | sonnet | Skill tree audit: find stale or duplicate skills for archiva | Removed 7 dead-weight skills (arc-dispatch-evals, arc-performance-analytics, bit
 2026-07-13T02:38:46.437Z | task #22220 | completed | sonnet | Investigate social-x-ecosystem sensor FAIL(1) status | Root cause: X API 402 CreditsDepleted on /tweets/search/recent (journalctl arc-s
 2026-07-13T02:39:22.551Z | task #22214 | completed | sonnet | Verify pre-commit skill-lint hook is installed and check for | Pre-commit hook confirmed installed (symlink -> skills/arc-skill-manager/hooks/p
+2026-07-13T02:39:56.883Z | task #22218 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-13T02:41:24.202Z | task #22217 | completed | haiku | Retrospective: extract learnings from task #22211 — Consolid | No learnings to capture — task validated existing p-hierarchical-pattern-consoli
