@@ -122,7 +122,14 @@ interface XReadBudget {
   // Keys are endpoint families ("tweets/search/recent", "users/mentions", ...) or a
   // caller-supplied lane ("ecosystem-search", "link-research"). Observability only —
   // the enforced control surface stays the flat spend_usd above.
-  by_lane?: Record<string, { reads: number; spend_usd: number }>;
+  // pricing_status (2026-07-13, Phase 3 arc-x-research-channel): written by
+  // News/Trends-style lanes whose per-unit price isn't confirmed on the public
+  // X rate card. "estimated" flags a conservative, clearly-documented guess
+  // (never silently treated as confirmed); omitted/"confirmed" = today's
+  // pre-existing lanes, all priced off the confirmed rate card. Phase 6's
+  // budget-fit audit greps for this field to see what's still unverified
+  // without re-deriving it from scratch.
+  by_lane?: Record<string, { reads: number; spend_usd: number; pricing_status?: "confirmed" | "estimated" }>;
   // Per-resource 24h-UTC dedup ledger (2026-07-13, Phase 1 metering fix): resource
   // ids already BILLED today, keyed by lane. X bills per resource RETURNED, not per
   // request — a search page of 10 posts costs 10x a single lookup — and re-reading
@@ -208,12 +215,17 @@ export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<
 
 /** Apply `count` billed units of `costUsd` each to the loaded budget (mutates + persists).
  * Shared tail end of both the per-resource and the flat-unit billing paths so the
- * dollar math (rounding, by_lane bookkeeping) lives in exactly one place. */
+ * dollar math (rounding, by_lane bookkeeping) lives in exactly one place.
+ * `pricingStatus`, when passed, is written onto the lane's `by_lane` entry
+ * (2026-07-13, Phase 3) — omit to leave whatever status (if any) the lane
+ * already carries untouched, so a lane tagged "estimated" stays visibly flagged
+ * until a future call explicitly passes "confirmed". */
 async function applyBill(
   budget: XReadBudget,
   costUsd: number,
   lane: string,
   count: number,
+  pricingStatus?: "confirmed" | "estimated",
 ): Promise<{ billedCount: number; spendUsd: number }> {
   if (count <= 0) return { billedCount: 0, spendUsd: 0 };
   const spendUsd = Math.round(costUsd * count * 1e6) / 1e6;
@@ -224,6 +236,7 @@ async function applyBill(
   const entry = lanes[lane] ?? { reads: 0, spend_usd: 0 };
   entry.reads += count;
   entry.spend_usd = Math.round((entry.spend_usd + spendUsd) * 1e6) / 1e6;
+  if (pricingStatus) entry.pricing_status = pricingStatus;
   lanes[lane] = entry;
   budget.by_lane = lanes;
   await saveReadBudget(budget);
@@ -245,23 +258,34 @@ async function applyBill(
  * spend audit named).
  *
  * Omit `resourceIds` (or pass undefined) for single/unknown-count reads whose
- * response shape doesn't expose an id list — bills exactly 1 unit, no dedup
- * tracking possible without an id to key on. This is also the back-compat path for
- * any caller still using `incrementReadBudget` directly.
+ * response shape doesn't expose an id list, OR for endpoints priced PER REQUEST
+ * rather than per resource returned (2026-07-13, Phase 3: X's Trends endpoints
+ * bill $0.010/request regardless of how many trend items come back — passing
+ * `undefined` here, via `xApiGet`'s `billMode: "flat"`, is exactly how a
+ * per-request-priced lane bills 1 unit instead of N) — bills exactly 1 unit, no
+ * dedup tracking possible without an id to key on. This is also the back-compat
+ * path for any caller still using `incrementReadBudget` directly.
+ *
+ * `pricingStatus`, when passed, tags the lane's `by_lane` entry (see
+ * `XReadBudget.by_lane`'s doc comment) — pass `"estimated"` for lanes whose
+ * per-unit price isn't confirmed on the public rate card (e.g. News search,
+ * Phase 3) so the ledger itself carries the caveat, not just a log line.
  */
 export async function billResourceRead(
   costUsd: number,
   lane: string,
   resourceIds?: string[],
+  pricingStatus?: "confirmed" | "estimated",
 ): Promise<{ billedCount: number; spendUsd: number }> {
   const budget = await loadReadBudget();
 
   if (!resourceIds) {
-    return applyBill(budget, costUsd, lane, 1);
+    return applyBill(budget, costUsd, lane, 1, pricingStatus);
   }
   if (resourceIds.length === 0) {
     // Response returned zero resources — X charges for what it returns, so this is
-    // a genuine $0 read (an empty search page, an empty batch lookup, ...).
+    // a genuine $0 read (an empty search page, an empty batch lookup, ...). Nothing
+    // was billed, so there's no lane entry to tag with pricingStatus either.
     return { billedCount: 0, spendUsd: 0 };
   }
 
@@ -275,7 +299,7 @@ export async function billResourceRead(
   billedIds[lane] = Array.from(laneBilled);
   budget.billed_ids = billedIds;
 
-  return applyBill(budget, costUsd, lane, newIds.length);
+  return applyBill(budget, costUsd, lane, newIds.length, pricingStatus);
 }
 
 /**
@@ -329,20 +353,27 @@ export function estimateResourceCount(queryParams: Record<string, string>): numb
 export function extractResourceIds(response: Record<string, unknown>): string[] {
   const d = response["data"];
   if (Array.isArray(d)) {
-    // Every X API v2 resource carries an `id` field in practice. An item missing
-    // one still cost money to return, so it must ALWAYS bill and never dedup —
+    // Every X API v2 resource carries an id-shaped field in practice — usually
+    // `id`, but News search stories use `rest_id` instead (2026-07-13, Phase 3:
+    // confirmed live against docs.x.com/x-api/news/search-news —
+    // {rest_id, name, summary, category, cluster_posts_results, contexts}, no
+    // `id` field at all). Check both so News stories get the same same-UTC-day
+    // dedup benefit every other resource type already has. An item missing
+    // BOTH still cost money to return, so it must ALWAYS bill and never dedup —
     // a per-array-INDEX fallback (`__no_id_0`, ...) would be wrong: two different
     // malformed items landing at the same index on the same UTC day would collide
     // and the second would be silently deduped to $0 (dev-council/Kleppmann lens,
     // 2026-07-13). A fresh random id per occurrence guarantees it's billed exactly
     // once and never mistaken for a repeat.
     return d.map((item) => {
-      const id = (item as Record<string, unknown>)?.["id"];
+      const rec = item as Record<string, unknown>;
+      const id = rec?.["id"] ?? rec?.["rest_id"];
       return id !== undefined && id !== null ? String(id) : `__no_id_${crypto.randomUUID()}`;
     });
   }
   if (d && typeof d === "object") {
-    const id = (d as Record<string, unknown>)["id"];
+    const rec = d as Record<string, unknown>;
+    const id = rec["id"] ?? rec["rest_id"];
     return id !== undefined && id !== null ? [String(id)] : [];
   }
   return [];
@@ -469,18 +500,41 @@ async function buildOAuthHeader(
  * derivation — e.g. the candidate-maturation pass's batched `/tweets?ids=` read
  * needs its own `"candidate-maturation"` lane, not the generic `"tweets"` lane
  * `fetchRecentPostMetrics` already uses for the same endpoint. Omitting it keeps
- * every existing caller's current lane unchanged. */
+ * every existing caller's current lane unchanged.
+ *
+ * (2026-07-13, Phase 3) Three more optional overrides, all additive/backward-
+ * compatible — omitting any of them preserves today's behavior exactly:
+ * - `costUsd`: overrides the owned/non-owned default price when a caller knows
+ *   the TRUE (or a documented best-estimate) per-unit price — e.g. Trends'
+ *   confirmed $0.010/request, or News search's UNCONFIRMED estimated rate.
+ * - `billMode: "flat"`: bills exactly 1 unit of `costUsd` regardless of how many
+ *   resources the response contains, instead of the default per-resource
+ *   billing. Use for endpoints X prices PER REQUEST, not per resource returned —
+ *   Trends ($0.010/req however many trend items come back) is the reason this
+ *   exists; the default `"per-resource"` behavior is correct for every
+ *   pre-Phase-3 caller and remains the default.
+ * - `pricingStatus: "estimated"`: tags the lane's `by_lane` ledger entry so a
+ *   provisional price is visibly flagged in the persisted budget file itself,
+ *   not just in a log line — see `billResourceRead`'s doc comment. */
 export async function xApiGet(
   endpoint: string,
   creds: XCreds,
   queryParams: Record<string, string> = {},
-  opts: { owned?: boolean; lane?: string } = {},
+  opts: {
+    owned?: boolean;
+    lane?: string;
+    costUsd?: number;
+    billMode?: "per-resource" | "flat";
+    pricingStatus?: "confirmed" | "estimated";
+  } = {},
 ): Promise<Record<string, unknown>> {
   // Guard: enforce daily dollar read budget and 429 backoff before the network.
   // Pre-flight uses the WORST-CASE resource count from the request (max_results /
   // ids) since the true count returned is only known after the response arrives —
-  // see billResourceRead below for the actual per-resource billing.
-  const costUsd = opts.owned ? OWNED_READ_COST_USD : READ_COST_USD;
+  // see billResourceRead below for the actual per-resource billing. An explicit
+  // `opts.costUsd` (Phase 3) takes priority over the owned/non-owned default so a
+  // caller-supplied price is respected pre-flight too, not just when billing.
+  const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
   await checkReadBudget(costUsd * estimateResourceCount(queryParams));
 
   const baseUrl = `${API_BASE}${endpoint}`;
@@ -522,11 +576,13 @@ export async function xApiGet(
 
   const data = await response.json();
 
-  // Success — bill this read for the resources it ACTUALLY returned (per-resource
-  // metering, not flat per-call), attributed by endpoint family, with same-UTC-day
-  // dedup on repeated ids in this lane.
+  // Success — bill this read. Default: per-resource metering (the resources it
+  // ACTUALLY returned), attributed by endpoint family, with same-UTC-day dedup on
+  // repeated ids in this lane. `billMode: "flat"` (Phase 3) bills exactly 1 unit
+  // instead — for endpoints priced per REQUEST regardless of result count (Trends).
   const typedData = data as Record<string, unknown>;
-  await billResourceRead(costUsd, opts.lane ?? endpointLane(endpoint), extractResourceIds(typedData));
+  const resourceIds = opts.billMode === "flat" ? undefined : extractResourceIds(typedData);
+  await billResourceRead(costUsd, opts.lane ?? endpointLane(endpoint), resourceIds, opts.pricingStatus);
 
   return typedData;
 }
