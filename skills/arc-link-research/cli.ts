@@ -17,6 +17,12 @@ import { getCredential } from "../../src/credentials.ts";
 // X-heavy task re-billed the whole batch"). Routing through billResourceRead with
 // the looked-up tweet's id adds that dedup for free.
 import { checkReadBudget, billResourceRead, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
+// arc-x-research-channel Phase 4 (2026-07-13): the follow-policy hook — a
+// handle whose research this report USES gets promoted into social_accounts +
+// the private X List + a follow, triggered right here at report-acceptance
+// time (not a periodic rescan). See src/follow-policy.ts's module header for
+// why this is NOT built on the dormant follow-curated.ts script.
+import { promoteResearchSourceHandle } from "../../src/follow-policy.ts";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -1031,6 +1037,35 @@ async function cmdProcess(args: string[]): Promise<void> {
   await Bun.write(filepath, report);
 
   process.stdout.write(`Report written: research/${filename}\n`);
+
+  // ---- Follow-policy hook (arc-x-research-channel Phase 4, 2026-07-13) ----
+  // "Arc follows every account whose research we like — and definitely every
+  // account whose research we USE" (operator-locked). "USE" = the link made it
+  // into this report at medium-or-high relevance (not filtered out as "low").
+  // X-sourced results carry `@handle: ` as the title prefix (set above, ~line
+  // 611, `title = \`@${authorUsername}: ${displayText...}\``) — this is the
+  // ONLY signal this hook has for "which results are X-sourced," an implicit
+  // string contract with that title-building code (dev-council/Hohpe-style
+  // concern, disclosed in the Phase 4 verify artifact, not hardened this
+  // phase — same class of finding as Phase 3's discovery_context packing).
+  // Best-effort: a promotion hiccup must NEVER fail a report that's already
+  // written to disk.
+  for (const r of results) {
+    if (r.relevance === "low") continue;
+    const m = r.title.match(/^@(\w+):/);
+    if (!m) continue;
+    const handle = m[1];
+    try {
+      const promo = await promoteResearchSourceHandle(handle, {
+        log: (msg) => process.stdout.write(`[follow-policy] ${msg}\n`),
+      });
+      process.stdout.write(
+        `[follow-policy] @${handle}: promoted=${promo.promoted} listAdded=${promo.listAdded} followAttempted=${promo.followAttempted} followed=${promo.followed}${promo.reason ? ` reason=${promo.reason}` : ""}\n`,
+      );
+    } catch (e) {
+      process.stdout.write(`[follow-policy] @${handle}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+    }
+  }
 
   // Keep the catalog current — best-effort so a reindex hiccup never fails the run.
   try {
