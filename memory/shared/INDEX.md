@@ -18,6 +18,7 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [agent-collab-feedback-loop](memory/shared/entries/agent-collab-feedback-loop.md) — UX feedback signal pattern
 - [edge-cache-auth-gate-leak](memory/shared/entries/edge-cache-auth-gate-leak.md) — cache before auth = data leak
 - [claude-code-version-deploy](memory/shared/entries/claude-code-version-deploy.md) — manual upgrade procedure
+- [blog-deploy-astro-build-segfault-transient-oom](memory/shared/entries/blog-deploy-astro-build-segfault-transient-oom.md) — astro build exit 139 = transient host OOM, retry once before escalating; npm/npx missing from dispatch PATH, use node_modules/.bin/*
 - [recursive-improve-failure-detectors](memory/shared/entries/recursive-improve-failure-detectors.md) — detector taxonomy
 - [shai-hulud-npm-worm-class](memory/shared/entries/shai-hulud-npm-worm-class.md) — npm CI-takeover worms
 - [harness-engineering-five-subsystems](memory/shared/entries/harness-engineering-five-subsystems.md) — 5-subsystem model
