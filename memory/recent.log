@@ -501,3 +501,4 @@
 2026-07-14T10:43:05.805Z | task #22598 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-14T12:22:23.661Z | task #22600 | completed | sonnet | Review PR #601 on aibtcdev/aibtc-mcp-server: fix: news_publi | Reviewed and approved PR #601 (aibtc-mcp-server) — fixes news_publisher_compile_
 2026-07-14T12:23:20.992Z | task #22599 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed 3 blocked tasks (#21499, #21905, #21800), all still correctly blocked a
+2026-07-14T12:25:04.044Z | task #22601 | completed | haiku | Retrospective: extract learnings from task #22600 — Review P | Extracted pattern: PR reviewers should verify fix scope via grep to catch hidden
