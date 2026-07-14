@@ -511,3 +511,4 @@
 2026-07-14T00:51:12.837Z | task #22516 | completed | haiku | Retrospective: extract learnings from task #22509 — Daily se | Extracted 1 novel pattern: eval-follow-up gating on external ownership to preven
 2026-07-14T00:51:52.430Z | task #22518 | completed | haiku | Retrospective: extract learnings from task #22513 — Review c | Cost analysis leverages built-in arc tasks cost CLI; task #22513 validated metho
 2026-07-14T00:53:26.097Z | task #22519 | completed | haiku | Retrospective: extract learnings from task #22514 — PURPOSE  | Extended p-sensor-fire-rate-management with producer-side volume-capping pattern
+2026-07-14T00:54:10.106Z | task #22522 | completed | haiku | Retrospective: extract learnings from task #22512 — daily se | Added 2 patterns: p-data-artifact-churn-dispatch-auto-commit + p-transient-senso
