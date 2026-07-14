@@ -508,3 +508,4 @@
 2026-07-14T00:47:46.605Z | task #22504 | completed | haiku | Retrospective: extract learnings from task #22496 — Review 4 | No learnings to capture — reviewed work followed existing p-task-closure-discipl
 2026-07-14T00:49:03.993Z | task #22506 | completed | haiku | Retrospective: extract learnings from task #22503 — Investig | Guard-predicate-scope-alignment pattern added to patterns.md: when a guard prote
 2026-07-14T00:49:37.983Z | task #22515 | completed | haiku | Retrospective: extract learnings from task #22505 — Fix cmdT | Pattern already exists: p-guard-predicate-scope-alignment captures this exact gu
+2026-07-14T00:51:12.837Z | task #22516 | completed | haiku | Retrospective: extract learnings from task #22509 — Daily se | Extracted 1 novel pattern: eval-follow-up gating on external ownership to preven
