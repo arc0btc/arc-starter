@@ -217,6 +217,13 @@ const KNOWN_SUBJECT_PREFIXES = [
   // source-uniqueness reasoning as the whop-forum entry above. Prefix (not exact match)
   // so "post x" alone covers both variants via startsWith.
   "post x",
+  // "Research: ecosystem signal — matured candidate (...)" -> retrospective chain (task
+  // #22590), avg 2.3 steps, arc-link-research + arc-skill-manager + candidate-maturation.
+  // Same already-rejected ad-hoc "task closes -> Retrospective: extract learnings from
+  // task #N" shape as retrospective-pattern-no-generic-machine-needed.md — root task
+  // subjects vary per matured candidate so it only surfaces via subject-grouping, not a
+  // new pattern.
+  "research",
 ];
 
 function normalizeSource(source: string | null): string {
