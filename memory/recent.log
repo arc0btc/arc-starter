@@ -532,3 +532,4 @@
 2026-07-14T02:35:44.125Z | task #22547 | completed | sonnet | Audit memory/dead-ends.md for entries that should be promote | Audited dead-ends.md: pruned 2 resolved entries (loom-spiral — root cause fixed 
 2026-07-14T02:39:21.621Z | task #22552 | completed | sonnet | Audit arc-link-research shelf-wide front-matter quality (125 | Decided (a)+partial(c): expanded TOPIC_VOCAB with ~30 high-frequency recurring t
 2026-07-14T02:41:58.109Z | task #22555 | completed | sonnet | Backfill repos_touched/fetched_at on 9 arc-link-research sel | Backfilled repos_touched (enum: arc-starter•agent-runtime•both•neither•unknown) 
+2026-07-14T02:43:00.707Z | task #22556 | completed | sonnet | Add skip-note path to arc-link-research process for arc_rele | Added skip-note path in process()/cli.ts: when all links in a batch rate mechani
