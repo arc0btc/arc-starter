@@ -507,3 +507,4 @@
 2026-07-14T08:21:02.664Z | task #22588 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 90 sensors), committed only the catalog file (l
 2026-07-14T08:23:41.575Z | task #22589 | completed | sonnet | architecture review — codebase changed since last review (dc | Small diff (6 commits, 3 src/, 4 skills/); arc-link-research skip-note change is
 [UNTRUSTED-SRC] 2026-07-14T08:23:52.905Z | task #22592 | completed | sonnet | Whop synthesis [2026-07-14T08]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet window, standard defer rubr
+2026-07-14T08:31:14.652Z | task #22593 | completed | sonnet | sensors.ts: thread real error message through for 'return er | Fixed 24 sensors that had no-op error threading: 21 files left the 'error: ${...
