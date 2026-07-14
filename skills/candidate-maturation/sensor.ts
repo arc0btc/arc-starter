@@ -61,6 +61,14 @@
 //      real per-topic tasks itself, each still carrying the Phase 7 standing brief.
 //   5. Is bounded by a hard daily dispatch cap (MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY)
 //      counted across the FULL lineage (triage + fan-out), not just top-level tasks.
+//
+// DEDUP: custom — this sensor's insertTask calls are deliberately NOT covered by
+// pendingTaskExistsForSource/recentTaskExistsForSource: the triage task's `source` embeds a
+// per-run timestamp (unique by design, so re-runs never collide on a stale in-flight task), and
+// real dedup instead happens via (a) clusterIndex/computeClusterKey collapsing same-story
+// candidates across runs (see markCandidateMatured calls above) and (b)
+// countSensorResearchDispatchesToday's hard daily cap. See arc-skill-manager/sensor.ts's
+// CUSTOM_DEDUP_MARKER for why this opts out of the generic named-helper check.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, countSensorResearchDispatchesToday } from "../../src/db.ts";

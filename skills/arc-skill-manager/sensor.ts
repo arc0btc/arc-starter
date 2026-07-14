@@ -47,6 +47,12 @@ function extractReportDate(filename: string): Date | null {
 // (claimSensorRun, dedup) just to pass lint. Add this marker to opt out.
 const STUB_EXEMPTION_MARKER = /\/\/\s*STUB:\s*intentionally-inert/i;
 
+// Marker comment that exempts a sensor from the named-helper dedup check when it implements
+// its own state-machine dedup (e.g. cluster-key collapse across runs, or a rate-limiting cap)
+// instead of a pendingTaskExistsForSource/recentTaskExistsForSource-style source lookup. Add
+// this marker with a short pointer to the actual mechanism so a reviewer can audit it once.
+const CUSTOM_DEDUP_MARKER = /\/\/\s*DEDUP:\s*custom/i;
+
 function validateSensorPattern(filePath: string, content: string): { valid: boolean; issues: string[] } {
   // Intentionally-inert stubs are exempt from all pattern checks.
   if (STUB_EXEMPTION_MARKER.test(content)) {
@@ -71,7 +77,7 @@ function validateSensorPattern(filePath: string, content: string): { valid: bool
   // Valid patterns: pendingTaskExistsForSource, recentTaskExistsForSource (and Prefix variant),
   // taskExistsForSource, taskExists, insertTaskIfNew, or getWorkflowByInstanceKey (workflow dedup).
   const createsTasks = /insertTask\b/.test(content);
-  if (createsTasks) {
+  if (createsTasks && !CUSTOM_DEDUP_MARKER.test(content)) {
     const hasDedup =
       /pendingTaskExistsForSource|recentTaskExistsForSource|taskExists|insertTaskIfNew|getWorkflowByInstanceKey/.test(
         content
