@@ -435,7 +435,7 @@ export default async function xMentionsSensor(): Promise<string> {
       if (errorMessage.includes("read budget exhausted")) {
         return "skip";
       }
-      return "error";
+      return `error: mentions fetch failed — ${errorMessage}`;
     }
 
     const mentions = mentionsResult.mentions as Mention[];
@@ -543,6 +543,6 @@ export default async function xMentionsSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

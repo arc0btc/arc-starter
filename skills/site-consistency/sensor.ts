@@ -171,6 +171,6 @@ export default async function siteConsistencySensor(): Promise<string> {
     return "ok";
   } catch (sensorError) {
     log(`error: ${sensorError instanceof Error ? sensorError.message : String(sensorError)}`);
-    return "error";
+    return `error: ${sensorError instanceof Error ? sensorError.message : String(sensorError)}`;
   }
 }

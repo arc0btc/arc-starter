@@ -377,9 +377,12 @@ export async function runSensors(): Promise<void> {
       if (result === "skip") {
         return { name: skill.name, ok: true, skipped: true, durationMs };
       }
-      // Sensors can return "error" to signal a non-exception failure
-      if (result === "error") {
-        return { name: skill.name, ok: false, skipped: false, durationMs, error: "sensor returned error" };
+      // Sensors can return "error" (or "error: <message>") to signal a non-exception failure.
+      // The "error: " prefix lets sensors thread their real failure reason through to
+      // last_error instead of the generic fallback below.
+      if (result === "error" || (typeof result === "string" && result.startsWith("error:"))) {
+        const message = result === "error" ? "" : result.slice("error:".length).trim();
+        return { name: skill.name, ok: false, skipped: false, durationMs, error: message || "sensor returned error" };
       }
       return { name: skill.name, ok: true, skipped: false, durationMs };
     } catch (err) {

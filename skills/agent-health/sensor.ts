@@ -694,7 +694,7 @@ export default async function agentHealthSensor(): Promise<string> {
     log(`Loaded config for ${config.name} (${config.codename})`);
   } catch (error) {
     log(`Failed to load agent config: ${error}`);
-    return "error";
+    return `error: failed to load agent config: ${error instanceof Error ? error.message : String(error)}`;
   }
 
   // Gather all data in parallel; use allSettled so one failure doesn't abort everything
@@ -715,7 +715,7 @@ export default async function agentHealthSensor(): Promise<string> {
 
   if (allFailed) {
     log("All SSH gather operations failed — connectivity issue with Loom");
-    return "error";
+    return "error: all SSH gather operations failed — connectivity issue with Loom";
   }
 
   // Assemble health data (use empty defaults for any rejected promises)

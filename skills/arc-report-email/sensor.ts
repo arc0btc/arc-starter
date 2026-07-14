@@ -166,7 +166,7 @@ export default async function reportEmailSensor(): Promise<string> {
     });
     const body = await response.text();
     log(`email send failed: HTTP ${response.status} — ${body}`);
-    return "error";
+    return `error: email send failed: HTTP ${response.status} — ${body}`;
   }
 
   log(`emailed report to ${recipient}: "${subject}"`);

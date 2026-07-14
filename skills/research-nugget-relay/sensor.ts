@@ -287,10 +287,10 @@ export default async function researchNuggetRelaySensor(): Promise<string> {
     log("run started");
     const db = getDatabase();
 
-    let anyProducerMissing = false;
+    const missingProducers: string[] = [];
     for (const source of Object.keys(PRODUCERS)) {
       const ok = await runProducerIfDue(db, source);
-      if (!ok) anyProducerMissing = true;
+      if (!ok) missingProducers.push(source);
     }
 
     // Promotion pass runs regardless of any individual producer's outcome (Newman lens,
@@ -303,10 +303,12 @@ export default async function researchNuggetRelaySensor(): Promise<string> {
     // A missing producer script is the exact "silently stopped ingesting" failure class this
     // quest exists to fix — surface it as a real sensor failure (consecutive_failures / any
     // downstream monitor watching sensor health) rather than a quiet "ok".
-    return anyProducerMissing ? "error" : "ok";
+    return missingProducers.length > 0
+      ? `error: producer(s) missing/failed: ${missingProducers.join(", ")}`
+      : "ok";
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

@@ -1505,7 +1505,8 @@ This data targets the agent-trading beat. Use Economist voice — precise, data-
     log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}`);
     return "ok";
   } catch (e) {
-    log(`error: ${(e as Error).message}`);
-    return "error";
+    const error = e as Error;
+    log(`error: ${error.message}`);
+    return `error: ${error.message}`;
   }
 }

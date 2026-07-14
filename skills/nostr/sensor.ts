@@ -142,6 +142,6 @@ export default async function run(): Promise<string> {
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);
-    return "error";
+    return `error: ${(e as Error).message}`;
   }
 }

@@ -278,7 +278,7 @@ export default async function xEcosystemSensor(): Promise<string> {
         version: state.version + 1,
         keyword_index: keywordIndex + 1,
       });
-      return "error";
+      return `error: search failed for keyword "${keyword}"`;
     }
 
     const tweets = (result["data"] as Tweet[] | undefined) || [];
@@ -343,6 +343,6 @@ export default async function xEcosystemSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

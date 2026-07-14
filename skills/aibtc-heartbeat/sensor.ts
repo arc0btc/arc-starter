@@ -169,5 +169,7 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
   }
 
   log(`heartbeat cycle complete: ${successCount}/${wallets.length} wallets checked in`);
-  return successCount > 0 ? "ok" : "error";
+  return successCount > 0
+    ? "ok"
+    : `error: all ${wallets.length} wallet heartbeat(s) failed`;
 }

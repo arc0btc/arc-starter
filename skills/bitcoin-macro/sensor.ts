@@ -544,7 +544,7 @@ export default async function bitcoinMacroSensor(): Promise<string> {
     if (price === null && hashrate === null && difficulty === null) {
       log("all data sources failed");
       await writeHookState(SENSOR_NAME, { ...state, last_result: "error", version: (state.version ?? 0) + 1 });
-      return "error";
+      return "error: all data sources failed (price, hashrate, difficulty)";
     }
 
     // ---- First-run initialization ----
@@ -676,6 +676,6 @@ export default async function bitcoinMacroSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

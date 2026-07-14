@@ -599,7 +599,7 @@ export default async function sensor(): Promise<string | void> {
   // Require at least P2P stats or one JingSwap market
   if (!p2pStats && !stxCycle && !usdcxCycle) {
     log("all data sources failed, aborting");
-    return "error";
+    return "error: all data sources failed (P2P stats, JingSwap cycles)";
   }
 
   // Build current reading

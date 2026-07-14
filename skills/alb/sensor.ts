@@ -199,7 +199,7 @@ export default async function albSensor(): Promise<string> {
       return "skip";
     }
     log(`Error polling inbox: ${e}`);
-    return "error";
+    return `error: ${e instanceof Error ? e.message : String(e)}`;
   }
 
   log(`Done: ${totalQueued} task(s) queued`);
