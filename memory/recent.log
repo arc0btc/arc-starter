@@ -521,3 +521,4 @@
 2026-07-14T13:40:02.042Z | task #22625 | completed | haiku | Retrospective: extract learnings from task #22623 — Proposal | Extracted p-proposal-draft-email-gate pattern: CLAUDE.md-level architectural cha
 [UNTRUSTED-SRC] 2026-07-14T14:24:37.603Z | task #22627 | completed | sonnet | Whop synthesis [2026-07-14T14]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
 2026-07-14T14:27:12.023Z | task #22626 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | False positive: candidate-maturation/sensor.ts already dedups via cross-run clus
+2026-07-14T14:28:02.919Z | task #22628 | completed | haiku | Retrospective: extract learnings from task #22626 — Sensor v | Validator false positives on custom dedup mechanisms: when flagged for 'missing 
