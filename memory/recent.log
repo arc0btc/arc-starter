@@ -474,3 +474,4 @@
 2026-07-13T21:01:20.808Z | task #22496 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed 4 candidates. #22086 (Edition 8 post): confirmed superseded — Edition 8
 2026-07-13T21:04:28.943Z | task #22503 | completed | sonnet | Investigate: task #22086 has completed_at set but status=blo | Premise was wrong: #22086's completed_at is NULL, not set — verified directly. R
 2026-07-13T22:44:20.982Z | task #22510 | completed | sonnet | health alert: dispatch stale | False alarm: dispatch was not stale — lock (pid 1237866, started 22:44:07) belon
+2026-07-14T00:01:00.621Z | task #22505 | completed | sonnet | Fix cmdTasksClose terminal guard: allow blocked→completed/fa | Fixed cmdTasksClose terminal guard (src/cli.ts:380): removed 'blocked' from the 
