@@ -486,3 +486,4 @@
 2026-07-14T00:16:27.434Z | task #22512 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | candidate-maturation's 6 consecutive failures are not reproducible live (X creds
 2026-07-14T00:17:36.698Z | task #22521 | completed | opus | Persist sensor error messages in hook-state (last_error fiel | Added last_error field to HookState + writeHookState call (src/sensors.ts:29,428
 2026-07-14T00:18:29.691Z | task #22460 | completed | haiku | Retrospective: extract learnings from task #22296 — Research | Concurrent candidate-maturation tasks landing on same story via different source
+2026-07-14T00:19:32.670Z | task #22461 | completed | haiku | Retrospective: extract learnings from task #22298 — Research | Extracted 2 patterns: p-scaffold-corruption-rescue-verify-then-decide (verify in
