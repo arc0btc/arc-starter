@@ -31,12 +31,39 @@
 // real editorial brief: pre-assessed relevance/angle + an explicit report-shape
 // checklist + "reuse cache, don't re-run process" + a REQUIRED repo-grounded
 // Arc-alignment note. The brief is the driver, not the model. buildStandingBrief
-// mirrors that shape with data this sensor already has (discovery_context,
-// source_lane, tweet text, engagement) — the operator's own "links + a prompt"
-// input pattern, applied to Arc's own X research instead of an email.
+// (still used, now BY the triage task's own fan-out, see buildTriageBrief) mirrors
+// that shape with data this sensor already has (discovery_context, source_lane,
+// tweet text, engagement) — the operator's own "links + a prompt" input pattern,
+// applied to Arc's own X research instead of an email.
+//
+// TWO-STAGE TRIAGE DISPATCH (2026-07-14, Phase 8 containment pass): measured
+// 2026-07-14, this sensor's OLD one-task-per-candidate design cost $115.08/24h
+// across 195 dispatched tasks, 64% of it paying opus/sonnet just to DECLINE junk
+// (bare-t.co/RT-only candidates that could never have carried a report, plus
+// off-mission stories re-declined up to 9x per viral event because nothing
+// clustered same-story siblings). This sensor now:
+//   1. Enriches every touched candidate with entities/referenced_tweets-derived
+//      expanded URLs BEFORE scoring (updateCandidateEnrichment) — the actual root
+//      cause fix; most "bare t.co" declines were never bare, just unexpanded.
+//   2. Runs a cheap MECHANICAL pre-filter (isMechanicallyRejectable) that rejects
+//      ONLY the structurally-zero-signal class (no URL + RT-only/thin text with no
+//      mission keyword) — see src/candidate-spine.ts's module comment for exactly
+//      which decline class this does and does NOT try to catch. Topical relevance
+//      judgment is NEVER guessed here.
+//   3. Clusters same-story survivors (computeClusterKey: canonical URL, else a
+//      text-shingle key) both within this run AND against everything matured in
+//      the last 24h, so one viral story collapses to ONE task lineage regardless
+//      of how many sibling tweet_ids surface it.
+//   4. Files exactly ONE triage task per run (not per candidate) listing every
+//      surviving NEW cluster — mirrors the operator's own proven #20093 batch-
+//      triage flow (read live from the DB: #20093 -> #20099/#20111). The triage
+//      agent (opus, judgment work) decides RESEARCH/DECLINE per story and fans out
+//      real per-topic tasks itself, each still carrying the Phase 7 standing brief.
+//   5. Is bounded by a hard daily dispatch cap (MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY)
+//      counted across the FULL lineage (triage + fan-out), not just top-level tasks.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
+import { insertTask, countSensorResearchDispatchesToday } from "../../src/db.ts";
 import {
   getMaturationBatch,
   expireStaleCandidates,
@@ -44,16 +71,29 @@ import {
   markCandidateRejected,
   isHighSignal,
   getRecentMaturedCandidates,
-  normalizeIncidentKey,
+  isMechanicallyRejectable,
+  computeClusterKey,
+  extractExpandedUrls,
+  classifyReferencedTweets,
+  updateCandidateEnrichment,
   type XResearchCandidate,
   type MaturedCandidateSummary,
+  type TweetEntities,
+  type ReferencedTweet,
 } from "../../src/candidate-spine.ts";
 import { loadXCreds, xApiGet } from "../social-x-posting/lib/x-api.ts";
-import { standingBriefSteps } from "../../src/research-brief.ts";
+import { buildTriageBrief, type TriageCluster, type TriageClusterMember } from "../../src/research-brief.ts";
 
 const SENSOR_NAME = "candidate-maturation";
 const INTERVAL_MINUTES = 60;
 const LANE = "candidate-maturation";
+// Hard backstop (Phase 8 containment pass) — counts the FULL sensor-research dispatch lineage
+// today (triage tasks + their per-topic fan-out children, see
+// countSensorResearchDispatchesToday's doc comment), not just this sensor's own top-level
+// filings. 15/day is a deliberate order-of-magnitude cut from the $115.08/195-task day this
+// phase exists to fix — real research volume should be a handful of triage runs each fanning
+// out a handful of genuinely research-worthy topics, not hundreds of individual judgments.
+const MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY = 15;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -78,29 +118,12 @@ function chooseModel(metrics: { like_count: number; retweet_count: number; reply
   return "sonnet";
 }
 
-/**
- * The standing brief (replaces the old two-line "run process, done" instruction).
- * `taskIdPlaceholder` can't be the real numeric id (insertTask() hasn't run yet —
- * the id doesn't exist until after this description is built) — instead, point at
- * the "Task ID: N" line src/dispatch.ts's buildPrompt already puts at the top of
- * every dispatched agent's prompt (confirmed live, ~line 524): the agent always
- * knows its own task id from context, the same way #20099/#20111's exemplar
- * descriptions say "task_id:THIS" for the agent to substitute.
- */
-function buildStandingBrief(candidate: XResearchCandidate, linkList: string, metrics: { like_count: number; retweet_count: number; reply_count: number }): string {
-  return [
-    `Source: candidate-maturation re-score (originally discovered via ${candidate.source_lane}${candidate.discovery_context ? ` — "${candidate.discovery_context}"` : ""})`,
-    `Tweet ID: ${candidate.tweet_id}`,
-    `Author ID: ${candidate.author_id ?? "unknown"}`,
-    `First seen: ${candidate.first_seen}`,
-    `Text: ${candidate.text_snippet ?? ""}`,
-    `Links: ${linkList}`,
-    "",
-    `Engagement at maturation: ${metrics.like_count} likes, ${metrics.retweet_count} RTs, ${metrics.reply_count} replies (cleared the high-signal re-score bar).`,
-    "",
-    ...standingBriefSteps(`arc skills run --name arc-link-research -- process --links "${linkList}" --task <Task ID>`),
-  ].join("\n");
-}
+// NOTE (Phase 8): the old buildStandingBrief() function that lived here is now dead code and
+// has been removed — under the two-stage triage design below, THIS sensor never files a
+// per-candidate task directly, so it never needs a per-candidate standing-brief description.
+// The standing brief still applies to every per-topic task, just built BY the triage agent
+// itself (buildTriageBrief in src/research-brief.ts embeds standingBriefSteps() verbatim into
+// the triage task's own instructions for exactly this purpose — see that function).
 
 interface MaturedTweet {
   id: string;
@@ -110,6 +133,8 @@ interface MaturedTweet {
     retweet_count: number;
     reply_count: number;
   };
+  entities?: TweetEntities;
+  referenced_tweets?: ReferencedTweet[];
 }
 
 export default async function candidateMaturationSensor(): Promise<string> {
@@ -148,27 +173,33 @@ export default async function candidateMaturationSensor(): Promise<string> {
     // nothing extra if a page happens to overlap a previous one — X only
     // bills for ids not already billed in this lane today.
     const MAX_MATURATION_ITERATIONS = 10; // bounds worst case at 1000 candidates/cycle
-    const INCIDENT_DEDUP_WINDOW_HOURS = 24;
+    const CLUSTER_DEDUP_WINDOW_HOURS = 24;
 
-    // Incident-level dedup gate (fix for candidate-maturation-incident-vs-tweet-
-    // dedup-churn, 2026-07-13): the existing per-tweet_id dedup above can't catch
-    // sibling tweets of the SAME viral story — each has a distinct tweet_id, so
-    // each cleared the source-based dedup and filed its own research task (one
-    // incident matured 5x, ~$5-10 redundant work). Build a normalized-title index
-    // of everything already matured in the window ONCE up front, then keep it
-    // updated in-memory as this run matures more candidates (no re-query needed
-    // page-to-page).
-    const incidentIndex = new Map<string, MaturedCandidateSummary>();
-    for (const m of getRecentMaturedCandidates(INCIDENT_DEDUP_WINDOW_HOURS)) {
-      const key = normalizeIncidentKey(m.discovery_context);
-      if (key && !incidentIndex.has(key)) incidentIndex.set(key, m);
+    // Cross-run cluster-collapse index (Phase 8, supersedes the discovery_context-only
+    // incident index): everything matured in the window, keyed by cluster_key (canonical
+    // URL, else text-shingle — see computeClusterKey). A survivor in THIS run whose
+    // cluster_key matches an entry here is the SAME story as something already dispatched
+    // today — it collapses into that existing task lineage instead of triggering a new
+    // triage/fan-out. Built once up front; this run's OWN new clusters aren't added here
+    // until after the triage task is filed (they have no task id yet).
+    const clusterIndex = new Map<string, MaturedCandidateSummary>();
+    for (const m of getRecentMaturedCandidates(CLUSTER_DEDUP_WINDOW_HOURS)) {
+      if (m.cluster_key && !clusterIndex.has(m.cluster_key)) clusterIndex.set(m.cluster_key, m);
     }
 
+    interface Survivor {
+      candidate: XResearchCandidate;
+      tweet: MaturedTweet;
+      expandedUrls: string[];
+      clusterKey: string | null;
+    }
+    const survivors: Survivor[] = [];
+
     let totalDue = 0;
-    let totalMatured = 0;
     let totalStillPending = 0;
-    let totalRejected = 0;
-    let totalIncidentDeduped = 0;
+    let totalMechanicallyRejected = 0;
+    let totalClusterDeduped = 0;
+    let totalNotReturned = 0;
     let iterations = 0;
 
     while (iterations < MAX_MATURATION_ITERATIONS) {
@@ -178,26 +209,26 @@ export default async function candidateMaturationSensor(): Promise<string> {
       totalDue += batch.length;
       log(`maturation batch ${iterations}: ${batch.length} candidate(s) due for re-score`);
 
-      // ONE batched read per page — up to 100 ids, one metered call on the
-      // named "candidate-maturation" lane (NOT the generic "tweets" lane
-      // fetchRecentPostMetrics uses for the same endpoint — a fresh named
-      // lane per quest binding constraint, via xApiGet's opts.lane override,
-      // Phase 2).
+      // ONE batched read per page — up to 100 ids, one metered call on the named
+      // "candidate-maturation" lane. "entities,referenced_tweets" added (Phase 8) — X bills
+      // per RESOURCE returned, not per field, so this is a zero-marginal-cost addition on an
+      // already-billed read; it's the actual root-cause fix for "bare t.co" declines.
       const ids = batch.map((c) => c.tweet_id).join(",");
       const result = await xApiGet(
         "/tweets",
         creds,
-        { ids, "tweet.fields": "created_at,public_metrics" },
+        { ids, "tweet.fields": "created_at,public_metrics,entities,referenced_tweets" },
         { owned: false, lane: LANE }
       );
 
       const returned = (result["data"] as MaturedTweet[] | undefined) ?? [];
       const returnedById = new Map(returned.map((t) => [t.id, t]));
 
-      let maturedThisPage = 0;
-      let rejectedThisPage = 0;
       let stillPendingThisPage = 0;
-      let incidentDedupedThisPage = 0;
+      let mechRejectedThisPage = 0;
+      let clusterDedupedThisPage = 0;
+      let notReturnedThisPage = 0;
+      let survivorsThisPage = 0;
 
       for (const candidate of batch as XResearchCandidate[]) {
         const tweet = returnedById.get(candidate.tweet_id);
@@ -210,9 +241,20 @@ export default async function candidateMaturationSensor(): Promise<string> {
           // 2026-07-13) makes this a no-op (changes: 0) if another overlapping
           // run already transitioned this row — don't double-count it.
           const { changes } = markCandidateRejected(candidate.tweet_id);
-          if (changes > 0) rejectedThisPage++;
+          if (changes > 0) notReturnedThisPage++;
           continue;
         }
+
+        // Enrich BEFORE scoring (Phase 8) — every touched candidate gets a fresh
+        // entities/referenced_tweets look regardless of eventual outcome (still-pending,
+        // mechanically-rejected, cluster-deduped, or survivor), so the "expanded URLs now
+        // stored" fix applies uniformly, not just to candidates that go on to dispatch.
+        const existingUrls: string[] = candidate.urls ? JSON.parse(candidate.urls) : [];
+        const expandedUrls = Array.from(
+          new Set([...extractExpandedUrls(tweet.entities, candidate.tweet_id), ...existingUrls])
+        );
+        const { isRetweet, isQuote } = classifyReferencedTweets(tweet.referenced_tweets);
+        updateCandidateEnrichment(candidate.tweet_id, { expandedUrls, isRetweet, isQuote });
 
         if (!isHighSignal(tweet.public_metrics)) {
           // Hasn't cleared the bar YET — leave 'pending' so it gets another look as
@@ -221,90 +263,54 @@ export default async function candidateMaturationSensor(): Promise<string> {
           continue;
         }
 
-        const source = `sensor:${SENSOR_NAME}:${candidate.tweet_id}`;
-        if (recentTaskExistsForSource(source, 24 * 60)) {
-          // Already filed (shouldn't normally happen — a candidate is marked
-          // 'matured' in the same pass that files its task — but guards a
-          // partial-write retry). `null` = "matured via a pre-existing task, id
-          // not re-looked-up here" — NEVER write a sentinel like 0 into
-          // research_task_id (REFERENCES tasks(id), no task id 0 exists;
-          // dev-council/Fowler + Kleppmann lenses, 2026-07-13), and distinct from
-          // insertTask's own -1 (github-escalation-guard) sentinel handled below.
-          markCandidateMatured(candidate.tweet_id, null);
-          continue;
-        }
-
-        // Incident-level gate: skip filing if an equivalent-incident candidate
-        // already matured to a research task within the window, even though
-        // THIS tweet_id is distinct (viral-story sibling). Keep the existing
-        // per-tweet dedup above as-is — this is a second, independent gate.
-        const incidentKey = normalizeIncidentKey(candidate.discovery_context);
-        const incidentMatch = incidentKey ? incidentIndex.get(incidentKey) : undefined;
-        if (incidentMatch) {
-          log(
-            `incident-dedup: candidate ${candidate.tweet_id} skipped — same incident as ${incidentMatch.tweet_id} ` +
-              `(task ${incidentMatch.research_task_id}), key="${incidentKey}"`
-          );
-          markCandidateMatured(candidate.tweet_id, incidentMatch.research_task_id);
-          incidentDedupedThisPage++;
-          continue;
-        }
-
-        const urls: string[] = candidate.urls ? JSON.parse(candidate.urls) : [];
-        const linkList = urls.join(", ");
-        const metrics = tweet.public_metrics!;
-
-        const taskId = insertTask({
-          subject: `Research: ecosystem signal — matured candidate (${candidate.discovery_context ?? candidate.source_lane})`,
-          description: buildStandingBrief(candidate, linkList, metrics),
-          skills: JSON.stringify(["arc-link-research"]),
-          priority: 7,
-          model: chooseModel(metrics),
-          source,
+        // Mechanical pre-filter (Phase 8) — rejects ONLY the structurally-zero-signal class
+        // (no URL + RT-only/thin text with no mission keyword). Never guesses topical
+        // relevance — see isMechanicallyRejectable's doc comment and the module header.
+        const mech = isMechanicallyRejectable({
+          expandedUrls,
+          isRetweet,
+          textSnippet: candidate.text_snippet ?? "",
         });
-
-        if (taskId === -1) {
-          // insertTask's own github-escalation-guard sentinel (src/db.ts) — should
-          // never fire for a "Research: ecosystem signal" subject, but if it does,
-          // don't record a fake match: leave the candidate pending for the next
-          // pass rather than falsely marking it matured with no real task behind it.
-          log(`warn: insertTask blocked (github-escalation-guard) for candidate ${candidate.tweet_id} — left pending`);
-          stillPendingThisPage++;
+        if (mech.reject) {
+          const { changes } = markCandidateRejected(candidate.tweet_id, mech.reason);
+          if (changes > 0) mechRejectedThisPage++;
+          log(`mechanical-reject: ${candidate.tweet_id} — ${mech.reason}`);
           continue;
         }
 
-        // `AND status='pending'` inside markCandidateMatured (dev-council/Lamport
-        // lens, 2026-07-13) makes this the linearization point for this
-        // candidate's state transition: changes===0 means another overlapping
-        // run already matured/rejected/expired it first. A task was still filed
-        // above in that (rare, single-systemd-timer-in-practice) race — this
-        // doesn't retract it, it just avoids double-counting the maturation.
-        const { changes } = markCandidateMatured(candidate.tweet_id, taskId);
-        if (changes > 0) {
-          maturedThisPage++;
-          if (incidentKey && !incidentIndex.has(incidentKey)) {
-            incidentIndex.set(incidentKey, { tweet_id: candidate.tweet_id, discovery_context: candidate.discovery_context, research_task_id: taskId });
-          }
-          log(`matured candidate ${candidate.tweet_id} -> task ${taskId}`);
-        } else {
-          log(`warn: candidate ${candidate.tweet_id} was already transitioned by another run — task ${taskId} filed but not counted as this run's maturation`);
+        const clusterKey = computeClusterKey({ expandedUrls, textSnippet: candidate.text_snippet ?? "" });
+        const existingCluster = clusterKey ? clusterIndex.get(clusterKey) : undefined;
+        if (existingCluster) {
+          log(
+            `cluster-dedup: candidate ${candidate.tweet_id} collapses into existing story ` +
+              `(task ${existingCluster.research_task_id}), key="${clusterKey}"`
+          );
+          markCandidateMatured(candidate.tweet_id, existingCluster.research_task_id, clusterKey);
+          clusterDedupedThisPage++;
+          continue;
         }
+
+        // A genuine new survivor — collected for this run's own clustering + triage,
+        // NOT marked matured yet (that happens after the triage task exists, below, so
+        // research_task_id can point at it).
+        survivors.push({ candidate, tweet, expandedUrls, clusterKey });
+        survivorsThisPage++;
       }
 
-      totalMatured += maturedThisPage;
       totalStillPending += stillPendingThisPage;
-      totalRejected += rejectedThisPage;
-      totalIncidentDeduped += incidentDedupedThisPage;
+      totalMechanicallyRejected += mechRejectedThisPage;
+      totalClusterDeduped += clusterDedupedThisPage;
+      totalNotReturned += notReturnedThisPage;
 
-      // Stop paging once a page comes back short of the 100-id cap (there's
-      // nothing left due right now) OR once a FULL page produced zero state
-      // transitions (every candidate in it is still 'pending' — re-querying
-      // the identical oldest-100 set again THIS run would just re-read the
-      // same rows for no new outcome; they'll be picked up again next cycle
-      // as they age further). Incident-deduped candidates ARE a state
-      // transition (pending -> matured, just without filing a new task) so
-      // they count toward "keep paging" the same as matured/rejected.
-      if (batch.length < 100 || (maturedThisPage === 0 && rejectedThisPage === 0 && incidentDedupedThisPage === 0)) break;
+      // Stop paging once a page comes back short of the 100-id cap (nothing left due right
+      // now) OR once a FULL page produced zero state transitions (every candidate in it is
+      // still 'pending' — re-querying the identical oldest-100 set again THIS run would just
+      // re-read the same rows for no new outcome).
+      if (
+        batch.length < 100 ||
+        (survivorsThisPage === 0 && mechRejectedThisPage === 0 && clusterDedupedThisPage === 0 && notReturnedThisPage === 0)
+      )
+        break;
     }
 
     if (totalDue === 0) {
@@ -312,8 +318,111 @@ export default async function candidateMaturationSensor(): Promise<string> {
       return "ok";
     }
 
+    // ---- In-run story clustering + two-stage triage dispatch (Phase 8) ----
+    // Group every NEW survivor (across ALL pages this run) by cluster_key — this collapses
+    // same-story siblings discovered across different pages within this single run, on top
+    // of the cross-run collapse already applied above.
+    const newClusters = new Map<string, Survivor[]>();
+    for (const s of survivors) {
+      const groupKey = s.clusterKey ?? `singleton:${s.candidate.tweet_id}`;
+      const group = newClusters.get(groupKey) ?? [];
+      group.push(s);
+      newClusters.set(groupKey, group);
+    }
+
+    let totalMatured = 0;
+    let triageTaskId: number | null = null;
+
+    if (newClusters.size > 0) {
+      const dispatchCount = countSensorResearchDispatchesToday();
+      if (dispatchCount >= MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY) {
+        // Hard backstop hit (Phase 8) — the exact invisibility this containment pass exists
+        // to fix. Don't silently drop these candidates OR silently keep dispatching past the
+        // cap: log loudly, and mark them matured-without-task (same null-research_task_id
+        // sentinel already used elsewhere) so they don't churn 'pending' forever re-costing a
+        // read every future maturation pass.
+        log(
+          `CAP HIT: ${dispatchCount}/${MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY} sensor research dispatches already filed today — ` +
+            `skipping triage task this run, ${survivors.length} candidate(s) across ${newClusters.size} storie(s) left un-dispatched (marked matured, no task)`
+        );
+        for (const s of survivors) {
+          const { changes } = markCandidateMatured(s.candidate.tweet_id, null, s.clusterKey);
+          if (changes > 0) totalMatured++;
+        }
+      } else {
+        const triageClusters: TriageCluster[] = Array.from(newClusters.entries()).map(([groupKey, members]) => {
+          const aggMetrics = members.reduce(
+            (agg, m) => ({
+              like_count: Math.max(agg.like_count, m.tweet.public_metrics?.like_count ?? 0),
+              retweet_count: Math.max(agg.retweet_count, m.tweet.public_metrics?.retweet_count ?? 0),
+              reply_count: Math.max(agg.reply_count, m.tweet.public_metrics?.reply_count ?? 0),
+            }),
+            { like_count: 0, retweet_count: 0, reply_count: 0 }
+          );
+          return {
+            clusterKey: groupKey.startsWith("singleton:") ? null : groupKey,
+            suggestedModel: chooseModel(aggMetrics),
+            members: members.map(
+              (m): TriageClusterMember => ({
+                tweetId: m.candidate.tweet_id,
+                authorId: m.candidate.author_id ?? undefined,
+                textSnippet: m.candidate.text_snippet ?? "",
+                links: m.expandedUrls,
+                likeCount: m.tweet.public_metrics?.like_count ?? 0,
+                retweetCount: m.tweet.public_metrics?.retweet_count ?? 0,
+                replyCount: m.tweet.public_metrics?.reply_count ?? 0,
+                discoveryContext: m.candidate.discovery_context ?? undefined,
+              })
+            ),
+          };
+        });
+
+        const runTimestamp = new Date().toISOString();
+        const filedTaskId = insertTask({
+          subject: `Triage: X research batch (${runTimestamp.slice(0, 10)}, ${triageClusters.length} stor${
+            triageClusters.length === 1 ? "y" : "ies"
+          } from ${survivors.length} candidate(s))`,
+          description: buildTriageBrief(triageClusters),
+          skills: JSON.stringify(["arc-link-research"]),
+          priority: 6,
+          model: "opus", // judgment work — operator directive: never downgrade brainpower to save tokens
+          source: `sensor:${SENSOR_NAME}:triage:${runTimestamp}`,
+        });
+
+        if (filedTaskId === -1) {
+          // insertTask's own github-escalation-guard sentinel — should never fire for a
+          // "Triage: X research batch" subject, but if it does, leave every survivor
+          // genuinely 'pending' (do NOT mark matured) so the NEXT run retries them, rather
+          // than permanently orphaning research_task_id=null for a block that isn't a
+          // deliberate cap/policy decision.
+          log(`warn: insertTask blocked (github-escalation-guard) for the triage task — ${survivors.length} candidate(s) left pending for next run`);
+        } else {
+          triageTaskId = filedTaskId;
+          for (const [groupKey, members] of newClusters) {
+            const clusterKey = groupKey.startsWith("singleton:") ? null : groupKey;
+            for (const m of members) {
+              const { changes } = markCandidateMatured(m.candidate.tweet_id, triageTaskId, clusterKey);
+              if (changes > 0) totalMatured++;
+            }
+            if (clusterKey && !clusterIndex.has(clusterKey)) {
+              clusterIndex.set(clusterKey, {
+                tweet_id: members[0].candidate.tweet_id,
+                discovery_context: members[0].candidate.discovery_context,
+                research_task_id: triageTaskId,
+                cluster_key: clusterKey,
+              });
+            }
+          }
+          log(`filed triage task #${triageTaskId}: ${triageClusters.length} storie(s), ${survivors.length} candidate(s)`);
+        }
+      }
+    }
+
     log(
-      `completed: ${iterations} page(s), ${totalDue} due, ${totalMatured} matured (task filed), ${totalIncidentDeduped} incident-deduped (no task filed), ${totalStillPending} still pending, ${totalRejected} rejected (absent from response)`
+      `completed: ${iterations} page(s), ${totalDue} due, ${totalMatured} matured ` +
+        `(via ${triageTaskId ? `triage task #${triageTaskId}` : newClusters.size > 0 ? "cap-hit sentinel / pending retry" : "n/a"}), ` +
+        `${totalClusterDeduped} cluster-deduped (existing story, no new task), ${totalMechanicallyRejected} mechanically rejected, ` +
+        `${totalStillPending} still pending, ${totalNotReturned} rejected (absent from response)`
     );
     return "ok";
   } catch (e) {

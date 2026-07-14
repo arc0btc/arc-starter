@@ -57,3 +57,101 @@ export function standingBriefSteps(processCommand: string): string[] {
     "   pad a thin link into a hollow report just to produce something.",
   ];
 }
+
+// ---- Two-stage triage brief (Phase 8, containment pass) ----
+//
+// Replaces one-dispatch-per-candidate with the SAME two-stage shape the operator's own
+// email batches already prove works (tasks #20093 -> #20099/#20111, read live from the DB):
+// #20093 (opus) ran `arc-link-research process` ONCE across a whole 21-link batch (mechanical
+// caching, not 21 separate fetches), consolidated near-duplicate topics down from ~21 links to
+// 14 real topics, skipped low-relevance ones with a one-line note, then fanned out individual
+// `arc tasks add` calls for the survivors — each reusing #20093's cache via `--task`, never
+// re-running `process`. This was $115.08/24h's fix: ONE judgment dispatch instead of N.
+//
+// candidate-maturation/sensor.ts calls buildTriageBrief() with the story-clusters that survived
+// (a) the mechanical pre-filter (isMechanicallyRejectable — already stripped the zero-signal
+// bare-t.co/RT-only class) and (b) cross-run cluster collapse (computeClusterKey — already
+// merged same-story siblings). What's LEFT is genuinely a judgment call (real link or real
+// text substance, but relevance/angle still unknown) — exactly the class of work a batched
+// triage pass is for, not a mechanical filter.
+
+export interface TriageClusterMember {
+  tweetId: string;
+  authorId?: string;
+  textSnippet: string;
+  links: string[];
+  likeCount: number;
+  retweetCount: number;
+  replyCount: number;
+  discoveryContext?: string;
+}
+
+export interface TriageCluster {
+  clusterKey: string | null;
+  members: TriageClusterMember[];
+  /** Pre-computed model hint (candidate-maturation's existing chooseModel logic, applied to
+   * the cluster's highest-engagement member) — triage may override per-topic if its own
+   * judgment disagrees, this is a starting point, not a mandate. */
+  suggestedModel: "opus" | "sonnet";
+}
+
+/**
+ * Builds the full description for ONE triage task representing every surviving story-cluster
+ * from a single maturation run. `taskCreateSkill`/`sourcePrefix` let the triage agent fan out
+ * per-topic tasks with a dedup-safe --source (mirrors #20093's "task:<parent>:<slug>" shape —
+ * insertTask/insertTaskIfNew dedup on `source`, so each per-topic slug must be distinct).
+ */
+export function buildTriageBrief(clusters: TriageCluster[]): string {
+  const allLinks = Array.from(new Set(clusters.flatMap((c) => c.members.flatMap((m) => m.links)))).join(", ");
+
+  const clusterBlocks = clusters.map((cluster, i) => {
+    const rep = cluster.members.reduce((best, m) =>
+      m.likeCount + m.retweetCount * 2 + m.replyCount * 2 > best.likeCount + best.retweetCount * 2 + best.replyCount * 2 ? m : best
+    );
+    const memberLines = cluster.members.map(
+      (m) =>
+        `     - tweet_id ${m.tweetId}${m.authorId ? ` (author ${m.authorId})` : ""}: "${m.textSnippet.slice(0, 200)}" ` +
+        `[${m.likeCount} likes, ${m.retweetCount} RTs, ${m.replyCount} replies] links: ${m.links.join(", ") || "(none)"}`
+    );
+    return [
+      `### Story ${i + 1} (cluster_key: ${cluster.clusterKey ?? "singleton, no shared key"}, ${cluster.members.length} member tweet(s), suggested model: ${cluster.suggestedModel})`,
+      `  Representative: "${rep.textSnippet.slice(0, 300)}"${rep.discoveryContext ? ` — discovered via ${rep.discoveryContext}` : ""}`,
+      `  Links: ${rep.links.join(", ") || "(none — text-substance survivor, judge the text itself)"}`,
+      "  All member tweets (evidence, cite the ones you actually use):",
+      ...memberLines,
+    ].join("\n");
+  });
+
+  return [
+    `Triage + fan-out — ${clusters.length} surviving stor${clusters.length === 1 ? "y" : "ies"} from this maturation run ` +
+      `(mirrors the operator's own #20093 batch-triage flow — read that task in the DB for the exemplar).`,
+    "",
+    "## Pre-fan-out triage",
+    "1. Run this FIRST, passing --task with THIS task's own id (shown above as \"Task ID: N\"),",
+    "   across ALL links below in ONE call — this is the mechanical caching pass, not per-link fetches:",
+    `     arc skills run --name arc-link-research -- process --links "${allLinks}" --task <Task ID>`,
+    "2. For EACH story below, decide RESEARCH or DECLINE:",
+    "   - DECLINE (no task filed): tangential/off-mission/thin-even-with-link. Just note it",
+    "     inline in your own final summary — one line per declined story, no per-story task.",
+    "   - RESEARCH: fan out ONE per-topic task via:",
+    '     arc tasks add --subject "Research: <topic>" --model opus|sonnet --skills',
+    '       arc-link-research --source "task:<Task ID>:<unique-slug>" --parent <Task ID>',
+    "     (insertTask dedups by --source — use a distinct slug per topic. The suggested",
+    "     model above is a starting point; upgrade to opus if the story is genuinely",
+    "     substantive, downgrade to sonnet only for a thin summarize-only case — never",
+    "     downgrade brainpower just to save tokens on real signal.)",
+    "   Each per-topic task's description MUST embed this SAME standing-brief checklist",
+    "   (reuse verbatim, do not paraphrase):",
+    "",
+    ...standingBriefSteps('arc skills run --name arc-link-research -- process --links "<this topic\'s links>" --task <Task ID>').map((l) => `   ${l}`),
+    "",
+    "3. Cap fan-out at ~8 per-topic tasks this run — if more than 8 stories are genuinely",
+    "   research-worthy, cluster harder (merge adjacent angles) or decline the weaker ones;",
+    "   do not silently exceed this to avoid making a judgment call.",
+    "4. Close THIS triage task when done, summarizing: N stories researched (list task ids),",
+    "   M declined (one line each, why).",
+    "",
+    "## Stories",
+    ...clusterBlocks,
+  ].join("\n");
+}

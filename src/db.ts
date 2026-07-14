@@ -854,6 +854,30 @@ export function pendingTaskExistsForSourcePrefix(prefix: string): boolean {
   return row !== null;
 }
 
+/**
+ * Full sensor-research dispatch lineage count for TODAY (UTC) — arc-x-research-channel Phase 8
+ * containment pass. Counts every task rooted at a `sensor:%`-sourced task created today PLUS
+ * all of its descendants (a triage task's own per-topic fan-out, via parent_id), via a
+ * recursive CTE. This is the number that actually drives $ spend under the two-stage
+ * triage->per-topic dispatch model (candidate-maturation/sensor.ts) — counting only top-level
+ * `source LIKE 'sensor:%'` rows would undercount to near-1/day once fan-out is the majority of
+ * real dispatch volume. Read-only, cheap (tasks table is small relative to the whole DB).
+ */
+export function countSensorResearchDispatchesToday(): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `WITH RECURSIVE lineage(id) AS (
+         SELECT id FROM tasks WHERE source LIKE 'sensor:%' AND date(created_at) = date('now')
+         UNION
+         SELECT t.id FROM tasks t JOIN lineage l ON t.parent_id = l.id
+       )
+       SELECT COUNT(*) as n FROM lineage`
+    )
+    .get() as { n: number };
+  return row.n;
+}
+
 /** Daily cap for aibtc.news signal filing (6 signals/day enforced by publisher). */
 export const DAILY_SIGNAL_CAP = 6;
 

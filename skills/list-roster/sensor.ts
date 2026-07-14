@@ -32,7 +32,15 @@
 
 import { getDatabase } from "../../src/db.ts";
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertCandidateIfNew, extractUrls, type KnownSourceLane } from "../../src/candidate-spine.ts";
+import {
+  insertCandidateIfNew,
+  extractUrls,
+  extractExpandedUrls,
+  classifyReferencedTweets,
+  type KnownSourceLane,
+  type TweetEntities,
+  type ReferencedTweet,
+} from "../../src/candidate-spine.ts";
 import { loadXCreds, xApiGet, xApiGetAppOnly } from "../social-x-posting/lib/x-api.ts";
 import { createXList, addListMember, resolveUserId } from "../social-x-posting/cli.ts";
 import { join } from "path";
@@ -211,7 +219,15 @@ export default async function listRosterSensor(): Promise<string> {
     try {
       const queryParams: Record<string, string> = {
         max_results: "100",
-        "tweet.fields": "created_at,author_id,public_metrics",
+        // Phase 8 containment pass: "entities,referenced_tweets" added — X bills per RESOURCE
+        // returned, not per field (Phase 1 metering fix), so this is a zero-marginal-cost
+        // addition on an already-billed read. Root cause it fixes: without "entities", every
+        // t.co-shortlinked post carried an unexpandable link and was correctly-but-wastefully
+        // declined downstream at full paid-dispatch cost ("bare t.co, empty Links field" — 125
+        // of 195 sensor-filed tasks in 24h). "referenced_tweets" lets the mechanical filter
+        // (src/candidate-spine.ts's isMechanicallyRejectable) tell a true retweet apart from an
+        // original post without regexing the text.
+        "tweet.fields": "created_at,author_id,public_metrics,entities,referenced_tweets",
         expansions: "author_id",
         "user.fields": "username",
       };
@@ -247,6 +263,16 @@ export default async function listRosterSensor(): Promise<string> {
         const authorId = t["author_id"] ? String(t["author_id"]) : undefined;
         const authorUsername = authorId ? userMap.get(authorId) ?? "unknown" : "unknown";
         const text = String(t["text"] ?? "");
+        // Phase 8: real expanded URLs from entities.urls[].expanded_url, unioned with the
+        // existing text-regex fallback (extractUrls) — entities.urls is authoritative (it's
+        // what X itself resolved a t.co shortlink to) but keeping the regex fallback costs
+        // nothing extra and catches the rare case entities.urls misses (e.g. a URL typed in
+        // note_tweet overflow text not covered by the standard entities object).
+        const entities = t["entities"] as TweetEntities | undefined;
+        const referencedTweets = t["referenced_tweets"] as ReferencedTweet[] | undefined;
+        const expandedFromEntities = extractExpandedUrls(entities, tweetId);
+        const expandedUrls = Array.from(new Set([...expandedFromEntities, ...extractUrls(text)]));
+        const { isRetweet, isQuote } = classifyReferencedTweets(referencedTweets);
         const inserted = insertCandidateIfNew({
           tweet_id: tweetId,
           source_lane: LIST_LANE,
@@ -255,6 +281,9 @@ export default async function listRosterSensor(): Promise<string> {
           text_snippet: text,
           urls: extractUrls(text),
           discovery_context: `List: @${authorUsername} post`,
+          expandedUrls,
+          isRetweet,
+          isQuote,
         });
         if (inserted) candidatesStored++;
       }

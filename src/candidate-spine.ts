@@ -18,6 +18,7 @@
 // news/trends/list producers import it from their OWN skill directories, not from
 // social-x-ecosystem.
 
+import type { SQLQueryBindings } from "bun:sqlite";
 import { getDatabase } from "./db.ts";
 
 // ---- Types ----
@@ -47,6 +48,12 @@ export interface XResearchCandidate {
   matured_at: string | null;
   research_task_id: number | null;
   created_at: string;
+  // ---- Phase 8 containment-pass columns (migration 018) ----
+  expanded_urls: string | null; // JSON-encoded string[] — real followable URLs (entities.urls[].expanded_url)
+  is_retweet: number; // 0/1, from referenced_tweets type="retweeted"
+  is_quote: number; // 0/1, from referenced_tweets type="quoted"
+  mechanical_reject_reason: string | null; // set only when isMechanicallyRejectable() rejected this candidate
+  cluster_key: string | null; // set at maturation time by computeClusterKey — collapses same-story candidates
 }
 
 export interface InsertCandidateFields {
@@ -57,6 +64,9 @@ export interface InsertCandidateFields {
   text_snippet?: string;
   urls?: string[];
   discovery_context?: string;
+  expandedUrls?: string[];
+  isRetweet?: boolean;
+  isQuote?: boolean;
 }
 
 // ---- Shared scoring primitives ----
@@ -98,6 +108,81 @@ export function isHighSignal(metrics: TweetPublicMetrics | undefined): boolean {
   return metrics.like_count >= 5 || metrics.retweet_count >= 2 || metrics.reply_count >= 3;
 }
 
+// ---- URL expansion + referenced-tweet classification (Phase 8, containment pass) ----
+//
+// ROOT CAUSE this section fixes: X's tweet.fields never included "entities" or
+// "referenced_tweets" anywhere in the discovery/maturation path — only
+// skills/arc-link-research/cli.ts's single-tweet fetch requested "entities" (for its OWN
+// per-link processing, unrelated to this spine). Every t.co-shortlinked tweet therefore
+// carried an unexpandable link, and skills/candidate-spine.ts's own extractUrls() explicitly
+// filters t.co out — so a candidate whose ONLY link was a t.co shortlink was stored with
+// urls=[] and correctly, but wastefully, declined by a paid dispatched agent as "bare t.co,
+// empty Links field" (125 of 195 sensor-filed tasks in 24h were this exact class). X bills
+// per RESOURCE returned, not per field (Phase 1's metering fix + the 2026-07-13 console
+// reconciliation doc) — adding these fields to an existing batched read is free.
+
+/** Minimal structural view of the X API v2 `entities.urls[]` shape (same shape
+ * skills/arc-link-research/cli.ts already requests via "entities" in tweet.fields — this is
+ * not a new field, just a new READER of an existing, proven, zero-marginal-cost field). */
+export interface TweetUrlEntity {
+  url?: string; // the t.co wrapper, e.g. "https://t.co/abc123"
+  expanded_url?: string; // the real destination — NEVER a t.co domain
+  display_url?: string;
+}
+
+export interface TweetEntities {
+  urls?: TweetUrlEntity[];
+}
+
+/** X API v2 `referenced_tweets[]` shape — "retweeted"/"quoted"/"replied_to" + the id of the
+ * referenced tweet. */
+export interface ReferencedTweet {
+  type: "retweeted" | "quoted" | "replied_to";
+  id: string;
+}
+
+/**
+ * Extract real, followable URLs from `entities.urls[].expanded_url`. Drops empty/falsy
+ * entries. Drops a URL that's a SELF-reference (x.com/twitter.com pointing back at `ownTweetId`
+ * itself — the tweet is already captured via its own tweet_id, following that link teaches
+ * nothing new) but KEEPS an x.com/twitter.com URL pointing at a DIFFERENT status id — that's a
+ * quote-tweet target, genuinely followable content per the operator's own framing ("Quote-tweet
+ * expanded_url (x.com/status links) counts as followable content").
+ */
+export function extractExpandedUrls(entities: TweetEntities | undefined | null, ownTweetId: string): string[] {
+  if (!entities?.urls?.length) return [];
+  const out: string[] = [];
+  for (const u of entities.urls) {
+    const expanded = u.expanded_url;
+    if (!expanded) continue;
+    try {
+      const parsed = new URL(expanded);
+      const host = parsed.hostname.replace(/^www\./, "");
+      if (host === "x.com" || host === "twitter.com") {
+        const statusMatch = parsed.pathname.match(/\/status(?:es)?\/(\d+)/);
+        if (statusMatch && statusMatch[1] === ownTweetId) continue; // self-reference, drop
+      }
+      out.push(expanded);
+    } catch {
+      // Unparseable expanded_url — skip rather than store a broken link.
+      continue;
+    }
+  }
+  return out;
+}
+
+/** Classify a tweet's `referenced_tweets[]` into the two flags this spine cares about. Missing/
+ * empty input is a normal original post, not an error — returns both false. */
+export function classifyReferencedTweets(
+  referencedTweets: ReferencedTweet[] | undefined | null
+): { isRetweet: boolean; isQuote: boolean } {
+  if (!referencedTweets?.length) return { isRetweet: false, isQuote: false };
+  return {
+    isRetweet: referencedTweets.some((r) => r.type === "retweeted"),
+    isQuote: referencedTweets.some((r) => r.type === "quoted"),
+  };
+}
+
 // ---- Store ----
 
 /**
@@ -111,8 +196,9 @@ export function insertCandidateIfNew(fields: InsertCandidateFields): boolean {
   const result = db
     .query(
       `INSERT OR IGNORE INTO x_research_candidate
-        (tweet_id, source_lane, first_seen, author_id, text_snippet, urls, discovery_context)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+        (tweet_id, source_lane, first_seen, author_id, text_snippet, urls, discovery_context,
+         expanded_urls, is_retweet, is_quote)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       fields.tweet_id,
@@ -121,9 +207,49 @@ export function insertCandidateIfNew(fields: InsertCandidateFields): boolean {
       fields.author_id ?? null,
       fields.text_snippet ?? null,
       fields.urls ? JSON.stringify(fields.urls) : null,
-      fields.discovery_context ?? null
+      fields.discovery_context ?? null,
+      fields.expandedUrls?.length ? JSON.stringify(fields.expandedUrls) : null,
+      fields.isRetweet ? 1 : 0,
+      fields.isQuote ? 1 : 0
     );
   return result.changes > 0;
+}
+
+/**
+ * Backfill expanded_urls/is_retweet/is_quote onto an EXISTING candidate row (Phase 8,
+ * containment pass). Used by candidate-maturation/sensor.ts's batched re-score read — the
+ * authoritative place every candidate, regardless of which lane discovered it, gets a fresh
+ * `entities`/`referenced_tweets` look before scoring. This is enrichment, not a state
+ * transition (unlike markCandidateMatured/markCandidateRejected), so it carries no
+ * `AND status='pending'` guard — a matured/rejected row can still receive a late enrichment
+ * update without changing its status. Only fields explicitly present in `fields` are written;
+ * omitting a field leaves the existing column value untouched (partial update).
+ */
+export function updateCandidateEnrichment(
+  tweetId: string,
+  fields: { expandedUrls?: string[]; isRetweet?: boolean; isQuote?: boolean }
+): { changes: number } {
+  const sets: string[] = [];
+  const values: unknown[] = [];
+  if (fields.expandedUrls !== undefined) {
+    sets.push("expanded_urls = ?");
+    values.push(fields.expandedUrls.length ? JSON.stringify(fields.expandedUrls) : null);
+  }
+  if (fields.isRetweet !== undefined) {
+    sets.push("is_retweet = ?");
+    values.push(fields.isRetweet ? 1 : 0);
+  }
+  if (fields.isQuote !== undefined) {
+    sets.push("is_quote = ?");
+    values.push(fields.isQuote ? 1 : 0);
+  }
+  if (sets.length === 0) return { changes: 0 };
+
+  const db = getDatabase();
+  const result = db
+    .query(`UPDATE x_research_candidate SET ${sets.join(", ")} WHERE tweet_id = ?`)
+    .run(...([...values, tweetId] as SQLQueryBindings[]));
+  return { changes: result.changes };
 }
 
 /**
@@ -187,15 +313,20 @@ export function getMaturationBatch(
  * independently-scheduled processes — this guard bounds ITS blast radius at
  * the data layer without depending on that gate being airtight.)
  */
-export function markCandidateMatured(tweetId: string, researchTaskId: number | null): { changes: number } {
+export function markCandidateMatured(
+  tweetId: string,
+  researchTaskId: number | null,
+  clusterKey?: string | null
+): { changes: number } {
   const db = getDatabase();
   const result = db
     .query(
       `UPDATE x_research_candidate
-         SET status = 'matured', matured_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), research_task_id = ?
+         SET status = 'matured', matured_at = strftime('%Y-%m-%dT%H:%M:%SZ','now'), research_task_id = ?,
+             cluster_key = COALESCE(?, cluster_key)
        WHERE tweet_id = ? AND status = 'pending'`
     )
-    .run(researchTaskId, tweetId);
+    .run(researchTaskId, clusterKey ?? null, tweetId);
   return { changes: result.changes };
 }
 
@@ -208,12 +339,20 @@ export function markCandidateMatured(tweetId: string, researchTaskId: number | n
  * `AND status = 'pending'` guard — same monotonic-transition reasoning as
  * `markCandidateMatured` above (dev-council/Lamport lens, 2026-07-13). Returns
  * the changed-row count so a caller can detect "already handled by another run."
+ *
+ * `reason` (Phase 8, containment pass): when supplied, recorded in
+ * `mechanical_reject_reason` — set ONLY by isMechanicallyRejectable()-driven rejections, so a
+ * NULL value here always means "rejected for a non-mechanical reason" (id no longer returned
+ * by X, etc.), never "mechanically rejected but no reason logged."
  */
-export function markCandidateRejected(tweetId: string): { changes: number } {
+export function markCandidateRejected(tweetId: string, reason?: string): { changes: number } {
   const db = getDatabase();
   const result = db
-    .query(`UPDATE x_research_candidate SET status = 'rejected' WHERE tweet_id = ? AND status = 'pending'`)
-    .run(tweetId);
+    .query(
+      `UPDATE x_research_candidate SET status = 'rejected', mechanical_reject_reason = ?
+       WHERE tweet_id = ? AND status = 'pending'`
+    )
+    .run(reason ?? null, tweetId);
   return { changes: result.changes };
 }
 
@@ -221,22 +360,25 @@ export interface MaturedCandidateSummary {
   tweet_id: string;
   discovery_context: string | null;
   research_task_id: number | null;
+  cluster_key: string | null;
 }
 
 /**
  * Matured candidates within the last `withinHours` (default 24) — feeds the
- * incident-level dedup gate in skills/candidate-maturation/sensor.ts (see
+ * cross-run cluster-collapse index in skills/candidate-maturation/sensor.ts (see
  * candidate-maturation-incident-vs-tweet-dedup-churn memory entry, 2026-07-13:
  * one viral story matured through 5 distinct sibling tweet_ids and filed 5
- * separate research tasks because the existing dedup keys on tweet_id, not the
- * underlying incident). Callers compare `normalizeIncidentKey(discovery_context)`
- * across rows to collapse near-identical stories without an LLM.
+ * separate research tasks because the original dedup keyed on tweet_id, not the
+ * underlying story). Phase 8 supersedes the discovery_context-only version of this
+ * index with `cluster_key` (computeClusterKey below — canonical URL first, text-shingle
+ * fallback) so cross-author same-story candidates collapse too, not just same-News-story
+ * ones sharing an identical discovery_context.
  */
 export function getRecentMaturedCandidates(withinHours: number = 24): MaturedCandidateSummary[] {
   const db = getDatabase();
   return db
     .query(
-      `SELECT tweet_id, discovery_context, research_task_id
+      `SELECT tweet_id, discovery_context, research_task_id, cluster_key
        FROM x_research_candidate
        WHERE status = 'matured'
          AND matured_at >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-' || ? || ' hours')`
@@ -261,6 +403,128 @@ export function normalizeIncidentKey(discoveryContext: string | null | undefined
     .replace(/\s+/g, " ")
     .trim();
   return normalized.length > 0 ? normalized : null;
+}
+
+// ---- Mechanical pre-filter + story clustering (Phase 8, containment pass) ----
+//
+// Derived from 135 REAL decline reasons sampled from tasks.result_summary (source LIKE
+// 'sensor:candidate-maturation:%', 2026-07-14). Two decline classes exist in that sample:
+//   (a) MECHANICAL — bare t.co / empty Links field + RT-only or a one-line quip with zero
+//       mission-relevant signal (e.g. #22582 "RT @joon_h_lee: https://t.co/eZCiriQzvm", Links
+//       empty; #22581 bare t.co with no other text). Code-checkable without an LLM.
+//   (b) TOPICAL — a real link/story IS present, declined for being off-mission (SK Hynix ADR
+//       listing x9, MSTR treasury x6, generic BTC price-action x6, memecoin/hype content).
+//       This requires editorial judgment a mechanical filter cannot safely replicate — DO NOT
+//       try to catch this class here. It's what the two-stage triage dispatch (Task 2) exists
+//       for: one CHEAP batched judgment call instead of N paid per-candidate dispatches.
+//
+// isMechanicallyRejectable() therefore ONLY ever rejects class (a). Any candidate with a real
+// expanded URL always defers to triage, full stop — mechanically pre-judging topical relevance
+// is exactly the mistake this comment warns against.
+
+/** Mission-relevant keyword allowlist for the mechanical filter's thin-text branch (a
+ * link-free, short candidate is spared mechanical rejection if it at least NAMES something
+ * mission-relevant — the triage stage still gets final say, this only decides whether it's
+ * worth even offering to triage). Deliberately broader than x-news-trends.ts's MISSION_TERMS
+ * (that list biases which News queries run; this one decides whether a link-free scrap of text
+ * is worth a human/LLM glance at all) but drawn from the same mission vocabulary. */
+const MISSION_KEYWORDS = [
+  "bitcoin", "btc", "aibtc", "stacks", "stx", "sbtc", "agent", "claude", "opus", "sonnet",
+  "llm", "mcp", "x402", "lightning", "defi", "arc0", "arc-starter", "agent-runtime",
+];
+
+function stripRtPrefixMentionsAndUrls(text: string): string {
+  return text
+    .replace(/^RT\s+@\w+:\s*/i, "") // native/legacy retweet copy prefix
+    .replace(/@\w+/g, "") // @mentions
+    .replace(/https?:\/\/\S+/g, "") // any residual raw URL (t.co or otherwise)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export interface MechanicalFilterInput {
+  expandedUrls: string[];
+  isRetweet: boolean;
+  textSnippet: string;
+}
+
+export interface MechanicalFilterResult {
+  reject: boolean;
+  reason?: string;
+}
+
+/**
+ * Cheap, code-only rejection for candidates with structurally zero researchable substance —
+ * see the module-comment above for exactly which decline class this targets and which it
+ * deliberately does NOT (topical/off-mission judgment always goes to triage, never guessed
+ * here). A candidate with ANY real expanded URL is NEVER mechanically rejected — link presence
+ * always defers the relevance call to triage.
+ */
+export function isMechanicallyRejectable(input: MechanicalFilterInput): MechanicalFilterResult {
+  if (input.expandedUrls.length > 0) return { reject: false };
+
+  const stripped = stripRtPrefixMentionsAndUrls(input.textSnippet ?? "");
+  const hasRtPrefix = input.isRetweet || /^RT\s+@\w+:/i.test((input.textSnippet ?? "").trim());
+
+  if (stripped.length === 0) {
+    return {
+      reject: true,
+      reason: hasRtPrefix
+        ? "mechanical: retweet-only, no URL, no residual text after stripping RT-prefix/mentions/links"
+        : "mechanical: no URL, no residual text after stripping mentions/links",
+    };
+  }
+
+  const lower = stripped.toLowerCase();
+  const hasMissionSignal = MISSION_KEYWORDS.some((kw) => lower.includes(kw));
+  if (stripped.length < 20 && !hasMissionSignal) {
+    return {
+      reject: true,
+      reason: "mechanical: one-line/thin text, no URL, no mission-relevant keyword signal",
+    };
+  }
+
+  return { reject: false };
+}
+
+/** Lowercase host (stripping a leading "www."), strip query string + fragment + trailing
+ * slash. Returns null on parse failure — callers must never merge candidates on a failed
+ * canonicalization. */
+export function canonicalizeUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    let path = parsed.pathname.replace(/\/+$/, "");
+    return `${host}${path}`.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+export interface ClusterKeyInput {
+  expandedUrls: string[];
+  textSnippet: string;
+}
+
+/**
+ * Priority 1: canonicalized primary expanded URL (the strongest, cheapest same-story signal —
+ * two candidates linking the same canonical URL are the same story almost by definition).
+ * Priority 2 (only reached for candidates that survived the mechanical filter WITHOUT a URL,
+ * i.e. had enough thin-text substance/keyword signal to defer to triage): a light text-shingle
+ * key — RT-prefix/mention/URL-stripped text, first 12 whitespace-separated tokens, normalized
+ * via the same punctuation/case folding as normalizeIncidentKey. Returns null (no clustering —
+ * a singleton) if fewer than 4 tokens survive stripping, to avoid false-merging unrelated short
+ * quips that happen to share a few common words.
+ */
+export function computeClusterKey(input: ClusterKeyInput): string | null {
+  if (input.expandedUrls.length > 0) {
+    const canon = canonicalizeUrl(input.expandedUrls[0]);
+    if (canon) return `url:${canon}`;
+  }
+  const stripped = stripRtPrefixMentionsAndUrls(input.textSnippet ?? "");
+  const tokens = normalizeIncidentKey(stripped)?.split(" ").filter(Boolean) ?? [];
+  if (tokens.length < 4) return null;
+  return `text:${tokens.slice(0, 12).join(" ")}`;
 }
 
 /**
