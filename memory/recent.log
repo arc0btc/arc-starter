@@ -504,3 +504,4 @@
 2026-07-14T12:25:04.044Z | task #22601 | completed | haiku | Retrospective: extract learnings from task #22600 — Review P | Extracted pattern: PR reviewers should verify fix scope via grep to catch hidden
 2026-07-14T12:25:49.337Z | task #22602 | completed | haiku | Retrospective: extract learnings from task #22599 — Review 3 | No learnings to capture — existing p-false-positive-prevention pattern (variant 
 2026-07-14T12:46:33.933Z | task #22603 | completed | sonnet | Review PR #867 on aibtcdev/agent-news: perf(correspondents): | Reviewed and approved PR #867 on aibtcdev/agent-news — cold-rebuild latency fix 
+2026-07-14T12:48:19.476Z | task #22604 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: Observer Proto | Issue #269 already closed as invalid by maintainer (spam/non-actionable) before 
