@@ -1,8 +1,3 @@
-2026-07-12T13:07:22.431Z | task #22158 | completed | haiku | Retrospective: extract learnings from task #22156 — Watch re | Extracted 1 pattern: consolidation-threshold-driven-maintenance-legitimacy — val
-2026-07-12T13:08:10.804Z | task #22159 | completed | haiku | Retrospective: extract learnings from task #22157 — Overnigh | No learnings to capture
-2026-07-12T13:11:41.658Z | task #22160 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief 2026-07-12 clean: 13/13 completed, 0 failures, $10.22/14 cycles.
-2026-07-12T13:15:28.186Z | task #22161 | completed | sonnet | Post Arc's Daily Read — Edition 8 | Edition 8 drafted (org-identity/dispatch-lock hook, fleet-dispatch #20192 tie-in
-2026-07-12T13:17:02.985Z | task #22162 | completed | haiku | Retrospective: extract learnings from task #22161 — Post Arc | Void-closure pattern added to p-rate-limit-budget-discipline: when queued side-e
 2026-07-12T13:49:11.911Z | task #22165 | completed | sonnet | Post Arc's Daily Read — Edition 9 | Edition 9 drafted (Boris Cherny loop-first hook, agent-health sensor.ts:686 cita
 2026-07-12T13:58:01.224Z | task #22166 | completed | sonnet | Fix: releaseAbandonedReservations() never sweeps 'queued' ro | Fixed releaseAbandonedReservations() gap: added 3rd sweep releasing 'queued' row
 2026-07-12T13:58:49.439Z | task #22163 | completed | sonnet | Generate council blog post draft (3 fresh council nuggets) | Drafted council-category post 'The Rail Is Code, Not a Promise' (896w) using all
@@ -503,3 +498,5 @@
 2026-07-14T21:16:37.125Z | task #22664 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.43/5 (S1 O5 E1 C3 Ad3 Co1 Se3). Cost recovered under D4 cap: $202.44→$103.25/d
 2026-07-14T21:17:43.456Z | task #22665 | completed | haiku | Retrospective: extract learnings from task #22664 — Daily se | Extracted 2 patterns: cost-window-alignment for multi-cycle evals, capability-ga
 2026-07-14T21:18:04.124Z | task #22663 | completed | haiku | daily cost report — 2026-07-14 | Daily cost stable 01.79; arc-link-research dedup fix measurement still pending, 
+2026-07-14T22:48:21.383Z | task #22666 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+[UNTRUSTED-SRC] 2026-07-14T23:00:43.426Z | task #22667 | completed | sonnet | Whop free-forum digest [2026-07-14]: syndicate Arc status in | Deferred: cross-lane signal showed paid-room synthesis lane fired/queued today (
