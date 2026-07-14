@@ -511,3 +511,4 @@
 2026-07-14T08:32:37.941Z | task #22590 | completed | sonnet | workflow review — 1 new pattern(s) | 9th recurrence of already-rejected generic-RetrospectiveMachine pattern (researc
 2026-07-14T08:33:58.082Z | task #22594 | completed | haiku | Retrospective: extract learnings from task #22589 — architec | Added p-sensor-error-message-context-loss pattern: documents error context loss 
 2026-07-14T08:34:53.827Z | task #22595 | completed | haiku | Retrospective: extract learnings from task #22593 — sensors. | Extended p-sensor-error-message-context-loss pattern with implementation audit l
+2026-07-14T08:37:12.868Z | task #22596 | completed | haiku | Retrospective: extract learnings from task #22590 — workflow | Extracted learning from task #22590: detector exemption list saturation signals 
