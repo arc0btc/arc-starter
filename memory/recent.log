@@ -1,35 +1,3 @@
-2026-07-11T17:50:08.994Z | task #22103 | completed | sonnet | Nostr note from artifact: The loop is tiny | Posted Nostr note on loop-vs-harness (eventId cb7e5883..., both relays ok)
-2026-07-11T17:56:20.676Z | task #22104 | completed | sonnet | Nostr note from artifact: Ten of twelve, honestly | Posted Nostr note on the sandbox-gap/prompt-injection-defense self-audit; eventI
-2026-07-11T18:03:11.899Z | task #22105 | completed | sonnet | Nostr note from artifact: MEMORY.md is the moat | Posted Nostr note on MEMORY.md-as-moat framing, eventId f353c7a7..., both relays
-2026-07-11T20:13:37.762Z | task #22106 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-06T23-20 | Packaged x-batch-synthesis report as Whop SKU prod_DFg0QuZSRQ5zU ($9), published
-2026-07-11T20:14:43.582Z | task #22107 | completed | haiku | Retrospective: extract learnings from task #22106 — Package  | Extracted staging-checkpoint-determinism pattern from SKU packaging workflow — d
-2026-07-11T20:15:28.190Z | task #22110 | completed | sonnet | Distill watch report 2026-07-11T130042Z into 1-2 interior ob | 2 nuggets: failure-cluster (email threading systemic bug, 0/947+0/551 in_reply_t
-2026-07-11T20:16:24.897Z | task #22109 | completed | sonnet | context-review: 2 context loading issue(s) found | Both findings are false positives: arc-article-pipeline's stage step shells out 
-[UNTRUSTED-SRC] 2026-07-11T20:16:56.711Z | task #22112 | completed | sonnet | Whop synthesis [2026-07-11T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to add
-2026-07-11T20:18:26.948Z | task #22108 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 signals verified false-positive/still-blocked, no unblocks. #22086: X cred
-2026-07-11T20:20:01.569Z | task #22111 | completed | sonnet | architecture review — codebase changed since last review (f9 | Small clean diff (3 commits, 1 data-sync-only): reservation-leak fix #22087 (cal
-2026-07-11T20:20:39.244Z | task #22113 | completed | sonnet | context-review: refactor META_TASK_SOURCES Set into declarat | Refactored META_TASK_SOURCES Set into {pattern, reason}[] array in skills/contex
-2026-07-11T20:21:45.113Z | task #22114 | completed | haiku | Retrospective: extract learnings from task #22111 — architec | Patterns from #22087/#22089 already captured (p-catch-block-resource-release-unc
-2026-07-11T20:24:08.863Z | task #22115 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-11T21:12:46.426Z | task #22116 | blocked | haiku | arc-opensource: sync 267 commit(s) to GitHub | Branch has re-diverged from main after PR #28 merge (a8714813). Pushing would fo
-2026-07-11T21:13:41.706Z | task #22117 | completed | haiku | daily cost report — 2026-07-11 | Daily cost report reviewed. No anomalies. Code 1.88 • API 7.16 • 122 tasks. arc-
-2026-07-11T21:15:29.973Z | task #22118 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.40/5 (up from 2.15) — S:1 O:5 E:2 C:1 Ad:4 Co:1 Se:3. Zero failures
-2026-07-11T21:16:23.138Z | task #22119 | completed | haiku | Retrospective: extract learnings from task #22118 — Daily se | Patterns already comprehensive; no new learnings to capture
-2026-07-11T22:25:02.362Z | task #22120 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-[UNTRUSTED-SRC] 2026-07-11T22:59:11.427Z | task #22121 | completed | sonnet | Whop free-forum digest [2026-07-11]: syndicate Arc status in | Posted free-forum digest post_1Ccw6iiz6Z1Pubbzped8HX. Verified DEFER conditions 
-2026-07-11T23:00:08.989Z | task #22122 | completed | haiku | Retrospective: extract learnings from task #22121 — Whop fre | Added p-cross-lane-defer-output-verification: deferral decisions based on parall
-2026-07-12T00:02:31.583Z | task #22124 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | Purpose eval 2.10/5 (S:1 O:5 E:1 C:1 Ad:3 Co:1 Se:3, DSL-validated). Ops perfect
-2026-07-12T00:05:11.629Z | task #22123 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | social-x-posting 32 consecutive failures = real X 402 CreditsDepleted (db/x-cred
-2026-07-12T00:05:47.049Z | task #22125 | completed | haiku | Retrospective: extract learnings from task #22124 — PURPOSE  | No learnings to capture
-2026-07-12T00:07:09.571Z | task #22126 | completed | haiku | Retrospective: extract learnings from task #22123 — daily se | Added p-known-state-flag-precheck pattern: sensors should check for existing res
-2026-07-12T01:08:44.702Z | task #22127 | completed | sonnet | Watch report — 2026-07-12T01:01Z | Watch report 2026-07-12T010112Z: 56 tasks completed, 0 failed, 2 blocked (X cred
-2026-07-12T01:09:44.792Z | task #22128 | completed | haiku | Retrospective: extract learnings from task #22127 — Watch re | Added 3 reusable patterns: reactive-lane gate distinction, git-report auto-commi
-2026-07-12T02:07:50.369Z | task #22129 | completed | sonnet | CEO review — 2026-07-12T02:01 | CEO review: on track, 56/56 tasks 8.84 zero waste. Report-only pass — no queue c
-2026-07-12T02:09:13.668Z | task #22130 | completed | haiku | Retrospective: extract learnings from task #22129 — CEO revi | Workflow-sourced task completion requires advancing parent workflow state, not j
-2026-07-12T02:18:40.202Z | task #22132 | completed | sonnet | Email watch report to whoabuddy — 2026-07-12T02:01 | Watch report emailed to whoabuddy@gmail.com via CF email worker (msg c1d3f3e4)
-2026-07-12T02:19:46.780Z | task #22135 | completed | haiku | probe | stray probe task, no-op
-2026-07-12T02:19:58.038Z | task #22136 | completed | haiku | x | stray probe task, no-op
-2026-07-12T02:20:33.389Z | task #22131 | completed | sonnet | self-review: run health check for 2026-07-12 | Health check clean: services (sensors/dispatch/web/mcp) all healthy, no new 24h 
 2026-07-12T02:22:22.843Z | task #22133 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | arc-skill-manager domain: disallowed-tools sweep (2026-07-05 audit) confirmed fu
 [UNTRUSTED-SRC] 2026-07-12T02:22:33.539Z | task #22134 | completed | sonnet | Whop synthesis [2026-07-12T02]: read the room, defer or post | DEFER: 0 messages in 24h window, room is quiet — no post
 2026-07-12T02:26:39.077Z | task #22138 | completed | sonnet | Consolidate memory/patterns.md (163 lines, over 150-line thr | patterns.md consolidated 163→148 lines via 14 merges of narrow/overlapping entri
@@ -530,3 +498,5 @@
 2026-07-14T14:35:04.992Z | task #22634 | completed | haiku | Retrospective: extract learnings from task #22633 — Nostr no | No learnings to capture
 2026-07-14T14:39:57.691Z | task #22635 | completed | sonnet | Nostr note from artifact: Solo reviews blind spot | Posted Nostr note on solo-review blind spot, eventId 0f09d2e7..., both relays ok
 2026-07-14T14:45:58.477Z | task #22636 | completed | sonnet | Nostr note from artifact: Impossible beats unlikely | Posted Nostr note on SELECT FOR UPDATE SKIP LOCKED (structural guarantee vs best
+2026-07-14T14:46:44.342Z | task #22637 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-14T14:52:05.545Z | task #22638 | completed | sonnet | Nostr note from artifact: Disagreement needs a ledger | Posted Nostr note on disagreement-needs-a-ledger (eventId 54b788ae..., both rela
