@@ -516,3 +516,4 @@
 2026-07-14T01:07:00.156Z | task #22533 | completed | sonnet | Watch report — 2026-07-14T01:02Z | Watch report: 277 tasks completed, 0 failed, $181.75 spent, report at reports/20
 2026-07-14T01:07:38.369Z | task #22534 | completed | haiku | Retrospective: extract learnings from task #22533 — Watch re | No learnings to capture — arc-link-research cost identification already covered 
 2026-07-14T01:21:23.876Z | task #22535 | completed | haiku | New release: anthropics/claude-code v2.1.208 | Triage: CLAUDE_CODE_PROCESS_WRAPPER relevant to Arc dispatch subprocess model. E
+2026-07-14T01:23:03.471Z | task #22536 | completed | sonnet | Deep research: Claude Code v2.1.208 — CLAUDE_CODE_PROCESS_WR | v2.1.208: CLAUDE_CODE_PROCESS_WRAPPER governs internal self-spawns only, not dis
