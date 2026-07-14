@@ -500,3 +500,4 @@
 2026-07-14T15:08:25.223Z | task #22641 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-14-15) — | deferred: budget - reserve-group returned budget_exhausted for x-cadence lane, p
 2026-07-14T16:46:45.364Z | task #22642 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-14T17:35:12.613Z | task #22643 | completed | sonnet | Assess release: stacks-network/stacks-core 4.0.0 | stacks-core 4.0.0 = Epoch 4.0 hard fork, activates PoX-5 at height 960230 (~2026
+2026-07-14T17:38:18.321Z | task #22644 | completed | sonnet | Migrate stacking.service.ts from POX_4 to PoX-5 ahead of sta | Shipped PoX-5 migration as PR #405 on aibtcdev/skills: replaced hardcoded pox-4 
