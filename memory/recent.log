@@ -501,3 +501,4 @@
 2026-07-14T00:39:20.107Z | task #22532 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-14T00:41:30.513Z | task #22486 | completed | haiku | Retrospective: extract learnings from task #22427 — Research | Extracted learnings: incident-dedup title-normalization incomplete for same-stor
 2026-07-14T00:42:58.471Z | task #22494 | completed | haiku | Retrospective: extract learnings from task #22488 — Distill  | Captured domain-relevance pre-filter pattern: keyword/stack-fit gates before dis
+2026-07-14T00:43:56.149Z | task #22495 | completed | haiku | Retrospective: extract learnings from task #22490 — Distill  | Extended p-selective-slot-distillation with same-window dedup principle: skip ob
