@@ -29,6 +29,7 @@ mkdirSync(HOOK_STATE_DIR, { recursive: true });
 export interface HookState {
   last_ran: string;
   last_result: "ok" | "error" | "skip";
+  last_error?: string | null;
   version: number;
   [key: string]: unknown;
 }
@@ -425,6 +426,7 @@ export async function runSensors(): Promise<void> {
           ...state,
           last_ran: state?.last_ran ?? new Date().toISOString(),
           last_result: r.ok ? "ok" : "error",
+          last_error: r.ok ? null : r.error,
           consecutive_failures: r.ok ? 0 : prevFailures + 1,
           version: state ? state.version + 1 : 1,
         });
