@@ -999,74 +999,98 @@ export async function cmdProcess(args: string[]): Promise<void> {
     packaged: false,
   };
 
-  const lines: string[] = [
-    `# Research Report — ${timestamp}`,
-    "",
-    `**Links analyzed:** ${results.length}`,
-    `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
-    ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
-    "",
-    "---",
-    "",
-  ];
+  // Anti-slop skip path (2026-07-14, #22556): when every link in the batch is
+  // mechanically rated "low" (fm.arc_relevance caps at 1 — see relevanceToNumber),
+  // a full report with takeaways/summary sections is pure shelf noise. Write a
+  // compact one-line-per-link skip note instead. Front-matter is unchanged so
+  // dedup (`check`) and the catalog (`reindex`) still work off it.
+  const allLow = counts.high === 0 && counts.medium === 0;
 
-  for (const r of results) {
-    lines.push(`## ${r.title}`);
-    lines.push("");
-    lines.push(`**URL:** ${r.url}`);
-    if (r.fetchError) {
-      lines.push(`**Fetch error:** ${r.fetchError}`);
-    }
-    lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
-    lines.push("");
-    lines.push("### Key Takeaways");
-    for (const t of r.takeaways) {
-      lines.push(`- ${t}`);
+  let lines: string[];
+  if (allLow) {
+    lines = [
+      `# Research Report — ${timestamp} (skipped: low relevance)`,
+      "",
+      `**Links analyzed:** ${results.length} — all low relevance, skip note only`,
+      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
+      "",
+      "---",
+      "",
+    ];
+    for (const r of results) {
+      lines.push(`- ${r.url} — ${r.justification || "low relevance"}`);
     }
     lines.push("");
-    lines.push("---");
-    lines.push("");
-  }
+  } else {
+    lines = [
+      `# Research Report — ${timestamp}`,
+      "",
+      `**Links analyzed:** ${results.length}`,
+      `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
+      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
+      "",
+      "---",
+      "",
+    ];
 
-  if (skippedTweets.length > 0) {
-    lines.push("## Skipped (Inaccessible X Links)");
+    for (const r of results) {
+      lines.push(`## ${r.title}`);
+      lines.push("");
+      lines.push(`**URL:** ${r.url}`);
+      if (r.fetchError) {
+        lines.push(`**Fetch error:** ${r.fetchError}`);
+      }
+      lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
+      lines.push("");
+      lines.push("### Key Takeaways");
+      for (const t of r.takeaways) {
+        lines.push(`- ${t}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    if (skippedTweets.length > 0) {
+      lines.push("## Skipped (Inaccessible X Links)");
+      lines.push("");
+      for (const s of skippedTweets) {
+        lines.push(`- ${s.url} — ${s.reason}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    if (embeddedUrlAudit.length > 0) {
+      lines.push("## Embedded URL Audit");
+      lines.push("");
+      lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
+      lines.push("");
+      for (const entry of embeddedUrlAudit) {
+        lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    lines.push("## Summary");
     lines.push("");
-    for (const s of skippedTweets) {
-      lines.push(`- ${s.url} — ${s.reason}`);
+    lines.push("### Mission Relevance");
+    if (counts.high > 0) {
+      const highLinks = results.filter((r) => r.relevance === "high");
+      lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
+    }
+    if (counts.medium > 0) {
+      const medLinks = results.filter((r) => r.relevance === "medium");
+      lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
+    }
+    if (counts.low > 0) {
+      lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
     }
     lines.push("");
-    lines.push("---");
-    lines.push("");
   }
-
-  if (embeddedUrlAudit.length > 0) {
-    lines.push("## Embedded URL Audit");
-    lines.push("");
-    lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
-    lines.push("");
-    for (const entry of embeddedUrlAudit) {
-      lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
-    }
-    lines.push("");
-    lines.push("---");
-    lines.push("");
-  }
-
-  lines.push("## Summary");
-  lines.push("");
-  lines.push("### Mission Relevance");
-  if (counts.high > 0) {
-    const highLinks = results.filter((r) => r.relevance === "high");
-    lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
-  }
-  if (counts.medium > 0) {
-    const medLinks = results.filter((r) => r.relevance === "medium");
-    lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
-  }
-  if (counts.low > 0) {
-    lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
-  }
-  lines.push("");
 
   const report = serializeFrontmatter(fm) + "\n" + lines.join("\n");
   await Bun.write(filepath, report);
