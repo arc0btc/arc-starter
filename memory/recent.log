@@ -502,3 +502,4 @@
 2026-07-14T00:41:30.513Z | task #22486 | completed | haiku | Retrospective: extract learnings from task #22427 — Research | Extracted learnings: incident-dedup title-normalization incomplete for same-stor
 2026-07-14T00:42:58.471Z | task #22494 | completed | haiku | Retrospective: extract learnings from task #22488 — Distill  | Captured domain-relevance pre-filter pattern: keyword/stack-fit gates before dis
 2026-07-14T00:43:56.149Z | task #22495 | completed | haiku | Retrospective: extract learnings from task #22490 — Distill  | Extended p-selective-slot-distillation with same-window dedup principle: skip ob
+2026-07-14T00:44:43.868Z | task #22497 | completed | haiku | Retrospective: extract learnings from task #22493 — complian | Extracted 2 reusable patterns from compliance-review work: (1) p-systematic-abbr
