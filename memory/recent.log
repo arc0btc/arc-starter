@@ -512,3 +512,4 @@
 2026-07-14T00:51:52.430Z | task #22518 | completed | haiku | Retrospective: extract learnings from task #22513 — Review c | Cost analysis leverages built-in arc tasks cost CLI; task #22513 validated metho
 2026-07-14T00:53:26.097Z | task #22519 | completed | haiku | Retrospective: extract learnings from task #22514 — PURPOSE  | Extended p-sensor-fire-rate-management with producer-side volume-capping pattern
 2026-07-14T00:54:10.106Z | task #22522 | completed | haiku | Retrospective: extract learnings from task #22512 — daily se | Added 2 patterns: p-data-artifact-churn-dispatch-auto-commit + p-transient-senso
+2026-07-14T00:54:41.197Z | task #22508 | completed | haiku | daily cost report — 2026-07-13 | Daily cost report 2026-07-13: 99.12 code, 305 tasks. arc-link-research 52% (03.5
