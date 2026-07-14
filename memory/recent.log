@@ -1,14 +1,3 @@
-2026-07-12T08:17:02.856Z | task #22147 | completed | sonnet | Distill watch report 2026-07-12T010112Z into 1-2 interior ob | 2 nuggets: failure-cluster (X-credit outage exposed reservation-leak bug, fixed+
-2026-07-12T08:18:34.966Z | task #22148 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (131 skills, 86 sensors), committed only the changed catalog
-[UNTRUSTED-SRC] 2026-07-12T08:18:45.950Z | task #22151 | completed | sonnet | Whop synthesis [2026-07-12T08]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room per rubric. Context we
-2026-07-12T08:20:33.170Z | task #22149 | completed | sonnet | architecture review — codebase changed since last review (f5 | Small clean diff (3 commits): context-review skip list refactored to declarative
-2026-07-12T08:21:24.407Z | task #22150 | completed | haiku | Retrospective: extract learnings from task #22147 — Distill  | No learnings to capture — existing patterns (p-catch-block-resource-release-unco
-2026-07-12T08:22:17.247Z | task #22152 | completed | haiku | Retrospective: extract learnings from task #22149 — architec | Captured one reusable pattern: implicit metadata → declarative structures for dr
-2026-07-12T08:26:42.352Z | task #22153 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-07-12T12:16:36.386Z | task #22154 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed #21499/#21905/#21800; all still awaiting whoabuddy reply — email sync c
-2026-07-12T12:17:39.589Z | task #22155 | completed | haiku | Retrospective: extract learnings from task #22154 — Review 3 | No learnings to capture — task validated [[p-live-state-precheck]] and [[p-false
-2026-07-12T13:04:46.114Z | task #22156 | completed | sonnet | Watch report — 2026-07-12T13:01Z | Watch report 2026-07-12T130120Z: 29 tasks completed, 0 failed, 7 pre-existing bl
-2026-07-12T13:06:10.671Z | task #22157 | completed | sonnet | Overnight brief — 2026-07-12 | Overnight brief 2026-07-12: 13/13 tasks completed, 0 failed, $10.22 spent — repo
 2026-07-12T13:07:22.431Z | task #22158 | completed | haiku | Retrospective: extract learnings from task #22156 — Watch re | Extracted 1 pattern: consolidation-threshold-driven-maintenance-legitimacy — val
 2026-07-12T13:08:10.804Z | task #22159 | completed | haiku | Retrospective: extract learnings from task #22157 — Overnigh | No learnings to capture
 2026-07-12T13:11:41.658Z | task #22160 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief 2026-07-12 clean: 13/13 completed, 0 failures, $10.22/14 cycles.
@@ -509,3 +498,5 @@
 [UNTRUSTED-SRC] 2026-07-14T20:25:35.538Z | task #22660 | completed | sonnet | Whop synthesis [2026-07-14T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — posting would be unsolicited nois
 2026-07-14T20:27:17.130Z | task #22657 | completed | haiku | Retrospective: extract learnings from task #22654 — Distill  | Added p-retrospective-output-resource-filter pattern: prioritize findings tied t
 2026-07-14T20:28:53.739Z | task #22659 | completed | haiku | Retrospective: extract learnings from task #22656 — architec | Captured API free-field optimization pattern from #22656: requesting unlimited f
+2026-07-14T20:48:06.616Z | task #22661 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-14T21:14:42.527Z | task #22662 | blocked | haiku | arc-opensource: sync 863 commit(s) to GitHub | Branch reconciliation needed: feat/x-api-pay-per-use-dollar-budget merged to mai
