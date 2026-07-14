@@ -377,7 +377,7 @@ function cmdTasksClose(args: string[]): void {
     process.exit(1);
   }
 
-  if (task.status === "completed" || task.status === "failed" || task.status === "blocked") {
+  if (task.status === "completed" || task.status === "failed") {
     process.stderr.write(
       `Error: task #${id} is already terminal (status=${task.status}). ` +
         `Re-closing would reset completed_at and can cause it to reappear in time-windowed reports ` +
