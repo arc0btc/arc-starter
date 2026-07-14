@@ -855,20 +855,39 @@ export function pendingTaskExistsForSourcePrefix(prefix: string): boolean {
 }
 
 /**
- * Full sensor-research dispatch lineage count for TODAY (UTC) — arc-x-research-channel Phase 8
- * containment pass. Counts every task rooted at a `sensor:%`-sourced task created today PLUS
- * all of its descendants (a triage task's own per-topic fan-out, via parent_id), via a
+ * Full sensor-research dispatch lineage count for the last 24h — arc-x-research-channel Phase 8
+ * containment pass. Counts every task rooted at a `sensor:candidate-maturation:%`-sourced task
+ * PLUS all of its descendants (a triage task's own per-topic fan-out, via parent_id), via a
  * recursive CTE. This is the number that actually drives $ spend under the two-stage
  * triage->per-topic dispatch model (candidate-maturation/sensor.ts) — counting only top-level
- * `source LIKE 'sensor:%'` rows would undercount to near-1/day once fan-out is the majority of
- * real dispatch volume. Read-only, cheap (tasks table is small relative to the whole DB).
+ * `source LIKE 'sensor:candidate-maturation:%'` rows would undercount to near-1/day once
+ * fan-out is the majority of real dispatch volume.
+ *
+ * SCOPE (dev-council 2026-07-14, CONFIRMED independently by ALL 5 lenses — Fowler, Hohpe,
+ * Kleppmann, Lamport, Newman — the single highest-confidence finding of this pass, live-proven
+ * against the running DB): the first shipped version of this function rooted the CTE on the
+ * BARE `source LIKE 'sensor:%'` prefix, which matches every sensor in the whole fleet (arc-
+ * housekeeping, github-release-watcher, whop-synthesis, arc-reporting-watch, ...), not just
+ * this lane. Live count the day this was caught: 68 fleet-wide vs 26 candidate-maturation-only
+ * — against a cap of 15, the bare-prefix version made the cap-hit branch fire on EVERY run,
+ * silently zeroing out the entire pipeline this phase exists to fix (every survivor marked
+ * matured with no task, no operator-visible signal beyond a log line). Scoped to
+ * `sensor:candidate-maturation:%` — the `parent_id` recursive walk still reaches the triage
+ * task's `task:<id>:<slug>` fan-out children (they descend from a candidate-maturation-sourced
+ * root), so the two-stage counting intent is preserved without dragging in the rest of the fleet.
+ *
+ * WINDOW (dev-council, Kleppmann + Hohpe, CONFIRMED): a rolling 24h window on `created_at`,
+ * not a UTC-calendar-day `date(created_at)=date('now')` bound — the calendar-day version left a
+ * blind spot where a triage task filed near 23:59 UTC has fan-out children created just after
+ * midnight, which fall outside BOTH days' anchor sets. Matches the monitor's own rolling-24h
+ * window (ops/monitor/arc-x-research-channel-health.ts) so the two never disagree at a boundary.
  */
 export function countSensorResearchDispatchesToday(): number {
   const db = getDatabase();
   const row = db
     .query(
       `WITH RECURSIVE lineage(id) AS (
-         SELECT id FROM tasks WHERE source LIKE 'sensor:%' AND date(created_at) = date('now')
+         SELECT id FROM tasks WHERE source LIKE 'sensor:candidate-maturation:%' AND created_at >= datetime('now', '-24 hours')
          UNION
          SELECT t.id FROM tasks t JOIN lineage l ON t.parent_id = l.id
        )
