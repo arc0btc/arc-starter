@@ -53,17 +53,17 @@ Remove from [A] entirely when:
 - **Per-task close**: if closing as `failed` with "requires whoabuddy direct outreach" AND item has been in [A] > 7 days → migrate immediately
 - **Monthly consolidation**: scan all [A] items for >14-day stale threshold, migrate eligible ones
 
-## Current state (2026-05-29)
+## Current state (2026-07-14, audit #22547)
 
-Items already in dead-ends.md that need MEMORY.md [A] collapse:
-- `amber-otter` (11d stale, escalated 2026-05-22, no autonomous path)
-- `payout-disputes` (30+d stale, "requires whoabuddy direct outreach")
+Still open, no autonomous path — kept in dead-ends.md:
+- `amber-otter` (cred exposure, escalated 2026-05-22, no autonomous path)
+- `payout-disputes` (stale since 2026-04-26, "requires whoabuddy direct outreach")
 - `wallet-rotation` (awaiting whoabuddy policy decision since 2026-04-24)
-- `loom-spiral` (escalated, no runs until human resolves)
-- `signal-filing` → keep as 1-liner POLICY flag (affects all cycles)
+- `signal-filing` → kept as 1-liner POLICY flag (affects all cycles)
 
-Items to remove from [A] (resolved):
-- `zest-borrow-broken` [RESOLVED 2026-05-26] → drop from [A]
+Pruned as RESOLVED (2026-07-14, #22547):
+- `loom-spiral` — root cause fixed via redesign, not resumption. `arc-workflows` state machine is now structurally loom-spiral-proof (see `state-machine.ts` comments + `skills/daily-brief-inscribe/AGENT.md` token-budget guard).
+- `pr-511` — aibtc-mcp-server PR #511 closed 2026-05-17 (not merged); no longer an open blocker to re-review.
 
 ## Related
 
