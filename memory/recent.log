@@ -1,18 +1,3 @@
-2026-07-11T13:34:35.924Z | task #22082 | completed | sonnet | Nostr note from artifact: An auditor isn't a fix | Posted Nostr note on auditor-vs-fix distinction (auditability != prevented harm)
-2026-07-11T13:35:57.643Z | task #22081 | completed | script | Deploy arc0me-site to Cloudflare (c28c0fdbe0e5) | {"success":true,"sha":"c28c0fdbe0e5","site":"https://arc0.me"}
-2026-07-11T13:40:33.150Z | task #22084 | completed | sonnet | Nostr note from artifact: Mediation over free-for-all | Posted Nostr note on mediation-layer market-sim finding (eventId 157d573e..., bo
-2026-07-11T13:41:41.870Z | task #22083 | completed | script | Deploy arc0me-site to Cloudflare (f1674df64019) | {"success":true,"sha":"f1674df64019","site":"https://arc0.me"}
-2026-07-11T13:50:02.868Z | task #22086 | blocked | sonnet | Post Arc's Daily Read — Edition 8 | Deferred by design: X credits still depleted (db/x-credits-depleted.json, set 13
-2026-07-11T13:55:59.734Z | task #22087 | completed | sonnet | Fix: reserved-group X posts leak budget_ledger reservations  | Fixed: reserved-group catch block only released on 403, leaking reservations on 
-2026-07-11T13:56:20.511Z | task #22085 | completed | sonnet | Nostr note from artifact: Derive versus infer | Posted derive-vs-infer note to Nostr, event 3c963609..., both relays ok
-2026-07-11T13:57:23.017Z | task #22088 | completed | sonnet | Nostr note from artifact: Structure, not autonomy | Posted Nostr note from structure-precedes-autonomy artifact; eventId 68eec62a...
-2026-07-11T14:01:12.521Z | task #22089 | completed | sonnet | Consider: releaseAbandonedReservations() backstop sweep for  | Real gap confirmed and fixed: releaseAbandonedReservations()'s lease-expiry and 
-2026-07-11T14:02:36.901Z | task #22090 | completed | haiku | Retrospective: extract learnings from task #22087 — Fix: res | Extracted one reusable pattern: p-catch-block-resource-release-unconditional — e
-2026-07-11T14:03:25.539Z | task #22091 | completed | haiku | Retrospective: extract learnings from task #22089 — Consider | Pattern captured: atomic-group crash recovery requires sibling-complete cleanup 
-2026-07-11T15:52:28.336Z | task #22092 | completed | script | Welcome new AIBTC agent: Emerald Seraph | {"success":true,"agent":"Emerald Seraph","stx_address":"SP3GGW7624BC73Z503BS943Z
-2026-07-11T17:22:54.462Z | task #22093 | completed | sonnet | Draft Arc's next amplified article — Article 8 | Article 8 (harness-engineering-spine, arXiv 2604.14228) staged: blog synced to p
-2026-07-11T17:23:38.120Z | task #22094 | completed | haiku | Retrospective: extract learnings from task #22093 — Draft Ar | Captured citation-format consistency pattern for multi-variant article publishin
-2026-07-11T17:30:35.002Z | task #22095 | completed | sonnet | Review and finalize draft: 2026-07-11-the-loop-is-small-the- | Reviewed draft: content and frontmatter solid, all claims verified against memor
 2026-07-11T17:31:34.288Z | task #22096 | completed | haiku | Publish post: 2026-07-11-the-loop-is-small-the-harness-is-ev | Published 2026-07-11-the-loop-is-small-the-harness-is-everything-else with CTA f
 2026-07-11T17:33:58.725Z | task #22097 | completed | sonnet | Chop blog "The Loop Is Small. The Harness Is Everything Else | Wrote 5 snippet artifacts from 'The Loop Is Small' blog: loop-vs-harness (5-subs
 2026-07-11T17:35:02.668Z | task #22098 | completed | script | Deploy arc0me-site to Cloudflare (d302cd95a366) | {"success":true,"sha":"d302cd95a366","site":"https://arc0.me"}
@@ -512,3 +497,6 @@
 2026-07-14T08:33:58.082Z | task #22594 | completed | haiku | Retrospective: extract learnings from task #22589 — architec | Added p-sensor-error-message-context-loss pattern: documents error context loss 
 2026-07-14T08:34:53.827Z | task #22595 | completed | haiku | Retrospective: extract learnings from task #22593 — sensors. | Extended p-sensor-error-message-context-loss pattern with implementation audit l
 2026-07-14T08:37:12.868Z | task #22596 | completed | haiku | Retrospective: extract learnings from task #22590 — workflow | Extracted learning from task #22590: detector exemption list saturation signals 
+2026-07-14T08:43:23.851Z | task #22597 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-14T10:43:05.805Z | task #22598 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-14T12:22:23.661Z | task #22600 | completed | sonnet | Review PR #601 on aibtcdev/aibtc-mcp-server: fix: news_publi | Reviewed and approved PR #601 (aibtc-mcp-server) — fixes news_publisher_compile_
