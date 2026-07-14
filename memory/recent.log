@@ -1,8 +1,3 @@
-2026-07-12T02:22:22.843Z | task #22133 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | arc-skill-manager domain: disallowed-tools sweep (2026-07-05 audit) confirmed fu
-[UNTRUSTED-SRC] 2026-07-12T02:22:33.539Z | task #22134 | completed | sonnet | Whop synthesis [2026-07-12T02]: read the room, defer or post | DEFER: 0 messages in 24h window, room is quiet — no post
-2026-07-12T02:26:39.077Z | task #22138 | completed | sonnet | Consolidate memory/patterns.md (163 lines, over 150-line thr | patterns.md consolidated 163→148 lines via 14 merges of narrow/overlapping entri
-2026-07-12T02:30:49.029Z | task #22139 | completed | sonnet | Validate the 14 disallowed-tools additions from 2026-07-05 a | All 14 skills from 2026-07-05 audit still carry disallowed-tools frontmatter int
-2026-07-12T02:31:14.468Z | task #22142 | completed | sonnet | Fix stale disallowed-tools tag: github-mentions sensor.ts wr | Documented github-mentions sensor.ts markAllRead() PUT /notifications write as a
 2026-07-12T02:32:35.875Z | task #22137 | completed | haiku | Retrospective: extract learnings from task #22131 — self-rev | No learnings to capture — health check validated existing patterns, confirmed pr
 2026-07-12T02:33:52.375Z | task #22140 | completed | haiku | Retrospective: extract learnings from task #22133 — Auto-que | Captured p-audit-completion-vs-manufacturing-followups: comprehensive audits wit
 2026-07-12T02:35:03.355Z | task #22141 | completed | haiku | Retrospective: extract learnings from task #22138 — Consolid | Extracted p-hierarchical-pattern-consolidation from task #22138 consolidation wo
@@ -503,3 +498,5 @@
 2026-07-14T15:05:46.884Z | task #22639 | completed | sonnet | Assess course candidacy: "Done Is a Command You Run, Not a C | no cluster yet: harness-engineering-completion-verification only clusters with 1
 2026-07-14T15:07:03.820Z | task #22640 | completed | haiku | Retrospective: extract learnings from task #22639 — Assess c | Added p-packaging-eligibility-gates: content packaging (courses, SKUs, products)
 2026-07-14T15:08:25.223Z | task #22641 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-14-15) — | deferred: budget - reserve-group returned budget_exhausted for x-cadence lane, p
+2026-07-14T16:46:45.364Z | task #22642 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-14T17:35:12.613Z | task #22643 | completed | sonnet | Assess release: stacks-network/stacks-core 4.0.0 | stacks-core 4.0.0 = Epoch 4.0 hard fork, activates PoX-5 at height 960230 (~2026
