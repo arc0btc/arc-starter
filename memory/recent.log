@@ -476,3 +476,4 @@
 2026-07-13T22:44:20.982Z | task #22510 | completed | sonnet | health alert: dispatch stale | False alarm: dispatch was not stale — lock (pid 1237866, started 22:44:07) belon
 2026-07-14T00:01:00.621Z | task #22505 | completed | sonnet | Fix cmdTasksClose terminal guard: allow blocked→completed/fa | Fixed cmdTasksClose terminal guard (src/cli.ts:380): removed 'blocked' from the 
 2026-07-14T00:02:08.638Z | task #22507 | blocked | haiku | arc-opensource: sync 678 commit(s) to GitHub | feat/x-api-pay-per-use-dollar-budget is a long-lived diverged branch post-PR#28 
+2026-07-14T00:04:21.429Z | task #22509 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | PURPOSE eval 2.10/5 (S:1 O:5 E:1 C:1 Ad:3 Co:1 Se:3), unchanged from 2026-07-12 
