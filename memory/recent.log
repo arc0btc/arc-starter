@@ -1,38 +1,3 @@
-2026-07-11T00:42:19.996Z | task #22018 | completed | sonnet | Produce verified stop→reconcile→restart runbook to move live | Verified runbook emailed to whoabuddy: origin/main=a8714813, local main 481 behi
-2026-07-11T00:42:45.037Z | task #22013 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Duplicate of already-fixed+documented issue: this alert traces to the same 07-10
-2026-07-11T00:43:59.456Z | task #22014 | completed | haiku | Retrospective: extract learnings from task #22010 — Investig | No learnings to capture - core insights already in p-content-publication-sync-di
-2026-07-11T00:45:17.204Z | task #22016 | completed | haiku | Retrospective: extract learnings from task #22015 — Email fr | No learnings to capture — task validates existing patterns (p-structural-task-di
-2026-07-11T00:46:10.660Z | task #22019 | completed | haiku | Retrospective: extract learnings from task #22017 — Email fr | Added p-long-lived-diverged-branch-reconciliation pattern: when feature branch d
-2026-07-11T00:47:27.542Z | task #22020 | completed | haiku | Retrospective: extract learnings from task #22018 — Produce  | Added p-out-of-band-operation-validation-before-handoff pattern: validate runboo
-2026-07-11T01:15:59.672Z | task #22021 | completed | haiku | New release: anthropics/claude-code v2.1.207 | Triage: not relevant to Arc. v2.1.207 = provider-specific feature availability (
-2026-07-11T02:15:04.875Z | task #22023 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 4 arc-skill-manager tasks (recent.log trim #22027, sensor-health-report #
-2026-07-11T02:16:13.770Z | task #22031 | completed | sonnet | Send one consolidated status digest to whoabuddy on open sig | Verified via email_messages (read-only query) that all 3 items (whop-sku overlap
-2026-07-11T02:16:50.408Z | task #22024 | completed | sonnet | self-review: run health check for 2026-07-11 | Self-review 2026-07-11: clean. Services healthy, no new failures, syntax intact,
-[UNTRUSTED-SRC] 2026-07-11T02:17:26.901Z | task #22026 | completed | sonnet | Whop synthesis [2026-07-11T02]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room, nothing to synthesize
-2026-07-11T02:21:39.570Z | task #22022 | completed | sonnet | Watch report — 2026-07-11T02:12Z | Watch report 13:00-02:12Z: 31 completed/0 failed/2 blocked, $23.57 spent. PR #28
-2026-07-11T02:23:18.178Z | task #22027 | completed | sonnet | Process memory/recent.log (521 lines, over 500-line threshol | Processed 521-line recent.log window (2026-07-07 to 07-11): per-task RARV retros
-2026-07-11T02:24:14.248Z | task #22028 | completed | sonnet | Run sensor-health-report and investigate any sensors with co | sensor-health-report: 86/86 sensors nominal, 0 consecutive failures, no stale/al
-2026-07-11T02:24:30.862Z | task #22029 | completed | sonnet | Run lint-skills across full skill tree and fix violations | lint-skills full-tree run: 131 SKILL.md + 65 AGENT.md + 86 sensor.ts + 84 cli.ts
-2026-07-11T02:26:51.148Z | task #22032 | completed | sonnet | Verify spark@arc0.me Cloudflare Email Routing is configured  | Verified spark@arc0.me routing IS live: CF rule 'spark@arc0.me to worker' enable
-2026-07-11T02:30:39.061Z | task #22033 | completed | sonnet | Audit last 10 sent email replies for correct in_reply_to thr | Threading audit found a real systemic bug, not just mis-threaded samples: 0 of 9
-2026-07-11T02:33:42.849Z | task #22041 | completed | sonnet | Fix email threading: /api/send never persists/emits In-Reply | Fixed email threading in arc-email-worker: SendRequest.in_reply_to now flows thr
-2026-07-11T02:35:15.068Z | task #22043 | completed | sonnet | Deploy email threading fix: wrangler deploy arc-email-worker | Deployed arc-email-worker fc1e868 to prod (mail.arc0.me, version ed285a48). ALTE
-2026-07-11T02:37:25.001Z | task #22039 | completed | haiku | Document undocumented CF email routes (loom@arc0.me, iris@ar | Documented three undocumented CF email routes (forge@, loom@, iris@arc0.me) via 
-2026-07-11T02:37:32.648Z | task #22025 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-11T02:39:27.586Z | task #22030 | completed | sonnet | Re-check disallowed-tools frontmatter adoption against 2026- | Re-audit vs 2026-07-05 list: adoption now 45/131 skills (up from 43 at last audi
-2026-07-11T02:40:51.615Z | task #22034 | completed | haiku | Retrospective: extract learnings from task #22023 — Auto-que | Captured one new pattern: p-discovery-batch-domain-scope-precheck for auto-disco
-2026-07-11T02:41:25.329Z | task #22035 | completed | haiku | Retrospective: extract learnings from task #22031 — Send one | Added p-escalation-consolidation-idempotency pattern: consolidate related escala
-2026-07-11T02:43:07.586Z | task #22036 | completed | haiku | Retrospective: extract learnings from task #22022 — Watch re | No learnings to capture — key findings (terminal state immutability, publication
-2026-07-11T02:43:59.352Z | task #22037 | completed | haiku | Retrospective: extract learnings from task #22027 — Process  | Extracted 1 pattern: consolidation passes must refresh stale state references in
-2026-07-11T02:44:50.913Z | task #22038 | completed | haiku | Retrospective: extract learnings from task #22028 — Run sens | Added p-audit-memory-staleness-verification pattern: audits finding memory claim
-2026-07-11T02:46:21.645Z | task #22040 | completed | haiku | Retrospective: extract learnings from task #22032 — Verify s | Updated patterns: infrastructure state assertions need periodic verification to 
-2026-07-11T02:47:07.293Z | task #22042 | completed | haiku | Retrospective: extract learnings from task #22033 — Audit la | Added p-cross-repo-dependency-root-cause-boundary-check to patterns.md — audits 
-2026-07-11T02:48:29.266Z | task #22044 | completed | haiku | Retrospective: extract learnings from task #22041 — Fix emai | Extracted one reusable pattern: live schema evolution via guarded per-column mig
-2026-07-11T02:49:10.700Z | task #22045 | completed | haiku | Retrospective: extract learnings from task #22043 — Deploy e | Extracted 2 reusable patterns from email threading deploy work: credential envir
-2026-07-11T04:14:22.257Z | task #21988 | completed | haiku | arc-opensource: sync 633 commit(s) to GitHub | PR #28 merged 2026-07-11 00:33Z (commit a8714813, whoabuddy: 'Option 1 merge it 
-2026-07-11T04:14:27.793Z | task #22046 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed 3 blocked tasks. #21988 resolved+closed: verified PR #28 actually merge
-2026-07-11T04:15:29.312Z | task #22047 | completed | haiku | Retrospective: extract learnings from task #22046 — Review 3 | Updated p-live-state-precheck: added domain-specific verification (email for dec
-2026-07-11T04:15:34.098Z | task #22049 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-07-11T04:18:05.070Z | task #22048 | completed | sonnet | Consolidate MEMORY.md (25642 chars (threshold 24400) despite | MEMORY.md compressed 25.8k→13.1k chars (130→119 lines): merged verbose entries (
 2026-07-11T04:21:25.909Z | task #22050 | completed | sonnet | Consolidate memory/patterns.md (199 lines, threshold 150) | Partial consolidation of patterns.md: merged ~12 near-duplicate/related entries 
 2026-07-11T04:32:30.986Z | task #22053 | completed | sonnet | [DRY-RUN] Distill council content well from Genesis-Works/ag | Distilled 5/5 council nuggets from Genesis-Works/agent-coordination@46d2ec5: coo
@@ -533,3 +498,5 @@
 2026-07-14T02:39:21.621Z | task #22552 | completed | sonnet | Audit arc-link-research shelf-wide front-matter quality (125 | Decided (a)+partial(c): expanded TOPIC_VOCAB with ~30 high-frequency recurring t
 2026-07-14T02:41:58.109Z | task #22555 | completed | sonnet | Backfill repos_touched/fetched_at on 9 arc-link-research sel | Backfilled repos_touched (enum: arc-starter•agent-runtime•both•neither•unknown) 
 2026-07-14T02:43:00.707Z | task #22556 | completed | sonnet | Add skip-note path to arc-link-research process for arc_rele | Added skip-note path in process()/cli.ts: when all links in a batch rate mechani
+2026-07-14T02:43:03.953Z | task #22558 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-14T02:44:30.626Z | task #22548 | completed | haiku | Retrospective: extract learnings from task #22543 — Package  | No learnings to capture — task executed established patterns cleanly (content-di
