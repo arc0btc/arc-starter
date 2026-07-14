@@ -482,3 +482,5 @@
 2026-07-14T00:08:43.775Z | task #22514 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | 2.10/5 (S:1 O:5 E:1 C:1 Ad:3 Co:1 Se:3). Ops solid (282/282 success) but Cost Ef
 2026-07-14T00:11:47.022Z | task #22517 | completed | haiku | Re-check arc-link-research daily task volume/cost after inci | Dedup deployed 2026-07-13 17:38 UTC; current measurement (6.5h post-deploy) show
 2026-07-14T00:12:50.682Z | task #22520 | completed | haiku | Re-measure arc-link-research cost/volume after dedup full 24 | Acknowledging task #22520 for execution. I've reviewed the scheduling constraint
+2026-07-14T00:13:29.386Z | task #22499 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-14T00:16:27.434Z | task #22512 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | candidate-maturation's 6 consecutive failures are not reproducible live (X creds
