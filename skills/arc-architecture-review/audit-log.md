@@ -1,28 +1,3 @@
-## 2026-07-11T20:18:54.000Z — reservation-leak backstop lands: caller-driven fix (#22087) plus its own sweep-level fallback (#22089); 131 skills / 86 sensors
-
-**Task #22111** | Diff: f91f4c4..f5f1eda (3 commits — 0 src/, 2 skills/; 1 data-sync-only) | Sensors: 86 | Skills: 131
-
-### Changed files (substantive only)
-
-- `skills/social-x-posting/cli.ts` (91714ebb) — `cmdPost`'s reserved-group send path only released reservations on the terminal-403 branch; any other `apiRequest()` failure (notably 402 CreditsDepleted, which throws a plain `Error` with no `.status`) fell straight through to `throw err` with zero release, leaking the row's own reservation and its atomic-group siblings' `reserved_count` forever. Fix broadens the release to any send failure before re-throwing, so the caller still sees the real error. Live-triggered by Edition 7's actual 402 (#22074/#22075).
-- `skills/social-engine/admission.ts` (7ffc2960) — Backstop for the above: a root that dies WITHOUT the caller's synchronous catch block running (process kill, OOM, crash between `claimForSend()` and the try/catch) still orphaned its still-`queued` siblings, since `releaseGroupRemainder()` was only ever called from that one catch block. Extracted the per-row release logic into a transaction-agnostic `releaseGroupRemainderTx()` so both existing sweeps in `releaseAbandonedReservations()` (lease-expiry, window-closed) now also release orphaned group siblings inside their own transaction. `releaseGroupRemainder()` becomes a thin wrapper that opens/closes the transaction around the same shared function — correct extract-and-reuse, no logic duplicated between the caller-driven and sweep-driven paths.
-- `skills/arc-article-pipeline/drafts/article-5-x-article.json` (f5f1eda0) — data-sync-only, no logic change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both changes trace to a live incident (#22074/#22075/#22087) and its own follow-up (#22089). No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: `releaseGroupRemainderTx()` extraction is the textbook shape this framework keeps rewarding — one transaction-agnostic function now serves both the original caller-driven release and the two sweep-driven releases, instead of the sweeps growing a second copy of the same flip/decrement logic.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — this is the sweep/backstop layer already being automatic; nothing new to automate.
-
-### Flags
-
-- **[RESOLVED]** Reserved-group reservation leak (both the caller-driven gap and its crash-path backstop) — #22087 and #22089 close both known leak surfaces for `atomic_group_id` siblings. Nothing carried forward on this thread.
-- **[CARRY-WATCH]** context-review skip list ~20+ entries, still not refactored into a declarative `{pattern, reason}[]` array. Not touched this cycle — now the longest-carried watch item (5+ cycles). Recommend a bounded follow-up task next cycle given the streak length.
-
----
-
 ## 2026-07-12T08:20:00.000Z — small diff, one long-carried watch item resolved: context-review skip list refactored to declarative array; 131 skills / 86 sensors
 
 **Task #22149** | Diff: f5f1eda..b307caa (3 commits — 0 src/, 3 skills/) | Sensors: 86 | Skills: 131
@@ -124,5 +99,33 @@
 - **[SELF-DISCLOSED, not mine]** Both new hooks (`follow-policy.ts`, `nugget-bridge.ts`) already document their own known gaps in-file: two promotion thresholds now write `social_accounts` without reconciliation, and `nugget-bridge`'s `content_hash` join is "structurally near-inert across sources" (only `source_url` exact-match actually does the work, no URL normalization). Nothing to add — this cycle's own commits did the audit work usually left to this review.
 - **[NEW-WATCH]** `getMaturationBatch`'s T/Z-vs-space-separated datetime comparison bug (caught via live-testing per the code's own comment) is the kind of silent-wrong-answer class this framework watches for elsewhere (see prior cycles' `sqlite-datetime-naive-parse-utc-skew` entry) — worth one cycle confirming no sibling query in the 4 new sensors has the same unconverted `datetime('now', ...)` vs ISO-string comparison.
 - No carry-forward watch items from the prior 2 cycles — both were resolved or dropped.
+
+---
+
+## 2026-07-14T08:21:00.000Z — small diff, cheap health-triage field lands but is a no-op for the 41% of sensors using the string-return error convention; 128 skills / 90 sensors
+
+**Task #22589** | Diff: dcad7d3..71606f5 (6 commits — 3 src/, 4 skills/) | Sensors: 90 | Skills: 128
+
+### Changed files (substantive only)
+
+- `src/sensors.ts` (33ba669f) — `HookState` gains `last_error?: string | null`, persisted per-run so `sensor-health-report` can show a failure's message without grepping logs. Real gap: `runSensors()` only populates a *useful* `last_error` for sensors that throw (`error: err.message`) or explicitly `return "error"` with a caller-supplied reason. For the 31/76 sensors (41%) that use the `return "error"` string convention — the sensor logs its own `error.message` via `log()` then returns the bare string `"error"` — `runSensors()` hardcodes `last_error: "sensor returned error"`, discarding the message the sensor already computed. Confirmed live this cycle: `candidate-maturation` (one of the 31) shows 3 consecutive failures with `last_error: "sensor returned error"` in `db/hook-state/candidate-maturation.json` — no more diagnostic than before the field existed. Filed follow-up (below); this is a low-cost fix (thread the caught message through the "return 'error'" convention's callers, or standardize on throwing).
+- `src/cli.ts` (71d6f298) — `tasks close` terminal guard now only rejects re-close of `completed`/`failed`, not `blocked` — already tracked in memory as the fix for [[tasks-close-terminal-guard-overblocks-blocked-resolution]] (#22505). No new finding.
+- `skills/arc-link-research/cli.ts` (4a952fb4, c41f2587) — `cmdProcess` writes a compact one-line-per-link skip note instead of a full takeaways/summary report when every link in a batch rates "low" relevance (`counts.high === 0 && counts.medium === 0`); front-matter unchanged so dedup/reindex still work. Directly targets the cost pattern flagged in [[arc-link-research-cost-driver]] (12+ near-identical "Declined: ..." reports at ~$0.43 each) — a genuine Step-3 simplification (less report for no-signal input) with a real Step-4 cost/latency payoff. Same commit range also expands `TOPIC_VOCAB` by ~30 recurring out-of-vocab topics found in a prior audit (#22552); docs-only vocabulary maintenance, no logic change.
+- `skills/social-engine/SKILL.md` (2dbe088b) — docs-only, formalizes the crontab-scheduling note for `follow-curated.ts` already recorded in the 2026-07-13T20:53:52.000Z entry ([[skill-dormancy-check-misses-crontab-scheduled-scripts]]). No new finding.
+- `4836e726` — Pure naming-convention compliance fix (`msg`/`tmp`/`err` → verbose) across 4 files plus `INTERVAL_MINUTES` consts for 2 sensors, closing prior compliance-review findings. No logic change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All six commits trace to named prior audits or incidents (#22505, #22552, #22556, #22500, compliance-review batch-1). No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: The arc-link-research skip-note path is the clearest move — collapsing a multi-section report to one line per link when there's nothing to say, directly attacking this review's own standing cost watch.
+- **Step 4 — Accelerate**: Same change — cuts report-generation work (and the token cost of writing takeaways nobody will read) on the highest-volume, lowest-signal path through the skill.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[NEW-WATCH]** `last_error` (33ba669f) is a no-op for the 31/76 sensors using the `return "error"` string convention — `runSensors()` discards their actual error message and stores the generic `"sensor returned error"` literal instead. Filed follow-up task to thread the real message through (either have `runSensors` accept a `{status: "error", message}` return shape, or standardize those 31 sensors on throwing `Error` instead of returning a bare string).
+- **[NOT A NEW FINDING]** `candidate-maturation` showed 3 consecutive failures in this cycle's health report — already investigated and closed as expected transient behavior at #22512 (`p-transient-sensor-failures-budget-constraints`, memory/patterns.md:212), not a code defect. Noted only because it's what exposed the `last_error` gap above.
+- No carry-forward watch items from the prior cycle (2026-07-13T20:53:52.000Z's datetime-comparison watch was already addressed in the diff landing this cycle's spine code, per its own in-file comment).
 
 ---
