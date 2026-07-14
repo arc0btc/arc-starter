@@ -506,3 +506,4 @@
 2026-07-14T02:48:52.556Z | task #22557 | completed | haiku | Retrospective: extract learnings from task #22552 — Audit ar | Captured p-static-config-vocabulary-operational-refresh: static reference vocabu
 2026-07-14T02:49:45.128Z | task #22559 | completed | haiku | Retrospective: extract learnings from task #22555 — Backfill | Merged enum-normalization learning into p-static-config-vocabulary-operational-r
 2026-07-14T02:51:20.712Z | task #22560 | completed | haiku | Retrospective: extract learnings from task #22556 — Add skip | Extracted 2 reusable patterns from task #22556 (output-format degradation by qua
+2026-07-14T03:21:55.908Z | task #22561 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Single failure #22551 was a self-acknowledged no-op (task created by mistake dur
