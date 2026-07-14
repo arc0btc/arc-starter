@@ -500,3 +500,4 @@
 2026-07-14T20:28:53.739Z | task #22659 | completed | haiku | Retrospective: extract learnings from task #22656 — architec | Captured API free-field optimization pattern from #22656: requesting unlimited f
 2026-07-14T20:48:06.616Z | task #22661 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-14T21:14:42.527Z | task #22662 | blocked | haiku | arc-opensource: sync 863 commit(s) to GitHub | Branch reconciliation needed: feat/x-api-pay-per-use-dollar-budget merged to mai
+2026-07-14T21:16:37.125Z | task #22664 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.43/5 (S1 O5 E1 C3 Ad3 Co1 Se3). Cost recovered under D4 cap: $202.44→$103.25/d
