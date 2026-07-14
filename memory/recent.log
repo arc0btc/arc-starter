@@ -518,3 +518,4 @@
 2026-07-14T01:21:23.876Z | task #22535 | completed | haiku | New release: anthropics/claude-code v2.1.208 | Triage: CLAUDE_CODE_PROCESS_WRAPPER relevant to Arc dispatch subprocess model. E
 2026-07-14T01:23:03.471Z | task #22536 | completed | sonnet | Deep research: Claude Code v2.1.208 — CLAUDE_CODE_PROCESS_WR | v2.1.208: CLAUDE_CODE_PROCESS_WRAPPER governs internal self-spawns only, not dis
 2026-07-14T01:24:26.662Z | task #22537 | completed | haiku | Retrospective: extract learnings from task #22536 — Deep res | One reusable pattern captured: code-path specificity in release evaluation (flag
+2026-07-14T02:12:22.257Z | task #22538 | completed | sonnet | CEO review — 2026-07-14T02:04 | CEO review: reliability strong (zero failures, real fix shipped), cost off track
