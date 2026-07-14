@@ -94,6 +94,18 @@ const LANE = "candidate-maturation";
 // phase exists to fix — real research volume should be a handful of triage runs each fanning
 // out a handful of genuinely research-worthy topics, not hundreds of individual judgments.
 const MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY = 15;
+// Bounds the SIZE of a single triage prompt (dev-council 2026-07-14, Newman + Hohpe, CONFIRMED):
+// this quest's own history shows a single producer storing 251 candidates in one check-in, and
+// the paging loop below can process up to 10 pages of 100 — an unbounded triage brief would
+// both blow up opus input cost on a heavy news day AND ask one context to render a sound
+// RESEARCH/DECLINE judgment over more stories than a single pass can reliably reason about.
+// Bounding what's RENDERED also functions as a real (not just prose-instructed) ceiling on how
+// much a single triage task CAN fan out — it cannot dispatch a per-topic task for a story it was
+// never shown. Set well above a typical run's cluster count (66 candidates -> 52 clusters was a
+// real live measurement) so ordinary days are never truncated; excess clusters are left
+// genuinely 'pending' (not matured) for the next run to pick back up, same backpressure
+// philosophy as the paging loop's own page-to-page deferral.
+const MAX_CLUSTERS_PER_TRIAGE_BRIEF = 50;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -182,9 +194,22 @@ export default async function candidateMaturationSensor(): Promise<string> {
     // today — it collapses into that existing task lineage instead of triggering a new
     // triage/fan-out. Built once up front; this run's OWN new clusters aren't added here
     // until after the triage task is filed (they have no task id yet).
+    //
+    // `m.research_task_id !== null` guard (dev-council 2026-07-14, Kleppmann + Lamport +
+    // Newman, CONFIRMED): a candidate matured via the cap-hit sentinel path below is stamped
+    // `research_task_id=null` but STILL carries its real cluster_key. Without this guard, that
+    // row becomes a permanent dedup magnet — every future sibling of that exact story, for the
+    // rest of the 24h window, "cluster-dedups" onto the SAME null task and is marked matured
+    // with no research ever dispatched. A cap-hit is supposed to be a temporary DEFERRAL; a
+    // null-task cluster index entry silently turns it into a permanent SUPPRESSION of that
+    // whole story. Excluding null-task rows here means a cap-dropped story's next sibling is
+    // treated as a fresh, un-clustered survivor — it can seed a new triage attempt once the cap
+    // has headroom again, instead of inheriting the drop forever.
     const clusterIndex = new Map<string, MaturedCandidateSummary>();
     for (const m of getRecentMaturedCandidates(CLUSTER_DEDUP_WINDOW_HOURS)) {
-      if (m.cluster_key && !clusterIndex.has(m.cluster_key)) clusterIndex.set(m.cluster_key, m);
+      if (m.cluster_key && m.research_task_id !== null && !clusterIndex.has(m.cluster_key)) {
+        clusterIndex.set(m.cluster_key, m);
+      }
     }
 
     interface Survivor {
@@ -322,13 +347,47 @@ export default async function candidateMaturationSensor(): Promise<string> {
     // Group every NEW survivor (across ALL pages this run) by cluster_key — this collapses
     // same-story siblings discovered across different pages within this single run, on top
     // of the cross-run collapse already applied above.
-    const newClusters = new Map<string, Survivor[]>();
+    const newClustersAll = new Map<string, Survivor[]>();
     for (const s of survivors) {
       const groupKey = s.clusterKey ?? `singleton:${s.candidate.tweet_id}`;
-      const group = newClusters.get(groupKey) ?? [];
+      const group = newClustersAll.get(groupKey) ?? [];
       group.push(s);
-      newClusters.set(groupKey, group);
+      newClustersAll.set(groupKey, group);
     }
+
+    // Bound triage-brief size (Phase 8, dev-council/Newman+Hohpe — see
+    // MAX_CLUSTERS_PER_TRIAGE_BRIEF's doc comment): rank clusters by aggregate engagement,
+    // process only the top N this run. Anything beyond the bound is left genuinely 'pending'
+    // (never touched by markCandidateMatured below) — the NEXT run re-evaluates it fresh,
+    // same backpressure the paging loop already applies page-to-page.
+    function clusterEngagement(members: Survivor[]): number {
+      return members.reduce(
+        (max, m) =>
+          Math.max(
+            max,
+            (m.tweet.public_metrics?.like_count ?? 0) +
+              (m.tweet.public_metrics?.retweet_count ?? 0) * 2 +
+              (m.tweet.public_metrics?.reply_count ?? 0) * 2
+          ),
+        0
+      );
+    }
+    const rankedClusters = Array.from(newClustersAll.entries()).sort(
+      ([, a], [, b]) => clusterEngagement(b) - clusterEngagement(a)
+    );
+    const newClusters = new Map(rankedClusters.slice(0, MAX_CLUSTERS_PER_TRIAGE_BRIEF));
+    const deferredClusterCount = rankedClusters.length - newClusters.size;
+    if (deferredClusterCount > 0) {
+      const deferredCandidateCount = rankedClusters
+        .slice(MAX_CLUSTERS_PER_TRIAGE_BRIEF)
+        .reduce((n, [, members]) => n + members.length, 0);
+      log(
+        `brief-size bound: ${newClustersAll.size} storie(s) this run exceeds MAX_CLUSTERS_PER_TRIAGE_BRIEF ` +
+          `(${MAX_CLUSTERS_PER_TRIAGE_BRIEF}) — processing the top ${newClusters.size} by engagement, ` +
+          `deferring ${deferredClusterCount} lower-engagement storie(s) (${deferredCandidateCount} candidate(s)) to next run`
+      );
+    }
+    const survivorsThisRun = Array.from(newClusters.values()).reduce((n, members) => n + members.length, 0);
 
     let totalMatured = 0;
     let triageTaskId: number | null = null;
@@ -343,11 +402,13 @@ export default async function candidateMaturationSensor(): Promise<string> {
         // read every future maturation pass.
         log(
           `CAP HIT: ${dispatchCount}/${MAX_SENSOR_RESEARCH_DISPATCHES_PER_DAY} sensor research dispatches already filed today — ` +
-            `skipping triage task this run, ${survivors.length} candidate(s) across ${newClusters.size} storie(s) left un-dispatched (marked matured, no task)`
+            `skipping triage task this run, ${survivorsThisRun} candidate(s) across ${newClusters.size} storie(s) left un-dispatched (marked matured, no task)`
         );
-        for (const s of survivors) {
-          const { changes } = markCandidateMatured(s.candidate.tweet_id, null, s.clusterKey);
-          if (changes > 0) totalMatured++;
+        for (const [, members] of newClusters) {
+          for (const s of members) {
+            const { changes } = markCandidateMatured(s.candidate.tweet_id, null, s.clusterKey);
+            if (changes > 0) totalMatured++;
+          }
         }
       } else {
         const triageClusters: TriageCluster[] = Array.from(newClusters.entries()).map(([groupKey, members]) => {
@@ -381,7 +442,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
         const filedTaskId = insertTask({
           subject: `Triage: X research batch (${runTimestamp.slice(0, 10)}, ${triageClusters.length} stor${
             triageClusters.length === 1 ? "y" : "ies"
-          } from ${survivors.length} candidate(s))`,
+          } from ${survivorsThisRun} candidate(s))`,
           description: buildTriageBrief(triageClusters),
           skills: JSON.stringify(["arc-link-research"]),
           priority: 6,
@@ -395,7 +456,7 @@ export default async function candidateMaturationSensor(): Promise<string> {
           // genuinely 'pending' (do NOT mark matured) so the NEXT run retries them, rather
           // than permanently orphaning research_task_id=null for a block that isn't a
           // deliberate cap/policy decision.
-          log(`warn: insertTask blocked (github-escalation-guard) for the triage task — ${survivors.length} candidate(s) left pending for next run`);
+          log(`warn: insertTask blocked (github-escalation-guard) for the triage task — ${survivorsThisRun} candidate(s) left pending for next run`);
         } else {
           triageTaskId = filedTaskId;
           for (const [groupKey, members] of newClusters) {
