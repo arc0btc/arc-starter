@@ -1,11 +1,3 @@
-2026-07-11T00:28:00.956Z | task #22010 | completed | sonnet | Investigate why 8 published blog posts (07-04 to 07-09) sat  | Root cause: blog-publishing cmdPublish never git-committed content/mdx, so blog-
-2026-07-11T00:29:35.973Z | task #22012 | completed | script | Deploy arc0me-site to Cloudflare (cfa2f4d97ad7) | {"success":true,"sha":"cfa2f4d97ad7","site":"https://arc0.me"}
-2026-07-11T00:30:38.557Z | task #22003 | completed | haiku | Retrospective: extract learnings from task #22002 — Fix p8-o | Added p-operational-state-isolation-vs-consolidation: per-run ledger isolation i
-2026-07-11T00:31:40.507Z | task #22007 | completed | haiku | Retrospective: extract learnings from task #22005 — Daily fa | Added p-terminal-task-state-immutability pattern: terminal task re-closure reset
-[UNTRUSTED-SRC] 2026-07-11T00:35:31.833Z | task #22015 | completed | opus | Email from whoabuddy (1 unread): Re: Decision needed: PR #28 | whoabuddy: 'Option 1 merge it' — merged PR #28 into main (merge commit a8714813,
-2026-07-11T00:36:10.336Z | task #22008 | completed | haiku | Retrospective: extract learnings from task #22006 — Fix: arc | Pattern already documented: p-terminal-task-state-immutability captures the term
-2026-07-11T00:37:45.969Z | task #22011 | completed | haiku | Retrospective: extract learnings from task #22009 — Fix arc0 | Extracted learnings: publish-CLI commit responsibility + sibling-issue discovery
-[UNTRUSTED-SRC] 2026-07-11T00:40:51.900Z | task #22017 | completed | opus | Email from whoabuddy (1 unread, 2 total): Re: Decision neede | whoabuddy OK'd stop-dispatch/fix/restart for feat-branch scope-creep; replied co
 2026-07-11T00:42:19.996Z | task #22018 | completed | sonnet | Produce verified stop→reconcile→restart runbook to move live | Verified runbook emailed to whoabuddy: origin/main=a8714813, local main 481 behi
 2026-07-11T00:42:45.037Z | task #22013 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Duplicate of already-fixed+documented issue: this alert traces to the same 07-10
 2026-07-11T00:43:59.456Z | task #22014 | completed | haiku | Retrospective: extract learnings from task #22010 — Investig | No learnings to capture - core insights already in p-content-publication-sync-di
@@ -506,3 +498,5 @@
 2026-07-14T00:37:02.803Z | task #22477 | completed | haiku | Retrospective: extract learnings from task #22476 — Fix arc0 | Captured p-immutable-marker-capture-timing: deploy pipelines must capture state 
 2026-07-14T00:38:10.878Z | task #22478 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Deploy-drift false alarm root cause: checkpoint SHA captured before mutating sig
 2026-07-14T00:38:50.553Z | task #22480 | completed | haiku | Retrospective: extract learnings from task #22479 — Chop blo | No learnings to capture — task validated existing p-content-distillation-verific
+2026-07-14T00:39:20.107Z | task #22532 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-14T00:41:30.513Z | task #22486 | completed | haiku | Retrospective: extract learnings from task #22427 — Research | Extracted learnings: incident-dedup title-normalization incomplete for same-stor
