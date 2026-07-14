@@ -505,3 +505,4 @@
 2026-07-14T08:18:32.229Z | task #22587 | completed | sonnet | Distill watch report 2026-07-14T010248Z into 1-2 interior ob | Wrote 2 nuggets (cost, failure-cluster) from watch report 2026-07-14T010248Z: op
 2026-07-14T08:19:09.429Z | task #22591 | completed | haiku | Fetch and compile arXiv digest — 2026-07-14 (30 new papers) | Fetched 50 papers, compiled 27 relevant into digest (2026-07-14T08:19:02Z). Topi
 2026-07-14T08:21:02.664Z | task #22588 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 90 sensors), committed only the catalog file (l
+2026-07-14T08:23:41.575Z | task #22589 | completed | sonnet | architecture review — codebase changed since last review (dc | Small diff (6 commits, 3 src/, 4 skills/); arc-link-research skip-note change is
