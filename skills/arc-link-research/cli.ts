@@ -58,19 +58,37 @@ const SIGNAL_FILING_DISABLED = true;
 // Unknown topics drift the catalog. TOPIC_VOCAB defines the canonical set;
 // the reindex pass warns on out-of-vocab topics (non-blocking).
 // The research-to-SKU pipeline (P10B) will expand this set per batch.
+// Audit 2026-07-14 (#22552) found 134/reports with out-of-vocab topics; the top ~30 by
+// frequency (>=3 uses) are genuine recurring beats, added below with a canonical spelling
+// (hyphenated, singular form) — prefer these over near-synonyms in new reports (e.g.
+// "claude-code" not "claude code"/"claude", "autonomous-agents" not "agentic"/"ai-agents",
+// "competitive-intel" not "competitive-intelligence"). Long-tail one-off topics are left
+// out-of-vocab intentionally; the warning is non-blocking and chasing every one-off spelling
+// isn't worth the vocab bloat.
 const TOPIC_VOCAB = new Set([
   // agent harness & architecture
   "agent-harness", "agent-runtime", "agent-architecture", "dispatch-loop",
   "task-queue", "state-machine", "memory", "feedback-loop",
+  "dispatch-architecture", "dispatch-resilience", "context-budget",
+  "escalation-ladder", "fleet", "harness-engineering", "agent-memory",
+  "agent-safety", "feedback-subsystem", "orchestration",
   // bitcoin & stacks
   "bitcoin", "stacks", "clarity", "smart-contracts", "sbtc", "l2",
   "lightning", "ordinals", "runes", "bns",
+  "bitcoin-privacy", "bitcoin-macro", "surveillance", "chainalysis",
+  "soft-fork", "op-return",
   // monetization & x402
   "x402", "monetization", "payments", "whop", "subscription",
+  "stablecoins", "agentic-economy", "irreversible-actions",
   // tooling
   "testing", "verification", "ci-cd", "deployment", "monitoring",
   // research
   "llm", "prompt-engineering", "tool-use", "rag", "multi-agent",
+  "mcp", "claude-code", "anthropic", "loop-engineering",
+  "autonomous-agents", "ai-coding-agents", "competitive-intel",
+  "agent-skills", "vibe-coding", "self-improving-agents",
+  "model-routing", "cost-optimization", "eval-scoring", "langgraph",
+  "verifiers",
 ]);
 
 /** Return topics that are NOT in TOPIC_VOCAB (for reindex warnings). */
