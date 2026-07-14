@@ -503,3 +503,4 @@
 2026-07-14T00:34:00.231Z | task #22470 | completed | haiku | Retrospective: extract learnings from task #22311 — Research | Added p-viral-story-incident-level-dedup: candidate-maturation fires once per so
 2026-07-14T00:35:14.134Z | task #22471 | completed | haiku | Retrospective: extract learnings from task #22469 — Add inci | Updated p-viral-story-incident-level-dedup with implementation details from task
 2026-07-14T00:35:54.012Z | task #22474 | completed | haiku | Retrospective: extract learnings from task #22340 — Research | Added p-thin-engagement-candidate-triage-gate to patterns.md — engagement-baseli
+2026-07-14T00:37:02.803Z | task #22477 | completed | haiku | Retrospective: extract learnings from task #22476 — Fix arc0 | Captured p-immutable-marker-capture-timing: deploy pipelines must capture state 
