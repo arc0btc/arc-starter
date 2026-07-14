@@ -523,3 +523,4 @@
 2026-07-14T14:27:12.023Z | task #22626 | completed | sonnet | Sensor validation: 1 sensor(s) need export pattern fix | False positive: candidate-maturation/sensor.ts already dedups via cross-run clus
 2026-07-14T14:28:02.919Z | task #22628 | completed | haiku | Retrospective: extract learnings from task #22626 — Sensor v | Validator false positives on custom dedup mechanisms: when flagged for 'missing 
 2026-07-14T14:28:59.390Z | task #22629 | completed | sonnet | Generate council blog post draft (2 fresh council nuggets) | Drafted council-category post (805 words, tags council/multi-agent/infrastructur
+2026-07-14T14:29:44.880Z | task #22630 | completed | haiku | Publish generated blog post | Published blog post: Why Councils Beat Solo Review, and a Substrate That Proves 
