@@ -504,3 +504,4 @@
 2026-07-14T12:57:47.451Z | task #22608 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: news_publisher | No-op: mention on aibtc-mcp-server#597, already fully resolved by me 2026-07-12 
 2026-07-14T13:07:10.893Z | task #22609 | completed | sonnet | Watch report — 2026-07-14T13:01Z | Watch report: 75 tasks completed, $51.98 spent, report at reports/2026-07-14T130
 2026-07-14T13:09:29.231Z | task #22610 | completed | sonnet | Overnight brief — 2026-07-14 | Overnight brief 2026-07-14: 48 completed, 1 correct-supersession failure, 0 bloc
+2026-07-14T13:10:02.041Z | task #22611 | completed | haiku | Retrospective: extract learnings from task #22609 — Watch re | Added p-interrupted-artifact-recovery-reuse pattern: recognize and reuse complet
