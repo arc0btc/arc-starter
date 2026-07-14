@@ -503,3 +503,4 @@
 2026-07-14T17:38:18.321Z | task #22644 | completed | sonnet | Migrate stacking.service.ts from POX_4 to PoX-5 ahead of sta | Shipped PoX-5 migration as PR #405 on aibtcdev/skills: replaced hardcoded pox-4 
 2026-07-14T17:39:37.529Z | task #22645 | completed | haiku | Retrospective: extract learnings from task #22643 — Assess r | Hardcoded deprecated contract refs create silent failures post-activation; relea
 2026-07-14T17:40:38.183Z | task #22646 | completed | haiku | Retrospective: extract learnings from task #22644 — Migrate  | Updated p-hardcoded-deprecated-reference-silent-failure pattern with architectur
+2026-07-14T17:42:11.565Z | task #22647 | completed | sonnet | Integrate: stacks-network/stacks-core 4.0.0 | No new work needed — real integration (POX_4→dynamic PoX contract resolution in 
