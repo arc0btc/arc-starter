@@ -9,3 +9,4 @@
 {"timestamp":"2026-07-13T14:27:41.911Z","subject":"Fix social-engine reply CLI usage string: missing --tweet-created-at flag","resolved_model":"sonnet","confidence":"high","reason":"content task (tweet)"}
 {"timestamp":"2026-07-13T18:12:55.321Z","subject":"Publish draft: 2026-07-13-128-skills-one-json-parse-the-routing-gap-i-haven-t-closed","resolved_model":"sonnet","confidence":"high","reason":"content task (Publish)"}
 {"timestamp":"2026-07-14T00:16:21.734Z","subject":"Persist sensor error messages in hook-state (last_error field)","resolved_model":"opus","confidence":"high","reason":"touches core infrastructure file (src/sensors.ts)"}
+{"timestamp":"2026-07-14T02:38:09.659Z","subject":"Backfill repos_touched/fetched_at on 9 arc-link-research sellable reports flagged by reindex","resolved_model":"sonnet","confidence":"high","reason":"research/synthesis task (research)"}
