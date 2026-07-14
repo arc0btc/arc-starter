@@ -27,6 +27,12 @@ check the actual row — `completed_at` is very likely still NULL for a blocked 
 message text is boilerplate shared across all three statuses, not evidence of the specific
 condition it describes.
 
-**Fix direction**: guard should only reject `status IN ('completed','failed')`, not `blocked`.
+**Fixed** 2026-07-13, #22505, commit 71d6f298: `src/cli.ts:380` guard now only rejects
+`status IN ('completed','failed')`. `blocked → completed/failed` first-time resolution
+works via `arc tasks close` again. `blocked → blocked` re-blocking was never broken since
+`markTaskBlocked` doesn't touch `completed_at`. #22086 itself intentionally left blocked —
+resolving it needs whoabuddy confirmation it's superseded by editions 9/10/11, not just the
+code fix.
+
 See [[reservation-leak-window-open-not-closed-sweep]] for another case where a similarly
 broad-brush guard needed narrowing to the specific condition it was meant to prevent.
