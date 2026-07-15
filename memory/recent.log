@@ -1,23 +1,3 @@
-2026-07-13T14:22:20.776Z | task #22278 | completed | sonnet | Email watch report to whoabuddy — 2026-07-13T14:03 | Watch report 13:01Z emailed to whoabuddy via CF worker, message id 733e243a
-[UNTRUSTED-SRC] 2026-07-13T14:23:00.944Z | task #22280 | completed | sonnet | Whop synthesis [2026-07-13T14]: read the room, defer or post | Whop synthesis tick: 0 messages in 24h window, DEFER (quiet window rule). No pos
-2026-07-13T14:25:33.324Z | task #22281 | completed | script | Deploy arc0me-site to Cloudflare (4d67925cf42c) | {"success":true,"sha":"4d67925cf42c","site":"https://arc0.me"}
-2026-07-13T14:27:36.434Z | task #22282 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention 2076668458658578697 (providerPostId 2076674891269697725) with
-2026-07-13T14:28:40.185Z | task #22283 | completed | sonnet | Fix social-engine reply CLI usage string: missing --tweet-cr | Added --tweet-created-at to both usage strings in skills/social-engine/cli.ts (c
-2026-07-13T14:30:13.227Z | task #22284 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Empery | Empery Digital Bitcoin sale tweet — low relevance (tangential bitcoin-macro news
-2026-07-13T15:03:04.577Z | task #22285 | completed | sonnet | Assess course candidacy: "Match Your Evals to Your Traffic" | no cluster yet — only 1 tier-A content-calendar item on this topic (agent-eval-v
-2026-07-13T15:03:50.862Z | task #22286 | completed | haiku | Retrospective: extract learnings from task #22285 — Assess c | p-content-escalation-dual-gate: course escalation requires ≥3 cluster items AND 
-2026-07-13T15:12:56.885Z | task #22287 | completed | sonnet | Chop blog "Recursive Delegation Solves the Depth vs Coverage | Wrote 4 snippets from the WebSwarm/recursive-delegation post via writeDistilled 
-2026-07-13T15:16:31.704Z | task #22288 | completed | sonnet | Nostr note from artifact: Parallelism only solves half | Posted Nostr note (eventId 7a35da9e...) citing flat-parallel-limits artifact fro
-2026-07-13T15:22:30.296Z | task #22289 | completed | sonnet | Nostr note from artifact: The one-trajectory tradeoff | Posted Nostr note (eventId e18a2d41…) on the one-trajectory tradeoff, relays dam
-2026-07-13T15:28:37.379Z | task #22290 | completed | sonnet | Nostr note from artifact: The real design question | Posted Nostr note on recursive-delegation design question; eventId 7053ff4...976
-2026-07-13T15:34:33.671Z | task #22291 | completed | sonnet | Nostr note from artifact: My own gap, named | Posted Nostr note on the aggregate-vs-re-expand delegation gap, eventId 8d5ca4da
-2026-07-13T15:58:38.274Z | task #22293 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @David | Skipped: clickbait spam tweet ('DROP EVERYTHING and install these 6 softwares...
-2026-07-13T16:59:58.577Z | task #22294 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | Robinhood agentic-trading news = on-beat competitive intel, not decline: first m
-2026-07-13T17:01:03.763Z | task #22295 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | DECLINE: link/topic mismatch. Tweet 2076596219292659970 is a @ONEMINNFT shill me
-2026-07-13T17:03:50.743Z | task #22296 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | Same Robinhood-agentic-trading news already covered by sibling task #22294 (repo
-2026-07-13T17:06:24.678Z | task #22297 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | Robinhood agentic-crypto-trading via MCP (Anthropic/OpenAI/Grok, 70k+ beta accou
-2026-07-13T17:08:34.721Z | task #22298 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | Robinhood-opens-MCP-to-agents news is real+on-mission (arc_relevance 4), but pro
-2026-07-13T17:09:44.173Z | task #22299 | completed | opus | Research: ecosystem signal — matured candidate (News: Robinh | Decline: tweet 2076631378699944374 (matched by engagement 20L/7RT/6R) is a memec
 2026-07-13T17:10:56.551Z | task #22300 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Robinh | Robinhood MCP agentic-trading news: filed as ecosystem-awareness signal, not SKU
 2026-07-13T17:11:56.652Z | task #22301 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Robinh | Report written+completed: source tweet was rootAI self-promo riding Robinhood ne
 2026-07-13T17:12:48.014Z | task #22302 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Robinh | Robinhood MCP-server crypto-agent news processed; enriched report with TL;DR/tak
@@ -518,3 +498,5 @@
 2026-07-15T20:34:37.531Z | task #22797 | completed | haiku | Retrospective: extract learnings from task #22793 — architec | No learnings to capture — p-auto-commit-type-regression-blind-spot already cover
 2026-07-15T20:35:31.625Z | task #22798 | completed | haiku | Retrospective: extract learnings from task #22796 — context- | Added p-task-generator-skill-delegation-context-review-exempt pattern: task gene
 2026-07-15T20:36:30.137Z | task #22801 | completed | haiku | Retrospective: extract learnings from task #22799 — arc-work | Captured workflow-emission-source exemption pattern for detectors in memory/patt
+2026-07-15T20:58:57.641Z | task #22802 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-15T21:14:39.460Z | task #22804 | blocked | haiku | arc-opensource: sync 1013 commit(s) to GitHub | Branch divergence requires whoabuddy to execute #22018 cherry-pick runbook. 1013
