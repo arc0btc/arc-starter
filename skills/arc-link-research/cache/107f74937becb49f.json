@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/8N0sdU04D2",
+  "fetchedAt": "2026-07-15T05:50:23.489Z",
+  "contentType": "tweet",
+  "title": "@PrismML: Today, we’re announcing Bonsai 27B: the first 27B-class model to run on a phone....",
+  "rawContent": "Tweet by @PrismML (PrismML)\nAuthor bio: Centering AI research on efficiency.\n\nhttps://t.co/88MQHGCeFD\nText: Today, we’re announcing Bonsai 27B: the first 27B-class model to run on a phone.\n\nBonsai 27B is the new multimodal flagship of the Bonsai family. Based on Qwen3.6 27B, it brings a new capability tier to local AI: multi-step reasoning, structured tool use, long-context workflows, and coherent agentic loops.\n\nUntil now, models in this class have been impractical to deploy locally. A 27B model occupies roughly 54 GB in 16-bit precision, and even a strong 4-bit build is around 18GB - too large for a phone and for most laptops.\nBonsai 27B changes that.\n\nIt comes in two variants:\n• Ternary Bonsai 27B: 5.9 GB, 1.71 effective bits per weight, optimized for laptop-class quality.\n• 1-bit Bonsai 27B: 3.9 GB, 1.125 effective bits per weight, optimized for phone-class footprint.\n\nEverything is open-sourced today under the Apache 2.0 license.\nCreated: 2026-07-14T17:36:43.000Z\nMetrics: {\"retweet_count\":669,\"reply_count\":210,\"like_count\":4242,\"quote_count\":366,\"bookmark_count\":3015,\"impression_count\":679808}",
+  "embeddedUrls": [
+    "https://t.co/8N0sdU04D2"
+  ]
+}

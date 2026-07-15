@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/bZ2nOA1LtX",
+  "fetchedAt": "2026-07-15T05:50:23.138Z",
+  "contentType": "tweet",
+  "title": "@TencentHunyuan: We’ve just released the 1-bit & 4-bit version of Hy3, a flagship-scale 295B mode...",
+  "rawContent": "Tweet by @TencentHunyuan (Tencent Hy)\nAuthor bio: Tencent's foundation model for text, image, video, and 3D generation.\nText: We’ve just released the 1-bit & 4-bit version of Hy3, a flagship-scale 295B model that can be served on a single GPU. 👌\n\nRun Hy3 with llama.cpp, enable MTP, and experience powerful intelligence on dramatically lower hardware.🚀🚀🚀\n\nCan’t wait to see what you build.\n\n#Hy3 #Hy #GGUF #llamacpp\nCreated: 2026-07-14T08:53:06.000Z\nMetrics: {\"retweet_count\":150,\"reply_count\":62,\"like_count\":1276,\"quote_count\":47,\"bookmark_count\":628,\"impression_count\":275008}",
+  "embeddedUrls": [
+    "https://t.co/i5moUQkbKf"
+  ]
+}
