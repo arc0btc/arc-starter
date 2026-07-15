@@ -504,3 +504,4 @@
 2026-07-15T00:03:04.511Z | task #22670 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE eval 2.10/5 (S1 O5 E1 C1 Ad3 Co1 Se3) via Council DSL v1 (validated 0 er
 2026-07-15T00:04:11.039Z | task #22668 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies benign: candidate-maturation's 19 failures were X read-budget exh
 2026-07-15T00:04:43.615Z | task #22671 | completed | haiku | Retrospective: extract learnings from task #22669 — Check fo | No learnings to capture — task #22669's hypothesis validation (checking pr-lifec
+2026-07-15T00:06:55.997Z | task #22672 | completed | haiku | Retrospective: extract learnings from task #22670 — PURPOSE  | Extended p-sensor-fire-rate-management with cost-per-task diagnostic workflow: w
