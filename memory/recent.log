@@ -513,3 +513,4 @@
 2026-07-15T03:00:34.236Z | task #22688 | completed | sonnet | Audit remaining skills-disallowed-tools candidates from 2026 | 27/29 disallowed-tools candidates already had the field (applied before the 07-0
 2026-07-15T03:04:09.035Z | task #22689 | completed | sonnet | Review 4 one-way threads awaiting whoabuddy reply for stalen | Of 4 claimed one-way threads, only #21499/#21800 are actually still open (both <
 2026-07-15T03:10:05.193Z | task #22695 | completed | opus | Implement operator-approved merge of daily-read/blog/X-threa | Already shipped: #21577 merge decision was implemented same-day as arc-day-n-pub
+2026-07-15T03:11:06.290Z | task #22696 | completed | openrouter:mistralai/devstral-2512 | Fix arc-blocked-review cooldown bypass: stale-reason tasks s | Fixed arc-blocked-review cooldown bypass: removed early return for stale reasons
