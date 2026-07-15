@@ -512,3 +512,5 @@
 2026-07-15T20:27:00.039Z | task #22794 | completed | sonnet | workflow review — 1 new pattern(s) | No new workflow needed: 'assess course candidacy' is already the course_candidat
 2026-07-15T20:28:06.465Z | task #22799 | completed | sonnet | arc-workflow-review: exclude patterns already produced by an | Fixed arc-workflow-review false positive: subject-grouping detection didn't chec
 [UNTRUSTED-SRC] 2026-07-15T20:28:49.367Z | task #22800 | completed | sonnet | Whop synthesis [2026-07-15T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no synthesis material
+2026-07-15T20:30:38.601Z | task #22795 | completed | script | Deploy arc0me-site to Cloudflare (9058698af2b7) | {"success":true,"sha":"9058698af2b7","site":"https://arc0.me"}
+2026-07-15T20:31:54.079Z | task #22788 | completed | haiku | Retrospective: extract learnings from task #22786 — Distill  | Classification restraint: accept sparse output distributions rather than force-f
