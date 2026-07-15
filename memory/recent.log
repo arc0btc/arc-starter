@@ -500,3 +500,4 @@
 2026-07-15T20:36:30.137Z | task #22801 | completed | haiku | Retrospective: extract learnings from task #22799 — arc-work | Captured workflow-emission-source exemption pattern for detectors in memory/patt
 2026-07-15T20:58:57.641Z | task #22802 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-15T21:14:39.460Z | task #22804 | blocked | haiku | arc-opensource: sync 1013 commit(s) to GitHub | Branch divergence requires whoabuddy to execute #22018 cherry-pick runbook. 1013
+2026-07-15T21:15:23.068Z | task #22803 | completed | haiku | daily cost report — 2026-07-15 | cost/task up 13% (token-heavy architecture+article work); daily total 3.82 under
