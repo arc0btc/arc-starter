@@ -1,0 +1,29 @@
+# RTK, Headroom, and Command-Aware Output Shaping for Coding Agents
+
+## TL;DR
+Trevin Chow had his Hermes agent audit two token-savings tools (Headroom, RTK) the way Teknium audited Headroom: ignore the marketing number, inspect the mechanism, measure net savings on real traffic.
+Generic remove-and-retrieve compression (Headroom's CCR) backfires inside agents — the agent re-fetches the blob, so you keep the marker AND the blob and "add an errand." Command-aware output shaping (RTK) is the right layer for shell commands because each command's useful output has a different shape.
+The honest measured result: RTK rewrote 13.2% of recent Hermes terminal commands and produced large wins on some, zero or negative on others. Real, but not the README headline.
+
+## Key takeaways
+- **Mechanism over marketing.** The valuable analysis is mechanism-level: "do not argue about the marketing number. Inspect the mechanism, run it against real agent traffic, and ship the small native win if that is what survives." (cache: `40793cb29e42d40c.json`)
+- **Generic compression is an anti-pattern for agents.** Headroom's headline savings come from CCR (replace content with a marker, cache locally, retrieve later). Inside a coding agent the agent reads tool output *because it needs it*, re-fetches, and ends up holding both marker and blob. "You did not save tokens. You added an errand." (cache)
+- **Command-aware shaping is the right layer.** RTK is a command-aware CLI proxy for `git status/diff/log/commit/push`, `gh pr/issue/run`, `cargo/pytest/go/jest/vitest`, `rg/grep/find/ls/cat/head/tail`, `docker/kubectl/aws`. "Make the command return the thing the agent probably needed in the first place." (cache)
+- **Per-command savings table (from the article):** `git status` 320→125 chars (60.9%), `find src -name '*.rs'` 2,539→713 (71.9%), `git log --oneline -50` 75→75 (0.0%), `git show --stat --oneline HEAD` 22,900→22,900 (0.0%), `grep -R "pub fn" src` 25,473→25,599 (**-0.5%**, i.e. RTK made it bigger). Savings are command-specific, not uniform. (cache table)
+- **Config shape is a pre-tool rewrite.** `{"registered_hook":"pre_tool_call","terminal_rewrite":"rtk git status","nonterminal_unchanged":"git status"}` — rewrite the terminal form, leave non-terminal usage untouched. (cache code block)
+- **Trust caveats the audit surfaced:** README "30-minute savings table" is an estimate not a reproducible benchmark; "zero dependencies" claim vs 21 Cargo deps; issue #2468 (`rtk gain` over-counts after OOM); issue #2462 (`rtk grep` silently returns 0 files on macOS when ripgrep missing — "silent false negatives are exactly the kind of failure agents are bad at noticing"); issue #2469 (`rtk find` lacks `-not`/`-exec`). Rewrite layers must stay conservative around shell semantics. (cache)
+- **The compounding answer is both:** command-aware filtering for shell + native densification for native tools. "Make the common outputs smaller at the source. Keep the details recoverable when they matter. Measure net savings on real traffic." (cache)
+
+## Arc-alignment
+Arc runs a hard 40-50k token context budget per dispatch and a $0.40/task cost target (`CLAUDE.md` Context Budget section; `memory/MEMORY.md` daily-eval line). Verbose tool output is a direct tax on both. Arc already has the exact hook surface RTK needs:
+
+- **Hooks exist and fire.** `/home/dev/arc-starter/.claude/settings.json` registers `PreToolUse` matchers (`Edit(.env)`, `Edit(db/dispatch-lock.json)`, `Bash(claude*)`, `Agent`) and a `PostToolUse` matcher on `Bash(git commit*)`. Hook scripts live in `.claude/hooks/` (`guard-sensitive-writes.sh`, `pre-commit-syntax.sh`, `model-gate.sh`, etc.). So Arc can register a `Bash(git status*)` / `Bash(grep*)` PreToolUse rewrite or a PostToolUse densifier without new infrastructure.
+- **Current hooks guard, they do not compress.** `memory/shared/entries/path-conditional-hook-guards.md` documents every guard: all are *safety* exits (exit 2 block), none shape or shrink tool output. This is the gap — Arc spends tokens on raw `git status`/`grep`/`find` output every cycle with zero source-side compression.
+- **Arc's own research already warns about the wrong layer.** Memory pattern: "Per-file reads in dispatch = token explosion (>10 files → add CLI first)" and the link-research note "for repo-based research use `gh api repos/O/R/contents/PATH` directly." Arc already prefers command-aware fetches over raw dumps in some paths; RTK generalizes that instinct into a systematic hook layer.
+- **The audit discipline is the real lesson for Arc.** Arc's weak subsystem is Feedback (`memory/shared/entries/maintainability-sensors-coding-agents.md`, harness-engineering entries). RTK's verdict — measure net savings on *real* traffic after fallbacks/reruns, not on cherry-picked commands — is exactly the eval rigor Arc lacks. Any compression Arc ships must be measured against real `cycle_log` token deltas, not assumed.
+- **Port to agent-runtime?** Yes, but it cannot live there yet. `/home/dev/agent-runtime/src/` has no `dispatch.ts` and `/home/dev/agent-runtime/.claude/hooks` does not exist — agent-runtime is a library base (`memory.ts`, `skills.ts`, `models.ts`, `codex.ts`, `openrouter.ts`), not the harness that owns hooks. A command-aware output-shaping utility (the rewrite/densify functions) belongs in `agent-runtime/src/` as a reusable module so every fleet agent inherits it; the `PreToolUse`/`PostToolUse` wiring belongs in each agent's `.claude/settings.json`. Build the shaper once in agent-runtime, wire it per-agent.
+
+## How this was verified
+- Source: https://x.com/trevin/status/2067375373449605381 (@trevin, 2026-06-17; article "RTK, Headroom, and the right way to save tokens in coding agents")
+- Cache: `skills/arc-link-research/cache/40793cb29e42d40c.json`
+- Fetched/reviewed: 2026-06-18
