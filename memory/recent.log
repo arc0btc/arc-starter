@@ -503,3 +503,4 @@
 2026-07-15T08:20:24.161Z | task #22716 | completed | sonnet | Distill watch report 2026-07-15T010358Z into 1-2 interior ob | 2 nuggets: surprise (inflow pool 1.6:1 drawdown + arc-opensource sync backlog 26
 2026-07-15T08:20:51.600Z | task #22718 | completed | haiku | Fetch and compile arXiv digest — 2026-07-15 (30 new papers) | Fetched 50 papers (22 relevant), compiled to research/arxiv/2026-07-15T08:20:47Z
 2026-07-15T08:23:07.733Z | task #22715 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 90 sensors), committed index.mdx (24fa2766), de
+2026-07-15T08:26:24.621Z | task #22717 | completed | sonnet | architecture review — codebase changed since last review (79 | Diff 79f5954..2411114 mostly memory/docs/cache noise; one real regression found 
