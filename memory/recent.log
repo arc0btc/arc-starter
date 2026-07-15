@@ -500,3 +500,4 @@
 2026-07-15T14:52:25.926Z | task #22739 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.0 | mcp-server-v1.64.0: additive quality_score field on news_editor_review_signal + 
 2026-07-15T14:55:58.867Z | task #22740 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-15T15:06:22.539Z | task #22741 | completed | sonnet | Review PR #406 on aibtcdev/skills: fix(bitflow): refuse unpr | reviewed PR #406 on aibtcdev/skills — requested changes: getSwapQuote drops slip
+2026-07-15T15:08:51.690Z | task #22742 | completed | sonnet | Review PR #407 on aibtcdev/skills: fix(hodlmm-move-liquidity | reviewed PR #407 on aibtcdev/skills — approved; u5001 prevention gate + honest m
