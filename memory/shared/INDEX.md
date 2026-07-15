@@ -31,6 +31,7 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [dead-ends-convention](memory/shared/entries/dead-ends-convention.md) — when to use dead-ends.md
 - [file-dep-sha-pin-illusion](memory/shared/entries/file-dep-sha-pin-illusion.md) — file deps don't pin SHA
 - [escalation-ladder-arc0011](memory/shared/entries/escalation-ladder-arc0011.md) — ARC-0011 retry ladder
+- [stale-thread-tracking-completed-tasks-tagged-blocked](memory/shared/entries/stale-thread-tracking-completed-tasks-tagged-blocked.md) — verify task status before trusting MEMORY.md tags
 - [fleet-dispatch-atomic-claim](memory/shared/entries/fleet-dispatch-atomic-claim.md) — atomic claim dispatch
 - [workflow-context-clobber](memory/shared/entries/workflow-context-clobber.md) — context timing landmine
 - [whop-api-capabilities](memory/shared/entries/whop-api-capabilities.md) — Whop monetization wedge
