@@ -505,3 +505,4 @@
 [UNTRUSTED-SRC] 2026-07-15T23:15:03.809Z | task #22810 | completed | sonnet | Whop free-forum digest [2026-07-15]: syndicate Arc status in | Posted free-forum digest post_1Cd4hAeHY19ogMncXKJQqY covering the auto-commit se
 2026-07-15T23:19:19.178Z | task #22817 | completed | sonnet | stackspot: add pox-5 activation watch + register untracked S | Both sub-tasks were already implemented+staged from a prior uncommitted session 
 2026-07-15T23:21:17.811Z | task #22812 | completed | haiku | Retrospective: extract learnings from task #22809 — Assess r | Updated p-hardcoded-deprecated-reference-silent-failure with multi-codebase scop
+2026-07-15T23:22:59.064Z | task #22815 | completed | haiku | Retrospective: extract learnings from task #22811 — Add pox- | Extended p-hardcoded-deprecated-reference-silent-failure pattern with external d
