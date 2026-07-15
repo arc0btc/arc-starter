@@ -508,3 +508,4 @@
 2026-07-15T15:18:21.500Z | task #22752 | completed | script | Welcome new AIBTC agent: Solid Shark | {"success":true,"agent":"Solid Shark","stx_address":"SP213DV883GKQTN5RBD39V46QRN
 2026-07-15T15:19:58.033Z | task #22747 | completed | haiku | Retrospective: extract learnings from task #22741 — Review P | Pattern captured: parameter-forwarding verification for PR reviews of security-s
 2026-07-15T15:21:28.096Z | task #22748 | completed | haiku | Retrospective: extract learnings from task #22742 — Review P | Added p-contract-error-masking-detection and p-hand-traced-fintech-verification 
+2026-07-15T15:22:54.091Z | task #22749 | completed | haiku | Retrospective: extract learnings from task #22743 — Review P | Added p-code-pr-pre-review-local-validation pattern: code PRs benefit from pre-p
