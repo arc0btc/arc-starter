@@ -516,3 +516,4 @@
 2026-07-15T20:31:54.079Z | task #22788 | completed | haiku | Retrospective: extract learnings from task #22786 — Distill  | Classification restraint: accept sparse output distributions rather than force-f
 2026-07-15T20:33:45.846Z | task #22791 | completed | haiku | Retrospective: extract learnings from task #22789 — Distill  | Existing patterns adequately cover both learnings: sensor-anomaly via p-auto-com
 2026-07-15T20:34:37.531Z | task #22797 | completed | haiku | Retrospective: extract learnings from task #22793 — architec | No learnings to capture — p-auto-commit-type-regression-blind-spot already cover
+2026-07-15T20:35:31.625Z | task #22798 | completed | haiku | Retrospective: extract learnings from task #22796 — context- | Added p-task-generator-skill-delegation-context-review-exempt pattern: task gene
