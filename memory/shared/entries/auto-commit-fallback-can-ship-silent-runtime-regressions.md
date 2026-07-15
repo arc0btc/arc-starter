@@ -23,11 +23,27 @@ post-commit service health check also doesn't catch it — a sensor throwing ins
 `Promise.allSettled` doesn't kill any service, it just silently stops producing tasks.
 
 **How to apply**: Don't assume dispatch's two safety layers (transpile guard, service health
-check) catch type-level regressions in auto-committed files — they structurally can't. Follow-up
-#22721 proposes a lightweight `tsc --noEmit` diff-check scoped to auto-committed files. Until
-that lands, architecture-review cycles walking a diff range should treat any sensor/skill code
-change from a `chore(loop): auto-commit` commit (not an attributed feature/fix commit) as
-needing closer reading than a normal reviewed diff — it never went through a dispatch session's
-own judgment.
+check) catch type-level regressions in auto-committed files — they structurally can't.
 
-See [[arc-architecture-review]] cadence, `skills/arc-blocked-review/sensor.ts`.
+**RESOLVED 2026-07-15 (#22721, commit f3469b19)** — new `arc-typecheck-guard` skill closes the
+gap. A 30-min sensor runs a real `tsc --noEmit` and flags per-file error-count INCREASES in `.ts`
+files under `src/`/`skills/` touched by a `chore(loop): auto-commit` commit, diffed against a
+persisted baseline (`db/tsc-baseline.json`). Design choices worth reusing:
+
+- **Baseline diff, not zero-errors.** The project carries pre-existing errors; only *increases*
+  attributable to an unattended commit are flagged. The baseline refreshes on every tsc run, so
+  reviewed fixes lower it and confirmed regressions aren't re-flagged. (On the feature branch,
+  tsconfig `include` already scopes out the ~50 gitignored sibling-import errors, so baseline = 1.)
+- **Sensor, not inline in `safe-commit.ts`.** Full tsc is ~10-30s — too costly on the dispatch
+  hot path (runs after every cycle). A cadenced sensor runs it at most once per interval.
+- **Scoped to the unattended path only.** Reviewed/human commits go through code-review + CI;
+  the guard ignores them (`autoCommitTsFiles` filters by the auto-commit subject prefix).
+- **Flags, doesn't revert.** Type errors don't crash a running Bun service (Bun ignores types at
+  runtime), so revert-on-error would be too aggressive — contrast `revertOnServiceDeath`, which
+  reverts because a dead service is an active outage. A sonnet follow-up within ~30 min is the
+  right severity.
+- **tsc catches what regex can't.** The existing `lintModelField` heuristic in `safe-commit.ts`
+  missed this exact bug because it only matches `insertTaskIfNew(\s*\{` (object-first-arg form);
+  the broken call was `insertTaskIfNew(db, {…})`. A real type-checker has no such blind spot.
+
+See [[arc-architecture-review]] cadence, `skills/arc-typecheck-guard/`, `skills/arc-blocked-review/sensor.ts`.
