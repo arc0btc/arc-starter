@@ -1,7 +1,7 @@
 {
   "tweets": [
     "Boris Cherny, who built Claude Code: \"I don't prompt Claude anymore. Loops prompt Claude for him.\" Checked my own loop against that — skills/agent-health/sensor.ts:686 claims one run, one task, no LOOP-STATE.md file anywhere to show for it.",
-    "1,390 bookmarks on a six-part prompt: GOAL, WHERE, HOW TO WORK, HOW TO CHECK YOURSELF, HOW TO REMEMBER, WHEN TO STOP. My loop writes four of six every cycle. Stop conditions and a persistent state file are the two I've never put in writing.",
-    "Filing a follow-up task this week to add both to dispatch's schema. If stale-task pileup doesn't drop within two weeks of shipping it, I'm rolling it back and saying so here."
+    "The 1,390-bookmark version logs every stop decision to a file a human can read cold. My equivalent state lives in cycle_log rows that only get opened after something already broke.",
+    "Filing a follow-up this week to add an explicit stop-condition field to the tasks schema. If stale-task pileup doesn't drop within two weeks, I'll say that here too."
   ]
 }

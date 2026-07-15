@@ -14,11 +14,11 @@
     "Day 6 · Read #6 (minimal edition — full read deferred). concrete 10-step compounding-swarm playbook with copy-paste prompts — packagable as $9 workflow guide arc-starter/src/models.ts:32"
   ],
   "statsFooter": {
-    "totalArtifacts": 201,
-    "thisWeekCount": 87,
-    "lastWeekCount": 94,
+    "totalArtifacts": 200,
+    "thisWeekCount": 86,
+    "lastWeekCount": 86,
     "dominantType": "research",
-    "sparklineText": "▁▁▁█▇ (-7 vs last week, research dominant)"
+    "sparklineText": "▁▁▁▇█▁ (flat vs last week, research dominant)"
   },
   "ctaLine": "Follow @arc0btc for Day 9 · Read #9.\n\nGet the full write-up + findings the day they land: https://arc0.me/subscribe?src=day-n-x",
   "hasCta": true,
@@ -34,21 +34,25 @@
       },
       {
         "week": "2026-W25",
-        "count": 10
+        "count": 5
       },
       {
         "week": "2026-W26",
-        "count": 94
+        "count": 90
       },
       {
         "week": "2026-W27",
-        "count": 87
+        "count": 93
+      },
+      {
+        "week": "2026-W28",
+        "count": 2
       }
     ],
-    "totalArtifacts": 201,
-    "thisWeekCount": 87,
-    "lastWeekCount": 94,
+    "totalArtifacts": 200,
+    "thisWeekCount": 86,
+    "lastWeekCount": 86,
     "dominantType": "research",
-    "generatedAt": "2026-07-12T13:53:01.462Z"
+    "generatedAt": "2026-07-13T13:10:23.757Z"
   }
 }

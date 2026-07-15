@@ -5616,6 +5616,251 @@
         },
         "text": "RT @bitflow: We're ready for Agents and Operators. Check out https://t.co/IKc7TqcS2y or how to deploy your AI BTC agent below 👇"
       }
+    },
+    "2076672549522698636": {
+      "id": "2076672549522698636",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "article": {
+          "title": "The missing middleware: Why AI at scale requires model routers"
+        },
+        "author_id": "114783808",
+        "conversation_id": "2076672549522698636",
+        "created_at": "2026-07-13T14:18:13.000Z",
+        "edit_history_tweet_ids": [
+          "2076672549522698636"
+        ],
+        "id": "2076672549522698636",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 231,
+          "like_count": 3,
+          "quote_count": 0,
+          "reply_count": 2,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/toHweLbyzO"
+      }
+    },
+    "2076627807287857226": {
+      "id": "2076627807287857226",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "article": {
+          "title": "How people are actually getting paid with GPT-5.6 + Fable 5 in 2026."
+        },
+        "author_id": "72397909",
+        "conversation_id": "2076627807287857226",
+        "created_at": "2026-07-13T11:20:25.000Z",
+        "edit_history_tweet_ids": [
+          "2076627807287857226"
+        ],
+        "id": "2076627807287857226",
+        "public_metrics": {
+          "bookmark_count": 1,
+          "impression_count": 94,
+          "like_count": 0,
+          "quote_count": 1,
+          "reply_count": 0,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/FtFwiVEO4D"
+      }
+    },
+    "2076539621513564510": {
+      "id": "2076539621513564510",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "author_id": "2026778590373949440",
+        "conversation_id": "2076539621513564510",
+        "created_at": "2026-07-13T05:30:00.000Z",
+        "edit_history_tweet_ids": [
+          "2076539621513564510"
+        ],
+        "id": "2076539621513564510",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 156,
+          "like_count": 1,
+          "quote_count": 0,
+          "reply_count": 1,
+          "retweet_count": 0
+        },
+        "text": "🇪🇺 AI-native marketing, agent evals, product workflows, AI-assisted building, UX for agents, and vibe coding across London, Paris, and Berlin.\n\nSubscribe to your local weekly newsletter at https://t.co/5bWU79AWun\n\n𝐋𝐨𝐧𝐝𝐨𝐧\n\n(1) Jul 14th | We Saved You a Seat - A Roundtable on https://t.co/9iIqYseiI2"
+      }
+    },
+    "2076498597663932760": {
+      "id": "2076498597663932760",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "article": {
+          "title": "Modern Software Product Engineering "
+        },
+        "author_id": "2909719458",
+        "conversation_id": "2076498597663932760",
+        "created_at": "2026-07-13T02:46:59.000Z",
+        "edit_history_tweet_ids": [
+          "2076498597663932760"
+        ],
+        "id": "2076498597663932760",
+        "public_metrics": {
+          "bookmark_count": 4,
+          "impression_count": 195,
+          "like_count": 6,
+          "quote_count": 0,
+          "reply_count": 0,
+          "retweet_count": 3
+        },
+        "text": "https://t.co/Or4OHeIDOz"
+      }
+    },
+    "2076482698726842671": {
+      "id": "2076482698726842671",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "author_id": "1219263804",
+        "conversation_id": "2076482698726842671",
+        "created_at": "2026-07-13T01:43:49.000Z",
+        "edit_history_tweet_ids": [
+          "2076482698726842671"
+        ],
+        "id": "2076482698726842671",
+        "public_metrics": {
+          "bookmark_count": 2,
+          "impression_count": 314,
+          "like_count": 9,
+          "quote_count": 0,
+          "reply_count": 1,
+          "retweet_count": 0
+        },
+        "text": "Reading about an automated cost-reduction loop for repetitive API calls, marketed as automated intelligence distillation.\n\nTechnically, it appears to perform black-box behavioral distillation:\n\nCluster production requests by prompt/schema.\nUse traces and a frontier teacher to"
+      }
+    },
+    "2076448756736708949": {
+      "id": "2076448756736708949",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "article": {
+          "title": "Prediction Markets: Price Is the Product"
+        },
+        "author_id": "1469492773803806721",
+        "conversation_id": "2076448756736708949",
+        "created_at": "2026-07-12T23:28:56.000Z",
+        "edit_history_tweet_ids": [
+          "2076448756736708949"
+        ],
+        "id": "2076448756736708949",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 206,
+          "like_count": 0,
+          "quote_count": 1,
+          "reply_count": 0,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/DxRwSs8GGb"
+      }
+    },
+    "2076422631511986614": {
+      "id": "2076422631511986614",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "article": {
+          "title": "We measured LLM energy per token on V100s"
+        },
+        "author_id": "1153803242",
+        "conversation_id": "2076422631511986614",
+        "created_at": "2026-07-12T21:45:08.000Z",
+        "edit_history_tweet_ids": [
+          "2076422631511986614"
+        ],
+        "id": "2076422631511986614",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 1425,
+          "like_count": 8,
+          "quote_count": 2,
+          "reply_count": 0,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/Yrfi7bQkXP"
+      }
+    },
+    "2076364474605604895": {
+      "id": "2076364474605604895",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "author_id": "1943401719024750597",
+        "conversation_id": "2076364474605604895",
+        "created_at": "2026-07-12T17:54:02.000Z",
+        "edit_history_tweet_ids": [
+          "2076364474605604895"
+        ],
+        "id": "2076364474605604895",
+        "public_metrics": {
+          "bookmark_count": 3,
+          "impression_count": 1126,
+          "like_count": 4,
+          "quote_count": 0,
+          "reply_count": 0,
+          "retweet_count": 1
+        },
+        "text": "the best expert verifiers make for the best data and evals. Quite a few of these firms find and acquire experts on https://t.co/PJOnvjOiKa -- and the traffic patterns seem to suggest there is a new power law forming for expert acquisition. interesting stuff! https://t.co/YUkZHH4oVb"
+      }
+    },
+    "2076347696646955244": {
+      "id": "2076347696646955244",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "author_id": "1646445864796184578",
+        "conversation_id": "2076347696646955244",
+        "created_at": "2026-07-12T16:47:22.000Z",
+        "edit_history_tweet_ids": [
+          "2076347696646955244"
+        ],
+        "id": "2076347696646955244",
+        "public_metrics": {
+          "bookmark_count": 103,
+          "impression_count": 7670,
+          "like_count": 113,
+          "quote_count": 1,
+          "reply_count": 10,
+          "retweet_count": 12
+        },
+        "text": "As an AI Engineer. Please learn LLM Evaluation Concepts:\n\n&gt;Eval: A structured test to measure the quality of LLM outputs\n\n&gt;Criteria: What \"good\" means for your use case\n\n&gt;Rubric: A checklist to turn vague criteria into specific, scorable questions\n\n&gt;Test case: One input plus an https://t.co/asYGg2i10v"
+      }
+    },
+    "2076338607263285303": {
+      "id": "2076338607263285303",
+      "type": "tweet",
+      "fetched_at": "2026-07-13T15:02:58.393Z",
+      "data": {
+        "author_id": "1534736652291014656",
+        "conversation_id": "2076338607263285303",
+        "created_at": "2026-07-12T16:11:15.000Z",
+        "edit_history_tweet_ids": [
+          "2076338607263285303"
+        ],
+        "id": "2076338607263285303",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 12,
+          "like_count": 0,
+          "quote_count": 0,
+          "reply_count": 0,
+          "retweet_count": 0
+        },
+        "text": "Updated.\nNo inverted or opposite or reverse bs. What i say on twt is what i mean . \n. Was at stores. As always people nodding heads and saying not there or no sir yes sir blah. Not me saying it. \n. ir and ir father and ir family and goons are rejected from anything to do with me. https://t.co/RNfrqxqfTQ"
+      }
     }
   },
   "users": {
