@@ -226,18 +226,33 @@ export default async function blockedReviewSensor(): Promise<string> {
     "If still blocked, leave as-is or update the `result_summary` with current status. " +
     "Close this review task with a summary of actions taken.";
 
-  const reviewTaskId = await insertTaskIfNew(db, {
-    subject: `Review ${reviewCandidates.length} blocked task(s)`,
+  // Build valid skill set to filter out renamed/removed skills
+  const validSkillNames = new Set(discoverSkills().map((s) => s.name));
+
+  // Collect skills from candidate blocked tasks so reviewer has relevant context
+  const skillSet = new Set<string>(["arc-blocked-review"]);
+  for (const { task } of reviewCandidates) {
+    if (task.skills) {
+      for (const s of JSON.parse(task.skills) as string[]) {
+        if (validSkillNames.has(s)) skillSet.add(s);
+      }
+    }
+  }
+  // Cap at 6 skills to stay within context budget
+  const reviewSkills = [...skillSet].slice(0, 6);
+
+  const reviewTaskId = insertTaskIfNew(TASK_SOURCE, {
+    subject: `Review ${reviewCandidates.length} blocked task(s) for possible unblock`,
     description,
+    skills: JSON.stringify(reviewSkills),
     priority: 7,
-    source: TASK_SOURCE,
-    skills: ["arc-skill-manager"],
+    model: "sonnet",
   });
 
-  if (reviewTaskId) {
-    log(`created review task #${reviewTaskId} for ${reviewCandidates.length} candidates`);
+  if (reviewTaskId !== null) {
+    log(`created review task #${reviewTaskId} for ${reviewCandidates.length} candidate(s)`);
   } else {
-    log(`review task already exists for these candidates`);
+    log("review task already exists, skipping");
   }
 
   return "ok";

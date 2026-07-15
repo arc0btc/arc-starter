@@ -1,30 +1,3 @@
-## 2026-07-12T20:20:00.000Z — X spend audit lands: two unmetered read lanes brought under the shared budget guard, prescreen switched from paid to free oEmbed, plus the queued-reservation leak fix from the prior cycle's follow-up; 131 skills / 86 sensors
-
-**Task #22190** | Diff: b307caa..1d9f029 (3 commits — 0 src/, 4 skills/) | Sensors: 86 | Skills: 131
-
-### Changed files (substantive only)
-
-- `skills/social-x-posting/lib/x-api.ts` (9dcc49c9) — `incrementReadBudget()` gains a `lane` param and `by_lane` attribution in `x-read-budget.json`; new `endpointLane()` normalizes numeric path segments out of an endpoint for a stable lane key. Daily ceiling raised $0.50 → $1.00, framed explicitly as absorbing previously-invisible spend, not authorizing new spend.
-- `skills/social-x-ecosystem/sensor.ts` (9dcc49c9) — 96 searches/day (~$0.48, the single biggest read spend on the account) were unmetered until now; every search checks `checkReadBudget` first and degrades to a skipped search (not a thrown error) on exhaustion.
-- `skills/arc-link-research/cli.ts` (9dcc49c9, 1d9f0293) — Same budget-guard wiring for both OAuth and bearer clients (lane `link-research`). Second commit same-day reworks `prescreenTweet` from a paid `/tweets/:id` lookup to X's free `publish.x.com/oembed` endpoint (200/404/403 status-coded, 5xx/network falls back to the existing lenient-default), plus a cache short-circuit so an already-cached URL skips prescreening entirely. Net effect: a successful research run now costs 1 paid read per fresh X URL instead of 2, and 0 for cached URLs.
-- `skills/social-engine/admission.ts` (c6498daa) — Fixes #22166 (Edition 8 reservation leak flagged in the prior cycle's audit): `releaseAbandonedReservations()` gets a third sweep reclaiming `queued` rows whose send window has already opened (not just fully closed) past a 10min grace, closing the gap where a group aborted before any row reached `claimForSend()` sat leaked for up to an hour.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All four changes trace to named artifacts — an operator spend-audit doc (`manage-agents docs/observations/2026-07-11-x-api-spend-audit.md`), an explicit operator direction on the prescreen rework, and task #22166 from the prior cycle's own carry-forward. No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: `endpointLane()` plus the shared `checkReadBudget`/`incrementReadBudget` import gives three previously-divergent callers (posting, ecosystem search, link-research) one metering path instead of three ad-hoc ones — same "import the shared guard" shape already used for whop-sales. The oEmbed prescreen swap is a genuine complexity reduction too: it replaces branchy X-API error-shape parsing (`data.errors[0].title` string matching) with a plain HTTP status check.
-- **Step 4 — Accelerate**: The prescreen rework is the clearest Step-4 move this cycle — it removes a paid round-trip from the hot success path of every link-research run, not just a cost optimization but a latency one (oEmbed has no OAuth handshake).
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[NEW-WATCH]** The budget ceiling doubled same-day two new lanes were switched on. The stated intent is "measurement, not new spend authorization," which the `by_lane` breakdown makes auditable — worth one cycle of watching `db/x-read-budget.json`'s actual `by_lane` totals against the pre-metering estimates ($0.48 ecosystem + link-research) to confirm the raise doesn't quietly become headroom for new spend.
-- **[RESOLVED]** #22166 queued-reservation-leak (flagged in the 2026-07-11T20:18:54.000Z entry's memory context, fixed this cycle) — third sweep closes the window-opened-but-not-claimed gap. Nothing carried forward on this thread.
-- No other watch items carried — prior cycle's context-review skip-list watch was already resolved and dropped.
-
----
-
 ## 2026-07-13T08:24:00.000Z — smallest diff in several cycles: pure skill-tree pruning (7 dead skills deleted) plus a docs-only disallowed-tools tagging batch; no src/ changes; 124 skills / 86 sensors
 
 **Task #22239** | Diff: 1d9f029..3811dee (3 commits — 0 src/, 22 skills/ files) | Sensors: 86 | Skills: 124 (down from 131)
@@ -130,5 +103,28 @@
 - **[RESOLVED]** Prior cycle's `[NEW-WATCH]` on `last_error` being a no-op for 41% of sensors — 2a337f7d threads real messages through all remaining cases same-day. Nothing carried forward on this thread.
 - **[WATCH]** Phase 8 + two-stage triage together are the most direct structural response yet to [[arc-link-research-cost-driver]] (measured 2026-07-14: 51% of daily spend, $103.57/$201.39). The 2026-07-15 17:38 UTC re-measurement already scheduled at #22520 (for the incident-dedup fix) should now also capture this cycle's landing — worth explicitly re-checking `arc tasks cost --days 1 --top N` broken out by skill against the pre-Phase-8 baseline once it fires, since two independent fixes are stacking in the same measurement window.
 - No other carry-forward watch items — prior cycle's only open item is resolved above.
+
+---
+
+## 2026-07-15T08:23:00.000Z — auto-commit regression broke arc-blocked-review's task-creation call; fixed same-cycle
+
+**Task #22717** | Diff: 79f5954..2411114 (86 commits, mostly memory/docs/cache; 1 substantive src change) | Sensors: 90 | Skills: 128
+
+### Changed files (substantive only)
+
+- `skills/arc-blocked-review/sensor.ts` (52d5cf59, an unreviewed "chore(loop): auto-commit after dispatch cycle" commit) — landed the intended cooldown fix (SIGNAL_REVIEW_COOLDOWN_HOURS now applies regardless of stale-reason presence, closing the #22689-review gap already tracked in MEMORY.md) but *also* rewrote the `insertTaskIfNew` call incorrectly: first arg changed from the `TASK_SOURCE` string to the `db` handle, `skills` passed as a raw array instead of a JSON string, and the `model` field dropped entirely. Since `pendingTaskExistsForSource`/`insertTask` bind `source` as a SQLite parameter, passing a `Database` object there throws at runtime — the sensor has been unable to create any new blocked-task review since this commit landed (2026-07-14 21:11 MDT). Bun's transpile-only pre-commit guard (CLAUDE.md's "Pre-commit syntax guard") does not catch this class of bug — it's a type/runtime mismatch, not a syntax error, and this was an auto-commit with no dispatch-session review. Fixed this cycle: restored `insertTaskIfNew(TASK_SOURCE, {...})` signature, JSON-stringified skills with the valid-skill-name filter, and restored `model: "sonnet"` (tasks without an explicit model are rejected at dispatch per CLAUDE.md). Verified via `bunx tsc --noEmit -p .` — no errors on this file post-fix.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: The cooldown-regardless-of-stale-reason change traces to a named incident (#22689-review, already in MEMORY.md); valid. The rest of the diff (signature/skills/model breakage) traces to no requirement — it's incidental damage from whatever authored the auto-commit, not a deliberate change.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A.
+- **Step 4 — Accelerate**: N/A.
+- **Step 5 — Automate**: N/A — but see Flags below re: a real gap in the auto-commit safety net.
+
+### Flags
+
+- **[NEW-WATCH]** The dispatch resilience doc (CLAUDE.md "Dispatch resilience") only names two safety layers: pre-commit syntax guard (transpile-only, doesn't type-check) and post-commit service health check (checks if a service died, not whether task-creation silently started failing). Neither layer would have caught this bug, and it shipped via an unattended "chore(loop): auto-commit after dispatch cycle" commit rather than a reviewed dispatch session. A sensor that periodically runs `bunx tsc --noEmit` against files touched by auto-commits (not full transpile) and flags new errors would close this gap. Filing a follow-up.
+- **[RESOLVED]** Prior cycle's only carry-forward (#22656's Phase 8 + two-stage triage re-measurement watch) is unaffected by this diff — no action needed here, already tracked at #22699/[[arc-link-research-dedup-measurement]].
 
 ---
