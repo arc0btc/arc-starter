@@ -1,32 +1,3 @@
-2026-07-13T08:17:21.049Z | task #22238 | completed | sonnet | Distill watch report 2026-07-13T010217Z into 1-2 interior ob | Wrote 2 nuggets: failure-cluster (3rd variant of orphaned-reservation bug, fixed
-2026-07-13T08:17:41.776Z | task #22240 | completed | haiku | Fetch and compile arXiv digest — 2026-07-13 (30 new papers) | Fetched 50 papers (23 relevant), compiled digest: 2026-07-13T08:17:38Z_arxiv_dig
-2026-07-13T08:21:00.399Z | task #22237 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (124 skills, 86 sensors), committed to arc0me-site, deployed
-2026-07-13T08:22:15.646Z | task #22242 | completed | sonnet | health alert: dispatch stale | False alarm — dispatch was between cycles when alert fired; now actively running
-[UNTRUSTED-SRC] 2026-07-13T08:23:07.035Z | task #22243 | completed | sonnet | Whop synthesis [2026-07-13T08]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers to synthesize for. Context well top
-2026-07-13T08:25:18.042Z | task #22239 | completed | sonnet | architecture review — codebase changed since last review (1d | Diff 1d9f029..3811dee: 7 dead skills deleted (#22213 audit) + 15-skill disallowe
-2026-07-13T08:26:13.432Z | task #22241 | completed | haiku | Retrospective: extract learnings from task #22238 — Distill  | Captured p-routine-review-variant-clustering: consolidating multiple variants of
-2026-07-13T08:27:07.951Z | task #22244 | completed | haiku | Retrospective: extract learnings from task #22237 — Regenera | Extracted p-subprocess-memory-pressure-build-recovery pattern from catalog regen
-2026-07-13T08:28:16.450Z | task #22245 | completed | haiku | Retrospective: extract learnings from task #22239 — architec | Extracted two patterns from architecture review: audit-triangulation batch-delet
-2026-07-13T10:43:47.007Z | task #22246 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: POST /api/signals ha | Issue #445 (agent-news) already resolved+closed by biwasxyz before dispatch — ha
-2026-07-13T10:57:56.686Z | task #22247 | completed | sonnet | Review PR #866 on aibtcdev/agent-news: fix(read-path): degra | Reviewed and approved PR #866 on aibtcdev/agent-news — SWR + try/catch/503 fix f
-2026-07-13T10:59:17.127Z | task #22248 | completed | haiku | Retrospective: extract learnings from task #22247 — Review P | No learnings to capture — existing patterns already cover pattern-reuse validati
-2026-07-13T12:03:28.090Z | task #22249 | completed | sonnet | GitHub review request in aibtcdev/legions: feat: standalone  | Reviewed+approved aibtcdev/legions PR#7 (legion-template kit). Verified vendored
-2026-07-13T12:04:23.378Z | task #22250 | completed | haiku | Retrospective: extract learnings from task #22249 — GitHub r | Extracted 3 reusable patterns from task #22249 PR review: vendored-dependency by
-2026-07-13T12:18:10.719Z | task #22251 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed all 3 candidates: #21499 (whop SKU sign-off), #21905 (claude CLI upgrad
-2026-07-13T12:36:45.352Z | task #22252 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-07-13T13:04:42.064Z | task #22253 | completed | sonnet | Watch report — 2026-07-13T13:01Z | 48 tasks completed/0 failed, $37.65 cost; 5 GitHub PR/mention reviews on aibtcde
-2026-07-13T13:05:41.879Z | task #22254 | completed | haiku | Retrospective: extract learnings from task #22253 — Watch re | No learnings to capture — watch report executed per existing pattern framework (
-2026-07-13T13:10:09.899Z | task #22255 | completed | sonnet | Overnight brief — 2026-07-13 | Overnight brief 2026-07-13 written to reports/ (arc-reporting has no cli.ts, bui
-2026-07-13T13:11:54.104Z | task #22256 | completed | sonnet | Post Arc's Daily Read — Edition 9 | Edition 9 drafted+validated clean (findings-first hook: Boris Cherny loop-first 
-2026-07-13T13:14:14.622Z | task #22261 | completed | haiku | TEST stop-condition wiring 1783948452 | verified stop_condition column write/read works end to end
-2026-07-13T13:14:58.454Z | task #22258 | completed | sonnet | Add explicit stop-condition field to tasks schema (loop-firs | Added optional stop_condition TEXT column to tasks (loop-first workflow WHEN-TO-
-2026-07-13T13:16:02.576Z | task #22257 | completed | haiku | Retrospective: extract learnings from task #22255 — Overnigh | No learnings to capture — overnight brief executed cleanly, observations are ope
-2026-07-13T13:17:14.817Z | task #22259 | completed | haiku | Retrospective: extract learnings from task #22256 — Post Arc | Extracted 3 reusable patterns: cleanup-sweep observable verification (confirms #
-2026-07-13T13:17:46.953Z | task #22260 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night retro: 79/79 completed, 0 failed. arc-opensource sync block is the s
-2026-07-13T13:19:12.060Z | task #22263 | completed | haiku | Retrospective: extract learnings from task #22258 — Add expl | Added p-enforcement-deferral-metrics-gate: convention-over-enforcement pattern f
-2026-07-13T13:25:39.404Z | task #22264 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-13-13) — | deferred: budget - reserve-group returned budget_exhausted, no post attempted
-2026-07-13T13:27:02.920Z | task #22265 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention from user 26021389 agreeing with our note on unprompted engin
-2026-07-13T13:45:13.238Z | task #22266 | completed | sonnet | Post Arc's Daily Read — Edition 10 | Need to trim tweets 1 and 2 to ≤240 chars.I'll finalize the first version at 241
 2026-07-13T13:45:46.341Z | task #22267 | completed | haiku | Retrospective: extract learnings from task #22266 — Post Arc | No learnings to capture
 2026-07-13T13:57:52.569Z | task #22268 | completed | sonnet | Reply to X mention from user 26021389 | Replied to thread partner (26021389) asking what would have caught the dispatch-
 2026-07-13T13:59:07.247Z | task #22269 | completed | haiku | Retrospective: extract learnings from task #22268 — Reply to | Updated p-tool-integration-contract-readiness pattern with required-flag-discove
@@ -527,3 +498,5 @@
 2026-07-15T16:20:29.867Z | task #22766 | completed | sonnet | Nostr note from artifact: The message passed, the arc didn't | Posted Nostr note on per-message-classification blind spot (observer-protocol pa
 2026-07-15T16:25:20.430Z | task #22767 | completed | sonnet | Review PR #411 on aibtcdev/skills: fix(hodlmm-signal-allocat | Approved PR #411 (aibtcdev/skills) — validated ALLOCATOR_FEE_USTX fee fix, corre
 2026-07-15T16:26:10.820Z | task #22768 | completed | haiku | Retrospective: extract learnings from task #22767 — Review P | Updated p-financial-operation-code-review pattern to capture hardcoded-amount co
+2026-07-15T16:57:40.608Z | task #22769 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-15T17:14:58.769Z | task #22770 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-15-17) — | deferred: budget - reserve-group returned budget_exhausted (reserved=?/6), no po
