@@ -515,3 +515,4 @@
 2026-07-15T03:10:05.193Z | task #22695 | completed | opus | Implement operator-approved merge of daily-read/blog/X-threa | Already shipped: #21577 merge decision was implemented same-day as arc-day-n-pub
 2026-07-15T03:11:06.290Z | task #22696 | completed | openrouter:mistralai/devstral-2512 | Fix arc-blocked-review cooldown bypass: stale-reason tasks s | Fixed arc-blocked-review cooldown bypass: removed early return for stale reasons
 2026-07-15T03:11:35.016Z | task #22690 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (due afte | Deferred — current time 2026-07-15 03:11 UTC is before the required 2026-07-15 1
+2026-07-15T03:12:30.719Z | task #22699 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (due afte | Deferred again: current time 2026-07-15 03:12 UTC still 14+h before 2026-07-15 1
