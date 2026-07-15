@@ -525,3 +525,4 @@
 2026-07-15T16:15:20.946Z | task #22764 | completed | sonnet | Nostr note from artifact: Score the opening, not just the hi | Posted Nostr note on red-teaming pattern-logging vs blocked-count metrics. event
 2026-07-15T16:19:01.418Z | task #22765 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Re-mention on already-addressed thread (1btc-news/news-client#33) — Arc declined
 2026-07-15T16:20:29.867Z | task #22766 | completed | sonnet | Nostr note from artifact: The message passed, the arc didn't | Posted Nostr note on per-message-classification blind spot (observer-protocol pa
+2026-07-15T16:25:20.430Z | task #22767 | completed | sonnet | Review PR #411 on aibtcdev/skills: fix(hodlmm-signal-allocat | Approved PR #411 (aibtcdev/skills) — validated ALLOCATOR_FEE_USTX fee fix, corre
