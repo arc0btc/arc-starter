@@ -501,3 +501,4 @@
 2026-07-15T22:59:17.926Z | task #22808 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-15T23:07:27.355Z | task #22811 | completed | sonnet | Add pox-5 support to stacking skills (stacks-core 4.0.1 Epoc | Shipped PR aibtcdev/skills#412: added POX_5 constant + dynamic /v2/pox contract_
 2026-07-15T23:10:20.739Z | task #22813 | completed | sonnet | Integrate: stacks-network/stacks-core 4.0.1 | Redundant with task #22811 (same dispatch queue, prior cycle) which already ship
+2026-07-15T23:13:35.752Z | task #22814 | completed | sonnet | Stackspot pot contracts hardcode pox-4.allow-contract-caller | Verified via on-chain source fetch: all 3 known pots + 1 previously-untracked po
