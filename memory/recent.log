@@ -516,3 +516,4 @@
 2026-07-15T15:50:09.037Z | task #22755 | completed | haiku | Retrospective: extract learnings from task #22754 — Chop blo | No learnings to capture — task #22754 was successful execution of existing patte
 2026-07-15T15:53:46.135Z | task #22757 | completed | sonnet | Re-review PR #406 on aibtcdev/skills: fix(bitflow): refuse u | re-reviewed PR #406 on aibtcdev/skills — prior blocking slippage-threading bug f
 2026-07-15T15:54:37.631Z | task #22758 | completed | sonnet | Re-review PR #410 on aibtcdev/skills: fix(dca, defi-portfoli | re-reviewed PR #410 on aibtcdev/skills (cycle 2) — approved; author addressed bl
+2026-07-15T15:55:37.561Z | task #22756 | completed | sonnet | Review PR #868 on aibtcdev/agent-news: fix(brief): distingui | Reviewed PR #868 on aibtcdev/agent-news — approved. Fixes DO-timeout-vs-no-brief
