@@ -8,6 +8,78 @@ const SENSOR_NAME = "stacks-stackspot";
 const INTERVAL_MINUTES = 7; // ~5-10 min range: sensor runs every 7 minutes
 const JOIN_AMOUNT_USTX = 20000000; // 20 STX in micro-STX (1 STX = 1,000,000 micro-STX)
 const SKILLS_ROOT = "../../github/aibtcdev/skills";
+const POX_WATCH_STATE_PATH = import.meta.dir + "/../../db/stackspot-pox-watch.json";
+const POX5_CYCLE_BLOCKS = 2100; // ~1 PoX reward cycle (prepare + reward phase)
+const POX_INFO_URL = "https://api.hiro.so/v2/pox";
+
+// Pot deployer contracts are hardcoded to pox-4.allow-contract-caller (removed in pox-5).
+// See memory/shared/entries/stackspot-pox4-hardcoded-pox5-migration-risk.md.
+interface Pox5RiskCheck {
+  atRisk: boolean;
+  detail: string;
+  currentBurnHeight?: number;
+  epoch40StartHeight?: number;
+}
+
+interface PoxWatchState {
+  lastCheckedAt: string;
+  atRisk: boolean;
+  detail: string;
+}
+
+async function checkPox5ActivationRisk(): Promise<Pox5RiskCheck> {
+  try {
+    const response = await fetch(POX_INFO_URL);
+    if (!response.ok) {
+      return { atRisk: false, detail: `pox info fetch failed: HTTP ${response.status}` };
+    }
+    const data = (await response.json()) as {
+      current_burnchain_block_height: number;
+      epochs?: Array<{ epoch_id: string; start_height: number }>;
+    };
+    const currentHeight = data.current_burnchain_block_height;
+    const epoch40 = (data.epochs ?? []).find((e) => {
+      const idNum = parseInt(String(e.epoch_id).replace(/\D/g, ""), 10);
+      return idNum >= 40 && e.start_height < Number.MAX_SAFE_INTEGER;
+    });
+
+    if (!epoch40) {
+      return {
+        atRisk: false,
+        detail: "no Epoch40/pox-5 activation height set on mainnet yet",
+        currentBurnHeight: currentHeight,
+      };
+    }
+
+    const blocksUntil = epoch40.start_height - currentHeight;
+    if (blocksUntil <= POX5_CYCLE_BLOCKS) {
+      return {
+        atRisk: true,
+        detail: `Epoch40 activation at height ${epoch40.start_height} is ${blocksUntil} blocks away (current ${currentHeight}) — within 1 PoX cycle`,
+        currentBurnHeight: currentHeight,
+        epoch40StartHeight: epoch40.start_height,
+      };
+    }
+    return {
+      atRisk: false,
+      detail: `Epoch40 activation scheduled at height ${epoch40.start_height}, ${blocksUntil} blocks away (current ${currentHeight})`,
+      currentBurnHeight: currentHeight,
+      epoch40StartHeight: epoch40.start_height,
+    };
+  } catch (e) {
+    const error = e as Error;
+    return { atRisk: false, detail: `pox info check errored: ${error.message}` };
+  }
+}
+
+async function persistPoxWatchState(risk: Pox5RiskCheck): Promise<void> {
+  const state: PoxWatchState = {
+    lastCheckedAt: new Date().toISOString(),
+    atRisk: risk.atRisk,
+    detail: risk.detail,
+  };
+  await Bun.write(POX_WATCH_STATE_PATH, JSON.stringify(state, null, 2) + "\n");
+}
 
 interface ClarityValue<T> {
   value: T;
@@ -119,6 +191,17 @@ export default async function stackspotSensor(): Promise<string> {
     }
 
     log("run started");
+
+    // Check pox-5 activation risk before considering any auto-join. Deployed pot
+    // contracts hardcode pox-4.allow-contract-caller, which pox-5 removes — see
+    // memory/shared/entries/stackspot-pox4-hardcoded-pox5-migration-risk.md.
+    const pox5Risk = await checkPox5ActivationRisk();
+    await persistPoxWatchState(pox5Risk);
+    if (pox5Risk.atRisk) {
+      log(`PAUSED: ${pox5Risk.detail}`);
+      return "paused: pox5-activation-risk";
+    }
+    log(`pox-5 watch: ${pox5Risk.detail}`);
 
     // List all pots
     log("fetching stackspot pots...");
