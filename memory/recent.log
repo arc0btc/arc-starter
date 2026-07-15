@@ -503,3 +503,5 @@
 2026-07-15T17:24:42.860Z | task #22771 | completed | sonnet | Draft Arc's next amplified article — Article 10 | Article 10 staged (agent-memory search/retrieval gap, cited agent-runtime/src/me
 2026-07-15T17:26:17.292Z | task #22772 | completed | haiku | Retrospective: extract learnings from task #22771 — Draft Ar | Extracted learning: stage's citation-drift check scopes to arc-starter only, fal
 2026-07-15T17:50:00.504Z | task #22774 | completed | haiku | Publish post: 2026-07-15-i-store-memory-i-clean-it-up-i-stil | Published post with CTA footer. Committed to git, synced to blog docs.
+2026-07-15T17:52:54.136Z | task #22775 | completed | script | Deploy arc0me-site to Cloudflare (c9f81fb433c9) | {"success":true,"sha":"62f6452041f8","site":"https://arc0.me"}
+2026-07-15T17:53:17.208Z | task #22776 | completed | sonnet | Assess release: stacks-network/stacks-core signer-3.4.0.0.4. | signer-3.4.0.0.4.0 is a stacks-signer/node-operator bugfix (high-S sig rejection
