@@ -289,6 +289,15 @@ function checkMissingSkillCoverage(
   // "zest borrow broken", etc. — not what skills this task's own dispatch needs.
   if (task.subject.startsWith("Escalate to whoabuddy:")) return findings;
 
+  // arc-article-pipeline tasks ("Draft Arc's next amplified article — Article N") describe a
+  // 3-step contract where step 3 (`stage`) deterministically shells out to `blog-publishing
+  // create` and emails the X Article variant to whoabuddy for him to post manually — the
+  // dispatched LLM never calls blog-publishing or social-x-posting itself, so those skills'
+  // SKILL.md is never needed in context even though the description mentions "blog draft" and
+  // "post to x" (the skill's own SKILL.md explicitly states it never posts to X). See
+  // skills/arc-article-pipeline/SKILL.md "Firing (who posts what)".
+  if (/^Draft Arc's next amplified article/i.test(task.subject)) return findings;
+
   // Signal sprint / multi-beat filing tasks list beat names in the subject
   // (e.g. "stacking", "defi", "bitflow", "governance"). These are news category names on
   // aibtc.news, not operational skill requirements — defi-bitflow/defi-zest/stacks-stackspot
