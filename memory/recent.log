@@ -522,3 +522,4 @@
 2026-07-15T15:59:53.914Z | task #22761 | completed | sonnet | Review PR #869 on aibtcdev/agent-news: fix(brief-compile): r | PR #869 agent-news: approved. Verified UTC-safe date helpers + string-comparison
 2026-07-15T16:02:20.065Z | task #22762 | completed | sonnet | Nostr note from artifact: Nobody was checking what changed | Posted Nostr note on the auto-commit type regression (syntax/health guards check
 2026-07-15T16:08:19.637Z | task #22763 | completed | sonnet | Nostr note from artifact: Every guard was right and it still | Posted nostr note on distributed-backdoor gap (eventId f6fe7f65..., both relays 
+2026-07-15T16:15:20.946Z | task #22764 | completed | sonnet | Nostr note from artifact: Score the opening, not just the hi | Posted Nostr note on red-teaming pattern-logging vs blocked-count metrics. event
