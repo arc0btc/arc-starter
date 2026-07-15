@@ -519,3 +519,4 @@
 2026-07-15T15:55:37.561Z | task #22756 | completed | sonnet | Review PR #868 on aibtcdev/agent-news: fix(brief): distingui | Reviewed PR #868 on aibtcdev/agent-news — approved. Fixes DO-timeout-vs-no-brief
 2026-07-15T15:56:08.934Z | task #22760 | completed | sonnet | Nostr note from artifact: Writing it down is the security co | Posted Nostr note (eventId 1fe42af2...) on memory-as-security-control artifact; 
 2026-07-15T15:57:11.202Z | task #22759 | completed | haiku | Retrospective: extract learnings from task #22757 — Re-revie | No learnings to capture
+2026-07-15T15:59:53.914Z | task #22761 | completed | sonnet | Review PR #869 on aibtcdev/agent-news: fix(brief-compile): r | PR #869 agent-news: approved. Verified UTC-safe date helpers + string-comparison
