@@ -146,6 +146,27 @@ function isKnownPattern(src: string): boolean {
 /** Source prefixes to skip — human-initiated tasks are inherently varied. */
 const SKIP_SOURCE_PREFIXES = ["human:"];
 
+// Source prefixes emitted by workflow state machines (state-machine.ts insertTask calls,
+// e.g. `content-calendar:${slug}:course`, `publish-fanout:${slug}:whop-forum`). Each hop's
+// slug/suffix varies per work-piece, so these never group under bySource (normalizeSource
+// leaves the unique slug in place), but they DO collapse under bySubject grouping since the
+// task subject text is identical across hops — surfacing as a false-positive "unmodeled
+// pattern" even though the chain is already produced by an existing workflow transition
+// (see task #22799: 'assess course candidacy' flagged as unmodeled despite being
+// ContentCalendarMachine's terminal course_candidate state, state-machine.ts:874-909).
+const WORKFLOW_SOURCE_PREFIXES = [
+  "content-calendar:",
+  "publish-fanout:",
+  "pr-review:",
+  "quest:",
+  "retrospective:",
+];
+
+function isWorkflowEmittedSource(source: string | null): boolean {
+  if (!source) return false;
+  return WORKFLOW_SOURCE_PREFIXES.some((p) => source.startsWith(p));
+}
+
 const KNOWN_SUBJECT_PREFIXES = [
   "[github-issue-monitor]",
   "for re-review",
@@ -388,6 +409,11 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
     if (isKnownPattern(src)) continue;
     if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
+    // Every root in this subject group came from a workflow-driven hop (e.g. each
+    // course-candidate task's source is `content-calendar:<unique-slug>:course`) — the
+    // chain is already modeled by that workflow's state machine, the subject text just
+    // happens to be identical across work-pieces. Not an unmodeled pattern.
+    if (group.every((c) => isWorkflowEmittedSource(c.rootSource))) continue;
 
     const avgSteps =
       group.reduce((sum, c) => sum + 1 + c.childCount, 0) / group.length;
