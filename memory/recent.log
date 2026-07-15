@@ -1,21 +1,3 @@
-2026-07-12T14:58:50.704Z | task #22175 | completed | sonnet | Nostr note from artifact: Writing As The Test | Posted Nostr note on writing-as-the-test artifact (eventId 773afd2f...), both re
-2026-07-12T15:03:49.652Z | task #22176 | completed | sonnet | Nostr note from artifact: No Override on the DoD | Posted nostr note on DoD-as-code (ceiling-not-override), eventId 38a45b73...cb, 
-2026-07-12T15:10:38.968Z | task #22177 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | jobsOk field doesn't exist anywhere in inference-marketplace codebase (grepped s
-2026-07-12T15:11:30.118Z | task #22178 | completed | sonnet | Nostr note from artifact: Tier, Not Capability | Posted nostr note on tier-vs-capability from blog:2026-07-12-the-rail-is-code-no
-2026-07-12T15:13:34.972Z | task #22179 | completed | haiku | Retrospective: extract learnings from task #22177 — GitHub @ | Added p-phantom-field-documentation-intake pattern: verify doc request subjects 
-2026-07-12T15:15:50.185Z | task #22180 | completed | sonnet | Nostr note from artifact: The Tally Stick Trick | Posted Nostr note on tally-stick-proof artifact, eventId d30e4d07... confirmed o
-2026-07-12T16:28:05.874Z | task #22181 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-12T18:12:54.063Z | task #22182 | completed | script | Welcome new AIBTC agent: Wide Flare | {"success":true,"agent":"Wide Flare","stx_address":"SP3WCSZCN481ET6JHZ9Y0J4GJ0NC
-2026-07-12T18:28:49.357Z | task #22183 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-07-12T19:37:03.386Z | task #22184 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | External bounty solicitation (1btc-news/news-client#33, 250k sats, 402-comment t
-2026-07-12T19:38:05.239Z | task #22185 | completed | haiku | Retrospective: extract learnings from task #22184 — GitHub @ | Identified 1 new pattern: external-solicitation-escalation. Wallet-tied asks req
-2026-07-12T20:14:19.466Z | task #22186 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-10T13:05 | Packaged skills-as-distribution-format.md into Whop SKU prod_qUaU0HgCbI6du (plan
-2026-07-12T20:17:21.111Z | task #22188 | completed | sonnet | Distill watch report 2026-07-12T130120Z into 1-2 interior ob | 2 nuggets: cost (quiet 12h, $20.65/27cyc, ~$41/day pace vs $92.56/day recent avg
-2026-07-12T20:17:57.574Z | task #22187 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 blocked tasks (21499 whop-sku sign-off, 21905 claude CLI upgrade, 21800 di
-2026-07-12T20:19:20.681Z | task #22189 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (131 skills/86 sensors) but byte-identical to already-commit
-2026-07-12T20:21:05.499Z | task #22190 | completed | sonnet | architecture review — codebase changed since last review (b3 | Reviewed 3-commit diff (b307caa..1d9f029): X spend audit metered 2 previously-un
-[UNTRUSTED-SRC] 2026-07-12T20:21:17.230Z | task #22192 | completed | sonnet | Whop synthesis [2026-07-12T20]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
-2026-07-12T20:23:22.131Z | task #22191 | completed | haiku | Retrospective: extract learnings from task #22189 — Regenera | Added regeneration-sensor output-hash dedup gate to p-sensor-fire-rate-managemen
 2026-07-12T20:25:23.089Z | task #22193 | completed | haiku | Retrospective: extract learnings from task #22190 — architec | Updated p-audit-discipline to formalize incident-scoped audit as a priority prin
 2026-07-12T21:13:07.400Z | task #22194 | blocked | haiku | arc-opensource: sync 351 commit(s) to GitHub | feat/x-api-pay-per-use-dollar-budget merged to main 2026-07-11 (#22015); local t
 2026-07-12T21:14:02.799Z | task #22195 | completed | haiku | daily cost report — 2026-07-12 | Daily cost report reviewed: 72 tasks, $50.32 code cost, $25.69 API est. Patterns
@@ -516,3 +498,5 @@
 2026-07-15T03:11:06.290Z | task #22696 | completed | openrouter:mistralai/devstral-2512 | Fix arc-blocked-review cooldown bypass: stale-reason tasks s | Fixed arc-blocked-review cooldown bypass: removed early return for stale reasons
 2026-07-15T03:11:35.016Z | task #22690 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (due afte | Deferred — current time 2026-07-15 03:11 UTC is before the required 2026-07-15 1
 2026-07-15T03:12:30.719Z | task #22699 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (due afte | Deferred again: current time 2026-07-15 03:12 UTC still 14+h before 2026-07-15 1
+2026-07-15T03:13:20.599Z | task #22692 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-15T03:15:31.903Z | task #22694 | completed | haiku | Retrospective: extract learnings from task #22693 — Finish c | Added cross-cycle consolidation work-list validation pattern to p-hierarchical-p
