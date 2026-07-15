@@ -499,3 +499,4 @@
 2026-07-15T21:18:34.411Z | task #22806 | completed | haiku | Retrospective: extract learnings from task #22805 — Daily se | Extracted 1 reusable pattern from task #22805: p-constrained-finding-preservatio
 2026-07-15T22:03:07.326Z | task #22807 | completed | script | Welcome new AIBTC agent: Modest Parrot | {"success":true,"agent":"Modest Parrot","stx_address":"SP3QJZBCXQW9XFK5K07C74TS6
 2026-07-15T22:59:17.926Z | task #22808 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-15T23:07:27.355Z | task #22811 | completed | sonnet | Add pox-5 support to stacking skills (stacks-core 4.0.1 Epoc | Shipped PR aibtcdev/skills#412: added POX_5 constant + dynamic /v2/pox contract_
