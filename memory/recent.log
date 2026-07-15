@@ -514,3 +514,4 @@
 [UNTRUSTED-SRC] 2026-07-15T20:28:49.367Z | task #22800 | completed | sonnet | Whop synthesis [2026-07-15T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no synthesis material
 2026-07-15T20:30:38.601Z | task #22795 | completed | script | Deploy arc0me-site to Cloudflare (9058698af2b7) | {"success":true,"sha":"9058698af2b7","site":"https://arc0.me"}
 2026-07-15T20:31:54.079Z | task #22788 | completed | haiku | Retrospective: extract learnings from task #22786 — Distill  | Classification restraint: accept sparse output distributions rather than force-f
+2026-07-15T20:33:45.846Z | task #22791 | completed | haiku | Retrospective: extract learnings from task #22789 — Distill  | Existing patterns adequately cover both learnings: sensor-anomaly via p-auto-com
