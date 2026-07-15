@@ -28,6 +28,7 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [harness-engineering-completion-verification](memory/shared/entries/harness-engineering-completion-verification.md) — verification gaps
 - [content-publish-verify-deploy](memory/shared/entries/content-publish-verify-deploy.md) — build ≠ deploy
 - [agent-eval-volume-taxonomy](memory/shared/entries/agent-eval-volume-taxonomy.md) — Hylak volume tiering
+- [workflow-review-subject-grouping-misses-workflow-source-check](memory/shared/entries/workflow-review-subject-grouping-misses-workflow-source-check.md) — bySubject grouping lacked a workflow-source check bySource had, false-flagged "assess course candidacy" (#22799)
 - [article-pipeline-citation-drift-sibling-repo-false-positive](memory/shared/entries/article-pipeline-citation-drift-sibling-repo-false-positive.md) — stage's citation-drift check only resolves arc-starter paths, false-flags valid sibling-repo (agent-runtime) citations
 - [file-inbox-hcom-pattern](memory/shared/entries/file-inbox-hcom-pattern.md) — local IPC file pattern
 - [dead-ends-convention](memory/shared/entries/dead-ends-convention.md) — when to use dead-ends.md
