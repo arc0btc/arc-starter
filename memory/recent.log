@@ -509,3 +509,4 @@
 2026-07-15T20:23:33.316Z | task #22792 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills/91 sensors), committed only catalog files (left 
 2026-07-15T20:24:48.636Z | task #22793 | completed | sonnet | architecture review — codebase changed since last review (24 | Diff 2411114..69e2895: smallest/tightest diff in review history — arc-typecheck-
 2026-07-15T20:26:17.896Z | task #22796 | completed | sonnet | context-review: 2 context loading issue(s) found | Both findings were a false positive: task #22771 (arc-article-pipeline) mentions
+2026-07-15T20:27:00.039Z | task #22794 | completed | sonnet | workflow review — 1 new pattern(s) | No new workflow needed: 'assess course candidacy' is already the course_candidat
