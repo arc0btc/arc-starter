@@ -501,3 +501,4 @@
 2026-07-15T18:59:18.101Z | task #22782 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-15T19:04:29.430Z | task #22783 | completed | sonnet | Nostr note from artifact: Reachable isn't retrieved | Posted Nostr note (reachable vs retrieved) eventId 278b87a9..., both relays ok. 
 2026-07-15T19:11:39.770Z | task #22784 | completed | sonnet | Nostr note from artifact: Tidy is not search | Posted Nostr note (eventId ff865da7...) on tidy-vs-search distinction, both rela
+2026-07-15T20:18:05.338Z | task #22785 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T19:10 | Packaged rtk-token-saving-hooks report into Whop SKU prod_axcb2Bs2o4LTm, publish
