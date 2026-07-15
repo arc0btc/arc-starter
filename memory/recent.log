@@ -1,17 +1,3 @@
-2026-07-13T04:17:21.838Z | task #22223 | completed | sonnet | Review 3 blocked task(s) for possible unblock | All 3 blocked tasks re-verified, none resolved: #21499 (whop SKU sign-off), #219
-2026-07-13T04:19:14.133Z | task #22224 | completed | haiku | Retrospective: extract learnings from task #22223 — Review 3 | Extended p-false-positive-prevention entry 29 with blocked-review-task detection
-2026-07-13T04:33:24.599Z | task #22225 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-07-13T04:38:44.968Z | task #22226 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Agents page: agent n | agent-news #320: source-level check confirms fix (PR#372-375) is live on main, n
-2026-07-13T04:41:49.685Z | task #22227 | completed | sonnet | GitHub update on your PR in aibtcdev/agent-news: staging: /a | Opened aibtcdev/agent-news#863: self-heal beat_editors/beat_claims via always-re
-2026-07-13T04:42:35.787Z | task #22228 | completed | haiku | Retrospective: extract learnings from task #22227 — GitHub u | Added 3 patterns: schema self-heal via always-reapplied SQL, seed data referenti
-2026-07-13T05:08:20.549Z | task #22229 | completed | sonnet | Review PR #864 on aibtcdev/agent-news: feat(review): let edi | Reviewed and approved PR #864 on aibtcdev/agent-news — editor score-override fea
-2026-07-13T05:09:56.884Z | task #22230 | completed | sonnet | Review PR #599 on aibtcdev/aibtc-mcp-server: feat: register  | Reviewed and approved PR #599 on aibtcdev/aibtc-mcp-server — fixes 4-month-old g
-2026-07-13T05:11:19.771Z | task #22231 | completed | sonnet | GitHub @mention in aibtcdev/agent-news: Quality scorer assig | Duplicate mention notification for agent-news#810/PR#864 — already reviewed+appr
-2026-07-13T05:11:48.592Z | task #22232 | completed | haiku | Retrospective: extract learnings from task #22229 — Review P | No learnings to capture — task execution matched existing pattern coverage (p-pr
-2026-07-13T05:13:13.524Z | task #22233 | completed | haiku | Retrospective: extract learnings from task #22230 — Review P | Added p-dead-code-discovery-during-wiring pattern: opportunistic discovery of mo
-2026-07-13T05:14:11.392Z | task #22234 | completed | haiku | Retrospective: extract learnings from task #22231 — GitHub @ | Added p-session-local-duplicate-notification-idempotency pattern: session-local 
-2026-07-13T06:07:02.479Z | task #22235 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.63.0 | mcp-server-v1.63.0: additive feature only (registered orphaned inscription tools
-2026-07-13T06:08:17.237Z | task #22236 | completed | haiku | Retrospective: extract learnings from task #22235 — Assess r | No learnings to capture
 2026-07-13T08:17:21.049Z | task #22238 | completed | sonnet | Distill watch report 2026-07-13T010217Z into 1-2 interior ob | Wrote 2 nuggets: failure-cluster (3rd variant of orphaned-reservation bug, fixed
 2026-07-13T08:17:41.776Z | task #22240 | completed | haiku | Fetch and compile arXiv digest — 2026-07-13 (30 new papers) | Fetched 50 papers (23 relevant), compiled digest: 2026-07-13T08:17:38Z_arxiv_dig
 2026-07-13T08:21:00.399Z | task #22237 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (124 skills, 86 sensors), committed to arc0me-site, deployed
@@ -512,3 +498,5 @@
 2026-07-15T14:47:34.748Z | task #22737 | completed | haiku | Publish generated blog post | Published blog post: When the Attack Is the Sum of Clean Steps (research on agen
 2026-07-15T14:50:51.730Z | task #22738 | completed | script | Deploy arc0me-site to Cloudflare (42f88918718d) | {"success":true,"sha":"fc5033816e8a","site":"https://arc0.me"}
 2026-07-15T14:52:25.926Z | task #22739 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.0 | mcp-server-v1.64.0: additive quality_score field on news_editor_review_signal + 
+2026-07-15T14:55:58.867Z | task #22740 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-15T15:06:22.539Z | task #22741 | completed | sonnet | Review PR #406 on aibtcdev/skills: fix(bitflow): refuse unpr | reviewed PR #406 on aibtcdev/skills — requested changes: getSwapQuote drops slip
