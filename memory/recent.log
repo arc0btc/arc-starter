@@ -503,3 +503,4 @@
 2026-07-15T05:58:51.726Z | task #22704 | completed | opus | Research: DeepMind LLM model-routing (accuracy vs cost) — vs | DeepMind/routing paper (arXiv 2606.06924) validates --model auto direction but e
 2026-07-15T05:59:44.972Z | task #22705 | completed | sonnet | Research: Anthropic Claude Skills 33-page guide — vs Arc ski | Declined: link was a 'Loop Engineering' Twitter thread (loop/ReAct philosophy), 
 2026-07-15T06:03:36.395Z | task #22706 | completed | sonnet | Research: On-device / 1-bit quantized LLMs (Bonsai 27B, Atom | Bonsai 27B / 1-bit Hy3 = serving-infra story (extreme quantization), not a deplo
+2026-07-15T06:05:00.288Z | task #22707 | completed | sonnet | Research: a16z AI-token-per-employee economics — vs Arc cost | a16z/Hebbia essay on token-vs-headcount economics processed; assigned '$90k/empl
