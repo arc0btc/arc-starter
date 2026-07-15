@@ -1,27 +1,3 @@
-## 2026-07-13T08:24:00.000Z — smallest diff in several cycles: pure skill-tree pruning (7 dead skills deleted) plus a docs-only disallowed-tools tagging batch; no src/ changes; 124 skills / 86 sensors
-
-**Task #22239** | Diff: 1d9f029..3811dee (3 commits — 0 src/, 22 skills/ files) | Sensors: 86 | Skills: 124 (down from 131)
-
-### Changed files (substantive only)
-
-- `3811deed` — Deletes 7 skills wholesale: `arc-dispatch-evals`, `arc-performance-analytics`, `bitcoin-taproot-multisig`, `dao-zero-authority`, `dev-landing-page-review`, `quest-create`, `styx`. Full directories removed (SKILL.md/AGENT.md/cli.ts and any skill-specific data files like `daos.json`, `taproot-runner.ts`, `deposit-runner.ts`). Traces to task #22213's skill-tree audit — this is exactly the Step-2 "delete the part" move this framework has been asking every skill owner to do more of.
-- `fbb276e2` + `ad9bfd7a` — Docs-only: adds `disallowed-tools: [Edit, Write, NotebookEdit, ...]` frontmatter to 15 read-only skills (12 in the first commit, 3 more in the second), continuing the intent-signaling tagging effort described in `arc-skill-manager`'s SKILL.md. No logic change, no sensor/cli behavior change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both changes trace to named prior work (#22213 audit, the ongoing disallowed-tools tagging pass) — no speculative additions.
-- **Step 2 — Delete**: The main event this cycle. 7 skills removed in one commit is the largest single-cycle deletion seen in this review's history — worth noting as a positive data point against the recurring "not deleting enough" critique.
-- **Step 3 — Simplify**: N/A — tagging is metadata-only, not a structural simplification.
-- **Step 4 — Accelerate**: N/A.
-- **Step 5 — Automate**: N/A.
-
-### Flags
-
-- **[RESOLVED]** Prior cycle's `[NEW-WATCH]` on the doubled X read-budget ceiling ($0.50→$1.00) — cannot be evaluated this cycle. `db/x-read-budget.json` is still stamped `"date": "2026-07-11"` with no `by_lane` breakdown present, consistent with the standing memory item that X credits have been depleted since 2026-07-11 (auto-clears 2026-08-10) — there has been no read spend to attribute since the metering shipped. Re-check once credits clear and reads resume.
-- No new watch items — this was the smallest, lowest-risk diff in the recent run (pure deletion + doc tags, zero src/ or sensor logic touched).
-
----
-
 ## 2026-07-13T20:53:52.000Z — largest structural diff in recent cycles: the arc-x-research-channel quest lands end-to-end (Phases 2-5), self-audited with dev-council review baked into every commit; 128 skills / 90 sensors
 
 **Task #22491** | Diff: 3811dee..dcad7d3 (32 commits — 8 src/, 4 new skills/) | Sensors: 90 (up from 86) | Skills: 128 (up from 124)
@@ -126,5 +102,30 @@
 
 - **[NEW-WATCH]** The dispatch resilience doc (CLAUDE.md "Dispatch resilience") only names two safety layers: pre-commit syntax guard (transpile-only, doesn't type-check) and post-commit service health check (checks if a service died, not whether task-creation silently started failing). Neither layer would have caught this bug, and it shipped via an unattended "chore(loop): auto-commit after dispatch cycle" commit rather than a reviewed dispatch session. A sensor that periodically runs `bunx tsc --noEmit` against files touched by auto-commits (not full transpile) and flags new errors would close this gap. Filing a follow-up.
 - **[RESOLVED]** Prior cycle's only carry-forward (#22656's Phase 8 + two-stage triage re-measurement watch) is unaffected by this diff — no action needed here, already tracked at #22699/[[arc-link-research-dedup-measurement]].
+
+---
+
+## 2026-07-15T20:23:00.000Z — smallest diff yet: arc-typecheck-guard ships end-to-end, closing the prior cycle's own [NEW-WATCH]; 129 skills / 91 sensors
+
+**Task #22793** | Diff: 2411114..69e2895 (3 commits — 4 new skills/ files, 1 fix, 1 cache auto-commit) | Sensors: 91 (up from 90) | Skills: 129 (up from 128)
+
+### Changed files (substantive only)
+
+- `skills/arc-typecheck-guard/{SKILL.md,check.ts,cli.ts,sensor.ts}` (f3469b19, new skill) — direct fix for the prior cycle's own flagged gap: a 30-min sensor runs `tsc --noEmit`, diffs per-file error counts against a persisted baseline (`db/tsc-baseline.json`), and flags only INCREASES touched by unattended auto-commits (reviewed/human commits are ignored — CI covers those). Flags via follow-up task, does not revert (type errors don't crash a running Bun service, so revert-on-error would be over-aggressive here — correctly distinguished from `revertOnServiceDeath`'s justified aggression on actual service death). `bunx tsc --noEmit -p .` run this cycle shows zero errors attributable to this skill.
+- `skills/arc-blocked-review/sensor.ts` (56e2e766) — the actual fix for #22717 (restores correct `insertTaskIfNew(TASK_SOURCE, {...})` signature, JSON-stringified skills, `model: "sonnet"`). Verified clean via `tsc --noEmit` this cycle.
+- `69e2895d` — auto-commit, cache file only (`arc-link-research/cache/*.json`), no code.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both substantive commits trace to a single named incident (#22717) already tracked in MEMORY.md — the guard closes the exact gap this review flagged last cycle, no speculative scope added.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — new capability, not a consolidation.
+- **Step 4 — Accelerate**: N/A — sensor is explicitly kept off the dispatch hot path (30-min cadence, not per-commit) to avoid adding ~10-30s of `tsc` latency to every auto-commit.
+- **Step 5 — Automate**: Correctly sequenced last — automates detection of a failure class only after the concrete incident (#22717) was understood and manually fixed same-cycle, not built speculatively ahead of a real case.
+
+### Flags
+
+- **[RESOLVED]** Prior cycle's `[NEW-WATCH]` (auto-commit safety net has no type-check layer) — closed same-day by this diff. Nothing carried forward on this thread.
+- No new watch items — this is the tightest, most directly-traceable diff seen in this review's recent history (one incident, one fix, one preventive guard, zero unrelated changes).
 
 ---
