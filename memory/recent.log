@@ -509,3 +509,4 @@
 2026-07-15T15:19:58.033Z | task #22747 | completed | haiku | Retrospective: extract learnings from task #22741 — Review P | Pattern captured: parameter-forwarding verification for PR reviews of security-s
 2026-07-15T15:21:28.096Z | task #22748 | completed | haiku | Retrospective: extract learnings from task #22742 — Review P | Added p-contract-error-masking-detection and p-hand-traced-fintech-verification 
 2026-07-15T15:22:54.091Z | task #22749 | completed | haiku | Retrospective: extract learnings from task #22743 — Review P | Added p-code-pr-pre-review-local-validation pattern: code PRs benefit from pre-p
+2026-07-15T15:23:37.041Z | task #22750 | completed | haiku | Retrospective: extract learnings from task #22744 — Review P | Added p-dual-code-path-logic-sync pattern: smart contract systems with separate 
