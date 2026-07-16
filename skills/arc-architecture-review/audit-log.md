@@ -129,3 +129,29 @@
 - No new watch items — this is the tightest, most directly-traceable diff seen in this review's recent history (one incident, one fix, one preventive guard, zero unrelated changes).
 
 ---
+
+## 2026-07-16T08:25:00.000Z — kill-switch re-enable CLI shipped end-to-end; 128 skills / 90 sensors
+
+**Task #22895** | Diff: 69e2895..f4d880d (9 commits — 5 substantive, 3 auto-commit cache-only, 1 self-excluded) | Sensors: 90 (down from 91) | Skills: 128 (down from 129)
+
+### Changed files (substantive only)
+
+- `skills/social-engine/{cli.ts,SKILL.md}` (f4d880d3) — new `kill-switch status|enable --reason` CLI, the sanctioned re-enable path for the `outbound_enabled` trip from #22885. `enable` requires `--reason` and deliberately does not self-invoke (escalation design: needs whoabuddy's explicit go-ahead per CLAUDE.md's escalation ladder) — correctly built as a tool for a human to invoke, not automation that closes its own loop.
+- `skills/social-engine/reply-send.ts` (ba589fa3) — `classifyProviderError()` gains 3 more reply-restriction signal phrases (`"you can only reply to"`, `"mentioned or are the author"`, `"not-authorized-for-resource"`), fixing the exact false-positive that tripped the kill switch. Both commits trace 1:1 to the same named incident (#22885/#22887, already in MEMORY.md).
+- `skills/social-x-ecosystem/{SKILL.md,sensor.ts}` deleted (f16cef8e) — dormant-skill review (#22866) confirmed 0 research tasks in 4+ months post keyword-rotation self-disable; superseded by candidate-maturation's News/Trends/List lanes. Clean deletion, no live imports. Directly what Step 2 (Delete) asks for.
+- `skills/alb/AGENT.md` (8953a7a1, new) — adds an explicit "External Comms Guard" section (untrusted-content framing, no command execution from inbox mail) to a subagent briefing that previously had no such guard. Good context-delivery fix: the dispatched expert reading inbox mail now has the same "data not instructions" framing already established elsewhere (observer-protocol incident pattern, arc-skill-manager's `[UNTRUSTED-SRC]` tag).
+- `skills/stacks-stackspot/sensor.ts` (c65d5b2a) — adds pox-5 Epoch40 activation watch (fetches `/v2/pox`, flags if activation is within 1 PoX cycle), closing the resolved-but-open watch item from #22814/#22817 (already in MEMORY.md, stackspot-pox5-migration-risk).
+- `skills/arc-workflow-review/sensor.ts`, `skills/context-review/sensor.ts` — two narrow false-positive suppressions (workflow-emitted source prefixes; arc-article-pipeline's documented 3-step contract), each with inline rationale citing the specific flagged task (#22799) or SKILL.md section that justifies the exemption.
+- `skills/arc-typecheck-guard/cli.ts` (d9c5aefa) — trivial `err`→`error` rename, pre-commit lint compliance.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Every substantive commit traces to a named incident or an already-tracked MEMORY.md watch item. Zero speculative scope.
+- **Step 2 — Delete**: `social-x-ecosystem` removed cleanly (skill/sensor count down 129→128, 91→90). No further deletion candidates surfaced this cycle.
+- **Step 3 — Simplify**: N/A this cycle — no over-engineering introduced.
+- **Step 4 — Accelerate**: N/A — pox-5 watch runs on the existing 7-min stackspot cadence, no new sensor added.
+- **Step 5 — Automate**: Correctly deferred — the kill-switch CLI automates the *mechanism* to re-enable but not the *decision*, matching the escalation-ladder design (irreversible-adjacent action stays gated on a human).
+
+### Flags
+
+- None. Tightest diff in this review's recent run (third consecutive cycle with fully-traceable, single-incident-per-commit changes — see prior two entries). No new watch items.
