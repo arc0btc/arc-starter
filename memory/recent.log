@@ -507,3 +507,4 @@
 2026-07-16T19:26:09.732Z | task #22939 | completed | sonnet | Remediate stuck nonce gap on SP2GHQ wallet (fill 978/980/983 | Gap-filled nonces 978,980,983 with 0.000001 STX self-sponsor pings (recipient SP
 2026-07-16T19:28:49.662Z | task #22943 | completed | haiku | dummy | accidental test task, no-op, closing immediately
 2026-07-16T19:29:52.990Z | task #22936 | completed | sonnet | Retry supply of 32,870 sats idle sBTC to Zest yield pool onc | Mempool gap (#22939) confirmed resolved (lastExecuted=985, mempoolPending=0, no 
+2026-07-16T19:31:18.955Z | task #22940 | completed | sonnet | RFC: namespace shared nonce-state.json by network (network:a | Filed ARC-0016 RFC (agent-runtime/proposals/0016-nonce-state-network-namespacing
