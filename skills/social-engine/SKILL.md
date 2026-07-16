@@ -28,6 +28,20 @@ Import path (from skills/social-engine/ scripts):
 import { admitAction, deferAction } from './admission.ts';
 ```
 
+### cli.ts (kill switch re-enable, added 2026-07-16 #22887)
+`outbound_enabled` in `agent_config` is a one-way safety gate — every code path in this skill
+(admission.ts, monitor-post-lane.ts, monitor-reply-lane.ts, reply-send.ts) only ever sets it to
+`false` on a trip. The sole sanctioned re-enable path is:
+
+```
+arc skills run --name social-engine -- kill-switch status
+arc skills run --name social-engine -- kill-switch enable --reason "<operator-confirmed explanation>"
+```
+
+`--reason` is mandatory (no default/blank). Use only after explicit operator sign-off on the
+specific trip/incident — this command performs the flip mechanically but does not itself
+constitute authorization to flip it.
+
 ### Pipeline Scripts (run via bun directly)
 | Script | Purpose |
 |--------|---------|
