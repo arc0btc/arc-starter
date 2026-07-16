@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-16T01:03Z – 2026-07-16T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-16T01:03Z — 2026-07-16T13:01Z</div>
+</header>
+
+<p class="summary">65 dispatch cycles, 64 tasks completed, 0 failed, 1 new escalation filed. Headline: shipped the kill-switch re-enable CLI (<code>social-engine -- kill-switch enable</code>) after confirming the 2026-07-16T00:00Z X outbound trip was a false positive on a routine reply-restriction 403 — outbound posting stays off pending whoabuddy sign-off. Rest of the window was heavy meta-work: memory/patterns consolidation (3x), a dormant-skill audit + one archival, 3 research reports packaged into Whop SKUs, and an ARC-0015 cost-gate proposal. X read budget hit its daily cap late in the window (candidate-maturation self-resolves at UTC midnight).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">64</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked (new)</div></div>
+  <div class="metric"><div class="value">$53.29</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">54060k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">305k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">22839</td><td class="pri">6</td><td>Watch report — 2026-07-16T01:03Z</td><td>Watch report: 15 tasks completed, $12.40 spent, report at reports/202…</td><td class="cost">$2.94</td></tr>
+    <tr><td class="id">22840</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22839 — Wa…</td><td>No learnings to capture — cycle validated existing patterns; zero str…</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">22841</td><td class="pri">4</td><td>CEO review — 2026-07-16T02:06</td><td>CEO review: on track operationally (100% completion, cost under budge…</td><td class="cost">$1.23</td></tr>
+    <tr><td class="id">22842</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22841 — CE…</td><td>Extracted 1 learning: thin queue with meta-work dominance indicates o…</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">22843</td><td class="pri">4</td><td>Email watch report to whoabuddy — 2026-07-16T02:06</td><td>Watch report emailed to whoabuddy@gmail.com via CF email worker, msg …</td><td class="cost">$0.77</td></tr>
+    <tr><td class="id">22844</td><td class="pri">5</td><td>self-review: run health check for 2026-07-16</td><td>Self-review clean: 0 failures today, dispatch healthy, cost normal, t…</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">22845</td><td class="pri">5</td><td>Whop synthesis [2026-07-16T02]: read the room, defer o…</td><td>DEFER: 0 messages in 24h window, nothing to synthesize</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">22846</td><td class="pri">5</td><td>Auto-queue: 2 hungry domain(s) need work</td><td>Queued 4 follow-ups for arc-link-research (#22847-22850, incl. finall…</td><td class="cost">$1.32</td></tr>
+    <tr><td class="id">22847</td><td class="pri">4</td><td>Re-measure arc-link-research dedup fix cost impact (no…</td><td>Verified: candidate-maturation dedup fix (414ce89a) cut arc-link-rese…</td><td class="cost">$2.16</td></tr>
+    <tr><td class="id">22848</td><td class="pri">4</td><td>Cost deep-dive: why does arc-link-research average $1.…</td><td>Opus routing (82% of leaf tasks) is a deliberate 2026-07-13 operator …</td><td class="cost">$2.42</td></tr>
+    <tr><td class="id">22857</td><td class="pri">4</td><td>Propose: gate arc-link-research's cross-repo grounding…</td><td>ARC-0015 proposal drafted (agent-runtime/proposals/0015): gate arc-li…</td><td class="cost">$1.39</td></tr>
+    <tr><td class="id">22851</td><td class="pri">5</td><td>Consolidate memory/patterns.md (189 lines, over 150-li…</td><td>Consolidated patterns.md 189-&gt;149 lines: merged ~20 recent 2026-07-15…</td><td class="cost">$1.72</td></tr>
+    <tr><td class="id">22849</td><td class="pri">6</td><td>Audit arc-link-research report front-matter quality fo…</td><td>Audited 16 reports since 2026-07-14: all have complete front-matter (…</td><td class="cost">$0.65</td></tr>
+    <tr><td class="id">22850</td><td class="pri">6</td><td>Triage arc-link-research SKU backlog: flag top 2-3 can…</td><td>Reviewed 20-candidate SKU backlog (all rel 3-4) against whop's 30 alr…</td><td class="cost">$1.91</td></tr>
+    <tr><td class="id">22852</td><td class="pri">6</td><td>Audit skills for missing AGENT.md despite doing agent-…</td><td>Audited 22 skills with sensor.ts+cli.ts but no AGENT.md (out of 129 t…</td><td class="cost">$1.76</td></tr>
+    <tr><td class="id">22853</td><td class="pri">6</td><td>Dormant skill audit: identify skills with zero task ac…</td><td>26 dormant candidates flagged (5 Tier1: 90+d old + zero task activity…</td><td class="cost">$2.07</td></tr>
+    <tr><td class="id">22861</td><td class="pri">6</td><td>Package a research report into a Whop SKU — agent-coun…</td><td>Packaged agent-council-dsl-grammar-v1.md (v1, cited as the accepted s…</td><td class="cost">$1.34</td></tr>
+    <tr><td class="id">22862</td><td class="pri">6</td><td>Package a research report into a Whop SKU — 2026-06-27…</td><td>Packaged compound-engineering-skills report as Whop SKU prod_w81pMTdh…</td><td class="cost">$1.23</td></tr>
+    <tr><td class="id">22863</td><td class="pri">6</td><td>Package a research report into a Whop SKU — 2026-06-19…</td><td>Packaged kimi-k2-300-agent-swarm.md into SKU prod_kfidgG9QnYqwI ($9),…</td><td class="cost">$1.02</td></tr>
+    <tr><td class="id">22866</td><td class="pri">6</td><td>Review dormant skill candidates (26 flagged, Tier1/Tie…</td><td>Spot-checked #22853's candidate list rather than bulk-archiving: 3/5 …</td><td class="cost">$1.34</td></tr>
+    <tr><td class="id">22873</td><td class="pri">6</td><td>Archive social-x-ecosystem skill (confirmed retired 20…</td><td>Removed skills/social-x-ecosystem/ (SKILL.md + sensor.ts, retired 202…</td><td class="cost">$1.46</td></tr>
+    <tr><td class="id">22854</td><td class="pri">7</td><td>Re-verify disallowed-tools intent-signal coverage on s…</td><td>6 skills added since 2026-07-05 audit (arc-typecheck-guard, candidate…</td><td class="cost">$0.94</td></tr>
+    <tr><td class="id">22871</td><td class="pri">7</td><td>housekeeping: 5 issue(s) detected</td><td>housekeeping: fixed 2 issue(s)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">22855</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22846 — Au…</td><td>Extracted pattern: proportional workload batching on auto-discovery. …</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">22856</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22847 — Re…</td><td>Extracted reusable pattern from #22847: time-windowed source queries …</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">22858</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22848 — Co…</td><td>New pattern: p-cost-driver-model-vs-token-volume-diagnosis — when cos…</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">22859</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22857 — Pr…</td><td>Extracted p-doc-declared-non-negotiable-proposal-gate pattern: when a…</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">22860</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22851 — Co…</td><td>Added p-consolidation-scope-complexity-over-line-count: monolithic co…</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">22864</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22850 — Tr…</td><td>Extracted 1 reusable pattern: prefer established task-orchestration p…</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">22865</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22852 — Au…</td><td>Refined p-agent-md-authoring-trigger with audit methodology: classify…</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">22867</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22853 — Do…</td><td>Captured reusable pattern: database time-window queries for audits be…</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">22868</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22861 — Pa…</td><td>Extracted 1 reusable pattern: p-duplicate-material-live-status-tiebre…</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">22869</td><td class="pri">8</td><td>Consolidate MEMORY.md (24544 chars (threshold 24400) d…</td><td>Compressed MEMORY.md 130→121 lines, 24.7k→15.1k chars (~1.2k tokens) …</td><td class="cost">$1.33</td></tr>
+    <tr><td class="id">22870</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22862 — Pa…</td><td>No learnings to capture</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">22872</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22863 — Pa…</td><td>One pattern documented: research-to-product checkpoint pipeline enabl…</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">22874</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22866 — Re…</td><td>Captured learning from task #22866 review: automated audit false-posi…</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">22875</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22873 — Ar…</td><td>No learnings to capture</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">22876</td><td class="pri">8</td><td>Consolidate memory/patterns.md (158 lines, over 150-li…</td><td>patterns.md consolidation already done uncommitted in working tree (1…</td><td class="cost">$2.27</td></tr>
+    <tr><td class="id">22877</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22869 — Co…</td><td>Captured link-only archival pattern from MEMORY.md consolidation (39%…</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">22878</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22876 — Co…</td><td>No new learnings to capture — work validates existing patterns (p-hie…</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">22879</td><td class="pri">6</td><td>context-review: 2 context loading issue(s) found</td><td>Both flagged skills (arc-web-dashboard, lunarcrush) exist and are rea…</td><td class="cost">$1.24</td></tr>
+    <tr><td class="id">22880</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22879 — co…</td><td>Pattern extracted: ad-hoc audit dispatches must include --skills when…</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">22881</td><td class="pri">7</td><td>housekeeping: 4 issue(s) detected</td><td>housekeeping: fixed 1 issue(s)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">22882</td><td class="pri">5</td><td>Review PR #608 on aibtcdev/aibtc-mcp-server: docs(news…</td><td>Reviewed and approved PR #608 on aibtcdev/aibtc-mcp-server — docs-onl…</td><td class="cost">$1.01</td></tr>
+    <tr><td class="id">22883</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22882 — Re…</td><td>Extracted pattern p-docs-code-sync-verification-for-fix-approval: ver…</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">22884</td><td class="pri">5</td><td>X cadence [blog-snippet]: compose one post (2026-07-16…</td><td>deferred: kill switch off — reserve-group returned kill_switch_off (o…</td><td class="cost">$2.11</td></tr>
+    <tr><td class="id">22885</td><td class="pri">3</td><td>Investigate: X outbound kill switch (outbound_enabled=…</td><td>Root cause found: reply-watchlist-sensor's routine 403 reply-restrict…</td><td class="cost">$2.54</td></tr>
+    <tr><td class="id">22886</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22884 — X …</td><td>Extracted pattern p-error-classification-precision-in-global-gates: w…</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">22888</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22885 — In…</td><td>No learnings to capture — error classification precision pattern for …</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">22889</td><td class="pri">5</td><td>Assess release: aibtcdev/aibtc-mcp-server mcp-server-v…</td><td>mcp-server-v1.64.1 is a trivial docstring fix (compile_brief descript…</td><td class="cost">$1.23</td></tr>
+    <tr><td class="id">22890</td><td class="pri">7</td><td>housekeeping: 4 issue(s) detected</td><td>housekeeping: fixed 1 issue(s)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">22891</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22889 — As…</td><td>No learnings to capture</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">22892</td><td class="pri">5</td><td>Distill watch report 2026-07-16T010308Z into 1-2 inter…</td><td>Distilled 2 nuggets from 2026-07-16T010308Z watch report: surprise (X…</td><td class="cost">$1.19</td></tr>
+    <tr><td class="id">22893</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22892 — Di…</td><td>No learnings to capture</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">22897</td><td class="pri">5</td><td>Fetch and compile arXiv digest — 2026-07-16 (30 new pa…</td><td>Fetched 50 papers (21 relevant). Digest compiled: 10 LLM, 3 multi-age…</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">22894</td><td class="pri">7</td><td>Regenerate and deploy skills/sensors catalog</td><td>Regenerated catalog (128 skills, 90 sensors), committed catalog files…</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">22895</td><td class="pri">7</td><td>architecture review — codebase changed since last revi…</td><td>Diff 69e2895..f4d880d fully traceable: kill-switch re-enable CLI + re…</td><td class="cost">$1.14</td></tr>
+    <tr><td class="id">22896</td><td class="pri">7</td><td>workflow review — 2 new pattern(s)</td><td>Both patterns are the standard ad-hoc task-&gt;retrospective chain (veri…</td><td class="cost">$1.63</td></tr>
+    <tr><td class="id">22898</td><td class="pri">7</td><td>Welcome new AIBTC agent: Wild Swallow</td><td>Welcomed Wild Swallow (STX SP29B5A9WGWDE1F…)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">22901</td><td class="pri">5</td><td>Whop synthesis [2026-07-16T08]: read the room, defer o…</td><td>DEFER: 0 messages in 24h window, room still dark (8 days no human act…</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">22899</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22895 — ar…</td><td>No learnings to capture — all substantive commits trace to named inci…</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">22900</td><td class="pri">8</td><td>Retrospective: extract learnings from task #22896 — wo…</td><td>Extracted 1 reusable pattern: structural validation of architectural …</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">22902</td><td class="pri">7</td><td>housekeeping: 4 issue(s) detected</td><td>housekeeping: fixed 1 issue(s)</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">22903</td><td class="pri">7</td><td>housekeeping: 4 issue(s) detected</td><td>housekeeping: fixed 1 issue(s)</td><td class="cost">$0.00</td></tr>
+  </tbody>
+</table>
+<p class="empty">No failed tasks this period.</p>
+<p class="empty">1 new blocked task: #22887 [ESCALATED] Re-enable X outbound_enabled kill switch — awaiting whoabuddy sign-off (re-enable CLI shipped, deliberately not self-invoked).</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+No posts to AI Prefers Bitcoin this period. Reactive lane: 121 ticks, 0 candidates acted on — all 9 recurring candidates (whoabuddy's June messages, resurfaced each tick) skipped on <code>stale_message</code> or <code>below_length_floor</code>. Synthesis lane: 2 ticks, 2/2 defer (0 messages in 24h window each time — room has been dark 8 days). Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+Top counterparty: whoabuddy (20 lifetime msgs, 5 arc→them, 3 them→arc; last seen 2026-06-17 — none this period).
+</div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">49</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">+0 (24h)</div><div class="label">Δ vs 24h</div></div>
+  <div class="metric"><div class="value dim">n/a (7d)</div><div class="label">Δ vs 7d</div></div>
+  <div class="metric"><div class="value">7</div><div class="label">Per-touch proxy (10 posts)</div></div>
+</div>
+<p class="empty">Anchor 23h old — 7d delta not yet available. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM), checkout starts (24h) 0, abandons 0.</p>
+</div>
+
+<h2>Inflow Pool (24h)</h2>
+<div class="section">
+<pre style="white-space:pre-wrap;font-family:monospace;font-size:0.8rem;color:var(--gray-2);background:var(--nav-bg);border:1px solid var(--border-subtle);border-radius:6px;padding:0.75rem;">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv: 4
+  council: 0
+  watch-interior: 6
+  snippet: 9
+  whop-signal: 0
+  total: 19
+
+Consumed (by channel):
+  blog: 3
+  whop-chat: 7
+  whop-forum: 0
+  public-forum: 0
+  x: 2
+  nostr: 9
+  aibtc-news: 0
+  reactive: 0
+  total: 21
+
+No fresh artifacts in 36h: whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</pre>
+<p class="obs">Consumed (21) slightly exceeds produced (19) — near 1:1, healthy. whop-signal has produced nothing in 36h+; likely gated off rather than a live stall given Whop room has had zero human traffic in 8 days (see Whop Activity above).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">aa51dcb3</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">7caabdde</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">286a2f2e</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">ba7c6aa6</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">1555c926</span>chore(arc-workflow-review): exempt candidate-maturation triage + whop digest chains</div>
+<div class="commit"><span class="hash">7695ba57</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">e04a882c</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">945d36d4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">39038c4f</span>chore(memory): record kill-switch re-enable CLI shipped, still awaiting sign-off (#22887)</div>
+<div class="commit"><span class="hash">f4d880d3</span>feat(social-engine): add kill-switch CLI command for outbound_enabled re-enable</div>
+<div class="commit"><span class="hash">ba589fa3</span>fix(social-engine): classify X reply-authorization 403 as restriction not auth failure</div>
+<div class="commit"><span class="hash">a796de8c</span>chore(memory): flag X outbound kill switch trip (task #22884/#22885)</div>
+<div class="commit"><span class="hash">b98b53e1</span>docs(patterns): consolidate memory/patterns.md below 150-line threshold</div>
+<div class="commit"><span class="hash">c2d8d39d</span>docs(memory): consolidate MEMORY.md</div>
+<div class="commit"><span class="hash">b59cf211</span>docs(patterns): add time-windowed source query measurement pattern from #22847</div>
+<div class="commit"><span class="hash">f16cef8e</span>chore(skills): archive social-x-ecosystem (retired 2026-07-13, superseded by candidate-maturation)</div>
+<div class="commit"><span class="hash">f1117a2f</span>docs(memory): add dormant-skill-activity-audit-method shared entry</div>
+<div class="commit"><span class="hash">8953a7a1</span>docs(alb): add AGENT.md — external comms guard for ALB inbox tasks</div>
+<div class="commit"><span class="hash">cdd407c8</span>docs(memory): consolidate patterns.md, merge dedup patterns, trim to 149 lines</div>
+<div class="commit"><span class="hash">19dfaa68</span>docs(memory): track ARC-0015 grounding-gate proposal, awaiting sign-off</div>
+<div class="commit"><span class="hash">c55146b4</span>docs(proposal): ARC-0015 gate arc-link-research grounding to relevance&gt;=3</div>
+<div class="commit"><span class="hash">9d7e22da</span>docs(memory): arc-link-research per-task cost audit — opus routing is deliberate, real driver is token volume</div>
+<div class="commit"><span class="hash">9bace8e9</span>docs(memory): verify arc-link-research dedup fix, ~98-99% cost reduction confirmed</div>
+<div class="commit"><span class="hash">f800fda2</span>docs(report): watch report 2026-07-16T01:03:08Z</div>
+<p class="empty">Plus 39 additional auto-commit cycles not itemized above (routine memory/db writes, no code changes). No whoabuddy GitHub push events this period.</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">2</span>Escalation: Authorize git push for feat/x-api-pay-per-use-dollar-budget (PR #28 — 633 commits) <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">2</span>[ESCALATED] Re-enable X outbound_enabled kill switch after verified false-positive trip (#22885) <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">3</span>Sign-off: merge PR #28 (feat/x-api-pay-per-use-dollar-budget) or split; CI failure pre-existing on main <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">4</span>Sign-off: publish 'Agent Loop Engineering' SKU (prod_YXBP0FKt3zzhm) <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">5</span>arc-opensource: sync 267/351/678/863/1013 commit(s) to GitHub (5 stacked instances) <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">6</span>Upgrade claude CLI from 2.1.174 to 2.1.206 <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+<div class="queue-item"><span class="pri-tag">6</span>Re-check stale-task pileup after stop_condition field rollout (#22258) — pending</div>
+<div class="queue-item"><span class="pri-tag">7</span>[SIGN-OFF] Optionally implement real disallowed-tools enforcement <span class="blocked" style="display:inline-block;font-family:monospace;font-size:0.7rem;padding:0.1rem 0.35rem;border-radius:3px;">blocked</span></div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">The kill-switch incident closed clean: root cause (misclassified 403) fixed same-cycle, re-enable path built as a deliberate one-way gate rather than auto-flipping — correctly leaves the actual re-enable decision with whoabuddy. Now the 8th item in a blocked-queue that's almost entirely operator sign-offs (7 of 8 pending items), not agent capability gaps.</div>
+<div class="obs">Whop reactive lane burned 121 ticks this period for zero new candidates — every skip was a re-surfacing of the same 9 messages from whoabuddy's June 12/17 activity (stale_message / below_length_floor). The room has had zero human traffic in 8 days; ticking every ~5-6min against a dead channel is pure overhead. Worth a stale-room backoff (e.g. skip reactive polling after N consecutive zero-candidate ticks, resume on next confirmed message).</div>
+<div class="obs">Heavy self-referential cycle: memory/patterns.md was consolidated three separate times in 12 hours (#22851, #22869, #22876) as it kept crossing the 150-line threshold from the same wave of retrospective writes. Each retrospective task (haiku, ~$0.20) plus its parent forms a 2-task pair for nearly every substantive action — meta-work (retrospectives + consolidations + audits) accounts for roughly half of this window's 64 completions.</div>
+<div class="obs">candidate-maturation hit its $2.00/day X read budget cap late in the window (10 consecutive failures logged) — this is the expected daily exhaustion pattern, not a regression, and clears at UTC midnight per prior confirmed diagnosis.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
