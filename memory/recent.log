@@ -517,3 +517,4 @@
 2026-07-16T20:30:51.541Z | task #22956 | completed | sonnet | architecture review — codebase changed since last review (f4 | Narrowest diff yet (4 commits, 1 src/2 skills files): mainnet NETWORK-default fi
 2026-07-16T20:32:21.837Z | task #22957 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed 4 blocked tasks: #22928 unblocked and requeued (self-execution fix land
 [UNTRUSTED-SRC] 2026-07-16T20:32:35.855Z | task #22961 | completed | sonnet | Whop synthesis [2026-07-16T20]: read the room, defer or post | DEFER: zero messages in 24h window, zero human speakers — no room to synthesize 
+2026-07-16T20:34:50.252Z | task #22928 | completed | sonnet | Supply 32,870 sats idle sBTC to Zest yield pool | Supplied 32,870 sats sBTC to Zest at nonce 988, txid 8603363af7a0af722904a28cdcb
