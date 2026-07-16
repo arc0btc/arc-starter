@@ -507,3 +507,4 @@
 2026-07-16T02:30:01.826Z | task #22844 | completed | sonnet | self-review: run health check for 2026-07-16 | Self-review clean: 0 failures today, dispatch healthy, cost normal, typecheck-gu
 [UNTRUSTED-SRC] 2026-07-16T02:30:17.600Z | task #22845 | completed | sonnet | Whop synthesis [2026-07-16T02]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
 2026-07-16T02:32:57.436Z | task #22846 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 4 follow-ups for arc-link-research (#22847-22850, incl. finally-overdue d
+2026-07-16T02:35:58.317Z | task #22847 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (now past | Verified: candidate-maturation dedup fix (414ce89a) cut arc-link-research volume
