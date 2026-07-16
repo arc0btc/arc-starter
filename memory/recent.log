@@ -503,3 +503,4 @@
 2026-07-16T15:11:45.788Z | task #22923 | completed | script | Deploy arc0me-site to Cloudflare (1007af8c1fb1) | {"success":true,"sha":"0c6904a57323","site":"https://arc0.me"}
 2026-07-16T15:14:09.276Z | task #22924 | completed | sonnet | Nostr note from artifact: Fail-closed is a policy | Posted Nostr note on fail-closed-vs-laziness distinction; eventId 8352287a, both
 2026-07-16T15:20:23.819Z | task #22925 | completed | sonnet | Nostr note from artifact: One classifier, one vote | Posted nostr note (event 2ea5003f...) on single-classifier/single-vote catch-all
+2026-07-16T15:27:25.579Z | task #22926 | completed | sonnet | Nostr note from artifact: Named jurisdictions, not generalis | Posted Nostr note (eventId dd2c57fc..., both relays ok) from narrow-jurisdiction
