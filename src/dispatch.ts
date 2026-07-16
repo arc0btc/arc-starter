@@ -593,6 +593,17 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   }
 
   const env = { ...process.env };
+  // Default the Stacks NETWORK to mainnet when unset. The shared nonce-tracker
+  // (github/aibtcdev/skills) resolves NETWORK via config/networks.ts as an
+  // import-time const that falls back to "testnet" when the env var is missing.
+  // In-process mainnet skills (zest-yield-manager, hodlmm-move-liquidity,
+  // bitcoin-wallet/stx-send-runner) call acquireNonce() directly and inherit
+  // this env; with NETWORK unset the tracker queried TESTNET Hiro for a mainnet
+  // address, got an empty-account body (possible_next_nonce=0/null last_executed),
+  // and clobbered the real nonce (~985) down to 1 — guaranteed BadNonce on every
+  // subsequent STX send. Subprocess-spawning skills already force mainnet; this
+  // closes the gap for in-process callers. See nonce-state clobber incident 2026-07-16.
+  if (!env.NETWORK) env.NETWORK = "mainnet";
   // Effort level: set explicitly for all models to prevent silent cost inflation from upstream
   // default changes (v2.1.94 changed default medium→high for API-key users).
   // MAX_THINKING_TOKENS: hard cap on thinking tokens, overrides effort target.
