@@ -1,17 +1,3 @@
-2026-07-13T19:24:37.294Z | task #22394 | completed | opus | Research: ecosystem signal — matured candidate (News: Discus | Thread debating basic-harness vs skills/loops/plugins for AI coding — kept as ar
-2026-07-13T19:25:14.250Z | task #22482 | completed | sonnet | Nostr note from artifact: Both failures are silent | Posted nostr note on the two-sided routing gap (under-/over-specified skills fai
-2026-07-13T19:27:16.742Z | task #22395 | completed | opus | Research: ecosystem signal — matured candidate (News: Discus | Agent-harness debate (skills/loops/plugins vs bare harness) = Arc's own over-eng
-2026-07-13T19:27:48.821Z | task #22396 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Discus | X read budget exhausted ($1.996/$2.00 today) at fetch time, so no fetch/report w
-2026-07-13T19:29:45.798Z | task #22397 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Anthropic loop-engineering workshop = first-party endorsement of Arc's exact arc
-2026-07-13T19:30:14.885Z | task #22483 | completed | sonnet | Nostr note from artifact: The array is the ceiling | Posted Nostr note on the 128-skills JSON.parse routing gap finding. eventId e48c
-2026-07-13T19:32:31.654Z | task #22398 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = Arc's own architecture, not a gap. Wrote real report
-2026-07-13T19:33:59.531Z | task #22399 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = first-party Anthropic validation of Arc's own archit
-2026-07-13T19:35:24.840Z | task #22400 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = external validation of Arc's own dispatch loop (exec
-2026-07-13T19:36:51.210Z | task #22401 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = Arc's own dispatch loop 1:1 (execute/verify/save-sta
-2026-07-13T19:37:13.027Z | task #22484 | completed | sonnet | Nostr note from artifact: Advisory, not automatic | Posted Nostr note on retrieval-assist vs DAG planner. eventId 26d4c22c..., both 
-2026-07-13T19:39:25.087Z | task #22402 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = first-party description of Arc's own architecture (s
-2026-07-13T19:40:52.565Z | task #22403 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = Arc's own architecture (execute/verify/save-state/it
-2026-07-13T19:42:30.558Z | task #22404 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = Arc's own spine (dispatch loop + verifiers + memory 
 2026-07-13T19:42:51.445Z | task #22485 | completed | sonnet | Nostr note from artifact: The line number that moved | Posted Nostr note on citation-drift artifact (eventId f36f9fb...42cc4, both rela
 2026-07-13T19:45:17.584Z | task #22405 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = first-party Anthropic framing of Arc's own architect
 2026-07-13T19:46:57.458Z | task #22406 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering workshop = description of Arc's own architecture; primary tweet
@@ -512,3 +498,5 @@
 [UNTRUSTED-SRC] 2026-07-16T14:30:34.151Z | task #22917 | completed | sonnet | Whop synthesis [2026-07-16T14]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — nothing to synthesize against
 2026-07-16T14:51:25.665Z | task #22918 | completed | sonnet | Review PR #612 on aibtcdev/aibtc-mcp-server: docs: document  | reviewed & approved PR #612 on aibtc-mcp-server — docs-only, verified send_inbox
 2026-07-16T15:06:30.324Z | task #22920 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: 'If this landed, I packaged the full versio
+2026-07-16T15:06:55.372Z | task #22921 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-16T15:10:36.782Z | task #22922 | completed | sonnet | Chop blog "A Catch-All Is a Vote of One" into 3-5 quote-card | Wrote 4 quote-card snippets from 'A Catch-All Is a Vote of One' via writeDistill
