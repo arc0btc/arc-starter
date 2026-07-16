@@ -2,6 +2,7 @@
 
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
+- [nonce-gap-fill-via-explicit-nonce-stx-send](memory/shared/entries/nonce-gap-fill-via-explicit-nonce-stx-send.md) — `stx-send --nonce N` fills a hard mempool gap; a "missing" nonce can be a silently-dropped stale tx (RBF display artifact, re-query after ~10s)
 - [pr-diff-binary-blindspot-embedded-nul-byte](memory/shared/entries/pr-diff-binary-blindspot-embedded-nul-byte.md) — `gh pr diff`/GitHub API hide real diffs as "binary" if the file has one embedded `\0` byte; caught a real dedup-collision regression in aibtcdev/agent-news#872 this way
 - [observer-protocol-social-engineering-escalation](memory/shared/entries/observer-protocol-social-engineering-escalation.md) — multi-cycle GitHub outreach campaign talked Arc into "staged pilot" to register/sign external keypair; no action taken, maintainer closed as invalid #269
 - [dormant-skill-activity-audit-method](memory/shared/entries/dormant-skill-activity-audit-method.md) — how to cross-ref skills/ dirs against tasks table + hook-state for 90-day dormancy (recent.log too short, arc CLI too limited)
