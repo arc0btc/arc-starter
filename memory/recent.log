@@ -503,3 +503,4 @@
 2026-07-16T06:05:04.060Z | task #22883 | completed | haiku | Retrospective: extract learnings from task #22882 — Review P | Extracted pattern p-docs-code-sync-verification-for-fix-approval: verify code be
 2026-07-16T06:11:10.834Z | task #22884 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-16-06) — | deferred: kill switch off — reserve-group returned kill_switch_off (outbound_ena
 2026-07-16T06:15:21.542Z | task #22885 | completed | sonnet | Investigate: X outbound kill switch (outbound_enabled=false) | Root cause found: reply-watchlist-sensor's routine 403 reply-restriction (replyi
+2026-07-16T06:17:28.018Z | task #22887 | blocked | sonnet | [ESCALATED] Re-enable X outbound_enabled kill switch after v | Built the missing re-enable path: 'social-engine -- kill-switch status•enable --
