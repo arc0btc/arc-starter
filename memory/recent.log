@@ -512,3 +512,4 @@
 2026-07-16T02:42:05.784Z | task #22857 | completed | opus | Propose: gate arc-link-research's cross-repo grounding step  | ARC-0015 proposal drafted (agent-runtime/proposals/0015): gate arc-link-research
 2026-07-16T02:46:10.211Z | task #22851 | completed | sonnet | Consolidate memory/patterns.md (189 lines, over 150-line thr | Consolidated patterns.md 189->149 lines: merged ~20 recent 2026-07-15/16 single-
 2026-07-16T02:50:14.940Z | task #22849 | completed | sonnet | Audit arc-link-research report front-matter quality for repo | Audited 16 reports since 2026-07-14: all have complete front-matter (topics/rele
+2026-07-16T02:52:21.593Z | task #22850 | completed | sonnet | Triage arc-link-research SKU backlog: flag top 2-3 candidate | Reviewed 20-candidate SKU backlog (all rel 3-4) against whop's 30 already-packag
