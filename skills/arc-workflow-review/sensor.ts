@@ -120,6 +120,16 @@ const KNOWN_PATTERNS = new Set([
   // after every completed task above the cost/priority threshold; the deploy step is a
   // single atomic regen+publish action, not a multi-stage process needing dedup).
   "sensor:arc-catalog",
+  // "Triage: X research batch (...)" -> N per-story "Research: ..." tasks + retrospective
+  // chain (task #22896, 3 recurrences, avg 10.0 steps — inflated by the fan-out width, not
+  // process depth). Verified via direct task-chain inspection (#22828/#22703/#22614): each
+  // triage root fans out flat (root -> research subtask x N -> retrospective), no branching,
+  // no gating, no cross-instance coordination — already the intended shape of
+  // candidate-maturation's batching fix (see memory/shared/entries/
+  // arc-link-research-dedup-measurement.md). Same already-rejected ad-hoc retrospective
+  // shape as retrospective-pattern-no-generic-machine-needed.md; a state machine would add
+  // bookkeeping, not value. Bare entry so ":triage:<timestamp>" suffix variants are covered.
+  "sensor:candidate-maturation",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -245,6 +255,14 @@ const KNOWN_SUBJECT_PREFIXES = [
   // subjects vary per matured candidate so it only surfaces via subject-grouping, not a
   // new pattern.
   "research",
+  // "Whop free-forum digest [<date>]: syndicate Arc status into the Public forum" ->
+  // retrospective chain (task #22896, 3 recurrences, avg 2.0 steps), whop + arc-brand-voice
+  // + arc-skill-manager. Source is "sensor:whop-free-forum:<date>" (unique per day, so it
+  // never dedups via source-grouping) — verified via direct chain inspection
+  // (#22121/#22200/#22810): each digest is a single atomic post-then-retrospective, no
+  // branching or gating. Same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md.
+  "whop free-forum digest",
 ];
 
 function normalizeSource(source: string | null): string {
