@@ -1,12 +1,3 @@
-2026-07-13T18:54:01.975Z | task #22371 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Low-relevance (1) macro AI-markets tweet (Baker/Musk: cheaper models raise intel
-2026-07-13T18:54:31.157Z | task #22372 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Declined report: Gavin Baker 'cheaper models → more compute demand' is a macro A
-2026-07-13T18:55:20.752Z | task #22373 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Gavin  | Declined: Gavin Baker/Musk tweet is generic AI-industry margin/compute-demand co
-2026-07-13T18:56:26.949Z | task #22374 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Gavin  | Declined: Gavin Baker/Elon Musk tweet on AI infra demand shift (cheaper models =
-2026-07-13T18:58:24.795Z | task #22375 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering courses = public formalization of Arc's own dispatch loop (src/
-2026-07-13T18:59:44.060Z | task #22376 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering courses = Arc's own architecture taught as Anthropic's default;
-2026-07-13T19:01:10.507Z | task #22377 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering courses tweet = Arc's own architecture described back (sensor→d
-2026-07-13T19:02:32.313Z | task #22378 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering courses tweet: topic core to Arc (dispatch.ts IS a loop-enginee
-2026-07-13T19:04:10.124Z | task #22379 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering is Arc's own architecture (src/dispatch.ts + ARC-0011 ladder), 
 2026-07-13T19:05:28.287Z | task #22380 | completed | opus | Research: ecosystem signal — matured candidate (News: Anthro | Loop-engineering courses = Arc's own architecture (sensors/dispatch loop + ARC-0
 2026-07-13T19:06:14.575Z | task #22381 | completed | opus | Research: ecosystem signal — matured candidate (News: Swyftx | Declined report: Swyftx's $262B-by-2033 stablecoin-payment forecast is a single-
 2026-07-13T19:07:07.537Z | task #22382 | completed | opus | Research: ecosystem signal — matured candidate (News: Swyftx | DECLINE: single-exchange (Swyftx) speculative marketing forecast on STABLECOIN g
@@ -507,3 +498,5 @@
 2026-07-16T06:19:03.337Z | task #22886 | completed | haiku | Retrospective: extract learnings from task #22884 — X cadenc | Extracted pattern p-error-classification-precision-in-global-gates: when irrever
 2026-07-16T06:19:46.864Z | task #22888 | completed | haiku | Retrospective: extract learnings from task #22885 — Investig | No learnings to capture — error classification precision pattern for global gate
 2026-07-16T07:02:37.801Z | task #22889 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.1 | mcp-server-v1.64.1 is a trivial docstring fix (compile_brief description correct
+2026-07-16T07:03:26.345Z | task #22890 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-16T07:05:09.190Z | task #22891 | completed | haiku | Retrospective: extract learnings from task #22889 — Assess r | No learnings to capture
