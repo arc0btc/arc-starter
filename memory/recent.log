@@ -500,3 +500,4 @@
 2026-07-16T19:31:49.996Z | task #22945 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-16-19) — | deferred: kill switch off (outbound_enabled=false, awaiting whoabuddy sign-off p
 2026-07-16T19:32:37.349Z | task #22937 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-16T19:34:01.063Z | task #22938 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Sole failure (#22934 BadNonce) already fully root-caused/fixed/documented same-d
+2026-07-16T19:35:21.485Z | task #22941 | completed | haiku | Retrospective: extract learnings from task #22935 — Investig | Extracted 3 network-keyed shared state + env var defaults + degraded-response va
