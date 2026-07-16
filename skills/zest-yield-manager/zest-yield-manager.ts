@@ -10,6 +10,9 @@
  */
 
 import { Command } from "commander";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 import {
   uintCV,
   principalCV,
@@ -18,10 +21,103 @@ import {
   cvToJSON,
 } from "@stacks/transactions";
 import { STACKS_MAINNET } from "@stacks/network";
+import { getZestProtocolService } from "../../github/aibtcdev/skills/src/lib/services/defi.service.js";
+import type { Account } from "../../github/aibtcdev/skills/src/lib/transactions/builder.js";
+import { acquireNonce, releaseNonce } from "../../github/aibtcdev/skills/src/lib/services/nonce-tracker.js";
+import type { Network } from "../../github/aibtcdev/skills/src/lib/config/networks.js";
+
+// ── Wallet decrypt (ported from skills/hodlmm-move-liquidity) ──────────
+
+const WALLETS_FILE = path.join(os.homedir(), ".aibtc", "wallets.json");
+const WALLETS_DIR = path.join(os.homedir(), ".aibtc", "wallets");
+const EXPLORER = "https://explorer.hiro.so/txid";
+
+async function getWalletKeys(password: string): Promise<{ stxPrivateKey: string; stxAddress: string }> {
+  if (process.env.STACKS_PRIVATE_KEY) {
+    const { getAddressFromPrivateKey, TransactionVersion } =
+      await import("@stacks/transactions" as string);
+    const key = process.env.STACKS_PRIVATE_KEY;
+    const address = getAddressFromPrivateKey(key, TransactionVersion.Mainnet);
+    return { stxPrivateKey: key, stxAddress: address };
+  }
+
+  const { generateWallet, deriveAccount, getStxAddress } =
+    await import("@stacks/wallet-sdk" as string);
+
+  if (fs.existsSync(WALLETS_FILE)) {
+    const walletsJson = JSON.parse(fs.readFileSync(WALLETS_FILE, "utf-8"));
+    const activeWallet = (walletsJson.wallets ?? [])[0];
+    if (activeWallet?.id) {
+      const keystorePath = path.join(WALLETS_DIR, activeWallet.id, "keystore.json");
+      if (fs.existsSync(keystorePath)) {
+        const keystore = JSON.parse(fs.readFileSync(keystorePath, "utf-8"));
+        const enc = keystore.encrypted;
+        if (enc?.ciphertext) {
+          const { scryptSync, createDecipheriv } = await import("crypto");
+          const salt = Buffer.from(enc.salt, "base64");
+          const iv = Buffer.from(enc.iv, "base64");
+          const authTag = Buffer.from(enc.authTag, "base64");
+          const ciphertext = Buffer.from(enc.ciphertext, "base64");
+          const key = scryptSync(password, salt, enc.scryptParams?.keyLen ?? 32, {
+            N: enc.scryptParams?.N ?? 16384,
+            r: enc.scryptParams?.r ?? 8,
+            p: enc.scryptParams?.p ?? 1,
+          });
+          const decipher = createDecipheriv("aes-256-gcm", key, iv);
+          decipher.setAuthTag(authTag);
+          const mnemonic = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf-8").trim();
+          const wallet = await generateWallet({ secretKey: mnemonic, password: "" });
+          const account = wallet.accounts[0] ?? deriveAccount(wallet, 0);
+          return { stxPrivateKey: account.stxPrivateKey, stxAddress: getStxAddress(account) };
+        }
+        const legacyEnc = keystore.encryptedMnemonic ?? keystore.encrypted_mnemonic;
+        if (legacyEnc) {
+          const { decryptMnemonic } = await import("@stacks/encryption" as string);
+          const mnemonic = await decryptMnemonic(legacyEnc, password);
+          const wallet = await generateWallet({ secretKey: mnemonic, password: "" });
+          const account = wallet.accounts[0] ?? deriveAccount(wallet, 0);
+          return { stxPrivateKey: account.stxPrivateKey, stxAddress: getStxAddress(account) };
+        }
+      }
+    }
+  }
+  throw new Error("No wallet found. Run: npx @aibtc/mcp-server@latest --install");
+}
+
+async function getSigningAccount(password: string, expectedAddress: string): Promise<Account> {
+  const keys = await getWalletKeys(password);
+  if (keys.stxAddress !== expectedAddress) {
+    throw new Error(`Wallet address mismatch: expected ${expectedAddress}, got ${keys.stxAddress}`);
+  }
+  return {
+    address: keys.stxAddress,
+    privateKey: keys.stxPrivateKey,
+    network: "mainnet",
+  };
+}
+
+async function broadcastZestOp(
+  account: Account,
+  op: (nonce: bigint) => Promise<{ txid: string }>
+): Promise<string> {
+  const acquired = await acquireNonce(account.address);
+  const nonce = BigInt(acquired.nonce);
+  try {
+    const result = await op(nonce);
+    await releaseNonce(account.address, acquired.nonce, true, undefined, result.txid);
+    return result.txid;
+  } catch (err) {
+    // Conservative: treat as broadcast so the tracker auto-resyncs from Hiro after 90s
+    // rather than rolling back a nonce that may already be in the mempool.
+    await releaseNonce(account.address, acquired.nonce, false, "broadcast");
+    throw err;
+  }
+}
 
 // ── Constants ──────────────────────────────────────────────────────────
 
 const NETWORK = STACKS_MAINNET;
+const ZEST_NETWORK: Network = "mainnet";
 const HIRO_API = "https://api.hiro.so";
 
 // Zest Protocol contracts (mainnet, current versions)
@@ -280,7 +376,9 @@ async function runStatus(address: string): Promise<void> {
 async function runSupply(
   address: string,
   amountSats: number,
-  maxSupply: number
+  maxSupply: number,
+  confirmed: boolean,
+  password?: string
 ): Promise<void> {
   // Safety: enforce spend limit
   if (amountSats > maxSupply) {
@@ -321,39 +419,54 @@ async function runSupply(
     return;
   }
 
-  // Build the supply transaction via borrow-helper
-  const { address: helperAddr, name: helperName } = splitContractId(BORROW_HELPER);
-  const { address: sbtcAddr, name: sbtcName } = splitContractId(SBTC_TOKEN);
-  const { address: zsbtcAddr, name: zsbtcName } = splitContractId(ZSBTC);
+  const preChecks = {
+    gas_sufficient: true,
+    balance_sufficient: true,
+    within_spend_limit: true,
+    stx_balance: stxBalance,
+    sbtc_balance: sbtcBalance,
+  };
 
-  try {
-    // Use MCP tool for actual broadcast (this skill generates the parameters)
-    // In production, the agent framework calls the contract
+  if (!confirmed) {
     output({
       status: "success",
-      action: "Execute supply transaction via MCP zest_supply tool",
+      action: `Dry run. Add --confirm --password <pass> to execute supply of ${amountSats} sats via ${BORROW_HELPER}.`,
       data: {
         operation: "supply",
         asset: "sBTC",
         amount_sats: amountSats,
         contract: BORROW_HELPER,
         function: "supply",
-        args: {
-          asset: SBTC_TOKEN,
-          amount: amountSats.toString(),
-          note: "Uses borrow-helper-v2-1-7 which handles Pyth oracle fee automatically",
-        },
-        mcp_command: {
-          tool: "zest_supply",
-          params: { asset: "sBTC", amount: amountSats.toString() },
-        },
-        pre_checks_passed: {
-          gas_sufficient: true,
-          balance_sufficient: true,
-          within_spend_limit: true,
-          stx_balance: stxBalance,
-          sbtc_balance: sbtcBalance,
-        },
+        pre_checks_passed: preChecks,
+      },
+      error: null,
+    });
+    return;
+  }
+
+  if (!password) {
+    blocked("password_required", "--password required with --confirm", "Provide --password <pass>");
+    return;
+  }
+
+  try {
+    const account = await getSigningAccount(password, address);
+    const zestService = getZestProtocolService(ZEST_NETWORK);
+    const txid = await broadcastZestOp(account, (nonce) =>
+      zestService.supply(account, "sBTC", BigInt(amountSats), undefined, nonce)
+    );
+
+    output({
+      status: "success",
+      action: "Supply transaction broadcast",
+      data: {
+        operation: "supply",
+        asset: "sBTC",
+        amount_sats: amountSats,
+        contract: BORROW_HELPER,
+        function: "supply",
+        pre_checks_passed: preChecks,
+        transaction: { txid, explorer: `${EXPLORER}/${txid}?chain=mainnet` },
       },
       error: null,
     });
@@ -362,16 +475,23 @@ async function runSupply(
   }
 }
 
-async function runWithdraw(address: string, amountSats: number): Promise<void> {
+async function runWithdraw(
+  address: string,
+  amountSats: number,
+  confirmed: boolean,
+  password?: string
+): Promise<void> {
   if (amountSats <= 0) {
     error("invalid_amount", "Withdraw amount must be positive", "Specify --amount=<sats>");
     return;
   }
 
+  const zestService = getZestProtocolService(ZEST_NETWORK);
   const [stxBalance, position] = await Promise.all([
     getStxBalance(address),
-    getZestPosition(address),
+    zestService.getUserPosition("sBTC", address),
   ]);
+  const supplied = position ? parseInt(position.supplied, 10) : 0;
 
   if (stxBalance < MIN_GAS_USTX) {
     blocked(
@@ -382,39 +502,69 @@ async function runWithdraw(address: string, amountSats: number): Promise<void> {
     return;
   }
 
-  if (position.supplied < amountSats) {
+  if (supplied < amountSats) {
     blocked(
       "insufficient_position",
-      `Supplied ${position.supplied} sats < requested withdrawal of ${amountSats} sats`,
-      `Reduce amount to at most ${position.supplied} sats, or use --amount=${position.supplied} for full withdrawal`
+      `Supplied ${supplied} sats < requested withdrawal of ${amountSats} sats`,
+      `Reduce amount to at most ${supplied} sats, or use --amount=${supplied} for full withdrawal`
     );
     return;
   }
 
-  output({
-    status: "success",
-    action: "Execute withdraw transaction via MCP zest_withdraw tool",
-    data: {
-      operation: "withdraw",
-      asset: "sBTC",
-      amount_sats: amountSats,
-      contract: BORROW_HELPER,
-      function: "withdraw",
-      mcp_command: {
-        tool: "zest_withdraw",
-        params: { asset: "sBTC", amount: amountSats.toString() },
+  const preChecks = {
+    gas_sufficient: true,
+    position_sufficient: true,
+    current_supplied: supplied,
+  };
+
+  if (!confirmed) {
+    output({
+      status: "success",
+      action: `Dry run. Add --confirm --password <pass> to execute withdrawal of ${amountSats} sats via ${BORROW_HELPER}.`,
+      data: {
+        operation: "withdraw",
+        asset: "sBTC",
+        amount_sats: amountSats,
+        contract: BORROW_HELPER,
+        function: "withdraw",
+        pre_checks_passed: preChecks,
       },
-      pre_checks_passed: {
-        gas_sufficient: true,
-        position_sufficient: true,
-        current_supplied: position.supplied,
+      error: null,
+    });
+    return;
+  }
+
+  if (!password) {
+    blocked("password_required", "--password required with --confirm", "Provide --password <pass>");
+    return;
+  }
+
+  try {
+    const account = await getSigningAccount(password, address);
+    const txid = await broadcastZestOp(account, (nonce) =>
+      zestService.withdraw(account, "sBTC", BigInt(amountSats), nonce)
+    );
+
+    output({
+      status: "success",
+      action: "Withdraw transaction broadcast",
+      data: {
+        operation: "withdraw",
+        asset: "sBTC",
+        amount_sats: amountSats,
+        contract: BORROW_HELPER,
+        function: "withdraw",
+        pre_checks_passed: preChecks,
+        transaction: { txid, explorer: `${EXPLORER}/${txid}?chain=mainnet` },
       },
-    },
-    error: null,
-  });
+      error: null,
+    });
+  } catch (e: any) {
+    error("withdraw_failed", e.message, "Check error and retry");
+  }
 }
 
-async function runClaim(address: string): Promise<void> {
+async function runClaim(address: string, confirmed: boolean, password?: string): Promise<void> {
   const [stxBalance, rewards] = await Promise.all([
     getStxBalance(address),
     getRewardsPending(address),
@@ -439,26 +589,54 @@ async function runClaim(address: string): Promise<void> {
     return;
   }
 
-  output({
-    status: "success",
-    action: "Execute claim transaction via MCP zest_claim_rewards tool",
-    data: {
-      operation: "claim",
-      asset: "sBTC",
-      rewards_ustx: rewards,
-      contract: INCENTIVES,
-      function: "claim-rewards",
-      mcp_command: {
-        tool: "zest_claim_rewards",
-        params: { asset: "sBTC" },
+  const preChecks = { gas_sufficient: true, rewards_available: rewards > 0 };
+
+  if (!confirmed) {
+    output({
+      status: "success",
+      action: `Dry run. Add --confirm --password <pass> to execute claim of ${rewards} uSTX via ${INCENTIVES}.`,
+      data: {
+        operation: "claim",
+        asset: "sBTC",
+        rewards_ustx: rewards,
+        contract: INCENTIVES,
+        function: "claim-rewards",
+        pre_checks_passed: preChecks,
       },
-      pre_checks_passed: {
-        gas_sufficient: true,
-        rewards_available: rewards > 0,
+      error: null,
+    });
+    return;
+  }
+
+  if (!password) {
+    blocked("password_required", "--password required with --confirm", "Provide --password <pass>");
+    return;
+  }
+
+  try {
+    const account = await getSigningAccount(password, address);
+    const zestService = getZestProtocolService(ZEST_NETWORK);
+    const txid = await broadcastZestOp(account, (nonce) =>
+      zestService.claimRewards(account, "sBTC", nonce)
+    );
+
+    output({
+      status: "success",
+      action: "Claim transaction broadcast",
+      data: {
+        operation: "claim",
+        asset: "sBTC",
+        rewards_ustx: rewards,
+        contract: INCENTIVES,
+        function: "claim-rewards",
+        pre_checks_passed: preChecks,
+        transaction: { txid, explorer: `${EXPLORER}/${txid}?chain=mainnet` },
       },
-    },
-    error: null,
-  });
+      error: null,
+    });
+  } catch (e: any) {
+    error("claim_failed", e.message, "Check error and retry");
+  }
 }
 
 // ── CLI ─────────────────────────────────────────────────────────────────
@@ -485,24 +663,27 @@ program
   .option("--action <action>", "Action to perform: status | supply | withdraw | claim", "status")
   .option("--amount <sats>", "Amount in sats for supply/withdraw operations", "0")
   .option("--max-supply-sats <sats>", "Maximum sats allowed in a single supply call", String(DEFAULT_MAX_SUPPLY_SATS))
-  .action(async (opts: { action: string; amount: string; maxSupplySats: string }) => {
+  .option("--confirm", "Execute on-chain (without this flag: preview only)")
+  .option("--password <pass>", "Wallet password (required with --confirm)")
+  .action(async (opts: { action: string; amount: string; maxSupplySats: string; confirm?: boolean; password?: string }) => {
     const address = getWalletAddress();
     const action = opts.action;
     const amount = parseInt(opts.amount, 10);
     const maxSupply = parseInt(opts.maxSupplySats, 10);
+    const confirmed = Boolean(opts.confirm);
 
     switch (action) {
       case "status":
         await runStatus(address);
         break;
       case "supply":
-        await runSupply(address, amount, maxSupply);
+        await runSupply(address, amount, maxSupply, confirmed, opts.password);
         break;
       case "withdraw":
-        await runWithdraw(address, amount);
+        await runWithdraw(address, amount, confirmed, opts.password);
         break;
       case "claim":
-        await runClaim(address);
+        await runClaim(address, confirmed, opts.password);
         break;
       default:
         error(
