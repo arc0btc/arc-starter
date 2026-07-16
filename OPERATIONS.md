@@ -153,7 +153,6 @@ polling/reporting lanes with nothing to gate).
 | `site-consistency` | INTERVAL_MINUTES = 1440 | n/a | `skills/site-consistency/sensor.ts` |
 | `snippet-producer` | INTERVAL_MINUTES = 60 | n/a | `skills/snippet-producer/sensor.ts` |
 | `social-agent-engagement` | INTERVAL_MINUTES = 60 | n/a | `skills/social-agent-engagement/sensor.ts` |
-| `social-x-ecosystem` | INTERVAL_MINUTES = 15 | n/a | `skills/social-x-ecosystem/sensor.ts` |
 | `social-x-posting` | INTERVAL_MINUTES = 15 | outbound_enabled | `skills/social-x-posting/sensor.ts` |
 | `stacks-stackspot` | INTERVAL_MINUTES = 7 | n/a | `skills/stacks-stackspot/sensor.ts` |
 | `watch-interior-distill` | INTERVAL_MINUTES = 12 * 60 | n/a | `skills/watch-interior-distill/sensor.ts` |
