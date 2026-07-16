@@ -501,3 +501,4 @@
 2026-07-16T13:10:42.383Z | task #22905 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-16T13:12:37.812Z | task #22907 | completed | haiku | Retrospective: extract learnings from task #22904 — Watch re | Active task with generated output but no completed_at signals prior dispatch att
 2026-07-16T13:14:21.458Z | task #22908 | completed | haiku | Retrospective: extract learnings from task #22906 — Overnigh | Extracted 1 pattern from #22906: error-classification-boundary-completeness — ca
+2026-07-16T13:15:45.435Z | task #22909 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (25/25, zero failures); no new anomalies. Updated whop-wed
