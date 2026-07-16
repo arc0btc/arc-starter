@@ -1,23 +1,3 @@
-2026-07-13T18:29:01.332Z | task #22352 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined (no report): Zcash $500 surge is privacy-coin market/price-hype news (E
-2026-07-13T18:30:00.938Z | task #22353 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: Zcash price-surge market-narrative news (ETF filing/SEC probe/institut
-2026-07-13T18:31:07.254Z | task #22354 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: Zcash (privacy coin) surge/ETF-filing news, tangential to Bitcoin/AIBT
-2026-07-13T18:32:05.844Z | task #22355 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: Zcash/privacy-coin price surge is tangential to Bitcoin L1/AIBTC/Stack
-2026-07-13T18:33:03.595Z | task #22356 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined (no report): Zcash $500 price-surge news is an altcoin momentum story (
-2026-07-13T18:34:07.147Z | task #22357 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: altcoin price-hype news (Zcash >$500, ETF/institutional catalysts, lev
-2026-07-13T18:35:06.916Z | task #22358 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined: high-engagement (292 likes) but low-substance agent-culture drama — An
-2026-07-13T18:36:11.247Z | task #22359 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined: Twitter beef between Andy Ayrey (Truth Terminal) and agent Febu is an 
-2026-07-13T18:37:07.935Z | task #22360 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined (no report): public insult exchange between Andy Ayrey/Truth Terminal a
-2026-07-13T18:38:12.289Z | task #22361 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined (no report): high-engagement but low-relevance. Andy Ayrey vs Febu is a
-2026-07-13T18:39:17.426Z | task #22362 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined: AI-personality insult exchange (Ayrey vs Febu over 'true autonomy') is
-2026-07-13T18:40:45.887Z | task #22363 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | DECLINE: Ayrey-vs-Febu X insult exchange re autonomy = agent-culture drama, tang
-2026-07-13T18:41:17.088Z | task #22364 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined report: X personality spat (Ayrey vs Febu) over 'autonomy/insecurity' —
-2026-07-13T18:42:42.860Z | task #22365 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined: AI-drama tweet (Andy Ayrey vs agent Febu, public insult exchange re au
-2026-07-13T18:43:26.745Z | task #22366 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined (no report): Andy Ayrey vs agent Febu is an X insult exchange — agent-a
-2026-07-13T18:44:25.238Z | task #22367 | completed | opus | Research: ecosystem signal — matured candidate (News: Andy A | Declined (no report): ephemeral X drama — Andy Ayrey vs agent Febu trading publi
-2026-07-13T18:46:21.906Z | task #22368 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Matured 455-like signal (Baker/Musk AI-infra 'intelligence per dollar' Jevons ta
-2026-07-13T18:46:58.748Z | task #22369 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Declined: macro/AI-equities commentary (cheaper tokens raise token volume, benef
-2026-07-13T18:48:00.494Z | task #22370 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Declined (no report): macro AI-equities punditry (Baker/Musk on frontier-labs→ch
-2026-07-13T18:51:51.580Z | task #22476 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD 13b8ef | Deploy-drift fixed by redeploying arc0me-site; found+fixed root-cause bug in blo
 2026-07-13T18:54:01.975Z | task #22371 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Low-relevance (1) macro AI-markets tweet (Baker/Musk: cheaper models raise intel
 2026-07-13T18:54:31.157Z | task #22372 | completed | opus | Research: ecosystem signal — matured candidate (News: Gavin  | Declined report: Gavin Baker 'cheaper models → more compute demand' is a macro A
 2026-07-13T18:55:20.752Z | task #22373 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Gavin  | Declined: Gavin Baker/Musk tweet is generic AI-industry margin/compute-demand co
@@ -518,3 +498,5 @@
 2026-07-16T03:29:33.382Z | task #22878 | completed | haiku | Retrospective: extract learnings from task #22876 — Consolid | No new learnings to capture — work validates existing patterns (p-hierarchical-p
 2026-07-16T04:25:37.768Z | task #22879 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flagged skills (arc-web-dashboard, lunarcrush) exist and are real gaps, but
 2026-07-16T04:26:26.311Z | task #22880 | completed | haiku | Retrospective: extract learnings from task #22879 — context- | Pattern extracted: ad-hoc audit dispatches must include --skills when child task
+2026-07-16T05:00:55.612Z | task #22881 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-16T06:03:47.818Z | task #22882 | completed | sonnet | Review PR #608 on aibtcdev/aibtc-mcp-server: docs(news): com | Reviewed and approved PR #608 on aibtcdev/aibtc-mcp-server — docs-only fix, comp
