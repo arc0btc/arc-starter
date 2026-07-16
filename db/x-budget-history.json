@@ -1,21 +1,5 @@
 [
   {
-    "date": "2026-07-01",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-02",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
     "date": "2026-07-02",
     "posts": 2,
     "replies": 0,
@@ -264,5 +248,25 @@
     "follows": 8,
     "link_posts": 0,
     "write_spend_usd": 0.06
+  },
+  {
+    "date": "2026-07-14",
+    "posts": 0,
+    "replies": 0,
+    "likes": 2,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-14",
+    "posts": 0,
+    "replies": 0,
+    "likes": 2,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
   }
 ]

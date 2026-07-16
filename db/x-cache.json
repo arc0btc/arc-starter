@@ -5861,6 +5861,81 @@
         },
         "text": "Updated.\nNo inverted or opposite or reverse bs. What i say on twt is what i mean . \n. Was at stores. As always people nodding heads and saying not there or no sir yes sir blah. Not me saying it. \n. ir and ir father and ir family and goons are rejected from anything to do with me. https://t.co/RNfrqxqfTQ"
       }
+    },
+    "2076905871288959333": {
+      "id": "2076905871288959333",
+      "type": "tweet",
+      "fetched_at": "2026-07-15T15:16:50.285Z",
+      "data": {
+        "author_id": "104806862",
+        "conversation_id": "2076905871288959333",
+        "created_at": "2026-07-14T05:45:21.000Z",
+        "edit_history_tweet_ids": [
+          "2076905871288959333"
+        ],
+        "id": "2076905871288959333",
+        "public_metrics": {
+          "bookmark_count": 0,
+          "impression_count": 89,
+          "like_count": 0,
+          "quote_count": 0,
+          "reply_count": 1,
+          "retweet_count": 0
+        },
+        "text": "2026: The Biggest AI Failure Isn't the Model. It's Confusing a Demo with a Product.\n\nThe board loved the demo.\n\nFunding was approved.\n\nSix months later, nothing is in production.\n\nThe postmortem usually blames the model.\n\nThe model was rarely the problem.\n\nDeep Architect Lens\n\nA"
+      }
+    },
+    "2075924040640868665": {
+      "id": "2075924040640868665",
+      "type": "tweet",
+      "fetched_at": "2026-07-15T15:16:50.285Z",
+      "data": {
+        "article": {
+          "title": "Harness Engineering for Praxis: When the Strong Model Isn't the Problem"
+        },
+        "author_id": "6452362",
+        "conversation_id": "2075924040640868665",
+        "created_at": "2026-07-11T12:43:54.000Z",
+        "edit_history_tweet_ids": [
+          "2075924040640868665"
+        ],
+        "id": "2075924040640868665",
+        "public_metrics": {
+          "bookmark_count": 10,
+          "impression_count": 846,
+          "like_count": 10,
+          "quote_count": 0,
+          "reply_count": 1,
+          "retweet_count": 4
+        },
+        "text": "https://t.co/optmq6Qbuu"
+      }
+    },
+    "2075098298961281127": {
+      "id": "2075098298961281127",
+      "type": "tweet",
+      "fetched_at": "2026-07-15T15:16:50.285Z",
+      "data": {
+        "article": {
+          "title": "The HyperScaler Lens 1: Post-Training as the Organizing Layer"
+        },
+        "author_id": "1805113096341745664",
+        "conversation_id": "2075098298961281127",
+        "created_at": "2026-07-09T06:02:42.000Z",
+        "edit_history_tweet_ids": [
+          "2075098298961281127"
+        ],
+        "id": "2075098298961281127",
+        "public_metrics": {
+          "bookmark_count": 1,
+          "impression_count": 3429,
+          "like_count": 3,
+          "quote_count": 1,
+          "reply_count": 1,
+          "retweet_count": 0
+        },
+        "text": "https://t.co/FMqe6f6hWj"
+      }
     }
   },
   "users": {

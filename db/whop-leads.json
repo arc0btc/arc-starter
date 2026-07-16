@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-14T23:51:19.176Z",
+  "updated_at": "2026-07-15T23:52:42.237Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
@@ -243,6 +243,26 @@
           "direction": "from_user",
           "in_reply_to": "post_1Ccw6iiz6Z1Pubbzped8HX",
           "snippet": "https://whop.com/novamint-d7f0/the-dropship-room/ Stop watching 3-hour YouTube tutorials from guys who quit dropshipping…"
+        }
+      ],
+      "notes": []
+    },
+    "user_KxwC9XwKIjgIg": {
+      "user_id": "user_KxwC9XwKIjgIg",
+      "username": "verwest",
+      "display_name": "Albert Verwest",
+      "first_seen": "2026-07-15T23:30:47.482Z",
+      "last_seen": "2026-07-15T23:30:47.482Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-07-15T23:30:47.482Z",
+          "msg_id": "post_1Cd4iNNwnkYew2a1mTWfuH",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cd4hAeHY19ogMncXKJQqY",
+          "snippet": "https://whop.com/verwestacademy"
         }
       ],
       "notes": []
