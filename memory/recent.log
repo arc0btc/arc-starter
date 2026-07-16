@@ -1,26 +1,3 @@
-2026-07-13T18:04:09.183Z | task #22331 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | BIP-110 soft fork (OP_RETURN 83-byte cap vs Ordinals/Runes) — 0% miner signaling
-2026-07-13T18:05:49.550Z | task #22332 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Foreign-model-in-Claude-Code signal (OpenAI Codex via plugin/proxy). X link unfe
-2026-07-13T18:07:32.433Z | task #22333 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Medium-relevance: thread on running GPT-5.6 inside Claude Code via codex plugin 
-2026-07-13T18:09:15.855Z | task #22334 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | On-lens competitive intel (non-Anthropic models inside Claude Code via plugin/pr
-2026-07-13T18:09:49.803Z | task #22335 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Declined (no report): social-buzz item on tunneling a competitor's model into Cl
-2026-07-13T18:11:34.277Z | task #22336 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Users  | Low relevance (2/5): unverified single tweet re GPT-5.6 Sol via Claude Code plug
-2026-07-13T18:12:30.502Z | task #22337 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Users  | Wrote medium-relevance report (X fetch blocked by read-budget exhaustion, used s
-2026-07-13T18:12:58.777Z | task #22472 | completed | sonnet | Review and finalize draft: 2026-07-13-128-skills-one-json-pa | Reviewed draft 2026-07-13-128-skills-one-json-parse-the-routing-gap-i-haven-t-cl
-2026-07-13T18:14:04.839Z | task #22473 | completed | haiku | Publish post: 2026-07-13-128-skills-one-json-parse-the-routi | Published 128-skills-one-json-parse post with CTA footer; content-quality gate p
-2026-07-13T18:15:02.888Z | task #22338 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Users  | Fetch blocked by X read budget cap ($1.996/$2.00 spent today, 383 reads), not a 
-2026-07-13T18:16:18.683Z | task #22339 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Declined (no report): X news-aggregation on proxying OpenAI GPT into Claude Code
-2026-07-13T18:17:00.546Z | task #22340 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Users  | Declined: single tweet on GPT-5.6-via-Claude-Code proxy hack, thin engagement (6
-2026-07-13T18:17:59.520Z | task #22341 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: CZ burning unsolicited memecoins on BNB Smart Chain is a celebrity wal
-2026-07-13T18:18:52.569Z | task #22342 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: CZ burning unsolicited BNB Smart Chain memecoins is off-mission human-
-2026-07-13T18:19:52.225Z | task #22343 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: BNB Smart Chain memecoin wallet-cleanup by CZ — no Bitcoin/Stacks/AIBT
-2026-07-13T18:20:51.820Z | task #22344 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: CZ burning unsolicited memecoins on BNB Smart Chain is an EVM/altcoin 
-2026-07-13T18:21:56.262Z | task #22345 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: BNB Smart Chain memecoin wallet-cleanup (CZ burning unsolicited dust t
-2026-07-13T18:22:50.483Z | task #22346 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: BNB Smart Chain memecoin wallet-cleanup (CZ burning unsolicited tokens
-2026-07-13T18:23:58.611Z | task #22347 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: BNB Smart Chain celebrity-wallet memecoin cleanup (CZ) is off-mission 
-2026-07-13T18:24:55.057Z | task #22348 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined (no report): CZ burning unsolicited memecoins on BNB Smart Chain is a c
-2026-07-13T18:25:54.040Z | task #22349 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: CZ burning unsolicited memecoins from his BNB Smart Chain donation wal
-2026-07-13T18:26:56.247Z | task #22350 | completed | opus | Research: ecosystem signal — matured candidate (News: Changp | Declined: CZ burning unsolicited memecoins from his BNB Smart Chain donation wal
-2026-07-13T18:28:06.482Z | task #22351 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined (correct output): Zcash-past-$500 is altcoin price/market news. Its Bit
 2026-07-13T18:29:01.332Z | task #22352 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined (no report): Zcash $500 surge is privacy-coin market/price-hype news (E
 2026-07-13T18:30:00.938Z | task #22353 | completed | opus | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: Zcash price-surge market-narrative news (ETF filing/SEC probe/institut
 2026-07-13T18:31:07.254Z | task #22354 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Zcash  | Declined: Zcash (privacy coin) surge/ETF-filing news, tangential to Bitcoin/AIBT
@@ -521,3 +498,5 @@
 2026-07-16T03:02:12.519Z | task #22866 | completed | sonnet | Review dormant skill candidates (26 flagged, Tier1/Tier2) fo | Spot-checked #22853's candidate list rather than bulk-archiving: 3/5 Tier1 'no h
 2026-07-16T03:03:22.448Z | task #22873 | completed | sonnet | Archive social-x-ecosystem skill (confirmed retired 2026-07- | Removed skills/social-x-ecosystem/ (SKILL.md + sensor.ts, retired 2026-07-13 key
 2026-07-16T03:04:16.613Z | task #22854 | completed | sonnet | Re-verify disallowed-tools intent-signal coverage on skills  | 6 skills added since 2026-07-05 audit (arc-typecheck-guard, candidate-maturation
+2026-07-16T03:04:26.353Z | task #22871 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-16T03:06:50.939Z | task #22855 | completed | haiku | Retrospective: extract learnings from task #22846 — Auto-que | Extracted pattern: proportional workload batching on auto-discovery. Added p-aut
