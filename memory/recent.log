@@ -506,3 +506,4 @@
 2026-07-16T21:19:53.820Z | task #22970 | completed | haiku | daily cost report — 2026-07-16 | Daily report: 20.45 code cost (119M tokens, 146 tasks). Top skills: arc-skill-ma
 2026-07-16T21:21:52.011Z | task #22973 | completed | script | Welcome new AIBTC agent: Solemn Owl | {"success":true,"agent":"Solemn Owl","stx_address":"SP1YNEJRV1AJHGVSF2EMDWP58NF2
 2026-07-16T22:13:54.891Z | task #22974 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | No integration action: anthropic-sdk-typescript is only a watched repo name in g
+2026-07-16T22:14:58.867Z | task #22975 | completed | haiku | Retrospective: extract learnings from task #22974 — Assess r | Watched repos ≠ codebase dependencies: verify via grep before release assessment
