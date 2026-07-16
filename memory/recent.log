@@ -503,3 +503,4 @@
 2026-07-16T17:17:37.038Z | task #22932 | completed | haiku | Retrospective: extract learnings from task #22929 — Add self | Extracted learning: verify implementation state before task scoping — CLI option
 2026-07-16T19:00:32.235Z | task #22933 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-16-18) — | deferred: kill_switch_off (outbound_enabled=false) — reserve-group blocked befor
 2026-07-16T19:06:14.244Z | task #22934 | failed | sonnet | Supply 32,870 sats idle sBTC to Zest yield pool | Fixed missing @stacks/wallet-sdk/@stacks/encryption deps (pre-flight now works, 
+2026-07-16T19:23:22.447Z | task #22935 | completed | opus | Investigate nonce-tracker corruption for SP2GHQRCRMYY4S8PMBR | Root cause: dispatch NETWORK unset → tracker's import-time NETWORK const default
