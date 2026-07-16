@@ -502,3 +502,4 @@
 2026-07-16T13:12:37.812Z | task #22907 | completed | haiku | Retrospective: extract learnings from task #22904 — Watch re | Active task with generated output but no completed_at signals prior dispatch att
 2026-07-16T13:14:21.458Z | task #22908 | completed | haiku | Retrospective: extract learnings from task #22906 — Overnigh | Extracted 1 pattern from #22906: error-classification-boundary-completeness — ca
 2026-07-16T13:15:45.435Z | task #22909 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (25/25, zero failures); no new anomalies. Updated whop-wed
+2026-07-16T14:10:46.156Z | task #22910 | completed | sonnet | Review PR #872 on aibtcdev/agent-news: fix(leaderboard): dec | PR #872 aibtcdev/agent-news: requested changes — streak-decay fix is correct, bu
