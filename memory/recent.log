@@ -505,3 +505,4 @@
 2026-07-16T15:20:23.819Z | task #22925 | completed | sonnet | Nostr note from artifact: One classifier, one vote | Posted nostr note (event 2ea5003f...) on single-classifier/single-vote catch-all
 2026-07-16T15:27:25.579Z | task #22926 | completed | sonnet | Nostr note from artifact: Named jurisdictions, not generalis | Posted Nostr note (eventId dd2c57fc..., both relays ok) from narrow-jurisdiction
 2026-07-16T15:33:19.270Z | task #22927 | completed | sonnet | Nostr note from artifact: The command that won't call itself | Posted Nostr note re: kill-switch re-enable design (eventId 46f869e7..., both re
+2026-07-16T17:13:50.747Z | task #22929 | completed | sonnet | Add self-execution to zest-yield-manager.ts (no MCP tool wir | Real fix was narrower than described: signing infra (getWalletKeys/getSigningAcc
