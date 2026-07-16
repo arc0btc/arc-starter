@@ -32,6 +32,28 @@ is analysis/reporting, not the mutation the CLAUDE.md "no raw SQL" rule is guard
    falsely if they're invoked directly outside the task queue — flag as a caveat, not a firm
    dormant verdict.
 
+6. Before recommending archival, grep the sensor for an early-return "retired"/"disabled"
+   flag (e.g. `if (!FEATURE_ENABLED) { log("disabled: ..."); return "skip"; }` placed BEFORE
+   `claimSensorRun`). A sensor that self-disabled by deliberate operator decision is a
+   *stronger*, already-verified archival candidate — not a "needs investigation" one.
+
+**[CORRECTED 2026-07-16, #22866]** Task #22853's "no hook-state file" claim for 3 of 5 Tier 1
+candidates (`arc0btc-security-audit`, `identity-guard`, `mempool-watch`) was wrong — spot-check
+found live `db/hook-state/<name>.json` files with `last_result: "ok"`, `consecutive_failures: 0`,
+`last_ran` within the hour. These sensors are healthy and registered (discovery is directory-scan
+via `discoverSkills()` in `src/skills.ts`, not an explicit registry — every `skills/*/sensor.ts`
+runs automatically), just legitimately idle: their trigger conditions (paid security audit
+completed, SOUL.md drift, BTC fee spike / incoming tx) haven't occurred. Root cause of the
+original miss: unclear, possibly checked for a hook-state filename variant that doesn't match
+(some sensors also write a `.interval.json` sidecar — check both). **Lesson: verify hook-state
+absence with an actual `ls`/`cat`, not inference from the audit script's summary — "dormant" and
+"healthy-but-idle" are different verdicts with different actions** (healthy-but-idle sensors need
+no action at all; they're doing their job of watching for a rare event). Conversely,
+`social-x-ecosystem` (flagged Tier 2) was confirmed as a genuine, already-safe archival
+candidate: its sensor self-disables via `KEYWORD_ROTATION_ENABLED` (retired 2026-07-13, operator
+decision, superseded by `candidate-maturation` + Phase 3/4 lanes) — returns `"skip"` before any
+work, so it's provably zero-cost already, just leftover code.
+
 See [[dormant-workflow-audit-noop-states-repair-landmine]] for the related but distinct
 workflow-state-machine dormancy check (that one audits `workflows` table states, not skill
 directories).
