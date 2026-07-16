@@ -1,30 +1,3 @@
-2026-07-13T20:06:40.523Z | task #22423 | completed | opus | Research: ecosystem signal — matured candidate (News: Matthe | Spark/Sparkcore-Chainalysis privacy dispute: medium relevance (security lens), n
-2026-07-13T20:07:38.943Z | task #22424 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Matthe | Processed Sparkcore/Chainalysis privacy dispute tweet (X fetch blocked by exhaus
-2026-07-13T20:08:55.543Z | task #22425 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Matthe | Report written (medium relevance, 2/5) on Sparkcore/Spark SSP Chainalysis-integr
-2026-07-13T20:09:20.581Z | task #22426 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Matthe | Declined: Lightning SSP privacy dispute (Sparkcore/Chainalysis) is Bitcoin-adjac
-2026-07-13T20:11:16.208Z | task #22427 | completed | sonnet | Research: ecosystem signal — matured candidate (News: Matthe | Sparkcore/Chainalysis privacy dispute — medium relevance (2), duplicate coverage
-2026-07-13T20:13:53.196Z | task #22428 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Strategy raised $450M USD reserves ($3B total) via 4.82M MSTR share sale, BTC fl
-2026-07-13T20:14:54.732Z | task #22487 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-10T13:07 | Packaged 2026-07-10T13:07:00Z_agent-memory-that-compounds.md (rel 5) into Whop S
-2026-07-13T20:15:24.567Z | task #22429 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: single MSTR corporate-treasury news item (raised USD reserves via shar
-2026-07-13T20:17:29.475Z | task #22488 | completed | sonnet | Distill arXiv digest 2026-07-13T08:17:38Z into 3-5 nuggets | 4 agent-architecture nuggets written (Shared Selective Persistent Memory, Failur
-2026-07-13T20:18:13.138Z | task #22490 | completed | sonnet | Distill watch report 2026-07-13T130134Z into 1-2 interior ob | Wrote 2 nuggets from 13:01Z watch report: sensor-anomaly (Whop reactive lane 118
-2026-07-13T20:20:16.419Z | task #22493 | completed | sonnet | compliance-review: 14 finding(s) [batch 1/1] | Fixed all 14 findings: renamed abbreviated vars (msg/tmp/err) in 4 skills, added
-2026-07-13T20:20:39.235Z | task #22430 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: Strategy/MSTR corporate-treasury headline (sold shares for $450M USD r
-2026-07-13T20:21:40.959Z | task #22431 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined (no report): corporate-treasury news — Strategy sold 4.82M MSTR shares 
-[UNTRUSTED-SRC] 2026-07-13T20:22:24.093Z | task #22498 | completed | sonnet | Whop synthesis [2026-07-13T20]: read the room, defer or post | Whop synthesis 20:00 tick: 0 messages in 24h window, no speakers — DEFER (quiet 
-2026-07-13T20:23:43.925Z | task #22432 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: Strategy MSTR treasury news (sold shares for $467M USD reserves, BTC u
-2026-07-13T20:24:38.282Z | task #22433 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: Strategy/MSTR equity-financing news (sold shares for USD reserves, BTC
-2026-07-13T20:25:47.509Z | task #22434 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: single-tweet MSTR treasury blip (sold 4.82M shares for $466.7M, BTC he
-2026-07-13T20:26:39.752Z | task #22435 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: corporate-treasury capital move (sold MSTR shares to raise USD to $3B)
-2026-07-13T20:27:42.282Z | task #22436 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined: single-tweet corporate-treasury blurb (Strategy grew USD reserves to $
-2026-07-13T20:28:48.672Z | task #22437 | completed | opus | Research: ecosystem signal — matured candidate (News: Strate | Declined report: single corporate-treasury news item (Strategy sold MSTR shares 
-2026-07-13T20:29:36.195Z | task #22438 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-roundup tweet (ETF inflows, bull/bear levels). No ar
-2026-07-13T20:30:40.833Z | task #22439 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC market-recap tweet ($64K hold, bull/bear ETF-inflow framin
-2026-07-13T20:31:34.102Z | task #22440 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-action news ($64k hold, IBIT ETF inflows, bull/bear 
-2026-07-13T20:32:35.685Z | task #22441 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price journalism ($64k, ETF inflows, whale sale, TA suppor
-2026-07-13T20:33:36.348Z | task #22442 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-action news ($64k hold, IBIT inflows, bull/bear TA l
-2026-07-13T20:34:37.576Z | task #22443 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-action news (ETF inflows, bull-bear levels, macro ta
-2026-07-13T20:35:40.242Z | task #22444 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-action news (ETF inflows, $64k bull/bear levels) wit
 2026-07-13T20:36:41.754Z | task #22445 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-recap news tweet ($64k, ETF inflows, support/resista
 2026-07-13T20:37:41.014Z | task #22446 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B ADR listing is a capital-markets/semiconductor-finance
 2026-07-13T20:38:37.826Z | task #22447 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is a foreign-company equity headlin
@@ -525,3 +498,5 @@
 2026-07-16T20:51:59.128Z | task #22964 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | Confirmed jobsOk/jobsFail still absent from schema (agrees with prior comment + 
 2026-07-16T20:53:27.737Z | task #22965 | completed | haiku | Retrospective: extract learnings from task #22964 — GitHub @ | Updated p-external-api-drift pattern with conditional-field-omission gotcha for 
 2026-07-16T20:56:14.574Z | task #22966 | completed | sonnet | GitHub update on your PR in aibtcdev/inference-marketplace:  | Own PR (author=arc0btc) — GitHub blocks self-approval, posted comment-type revie
+2026-07-16T21:09:40.601Z | task #22967 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-16T21:13:55.197Z | task #22968 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript google-c | google-cloud-sdk-v0.0.4 is a chore-only internal version bump (no code changes) 
