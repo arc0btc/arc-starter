@@ -1,0 +1,23 @@
+{
+  "url": "https://github.com/QwenLM/Qwen-Agent",
+  "fetchedAt": "2026-07-16T00:06:59.698Z",
+  "contentType": "github",
+  "title": "Qwen-Agent",
+  "rawContent": "Repo: QwenLM/Qwen-Agent\nDescription: Agent framework and applications built upon Qwen>=3.0, featuring Function Calling, MCP, Code Interpreter, RAG, Chrome extension, etc.\nTopics: \nStars: 16760\n\nREADME:\n<!---\nCopyright 2023 The Qwen team, Alibaba Group. All rights reserved.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n   http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n-->\n\n[ä¸­æ](https://github.com/QwenLM/Qwen-Agent/blob/main/README_CN.md) ï½ English\n\n<p align=\"center\">\n    <img src=\"https://qianwen-res.oss-accelerate-overseas.aliyuncs.com/logo_qwen_agent.png\" width=\"400\"/>\n<p>\n<br>\n\n<p align=\"center\">\n          ð <a href=\"https://chat.qwen.ai/\"><b>Qwen Chat</b></a>&nbsp&nbsp | &nbsp&nbspð¤ <a href=\"https://huggingface.co/Qwen\">Hugging Face</a>&nbsp&nbsp | &nbsp&nbspð¤ <a href=\"https://modelscope.cn/organization/qwen\">ModelScope</a>&nbsp&nbsp | &nbsp&nbsp ð <a href=\"https://qwenlm.github.io/\">Blog</a> &nbsp&nbsp ï½ &nbsp&nbspð <a href=\"https://qwenlm.github.io/Qwen-Agent/en/\">Documentation</a>\n\n<br>\nð <a href=\"https://qwenlm.github.io/Qwen-Agent/en/benchmarks/deepplanning/\">Benchmark</a>&nbsp&nbsp | &nbsp&nbspð¬ <a href=\"https://github.com/QwenLM/Qwen/blob/main/assets/wechat.png\">WeChat (å¾®ä¿¡)</a>&nbsp&nbsp | &nbsp&nbspð«¨ <a href=\"https://discord.gg/CV4E9rpNSD\">Discord</a>&nbsp&nbsp\n</p>\n\n\nQwen-Agent is a framework for developing LLM applications based on the instruction following, tool usage, planning, and\nmemory capabilities of Qwen.\nIt also comes with example applications such as Browser Assistant, Code Interpreter, and Custom Assistant.\nNow Qwen-Agent plays as the backend of [Qwen Chat](https://chat.qwen.ai/).\n\n# News\n* ð¥ð¥ð¥Feb 16, 2026: Open-sourced Qwen3.5. For usage examples, refer to [Qwen3.5 Agent Demo](./examples/assistant_qwen3.5.py).\n* Jan 27, 2026: Open-sourced agent evaluation benchmark [DeepPlanning](https://qwenlm.github.io/Qwen-Agent/en/benchmarks/deepplanning/) and added Qwen-Agent [documentation](https://qwenlm.github.io/Qwen-Agent/en/guide/).\n* Sep 23, 2025: Added [Qwen3-VL Tool-call Demo](./examples/cookbook_think_with_images.ipynb), supporting tools such as zoom in, image search, and web search.\n* Jul 23, 2025: Add [Qwen3-Coder Tool-call Demo](./examples/assistant_qwen3_coder.py); Added native API tool call interface support, such as using vLLM's built-in tool call parsing.\n* May 1, 2025: Add [Qwen3 Tool-call Demo](./examples/assistant_qwen3.py), and add [MCP Cookbooks](./examples/).\n* Mar 18, 2025: Support for the `reasoning_content` field; adjust the default [Function Call template](./qwen_agent/llm/fncall_prompts/nous_fncall_prompt.py), which is applicable to the Qwen2.5 series general models and QwQ-32B. If you need to use the old version of the template, please refe",
+  "embeddedUrls": [
+    "http://www.apache.org/licenses/LICENSE-2.0",
+    "https://github.com/QwenLM/Qwen-Agent/blob/main/README_CN.md",
+    "https://qianwen-res.oss-accelerate-overseas.aliyuncs.com/logo_qwen_agent.png",
+    "https://chat.qwen.ai/",
+    "https://huggingface.co/Qwen",
+    "https://modelscope.cn/organization/qwen",
+    "https://qwenlm.github.io/",
+    "https://qwenlm.github.io/Qwen-Agent/en/",
+    "https://qwenlm.github.io/Qwen-Agent/en/benchmarks/deepplanning/",
+    "https://github.com/QwenLM/Qwen/blob/main/assets/wechat.png",
+    "https://discord.gg/CV4E9rpNSD",
+    "https://chat.qwen.ai/",
+    "https://qwenlm.github.io/Qwen-Agent/en/benchmarks/deepplanning/",
+    "https://qwenlm.github.io/Qwen-Agent/en/guide/"
+  ]
+}

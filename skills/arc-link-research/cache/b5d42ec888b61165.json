@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/grinich/status/2077177978761646286",
+  "fetchedAt": "2026-07-16T00:07:00.630Z",
+  "contentType": "tweet",
+  "title": "@grinich: Dashboards are going away.\n\nAt WorkOS, we shipped our \"headless dashboard\" a cou...",
+  "rawContent": "Tweet by @grinich (Michael Grinich)\nAuthor bio: @WorkOS founder\nText: Dashboards are going away.\n\nAt WorkOS, we shipped our \"headless dashboard\" a couple weeks ago. We call it the Management MCP.\n\nAlready one of our fastest growing features! 📈\n\nhttps://t.co/NDn9LTKwiv https://t.co/kaG9IBlwuW\nCreated: 2026-07-14T23:46:36.000Z\nMetrics: {\"retweet_count\":7,\"reply_count\":24,\"like_count\":261,\"quote_count\":3,\"bookmark_count\":327,\"impression_count\":89904}",
+  "embeddedUrls": [
+    "https://t.co/NDn9LTKwiv",
+    "https://t.co/kaG9IBlwuW"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "url": "https://github.com/QwenLM/Qwen/blob/main/assets/wechat.png",
+  "fetchedAt": "2026-07-16T00:07:02.130Z",
+  "contentType": "github",
+  "title": "Qwen",
+  "rawContent": "Repo: QwenLM/Qwen\nDescription: The official repo of Qwen (通义千问) chat & pretrained large language model proposed by Alibaba Cloud.\nTopics: chinese, large-language-models, natural-language-processing, flash-attention, llm, pretrained-models\nStars: 21432\n\nREADME:\n<p align=\"left\">\n    <a href=\"README_CN.md\">ä¸­æ</a>&nbsp ï½ &nbspEnglish&nbsp ï½ &nbsp<a href=\"README_JA.md\">æ¥æ¬èª</a> ï½ &nbsp<a href=\"README_FR.md\">FranÃ§ais</a> ï½ &nbsp<a href=\"README_ES.md\">EspaÃ±ol</a>\n</p>\n<br><br>\n\n<p align=\"center\">\n    <img src=\"https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg\" width=\"400\"/>\n<p>\n<br>\n\n<p align=\"center\">\n        ð¤ <a href=\"https://huggingface.co/Qwen\">Hugging Face</a>&nbsp&nbsp | &nbsp&nbspð¤ <a href=\"https://modelscope.cn/organization/qwen\">ModelScope</a>&nbsp&nbsp | &nbsp&nbsp ð <a href=\"https://arxiv.org/abs/2309.16609\">Paper</a> &nbsp&nbsp ï½ &nbsp&nbspð¥ï¸ <a href=\"https://modelscope.cn/studios/qwen/Qwen-72B-Chat-Demo/summary\">Demo</a>\n<br>\n<a href=\"assets/wechat.png\">WeChat (å¾®ä¿¡)</a>&nbsp&nbsp | &nbsp&nbsp<a href=\"https://discord.gg/CV4E9rpNSD\">Discord</a>&nbsp&nbsp ï½  &nbsp&nbsp<a href=\"https://dashscope.aliyun.com\">API</a> \n</p>\n<br><br>\n\n> [!Important]\n> Qwen2 is here! You are welcome to follow [QwenLM/Qwen2](https://github.com/QwenLM/Qwen2) and share your experience there.\n>\n> This repo ([QwenLM/Qwen](https://github.com/QwenLM/Qwen)) is no longer actively maintained, due to substantial codebase differences.\n\n<br>\n\n|     |                                                              Qwen-Chat                                                               |                                                                Qwen-Chat (Int4)                                                                |                        Qwen-Chat (Int8)                         |                                                            Qwen                                                            |\n|-----|:------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------:|\n| 1.8B  |  <a href=\"https://modelscope.cn/models/qwen/Qwen-1_8B-Chat/summary\">ð¤</a>  <a href=\"https://huggingface.co/Qwen/Qwen-1_8B-Chat\">ð¤</a>  |  <a href=\"https://modelscope.cn/models/qwen/Qwen-1_8B-Chat-Int4/summary\">ð¤</a>  <a href=\"https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int4\">ð¤</a>  | <a href=\"https://modelscope.cn/models/qwen/Qwen-1_8B-Chat-Int8/summary\">ð¤</a>  <a href=\"https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int8\">ð¤</a>  |  <a href=\"https://modelscope.cn/models/qwen/Qwen-1_8B/summary\">ð¤</a>  <a href=\"https://huggingface.co/Qwen/Qwen-1_8B\">ð¤</a>  |\n| 7B  |  <a href=\"https://modelscope.cn/models/qwen/Qwen-7B-Chat/summary\">ð¤</a>  <a href=\"https://huggingface.co/Qwen/Qwen-7B-Chat\">ð¤</a>  |  <a href=\"https://modelscope.cn/models/qwen/Qwen-7B-Chat-Int4/summary\">ð¤</a",
+  "embeddedUrls": [
+    "https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg",
+    "https://huggingface.co/Qwen",
+    "https://modelscope.cn/organization/qwen",
+    "https://arxiv.org/abs/2309.16609",
+    "https://modelscope.cn/studios/qwen/Qwen-72B-Chat-Demo/summary",
+    "https://discord.gg/CV4E9rpNSD",
+    "https://dashscope.aliyun.com",
+    "https://github.com/QwenLM/Qwen2",
+    "https://github.com/QwenLM/Qwen",
+    "https://modelscope.cn/models/qwen/Qwen-1_8B-Chat/summary",
+    "https://huggingface.co/Qwen/Qwen-1_8B-Chat",
+    "https://modelscope.cn/models/qwen/Qwen-1_8B-Chat-Int4/summary",
+    "https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int4",
+    "https://modelscope.cn/models/qwen/Qwen-1_8B-Chat-Int8/summary",
+    "https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int8",
+    "https://modelscope.cn/models/qwen/Qwen-1_8B/summary",
+    "https://huggingface.co/Qwen/Qwen-1_8B",
+    "https://modelscope.cn/models/qwen/Qwen-7B-Chat/summary",
+    "https://huggingface.co/Qwen/Qwen-7B-Chat",
+    "https://modelscope.cn/models/qwen/Qwen-7B-Chat-Int4/summary"
+  ]
+}
