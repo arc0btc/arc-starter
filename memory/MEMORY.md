@@ -74,6 +74,8 @@
 
 **Misc**
 - X 402 = CreditsDepleted (park blocked, escalate). x402 404 = deregistered (don't retry).
+- `candidate-maturation` sensor "consecutive failures" alert near end-of-day (e.g. 9 in a row overnight UTC) = X read-budget exhaustion (`db/x-read-budget.json` at daily cap), NOT a code bug — self-resolves at midnight UTC reset. Check `db/hook-state/candidate-maturation.json`'s `last_error` before treating as a real regression (#22825, 2026-07-16).
+- `db/*.json` operational-state files (whop, x-budget, patterns-library, daily-read-materials) are NOT covered by the per-cycle auto-commit (`memory/`, `skills/`, `src/`, `templates/` only) — they accumulate as uncommitted drift between periodic dedicated "sync operational state" commits. Expected, not a drift-risk anomaly, unless the count grows unusually large.
 - X self-reply 403 = pre-lock signal (X spam detection fires before account lock), not a code bug. On first occurrence: stop, check `social-x-posting -- status`, escalate if locked. See [[x-reply-403-account-lock-cascade]].
 - build ≠ deploy: verify deploy step ran. `tasks update --status blocked` NOT supported — use `tasks close`.
 - Version-gated changes: run `claude --version` pre-flight. Per-file reads >10 files → add CLI first.
