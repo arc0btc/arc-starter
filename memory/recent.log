@@ -524,3 +524,4 @@
 2026-07-16T20:39:20.977Z | task #22963 | completed | haiku | Retrospective: extract learnings from task #22928 — Supply 3 | Extracted two reusable patterns from task #22928 (Zest supply): skill-invocation
 2026-07-16T20:51:59.128Z | task #22964 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | Confirmed jobsOk/jobsFail still absent from schema (agrees with prior comment + 
 2026-07-16T20:53:27.737Z | task #22965 | completed | haiku | Retrospective: extract learnings from task #22964 — GitHub @ | Updated p-external-api-drift pattern with conditional-field-omission gotcha for 
+2026-07-16T20:56:14.574Z | task #22966 | completed | sonnet | GitHub update on your PR in aibtcdev/inference-marketplace:  | Own PR (author=arc0btc) — GitHub blocks self-approval, posted comment-type revie
