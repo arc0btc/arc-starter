@@ -518,3 +518,4 @@
 2026-07-16T20:32:21.837Z | task #22957 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed 4 blocked tasks: #22928 unblocked and requeued (self-execution fix land
 [UNTRUSTED-SRC] 2026-07-16T20:32:35.855Z | task #22961 | completed | sonnet | Whop synthesis [2026-07-16T20]: read the room, defer or post | DEFER: zero messages in 24h window, zero human speakers — no room to synthesize 
 2026-07-16T20:34:50.252Z | task #22928 | completed | sonnet | Supply 32,870 sats idle sBTC to Zest yield pool | Supplied 32,870 sats sBTC to Zest at nonce 988, txid 8603363af7a0af722904a28cdcb
+2026-07-16T20:36:21.681Z | task #22959 | completed | haiku | Retrospective: extract learnings from task #22958 — context- | Context-review false positives traced to three patterns: one-off completed follo
