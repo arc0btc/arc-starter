@@ -511,3 +511,4 @@
 2026-07-16T02:39:49.736Z | task #22848 | completed | sonnet | Cost deep-dive: why does arc-link-research average $1.38/tas | Opus routing (82% of leaf tasks) is a deliberate 2026-07-13 operator directive, 
 2026-07-16T02:42:05.784Z | task #22857 | completed | opus | Propose: gate arc-link-research's cross-repo grounding step  | ARC-0015 proposal drafted (agent-runtime/proposals/0015): gate arc-link-research
 2026-07-16T02:46:10.211Z | task #22851 | completed | sonnet | Consolidate memory/patterns.md (189 lines, over 150-line thr | Consolidated patterns.md 189->149 lines: merged ~20 recent 2026-07-15/16 single-
+2026-07-16T02:50:14.940Z | task #22849 | completed | sonnet | Audit arc-link-research report front-matter quality for repo | Audited 16 reports since 2026-07-14: all have complete front-matter (topics/rele
