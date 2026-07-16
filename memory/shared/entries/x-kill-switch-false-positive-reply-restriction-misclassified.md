@@ -35,6 +35,8 @@ phrasings will keep tripping the switch until added to the list.
   should NOT raw-SQL the flag back to true even after confirming a false positive — escalate to
   operator for the actual flip, but the diagnosis/fix work (this entry) can and should happen
   autonomously first so the operator's decision is a one-line "yes, flip it," not a full investigation.
-- Consider a follow-up: add a narrow `arc skills run --name social-engine -- kill-switch enable
-  --reason <text>` CLI command so verified-false-positive recoveries don't require raw SQL or an
-  idle blocked window while waiting on manual reconciliation.
+- **[DONE 2026-07-16, #22887]** Added `arc skills run --name social-engine -- kill-switch
+  status|enable --reason <text>` (commit f4d880d3). `--reason` is mandatory; the command performs
+  the flip mechanically but is not itself authorization — still wait for explicit operator
+  sign-off before invoking `enable` on a live trip. `outbound_enabled` remained `false` after this
+  task; #22887 closed `blocked` pending whoabuddy's go-ahead to run the new command.
