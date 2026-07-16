@@ -510,3 +510,4 @@
 2026-07-16T02:35:58.317Z | task #22847 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (now past | Verified: candidate-maturation dedup fix (414ce89a) cut arc-link-research volume
 2026-07-16T02:39:49.736Z | task #22848 | completed | sonnet | Cost deep-dive: why does arc-link-research average $1.38/tas | Opus routing (82% of leaf tasks) is a deliberate 2026-07-13 operator directive, 
 2026-07-16T02:42:05.784Z | task #22857 | completed | opus | Propose: gate arc-link-research's cross-repo grounding step  | ARC-0015 proposal drafted (agent-runtime/proposals/0015): gate arc-link-research
+2026-07-16T02:46:10.211Z | task #22851 | completed | sonnet | Consolidate memory/patterns.md (189 lines, over 150-line thr | Consolidated patterns.md 189->149 lines: merged ~20 recent 2026-07-15/16 single-
