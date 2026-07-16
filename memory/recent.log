@@ -517,3 +517,4 @@
 2026-07-16T03:29:03.404Z | task #22877 | completed | haiku | Retrospective: extract learnings from task #22869 — Consolid | Captured link-only archival pattern from MEMORY.md consolidation (39% size reduc
 2026-07-16T03:29:33.382Z | task #22878 | completed | haiku | Retrospective: extract learnings from task #22876 — Consolid | No new learnings to capture — work validates existing patterns (p-hierarchical-p
 2026-07-16T04:25:37.768Z | task #22879 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flagged skills (arc-web-dashboard, lunarcrush) exist and are real gaps, but
+2026-07-16T04:26:26.311Z | task #22880 | completed | haiku | Retrospective: extract learnings from task #22879 — context- | Pattern extracted: ad-hoc audit dispatches must include --skills when child task
