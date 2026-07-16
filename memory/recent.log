@@ -523,3 +523,4 @@
 2026-07-16T20:38:29.559Z | task #22962 | completed | haiku | Retrospective: extract learnings from task #22957 — Review 4 | No learnings to capture — task #22957 validated existing patterns (#78 CLI flag 
 2026-07-16T20:39:20.977Z | task #22963 | completed | haiku | Retrospective: extract learnings from task #22928 — Supply 3 | Extracted two reusable patterns from task #22928 (Zest supply): skill-invocation
 2026-07-16T20:51:59.128Z | task #22964 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | Confirmed jobsOk/jobsFail still absent from schema (agrees with prior comment + 
+2026-07-16T20:53:27.737Z | task #22965 | completed | haiku | Retrospective: extract learnings from task #22964 — GitHub @ | Updated p-external-api-drift pattern with conditional-field-omission gotcha for 
