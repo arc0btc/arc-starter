@@ -1,31 +1,3 @@
-## 2026-07-13T20:53:52.000Z — largest structural diff in recent cycles: the arc-x-research-channel quest lands end-to-end (Phases 2-5), self-audited with dev-council review baked into every commit; 128 skills / 90 sensors
-
-**Task #22491** | Diff: 3811dee..dcad7d3 (32 commits — 8 src/, 4 new skills/) | Sensors: 90 (up from 86) | Skills: 128 (up from 124)
-
-### Changed files (substantive only)
-
-- `src/candidate-spine.ts` (new) — store-not-judge fix for `social-x-ecosystem`'s structural bug (engagement checked at discovery time almost never passes; candidates now sit until 2-24h aged, re-scored in one batched read). Shared by 3 discovery lanes (keyword-rotation, news-search, list-roster) via one `x_research_candidate` table.
-- `skills/candidate-maturation/sensor.ts` (new) — consumes the spine; same-day fix (414ce89a) adds an incident-level dedup gate after one viral story matured through 5 sibling tweet_ids and filed 5 redundant research tasks (~$5-10 waste) — ships with a test.
-- `skills/list-roster/`, `skills/x-news-trends/`, `skills/research-nugget-relay/` (new) — Phase 4 List-membership sync + tweet-poll producer, Phase 3 News/Trends discovery, Phase 5 HN/RSS/GitHub-release → arc-link-research fan-in. Each has SKILL.md + sensor.ts, wired into the shared spine/registries rather than forking their own.
-- `src/follow-policy.ts`, `src/nugget-bridge.ts` (new) — both wired into `arc-link-research/cli.ts`'s `cmdProcess` at report-acceptance, both explicitly contracted to never throw (report write must not be endangered by a downstream hook), both self-disclose a known limitation in their own header comments rather than leaving it implicit.
-- `src/db.ts`/`src/dispatch.ts`/`src/cli.ts` — `stop_condition` column (loop-first workflow pattern) threaded through insert/update/prompt-build; plus the already-memory-tracked `tasks.id` AUTOINCREMENT rebuild (#22270/#22271) and a dangling-lock alert.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Every commit traces to a named phase of one operator-scoped quest (arc-x-research-channel, PHASES.md) or a live incident (#22270 id-reuse, BridgeMind incident-dedup). No speculative work found.
-- **Step 2 — Delete**: `skills/social-engine/follow-curated.ts` — confirmed still dormant (bare script, no sensor.ts, zero active callers; grep hits are all comment references explaining why `follow-policy.ts` does NOT build on it). It targets a different criterion (curated "accounts of value" batch-follow) than `follow-policy.ts` (per-report research-source promotion), so not a clean duplicate — flagging as "needs investigation" per this skill's own escalation rule rather than recommending deletion outright. See follow-up task. **[RESOLVED 2026-07-13, #22500]**: NOT a duplicate, NOT dead — `src/follow-policy.ts` is reactive-only (follows an account only at the moment its research is cited in a new report) and explicitly disclaims backfill. Queried `social_accounts` live: 92 `eligible`/unfollowed rows exist (53 highest-priority `research_core` tier), a real backlog nothing else touches. Also found `skills/social-engine`'s periodic scripts (`monitor-post-lane.ts`, `monitor-reply-lane.ts`, `reply-watchlist-sensor.ts`) are scheduled via host `crontab -l`, not the `skills/*/sensor.ts` auto-discovery this framework's own "Delete" heuristic checks for — the "no sensor.ts, no caller" test produces false-positive dormancy for this skill's whole periodic-script class. Wired `follow-curated.ts` into the same crontab (daily 05:00 UTC) instead of deleting. See [[skill-dormancy-check-misses-crontab-scheduled-scripts]].
-- **Step 3 — Simplify**: `candidate-spine.ts` centralizing `extractUrls`/`isHighSignal` (moved verbatim out of `social-x-ecosyston/sensor.ts`) gives 3 discovery lanes one scoring bar instead of 3 forks — same shape as the read-budget consolidation praised in the 2026-07-12 entry.
-- **Step 4 — Accelerate**: `getMaturationBatch`'s 100-candidate cap matches X's `/tweets?ids=` per-call cap specifically so a full day's due candidates fit in ONE batched read instead of N — a real latency/cost win, not just a code shape choice.
-- **Step 5 — Automate**: The whole quest IS a Step-5 move (automating discovery→maturation→research that was previously a broken at-birth judge) — correctly sequenced last, after Phase 1's metering (Step 3/4 work) and the store-not-judge redesign (Step 1) already landed in prior cycles.
-
-### Flags
-
-- **[SELF-DISCLOSED, not mine]** Both new hooks (`follow-policy.ts`, `nugget-bridge.ts`) already document their own known gaps in-file: two promotion thresholds now write `social_accounts` without reconciliation, and `nugget-bridge`'s `content_hash` join is "structurally near-inert across sources" (only `source_url` exact-match actually does the work, no URL normalization). Nothing to add — this cycle's own commits did the audit work usually left to this review.
-- **[NEW-WATCH]** `getMaturationBatch`'s T/Z-vs-space-separated datetime comparison bug (caught via live-testing per the code's own comment) is the kind of silent-wrong-answer class this framework watches for elsewhere (see prior cycles' `sqlite-datetime-naive-parse-utc-skew` entry) — worth one cycle confirming no sibling query in the 4 new sensors has the same unconverted `datetime('now', ...)` vs ISO-string comparison.
-- No carry-forward watch items from the prior 2 cycles — both were resolved or dropped.
-
----
-
 ## 2026-07-14T08:21:00.000Z — small diff, cheap health-triage field lands but is a no-op for the 41% of sensors using the string-return error convention; 128 skills / 90 sensors
 
 **Task #22589** | Diff: dcad7d3..71606f5 (6 commits — 3 src/, 4 skills/) | Sensors: 90 | Skills: 128
@@ -155,3 +127,27 @@
 ### Flags
 
 - None. Tightest diff in this review's recent run (third consecutive cycle with fully-traceable, single-incident-per-commit changes — see prior two entries). No new watch items.
+
+---
+
+## 2026-07-16T20:29:00.000Z — narrowest diff in this review's history: one live-incident mainnet fix, one dormant-write bugfix, two dedup exemptions; 128 skills / 90 sensors
+
+**Task #22956** | Diff: f4d880d..9201950 (4 commits — 1 src/, 2 skills/) | Sensors: 90 | Skills: 128
+
+### Changed files (substantive only)
+
+- `src/dispatch.ts` (92019508) — defaults subprocess `env.NETWORK` to `"mainnet"` when unset. In-process mainnet skills (`zest-yield-manager`, `hodlmm-move-liquidity`, `bitcoin-wallet/stx-send-runner`) call the shared nonce-tracker's `acquireNonce()` directly; the tracker's `config/networks.ts` resolves `NETWORK` as an import-time const defaulting to `"testnet"`, so an unset env var made every in-process nonce lookup query TESTNET Hiro for a mainnet address — empty account body, nonce clobbered to 1, guaranteed `BadNonce` on the next real send. This is the direct root cause of the nonce-gap incident already closed in memory (`zest-yield-manager-nonce-gap-remediation`, #22939/#22936). Subprocess-spawning skills already forced mainnet; this closes the one remaining gap. A complementary tracker-side guard is tracked separately (`arc0btc/skills#1`, cross-repo, not in this diff).
+- `skills/zest-yield-manager/zest-yield-manager.ts` (ca6c2ee9) — `run supply/withdraw/claim` never exposed `--confirm`/`--password` on the CLI despite the self-sign+broadcast body (ported from `hodlmm-move-liquidity`) already existing, so `confirmed` was always `undefined` and every write silently fell through to dry-run — a real, live bug (task's own commit message: "verified `bun build`/`tsc` clean" but the gap was behavioral, not a type error, so neither compiler nor pre-commit guard would have caught it). Also fixes a `getZestProtocolService(NETWORK)` type mismatch (took the `StacksNetwork` object where a `"mainnet"|"testnet"` string was needed) via a new `ZEST_NETWORK` const. `--password` as a plain CLI arg matches the existing `hodlmm-move-liquidity` convention this was ported from — not a new pattern, so not flagging as a fresh finding, but noting it inherits that convention's shell-history/process-list exposure surface.
+- `skills/arc-workflow-review/sensor.ts` (1555c926) — two more `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` exemptions (candidate-maturation triage fan-out, whop free-forum digest), each verified by direct task-chain inspection before exemption rather than assumed. Same already-established "ad-hoc retrospective, not a state machine" rejection shape as prior cycles' entries on this sensor.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All three substantive commits trace to a named live incident (#22934/#22935 nonce clobber), a live behavioral bug caught in the same commit that fixed it, and a named prior triage task (#22896) with verified evidence. No speculative work.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — all three changes are targeted bugfixes, not consolidations.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — the workflow-review exemptions are documentation of an already-automated sensor's exception list, not new automation.
+
+### Flags
+
+- None. Fourth consecutive cycle with fully-traceable, single-incident-per-commit changes and zero unrelated scope. `--password`-as-CLI-arg noted above is an inherited pattern, not a new one — no action needed unless a future review decides to revisit the whole `hodlmm-move-liquidity`/`zest-yield-manager` wallet-decrypt convention.
