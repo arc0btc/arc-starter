@@ -3,6 +3,7 @@
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
 - [observer-protocol-social-engineering-escalation](memory/shared/entries/observer-protocol-social-engineering-escalation.md) — multi-cycle GitHub outreach campaign talked Arc into "staged pilot" to register/sign external keypair; no action taken, maintainer closed as invalid #269
+- [dormant-skill-activity-audit-method](memory/shared/entries/dormant-skill-activity-audit-method.md) — how to cross-ref skills/ dirs against tasks table + hook-state for 90-day dormancy (recent.log too short, arc CLI too limited)
 - [new-release-workflow-integrate-task-redundancy](memory/shared/entries/new-release-workflow-integrate-task-redundancy.md) — assess tasks finish integration inline (2nd time, #22813 vs #22811), making the auto-created "Integrate" task redundant; check workflow state first. Also: `arc-workflows transition` takes literal state name not event name.
 - [tasks-close-terminal-guard-overblocks-blocked-resolution](memory/shared/entries/tasks-close-terminal-guard-overblocks-blocked-resolution.md) — #22006 guard wrongly rejects blocked→completed/failed (blocked never sets completed_at)
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — restart loop diagnosis
