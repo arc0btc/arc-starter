@@ -854,6 +854,16 @@ export interface RecentTweet {
   created_at: string;
   author_id: string;
   conversation_id: string;
+  /** control-plane-remediation P1 (defect-register row 59, live-diagnosed): X API v2's
+   *  reply_settings field on the tweet object — "everyone" | "mentionedUsers" | "following".
+   *  Free on this same already-paid search call (no extra read cost). Live evidence
+   *  (07-14..07-16) showed EVERY reply-lane candidate this quest's discovery loop selected
+   *  hit a genuine reply-restriction 403 ("you have not been mentioned...") — the send path
+   *  was correctly classifying and skipping these, but nothing upstream avoided QUEUING a
+   *  doomed target in the first place, so the lane's entire daily budget went to certain
+   *  403s. Undefined on tweets read before this field was added to the request — treat as
+   *  open (matches prior behavior exactly, no retroactive reclassification). */
+  reply_settings?: string;
 }
 
 export interface SearchRecentResult {
@@ -878,7 +888,10 @@ export async function searchRecentByHandle(
   const queryParams: Record<string, string> = {
     query: `from:${handle}`,
     max_results: String(max),
-    "tweet.fields": "created_at,author_id,conversation_id",
+    // control-plane-remediation P1 (row 59): reply_settings added — free field on the same
+    // read, lets callers filter out threads that don't allow non-mentioned replies BEFORE
+    // queuing them (see RecentTweet.reply_settings doc comment).
+    "tweet.fields": "created_at,author_id,conversation_id,reply_settings",
   };
   if (opts.sinceId) queryParams["since_id"] = opts.sinceId;
 
@@ -891,6 +904,7 @@ export async function searchRecentByHandle(
     created_at: String(t["created_at"] ?? ""),
     author_id: String(t["author_id"] ?? ""),
     conversation_id: String(t["conversation_id"] ?? t["id"]),
+    reply_settings: typeof t["reply_settings"] === "string" ? (t["reply_settings"] as string) : undefined,
   }));
   return { tweets, newest_id: meta["newest_id"] ? String(meta["newest_id"]) : undefined };
 }

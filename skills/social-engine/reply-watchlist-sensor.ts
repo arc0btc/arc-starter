@@ -163,14 +163,28 @@ async function run() {
       searchCount++;
 
       // Filter to tweets within the age window
-      const eligible = result.tweets.filter(t => {
+      const inWindow = result.tweets.filter(t => {
         if (!t.created_at) return false;
         const age = now - new Date(t.created_at).getTime();
         return age >= 0 && age <= cutoffMs;
       });
 
+      // control-plane-remediation P1 (defect-register row 59, live-diagnosed): every reply
+      // candidate this loop selected on 07-14..07-16 hit a genuine reply-restriction 403 (X's
+      // reply_settings on the target thread was not "everyone") — correctly classified and
+      // skipped by the send path, but only AFTER burning a slot in the day's reply budget on a
+      // send that was always going to fail. `reply_settings` is undefined/missing on
+      // conversation_id-only synthesized entries and on tweets read before this field existed
+      // — treated as open (unchanged prior behavior) rather than blocked, so this only ever
+      // REMOVES doomed candidates, never adds a false rejection.
+      const restricted = inWindow.filter(t => t.reply_settings && t.reply_settings !== "everyone");
+      if (restricted.length > 0) {
+        log(`@${account.handle}: skipping ${restricted.length} tweet(s) with reply_settings != everyone (${restricted.map(t => t.reply_settings).join(",")})`);
+      }
+      const eligible = inWindow.filter(t => !t.reply_settings || t.reply_settings === "everyone");
+
       if (eligible.length === 0) {
-        log(`@${account.handle}: no tweets in window (${targetAgeHours}h)`);
+        log(`@${account.handle}: no tweets in window (${targetAgeHours}h)${restricted.length > 0 ? " after reply_settings filter" : ""}`);
         continue;
       }
 
