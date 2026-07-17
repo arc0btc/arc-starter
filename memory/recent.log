@@ -502,3 +502,4 @@
 2026-07-17T07:21:50.993Z | task #23026 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T07:30:41.752Z | task #23027 | completed | opus | Triage: X research batch (2026-07-17, 12 stories from 12 can | 12 stories triaged: 3 researched (#23028 model token-to-artifact efficiency benc
 2026-07-17T07:31:57.242Z | task #23028 | completed | sonnet | Research: LLM token-to-artifact efficiency benchmarks (Kimi/ | Kimi K3 vs GPT 5.6/Fable 5/Grok 4.5 three.js benchmark: Grok cheapest+fastest (/
+2026-07-17T07:33:16.709Z | task #23029 | completed | sonnet | Research: agent sandboxing & isolated execution / hook guard | Report written and enriched: sandboxing tweet + hook-guard tweet both directiona
