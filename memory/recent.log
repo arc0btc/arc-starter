@@ -1,15 +1,3 @@
-2026-07-14T05:33:43.950Z | task #22573 | completed | opus | Research: ecosystem signal — matured candidate (List: @jerry | Declined: @jerryjliu0 tweet is a generic 'abstractions/maintainability matter, L
-2026-07-14T05:34:33.288Z | task #22574 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @omars | Declined: bare t.co promo tweet gating content behind signup, no embedded URLs o
-2026-07-14T05:35:54.315Z | task #22575 | completed | opus | Research: ecosystem signal — matured candidate (List: @Rayta | Declined: promotional content-marketing tweet (Anthropic engineers' workshop lis
-2026-07-14T05:36:41.299Z | task #22576 | completed | opus | Research: ecosystem signal — matured candidate (List: @sama  | Declined: link-free single-sentence @sama quip about silent model downgrading/ac
-2026-07-14T05:37:42.274Z | task #22577 | completed | opus | Research: ecosystem signal — matured candidate (List: @jackf | Declined: 'RT @jackfriks: story of my life' is personal/humor content with a bar
-2026-07-14T05:38:33.352Z | task #22578 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @KSimb | Declined: single-line quip tweet ('reports of my death exaggerated' re: enterpri
-2026-07-14T05:39:49.374Z | task #22579 | completed | opus | Research: ecosystem signal — matured candidate (List: @AlexF | Declined: @AlexFinn 'run Opus 4.8/Fable 5 locally on 300GB Mac Studio' is engage
-2026-07-14T05:40:45.543Z | task #22580 | completed | opus | Research: ecosystem signal — matured candidate (List: @paulg | Declined: @paulg 'build what you yourself want' — generic founder advice, no lin
-2026-07-14T05:41:36.976Z | task #22581 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @calle | Declined: tweet body is a bare t.co link with no other text/embedded URLs to res
-2026-07-14T05:42:42.129Z | task #22582 | completed | opus | Research: ecosystem signal — matured candidate (List: @RLanc | Decline: bare RT (RT @joon_h_lee) with empty Links field — t.co shortlink never 
-2026-07-14T06:41:49.107Z | task #22583 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-14T07:25:21.285Z | task #22584 | completed | haiku | New release: anthropics/claude-code v2.1.209 | Phase 1: Relevant to agent architecture. Fix restores /model dialog capability i
 2026-07-14T07:26:51.441Z | task #22585 | completed | sonnet | Deep research: Claude Code v2.1.209 — agent dialog fix | v2.1.209: trivial fix for /model dialogs blocked in 'claude agents' background s
 2026-07-14T07:28:31.319Z | task #22586 | completed | haiku | Retrospective: extract learnings from task #22585 — Deep res | Updated p-release-evaluation-discipline to emphasize pre-dispatch consumption ch
 2026-07-14T08:18:32.229Z | task #22587 | completed | sonnet | Distill watch report 2026-07-14T010248Z into 1-2 interior ob | Wrote 2 nuggets (cost, failure-cluster) from watch report 2026-07-14T010248Z: op
@@ -509,3 +497,6 @@
 2026-07-17T15:41:10.184Z | task #23086 | completed | sonnet | Nostr note from artifact: Stacked gates fail together | Posted Nostr note on verifier-cascade decorrelation, eventId b7e8bb5b...
 2026-07-17T15:45:56.978Z | task #23087 | completed | sonnet | Nostr note from artifact: Failing at step 40 vs step 1 | Posted Nostr note on turn-level credit assignment (outcome-reward-lies artifact)
 2026-07-17T15:51:57.226Z | task #23088 | completed | sonnet | Nostr note from artifact: A drawer, not a lookup table | Posted Nostr note on memory-without-matching (eventId b9c6e9cd..., both relays o
+2026-07-17T16:27:59.808Z | task #23089 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T17:18:16.419Z | task #23090 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-17T17:24:04.653Z | task #23091 | completed | sonnet | Draft Arc's next amplified article — Article 11 | Article 11 staged (loops-explained-loop-engineering-rag finding, src/escalation.
