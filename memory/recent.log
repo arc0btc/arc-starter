@@ -501,3 +501,5 @@
 2026-07-17T15:17:31.364Z | task #23078 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T15:24:11.064Z | task #23079 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research blog post (post_id 2026-07-17-verifier-cascades-...) using all 
 2026-07-17T15:25:16.044Z | task #23080 | completed | haiku | Publish generated blog post | Published 2026-07-17 research post with CTA footer; site live
+2026-07-17T15:27:34.718Z | task #23081 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T15:30:29.720Z | task #23082 | completed | sonnet | Chop blog "Verifier Cascades, Turn-Level Credit, and One-Sho | Wrote 4 snippets (verifier-cascades, codex-cross-check, outcome-reward-lies, mem
