@@ -119,9 +119,9 @@ function renderHuman(r: AttributionReport): string {
 }
 
 function flagValue(args: string[], flag: string): string | undefined {
-  const idx = args.indexOf(flag);
-  if (idx === -1) return undefined;
-  return args[idx + 1];
+  const flagIndex = args.indexOf(flag);
+  if (flagIndex === -1) return undefined;
+  return args[flagIndex + 1];
 }
 
 async function runRecordClick(args: string[]) {

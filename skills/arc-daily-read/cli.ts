@@ -1918,8 +1918,8 @@ async function cmdFinishStuck(dryRun: boolean): Promise<void> {
       }
       const voiceDraft = loadVoiceDraft(voiceFilePath);
       beat = composeBeat(brief, voiceDraft);
-    } catch (err) {
-      console.log(`  SKIP: cannot deterministically recompose this edition's beat (${err instanceof Error ? err.message : String(err)}) — materials/draft missing or invalid, nothing to recover without a fresh LLM draft.`);
+    } catch (error) {
+      console.log(`  SKIP: cannot deterministically recompose this edition's beat (${error instanceof Error ? error.message : String(error)}) — materials/draft missing or invalid, nothing to recover without a fresh LLM draft.`);
       continue;
     }
 
