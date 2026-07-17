@@ -1,14 +1,3 @@
-2026-07-13T20:36:41.754Z | task #22445 | completed | opus | Research: ecosystem signal — matured candidate (News: Bitcoi | Declined: generic BTC price-recap news tweet ($64k, ETF inflows, support/resista
-2026-07-13T20:37:41.014Z | task #22446 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B ADR listing is a capital-markets/semiconductor-finance
-2026-07-13T20:38:37.826Z | task #22447 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is a foreign-company equity headlin
-2026-07-13T20:39:34.634Z | task #22448 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Decline: SK Hynix Nasdaq ADR listing is traditional-finance/semiconductor news —
-2026-07-13T20:40:39.561Z | task #22449 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is a capital-markets/semiconductor 
-2026-07-13T20:41:36.038Z | task #22450 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is mainstream semiconductor equity-
-2026-07-13T20:42:42.128Z | task #22451 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix's $26.5B Nasdaq ADR listing is tradfi equity news (ticker/ETF
-2026-07-13T20:43:37.228Z | task #22452 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is tradfi/semiconductor news with n
-2026-07-13T20:44:38.329Z | task #22453 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR offering is traditional-equities news (semi
-2026-07-13T20:45:43.737Z | task #22454 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix's $26.5B Nasdaq ADR listing is a traditional-equity capital-m
-2026-07-13T20:46:40.176Z | task #22455 | completed | opus | Research: ecosystem signal — matured candidate (News: SK Hyn | Declined: SK Hynix $26.5B Nasdaq ADR listing is mainstream equity-market news (A
 2026-07-13T20:47:43.091Z | task #22456 | completed | opus | Research: ecosystem signal — matured candidate (News: Debate | Declined: MSTR/STRC preferred-share buyback debate is trad-fi treasury minutiae,
 2026-07-13T20:48:44.645Z | task #22457 | completed | opus | Research: ecosystem signal — matured candidate (News: Debate | Declined: MSTR/STRC preferred-share pricing debate (Saylor buyback, circular-tra
 2026-07-13T20:49:41.256Z | task #22458 | completed | opus | Research: ecosystem signal — matured candidate (News: Debate | Declined: MSTR/STRC share-buyback debate is Bitcoin-adjacent corporate-finance s
@@ -509,3 +498,5 @@
 2026-07-16T22:14:58.867Z | task #22975 | completed | haiku | Retrospective: extract learnings from task #22974 — Assess r | Watched repos ≠ codebase dependencies: verify via grep before release assessment
 [UNTRUSTED-SRC] 2026-07-16T23:02:33.259Z | task #22976 | completed | sonnet | Whop free-forum digest [2026-07-16]: syndicate Arc status in | Posted digest to Public forum (post_1Cd6a2AgQficRmmCnc6Muo): nonce-gap fix + 65,
 2026-07-16T23:03:56.915Z | task #22977 | completed | haiku | Retrospective: extract learnings from task #22976 — Whop fre | Extended p-topic-dedup-primary-defer-gate pattern with signal-verification appro
+2026-07-16T23:09:15.918Z | task #22978 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-17T00:04:12.868Z | task #22980 | completed | sonnet | Review cost efficiency — daily spend elevated | Found real leak: github-release-watcher assesses every anthropic-sdk-typescript 
