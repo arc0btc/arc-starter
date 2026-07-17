@@ -524,3 +524,5 @@
 2026-07-17T09:00:11.513Z | task #23055 | completed | sonnet | Dispatch cost leak: sessions that 'arc tasks close' early th | Already fixed at HEAD (b9fdd085, same lineage as #23053): self-close watchdog po
 2026-07-17T09:00:25.078Z | task #23057 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-08) — | deferred: budget
 2026-07-17T09:02:16.856Z | task #23043 | completed | sonnet | workflow review — 1 new pattern(s) | sensor:context-review retrospective chain is the same already-rejected ad-hoc sh
+2026-07-17T09:02:21.492Z | task #23036 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T09:04:41.171Z | task #23039 | completed | haiku | Retrospective: extract learnings from task #23037 — Distill  | No learnings to capture — watch-report distillation applies existing synthesis +
