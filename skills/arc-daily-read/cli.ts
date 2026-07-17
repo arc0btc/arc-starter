@@ -1871,6 +1871,164 @@ async function cmdQueueBlogTask(editionN: number, dryRun: boolean) {
   db.close();
 }
 
+// ---------- Recovery: finish stuck editions (control-plane-remediation P1) ----------
+//
+// Root cause (live-diagnosed 2026-07-16, defect-register row 54): `post`'s 4-tweet drain runs
+// inside ONE LLM dispatch turn (materials + draft + post, sonnet = 15min total budget,
+// src/dispatch.ts getDispatchTimeoutMs). The outer dispatch timeout can fire mid-drain — most
+// often on the LAST tweet (cta), since by then most of the turn's time budget is already spent
+// on drafting + the earlier tweets' mandatory 45-90s inter-send spacing. The process is killed
+// before `finalizeEditionStatus()` ever runs, so `daily_read_log.status` sticks at 'reserving'
+// forever and the orphaned `outbound_action` row eventually gets swept to 'unknown' by
+// releaseAbandonedReservations() — hours later, well past any same-day resume window
+// (findResumableEdition() only matches `date(created_at)=date('now')`, and the sensor only
+// fires once/day, so there is never a second same-day chance to use it).
+//
+// This command is a deterministic, non-LLM finisher: it never drafts or calls the LLM, so it
+// fits comfortably inside any timeout. It recomposes each stuck edition's beat from the
+// materials/draft JSON `materials`/`compose` already froze to disk (byte-identical tweets to
+// what was originally intended), skips any suffix already 'sent', reopens any suffix stuck
+// 'sending' (abandoned mid-claim) or 'unknown' (already swept-abandoned) back to 'queued', and
+// drains only what's left — then finalizes the edition's status so it never sits at 'reserving'
+// indefinitely. Safe to run any time (idempotent — a fully-shipped edition is a fast no-op).
+async function cmdFinishStuck(dryRun: boolean): Promise<void> {
+  const db = getDb();
+  const stuck = db
+    .query(`SELECT edition_n FROM daily_read_log WHERE status = 'reserving' ORDER BY edition_n ASC`)
+    .all() as { edition_n: number }[];
+
+  if (stuck.length === 0) {
+    console.log("finish-stuck: no stuck editions (every daily_read_log row already resolved to shipped/partial/void).");
+    db.close();
+    return;
+  }
+
+  console.log(`finish-stuck: ${stuck.length} stuck edition(s) found: ${stuck.map((s) => s.edition_n).join(", ")}`);
+
+  for (const { edition_n: editionN } of stuck) {
+    console.log(`\n--- finish-stuck: edition ${editionN} ---`);
+
+    let beat: Beat;
+    try {
+      const brief = loadMaterialsBrief(join(MATERIALS_DIR, `edition-${editionN}.json`));
+      const voiceFilePath = join(MATERIALS_DIR, `edition-${editionN}.draft.json`);
+      const fs = require("fs");
+      if (!fs.existsSync(voiceFilePath)) {
+        throw new VoiceDraftValidationError(`no draft file at ${voiceFilePath}`);
+      }
+      const voiceDraft = loadVoiceDraft(voiceFilePath);
+      beat = composeBeat(brief, voiceDraft);
+    } catch (err) {
+      console.log(`  SKIP: cannot deterministically recompose this edition's beat (${err instanceof Error ? err.message : String(err)}) — materials/draft missing or invalid, nothing to recover without a fresh LLM draft.`);
+      continue;
+    }
+
+    const suffixes = beat.isMinimal ? ["root"] : FULL_BEAT_SUFFIXES;
+    const keys = suffixes.map((s) => sourceKey(editionN, s));
+    const rows = db
+      .query(
+        `SELECT source_key, status, provider_post_id FROM outbound_action WHERE source_key IN (${keys.map(() => "?").join(",")})`
+      )
+      .all(...keys) as { source_key: string; status: string; provider_post_id: string | null }[];
+    const bySuffix = new Map(rows.map((r) => [r.source_key.split(":").pop()!, r]));
+
+    let priorId: string | undefined;
+    const postedIds: (string | null)[] = [];
+    let haltedEarly = false;
+
+    for (let i = 0; i < suffixes.length; i++) {
+      const suffix = suffixes[i];
+      const row = bySuffix.get(suffix);
+
+      if (!row) {
+        console.log(`  ${suffix}: no outbound_action row — never reserved, nothing to finish (leaving edition as-is)`);
+        haltedEarly = true;
+        break;
+      }
+
+      if (row.status === "sent" && row.provider_post_id) {
+        console.log(`  ${suffix}: already sent (tweet_id=${row.provider_post_id}) — not resending`);
+        postedIds.push(row.provider_post_id);
+        priorId = row.provider_post_id;
+        continue;
+      }
+
+      if (row.status === "sending" || row.status === "unknown") {
+        // Abandoned mid-claim (sending) or already swept-abandoned (unknown) — reopen to
+        // 'queued' so the engine path (claimForSend in social-x-posting/cli.ts) can claim it
+        // fresh. releaseAbandonedReservations() would eventually do the 'sending' half of this
+        // on its own schedule; forcing it here means finish-stuck doesn't have to wait for that
+        // sweep to run first.
+        if (!dryRun) {
+          db.run(
+            `UPDATE outbound_action SET status='queued', lease_expires_at=NULL, updated_at=? WHERE source_key=? AND status=?`,
+            [new Date().toISOString(), sourceKey(editionN, suffix), row.status]
+          );
+        }
+        console.log(`  ${suffix}: was '${row.status}' — reopened to 'queued' for a fresh claim`);
+      } else if (row.status !== "queued") {
+        console.log(`  ${suffix}: status=${row.status} — terminal/not resumable, leaving edition as-is`);
+        haltedEarly = true;
+        break;
+      }
+
+      // This row's earliest/latest_utc_time (HH:MM, no date) was set for the ORIGINAL
+      // admission's 13:00-14:00 UTC window and is almost certainly stale by the time
+      // finish-stuck runs (a later hour, or a later day entirely) — social-x-posting/cli.ts's
+      // window check would otherwise defer this exact send with reason=window_not_open_yet
+      // every single time finish-stuck runs outside 13:00-14:00 UTC, since the check is
+      // date-blind (HH:MM only). finish-stuck's whole purpose is backlog recovery, not
+      // on-time delivery, so treat this suffix as "anytime" (NULL/NULL is the code's own
+      // documented escape hatch — social-x-posting/cli.ts: "NULL/NULL = anytime, unchanged
+      // legacy behavior") rather than waiting for tomorrow's window to reopen.
+      if (!dryRun) {
+        db.run(
+          `UPDATE outbound_action SET earliest_utc_time=NULL, latest_utc_time=NULL, updated_at=? WHERE source_key=?`,
+          [new Date().toISOString(), sourceKey(editionN, suffix)]
+        );
+      }
+
+      console.log(`  ${suffix}: sending (reply-to=${priorId ?? "none (root)"})${dryRun ? " [DRY-RUN]" : ""}...`);
+      const id = await postTweet(beat.tweets[i], sourceKey(editionN, suffix), priorId, i === 0, dryRun);
+      postedIds.push(id);
+      if (id) {
+        priorId = id;
+      } else {
+        console.log(`  ${suffix}: send did not return a tweet id — halting this edition's drain`);
+        haltedEarly = true;
+        break;
+      }
+    }
+
+    if (haltedEarly) {
+      console.log(`  edition ${editionN}: drain halted early — will retry on next finish-stuck run`);
+      continue;
+    }
+
+    while (postedIds.length < suffixes.length) postedIds.push(null);
+    const rootId = postedIds[0] ?? null;
+    let status: "shipped" | "partial" | "void";
+    let voidReason: string | null = null;
+    if (!rootId) {
+      status = "void";
+      voidReason = "root_post_failed_on_finish_stuck";
+    } else if (postedIds.every((id) => id !== null)) {
+      status = "shipped";
+    } else {
+      status = "partial";
+    }
+
+    console.log(`  edition ${editionN}: finish result status=${status}`);
+    if (!dryRun) {
+      finalizeEditionStatus(db, editionN, beat, rootId, status, voidReason, false, status === "void" ? null : new Date().toISOString());
+    } else {
+      console.log(`  [DRY-RUN] would finalizeEditionStatus(edition=${editionN}, status=${status})`);
+    }
+  }
+
+  db.close();
+}
+
 // ---------- Main ----------
 
 function argValue(flag: string): string | undefined {
@@ -1902,6 +2060,9 @@ switch (command) {
     break;
   case "post":
     await cmdPost(dryRun, voiceFileArg, simulateFailure);
+    break;
+  case "finish-stuck":
+    await cmdFinishStuck(dryRun);
     break;
   case "status":
     await cmdStatus();
@@ -1945,13 +2106,14 @@ switch (command) {
     break;
   }
   default:
-    console.log("Usage: bun cli.ts <chart|materials|compose|validate-draft|post|status|send-subscriber-email|queue-blog-task> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
+    console.log("Usage: bun cli.ts <chart|materials|compose|validate-draft|post|finish-stuck|status|send-subscriber-email|queue-blog-task> [--dry-run] [--voice-file <path>] [--edition N] [--simulate-failure]");
     console.log("  chart              Show real-data ASCII chart from distilled_artifacts");
     console.log("  materials          (P1) Deterministic findings-first brief for the LLM voice pass to draft from");
     console.log("  validate-draft --voice-file <path>   Cheap char-count pre-flight on a raw draft file (no materials brief needed) — run before `post` to catch oversize tweets while there's still room to trim");
     console.log("  compose            Show the composed 4-tweet beat (requires --voice-file, the LLM-authored draft)");
     console.log("  post               Post the daily beat (use --dry-run to simulate; requires a voice draft, see 'materials')");
     console.log("  post --simulate-failure   (P1) Force the never-skip 1-tweet minimal-edition path, for verification");
+    console.log("  finish-stuck [--dry-run]   (control-plane-remediation P1) Deterministic, no-LLM recovery: finds daily_read_log rows stuck status='reserving' (a prior post run was killed mid-drain, e.g. by the outer dispatch timeout), recomposes each edition's beat from its frozen materials+draft JSON, drains only the unsent tail, and finalizes the edition's status. Idempotent — safe to run every day.");
     console.log("  status             Show edition log, streak, DAYN_MERGED state, and cap state");
     console.log("  send-subscriber-email --edition N [--to <email>] [--live]   (P2) Test-send/re-send the subscriber email for an already-shipped edition. Dry-run by default; --to bypasses the real list for a single-address careful-verify test-send.");
     console.log("  queue-blog-task --edition N [--dry-run]   Admin recovery: queue the blog-publish task for an already-shipped edition whose cmdPost run crashed before reaching the blog-queue block. No-op if already queued.");
