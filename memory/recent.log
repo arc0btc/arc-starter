@@ -1,37 +1,3 @@
-2026-07-14T00:43:56.149Z | task #22495 | completed | haiku | Retrospective: extract learnings from task #22490 — Distill  | Extended p-selective-slot-distillation with same-window dedup principle: skip ob
-2026-07-14T00:44:43.868Z | task #22497 | completed | haiku | Retrospective: extract learnings from task #22493 — complian | Extracted 2 reusable patterns from compliance-review work: (1) p-systematic-abbr
-2026-07-14T00:45:52.111Z | task #22501 | completed | haiku | Retrospective: extract learnings from task #22491 — architec | Captured 2 patterns from #22491 architecture review: (1) dormant-module cleanup 
-2026-07-14T00:46:48.563Z | task #22502 | completed | haiku | Retrospective: extract learnings from task #22500 — architec | Extended p-dead-skill-audit-triangulation with fourth axis: external scheduling 
-2026-07-14T00:47:46.605Z | task #22504 | completed | haiku | Retrospective: extract learnings from task #22496 — Review 4 | No learnings to capture — reviewed work followed existing p-task-closure-discipl
-2026-07-14T00:49:03.993Z | task #22506 | completed | haiku | Retrospective: extract learnings from task #22503 — Investig | Guard-predicate-scope-alignment pattern added to patterns.md: when a guard prote
-2026-07-14T00:49:37.983Z | task #22515 | completed | haiku | Retrospective: extract learnings from task #22505 — Fix cmdT | Pattern already exists: p-guard-predicate-scope-alignment captures this exact gu
-2026-07-14T00:51:12.837Z | task #22516 | completed | haiku | Retrospective: extract learnings from task #22509 — Daily se | Extracted 1 novel pattern: eval-follow-up gating on external ownership to preven
-2026-07-14T00:51:52.430Z | task #22518 | completed | haiku | Retrospective: extract learnings from task #22513 — Review c | Cost analysis leverages built-in arc tasks cost CLI; task #22513 validated metho
-2026-07-14T00:53:26.097Z | task #22519 | completed | haiku | Retrospective: extract learnings from task #22514 — PURPOSE  | Extended p-sensor-fire-rate-management with producer-side volume-capping pattern
-2026-07-14T00:54:10.106Z | task #22522 | completed | haiku | Retrospective: extract learnings from task #22512 — daily se | Added 2 patterns: p-data-artifact-churn-dispatch-auto-commit + p-transient-senso
-2026-07-14T00:54:41.197Z | task #22508 | completed | haiku | daily cost report — 2026-07-13 | Daily cost report 2026-07-13: 99.12 code, 305 tasks. arc-link-research 52% (03.5
-2026-07-14T01:07:00.156Z | task #22533 | completed | sonnet | Watch report — 2026-07-14T01:02Z | Watch report: 277 tasks completed, 0 failed, $181.75 spent, report at reports/20
-2026-07-14T01:07:38.369Z | task #22534 | completed | haiku | Retrospective: extract learnings from task #22533 — Watch re | No learnings to capture — arc-link-research cost identification already covered 
-2026-07-14T01:21:23.876Z | task #22535 | completed | haiku | New release: anthropics/claude-code v2.1.208 | Triage: CLAUDE_CODE_PROCESS_WRAPPER relevant to Arc dispatch subprocess model. E
-2026-07-14T01:23:03.471Z | task #22536 | completed | sonnet | Deep research: Claude Code v2.1.208 — CLAUDE_CODE_PROCESS_WR | v2.1.208: CLAUDE_CODE_PROCESS_WRAPPER governs internal self-spawns only, not dis
-2026-07-14T01:24:26.662Z | task #22537 | completed | haiku | Retrospective: extract learnings from task #22536 — Deep res | One reusable pattern captured: code-path specificity in release evaluation (flag
-2026-07-14T02:12:22.257Z | task #22538 | completed | sonnet | CEO review — 2026-07-14T02:04 | CEO review: reliability strong (zero failures, real fix shipped), cost off track
-2026-07-14T02:16:00.150Z | task #22539 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-14-02) — | deferred: budget - reserve-group returned budget_exhausted (reserved=?/6), poste
-2026-07-14T02:24:08.564Z | task #22540 | completed | sonnet | Email watch report to whoabuddy — 2026-07-14T02:04 | Sent watch report (277 tasks, 0 failed, $181.75/12h, CEO flags D4 cap crossed) t
-[UNTRUSTED-SRC] 2026-07-14T02:24:56.027Z | task #22541 | completed | sonnet | Whop synthesis [2026-07-14T02]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers to synthesize for. Context wells (s
-2026-07-14T02:26:49.855Z | task #22542 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Filed 5 follow-ups: 2 SKU-packaging tasks from existing high-relevance research 
-2026-07-14T02:28:08.387Z | task #22543 | completed | sonnet | Package 'harness-selfimprovement-loop-isolation' research re | Packaged harness-selfimprovement-loop-isolation report into Whop SKU prod_odNwTO
-2026-07-14T02:29:16.789Z | task #22544 | completed | sonnet | Package 'eval-scoring-formula-harness' research report into  | Packaged eval-scoring-formula-harness report into Whop SKU via arc-packaging (ma
-2026-07-14T02:29:43.522Z | task #22551 | failed | haiku | dummy | created by mistake during self-review, no-op, closing immediately
-2026-07-14T02:30:17.565Z | task #22549 | completed | sonnet | self-review: run health check for 2026-07-14 | Self-review clean: 0 new issues. Confirmed arc-opensource growing sync backlog (
-2026-07-14T02:33:09.331Z | task #22545 | completed | sonnet | Backfill front-matter on 11 legacy (no-frontmatter) arc-link | Backfilled REPORT-TEMPLATE.md front-matter on all 11 legacy no-frontmatter repor
-2026-07-14T02:33:40.036Z | task #22546 | completed | sonnet | Run sensor-health-report and triage any consecutive-failure  | Sensor health sweep: 90/90 sensors nominal, 0 consecutive failures. Two sensors 
-2026-07-14T02:35:44.125Z | task #22547 | completed | sonnet | Audit memory/dead-ends.md for entries that should be promote | Audited dead-ends.md: pruned 2 resolved entries (loom-spiral — root cause fixed 
-2026-07-14T02:39:21.621Z | task #22552 | completed | sonnet | Audit arc-link-research shelf-wide front-matter quality (125 | Decided (a)+partial(c): expanded TOPIC_VOCAB with ~30 high-frequency recurring t
-2026-07-14T02:41:58.109Z | task #22555 | completed | sonnet | Backfill repos_touched/fetched_at on 9 arc-link-research sel | Backfilled repos_touched (enum: arc-starter•agent-runtime•both•neither•unknown) 
-2026-07-14T02:43:00.707Z | task #22556 | completed | sonnet | Add skip-note path to arc-link-research process for arc_rele | Added skip-note path in process()/cli.ts: when all links in a batch rate mechani
-2026-07-14T02:43:03.953Z | task #22558 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-14T02:44:30.626Z | task #22548 | completed | haiku | Retrospective: extract learnings from task #22543 — Package  | No learnings to capture — task executed established patterns cleanly (content-di
 2026-07-14T02:45:44.457Z | task #22550 | completed | haiku | Retrospective: extract learnings from task #22544 — Package  | No learnings to capture
 2026-07-14T02:46:52.013Z | task #22553 | completed | haiku | Retrospective: extract learnings from task #22545 — Backfill | Added p-metadata-backfill-validation-preexisting-discovery pattern: backfill + v
 2026-07-14T02:47:41.934Z | task #22554 | completed | haiku | Retrospective: extract learnings from task #22547 — Audit me | Captured dead-end lifecycle pattern: distinguish root-cause-fixed (prunable) fro
@@ -532,3 +498,6 @@
 2026-07-17T09:10:58.037Z | task #23054 | completed | haiku | Retrospective: extract learnings from task #23050 — Investig | Extracted 3 learnings: distributed-system audit visibility, state-marker vulnera
 2026-07-17T09:12:17.593Z | task #23056 | completed | haiku | Retrospective: extract learnings from task #23053 — [ESCALAT | Updated p-false-positive-prevention item (10) with forensic methodology: task #2
 2026-07-17T09:13:14.301Z | task #23058 | completed | haiku | Retrospective: extract learnings from task #23043 — workflow | No learnings to capture — task applied existing pattern (p-detector-refire-exemp
+2026-07-17T09:13:30.103Z | task #23059 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-17T09:22:33.509Z | task #23060 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T09:26:42.261Z | task #23061 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-09) — | deferred: budget (reserve-group returned budget_exhausted, zero rows admitted); 
