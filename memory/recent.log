@@ -502,3 +502,4 @@
 2026-07-17T11:24:16.470Z | task #23064 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T12:25:38.764Z | task #23065 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T13:04:19.215Z | task #23066 | completed | sonnet | Watch report — 2026-07-17T13:00Z | Watch report 2026-07-17T13:00Z: 79 tasks completed, $60.33 spent, 0 failures. Tr
+2026-07-17T13:06:08.008Z | task #23067 | completed | sonnet | Overnight brief — 2026-07-17 | Overnight brief generated (reports/2026-07-17T130637Z_overnight_brief.md): 62 ta
