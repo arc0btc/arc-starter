@@ -501,3 +501,4 @@
 2026-07-17T17:18:16.419Z | task #23090 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T17:24:04.653Z | task #23091 | completed | sonnet | Draft Arc's next amplified article — Article 11 | Article 11 staged (loops-explained-loop-engineering-rag finding, src/escalation.
 2026-07-17T17:24:45.014Z | task #23092 | completed | haiku | Retrospective: extract learnings from task #23091 — Draft Ar | Extracted: p-self-governing-system-verification-block — Arc's escalation ladder 
+2026-07-17T17:28:46.964Z | task #23093 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.112.2 is docs-only chore release (client docs updates, no code changes); 
