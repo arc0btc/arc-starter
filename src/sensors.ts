@@ -78,7 +78,11 @@ export function resolveSensorIdentity(
       stateKey = nameMatch[1];
       sourcePrefix = `sensor:${stateKey}`;
     }
-    const prefixMatch = source.match(/const\s+TASK_SOURCE_PREFIX\s*=\s*["'`]([^"'`]+)["'`]/);
+    // Allow common naming variants of the source-prefix constant — not every
+    // sensor names it TASK_SOURCE_PREFIX (e.g. aibtc-welcome uses SOURCE_PREFIX).
+    const prefixMatch = source.match(
+      /const\s+(?:TASK_SOURCE_PREFIX|SOURCE_PREFIX|TASK_SOURCE)\s*=\s*["'`]([^"'`]+)["'`]/
+    );
     if (prefixMatch) {
       sourcePrefix = prefixMatch[1];
     }
@@ -86,6 +90,35 @@ export function resolveSensorIdentity(
     // unreadable sensor source — fall back to the directory/frontmatter name
   }
   return { stateKey, sourcePrefix };
+}
+
+/**
+ * Scrape a sensor's source for `insertWorkflow({ template: "..." })` calls, returning
+ * the distinct workflow template names it creates. Sensors that route tasks through
+ * insertWorkflow() instead of insertTask()/insertTaskIfNew() directly produce tasks with
+ * source `workflow:<id>` — a scheme resolveSensorIdentity()'s sourcePrefix never matches —
+ * so sensor-health-report undercounts last_task_at for them (task #23004, following up on
+ * the audit in memory/shared/entries/sensor-health-report-workflow-source-blindspot.md).
+ * Consumers should cross-check the `workflows` table by these template names as a fallback
+ * when the direct source-prefix match comes up empty or stale.
+ */
+export function resolveSensorWorkflowTemplates(sensorPath: string): string[] {
+  const templates = new Set<string>();
+  try {
+    const source = readFileSync(sensorPath, "utf-8");
+    const callRegex = /insertWorkflow\s*\(/g;
+    let match: RegExpExecArray | null;
+    while ((match = callRegex.exec(source)) !== null) {
+      // Scan a window after the call rather than balancing braces — call bodies
+      // often embed JSON.stringify({...}) with their own nested braces.
+      const window = source.slice(match.index, match.index + 400);
+      const templateMatch = window.match(/template\s*:\s*["'`]([^"'`]+)["'`]/);
+      if (templateMatch) templates.add(templateMatch[1]);
+    }
+  } catch {
+    // unreadable sensor source
+  }
+  return Array.from(templates);
 }
 
 /**

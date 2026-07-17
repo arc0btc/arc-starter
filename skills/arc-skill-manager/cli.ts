@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
 import { initDatabase, getDatabase } from "../../src/db.ts";
-import { resolveSensorIdentity, readIntervalMinutes } from "../../src/sensors.ts";
+import { resolveSensorIdentity, resolveSensorWorkflowTemplates, readIntervalMinutes } from "../../src/sensors.ts";
 
 // ---- Constants ----
 
@@ -573,23 +573,45 @@ async function cmdSensorHealthReport(): Promise<void> {
     }
 
     // Find most recent task from this sensor. Match the exact source prefix and
-    // any suffixed variant (e.g. `sensor:pr-review-attestation:task:123`).
+    // any suffixed variant (e.g. `sensor:pr-review-attestation:task:123`). Some
+    // resolved prefixes already end in ':' (e.g. aibtc-welcome's "welcome:" used
+    // as `welcome:${stxAddress}`) — don't double up the separator or the LIKE
+    // pattern ("welcome::%") never matches real sources ("welcome:SP...").
+    const sourceLikePattern = sourcePrefix.endsWith(":") ? `${sourcePrefix}%` : `${sourcePrefix}:%`;
     const lastTaskRow = db
       .query(
         "SELECT completed_at, status FROM tasks WHERE source = ? OR source LIKE ? ORDER BY id DESC LIMIT 1"
       )
-      .get(sourcePrefix, `${sourcePrefix}:%`) as { completed_at: string | null; status: string } | null;
+      .get(sourcePrefix, sourceLikePattern) as { completed_at: string | null; status: string } | null;
+
+    let lastTaskRaw = lastTaskRow?.completed_at ?? null;
+
+    // Sensors that route work through insertWorkflow() produce tasks with
+    // source `workflow:<id>` instead of the sourcePrefix above — that scheme
+    // is invisible to the query above, so cross-check the workflows table by
+    // template name. Use workflow creation time directly (the actual moment
+    // the sensor fired), not downstream task completion.
+    const workflowTemplates = resolveSensorWorkflowTemplates(join(sensor.path, "sensor.ts"));
+    if (workflowTemplates.length > 0) {
+      const placeholders = workflowTemplates.map(() => "?").join(", ");
+      const lastWorkflowRow = db
+        .query(`SELECT MAX(created_at) as last_created FROM workflows WHERE template IN (${placeholders})`)
+        .get(...workflowTemplates) as { last_created: string | null } | null;
+      if (lastWorkflowRow?.last_created) {
+        if (!lastTaskRaw || new Date(lastWorkflowRow.last_created) > new Date(lastTaskRaw)) {
+          lastTaskRaw = lastWorkflowRow.last_created;
+        }
+      }
+    }
 
     let lastTaskAt = "none";
-    if (lastTaskRow?.completed_at) {
-      // completed_at is SQLite's datetime('now') — UTC but without a 'Z' suffix,
-      // so new Date() would parse it as local time and skew the age by the
-      // local UTC offset. Normalize before parsing (matches the pattern used
-      // in arc-skill-manager/sensor.ts, arc-housekeeping/sensor.ts, etc).
-      const completedAtIso = lastTaskRow.completed_at.endsWith("Z")
-        ? lastTaskRow.completed_at
-        : `${lastTaskRow.completed_at.replace(" ", "T")}Z`;
-      const ageMin = Math.round((now - new Date(completedAtIso).getTime()) / 60_000);
+    if (lastTaskRaw) {
+      // SQLite's datetime('now') is UTC but without a 'Z' suffix, so new Date()
+      // would parse it as local time and skew the age by the local UTC offset.
+      // Normalize before parsing (matches the pattern used in
+      // arc-skill-manager/sensor.ts, arc-housekeeping/sensor.ts, etc).
+      const rawIso = lastTaskRaw.endsWith("Z") ? lastTaskRaw : `${lastTaskRaw.replace(" ", "T")}Z`;
+      const ageMin = Math.round((now - new Date(rawIso).getTime()) / 60_000);
       if (ageMin < 60) lastTaskAt = `${ageMin}m ago`;
       else if (ageMin < 1440) lastTaskAt = `${Math.round(ageMin / 60)}h ago`;
       else lastTaskAt = `${Math.round(ageMin / 1440)}d ago`;
