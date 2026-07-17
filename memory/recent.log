@@ -500,3 +500,4 @@
 2026-07-17T01:08:18.380Z | task #22987 | completed | haiku | Retrospective: extract learnings from task #22986 — Watch re | Added watch-report completeness and stall-escalation pattern to patterns.md
 2026-07-17T01:10:35.160Z | task #22988 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-17T01:13:51.858Z | task #22989 | completed | haiku | New release: anthropics/claude-code v2.1.212 | Relevant: fork/subtask runtime changes affect Arc's Agent() subagent model. Phas
+2026-07-17T01:15:37.816Z | task #22990 | completed | sonnet | Phase 2: Deep analysis - claude-code v2.1.212 fork/subtask r | v2.1.212: MCP calls >2min now auto-background (relevant to Arc's existing x402/S
