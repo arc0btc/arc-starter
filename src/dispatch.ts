@@ -690,6 +690,36 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     }, 10_000);
   }, dispatchTimeoutMs);
 
+  // Self-close watchdog: some sessions call `arc tasks close` mid-run and then idle
+  // (no more tool calls, no terminal stream-JSON "result" event) all the way out to
+  // dispatchTimeoutMs — task #23050 idled ~227s post-close before the outer timeout
+  // finally killed it (investigated in #23053/#23055). Poll the DB for a transition
+  // away from 'active' (the status markTaskActive set before spawn) and, once seen,
+  // give the subprocess a short grace window (Stop hooks: memory-save.sh 15s +
+  // inbox-write.sh 10s budget) before force-exiting instead of waiting out the full
+  // per-model timeout. Safe even if this races a legitimate late error: the outer
+  // catch in executeTask already preserves a self-closed task's terminal status
+  // instead of requeuing it (see "errored after LLM self-close" handling).
+  const SELF_CLOSE_GRACE_MS = 45_000;
+  const SELF_CLOSE_POLL_MS = 10_000;
+  let selfCloseGraceTimer: ReturnType<typeof setTimeout> | undefined;
+  const selfClosePollTimer = taskId !== undefined
+    ? setInterval(() => {
+        if (selfCloseGraceTimer || timedOut) return;
+        const current = getTaskById(taskId);
+        if (current && current.status !== "active") {
+          log(`dispatch: task #${taskId} self-closed to status=${current.status} while subprocess still running — ${SELF_CLOSE_GRACE_MS / 1000}s grace period before force-exit (pid ${proc.pid})`);
+          selfCloseGraceTimer = setTimeout(() => {
+            log(`dispatch: task #${taskId} subprocess idle ${SELF_CLOSE_GRACE_MS / 1000}s after self-close — force-exiting pid ${proc.pid}`);
+            proc.kill("SIGTERM");
+            setTimeout(() => {
+              try { proc.kill("SIGKILL"); } catch { /* already dead */ }
+            }, 10_000);
+          }, SELF_CLOSE_GRACE_MS);
+        }
+      }, SELF_CLOSE_POLL_MS)
+    : undefined;
+
   // Drain stderr concurrently to prevent pipe buffer deadlock (64KB limit)
   const stderrPromise = new Response(proc.stderr).text();
 
@@ -816,6 +846,8 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   processLine(lineBuffer);
 
   clearTimeout(timeoutTimer);
+  if (selfClosePollTimer) clearInterval(selfClosePollTimer);
+  if (selfCloseGraceTimer) clearTimeout(selfCloseGraceTimer);
 
   const exitCode = await proc.exited;
   if (timedOut) {
@@ -826,9 +858,16 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     throw new Error(`rate_limit_event: resets ${rateLimitResetAt}`);
   }
   if (exitCode !== 0) {
-    const errText = (await stderrPromise).trim();
-    const errContext = errText || (result ? result.slice(0, 300) : "");
-    throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    // Self-close watchdog force-exited a subprocess that had already set the task to a
+    // terminal state — the executeTask catch block preserves that status instead of
+    // requeuing (see "errored after LLM self-close" handling), so this is not fatal.
+    const selfClosed = taskId !== undefined && getTaskById(taskId)?.status !== "active";
+    if (!selfClosed) {
+      const errText = (await stderrPromise).trim();
+      const errContext = errText || (result ? result.slice(0, 300) : "");
+      throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    }
+    log(`dispatch: task #${taskId} subprocess exited ${exitCode} after self-close — treating as clean (grace-kill)`);
   }
 
   const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
