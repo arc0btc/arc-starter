@@ -500,3 +500,5 @@
 2026-07-17T21:19:49.331Z | task #23126 | completed | haiku | Retrospective: extract learnings from task #23125 — Daily se | Multi-eval lever persistence escalation added to p-purpose-loop; task #23125 pri
 2026-07-17T21:19:55.097Z | task #23127 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T21:21:12.439Z | task #23124 | completed | haiku | daily cost report — 2026-07-17 | Cost high but patterns identified; arc-0015 grounding gate remains unimplemented
+2026-07-17T21:33:00.009Z | task #23128 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T22:23:29.673Z | task #23129 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-22) — | deferred: budget - reserve-group returned budget_exhausted, posted nothing per i
