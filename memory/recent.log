@@ -506,3 +506,4 @@
 2026-07-17T07:34:29.945Z | task #23031 | completed | sonnet | Add PreToolUse hook guard for destructive Bash commands (rm  | Added .claude/hooks/guard-destructive-bash.sh + Bash matcher in PreToolUse (sett
 2026-07-17T07:36:50.390Z | task #23030 | completed | sonnet | Research: splitting monolithic agents into multi-agent archi | Medium-relevance orchestrator/dispatch competitive intel: OpenAI Realtime Agents
 2026-07-17T07:37:09.770Z | task #23035 | completed | sonnet | Fix critical security findings from task #23030 | AgentShield findings are false positives: hooks/guard-destructive-bash.sh is a d
+2026-07-17T07:39:38.679Z | task #23032 | completed | haiku | Retrospective: extract learnings from task #23029 — Research | Extracted 2 learnings from task #23029: p-security-mechanism-ground-truth (verif
