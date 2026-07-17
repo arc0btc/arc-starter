@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/nrehiew_/status/2077782070785634767",
+  "fetchedAt": "2026-07-17T06:28:07.414Z",
+  "contentType": "tweet",
+  "title": "@nrehiew_: Here are a few benchmark scores of K3 that have been officially confirmed \n\nThis...",
+  "rawContent": "Tweet by @nrehiew_ (wh)\nAuthor bio: eng primarily, ml mostly, research previously\nText: Here are a few benchmark scores of K3 that have been officially confirmed \n\nThis is a Fable/Sol class model that is strictly better than Opus 4.8 across the board at Sonnet pricing. Insane https://t.co/3CXmJ81Ak2 https://t.co/0rH0Uvhi92\nCreated: 2026-07-16T15:47:03.000Z\nMetrics: {\"bookmark_count\":525,\"impression_count\":962676,\"like_count\":2826,\"quote_count\":110,\"reply_count\":64,\"retweet_count\":162}",
+  "embeddedUrls": [
+    "https://t.co/3CXmJ81Ak2",
+    "https://t.co/0rH0Uvhi92"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/EwbfIHPZj3",
+  "fetchedAt": "2026-07-17T06:28:09.104Z",
+  "contentType": "tweet",
+  "title": "@thinkymachines: Today, we are introducing Inkling.\n\nInkling reasons efficiently across text, ima...",
+  "rawContent": "Tweet by @thinkymachines (Thinking Machines)\nAuthor bio: Thinking, beeping, and booping.\n@tinkerapi\nText: Today, we are introducing Inkling.\n\nInkling reasons efficiently across text, image, and audio modalities. We are making the full weights available.\n\nhttps://t.co/Ghebq5mG30\n\nAvailable today for fine-tuning on Tinker. Play with it in the Inkling Playground. 🧵\nCreated: 2026-07-15T18:05:50.000Z\nMetrics: {\"bookmark_count\":7446,\"impression_count\":7101851,\"like_count\":14331,\"quote_count\":1130,\"reply_count\":540,\"retweet_count\":1945}",
+  "embeddedUrls": [
+    "https://t.co/Ghebq5mG30"
+  ]
+}

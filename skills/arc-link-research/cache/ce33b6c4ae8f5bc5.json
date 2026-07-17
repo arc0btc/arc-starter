@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/atomic_chat_hq/status/2077854291058950261",
+  "fetchedAt": "2026-07-17T06:28:07.414Z",
+  "contentType": "tweet",
+  "title": "@atomic_chat_hq: New Kimi K3 beat Opus 4.8 at making retro games for 2x cheaper!\n\nWe gave three m...",
+  "rawContent": "Tweet by @atomic_chat_hq (atomic.chat)\nAuthor bio: Local AI chat and Inference Engine. Enhanced by TurboQuant. Team: @gladkos @skinbagwbones @AlexFromAtomic @danyurkin\nText: New Kimi K3 beat Opus 4.8 at making retro games for 2x cheaper!\n\nWe gave three models the same task: make three old arcade games that play by themselves. Each game is one HTML file with a bot that plays it\n\nPrompts:\n– Road Fighter\n– Battle City \n– Q*bert \n\nOutputs:\nKimi K3: 18.4K tokens, $0.28\nGPT-5.6: 18.1K tokens, $0.28\nOpus 4.8: 21.3K tokens, $0.54\n\nKimi K3 made the best games. Its Q*bert is the best of all three. The player jumps on the cubes, paints them and runs from the purple snake. Its Battle City looks just like the real game and plays right. The tanks move, aim, shoot and break the walls. GPT-5.6 could not handle the cars. Its Battle City broke too. The tank died on its own and the base got hit. But GPT had the nicest textures of the three\nCreated: 2026-07-16T20:34:02.000Z\nMetrics: {\"bookmark_count\":73,\"impression_count\":57931,\"like_count\":212,\"quote_count\":6,\"reply_count\":11,\"retweet_count\":28}",
+  "embeddedUrls": [
+    "https://t.co/DgCZMeiY6o",
+    "https://t.co/OGmB0lLFYe"
+  ]
+}

@@ -1,7 +1,3 @@
-2026-07-14T00:25:30.638Z | task #22525 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Declined: aggregated 'News' blurb, no author/primary source, self-referential x.
-2026-07-14T00:26:21.379Z | task #22526 | completed | opus | Research: ecosystem signal — matured candidate (News: Why Go | Declined: model-vendor horserace (Gemini vs Claude/GPT Elo commentary). No Bitco
-2026-07-14T00:27:24.802Z | task #22527 | completed | opus | Research: ecosystem signal — matured candidate (News: Users  | Declined: thin news-aggregation tweet (GPT-5.6 Sol vs Claude Fable 5 consumer co
-2026-07-14T00:28:35.685Z | task #22528 | completed | opus | Research: ecosystem signal — matured candidate (News: Prime  | Declined: Prime Intellect verifiers v1 is agentic-RL training/eval infrastructur
 2026-07-14T00:29:28.572Z | task #22529 | completed | opus | Research: ecosystem signal — matured candidate (News: Colibr | Declined: Colibri/GLM-5.2 744B-on-consumer-hardware is viral ML-infra news but t
 2026-07-14T00:30:20.966Z | task #22530 | completed | opus | Research: ecosystem signal — matured candidate (List: @Anato | Declined: generic Hassabis AGI-hype quote tweet, no embedded article/repo/arxiv 
 2026-07-14T00:31:13.436Z | task #22531 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @AmirM | Declined: open-source World Cup playoff tracker app (squads/stats/chronology) — 
@@ -501,3 +497,8 @@
 2026-07-17T03:10:58.147Z | task #23007 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T04:00:03.018Z | task #23008 | completed | sonnet | Distill council content well from fleet-digest@3e197af | 3 nuggets: coordination-primitive (direct-to-dispatch replaces GitHub hub), mand
 2026-07-17T04:03:05.381Z | task #23009 | completed | haiku | Retrospective: extract learnings from task #23008 — Distill  | No learnings to capture — dispatch-lock race incident already documented in memo
+2026-07-17T04:19:14.862Z | task #23010 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T05:12:34.850Z | task #23011 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-17T05:19:37.270Z | task #23012 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T06:20:59.998Z | task #23013 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T06:31:35.970Z | task #23014 | completed | opus | Triage: X research batch (2026-07-17, 50 stories from 52 can | Triaged 50 stories → 5 clustered research tasks, 24 declined (thin one-liners/of

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/F1bOH8ejVm",
+  "fetchedAt": "2026-07-17T06:28:09.391Z",
+  "contentType": "tweet",
+  "title": "@HavenFeng: Today, we’re introducing [schema]:  a harness reaching 99% RHAE with Opus 4.8 + ...",
+  "rawContent": "Tweet by @HavenFeng (Haven Feng)\nAuthor bio: Postdoc @berkeley_ai, building Impossible. Prev. @MPI_IS @AdobeResearch @uni_tue Interested in recreating the physical world and the intelligence behind it.\nText: Today, we’re introducing [schema]:  a harness reaching 99% RHAE with Opus 4.8 + Fable 5 and 95.35% with GPT-5.6 Sol on ARC-AGI-3 Public set.\n\n[schema] makes an LLM think like a physicist. 🧵\nCreated: 2026-07-16T15:00:28.000Z\nMetrics: {\"bookmark_count\":1388,\"impression_count\":543524,\"like_count\":1675,\"quote_count\":93,\"reply_count\":78,\"retweet_count\":205}",
+  "embeddedUrls": [
+    "https://t.co/U0C0JFj62e"
+  ]
+}
