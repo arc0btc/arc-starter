@@ -515,3 +515,4 @@
 2026-07-17T08:27:03.597Z | task #23044 | completed | haiku | Fetch and compile arXiv digest — 2026-07-17 (30 new papers) | Fetched 50 arXiv papers (28 relevant LLM/agent), compiled digest to research/arx
 2026-07-17T08:30:48.513Z | task #23045 | completed | sonnet | Tune AgentShield self-scan (task #23038's source) to skip .c | Fixed at the source (option 1, since no upstream AgentShield ignore config exist
 2026-07-17T08:31:23.937Z | task #23048 | completed | sonnet | Fix critical security findings from task #23045 | Stale duplicate of #23045's false-positive AgentShield findings on hooks/guard-d
+2026-07-17T08:33:06.330Z | task #23041 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 91 sensors), committed 8cb04f7 to arc0me-site, 
