@@ -1,9 +1,45 @@
 ---
 id: sensor-health-report-workflow-source-blindspot
 topics: [sensors, observability, arc-skill-manager, workflows]
-source: task-22999
+source: task-22999, task-23004
 created: 2026-07-17
 ---
+
+**FIXED 2026-07-17 (#23004, commit 242cff38).** `resolveSensorIdentity()`'s
+prefix regex now also matches `SOURCE_PREFIX`/`TASK_SOURCE` (not just
+`TASK_SOURCE_PREFIX`). New `resolveSensorWorkflowTemplates()` (`src/sensors.ts`)
+scrapes a sensor's source for `insertWorkflow({ template: "..." })` calls
+(window-scan after each `insertWorkflow(` call rather than brace-balancing,
+since call bodies often embed `JSON.stringify({...})` with their own nested
+braces) and returns the distinct template names it produces.
+`sensor-health-report` (`skills/arc-skill-manager/cli.ts`) cross-checks
+`SELECT MAX(created_at) FROM workflows WHERE template IN (...)` as a fallback,
+taking whichever of the direct task-source match or the workflow-template
+match is more recent. Workflow `created_at` is used (not downstream task
+completion) since workflow-row creation is the actual moment the sensor
+fired — the eventual task's completion can lag arbitrarily via the
+arc-workflows state machine.
+
+**Bonus bug caught in the same fix**: once `aibtc-welcome`'s `SOURCE_PREFIX =
+"welcome:"` started resolving, the existing LIKE-pattern construction
+(`` `${sourcePrefix}:%` ``) produced `"welcome::%"` — an extra colon that never
+matches real sources like `"welcome:SP2GHQ..."`. Fixed by only appending `:`
+when `sourcePrefix` doesn't already end with one. **Takeaway**: when a
+resolver's output starts flowing into a previously-dead code path, sanity
+check the downstream consumer too — it may have been silently tolerating a
+bug that only mattered once real data arrived.
+
+Verified post-fix (`sensor-health-report`): `arc-self-review` 121d→25m,
+`arc0btc-site-health` 112d→3d, `aibtc-inbox-sync` 119d→23d, `aibtc-welcome`
+117d→6h. No template maps to more than one sensor in the current tree, so the
+static per-sensor scrape (no explicit sensor↔workflow attribution column) is
+sufficient; if a future workflow template is ever created by two different
+sensors, this cross-check would attribute the timestamp to both — acceptable
+for a health-report heuristic, not for anything load-bearing.
+
+---
+
+**Original finding (2026-07-17, task #22999) — kept for history:**
 
 **New variant of the sensor-health-report blind spot** (builds on
 [[sensor-health-report-blind-spots]], which fixed hook-state matching). The
