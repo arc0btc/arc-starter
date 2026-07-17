@@ -130,6 +130,15 @@ const KNOWN_PATTERNS = new Set([
   // shape as retrospective-pattern-no-generic-machine-needed.md; a state machine would add
   // bookkeeping, not value. Bare entry so ":triage:<timestamp>" suffix variants are covered.
   "sensor:candidate-maturation",
+  // "Package a research report into a Whop SKU — <report>" -> retrospective chain
+  // (task #23118, 3 recurrences, avg 2.3 steps, skills arc-packaging + arc-skill-manager) —
+  // same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md. arc-packaging already has its own
+  // deterministic 3-step contract (materials -> draft -> stage, see
+  // skills/arc-packaging/SKILL.md) with idempotent resume via packaging_queue_log; a second
+  // generic workflow would duplicate that state tracking, not add value. Bare entry so
+  // ":<timestamp>" suffix variants are covered too.
+  "sensor:arc-packaging",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",

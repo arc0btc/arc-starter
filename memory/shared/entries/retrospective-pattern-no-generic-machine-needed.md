@@ -153,3 +153,18 @@ on this sensor), each followed by the standard ad-hoc
 `"research"` as a bare `KNOWN_SUBJECT_PREFIXES` entry in
 `skills/arc-workflow-review/sensor.ts`. No new evaluation needed — 9th
 consecutive recurrence of the identical already-rejected pattern.
+
+**2026-07-17 recurrence (task #23118)**: one flagged pattern,
+`source:sensor:arc-packaging` (3 recurrences, avg 2.3 steps, arc-packaging +
+arc-skill-manager) — root subjects are `Package a research report into a
+Whop SKU — <report>`, same ad-hoc `Retrospective: extract learnings from
+task #N` chain. Same shape, added `"sensor:arc-packaging"` as a bare
+`KNOWN_PATTERNS` entry in `skills/arc-workflow-review/sensor.ts`. Notable
+distinction from prior entries: arc-packaging already has its OWN
+deterministic 3-step contract (materials -> draft -> stage, tracked via
+`packaging_queue_log` with idempotent resume — see
+`skills/arc-packaging/SKILL.md`) that is more rigorous than a generic
+arc-workflows state machine would be; the "chain" the sensor flagged is
+purely the standard per-task retrospective tacked onto the end of that
+already-solid pipeline, not evidence of missing state tracking. 10th
+consecutive recurrence of the identical already-rejected pattern.
