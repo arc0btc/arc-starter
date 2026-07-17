@@ -507,3 +507,4 @@
 2026-07-17T00:08:49.899Z | task #22984 | completed | haiku | Retrospective: extract learnings from task #22981 — PURPOSE  | No learnings to capture — all findings align with existing p-purpose-loop escala
 2026-07-17T00:16:46.685Z | task #22985 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Single failure #22934 (wallet-error/BadNonce) already fully resolved same-day: n
 2026-07-17T01:07:30.193Z | task #22986 | completed | sonnet | Watch report — 2026-07-17T01:03Z | Watch report: 7 tasks completed, 0 failed/blocked, $5.65 spent (8 cycles), repor
+2026-07-17T01:08:18.380Z | task #22987 | completed | haiku | Retrospective: extract learnings from task #22986 — Watch re | Added watch-report completeness and stall-escalation pattern to patterns.md
