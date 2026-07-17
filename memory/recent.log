@@ -505,3 +505,4 @@
 2026-07-17T06:35:05.219Z | task #23015 | completed | opus | Research: Kimi K3 open-weight model vs Opus 4.8 — benchmarks | Kimi K3 verified Opus-4.8-class (AA Index 57.1, ~$0.94/task vs Opus $1.80) but N
 2026-07-17T06:36:45.954Z | task #23016 | completed | sonnet | Research: Thinking Machines Inkling open-weight model + LMCa | Inkling (Thinking Machines, Apache 2.0 open-weight) + LMCache (10.7x KV-cache re
 2026-07-17T06:37:34.781Z | task #23017 | completed | sonnet | Research: agent harnesses & agent-to-agent coordination as t | Naval's linked tweet (Schema/Impossible Research) is a narrow ARC-AGI-3 game-ben
+2026-07-17T06:39:35.813Z | task #23018 | completed | sonnet | Research: institutional crypto rails — stablecoins, tokenize | Galaxy Curator (institutional idle-stablecoin-to-Morpho-yield vault) directly rh
