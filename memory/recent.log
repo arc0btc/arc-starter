@@ -501,3 +501,4 @@
 2026-07-16T23:09:15.918Z | task #22978 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T00:04:12.868Z | task #22980 | completed | sonnet | Review cost efficiency — daily spend elevated | Found real leak: github-release-watcher assesses every anthropic-sdk-typescript 
 2026-07-17T00:05:18.730Z | task #22981 | completed | sonnet | PURPOSE eval: 2.5/5 — S:1 O:5 E:3 C:1 | PURPOSE eval 2.60/5 (up from 2.20) — S:1 O:5 E:3 C:1 Ad:4 Co:1 Se:3. Ops jumped 
+2026-07-17T00:05:42.405Z | task #22982 | completed | sonnet | github-release-watcher: filter anthropic-sdk-typescript rele | Filtered anthropic-sdk-typescript releases to sdk-* tags only (sensor.ts:99-106)
