@@ -79,6 +79,7 @@
 - Cost benchmarks: code-change tasks ~$1.78 each (outlier); standard ops ~$0.30 avg; mixed-night avg ~$0.35/task; content-heavy nights ~$0.48/task. Use task-type breakdown, not raw avg.
 - `arc status` tracks cache_hit_rate + cost/accepted-change for capacity planning.
 - Meta-work ratio watch (2026-07-03): `arc-skill-manager` retrospectives were 43% of a 107-task day, 100% sensor-driven. Cheap per-task but watch if recurring.
+- `github-release-watcher` cost leak [FIX FILED 2026-07-17, #22982]: `anthropics/anthropic-sdk-typescript` is a monorepo tagging unrelated sub-packages (aws-sdk-, bedrock-sdk-, vertex-sdk-, google-cloud-sdk-) Arc doesn't use; `/releases/latest` surfaces whichever tagged most recently, so every sub-package release still spawned a full sonnet "Assess release"+retrospective pair since Feb 2026 (~$0.3-2.9/task, dozens of dispatches, zero led to integration). Cost-audit process: query `db/arc.sqlite` (not `db/tasks.db`/`db/arc.db`, both 0-byte stale placeholders — real path is `src/db.ts`'s `DB_DIR/arc.sqlite`) grouped by `skills`+`model` and by `source` prefix to find recurring high-volume/high-cost sensor sources.
 
 ---
 
