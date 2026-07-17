@@ -35,6 +35,7 @@ import { Database } from "bun:sqlite";
 import { join } from "path";
 import * as fs from "fs";
 import { runCommand, slugify } from "../../src/utils.ts";
+import { initDatabase } from "../../src/db.ts";
 import { selectCandidate } from "./lib/backlog.ts";
 import { renderSkuCover } from "./lib/cover.ts";
 // control-plane-remediation Phase 7 (track c), P6 defect row 39: keeps checkout_config's
@@ -864,6 +865,10 @@ function argValue(args: string[], flag: string): string | undefined {
 }
 
 async function main() {
+  // src/db.ts's getDatabase() (used by setLatestReportCheckoutUrl in `stage`) throws unless the
+  // shared handle is initialized first. Idempotent — mirrors other CLI entry points. Without it,
+  // stage's checkout_config 'latest-report' pointer update silently no-ops (caught non-fatally).
+  initDatabase();
   const [command, ...args] = process.argv.slice(2);
   switch (command) {
     case "clean-deliverable": {
