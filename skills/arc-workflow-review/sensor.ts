@@ -263,6 +263,13 @@ const KNOWN_SUBJECT_PREFIXES = [
   // branching or gating. Same already-rejected ad-hoc retrospective shape as
   // retrospective-pattern-no-generic-machine-needed.md.
   "whop free-forum digest",
+  // "sensor:context-review" -> "Retrospective: extract learnings from task #N" chain
+  // (task #23043, 3 recurrences, avg 2.0 steps), context-review + arc-skill-manager.
+  // context-review's own findings-review task is atomic (audit skill coverage on recent
+  // tasks, no branching/gating) followed by the standard ad-hoc retrospective — same
+  // already-rejected shape as retrospective-pattern-no-generic-machine-needed.md, not a
+  // new pattern requiring a dedicated state machine.
+  "sensor:context-review",
 ];
 
 function normalizeSource(source: string | null): string {
