@@ -521,3 +521,4 @@
 2026-07-17T08:42:52.558Z | task #23050 | completed | sonnet | Investigate why article-pipeline auto-package reverts for ar | No stated reason in commits c17f531e/9f568694 or 3de6cbcc/642ee99e (git revert m
 2026-07-17T08:53:15.164Z | task #23053 | completed | opus | [ESCALATED][SECURITY] task #23050 had a completed DB row + r | BENIGN, no tampering: #23050 'planted completion' alarm = self-confabulation. at
 2026-07-17T08:54:16.426Z | task #23052 | blocked | sonnet | [ESCALATED] article-pipeline P4 control-plane reverts (artic | Awaiting whoabuddy action: (1) check inbox for duplicate article 6/7 packaging e
+2026-07-17T09:00:11.513Z | task #23055 | completed | sonnet | Dispatch cost leak: sessions that 'arc tasks close' early th | Already fixed at HEAD (b9fdd085, same lineage as #23053): self-close watchdog po
