@@ -4,6 +4,7 @@
 // Composition happens in cli.ts; this sensor only queues the task.
 // P3 of arc-demand-distribution quest.
 
+import { join } from "path";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSource } from "../../src/db.ts";
 // arc-day-n-publishing P5 (dev-council/Newman, CONFIRMED — landed only as the LAST step of P5
@@ -44,6 +45,30 @@ export default async function arcDailyReadSensor(): Promise<string> {
   if (ksRow?.value === "false") {
     log("kill switch active (outbound_enabled=false) — skipping daily read");
     return "skip";
+  }
+
+  // control-plane-remediation P1 (defect-register row 54, live-diagnosed): a prior day's
+  // edition can be orphaned mid-drain when the outer LLM dispatch turn's timeout fires during
+  // STEP 3's sequential 4-tweet post (see cli.ts finish-stuck's doc comment for the full root
+  // cause) — daily_read_log sticks at status='reserving' and the missing tweet (almost always
+  // :cta) never ships. findResumableEdition() only matches same-calendar-day rows and this
+  // sensor only queues ONE task/day, so without an independent recovery pass the gap would
+  // persist until the next intentional fix, silently repeating. Run the deterministic, no-LLM
+  // `finish-stuck` recovery EVERY tick (not gated to the 13:00 window — the whole point is not
+  // to wait for tomorrow), directly here rather than as an LLM-followed task step, so recovery
+  // does not depend on an LLM turn correctly executing an instruction (the same class of
+  // failure this is recovering FROM). Cheap, idempotent no-op when nothing is stuck.
+  try {
+    const finishProc = Bun.spawnSync(
+      ["bun", join(import.meta.dir, "cli.ts"), "finish-stuck"],
+      { cwd: join(import.meta.dir, "../../"), stdout: "pipe", stderr: "pipe" }
+    );
+    const finishOut = finishProc.stdout.toString().trim();
+    if (finishOut && !finishOut.startsWith("finish-stuck: no stuck editions")) {
+      log(`finish-stuck recovery: ${finishOut.split("\n")[0]}`);
+    }
+  } catch (e) {
+    log(`finish-stuck recovery pass failed (non-blocking, does not affect today's queueing): ${(e as Error).message}`);
   }
 
   // Time gate: only fire in the UTC 13:00 window (13:00–13:29)
