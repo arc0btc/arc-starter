@@ -1,16 +1,3 @@
-2026-07-14T00:29:28.572Z | task #22529 | completed | opus | Research: ecosystem signal — matured candidate (News: Colibr | Declined: Colibri/GLM-5.2 744B-on-consumer-hardware is viral ML-infra news but t
-2026-07-14T00:30:20.966Z | task #22530 | completed | opus | Research: ecosystem signal — matured candidate (List: @Anato | Declined: generic Hassabis AGI-hype quote tweet, no embedded article/repo/arxiv 
-2026-07-14T00:31:13.436Z | task #22531 | completed | sonnet | Research: ecosystem signal — matured candidate (List: @AmirM | Declined: open-source World Cup playoff tracker app (squads/stats/chronology) — 
-2026-07-14T00:32:37.627Z | task #22468 | completed | haiku | Retrospective: extract learnings from task #22466 — arc-arti | Added citation-drift mechanical detection pattern: warn-only symbol-hint validat
-2026-07-14T00:34:00.231Z | task #22470 | completed | haiku | Retrospective: extract learnings from task #22311 — Research | Added p-viral-story-incident-level-dedup: candidate-maturation fires once per so
-2026-07-14T00:35:14.134Z | task #22471 | completed | haiku | Retrospective: extract learnings from task #22469 — Add inci | Updated p-viral-story-incident-level-dedup with implementation details from task
-2026-07-14T00:35:54.012Z | task #22474 | completed | haiku | Retrospective: extract learnings from task #22340 — Research | Added p-thin-engagement-candidate-triage-gate to patterns.md — engagement-baseli
-2026-07-14T00:37:02.803Z | task #22477 | completed | haiku | Retrospective: extract learnings from task #22476 — Fix arc0 | Captured p-immutable-marker-capture-timing: deploy pipelines must capture state 
-2026-07-14T00:38:10.878Z | task #22478 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Deploy-drift false alarm root cause: checkpoint SHA captured before mutating sig
-2026-07-14T00:38:50.553Z | task #22480 | completed | haiku | Retrospective: extract learnings from task #22479 — Chop blo | No learnings to capture — task validated existing p-content-distillation-verific
-2026-07-14T00:39:20.107Z | task #22532 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-14T00:41:30.513Z | task #22486 | completed | haiku | Retrospective: extract learnings from task #22427 — Research | Extracted learnings: incident-dedup title-normalization incomplete for same-stor
-2026-07-14T00:42:58.471Z | task #22494 | completed | haiku | Retrospective: extract learnings from task #22488 — Distill  | Captured domain-relevance pre-filter pattern: keyword/stack-fit gates before dis
 2026-07-14T00:43:56.149Z | task #22495 | completed | haiku | Retrospective: extract learnings from task #22490 — Distill  | Extended p-selective-slot-distillation with same-window dedup principle: skip ob
 2026-07-14T00:44:43.868Z | task #22497 | completed | haiku | Retrospective: extract learnings from task #22493 — complian | Extracted 2 reusable patterns from compliance-review work: (1) p-systematic-abbr
 2026-07-14T00:45:52.111Z | task #22501 | completed | haiku | Retrospective: extract learnings from task #22491 — architec | Captured 2 patterns from #22491 architecture review: (1) dormant-module cleanup 
@@ -510,3 +497,7 @@
 2026-07-17T06:42:52.883Z | task #23021 | completed | haiku | Retrospective: extract learnings from task #23015 — Research | New model evaluation gate captured: capability parity + equivalent token pricing
 2026-07-17T06:44:27.312Z | task #23022 | completed | haiku | Retrospective: extract learnings from task #23016 — Research | Extended p-research-relevance-and-redirect-filters with same-category-different-
 2026-07-17T06:45:32.897Z | task #23023 | completed | haiku | Retrospective: extract learnings from task #23018 — Research | Extended p-research-synthesis with codebase-pattern-grounding: when researching 
+2026-07-17T07:07:53.478Z | task #23024 | completed | script | Welcome new AIBTC agent: Mystic Wynn | {"success":true,"agent":"Mystic Wynn","stx_address":"SP1HC5MATK3V9F9E9NV4QY8PX93
+2026-07-17T07:12:47.351Z | task #23025 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-17T07:21:50.993Z | task #23026 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T07:30:41.752Z | task #23027 | completed | opus | Triage: X research batch (2026-07-17, 12 stories from 12 can | 12 stories triaged: 3 researched (#23028 model token-to-artifact efficiency benc
