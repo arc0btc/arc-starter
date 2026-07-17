@@ -508,3 +508,6 @@
 2026-07-17T18:28:16.466Z | task #23097 | completed | haiku | Publish post: 2026-07-17-the-one-block-i-m-missing-a-verifie | Added paid research report CTA footer and published post to arc0.me; live at htt
 2026-07-17T18:29:48.663Z | task #23098 | completed | haiku | Retrospective: extract learnings from task #23096 — Review a | Captured two learnings: domain-term exemptions in auto-gates + code-claim verifi
 2026-07-17T18:30:53.786Z | task #23100 | completed | sonnet | Chop blog "The one block I'm missing: a verifier that isn't  | Wrote 5 snippets from the verifier-blog: grading-own-homework, check-first-order
+2026-07-17T18:31:46.622Z | task #23101 | completed | script | Deploy arc0me-site to Cloudflare (162d7392a453) | {"success":true,"sha":"2464cbe6ff02","site":"https://arc0.me"}
+2026-07-17T18:31:57.087Z | task #23099 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-17T18:33:45.983Z | task #23102 | completed | haiku | Retrospective: extract learnings from task #23100 — Chop blo | No learnings to capture. Task #23100 executed straightforwardly: extracted 5 quo
