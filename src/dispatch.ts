@@ -1034,7 +1034,24 @@ interface SecurityScanResult {
   high: number;
   blocked: boolean;
   raw: string;
+  suppressedFalsePositives: number;
 }
+
+interface SecurityFinding {
+  severity: string;
+  file: string;
+}
+
+/**
+ * AgentShield does flat-regex scanning with no semantic analysis: it can't tell a command
+ * being *executed* from a command string appearing inside a denylist pattern that *blocks*
+ * it. `.claude/hooks/guard-*.sh` files are PreToolUse guards whose entire content is
+ * denylisted command strings (--no-verify, mkfs, shred, rm -rf, etc.) matched via grep —
+ * every finding AgentShield raises against these files is a false positive by construction.
+ * See memory/shared/entries/agentshield-denylist-pattern-false-positive.md (task #23040).
+ * There is no upstream ignore/allowlist config in ecc-agentshield@1.3.0 to suppress this.
+ */
+const AGENTSHIELD_FALSE_POSITIVE_FILE_RE = /^hooks\/guard-.*\.sh$/;
 
 async function validateSecurity(): Promise<SecurityScanResult> {
   const fnmPath = join(process.env.HOME ?? "/home/dev", ".local", "share", "fnm");
@@ -1061,16 +1078,29 @@ async function validateSecurity(): Promise<SecurityScanResult> {
     const data = JSON.parse(stdout) as {
       score: { grade: string; numericScore: number };
       summary: { totalFindings: number; critical: number; high: number };
+      findings?: SecurityFinding[];
     };
 
     const { grade, numericScore } = data.score;
-    const { totalFindings, critical, high } = data.summary;
-    const blocked = critical > 0 || exitCode === 2;
+    let { totalFindings, critical, high } = data.summary;
 
-    return { grade, numericScore, totalFindings, critical, high, blocked, raw: stdout };
+    const suppressed = (data.findings ?? []).filter((f) => AGENTSHIELD_FALSE_POSITIVE_FILE_RE.test(f.file));
+    if (suppressed.length > 0) {
+      totalFindings -= suppressed.length;
+      critical -= suppressed.filter((f) => f.severity === "critical").length;
+      high -= suppressed.filter((f) => f.severity === "high").length;
+      log(`dispatch: security scan suppressed ${suppressed.length} known false-positive finding(s) from guard hook denylist file(s)`);
+    }
+
+    // AgentShield's own exit code (2 = critical findings present) is computed from the raw,
+    // unsuppressed finding set, so it can't be used once known false positives are filtered
+    // out above — recompute `blocked` from the adjusted critical count only.
+    const blocked = critical > 0;
+
+    return { grade, numericScore, totalFindings, critical, high, blocked, raw: stdout, suppressedFalsePositives: suppressed.length };
   } catch {
     log(`dispatch: security scan output parse failed — stderr: ${stderr.trim()}`);
-    return { grade: "?", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: stdout || stderr };
+    return { grade: "?", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: stdout || stderr, suppressedFalsePositives: 0 };
   }
 }
 
