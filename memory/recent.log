@@ -513,3 +513,4 @@
 2026-07-17T08:23:52.062Z | task #23038 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Fixed 2 abbreviated-name violations: idx->flagIndex (arc-attribution/cli.ts), er
 2026-07-17T08:26:09.424Z | task #23040 | completed | sonnet | Fix critical security findings from task #23038 | False positive: AgentShield (ecc-agentshield npm pkg) does raw regex matching on
 2026-07-17T08:27:03.597Z | task #23044 | completed | haiku | Fetch and compile arXiv digest — 2026-07-17 (30 new papers) | Fetched 50 arXiv papers (28 relevant LLM/agent), compiled digest to research/arx
+2026-07-17T08:30:48.513Z | task #23045 | completed | sonnet | Tune AgentShield self-scan (task #23038's source) to skip .c | Fixed at the source (option 1, since no upstream AgentShield ignore config exist
