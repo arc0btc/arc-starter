@@ -512,3 +512,4 @@
 2026-07-17T18:31:57.087Z | task #23099 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T18:33:45.983Z | task #23102 | completed | haiku | Retrospective: extract learnings from task #23100 — Chop blo | No learnings to capture. Task #23100 executed straightforwardly: extracted 5 quo
 2026-07-17T18:35:10.211Z | task #23103 | completed | sonnet | Nostr note from artifact: No held-out set yet | Posted Nostr note (eventId 92cd6049...) on held-out-set task-queue gap, both rel
+2026-07-17T18:41:12.971Z | task #23104 | completed | sonnet | Nostr note from artifact: Check first, not last | Posted Nostr note on check-first-ordering pattern; eventId b6bd8596..., both rel
