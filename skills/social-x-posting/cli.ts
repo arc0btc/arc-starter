@@ -206,6 +206,14 @@ interface DailyBudget {
   // on-disk budget files (which lack them) still parse.
   link_posts?: number;      // count of link-bearing posts today ($0.20 tier)
   write_spend_usd?: number; // dollars spent on writes today
+  // Split-brain reconciliation (control-plane-remediation Phase 2, defect row 56, 2026-07-16/17):
+  // `posts` above is INTENTIONALLY legacy-lane-only (it gates checkBudget's 3/day cap, and
+  // coupling reserved-group volume into that cap would let daily-read/content-calendar traffic
+  // lock out the unrelated legacy lane). But that means `posts` undercounts real X output on any
+  // day with reserved-group activity — a reader of this file alone gets a false picture. This
+  // field is DERIVED (never independently written) straight from budget_ledger — the table both
+  // paths already feed — so it can never drift from it. See reconcileFromLedger().
+  budget_ledger_posts_today?: number;
 }
 
 // Pay-per-use write rates (2026 X API). See research/2026-07-06_x-api-budget-ground-truth.md.
@@ -311,7 +319,29 @@ function todayDateStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function loadBudget(): Promise<DailyBudget> {
+// Split-brain reconciliation (defect row 56): budget_ledger is fed by BOTH the legacy path
+// (dual-write, see cmdPost's "legacy budget_ledger dual-write" comment) and the reserved-group
+// fast path (engineMarkSent) — it is already the complete picture. x-budget.json's own `posts`
+// field only ever sees the legacy path (by design — see budget_ledger_posts_today's doc comment
+// on DailyBudget). This computes the TRUE total straight from budget_ledger so a reader of the
+// JSON file alone gets an accurate number without touching the cap-coupled `posts` field. Never
+// throws — a reconciliation failure must not block a real budget save.
+export async function reconcileFromLedger(dateStr: string): Promise<number> {
+  try {
+    const { initDatabase, getDatabase } = await import("../../src/db.ts");
+    initDatabase();
+    const db = getDatabase();
+    const row = db
+      .query(`SELECT COALESCE(SUM(sent_count), 0) as n FROM budget_ledger WHERE channel='x' AND utc_day=? AND lane != 'reply'`)
+      .get(dateStr) as { n: number } | null;
+    return row?.n ?? 0;
+  } catch (e) {
+    log(`reconcileFromLedger failed (non-fatal, budget_ledger_posts_today left stale): ${e instanceof Error ? e.message : String(e)}`);
+    return -1; // sentinel: reconciliation unavailable this call, not "zero posts"
+  }
+}
+
+export async function loadBudget(): Promise<DailyBudget> {
   const today = todayDateStr();
   try {
     const file = Bun.file(BUDGET_PATH);
@@ -320,15 +350,33 @@ async function loadBudget(): Promise<DailyBudget> {
       if (data.date === today) return data;
       // AI-005: Day rolled over — archive yesterday's budget to the history file before resetting.
       // x-budget-history.json is a JSON array, capped at 30 entries (trailing ~1 month).
+      //
+      // Row 57 fix (2026-07-16/17): `loadBudget()` is called on EVERY action attempt (via
+      // checkBudget), not just once per rollover. The old code appended to history here but
+      // never persisted the reset — so every call between midnight UTC and the FIRST successful
+      // saveBudget() that day re-read this same stale file and appended ANOTHER duplicate history
+      // row (live evidence: 9 duplicate dates, up to 6x on 07-05/07-10). Two independent fixes,
+      // both idempotent so either alone would close the gap:
       try {
         const histFile = Bun.file(BUDGET_HISTORY_PATH);
         const existing = histFile.size > 0 ? ((await histFile.json()) as DailyBudget[]) : [];
-        const trimmed = Array.isArray(existing) ? existing.slice(-29) : []; // keep last 29 + new = 30
-        trimmed.push(data);
-        await Bun.write(BUDGET_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+        const existingArr = Array.isArray(existing) ? existing : [];
+        // (a) dedup-by-date guard — never append a date already archived, regardless of races.
+        const alreadyArchived = existingArr.some((e) => e?.date === data.date);
+        if (!alreadyArchived) {
+          const trimmed = existingArr.slice(-29); // keep last 29 + new = 30
+          trimmed.push(data);
+          await Bun.write(BUDGET_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+        }
       } catch {
         // History write is best-effort — never block the budget reset
       }
+      // (b) persist the reset immediately — a second loadBudget() call the same day now sees
+      // the already-rolled-over file instead of the stale one, closing the window fast even
+      // without the dedup guard.
+      const fresh: DailyBudget = { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
+      await saveBudget(fresh);
+      return fresh;
     }
   } catch {
     // corrupt file, start fresh
@@ -336,7 +384,13 @@ async function loadBudget(): Promise<DailyBudget> {
   return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
 }
 
-async function saveBudget(budget: DailyBudget): Promise<void> {
+export async function saveBudget(budget: DailyBudget): Promise<void> {
+  // Row 56 fix: stamp the ledger-derived reconciliation field on every save so it's always
+  // current for whatever action just mutated the budget (legacy increment, reserved-group
+  // recordWriteSpend, or this rollover reset). -1 sentinel (reconciliation unavailable) is
+  // written as-is rather than silently coerced to 0 — a reader can tell "no posts today" from
+  // "couldn't reconcile" apart.
+  budget.budget_ledger_posts_today = await reconcileFromLedger(budget.date);
   // P2 arc-funnel-hardening: atomic temp-and-rename (crash-safe, matches saveReadBudget).
   const temporaryFilePath = BUDGET_PATH + ".tmp";
   await Bun.write(temporaryFilePath, JSON.stringify(budget, null, 2));

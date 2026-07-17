@@ -134,6 +134,18 @@ export const OWNED_READ_COST_USD = 0.001;
  * budget-safer at $2.00 but nobody has asked to actually flip it. */
 export const X_READ_BUDGET_USD_PER_DAY = 2.0;
 
+/** Per-lane daily read caps (control-plane-remediation Phase 2, defect row 58, 2026-07-16/17).
+ * Live evidence: candidate-maturation alone spent $1.515/$1.991 (~76%) of a whole day's global
+ * budget one day after the cap was raised, starving search/users/link-research/mentions for the
+ * rest of the day — there was no per-lane ceiling, only the global one. candidate-maturation is
+ * capped at 50% of the global budget; every other lane is uncapped (falls through to the global
+ * check only), same as before this fix. Add more lanes here if the same dominance pattern shows
+ * up elsewhere — this is deliberately a small, explicit allowlist, not a blanket per-lane cap,
+ * so it doesn't silently throttle a lane nobody has actually seen crowd others out. */
+export const LANE_READ_CAPS_USD: Record<string, number> = {
+  "candidate-maturation": X_READ_BUDGET_USD_PER_DAY * 0.5,
+};
+
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
   spend_usd: number;   // dollars spent on reads today — the control surface
@@ -228,8 +240,15 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
  * a 429 backoff window is active. Call BEFORE any GET to the X API from this lib.
  * `costUsd` is the price of the read about to be made — READ_COST_USD (non-owned,
  * default) or OWNED_READ_COST_USD (own posts/followers/lists).
+ *
+ * `lane` (2026-07-16/17, defect row 58): if it's a key in LANE_READ_CAPS_USD, ALSO enforces that
+ * lane's own daily ceiling against its `by_lane[lane].spend_usd` — thrown as the same shape as
+ * the global-cap error above, so it flows through whatever a caller already does for the global
+ * case (confirmed live: candidate-maturation's sensor already degrades gracefully on the global
+ * cap's throw via its own try/catch — this is the identical code path, not a new one). Omitting
+ * `lane`, or passing one not in LANE_READ_CAPS_USD, is a no-op here — unchanged behavior.
  */
-export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
+export async function checkReadBudget(costUsd: number = READ_COST_USD, lane?: string): Promise<void> {
   const budget = await loadReadBudget();
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
     throw new Error(
@@ -241,6 +260,17 @@ export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<
       `X read budget exhausted: $${budget.spend_usd.toFixed(3)}/$${X_READ_BUDGET_USD_PER_DAY.toFixed(2)} spent today ` +
         `(${budget.reads} reads), next read costs $${costUsd.toFixed(3)}. Resets at midnight UTC.`,
     );
+  }
+  if (lane && lane in LANE_READ_CAPS_USD) {
+    const laneCap = LANE_READ_CAPS_USD[lane];
+    const laneSpent = budget.by_lane?.[lane]?.spend_usd ?? 0;
+    if (laneSpent + costUsd > laneCap) {
+      throw new Error(
+        `X read budget: lane '${lane}' exhausted: $${laneSpent.toFixed(3)}/$${laneCap.toFixed(2)} spent today ` +
+          `(lane cap, global budget $${X_READ_BUDGET_USD_PER_DAY.toFixed(2)}/day), next read costs ` +
+          `$${costUsd.toFixed(3)}. Resets at midnight UTC.`,
+      );
+    }
   }
 }
 
@@ -637,7 +667,7 @@ export async function xApiGet(
   // `opts.costUsd` (Phase 3) takes priority over the owned/non-owned default so a
   // caller-supplied price is respected pre-flight too, not just when billing.
   const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
-  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams), opts.lane);
 
   const { baseUrl, url } = buildRequestUrl(endpoint, queryParams);
   const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
@@ -713,7 +743,7 @@ export async function xApiGetAppOnly(
   } = {},
 ): Promise<Record<string, unknown>> {
   const costUsd = opts.costUsd ?? READ_COST_USD;
-  await checkReadBudget(costUsd * estimateResourceCount(queryParams));
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams), opts.lane);
 
   const { url } = buildRequestUrl(endpoint, queryParams);
 
