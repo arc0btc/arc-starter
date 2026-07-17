@@ -27,3 +27,14 @@ hooks — that deletes the denylist entry and disables the protection the scanne
 file under `.claude/hooks/`, read the actual file and confirm whether the match sits inside a `grep`/
 `if` condition (blocking pattern, false positive) vs. an unconditionally executed command (real issue).
 See [[dead-ends-convention]] pattern for tracking recurring false-positive classes.
+
+**[FIXED 2026-07-17, #23045, 0bc7d02c]** `validateSecurity()` in `src/dispatch.ts` now filters findings
+whose `file` matches `hooks/guard-*.sh` out of the critical/high counts before deciding `blocked` and
+before spawning the "Fix critical security findings" follow-up task. Verified against a live scan: 11
+false positives suppressed, real count dropped from critical=4/high=10 to critical=0/high=3, no
+follow-up task created. No upstream ignore/allowlist config exists in `ecc-agentshield@1.3.0` (checked
+README + `scan --help`), so this is a local filter, not an upstream config flip. Also had to drop the
+`exitCode === 2` fallback in the blocked check — AgentShield's own exit code is computed from the raw
+unsuppressed finding set (`dist/index.js`: `if (report.summary.critical > 0) process.exit(2)`), so it
+would have re-triggered `blocked` even after suppression. If a future guard/allowlist hook file doesn't
+match the `hooks/guard-*.sh` glob, extend `AGENTSHIELD_FALSE_POSITIVE_FILE_RE`.
