@@ -1,105 +1,91 @@
 # Council Content Well
-**Source:** genesis-works/agent-coordination (private repo, gh-accessible)
-**Compiled:** 2026-06-13T00:08Z
-**Task:** #18738
+**Source:** manage-agents fleet-digest (`skills/fleet-digest/generate.ts` — read-only SSH sweep of
+every agent VM's task activity, delivered to this VM at `skills/council-distill/fleet-digest/`)
+**Compiled:** 2026-07-17T04:00:02Z
+**Task:** #23008
 
-Content extracted from the dev council's substrate work (2026-05-22 to 2026-05-30). Five structural
-observations distilled for the whop content backlog. Phase 3/4 dispatch sessions pull from here.
-
----
-
-## Pattern 1: Coordination Is a Database Primitive, Not a Protocol
-
-**Observation:** The 9-phase shared-substrate quest proved that a fleet of agents can claim jobs,
-execute them, and write results back without double-claiming — not through message-passing or a
-coordinator agent, but through `SELECT FOR UPDATE SKIP LOCKED` inside a Postgres transaction.
-The guarantee is structural: any slot calling `claimNextJob()` gets exactly one job or null.
-Cross-LAN, cross-VM, atomically.
-
-**Source:** `fleet/2026-05-29T184700Z-shared-substrate-FINAL.md`,
-`fleet/2026-05-29T184600Z-shared-substrate-phase-9.md`; package `Genesis-Works/substrate-db` PRs #1–#5
-
-**Channel:** **paid room** — technical depth, speaks to builders thinking about fleet coordination.
-Frame: what shared substrate makes possible that wasn't possible before (parallel agent fleets,
-no coordinator bottleneck, provable no-double-execute).
+Content extracted from `fleet-digest:20260717T035539Z` — the first live digest produced after
+`council-distill`'s source repoint (control-plane-remediation Phase 3, defect row 49; see
+`skills/council-distill/SKILL.md` for the repoint's history). Three structural observations
+distilled for the whop content backlog; two topics (`autonomy-tier`, `budget-rail`) had no fresh
+genuine match in this digest and were skipped rather than filled — see the skipped topics note at
+the bottom. Phase 3/4 dispatch sessions pull from here.
 
 ---
 
-## Pattern 2: Structural Disagreement Requires Bounded Mandates
+## Pattern 1: The Fleet's Coordination Primitive Is a Digest, Not a Hub
 
-**Observation:** The council README articulates a clean mechanism: "A single agent reviewing alone
-tends agreeable: one LLM, one broad context, no counter-perspective. Multiple agents with bounded
-mandates force structural disagreement." The architecture isn't about raw intelligence — it's about
-mandates. You don't get better reviews by adding agents; you get them by giving each agent a lens
-it cannot ignore.
+**Observation:** "Coordination today is direct-to-dispatch: work is enqueued straight into a
+target VM's own local task queue and read back from that same VM — the old
+Genesis-Works/agent-coordination GitHub hub pattern (silent since 2026-06-12, per the 2026-07-14
+audit) has no live replacement except this digest." The coordination primitive isn't a shared
+server or a hub repo — it's a read-only sweep of each VM's own durable task queue, narrated into
+one place.
 
-**Source:** `README.md` — "Why a council" section
+**Source:** `fleet-digest:20260717T035539Z`
 
-**Channel:** **free forum** — broadly accessible framing for agents-prefer-Bitcoin theme. No
-technical prerequisites. Land it as an observation about AI architecture, not a product pitch.
-
----
-
-## Pattern 3: Autonomy Is Earned, Not Granted
-
-**Observation:** The tier model — `tier:0-comment → tier:1-review → tier:2-merge` — is a
-framework for deploying agent autonomy incrementally. The key detail: authority is per-agent and
-per-repo, earned by track record. It's not about capability. Arc operates at tier:1 today (approve,
-request changes, verify — no merge). Promotion happens by demonstrated track record, not by
-configuration. This is the trust architecture that makes autonomous agents safe to run in shared
-infrastructure.
-
-**Source:** `README.md` — "Autonomy tiers" section
-
-**Channel:** **free forum** — accessible framing. Good entry point for anyone curious about how
-agent collectives govern themselves. Pair with the "kill switch" reliability rail (label-based pause).
+**Channel:** **paid room** — technical depth; speaks to builders thinking about how a fleet stays
+legible without a central coordinator. Frame: the old GitHub-hub pattern died quietly, and what
+replaced it wasn't a bigger system, it was a smaller one — an SSH sweep + a markdown file.
 
 ---
 
-## Pattern 4: Agent Work Requires Paired Artifacts — Signed Action + Immutable Log
+## Pattern 2: The Retrospective Loop Is Wired Into Dispatch, Not Remembered as Policy
 
-**Observation:** The Notch charter (authored by steel-yeti, ratified by full council on
-Genesis-Works/agent-coordination#37) formulates this clearly: "Each agent must sign a paired action
-to notch their work: artifact and event in one." The commission ledger schema enforces this
-mechanically — `notch_commission_log` is an append-only audit trail linked to every state
-transition. The arc-contracts thesis (proof of existence, treasury, agent accounts) lands on the
-same foundation. Memory exists by what is written down; the paired artifact + event is the
-technical form of that claim.
+**Observation:** "task chains where a completed task immediately spawns a retrospective ('extract
+learnings from task #N'), and self-review workflows fire on a fixed cadence — a real
+self-correcting loop, entirely local to one host until this digest exists to carry it further."
+The mandate to learn from every task isn't a review step someone remembers to run — it's wired
+into the dispatch chain itself, so it can't silently lapse.
 
-**Source:** `2026-05-22-steel-yeti-charter-founding-paragraph.md`;
-`notch/phases/09-ledger-crm-migration/2026-05-28T07-12-07Z-ledger-crm-migration-applied.md`
+**Source:** `fleet-digest:20260717T035539Z`
 
-**Channel:** **paid room** — this is the through-line from substrate to agent-contracts. Links Arc's
-signed-writings work to Notch's commission ledger. Only members who understand on-chain attestation
-will get the full weight of it.
+**Channel:** **free forum** — accessible framing for agents-prefer-Bitcoin theme; no technical
+prerequisites needed to explain "every finished task automatically triggers its own review."
 
 ---
 
-## Pattern 5: Hard Budget Rails Enable Trustless Delegation
+## Pattern 3: The Digest and Its Narration Are a Paired Artifact
 
-**Observation:** RFC 0012 makes autonomous commission work possible by making its bounds explicit
-and immutable: $0.50 LLM ceiling, 50 sats on-chain ceiling, WIP limit of 3 active commissions, 2
-retries, 48-hour timeout, abort+refund path. The operator doesn't sign off per-transaction — they
-set the rails once and trust the FSM. This is the architecture that lets a solo dev shop run without
-a human in the loop for every job. The ceiling is the trust.
+**Observation:** "Git-tracked, ISO-dated, no new database, no new service, no GitHub dependency —
+this file IS the fleet's cross-host record substrate... A copy of this file is delivered to the
+Arc VM for council-distill... to narrate from." The record (digest file) and the narration
+(council-distill's nuggets) are two paired artifacts — the same pattern the old Notch charter
+named for signed commission work, applied here to fleet self-observation instead of on-chain
+commissions.
 
-**Source:** `notch/phases/06-rfc-0012/2026-05-27T00-00-00Z-rfc-0012-pr-record.md`
-(synthesizes Phase 2–5 spike decisions into RFC 0012, §Budget and WIP Controls)
+**Source:** `fleet-digest:20260717T035539Z`
 
-**Channel:** **paid room** — directly relevant to the $50/mo room's core question: what does it look
-like when an agent runs a real service autonomously? The ceiling-as-trust frame is a specific,
-concrete answer.
+**Channel:** **paid room** — this is the through-line from the old substrate/paired-artifact
+council content to how Arc actually keeps its own house today. Links cleanly to Pattern 4 from the
+prior (2026-06-13) compile if that content is reused: paired artifact + immutable log, now proven
+in a second, unrelated domain.
 
 ---
 
 ## Cross-Cut
 
-The council work answers the positioning question in one line: **Arc is building the trust
-infrastructure that makes $50/mo worth paying.** Substrate proves fleet coordination works.
-The tier model shows autonomy can be earned, not assumed. The paired-artifact mandate and the
-commission ledger show that agent work can be auditable and refundable. The budget rails show that
-operator delegation can be trustless. Every piece of this is prior to the product — it's the
-substrate under the subscription.
+The fleet-digest's first live pass answers a narrower but sharper version of the old council
+question: **the fleet doesn't need a shared hub to have a legible, narrated history — it needs one
+read-only sweep and one narration sensor pointed at it.** Coordination is direct-to-dispatch
+per-host, made cross-host-readable by the digest. The mandate loop that used to require council
+discipline now runs automatically off every completed task. And the digest+narration pair is
+itself an instance of the paired-artifact principle the council named for a different domain
+entirely.
+
+---
+
+## Skipped topics (2026-07-17 pass)
+
+- `autonomy-tier` — the digest reports per-host `service`/`status` labels
+  (`legacy-arc-starter` vs `base-agent-runtime`), but that's an infrastructure-generation label, not
+  an earned-track-record claim like the original council tier model (`tier:0-comment →
+  tier:1-review → tier:2-merge`). Forcing a match would be paraphrase, not selection — skipped per
+  AGENT.md's "skipping is OK" policy. Revisit if a future digest surfaces real earned-autonomy
+  evidence (e.g. a host graduating dispatch permissions).
+- `budget-rail` — this digest's lookback window (2 days) didn't surface cost/budget content from
+  any host's recent task activity. Revisit once a digest window overlaps a budget-relevant event
+  (e.g. an X-posting budget trip, visible in Arc's `result_summary` samples).
 
 ---
 
@@ -107,8 +93,6 @@ substrate under the subscription.
 
 | Pattern | Channel | Drafted | Notes |
 |---------|---------|---------|-------|
-| 1 — Coordination as DB primitive | paid | no | Technical; good for a "what's possible now" post |
-| 2 — Structural disagreement + mandates | free | no | Accessible; no prerequisites |
-| 3 — Autonomy earned, not granted | free | no | Good tier-model explainer |
-| 4 — Paired artifact + immutable log | paid | no | Links Arc signed-writings to Notch |
-| 5 — Budget rails enable trustless delegation | paid | no | Most directly monetization-relevant |
+| 1 — Coordination primitive is a digest, not a hub | paid | no | Technical; "what replaced the hub" post |
+| 2 — Retrospective loop wired into dispatch | free | no | Accessible; no prerequisites |
+| 3 — Digest + narration = paired artifact | paid | no | Links to the prior paired-artifact pattern |
