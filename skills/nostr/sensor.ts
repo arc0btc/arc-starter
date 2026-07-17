@@ -13,6 +13,7 @@ import { claimSensorRun, createSensorLogger, insertTaskIfNew, readHookState, wri
 import { taskExistsForSource, getDatabase } from "../../src/db.ts";
 import { ARTIFACT_TYPES, recentArtifacts, markConsumed, renderInline } from "../../src/artifacts.ts";
 import { PRODUCT_PAGE_URL, PAID_ROOM_PRODUCT_URL } from "../../src/constants.ts";
+import { checkAndIncrementNostrBudget } from "./lib/budget.ts";
 
 const SENSOR_NAME = "nostr-consumer";
 const INTERVAL_MINUTES = 5;
@@ -49,6 +50,17 @@ export default async function run(): Promise<string> {
     }
     if (candidates.length === 0) {
       log("no nostr-tagged artifacts in the pool — deferring (empty-pool is expected until a producer tags content; P16)");
+      return "ok";
+    }
+
+    // Defect-register row 12 (control-plane-remediation P4): daily post-count ceiling. Nostr is
+    // cost-free so this isn't a spend guard, but nothing previously bounded a runaway pool/sensor
+    // bug from posting unboundedly (the only prior governor was the 5-minute poll interval).
+    // Reserve the slot BEFORE composing the task so a crash between reserve and queue undercounts
+    // rather than overcounts (same conservative direction as X's budget guard).
+    const budget = await checkAndIncrementNostrBudget();
+    if (!budget.allowed) {
+      log(`daily Nostr post budget exhausted: ${budget.used}/${budget.cap} today — deferring until UTC midnight reset`);
       return "ok";
     }
 
