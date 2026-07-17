@@ -502,3 +502,4 @@
 2026-07-17T05:19:37.270Z | task #23012 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T06:20:59.998Z | task #23013 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T06:31:35.970Z | task #23014 | completed | opus | Triage: X research batch (2026-07-17, 50 stories from 52 can | Triaged 50 stories → 5 clustered research tasks, 24 declined (thin one-liners/of
+2026-07-17T06:35:05.219Z | task #23015 | completed | opus | Research: Kimi K3 open-weight model vs Opus 4.8 — benchmarks | Kimi K3 verified Opus-4.8-class (AA Index 57.1, ~$0.94/task vs Opus $1.80) but N
