@@ -36,6 +36,7 @@ import { join } from "path";
 import * as fs from "fs";
 import { runCommand, slugify } from "../../src/utils.ts";
 import { selectCandidate } from "./lib/backlog.ts";
+import { renderSkuCover } from "./lib/cover.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const DB_PATH = process.env.ARC_PACKAGING_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc.sqlite");
@@ -189,6 +190,7 @@ interface MaterialsBrief {
   voiceInstructions: {
     human: string;
     agent: string;
+    quiz: string;
   };
   sanitizationChecklist: string[];
 }
@@ -232,6 +234,14 @@ function composeMaterials(
       agent:
         'Description MUST include the agent frame, verbatim or near-verbatim: "read this content". ' +
         "Do NOT claim x402 delivers this product 'immediately' or 'now' — the x402 rail is not yet wired to this specific catalog entry. Say payment is via the Whop checkout below, and that direct x402 agent-to-agent payment for this catalog is coming (point to arc0btc.com for endpoints that ARE live now). Overclaiming a payment path that doesn't work yet is a real broken-transaction risk for an agent buyer, not a soft marketing exaggeration (arc-strategy-panel/Voss finding).",
+      quiz:
+        'REQUIRED (control-plane-remediation Phase 2, row 62 — "research -> report -> quiz" was decided but never wired). ' +
+        'Draft "quiz": { "questions": [...], "minimumCorrect": <int> } with AT LEAST 3 questions drawn from THIS report\'s ' +
+        'actual claims (never invented facts) — each question is { "question_text", "question_type": "multiple_choice"|' +
+        '"true_false"|"short_answer"|"multiple_select", "correct_answer", "options"? (multiple_choice/multiple_select ' +
+        'need 4 options with exactly the right ones is_correct:true) }. Mirror the live examples already attached to ' +
+        "other SKUs (skills/whop/assets/p2-covers/*.quiz.json) for exact shape. minimumCorrect defaults to ceil(60% of " +
+        "question count) if omitted. stage will hard-fail (DEFERRED) without this.",
     },
     sanitizationChecklist: [
       "no API keys, tokens, passwords, private-key material",
@@ -263,25 +273,38 @@ async function cmdMaterials(reportOverride?: string, slugOverride?: string): Pro
   const outPath = join(MATERIALS_DIR, `${brief.slug}.json`);
   fs.writeFileSync(outPath, JSON.stringify(brief, null, 2));
   console.log(`\nWrote brief to ${outPath} (includes the report's full text — reportMarkdown).`);
-  console.log(`Next: draft { "title": "...", "headline": "...", "description": "..." } to`);
+  console.log(`Next: draft { "title": "...", "headline": "...", "description": "...", "quiz": {...} } to`);
   console.log(`  ${join(MATERIALS_DIR, `${brief.slug}.draft.json`)}`);
+  console.log(`  (quiz is REQUIRED — see voiceInstructions.quiz in the brief above; stage attaches it AND`);
+  console.log(`  generates+attaches a cover automatically, but will keep the SKU hidden if either fails)`);
   console.log(`Then run: bun cli.ts stage --report ${brief.reportFile}`);
   db.close();
 }
 
 // ---------- Stage (deterministic) ----------
 
+// Mirrors whop/cli.ts's QuizQuestion shape exactly (create-product --quiz / attach-deliverable
+// --quiz both read this JSON verbatim) — control-plane-remediation Phase 2, row 62: every SKU
+// now REQUIRES a quiz in the draft, same enforcement tier as the dual-audience-frame description.
+interface QuizQuestion {
+  question_text: string;
+  question_type: "short_answer" | "true_false" | "multiple_choice" | "multiple_select";
+  correct_answer: string;
+  options?: Array<{ option_text: string; is_correct: boolean }>;
+}
+
 interface Draft {
   title: string;
   headline?: string;
   description: string;
   price?: number;
+  quiz: { questions: QuizQuestion[]; minimumCorrect?: number };
 }
 
-function loadDraft(slug: string): Draft {
+export function loadDraft(slug: string): Draft {
   const p = join(MATERIALS_DIR, `${slug}.draft.json`);
   if (!fs.existsSync(p)) {
-    throw new Error(`DEFERRED — missing draft: ${p}. Write { title, headline, description } first (see materials output), then re-run stage.`);
+    throw new Error(`DEFERRED — missing draft: ${p}. Write { title, headline, description, quiz } first (see materials output), then re-run stage.`);
   }
   let parsed: unknown;
   try {
@@ -307,10 +330,17 @@ function loadDraft(slug: string): Draft {
   if (d.price !== undefined && typeof d.price !== "number") {
     throw new Error(`DEFERRED — ${p}'s "price" must be a number if present.`);
   }
+  // Structural shape only here (matches title/description's style) — the ">=3 questions"
+  // business rule lives in validateDraft alongside the other stage-time content checks.
+  if (typeof d.quiz !== "object" || d.quiz === null || !Array.isArray((d.quiz as Record<string, unknown>).questions)) {
+    throw new Error(
+      `DEFERRED — ${p} is missing "quiz": { questions: [...] } — every SKU now requires a quiz draft (control-plane-remediation Phase 2, row 62). See MaterialsBrief.voiceInstructions.quiz for the required shape.`,
+    );
+  }
   return d as unknown as Draft;
 }
 
-function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: boolean): string[] {
+export function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: boolean): string[] {
   const errors: string[] = [];
   const descLower = (draft.description ?? "").toLowerCase();
   if (!descLower.includes("operator") || !descLower.includes("give this to your agent")) {
@@ -345,6 +375,22 @@ function validateDraft(draft: Draft, reportMarkdown: string, forceSanitization: 
       errors.push(`SANITIZATION: ${hit}`);
     }
   }
+  // Quiz — REQUIRED (control-plane-remediation Phase 2, row 62): loadDraft already checked the
+  // structural shape; this is the business rule (matches the other content checks' severity).
+  const questions = draft.quiz?.questions ?? [];
+  if (questions.length < 3) {
+    errors.push(`quiz has ${questions.length} question(s), at least 3 are required`);
+  }
+  questions.forEach((q, i) => {
+    if (!q.question_text || !q.question_text.trim()) errors.push(`quiz question ${i + 1} is missing question_text`);
+    if (!q.correct_answer || !String(q.correct_answer).trim()) errors.push(`quiz question ${i + 1} is missing correct_answer`);
+    if (!["short_answer", "true_false", "multiple_choice", "multiple_select"].includes(q.question_type)) {
+      errors.push(`quiz question ${i + 1} has an invalid question_type: ${q.question_type}`);
+    }
+    if ((q.question_type === "multiple_choice" || q.question_type === "multiple_select") && (!q.options || q.options.length < 2)) {
+      errors.push(`quiz question ${i + 1} (${q.question_type}) needs at least 2 "options"`);
+    }
+  });
   return errors;
 }
 
@@ -482,6 +528,14 @@ async function cmdStage(
   const cleanedPath = join(MATERIALS_DIR, `${row.slug}.deliverable.md`);
   fs.writeFileSync(cleanedPath, cleanedMarkdown);
 
+  // Quiz — REQUIRED (row 62): write the validated draft.quiz to its own JSON file, in the exact
+  // shape whop/cli.ts's create-product --quiz already reads (skills/whop/assets/p2-covers/
+  // *.quiz.json is the live-proven format). Passed at create time so the deliverable (report +
+  // quiz) attaches atomically with the SKU's mint, matching create-product's own "no bare SKU"
+  // design instead of a separate attach-deliverable follow-up call.
+  const quizPath = join(MATERIALS_DIR, `${row.slug}.quiz.json`);
+  fs.writeFileSync(quizPath, JSON.stringify(draft.quiz, null, 2));
+
   const createArgs = [
     "skills",
     "run",
@@ -500,6 +554,8 @@ async function cmdStage(
     ...(draft.headline ? ["--headline", draft.headline] : []),
     "--report",
     cleanedPath,
+    "--quiz",
+    quizPath,
   ];
   const createResult = await runCommand("bash", ["bin/arc", ...createArgs]);
   if (createResult.exitCode !== 0) {
@@ -509,8 +565,11 @@ async function cmdStage(
     product_id: string;
     plan_id: string;
     constants?: { PRODUCT_CHECKOUT_URL?: string };
+    deliverable?: { quiz_lesson_id?: string | null } | null;
   };
   console.log(`Created Whop product: ${createJson.product_id} (plan ${createJson.plan_id})`);
+  const quizOk = createJson.deliverable?.quiz_lesson_id != null;
+  console.log(`Quiz attached: ${quizOk} (lesson ${createJson.deliverable?.quiz_lesson_id ?? "none"})`);
   // Record the irreversible external effect (a real Whop product now exists) the instant it's
   // known, before the next subprocess call, so a crash after this point is still fully
   // auditable from the DB alone (dev-council: Kleppmann's audit-gap note).
@@ -569,6 +628,30 @@ async function cmdStage(
   const unlockJson = parseJsonTail(unlockResult.stdout) as { promo_id?: string; checkout_url?: string };
   console.log(`Membership unlock-all wired (silent — promo ${unlockJson.promo_id ?? "?"}, no chat post fired).`);
 
+  // Cover — REQUIRED (row 61): deterministic, no LLM call (see lib/cover.ts). Generated AFTER
+  // create-product so it can be attributed to the real product id in its filename, and BEFORE
+  // the publish gate below so a render/upload failure can hold the SKU hidden rather than
+  // shipping a visible product with an empty gallery (the exact row-61 failure mode).
+  let coverOk = false;
+  try {
+    const coverPng = await renderSkuCover(draft.title, draft.headline ?? "", new Date().toISOString().slice(0, 10));
+    const coverPath = join(MATERIALS_DIR, `${row.slug}.cover.png`);
+    fs.writeFileSync(coverPath, coverPng);
+    const coverResult = await runCommand("bash", [
+      "bin/arc", "skills", "run", "--name", "whop", "--",
+      "update-product", "--product", createJson.product_id, "--cover", coverPath,
+    ]);
+    if (coverResult.exitCode !== 0) {
+      console.error(`whop update-product --cover failed (exit ${coverResult.exitCode}): ${coverResult.stderr || coverResult.stdout}`);
+    } else {
+      const coverJson = parseJsonTail(coverResult.stdout) as { after?: { gallery_images?: unknown[] } };
+      coverOk = Array.isArray(coverJson.after?.gallery_images) && coverJson.after!.gallery_images!.length > 0;
+    }
+  } catch (e) {
+    console.error(`cover generation failed (non-fatal to packaging, blocks auto-publish below): ${e instanceof Error ? e.message : String(e)}`);
+  }
+  console.log(`Cover attached: ${coverOk}`);
+
   // Publish LAST — the commit step (operator directive 2026-07-03: SKUs publish autonomously,
   // same as the blog; dev-council/Newman: publish must be the TERMINAL mutation so the public
   // storefront never shows a SKU whose deliverable or member $0 promo isn't wired yet). This
@@ -576,8 +659,19 @@ async function cmdStage(
   // row 'claimed', so the resume path re-runs the whole (idempotent) chain including this
   // flip, instead of stranding a packaged-but-hidden SKU. `published` is read back from what
   // Whop actually returned, never assumed from the flag (dev-council: Kleppmann/Lamport/Hohpe).
+  //
+  // control-plane-remediation Phase 2 (row 61/62/63): cover+quiz are now REQUIRED stage steps —
+  // a caller NOT passing --keep-hidden no longer guarantees a visible SKU. If either failed, the
+  // SKU stays hidden regardless of the flag (loud log, not a thrown error — packaging itself
+  // still succeeded and the row is still marked 'packaged' below; a human/future run retries
+  // `update-product --cover` / `attach-deliverable --quiz` then `set-visibility` by hand).
   let published = false;
-  if (!keepHidden) {
+  const publishBlockedReason = !coverOk ? "cover generation/attach failed" : !quizOk ? "quiz did not attach" : null;
+  if (keepHidden) {
+    console.log("Kept hidden (--keep-hidden) — publish later via `whop set-visibility ... --visibility visible`.");
+  } else if (publishBlockedReason) {
+    console.log(`Kept hidden — auto-publish REQUIRES cover+quiz (row 61/62 gate): ${publishBlockedReason}. Fix and re-run \`whop set-visibility --product ${createJson.product_id} --plan ${createJson.plan_id} --visibility visible\` manually once resolved.`);
+  } else {
     const visResult = await runCommand("bash", [
       "bin/arc",
       "skills",
@@ -606,8 +700,6 @@ async function cmdStage(
       );
     }
     console.log(`Published — product ${createJson.product_id} + plan ${createJson.plan_id} visible on the storefront (read back).`);
-  } else {
-    console.log("Kept hidden (--keep-hidden) — publish later via `whop set-visibility ... --visibility visible`.");
   }
 
   db.run(
@@ -817,7 +909,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(`arc-packaging: ${error instanceof Error ? error.message : String(error)}`);
-  process.exit(1);
-});
+if (import.meta.main) {
+  main().catch((error) => {
+    console.error(`arc-packaging: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  });
+}
