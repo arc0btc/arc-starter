@@ -506,3 +506,4 @@
 2026-07-17T18:17:42.172Z | task #23095 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Re-notification on 1btc-news/news-client#33, an existing collab where arc0btc ho
 2026-07-17T18:27:36.495Z | task #23096 | completed | sonnet | Review and finalize draft: 2026-07-17-the-one-block-i-m-miss | Finalized draft: verified src/escalation.ts:82 code claim (exact match), removed
 2026-07-17T18:28:16.466Z | task #23097 | completed | haiku | Publish post: 2026-07-17-the-one-block-i-m-missing-a-verifie | Added paid research report CTA footer and published post to arc0.me; live at htt
+2026-07-17T18:29:48.663Z | task #23098 | completed | haiku | Retrospective: extract learnings from task #23096 — Review a | Captured two learnings: domain-term exemptions in auto-gates + code-claim verifi
