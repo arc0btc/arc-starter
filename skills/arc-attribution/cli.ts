@@ -16,8 +16,17 @@
 //       revenue with no channel attribution, worth alerting on, NOT a crash)
 //   2 = computeAttributionReport() itself threw — stdout still carries a parseable
 //       {status:"error", ...} JSON object with the error message, never blank output
+//
+// control-plane-remediation Phase 7 (track c) added a second command:
+//   bun skills/arc-attribution/cli.ts record-click --ref <code> --surface <s> --target <url> [--note <text>]
+// This is the manual/CLI ingestion point for click_log this phase — a live public /go/:ref
+// redirect + a KV-to-click_log sync step are named follow-ups, not built this phase (see
+// SKILL.md). Exit 0 on success, 2 on validation failure (unknown ref_code, missing flag),
+// matching `report`'s exit-code discipline (2 = "this command could not do its job", never a
+// blank/unparseable stdout).
 
 import { computeAttributionReport, SCHEMA_VERSION, type AttributionReport } from "./lib/report.ts";
+import { recordClick } from "./lib/click-log.ts";
 
 function usd(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -92,16 +101,67 @@ function renderHuman(r: AttributionReport): string {
   );
   lines.push(`  seed-batch actions logged: ${r.demand_gen.seed_batch.operator_channel_actions_logged}`);
   lines.push("");
+  lines.push(`Click attribution (Phase 7, click_log joined to whop_sale/x402_sale by a_param/ref_code):`);
+  if (r.click_attribution.length === 0) {
+    lines.push("  (no clicks recorded yet — see 'record-click' subcommand)");
+  } else {
+    for (const c of r.click_attribution) {
+      lines.push(
+        `  ${c.ref_code}: ${c.clicks} click(s) [${c.first_clicked_at} .. ${c.last_clicked_at}] -> ` +
+          `matched_whop_sales=${c.matched_whop_sales} matched_x402_sales=${c.matched_x402_sales}`,
+      );
+    }
+  }
+  lines.push("");
   lines.push(`Known gaps:`);
   for (const g of r.known_gaps) lines.push(`  - ${g}`);
   return lines.join("\n");
 }
 
+function flagValue(args: string[], flag: string): string | undefined {
+  const idx = args.indexOf(flag);
+  if (idx === -1) return undefined;
+  return args[idx + 1];
+}
+
+async function runRecordClick(args: string[]) {
+  const ref = flagValue(args, "--ref");
+  const surface = flagValue(args, "--surface");
+  const target = flagValue(args, "--target");
+  const note = flagValue(args, "--note");
+  if (!ref || !surface || !target) {
+    console.error(
+      "Usage: bun skills/arc-attribution/cli.ts record-click --ref <code> --surface <s> --target <url> [--note <text>]",
+    );
+    process.exit(2);
+    return;
+  }
+  try {
+    const row = recordClick({ ref_code: ref, surface, target_url: target, source_note: note });
+    console.log(JSON.stringify({ status: "ok", row }, null, 2));
+    process.exit(0);
+  } catch (error) {
+    console.log(
+      JSON.stringify(
+        { status: "error", error: error instanceof Error ? error.message : String(error) },
+        null,
+        2,
+      ),
+    );
+    process.exit(2);
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
+  if (command === "record-click") {
+    await runRecordClick(args.slice(1));
+    return;
+  }
   if (command !== "report") {
     console.error("Usage: bun skills/arc-attribution/cli.ts report [--json]");
+    console.error("       bun skills/arc-attribution/cli.ts record-click --ref <code> --surface <s> --target <url> [--note <text>]");
     process.exit(2);
     return;
   }
