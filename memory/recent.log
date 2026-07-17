@@ -520,3 +520,4 @@
 2026-07-17T08:38:11.242Z | task #23042 | completed | sonnet | architecture review — codebase changed since last review (92 | Reviewed diff 9201950..34ba6b6: control-plane-remediation defect-register batch 
 2026-07-17T08:42:52.558Z | task #23050 | completed | sonnet | Investigate why article-pipeline auto-package reverts for ar | No stated reason in commits c17f531e/9f568694 or 3de6cbcc/642ee99e (git revert m
 2026-07-17T08:53:15.164Z | task #23053 | completed | opus | [ESCALATED][SECURITY] task #23050 had a completed DB row + r | BENIGN, no tampering: #23050 'planted completion' alarm = self-confabulation. at
+2026-07-17T08:54:16.426Z | task #23052 | blocked | sonnet | [ESCALATED] article-pipeline P4 control-plane reverts (artic | Awaiting whoabuddy action: (1) check inbox for duplicate article 6/7 packaging e
