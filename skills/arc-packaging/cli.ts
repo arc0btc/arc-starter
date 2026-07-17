@@ -37,6 +37,11 @@ import * as fs from "fs";
 import { runCommand, slugify } from "../../src/utils.ts";
 import { selectCandidate } from "./lib/backlog.ts";
 import { renderSkuCover } from "./lib/cover.ts";
+// control-plane-remediation Phase 7 (track c), P6 defect row 39: keeps checkout_config's
+// stable 'latest-report' pointer current on every SUCCESSFUL $9 SKU publish, so a surface can
+// embed one durable URL instead of a SKU-specific one that goes stale as the rolling window
+// rotates. Never called on a failed/hidden publish (see the `published` gate below).
+import { setLatestReportCheckoutUrl } from "../arc-attribution/lib/checkout-url.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const DB_PATH = process.env.ARC_PACKAGING_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc.sqlite");
@@ -700,6 +705,27 @@ async function cmdStage(
       );
     }
     console.log(`Published — product ${createJson.product_id} + plan ${createJson.plan_id} visible on the storefront (read back).`);
+
+    // control-plane-remediation Phase 7 (track c), P6 defect row 39: this is the ONLY place
+    // the stable 'latest-report' checkout_config pointer gets updated — right after `published`
+    // is confirmed true from Whop's own read-back (not from the flag), same trust boundary the
+    // rest of this function already uses. A failed/hidden publish (publishBlockedReason above,
+    // or --keep-hidden) never reaches here, so the pointer only ever points at a SKU that's
+    // actually live — a stale-but-valid old URL is safer than one to a product that never
+    // published.
+    const stableCheckoutUrl = createJson.constants?.PRODUCT_CHECKOUT_URL ?? null;
+    if (stableCheckoutUrl) {
+      try {
+        setLatestReportCheckoutUrl(stableCheckoutUrl);
+        console.log(`Stable checkout-URL pointer (checkout_config.latest-report) updated -> ${stableCheckoutUrl}`);
+      } catch (e) {
+        // Non-fatal to packaging (the SKU itself published successfully) — logged loudly so a
+        // missing/broken pointer is visible, not silently stale.
+        console.error(`setLatestReportCheckoutUrl failed (non-fatal, packaging still succeeded): ${e instanceof Error ? e.message : String(e)}`);
+      }
+    } else {
+      console.error("No PRODUCT_CHECKOUT_URL in create-product's constants — stable checkout-URL pointer NOT updated this run.");
+    }
   }
 
   db.run(
