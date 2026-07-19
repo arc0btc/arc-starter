@@ -516,3 +516,4 @@
 2026-07-19T21:43:13.043Z | task #23144 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified directly: ecosystem score 1/5 is NOT no-PRs-opened (9 watched aibtcdev 
 2026-07-19T21:49:46.055Z | task #23168 | completed | sonnet | arc-workflows PrLifecycleMachine stalled: 0 new pr-lifecycle | Root cause found+fixed: 10-repo batched gh api graphql query in fetchGitHubPRs()
 2026-07-19T21:51:28.932Z | task #23147 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: probe_x402_end | PR #615 already open fixing #613 (multi-asset x402 asset selection, sBTC-only wa
+2026-07-19T21:52:28.058Z | task #23148 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: fix: honor mul | PR #615 (aibtc-mcp-server): formalized prior comment-only review as gh pr review
