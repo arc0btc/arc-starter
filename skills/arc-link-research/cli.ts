@@ -236,7 +236,9 @@ function extractSectionUrls(readmeContent: string, sectionName: string): string[
 }
 
 async function fetchFullReadme(owner: string, repo: string): Promise<string | null> {
-  const proc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+  // Outage-hardening (2026-07-19, p9): bound gh calls so a network hang can't wedge the
+  // dispatched task indefinitely (audit gap found alongside the 2026-07-17->07-19 outage).
+  const proc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"], { timeout: 30_000 });
   if (proc.exitCode !== 0) return null;
   const b64 = proc.stdout.toString().trim();
   try {
@@ -569,7 +571,8 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     if (rest.startsWith("pull/") || rest.startsWith("issues/")) {
       const number = rest.split("/")[1];
       const type = rest.startsWith("pull/") ? "pr" : "issue";
-      const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"]);
+      // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+      const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"], { timeout: 30_000 });
       if (proc.exitCode === 0) {
         const data = JSON.parse(proc.stdout.toString());
         const title = data.title || `${owner}/${repo}#${number}`;
@@ -579,14 +582,16 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
         throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
       }
     } else {
-      const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"]);
+      // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+      const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"], { timeout: 30_000 });
       if (proc.exitCode === 0) {
         const data = JSON.parse(proc.stdout.toString());
         const title = data.name || `${owner}/${repo}`;
         const topics = (data.repositoryTopics || []).map((t: { name: string }) => t.name);
         let content = `Repo: ${owner}/${repo}\nDescription: ${data.description || ""}\nTopics: ${topics.join(", ")}\nStars: ${data.stargazerCount || 0}`;
 
-        const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+        // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+        const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"], { timeout: 30_000 });
         if (readmeProc.exitCode === 0) {
           const b64 = readmeProc.stdout.toString().trim();
           try {

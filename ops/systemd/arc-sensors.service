@@ -1,0 +1,22 @@
+[Unit]
+Description=arc-agent sensors runner
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev/arc-starter
+ExecStart=/home/dev/.bun/bin/bun src/cli.ts sensors
+Environment="HOME=/home/dev"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:/home/dev/.bun/bin:/home/dev/.local/bin"
+EnvironmentFile=/home/dev/arc-starter/.env
+StandardOutput=journal
+StandardError=journal
+# Outage-hardening (2026-07-19, phase 9 of arc-x-research-channel): the 2026-07-17->07-19
+# ~46h monsoon outage left this unit's run hung (gh calls spinning against unreachable
+# api.github.com) and its 1-min timer (Persistent=no) never re-fired. RuntimeMaxSec is an
+# OS-level backstop independent of any JS-level timeout in the code (which cannot rescue a
+# synchronous Bun.spawnSync hang since it blocks the single JS event loop). Bound chosen from
+# 30d journalctl Starting->Finished wall-clock data: p99=119s, worst normal run (excluding the
+# incident) = 166s. 600s gives 3.6x headroom over the worst normal run while killing any hang
+# within 10 minutes instead of days.
+RuntimeMaxSec=600
