@@ -41,3 +41,4 @@ db/whop-sales-artifacts/
 .dupreply-cleanup/
 db/article-pipeline-preview/
 ops/p8-outreach-ledger-*.json
+.env.heartbeat
