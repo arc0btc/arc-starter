@@ -596,6 +596,28 @@ function formatReport(scores: PurposeScores, metrics: EvalMetrics): string {
   return lines.join("\n");
 }
 
+// ---- Dedup Helpers ----
+
+// Belt-and-suspenders guard alongside the source-based pendingTaskExistsForSource(TASK_SOURCE)
+// check below: that check only catches a duplicate if the earlier eval task is still
+// pending/active under the exact same source string. #23138/#23145 (2026-07-19) showed a gap —
+// by the time the second sensor run fired, the first eval task's source-scoped check no longer
+// held (see memory/shared/entries/daily-eval-duplicate-task-same-day.md). This checks by subject
+// prefix + creation date instead, independent of source, right before the insert.
+function evalTaskPendingToday(): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT 1 FROM tasks
+       WHERE subject LIKE 'PURPOSE eval:%'
+       AND status IN ('pending', 'active')
+       AND DATE(created_at) = DATE('now')
+       LIMIT 1`
+    )
+    .get();
+  return row !== null;
+}
+
 // ---- Main Sensor ----
 
 export default async function purposeEvalSensor(): Promise<string> {
@@ -650,35 +672,40 @@ export default async function purposeEvalSensor(): Promise<string> {
     }
   }
 
-  // Create summary task with computed scores for memory update
-  insertTask({
-    subject: `PURPOSE eval: ${scores.weighted}/5 — S:${scores.signal} O:${scores.ops} E:${scores.ecosystem} C:${scores.cost}`,
-    description:
-      report +
-      "\n\n## Narrative (merged from arc-introspection, 2026-07-04)\n\n" +
-      narrative +
-      `\n\n### Reflection Prompts\n${reflectionPrompts}` +
-      "\n\n## Instructions\n" +
-      "1. Review the data-driven scores and narrative above\n" +
-      "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
-      "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
-      "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
-      "   c. Close with: `[chair] SYNTH from=score-ad-N+score-co-N+score-se-N open=[] conf=0.X \"Adaptation=N Collaboration=N Security=N\"`\n" +
-      "   d. Write the @phase propose + moves + @phase synth block to /tmp/daily-eval-council.dsl\n" +
-      "   e. Validate: `arc skills run --name council-dsl -- validate /tmp/daily-eval-council.dsl`\n" +
-      "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
-      "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
-      "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
-      "5. Write a concise 3-5 sentence self-assessment (what went well, what didn't, what to focus on) using the narrative + reflection prompts above\n" +
-      `6. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
-      "7. Close this task with the final 7-dimension score and one-line summary of the reflection",
-    skills: '["arc-purpose-eval", "arc-strategy-review"]',
-    source: TASK_SOURCE,
-    priority: 6,
-    model: "sonnet", // Lighter than opus — most scoring already done
-  });
+  // Create summary task with computed scores for memory update — guarded against a same-day
+  // duplicate subject (see evalTaskPendingToday() above).
+  if (evalTaskPendingToday()) {
+    log("eval task with matching subject already pending today — skipping duplicate creation");
+  } else {
+    insertTask({
+      subject: `PURPOSE eval: ${scores.weighted}/5 — S:${scores.signal} O:${scores.ops} E:${scores.ecosystem} C:${scores.cost}`,
+      description:
+        report +
+        "\n\n## Narrative (merged from arc-introspection, 2026-07-04)\n\n" +
+        narrative +
+        `\n\n### Reflection Prompts\n${reflectionPrompts}` +
+        "\n\n## Instructions\n" +
+        "1. Review the data-driven scores and narrative above\n" +
+        "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
+        "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
+        "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
+        "   c. Close with: `[chair] SYNTH from=score-ad-N+score-co-N+score-se-N open=[] conf=0.X \"Adaptation=N Collaboration=N Security=N\"`\n" +
+        "   d. Write the @phase propose + moves + @phase synth block to /tmp/daily-eval-council.dsl\n" +
+        "   e. Validate: `arc skills run --name council-dsl -- validate /tmp/daily-eval-council.dsl`\n" +
+        "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
+        "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
+        "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
+        "5. Write a concise 3-5 sentence self-assessment (what went well, what didn't, what to focus on) using the narrative + reflection prompts above\n" +
+        `6. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
+        "7. Close this task with the final 7-dimension score and one-line summary of the reflection",
+      skills: '["arc-purpose-eval", "arc-strategy-review"]',
+      source: TASK_SOURCE,
+      priority: 6,
+      model: "sonnet", // Lighter than opus — most scoring already done
+    });
 
-  log(`eval task created: weighted=${scores.weighted}, ${followUpCount} follow-ups`);
+    log(`eval task created: weighted=${scores.weighted}, ${followUpCount} follow-ups`);
+  }
 
   // Persist state
   await writeHookState(SENSOR_NAME, {

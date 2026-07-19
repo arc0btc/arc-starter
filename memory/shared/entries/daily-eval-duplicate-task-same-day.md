@@ -28,5 +28,12 @@ overwriting the rolling line a second time. Do not treat the second task's diffe
 inputs as grounds to "correct" the first eval unless the first eval's inputs were actually
 wrong — a same-day rescoring itself is not new information.
 
-**Fix filed:** none yet — flag for a follow-up task to add a same-day pending-task guard to
-`skills/arc-purpose-eval/sensor.ts` before creating a new `PURPOSE eval:` task.
+**Fix filed:** [SHIPPED 2026-07-19, #23177] Added `evalTaskPendingToday()` to
+`skills/arc-purpose-eval/sensor.ts` — queries `tasks` directly for any `pending`/`active` row
+with `subject LIKE 'PURPOSE eval:%'` created today, checked immediately before the summary-task
+insert. This is independent of the existing `pendingTaskExistsForSource(TASK_SOURCE)` check
+(which only catches a duplicate if the earlier eval task is still pending/active under the exact
+same source string) — the subject-based check closes the gap that let #23145 slip past it. On a
+hit, the sensor skips creating the summary task but still writes follow-ups already generated and
+persists hook state normally (does not early-return the whole sensor run), so a genuine dedup hit
+doesn't also block tomorrow's run or drop already-created follow-up tasks.
