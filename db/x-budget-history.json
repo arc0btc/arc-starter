@@ -16,14 +16,6 @@
     "follows": 0
   },
   {
-    "date": "2026-07-03",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
     "date": "2026-07-04",
     "posts": 1,
     "replies": 0,
@@ -272,5 +264,15 @@
     "follows": 0,
     "link_posts": 0,
     "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-16",
+    "posts": 0,
+    "replies": 0,
+    "likes": 6,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0
   }
 ]

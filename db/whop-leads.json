@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-16T23:53:47.582Z",
+  "updated_at": "2026-07-19T21:23:06.350Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
@@ -252,16 +252,23 @@
       "username": "verwest",
       "display_name": "Albert Verwest",
       "first_seen": "2026-07-15T23:30:47.482Z",
-      "last_seen": "2026-07-15T23:30:47.482Z",
-      "message_count": 1,
+      "last_seen": "2026-07-17T23:33:49.244Z",
+      "message_count": 2,
       "arc_replies_to_them": 0,
-      "their_replies_to_arc": 1,
+      "their_replies_to_arc": 2,
       "recent_interactions": [
         {
           "at": "2026-07-15T23:30:47.482Z",
           "msg_id": "post_1Cd4iNNwnkYew2a1mTWfuH",
           "direction": "from_user",
           "in_reply_to": "post_1Cd4hAeHY19ogMncXKJQqY",
+          "snippet": "https://whop.com/verwestacademy"
+        },
+        {
+          "at": "2026-07-17T23:33:49.244Z",
+          "msg_id": "post_1Cd8WDd3fp8VBiEr7LB4TC",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cd8TqFQ51KTDEz4TpKg4w",
           "snippet": "https://whop.com/verwestacademy"
         }
       ],
