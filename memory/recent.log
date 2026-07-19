@@ -1,32 +1,3 @@
-2026-07-14T21:14:42.527Z | task #22662 | blocked | haiku | arc-opensource: sync 863 commit(s) to GitHub | Branch reconciliation needed: feat/x-api-pay-per-use-dollar-budget merged to mai
-2026-07-14T21:16:37.125Z | task #22664 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.43/5 (S1 O5 E1 C3 Ad3 Co1 Se3). Cost recovered under D4 cap: $202.44→$103.25/d
-2026-07-14T21:17:43.456Z | task #22665 | completed | haiku | Retrospective: extract learnings from task #22664 — Daily se | Extracted 2 patterns: cost-window-alignment for multi-cycle evals, capability-ga
-2026-07-14T21:18:04.124Z | task #22663 | completed | haiku | daily cost report — 2026-07-14 | Daily cost stable 01.79; arc-link-research dedup fix measurement still pending, 
-2026-07-14T22:48:21.383Z | task #22666 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-[UNTRUSTED-SRC] 2026-07-14T23:00:43.426Z | task #22667 | completed | sonnet | Whop free-forum digest [2026-07-14]: syndicate Arc status in | Deferred: cross-lane signal showed paid-room synthesis lane fired/queued today (
-2026-07-15T00:02:03.620Z | task #22669 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified directly: 0 PRs in review-requested/opened state across all watched rep
-2026-07-15T00:03:04.511Z | task #22670 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE eval 2.10/5 (S1 O5 E1 C1 Ad3 Co1 Se3) via Council DSL v1 (validated 0 er
-2026-07-15T00:04:11.039Z | task #22668 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies benign: candidate-maturation's 19 failures were X read-budget exh
-2026-07-15T00:04:43.615Z | task #22671 | completed | haiku | Retrospective: extract learnings from task #22669 — Check fo | No learnings to capture — task #22669's hypothesis validation (checking pr-lifec
-2026-07-15T00:06:55.997Z | task #22672 | completed | haiku | Retrospective: extract learnings from task #22670 — PURPOSE  | Extended p-sensor-fire-rate-management with cost-per-task diagnostic workflow: w
-2026-07-15T00:07:57.590Z | task #22673 | completed | haiku | Retrospective: extract learnings from task #22668 — daily se | No learnings to capture — patterns 33/46/217/219 already document health-anomaly
-2026-07-15T00:38:33.071Z | task #22674 | completed | haiku | New release: anthropics/claude-code v2.1.210 | Triage: v2.1.210 relevant for Arc worktree isolation fix + permission rule chang
-2026-07-15T00:40:47.513Z | task #22675 | completed | sonnet | Phase 2 research: Claude Code v2.1.210 release analysis | v2.1.210 changelog research: worktree-isolation git-escape bug fixed, Agent tool
-2026-07-15T00:41:06.622Z | task #22676 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure reviewed (#22551): self-inflicted no-op task created by mistake during
-2026-07-15T00:42:56.930Z | task #22677 | completed | haiku | Retrospective: extract learnings from task #22675 — Phase 2  | Extracted 1 learning from #22675: release-evaluation discipline should prioritiz
-2026-07-15T00:49:04.101Z | task #22678 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T01:05:14.877Z | task #22679 | completed | sonnet | Watch report — 2026-07-15T01:01Z | Watch report: 11 tasks completed, 0 failed, .32 spent, zero Whop room traffic (1
-2026-07-15T01:06:12.767Z | task #22680 | completed | haiku | Retrospective: extract learnings from task #22679 — Watch re | No learnings to capture — watch report confirmed existing patterns; cost-per-tas
-2026-07-15T02:09:27.412Z | task #22681 | completed | sonnet | CEO review — 2026-07-15T02:06 | CEO review written to report, report-only per task scope (no queue changes). Ass
-2026-07-15T02:10:19.797Z | task #22682 | completed | haiku | Retrospective: extract learnings from task #22681 — CEO revi | One pattern captured: operational-health-plateau-business-metric-disconnect (per
-2026-07-15T02:21:09.535Z | task #22683 | completed | sonnet | Email watch report to whoabuddy — 2026-07-15T02:06 | Watch report emailed to whoabuddy@gmail.com (msg id 0f29d197), send-only task, n
-[UNTRUSTED-SRC] 2026-07-15T02:25:50.911Z | task #22684 | completed | sonnet | Whop synthesis [2026-07-15T02]: read the room, defer or post | DEFER: empty 24h window, 0 messages — nothing to synthesize
-2026-07-15T02:28:21.369Z | task #22685 | completed | sonnet | self-review: run health check for 2026-07-15 | Health check clean: services up, 0 skill lint violations, 0 pending tasks, no ne
-2026-07-15T02:29:41.676Z | task #22686 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 4 follow-ups for hungry arc-skill-manager domain: patterns.md consolidati
-2026-07-15T02:32:39.770Z | task #22687 | completed | sonnet | Consolidate memory/patterns.md (243 lines, exceeds 150-line  | patterns.md 243->198 lines (removed blank-line separators, merged 12+ near-dupli
-2026-07-15T02:49:32.931Z | task #22691 | completed | sonnet | Finish consolidating memory/patterns.md (193 lines, still ex | Folded 6 more short/related pattern entries (p-judge-panel-diversity, p-claude-q
-2026-07-15T02:59:53.228Z | task #22693 | completed | sonnet | Finish consolidating memory/patterns.md (167 lines, still ex | patterns.md now 147 lines (well under 150 threshold, status OK). Verified 3 of 5
-2026-07-15T03:00:34.236Z | task #22688 | completed | sonnet | Audit remaining skills-disallowed-tools candidates from 2026 | 27/29 disallowed-tools candidates already had the field (applied before the 07-0
 2026-07-15T03:04:09.035Z | task #22689 | completed | sonnet | Review 4 one-way threads awaiting whoabuddy reply for stalen | Of 4 claimed one-way threads, only #21499/#21800 are actually still open (both <
 2026-07-15T03:10:05.193Z | task #22695 | completed | opus | Implement operator-approved merge of daily-read/blog/X-threa | Already shipped: #21577 merge decision was implemented same-day as arc-day-n-pub
 2026-07-15T03:11:06.290Z | task #22696 | completed | openrouter:mistralai/devstral-2512 | Fix arc-blocked-review cooldown bypass: stale-reason tasks s | Fixed arc-blocked-review cooldown bypass: removed early return for stale reasons
@@ -527,3 +498,6 @@
 2026-07-19T22:51:51.678Z | task #23190 | completed | haiku | Retrospective: extract learnings from task #23157 — Reply to | Added p-sensor-cli-template-flag-freshness pattern: sensor templates must thread
 2026-07-19T22:53:25.106Z | task #23191 | completed | haiku | Retrospective: extract learnings from task #23189 — Chop blo | Extracted 2 reusable patterns from task #23189 (blog chopping): source-case exha
 2026-07-19T22:54:21.435Z | task #23137 | completed | haiku | daily cost report — 2026-07-19 | Daily cost report generated: 6.26 code cost, 4.08 API estimate, 50.9M tokens acr
+2026-07-19T23:24:02.370Z | task #23195 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-19T23:25:03.024Z | task #23196 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-19T23:58:37.677Z | task #23197 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention re: heartbeat watchdog with technical detail on independence 
