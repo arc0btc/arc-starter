@@ -1,27 +1,4 @@
 
-## 2026-07-15T08:23:00.000Z — auto-commit regression broke arc-blocked-review's task-creation call; fixed same-cycle
-
-**Task #22717** | Diff: 79f5954..2411114 (86 commits, mostly memory/docs/cache; 1 substantive src change) | Sensors: 90 | Skills: 128
-
-### Changed files (substantive only)
-
-- `skills/arc-blocked-review/sensor.ts` (52d5cf59, an unreviewed "chore(loop): auto-commit after dispatch cycle" commit) — landed the intended cooldown fix (SIGNAL_REVIEW_COOLDOWN_HOURS now applies regardless of stale-reason presence, closing the #22689-review gap already tracked in MEMORY.md) but *also* rewrote the `insertTaskIfNew` call incorrectly: first arg changed from the `TASK_SOURCE` string to the `db` handle, `skills` passed as a raw array instead of a JSON string, and the `model` field dropped entirely. Since `pendingTaskExistsForSource`/`insertTask` bind `source` as a SQLite parameter, passing a `Database` object there throws at runtime — the sensor has been unable to create any new blocked-task review since this commit landed (2026-07-14 21:11 MDT). Bun's transpile-only pre-commit guard (CLAUDE.md's "Pre-commit syntax guard") does not catch this class of bug — it's a type/runtime mismatch, not a syntax error, and this was an auto-commit with no dispatch-session review. Fixed this cycle: restored `insertTaskIfNew(TASK_SOURCE, {...})` signature, JSON-stringified skills with the valid-skill-name filter, and restored `model: "sonnet"` (tasks without an explicit model are rejected at dispatch per CLAUDE.md). Verified via `bunx tsc --noEmit -p .` — no errors on this file post-fix.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: The cooldown-regardless-of-stale-reason change traces to a named incident (#22689-review, already in MEMORY.md); valid. The rest of the diff (signature/skills/model breakage) traces to no requirement — it's incidental damage from whatever authored the auto-commit, not a deliberate change.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A.
-- **Step 4 — Accelerate**: N/A.
-- **Step 5 — Automate**: N/A — but see Flags below re: a real gap in the auto-commit safety net.
-
-### Flags
-
-- **[NEW-WATCH]** The dispatch resilience doc (CLAUDE.md "Dispatch resilience") only names two safety layers: pre-commit syntax guard (transpile-only, doesn't type-check) and post-commit service health check (checks if a service died, not whether task-creation silently started failing). Neither layer would have caught this bug, and it shipped via an unattended "chore(loop): auto-commit after dispatch cycle" commit rather than a reviewed dispatch session. A sensor that periodically runs `bunx tsc --noEmit` against files touched by auto-commits (not full transpile) and flags new errors would close this gap. Filing a follow-up.
-- **[RESOLVED]** Prior cycle's only carry-forward (#22656's Phase 8 + two-stage triage re-measurement watch) is unaffected by this diff — no action needed here, already tracked at #22699/[[arc-link-research-dedup-measurement]].
-
----
-
 ## 2026-07-15T20:23:00.000Z — smallest diff yet: arc-typecheck-guard ships end-to-end, closing the prior cycle's own [NEW-WATCH]; 129 skills / 91 sensors
 
 **Task #22793** | Diff: 2411114..69e2895 (3 commits — 4 new skills/ files, 1 fix, 1 cache auto-commit) | Sensors: 91 (up from 90) | Skills: 129 (up from 128)
@@ -122,3 +99,25 @@
 
 - **[WATCH]** `AGENTSHIELD_FALSE_POSITIVE_FILE_RE = /^hooks\/guard-.*\.sh$/` matches on a relative path (`data.findings[].file`) — didn't verify AgentShield always emits paths relative to `.claude/` rather than repo-root or absolute. If the path format ever includes a `.claude/` prefix or changes, the regex silently stops suppressing (fails safe — reverts to over-blocking, not under-blocking) rather than false-suppressing something real. Low risk either way; noting for the next reviewer rather than filing a follow-up.
 - No new watch items otherwise — fifth consecutive cycle with fully-traceable, single-incident-per-commit changes.
+
+---
+
+## 2026-07-19T22:20:00.000Z — smallest diff in this review's history: one-line KNOWN_PATTERNS exemption; 128 skills / 91 sensors
+
+**Task #23153** | Diff: 6c9f5ec..a7ef616 (9 commits — 8 auto-commit `recent.log`/docs only, 1 substantive) | Sensors: 91 | Skills: 128
+
+### Changed files (substantive only)
+
+- `skills/arc-workflow-review/sensor.ts` (a7ef6160) — one more `KNOWN_PATTERNS` exemption (`sensor:arc-packaging` → SKU-packaging retrospective chain), same already-established "ad-hoc retrospective, not a state machine" rejection shape as the prior five cycles' entries on this sensor. Verified against a named recurrence count (task #23118, 3 recurrences, avg 2.3 steps) and cites `arc-packaging`'s existing deterministic 3-step contract (`SKILL.md` + `packaging_queue_log`) as the reason a second generic workflow would duplicate rather than add value.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named recurrence (#23118), matches the sensor's established exemption convention exactly. No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — single additive line, not a consolidation.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A — documents an exception to an already-automated sensor, not new automation.
+
+### Flags
+
+- None. Sixth consecutive cycle with a fully-traceable, single-incident change on this sensor. `arc-workflow-review/sensor.ts`'s `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` exemption list has now grown by one narrow entry per review for six reviews running — each individually well-justified, but if this cadence continues indefinitely it's worth a future cycle asking whether the underlying retrospective-chain detector should learn a more general rule instead of accumulating bare-string exemptions. Not actionable yet (six data points, all genuinely distinct sources) — noting as a trend to watch, not filing a follow-up.
