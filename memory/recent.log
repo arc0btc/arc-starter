@@ -523,3 +523,4 @@
 2026-07-19T22:47:41.676Z | task #23183 | completed | haiku | Retrospective: extract learnings from task #23133 — Review 3 | Updated p-carry-watch-escalation-at-review pattern: blocked-task review tasks sh
 2026-07-19T22:48:53.373Z | task #23185 | completed | haiku | Retrospective: extract learnings from task #23142 — daily se | Updated p-sensor-health-report-suspicious-entry-interpretation with learnings: (
 2026-07-19T22:49:49.313Z | task #23187 | completed | haiku | Retrospective: extract learnings from task #23184 — Investig | Extracted sensor 90s watchdog retry-budget arithmetic pattern (validated 2x: #23
+2026-07-19T22:51:09.435Z | task #23188 | completed | haiku | Retrospective: extract learnings from task #23153 — architec | Extracted exemption-list saturation pattern: accumulation at predictable cadence
