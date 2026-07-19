@@ -1,0 +1,84 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "According to the report, what is the real bottleneck for deploying reliable agentic systems today?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The quality of the skill files and design patterns given to the agent",
+      "options": [
+        {
+          "option_text": "The quality of the skill files and design patterns given to the agent",
+          "is_correct": true
+        },
+        {
+          "option_text": "The core capabilities of the underlying LLM",
+          "is_correct": false
+        },
+        {
+          "option_text": "The size of the context window",
+          "is_correct": false
+        },
+        {
+          "option_text": "The number of available tools",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The report names three automated skill-file optimizers. Which of these is one of them?",
+      "question_type": "multiple_choice",
+      "correct_answer": "GEPA",
+      "options": [
+        {
+          "option_text": "GEPA",
+          "is_correct": true
+        },
+        {
+          "option_text": "AutoPrompt3000",
+          "is_correct": false
+        },
+        {
+          "option_text": "SkillForge",
+          "is_correct": false
+        },
+        {
+          "option_text": "PromptGPT",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The manual skill-editing loop (edit, test on suite, analyze failures, rewrite) scales well because the skill doc can be trained the same way the model can.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "What gate does @sairahul1 propose before spawning an agent for a task at all?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Only use an agent when one call can't be reliable, or the model must choose tools/data at runtime",
+      "options": [
+        {
+          "option_text": "Only use an agent when one call can't be reliable, or the model must choose tools/data at runtime",
+          "is_correct": true
+        },
+        {
+          "option_text": "Always use an agent for any multi-step task",
+          "is_correct": false
+        },
+        {
+          "option_text": "Only use an agent if the budget allows it",
+          "is_correct": false
+        },
+        {
+          "option_text": "Never use an agent for user-facing work",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What does the report identify as missing from the described skill-optimization loop, that the target harness would need to build first?",
+      "question_type": "short_answer",
+      "correct_answer": "A golden test suite (a set of cases) to optimize skill files against"
+    }
+  ]
+}
