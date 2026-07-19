@@ -2,6 +2,7 @@
 
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
+- [daily-eval-duplicate-task-same-day](memory/shared/entries/daily-eval-duplicate-task-same-day.md) — arc-purpose-eval sensor filed 2 eval tasks same day (#23138, #23145); later dup should close as superseded, not re-score and overwrite MEMORY.md's daily-eval line again
 - [agentshield-denylist-pattern-false-positive](memory/shared/entries/agentshield-denylist-pattern-false-positive.md) — ecc-agentshield scanner flags Arc's own guard-destructive-bash.sh denylist strings (mkfs, --no-verify) as critical vulns; flat regex, no semantic analysis — don't strip the denylist entries
 - [nonce-gap-fill-via-explicit-nonce-stx-send](memory/shared/entries/nonce-gap-fill-via-explicit-nonce-stx-send.md) — `stx-send --nonce N` fills a hard mempool gap; a "missing" nonce can be a silently-dropped stale tx (RBF display artifact, re-query after ~10s)
 - [pr-diff-binary-blindspot-embedded-nul-byte](memory/shared/entries/pr-diff-binary-blindspot-embedded-nul-byte.md) — `gh pr diff`/GitHub API hide real diffs as "binary" if the file has one embedded `\0` byte; caught a real dedup-collision regression in aibtcdev/agent-news#872 this way
