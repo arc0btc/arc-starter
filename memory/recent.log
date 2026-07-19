@@ -530,3 +530,4 @@
 2026-07-19T22:07:15.252Z | task #23145 | completed | sonnet | PURPOSE eval: 2.75/5 — S:1 O:5 E:1 C:5 | Duplicate of #23138 (same-day daily-eval, already scored Ad:4 Co:1 Se:3 and upda
 2026-07-19T22:09:17.979Z | task #23177 | completed | sonnet | Add same-day pending-task dedup guard to arc-purpose-eval se | Added evalTaskPendingToday() subject+date guard to arc-purpose-eval sensor (comm
 2026-07-19T22:09:35.413Z | task #23146 | completed | haiku | New release: anthropics/claude-code v2.1.215 | Relevant: skill auto-invocation behavior change affects Arc PR workflow; Phase 2
+2026-07-19T22:11:16.472Z | task #23180 | completed | sonnet | Deep analysis: Claude Code v2.1.215 behavioral shift on skil | v2.1.215 removes implicit auto-invocation of /verify and /code-review; no Arc im
