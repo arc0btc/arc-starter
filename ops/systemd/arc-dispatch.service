@@ -20,3 +20,8 @@ StandardError=journal
 # outage. No change needed here: confirmed live that RuntimeMaxSec= is a silent no-op for
 # Type=oneshot on this systemd version (255) -- TimeoutStartSec= is the directive systemd
 # actually honors for oneshot services, and this unit already had it right.
+
+# SCOPE CORRECTION (dev-council Lamport lens, 2026-07-19): same caveat as arc-sensors.service --
+# TimeoutStartSec/TimeoutStopSec reliably reap signal-interruptible hangs, not a process wedged
+# in an uninterruptible (D-state) kernel wait. See arc-sensors.service's comment for detail; the
+# off-LAN arc-heartbeat-worker is the true backstop for a fully wedged VM.

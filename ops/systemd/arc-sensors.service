@@ -30,3 +30,15 @@ StandardError=journal
 # killing any hang within 10 minutes instead of days.
 TimeoutStartSec=600
 TimeoutStopSec=60
+
+# SCOPE CORRECTION (dev-council Lamport lens, 2026-07-19): TimeoutStartSec bounds wall-clock
+# from ExecStart to job-settle and, on expiry, SIGTERMs then (after TimeoutStopSec) SIGKILLs the
+# unit's cgroup -- for a process in an INTERRUPTIBLE wait (the documented incident: gh blocked
+# on a TCP call to an unreachable host, S-state) this reliably reaps it and frees the timer to
+# re-fire. It is NOT a guarantee against a process wedged in an UNINTERRUPTIBLE kernel wait
+# (D-state -- e.g. a dying disk/NFS/FUSE path, plausible during a chaotic power-transition,
+# though not what a network hang produces): SIGKILL cannot reap D-state, the unit can hang in
+# stop-sigterm/final-sigkill with a non-empty cgroup, and the timer never re-arms. Do not read
+# this directive as "kills any hang" -- it kills any SIGNAL-REAPABLE hang, which covers the
+# incident as diagnosed. The off-LAN arc-heartbeat-worker (see ops/systemd/arc-heartbeat.*) is
+# the actual backstop for a fully wedged VM.
