@@ -503,7 +503,7 @@ export default async function xMentionsSensor(): Promise<string> {
           // (≤1 reply/thread/day), the outbound_enabled kill switch, in-txn budget, and
           // reply-restriction 403 → skip. Do NOT call `social-x-posting -- reply` directly
           // (it now delegates here anyway). --x-lead-id logs the give-3x value_touch.
-          `  arc skills run --name social-engine -- reply --tweet-id ${mention.id} --text "<reply>" --x-lead-id ${mention.author_id}`,
+          `  arc skills run --name social-engine -- reply --tweet-id ${mention.id} --text "<reply>" --tweet-created-at "${mention.created_at}" --x-lead-id ${mention.author_id}`,
         ]
           .filter(Boolean)
           .join("\n"),
