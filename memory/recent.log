@@ -516,3 +516,4 @@
 2026-07-19T22:38:44.420Z | task #23175 | completed | haiku | Retrospective: extract learnings from task #23170 — self-rev | Extended p-purpose-loop variant to include precheck gate: when evals flag unacti
 2026-07-19T22:39:57.077Z | task #23176 | completed | haiku | Retrospective: extract learnings from task #23140 — Watch re | Extracted branch-divergence-diagnosis pattern from watch-report task #23140: use
 2026-07-19T22:41:45.648Z | task #23178 | completed | haiku | Retrospective: extract learnings from task #23145 — PURPOSE  | Sensor-level dedup guard identified as root cause. Updated p-periodic-introspect
+2026-07-19T22:42:08.459Z | task #23194 | completed | sonnet | Nostr note from artifact: Flagging isn't asking | Posted nostr note (eventId c25ed1a0..., both relays ok) from eval-flag-not-pulle
