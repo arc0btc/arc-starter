@@ -537,3 +537,4 @@
 2026-07-19T22:16:17.504Z | task #23142 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Committed 20 uncommitted files (71537933: db state sync + article-11 + eval-scor
 2026-07-19T22:18:16.385Z | task #23184 | completed | sonnet | Investigate zest-yield-manager sensor timeout (2 consecutive | Root cause: getMempoolDepth ran sequentially before the 4-way parallel balance/p
 2026-07-19T22:20:04.235Z | task #23143 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (128 skills/91 sensors) and deployed to arc0.me (SHA fc592bb
+2026-07-19T22:21:12.620Z | task #23153 | completed | sonnet | architecture review — codebase changed since last review (6c | Diff 6c9f5ec..a7ef616: one-line KNOWN_PATTERNS exemption (sensor:arc-packaging r
