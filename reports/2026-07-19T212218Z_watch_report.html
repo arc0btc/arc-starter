@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-19T21:22Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-17T13:00:43Z — 2026-07-19T21:22:18Z</div>
+</header>
+
+<p class="summary">22 dispatch cycles ran since the last report (a ~56h gap, no reports fired 07-18), completing 18 tasks for $24.25 (0 failed). Headline: the feat/x-api-pay-per-use-dollar-budget branch-divergence escalation was re-diagnosed as a conflict-free merge (not the cherry-pick job previously assumed) and pushed to origin, and a silent arc-workflows PrLifecycleMachine break — GitHub GraphQL batch queries hitting a resource-limit wall — was found and fixed same day. Whop room was quiet (0 new messages); operational health otherwise green.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">18</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">3</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$24.25</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">21802k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">113k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23168</td><td class="pri">8</td><td>Fix PrLifecycleMachine stall</td><td>Chunked GraphQL to 5 repos/query; 10-repo batch was silently hitting GitHub resource limits since 07-16</td><td class="cost">$3.04</td></tr>
+    <tr><td class="id">23144</td><td class="pri">8</td><td>Check pending PR reviews across ecosystem</td><td>Root-caused PrLifecycleMachine's zero-new-workflow-rows since 07-16 14:50; filed #23168</td><td class="cost">$2.88</td></tr>
+    <tr><td class="id">23136</td><td class="pri">6</td><td>Draft Article 12</td><td>Staged event-driven-arch-vs-SQLite-queue piece; caught stale line-number citation before drafting</td><td class="cost">$2.22</td></tr>
+    <tr><td class="id">23139</td><td class="pri">8</td><td>Package research report → Whop SKU</td><td>Published prod_qXvklwbkyxGE4 (quiz+cover); fixed slug route-collision via stage override</td><td class="cost">$1.86</td></tr>
+    <tr><td class="id">23160</td><td class="pri">7</td><td>Fix arc0btc.com freshness alert</td><td>Published staged Article 12, deployed; all 4 site-health checks pass</td><td class="cost">$1.26</td></tr>
+    <tr><td class="id">23147</td><td class="pri">6</td><td>GitHub mention: x402 multi-asset fix</td><td>Reviewed PR #615, caught one inaccurate claim in author's description, posted substantive review</td><td class="cost">$1.15</td></tr>
+    <tr><td class="id">23170</td><td class="pri">7</td><td>Self-review triage: 2 issues</td><td>Filed #23174 sign-off ask; left arc-opensource backlog alone (already escalated via #23150/#23159)</td><td class="cost">$1.08</td></tr>
+    <tr><td class="id">23172</td><td class="pri">6</td><td>Review PR #1038 landing-page</td><td>Requested changes — PR is a no-op 3-line placeholder claiming to close a well-specified issue</td><td class="cost">$0.98</td></tr>
+    <tr><td class="id">23158</td><td class="pri">6</td><td>Whop free-forum digest</td><td>Posted "A cost breach I can't shrug off" using real recent.log stats, not stale task snapshot</td><td class="cost">$0.99</td></tr>
+    <tr><td class="id">23148</td><td class="pri">6</td><td>GitHub mention: PR #615 review</td><td>Formalized prior review as gh pr review --approve; merge left to human maintainers</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">23149</td><td class="pri">6</td><td>GitHub mention: quantum bounty</td><td>No new ask since 07-12; no action taken to avoid redundant comment on active thread</td><td class="cost">$0.94</td></tr>
+    <tr><td class="id">23141</td><td class="pri">7</td><td>Self-review health check</td><td>91/91 sensors clean, typecheck clean, 100% 7d accept rate; 2 pre-existing issues persist</td><td class="cost">$0.91</td></tr>
+    <tr><td class="id">23138</td><td class="pri">6</td><td>Daily self-evaluation (PURPOSE.md)</td><td>2.29/5; cost breach persists 3rd eval running, arc-0015 gate still unimplemented</td><td class="cost">$1.39</td></tr>
+    <tr><td class="id">23161</td><td class="pri">8</td><td>Nostr note: Maker not checker</td><td>Posted on the maker/checker gap in routine task closes; both relays ok</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">23164</td><td class="pri">8</td><td>Nostr note: Advisory before blocking</td><td>Posted on measuring disagreement rate before adding a verifier gate</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">23155</td><td class="pri">8</td><td>Nostr note: Grading my own homework</td><td>Posted on self-grading gap (no independent verifier); skipped CTA, no engagement signal yet</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">23154</td><td class="pri">6</td><td>X cadence: blog-snippet post</td><td>Deferred — reserve-group budget_exhausted, no post made, retries next cycle</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">23174</td><td class="pri">2</td><td>Sign-off: arc-0015 grounding gate</td><td>Drafted decision summary for 3rd-eval-cycle-unactioned cost lever; awaiting whoabuddy</td><td class="cost">$0.13</td></tr>
+  </tbody>
+</table>
+<div class="obs"><strong>Blocked (3, all one chain):</strong> #23135 → #23150 → #23159 — the feat/x-api-pay-per-use-dollar-budget branch-reconciliation escalation. Corrected diagnosis: <code>git merge-tree</code> confirms zero conflicts (branch is a strict superset of main, ahead 1382/behind exactly 1 — the PR#28 merge commit itself). Branch pushed to origin. Awaiting whoabuddy's sign-off to <code>gh pr create</code> + merge; unblocks 7 stacked arc-opensource sync tasks.</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<p class="empty">No room activity this period. Reactive lane live, 0 new candidates (latest tick's 9 candidates were all pre-period whoabuddy messages, skipped as stale/below-length-floor). Synthesis lane: all ticks skip_room_unchanged (0 messages in 24h window each tick). Daily reply budget: 0/10 used.</p>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="metrics">
+  <div class="metric"><div class="value">48</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">24h delta</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d delta</div></div>
+  <div class="metric"><div class="value">6</div><div class="label">Per-touch proxy (10 posts)</div></div>
+</div>
+<div class="obs">Anchor captured 1h ago — too fresh for 24h/7d deltas yet. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM in profile), checkout starts (24h) 0, abandons 0.</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">a7ef6160</span>chore(arc-workflow-review): exempt sensor:arc-packaging retrospective chain</div>
+<div class="commit"><span class="hash">528cd3d4</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">6c9f5ec6</span>fix(arc-packaging): call initDatabase() so stage updates latest-report checkout pointer</div>
+<div class="commit"><span class="hash">59d477f6</span>docs(report): CEO review — on track, AgentShield self-scan loop and Whop stall flagged</div>
+<div class="commit"><span class="hash">fa197ac4</span>docs(report): watch report 2026-07-17T130043Z</div>
+<div class="obs">56 total commits in period; the other 51 are routine per-cycle auto-commits (memory/task-state). Whoabuddy: 0 GitHub push events this period.</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">2</span>#23174 (in-flight) Sign-off: arc-0015 grounding gate — 3rd eval flagging cost breach</div>
+<div class="queue-item"><span class="pri-tag blocked">2</span>#23159 <span class="blocked">DECISION NEEDED</span>: merge feat/x-api-pay-per-use-dollar-budget → main</div>
+<div class="queue-item"><span class="pri-tag blocked">2</span>#21989 <span class="blocked">Escalation</span>: authorize git push (awaiting sign-off since 07-10)</div>
+<div class="queue-item"><span class="pri-tag blocked">2</span>#22887 <span class="blocked">Escalated</span>: re-enable X outbound kill switch (awaiting sign-off since 07-16)</div>
+<div class="queue-item"><span class="pri-tag">6</span>#23145 PURPOSE eval: 2.75/5 (dup of #23138, unreconciled)</div>
+<div class="queue-item"><span class="pri-tag">6</span>#23146 New release: anthropics/claude-code v2.1.215</div>
+<div class="queue-item"><span class="pri-tag">6</span>#23151/#23152 Generate + publish next operating blog post draft</div>
+<div class="queue-item"><span class="pri-tag">7</span>#23133 Review 3 blocked tasks for possible unblock</div>
+<div class="queue-item"><span class="pri-tag">7</span>#23142 Daily self-audit: 2 anomalies detected</div>
+<div class="queue-item"><span class="pri-tag">7</span>#23153 Architecture review — codebase changed since last review</div>
+<div class="queue-item"><span class="pri-tag">7</span>#23156 Housekeeping: 4 issues detected</div>
+<div class="queue-item"><span class="pri-tag">7</span>#23157 Reply to X mention</div>
+<div class="queue-item"><span class="pri-tag">8</span>7 retrospective tasks queued (learnings extraction, #23162–23171)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Same-day root-cause + fix on arc-workflows: #23144 found that batched 10-repo GitHub GraphQL queries were silently returning an empty array on GitHub's "resource limits exceeded" error (no exception, consecutive_failures stayed 0), zero pr-lifecycle rows created since 07-16 14:50. #23168 shipped the fix (5-repo chunks, 313343e9) same cycle.</div>
+<div class="obs">Branch-divergence framing corrected: the prior "needs cherry-pick/rebase judgment" read (#23135) was never actually verified with <code>git merge-tree</code>. Once run, it showed zero conflicts — a one-line lesson now in memory to run that check before escalating divergence as complex.</div>
+<div class="obs">Two sensors flagged transient 90s timeouts this period (x-news-trends: 1×, zest-yield-manager: 2×) out of 259 tracked — isolated, not a pattern yet, but zest-yield-manager is worth a glance if it recurs a 3rd time.</div>
+<div class="obs">Cost ratio remains lopsided: 21.8M tokens in vs 113k out (~193:1) across 22 cycles — consistent with the still-unimplemented arc-0015 grounding-gate lever (proposal #22857), now flagged in 3+ consecutive daily evals without action.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
