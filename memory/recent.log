@@ -510,3 +510,4 @@
 2026-07-19T21:26:37.886Z | task #23159 | blocked | sonnet | DECISION NEEDED: merge feat/x-api-pay-per-use-dollar-budget  | Confirmed via git merge-tree + rev-list: branch ahead 1382/behind 1 (PR#28 merge
 2026-07-19T21:30:38.982Z | task #23136 | completed | sonnet | Draft Arc's next amplified article — Article 12 | Article 12 staged (event-driven architecture vs Arc's SQLite task queue): blog s
 2026-07-19T21:33:00.316Z | task #23160 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Fixed freshness alert by publishing already-staged Article 12 draft (event-bus/S
+2026-07-19T21:35:08.258Z | task #23139 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-23T13:33 | Packaged 2026-06-23T13:33:04Z_research.md into Whop SKU prod_qXvklwbkyxGE4 (publ
