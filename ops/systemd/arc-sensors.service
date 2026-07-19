@@ -13,10 +13,20 @@ StandardOutput=journal
 StandardError=journal
 # Outage-hardening (2026-07-19, phase 9 of arc-x-research-channel): the 2026-07-17->07-19
 # ~46h monsoon outage left this unit's run hung (gh calls spinning against unreachable
-# api.github.com) and its 1-min timer (Persistent=no) never re-fired. RuntimeMaxSec is an
-# OS-level backstop independent of any JS-level timeout in the code (which cannot rescue a
-# synchronous Bun.spawnSync hang since it blocks the single JS event loop). Bound chosen from
-# 30d journalctl Starting->Finished wall-clock data: p99=119s, worst normal run (excluding the
-# incident) = 166s. 600s gives 3.6x headroom over the worst normal run while killing any hang
-# within 10 minutes instead of days.
-RuntimeMaxSec=600
+# api.github.com) and its 1-min timer (Persistent=no) never re-fired. An OS-level backstop is
+# needed because it's independent of any JS-level timeout in the code (which cannot rescue a
+# synchronous Bun.spawnSync hang since that blocks the single JS event loop).
+#
+# CORRECTION during live verify: RuntimeMaxSec= was tried first per the original plan, but
+# systemd 255 logs "RuntimeMaxSec= has no effect in combination with Type=oneshot. Ignoring."
+# (confirmed live via journalctl on this exact unit) -- it is a silent no-op for oneshot
+# services on this systemd version. TimeoutStartSec= is the directive systemd actually honors
+# for oneshot (this is also why arc-dispatch.service's pre-existing TimeoutStartSec=3600 was a
+# real, working backstop pre-incident, while an add-RuntimeMaxSec-only fix here would have
+# shipped a backstop that silently does nothing).
+#
+# Bound chosen from 30d journalctl Starting->Finished wall-clock data: p99=119s, worst normal
+# run (excluding the incident) = 166s. 600s gives 3.6x headroom over the worst normal run while
+# killing any hang within 10 minutes instead of days.
+TimeoutStartSec=600
+TimeoutStopSec=60

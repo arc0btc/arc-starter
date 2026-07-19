@@ -1,0 +1,14 @@
+[Unit]
+Description=arc-agent off-LAN heartbeat ping (p9 outage-hardening, 2026-07-19)
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev/arc-starter
+ExecStart=/bin/bash /home/dev/arc-starter/scripts/heartbeat-ping.sh
+# Deliberately NOT dependent on arc-starter's bun runtime, DB, or credential store -- see
+# scripts/heartbeat-ping.sh header. Independent of arc-sensors.service/arc-dispatch.service
+# by design: it must keep beating even if those wedge.
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal

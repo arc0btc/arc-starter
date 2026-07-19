@@ -15,8 +15,8 @@ TimeoutStopSec=3600
 StandardOutput=journal
 StandardError=journal
 # Outage-hardening (2026-07-19, phase 9 of arc-x-research-channel): TimeoutStartSec above was
-# already a working backstop pre-incident (30d journalctl wall-clock max = 1023s / ~17min, well
-# under 3600s). RuntimeMaxSec added as the idiomatic, explicit runtime-bound directive alongside
-# it -- same value, kept unchanged since it is already data-justified (3.5x the 30d max) and
-# proven sufficient (dispatch was not the unit that stayed wedged through the 46h outage).
-RuntimeMaxSec=3600
+# ALREADY a working backstop pre-incident (30d journalctl wall-clock max = 1023s / ~17min, well
+# under 3600s) -- this is why dispatch was not the unit that stayed wedged through the 46h
+# outage. No change needed here: confirmed live that RuntimeMaxSec= is a silent no-op for
+# Type=oneshot on this systemd version (255) -- TimeoutStartSec= is the directive systemd
+# actually honors for oneshot services, and this unit already had it right.

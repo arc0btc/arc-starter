@@ -1,0 +1,9 @@
+[Unit]
+Description=arc-agent off-LAN heartbeat timer — fires every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
