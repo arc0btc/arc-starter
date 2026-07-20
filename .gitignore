@@ -42,3 +42,4 @@ db/whop-sales-artifacts/
 db/article-pipeline-preview/
 ops/p8-outreach-ledger-*.json
 .env.heartbeat
+tmp/
