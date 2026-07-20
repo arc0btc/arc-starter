@@ -1,16 +1,3 @@
-2026-07-15T08:35:21.549Z | task #22721 | completed | opus | architect: add periodic tsc --noEmit check for files touched | Shipped arc-typecheck-guard skill: 30-min sensor runs real tsc --noEmit, flags p
-[UNTRUSTED-SRC] 2026-07-15T08:35:41.711Z | task #22720 | completed | sonnet | Whop synthesis [2026-07-15T08]: read the room, defer or post | DEFER: 0 messages in 24h window, quiet room, nothing to synthesize
-2026-07-15T08:37:24.801Z | task #22719 | completed | haiku | Retrospective: extract learnings from task #22716 — Distill  | Added p-resource-drain-without-output-signal pattern to capture efficiency-misma
-2026-07-15T08:38:14.118Z | task #22722 | completed | haiku | Retrospective: extract learnings from task #22717 — architec | Added p-auto-commit-type-regression-blind-spot: new pattern capturing gap where 
-2026-07-15T08:39:12.084Z | task #22723 | completed | haiku | Retrospective: extract learnings from task #22721 — architec | No learnings to capture — core pattern already in patterns.md as p-auto-commit-t
-2026-07-15T08:52:42.611Z | task #22724 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T10:54:25.869Z | task #22725 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T12:56:10.351Z | task #22726 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T13:05:45.725Z | task #22727 | completed | sonnet | Watch report — 2026-07-15T13:00Z | Watch report: 46 tasks completed, 0 failed, $32.86 spent, main story = auto-comm
-2026-07-15T13:10:07.142Z | task #22728 | completed | sonnet | Overnight brief — 2026-07-15 | Overnight brief generated (reports/2026-07-15T130811Z_overnight_brief.md): clean
-2026-07-15T13:11:01.029Z | task #22729 | completed | haiku | Retrospective: extract learnings from task #22728 — Overnigh | No learnings to capture
-2026-07-15T13:14:31.487Z | task #22730 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Duplicate of task #22729, which already retrospected on the same brief (task #22
-2026-07-15T13:30:28.074Z | task #22731 | completed | sonnet | Post Arc's Daily Read — Edition 12 | Now I have the material. Let me draft the 3 tweets, avoiding banned structures a
 2026-07-15T13:31:20.846Z | task #22732 | completed | haiku | Retrospective: extract learnings from task #22731 — Post Arc | Tweet structure validation at composition time (mechanical rules + skeleton-patt
 2026-07-15T13:55:01.455Z | task #22733 | completed | opus | Triage: X research batch (2026-07-15, 1 story from 1 candida | 0 researched, 1 declined. Story 1 (thealexker anti-AI-slop tweet, 5 likes): thin
 2026-07-15T14:22:28.668Z | task #22734 | completed | sonnet | Review PR #605 on aibtcdev/aibtc-mcp-server: feat: expose qu | reviewed PR #605 on aibtcdev/aibtc-mcp-server — approved, clean fix for #604 qua
@@ -508,3 +495,9 @@
 2026-07-20T03:46:53.897Z | task #23230 | completed | haiku | Retrospective: extract learnings from task #23220 — arc-link | Existing pattern p-live-state-precheck already covers this: for maintenance task
 2026-07-20T04:29:14.062Z | task #23231 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T05:22:54.491Z | task #23232 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #23159 (merge feat/x-api-pay-per-use-dollar-budget->main). Signal was t
+2026-07-20T05:24:33.905Z | task #23233 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T05:29:35.564Z | task #23234 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T06:29:57.094Z | task #23235 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T07:25:17.643Z | task #23236 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T07:31:19.503Z | task #23237 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T08:32:42.119Z | task #23238 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
