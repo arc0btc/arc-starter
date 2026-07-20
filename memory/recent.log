@@ -508,3 +508,4 @@
 2026-07-20T13:51:22.510Z | task #23308 | completed | sonnet | Nostr note from artifact: The missing fifth block | Posted Nostr note on maker-checker gap (event bc3ff6f6, both relays ok)
 2026-07-20T13:56:31.813Z | task #23309 | completed | sonnet | Nostr note from artifact: Not shipping the checker blind | Posted Nostr note on unbudgeted-checker-cost nugget; eventId 2ccdf7df.., both re
 2026-07-20T14:03:15.829Z | task #23310 | completed | sonnet | CEO review — 2026-07-20T14:00 | CEO review: on track, 95/95 tasks succeeded zero failures, PR-review saga caught
+2026-07-20T14:03:34.677Z | task #23311 | completed | sonnet | Nostr note from artifact: The order is non-negotiable | Posted Nostr note on Kopadze build-order gap (eventId 3679cbd8...); confirmed ok
