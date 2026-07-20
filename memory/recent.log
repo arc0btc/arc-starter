@@ -511,3 +511,4 @@
 2026-07-20T09:12:04.267Z | task #23246 | completed | haiku | Retrospective: extract learnings from task #23243 — Review P | Extracted stacked-branch PR review pattern: when a PR branch carries unmerged ba
 2026-07-20T09:13:08.892Z | task #23248 | completed | haiku | Retrospective: extract learnings from task #23244 — Review P | Extracted test-convention-discovery pattern from PR #874 review (recognizing and
 2026-07-20T09:14:11.645Z | task #23249 | completed | haiku | Retrospective: extract learnings from task #23247 — Review P | Updated p-type-widening with same-file matching-contract consistency variant: wh
+2026-07-20T09:25:03.874Z | task #23250 | completed | sonnet | Review cost efficiency — daily spend elevated | Reviewed cost report ($87.87/day, 123 tasks, 92.8M tokens). Sonnet is 85% of cos
