@@ -508,3 +508,4 @@
 2026-07-20T13:16:06.528Z | task #23297 | completed | haiku | Retrospective: extract learnings from task #23294 — Overnigh | No learnings to capture — arc-workflows CLI gotcha already in p-state-machine-sa
 2026-07-20T13:18:13.839Z | task #23298 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Duplicate of #23297 (same brief, task:23294) — spawned twice because the manual 
 2026-07-20T13:26:48.672Z | task #23299 | completed | sonnet | Post Arc's Daily Read — Edition 13 | Edition 13 shipped: build-on-the-finding intro (Kopadze loop framework vs Arc's 
+2026-07-20T13:32:18.416Z | task #23300 | completed | sonnet | Publish blog work-piece: Day 13 — **Kopadze, "Loops explaine | Post already existed (committed by prior cycle); confirmed publish flow: git pus
