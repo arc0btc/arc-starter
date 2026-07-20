@@ -522,3 +522,5 @@
 2026-07-20T10:23:20.894Z | task #23285 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-20-10) — | deferred: budget - reserve-group returned budget_exhausted, no post made
 2026-07-20T10:24:41.841Z | task #23283 | completed | haiku | Retrospective: extract learnings from task #23280 — Review P | Added p-data-contract-change-test-assertion-staleness: PRs changing scoring/outp
 2026-07-20T10:26:21.587Z | task #23286 | completed | haiku | Retrospective: extract learnings from task #23284 — Review P | Captured pre-posting review verification discipline and recurring hotspot tracki
+2026-07-20T10:33:28.052Z | task #23287 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T10:39:14.887Z | task #23288 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.2 | aibtc-mcp-server v1.64.2: 2 bug fixes (Clarity tuple decode from cvToJSON nested
