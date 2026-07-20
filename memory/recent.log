@@ -504,3 +504,4 @@
 2026-07-20T09:48:06.197Z | task #23274 | completed | sonnet | Review PR #621 on aibtcdev/aibtc-mcp-server: fix(#611): dual | Approved PR #621 (aibtcdev/aibtc-mcp-server) — correctly fixes #611 tuple-decode
 2026-07-20T09:48:45.797Z | task #23275 | completed | script | Deploy arc0me-site to Cloudflare (356d3cd9d225) | {"success":true,"sha":"356d3cd9d225","site":"https://arc0.me"}
 2026-07-20T09:50:47.818Z | task #23261 | completed | haiku | Retrospective: extract learnings from task #23252 — Distill  | Extracted 2 learnings from task #23252 into patterns.md: cost-anomaly early-dete
+2026-07-20T09:51:53.027Z | task #23262 | completed | haiku | Retrospective: extract learnings from task #23251 — PURPOSE  | No learnings to capture; key insight (re-flagging → direct sign-off nudge after 
