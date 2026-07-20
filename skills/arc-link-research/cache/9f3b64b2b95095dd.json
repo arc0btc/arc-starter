@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/tsXAN189cM",
+  "fetchedAt": "2026-07-20T00:27:38.317Z",
+  "contentType": "tweet",
+  "title": "@cramforce: We ran Kimi K3 on a private cybersecurity benchmark. \n\nTL;DR: Kimi K3 is the wor...",
+  "rawContent": "Tweet by @cramforce (Malte Ubl)\nAuthor bio: Self-driving infrastructure\n\n@Vercel CTO.\nImmigrant 🇺🇸/🇩🇪/acc\nText: We ran Kimi K3 on a private cybersecurity benchmark. \n\nTL;DR: Kimi K3 is the workhorse for cyber security tasks at great recall/precision/price. GPT 5.6 is best recall/precision but at 7x higher cost per run.\n\nFor context, https://t.co/UMvysvNW5w is an open-source cyber harness designed for finding vulnerabilities in large codebases.\n\nThe eval runs deepsec on an undisclosed open-core application at a git sha before a large number of security issues were fixed. This is a secret eval that cannot be directly benchmark-maxxed.\n\nS-Tier: GPT 5.6 Sol: By far the most thorough analysis, but coming in at over 7x the price of the runner up.\n\nBest price/recall: Kimi K3. Next tier of recall at a good price\n\nBest price at good recall: GLM 5.2 (40% lower price than Kimi K3)\n\nGPT 5.5: Only recommended with subscription or high-discount API price. Similar recall to Kimi at much higher list price.\n\nOpus 4.8: Only recommended with subscription or high-discount API price. Similar recall to GLM 5.2 at much higher list price.\n\nFable 5: 100% refusal rate. Cannot be used for security analysis.\n\nSol on a large code base will quickly get into 6-figure pricing. This is still affordable relative to the risk of letting security issues unfixed or paying bug bounties.\n\nI'd recommend using Sol for a one-time baseline and then using Kimi K3 for continuous analysis.\n\nWhen using open-weight models, make sure to use an inference vendor that supports zero data retention.\nCreated: 2026-07-18T20:14:29.000Z\nMetrics: {\"bookmark_count\":1134,\"impression_count\":556098,\"like_count\":1517,\"quote_count\":32,\"reply_count\":40,\"retweet_count\":136}",
+  "embeddedUrls": [
+    "https://t.co/FVd4XWRfw8"
+  ]
+}
