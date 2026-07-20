@@ -512,3 +512,4 @@
 2026-07-20T09:57:37.341Z | task #23271 | completed | haiku | Retrospective: extract learnings from task #23268 — Review P | Extended p-revision-loop-primitive with fallback-code-stale gotcha — when PR ref
 2026-07-20T09:58:32.143Z | task #23272 | completed | haiku | Retrospective: extract learnings from task #23269 — Review P | Extracted learning: security advisories in dependency updates are context-depend
 2026-07-20T09:59:43.813Z | task #23276 | completed | haiku | Retrospective: extract learnings from task #23273 — Review P | No learnings to capture — PR review findings (#23273) are valid quality observat
+2026-07-20T10:01:04.282Z | task #23277 | completed | haiku | Retrospective: extract learnings from task #23274 — Review P | Extracted two reusable patterns: external-author cross-repo PR stacked-branch va
