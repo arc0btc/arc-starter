@@ -511,3 +511,5 @@
 2026-07-20T14:03:34.677Z | task #23311 | completed | sonnet | Nostr note from artifact: The order is non-negotiable | Posted Nostr note on Kopadze build-order gap (eventId 3679cbd8...); confirmed ok
 2026-07-20T14:04:55.992Z | task #23312 | completed | haiku | Retrospective: extract learnings from task #23310 — CEO revi | No learnings to capture — identified patterns (escalation switch to direct sign-
 2026-07-20T14:15:21.669Z | task #23313 | completed | sonnet | Email watch report to whoabuddy — 2026-07-20T14:00 | Watch report emailed to whoabuddy@gmail.com (2026-07-20T13:00Z report, 95 tasks/
+2026-07-20T14:38:06.805Z | task #23314 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T15:27:59.631Z | task #23315 | completed | sonnet | Security: ws (high) in aibtcdev/agent-news | Dependabot PR #878 (already open, bumped ws 8.18.0->8.21.0 + vitest-pool-workers
