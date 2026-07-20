@@ -1,29 +1,4 @@
 
-## 2026-07-15T20:23:00.000Z — smallest diff yet: arc-typecheck-guard ships end-to-end, closing the prior cycle's own [NEW-WATCH]; 129 skills / 91 sensors
-
-**Task #22793** | Diff: 2411114..69e2895 (3 commits — 4 new skills/ files, 1 fix, 1 cache auto-commit) | Sensors: 91 (up from 90) | Skills: 129 (up from 128)
-
-### Changed files (substantive only)
-
-- `skills/arc-typecheck-guard/{SKILL.md,check.ts,cli.ts,sensor.ts}` (f3469b19, new skill) — direct fix for the prior cycle's own flagged gap: a 30-min sensor runs `tsc --noEmit`, diffs per-file error counts against a persisted baseline (`db/tsc-baseline.json`), and flags only INCREASES touched by unattended auto-commits (reviewed/human commits are ignored — CI covers those). Flags via follow-up task, does not revert (type errors don't crash a running Bun service, so revert-on-error would be over-aggressive here — correctly distinguished from `revertOnServiceDeath`'s justified aggression on actual service death). `bunx tsc --noEmit -p .` run this cycle shows zero errors attributable to this skill.
-- `skills/arc-blocked-review/sensor.ts` (56e2e766) — the actual fix for #22717 (restores correct `insertTaskIfNew(TASK_SOURCE, {...})` signature, JSON-stringified skills, `model: "sonnet"`). Verified clean via `tsc --noEmit` this cycle.
-- `69e2895d` — auto-commit, cache file only (`arc-link-research/cache/*.json`), no code.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both substantive commits trace to a single named incident (#22717) already tracked in MEMORY.md — the guard closes the exact gap this review flagged last cycle, no speculative scope added.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — new capability, not a consolidation.
-- **Step 4 — Accelerate**: N/A — sensor is explicitly kept off the dispatch hot path (30-min cadence, not per-commit) to avoid adding ~10-30s of `tsc` latency to every auto-commit.
-- **Step 5 — Automate**: Correctly sequenced last — automates detection of a failure class only after the concrete incident (#22717) was understood and manually fixed same-cycle, not built speculatively ahead of a real case.
-
-### Flags
-
-- **[RESOLVED]** Prior cycle's `[NEW-WATCH]` (auto-commit safety net has no type-check layer) — closed same-day by this diff. Nothing carried forward on this thread.
-- No new watch items — this is the tightest, most directly-traceable diff seen in this review's recent history (one incident, one fix, one preventive guard, zero unrelated changes).
-
----
-
 ## 2026-07-16T08:25:00.000Z — kill-switch re-enable CLI shipped end-to-end; 128 skills / 90 sensors
 
 **Task #22895** | Diff: 69e2895..f4d880d (9 commits — 5 substantive, 3 auto-commit cache-only, 1 self-excluded) | Sensors: 90 (down from 91) | Skills: 128 (down from 129)
@@ -121,3 +96,29 @@
 ### Flags
 
 - None. Sixth consecutive cycle with a fully-traceable, single-incident change on this sensor. `arc-workflow-review/sensor.ts`'s `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` exemption list has now grown by one narrow entry per review for six reviews running — each individually well-justified, but if this cadence continues indefinitely it's worth a future cycle asking whether the underlying retrospective-chain detector should learn a more general rule instead of accumulating bare-string exemptions. Not actionable yet (six data points, all genuinely distinct sources) — noting as a trend to watch, not filing a follow-up.
+
+---
+
+## 2026-07-20T09:35:00.000Z — five named-incident hardening fixes, zero unrelated scope; 128 skills / 91 sensors
+
+**Task #23254** | Diff: a7ef616..776f5b2 (7 commits — 5 substantive, 2 auto-commit cache/db only) | Sensors: 91 | Skills: 128
+
+### Changed files (substantive only)
+
+- `skills/social-x-posting/sensor.ts` (eb7f0e9f) — threads `mention.created_at` into the suggested `reply` command's `--tweet-created-at` flag. `reply-send.ts` fail-closes on `missing_tweet_age` without it; the sensor already captured the value in the task description but never passed it to the command it generates. One-line fix for a real gap in the reply pipeline.
+- `skills/zest-yield-manager/sensor.ts` (84c028f7) — cuts all Hiro API calls in this sensor to the shared 15s `SENSOR_FETCH_TIMEOUT_MS` (previously each defaulted to 30s×2 retries = 62s worst case) and drops the mempool pre-check to 0 retries. Root-caused live 90s sensor-watchdog timeouts: the mempool pre-check ran sequentially before the main fetch, so one slow response could burn most of the budget before real work started. Correctly reasoned that the mempool check already degrades gracefully to 0/skip, so cutting its retries costs nothing but latency risk.
+- `skills/arc-purpose-eval/sensor.ts` (e08df9ad) — adds `evalTaskPendingToday()`, a subject-prefix + same-day dedup guard independent of the existing source-scoped check, closing a real duplicate-task gap (#23138/#23145) where the source check no longer held by the second sensor run. Belt-and-suspenders on top of an existing guard, justified by a named live recurrence rather than speculative hardening.
+- `skills/arc-workflows/sensor.ts` (313343e9) — chunks the PR-lifecycle GraphQL query into groups of 5 repos (was 1 query for all 10), fixing a silent failure mode: GitHub's query resource-cost limit was being tripped as PR/review counts grew, `gh` exited non-zero, and the old code returned `[]` for the *entire* batch with no exception — sensor kept reporting `last_result=ok` while producing zero workflow rows for 3+ days (#23168). Now logs failures per-chunk instead of losing the whole fetch. Good instance of "accelerate without adding complexity" (Step 4) — no new sensor, same cadence, just doesn't silently drop data at scale.
+- `skills/arc-link-research/cli.ts` (1ebd814d, bundled with an `ops/systemd/` unit-file mirror commit) — adds 30s timeouts to three previously-unbounded `gh` subprocess calls (`fetchFullReadme`, PR/issue view, repo view), closing an outage-hardening gap found alongside a 2026-07-17→07-19 audit: an unbounded `gh` call could wedge a dispatched task indefinitely.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All five substantive commits trace to a named live incident or a live audit finding (missing_tweet_age fail-close, 90s watchdog timeout, #23138/#23145 duplicate, #23168 3-day silent PR-sync gap, p9 outage-hardening audit). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — all targeted bugfixes, not consolidations.
+- **Step 4 — Accelerate**: The GraphQL chunking and sensor-timeout tightening are both genuine "unblock without adding complexity" fixes — bound existing calls rather than adding new machinery.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None. Seventh consecutive cycle with fully-traceable, single-incident-per-commit changes and zero unrelated scope — this pattern is now well-established enough that it's worth naming as a property of the current dispatch/review loop rather than re-flagging each cycle.
