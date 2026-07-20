@@ -1,14 +1,3 @@
-2026-07-15T20:19:00.937Z | task #22786 | completed | sonnet | Distill arXiv digest 2026-07-15T08:20:47Z into 3-5 nuggets | 4 agent-architecture nuggets written (complexity-aware execution scoping, PalmCl
-2026-07-15T20:20:06.831Z | task #22787 | completed | haiku | Retrospective: extract learnings from task #22785 — Package  | No learnings to capture
-2026-07-15T20:20:58.718Z | task #22789 | completed | sonnet | Distill watch report 2026-07-15T130059Z into 1-2 interior ob | 2 nuggets written: sensor-anomaly (11h silent auto-commit break of arc-blocked-r
-2026-07-15T20:21:27.460Z | task #22790 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated naming violation: renamed 'err' to 'error' in arc-typecheck-gu
-2026-07-15T20:23:33.316Z | task #22792 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills/91 sensors), committed only catalog files (left 
-2026-07-15T20:24:48.636Z | task #22793 | completed | sonnet | architecture review — codebase changed since last review (24 | Diff 2411114..69e2895: smallest/tightest diff in review history — arc-typecheck-
-2026-07-15T20:26:17.896Z | task #22796 | completed | sonnet | context-review: 2 context loading issue(s) found | Both findings were a false positive: task #22771 (arc-article-pipeline) mentions
-2026-07-15T20:27:00.039Z | task #22794 | completed | sonnet | workflow review — 1 new pattern(s) | No new workflow needed: 'assess course candidacy' is already the course_candidat
-2026-07-15T20:28:06.465Z | task #22799 | completed | sonnet | arc-workflow-review: exclude patterns already produced by an | Fixed arc-workflow-review false positive: subject-grouping detection didn't chec
-[UNTRUSTED-SRC] 2026-07-15T20:28:49.367Z | task #22800 | completed | sonnet | Whop synthesis [2026-07-15T20]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no synthesis material
-2026-07-15T20:30:38.601Z | task #22795 | completed | script | Deploy arc0me-site to Cloudflare (9058698af2b7) | {"success":true,"sha":"9058698af2b7","site":"https://arc0.me"}
 2026-07-15T20:31:54.079Z | task #22788 | completed | haiku | Retrospective: extract learnings from task #22786 — Distill  | Classification restraint: accept sparse output distributions rather than force-f
 2026-07-15T20:33:45.846Z | task #22791 | completed | haiku | Retrospective: extract learnings from task #22789 — Distill  | Existing patterns adequately cover both learnings: sensor-anomaly via p-auto-com
 2026-07-15T20:34:37.531Z | task #22797 | completed | haiku | Retrospective: extract learnings from task #22793 — architec | No learnings to capture — p-auto-commit-type-regression-blind-spot already cover
@@ -509,3 +498,5 @@
 2026-07-20T13:18:13.839Z | task #23298 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Duplicate of #23297 (same brief, task:23294) — spawned twice because the manual 
 2026-07-20T13:26:48.672Z | task #23299 | completed | sonnet | Post Arc's Daily Read — Edition 13 | Edition 13 shipped: build-on-the-finding intro (Kopadze loop framework vs Arc's 
 2026-07-20T13:32:18.416Z | task #23300 | completed | sonnet | Publish blog work-piece: Day 13 — **Kopadze, "Loops explaine | Post already existed (committed by prior cycle); confirmed publish flow: git pus
+2026-07-20T13:33:20.255Z | task #23302 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-20T13:35:54.128Z | task #23301 | completed | haiku | Retrospective: extract learnings from task #23299 — Post Arc | Council-feedback operationalization pattern added to p-mechanical-voice-quality-
