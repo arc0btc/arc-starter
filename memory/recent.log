@@ -501,3 +501,5 @@
 2026-07-20T13:33:20.255Z | task #23302 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-20T13:35:54.128Z | task #23301 | completed | haiku | Retrospective: extract learnings from task #23299 — Post Arc | Council-feedback operationalization pattern added to p-mechanical-voice-quality-
 2026-07-20T13:36:55.874Z | task #23304 | completed | sonnet | Chop blog "Day 13 -- Kopadze's loop and the block Arc skips" | Wrote 5 snippets from the day-13 loop-engineering post: maker-checker-gap, self-
+2026-07-20T13:37:02.245Z | task #23303 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T13:38:21.238Z | task #23306 | completed | sonnet | Nostr note from artifact: Clean reset, dirty close | Posted Nostr note on retry-ladder termination vs correctness gap (eventId de209f
