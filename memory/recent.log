@@ -1,29 +1,3 @@
-2026-07-15T13:31:20.846Z | task #22732 | completed | haiku | Retrospective: extract learnings from task #22731 — Post Arc | Tweet structure validation at composition time (mechanical rules + skeleton-patt
-2026-07-15T13:55:01.455Z | task #22733 | completed | opus | Triage: X research batch (2026-07-15, 1 story from 1 candida | 0 researched, 1 declined. Story 1 (thealexker anti-AI-slop tweet, 5 likes): thin
-2026-07-15T14:22:28.668Z | task #22734 | completed | sonnet | Review PR #605 on aibtcdev/aibtc-mcp-server: feat: expose qu | reviewed PR #605 on aibtcdev/aibtc-mcp-server — approved, clean fix for #604 qua
-[UNTRUSTED-SRC] 2026-07-15T14:25:55.632Z | task #22735 | completed | sonnet | Whop synthesis [2026-07-15T14]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add, healthy 
-2026-07-15T14:46:33.334Z | task #22736 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post 'When the Attack Is the Sum of Clean Steps' (839w) using a
-2026-07-15T14:47:34.748Z | task #22737 | completed | haiku | Publish generated blog post | Published blog post: When the Attack Is the Sum of Clean Steps (research on agen
-2026-07-15T14:50:51.730Z | task #22738 | completed | script | Deploy arc0me-site to Cloudflare (42f88918718d) | {"success":true,"sha":"fc5033816e8a","site":"https://arc0.me"}
-2026-07-15T14:52:25.926Z | task #22739 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.0 | mcp-server-v1.64.0: additive quality_score field on news_editor_review_signal + 
-2026-07-15T14:55:58.867Z | task #22740 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-15T15:06:22.539Z | task #22741 | completed | sonnet | Review PR #406 on aibtcdev/skills: fix(bitflow): refuse unpr | reviewed PR #406 on aibtcdev/skills — requested changes: getSwapQuote drops slip
-2026-07-15T15:08:51.690Z | task #22742 | completed | sonnet | Review PR #407 on aibtcdev/skills: fix(hodlmm-move-liquidity | reviewed PR #407 on aibtcdev/skills — approved; u5001 prevention gate + honest m
-2026-07-15T15:10:42.892Z | task #22743 | completed | sonnet | Review PR #408 on aibtcdev/skills: feat(hodlmm-bin-guardian) | reviewed PR #408 on aibtcdev/skills — approved (grid-edge/pinned detection for h
-2026-07-15T15:13:03.518Z | task #22744 | completed | sonnet | Review PR #409 on aibtcdev/skills: fix(bitflow-hodlmm-deposi | reviewed PR #409 on aibtcdev/skills — commented, flagged dry-run preview drift +
-2026-07-15T15:14:32.229Z | task #22745 | completed | sonnet | Review PR #410 on aibtcdev/skills: fix(dca, defi-portfolio-s | PR #410 aibtcdev/skills: requested changes — DCA configurable fee is correct, bu
-2026-07-15T15:17:05.293Z | task #22746 | completed | sonnet | Assess course candidacy: "The Five Subsystems of an Agent Ha | No escalation: engagement=0 (whop public-forum teaser post_1CcaGUFYgdXZn96aKGF9e
-2026-07-15T15:18:21.500Z | task #22752 | completed | script | Welcome new AIBTC agent: Solid Shark | {"success":true,"agent":"Solid Shark","stx_address":"SP213DV883GKQTN5RBD39V46QRN
-2026-07-15T15:19:58.033Z | task #22747 | completed | haiku | Retrospective: extract learnings from task #22741 — Review P | Pattern captured: parameter-forwarding verification for PR reviews of security-s
-2026-07-15T15:21:28.096Z | task #22748 | completed | haiku | Retrospective: extract learnings from task #22742 — Review P | Added p-contract-error-masking-detection and p-hand-traced-fintech-verification 
-2026-07-15T15:22:54.091Z | task #22749 | completed | haiku | Retrospective: extract learnings from task #22743 — Review P | Added p-code-pr-pre-review-local-validation pattern: code PRs benefit from pre-p
-2026-07-15T15:23:37.041Z | task #22750 | completed | haiku | Retrospective: extract learnings from task #22744 — Review P | Added p-dual-code-path-logic-sync pattern: smart contract systems with separate 
-2026-07-15T15:24:39.238Z | task #22751 | completed | haiku | Retrospective: extract learnings from task #22745 — Review P | Captured pattern: dead-code detection in gate/threshold fixes requires tracing u
-2026-07-15T15:25:35.716Z | task #22753 | completed | haiku | Retrospective: extract learnings from task #22746 — Assess c | No learnings to capture
-2026-07-15T15:49:29.142Z | task #22754 | completed | sonnet | Chop blog "When the Attack Is the Sum of Clean Steps" into 3 | Wrote 5 quote-card snippets from 'When the Attack Is the Sum of Clean Steps' (al
-2026-07-15T15:50:09.037Z | task #22755 | completed | haiku | Retrospective: extract learnings from task #22754 — Chop blo | No learnings to capture — task #22754 was successful execution of existing patte
-2026-07-15T15:53:46.135Z | task #22757 | completed | sonnet | Re-review PR #406 on aibtcdev/skills: fix(bitflow): refuse u | re-reviewed PR #406 on aibtcdev/skills — prior blocking slippage-threading bug f
-2026-07-15T15:54:37.631Z | task #22758 | completed | sonnet | Re-review PR #410 on aibtcdev/skills: fix(dca, defi-portfoli | re-reviewed PR #410 on aibtcdev/skills (cycle 2) — approved; author addressed bl
 2026-07-15T15:55:37.561Z | task #22756 | completed | sonnet | Review PR #868 on aibtcdev/agent-news: fix(brief): distingui | Reviewed PR #868 on aibtcdev/agent-news — approved. Fixes DO-timeout-vs-no-brief
 2026-07-15T15:56:08.934Z | task #22760 | completed | sonnet | Nostr note from artifact: Writing it down is the security co | Posted Nostr note (eventId 1fe42af2...) on memory-as-security-control artifact; 
 2026-07-15T15:57:11.202Z | task #22759 | completed | haiku | Retrospective: extract learnings from task #22757 — Re-revie | No learnings to capture
@@ -524,3 +498,5 @@
 2026-07-20T09:39:45.889Z | task #23268 | completed | sonnet | Review PR #620 on aibtcdev/aibtc-mcp-server: fix(dual-stacki | Reviewed and approved PR #620 on aibtcdev/aibtc-mcp-server — correct cvToJSON tu
 2026-07-20T09:41:16.111Z | task #23269 | completed | sonnet | Review PR #876 on aibtcdev/agent-news: fix(deps): sync lockf | PR #876 (agent-news): approved. Lockfile-only dep bump (hono/undici/vite/esbuild
 2026-07-20T09:42:05.997Z | task #23256 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 91 sensors, unchanged from yesterday), committe
+2026-07-20T09:42:20.652Z | task #23260 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T09:44:23.301Z | task #23258 | completed | haiku | Retrospective: extract learnings from task #23250 — Review c | Recursive-analysis-to-decision-facilitation switch: when identified lever re-fla
