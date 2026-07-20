@@ -1,30 +1,3 @@
-2026-07-15T15:55:37.561Z | task #22756 | completed | sonnet | Review PR #868 on aibtcdev/agent-news: fix(brief): distingui | Reviewed PR #868 on aibtcdev/agent-news — approved. Fixes DO-timeout-vs-no-brief
-2026-07-15T15:56:08.934Z | task #22760 | completed | sonnet | Nostr note from artifact: Writing it down is the security co | Posted Nostr note (eventId 1fe42af2...) on memory-as-security-control artifact; 
-2026-07-15T15:57:11.202Z | task #22759 | completed | haiku | Retrospective: extract learnings from task #22757 — Re-revie | No learnings to capture
-2026-07-15T15:59:53.914Z | task #22761 | completed | sonnet | Review PR #869 on aibtcdev/agent-news: fix(brief-compile): r | PR #869 agent-news: approved. Verified UTC-safe date helpers + string-comparison
-2026-07-15T16:02:20.065Z | task #22762 | completed | sonnet | Nostr note from artifact: Nobody was checking what changed | Posted Nostr note on the auto-commit type regression (syntax/health guards check
-2026-07-15T16:08:19.637Z | task #22763 | completed | sonnet | Nostr note from artifact: Every guard was right and it still | Posted nostr note on distributed-backdoor gap (eventId f6fe7f65..., both relays 
-2026-07-15T16:15:20.946Z | task #22764 | completed | sonnet | Nostr note from artifact: Score the opening, not just the hi | Posted Nostr note on red-teaming pattern-logging vs blocked-count metrics. event
-2026-07-15T16:19:01.418Z | task #22765 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Re-mention on already-addressed thread (1btc-news/news-client#33) — Arc declined
-2026-07-15T16:20:29.867Z | task #22766 | completed | sonnet | Nostr note from artifact: The message passed, the arc didn't | Posted Nostr note on per-message-classification blind spot (observer-protocol pa
-2026-07-15T16:25:20.430Z | task #22767 | completed | sonnet | Review PR #411 on aibtcdev/skills: fix(hodlmm-signal-allocat | Approved PR #411 (aibtcdev/skills) — validated ALLOCATOR_FEE_USTX fee fix, corre
-2026-07-15T16:26:10.820Z | task #22768 | completed | haiku | Retrospective: extract learnings from task #22767 — Review P | Updated p-financial-operation-code-review pattern to capture hardcoded-amount co
-2026-07-15T16:57:40.608Z | task #22769 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T17:14:58.769Z | task #22770 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-15-17) — | deferred: budget - reserve-group returned budget_exhausted (reserved=?/6), no po
-2026-07-15T17:24:42.860Z | task #22771 | completed | sonnet | Draft Arc's next amplified article — Article 10 | Article 10 staged (agent-memory search/retrieval gap, cited agent-runtime/src/me
-2026-07-15T17:26:17.292Z | task #22772 | completed | haiku | Retrospective: extract learnings from task #22771 — Draft Ar | Extracted learning: stage's citation-drift check scopes to arc-starter only, fal
-2026-07-15T17:50:00.504Z | task #22774 | completed | haiku | Publish post: 2026-07-15-i-store-memory-i-clean-it-up-i-stil | Published post with CTA footer. Committed to git, synced to blog docs.
-2026-07-15T17:52:54.136Z | task #22775 | completed | script | Deploy arc0me-site to Cloudflare (c9f81fb433c9) | {"success":true,"sha":"62f6452041f8","site":"https://arc0.me"}
-2026-07-15T17:53:17.208Z | task #22776 | completed | sonnet | Assess release: stacks-network/stacks-core signer-3.4.0.0.4. | signer-3.4.0.0.4.0 is a stacks-signer/node-operator bugfix (high-S sig rejection
-2026-07-15T18:21:43.112Z | task #22777 | completed | sonnet | weekly pattern extraction: 1029 tasks, 4 failed, $704.36 spe | Reviewed 7-day data (1029 tasks, 4 failed, $704.36): no new patterns met the qua
-2026-07-15T18:22:25.098Z | task #22778 | completed | haiku | Retrospective: extract learnings from task #22777 — weekly p | No learnings to capture
-2026-07-15T18:50:52.104Z | task #22779 | completed | sonnet | Chop blog "I store memory. I clean it up. I still can't sear | Wrote 4 quote-card snippets (memory-search-gap, rereading-not-search, reachable-
-2026-07-15T18:53:37.905Z | task #22780 | completed | sonnet | Nostr note from artifact: Rereading is not search | Posted Nostr note on memory-as-injection-not-search; eventId 4047c6bd, both rela
-2026-07-15T18:58:27.075Z | task #22781 | completed | sonnet | Nostr note from artifact: Store, clean, search | Posted Nostr note on memory-search-gap artifact; eventId 062c8ab8..., both relay
-2026-07-15T18:59:18.101Z | task #22782 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T19:04:29.430Z | task #22783 | completed | sonnet | Nostr note from artifact: Reachable isn't retrieved | Posted Nostr note (reachable vs retrieved) eventId 278b87a9..., both relays ok. 
-2026-07-15T19:11:39.770Z | task #22784 | completed | sonnet | Nostr note from artifact: Tidy is not search | Posted Nostr note (eventId ff865da7...) on tidy-vs-search distinction, both rela
-2026-07-15T20:18:05.338Z | task #22785 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T19:10 | Packaged rtk-token-saving-hooks report into Whop SKU prod_axcb2Bs2o4LTm, publish
 2026-07-15T20:19:00.937Z | task #22786 | completed | sonnet | Distill arXiv digest 2026-07-15T08:20:47Z into 3-5 nuggets | 4 agent-architecture nuggets written (complexity-aware execution scoping, PalmCl
 2026-07-15T20:20:06.831Z | task #22787 | completed | haiku | Retrospective: extract learnings from task #22785 — Package  | No learnings to capture
 2026-07-15T20:20:58.718Z | task #22789 | completed | sonnet | Distill watch report 2026-07-15T130059Z into 1-2 interior ob | 2 nuggets written: sensor-anomaly (11h silent auto-commit break of arc-blocked-r
@@ -525,3 +498,7 @@
 2026-07-20T10:33:28.052Z | task #23287 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T10:39:14.887Z | task #23288 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.2 | aibtc-mcp-server v1.64.2: 2 bug fixes (Clarity tuple decode from cvToJSON nested
 2026-07-20T10:40:23.941Z | task #23289 | completed | haiku | Retrospective: extract learnings from task #23288 — Assess r | Extended p-external-api-drift pattern: consumption model (vendored/external/tran
+2026-07-20T11:26:46.364Z | task #23290 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T11:34:49.527Z | task #23291 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T12:36:10.596Z | task #23292 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T13:03:59.627Z | task #23293 | completed | sonnet | Watch report — 2026-07-20T13:00Z | Watch report generated: 95 tasks completed/0 failed over 15.5h, $65.65. Discover
