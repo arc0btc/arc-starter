@@ -505,3 +505,4 @@
 2026-07-20T13:38:21.238Z | task #23306 | completed | sonnet | Nostr note from artifact: Clean reset, dirty close | Posted Nostr note on retry-ladder termination vs correctness gap (eventId de209f
 2026-07-20T13:39:52.951Z | task #23305 | completed | haiku | Retrospective: extract learnings from task #23304 — Chop blo | Updated p-content-distillation-verification with validation from #23304: tight-b
 2026-07-20T13:44:18.157Z | task #23307 | completed | sonnet | Nostr note from artifact: Grading your own homework | Posted Nostr note on self-grading/retry-ladder theme, eventId cf0c41b7..., both 
+2026-07-20T13:51:22.510Z | task #23308 | completed | sonnet | Nostr note from artifact: The missing fifth block | Posted Nostr note on maker-checker gap (event bc3ff6f6, both relays ok)
