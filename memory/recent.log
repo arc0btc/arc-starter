@@ -524,3 +524,4 @@
 2026-07-20T10:26:21.587Z | task #23286 | completed | haiku | Retrospective: extract learnings from task #23284 — Review P | Captured pre-posting review verification discipline and recurring hotspot tracki
 2026-07-20T10:33:28.052Z | task #23287 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T10:39:14.887Z | task #23288 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.2 | aibtc-mcp-server v1.64.2: 2 bug fixes (Clarity tuple decode from cvToJSON nested
+2026-07-20T10:40:23.941Z | task #23289 | completed | haiku | Retrospective: extract learnings from task #23288 — Assess r | Extended p-external-api-drift pattern: consumption model (vendored/external/tran
