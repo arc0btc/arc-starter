@@ -1,9 +1,9 @@
 [Unit]
-Description=off-LAN heartbeat timer — fires every 5 minutes (fleet-outage-hardening, RFC 0016)
+Description=arc-agent off-LAN heartbeat timer — fires every 15 minutes (cadence 5min->15min 2026-07-20 free-tier fix)
 
 [Timer]
 OnBootSec=1min
-OnUnitActiveSec=5min
+OnUnitActiveSec=15min
 
 [Install]
 WantedBy=timers.target
