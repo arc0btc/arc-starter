@@ -1,24 +1,3 @@
-2026-07-15T20:31:54.079Z | task #22788 | completed | haiku | Retrospective: extract learnings from task #22786 — Distill  | Classification restraint: accept sparse output distributions rather than force-f
-2026-07-15T20:33:45.846Z | task #22791 | completed | haiku | Retrospective: extract learnings from task #22789 — Distill  | Existing patterns adequately cover both learnings: sensor-anomaly via p-auto-com
-2026-07-15T20:34:37.531Z | task #22797 | completed | haiku | Retrospective: extract learnings from task #22793 — architec | No learnings to capture — p-auto-commit-type-regression-blind-spot already cover
-2026-07-15T20:35:31.625Z | task #22798 | completed | haiku | Retrospective: extract learnings from task #22796 — context- | Added p-task-generator-skill-delegation-context-review-exempt pattern: task gene
-2026-07-15T20:36:30.137Z | task #22801 | completed | haiku | Retrospective: extract learnings from task #22799 — arc-work | Captured workflow-emission-source exemption pattern for detectors in memory/patt
-2026-07-15T20:58:57.641Z | task #22802 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T21:14:39.460Z | task #22804 | blocked | haiku | arc-opensource: sync 1013 commit(s) to GitHub | Branch divergence requires whoabuddy to execute #22018 cherry-pick runbook. 1013
-2026-07-15T21:15:23.068Z | task #22803 | completed | haiku | daily cost report — 2026-07-15 | cost/task up 13% (token-heavy architecture+article work); daily total 3.82 under
-2026-07-15T21:17:33.749Z | task #22805 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2026-07-15: 2.10/5 (S:1 O:5 E:1 C:1 Ad:3 Co:1 Se:3). 100% success (14
-2026-07-15T21:18:34.411Z | task #22806 | completed | haiku | Retrospective: extract learnings from task #22805 — Daily se | Extracted 1 reusable pattern from task #22805: p-constrained-finding-preservatio
-2026-07-15T22:03:07.326Z | task #22807 | completed | script | Welcome new AIBTC agent: Modest Parrot | {"success":true,"agent":"Modest Parrot","stx_address":"SP3QJZBCXQW9XFK5K07C74TS6
-2026-07-15T22:59:17.926Z | task #22808 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T23:07:27.355Z | task #22811 | completed | sonnet | Add pox-5 support to stacking skills (stacks-core 4.0.1 Epoc | Shipped PR aibtcdev/skills#412: added POX_5 constant + dynamic /v2/pox contract_
-2026-07-15T23:10:20.739Z | task #22813 | completed | sonnet | Integrate: stacks-network/stacks-core 4.0.1 | Redundant with task #22811 (same dispatch queue, prior cycle) which already ship
-2026-07-15T23:13:35.752Z | task #22814 | completed | sonnet | Stackspot pot contracts hardcode pox-4.allow-contract-caller | Verified via on-chain source fetch: all 3 known pots + 1 previously-untracked po
-[UNTRUSTED-SRC] 2026-07-15T23:15:03.809Z | task #22810 | completed | sonnet | Whop free-forum digest [2026-07-15]: syndicate Arc status in | Posted free-forum digest post_1Cd4hAeHY19ogMncXKJQqY covering the auto-commit se
-2026-07-15T23:19:19.178Z | task #22817 | completed | sonnet | stackspot: add pox-5 activation watch + register untracked S | Both sub-tasks were already implemented+staged from a prior uncommitted session 
-2026-07-15T23:21:17.811Z | task #22812 | completed | haiku | Retrospective: extract learnings from task #22809 — Assess r | Updated p-hardcoded-deprecated-reference-silent-failure with multi-codebase scop
-2026-07-15T23:22:59.064Z | task #22815 | completed | haiku | Retrospective: extract learnings from task #22811 — Add pox- | Extended p-hardcoded-deprecated-reference-silent-failure pattern with external d
-2026-07-15T23:24:20.848Z | task #22816 | completed | haiku | Retrospective: extract learnings from task #22813 — Integrat | Redundancy pattern already covered by p-live-state-precheck (auto-generated inte
-2026-07-15T23:26:23.759Z | task #22818 | completed | haiku | Retrospective: extract learnings from task #22814 — Stackspo | Extracted infrastructure-registry enumeration pattern: static registries lose cu
 2026-07-15T23:27:09.139Z | task #22819 | completed | haiku | Retrospective: extract learnings from task #22810 — Whop fre | No learnings to capture — task #22810 validated existing patterns (p-topic-dedup
 2026-07-15T23:28:20.783Z | task #22820 | completed | haiku | Retrospective: extract learnings from task #22817 — stackspo | Pattern captured: gitignored-nested-repo-independent-coordination; separate git 
 2026-07-15T23:35:43.767Z | task #22821 | completed | script | Welcome new AIBTC agent: Diamond Indra | {"success":true,"agent":"Diamond Indra","stx_address":"SP28HTBVP0NFYXK2H4H7D7P96
@@ -513,3 +492,13 @@
 2026-07-20T14:15:21.669Z | task #23313 | completed | sonnet | Email watch report to whoabuddy — 2026-07-20T14:00 | Watch report emailed to whoabuddy@gmail.com (2026-07-20T13:00Z report, 95 tasks/
 2026-07-20T14:38:06.805Z | task #23314 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T15:27:59.631Z | task #23315 | completed | sonnet | Security: ws (high) in aibtcdev/agent-news | Dependabot PR #878 (already open, bumped ws 8.18.0->8.21.0 + vitest-pool-workers
+2026-07-20T15:29:03.171Z | task #23316 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T15:39:06.976Z | task #23317 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T16:40:28.298Z | task #23318 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T17:30:46.863Z | task #23319 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T17:41:51.076Z | task #23320 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T18:42:12.744Z | task #23321 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T19:31:30.390Z | task #23322 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T19:42:34.570Z | task #23323 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T20:42:57.343Z | task #23324 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T21:22:43.825Z | task #23325 | completed | haiku | arc-opensource: sync 1568 commit(s) to GitHub | Validated build and pushed 1568 unpushed commits to origin/feat/x-api-pay-per-us
