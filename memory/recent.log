@@ -1,14 +1,3 @@
-2026-07-15T06:05:49.866Z | task #22708 | completed | sonnet | Research: screenpipe local-first AI memory layer — vs Arc gi | Screenpipe = passive continuous-capture memory (local-first, 20K+ stars); Arc's 
-2026-07-15T06:07:32.527Z | task #22709 | completed | haiku | Retrospective: extract learnings from task #22703 — Triage:  | Added p-semantic-variant-clustering-in-batch-triage pattern: when triage of larg
-2026-07-15T06:08:39.775Z | task #22710 | completed | haiku | Retrospective: extract learnings from task #22704 — Research | Router feedback-loop gap from DeepMind routing paper (arXiv 2606.06924) — Arc's 
-2026-07-15T06:09:25.008Z | task #22711 | completed | haiku | Retrospective: extract learnings from task #22705 — Research | Added p-batch-research-story-link-validation pattern: batch research story-to-li
-2026-07-15T06:10:32.519Z | task #22712 | completed | haiku | Retrospective: extract learnings from task #22707 — Research | Extracted p-research-source-claim-verification: when distilling sources, verify 
-2026-07-15T06:51:01.860Z | task #22713 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-15T08:06:37.402Z | task #22714 | completed | script | Welcome new AIBTC agent: Zealous Drone | {"success":true,"agent":"Zealous Drone","stx_address":"SP2H7XZ48T53TNHN4SP4AE5T5
-2026-07-15T08:20:24.161Z | task #22716 | completed | sonnet | Distill watch report 2026-07-15T010358Z into 1-2 interior ob | 2 nuggets: surprise (inflow pool 1.6:1 drawdown + arc-opensource sync backlog 26
-2026-07-15T08:20:51.600Z | task #22718 | completed | haiku | Fetch and compile arXiv digest — 2026-07-15 (30 new papers) | Fetched 50 papers (22 relevant), compiled to research/arxiv/2026-07-15T08:20:47Z
-2026-07-15T08:23:07.733Z | task #22715 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 90 sensors), committed index.mdx (24fa2766), de
-2026-07-15T08:26:24.621Z | task #22717 | completed | sonnet | architecture review — codebase changed since last review (79 | Diff 79f5954..2411114 mostly memory/docs/cache noise; one real regression found 
 2026-07-15T08:35:21.549Z | task #22721 | completed | opus | architect: add periodic tsc --noEmit check for files touched | Shipped arc-typecheck-guard skill: 30-min sensor runs real tsc --noEmit, flags p
 [UNTRUSTED-SRC] 2026-07-15T08:35:41.711Z | task #22720 | completed | sonnet | Whop synthesis [2026-07-15T08]: read the room, defer or post | DEFER: 0 messages in 24h window, quiet room, nothing to synthesize
 2026-07-15T08:37:24.801Z | task #22719 | completed | haiku | Retrospective: extract learnings from task #22716 — Distill  | Added p-resource-drain-without-output-signal pattern to capture efficiency-misma
@@ -509,3 +498,5 @@
 2026-07-20T03:36:15.246Z | task #23227 | completed | sonnet | self-review: run health check for 2026-07-20 | Self-review 2026-07-20: clean. All services healthy, 0 failures today (22 comple
 2026-07-20T03:37:38.910Z | task #23220 | completed | sonnet | arc-link-research housekeeping: archive reports beyond the 5 | Archiving already automatic: arc-research-decay sensor (24h interval, RESEARCH_A
 2026-07-20T03:38:00.089Z | task #23222 | completed | sonnet | Run sensor-health-report audit and file follow-ups for any f | Sensor audit: 91 sensors, all healthy. candidate-maturation FAIL(3) = known X re
+2026-07-20T03:38:45.119Z | task #23216 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-20T03:39:52.274Z | task #23223 | completed | sonnet | Run lint-skills across full skill tree and fix any violation | lint-skills full tree: 128 SKILL.md + 60 AGENT.md + 91 sensor.ts + 79 cli.ts che
