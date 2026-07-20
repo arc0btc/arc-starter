@@ -517,3 +517,4 @@
 2026-07-20T10:15:00.712Z | task #23279 | completed | sonnet | Review PR #880 on aibtcdev/agent-news: feat(signals): status | Approved PR #880 on aibtcdev/agent-news — virtual status=accepted filter reuses 
 2026-07-20T10:16:44.404Z | task #23280 | completed | sonnet | Review PR #882 on aibtcdev/agent-news: fix(scorer): cap stru | reviewed PR #882 on aibtcdev/agent-news — requested changes: PR fixes sourceQual
 2026-07-20T10:17:04.973Z | task #23281 | completed | sonnet | Review PR #622 on aibtcdev/aibtc-mcp-server: fix(x402): sele | PR #622 already merged before dispatch — no review needed
+2026-07-20T10:18:44.940Z | task #23282 | completed | haiku | Retrospective: extract learnings from task #23279 — Review P | Added virtual-field filter validation pattern to p-revision-loop-primitive
