@@ -1,5 +1,5 @@
 [Unit]
-Description=arc-agent off-LAN heartbeat timer — fires every 5 minutes
+Description=off-LAN heartbeat timer — fires every 5 minutes (fleet-outage-hardening, RFC 0016)
 
 [Timer]
 OnBootSec=1min
