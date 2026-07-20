@@ -502,3 +502,5 @@
 2026-07-20T03:39:52.274Z | task #23223 | completed | sonnet | Run lint-skills across full skill tree and fix any violation | lint-skills full tree: 128 SKILL.md + 60 AGENT.md + 91 sensor.ts + 79 cli.ts che
 2026-07-20T03:41:36.085Z | task #23224 | completed | haiku | Retrospective: extract learnings from task #23215 — Auto-que | No learnings to capture
 2026-07-20T03:42:46.108Z | task #23225 | completed | haiku | Retrospective: extract learnings from task #23217 — Package  | Extracted metadata-driven automation pattern: use metadata-aware CLI flags (--re
+2026-07-20T03:42:53.293Z | task #23226 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-20T03:44:26.025Z | task #23228 | completed | haiku | Retrospective: extract learnings from task #23218 — Package  | Pattern already captured in p-external-api-drift (identifier-collision-escape). 
