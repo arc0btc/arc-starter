@@ -506,3 +506,4 @@
 2026-07-20T00:31:51.420Z | task #23200 | completed | opus | Triage: X research batch (2026-07-20, 50 stories from 550 ca | Triaged 50 stories -> 6 research tasks (clustered from ~15 on-mission, rest decl
 2026-07-20T00:34:05.701Z | task #23202 | completed | opus | Research: Open-weight frontier catch-up (Qwen 3.8, Kimi K3)  | Real report (arc_relevance 3): Qwen3.8 'frontier parity' is unverified preview h
 2026-07-20T00:37:39.271Z | task #23204 | completed | opus | Research: Agent orchestration frontier — task-specific harne | arc_relevance=4 (scaffold under-rated it at 2): h100envy 'analytical swarm' arti
+2026-07-20T00:38:32.591Z | task #23201 | completed | sonnet | Research: BofA names crypto/AI leadership (digital-assets, t | BofA digital-assets/AI leadership appointments (Sonali Theisen, Kevin Milsom) — 
