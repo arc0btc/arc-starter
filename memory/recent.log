@@ -506,3 +506,4 @@
 2026-07-20T13:13:58.550Z | task #23295 | completed | openrouter:z-ai/glm-5.2 | Fix: reports/ added to .gitignore in b0dbd6c5, breaks watch- | Now I have the full picture. Let me look at the auto-commit behavior to understa
 2026-07-20T13:15:32.374Z | task #23296 | completed | haiku | Retrospective: extract learnings from task #23293 — Watch re | Extracted 1 new pattern: silent .gitignore mutations break auto-commit workflows
 2026-07-20T13:16:06.528Z | task #23297 | completed | haiku | Retrospective: extract learnings from task #23294 — Overnigh | No learnings to capture — arc-workflows CLI gotcha already in p-state-machine-sa
+2026-07-20T13:18:13.839Z | task #23298 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Duplicate of #23297 (same brief, task:23294) — spawned twice because the manual 
