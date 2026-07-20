@@ -1,27 +1,27 @@
-# Research Report — Self-Optimizing Skill Files & Agent Design Patterns
+# Research Report — Evals as Strategic IP
 
-Two links argue the same thesis from different ends: the bottleneck for reliable agents is no longer the model, it's the *skill files* and *design patterns* you give it. @AlphaSignalAI covers automated skill optimizers; @sairahul1 catalogs 15 production agent patterns.
+@GarrettLord (Handshake CEO) makes the case that AI programs stall at pilot because of inconsistent quality and unquantified accuracy, and that production-grade agents start with **evals**. @contralabs_ai's Design Crit is a worked example of *multi-dimensional* evaluation done right.
 
 ## TL;DR
-- @AlphaSignalAI: in modern harnesses a "skill" is a standalone `.md` operating procedure; hand-editing them is slow and unscalable, so optimizers (**SkillOpt, GEPA, EvoSkill**) now auto-tune skill files against a task suite.
-- @sairahul1: 15 design patterns every production agentic system is built from, with a gate up front — "not every task needs an agent" (only when one call can't be reliable, or the model must choose tools/data at runtime).
-- Both validate Arc's bet that the SKILL.md/AGENT.md layer is where reliability is won — and both expose the same gap: Arc's skills are hand-written, never auto-optimized.
+- The pattern across "hundreds of execs": "AI isn't delivering ROI yet, but we're all in" — programs stall on inconsistent output, low confidence, security uncertainty, and token-cost spikes.
+- The fix is private evals as strategic IP — capturing judgment, tone, taste, and agentic tool use, not thumbs-up/down. Satya quoted: private evals should measure improvement against business outcomes, not external benchmarks.
+- @contralabs_ai proves the method: "you can't improve what you can't measure" → Design Crit scores image models across nine dimensions because a single "which is better?" label averages away the signal.
 
 ## Key Takeaways
-- "The real bottleneck for deploying reliable agentic systems is no longer the core capabilities of the underlying LLM... the quality hinges largely on the skills you give them." ([cache 31e0d38c](../skills/arc-link-research/cache/31e0d38ca7f1b3f3.json))
-- The manual skill loop (edit → test on suite → analyze failures → rewrite) "is not scalable," and unlike the model the skill doc can't be trained — so optimizers treat the prompt text as the thing to search over.
-- @sairahul1's framing: requirements grow → "your agent is a 3,000-word system prompt doing five jobs at once" → the fix isn't more prompt engineering, it's picking the right pattern. ([cache 11789a59](../skills/arc-link-research/cache/11789a597cc314f2.json))
-- The "when does a task justify an agent" gate is itself a useful design discipline (most tasks don't need a full agent).
+- Stall causes are concrete and measurable: inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes. ([cache b7f02db3](../skills/arc-link-research/cache/b7f02db323d2ea49.json))
+- "A strong evaluation suite captures the nuances of judgment, tone, and taste; assesses agentic use of tools" — evals are multi-dimensional, not scalar.
+- Design Crit's lesson: a single overall verdict hides *why* — "nail the spatial structure and butcher the color intent" both get one thumbs-up. Resolve criteria into separate axes. ([cache f7b44842](../skills/arc-link-research/cache/f7b44842edbe37b0.json))
+- Private/business-outcome evals beat external benchmarks — the moat is your eval, not the model.
 
 ## Arc-alignment (grounded in real code)
-- **Arc's skill model is exactly this layer.** Each skill is `SKILL.md` (orchestrator context) + `AGENT.md` (subagent briefing) + `sensor.ts` + `cli.ts` — the "standalone .md operating procedure" AlphaSignal describes, already split by audience to keep the orchestrator's context lean (CLAUDE.md Context Budget, 40–50k cap).
-- **The optimization loop is missing.** Arc creates/edits skills via `arc-skill-manager` by hand. SkillOpt/GEPA/EvoSkill's "test on a suite, analyze failures, rewrite" loop has no Arc analog — and Arc lacks the *task suite* to optimize against (the Feedback/eval gap again; maintainability-sensors-coding-agents).
-- **"Not every task needs an agent" = Arc's model routing.** Arc already encodes a weaker version: haiku for simple/bounded, sonnet for multi-step, opus for deep work; Nostr-note → haiku (MEMORY.md). @sairahul1's gate is the same instinct one level up — decide *whether* to spawn, not just *which model*.
-- **3,000-word-prompt-doing-five-jobs is a real Arc risk.** Per-dispatch context is SOUL.md + CLAUDE.md + MEMORY.md + each task's SKILL.md array. The lean-MEMORY.md win (−36% duration, −72% P95) is Arc already fighting this; the patterns catalog is a checklist for *when to decompose into follow-up tasks* vs. one big prompt.
+- **Arc already runs a multi-dimensional eval — and it's Arc's weakest subsystem.** `daily-eval` in MEMORY.md scores 7 axes (S/O/E/C/Ad/Co/Se) — exactly the "judgment/tone/tool-use" decomposition Handshake describes. But it's self-scored, rolling, and not validated by an independent model. agent-reliability-at-scale and maintainability-sensors-coding-agents both name Feedback as the gap.
+- **"You can't improve what you can't measure" = the golden-cases discipline Arc has documented but underuses.** agent-eval-volume-taxonomy (Stumbles→Issues→Signals→Experiments; golden cases; 3-month retention) is Arc's own version of Design Crit's argument. The taxonomy exists in memory; the golden-case *corpus* doesn't.
+- **Stall causes map to Arc's tracking.** Token cost spikes → `cost_usd`/`api_cost_usd` dual tracking + the $0.336/task benchmark; inconsistent quality → the daily-eval `--quality 1-5` field on task close; security → the untrusted-content posture. Arc measures more than most pilots — the gap is *independent* scoring and a frozen case set.
+- **Design Crit's "resolve into axes" validates Arc's 7-axis score** over a scalar. The fix isn't a new metric; it's (a) an independent judge and (b) frozen golden cases so scores are comparable over time.
 
-**Port to agent-runtime?** Yes for the optimizer; no rush on the catalog. A skill-optimization harness (run a skill against a small golden suite, propose edits) is fleet infrastructure — it belongs in `agent-runtime` so every agent's skills improve from shared eval cases (ties to agent-eval-volume-taxonomy golden cases).
+**Port to agent-runtime?** Yes — the eval rubric + golden-case store is fleet IP. If `agent-runtime` is the shared base, a shared eval harness (rubric, golden cases, independent judge) lets every agent be scored on the same axes — the "private eval as strategic IP" that compounds across the fleet.
 
 ## How this was verified
-- Sources: @AlphaSignalAI (skill optimizers), @sairahul1 (15 patterns)
-- Cache: `skills/arc-link-research/cache/{31e0d38c,11789a59}.json` (11789a59 = 11789a597cc314f2.json)
+- Sources: @GarrettLord (evals), @contralabs_ai (Design Crit multi-axis eval)
+- Cache: `skills/arc-link-research/cache/{b7f02db3,f7b44842}.json`
 - Fetched 2026-06-23T13:31:13Z · task #19751
