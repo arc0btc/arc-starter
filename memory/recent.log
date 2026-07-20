@@ -507,3 +507,4 @@
 2026-07-20T03:32:08.249Z | task #23219 | completed | sonnet | Package SKU candidate into whop product: 2026-07-13T19:35:44 | Packaged 2026-07-13T19:35:44Z_research.md as SKU prod_gFUsmze6tN028 (route loop-
 2026-07-20T03:35:41.506Z | task #23221 | completed | sonnet | Consolidate memory/patterns.md (177 lines, over 150-line thr | Stale premise: patterns.md already consolidated by commit f2c92316 (prior cycle)
 2026-07-20T03:36:15.246Z | task #23227 | completed | sonnet | self-review: run health check for 2026-07-20 | Self-review 2026-07-20: clean. All services healthy, 0 failures today (22 comple
+2026-07-20T03:37:38.910Z | task #23220 | completed | sonnet | arc-link-research housekeeping: archive reports beyond the 5 | Archiving already automatic: arc-research-decay sensor (24h interval, RESEARCH_A
