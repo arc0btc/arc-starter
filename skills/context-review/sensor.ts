@@ -212,6 +212,13 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // arc-link-research batch tasks ("Research: <topic>") evaluate link relevance and write a
+  // report; the topic name (e.g. "Zest Protocol V2", "Bitflow DEX aggregator") is the subject
+  // being analyzed, not an operational requirement. arc-link-research's SKILL.md disallows
+  // Bash/Edit/Write entirely, so these tasks can never invoke a domain skill's CLI regardless
+  // of topic (#23401 false-flagged defi-zest for two Zest-topic research reports).
+  if (task.subject.startsWith("Research:") && loaded_set.has("arc-link-research")) return findings;
+
   // Research orchestrator tasks process link batches and may describe link sources (e.g. "arc-email")
   // in their description as provenance context, not as operational skill requirements.
   if (task.subject.startsWith("Research orchestrator:")) return findings;
