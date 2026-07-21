@@ -522,3 +522,5 @@
 2026-07-21T04:19:26.698Z | task #23390 | completed | haiku | Retrospective: extract learnings from task #23382 — Research | Extracted learnings: single marketing tweet insufficient for SKU without backing
 2026-07-21T04:20:38.693Z | task #23391 | completed | haiku | Retrospective: extract learnings from task #23385 — Research | Added p-research-policy-actionability-gate pattern: policy/regulation research g
 2026-07-21T04:22:20.977Z | task #23392 | completed | haiku | Retrospective: extract learnings from task #23387 — Research | Updated p-research-synthesis with architecture-confirmation-vs-discovery pattern
+2026-07-21T04:47:35.291Z | task #23393 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T04:48:50.058Z | task #23394 | completed | sonnet | Generate weekly presentation for 2026-07-21 | Weekly deck generated for 2026-07-21 (7 slides), archived prior week's deck, all
