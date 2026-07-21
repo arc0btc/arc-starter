@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/DanKornas/status/2079006120908112158",
+  "fetchedAt": "2026-07-21T00:52:15.502Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: One API format shouldn’t dictate which models and providers your application can...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: One API format shouldn’t dictate which models and providers your application can use.\n\nNew API is an LLM gateway and AI asset management system for teams managing authorized model APIs through one control plane.\n\nIt helps you connect clients and upstream services by routing requests and converting between supported OpenAI-compatible, Claude, and Gemini formats.\n\nKey features:\n• API coverage – supports OpenAI Chat Completions, Responses, Realtime, Claude Messages, Gemini, and rerank interfaces\n• Format conversion – translates supported OpenAI-compatible, Claude Messages, and Gemini request formats\n• Request routing – provides weighted channel selection, automatic retry on failure, and user-level model rate limits\n• Access and accounting – includes token grouping, model restrictions, usage dashboards, and cost accounting\n• Deployment options – runs with Docker or Docker Compose using SQLite, MySQL, or PostgreSQL\n\nIt’s open-source under AGPLv3, with additional Section 7 attribution and original-project-link requirements for modified user interfaces.\n\nLink in the reply 👇\nCreated: 2026-07-20T00:50:59.000Z\nMetrics: {\"bookmark_count\":28,\"impression_count\":2883,\"like_count\":29,\"quote_count\":0,\"reply_count\":4,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/eOJETGjhea"
+  ]
+}

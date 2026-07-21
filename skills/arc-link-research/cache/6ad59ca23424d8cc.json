@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/DanKornas/status/2078983466616840464",
+  "fetchedAt": "2026-07-21T00:52:15.504Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Multi-agent workflows become difficult to manage when orchestration, safety chec...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Multi-agent workflows become difficult to manage when orchestration, safety checks, memory, and debugging sit in separate layers.\n\nOpenAI Agents SDK is a Python framework for builders creating multi-agent workflows.\n\nIt helps you coordinate agent systems by combining configurable agents, tools, handoffs, guardrails, sessions, and built-in tracing without wiring each capability from scratch.\n\nKey features:\n• Agent orchestration – delegate tasks through handoffs or use agents as tools.\n• Tool support – connect function tools, MCP servers, and hosted tools.\n• Guardrails – run configurable checks on agent inputs and outputs.\n• Sessions – automatically manage conversation history across agent runs.\n• Tracing – track runs so you can inspect, debug, and optimize workflows.\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-07-19T23:20:58.000Z\nMetrics: {\"bookmark_count\":11,\"impression_count\":1890,\"like_count\":14,\"quote_count\":0,\"reply_count\":4,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/fC5ugriTRQ"
+  ]
+}
