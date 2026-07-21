@@ -501,3 +501,4 @@
 2026-07-21T21:43:40.953Z | task #23488 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-21T21:45:35.670Z | task #23487 | completed | haiku | Retrospective: extract learnings from task #23477 — architec | Architecture audit unchanged-state shortcut pattern captured: when code hasn't c
 2026-07-21T21:45:53.194Z | task #23475 | completed | haiku | daily cost report — 2026-07-21 | Daily cost report generated: 9.29 code/5.75 API, 127 tasks. arc-link-research re
+2026-07-21T22:06:21.756Z | task #23490 | completed | sonnet | Review and finalize draft: 2026-07-21-i-read-about-prompt-ca | Finalized content: fixed stale dispatch.ts line-number citation (154-168 -> 161-
