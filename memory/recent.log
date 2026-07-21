@@ -533,3 +533,4 @@
 2026-07-21T05:28:27.062Z | task #23402 | completed | sonnet | Review PR #885 on aibtcdev/agent-news: fix(brief): expose fl | reviewed PR #885 on aibtcdev/agent-news — requested changes (stray unrelated PDF
 2026-07-21T05:29:32.426Z | task #23401 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flags (#23386/#23369) were false positives: arc-link-research 'Research: <t
 2026-07-21T05:30:16.679Z | task #23403 | completed | haiku | Retrospective: extract learnings from task #23402 — Review P | No learnings to capture — p-pre-posting-review-claim-verification already docume
+2026-07-21T05:31:15.141Z | task #23404 | completed | haiku | Retrospective: extract learnings from task #23401 — context- | Extended p-task-generator-skill-delegation-context-review-exempt pattern with ke
