@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-21T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-default); padding-bottom: 1rem; }
+  h1 { color: var(--gold); font-size: 1.6rem; }
+  .meta { color: var(--gray-3); font-size: 0.85rem; margin-top: 0.25rem; }
+  h2 { color: var(--gold-light); font-size: 1.1rem; margin: 1.5rem 0 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.35rem; }
+  .summary { font-size: 1rem; color: var(--gray-2); margin-bottom: 1rem; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+  .metric { background: var(--code-bg); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.6rem 0.75rem; }
+  .metric .value { font-size: 1.3rem; font-weight: 600; color: var(--gold); font-family: monospace; }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label { font-size: 0.72rem; color: var(--gray-4); text-transform: uppercase; letter-spacing: 0.03em; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align: left; color: var(--gray-4); font-size: 0.72rem; text-transform: uppercase; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border-default); }
+  td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+  td.id { font-family: monospace; color: var(--gray-3); }
+  td.pri { font-family: monospace; color: var(--gray-3); }
+  td.cost { font-family: monospace; color: var(--gold-dark); text-align: right; }
+  .market-card, .whop-summary, .whop-counterparties, .whop-room-msg, .commit, .queue-item, .obs {
+    background: var(--code-bg); border: 1px solid var(--border-subtle); border-radius: 6px;
+    padding: 0.6rem 0.75rem; margin-bottom: 0.5rem; font-size: 0.88rem; color: var(--gray-2);
+  }
+  .market-card .title { font-weight: 600; color: var(--gray-1); }
+  .market-card .detail { font-family: monospace; font-size: 0.82rem; margin-top: 0.15rem; }
+  .positive { color: #3fb950; }
+  .negative { color: var(--vermillion); }
+  .commit .hash { font-family: monospace; color: var(--gold-dark); margin-right: 0.5rem; }
+  .queue-item .pri-tag { display: inline-block; background: var(--gold-glow); color: var(--gold); border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.72rem; font-family: monospace; margin-right: 0.4rem; }
+  .queue-item.blocked { opacity: 0.6; }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+  code { background: var(--gray-6); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+  .ceo-review { border-top: 2px solid var(--border-accent); margin-top: 2rem; padding-top: 1rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-20T13:00Z — 2026-07-21T01:01Z</div>
+</header>
+
+<p class="summary">Quiet, cheap-to-mixed 12h window: 10 tasks completed, zero failures, $7.03 actual cost ($0.70/task) — mostly a research/triage/retrospective chain from the X batch sensor plus the recurring daily-eval and self-audit. No Whop room traffic (120 reactive ticks, all skip), no new prediction-market positions, no partner GitHub activity. Health steady; the branch-merge and X-kill-switch sign-offs from the prior report remain the only open blockers.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">10</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked (new)</div></div>
+  <div class="metric"><div class="value">$7.03</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">6112k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">52k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23348</td><td class="pri">6</td><td>PURPOSE eval: 2.5/5</td><td>Final 2.60/5 — Ecosystem crossed to 3/5 (15 PR reviews/24h); Cost 1/5 breach persists on arc-0015 gate</td><td class="cost">$0.98</td></tr>
+    <tr><td class="id">23349</td><td class="pri">7</td><td>daily self-audit: 2 anomalies</td><td>Both confirmed benign (X read-budget exhaustion, routine db/*.json drift); cleanup committed</td><td class="cost">$0.69</td></tr>
+    <tr><td class="id">23350</td><td class="pri">8</td><td>Sync x402 honored entries</td><td>Worker pull-loop entry-mode sync</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">23351</td><td class="pri">6</td><td>Triage: X research batch (32 stories)</td><td>3 research tasks clustered, 29 declined off-mission/thin</td><td class="cost">$1.22</td></tr>
+    <tr><td class="id">23352</td><td class="pri">6</td><td>Research: model-provider commoditization</td><td>Kimi K3/Jevons cluster validates <code>--model auto</code> routing; classifier fallback gap flagged</td><td class="cost">$1.11</td></tr>
+    <tr><td class="id">23353</td><td class="pri">6</td><td>Research: agent/MCP orchestration landscape</td><td>New API, mcp-agent, Agents SDK, Desktop Commander surveyed — none are adoption candidates</td><td class="cost">$1.29</td></tr>
+    <tr><td class="id">23354</td><td class="pri">7</td><td>Research: AI/agent adoption market-sizing</td><td>Declined — headline stat lives in an unreadable image, unverifiable</td><td class="cost">$1.00</td></tr>
+    <tr><td class="id">23355</td><td class="pri">8</td><td>Retrospective: task #23351</td><td>Extracted batch-cost-impact routing pattern (economics→opus, landscape→sonnet)</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">23356</td><td class="pri">8</td><td>Retrospective: task #23352</td><td>Classifier fallback-chain gap + serving-layer re-constraint pattern committed</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">23357</td><td class="pri">8</td><td>Retrospective: task #23353</td><td>Auto-generated research scaffolds need substance validation before filing</td><td class="cost">$0.24</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">No posts to hash-it-out this period. Reactive lane: 120 ticks / 1080 candidates, 100% skip (720 stale_message, 360 below_length_floor) — none escalated to task_created. Synthesis lane: 2 ticks, 2/2 defer (skip_room_unchanged, consecutive_unchanged 4→5 — healthy, above the ≥3/4 bar). Daily reply budget: 0/10 used. Revenue: 1 customer / 0 paying, $0 MRR, 0/16 break-even; product→room conversion 0% (0/1 buyers activated). Leading indicators: 49 followers, 0 X posts today, 0 lead-targeted replies today.</div>
+<div class="whop-counterparties">Top counterparty: whoabuddy (3 replies to arc, 5 arc replies to them) — no other active members in the window.</div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">49</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">24h delta</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d delta</div></div>
+  <div class="metric"><div class="value">5</div><div class="label">Impression proxy (10 posts)</div></div>
+</div>
+<p class="empty">Anchor 3h old — no 24h/7d delta yet. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM), checkout starts (24h) 0, abandons 0.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">8cd5d392</span>chore(db): sync operational state files, remove stale reports</div>
+<div class="commit"><span class="hash">96b29ac0</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">c3f7c660</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">aeec2150</span>chore(arc-strategy-review): daily eval 2026-07-20 — 2.40/5 (#23330)</div>
+<div class="commit"><span class="hash">28729312</span>chore(arc-packaging): package research report into Whop SKU (arc-packaging P3)</div>
+<div class="obs">Remaining ~27 commits this period are <code>chore(loop): auto-commit after dispatch cycle</code> housekeeping — omitted for brevity.</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#22262 Re-check stale-task pileup after stop_condition field rollout (#22258)</div>
+<p class="empty">Only 1 non-blocked pending task in queue; the rest of the backlog is 10 blocked chains, all awaiting sign-off (unchanged from prior report).</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Inflow pool skews consumer-heavy this window:</strong> produced 8 (arxiv 1, watch-interior 2, snippet 5) vs consumed 7 (x 2, nostr 5) over the trailing 24h — roughly 1:1, healthy. The flagged stall is <code>whop-signal</code>: no fresh artifact in 36h, consistent with the gated/paused signal-filing state already tracked in memory, not a new regression.</div>
+<div class="obs"><strong>Research batch triage is doing real filtering, not rubber-stamping:</strong> 32 candidate stories → 3 clustered research tasks, 29 declined with specific reasons (off-mission, thin substance, unreadable source image). Task #23354 correctly declined rather than fabricating a citation when the headline stat lived in an image the fetch tool can't OCR.</div>
+<div class="obs"><strong>Whop room stayed fully quiet:</strong> 120 reactive ticks over 12h, zero candidates past the stale/length floor, synthesis correctly deferred both windows on an unchanged room hash. No action needed.</div>
+<div class="obs"><strong>Cost gate still stuck:</strong> arc-0015 (link-research grounding gate, #22857) remains unimplemented; today's PURPOSE eval (#23348) confirms Cost stays at 1/5 with no new escalation beyond the standing sign-off nudge (#23257).</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+</div>
+
+</body>
+</html>
