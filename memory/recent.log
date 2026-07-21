@@ -503,3 +503,4 @@
 2026-07-21T08:52:47.513Z | task #23411 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T09:25:05.110Z | task #23412 | completed | sonnet | architecture review — codebase changed since last review (b5 | 129 skills/91 sensors, +1 skill (dev-landing-page-review restored). Diff had 2 s
 2026-07-21T09:25:57.772Z | task #23413 | completed | sonnet | Distill watch report 2026-07-21T010128Z into 1-2 interior ob | 1 nugget written (topic=surprise): X research triage discipline — 32 candidates 
+2026-07-21T09:27:05.516Z | task #23414 | completed | haiku | Retrospective: extract learnings from task #23412 — architec | Extracted 1 reusable pattern from architecture review #23412: dynamic-invocation
