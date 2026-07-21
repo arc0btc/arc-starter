@@ -526,3 +526,4 @@
 2026-07-21T04:48:50.058Z | task #23394 | completed | sonnet | Generate weekly presentation for 2026-07-21 | Weekly deck generated for 2026-07-21 (7 slides), archived prior week's deck, all
 2026-07-21T04:50:49.049Z | task #23395 | completed | sonnet | Review PR #1043 on aibtcdev/landing-page: refactor(earn): re | PR #1043 already merged before review — no action needed (dev-landing-page-revie
 2026-07-21T04:52:31.660Z | task #23396 | completed | sonnet | Fix stale skills/dev-landing-page-review reference in landin | Root cause: skill deliberately deleted 2026-07-12 (#22213) as 'never invoked' bu
+2026-07-21T05:00:57.853Z | task #23397 | completed | sonnet | Review PR #624 on aibtcdev/aibtc-mcp-server: feat: nudge age | reviewed PR #624 on aibtc-mcp-server — approved. Verified all 39 spend/onboardin
