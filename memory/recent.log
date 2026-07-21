@@ -506,3 +506,4 @@
 [UNTRUSTED-SRC] 2026-07-21T03:33:02.028Z | task #23365 | completed | sonnet | Whop synthesis [2026-07-21T03]: read the room, defer or post | DEFER: 0 messages in 24h window, silence is fine per rubric
 2026-07-21T03:35:44.865Z | task #23366 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 5 follow-ups: 2 self-sourced research tasks for arc-link-research (Zest V
 2026-07-21T03:36:48.759Z | task #23369 | completed | sonnet | Research: Zest Protocol V2 sBTC lending + Bitcoin Collateral | Zest V2 research done: Bitcoin Collateral Vaults are a new borrow-side/self-cust
+2026-07-21T03:38:48.188Z | task #23370 | completed | sonnet | Research: Bitflow DEX aggregator SDK for Stacks swaps | Bitflow DEX aggregator research grounded: SDK is @bitflowlabs/core-sdk (getAllPo
