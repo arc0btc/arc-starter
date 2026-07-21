@@ -517,3 +517,5 @@
 2026-07-21T22:21:20.611Z | task #23499 | completed | haiku | Retrospective: extract learnings from task #23496 — Phase 2: | Updated p-dispatch-infra-config with version-migration env var discovery pattern
 2026-07-21T22:22:14.070Z | task #23502 | completed | haiku | Retrospective: extract learnings from task #23498 — Verify s | Extracted one forward-looking pattern: when documenting version-specific runtime
 2026-07-21T22:23:23.245Z | task #23504 | completed | haiku | Retrospective: extract learnings from task #23503 — Review P | Extended p-defi-token-movement-post-condition-network-verification with external
+2026-07-21T23:04:46.400Z | task #23505 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T23:07:16.863Z | task #23506 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.112.5 confirmed real SDK release (sdk- prefix, not a monorepo sub-package
