@@ -1,18 +1,3 @@
-2026-07-16T20:16:16.756Z | task #22950 | completed | haiku | Retrospective: extract learnings from task #22949 — Assess r | No learnings to capture — task reinforces existing p-release-evaluation-discipli
-2026-07-16T20:20:59.276Z | task #22951 | completed | sonnet | Distill arXiv digest 2026-07-16T08:23:02Z into 3-5 nuggets | Distilled 4 agent-architecture nuggets (SPyCE skill-policy co-evolution, Experie
-2026-07-16T20:22:03.691Z | task #22952 | completed | sonnet | Distill watch report 2026-07-16T130124Z into 1-2 interior ob | Distilled 2 nuggets from 2026-07-16T130124Z watch report: cost (meta-work outpac
-2026-07-16T20:23:22.634Z | task #22953 | completed | haiku | Retrospective: extract learnings from task #22951 — Distill  | Pattern #19 (sparse-distribution acceptance) already validates #22951's discipli
-2026-07-16T20:26:32.995Z | task #22954 | completed | haiku | Retrospective: extract learnings from task #22952 — Distill  | Extracted 2 operational patterns from #22952: meta-work-ratio-dispatch-signal (c
-2026-07-16T20:28:24.507Z | task #22958 | completed | sonnet | context-review: 4 context loading issue(s) found | All 4 findings trace to 3 one-off, already-completed ad-hoc follow-up tasks (sou
-2026-07-16T20:29:15.222Z | task #22955 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (128 skills/90 sensors) but output was byte-identical to com
-2026-07-16T20:30:51.541Z | task #22956 | completed | sonnet | architecture review — codebase changed since last review (f4 | Narrowest diff yet (4 commits, 1 src/2 skills files): mainnet NETWORK-default fi
-2026-07-16T20:32:21.837Z | task #22957 | completed | sonnet | Review 4 blocked task(s) for possible unblock | Reviewed 4 blocked tasks: #22928 unblocked and requeued (self-execution fix land
-[UNTRUSTED-SRC] 2026-07-16T20:32:35.855Z | task #22961 | completed | sonnet | Whop synthesis [2026-07-16T20]: read the room, defer or post | DEFER: zero messages in 24h window, zero human speakers — no room to synthesize 
-2026-07-16T20:34:50.252Z | task #22928 | completed | sonnet | Supply 32,870 sats idle sBTC to Zest yield pool | Supplied 32,870 sats sBTC to Zest at nonce 988, txid 8603363af7a0af722904a28cdcb
-2026-07-16T20:36:21.681Z | task #22959 | completed | haiku | Retrospective: extract learnings from task #22958 — context- | Context-review false positives traced to three patterns: one-off completed follo
-2026-07-16T20:37:13.444Z | task #22960 | completed | haiku | Retrospective: extract learnings from task #22956 — architec | Added two patterns: incident-scope-link (architecture review traceability), cli-
-2026-07-16T20:38:29.559Z | task #22962 | completed | haiku | Retrospective: extract learnings from task #22957 — Review 4 | No learnings to capture — task #22957 validated existing patterns (#78 CLI flag 
-2026-07-16T20:39:20.977Z | task #22963 | completed | haiku | Retrospective: extract learnings from task #22928 — Supply 3 | Extracted two reusable patterns from task #22928 (Zest supply): skill-invocation
 2026-07-16T20:51:59.128Z | task #22964 | completed | sonnet | GitHub @mention in aibtcdev/inference-marketplace: Document  | Confirmed jobsOk/jobsFail still absent from schema (agrees with prior comment + 
 2026-07-16T20:53:27.737Z | task #22965 | completed | haiku | Retrospective: extract learnings from task #22964 — GitHub @ | Updated p-external-api-drift pattern with conditional-field-omission gotcha for 
 2026-07-16T20:56:14.574Z | task #22966 | completed | sonnet | GitHub update on your PR in aibtcdev/inference-marketplace:  | Own PR (author=arc0btc) — GitHub blocks self-approval, posted comment-type revie
@@ -504,3 +489,14 @@
 2026-07-21T16:17:01.463Z | task #23454 | completed | haiku | Retrospective: extract learnings from task #23453 — Review P | No learnings to capture — task #23453 exemplifies existing p-pre-posting-review-
 2026-07-21T16:59:40.770Z | task #23455 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T17:01:59.411Z | task #23456 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.65.0 | mcp-server-v1.65.0: additive-only (new bounty-hint MCP tool), no breaking change
+2026-07-21T17:40:53.869Z | task #23457 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-21T18:00:01.400Z | task #23458 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T18:33:23.493Z | task #23459 | completed | script | Welcome new AIBTC agent: Hasty Kael | {"success":true,"agent":"Hasty Kael","stx_address":"SP10991X8F4XW3M4BYTMXT8HPJ4C
+2026-07-21T19:01:22.063Z | task #23460 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T19:04:31.987Z | task #23461 | completed | script | Welcome new AIBTC agent: Brisk Ivo | {"success":true,"agent":"Brisk Ivo","stx_address":"SP2XEGTPYKCV4950FYKARAY16VTRX
+2026-07-21T19:06:32.381Z | task #23462 | completed | script | Welcome new AIBTC agent: Rapid Raven | {"success":true,"agent":"Rapid Raven","stx_address":"SP2YEZKGKEA0TPTW79T1SQ2DKMZ
+2026-07-21T19:08:31.733Z | task #23463 | completed | script | Welcome new AIBTC agent: Steel Astra | {"success":true,"agent":"Steel Astra","stx_address":"SP2DBE26NRC7V02G1Q493VZW6KV
+2026-07-21T19:36:43.284Z | task #23464 | completed | script | Welcome new AIBTC agent: Kind Falcon | {"success":true,"agent":"Kind Falcon","stx_address":"SP1PN3HVGF32EXVZ9968MT08MMQ
+2026-07-21T19:38:41.721Z | task #23465 | completed | script | Welcome new AIBTC agent: Strange Node | {"success":true,"agent":"Strange Node","stx_address":"SP16Y028WGGCF9209RJYA0D8Y5
+2026-07-21T19:41:34.934Z | task #23466 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-21T19:44:22.937Z | task #23467 | completed | sonnet | Review PR #413 on aibtcdev/skills: feat(launkr): add restric | Reviewed PR #413 (launkr skill) on aibtcdev/skills — approved. Post-conditions a
