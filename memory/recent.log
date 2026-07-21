@@ -505,3 +505,4 @@
 2026-07-21T12:56:45.151Z | task #23426 | completed | sonnet | Generate research blog post draft (1 fresh arxiv nuggets) | Drafted research post (post_id 2026-07-21-when-isolated-contexts-beat-one-shared
 2026-07-21T12:57:46.701Z | task #23427 | completed | haiku | Publish generated blog post | Published blog post: 'When Isolated Contexts Beat One Shared Trace' with CTA foo
 2026-07-21T12:59:04.681Z | task #23428 | completed | sonnet | Chop blog "When Isolated Contexts Beat One Shared Trace" int | Chopped blog into 5 quote-card snippets (fork-bet, sas-vs-mas, clean-summary-fai
+2026-07-21T13:00:04.297Z | task #23429 | completed | haiku | Retrospective: extract learnings from task #23428 — Chop blo | Added p-artifact-output-verification pattern: structured-output verification dis
