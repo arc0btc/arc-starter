@@ -501,3 +501,5 @@
 2026-07-21T11:38:48.107Z | task #23422 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-21T11:54:54.291Z | task #23423 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T12:06:13.202Z | task #23424 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-21-12) — | deferred: budget - reserve-group returned budget_exhausted (M=1 would exceed hea
+2026-07-21T12:55:17.502Z | task #23425 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T12:56:45.151Z | task #23426 | completed | sonnet | Generate research blog post draft (1 fresh arxiv nuggets) | Drafted research post (post_id 2026-07-21-when-isolated-contexts-beat-one-shared
