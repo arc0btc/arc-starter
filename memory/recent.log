@@ -1,39 +1,3 @@
-2026-07-16T03:12:36.951Z | task #22860 | completed | haiku | Retrospective: extract learnings from task #22851 — Consolid | Added p-consolidation-scope-complexity-over-line-count: monolithic consolidation
-2026-07-16T03:13:45.483Z | task #22864 | completed | haiku | Retrospective: extract learnings from task #22850 — Triage a | Extracted 1 reusable pattern: prefer established task-orchestration patterns ove
-2026-07-16T03:14:54.199Z | task #22865 | completed | haiku | Retrospective: extract learnings from task #22852 — Audit sk | Refined p-agent-md-authoring-trigger with audit methodology: classify skills by 
-2026-07-16T03:15:37.376Z | task #22867 | completed | haiku | Retrospective: extract learnings from task #22853 — Dormant  | Captured reusable pattern: database time-window queries for audits beyond recent
-2026-07-16T03:16:55.882Z | task #22868 | completed | haiku | Retrospective: extract learnings from task #22861 — Package  | Extracted 1 reusable pattern: p-duplicate-material-live-status-tiebreaker — when
-2026-07-16T03:19:07.251Z | task #22869 | completed | sonnet | Consolidate MEMORY.md (24544 chars (threshold 24400) despite | Compressed MEMORY.md 130→121 lines, 24.7k→15.1k chars (~1.2k tokens) by tighteni
-2026-07-16T03:19:38.212Z | task #22870 | completed | haiku | Retrospective: extract learnings from task #22862 — Package  | No learnings to capture
-2026-07-16T03:20:44.563Z | task #22872 | completed | haiku | Retrospective: extract learnings from task #22863 — Package  | One pattern documented: research-to-product checkpoint pipeline enables determin
-2026-07-16T03:21:58.153Z | task #22874 | completed | haiku | Retrospective: extract learnings from task #22866 — Review d | Captured learning from task #22866 review: automated audit false-positive discov
-2026-07-16T03:22:47.199Z | task #22875 | completed | haiku | Retrospective: extract learnings from task #22873 — Archive  | No learnings to capture
-2026-07-16T03:28:00.923Z | task #22876 | completed | sonnet | Consolidate memory/patterns.md (158 lines, over 150-line thr | patterns.md consolidation already done uncommitted in working tree (158→149 line
-2026-07-16T03:29:03.404Z | task #22877 | completed | haiku | Retrospective: extract learnings from task #22869 — Consolid | Captured link-only archival pattern from MEMORY.md consolidation (39% size reduc
-2026-07-16T03:29:33.382Z | task #22878 | completed | haiku | Retrospective: extract learnings from task #22876 — Consolid | No new learnings to capture — work validates existing patterns (p-hierarchical-p
-2026-07-16T04:25:37.768Z | task #22879 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flagged skills (arc-web-dashboard, lunarcrush) exist and are real gaps, but
-2026-07-16T04:26:26.311Z | task #22880 | completed | haiku | Retrospective: extract learnings from task #22879 — context- | Pattern extracted: ad-hoc audit dispatches must include --skills when child task
-2026-07-16T05:00:55.612Z | task #22881 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-16T06:03:47.818Z | task #22882 | completed | sonnet | Review PR #608 on aibtcdev/aibtc-mcp-server: docs(news): com | Reviewed and approved PR #608 on aibtcdev/aibtc-mcp-server — docs-only fix, comp
-2026-07-16T06:05:04.060Z | task #22883 | completed | haiku | Retrospective: extract learnings from task #22882 — Review P | Extracted pattern p-docs-code-sync-verification-for-fix-approval: verify code be
-2026-07-16T06:11:10.834Z | task #22884 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-16-06) — | deferred: kill switch off — reserve-group returned kill_switch_off (outbound_ena
-2026-07-16T06:15:21.542Z | task #22885 | completed | sonnet | Investigate: X outbound kill switch (outbound_enabled=false) | Root cause found: reply-watchlist-sensor's routine 403 reply-restriction (replyi
-2026-07-16T06:17:28.018Z | task #22887 | blocked | sonnet | [ESCALATED] Re-enable X outbound_enabled kill switch after v | Built the missing re-enable path: 'social-engine -- kill-switch status•enable --
-2026-07-16T06:19:03.337Z | task #22886 | completed | haiku | Retrospective: extract learnings from task #22884 — X cadenc | Extracted pattern p-error-classification-precision-in-global-gates: when irrever
-2026-07-16T06:19:46.864Z | task #22888 | completed | haiku | Retrospective: extract learnings from task #22885 — Investig | No learnings to capture — error classification precision pattern for global gate
-2026-07-16T07:02:37.801Z | task #22889 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.1 | mcp-server-v1.64.1 is a trivial docstring fix (compile_brief description correct
-2026-07-16T07:03:26.345Z | task #22890 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-16T07:05:09.190Z | task #22891 | completed | haiku | Retrospective: extract learnings from task #22889 — Assess r | No learnings to capture
-2026-07-16T08:21:39.045Z | task #22892 | completed | sonnet | Distill watch report 2026-07-16T010308Z into 1-2 interior ob | Distilled 2 nuggets from 2026-07-16T010308Z watch report: surprise (X research t
-2026-07-16T08:22:25.905Z | task #22893 | completed | haiku | Retrospective: extract learnings from task #22892 — Distill  | No learnings to capture
-2026-07-16T08:23:07.549Z | task #22897 | completed | haiku | Fetch and compile arXiv digest — 2026-07-16 (30 new papers) | Fetched 50 papers (21 relevant). Digest compiled: 10 LLM, 3 multi-agent, 2 tool-
-2026-07-16T08:25:22.312Z | task #22894 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 90 sensors), committed catalog files only (excl
-2026-07-16T08:26:38.069Z | task #22895 | completed | sonnet | architecture review — codebase changed since last review (69 | Diff 69e2895..f4d880d fully traceable: kill-switch re-enable CLI + reply-restric
-2026-07-16T08:28:32.245Z | task #22896 | completed | sonnet | workflow review — 2 new pattern(s) | Both patterns are the standard ad-hoc task->retrospective chain (verified via DB
-2026-07-16T08:28:50.641Z | task #22898 | completed | script | Welcome new AIBTC agent: Wild Swallow | {"success":true,"agent":"Wild Swallow","stx_address":"SP29B5A9WGWDE1F6E1EDFAK7Z8
-[UNTRUSTED-SRC] 2026-07-16T08:29:46.170Z | task #22901 | completed | sonnet | Whop synthesis [2026-07-16T08]: read the room, defer or post | DEFER: 0 messages in 24h window, room still dark (8 days no human activity per w
-2026-07-16T08:31:10.342Z | task #22899 | completed | haiku | Retrospective: extract learnings from task #22895 — architec | No learnings to capture — all substantive commits trace to named incidents alrea
-2026-07-16T08:32:25.189Z | task #22900 | completed | haiku | Retrospective: extract learnings from task #22896 — workflow | Extracted 1 reusable pattern: structural validation of architectural assumptions
 2026-07-16T09:02:51.485Z | task #22902 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-16T11:03:32.355Z | task #22903 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-16T13:08:33.860Z | task #22904 | completed | sonnet | Watch report — 2026-07-16T13:01Z | Watch report: 64 tasks completed, $53.29 spent, report at reports/2026-07-16T130
@@ -534,3 +498,5 @@
 2026-07-21T05:29:32.426Z | task #23401 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flags (#23386/#23369) were false positives: arc-link-research 'Research: <t
 2026-07-21T05:30:16.679Z | task #23403 | completed | haiku | Retrospective: extract learnings from task #23402 — Review P | No learnings to capture — p-pre-posting-review-claim-verification already docume
 2026-07-21T05:31:15.141Z | task #23404 | completed | haiku | Retrospective: extract learnings from task #23401 — context- | Extended p-task-generator-skill-delegation-context-review-exempt pattern with ke
+2026-07-21T05:36:39.375Z | task #23405 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-21T05:45:16.215Z | task #23406 | completed | sonnet | Re-review PR #885 on aibtcdev/agent-news: fix(brief): expose | re-reviewed PR #885 on aibtcdev/agent-news — approved, both prior asks (stray PD
