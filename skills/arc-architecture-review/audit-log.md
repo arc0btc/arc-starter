@@ -1,27 +1,3 @@
-## 2026-07-16T20:29:00.000Z — narrowest diff in this review's history: one live-incident mainnet fix, one dormant-write bugfix, two dedup exemptions; 128 skills / 90 sensors
-
-**Task #22956** | Diff: f4d880d..9201950 (4 commits — 1 src/, 2 skills/) | Sensors: 90 | Skills: 128
-
-### Changed files (substantive only)
-
-- `src/dispatch.ts` (92019508) — defaults subprocess `env.NETWORK` to `"mainnet"` when unset. In-process mainnet skills (`zest-yield-manager`, `hodlmm-move-liquidity`, `bitcoin-wallet/stx-send-runner`) call the shared nonce-tracker's `acquireNonce()` directly; the tracker's `config/networks.ts` resolves `NETWORK` as an import-time const defaulting to `"testnet"`, so an unset env var made every in-process nonce lookup query TESTNET Hiro for a mainnet address — empty account body, nonce clobbered to 1, guaranteed `BadNonce` on the next real send. This is the direct root cause of the nonce-gap incident already closed in memory (`zest-yield-manager-nonce-gap-remediation`, #22939/#22936). Subprocess-spawning skills already forced mainnet; this closes the one remaining gap. A complementary tracker-side guard is tracked separately (`arc0btc/skills#1`, cross-repo, not in this diff).
-- `skills/zest-yield-manager/zest-yield-manager.ts` (ca6c2ee9) — `run supply/withdraw/claim` never exposed `--confirm`/`--password` on the CLI despite the self-sign+broadcast body (ported from `hodlmm-move-liquidity`) already existing, so `confirmed` was always `undefined` and every write silently fell through to dry-run — a real, live bug (task's own commit message: "verified `bun build`/`tsc` clean" but the gap was behavioral, not a type error, so neither compiler nor pre-commit guard would have caught it). Also fixes a `getZestProtocolService(NETWORK)` type mismatch (took the `StacksNetwork` object where a `"mainnet"|"testnet"` string was needed) via a new `ZEST_NETWORK` const. `--password` as a plain CLI arg matches the existing `hodlmm-move-liquidity` convention this was ported from — not a new pattern, so not flagging as a fresh finding, but noting it inherits that convention's shell-history/process-list exposure surface.
-- `skills/arc-workflow-review/sensor.ts` (1555c926) — two more `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` exemptions (candidate-maturation triage fan-out, whop free-forum digest), each verified by direct task-chain inspection before exemption rather than assumed. Same already-established "ad-hoc retrospective, not a state machine" rejection shape as prior cycles' entries on this sensor.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All three substantive commits trace to a named live incident (#22934/#22935 nonce clobber), a live behavioral bug caught in the same commit that fixed it, and a named prior triage task (#22896) with verified evidence. No speculative work.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — all three changes are targeted bugfixes, not consolidations.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — the workflow-review exemptions are documentation of an already-automated sensor's exception list, not new automation.
-
-### Flags
-
-- None. Fourth consecutive cycle with fully-traceable, single-incident-per-commit changes and zero unrelated scope. `--password`-as-CLI-arg noted above is an inherited pattern, not a new one — no action needed unless a future review decides to revisit the whole `hodlmm-move-liquidity`/`zest-yield-manager` wallet-decrypt convention.
-
----
-
 ## 2026-07-17T20:27:00.000Z — three named-incident fixes, one exemption update, one config-init bugfix; 128 skills / 91 sensors
 
 **Task #23117** | Diff: 34ba6b6..6c9f5ec (4 commits — all substantive) | Sensors: 91 (up from 90) | Skills: 128
@@ -115,3 +91,26 @@
 ### Flags
 
 - None. Eighth consecutive cycle with fully-traceable, single-incident-per-commit (or zero-code) changes. No CEO/watch-report architectural feedback this cycle — the two active reports checked (`2026-07-20T130407Z_overnight_brief.md`, `2026-07-20T130012Z_watch_report.html`) surface known, already-tracked sign-off asks (PR #28 push, arc-0015 grounding gate, kill-switch re-enable, Whop SKU overlap) with no new structural findings.
+
+---
+
+## 2026-07-21T09:23:58.000Z — one net-new skill-tree entry (a self-inflicted deletion reversed), one narrow false-positive fix; 129 skills / 91 sensors
+
+**Task #23412** | Diff: b546157..5576bd7 (2 substantive commits; 1 data-only weekly-deck generation; rest are arc-link-research cache auto-commits) | Sensors: 91 | Skills: 129 (up from 128)
+
+### Changed files (substantive only)
+
+- `skills/dev-landing-page-review/AGENT.md` + `SKILL.md` (52dbc7f1) — restores a skill deleted in error five days earlier by this very review process (3811deed, task #22213, "never invoked" audit). It was in fact live: `PrLifecycleMachine` (`skills/arc-workflows/state-machine.ts`) generates React-repo PR review tasks that load it, and `github-release-watcher/sensor.ts` references it. Task #23395 hit the dead reference reviewing `aibtcdev/landing-page#1043` before this restore landed.
+- `skills/context-review/sensor.ts` (5576bd75) — adds a narrow subject-prefix exemption (`"Research:"` + `arc-link-research` loaded) to `checkMissingSkillCoverage`, joining two prior near-identical exemptions (`"Research X article:"`, `"Research orchestrator:"`) on the same function. Traces to a real false-flag (#23401, defi-zest topic misread as a skill requirement) — correctly reasoned (arc-link-research disallows Bash/Edit/Write, so it structurally cannot act on a topic name) rather than a blind allowlist add.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both substantive commits trace to named live incidents (#23395 dead reference, #23401 false-flag). No speculative scope.
+- **Step 2 — Delete**: None recommended this cycle — but the dev-landing-page-review restore is itself a live data point on Step 2 risk: a prior review's "never invoked" deletion call was wrong because it checked direct-invocation traces, not generative call sites (a state-machine class dynamically producing tasks that load the skill). Deletion recommendations from this review should now explicitly check state-machine/generator call sites, not just static `--skills` grep hits, before recommending removal.
+- **Step 3 — Simplify**: `checkMissingSkillCoverage` now carries three near-identical subject-prefix exemptions (`"Research X article:"`, `"Research orchestrator:"`, `"Research:"` + arc-link-research). Not yet consolidating — each has a distinct guard condition and a distinct named incident — but if a fourth prefix-based exemption lands on this function, it's worth generalizing to "any task loading a Bash/Edit/Write-disallowed research skill is exempt from missing-skill-coverage checks" instead of accumulating prefix strings.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- **[LESSON]** See Step 2 above — this review's own prior deletion call (#22213) produced a 5-day-later user-visible failure (#23395) before being caught and reversed. Recommend: before this skill recommends deleting a skill as "unused," grep not just for `--skills <name>` CLI/task references but also for the skill's directory name appearing inside any `skills/*/state-machine.ts` or generator logic that might dynamically emit it.
