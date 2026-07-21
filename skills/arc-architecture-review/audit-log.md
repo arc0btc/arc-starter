@@ -1,51 +1,3 @@
-## 2026-07-17T20:27:00.000Z — three named-incident fixes, one exemption update, one config-init bugfix; 128 skills / 91 sensors
-
-**Task #23117** | Diff: 34ba6b6..6c9f5ec (4 commits — all substantive) | Sensors: 91 (up from 90) | Skills: 128
-
-### Changed files (substantive only)
-
-- `src/dispatch.ts` (0bc7d02c) — filters AgentShield findings against `.claude/hooks/guard-*.sh` (denylist-content files whose entire body is command strings the hook blocks, not commands it executes) out of the blocking decision before recomputing `blocked` from the adjusted critical count. Root-caused live (#23040/#23038): AgentShield's flat-regex scanner has no way to distinguish a denylist match target from an executed command, and no upstream ignore config exists in ecc-agentshield@1.3.0. Correctly scoped to the one path class that's a false positive by construction, not a blanket suppression.
-- `src/dispatch.ts` (b9fdd085) — self-close watchdog: polls for a task leaving `active` status mid-subprocess and force-exits after a 45s grace window instead of idling to the full per-model timeout. Direct fix for the real minor lever surfaced by this cycle's own #23050/#23053 forensics (already in MEMORY.md as `article-pipeline-p4-revert-investigation`) — closes a wasted-cost path ($2.51/2.79M-tok on that one task) without touching the terminal-status-preservation logic the self-close guard already relies on.
-- `skills/arc-workflow-review/sensor.ts` (d223f611) — one more `KNOWN_SUBJECT_PREFIXES` exemption (`sensor:context-review` → retrospective chain), same already-established "atomic task + standard retrospective, not a new state machine" rejection shape as the prior four cycles' entries on this sensor. Verified against a named recurrence count (task #23043, 3 recurrences) before exempting.
-- `skills/arc-packaging/cli.ts` (6c9f5ec6) — `main()` never called `initDatabase()`, so `stage`'s `setLatestReportCheckoutUrl()` call threw "Database not initialized" on every run; the throw was caught non-fatally so packaging kept succeeding while the `checkout_config` `latest-report` pointer silently never updated since it shipped (control-plane-remediation Phase 7, P6 defect row 39). Confirmed live on #23108. One-line idempotent fix mirroring other CLI entry points' init pattern.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All four commits trace to a named incident (#23040/#23038, #23050/#23053, #23043, defect row 39/#23108). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — all four are targeted bugfixes/exemptions, not consolidations.
-- **Step 4 — Accelerate**: The self-close watchdog is the standout — closes a real subprocess-idle cost leak on the dispatch hot path without adding a new always-on cost (polls only after self-close is detected, and only every 10s).
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[WATCH]** `AGENTSHIELD_FALSE_POSITIVE_FILE_RE = /^hooks\/guard-.*\.sh$/` matches on a relative path (`data.findings[].file`) — didn't verify AgentShield always emits paths relative to `.claude/` rather than repo-root or absolute. If the path format ever includes a `.claude/` prefix or changes, the regex silently stops suppressing (fails safe — reverts to over-blocking, not under-blocking) rather than false-suppressing something real. Low risk either way; noting for the next reviewer rather than filing a follow-up.
-- No new watch items otherwise — fifth consecutive cycle with fully-traceable, single-incident-per-commit changes.
-
----
-
-## 2026-07-19T22:20:00.000Z — smallest diff in this review's history: one-line KNOWN_PATTERNS exemption; 128 skills / 91 sensors
-
-**Task #23153** | Diff: 6c9f5ec..a7ef616 (9 commits — 8 auto-commit `recent.log`/docs only, 1 substantive) | Sensors: 91 | Skills: 128
-
-### Changed files (substantive only)
-
-- `skills/arc-workflow-review/sensor.ts` (a7ef6160) — one more `KNOWN_PATTERNS` exemption (`sensor:arc-packaging` → SKU-packaging retrospective chain), same already-established "ad-hoc retrospective, not a state machine" rejection shape as the prior five cycles' entries on this sensor. Verified against a named recurrence count (task #23118, 3 recurrences, avg 2.3 steps) and cites `arc-packaging`'s existing deterministic 3-step contract (`SKILL.md` + `packaging_queue_log`) as the reason a second generic workflow would duplicate rather than add value.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named recurrence (#23118), matches the sensor's established exemption convention exactly. No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — single additive line, not a consolidation.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A — documents an exception to an already-automated sensor, not new automation.
-
-### Flags
-
-- None. Sixth consecutive cycle with a fully-traceable, single-incident change on this sensor. `arc-workflow-review/sensor.ts`'s `KNOWN_PATTERNS`/`KNOWN_SUBJECT_PREFIXES` exemption list has now grown by one narrow entry per review for six reviews running — each individually well-justified, but if this cadence continues indefinitely it's worth a future cycle asking whether the underlying retrospective-chain detector should learn a more general rule instead of accumulating bare-string exemptions. Not actionable yet (six data points, all genuinely distinct sources) — noting as a trend to watch, not filing a follow-up.
-
----
-
 ## 2026-07-20T09:35:00.000Z — five named-incident hardening fixes, zero unrelated scope; 128 skills / 91 sensors
 
 **Task #23254** | Diff: a7ef616..776f5b2 (7 commits — 5 substantive, 2 auto-commit cache/db only) | Sensors: 91 | Skills: 128
@@ -114,3 +66,25 @@
 ### Flags
 
 - **[LESSON]** See Step 2 above — this review's own prior deletion call (#22213) produced a 5-day-later user-visible failure (#23395) before being caught and reversed. Recommend: before this skill recommends deleting a skill as "unused," grep not just for `--skills <name>` CLI/task references but also for the skill's directory name appearing inside any `skills/*/state-machine.ts` or generator logic that might dynamically emit it.
+
+---
+
+## 2026-07-21T21:34:54.000Z — zero substantive commits, quietest diff on record; 129 skills / 91 sensors
+
+**Task #23477** | Diff: 5576bd7..5576bd7 (zero-length range; the single intervening commit to HEAD is this skill's own prior docs-only update, excluded by design) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. No `src/` or `skills/` code changed since task #23412's review. Diagram regenerated with no structural delta (129/91, unchanged).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None. Overnight brief (2026-07-21) confirms a clean, incident-free window (82 tasks, 0 failures) with no new architectural feedback beyond what #23412 already logged. Standing sign-off asks (PR#28/main merge, X outbound re-enable, arc-0015 grounding gate) remain open and already tracked in MEMORY.md — not re-flagging here.
