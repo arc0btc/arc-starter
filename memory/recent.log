@@ -505,3 +505,4 @@
 2026-07-21T03:32:29.626Z | task #23364 | completed | sonnet | self-review: run health check for 2026-07-21 | Health check clean: 0 failed tasks today, dispatch/sensors/syntax all healthy, c
 [UNTRUSTED-SRC] 2026-07-21T03:33:02.028Z | task #23365 | completed | sonnet | Whop synthesis [2026-07-21T03]: read the room, defer or post | DEFER: 0 messages in 24h window, silence is fine per rubric
 2026-07-21T03:35:44.865Z | task #23366 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 5 follow-ups: 2 self-sourced research tasks for arc-link-research (Zest V
+2026-07-21T03:36:48.759Z | task #23369 | completed | sonnet | Research: Zest Protocol V2 sBTC lending + Bitcoin Collateral | Zest V2 research done: Bitcoin Collateral Vaults are a new borrow-side/self-cust
