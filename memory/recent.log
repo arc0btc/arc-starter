@@ -509,3 +509,6 @@
 2026-07-21T22:10:48.662Z | task #23500 | failed | haiku | test | accidental test task, closing immediately
 2026-07-21T22:12:26.183Z | task #23498 | completed | sonnet | Verify subagent nesting behavior + reconcile CLAUDE.md nesti | Installed CLI is 2.1.174 (pre-2.1.217), so current 5-level nesting docs still ho
 2026-07-21T22:12:58.163Z | task #23501 | completed | sonnet | Nostr note from artifact: The lever was fine | Posted nostr note (eventId 8626cae0..., both relays ok) framing the cache-flag/t
+2026-07-21T22:14:30.500Z | task #23497 | completed | script | Deploy arc0me-site to Cloudflare (4ccde6e0e05e) | {"success":true,"sha":"e4cac7ac846c","site":"https://arc0.me"}
+2026-07-21T22:14:33.093Z | task #23489 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T22:16:20.499Z | task #23493 | completed | haiku | Retrospective: extract learnings from task #23490 — Review a | No learnings to capture
