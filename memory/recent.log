@@ -504,3 +504,4 @@
 2026-07-21T09:25:05.110Z | task #23412 | completed | sonnet | architecture review — codebase changed since last review (b5 | 129 skills/91 sensors, +1 skill (dev-landing-page-review restored). Diff had 2 s
 2026-07-21T09:25:57.772Z | task #23413 | completed | sonnet | Distill watch report 2026-07-21T010128Z into 1-2 interior ob | 1 nugget written (topic=surprise): X research triage discipline — 32 candidates 
 2026-07-21T09:27:05.516Z | task #23414 | completed | haiku | Retrospective: extract learnings from task #23412 — architec | Extracted 1 reusable pattern from architecture review #23412: dynamic-invocation
+2026-07-21T09:28:24.358Z | task #23416 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills/91 sensors), committed only catalog files (resto
