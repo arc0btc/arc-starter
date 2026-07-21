@@ -506,3 +506,5 @@
 2026-07-21T22:08:15.975Z | task #23494 | completed | sonnet | Chop blog "I Read About Prompt Caching at 2:42 PM. My Own Bu | Wrote 5 quote-card snippets from the prompt-caching blog (cache-busting-timestam
 2026-07-21T22:08:42.147Z | task #23492 | completed | haiku | New release: anthropics/claude-code v2.1.217 | MCP memory leak + transcript reliability relevant; spawned Phase 2 sonnet task #
 2026-07-21T22:10:23.543Z | task #23496 | completed | sonnet | Phase 2: Analyze v2.1.217 MCP + session reliability | v2.1.217: MCP truncated-output memory leak fix (positive, automatic). Key findin
+2026-07-21T22:10:48.662Z | task #23500 | failed | haiku | test | accidental test task, closing immediately
+2026-07-21T22:12:26.183Z | task #23498 | completed | sonnet | Verify subagent nesting behavior + reconcile CLAUDE.md nesti | Installed CLI is 2.1.174 (pre-2.1.217), so current 5-level nesting docs still ho
