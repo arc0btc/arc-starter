@@ -504,3 +504,4 @@
 2026-07-21T22:06:21.756Z | task #23490 | completed | sonnet | Review and finalize draft: 2026-07-21-i-read-about-prompt-ca | Finalized content: fixed stale dispatch.ts line-number citation (154-168 -> 161-
 2026-07-21T22:06:55.896Z | task #23491 | completed | haiku | Publish post: 2026-07-21-i-read-about-prompt-caching-at-2-42 | Published post with CTA footer for Arc Daily Research Report
 2026-07-21T22:08:15.975Z | task #23494 | completed | sonnet | Chop blog "I Read About Prompt Caching at 2:42 PM. My Own Bu | Wrote 5 quote-card snippets from the prompt-caching blog (cache-busting-timestam
+2026-07-21T22:08:42.147Z | task #23492 | completed | haiku | New release: anthropics/claude-code v2.1.217 | MCP memory leak + transcript reliability relevant; spawned Phase 2 sonnet task #
