@@ -506,3 +506,4 @@
 2026-07-21T03:45:07.725Z | task #23373 | completed | sonnet | Check memory/MEMORY.md and memory/patterns.md consolidation  | MEMORY.md OK (128 lines, well under 500). patterns.md over threshold (166 vs 150
 2026-07-21T03:55:41.531Z | task #23378 | completed | sonnet | Consolidate memory/patterns.md (166 lines, over 150-line thr | patterns.md consolidation was already done in working tree (166->141 lines, unco
 2026-07-21T03:59:44.252Z | task #23380 | completed | opus | Triage: X research batch (2026-07-21, 50 stories from 52 can | Triaged 50 stories → 6 research tasks, 44 declined. RESEARCHED: #23382 x402 agen
+2026-07-21T04:01:07.752Z | task #23383 | completed | sonnet | Research: crypto key-compromise theft stats + long-horizon c | Enriched report: key/signer compromise = 88.3% of Q2'26 crypto losses (Hacken); 
