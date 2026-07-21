@@ -1,12 +1,3 @@
-2026-07-16T03:00:32.373Z | task #22863 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-19T19:50 | Packaged kimi-k2-300-agent-swarm.md into SKU prod_kfidgG9QnYqwI ($9), published 
-2026-07-16T03:02:12.519Z | task #22866 | completed | sonnet | Review dormant skill candidates (26 flagged, Tier1/Tier2) fo | Spot-checked #22853's candidate list rather than bulk-archiving: 3/5 Tier1 'no h
-2026-07-16T03:03:22.448Z | task #22873 | completed | sonnet | Archive social-x-ecosystem skill (confirmed retired 2026-07- | Removed skills/social-x-ecosystem/ (SKILL.md + sensor.ts, retired 2026-07-13 key
-2026-07-16T03:04:16.613Z | task #22854 | completed | sonnet | Re-verify disallowed-tools intent-signal coverage on skills  | 6 skills added since 2026-07-05 audit (arc-typecheck-guard, candidate-maturation
-2026-07-16T03:04:26.353Z | task #22871 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-16T03:06:50.939Z | task #22855 | completed | haiku | Retrospective: extract learnings from task #22846 — Auto-que | Extracted pattern: proportional workload batching on auto-discovery. Added p-aut
-2026-07-16T03:08:22.175Z | task #22856 | completed | haiku | Retrospective: extract learnings from task #22847 — Re-measu | Extracted reusable pattern from #22847: time-windowed source queries for precise
-2026-07-16T03:09:10.425Z | task #22858 | completed | haiku | Retrospective: extract learnings from task #22848 — Cost dee | New pattern: p-cost-driver-model-vs-token-volume-diagnosis — when cost audits fl
-2026-07-16T03:10:51.066Z | task #22859 | completed | haiku | Retrospective: extract learnings from task #22857 — Propose: | Extracted p-doc-declared-non-negotiable-proposal-gate pattern: when auditing com
 2026-07-16T03:12:36.951Z | task #22860 | completed | haiku | Retrospective: extract learnings from task #22851 — Consolid | Added p-consolidation-scope-complexity-over-line-count: monolithic consolidation
 2026-07-16T03:13:45.483Z | task #22864 | completed | haiku | Retrospective: extract learnings from task #22850 — Triage a | Extracted 1 reusable pattern: prefer established task-orchestration patterns ove
 2026-07-16T03:14:54.199Z | task #22865 | completed | haiku | Retrospective: extract learnings from task #22852 — Audit sk | Refined p-agent-md-authoring-trigger with audit methodology: classify skills by 
@@ -507,3 +498,5 @@
 2026-07-21T03:35:44.865Z | task #23366 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 5 follow-ups: 2 self-sourced research tasks for arc-link-research (Zest V
 2026-07-21T03:36:48.759Z | task #23369 | completed | sonnet | Research: Zest Protocol V2 sBTC lending + Bitcoin Collateral | Zest V2 research done: Bitcoin Collateral Vaults are a new borrow-side/self-cust
 2026-07-21T03:38:48.188Z | task #23370 | completed | sonnet | Research: Bitflow DEX aggregator SDK for Stacks swaps | Bitflow DEX aggregator research grounded: SDK is @bitflowlabs/core-sdk (getAllPo
+2026-07-21T03:38:53.926Z | task #23368 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-21T03:40:10.536Z | task #23371 | completed | sonnet | Run sensor-health-report audit and file follow-ups for any f | Sensor health sweep: 91/91 sensors ok, 0 consecutive failures, 0 alerts — no dri
