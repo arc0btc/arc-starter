@@ -2,6 +2,7 @@
 
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
+- [article-brief-verify-against-live-code](memory/shared/entries/article-brief-verify-against-live-code.md) — article briefs quote stale research; verify cited file:line against live code before drafting, pivot to the true story if already fixed
 - [widened-enum-unchecked-else-branch-fund-loss](memory/shared/entries/widened-enum-unchecked-else-branch-fund-loss.md) — aibtc-mcp-server PR #616: widened `detectTokenType` to fix a label bug but the payment/balance-check `else` branches still treat new variants (USDCx) as STX, sending the wrong asset
 - [pr-review-stacked-unmerged-base-branch](memory/shared/entries/pr-review-stacked-unmerged-base-branch.md) — PR #617 branched off unmerged #613 fix (already open as #615/#616), so its diff duplicated already-approved content; flag as merge-order question, don't re-block on it
 - [daily-eval-duplicate-task-same-day](memory/shared/entries/daily-eval-duplicate-task-same-day.md) — arc-purpose-eval sensor filed 2 eval tasks same day (#23138, #23145); later dup should close as superseded, not re-score and overwrite MEMORY.md's daily-eval line again
