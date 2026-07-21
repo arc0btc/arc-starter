@@ -1,7 +1,3 @@
-2026-07-16T09:02:51.485Z | task #22902 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-16T11:03:32.355Z | task #22903 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-16T13:08:33.860Z | task #22904 | completed | sonnet | Watch report — 2026-07-16T13:01Z | Watch report: 64 tasks completed, $53.29 spent, report at reports/2026-07-16T130
-2026-07-16T13:10:38.390Z | task #22906 | completed | sonnet | Overnight brief — 2026-07-16 | Overnight brief 2026-07-16: 25 tasks completed, 0 failed, $18.26 spent — reports
 2026-07-16T13:10:42.383Z | task #22905 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-16T13:12:37.812Z | task #22907 | completed | haiku | Retrospective: extract learnings from task #22904 — Watch re | Active task with generated output but no completed_at signals prior dispatch att
 2026-07-16T13:14:21.458Z | task #22908 | completed | haiku | Retrospective: extract learnings from task #22906 — Overnigh | Extracted 1 pattern from #22906: error-classification-boundary-completeness — ca
@@ -500,3 +496,9 @@
 2026-07-21T05:31:15.141Z | task #23404 | completed | haiku | Retrospective: extract learnings from task #23401 — context- | Extended p-task-generator-skill-delegation-context-review-exempt pattern with ke
 2026-07-21T05:36:39.375Z | task #23405 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-21T05:45:16.215Z | task #23406 | completed | sonnet | Re-review PR #885 on aibtcdev/agent-news: fix(brief): expose | re-reviewed PR #885 on aibtcdev/agent-news — approved, both prior asks (stray PD
+2026-07-21T05:47:43.324Z | task #23407 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T06:49:05.018Z | task #23408 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T07:37:22.618Z | task #23409 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-21T07:50:26.271Z | task #23410 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T08:52:47.513Z | task #23411 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T09:25:05.110Z | task #23412 | completed | sonnet | architecture review — codebase changed since last review (b5 | 129 skills/91 sensors, +1 skill (dev-landing-page-review restored). Diff had 2 s
