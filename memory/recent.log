@@ -1,17 +1,3 @@
-2026-07-16T02:23:41.695Z | task #22843 | completed | sonnet | Email watch report to whoabuddy — 2026-07-16T02:06 | Watch report emailed to whoabuddy@gmail.com via CF email worker, msg id 8daf2229
-2026-07-16T02:30:01.826Z | task #22844 | completed | sonnet | self-review: run health check for 2026-07-16 | Self-review clean: 0 failures today, dispatch healthy, cost normal, typecheck-gu
-[UNTRUSTED-SRC] 2026-07-16T02:30:17.600Z | task #22845 | completed | sonnet | Whop synthesis [2026-07-16T02]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
-2026-07-16T02:32:57.436Z | task #22846 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 4 follow-ups for arc-link-research (#22847-22850, incl. finally-overdue d
-2026-07-16T02:35:58.317Z | task #22847 | completed | sonnet | Re-measure arc-link-research dedup fix cost impact (now past | Verified: candidate-maturation dedup fix (414ce89a) cut arc-link-research volume
-2026-07-16T02:39:49.736Z | task #22848 | completed | sonnet | Cost deep-dive: why does arc-link-research average $1.38/tas | Opus routing (82% of leaf tasks) is a deliberate 2026-07-13 operator directive, 
-2026-07-16T02:42:05.784Z | task #22857 | completed | opus | Propose: gate arc-link-research's cross-repo grounding step  | ARC-0015 proposal drafted (agent-runtime/proposals/0015): gate arc-link-research
-2026-07-16T02:46:10.211Z | task #22851 | completed | sonnet | Consolidate memory/patterns.md (189 lines, over 150-line thr | Consolidated patterns.md 189->149 lines: merged ~20 recent 2026-07-15/16 single-
-2026-07-16T02:50:14.940Z | task #22849 | completed | sonnet | Audit arc-link-research report front-matter quality for repo | Audited 16 reports since 2026-07-14: all have complete front-matter (topics/rele
-2026-07-16T02:52:21.593Z | task #22850 | completed | sonnet | Triage arc-link-research SKU backlog: flag top 2-3 candidate | Reviewed 20-candidate SKU backlog (all rel 3-4) against whop's 30 already-packag
-2026-07-16T02:54:31.226Z | task #22852 | completed | sonnet | Audit skills for missing AGENT.md despite doing agent-execut | Audited 22 skills with sensor.ts+cli.ts but no AGENT.md (out of 129 total). Only
-2026-07-16T02:57:30.290Z | task #22853 | completed | sonnet | Dormant skill audit: identify skills with zero task activity | 26 dormant candidates flagged (5 Tier1: 90+d old + zero task activity ever — arc
-2026-07-16T02:58:35.696Z | task #22861 | completed | sonnet | Package a research report into a Whop SKU — agent-council-ds | Packaged agent-council-dsl-grammar-v1.md (v1, cited as the accepted standard in 
-2026-07-16T02:59:36.361Z | task #22862 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-27T15:09 | Packaged compound-engineering-skills report as Whop SKU prod_w81pMTdhzIZ2w (publ
 2026-07-16T03:00:32.373Z | task #22863 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-19T19:50 | Packaged kimi-k2-300-agent-swarm.md into SKU prod_kfidgG9QnYqwI ($9), published 
 2026-07-16T03:02:12.519Z | task #22866 | completed | sonnet | Review dormant skill candidates (26 flagged, Tier1/Tier2) fo | Spot-checked #22853's candidate list rather than bulk-archiving: 3/5 Tier1 'no h
 2026-07-16T03:03:22.448Z | task #22873 | completed | sonnet | Archive social-x-ecosystem skill (confirmed retired 2026-07- | Removed skills/social-x-ecosystem/ (SKILL.md + sensor.ts, retired 2026-07-13 key
@@ -512,3 +498,7 @@
 2026-07-21T00:59:17.412Z | task #23357 | completed | haiku | Retrospective: extract learnings from task #23353 — Research | Extracted learning: auto-generated research scaffolds warrant substance validati
 2026-07-21T01:05:04.660Z | task #23358 | completed | sonnet | Watch report — 2026-07-21T01:01Z | Watch report: 10 tasks completed, $7.03 spent, 0 failures, quiet Whop room (120 
 2026-07-21T01:05:55.334Z | task #23359 | completed | haiku | Retrospective: extract learnings from task #23358 — Watch re | No learnings to capture
+2026-07-21T01:34:19.414Z | task #23360 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-21T01:44:22.582Z | task #23361 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T02:45:46.265Z | task #23362 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T03:31:52.214Z | task #23363 | completed | sonnet | Security: brace-expansion (high) in aibtcdev/landing-page | brace-expansion CVE-2026-13149: devDependency-only (eslint/typescript-estree, @n
