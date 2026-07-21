@@ -515,3 +515,5 @@
 2026-07-21T04:10:11.374Z | task #23374 | completed | haiku | Retrospective: extract learnings from task #23366 — Auto-que | Updated patterns.md: added automation-state-precheck guidance to p-resource-cons
 2026-07-21T04:11:27.692Z | task #23375 | completed | haiku | Retrospective: extract learnings from task #23369 — Research | Extracted learning: feature-integration scope validation. When researching proto
 2026-07-21T04:12:18.803Z | task #23377 | completed | haiku | Retrospective: extract learnings from task #23370 — Research | One boilerplate-detection learning added to p-research-synthesis: auto-scrape re
+2026-07-21T04:12:35.805Z | task #23379 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-21T04:14:37.958Z | task #23381 | completed | haiku | Retrospective: extract learnings from task #23378 — Consolid | Verified patterns.md consolidation preserved all content, spot-checked merges, c
