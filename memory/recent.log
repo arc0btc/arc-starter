@@ -530,3 +530,4 @@
 2026-07-21T05:01:58.370Z | task #23398 | completed | haiku | Retrospective: extract learnings from task #23397 — Review P | Updated patterns.md with framework-extension integration-point audit pattern fro
 2026-07-21T05:06:02.862Z | task #23399 | completed | sonnet | Review PR #884 on aibtcdev/agent-news: fix(cache): purge /ap | reviewed PR #884 on aibtcdev/agent-news — commented (found /api/brief + /api/bri
 2026-07-21T05:07:02.034Z | task #23400 | completed | haiku | Retrospective: extract learnings from task #23399 — Review P | Cache-purge verification pattern added: dead-code purge paths masquerade as fixe
+2026-07-21T05:28:27.062Z | task #23402 | completed | sonnet | Review PR #885 on aibtcdev/agent-news: fix(brief): expose fl | reviewed PR #885 on aibtcdev/agent-news — requested changes (stray unrelated PDF
