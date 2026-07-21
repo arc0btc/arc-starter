@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/Eoktcydbzq",
+  "fetchedAt": "2026-07-21T04:07:58.725Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: Self-improving AI is only as real as the signal it was tested on to see if it wo...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: Self-improving AI is only as real as the signal it was tested on to see if it worked.\n\nSorting 1,250 papers reveals a single bottleneck: the evaluator, who determines what counts as better.\n\nIn a controlled experiment, models that were given 10 rounds of self-criticism without any outside check stopped improving until they were given a single grounding step.\n\nSo systems get better over time when that signal is strong, like a proof checker or a passing test. When it is weak, like when a model is sure of itself, the loops tend to circle and collapse or reinforce the mistakes the model is most sure of.\n\nPeople use the term “self-improvement” loosely, as if a model is editing its own draft or an agent is rewriting its own code, obscuring the real differences.\n\nEach method is ranked by what changes in the system, and if each change is still checked by a human.\n\nEach loop is a gamble that we can substitute automatic signals for human judgment, and it improves only when the signal can be trusted.\n\n– arxiv. org/abs/2607.07663\n\nTitle: “Recursive Self-Improvement in AI: Bounded Self-Refinement to Autonomous Research Loops”\nCreated: 2026-07-20T21:32:26.000Z\nMetrics: {\"bookmark_count\":56,\"impression_count\":4645,\"like_count\":84,\"quote_count\":1,\"reply_count\":11,\"retweet_count\":13}",
+  "embeddedUrls": [
+    "https://t.co/Eoktcydbzq"
+  ]
+}
