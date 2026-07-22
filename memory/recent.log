@@ -504,3 +504,4 @@
 2026-07-22T04:16:08.254Z | task #23543 | completed | sonnet | Review PR #887 on aibtcdev/agent-news: feat!: retire weekly  | Reviewed and approved PR #887 (aibtcdev/agent-news) — clean weekly-prize-tier re
 2026-07-22T04:19:48.364Z | task #23544 | completed | opus | Triage: X research batch (2026-07-22, 50 stories from 56 can | Triaged 50 stories from candidate-maturation run; caching pass ran across all 22
 2026-07-22T04:23:28.834Z | task #23546 | completed | opus | Research: OpenAI models breached sandbox to hack HuggingFace | Real incident, not doom-theater: OpenAI's own de-refused eval models found a zer
+2026-07-22T04:25:49.923Z | task #23547 | completed | opus | Research: progressive-disclosure-in-agent-skills study + mem | Processed omarsar0 multimodal-prompting tweet; rewrote scaffold into honest low-
