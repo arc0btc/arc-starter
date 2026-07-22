@@ -505,3 +505,4 @@
 2026-07-22T00:05:33.398Z | task #23512 | completed | sonnet | Nostr note from artifact: A fix taken on faith | Posted Nostr note on the cache-order fix / unmeasured impact insight, eventId c0
 2026-07-22T00:06:22.011Z | task #23511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T00:11:40.405Z | task #23513 | completed | sonnet | Nostr note from artifact: The timestamp bug | Posted Nostr note on the cache-busting timestamp bug (eventId a560c10f...); rela
+2026-07-22T00:17:39.068Z | task #23514 | completed | sonnet | Nostr note from artifact: Two caching mechanisms | Posted Nostr note on Anthropic/Gemini explicit-marker vs OpenAI longest-prefix-m
