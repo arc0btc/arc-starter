@@ -1,23 +1,3 @@
-2026-07-17T08:27:03.597Z | task #23044 | completed | haiku | Fetch and compile arXiv digest — 2026-07-17 (30 new papers) | Fetched 50 arXiv papers (28 relevant LLM/agent), compiled digest to research/arx
-2026-07-17T08:30:48.513Z | task #23045 | completed | sonnet | Tune AgentShield self-scan (task #23038's source) to skip .c | Fixed at the source (option 1, since no upstream AgentShield ignore config exist
-2026-07-17T08:31:23.937Z | task #23048 | completed | sonnet | Fix critical security findings from task #23045 | Stale duplicate of #23045's false-positive AgentShield findings on hooks/guard-d
-2026-07-17T08:33:06.330Z | task #23041 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 91 sensors), committed 8cb04f7 to arc0me-site, 
-[UNTRUSTED-SRC] 2026-07-17T08:33:14.883Z | task #23049 | completed | sonnet | Whop synthesis [2026-07-17T08]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
-2026-07-17T08:38:11.242Z | task #23042 | completed | sonnet | architecture review — codebase changed since last review (92 | Reviewed diff 9201950..34ba6b6: control-plane-remediation defect-register batch 
-2026-07-17T08:42:52.558Z | task #23050 | completed | sonnet | Investigate why article-pipeline auto-package reverts for ar | No stated reason in commits c17f531e/9f568694 or 3de6cbcc/642ee99e (git revert m
-2026-07-17T08:53:15.164Z | task #23053 | completed | opus | [ESCALATED][SECURITY] task #23050 had a completed DB row + r | BENIGN, no tampering: #23050 'planted completion' alarm = self-confabulation. at
-2026-07-17T08:54:16.426Z | task #23052 | blocked | sonnet | [ESCALATED] article-pipeline P4 control-plane reverts (artic | Awaiting whoabuddy action: (1) check inbox for duplicate article 6/7 packaging e
-2026-07-17T09:00:11.513Z | task #23055 | completed | sonnet | Dispatch cost leak: sessions that 'arc tasks close' early th | Already fixed at HEAD (b9fdd085, same lineage as #23053): self-close watchdog po
-2026-07-17T09:00:25.078Z | task #23057 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-08) — | deferred: budget
-2026-07-17T09:02:16.856Z | task #23043 | completed | sonnet | workflow review — 1 new pattern(s) | sensor:context-review retrospective chain is the same already-rejected ad-hoc sh
-2026-07-17T09:02:21.492Z | task #23036 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T09:04:41.171Z | task #23039 | completed | haiku | Retrospective: extract learnings from task #23037 — Distill  | No learnings to capture — watch-report distillation applies existing synthesis +
-2026-07-17T09:05:51.348Z | task #23046 | completed | haiku | Retrospective: extract learnings from task #23040 — Fix crit | Extended p-denylist-guard-naive-text-match-gotcha pattern to include external sc
-2026-07-17T09:06:59.829Z | task #23047 | completed | haiku | Retrospective: extract learnings from task #23045 — Tune Age | Added p-security-tool-finding-suppression-at-integration: filter scanner finding
-2026-07-17T09:08:13.004Z | task #23051 | completed | haiku | Retrospective: extract learnings from task #23042 — architec | No learnings to capture — architecture review task #23042 executed cleanly withi
-2026-07-17T09:10:58.037Z | task #23054 | completed | haiku | Retrospective: extract learnings from task #23050 — Investig | Extracted 3 learnings: distributed-system audit visibility, state-marker vulnera
-2026-07-17T09:12:17.593Z | task #23056 | completed | haiku | Retrospective: extract learnings from task #23053 — [ESCALAT | Updated p-false-positive-prevention item (10) with forensic methodology: task #2
-2026-07-17T09:13:14.301Z | task #23058 | completed | haiku | Retrospective: extract learnings from task #23043 — workflow | No learnings to capture — task applied existing pattern (p-detector-refire-exemp
 2026-07-17T09:13:30.103Z | task #23059 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-17T09:22:33.509Z | task #23060 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-17T09:26:42.261Z | task #23061 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-09) — | deferred: budget (reserve-group returned budget_exhausted, zero rows admitted); 
@@ -518,3 +498,6 @@
 2026-07-22T05:09:52.282Z | task #23557 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T05:15:28.520Z | task #23558 | completed | opus | Triage: X research batch (2026-07-22, 3 stories from 3 candi | 0 researched, 3 declined: (1) Agent S computer-use framework — truncated ad copy
 2026-07-22T05:28:02.258Z | task #23559 | failed | sonnet | Review 4 blocked task(s) for possible unblock | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
+2026-07-22T05:45:03.612Z | task #23560 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-22T06:11:12.104Z | task #23561 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-22T06:16:17.403Z | task #23563 | failed | opus | Triage: X research batch (2026-07-22, 1 story from 1 candida | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
