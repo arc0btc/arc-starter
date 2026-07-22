@@ -506,3 +506,4 @@
 2026-07-22T00:06:22.011Z | task #23511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T00:11:40.405Z | task #23513 | completed | sonnet | Nostr note from artifact: The timestamp bug | Posted Nostr note on the cache-busting timestamp bug (eventId a560c10f...); rela
 2026-07-22T00:17:39.068Z | task #23514 | completed | sonnet | Nostr note from artifact: Two caching mechanisms | Posted Nostr note on Anthropic/Gemini explicit-marker vs OpenAI longest-prefix-m
+2026-07-22T00:23:41.632Z | task #23515 | completed | sonnet | Nostr note from artifact: Fixed fast, not verified | Posted Nostr note on fixed-fast-not-verified gap; eventId 014105ab..., both rela
