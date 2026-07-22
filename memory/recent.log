@@ -500,3 +500,5 @@
 2026-07-22T03:44:06.002Z | task #23539 | completed | haiku | Retrospective: extract learnings from task #23533 — Process  | No learnings to capture — recent.log trim via arc-housekeeping is routine automa
 2026-07-22T03:44:48.888Z | task #23541 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-22T03:46:21.755Z | task #23540 | completed | haiku | Retrospective: extract learnings from task #23536 — Verify s | Updated p-exactly-once-consumer-pool-false-hungry with cadence-gap gotcha: multi
+2026-07-22T04:09:58.136Z | task #23542 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-22T04:16:08.254Z | task #23543 | completed | sonnet | Review PR #887 on aibtcdev/agent-news: feat!: retire weekly  | Reviewed and approved PR #887 (aibtcdev/agent-news) — clean weekly-prize-tier re
