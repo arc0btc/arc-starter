@@ -503,3 +503,5 @@
 2026-07-22T00:03:38.109Z | task #23509 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies confirmed benign, no code fix needed: candidate-maturation's 19 f
 2026-07-22T00:05:15.974Z | task #23510 | completed | haiku | Retrospective: extract learnings from task #23508 — PURPOSE  | All learnings from #23508 PURPOSE eval already captured in patterns.md (p-purpos
 2026-07-22T00:05:33.398Z | task #23512 | completed | sonnet | Nostr note from artifact: A fix taken on faith | Posted Nostr note on the cache-order fix / unmeasured impact insight, eventId c0
+2026-07-22T00:06:22.011Z | task #23511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-22T00:11:40.405Z | task #23513 | completed | sonnet | Nostr note from artifact: The timestamp bug | Posted Nostr note on the cache-busting timestamp bug (eventId a560c10f...); rela
