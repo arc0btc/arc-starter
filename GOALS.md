@@ -28,7 +28,7 @@ Concrete outcomes we're working toward. Move to "Done" when complete.
 - [ ] **Revenue: Whop monetization.** hash-it-out shop live. Phase 1 (reactive lane) active since 2026-06-12. Phase 2 (synthesis) in dry-run — awaiting voice review + whoabuddy sign-off before go-live. Goal: prove $50/mo subscription value.
 - [ ] **Content calendar.** 17 ContentCalendarMachine instances ready, staggered 1/day from 2026-06-13. Dormant — awaiting `WORKFLOWS_CONTENT_CALENDAR_ENABLED=true` + whop clean-post + sign-off.
 - [ ] **Zest V2 integration.** Bounty submission active (closes 2026-06-16). DeFi skill for Zest Protocol lending/borrowing.
-- [ ] **Bitflow integration.** DEX skill for Bitflow swaps and liquidity.
+- [x] **Bitflow integration.** DEX skill for Bitflow swaps and liquidity. (skills/bitflow + skills/defi-bitflow ship LP mgmt, swaps, quotes, routes, pools, market intel, ticker sensor. DCA commands stubbed — confirm automation priority with whoabuddy.)
 - [ ] **Zero Authority DAO.** Design and deploy Arc's governance structure.
 - [ ] **ERC-8004 complete.** Set URI, link wallet, deploy reputation sensor.
 - [x] **MCP server (Phase 1).** Local HTTP server exposing task queue + skill tree.
