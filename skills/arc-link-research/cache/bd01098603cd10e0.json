@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/hJr4yQ6VzA",
+  "fetchedAt": "2026-07-22T04:17:19.135Z",
+  "contentType": "tweet",
+  "title": "@poolsideai: Today we're releasing Laguna S 2.1, our most capable model to date.\n\nIt's a 118B...",
+  "rawContent": "Tweet by @poolsideai (Poolside)\nAuthor bio: We build models for agentic coding and long-horizon tasks. Try Laguna: https://t.co/setRB1BuGD\nText: Today we're releasing Laguna S 2.1, our most capable model to date.\n\nIt's a 118B total parameter Mixture-of-Experts model with 8B activated per token, a context window of up to 1M tokens, and thinking and no-thinking modes.\n\nCapable enough to hold its own against models many times its size. Small enough to run on a single @NVIDIAAI DGX Spark.\n\nLaguna S 2.1 is fully open under OpenMDW-1.1, with weights available today on @huggingface \n\nhttps://t.co/xxGeAgo35R\nCreated: 2026-07-21T17:05:36.000Z\nMetrics: {\"bookmark_count\":894,\"impression_count\":530404,\"like_count\":1975,\"quote_count\":188,\"reply_count\":144,\"retweet_count\":295}",
+  "embeddedUrls": [
+    "https://t.co/hJr4yQ6VzA"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/33836629/status/2079610838143623371",
+  "fetchedAt": "2026-07-22T04:17:16.647Z",
+  "contentType": "tweet",
+  "title": "@karpathy: One pattern I find useful for working with LLMs is a nice long ramble session. S...",
+  "rawContent": "Tweet by @karpathy (Andrej Karpathy)\nAuthor bio: I like training large deep neural nets.\nText: One pattern I find useful for working with LLMs is a nice long ramble session. Sometimes the LLM needs more bits to understand what you're trying to achieve, but you're too lazy to type them. In these cases I like to lean back, switch to /voice and just ramble for like 10 minutes, total mess, anything goes, full stream of consciousness. Sometimes I declare it up top, something like \"switching to speech recognition sorry for any typos...\". Sometimes I turn it into a small interview of a few turns. But I find that the LLMs are somehow very good at reconstructing long incoherent rambles and often their echo of your own tangle of thoughts comes out quite a bit cleaner than what you started with. The result is that you improve the mind meld and have to correct things less from that point on.\nCreated: 2026-07-21T16:53:55.000Z\nMetrics: {\"bookmark_count\":8811,\"impression_count\":1667664,\"like_count\":31041,\"quote_count\":807,\"reply_count\":1686,\"retweet_count\":2509}",
+  "embeddedUrls": []
+}

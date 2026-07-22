@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2079691785882968558",
+  "fetchedAt": "2026-07-22T04:17:16.646Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: Immutable static assets can now be cached across deployments on the Vercel CDN.\n...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: Immutable static assets can now be cached across deployments on the Vercel CDN.\n\nFor frequently deployed projects we see:\n▪︎ 60%+ global TTFB reduction\n▪︎ 30% faster deployments\n▪︎ Less usage and improved performance\n\nhttps://t.co/I5twAhxe7F\nCreated: 2026-07-21T22:15:35.000Z\nMetrics: {\"bookmark_count\":23,\"impression_count\":30002,\"like_count\":81,\"quote_count\":2,\"reply_count\":6,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/I5twAhxe7F"
+  ]
+}

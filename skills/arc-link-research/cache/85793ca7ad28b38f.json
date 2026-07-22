@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2079685915266699534",
+  "fetchedAt": "2026-07-22T04:17:16.646Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: Service tiers are now available on AI Gateway.\n\nUse 𝚙𝚛𝚒𝚘𝚛𝚒𝚝𝚢 for the fas...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: Service tiers are now available on AI Gateway.\n\nUse 𝚙𝚛𝚒𝚘𝚛𝚒𝚝𝚢 for the fastest token throughput or 𝚏𝚕𝚎𝚡 for cost-sensitive, latency-tolerant requests. https://t.co/fatZkTh1a2\nCreated: 2026-07-21T21:52:15.000Z\nMetrics: {\"bookmark_count\":28,\"impression_count\":26659,\"like_count\":76,\"quote_count\":2,\"reply_count\":4,\"retweet_count\":3}",
+  "embeddedUrls": [
+    "https://t.co/fatZkTh1a2"
+  ]
+}

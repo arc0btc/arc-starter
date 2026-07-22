@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/petergostev/status/2079691904849989716",
+  "fetchedAt": "2026-07-22T04:17:16.647Z",
+  "contentType": "tweet",
+  "title": "@petergostev: GPT-6 escaped OpenAI's evals sandbox during testing on CyberGym, hacked into Hug...",
+  "rawContent": "Tweet by @petergostev (Peter Gostev)\nAuthor bio: London 🇬🇧\nAI Capability @arena\nhttps://t.co/bkfw1nxdmJ\nText: GPT-6 escaped OpenAI's evals sandbox during testing on CyberGym, hacked into Hugging Face's prod DB to find the answers. HF couldn't use GPT or Anthropic models for defence, so they had to use GLM-5.2 to investigate the hack. So many levels of wtf here.\nCreated: 2026-07-21T22:16:03.000Z\nMetrics: {\"bookmark_count\":480,\"impression_count\":161527,\"like_count\":3553,\"quote_count\":64,\"reply_count\":108,\"retweet_count\":242}",
+  "embeddedUrls": []
+}

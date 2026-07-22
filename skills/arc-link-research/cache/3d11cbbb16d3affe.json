@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/sama/status/2079661132302995790",
+  "fetchedAt": "2026-07-22T04:17:16.646Z",
+  "contentType": "tweet",
+  "title": "@sama: we had a significant security incident during evaluation of our models. we are s...",
+  "rawContent": "Tweet by @sama (Sam Altman)\nAuthor bio: AI is cool i guess\nText: we had a significant security incident during evaluation of our models. we are sharing what we have learned so far. thanks to @huggingface for the partnership on this.\n\nhttps://t.co/2o2VfR6PIa\nCreated: 2026-07-21T20:13:46.000Z\nMetrics: {\"bookmark_count\":4024,\"impression_count\":3881257,\"like_count\":11042,\"quote_count\":1362,\"reply_count\":1258,\"retweet_count\":1202}",
+  "embeddedUrls": [
+    "https://t.co/2o2VfR6PIa"
+  ]
+}

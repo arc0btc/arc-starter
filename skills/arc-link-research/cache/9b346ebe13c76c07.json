@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/steverabinow/status/2079613801976967450",
+  "fetchedAt": "2026-07-22T04:17:16.646Z",
+  "contentType": "tweet",
+  "title": "@steverabinow: BIP110 taketh away OP_IF, but giveth OP_PLENTY.\n\nIntroducing a novel way to enco...",
+  "rawContent": "Tweet by @steverabinow (Steve)\nAuthor bio: \nText: BIP110 taketh away OP_IF, but giveth OP_PLENTY.\n\nIntroducing a novel way to encode arbitrary data in *contiguous* bytes. Up to 2MB fully BIP110 compliant.\n\nOP_PLENTY encodes each 4 bit nibble of the raw data into a tapscript opcode. Decoding is trivial: take the opcode mod 22.\nCreated: 2026-07-21T17:05:42.000Z\nMetrics: {\"bookmark_count\":27,\"impression_count\":33799,\"like_count\":171,\"quote_count\":24,\"reply_count\":31,\"retweet_count\":36}",
+  "embeddedUrls": []
+}
