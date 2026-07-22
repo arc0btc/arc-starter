@@ -503,3 +503,5 @@
 2026-07-22T02:11:21.015Z | task #23522 | completed | sonnet | CEO review — 2026-07-22T02:03 | CEO review: on track — Article 13, prompt-caching blog, new Whop SKU, 2 PR appro
 2026-07-22T02:12:10.295Z | task #23523 | completed | haiku | Retrospective: extract learnings from task #23522 — CEO revi | No learnings to capture — CEO review exemplified correct execution of p-task-clo
 2026-07-22T02:22:56.494Z | task #23524 | completed | sonnet | Email watch report to whoabuddy — 2026-07-22T02:03 | Watch report emailed to whoabuddy@gmail.com via arc-email-sync (msg id 08a7a87a)
+2026-07-22T03:08:46.001Z | task #23525 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-22T03:27:01.354Z | task #23526 | completed | sonnet | Review PR #628 on aibtcdev/aibtc-mcp-server: feat(news): add | Reviewed PR #628 (aibtc-mcp-server): flagged backend dependency (agent-news#880)
