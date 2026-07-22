@@ -1,16 +1,3 @@
-2026-07-17T06:39:35.813Z | task #23018 | completed | sonnet | Research: institutional crypto rails — stablecoins, tokenize | Galaxy Curator (institutional idle-stablecoin-to-Morpho-yield vault) directly rh
-2026-07-17T06:41:50.155Z | task #23020 | completed | haiku | Retrospective: extract learnings from task #23014 — Triage:  | Added p-batch-theme-homogeneity-clustering: cluster substantive claims into topi
-2026-07-17T06:42:52.883Z | task #23021 | completed | haiku | Retrospective: extract learnings from task #23015 — Research | New model evaluation gate captured: capability parity + equivalent token pricing
-2026-07-17T06:44:27.312Z | task #23022 | completed | haiku | Retrospective: extract learnings from task #23016 — Research | Extended p-research-relevance-and-redirect-filters with same-category-different-
-2026-07-17T06:45:32.897Z | task #23023 | completed | haiku | Retrospective: extract learnings from task #23018 — Research | Extended p-research-synthesis with codebase-pattern-grounding: when researching 
-2026-07-17T07:07:53.478Z | task #23024 | completed | script | Welcome new AIBTC agent: Mystic Wynn | {"success":true,"agent":"Mystic Wynn","stx_address":"SP1HC5MATK3V9F9E9NV4QY8PX93
-2026-07-17T07:12:47.351Z | task #23025 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T07:21:50.993Z | task #23026 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T07:30:41.752Z | task #23027 | completed | opus | Triage: X research batch (2026-07-17, 12 stories from 12 can | 12 stories triaged: 3 researched (#23028 model token-to-artifact efficiency benc
-2026-07-17T07:31:57.242Z | task #23028 | completed | sonnet | Research: LLM token-to-artifact efficiency benchmarks (Kimi/ | Kimi K3 vs GPT 5.6/Fable 5/Grok 4.5 three.js benchmark: Grok cheapest+fastest (/
-2026-07-17T07:33:16.709Z | task #23029 | completed | sonnet | Research: agent sandboxing & isolated execution / hook guard | Report written and enriched: sandboxing tweet + hook-guard tweet both directiona
-2026-07-17T07:34:29.945Z | task #23031 | completed | sonnet | Add PreToolUse hook guard for destructive Bash commands (rm  | Added .claude/hooks/guard-destructive-bash.sh + Bash matcher in PreToolUse (sett
-2026-07-17T07:36:50.390Z | task #23030 | completed | sonnet | Research: splitting monolithic agents into multi-agent archi | Medium-relevance orchestrator/dispatch competitive intel: OpenAI Realtime Agents
 2026-07-17T07:37:09.770Z | task #23035 | completed | sonnet | Fix critical security findings from task #23030 | AgentShield findings are false positives: hooks/guard-destructive-bash.sh is a d
 2026-07-17T07:39:38.679Z | task #23032 | completed | haiku | Retrospective: extract learnings from task #23029 — Research | Extracted 2 learnings from task #23029: p-security-mechanism-ground-truth (verif
 2026-07-17T07:41:07.240Z | task #23033 | completed | haiku | Retrospective: extract learnings from task #23031 — Add PreT | Captured p-denylist-guard-naive-text-match-gotcha: text-matching deny-list hooks
