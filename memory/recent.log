@@ -1,10 +1,3 @@
-2026-07-17T07:37:09.770Z | task #23035 | completed | sonnet | Fix critical security findings from task #23030 | AgentShield findings are false positives: hooks/guard-destructive-bash.sh is a d
-2026-07-17T07:39:38.679Z | task #23032 | completed | haiku | Retrospective: extract learnings from task #23029 — Research | Extracted 2 learnings from task #23029: p-security-mechanism-ground-truth (verif
-2026-07-17T07:41:07.240Z | task #23033 | completed | haiku | Retrospective: extract learnings from task #23031 — Add PreT | Captured p-denylist-guard-naive-text-match-gotcha: text-matching deny-list hooks
-2026-07-17T07:42:08.033Z | task #23034 | completed | haiku | Retrospective: extract learnings from task #23030 — Research | Task-queue orchestration as depth-limit escape pattern extracted and added to pa
-2026-07-17T08:23:25.175Z | task #23037 | completed | sonnet | Distill watch report 2026-07-17T010354Z into 1-2 interior ob | Wrote 2 nuggets from 2026-07-17T010354Z watch report: cost (github-release-watch
-2026-07-17T08:23:52.062Z | task #23038 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Fixed 2 abbreviated-name violations: idx->flagIndex (arc-attribution/cli.ts), er
-2026-07-17T08:26:09.424Z | task #23040 | completed | sonnet | Fix critical security findings from task #23038 | False positive: AgentShield (ecc-agentshield npm pkg) does raw regex matching on
 2026-07-17T08:27:03.597Z | task #23044 | completed | haiku | Fetch and compile arXiv digest — 2026-07-17 (30 new papers) | Fetched 50 arXiv papers (28 relevant LLM/agent), compiled digest to research/arx
 2026-07-17T08:30:48.513Z | task #23045 | completed | sonnet | Tune AgentShield self-scan (task #23038's source) to skip .c | Fixed at the source (option 1, since no upstream AgentShield ignore config exist
 2026-07-17T08:31:23.937Z | task #23048 | completed | sonnet | Fix critical security findings from task #23045 | Stale duplicate of #23045's false-positive AgentShield findings on hooks/guard-d
@@ -505,3 +498,5 @@
 2026-07-22T03:42:42.843Z | task #23537 | completed | haiku | Retrospective: extract learnings from task #23531 — Auto-que | Captured pool-consumer false-hungry pattern: zero queue is steady state for exac
 2026-07-22T03:43:15.954Z | task #23538 | completed | haiku | Retrospective: extract learnings from task #23532 — Consolid | No learnings to capture
 2026-07-22T03:44:06.002Z | task #23539 | completed | haiku | Retrospective: extract learnings from task #23533 — Process  | No learnings to capture — recent.log trim via arc-housekeeping is routine automa
+2026-07-22T03:44:48.888Z | task #23541 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-22T03:46:21.755Z | task #23540 | completed | haiku | Retrospective: extract learnings from task #23536 — Verify s | Updated p-exactly-once-consumer-pool-false-hungry with cadence-gap gotcha: multi
