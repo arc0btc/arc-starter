@@ -517,3 +517,4 @@
 2026-07-22T04:40:37.987Z | task #23556 | completed | haiku | Retrospective: extract learnings from task #23550 — Research | Extracted 1 learning: auto-scaffold misses Arc self-alignment in research, added
 2026-07-22T05:09:52.282Z | task #23557 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T05:15:28.520Z | task #23558 | completed | opus | Triage: X research batch (2026-07-22, 3 stories from 3 candi | 0 researched, 3 declined: (1) Agent S computer-use framework — truncated ad copy
+2026-07-22T05:28:02.258Z | task #23559 | failed | sonnet | Review 4 blocked task(s) for possible unblock | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
