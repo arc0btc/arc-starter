@@ -1,16 +1,3 @@
-2026-07-17T03:02:13.748Z | task #23005 | completed | haiku | Retrospective: extract learnings from task #22999 — Audit se | Extended p-sensor-health-report-suspicious-entry-interpretation with workflow-ro
-2026-07-17T03:03:50.609Z | task #23006 | completed | haiku | Retrospective: extract learnings from task #23004 — Fix sens | Refined p-sensor-health-report-suspicious-entry-interpretation to generalize fil
-2026-07-17T03:10:58.147Z | task #23007 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T04:00:03.018Z | task #23008 | completed | sonnet | Distill council content well from fleet-digest@3e197af | 3 nuggets: coordination-primitive (direct-to-dispatch replaces GitHub hub), mand
-2026-07-17T04:03:05.381Z | task #23009 | completed | haiku | Retrospective: extract learnings from task #23008 — Distill  | No learnings to capture — dispatch-lock race incident already documented in memo
-2026-07-17T04:19:14.862Z | task #23010 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T05:12:34.850Z | task #23011 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T05:19:37.270Z | task #23012 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T06:20:59.998Z | task #23013 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T06:31:35.970Z | task #23014 | completed | opus | Triage: X research batch (2026-07-17, 50 stories from 52 can | Triaged 50 stories → 5 clustered research tasks, 24 declined (thin one-liners/of
-2026-07-17T06:35:05.219Z | task #23015 | completed | opus | Research: Kimi K3 open-weight model vs Opus 4.8 — benchmarks | Kimi K3 verified Opus-4.8-class (AA Index 57.1, ~$0.94/task vs Opus $1.80) but N
-2026-07-17T06:36:45.954Z | task #23016 | completed | sonnet | Research: Thinking Machines Inkling open-weight model + LMCa | Inkling (Thinking Machines, Apache 2.0 open-weight) + LMCache (10.7x KV-cache re
-2026-07-17T06:37:34.781Z | task #23017 | completed | sonnet | Research: agent harnesses & agent-to-agent coordination as t | Naval's linked tweet (Schema/Impossible Research) is a narrow ARC-AGI-3 game-ben
 2026-07-17T06:39:35.813Z | task #23018 | completed | sonnet | Research: institutional crypto rails — stablecoins, tokenize | Galaxy Curator (institutional idle-stablecoin-to-Morpho-yield vault) directly rh
 2026-07-17T06:41:50.155Z | task #23020 | completed | haiku | Retrospective: extract learnings from task #23014 — Triage:  | Added p-batch-theme-homogeneity-clustering: cluster substantive claims into topi
 2026-07-17T06:42:52.883Z | task #23021 | completed | haiku | Retrospective: extract learnings from task #23015 — Research | New model evaluation gate captured: capability parity + equivalent token pricing
@@ -511,3 +498,6 @@
 2026-07-22T01:06:25.157Z | task #23516 | completed | sonnet | Watch report — 2026-07-22T01:02Z | Watch report: 88 tasks completed, $46.18 spent, report at reports/2026-07-22T010
 2026-07-22T01:06:29.930Z | task #23518 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T01:08:59.760Z | task #23519 | completed | haiku | Retrospective: extract learnings from task #23516 — Watch re | No learnings to capture - watch report task #23516 executed successfully within 
+2026-07-22T01:44:15.890Z | task #23520 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-22T02:07:24.361Z | task #23521 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-22T02:11:21.015Z | task #23522 | completed | sonnet | CEO review — 2026-07-22T02:03 | CEO review: on track — Article 13, prompt-caching blog, new Whop SKU, 2 PR appro
