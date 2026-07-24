@@ -44,3 +44,12 @@ correctly at detection time — it just had no path to alert once "resolved."
 
 See [[arc-link-research-cost-driver]] for the general pattern of "signal detected correctly but
 never reached a human" — same shape, different subsystem.
+
+**Downstream consequence #3, 2026-07-24 (#23659):** an arc0btc.com content-freshness health
+alert fired because two already-queued blog generate+publish task chains (#23583/23584,
+#23625/23626) sat stalled at priority 6 for the outage's duration. Not a pipeline defect —
+just queue backlog from the same 42h stall. Fix was operational (bump both chains to priority
+3, no manual post to avoid duplicating queued work), not code. Confirms the queue-growth gap
+above (gap #1) has real downstream cost beyond "42 pending tasks" — anything time-sensitive
+queued during a dispatch outage silently ages out of freshness windows with no separate alert
+path. Doesn't change the fix directions above; same root cause, same unimplemented fix.
