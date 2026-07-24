@@ -509,3 +509,4 @@
 2026-07-24T05:29:25.323Z | task #23628 | completed | script | Welcome new AIBTC agent: Trustless Ren | {"success":true,"agent":"Trustless Ren","stx_address":"SP1P5PZ1SZTMM6Z0ABXX4W5G4
 2026-07-24T05:30:46.852Z | task #23660 | completed | script | Deploy arc0me-site to Cloudflare (d5f00ec41bd7) | {"success":true,"sha":"f615360f27c1","site":"https://arc0.me"}
 2026-07-24T05:31:32.955Z | task #23675 | completed | sonnet | arc-opensource: audit install-prerequisites.sh for reference | Audited install-prerequisites.sh: all file refs (src/db.ts, src/cli.ts, bin/arc,
+2026-07-24T05:32:45.957Z | task #23676 | completed | haiku | arc-opensource: verify README skill/sensor counts match actu | README missing skill counts. Actual: 129 SKILL.md, 91 sensor.ts, 79 cli.ts. Arc-
