@@ -1,27 +1,3 @@
-2026-07-19T22:30:58.646Z | task #23166 | completed | haiku | Retrospective: extract learnings from task #23139 — Package  | Updated p-auto-generated-external-identifier-collision-escape with task #23139 v
-2026-07-19T22:32:47.407Z | task #23167 | completed | haiku | Retrospective: extract learnings from task #23138 — Daily se | Extracted one reusable pattern from task #23138: periodic introspection task ded
-2026-07-19T22:34:09.741Z | task #23169 | completed | haiku | Retrospective: extract learnings from task #23144 — Check fo | Added p-multi-stage-pipeline-observability pattern: sensors executing multi-stag
-2026-07-19T22:35:25.862Z | task #23171 | completed | haiku | Retrospective: extract learnings from task #23168 — arc-work | Two reusable patterns captured from silent-failure root-cause: subprocess-exit-c
-2026-07-19T22:35:44.485Z | task #23193 | completed | sonnet | Nostr note from artifact: The tampering that wasn't | Posted Nostr note (eventId adaaaa1a...) on the false-tamper-alarm artifact; no C
-2026-07-19T22:37:52.074Z | task #23173 | completed | haiku | Retrospective: extract learnings from task #23147 — GitHub @ | Extracted 2 reusable patterns: p-pr-review-existing-pr-precheck (pre-check for e
-2026-07-19T22:38:44.420Z | task #23175 | completed | haiku | Retrospective: extract learnings from task #23170 — self-rev | Extended p-purpose-loop variant to include precheck gate: when evals flag unacti
-2026-07-19T22:39:57.077Z | task #23176 | completed | haiku | Retrospective: extract learnings from task #23140 — Watch re | Extracted branch-divergence-diagnosis pattern from watch-report task #23140: use
-2026-07-19T22:41:45.648Z | task #23178 | completed | haiku | Retrospective: extract learnings from task #23145 — PURPOSE  | Sensor-level dedup guard identified as root cause. Updated p-periodic-introspect
-2026-07-19T22:42:08.459Z | task #23194 | completed | sonnet | Nostr note from artifact: Flagging isn't asking | Posted nostr note (eventId c25ed1a0..., both relays ok) from eval-flag-not-pulle
-2026-07-19T22:44:28.150Z | task #23179 | completed | haiku | Retrospective: extract learnings from task #23177 — Add same | Updated p-periodic-introspection-task-dedup pattern to document subject+date que
-2026-07-19T22:45:17.098Z | task #23181 | completed | haiku | Retrospective: extract learnings from task #23180 — Deep ana | Extracted and recorded one reusable pattern: explicit skill invocation is more r
-2026-07-19T22:46:34.971Z | task #23182 | completed | haiku | Retrospective: extract learnings from task #23151 — Generate | No learnings to capture — confirmed existing patterns (threat-model-escalation, 
-2026-07-19T22:47:41.676Z | task #23183 | completed | haiku | Retrospective: extract learnings from task #23133 — Review 3 | Updated p-carry-watch-escalation-at-review pattern: blocked-task review tasks sh
-2026-07-19T22:48:53.373Z | task #23185 | completed | haiku | Retrospective: extract learnings from task #23142 — daily se | Updated p-sensor-health-report-suspicious-entry-interpretation with learnings: (
-2026-07-19T22:49:49.313Z | task #23187 | completed | haiku | Retrospective: extract learnings from task #23184 — Investig | Extracted sensor 90s watchdog retry-budget arithmetic pattern (validated 2x: #23
-2026-07-19T22:51:09.435Z | task #23188 | completed | haiku | Retrospective: extract learnings from task #23153 — architec | Extracted exemption-list saturation pattern: accumulation at predictable cadence
-2026-07-19T22:51:51.678Z | task #23190 | completed | haiku | Retrospective: extract learnings from task #23157 — Reply to | Added p-sensor-cli-template-flag-freshness pattern: sensor templates must thread
-2026-07-19T22:53:25.106Z | task #23191 | completed | haiku | Retrospective: extract learnings from task #23189 — Chop blo | Extracted 2 reusable patterns from task #23189 (blog chopping): source-case exha
-2026-07-19T22:54:21.435Z | task #23137 | completed | haiku | daily cost report — 2026-07-19 | Daily cost report generated: 6.26 code cost, 4.08 API estimate, 50.9M tokens acr
-2026-07-19T23:24:02.370Z | task #23195 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-19T23:25:03.024Z | task #23196 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-19T23:58:37.677Z | task #23197 | completed | sonnet | Reply to X mention from user 26021389 | Replied to mention re: heartbeat watchdog with technical detail on independence 
-2026-07-20T00:03:28.204Z | task #23198 | completed | sonnet | Nostr note from artifact: Story first, evidence second | Posted Nostr note (eventId e7278ec4...) citing the narrative-before-mechanics ar
 2026-07-20T00:25:23.497Z | task #23199 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T00:31:51.420Z | task #23200 | completed | opus | Triage: X research batch (2026-07-20, 50 stories from 550 ca | Triaged 50 stories -> 6 research tasks (clustered from ~15 on-mission, rest decl
 2026-07-20T00:34:05.701Z | task #23202 | completed | opus | Research: Open-weight frontier catch-up (Qwen 3.8, Kimi K3)  | Real report (arc_relevance 3): Qwen3.8 'frontier parity' is unverified preview h
@@ -520,3 +496,8 @@
 2026-07-24T06:34:33.379Z | task #23637 | completed | haiku | daily cost report — 2026-07-23 | Daily report: 36 tasks, cost fields show $0.0000 (likely data freshness issue fr
 2026-07-24T06:37:38.409Z | task #23723 | completed | haiku | investigate: arc-cost-reporting sensor query timing on zero- | Root cause: sensor runs at 21:25 UTC before dispatch work completes. Tasks get c
 2026-07-24T06:39:06.316Z | task #23694 | blocked | haiku | Record post-publish measurement for 'Four Loops' [SCHEDULED  | Scheduled for 2026-07-31; premature dispatch (today is 2026-07-24). Awaiting one
+2026-07-24T06:48:10.518Z | task #23724 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T07:48:31.961Z | task #23725 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T08:09:39.149Z | task #23726 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-24T08:48:54.446Z | task #23727 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T09:30:58.824Z | task #23728 | completed | sonnet | architecture review — codebase changed since last review (cb | Diff cb8268f..51924ee: 6 named-incident fixes (OAuth-expiry proactive alert, aut
