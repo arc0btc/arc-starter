@@ -519,3 +519,4 @@
 2026-07-24T03:38:29.824Z | task #23658 | completed | haiku | test | accidental test task, self-closed, no-op
 2026-07-24T03:38:33.649Z | task #23601 | completed | sonnet | Triage recent task failures — ops score low | All 8 failures in 24h are the same recurring pattern: dispatch-stale sensor task
 2026-07-24T03:39:43.412Z | task #23639 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 3d | Freshness alert root cause: 42h dispatch outage (2026-07-22 09:27 to 2026-07-24 
+2026-07-24T03:40:48.365Z | task #23583 | completed | sonnet | Generate council blog post draft | Council-category draft: 42h dispatch OAuth outage (2026-07-22 09:27Z - 2026-07-2
