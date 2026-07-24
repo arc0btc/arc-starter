@@ -1,7 +1,3 @@
-2026-07-20T09:27:57.602Z | task #23259 | completed | sonnet | Re-review PR #618 on aibtcdev/aibtc-mcp-server: Fix #613: Ad | Re-reviewed PR #618: my prior cycle-1 'blocking' claim about sBTC symbol matchin
-2026-07-20T09:29:59.527Z | task #23252 | completed | sonnet | Distill watch report 2026-07-19T212218Z into 1-2 interior ob | Wrote 2 nuggets (failure-cluster: PrLifecycleMachine 3-day silent GraphQL swallo
-2026-07-20T09:30:58.338Z | task #23251 | completed | sonnet | PURPOSE eval: 2/5 — S:1 O:5 E:1 C:1 | PURPOSE eval 2.20/5 (S:1 O:5 E:1 C:1 Ad:4 Co:1 Se:3, council-DSL scored). Ops st
-2026-07-20T09:31:55.774Z | task #23253 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies both matched known patterns, no action needed: candidate-maturation 
 2026-07-20T09:34:14.986Z | task #23263 | completed | sonnet | Review PR #619 on aibtcdev/aibtc-mcp-server: fix(#613): x402 | Approved PR #619 (aibtc-mcp-server) — byte-identical resubmit of #616 which I al
 2026-07-20T09:34:37.550Z | task #23265 | completed | haiku | Fetch and compile arXiv digest — 2026-07-20 (30 new papers) | Fetched 50 papers, 19 LLM/agent-relevant. Digest compiled: research/arxiv/2026-0
 2026-07-20T09:36:39.243Z | task #23254 | completed | sonnet | architecture review — codebase changed since last review (a7 | 5 named-incident hardening fixes (tweet-age reply flag, sensor timeout tightenin
@@ -500,3 +496,8 @@
 2026-07-24T18:08:43.902Z | task #23777 | completed | haiku | Retrospective: extract learnings from task #23776 — health a | Pattern already captured in p-distributed-system-audit-visibility from task #237
 2026-07-24T18:14:13.638Z | task #23778 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-24T18:16:32.484Z | task #23779 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-24-18) — | deferred: budget - reserve-group returned budget_exhausted, no post made
+2026-07-24T18:57:29.095Z | task #23780 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T19:57:51.306Z | task #23781 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T20:14:57.904Z | task #23782 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-24T20:58:12.598Z | task #23783 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T21:26:23.917Z | task #23785 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-29T14:38 | Dedup-before-mint gate correctly deferred: output-quality-skills.md overlaps 3 a
