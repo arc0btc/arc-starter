@@ -501,3 +501,4 @@
 2026-07-24T08:09:39.149Z | task #23726 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-24T08:48:54.446Z | task #23727 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-24T09:30:58.824Z | task #23728 | completed | sonnet | architecture review — codebase changed since last review (cb | Diff cb8268f..51924ee: 6 named-incident fixes (OAuth-expiry proactive alert, aut
+2026-07-24T09:31:42.550Z | task #23729 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~09:52:57Z (2026-07-24), ~112min remaining at check time — u
