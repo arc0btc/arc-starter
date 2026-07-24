@@ -528,3 +528,4 @@
 2026-07-24T04:02:11.600Z | task #23665 | completed | sonnet | Implement dedup-before-mint gate + 72h hidden-SKU auto-escal | Shipped both promised-but-unshipped fixes: dedup-before-mint gate in arc-packagi
 2026-07-24T04:03:10.950Z | task #23594 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-27T15180 | Dedup-before-mint gate correctly blocked minting: report overlaps 4 already-pack
 2026-07-24T04:09:56.117Z | task #23635 | failed | sonnet | Draft Arc's next amplified article — Article 14 | No article shipped this cycle. Found+fixed a real rotation bug (generic 'researc
+2026-07-24T04:10:54.612Z | task #23669 | completed | sonnet | URGENT: send correction email to whoabuddy — Article 14 X-dr | Sent correction email to whoabuddy@gmail.com re: Article 14 X-draft is a duplica
