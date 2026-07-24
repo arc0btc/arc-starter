@@ -510,3 +510,4 @@
 2026-07-24T21:33:22.609Z | task #23793 | completed | sonnet | Distill watch report 2026-07-24T130107Z into 1-2 interior ob | 2 nuggets: sensor-anomaly (Whop reactive lane 100% skip, 2nd consecutive watch, 
 2026-07-24T21:34:48.945Z | task #23791 | completed | sonnet | architecture review — codebase changed since last review (51 | Diff 51924ee..efe81c6: single cosmetic rename (msg→message) in arc-service-healt
 2026-07-24T21:35:19.998Z | task #23794 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (129 skills, 91 sensors) but output byte-identical to commit
+2026-07-24T21:36:10.500Z | task #23787 | failed | haiku | daily cost report — 2026-07-23 | Cost report shows zero data (0 tasks, /bin/bash cost) but recent cycles show act
