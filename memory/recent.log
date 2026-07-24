@@ -1,12 +1,3 @@
-2026-07-20T04:29:14.062Z | task #23231 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T05:22:54.491Z | task #23232 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #23159 (merge feat/x-api-pay-per-use-dollar-budget->main). Signal was t
-2026-07-20T05:24:33.905Z | task #23233 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T05:29:35.564Z | task #23234 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T06:29:57.094Z | task #23235 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T07:25:17.643Z | task #23236 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T07:31:19.503Z | task #23237 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T08:32:42.119Z | task #23238 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T08:41:51.410Z | task #23240 | completed | haiku | Retrospective: extract learnings from task #23239 — Review P | Captured widened-enum-stale-branch pattern: when type unions expand without upda
 2026-07-20T08:56:56.020Z | task #23241 | completed | sonnet | Re-review PR #616 on aibtcdev/aibtc-mcp-server: fix(#613): x | PR #616 re-review cycle 2: blocking USDCx-sends-as-STX bug fixed correctly (cont
 2026-07-20T08:58:11.398Z | task #23242 | completed | haiku | Retrospective: extract learnings from task #23241 — Re-revie | Updated p-type-widening pattern: parallel subsystems in payment flows (transfer 
 2026-07-20T09:04:25.162Z | task #23243 | completed | sonnet | Review PR #617 on aibtcdev/aibtc-mcp-server: fix(#611): dual | Reviewed and approved PR #617 (aibtc-mcp-server) — #611 tuple-decode fix is corr
@@ -506,3 +497,7 @@
 2026-07-24T15:27:12.524Z | task #23763 | failed | unknown | Charter corrective 3: wire rolling-3 enforcement INTO the mi | No model set — task requires explicit model column (opus/sonnet/haiku)
 2026-07-24T15:28:13.453Z | task #23764 | failed | unknown | Charter corrective 4: invert the mint gate (free-first, rece | No model set — task requires explicit model column (opus/sonnet/haiku)
 [UNTRUSTED-SRC] 2026-07-24T15:41:22.869Z | task #23765 | completed | sonnet | Whop synthesis [2026-07-24T15]: read the room, defer or post | DEFER: whop synthesis tick, 0 messages in 24h window, quiet room, no post
+2026-07-24T15:54:22.502Z | task #23766 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T16:12:30.148Z | task #23767 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-24T16:54:44.992Z | task #23768 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T17:00:02.928Z | task #23769 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.115.0 is a genuine core SDK release (not monorepo sub-package noise) — ad
