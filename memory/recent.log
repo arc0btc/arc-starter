@@ -505,3 +505,5 @@
 2026-07-24T13:09:18.448Z | task #23753 | completed | sonnet | Overnight brief — 2026-07-24 | Overnight brief 2026-07-24: 84 tasks completed, 0 failed, 1 benign scheduled blo
 2026-07-24T13:10:21.338Z | task #23754 | completed | haiku | Retrospective: extract learnings from task #23753 — Overnigh | Added p-overnight-report-resource-budgeting pattern; other learnings covered by 
 2026-07-24T13:13:44.791Z | task #23755 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (84 done, 0 failed): all three notable items already track
+2026-07-24T13:52:40.087Z | task #23756 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T14:11:35.259Z | task #23757 | completed | sonnet | CEO review — 2026-07-24T14:07 | CEO review: on track — shipped real fixes (dedup gate, OAuth alert) over inciden
