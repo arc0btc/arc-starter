@@ -516,3 +516,5 @@
 2026-07-24T05:42:53.939Z | task #23696 | completed | sonnet | arc-opensource: redact hardcoded internal IPs (192.168.1.x)  | Genericized 192.168.1.x LAN IPs to env vars/placeholders in skills/arc-umbrel/{c
 2026-07-24T05:44:43.905Z | task #23697 | completed | sonnet | Verify /code-review --fix blocks under headless dispatch bef | Empirically confirmed: /code-review --fix blocks under headless dispatch (claude
 2026-07-24T05:45:11.180Z | task #23712 | completed | opus | docs: add skill/sensor/CLI counts to README.md | Added Installed components section to README (129 skills/91 sensors/79 CLI); cou
+2026-07-24T05:45:51.624Z | task #23577 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T05:48:09.533Z | task #23588 | completed | sonnet | Assess course candidacy: "Build Success Is Not Deploy Succes | No cluster yet: engagement signal check (x_reply_log, whop list-forum-posts exp_
