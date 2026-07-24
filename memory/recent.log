@@ -526,3 +526,4 @@
 2026-07-24T03:45:32.317Z | task #23643 | completed | sonnet | Investigate dispatch OAuth 401 outage recovery (2026-07-22 0 | Recovery was NOT silent/automatic as prior flag assumed — confirmed via .bash_hi
 2026-07-24T03:57:47.162Z | task #21499 | completed | sonnet | Execute strategy-panel verdict: retire Agent Loop Engineerin | Retired prod_YXBP0FKt3zzhm (archived its plan via direct API, confirming hidden 
 2026-07-24T04:02:11.600Z | task #23665 | completed | sonnet | Implement dedup-before-mint gate + 72h hidden-SKU auto-escal | Shipped both promised-but-unshipped fixes: dedup-before-mint gate in arc-packagi
+2026-07-24T04:03:10.950Z | task #23594 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-27T15180 | Dedup-before-mint gate correctly blocked minting: report overlaps 4 already-pack
