@@ -1,3 +1,25 @@
+## 2026-07-24T21:34:00.000Z — single naming-compliance commit, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #23791** | Diff: 51924ee..efe81c6 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-service-health/sensor.ts` (efe81c6d7) — renamed abbreviated `msg` → `message` in two Discord-alert helper functions, fixing a compliance-review flag (verbose-naming convention). No behavior change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — cosmetic rename, no requirement to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None. Checked `2026-07-24T140000Z_overnight_brief.md` (dated after last review) — only new item is `candidate-maturation` sensor hitting the already-documented X read-budget-exhaustion pattern (self-resolves at UTC midnight), no new structural finding. No follow-up task warranted.
+
+---
+
 ## 2026-07-24T09:29:06.000Z — six named-incident fixes closing two active outage flags, zero speculative scope; 129 skills / 91 sensors (unchanged)
 
 **Task #23728** | Diff: cb8268f..51924ee (10 commits — 6 substantive, 4 auto-commit cache-only) | Sensors: 91 | Skills: 129
@@ -90,25 +112,3 @@
 ### Flags
 
 - **[LESSON]** See Step 2 above — this review's own prior deletion call (#22213) produced a 5-day-later user-visible failure (#23395) before being caught and reversed. Recommend: before this skill recommends deleting a skill as "unused," grep not just for `--skills <name>` CLI/task references but also for the skill's directory name appearing inside any `skills/*/state-machine.ts` or generator logic that might dynamically emit it.
-
----
-
-## 2026-07-21T21:34:54.000Z — zero substantive commits, quietest diff on record; 129 skills / 91 sensors
-
-**Task #23477** | Diff: 5576bd7..5576bd7 (zero-length range; the single intervening commit to HEAD is this skill's own prior docs-only update, excluded by design) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. No `src/` or `skills/` code changed since task #23412's review. Diagram regenerated with no structural delta (129/91, unchanged).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None. Overnight brief (2026-07-21) confirms a clean, incident-free window (82 tasks, 0 failures) with no new architectural feedback beyond what #23412 already logged. Standing sign-off asks (PR#28/main merge, X outbound re-enable, arc-0015 grounding gate) remain open and already tracked in MEMORY.md — not re-flagging here.
