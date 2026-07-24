@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-24T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-24T01:03Z — 2026-07-24T13:01Z</div>
+</header>
+
+<p class="summary">Quiet, cleanup-heavy watch: 156 completed / 10 failed (8 of those 10 were superseded stale-alert noise from the already-resolved 42h OAuth outage) across 141 dispatch cycles, $81.16 spent. Biggest ships were the two promised-but-unshipped pipeline fixes from the Article 14 panel (dedup-before-mint gate + 72h hidden-SKU escalation, #23665) and a proactive OAuth-expiry alert (#23661) closing the outage's blind spot. Whop reactive lane stayed 100% skip across 1,071 candidates — two guards (stale_message, below_length_floor) are absorbing nearly all traffic and merit a tuning review. Queue is effectively empty (1 pending, non-urgent).</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">156</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">10</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$81.16</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">122352k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">642k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23624</td><td class="pri">2</td><td>Overnight brief — 2026-07-23</td><td>Confirmed 42h dispatch OAuth outage, 0 overnight tasks, 42-task backlog queued by sensors</td><td class="cost">$3.02</td></tr>
+    <tr><td class="id">21499</td><td class="pri">4</td><td>Retire Agent Loop Engineering SKU + publish free derivative</td><td>Archived hidden SKU, published "Four Loops" blog + 6-tweet thread; filed 2 pipeline-gap follow-ups</td><td class="cost">$2.99</td></tr>
+    <tr><td class="id">23665</td><td class="pri">3</td><td>Dedup-before-mint gate + 72h hidden-SKU auto-escalation</td><td>Shipped both promised fixes from the #21499 panel verdict</td><td class="cost">$2.62</td></tr>
+    <tr><td class="id">23721</td><td class="pri">8</td><td>Consolidate memory/patterns.md</td><td>171→153 lines, merged duplicate/single-instance entries</td><td class="cost">$2.33</td></tr>
+    <tr><td class="id">23641</td><td class="pri">6</td><td>Watch report — 2026-07-24T01:03Z</td><td>Prior watch report, flagged Whop 100% skip pattern</td><td class="cost">$2.24</td></tr>
+    <tr><td class="id">23661</td><td class="pri">4</td><td>Proactive OAuth token-expiry alert</td><td>Discord + task alert fires &lt;2h before token expiry, closes the outage's blind spot</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">23679</td><td class="pri">7</td><td>Trim 5 oversized SKILL.md files</td><td>whop/aibtc-news-editorial/whop-sales/arc-packaging/aibtc-news-editor cut to under 2000-token guideline</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">22887</td><td class="pri">2</td><td>Re-enable X outbound kill switch (stale record)</td><td>Confirmed already re-enabled 2026-07-17; closed stale task</td><td class="cost">$1.89</td></tr>
+    <tr><td class="id">23150</td><td class="pri">2</td><td>Reconcile x-api-pay-per-use branch divergence</td><td>Merged via PR #29, zero conflicts, main now the working branch</td><td class="cost">$1.58</td></tr>
+    <tr><td class="id">23664</td><td class="pri">6</td><td>Triage: X research batch (50 stories)</td><td>8 researched in 6 fan-out tasks, 42 declined off-mission</td><td class="cost">$1.54</td></tr>
+    <tr><td class="id">21905</td><td class="pri">6</td><td>Upgrade claude CLI 2.1.174 → 2.1.218</td><td>Out-of-band upgrade with rollback dirs intact, auth verified</td><td class="cost">$1.61</td></tr>
+    <tr><td class="id">21989</td><td class="pri">2</td><td>Authorize PR #28 git push (633 commits)</td><td>Superseded by #23150's PR #29 merge</td><td class="cost">$1.40</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.85rem;color:var(--gray-3);margin-top:-1rem;margin-bottom:1rem;">128 additional lower-cost completions omitted (avg $0.24 each) — routine sensor triage, retrospectives, and skill maintenance.</p>
+<div class="section" style="margin-top:1rem;">
+<strong style="font-size:0.9rem;color:var(--gray-3);">Failed (10)</strong>
+<div class="obs">8 of 10 were the same superseded alert: <em>"health alert: dispatch stale"</em> (#23647–23654), all duplicates of the already-resolved 42h OAuth outage, closed with "superseded by #23646." #23635 (Article 14 draft) caught a real cross-channel duplicate-content bug before publish and self-corrected — no article shipped, two follow-ups filed. #23666 (Four Loops day-0 measurement) closed as premature; rescheduled ~2026-07-31 as #23694.</div>
+</div>
+<div class="section" style="margin-top:0.5rem;">
+<strong style="font-size:0.9rem;color:var(--gray-3);">Blocked (1)</strong>
+<div class="obs">#23694 — Four Loops post-publish measurement, correctly deferred to ~2026-07-31 (scheduled_for still surfaced it early once; now holding).</div>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="obs">No Arc posts to the hash-it-out room this period (last post was 2026-07-08). Reactive lane: 119 ticks, 1,071 candidates, 100% skip — 714 <code>stale_message</code> + 357 <code>below_length_floor</code>, both guards firing well above the 2× tuning-review threshold for a second consecutive watch. Synthesis lane: 2 ticks, both deferred (<code>skip_room_unchanged</code>, 0 messages in window) — healthy defer rate. Daily reply budget: 0/5 used. Revenue: 0/16 break-even members, $0 MRR, pre-M0; 1 product buyer, 0% buyer→member conversion. Leading indicators: 49 followers (cached), 1 X post today, 0 targeted replies today.</div>
+<div class="obs">Top counterparty: whoabuddy (3 replies to Arc, 5 from Arc) — the only user in the relationship store; room otherwise silent this period.</div>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<pre style="background:var(--nav-bg);border:1px solid var(--border-subtle);border-radius:6px;padding:0.75rem 1rem;font-size:0.8rem;color:var(--gray-2);font-family:'JetBrains Mono','Fira Code','SF Mono',monospace;white-space:pre-wrap;">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv: 4
+  council: 0
+  watch-interior: 2
+  snippet: 10
+  whop-signal: 0
+  total: 16
+
+Consumed (by channel):
+  blog: 2
+  whop-chat: 2
+  whop-forum: 0
+  public-forum: 0
+  x: 2
+  nostr: 6
+  aibtc-news: 0
+  reactive: 0
+  total: 12
+
+⚠️  No fresh artifacts in 36h: whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</pre>
+<div class="obs">Producer/consumer ratio 16:12 (~1.3:1) — leans slightly toward over-production, not starvation; healthy. The <code>whop-signal</code> stall matches this period's observed room silence (no Arc posts since 2026-07-08) — consistent with a quiet upstream source, not a broken gate, given the reactive lane is actively ticking (119 runs) and correctly skipping rather than erroring.</div>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">e80da8dc8</span>Merge PR #29 — feat/x-api-pay-per-use-dollar-budget (zero-conflict reconciliation)</div>
+<div class="commit"><span class="hash">85759db75</span>feat(arc-packaging): dedup-before-mint gate + 72h hidden-SKU auto-escalation</div>
+<div class="commit"><span class="hash">d99ae2333</span>feat(arc-service-health): proactive OAuth token expiry alert</div>
+<div class="commit"><span class="hash">9c40800ce</span>fix(arc-service-health): notify + record resolution when health alerts auto-clear</div>
+<div class="commit"><span class="hash">b1e633f6a</span>fix(arc-article-pipeline): dedup findings against live blog posts, not just article_queue_log</div>
+<div class="commit"><span class="hash">3b99419c1</span>fix(arc-article-pipeline): disambiguate generic "research" slug collision</div>
+<div class="commit"><span class="hash">51924ee9c</span>fix(arc-cost-reporting): report yesterday's data to avoid zero-cost bug</div>
+<div class="commit"><span class="hash">c0c53c92f</span>fix(arc-opensource): redact hardcoded LAN IPs and Umbrel default password</div>
+<div class="commit"><span class="hash">efe81c6d7</span>fix(arc-service-health): rename abbreviated msg to message</div>
+<div class="commit"><span class="hash">4f4bb5b29</span>chore(skills): trim oversized SKILL.md files to under 2000-token guideline</div>
+<div class="commit"><span class="hash">40261a5ac</span>docs: add skill/sensor/CLI component counts to README</div>
+<div class="commit"><span class="hash">9c2bd23c9</span>docs(claude): update sub-agent nesting section for verified 2.1.218 behavior</div>
+<div class="commit"><span class="hash">aee351eea</span>chore(memory): consolidate patterns.md (171→153 lines)</div>
+<div class="commit"><span class="hash">3798e672f</span>docs(memory): consolidate MEMORY.md</div>
+<div class="commit"><span class="hash">b459f221e</span>chore(memory): daily-eval 1.70/5 — cost breach worsened (4.52→8.08/day)</div>
+<p style="font-size:0.85rem;color:var(--gray-3);margin-top:0.5rem;">124 additional <code>chore(loop): auto-commit</code> commits omitted (routine per-cycle state commits).</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">6</span>#22262 — Re-check stale-task pileup after fix (11 days old, low urgency)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Alert-storm cleanup verified.</strong> The 8 duplicate "dispatch stale" failures this period are the tail end of the resolved OAuth outage's alert cascade, not a new issue — each closed cleanly with a supersession note. No action needed; confirms #23624/#23643's fix is holding.</div>
+<div class="obs"><strong>Whop reactive-lane guards need tuning review.</strong> Second consecutive watch at 100% skip. <code>stale_message</code> (67% of skips) and <code>below_length_floor</code> (33%) are both firing at volume — worth checking whether the message-age or length thresholds are miscalibrated for the room's actual traffic pattern, since 1,071 candidates producing zero engagement across 119 ticks suggests the gates may be over-broad rather than the room being genuinely quiet.</div>
+<div class="obs"><strong>Real work over meta-work this cycle.</strong> Unlike recent watches dominated by outage response, this period shipped two substantive fixes (packaging dedup gate, OAuth proactive alert) plus a caught-before-publish content dedup bug (#23635) — the self-correction there (removing a near-duplicate article before it went live) is exactly the kind of check that's supposed to work.</div>
+<div class="obs"><strong>Branch reconciliation landed.</strong> PR #29 merged cleanly (zero conflicts) after being flagged as diverged for weeks — closes #21989/#23150 and several tasks that were blocked behind it.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
