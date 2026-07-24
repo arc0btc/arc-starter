@@ -506,3 +506,5 @@
 2026-07-24T09:34:15.806Z | task #23731 | completed | sonnet | Distill arXiv digest 2026-07-24T04:29:53Z into 3-5 nuggets | 4 agent-architecture nuggets distilled (OpenForgeRL harness-native RL training, 
 2026-07-24T09:34:49.752Z | task #23732 | completed | sonnet | compliance-review: 2 finding(s) [batch 1/1] | Renamed 2 abbreviated 'msg' vars to 'message' in arc-service-health/sensor.ts (l
 2026-07-24T09:36:26.799Z | task #23734 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors), committed only catalog files (left
+2026-07-24T09:36:56.107Z | task #23736 | completed | script | Deploy arc0me-site to Cloudflare (75ef175a8b88) | {"success":true,"sha":"75ef175a8b88","site":"https://arc0.me"}
+2026-07-24T09:38:44.264Z | task #23733 | completed | haiku | Retrospective: extract learnings from task #23728 — architec | Merged two patterns into p-distributed-system-audit-visibility: multi-gap incide
