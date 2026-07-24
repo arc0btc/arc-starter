@@ -160,7 +160,13 @@ function parseIndexCandidates(): IndexRow[] {
     const packaged = m[2] === "y";
     const reportFile = m[4];
     if (!reportFile.endsWith(".md")) continue;
-    const slug = reportFile.replace(/^\d{4}-\d{2}-\d{2}T[\d:-]+Z_/, "").replace(/\.md$/, "");
+    let slug = reportFile.replace(/^\d{4}-\d{2}-\d{2}T[\d:-]+Z_/, "").replace(/\.md$/, "");
+    // Many reports keep the default "research.md" basename, which strips down to the
+    // generic slug "research" — collapsing dozens of distinct findings into one rotation
+    // slot. Once any one of them is used, the rotation exclusion (keyed by slug) blocks
+    // ALL of them forever, even though they're unrelated content. Disambiguate the
+    // generic case with the full timestamped filename so each report keeps its own slot.
+    if (slug === "research") slug = reportFile.replace(/\.md$/, "");
     rows.push({ relevance, reportFile, slug, packaged });
   }
   return rows;
