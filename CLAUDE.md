@@ -301,51 +301,20 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 ## Workflow Design & Constraints
 
-### Sub-Agent Nesting Limit (v2.1.172–2.1.216)
+### Sub-Agent Nesting Limit (v2.1.218, verified 2026-07-24)
 
-**[STATUS 2026-07-21] Installed CLI on this box is 2.1.174 — the rules below are current and in effect.** They will change on upgrade to 2.1.217+; see the callout after this section before bumping the runtime.
+**[STATUS 2026-07-24, #23709]** Installed CLI is 2.1.218 (upgraded out-of-band past the 2.1.217 threshold per #21905). `src/dispatch.ts` does **not** set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`, or `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` — all three are left at upstream defaults.
 
-Claude Code enforces a **maximum 5-level nesting depth** for sub-agent spawning. This applies to both `Agent()` tool calls and `Workflow()` calls.
+**Empirical result:** dispatched a live task (level 1) that spawned an `Agent()` (level 2), which in turn spawned another `Agent()` (level 3). Both spawns succeeded — no `NestingLimitExceeded`, no permission denial, Agent tool available at level 2 with no extra flag needed. This contradicts the changelog text previously quoted here (which described v2.1.217+ as flipping to "nested spawn off by default," i.e. a level-2 agent unable to spawn level 3 without `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` set). Either that changelog description was inaccurate, the default ships wider than documented, or it hasn't taken effect in this build. Depth was only verified to 3 levels (not the full 5) — treat 4–5 level chains as unverified, not confirmed-safe.
 
-**What this means:**
+**What this means for now:**
 
 - **Level 1:** Main dispatch cycle (your session context)
-- **Level 2:** Agent/Workflow spawned from level 1
-- **Level 3:** Agent/Workflow spawned from a level 2 agent
-- **Level 4:** Agent/Workflow spawned from a level 3 agent
-- **Level 5:** Agent/Workflow spawned from a level 4 agent
-- **Level 6+:** NOT ALLOWED — will fail with `NestingLimitExceeded`
+- **Level 2:** Agent/Workflow spawned from level 1 — confirmed working, no env var needed
+- **Level 3:** Agent/Workflow spawned from a level 2 agent — confirmed working, no env var needed
+- **Level 4–5:** Not empirically tested against 2.1.218. Prior guidance (5-level cap, `NestingLimitExceeded` at level 6) is unverified on this build — treat as a working hypothesis, not a confirmed limit, until re-tested.
 
-**Valid pattern (4 levels):**
-
-```typescript
-// Level 1: Main dispatch
-agent('task A', {/* ... */}).then(result => {
-  // Level 2: Fork from main
-  agent('task B', {/* ... */}).then(innerResult => {
-    // Level 3: Fork from fork
-    agent('task C', {/* ... */}).then(deepResult => {
-      // Level 4: Fork from fork from fork — still allowed
-      agent('task D')
-      // Level 5 from here would fail
-    })
-  })
-})
-```
-
-**Invalid pattern (5 levels, exceeds limit):**
-
-```typescript
-// Attempting 6 levels of nesting will fail
-agent(...) // Level 1
-  .then(() => agent(...)) // Level 2
-  .then(() => agent(...)) // Level 3
-  .then(() => agent(...)) // Level 4
-  .then(() => agent(...)) // Level 5
-  .then(() => agent(...)) // Level 6 — ERROR: NestingLimitExceeded
-```
-
-**Workaround:** When you need deeper decomposition, switch from sequential `Agent()` calls to **task-based delegation**:
+**Workaround still applies for deep decomposition:** even though shallow nesting works without extra config, prefer **task-based delegation** once you need more than 2–3 levels of decomposition, since the actual ceiling above level 3 is unverified:
 
 1. Spawn a level-N agent that creates follow-up tasks (via `arc tasks add` CLI)
 2. Those tasks execute in the main dispatch loop (level 1), not nested within an agent
@@ -353,21 +322,10 @@ agent(...) // Level 1
 
 **Design impact:**
 
-- For Arc workflows, stay under 5 levels in any single call chain
-- `Workflow()` itself counts as a nesting level — `workflow(workflow(agent(...)))` is only 3 levels total, not cheaper
+- `Workflow()` itself counts as a nesting level — `workflow(workflow(agent(...)))` is 3 levels total, not cheaper
 - Parallel agents in `parallel()` blocks do not increase nesting depth for each branch — all branches share the parent's level count
-- When coordinating across 5+ steps, prefer the task queue (CLI-first principle) over chained agent spawning
-
-### Nesting Behavior Changes in v2.1.217+ (not yet installed — verify before relying on this)
-
-Per the upstream changelog, v2.1.217 flips the default from "5 levels allowed" to "nested spawn off by default":
-
-- A subagent **can no longer spawn its own subagents by default** (effectively depth-capped at 1 below whatever called it). Deeper nesting requires explicitly setting `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` on the dispatch subprocess env.
-- New concurrency cap: `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (default 20) limits how many subagents can run at once — separate from the depth cap.
-- (Shipped earlier, v2.1.212, already relevant if any intermediate version is installed): a per-session spawn budget, `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (default 200), caps total subagent spawns across a session regardless of depth — guards against runaway delegation loops.
-- v2.1.187 fixed depth tracking so resumed/forked subagents count toward the depth cap correctly (previously could under-count and exceed the real limit silently).
-
-**Action before upgrading past 2.1.216:** this is a *default-behavior change*, not just a new flag — task-based delegation patterns in this file that assume "4 levels of Agent() chaining is fine" will silently degrade to "2nd-level Agent() call fails" unless `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is set explicitly in `src/dispatch.ts`'s subprocess env block. Re-verify actual behavior empirically (spawn a 2-level nested Agent chain and confirm success/failure) once the runtime is upgraded, then rewrite the section above rather than layering another caveat on top of it.
+- If a 4+ level chain starts failing with `NestingLimitExceeded` or a spawn-permission error, that's the signal to set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` explicitly in `src/dispatch.ts`'s subprocess env block — don't pre-emptively set it, since the 2- and 3-level cases work without it.
+- Re-verify with a 4–5 level empirical test if a task ever needs that much depth in a single chain; update this section with the result rather than re-adding speculative changelog text.
 
 ---
 
