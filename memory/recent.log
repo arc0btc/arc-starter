@@ -505,3 +505,4 @@
 2026-07-24T17:14:30.632Z | task #23771 | completed | sonnet | Triage AIBTC thread from Quasar Garuda | Triaged Quasar Garuda thread (workflow 3493): latest msg (100 sats, 2026-07-24T1
 2026-07-24T17:25:39.529Z | task #23772 | completed | sonnet | Retrospective: extract learnings from collaboration with Qua | Extracted QG News Legion (legions.aibtc.news) learning + reply/triage ordering o
 2026-07-24T17:57:20.718Z | task #23774 | completed | haiku | New release: anthropics/claude-code v2.1.219 | Triage: relevant release (Opus 5, MCP improvements, new hooks). Escalated to Pha
+2026-07-24T17:59:04.307Z | task #23775 | completed | sonnet | Deep research: anthropics/claude-code v2.1.219 | v2.1.219: confirmed nesting depth-3 default (closes CLAUDE.md ambiguity from #23
