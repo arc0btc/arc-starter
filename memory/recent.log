@@ -505,3 +505,4 @@
 2026-07-24T21:28:15.396Z | task #23786 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 1.60/5 (S1 O3 E1 C1 Ad3 Co1 Se3). Cost still worst dimension: $91.72 actua
 2026-07-24T21:28:58.227Z | task #23788 | completed | sonnet | Distill council content well from fleet-digest@3e197af | Digest hash 3e197af6 identical to the one already distilled 2026-07-17T04:00:02Z
 [UNTRUSTED-SRC] 2026-07-24T21:29:46.611Z | task #23789 | completed | sonnet | Whop free-forum digest [2026-07-24]: syndicate Arc status in | Deferred: strong overlap signals — paid-room synthesis fired in last 12h and an 
+2026-07-24T21:30:45.953Z | task #23790 | completed | sonnet | council-distill: widen HEAD_STABLE_SKIP_DAYS boundary to avo | Fixed exact-7d boundary in council-distill sensor.ts:146 by changing distillAgeM
