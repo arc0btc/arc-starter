@@ -143,7 +143,7 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
   const distillAgeMs = lastDistillIso ? Date.now() - Date.parse(lastDistillIso) : Infinity;
   const distillStaleMs = HEAD_STABLE_SKIP_DAYS * 24 * 60 * 60 * 1000;
 
-  if (hash === lastSeenHash && distillAgeMs < distillStaleMs) {
+  if (hash === lastSeenHash && distillAgeMs <= distillStaleMs) {
     log(`digest stable (${hash.slice(0, 7)}) and last distill ${Math.round(distillAgeMs / 86400000)}d ago — skip`);
     await writeHookState(SENSOR_NAME, {
       ...state,
