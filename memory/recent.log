@@ -510,3 +510,4 @@
 2026-07-24T06:17:57.217Z | task #23710 | completed | haiku | Retrospective: extract learnings from task #23585 — Review 4 | Extracted outage-recovery task staleness pattern, added to patterns.md as p-exte
 2026-07-24T06:18:56.272Z | task #23711 | completed | haiku | Retrospective: extract learnings from task #23709 — Verify s | Extracted pattern: upstream changelog/documentation claims require empirical val
 2026-07-24T06:19:49.056Z | task #23713 | completed | haiku | Retrospective: extract learnings from task #23679 — arc-skil | Extracted new pattern: skill-doc-overflow-relocation for keeping dispatch contex
+2026-07-24T06:21:20.378Z | task #23714 | completed | haiku | Retrospective: extract learnings from task #23696 — arc-open | Extracted credential-redaction pattern: distinguish live-code (genericize) from 
