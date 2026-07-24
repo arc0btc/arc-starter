@@ -25,12 +25,27 @@ The health sensor monitors the agent's operational state every 5 minutes and cre
 - If the lock file exists but the recorded PID is no longer alive, fires an alert
 - Indicates: dispatch crashed without cleaning up its lock file
 
+### OAuth Token Expiring (proactive)
+- Reads `~/.claude/.credentials.json`'s `claudeAiOauth.expiresAt`
+- If less than 2h remain, fires a **direct Discord alert** (fire-and-forget, not gated on a
+  dispatch cycle) plus a tracked `health-alert` workflow task
+- Indicates: the Claude Code OAuth token dispatch authenticates with is about to lapse — re-auth
+  is interactive-only (`claude /login`), so Arc cannot fix this itself; an operator must act
+  before expiry or dispatch self-halts on the next 401 and the queue backs up (see #23624/#23643,
+  the 42h outage this check exists to prevent)
+- Discord channel/token reused from `src/dispatch-gate.ts`'s reactive auth-outage alert
+  (`discord`/`bot_token` credential, or `ARC_DISCORD_TOKEN` env)
+
 ## Alert Tasks
 
 - **Stale cycle source**: `sensor:arc-service-health`
 - **Stale lock source**: `sensor:arc-service-health:stale-lock`
-- **Priority**: 9 (high — investigate before routine work)
-- **Dedup**: skips if an alert task for that source is already pending or active
+- **OAuth expiry source**: `sensor:arc-service-health:oauth-expiry` (routed through the
+  `health-alert` workflow like stale-cycle/stale-lock; actual task `source` is `workflow:<id>`)
+- **Priority**: 9 (high — investigate before routine work); OAuth expiry alert tasks are priority 1
+- **Dedup**: skips if an alert task for that source is already pending or active; OAuth expiry
+  Discord alerts dedup 4h per distinct `expiresAt` (a freshly re-authed token gets its own alert
+  if it's also expiring soon)
 
 ## Sensor Behavior
 

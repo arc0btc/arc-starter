@@ -2204,18 +2204,30 @@ export const HealthAlertMachine: StateMachine<{
         const subject = `health alert: ${alertType.replace(/-/g, " ")}`;
         const skills = ["arc-service-health"];
         if (alertType === "stale-lock" || alertType === "dispatch-stale") skills.push("arc-housekeeping");
-        return {
-          type: "create-task",
-          subject,
-          priority: 2,
-          skills,
-          description: `Health alert triggered: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
-
-Steps:
+        const isOauthExpiring = alertType === "oauth-expiring";
+        const steps = isOauthExpiring
+          ? `Steps:
+1. Check ~/.claude/.credentials.json's claudeAiOauth.expiresAt — confirm how much time actually remains
+2. Dispatch itself CANNOT re-auth (OAuth login is interactive) — this task exists to make the
+   operator aware BEFORE the token expires, not to fix it autonomously
+3. Confirm a Discord alert was already sent (sensor sends it directly, fire-and-forget) — if not,
+   escalate via whatever human channel is available
+4. Transition this workflow to 'acknowledging'; move to 'retrospective_pending' once the operator
+   has re-authed (new expiresAt observed) or the window has passed
+5. Set resolutionSummary in context before transitioning`
+          : `Steps:
 1. Check service status and confirm whether the alert condition is still active
 2. Resolve the condition if possible (restart service, clear stale lock, etc.)
 3. Transition this workflow to 'acknowledging', then 'retrospective_pending'
-4. Set resolutionSummary in context before transitioning`,
+4. Set resolutionSummary in context before transitioning`;
+        return {
+          type: "create-task",
+          subject,
+          priority: isOauthExpiring ? 1 : 2,
+          skills,
+          description: `Health alert triggered: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+${steps}`,
         };
       },
     },
