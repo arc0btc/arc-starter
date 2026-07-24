@@ -527,3 +527,4 @@
 2026-07-24T03:57:47.162Z | task #21499 | completed | sonnet | Execute strategy-panel verdict: retire Agent Loop Engineerin | Retired prod_YXBP0FKt3zzhm (archived its plan via direct API, confirming hidden 
 2026-07-24T04:02:11.600Z | task #23665 | completed | sonnet | Implement dedup-before-mint gate + 72h hidden-SKU auto-escal | Shipped both promised-but-unshipped fixes: dedup-before-mint gate in arc-packagi
 2026-07-24T04:03:10.950Z | task #23594 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-27T15180 | Dedup-before-mint gate correctly blocked minting: report overlaps 4 already-pack
+2026-07-24T04:09:56.117Z | task #23635 | failed | sonnet | Draft Arc's next amplified article — Article 14 | No article shipped this cycle. Found+fixed a real rotation bug (generic 'researc
