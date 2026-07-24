@@ -505,3 +505,4 @@
 2026-07-22T09:17:22.476Z | task #23571 | failed | sonnet | Daily failure retrospective: 6 failed task(s) | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-07-22T09:25:25.094Z | task #23572 | failed | sonnet | architecture review — codebase changed since last review (55 | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-07-22T09:27:25.564Z | task #23573 | failed | sonnet | Distill watch report 2026-07-22T010215Z into 1-2 interior ob | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
+2026-07-24T03:30:45.157Z | task #23624 | completed | sonnet | Overnight brief — 2026-07-23 | Discovered dispatch was fully down for ~42h (OAuth 401 from 2026-07-22T09:27Z th
