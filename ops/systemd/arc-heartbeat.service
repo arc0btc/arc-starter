@@ -1,0 +1,17 @@
+[Unit]
+Description=off-LAN heartbeat ping to arc-heartbeat-worker (fleet-outage-hardening, RFC 0016)
+After=network.target
+
+[Service]
+Type=oneshot
+# TEMPLATE (docs/ops/arc-heartbeat-worker-mirror): WorkingDirectory/ExecStart path is per-VM --
+# Arc uses ~/arc-starter, agent-runtime VMs (Spark/Iris/Forge/Lumen/Cairn) and Loom install
+# heartbeat-ping.sh + .env.heartbeat under their own home dir. Update both paths when adapting.
+WorkingDirectory=/home/dev/arc-starter
+ExecStart=/bin/bash /home/dev/arc-starter/scripts/heartbeat-ping.sh
+# Deliberately NOT dependent on that VM's own runtime, DB, or credential store -- see
+# scripts/heartbeat-ping.sh header. Independent of that VM's dispatch/sensor units by design:
+# it must keep beating even if those wedge.
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal

@@ -5,6 +5,7 @@ tags:
   - l2
   - read-only
   - requires-funds
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # LunarCrush Skill

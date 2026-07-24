@@ -1,0 +1,27 @@
+[Unit]
+Description=arc-agent dispatch runner
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dev/arc-starter
+ExecStart=/home/dev/.bun/bin/bun src/cli.ts run
+Environment="HOME=/home/dev"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:/home/dev/.bun/bin:/home/dev/.local/bin"
+Environment="DISABLE_UPDATES=1"
+EnvironmentFile=/home/dev/arc-starter/.env
+TimeoutStartSec=3600
+TimeoutStopSec=3600
+StandardOutput=journal
+StandardError=journal
+# Outage-hardening (2026-07-19, phase 9 of arc-x-research-channel): TimeoutStartSec above was
+# ALREADY a working backstop pre-incident (30d journalctl wall-clock max = 1023s / ~17min, well
+# under 3600s) -- this is why dispatch was not the unit that stayed wedged through the 46h
+# outage. No change needed here: confirmed live that RuntimeMaxSec= is a silent no-op for
+# Type=oneshot on this systemd version (255) -- TimeoutStartSec= is the directive systemd
+# actually honors for oneshot services, and this unit already had it right.
+
+# SCOPE CORRECTION (dev-council Lamport lens, 2026-07-19): same caveat as arc-sensors.service --
+# TimeoutStartSec/TimeoutStopSec reliably reap signal-interruptible hangs, not a process wedged
+# in an uninterruptible (D-state) kernel wait. See arc-sensors.service's comment for detail; the
+# off-LAN arc-heartbeat-worker is the true backstop for a fully wedged VM.

@@ -150,6 +150,20 @@ arc skills run --name aibtc-news-editorial -- file-signal \\
 
 export default async function stacksMarketSensor(): Promise<string> {
   try {
+    // STUB: intentionally-inert
+    // DISABLED 2026-07-17 (task #23003, following up on audit #22999): retired as structurally
+    // dead, not just quiet. stacksmarket.app is a 100% sports/politics prediction-market
+    // platform (verified live: 50/50 sampled markets were category Sports/Politics, zero
+    // ordinals/inscription/BRC-20/Runes content). This sensor's own EXCLUDED_CATEGORIES list
+    // literally excludes "sports" and "politics" -- the platform's entire content -- so the
+    // ORDINALS_KEYWORDS filter below can never match anything the API returns. 360min interval
+    // x 128 days = ~512 runs with zero signals filed, consistent with a permanent 0% match rate,
+    // not a quiet period. Disabled as a no-op until stacksmarket.app adds ordinals-relevant
+    // markets (or this beat gets repointed at a platform that actually carries them). Reversal:
+    // delete this early return to re-arm.
+    log("disabled: stacksmarket.app has zero ordinals-relevant content -- see task #23003");
+    return "skip";
+
     // Claim sensor run (if not time yet, returns early)
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
@@ -234,6 +248,6 @@ export default async function stacksMarketSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

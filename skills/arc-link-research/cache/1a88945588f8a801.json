@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/wpMQsg0ElF",
+  "fetchedAt": "2026-07-16T00:07:05.155Z",
+  "contentType": "tweet",
+  "title": "@ramez: Totally awesome to see evidence of AI self-improvement!  (Though I'd call @karpa...",
+  "rawContent": "Tweet by @ramez (Ramez Naam)\nAuthor bio: Climate and clean energy investor. Author of 5 books. Energy & Environment co-chair @SingularityU. Trying to build a better world.\nText: Totally awesome to see evidence of AI self-improvement!  (Though I'd call @karpathy's auto-research the first.) \n\nAnd, as expected, self-improvement here shows diminishing returns over time. Significant initial boost. Smaller subsequent boost in each iteration. \n\nThat's exactly what the math suggest you'd get if AI improvement generally shows power-law diminishing returns to inputs. \n\nThe team does hope for a Level 2 where RSI compounds, to be clear. And then a Level 3 where RSI reaches takeoff. \n\nI remain skeptical that Level 3 / RSI-takeoff is achievable in software only. The math doesn't favor it. But one way or another, we'll find out.\nCreated: 2026-07-14T22:14:06.000Z\nMetrics: {\"retweet_count\":12,\"reply_count\":5,\"like_count\":94,\"quote_count\":1,\"bookmark_count\":25,\"impression_count\":34208}",
+  "embeddedUrls": [
+    "https://t.co/wpMQsg0ElF",
+    "https://t.co/6sgprQuXIz"
+  ]
+}

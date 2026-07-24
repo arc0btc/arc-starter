@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/DataChaz/status/2079339831906443310",
+  "fetchedAt": "2026-07-21T04:01:29.739Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: What can an AI agent actually do for $1?\n\nThrough the new x402 integration from ...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: What can an AI agent actually do for $1?\n\nThrough the new x402 integration from @apify, built on @coinbase's Base network, we no longer have to guess.\n\nAutonomous agents can now discover, pay for, and run their own tools directly 🔥\n\nNo Apify accounts.\n\nNo human-managed API keys.\n\nThe entire workflow happens seamlessly at the network level:\n→ An agent makes a direct HTTP request to a data endpoint.\n→ The endpoint returns an HTTP 402 \"Payment Required\" status.\n→ The agent automatically authorizes a micro-transaction using USDC on Base.\n→ The tool runs and returns the requested data.\n\nPayments are settled entirely in USDC.\n\nThere's absolutely no exposure to typical cryptocurrency price volatility.\n\nFor exactly $1, your agent can autonomously execute:\n> 350 Google Maps business listings scraped and analyzed\n> 430 Instagram profiles evaluated for competitor teardowns\n> 110 trending TikTok videos processed for a content pipeline\n\nThe economics here are wild.\n\nSeeing an agent independently shop for a tool, authorize the micro-payment, and deliver the data feels like the actual future of automation.\n\nWatch the 40-second CLI demo below to see this run live 👀↓\nCreated: 2026-07-20T22:57:02.000Z\nMetrics: {\"bookmark_count\":7,\"impression_count\":3758,\"like_count\":17,\"quote_count\":0,\"reply_count\":4,\"retweet_count\":12}",
+  "embeddedUrls": [
+    "https://t.co/fVb1ZBLTwU"
+  ]
+}

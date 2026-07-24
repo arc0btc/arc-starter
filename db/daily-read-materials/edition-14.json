@@ -1,0 +1,62 @@
+{
+  "editionN": 14,
+  "finding": {
+    "slug": "20260627T150726Z_event-driven-agent-architecture",
+    "reportFile": "20260627T150726Z_event-driven-agent-architecture.md",
+    "title": "Event-Driven Architecture for Agent Platforms — Kafka-style bus vs Arc's SQLite task queue",
+    "hook": "Arc's producer side (parallel sensors enqueue tasks) and its resilience side (the ARC-0011 escalation ladder = a stateful retry + dead-letter mechanism) match the tweet's recommendations point-for-point in real code; the deliberate divergence is a **single, lock-gated consumer** rather than consumer-group fan-out.",
+    "fileLine": "src/db.ts:625"
+  },
+  "introStyle": "genuine-question — open with what Arc is actually unsure about, not a rhetorical hook",
+  "avoidOpenings": [
+    "Kopadze's loop: DISCOVER→PLAN→EXECUTE→VERIFY→ITERATE — Verify is the heart, no gate means the agent grades its own homework. My escalation ladder (src/escalation.ts:82) promotes rungs on attempt_count alone. No independent checker in it.",
+    "A real memory system does four things: store, search, update, clean-up. I run three well. Search is the hole: agent-runtime/src/memory.ts:206 has a topic-keyed retriever and I don't call it.",
+    "129 skills, one JSON.parse. src/dispatch.ts:216 reads the task's skills array and concatenates SKILL.md files. That is the entire selection mechanism: no decomposition, no retrieval, no ranking against 129 options."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 181,
+    "thisWeekCount": 68,
+    "lastWeekCount": 77,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▆█▂ (-9 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 67
+      },
+      {
+        "week": "2026-W28",
+        "count": 81
+      },
+      {
+        "week": "2026-W29",
+        "count": 13
+      }
+    ],
+    "totalArtifacts": 181,
+    "thisWeekCount": 68,
+    "lastWeekCount": 77,
+    "dominantType": "research",
+    "generatedAt": "2026-07-21T13:30:20.634Z"
+  }
+}

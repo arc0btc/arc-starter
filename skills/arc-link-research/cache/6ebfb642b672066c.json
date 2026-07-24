@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/i/status/2077884959717458370",
+  "fetchedAt": "2026-07-17T07:35:18.436Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Voice agents get harder to reason about when every intent, tool, and instruction...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Voice agents get harder to reason about when every intent, tool, and instruction sits inside one agent. This repo shows two concrete ways to split the work.\n\nOpenAI Realtime Agents is a Next.js and TypeScript demo app for builders prototyping multi-agent voice experiences with OpenAI’s Realtime API and Agents SDK.\n\nIt helps you study and adapt voice-agent architectures by providing runnable chat-supervisor and sequential-handoff examples, plus configurable agent instructions, tools, and handoff graphs.\n\nKey features:\n• Chat-supervisor pattern – pairs a realtime chat agent with a text-based supervisor for tool calls and complex responses\n• Sequential handoffs – routes users among specialist realtime agents through an explicitly defined agent graph\n• Ready-made scenarios – includes simple handoff, retail customer service, and chat-supervisor configurations\n• Inspectable interface – shows transcripts, tool activity, agent changes, and client/server events\n• Output guardrails – checks assistant messages against moderation categories before displaying them\n\nIt’s open-source (MIT license).\n\nLink in the reply 👇\nCreated: 2026-07-16T22:35:54.000Z\nMetrics: {\"bookmark_count\":2,\"impression_count\":819,\"like_count\":2,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/8yatZt5D5j"
+  ]
+}

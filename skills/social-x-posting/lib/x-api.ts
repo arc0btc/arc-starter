@@ -28,6 +28,28 @@
 // 402 = balance/prepaid credits exhausted; 429 = rate limit.
 // Ground truth + math: research/2026-07-06_x-api-budget-ground-truth.md,
 // memory entry x-api-pay-per-use-cost-model.
+//
+// PER-RESOURCE METERING FIX (2026-07-13, arc-x-research-channel Phase 1): X bills
+// per resource RETURNED, not per request — a search page of 10 posts costs 10x a
+// single lookup (2026-04-20 rate card). `xApiGet` now bills via `billResourceRead`,
+// which extracts the actual resource ids from the response and bills
+// `costUsd × count`, with same-UTC-day dedup so a repeat read of an already-billed
+// id in the same lane is free. `incrementReadBudget` remains as a flat 1-unit
+// back-compat wrapper for callers that haven't adopted per-resource billing (and
+// is still CORRECT as-is for genuinely single-resource endpoints like
+// `/tweets/{id}`, which only ever return 1 resource per call).
+//
+// PRICE/BILLING OVERRIDES + APP-ONLY AUTH (2026-07-13, Phase 3): the flat
+// $0.005/$0.001 non-owned/owned split above is the DEFAULT, not the whole
+// story anymore. `xApiGet`/`xApiGetAppOnly`'s `opts` can override the price
+// (`costUsd`, for endpoints with a different or unconfirmed rate — e.g. News
+// search), the billing SHAPE (`billMode: "flat"`, for endpoints X prices per
+// REQUEST rather than per resource returned — e.g. Trends), and tag the
+// ledger with `pricingStatus: "estimated"` when the price isn't on the public
+// rate card. `xApiGetAppOnly` is a second entry point for endpoints that
+// reject OAuth 1.0a User Context and require OAuth 2.0 App-Only instead
+// (confirmed live: WOEID trends, News search) — see the dedicated comment
+// block above `getAppOnlyBearerToken` further down this file.
 
 import { getCredential } from "../../../src/credentials.ts";
 import { join } from "path";
@@ -93,18 +115,61 @@ async function saveFollowerCache(metrics: { followers_count: number; following_c
 export const READ_COST_USD = 0.005;
 export const OWNED_READ_COST_USD = 0.001;
 
-/** Daily DOLLAR ceiling for X API reads from this lib. ~$0.50/day is the
- * dollar-equivalent of the old 100-reads/day count ceiling (100 × $0.005);
- * steady-state use is ~$0.38/day (the mentions poll is ~90% of it). This flat
- * budget replaces the AI-057/058 follower-reserve machinery, which rationed only
- * ~$0.006/day of owned reads — the complexity outweighed the spend. */
-export const X_READ_BUDGET_USD_PER_DAY = 0.5;
+/** Daily DOLLAR ceiling for X API reads from this lib. Was $0.50 (the
+ * dollar-equivalent of the old 100-reads/day count ceiling; steady-state
+ * ~$0.38/day, mentions poll ~90% of it). Raised to $1.00 on 2026-07-12 when the
+ * two previously UNMETERED read callers (social-x-ecosystem search ~$0.48/day +
+ * arc-link-research lookups) were routed through this guard — the raise keeps
+ * total permitted spend where it already effectively was, it does not authorize
+ * new spend; per-lane split in x-read-budget.json `by_lane` is the audit trail.
+ *
+ * Raised to $2.00 on 2026-07-13 (Phase 7 quality-fix pass, explicit operator
+ * directive: "quality is the priority over spend... raise it to $2.00/day if
+ * useful"). This one console-confirmed day-one spend was $0.956/$1.00 (quest
+ * close-out), all of it live-testing, not steady-state — the operator raised the
+ * ceiling to give the new standing-brief/model-routing work (this phase) and
+ * future lanes headroom without a second approval round-trip, not because
+ * steady-state spend needed it yet. Check-in cadence (24h default, 8h/4h dial)
+ * is a SEPARATE decision, left unchanged by this raise — the 8h dial is now
+ * budget-safer at $2.00 but nobody has asked to actually flip it. */
+export const X_READ_BUDGET_USD_PER_DAY = 2.0;
+
+/** Per-lane daily read caps (control-plane-remediation Phase 2, defect row 58, 2026-07-16/17).
+ * Live evidence: candidate-maturation alone spent $1.515/$1.991 (~76%) of a whole day's global
+ * budget one day after the cap was raised, starving search/users/link-research/mentions for the
+ * rest of the day — there was no per-lane ceiling, only the global one. candidate-maturation is
+ * capped at 50% of the global budget; every other lane is uncapped (falls through to the global
+ * check only), same as before this fix. Add more lanes here if the same dominance pattern shows
+ * up elsewhere — this is deliberately a small, explicit allowlist, not a blanket per-lane cap,
+ * so it doesn't silently throttle a lane nobody has actually seen crowd others out. */
+export const LANE_READ_CAPS_USD: Record<string, number> = {
+  "candidate-maturation": X_READ_BUDGET_USD_PER_DAY * 0.5,
+};
 
 interface XReadBudget {
   date: string;        // YYYY-MM-DD UTC
   spend_usd: number;   // dollars spent on reads today — the control surface
   reads: number;       // read count today (observability only, not enforced)
   backoff_until?: string; // ISO8601 — set on 429, cleared when expired
+  // Per-lane attribution (2026-07-12, operator spend audit): who spent what today.
+  // Keys are endpoint families ("tweets/search/recent", "users/mentions", ...) or a
+  // caller-supplied lane ("ecosystem-search", "link-research"). Observability only —
+  // the enforced control surface stays the flat spend_usd above.
+  // pricing_status (2026-07-13, Phase 3 arc-x-research-channel): written by
+  // News/Trends-style lanes whose per-unit price isn't confirmed on the public
+  // X rate card. "estimated" flags a conservative, clearly-documented guess
+  // (never silently treated as confirmed); omitted/"confirmed" = today's
+  // pre-existing lanes, all priced off the confirmed rate card. Phase 6's
+  // budget-fit audit greps for this field to see what's still unverified
+  // without re-deriving it from scratch.
+  by_lane?: Record<string, { reads: number; spend_usd: number; pricing_status?: "confirmed" | "estimated" }>;
+  // Per-resource 24h-UTC dedup ledger (2026-07-13, Phase 1 metering fix): resource
+  // ids already BILLED today, keyed by lane. X bills per resource RETURNED, not per
+  // request — a search page of 10 posts costs 10x a single lookup — and re-reading
+  // an already-billed resource the same UTC day is free. Resets for free on the
+  // existing date rollover (loadReadBudget returns a fresh budget once `date`
+  // no longer matches today).
+  billed_ids?: Record<string, string[]>;
 }
 
 function todayUTC(): string {
@@ -126,6 +191,8 @@ async function loadReadBudget(): Promise<XReadBudget> {
           spend_usd: data.spend_usd ?? (data.reads ?? 0) * READ_COST_USD,
           reads: data.reads ?? 0,
           backoff_until: data.backoff_until,
+          by_lane: data.by_lane,
+          billed_ids: data.billed_ids,
         };
       }
     }
@@ -143,13 +210,45 @@ async function saveReadBudget(budget: XReadBudget): Promise<void> {
   renameSync(tmp, READ_BUDGET_PATH);
 }
 
+// KNOWN LIMITATION (dev-council, all 5 lenses independently raised this, 2026-07-13):
+// loadReadBudget → mutate → saveReadBudget is a read-modify-write across MULTIPLE
+// independently-scheduled processes (the 15-min ecosystem sensor, the 30-min
+// north-star gauge, on-demand link-research, ad-hoc cli runs) sharing this ONE
+// file, with no lock/CAS/version. The tmp-write-renameSync gives atomic file
+// REPLACEMENT (no reader ever sees torn/corrupt JSON) but not mutual exclusion —
+// two overlapping ticks can both load the same pre-mutation budget and both save,
+// silently losing one increment (a lost update). This is PRE-EXISTING (identical
+// shape before the 2026-07-13 per-resource metering fix) and NOT worsened by it.
+// Accepted for now, but the materiality of "accepted" has moved (dev-council/
+// Kleppmann lens, Phase 4, 2026-07-13 — CORRECTING this comment's prior "a few
+// cents" characterization, which was accurate when every writer billed 1-15
+// resources per call): list-roster's tweet-poll (Phase 4) can bill up to ~100
+// resources in ONE `applyBill` (a single `/lists/{id}/tweets` page at
+// max_results=100, ~$0.50) — a lost update on THAT call under-counts up to
+// half the daily cap in one shot, not a few cents, and the failure direction
+// is cap UNDER-enforcement on real money (an actually-spent read the ledger
+// never learns about). Four independently-scheduled writers now share this
+// file (ecosystem-search remnant, x-news-trends, candidate-maturation,
+// list-roster). Still not fixed this phase (a full move to an atomic SQLite
+// `UPDATE spend = spend + ?` row is its own change, out of Phase 4's budget) —
+// but Phase 6's budget-fit audit should treat this as a real, not theoretical,
+// gap given the batch sizes now in play. Revisit (file lock, or move the
+// ledger to a SQLite row) before the daily cap or poll batch size grows further.
+
 /**
  * Throws if the projected read spend would exceed the daily dollar budget, or if
  * a 429 backoff window is active. Call BEFORE any GET to the X API from this lib.
  * `costUsd` is the price of the read about to be made — READ_COST_USD (non-owned,
  * default) or OWNED_READ_COST_USD (own posts/followers/lists).
+ *
+ * `lane` (2026-07-16/17, defect row 58): if it's a key in LANE_READ_CAPS_USD, ALSO enforces that
+ * lane's own daily ceiling against its `by_lane[lane].spend_usd` — thrown as the same shape as
+ * the global-cap error above, so it flows through whatever a caller already does for the global
+ * case (confirmed live: candidate-maturation's sensor already degrades gracefully on the global
+ * cap's throw via its own try/catch — this is the identical code path, not a new one). Omitting
+ * `lane`, or passing one not in LANE_READ_CAPS_USD, is a no-op here — unchanged behavior.
  */
-export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
+export async function checkReadBudget(costUsd: number = READ_COST_USD, lane?: string): Promise<void> {
   const budget = await loadReadBudget();
   if (budget.backoff_until && new Date() < new Date(budget.backoff_until)) {
     throw new Error(
@@ -162,16 +261,191 @@ export async function checkReadBudget(costUsd: number = READ_COST_USD): Promise<
         `(${budget.reads} reads), next read costs $${costUsd.toFixed(3)}. Resets at midnight UTC.`,
     );
   }
+  if (lane && lane in LANE_READ_CAPS_USD) {
+    const laneCap = LANE_READ_CAPS_USD[lane];
+    const laneSpent = budget.by_lane?.[lane]?.spend_usd ?? 0;
+    if (laneSpent + costUsd > laneCap) {
+      throw new Error(
+        `X read budget: lane '${lane}' exhausted: $${laneSpent.toFixed(3)}/$${laneCap.toFixed(2)} spent today ` +
+          `(lane cap, global budget $${X_READ_BUDGET_USD_PER_DAY.toFixed(2)}/day), next read costs ` +
+          `$${costUsd.toFixed(3)}. Resets at midnight UTC.`,
+      );
+    }
+  }
 }
 
-/** Add a completed read's cost to the daily budget after a successful GET.
- * `costUsd` must match the value passed to checkReadBudget for this read. */
-export async function incrementReadBudget(costUsd: number = READ_COST_USD): Promise<void> {
-  const budget = await loadReadBudget();
+/** Apply `count` billed units of `costUsd` each to the loaded budget (mutates + persists).
+ * Shared tail end of both the per-resource and the flat-unit billing paths so the
+ * dollar math (rounding, by_lane bookkeeping) lives in exactly one place.
+ * `pricingStatus`, when passed, is written onto the lane's `by_lane` entry
+ * (2026-07-13, Phase 3) — omit to leave whatever status (if any) the lane
+ * already carries untouched, so a lane tagged "estimated" stays visibly flagged
+ * until a future call explicitly passes "confirmed". */
+async function applyBill(
+  budget: XReadBudget,
+  costUsd: number,
+  lane: string,
+  count: number,
+  pricingStatus?: "confirmed" | "estimated",
+): Promise<{ billedCount: number; spendUsd: number }> {
+  if (count <= 0) return { billedCount: 0, spendUsd: 0 };
+  const spendUsd = Math.round(costUsd * count * 1e6) / 1e6;
   // Round to micro-dollars so repeated float adds don't drift the persisted value.
-  budget.spend_usd = Math.round((budget.spend_usd + costUsd) * 1e6) / 1e6;
-  budget.reads += 1;
+  budget.spend_usd = Math.round((budget.spend_usd + spendUsd) * 1e6) / 1e6;
+  budget.reads += count;
+  const lanes = budget.by_lane ?? {};
+  const entry = lanes[lane] ?? { reads: 0, spend_usd: 0 };
+  entry.reads += count;
+  entry.spend_usd = Math.round((entry.spend_usd + spendUsd) * 1e6) / 1e6;
+  if (pricingStatus) entry.pricing_status = pricingStatus;
+  lanes[lane] = entry;
+  budget.by_lane = lanes;
   await saveReadBudget(budget);
+  return { billedCount: count, spendUsd };
+}
+
+/**
+ * Bill a completed read for the resources it ACTUALLY returned (2026-07-13 metering
+ * fix — the load-bearing change of arc-x-research-channel Phase 1). X bills per
+ * resource RETURNED, not per request: a `search/recent` page of 10 posts costs 10x
+ * a single-tweet lookup, and a page of 0 posts costs $0 — the previous meter billed
+ * a flat 1 unit per call regardless of N.
+ *
+ * Pass `resourceIds` = every resource id the response actually returned (tweet ids,
+ * user ids, ...). A same-UTC-day re-read of an id already billed in this SAME lane
+ * is free (X's 24h dedup + our own `since_id` discipline should make re-polls rare,
+ * but retries/replays that re-fetch the same id must not re-bill it — this is the
+ * "every re-research/retry/replay re-billed the whole batch" leak the 2026-07-11
+ * spend audit named).
+ *
+ * Omit `resourceIds` (or pass undefined) for single/unknown-count reads whose
+ * response shape doesn't expose an id list, OR for endpoints priced PER REQUEST
+ * rather than per resource returned (2026-07-13, Phase 3: X's Trends endpoints
+ * bill $0.010/request regardless of how many trend items come back — passing
+ * `undefined` here, via `xApiGet`'s `billMode: "flat"`, is exactly how a
+ * per-request-priced lane bills 1 unit instead of N) — bills exactly 1 unit, no
+ * dedup tracking possible without an id to key on. This is also the back-compat
+ * path for any caller still using `incrementReadBudget` directly.
+ *
+ * `pricingStatus`, when passed, tags the lane's `by_lane` entry (see
+ * `XReadBudget.by_lane`'s doc comment) — pass `"estimated"` for lanes whose
+ * per-unit price isn't confirmed on the public rate card (e.g. News search,
+ * Phase 3) so the ledger itself carries the caveat, not just a log line.
+ */
+export async function billResourceRead(
+  costUsd: number,
+  lane: string,
+  resourceIds?: string[],
+  pricingStatus?: "confirmed" | "estimated",
+): Promise<{ billedCount: number; spendUsd: number }> {
+  const budget = await loadReadBudget();
+
+  if (!resourceIds) {
+    return applyBill(budget, costUsd, lane, 1, pricingStatus);
+  }
+  if (resourceIds.length === 0) {
+    // Response returned zero resources — X charges for what it returns, so this is
+    // a genuine $0 read (an empty search page, an empty batch lookup, ...). Nothing
+    // was billed, so there's no lane entry to tag with pricingStatus either.
+    return { billedCount: 0, spendUsd: 0 };
+  }
+
+  const billedIds = budget.billed_ids ?? {};
+  const laneBilled = new Set(billedIds[lane] ?? []);
+  const newIds = resourceIds.filter((id) => !laneBilled.has(id));
+  if (newIds.length === 0) {
+    return { billedCount: 0, spendUsd: 0 }; // every id already billed today in this lane — free
+  }
+  for (const id of newIds) laneBilled.add(id);
+  billedIds[lane] = Array.from(laneBilled);
+  budget.billed_ids = billedIds;
+
+  return applyBill(budget, costUsd, lane, newIds.length, pricingStatus);
+}
+
+/**
+ * @deprecated Use `billResourceRead(costUsd, lane, resourceIds)` directly and pass
+ * the actual resource ids the response returned — this flat 1-unit wrapper is only
+ * numerically correct for genuinely single-resource reads (`/tweets/{id}`), and
+ * gives up the 24h-UTC dedup that `billResourceRead` provides for a same-day
+ * re-read of the same id. Kept only so pre-Phase-1 callers keep working unchanged.
+ *
+ * Add a completed read's cost to the daily budget after a successful GET — flat
+ * 1-unit billing, no per-resource counting or dedup. `lane` attributes the spend
+ * in by_lane (operator spend audit 2026-07-12) — pass an endpoint family or caller
+ * name; omitted = "unattributed". */
+export async function incrementReadBudget(costUsd: number = READ_COST_USD, lane: string = "unattributed"): Promise<void> {
+  await billResourceRead(costUsd, lane, undefined);
+}
+
+/** Estimate the worst-case resource count a read is ABOUT to return, from its
+ * request query params — used as the PRE-FLIGHT `checkReadBudget` ceiling since
+ * the true count is only known after the response arrives. Reads `max_results`
+ * (search/mentions/timeline-style calls) or `ids` (batched `/tweets?ids=` lookups,
+ * comma-separated); defaults to 1 (single-resource reads like `/users/me`). */
+export function estimateResourceCount(queryParams: Record<string, string>): number {
+  const maxResults = queryParams["max_results"];
+  if (maxResults) {
+    const n = parseInt(maxResults, 10);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  const ids = queryParams["ids"];
+  if (ids) {
+    const n = ids.split(",").filter((s) => s.trim().length > 0).length;
+    if (n > 0) return n;
+  }
+  return 1;
+}
+
+/** Extract resource ids from a parsed X API v2 response body for per-resource
+ * billing: `response.data` as an ARRAY → each item's `.id` (a search/mentions/
+ * batch-lookup page — an EMPTY array is a legitimate zero-resource response and
+ * returns `[]`, billing $0, not a flat unit); `response.data` as an OBJECT → its
+ * own `.id` wrapped in a 1-element array (a single-resource read like
+ * `/users/me`). `response.data` MISSING/null/non-object → also `[]`: X commonly
+ * omits `data` entirely on a zero-result page (search/mentions with no matches),
+ * and every endpoint this client calls is known to return either an array or an
+ * object here on success — so an absent `data` key on a 2xx response means "zero
+ * resources returned," never "unknown shape." (The `undefined` "bill 1 flat unit,
+ * no known id" path in `billResourceRead` exists for callers that DON'T go through
+ * this extractor at all — e.g. `incrementReadBudget`'s back-compat wrapper, or
+ * arc-link-research's single-tweet lookup when the id genuinely can't be found —
+ * not for a parsed body that legitimately contains zero resources.) */
+export function extractResourceIds(response: Record<string, unknown>): string[] {
+  const d = response["data"];
+  if (Array.isArray(d)) {
+    // Every X API v2 resource carries an id-shaped field in practice — usually
+    // `id`, but News search stories use `rest_id` instead (2026-07-13, Phase 3:
+    // confirmed live against docs.x.com/x-api/news/search-news —
+    // {rest_id, name, summary, category, cluster_posts_results, contexts}, no
+    // `id` field at all). Check both so News stories get the same same-UTC-day
+    // dedup benefit every other resource type already has. An item missing
+    // BOTH still cost money to return, so it must ALWAYS bill and never dedup —
+    // a per-array-INDEX fallback (`__no_id_0`, ...) would be wrong: two different
+    // malformed items landing at the same index on the same UTC day would collide
+    // and the second would be silently deduped to $0 (dev-council/Kleppmann lens,
+    // 2026-07-13). A fresh random id per occurrence guarantees it's billed exactly
+    // once and never mistaken for a repeat.
+    return d.map((item) => {
+      const rec = item as Record<string, unknown>;
+      const id = rec?.["id"] ?? rec?.["rest_id"];
+      return id !== undefined && id !== null ? String(id) : `__no_id_${crypto.randomUUID()}`;
+    });
+  }
+  if (d && typeof d === "object") {
+    const rec = d as Record<string, unknown>;
+    const id = rec["id"] ?? rec["rest_id"];
+    return id !== undefined && id !== null ? [String(id)] : [];
+  }
+  return [];
+}
+
+/** Normalize an endpoint path to a stable lane key for by_lane attribution:
+ * numeric path segments (ids) are dropped, e.g. "/users/195.../mentions" →
+ * "users/mentions", "/tweets/search/recent" → "tweets/search/recent". */
+export function endpointLane(endpoint: string): string {
+  const parts = endpoint.split("?")[0].split("/").filter((p) => p && !/^\d+$/.test(p));
+  return parts.join("/") || "root";
 }
 
 /** Write a 429 backoff (15 min) to the budget file. */
@@ -281,34 +555,53 @@ async function buildOAuthHeader(
  * Budget-aware: checks the daily dollar read budget before the call, adds the
  * read's cost after success, and writes a 429 backoff on rate-limit responses
  * (AI-016). Pass `{ owned: true }` for OWNED reads (own posts, followers, lists)
- * so they bill at the $0.001 rate instead of the $0.005 non-owned rate. */
-export async function xApiGet(
+ * so they bill at the $0.001 rate instead of the $0.005 non-owned rate. Pass
+ * `{ lane: "..." }` (2026-07-13, arc-x-research-channel Phase 2) to bill under a
+ * caller-chosen NAMED by_lane key instead of the default `endpointLane(endpoint)`
+ * derivation — e.g. the candidate-maturation pass's batched `/tweets?ids=` read
+ * needs its own `"candidate-maturation"` lane, not the generic `"tweets"` lane
+ * `fetchRecentPostMetrics` already uses for the same endpoint. Omitting it keeps
+ * every existing caller's current lane unchanged.
+ *
+ * (2026-07-13, Phase 3) Three more optional overrides, all additive/backward-
+ * compatible — omitting any of them preserves today's behavior exactly:
+ * - `costUsd`: overrides the owned/non-owned default price when a caller knows
+ *   the TRUE (or a documented best-estimate) per-unit price — e.g. Trends'
+ *   confirmed $0.010/request, or News search's UNCONFIRMED estimated rate.
+ * - `billMode: "flat"`: bills exactly 1 unit of `costUsd` regardless of how many
+ *   resources the response contains, instead of the default per-resource
+ *   billing. Use for endpoints X prices PER REQUEST, not per resource returned —
+ *   Trends ($0.010/req however many trend items come back) is the reason this
+ *   exists; the default `"per-resource"` behavior is correct for every
+ *   pre-Phase-3 caller and remains the default.
+ * - `pricingStatus: "estimated"`: tags the lane's `by_lane` ledger entry so a
+ *   provisional price is visibly flagged in the persisted budget file itself,
+ *   not just in a log line — see `billResourceRead`'s doc comment. */
+interface BillingOpts {
+  lane?: string;
+  billMode?: "per-resource" | "flat";
+  pricingStatus?: "confirmed" | "estimated";
+}
+
+/** Shared tail for both `xApiGet` (OAuth 1.0a) and `xApiGetAppOnly` (OAuth 2.0
+ * App-Only Bearer, 2026-07-13 Phase 3): perform the already-built request,
+ * handle 429/error responses identically, then bill the read. Extracted so the
+ * two auth styles can't silently drift apart on billing/error-handling
+ * behavior — only the auth header differs between the two public functions. */
+async function performBilledGet(
+  url: string,
+  headers: Record<string, string>,
   endpoint: string,
-  creds: XCreds,
-  queryParams: Record<string, string> = {},
-  opts: { owned?: boolean } = {},
+  costUsd: number,
+  opts: BillingOpts,
 ): Promise<Record<string, unknown>> {
-  // Guard: enforce daily dollar read budget and 429 backoff before the network.
-  const costUsd = opts.owned ? OWNED_READ_COST_USD : READ_COST_USD;
-  await checkReadBudget(costUsd);
+  const response = await fetch(url, { method: "GET", headers });
 
-  const baseUrl = `${API_BASE}${endpoint}`;
-  // Build the query string with the SAME percentEncode used to compute the OAuth
-  // signature base — URLSearchParams encodes a space as "+" while the signature uses
-  // "%20", so any param with a space (or !*'()) would otherwise mismatch and 401
-  // (cairn #2). Sorting matches the signature-base ordering too.
-  const qs = Object.keys(queryParams)
-    .sort()
-    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
-    .join("&");
-  const url = qs ? `${baseUrl}?${qs}` : baseUrl;
-  const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
-  const response = await fetch(url, {
-    method: "GET",
-    headers: { Authorization: authHeader },
-  });
-  const data = await response.json();
-
+  // Check status BEFORE parsing the body (dev-council/Newman lens, 2026-07-13): X
+  // does not guarantee a JSON body on 429/5xx responses. The old ordering parsed
+  // first, so a non-JSON error body threw out of `response.json()` and the 429
+  // backoff below never ran — defeating the backoff precisely during a rate-limit
+  // storm, and silently skipping billing for a request that still happened.
   if (response.status === 429) {
     // Rate limit hit — write a 15-min backoff then throw.
     await setReadBackoff();
@@ -316,13 +609,166 @@ export async function xApiGet(
   }
 
   if (!response.ok) {
-    throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(data)}`);
+    let errBody: unknown;
+    try {
+      errBody = await response.json();
+    } catch {
+      errBody = await response.text().catch(() => "<unreadable error body>");
+    }
+    throw new Error(`X API GET ${endpoint} ${response.status}: ${JSON.stringify(errBody)}`);
   }
 
-  // Success — bill this read against the daily dollar budget.
-  await incrementReadBudget(costUsd);
+  const data = await response.json();
 
-  return data as Record<string, unknown>;
+  // Success — bill this read. Default: per-resource metering (the resources it
+  // ACTUALLY returned), attributed by endpoint family, with same-UTC-day dedup on
+  // repeated ids in this lane. `billMode: "flat"` (Phase 3) bills exactly 1 unit
+  // instead — for endpoints priced per REQUEST regardless of result count (Trends).
+  const typedData = data as Record<string, unknown>;
+  const resourceIds = opts.billMode === "flat" ? undefined : extractResourceIds(typedData);
+  await billResourceRead(costUsd, opts.lane ?? endpointLane(endpoint), resourceIds, opts.pricingStatus);
+
+  return typedData;
+}
+
+/** Build `${API_BASE}${endpoint}[?querystring]` using the SAME percentEncode
+ * (not URLSearchParams) and sort order `buildOAuthHeader`'s signature base
+ * uses — URLSearchParams encodes a space as "+" while the OAuth 1.0a signature
+ * uses "%20", so any param with a space (or !*'()) would otherwise mismatch
+ * and 401 (cairn #2). Shared by `xApiGet` and `xApiGetAppOnly` (dev-council/
+ * Fowler lens, 2026-07-13 — this was the one piece of real duplication
+ * between the two auth-mode entry points; everything else differs enough
+ * between OAuth 1.0a signing and Bearer auth that it's correctly NOT shared). */
+function buildRequestUrl(endpoint: string, queryParams: Record<string, string>): { baseUrl: string; url: string } {
+  const baseUrl = `${API_BASE}${endpoint}`;
+  const qs = Object.keys(queryParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}=${percentEncode(queryParams[k])}`)
+    .join("&");
+  return { baseUrl, url: qs ? `${baseUrl}?${qs}` : baseUrl };
+}
+
+export async function xApiGet(
+  endpoint: string,
+  creds: XCreds,
+  queryParams: Record<string, string> = {},
+  opts: {
+    owned?: boolean;
+    lane?: string;
+    costUsd?: number;
+    billMode?: "per-resource" | "flat";
+    pricingStatus?: "confirmed" | "estimated";
+  } = {},
+): Promise<Record<string, unknown>> {
+  // Guard: enforce daily dollar read budget and 429 backoff before the network.
+  // Pre-flight uses the WORST-CASE resource count from the request (max_results /
+  // ids) since the true count returned is only known after the response arrives —
+  // see billResourceRead below for the actual per-resource billing. An explicit
+  // `opts.costUsd` (Phase 3) takes priority over the owned/non-owned default so a
+  // caller-supplied price is respected pre-flight too, not just when billing.
+  const costUsd = opts.costUsd ?? (opts.owned ? OWNED_READ_COST_USD : READ_COST_USD);
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams), opts.lane);
+
+  const { baseUrl, url } = buildRequestUrl(endpoint, queryParams);
+  const authHeader = await buildOAuthHeader("GET", baseUrl, creds, queryParams);
+  return performBilledGet(url, { Authorization: authHeader }, endpoint, costUsd, opts);
+}
+
+// ---- OAuth 2.0 App-Only (Bearer) auth (2026-07-13, Phase 3 arc-x-research-channel) ---
+
+// Some X API v2 endpoints EXPLICITLY FORBID OAuth 1.0a User Context and require
+// OAuth 2.0 App-Only or User Context instead — confirmed LIVE this phase (not
+// documented anywhere the Phase 1 console reconciliation could reach without
+// browser access): `GET /2/trends/by/woeid/{id}` and `GET /2/news/search` both
+// 403 "Unsupported Authentication...Authenticating with OAuth 1.0a User Context
+// is forbidden for this endpoint. Supported authentication types are [OAuth 2.0
+// User Context, OAuth 2.0 Application-Only]" against xApiGet's existing OAuth
+// 1.0a signer. App-Only is the right fit here (not the interactive User-Context
+// PKCE flow) because these are PUBLIC reads (trending topics, public news
+// stories) with no per-user scope — the standard non-interactive
+// `client_credentials` grant, using the SAME consumer key/secret already
+// stored (no new credential needed, no browser/PKCE flow to build).
+// (`personalized_trends` is the opposite case — confirmed live to ALREADY work
+// via the existing OAuth 1.0a `xApiGet`/`loadXCreds()` path, since it's
+// genuinely user-scoped; no App-Only bearer needed there.)
+
+let cachedBearerToken: string | null = null;
+
+/** Exchange consumer key/secret for an OAuth 2.0 App-Only bearer token via the
+ * `client_credentials` grant. This is an auth-token exchange, not a billed X
+ * API v2 read — never metered. Cached in-memory for the lifetime of this
+ * process only (each scheduled check-in run is its own short-lived process, so
+ * there's no staleness risk from a longer-lived disk cache — a fresh token per
+ * run costs nothing extra). */
+export async function getAppOnlyBearerToken(
+  creds: Pick<XCreds, "apiKey" | "apiSecret">,
+): Promise<string> {
+  if (cachedBearerToken) return cachedBearerToken;
+  const basic = Buffer.from(`${creds.apiKey}:${creds.apiSecret}`).toString("base64");
+  const resp = await fetch("https://api.x.com/oauth2/token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+    },
+    body: "grant_type=client_credentials",
+  });
+  if (!resp.ok) {
+    throw new Error(
+      `X OAuth2 App-Only token exchange failed: ${resp.status} ${await resp.text().catch(() => "<unreadable>")}`,
+    );
+  }
+  const json = (await resp.json()) as { token_type: string; access_token: string };
+  // The token endpoint percent-encodes the access_token (e.g. embeds a "%2F")
+  // — decode it once here so every caller gets the raw bearer value.
+  cachedBearerToken = decodeURIComponent(json.access_token);
+  return cachedBearerToken;
+}
+
+/** A GET against the X API v2 using OAuth 2.0 App-Only (Bearer) auth — for the
+ * subset of endpoints that reject OAuth 1.0a User Context (see the comment
+ * block above). Same budget-guard + per-resource/flat billing tail as
+ * `xApiGet` (`performBilledGet`) — only the auth header differs. `creds` only
+ * needs `apiKey`/`apiSecret` (the App-Only grant doesn't use the user access
+ * token/secret at all). */
+export async function xApiGetAppOnly(
+  endpoint: string,
+  creds: Pick<XCreds, "apiKey" | "apiSecret">,
+  queryParams: Record<string, string> = {},
+  opts: {
+    costUsd?: number;
+    lane?: string;
+    billMode?: "per-resource" | "flat";
+    pricingStatus?: "confirmed" | "estimated";
+  } = {},
+): Promise<Record<string, unknown>> {
+  const costUsd = opts.costUsd ?? READ_COST_USD;
+  await checkReadBudget(costUsd * estimateResourceCount(queryParams), opts.lane);
+
+  const { url } = buildRequestUrl(endpoint, queryParams);
+
+  const bearer = await getAppOnlyBearerToken(creds);
+  try {
+    return await performBilledGet(url, { Authorization: `Bearer ${bearer}` }, endpoint, costUsd, opts);
+  } catch (err) {
+    // Self-heal on a stale/revoked token (dev-council/Lamport + Newman lenses,
+    // 2026-07-13): the in-memory bearer cache has no explicit expiry — today's
+    // short-lived scheduled-run processes never live long enough for this to
+    // matter, but a future long-lived resident process would otherwise have
+    // EVERY subsequent App-Only call wedged for the rest of its life once X
+    // revokes/rotates the token, with no recovery path. Clear the cache and
+    // retry ONCE with a freshly-exchanged token before giving up — cheap
+    // insurance that costs nothing extra in the common case where this never
+    // fires (no billing happens on the failed attempt; `performBilledGet`
+    // only bills after a successful response).
+    const message = (err as Error).message;
+    if (message.includes("401") && cachedBearerToken) {
+      cachedBearerToken = null;
+      const freshBearer = await getAppOnlyBearerToken(creds);
+      return performBilledGet(url, { Authorization: `Bearer ${freshBearer}` }, endpoint, costUsd, opts);
+    }
+    throw err;
+  }
 }
 
 // ---- Mentions ---------------------------------------------------------------
@@ -438,6 +884,16 @@ export interface RecentTweet {
   created_at: string;
   author_id: string;
   conversation_id: string;
+  /** control-plane-remediation P1 (defect-register row 59, live-diagnosed): X API v2's
+   *  reply_settings field on the tweet object — "everyone" | "mentionedUsers" | "following".
+   *  Free on this same already-paid search call (no extra read cost). Live evidence
+   *  (07-14..07-16) showed EVERY reply-lane candidate this quest's discovery loop selected
+   *  hit a genuine reply-restriction 403 ("you have not been mentioned...") — the send path
+   *  was correctly classifying and skipping these, but nothing upstream avoided QUEUING a
+   *  doomed target in the first place, so the lane's entire daily budget went to certain
+   *  403s. Undefined on tweets read before this field was added to the request — treat as
+   *  open (matches prior behavior exactly, no retroactive reclassification). */
+  reply_settings?: string;
 }
 
 export interface SearchRecentResult {
@@ -462,7 +918,10 @@ export async function searchRecentByHandle(
   const queryParams: Record<string, string> = {
     query: `from:${handle}`,
     max_results: String(max),
-    "tweet.fields": "created_at,author_id,conversation_id",
+    // control-plane-remediation P1 (row 59): reply_settings added — free field on the same
+    // read, lets callers filter out threads that don't allow non-mentioned replies BEFORE
+    // queuing them (see RecentTweet.reply_settings doc comment).
+    "tweet.fields": "created_at,author_id,conversation_id,reply_settings",
   };
   if (opts.sinceId) queryParams["since_id"] = opts.sinceId;
 
@@ -475,6 +934,7 @@ export async function searchRecentByHandle(
     created_at: String(t["created_at"] ?? ""),
     author_id: String(t["author_id"] ?? ""),
     conversation_id: String(t["conversation_id"] ?? t["id"]),
+    reply_settings: typeof t["reply_settings"] === "string" ? (t["reply_settings"] as string) : undefined,
   }));
   return { tweets, newest_id: meta["newest_id"] ? String(meta["newest_id"]) : undefined };
 }

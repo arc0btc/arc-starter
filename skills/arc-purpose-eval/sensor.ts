@@ -33,6 +33,14 @@ const SIGNAL_FILING_DISABLED = true;
 // "root lever unchanged, no new action" (see task #21309 -> #21504, same-day duplicate audit).
 const COST_REVIEW_SUBJECT = "Review cost efficiency — daily spend elevated";
 const COST_REVIEW_COOLDOWN_DAYS = 2;
+// Same rationale as COST_REVIEW_COOLDOWN_DAYS: a low prReviewAvgPerDay can legitimately mean
+// "nothing needs Arc's independent review right now" (bot PRs, self-authored PRs already
+// verified via gh pr comment, or substantive PRs already covered by another org agent) rather
+// than a real backlog — #21996 confirmed this directly on 2026-07-11. Without a cooldown this
+// follow-up re-fires every 12h even the cycle after a clean check already concluded there's no
+// actionable gap. See #21998.
+const ECOSYSTEM_REVIEW_SUBJECT = "Check for pending PR reviews across ecosystem repos";
+const ECOSYSTEM_REVIEW_COOLDOWN_DAYS = 2;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -169,13 +177,24 @@ function collectMetrics(): EvalMetrics {
   // reads a legitimate lull as an internal capacity problem (task #21437,
   // investigation #21435 found near-zero queue latency for pr-review tasks —
   // there was no crowd-out, just a 51h gap in external PR volume).
-  // Match subjects like "Review PR #N", "review PR", etc.
+  // Match subjects like "Review PR #N", "review PR", etc. Requires a literal
+  // '#' (every real review subject references a PR number, e.g. "PR #1028" or
+  // "x402-api#126") to rule out two confirmed false positives (#21996,
+  // #21998): SQLite LIKE is case-insensitive, so "%PR%" alone matches "pr" in
+  // unrelated words like "prompt", and this filter previously matched its own
+  // generated follow-up subject ("Check for pending PR reviews across
+  // ecosystem repos"), inflating the count with a task that reviewed nothing.
+  // This also means self-authored CVE-fix PRs verified via `gh pr comment`
+  // (GitHub blocks self-approval) already count here today, since those
+  // completed tasks are titled "Review PR <repo>#<N>: ..." — see #21998.
   const PR_REVIEW_SUBJECT_FILTER = `(
-         subject LIKE 'Review %PR%'
-         OR subject LIKE 'review %PR%'
-         OR subject LIKE '%PR review%'
-         OR subject LIKE '%PR %review%'
-         OR subject LIKE 'Review and%PR%'
+         subject LIKE '%#%' AND (
+           subject LIKE 'Review %PR%'
+           OR subject LIKE 'review %PR%'
+           OR subject LIKE '%PR review%'
+           OR subject LIKE '%PR %review%'
+           OR subject LIKE 'Review and%PR%'
+         )
        )`;
 
   const prRow = db
@@ -530,9 +549,13 @@ function generateFollowUps(
   // average, not the raw 24h count, so a natural lull in external PR volume
   // (no PRs opened, nothing to review) doesn't spawn a queue-rebalance-style
   // task off a bursty single-day snapshot (see #21437 / #21435).
-  if (scores.ecosystem <= 1 && metrics.prReviewAvgPerDay < 3) {
+  if (
+    scores.ecosystem <= 1 &&
+    metrics.prReviewAvgPerDay < 3 &&
+    countRecentTasksBySubject(ECOSYSTEM_REVIEW_SUBJECT, ECOSYSTEM_REVIEW_COOLDOWN_DAYS) === 0
+  ) {
     followUps.push({
-      subject: "Check for pending PR reviews across ecosystem repos",
+      subject: ECOSYSTEM_REVIEW_SUBJECT,
       skills: '["aibtc-repo-maintenance"]',
       priority: 5,
       model: "sonnet",
@@ -571,6 +594,28 @@ function formatReport(scores: PurposeScores, metrics: EvalMetrics): string {
     );
   }
   return lines.join("\n");
+}
+
+// ---- Dedup Helpers ----
+
+// Belt-and-suspenders guard alongside the source-based pendingTaskExistsForSource(TASK_SOURCE)
+// check below: that check only catches a duplicate if the earlier eval task is still
+// pending/active under the exact same source string. #23138/#23145 (2026-07-19) showed a gap —
+// by the time the second sensor run fired, the first eval task's source-scoped check no longer
+// held (see memory/shared/entries/daily-eval-duplicate-task-same-day.md). This checks by subject
+// prefix + creation date instead, independent of source, right before the insert.
+function evalTaskPendingToday(): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT 1 FROM tasks
+       WHERE subject LIKE 'PURPOSE eval:%'
+       AND status IN ('pending', 'active')
+       AND DATE(created_at) = DATE('now')
+       LIMIT 1`
+    )
+    .get();
+  return row !== null;
 }
 
 // ---- Main Sensor ----
@@ -627,35 +672,40 @@ export default async function purposeEvalSensor(): Promise<string> {
     }
   }
 
-  // Create summary task with computed scores for memory update
-  insertTask({
-    subject: `PURPOSE eval: ${scores.weighted}/5 — S:${scores.signal} O:${scores.ops} E:${scores.ecosystem} C:${scores.cost}`,
-    description:
-      report +
-      "\n\n## Narrative (merged from arc-introspection, 2026-07-04)\n\n" +
-      narrative +
-      `\n\n### Reflection Prompts\n${reflectionPrompts}` +
-      "\n\n## Instructions\n" +
-      "1. Review the data-driven scores and narrative above\n" +
-      "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
-      "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
-      "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
-      "   c. Close with: `[chair] SYNTH from=score-ad-N+score-co-N+score-se-N open=[] conf=0.X \"Adaptation=N Collaboration=N Security=N\"`\n" +
-      "   d. Write the @phase propose + moves + @phase synth block to /tmp/daily-eval-council.dsl\n" +
-      "   e. Validate: `arc skills run --name council-dsl -- validate /tmp/daily-eval-council.dsl`\n" +
-      "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
-      "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
-      "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
-      "5. Write a concise 3-5 sentence self-assessment (what went well, what didn't, what to focus on) using the narrative + reflection prompts above\n" +
-      `6. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
-      "7. Close this task with the final 7-dimension score and one-line summary of the reflection",
-    skills: '["arc-purpose-eval", "arc-strategy-review"]',
-    source: TASK_SOURCE,
-    priority: 6,
-    model: "sonnet", // Lighter than opus — most scoring already done
-  });
+  // Create summary task with computed scores for memory update — guarded against a same-day
+  // duplicate subject (see evalTaskPendingToday() above).
+  if (evalTaskPendingToday()) {
+    log("eval task with matching subject already pending today — skipping duplicate creation");
+  } else {
+    insertTask({
+      subject: `PURPOSE eval: ${scores.weighted}/5 — S:${scores.signal} O:${scores.ops} E:${scores.ecosystem} C:${scores.cost}`,
+      description:
+        report +
+        "\n\n## Narrative (merged from arc-introspection, 2026-07-04)\n\n" +
+        narrative +
+        `\n\n### Reflection Prompts\n${reflectionPrompts}` +
+        "\n\n## Instructions\n" +
+        "1. Review the data-driven scores and narrative above\n" +
+        "2. Score the 3 unmeasured dimensions using Council DSL v1 moves (see agent-runtime/specs/agent-council-dsl-grammar-v1.md §1):\n" +
+        "   a. For each dimension emit: `[A] PROPOSE score-ad-N conf=0.X` (Adaptation), `[B] PROPOSE score-co-N conf=0.X` (Collaboration), `[C] PROPOSE score-se-N conf=0.X` (Security), where N is 1-5\n" +
+        "   b. Back each PROPOSE with one CLAIM: `[X] CLAIM -> score-XX-N SHOULD conf=0.X ev=#<memory-slug> \"one-line reason\"`\n" +
+        "   c. Close with: `[chair] SYNTH from=score-ad-N+score-co-N+score-se-N open=[] conf=0.X \"Adaptation=N Collaboration=N Security=N\"`\n" +
+        "   d. Write the @phase propose + moves + @phase synth block to /tmp/daily-eval-council.dsl\n" +
+        "   e. Validate: `arc skills run --name council-dsl -- validate /tmp/daily-eval-council.dsl`\n" +
+        "   f. Fix any validation errors (missing ev=, malformed lines) before proceeding\n" +
+        "3. Compute final weighted PURPOSE score including all 7 dimensions (use scores from SYNTH note)\n" +
+        "4. Append dated one-liner to memory/MEMORY.md: `**daily-eval** [ROLLING, last DATE] X.XX/5 — S:N O:N E:N C:N Ad:N Co:N Se:N | ...` (overwrite previous rolling line)\n" +
+        "5. Write a concise 3-5 sentence self-assessment (what went well, what didn't, what to focus on) using the narrative + reflection prompts above\n" +
+        `6. ${followUpCount} follow-up tasks were auto-created for low scores — no additional follow-ups needed\n` +
+        "7. Close this task with the final 7-dimension score and one-line summary of the reflection",
+      skills: '["arc-purpose-eval", "arc-strategy-review"]',
+      source: TASK_SOURCE,
+      priority: 6,
+      model: "sonnet", // Lighter than opus — most scoring already done
+    });
 
-  log(`eval task created: weighted=${scores.weighted}, ${followUpCount} follow-ups`);
+    log(`eval task created: weighted=${scores.weighted}, ${followUpCount} follow-ups`);
+  }
 
   // Persist state
   await writeHookState(SENSOR_NAME, {

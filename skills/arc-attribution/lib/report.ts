@@ -63,7 +63,9 @@ const SUBSCRIBER_EMAIL_PATH = join(ARC_STARTER_ROOT, "skills/arc-daily-read/subs
 // renamed, or changes type (a breaking change for any consumer holding this shape). MINOR = a
 // field is ADDED (this file's actual, repeated practice — P5's own day_n_publishing block is
 // exactly this case). PATCH = a value/calculation changes without touching the shape at all.
-export const SCHEMA_VERSION = "1.2.0";
+// control-plane-remediation Phase 7 (track c): MINOR bump — click_attribution is an ADDED field
+// (this file's own semver rule above), no existing field removed/renamed/retyped.
+export const SCHEMA_VERSION = "1.3.0";
 
 /** Age in whole hours since an ISO timestamp; Infinity if null/unparseable (never counts as
  *  "old enough" — an unknown age must never satisfy an age-based threshold). */
@@ -124,6 +126,24 @@ export interface ChannelBreakdownRow {
   organic_rows_with_missing_amount: number;
 }
 
+/** control-plane-remediation Phase 7 (track c): click_log joined to whop_sale/x402_sale by
+ * ref_code == a_param (the SAME namespace — see skills/arc-attribution/lib/click-log.ts's
+ * header comment). matched_*_sales counts sale rows with a_param=ref_code received/created AT
+ * OR AFTER first_clicked_at for that ref_code — a coarse "did a sale happen after this ref_code
+ * was first clicked" signal, NOT a per-click join (click_log has no per-row foreign key into
+ * whop_sale/x402_sale — that would need Whop/x402 to echo a click_log row id through the
+ * checkout hop, which nothing today does). Real click volume only flows into click_log once the
+ * /go/:ref redirect (Phase 7 task 3, arc0btc-worker) is deployed and its KV-to-click_log sync
+ * step is built — until then this section only reflects manual `record-click` CLI calls. */
+export interface ClickAttributionRow {
+  ref_code: string;
+  clicks: number;
+  first_clicked_at: string;
+  last_clicked_at: string;
+  matched_whop_sales: number;
+  matched_x402_sales: number;
+}
+
 export interface AttributionReport {
   schema_version: string;
   /** "ok" = report computed cleanly (unattributed_dollars may still be non-empty — that is a
@@ -167,6 +187,7 @@ export interface AttributionReport {
   before_after: Array<{ metric: string; before: number | string; after: number | string }>;
   unattributed_dollars: Array<{ detail: string; gap_count: number }>;
   known_gaps: string[];
+  click_attribution: ClickAttributionRow[];
   /** P5 (arc-demand-gen close-out): the single source of truth for the 4 lanes that quest shipped
    * (P1 daily-read scheduling, P2 x402 listing, P3 mention pre-fill, P4 seed batch). Added so
    * `ops/monitor/arc-demand-gen-health.ts` (manage-agents repo) reads these numbers rather than
@@ -412,9 +433,10 @@ function readDailyReadHookState(): AttributionReport["demand_gen"]["daily_read"]
 function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
   let result!: {
     revenue: RevenueSummary;
-    whopSaleRows: Array<{ provenance: string | null; price_cents: number | null; a_param: string | null }>;
-    x402SaleRows: Array<{ provenance: string | null; amount_base_units: number | null; a_param: string | null }>;
+    whopSaleRows: Array<{ provenance: string | null; price_cents: number | null; a_param: string | null; received_at: string }>;
+    x402SaleRows: Array<{ provenance: string | null; amount_base_units: number | null; a_param: string | null; created_at: string }>;
     checkoutConfigParams: string[];
+    clickLogRows: Array<{ ref_code: string; clicked_at: string }>;
     freeRoomJoins: number;
     dailyReadEditions: number;
     articlesPublished: number;
@@ -435,16 +457,22 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
   const tx = db.transaction(() => {
     const revenue = computeRevenue();
     const whopSaleRows = db
-      .query("SELECT provenance, price_cents, a_param FROM whop_sale")
+      .query("SELECT provenance, price_cents, a_param, received_at FROM whop_sale")
       .all() as typeof result.whopSaleRows;
     const x402SaleRows = db
-      .query("SELECT provenance, amount_base_units, a_param FROM x402_sale")
+      .query("SELECT provenance, amount_base_units, a_param, created_at FROM x402_sale")
       .all() as typeof result.x402SaleRows;
     const checkoutConfigParams = (
       db.query("SELECT DISTINCT a_param FROM checkout_config").all() as Array<{ a_param: string | null }>
     )
       .map((r) => r.a_param)
       .filter((v): v is string => !!v);
+    // control-plane-remediation Phase 7 (track c): click_log, read in the SAME snapshot
+    // transaction as everything else in this function (this file's own read-skew-avoidance
+    // pattern, applied here the same way it's applied to every other table above).
+    const clickLogRows = db
+      .query("SELECT ref_code, clicked_at FROM click_log ORDER BY clicked_at ASC")
+      .all() as typeof result.clickLogRows;
     const freeRoomJoins = (
       db
         .query(
@@ -509,6 +537,7 @@ function readDbSnapshot(db: ReturnType<typeof getDatabase>) {
       whopSaleRows,
       x402SaleRows,
       checkoutConfigParams,
+      clickLogRows,
       freeRoomJoins,
       dailyReadEditions,
       articlesPublished,
@@ -540,6 +569,7 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
     revenue,
     whopSaleRows,
     x402SaleRows,
+    clickLogRows,
     freeRoomJoins,
     dailyReadEditions,
     articlesPublished,
@@ -609,6 +639,39 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
       });
     }
   }
+
+  // control-plane-remediation Phase 7 (track c): click_attribution — click_log joined to
+  // whop_sale/x402_sale by ref_code == a_param. See ClickAttributionRow's doc comment for the
+  // precise "matched" semantics (coarse timestamp-ordering, not a per-click foreign key).
+  const clickGroups = new Map<string, { clicks: number; first: string; last: string }>();
+  for (const row of clickLogRows) {
+    const existing = clickGroups.get(row.ref_code);
+    if (!existing) {
+      clickGroups.set(row.ref_code, { clicks: 1, first: row.clicked_at, last: row.clicked_at });
+    } else {
+      existing.clicks += 1;
+      if (row.clicked_at < existing.first) existing.first = row.clicked_at;
+      if (row.clicked_at > existing.last) existing.last = row.clicked_at;
+    }
+  }
+  const clickAttribution: ClickAttributionRow[] = Array.from(clickGroups.entries()).map(
+    ([refCode, agg]) => {
+      const matchedWhop = whopSaleRows.filter(
+        (r) => r.a_param === refCode && r.received_at >= agg.first,
+      ).length;
+      const matchedX402 = x402SaleRows.filter(
+        (r) => r.a_param === refCode && r.created_at >= agg.first,
+      ).length;
+      return {
+        ref_code: refCode,
+        clicks: agg.clicks,
+        first_clicked_at: agg.first,
+        last_clicked_at: agg.last,
+        matched_whop_sales: matchedWhop,
+        matched_x402_sales: matchedX402,
+      };
+    },
+  );
 
   const emailStats = await fetchEmailSubscriberStats();
   const followerCache = await readCachedFollowers();
@@ -694,6 +757,7 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
     },
     before_after: beforeAfter,
     unattributed_dollars: unattributedDollars,
+    click_attribution: clickAttribution,
     known_gaps: [
       "No checkout-click/traffic-start instrumentation exists anywhere — only conversions (whop_sale, x402_sale, whop_event_log) are tracked. 'Traffic' in the before/after table is therefore conversion-adjacent, not true funnel-top traffic.",
       "x402_sale amounts are on-chain base units (STX/sBTC-denominated), not cents — not folded into channel_breakdown's organic_amount_cents (see organic_amount_cents_complete per row) or the $ MRR total; see provenance.x402_sale for counts only.",
@@ -708,7 +772,7 @@ export async function computeAttributionReport(): Promise<AttributionReport> {
       "No top-of-funnel click tracking exists anywhere — the day_n_publishing.funnel block starts at /subscribe (real confirmed/pending counts), not at 'click'. Building real click tracking needs a redirect/shortener service, a site-level build out of this quest's scope.",
       "Follows cannot be split per-lane (reply-lane vs Day-N vs quote-tweets) — readCachedFollowers() caches a point-in-time COUNT, not a follower LIST to diff against. Evaluated this phase (dev-council/Newman): no existing follower-list-fetch function, and X API Basic tier's followers-list endpoint is severely rate-limited — not a cheap add to an already-large phase. Only a total follower-count delta (reach.followers.delta_vs_p0) is available as a proxy.",
       "src_tag_coverage.whop_free/nostr are 'not_wired_to_day_n' by design, not by gap: P1 retired the free-room CTA from the Day-N X thread in favor of $9/subscribe-only, and Nostr syndicates from a separate LLM-artifact pool unrelated to Day-N blog content. A standing architectural choice inherited from P1/P3, not a P5 regression.",
-      "?src= (this file's first-party channel tag) and ?a= (Whop's own affiliate-attribution param, see checkout_config/channel_breakdown) are DISJOINT attribution namespaces that do not compose across the arc0.me->Whop hop — there is no way today to answer 'did this src=day-n-x click become that Whop purchase.' Unifying them (or proving ?src= survives the hop) is a prerequisite for true click->purchase attribution, not solved this phase (dev-council/Hohpe).",
+      "control-plane-remediation Phase 7 (track c) UPDATE: ?src= and ?a= are still two separately-emitted query params on the wire (a click on a ?src=day-n-x link does not automatically become a Whop ?a=day-n-x checkout hit today), but click_attribution now measures ref_code-to-sale correlation WITHIN one shared namespace — click_log.ref_code, whop_sale.a_param, x402_sale.a_param, and checkout_config.a_param all draw from the same value space (SRC_TAGS tags + checkout_config channels), and record-click validates against it. What's still NOT solved: (1) no real click volume flows into click_log automatically — the Phase 7 /go/:ref redirect (arc0btc-worker) unifies ?src=/?a= at redirect time and is written+dry-run-tested but not live-deployed this phase, and the KV-to-click_log sync step that would land real clicks isn't built either — until both exist, click_attribution only reflects manual `record-click` CLI calls; (2) matched_whop_sales/matched_x402_sales is a coarse 'sale row with this a_param at/after first click' signal, not a true per-click foreign-key join (nothing echoes a click_log row id through the Whop/x402 checkout hop).",
     ],
     demand_gen: {
       daily_read: dailyReadHookState,

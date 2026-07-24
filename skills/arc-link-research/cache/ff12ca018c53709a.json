@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/6sgprQuXIz",
+  "fetchedAt": "2026-07-16T00:07:05.154Z",
+  "contentType": "tweet",
+  "title": "@zhengyaojiang: After 100 iterations, the outer loop discovered seven improvements over the base...",
+  "rawContent": "Tweet by @zhengyaojiang (Zhengyao Jiang)\nAuthor bio: Cofounder & CEO @WecoAI - automated hill climbing with LLMs.\nPrev: PhD in ML @UCL_DARK.\n(Zheng=j-uhng, j as in job; yao=y-aoww)\nText: After 100 iterations, the outer loop discovered seven improvements over the baseline.\nIncluding a new search policy, a memory system that compresses prompt by 16x, and a layered defense against reward hacking. (3/7) https://t.co/K45e6SRtio\nCreated: 2026-07-14T17:16:25.000Z\nMetrics: {\"retweet_count\":18,\"reply_count\":4,\"like_count\":412,\"quote_count\":5,\"bookmark_count\":66,\"impression_count\":56253}",
+  "embeddedUrls": [
+    "https://t.co/K45e6SRtio"
+  ]
+}

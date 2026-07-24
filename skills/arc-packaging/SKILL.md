@@ -29,29 +29,46 @@ to remember to work; this sensor consumes it on a cadence so it no longer grows 
    this content") — plus explicit guidance not to overclaim x402 delivery and to vary the
    closing sentence per SKU (both from dev-council/arc-strategy-panel review, 2026-07-03).
 2. **The dispatch-cycle LLM turn** (SOUL.md-gated) drafts
-   `{ title, headline, description }` to `<slug>.draft.json`. The description MUST contain
+   `{ title, headline, description, quiz }` to `<slug>.draft.json`. The description MUST contain
    both audience frames verbatim-or-near-verbatim — `stage` hard-fails otherwise (with a clear
    DEFERRED-style error list, not a raw exception). **The description also has a hard 1500-char
    limit** (Whop's `products.create` API rejects longer values) — write both audience frames
    concisely and stay under 1500 chars on the first draft; found live 2026-07-08 (task #21744)
-   when a 1620-char draft failed at `stage` and had to be trimmed and re-run.
+   when a 1620-char draft failed at `stage` and had to be trimmed and re-run. **The headline
+   also has a hard 80-char limit** — write it short on the first draft; found live 2026-07-10
+   (task #21962) when a 153-char headline failed at `stage` and had to be shortened to 74.
+   **`quiz` is REQUIRED** (control-plane-remediation Phase 2, row 62, 2026-07-16/17): at least 3
+   `QuizQuestion`s drawn from the report's own claims (see `MaterialsBrief.voiceInstructions.quiz`
+   for the exact shape) — `stage` hard-fails without it, same enforcement tier as the description
+   frames.
 3. **`stage --report <file>`** (deterministic) — validates the draft, then, only if valid:
    - strips internal-only content from the report before it becomes the deliverable
      (`cleanDeliverableMarkdown()` — drops Arc's own "Recommendations" backlog table, converts
      `[[wiki-links]]` to plain text, relabels "Provenance" as customer-facing and drops
      cache-hash/task-ID lines; a raw research report is written for Arc's own engineering
      backlog, not a paying stranger)
-   - mints the SKU via `whop create-product` (still created hidden at this point)
+   - mints the SKU via `whop create-product` (still created hidden at this point), passing
+     `--quiz <path>` alongside `--report <path>` so the deliverable (report + quiz) attaches
+     atomically with creation
    - closes the loop via `arc-link-research mark-packaged`
    - wires **membership unlock-all SILENTLY** (`--skip-chat` — a $0 promo code is created, but
      no announcement is posted; see below)
+   - **generates + attaches a cover** (`skills/arc-packaging/lib/cover.ts`'s `renderSkuCover()` —
+     deterministic, no LLM call, motif = the SKU's own live title/headline numbers; panel rules
+     in `manage-agents/ops/store-covers/BRAND-KIT.md`) via `whop update-product --cover`
    - **PUBLISHES as the terminal step** via `whop set-visibility --visibility visible` (product
      + plan) — operator directive 2026-07-03: "the SKUs are up to arc to manage/publish and
-     don't need my review either. same as the blog." Terminal on purpose (dev-council/Newman):
-     the storefront never shows a SKU whose deliverable or member promo isn't wired yet, and a
-     failed flip leaves the queue row `claimed` so the resume path re-runs the idempotent
-     chain. Pass `--keep-hidden` to `stage` for the old hidden-until-operator-flip behavior;
-     rollback for any published SKU is
+     don't need my review either. same as the blog." — **BUT ONLY IF the cover attach AND the
+     quiz attach both succeeded** (control-plane-remediation Phase 2, row 61/62/63: cover+quiz
+     are now REQUIRED stage steps, not just recommended — a caller not passing `--keep-hidden` no
+     longer guarantees a visible SKU). If either failed, the SKU is left `packaged` but hidden,
+     with a loud log naming which one failed and the manual `set-visibility` command to run once
+     it's fixed (retry via `update-product --cover` / `attach-deliverable --quiz`). Terminal on
+     purpose otherwise (dev-council/Newman): the storefront never shows a SKU whose deliverable,
+     cover, quiz, or member promo isn't wired yet, and a failed flip leaves the queue row
+     `claimed` so the resume path re-runs the idempotent chain. Pass `--keep-hidden` to `stage`
+     for the old hidden-until-operator-flip behavior regardless of cover/quiz outcome; rollback
+     for any published SKU is
      `bash bin/arc skills run --name whop -- set-visibility --product <prod_> --plan <plan_> --visibility hidden`
    - emails the operator a summary (product/checkout/promo links + rollback command) reporting
      the READ-BACK visibility — since the 2026-07-03 directive this is operator visibility,

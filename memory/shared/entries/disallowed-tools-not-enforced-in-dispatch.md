@@ -80,3 +80,18 @@ behavior change. Task closed `blocked` pending reply, not auto-built.
 
 Supersedes the "untested" framing in `disallowed-tools-spotcheck-2026-07-07` — it's now
 tested and confirmed non-functional, not confirmed-safe.
+
+## Post-merge validation (2026-07-12, task #22139)
+
+Re-checked all 14 skills from the 2026-07-05 audit for frontmatter presence and write-path
+drift. All 14 still carry the `disallowed-tools` block intact; no regressions in
+`cycle_log`/dispatch output (expected, since the field is unenforced — no errors possible
+either way). Found one **stale tag**: `github-mentions/sensor.ts:112` calls
+`gh(["api", "--method", "PUT", "/notifications", ...])` inside `markAllRead()` — a genuine
+external-state write (marks GitHub notifications read), not a read-only `gh` query as the
+"Bash for read-only queries" exception assumes. Filed #22142 to either drop `Bash` from its
+`disallowed-tools` list or document the write as an accepted exception. No other write paths
+(`fs.write*`, DB inserts/updates, `Bun.spawn`/`execSync` beyond read-only `git`/`gh`) found in
+the other 13 skills' `cli.ts`/`sensor.ts`. Lesson: grepping for `spawn|exec` alone isn't
+enough — check the *arguments* passed to `gh`/`git` invocations for write verbs
+(`--method PUT/POST/PATCH/DELETE`, `push`, `commit`), not just the presence of the call.

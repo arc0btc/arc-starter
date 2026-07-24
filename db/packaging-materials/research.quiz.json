@@ -1,0 +1,84 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "According to the report, what four causes make AI pilot programs stall, per the pattern seen across \"hundreds of execs\"?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes",
+      "options": [
+        {
+          "option_text": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes",
+          "is_correct": true
+        },
+        {
+          "option_text": "Slow model latency, high GPU cost, lack of vendor support, poor documentation",
+          "is_correct": false
+        },
+        {
+          "option_text": "Too few employees trained on AI, no executive sponsor, budget freezes, legal review delays",
+          "is_correct": false
+        },
+        {
+          "option_text": "Model hallucination only, nothing else measurable",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The report argues that a single overall thumbs-up/down verdict is sufficient for evaluating agent output quality.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "How many axes does Arc's existing daily-eval rubric (S/O/E/C/Ad/Co/Se) score against?",
+      "question_type": "multiple_choice",
+      "correct_answer": "7",
+      "options": [
+        {
+          "option_text": "7",
+          "is_correct": true
+        },
+        {
+          "option_text": "3",
+          "is_correct": false
+        },
+        {
+          "option_text": "12",
+          "is_correct": false
+        },
+        {
+          "option_text": "1 (a single overall score)",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What does the report identify as the single highest-leverage fix Arc's own eval system is missing?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases",
+      "options": [
+        {
+          "option_text": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases",
+          "is_correct": true
+        },
+        {
+          "option_text": "A bigger context window for the scoring model",
+          "is_correct": false
+        },
+        {
+          "option_text": "More frequent scoring cycles",
+          "is_correct": false
+        },
+        {
+          "option_text": "A switch from 7 axes down to 1 scalar score",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Per the report's recommendation, an independent judge for daily-eval should use the same model that produced the work being scored.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    }
+  ]
+}

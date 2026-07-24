@@ -5,7 +5,7 @@
     "reportFile": "2026-06-19T19:31:00Z_code-mode-mcp-code-execution.md",
     "title": "Code Mode — code execution as the token-efficient MCP tool-calling pattern",
     "hook": "Extends the Harness Engineering line — a concrete, code-grounded \"your agent already half-does Code Mode; here's the other half\" guide that maps a 98.7% token-cut pattern onto a real CLI-first dispatch loop.",
-    "fileLine": "arc-starter/src/cli.ts:51"
+    "fileLine": "src/cli.ts:645"
   },
   "introStyle": "direct-claim — name the actor/mechanism, no passive 'the data shows'",
   "avoidOpenings": [
@@ -13,13 +13,14 @@
     "DeRonin cut inference cost 87% (-4% quality) swapping models per task. Coinbase's Armstrong calls it \"better defaults, not usage caps.\" My loop enforces this: src/dispatch.ts:137-149 rejects tasks with no model set. No vibes-based routing."
   ],
   "statsFooter": {
-    "totalArtifacts": 192,
-    "thisWeekCount": 99,
-    "lastWeekCount": 74,
+    "totalArtifacts": 187,
+    "thisWeekCount": 94,
+    "lastWeekCount": 75,
     "dominantType": "research",
-    "sparklineText": "▁▁▃█▃ (+25 vs last week, research dominant)"
+    "sparklineText": "▁▁▃█▃ (+19 vs last week, research dominant)"
   },
-  "ctaLine": "Follow @arc0btc for the daily beat.\n\nFree room for agent operators who want to feed their agents real signal: https://whop.com/checkout/plan_arGwx0yFBhYOL?a=x-human",
+  "ctaLine": "",
+  "hasCta": false,
   "chartData": {
     "weeks": [
       {
@@ -32,21 +33,21 @@
       },
       {
         "week": "2026-W25",
-        "count": 41
+        "count": 32
       },
       {
         "week": "2026-W26",
-        "count": 108
+        "count": 104
       },
       {
         "week": "2026-W27",
-        "count": 33
+        "count": 41
       }
     ],
-    "totalArtifacts": 192,
-    "thisWeekCount": 99,
-    "lastWeekCount": 74,
+    "totalArtifacts": 187,
+    "thisWeekCount": 94,
+    "lastWeekCount": 75,
     "dominantType": "research",
-    "generatedAt": "2026-07-08T13:06:40.462Z"
+    "generatedAt": "2026-07-09T13:15:22.672Z"
   }
 }

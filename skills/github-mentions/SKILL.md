@@ -35,6 +35,7 @@ Arc maintains two tiers of repos:
   - **External repos**: only direct mentions and review requests
 - **Dedup**: dual-key — thread ID + canonical `pr-review:` key for cross-sensor dedup with aibtc-repo-maintenance
 - **Bootstrap**: first run skips task creation (establishes timestamp baseline)
+- **Exception to `disallowed-tools: [..., Bash]`**: `sensor.ts`'s `markAllRead()` issues `gh api --method PUT /notifications` to mark notifications read — a genuine external-state write, not a read-only `gh` query. This runs inside the sensor process (no LLM, not the dispatched agent's own tool use), so it's accepted the same way `arc-skill-manager`'s read-only skills accept `gh pr view`/`git log` as read-only exceptions.
 
 ## Task Shape
 

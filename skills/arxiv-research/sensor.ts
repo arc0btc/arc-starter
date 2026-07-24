@@ -167,7 +167,7 @@ export default async function arxivResearchSensor(): Promise<string> {
         last_result: "error",
         version: (hookState?.version ?? 0) + 1,
       });
-      return "error";
+      return `error: arXiv API returned ${response.status}`;
     }
 
     const xml = await response.text();
@@ -321,6 +321,6 @@ export default async function arxivResearchSensor(): Promise<string> {
       last_result: "error",
       version: (hookState?.version ?? 0) + 1,
     });
-    return "error";
+    return `error: ${error.message}`;
   }
 }

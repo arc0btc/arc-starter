@@ -142,3 +142,29 @@ automatically instead of needing its own hand-added `KNOWN_SUBJECT_PREFIXES`
 entry. Lesson: when a detector has two independent grouping passes (by source,
 by subject), an exemption list needs to be consulted by both — check the code
 path, not just "does this string appear in the exemption list somewhere."
+
+**2026-07-14 recurrence (task #22590)**: one flagged pattern, `subject:research`
+(8 recurrences, avg 2.3 steps, arc-link-research + arc-skill-manager +
+candidate-maturation) — root subjects are `Research: ecosystem signal —
+matured candidate (...)`, spawned by `candidate-maturation`'s per-candidate
+research filing (see [[arc-link-research-cost-driver]] for the volume context
+on this sensor), each followed by the standard ad-hoc
+`Retrospective: extract learnings from task #N` chain. Same shape, added
+`"research"` as a bare `KNOWN_SUBJECT_PREFIXES` entry in
+`skills/arc-workflow-review/sensor.ts`. No new evaluation needed — 9th
+consecutive recurrence of the identical already-rejected pattern.
+
+**2026-07-17 recurrence (task #23118)**: one flagged pattern,
+`source:sensor:arc-packaging` (3 recurrences, avg 2.3 steps, arc-packaging +
+arc-skill-manager) — root subjects are `Package a research report into a
+Whop SKU — <report>`, same ad-hoc `Retrospective: extract learnings from
+task #N` chain. Same shape, added `"sensor:arc-packaging"` as a bare
+`KNOWN_PATTERNS` entry in `skills/arc-workflow-review/sensor.ts`. Notable
+distinction from prior entries: arc-packaging already has its OWN
+deterministic 3-step contract (materials -> draft -> stage, tracked via
+`packaging_queue_log` with idempotent resume — see
+`skills/arc-packaging/SKILL.md`) that is more rigorous than a generic
+arc-workflows state machine would be; the "chain" the sensor flagged is
+purely the standard per-task retrospective tacked onto the end of that
+already-solid pipeline, not evidence of missing state tracking. 10th
+consecutive recurrence of the identical already-rejected pattern.

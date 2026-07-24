@@ -657,7 +657,7 @@ export interface ReleasedRow {
  */
 export function releaseAbandonedReservations(
   db: Database,
-  opts: { leaseGraceMinutes?: number } = {}
+  opts: { leaseGraceMinutes?: number; staleQueuedGraceMinutes?: number } = {}
 ): ReleasedRow[] {
   const graceMs = (opts.leaseGraceMinutes ?? 0) * 60 * 1000;
   const cutoff = new Date(Date.now() - graceMs).toISOString();
@@ -678,11 +678,11 @@ export function releaseAbandonedReservations(
     db.exec("BEGIN IMMEDIATE");
     const abandoned = db
       .query(
-        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
+        `SELECT id, lane, budget_day, global_reserved, atomic_group_id FROM outbound_action
          WHERE status='sending' AND provider_post_id IS NULL
            AND lease_expires_at IS NOT NULL AND lease_expires_at < ?`
       )
-      .all(cutoff) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+      .all(cutoff) as { id: number; lane: string; budget_day: string; global_reserved: number; atomic_group_id: string | null }[];
 
     for (const row of abandoned) {
       const flip = db.run(
@@ -712,6 +712,23 @@ export function releaseAbandonedReservations(
         [row.id, `lease expired with no send evidence — reservation released by releaseAbandonedReservations() (grace=${opts.leaseGraceMinutes ?? "n/a"}min)`]
       );
       released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+
+      // task #22089 (backstop for #22087's gap): a root that dies WITHOUT its
+      // caller's catch block running (process kill, OOM, host crash — anything
+      // between claimForSend() and cli.ts's try/catch) leaves this root abandoned
+      // here by lease expiry, but its still-'queued' SIBLINGS have no lease of
+      // their own — cli.ts's synchronous releaseGroupRemainder() call is the ONLY
+      // other thing that ever releases them, and it never ran. Left alone, those
+      // siblings leak reserved_count until their (possibly same-day, possibly
+      // NULL) window closes, or forever if latest_utc_time was never set. Sweep
+      // them here too, same transaction, so a crashed root can't orphan its group.
+      if (row.atomic_group_id) {
+        const groupReleased = releaseGroupRemainderTx(
+          db, row.atomic_group_id,
+          `root action_id=${row.id} found abandoned by lease-expiry sweep — orphaned group siblings released`
+        );
+        released.push(...groupReleased);
+      }
     }
 
     // ── P3 arc-posting-scheduler (dev-council/Kleppmann, "finding A", CONFIRMED
@@ -730,12 +747,12 @@ export function releaseAbandonedReservations(
     // the exact `--source`.
     const windowExpired = db
       .query(
-        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
+        `SELECT id, lane, budget_day, global_reserved, atomic_group_id FROM outbound_action
          WHERE status='queued' AND latest_utc_time IS NOT NULL
            AND (budget_day < date('now')
                 OR (budget_day = date('now') AND latest_utc_time < strftime('%H:%M','now')))`
       )
-      .all() as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+      .all() as { id: number; lane: string; budget_day: string; global_reserved: number; atomic_group_id: string | null }[];
 
     for (const row of windowExpired) {
       const flip = db.run(
@@ -759,6 +776,72 @@ export function releaseAbandonedReservations(
       db.run(
         `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
         [row.id, `window permanently closed with no drain attempt — reservation released by releaseAbandonedReservations()'s time-based sweep`]
+      );
+      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+
+      // task #22089: this row's own window closed, but siblings with NO
+      // latest_utc_time set (so they'd never independently match this predicate)
+      // would otherwise stay 'queued' forever once the timed member of their
+      // group is swept. Release them alongside their dead sibling.
+      if (row.atomic_group_id) {
+        const groupReleased = releaseGroupRemainderTx(
+          db, row.atomic_group_id,
+          `sibling action_id=${row.id} found window-closed by time-based sweep — orphaned group remainder released`
+        );
+        released.push(...groupReleased);
+      }
+    }
+
+    // ── task #22166 (Edition 8 daily-read leak, CONFIRMED): a group reserved via
+    // admitGroup() whose caller aborts BEFORE any row reaches claimForSend() (e.g.
+    // checkCreditsDepleted() throwing pre-send) leaves EVERY row in the group
+    // 'queued' with lease_expires_at=NULL — invisible to the lease-expiry sweep
+    // above (never reached 'sending'). It's ALSO invisible to the window-expiry
+    // sweep whenever the row's window hasn't closed yet: Edition 8's rows carry
+    // earliest=13:00/latest=14:00 (an immediate-send window, not a deliberate
+    // future park), so they sat leaked for up to an hour — long enough to starve
+    // same-day admission (blocked Edition 9's reserve-group call) — before the
+    // window-expiry sweep would eventually reclaim them at 14:00. Reclaim 'queued'
+    // rows whose window has ALREADY OPENED (earliest_utc_time null or <= now) but
+    // have sat un-claimed past a short grace period — this is the drain-never-
+    // started signal, distinct from `windowExpired` above which waits for the
+    // window to fully CLOSE. Deliberately excludes rows whose window has not yet
+    // opened (earliest_utc_time in the future) so legitimate window-parking
+    // (`window_not_open_yet`, cli.ts) is left untouched.
+    const staleGraceMs = (opts.staleQueuedGraceMinutes ?? 10) * 60 * 1000;
+    const staleCutoff = new Date(Date.now() - staleGraceMs).toISOString();
+    const staleQueued = db
+      .query(
+        `SELECT id, lane, budget_day, global_reserved FROM outbound_action
+         WHERE status='queued'
+           AND (earliest_utc_time IS NULL OR earliest_utc_time <= strftime('%H:%M','now'))
+           AND budget_day <= date('now')
+           AND created_at < ?`
+      )
+      .all(staleCutoff) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+
+    for (const row of staleQueued) {
+      const flip = db.run(
+        `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
+        [utcNow(), row.id]
+      );
+      if (flip.changes !== 1) continue; // raced with a concurrent claim/release — do not double-release
+
+      db.run(
+        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+         WHERE channel='x' AND utc_day=? AND lane=?`,
+        [row.budget_day, row.lane]
+      );
+      if (row.global_reserved) {
+        db.run(
+          `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - 1)
+           WHERE channel='x' AND utc_day=? AND lane=?`,
+          [row.budget_day, GLOBAL_BACKSTOP_LANE]
+        );
+      }
+      db.run(
+        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+        [row.id, `stale reservation with no window info and no send evidence — reservation released by releaseAbandonedReservations()'s stale-queued sweep (grace=${opts.staleQueuedGraceMinutes ?? 10}min)`]
       );
       released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
     }
@@ -846,71 +929,78 @@ export function releaseSingleReservation(db: Database, actionId: number, reasonN
  * named separately here because this fires immediately at the point of failure
  * (caller-driven) rather than being discovered later by a lease-expiry sweep.
  */
-export function releaseGroupRemainder(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
-  // dev-council/Kleppmann (P3 fix, CONFIRMED gap): the original SELECT ran BEFORE any
-  // transaction, so its snapshot could go stale if a concurrent/retried call raced this
-  // one (or a legitimate drain completed a row) between the SELECT and the flip below —
-  // the old code decremented budget_ledger by the STALE snapshot count regardless of
-  // whether each row's flip actually took effect. Fix: SELECT, per-row flip (re-checking
-  // status='queued' at write time), and the ledger decrements ALL run inside ONE
-  // transaction, and the decrement amount is the ACTUAL number of rows this call flipped
-  // (`changes`), never the pre-transaction snapshot count — so two overlapping calls on
-  // the same group can each only release what's genuinely still 'queued' at their own
-  // flip moment, never double-decrementing the same row's reservation.
+// dev-council/Kleppmann (P3 fix, CONFIRMED gap): the original SELECT ran BEFORE any
+// transaction, so its snapshot could go stale if a concurrent/retried call raced this
+// one (or a legitimate drain completed a row) between the SELECT and the flip below —
+// the old code decremented budget_ledger by the STALE snapshot count regardless of
+// whether each row's flip actually took effect. Fix: SELECT, per-row flip (re-checking
+// status='queued' at write time), and the ledger decrements ALL run inside ONE
+// transaction, and the decrement amount is the ACTUAL number of rows this call flipped
+// (`changes`), never the pre-transaction snapshot count — so two overlapping calls on
+// the same group can each only release what's genuinely still 'queued' at their own
+// flip moment, never double-decrementing the same row's reservation.
+//
+// Split out from releaseGroupRemainder() (task #22089) so releaseAbandonedReservations()
+// can release a dead root's still-'queued' SIBLINGS from inside its own transaction —
+// see that function's "orphaned group siblings" sweep below for why this was a real gap,
+// not just a refactor. Caller MUST already be inside a transaction; this never
+// BEGIN/COMMIT/ROLLBACKs itself.
+function releaseGroupRemainderTx(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
   const released: ReleasedRow[] = [];
+  const remaining = db
+    .query(`SELECT id, lane, budget_day, global_reserved FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
+    .all(atomicGroupId) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
+
+  if (remaining.length === 0) return released;
+
+  const byGroup = new Map<string, number>();
+  const byGlobalDay = new Map<string, number>(); // dead-branch bookkeeping, see GLOBAL_BACKSTOP_LANE comment
+  for (const row of remaining) {
+    const flip = db.run(
+      `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
+      [utcNow(), row.id]
+    );
+    if (flip.changes !== 1) continue; // raced with a concurrent completion/release — do not double-count
+    const key = `${row.lane}|${row.budget_day}`;
+    byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
+    if (row.global_reserved) {
+      byGlobalDay.set(row.budget_day, (byGlobalDay.get(row.budget_day) ?? 0) + 1);
+    }
+    db.run(
+      `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
+      [row.id, `atomic_group_id=${atomicGroupId} remainder released: ${reasonNote}`]
+    );
+    released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
+  }
+
+  for (const [key, count] of byGroup) {
+    const [lane, budgetDay] = key.split("|");
+    db.run(
+      `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
+       WHERE channel='x' AND utc_day=? AND lane=?`,
+      [count, budgetDay, lane]
+    );
+  }
+  for (const [budgetDay, count] of byGlobalDay) {
+    db.run(
+      `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
+       WHERE channel='x' AND utc_day=? AND lane=?`,
+      [count, budgetDay, GLOBAL_BACKSTOP_LANE]
+    );
+  }
+  return released;
+}
+
+export function releaseGroupRemainder(db: Database, atomicGroupId: string, reasonNote: string): ReleasedRow[] {
   try {
     db.exec("BEGIN IMMEDIATE");
-    const remaining = db
-      .query(`SELECT id, lane, budget_day, global_reserved FROM outbound_action WHERE atomic_group_id=? AND status='queued'`)
-      .all(atomicGroupId) as { id: number; lane: string; budget_day: string; global_reserved: number }[];
-
-    if (remaining.length === 0) {
-      db.exec("ROLLBACK");
-      return [];
-    }
-
-    const byGroup = new Map<string, number>();
-    const byGlobalDay = new Map<string, number>(); // dead-branch bookkeeping, see GLOBAL_BACKSTOP_LANE comment
-    for (const row of remaining) {
-      const flip = db.run(
-        `UPDATE outbound_action SET status='unknown', updated_at=? WHERE id=? AND status='queued'`,
-        [utcNow(), row.id]
-      );
-      if (flip.changes !== 1) continue; // raced with a concurrent completion/release — do not double-count
-      const key = `${row.lane}|${row.budget_day}`;
-      byGroup.set(key, (byGroup.get(key) ?? 0) + 1);
-      if (row.global_reserved) {
-        byGlobalDay.set(row.budget_day, (byGlobalDay.get(row.budget_day) ?? 0) + 1);
-      }
-      db.run(
-        `INSERT INTO engagement_log(action_id, event_type, notes) VALUES (?, 'unknown', ?)`,
-        [row.id, `atomic_group_id=${atomicGroupId} remainder released: ${reasonNote}`]
-      );
-      released.push({ actionId: row.id, lane: row.lane, budgetDay: row.budget_day });
-    }
-
-    for (const [key, count] of byGroup) {
-      const [lane, budgetDay] = key.split("|");
-      db.run(
-        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
-         WHERE channel='x' AND utc_day=? AND lane=?`,
-        [count, budgetDay, lane]
-      );
-    }
-    for (const [budgetDay, count] of byGlobalDay) {
-      db.run(
-        `UPDATE budget_ledger SET reserved_count = MAX(0, reserved_count - ?)
-         WHERE channel='x' AND utc_day=? AND lane=?`,
-        [count, budgetDay, GLOBAL_BACKSTOP_LANE]
-      );
-    }
+    const released = releaseGroupRemainderTx(db, atomicGroupId, reasonNote);
     db.exec("COMMIT");
+    return released;
   } catch (err) {
     try { db.exec("ROLLBACK"); } catch {}
     throw err;
   }
-
-  return released;
 }
 
 // ── deferAction ───────────────────────────────────────────────────────────────

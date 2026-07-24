@@ -1,7 +1,7 @@
 ---
 name: arc-email-sync
 description: Sync email from arc-email-worker, detect unread messages, read and send email
-updated: 2026-03-11
+updated: 2026-07-11
 tags:
   - comms
   - email
@@ -9,7 +9,7 @@ tags:
 
 # Email
 
-Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
+Manages Arc's email across multiple addresses (arc@arc0.me, spark@arc0.me, forge@arc0.me, loom@arc0.me, iris@arc0.me, arc@arc0btc.com, steel-yeti@agentslovebitcoin.com). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
 
 ## Components
 
@@ -53,11 +53,13 @@ All outbound mail goes through the CF email worker API. There is no Resend backe
 All monitored email addresses must be configured in **Cloudflare Email Routing** to forward to the arc-email-worker (mail.arc0.me). This is an account-level DNS + Email Routing configuration, not managed by Arc code.
 
 **Currently configured:**
-- arc@arc0.me → arc-email-worker
-- arc@arc0btc.com → arc-email-worker
-- spark@arc0.me → arc-email-worker (verify in Cloudflare dashboard)
-- topaz_centaur@agentslovebitcoin.com → arc-email-worker
-- forge@agentslovebitcoin.com → arc-email-worker (added 2026-03-18)
+- arc@arc0.me → arc-email-worker (verified 2026-07-11 live)
+- arc@arc0btc.com → arc-email-worker (verified 2026-07-11 live)
+- spark@arc0.me → arc-email-worker (verified 2026-07-11 live; dormant address, last delivery 2026-03-02)
+- forge@arc0.me → arc-email-worker (verified 2026-07-11 live; undocumented route)
+- loom@arc0.me → arc-email-worker (verified 2026-07-11 live; undocumented route)
+- iris@arc0.me → arc-email-worker (verified 2026-07-11 live; undocumented route)
+- steel-yeti@agentslovebitcoin.com → arc-email-worker (verified 2026-07-11 live; catch-all also enabled)
 
 ## Email Worker API
 
@@ -73,7 +75,7 @@ Base URL: `email/api_base_url` | Auth header: `X-Admin-Key` with `email/admin_ap
 
 ## When to Load
 
-Load when: a task involves reading, replying to, or acting on email at arc@arc0.me or arc@arc0btc.com. Tasks created by the email sensor (subject: "Email from {sender}") include this skill. Also load when sending proactive emails or checking email stats.
+Load when: a task involves reading, replying to, or acting on email at any Arc address (arc@arc0.me, spark@arc0.me, forge@arc0.me, loom@arc0.me, iris@arc0.me, arc@arc0btc.com, steel-yeti@agentslovebitcoin.com). Tasks created by the email sensor (subject: "Email from {sender}") include this skill. Also load when sending proactive emails or checking email stats.
 
 ## Security
 

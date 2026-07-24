@@ -45,19 +45,21 @@ interface ContextFinding {
 // Sources whose descriptions are meta-analysis reports (contain child task subjects
 // as examples). Scanning their descriptions would produce false positives since the
 // description text discusses other tasks rather than describing this task's own work.
-const META_TASK_SOURCES = new Set([
-  "sensor:arc-workflow-review",
-  "sensor:context-review",
-  "sensor:arc-self-audit",
-  "sensor:compliance-review",
-  "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
-  "sensor:arc-introspection",        // retired 2026-07-04, kept for archival tasks predating the merge
-  "sensor:arc-purpose-eval",         // eval reports embed a merged introspection narrative (task subjects verbatim) since 2026-07-04
-  "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
-  "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
-  "sensor:arc-blocked-review",       // descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks
-  "sensor:arc-memory",               // weekly pattern extraction descriptions include failed/high-cost task subjects verbatim — keywords belong to those tasks
-]);
+// Each entry pairs the source prefix with the reason it's excluded, so the reason
+// travels with the data instead of living in a comment that can drift during edits.
+const META_TASK_SOURCES: { pattern: string; reason: string }[] = [
+  { pattern: "sensor:arc-workflow-review", reason: "workflow review reports quote child task subjects verbatim" },
+  { pattern: "sensor:context-review", reason: "this sensor's own findings quote flagged task subjects verbatim" },
+  { pattern: "sensor:arc-self-audit", reason: "self-audit reports quote task subjects/descriptions verbatim" },
+  { pattern: "sensor:compliance-review", reason: "compliance review reports quote task subjects verbatim" },
+  { pattern: "sensor:arc-failure-triage", reason: "failure retrospectives list failed task subjects verbatim" },
+  { pattern: "sensor:arc-introspection", reason: "retired 2026-07-04, kept for archival tasks predating the merge" },
+  { pattern: "sensor:arc-purpose-eval", reason: "eval reports embed a merged introspection narrative (task subjects verbatim) since 2026-07-04" },
+  { pattern: "sensor:arc-cost-reporting", reason: "cost reports embed top task subjects/descriptions — external data, not skill requirements" },
+  { pattern: "sensor:github-release-watcher", reason: "descriptions contain external release notes content — keywords don't indicate skill requirements" },
+  { pattern: "sensor:arc-blocked-review", reason: "descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks" },
+  { pattern: "sensor:arc-memory", reason: "weekly pattern extraction descriptions include failed/high-cost task subjects verbatim — keywords belong to those tasks" },
+];
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
 // Only includes skills where keyword detection is meaningful.
@@ -210,6 +212,13 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // arc-link-research batch tasks ("Research: <topic>") evaluate link relevance and write a
+  // report; the topic name (e.g. "Zest Protocol V2", "Bitflow DEX aggregator") is the subject
+  // being analyzed, not an operational requirement. arc-link-research's SKILL.md disallows
+  // Bash/Edit/Write entirely, so these tasks can never invoke a domain skill's CLI regardless
+  // of topic (#23401 false-flagged defi-zest for two Zest-topic research reports).
+  if (task.subject.startsWith("Research:") && loaded_set.has("arc-link-research")) return findings;
+
   // Research orchestrator tasks process link batches and may describe link sources (e.g. "arc-email")
   // in their description as provenance context, not as operational skill requirements.
   if (task.subject.startsWith("Research orchestrator:")) return findings;
@@ -287,6 +296,15 @@ function checkMissingSkillCoverage(
   // "zest borrow broken", etc. — not what skills this task's own dispatch needs.
   if (task.subject.startsWith("Escalate to whoabuddy:")) return findings;
 
+  // arc-article-pipeline tasks ("Draft Arc's next amplified article — Article N") describe a
+  // 3-step contract where step 3 (`stage`) deterministically shells out to `blog-publishing
+  // create` and emails the X Article variant to whoabuddy for him to post manually — the
+  // dispatched LLM never calls blog-publishing or social-x-posting itself, so those skills'
+  // SKILL.md is never needed in context even though the description mentions "blog draft" and
+  // "post to x" (the skill's own SKILL.md explicitly states it never posts to X). See
+  // skills/arc-article-pipeline/SKILL.md "Firing (who posts what)".
+  if (/^Draft Arc's next amplified article/i.test(task.subject)) return findings;
+
   // Signal sprint / multi-beat filing tasks list beat names in the subject
   // (e.g. "stacking", "defi", "bitflow", "governance"). These are news category names on
   // aibtc.news, not operational skill requirements — defi-bitflow/defi-zest/stacks-stackspot
@@ -314,7 +332,7 @@ function checkMissingSkillCoverage(
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
   const isMetaSource = task.source
-    ? Array.from(META_TASK_SOURCES).some((prefix) => task.source!.startsWith(prefix))
+    ? META_TASK_SOURCES.some(({ pattern }) => task.source!.startsWith(pattern))
     : false;
   const searchable_text = isMetaSource
     ? task.subject.toLowerCase()
@@ -470,6 +488,6 @@ export default async function contextReviewSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

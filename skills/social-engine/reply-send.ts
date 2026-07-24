@@ -121,6 +121,9 @@ export function classifyProviderError(err: any): {
     "in_reply_to",
     "conversation",
     "you are not able to reply",
+    "you can only reply to",
+    "mentioned or are the author",
+    "not-authorized-for-resource",
   ];
   if (status === 403 && replyRestrictionSignals.some((s) => hay.includes(s))) {
     return { kind: "reply_restriction", status, rawJson };

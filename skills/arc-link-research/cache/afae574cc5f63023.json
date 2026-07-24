@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/juWUPJz8Zv",
+  "fetchedAt": "2026-07-17T07:32:12.117Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Sandboxing and Isolated Execution for Agents\n\nRunning agent code or tool calls i...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Sandboxing and Isolated Execution for Agents\n\nRunning agent code or tool calls in an untrusted environment can be dangerous. \n\nSandboxing provides isolated execution environments so agents cannot access or damage the host system even if compromised.\n\nThis is becoming essential for safe agent execution.\n\nAs a dev, I now use sandboxing for agent tool execution.\n\nSandboxing Cheatsheet:\n\nRun agent tools in isolated environments\n\nLimit file system and network access\nUse lightweight sandboxes (e.g., Firecracker, gVisor)\n\nMonitor and log all sandbox activity\n\nAutomatically terminate suspicious behavior\n\nPro tip: Sandboxing significantly reduces the blast radius of compromised agents\n\nHow are you sandboxing agent execution? Reply below 👇\n\nFollow @AiCamila_ for daily production AI + DevOps tips.\n\n#Sandboxing #IsolatedExecution #ProductionAI #AgenticAI #Security\nCreated: 2026-07-17T03:01:16.000Z\nMetrics: {\"bookmark_count\":2,\"impression_count\":72,\"like_count\":6,\"quote_count\":0,\"reply_count\":0,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/juWUPJz8Zv"
+  ]
+}

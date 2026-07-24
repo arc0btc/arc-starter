@@ -29,6 +29,7 @@ mkdirSync(HOOK_STATE_DIR, { recursive: true });
 export interface HookState {
   last_ran: string;
   last_result: "ok" | "error" | "skip";
+  last_error?: string | null;
   version: number;
   [key: string]: unknown;
 }
@@ -77,7 +78,11 @@ export function resolveSensorIdentity(
       stateKey = nameMatch[1];
       sourcePrefix = `sensor:${stateKey}`;
     }
-    const prefixMatch = source.match(/const\s+TASK_SOURCE_PREFIX\s*=\s*["'`]([^"'`]+)["'`]/);
+    // Allow common naming variants of the source-prefix constant — not every
+    // sensor names it TASK_SOURCE_PREFIX (e.g. aibtc-welcome uses SOURCE_PREFIX).
+    const prefixMatch = source.match(
+      /const\s+(?:TASK_SOURCE_PREFIX|SOURCE_PREFIX|TASK_SOURCE)\s*=\s*["'`]([^"'`]+)["'`]/
+    );
     if (prefixMatch) {
       sourcePrefix = prefixMatch[1];
     }
@@ -85,6 +90,35 @@ export function resolveSensorIdentity(
     // unreadable sensor source — fall back to the directory/frontmatter name
   }
   return { stateKey, sourcePrefix };
+}
+
+/**
+ * Scrape a sensor's source for `insertWorkflow({ template: "..." })` calls, returning
+ * the distinct workflow template names it creates. Sensors that route tasks through
+ * insertWorkflow() instead of insertTask()/insertTaskIfNew() directly produce tasks with
+ * source `workflow:<id>` — a scheme resolveSensorIdentity()'s sourcePrefix never matches —
+ * so sensor-health-report undercounts last_task_at for them (task #23004, following up on
+ * the audit in memory/shared/entries/sensor-health-report-workflow-source-blindspot.md).
+ * Consumers should cross-check the `workflows` table by these template names as a fallback
+ * when the direct source-prefix match comes up empty or stale.
+ */
+export function resolveSensorWorkflowTemplates(sensorPath: string): string[] {
+  const templates = new Set<string>();
+  try {
+    const source = readFileSync(sensorPath, "utf-8");
+    const callRegex = /insertWorkflow\s*\(/g;
+    let match: RegExpExecArray | null;
+    while ((match = callRegex.exec(source)) !== null) {
+      // Scan a window after the call rather than balancing braces — call bodies
+      // often embed JSON.stringify({...}) with their own nested braces.
+      const window = source.slice(match.index, match.index + 400);
+      const templateMatch = window.match(/template\s*:\s*["'`]([^"'`]+)["'`]/);
+      if (templateMatch) templates.add(templateMatch[1]);
+    }
+  } catch {
+    // unreadable sensor source
+  }
+  return Array.from(templates);
 }
 
 /**
@@ -376,9 +410,12 @@ export async function runSensors(): Promise<void> {
       if (result === "skip") {
         return { name: skill.name, ok: true, skipped: true, durationMs };
       }
-      // Sensors can return "error" to signal a non-exception failure
-      if (result === "error") {
-        return { name: skill.name, ok: false, skipped: false, durationMs, error: "sensor returned error" };
+      // Sensors can return "error" (or "error: <message>") to signal a non-exception failure.
+      // The "error: " prefix lets sensors thread their real failure reason through to
+      // last_error instead of the generic fallback below.
+      if (result === "error" || (typeof result === "string" && result.startsWith("error:"))) {
+        const message = result === "error" ? "" : result.slice("error:".length).trim();
+        return { name: skill.name, ok: false, skipped: false, durationMs, error: message || "sensor returned error" };
       }
       return { name: skill.name, ok: true, skipped: false, durationMs };
     } catch (err) {
@@ -425,6 +462,7 @@ export async function runSensors(): Promise<void> {
           ...state,
           last_ran: state?.last_ran ?? new Date().toISOString(),
           last_result: r.ok ? "ok" : "error",
+          last_error: r.ok ? null : r.error,
           consecutive_failures: r.ok ? 0 : prevFailures + 1,
           version: state ? state.version + 1 : 1,
         });

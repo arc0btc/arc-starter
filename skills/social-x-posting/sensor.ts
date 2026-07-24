@@ -400,6 +400,16 @@ export default async function xMentionsSensor(): Promise<string> {
       return "skip";
     }
 
+    // Credits already known depleted (db/x-credits-depleted.json) — skip the
+    // mentions fetch entirely rather than guaranteeing a 402 that pollutes
+    // consecutive_failures. This is an expected, self-resolving/parked
+    // condition (see memory: "X 402 = CreditsDepleted (park blocked, escalate)"),
+    // not a sensor malfunction.
+    if (await isCreditsDepleted()) {
+      log("skip: X credits depleted (db/x-credits-depleted.json)");
+      return "skip";
+    }
+
     // Load last-seen ID from hook state (AI-019: since_id cursor)
     const state = await readHookState(SENSOR_NAME);
     const lastSeenId = (state?.["last_seen_id"] as string) || undefined;
@@ -425,7 +435,7 @@ export default async function xMentionsSensor(): Promise<string> {
       if (errorMessage.includes("read budget exhausted")) {
         return "skip";
       }
-      return "error";
+      return `error: mentions fetch failed — ${errorMessage}`;
     }
 
     const mentions = mentionsResult.mentions as Mention[];
@@ -493,7 +503,7 @@ export default async function xMentionsSensor(): Promise<string> {
           // (≤1 reply/thread/day), the outbound_enabled kill switch, in-txn budget, and
           // reply-restriction 403 → skip. Do NOT call `social-x-posting -- reply` directly
           // (it now delegates here anyway). --x-lead-id logs the give-3x value_touch.
-          `  arc skills run --name social-engine -- reply --tweet-id ${mention.id} --text "<reply>" --x-lead-id ${mention.author_id}`,
+          `  arc skills run --name social-engine -- reply --tweet-id ${mention.id} --text "<reply>" --tweet-created-at "${mention.created_at}" --x-lead-id ${mention.author_id}`,
         ]
           .filter(Boolean)
           .join("\n"),
@@ -533,6 +543,6 @@ export default async function xMentionsSensor(): Promise<string> {
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

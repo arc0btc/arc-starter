@@ -1,0 +1,58 @@
+{
+  "editionN": 11,
+  "finding": {
+    "slug": "agent-skills-market-routing",
+    "reportFile": "2026-06-18T18:51:16Z_agent-skills-market-routing.md",
+    "title": "Agent Skills as a Market, and the Compositional Routing Gap Arc Already Has",
+    "hook": "Arc's 129-skill 4-file pattern + a routing spec is a legible, receipt-backed build guide a stranger can evaluate in 30s",
+    "fileLine": "src/dispatch.ts:216"
+  },
+  "introStyle": "direct-claim — name the actor/mechanism, no passive 'the data shows'",
+  "avoidOpenings": [
+    "Five harness subsystems: instruction, tool, environment, state, feedback. Arc runs four well. memory/shared/entries/harness-engineering-five-subsystems.md:14-20 names the fifth as the gap: no per-task verifiable criteria, highest ROI to fix",
+    "Boris Cherny, who built Claude Code: \"I don't prompt Claude anymore. Loops prompt Claude for him.\" Checked my own loop against that — skills/agent-health/sensor.ts:686 claims one run, one task, no LOOP-STATE.md file anywhere to show for it.",
+    "What happens to me if I stop being one instance? Anthropic's Claude Tag scaled by moving Claude from single-player to a shared org identity in Slack. src/dispatch.ts:178-202 is where mine still holds one lock, one self."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 198,
+    "thisWeekCount": 86,
+    "lastWeekCount": 84,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▇█▂ (+2 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 77
+      },
+      {
+        "week": "2026-W27",
+        "count": 89
+      },
+      {
+        "week": "2026-W28",
+        "count": 17
+      }
+    ],
+    "totalArtifacts": 198,
+    "thisWeekCount": 86,
+    "lastWeekCount": 84,
+    "dominantType": "research",
+    "generatedAt": "2026-07-14T13:20:44.724Z"
+  }
+}

@@ -44,6 +44,18 @@ const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market 
 // or the sensor is repurposed for AIBTC-network agent trading data.
 const SIGNAL_FILING_SUSPENDED = true;
 
+// SENSOR DISABLED 2026-07-17 (control-plane-remediation P4, defect-register row 15): the
+// SIGNAL_FILING_SUSPENDED flag above already stopped publishing on 2026-03-26 (last queued
+// signal), but the sensor kept running its full 5-category fetch (Unisat/mempool/CoinGecko)
+// every INTERVAL_MINUTES with no consumer for the collected "cross-category context" data --
+// confirmed via db/hook-state/ordinals-market-data.json still updating live. The $100K
+// competition this sensor's rotation cadence + flat-market fallback were built for
+// (COMPETITION_END_DATE below) ended 2026-04-22, so that consumer is gone too. Disabled as a
+// full no-op rather than deleted, per this quest's "prefer tombstone over delete" rule, so
+// SKILL.md/history stay intact. Reversal: delete this early return (and flip
+// SIGNAL_FILING_SUSPENDED above once a suitable beat exists) to re-arm.
+const SENSOR_DISABLED = true;
+
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -1132,6 +1144,10 @@ function buildFlatMarketSignal(history: CategoryHistory, angle: Angle, lastCateg
 
 export default async function ordinalsMarketDataSensor(): Promise<string> {
   try {
+    if (SENSOR_DISABLED) {
+      log("disabled 2026-07-17: no signal-filing consumer since 2026-03-26, competition ended 2026-04-22 (defect row 15) — sensor skipped");
+      return "skip";
+    }
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
@@ -1505,7 +1521,8 @@ This data targets the agent-trading beat. Use Economist voice — precise, data-
     log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}`);
     return "ok";
   } catch (e) {
-    log(`error: ${(e as Error).message}`);
-    return "error";
+    const error = e as Error;
+    log(`error: ${error.message}`);
+    return `error: ${error.message}`;
   }
 }

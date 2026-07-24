@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/F5P8gWtfeX",
+  "fetchedAt": "2026-07-21T00:52:17.483Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Building an MCP agent shouldn’t require hand-wiring server connections, orchestr...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Building an MCP agent shouldn’t require hand-wiring server connections, orchestration, and recovery logic.\n\nmcp-agent is a Python framework for builders creating agents with the Model Context Protocol.\n\nIt helps you focus on agent behavior by managing MCP server connections and providing composable workflow patterns for common agent tasks.\n\nKey features:\n• MCP capabilities – use tools, resources, prompts, roots, elicitation, and sampling across supported transports.\n• Connection lifecycle – initialize and manage MCP server sessions without writing the lifecycle plumbing yourself.\n• Composable patterns – combine routers, parallel workflows, orchestrators, deep research, and evaluator-optimizer loops.\n• Durable execution – switch to Temporal for persisted state, automatic retries, and pause/resume workflows.\n• Agent servers – expose your tools and workflows to MCP-compatible clients through the standard protocol.\n\nIt’s open-source (Apache 2.0 license).\n\nLink in the reply 👇\nCreated: 2026-07-19T21:50:56.000Z\nMetrics: {\"bookmark_count\":30,\"impression_count\":2132,\"like_count\":27,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":5}",
+  "embeddedUrls": [
+    "https://t.co/F5P8gWtfeX"
+  ]
+}

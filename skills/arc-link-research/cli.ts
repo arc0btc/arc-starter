@@ -6,6 +6,33 @@
 import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
+// Read-budget guard (2026-07-12 operator spend audit): this skill's X lookups were
+// previously UNMETERED (own OAuth + bearer clients, invisible to x-read-budget.json).
+// Both clients now check + bill the shared daily dollar budget under lane
+// "link-research". Same cross-skill import pattern as whop-sales.
+// 2026-07-13 (arc-x-research-channel Phase 1 metering fix): both clients here only
+// ever look up ONE tweet per call (`/tweets/{id}`), so the flat-1-unit bill was
+// already numerically correct — but they lacked 24h-UTC dedup, which is the exact
+// leak the 2026-07-11 spend audit named ("every re-research/retry/replay of an
+// X-heavy task re-billed the whole batch"). Routing through billResourceRead with
+// the looked-up tweet's id adds that dedup for free.
+import { checkReadBudget, billResourceRead, READ_COST_USD } from "../social-x-posting/lib/x-api.ts";
+// arc-x-research-channel Phase 4 (2026-07-13): the follow-policy hook — a
+// handle whose research this report USES gets promoted into social_accounts +
+// the private X List + a follow, triggered right here at report-acceptance
+// time (not a periodic rescan). See src/follow-policy.ts's module header for
+// why this is NOT built on the dormant follow-curated.ts script.
+import { promoteResearchSourceHandle } from "../../src/follow-policy.ts";
+// arc-x-research-channel Phase 7 (2026-07-13): best-effort like the source tweet
+// alongside the follow-policy hook, same trigger point (report acceptance). See
+// likeByTargetId's own doc comment (skills/social-x-posting/cli.ts) for the
+// algo-shaping rationale and the pre-existing (not newly introduced) spacing gap.
+import { likeByTargetId } from "../social-x-posting/cli.ts";
+// arc-x-research-channel Phase 5 (2026-07-13): the research-store bridge — every finalized
+// report ALSO lands as a research_nugget row (join key: source_url/content_hash), so the
+// rubric-scored HN/RSS/GitHub-release store and this live research/INDEX.md spine stop being
+// two disagreeing stores. See src/nugget-bridge.ts's module header for the full contract.
+import { bridgeReportToNuggets } from "../../src/nugget-bridge.ts";
 import {
   parseFrontmatter,
   serializeFrontmatter,
@@ -31,19 +58,37 @@ const SIGNAL_FILING_DISABLED = true;
 // Unknown topics drift the catalog. TOPIC_VOCAB defines the canonical set;
 // the reindex pass warns on out-of-vocab topics (non-blocking).
 // The research-to-SKU pipeline (P10B) will expand this set per batch.
+// Audit 2026-07-14 (#22552) found 134/reports with out-of-vocab topics; the top ~30 by
+// frequency (>=3 uses) are genuine recurring beats, added below with a canonical spelling
+// (hyphenated, singular form) — prefer these over near-synonyms in new reports (e.g.
+// "claude-code" not "claude code"/"claude", "autonomous-agents" not "agentic"/"ai-agents",
+// "competitive-intel" not "competitive-intelligence"). Long-tail one-off topics are left
+// out-of-vocab intentionally; the warning is non-blocking and chasing every one-off spelling
+// isn't worth the vocab bloat.
 const TOPIC_VOCAB = new Set([
   // agent harness & architecture
   "agent-harness", "agent-runtime", "agent-architecture", "dispatch-loop",
   "task-queue", "state-machine", "memory", "feedback-loop",
+  "dispatch-architecture", "dispatch-resilience", "context-budget",
+  "escalation-ladder", "fleet", "harness-engineering", "agent-memory",
+  "agent-safety", "feedback-subsystem", "orchestration",
   // bitcoin & stacks
   "bitcoin", "stacks", "clarity", "smart-contracts", "sbtc", "l2",
   "lightning", "ordinals", "runes", "bns",
+  "bitcoin-privacy", "bitcoin-macro", "surveillance", "chainalysis",
+  "soft-fork", "op-return",
   // monetization & x402
   "x402", "monetization", "payments", "whop", "subscription",
+  "stablecoins", "agentic-economy", "irreversible-actions",
   // tooling
   "testing", "verification", "ci-cd", "deployment", "monitoring",
   // research
   "llm", "prompt-engineering", "tool-use", "rag", "multi-agent",
+  "mcp", "claude-code", "anthropic", "loop-engineering",
+  "autonomous-agents", "ai-coding-agents", "competitive-intel",
+  "agent-skills", "vibe-coding", "self-improving-agents",
+  "model-routing", "cost-optimization", "eval-scoring", "langgraph",
+  "verifiers",
 ]);
 
 /** Return topics that are NOT in TOPIC_VOCAB (for reindex warnings). */
@@ -191,7 +236,9 @@ function extractSectionUrls(readmeContent: string, sectionName: string): string[
 }
 
 async function fetchFullReadme(owner: string, repo: string): Promise<string | null> {
-  const proc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+  // Outage-hardening (2026-07-19, p9): bound gh calls so a network hang can't wedge the
+  // dispatched task indefinitely (audit gap found alongside the 2026-07-17->07-19 outage).
+  const proc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"], { timeout: 30_000 });
   if (proc.exitCode !== 0) return null;
   const b64 = proc.stdout.toString().trim();
   try {
@@ -333,6 +380,8 @@ async function xApiGetBearer(
   bearerToken: string,
   queryParams: Record<string, string> = {}
 ): Promise<Record<string, unknown> | null> {
+  await checkReadBudget(READ_COST_USD); // throws when the daily budget is spent — callers degrade
+
   const baseUrl = `https://api.x.com/2${endpoint}`;
   const url = Object.keys(queryParams).length > 0
     ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
@@ -344,7 +393,14 @@ async function xApiGetBearer(
   });
 
   if (!response.ok) return null;
-  return (await response.json()) as Record<string, unknown>;
+  // Every call here is a single `/tweets/{id}` lookup — 1 resource per call either
+  // way — but bill via billResourceRead with that resource's own id so a same-UTC-
+  // day re-fetch of the SAME tweet (retry/replay/re-research) is free instead of
+  // re-billing every time.
+  const json = (await response.json()) as Record<string, unknown>;
+  const tweetId = ((json["data"] as Record<string, unknown> | undefined)?.["id"]);
+  await billResourceRead(READ_COST_USD, "link-research", tweetId != null ? [String(tweetId)] : undefined);
+  return json;
 }
 
 async function xApiGet(
@@ -352,6 +408,8 @@ async function xApiGet(
   creds: XOAuthCreds,
   queryParams: Record<string, string> = {}
 ): Promise<Record<string, unknown> | null> {
+  await checkReadBudget(READ_COST_USD); // throws when the daily budget is spent — callers degrade
+
   const baseUrl = `https://api.x.com/2${endpoint}`;
   const url = Object.keys(queryParams).length > 0
     ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
@@ -390,7 +448,11 @@ async function xApiGet(
     return null;
   }
 
-  return (await response.json()) as Record<string, unknown>;
+  // Same per-id dedup as xApiGetBearer above — see its comment.
+  const json = (await response.json()) as Record<string, unknown>;
+  const tweetId = ((json["data"] as Record<string, unknown> | undefined)?.["id"]);
+  await billResourceRead(READ_COST_USD, "link-research", tweetId != null ? [String(tweetId)] : undefined);
+  return json;
 }
 
 // Extract tweet ID from x.com or twitter.com URLs
@@ -404,42 +466,27 @@ interface TweetPrescreen {
   reason: string | null;
 }
 
-// Lightweight existence check: minimal fields, no content fetch needed.
+// Lightweight existence check via X's FREE oEmbed endpoint — no auth, no credits, $0
+// (2026-07-12 rework, operator direction: the prescreen's job is filtering dead links
+// before wasting dispatch cycles — the original paid /tweets/:id lookup made every
+// SUCCESS path cost two reads; oEmbed answers the same question by HTTP status:
+// 200 = public tweet exists, 404 = deleted/not found, 403 = protected).
 // Returns accessible=true if we can't determine status (avoids false positives).
-async function prescreenTweet(tweetId: string): Promise<TweetPrescreen> {
-  const params = { "tweet.fields": "id" };
-  let data: Record<string, unknown> | null = null;
-
+async function prescreenTweet(tweetUrl: string): Promise<TweetPrescreen> {
   try {
-    const xCreds = await loadXCreds();
-    if (xCreds) {
-      data = await xApiGet(`/tweets/${tweetId}`, xCreds, params);
-    } else {
-      const bearerToken = await loadBearerToken();
-      if (!bearerToken) return { accessible: true, reason: null };
-      data = await xApiGetBearer(`/tweets/${tweetId}`, bearerToken, params);
-    }
+    const response = await fetch(
+      `https://publish.x.com/oembed?url=${encodeURIComponent(tweetUrl)}`,
+      { redirect: "follow", signal: AbortSignal.timeout(10000) },
+    );
+    if (response.ok) return { accessible: true, reason: null };
+    if (response.status === 404) return { accessible: false, reason: "tweet deleted or not found" };
+    if (response.status === 403) return { accessible: false, reason: "tweet protected or private" };
+    // Anything else (5xx, rate-limit, oEmbed outage) — lenient default, let the fetch decide.
+    return { accessible: true, reason: null };
   } catch (e) {
-    process.stderr.write(`prescreen lenient-default for ${tweetId}: ${(e as Error).message}\n`);
+    process.stderr.write(`prescreen lenient-default for ${tweetUrl}: ${(e as Error).message}\n`);
     return { accessible: true, reason: null };
   }
-
-  if (!data) return { accessible: false, reason: "API returned HTTP error" };
-
-  // If response has no data key, tweet is inaccessible (deleted or protected)
-  if (!data["data"]) {
-    const errors = data["errors"] as Array<Record<string, unknown>> | undefined;
-    const title = (errors?.[0]?.["title"] as string) || "inaccessible";
-    if (title.toLowerCase().includes("not found")) {
-      return { accessible: false, reason: "tweet deleted or not found" };
-    }
-    if (title.toLowerCase().includes("authorization")) {
-      return { accessible: false, reason: "tweet protected or private" };
-    }
-    return { accessible: false, reason: title };
-  }
-
-  return { accessible: true, reason: null };
 }
 
 async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; skipped: Array<{ url: string; reason: string }> }> {
@@ -449,6 +496,16 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
   for (const url of urls) {
     const tweetId = parseTweetUrl(url);
     if (tweetId) {
+      // Cache short-circuit (2026-07-12 spend-leak fix): a tweet already in the content
+      // cache was accessible when fetched — no need to prescreen it again. (Historical:
+      // prescreen was a PAID /tweets/:id read until 2026-07-12, so this leaked $0.005
+      // per X URL on every re-run of a cached batch; prescreen is now free oEmbed, and
+      // this short-circuit still saves the network round-trip.)
+      const cached = await getCached(url);
+      if (cached) {
+        accessible.push(url);
+        continue;
+      }
       xItems.push({ url, tweetId });
     } else {
       accessible.push(url);
@@ -458,8 +515,8 @@ async function prescreenXUrls(urls: string[]): Promise<{ accessible: string[]; s
   if (xItems.length === 0) return { accessible, skipped: [] };
 
   const checks = await Promise.allSettled(
-    xItems.map(async ({ url, tweetId }) => {
-      const result = await prescreenTweet(tweetId);
+    xItems.map(async ({ url }) => {
+      const result = await prescreenTweet(url);
       return { url, ...result };
     })
   );
@@ -514,7 +571,8 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     if (rest.startsWith("pull/") || rest.startsWith("issues/")) {
       const number = rest.split("/")[1];
       const type = rest.startsWith("pull/") ? "pr" : "issue";
-      const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"]);
+      // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+      const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"], { timeout: 30_000 });
       if (proc.exitCode === 0) {
         const data = JSON.parse(proc.stdout.toString());
         const title = data.title || `${owner}/${repo}#${number}`;
@@ -524,14 +582,16 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
         throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
       }
     } else {
-      const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"]);
+      // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+      const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"], { timeout: 30_000 });
       if (proc.exitCode === 0) {
         const data = JSON.parse(proc.stdout.toString());
         const title = data.name || `${owner}/${repo}`;
         const topics = (data.repositoryTopics || []).map((t: { name: string }) => t.name);
         let content = `Repo: ${owner}/${repo}\nDescription: ${data.description || ""}\nTopics: ${topics.join(", ")}\nStars: ${data.stargazerCount || 0}`;
 
-        const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+        // Outage-hardening (2026-07-19, p9): bound gh calls (see fetchFullReadme above).
+        const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"], { timeout: 30_000 });
         if (readmeProc.exitCode === 0) {
           const b64 = readmeProc.stdout.toString().trim();
           try {
@@ -791,7 +851,14 @@ async function fetchAndAnalyze(url: string): Promise<{ analysis: LinkAnalysis; e
 
 // ---- Subcommands ----
 
-async function cmdProcess(args: string[]): Promise<void> {
+// Exported (Phase 5, arc-x-research-channel) so the research-store bridge can be exercised
+// directly in isolation via `bun -e "import{initDatabase}from './src/db.ts';initDatabase();
+// import{cmdProcess}from './skills/arc-link-research/cli.ts';await cmdProcess([...])"` —
+// same reuse pattern already used elsewhere in this codebase (src/follow-policy.ts dynamically
+// imports `addListMember`/`resolveUserId` from skills/social-x-posting/cli.ts). cmdSkillsRun
+// (src/cli.ts) still spawns this file as its own subprocess for normal dispatch — that path is
+// unchanged.
+export async function cmdProcess(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.links) {
@@ -937,79 +1004,211 @@ async function cmdProcess(args: string[]): Promise<void> {
     packaged: false,
   };
 
-  const lines: string[] = [
-    `# Research Report — ${timestamp}`,
-    "",
-    `**Links analyzed:** ${results.length}`,
-    `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
-    ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
-    "",
-    "---",
-    "",
-  ];
+  // Anti-slop skip path (2026-07-14, #22556): when every link in the batch is
+  // mechanically rated "low" (fm.arc_relevance caps at 1 — see relevanceToNumber),
+  // a full report with takeaways/summary sections is pure shelf noise. Write a
+  // compact one-line-per-link skip note instead. Front-matter is unchanged so
+  // dedup (`check`) and the catalog (`reindex`) still work off it.
+  const allLow = counts.high === 0 && counts.medium === 0;
 
-  for (const r of results) {
-    lines.push(`## ${r.title}`);
-    lines.push("");
-    lines.push(`**URL:** ${r.url}`);
-    if (r.fetchError) {
-      lines.push(`**Fetch error:** ${r.fetchError}`);
-    }
-    lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
-    lines.push("");
-    lines.push("### Key Takeaways");
-    for (const t of r.takeaways) {
-      lines.push(`- ${t}`);
+  let lines: string[];
+  if (allLow) {
+    lines = [
+      `# Research Report — ${timestamp} (skipped: low relevance)`,
+      "",
+      `**Links analyzed:** ${results.length} — all low relevance, skip note only`,
+      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
+      "",
+      "---",
+      "",
+    ];
+    for (const r of results) {
+      lines.push(`- ${r.url} — ${r.justification || "low relevance"}`);
     }
     lines.push("");
-    lines.push("---");
-    lines.push("");
-  }
+  } else {
+    lines = [
+      `# Research Report — ${timestamp}`,
+      "",
+      `**Links analyzed:** ${results.length}`,
+      `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
+      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
+      "",
+      "---",
+      "",
+    ];
 
-  if (skippedTweets.length > 0) {
-    lines.push("## Skipped (Inaccessible X Links)");
+    for (const r of results) {
+      lines.push(`## ${r.title}`);
+      lines.push("");
+      lines.push(`**URL:** ${r.url}`);
+      if (r.fetchError) {
+        lines.push(`**Fetch error:** ${r.fetchError}`);
+      }
+      lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
+      lines.push("");
+      lines.push("### Key Takeaways");
+      for (const t of r.takeaways) {
+        lines.push(`- ${t}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    if (skippedTweets.length > 0) {
+      lines.push("## Skipped (Inaccessible X Links)");
+      lines.push("");
+      for (const s of skippedTweets) {
+        lines.push(`- ${s.url} — ${s.reason}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    if (embeddedUrlAudit.length > 0) {
+      lines.push("## Embedded URL Audit");
+      lines.push("");
+      lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
+      lines.push("");
+      for (const entry of embeddedUrlAudit) {
+        lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
+      }
+      lines.push("");
+      lines.push("---");
+      lines.push("");
+    }
+
+    lines.push("## Summary");
     lines.push("");
-    for (const s of skippedTweets) {
-      lines.push(`- ${s.url} — ${s.reason}`);
+    lines.push("### Mission Relevance");
+    if (counts.high > 0) {
+      const highLinks = results.filter((r) => r.relevance === "high");
+      lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
+    }
+    if (counts.medium > 0) {
+      const medLinks = results.filter((r) => r.relevance === "medium");
+      lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
+    }
+    if (counts.low > 0) {
+      lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
     }
     lines.push("");
-    lines.push("---");
-    lines.push("");
   }
-
-  if (embeddedUrlAudit.length > 0) {
-    lines.push("## Embedded URL Audit");
-    lines.push("");
-    lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
-    lines.push("");
-    for (const entry of embeddedUrlAudit) {
-      lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
-    }
-    lines.push("");
-    lines.push("---");
-    lines.push("");
-  }
-
-  lines.push("## Summary");
-  lines.push("");
-  lines.push("### Mission Relevance");
-  if (counts.high > 0) {
-    const highLinks = results.filter((r) => r.relevance === "high");
-    lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
-  }
-  if (counts.medium > 0) {
-    const medLinks = results.filter((r) => r.relevance === "medium");
-    lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
-  }
-  if (counts.low > 0) {
-    lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
-  }
-  lines.push("");
 
   const report = serializeFrontmatter(fm) + "\n" + lines.join("\n");
   await Bun.write(filepath, report);
 
   process.stdout.write(`Report written: research/${filename}\n`);
+
+  // ---- Follow-policy hook (arc-x-research-channel Phase 4, 2026-07-13) ----
+  // "Arc follows every account whose research we like — and definitely every
+  // account whose research we USE" (operator-locked). "USE" = the link made it
+  // into this report at medium-or-high relevance (not filtered out as "low").
+  // X-sourced results carry `@handle: ` as the title prefix (set above, ~line
+  // 611, `title = \`@${authorUsername}: ${displayText...}\``) — this is the
+  // ONLY signal this hook has for "which results are X-sourced," an implicit
+  // string contract with that title-building code (dev-council/Hohpe-style
+  // concern, disclosed in the Phase 4 verify artifact, not hardened this
+  // phase — same class of finding as Phase 3's discovery_context packing).
+  // Best-effort: a promotion hiccup must NEVER fail a report that's already
+  // written to disk.
+  //
+  // dev-council 2026-07-13 (Hohpe + Fowler, both independently CONFIRMED): the
+  // author-resolution fallback above (~line 618, `authorUsername = author?.
+  // ["username"] || "unknown"`) can produce a literal title of `@unknown: ...`
+  // when X's author lookup misses — that string cheerfully matches
+  // `/^@(\w+):/` and would promote+resolve+follow a junk "unknown" handle,
+  // spending a real metered read and a real follow write on nothing. Filtered
+  // out explicitly, not silently relying on resolveUserId's not-found path
+  // (which would still cost the read before failing).
+  //
+  // dev-council (Newman, CONFIRMED): nothing previously bounded how many
+  // follow-writes ONE `process` invocation could trigger — a batch with many
+  // new X sources could drain the entire shared 20/day follow budget in one
+  // report, starving every other follow consumer that day. Capped here.
+  const MAX_FOLLOWS_PER_PROCESS_RUN = 5;
+  let followAttemptsThisRun = 0;
+  // Phase 7: same per-run discipline for likes as follows (Newman's original follow-cap
+  // finding applies identically — an unbounded like-writer in one batch could drain the
+  // whole shared BUDGET_LIMITS.likes=50/day cap for every other like consumer that day).
+  const MAX_LIKES_PER_PROCESS_RUN = 5;
+  let likeAttemptsThisRun = 0;
+  for (const r of results) {
+    if (r.relevance === "low") continue;
+    const m = r.title.match(/^@(\w+):/);
+    if (!m) continue;
+    const handle = m[1];
+    if (handle.toLowerCase() === "unknown") {
+      process.stdout.write(`[follow-policy] skipping literal "@unknown" (author-resolution fallback, not a real handle)\n`);
+      continue;
+    }
+    if (followAttemptsThisRun >= MAX_FOLLOWS_PER_PROCESS_RUN) {
+      process.stdout.write(`[follow-policy] @${handle}: per-run follow-policy cap (${MAX_FOLLOWS_PER_PROCESS_RUN}) reached this process call — skipping remaining candidates this run\n`);
+      continue;
+    }
+    followAttemptsThisRun++;
+    try {
+      const promo = await promoteResearchSourceHandle(handle, {
+        log: (message) => process.stdout.write(`[follow-policy] ${message}\n`),
+      });
+      process.stdout.write(
+        `[follow-policy] @${handle}: promoted=${promo.promoted} listAdded=${promo.listAdded} followAttempted=${promo.followAttempted} followed=${promo.followed}${promo.reason ? ` reason=${promo.reason}` : ""}\n`,
+      );
+    } catch (e) {
+      process.stdout.write(`[follow-policy] @${handle}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+    }
+
+    // ---- Like the source tweet (arc-x-research-channel Phase 7, 2026-07-13) ----
+    // Best-effort, same medium/high-relevance + X-sourced gate as the follow-policy hook
+    // above (a link only reaches this point if r.relevance !== "low" and its title carries
+    // the "@handle:" prefix set for X-sourced results). Algo-shaping rationale + the
+    // pre-existing (not newly introduced) inter-send-spacing gap are documented on
+    // likeByTargetId itself (skills/social-x-posting/cli.ts). Never fails an
+    // already-written report — same never-throws contract as the follow-policy call above.
+    const tweetId = parseTweetUrl(r.url);
+    if (tweetId && likeAttemptsThisRun < MAX_LIKES_PER_PROCESS_RUN) {
+      likeAttemptsThisRun++;
+      try {
+        const likeResult = await likeByTargetId(tweetId);
+        if (likeResult.ok) {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: liked=${likeResult.liked}\n`);
+        } else if (likeResult.deferred) {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: deferred — daily likes budget cap reached (normal, not a failure)\n`);
+        } else {
+          process.stdout.write(`[like-policy] tweet ${tweetId}: like failed — ${likeResult.error ?? likeResult.status}\n`);
+        }
+      } catch (e) {
+        process.stdout.write(`[like-policy] tweet ${tweetId}: hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+      }
+    } else if (tweetId) {
+      process.stdout.write(`[like-policy] tweet ${tweetId}: per-run like cap (${MAX_LIKES_PER_PROCESS_RUN}) reached this process call — skipping\n`);
+    }
+  }
+
+  // ---- Research-store bridge (arc-x-research-channel Phase 5, 2026-07-13) ----
+  // Every link in this report lands as a research_nugget row too (join key: source_url /
+  // content_hash) — the shared spine with the HN/RSS/GitHub-release producers'
+  // research_nugget store. Best-effort: never fails an already-written report (see
+  // src/nugget-bridge.ts's own try/catch-per-link contract; this call site can't throw).
+  try {
+    const bridgeSummary = bridgeReportToNuggets({
+      reportPath: `research/${filename}`,
+      fetchedAt: timestamp,
+      results: results.map((r) => ({
+        url: r.url,
+        title: r.title,
+        relevance: r.relevance,
+        takeaways: r.takeaways,
+      })),
+    });
+    process.stdout.write(
+      `[nugget-bridge] ${bridgeSummary.inserted} inserted, ${bridgeSummary.updated} updated, ${bridgeSummary.faninAdded} fan-in, ${bridgeSummary.errors} errors\n`,
+    );
+  } catch (e) {
+    process.stdout.write(`[nugget-bridge] hook threw (non-fatal, report already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+  }
 
   // Keep the catalog current — best-effort so a reindex hiccup never fails the run.
   try {

@@ -40,17 +40,19 @@ const USAGE = {
     'arc tasks add --subject TEXT --model MODEL|auto [--description TEXT] [--priority N] [--source TEXT]\n' +
     '              [--skills SKILL1,SKILL2] [--parent ID] [--script "COMMAND"] [--file PATH]\n' +
     '              [--max-retries N (HANDOFF threshold, default 7)]\n' +
+    '              [--stop-condition TEXT (declared WHEN-TO-STOP condition, checked at close)]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]\n' +
     '              (--model auto runs the task-type classifier to pick devstral/glm/haiku/sonnet/opus;\n' +
     '               --file names the target file explicitly when the subject is phrased around a\n' +
     '               skill/CLI name instead of a literal path, e.g. --file skills/foo/cli.ts)',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending] [--stop-condition TEXT]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT [--quality 1-5]',
   tasksDeps: 'arc tasks deps --id N',
   tasksLink: 'arc tasks link --from N --to M --type blocks|related|discovered-from',
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
+  tasksCost: 'arc tasks cost [--days N] [--top N]',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
 } as const;
@@ -326,6 +328,7 @@ async function cmdTasksAdd(args: string[]): Promise<void> {
     scheduled_for: scheduledFor,
     script: scriptFlag,
     max_retries: maxRetries,
+    stop_condition: flags["stop-condition"],
   });
 
   if (scheduledFor) {
@@ -374,6 +377,15 @@ function cmdTasksClose(args: string[]): void {
     process.exit(1);
   }
 
+  if (task.status === "completed" || task.status === "failed") {
+    process.stderr.write(
+      `Error: task #${id} is already terminal (status=${task.status}). ` +
+        `Re-closing would reset completed_at and can cause it to reappear in time-windowed reports ` +
+        `(e.g. the daily failure retrospective). Write any new insight to memory/MEMORY.md instead.\n`
+    );
+    process.exit(1);
+  }
+
   if (status === "completed") {
     markTaskCompleted(id, summary, undefined, quality);
   } else if (status === "blocked") {
@@ -400,6 +412,7 @@ function cmdTasksUpdate(args: string[]): void {
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
   const model = flags["model"] ?? undefined;
   const status = flags["status"] ?? undefined;
+  const stopCondition = flags["stop-condition"] ?? undefined;
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
@@ -411,9 +424,9 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined) {
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined && stopCondition === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, --priority, --model, or --status is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, --model, --status, or --stop-condition is required\n" + usage
     );
     process.exit(1);
   }
@@ -426,8 +439,8 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined) {
-    updateTask(id, { subject, description, priority, model });
+  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined || stopCondition !== undefined) {
+    updateTask(id, { subject, description, priority, model, stop_condition: stopCondition });
   }
   if (status === "pending") {
     requeueTask(id);
@@ -438,6 +451,7 @@ function cmdTasksUpdate(args: string[]): void {
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
   if (model !== undefined) updated.push("model");
+  if (stopCondition !== undefined) updated.push("stop_condition");
   if (status !== undefined) updated.push("status → pending");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
 }
@@ -531,6 +545,112 @@ function cmdTasksUnlink(args: string[]): void {
   process.stdout.write(`Unlinked: #${fromId} --[${depType}]--> #${toId}\n`);
 }
 
+function cmdTasksCost(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const days = flags["days"] ? parseInt(flags["days"], 10) : 1;
+  const top = flags["top"] ? parseInt(flags["top"], 10) : 5;
+
+  if (isNaN(days) || days < 1) {
+    process.stderr.write(`Error: --days must be a positive integer\nUsage: ${USAGE.tasksCost}\n`);
+    process.exit(1);
+  }
+  if (isNaN(top) || top < 1) {
+    process.stderr.write(`Error: --top must be a positive integer\nUsage: ${USAGE.tasksCost}\n`);
+    process.exit(1);
+  }
+
+  const db = initDatabase();
+  const window = `-${days} days`;
+
+  const summary = db
+    .query(
+      `SELECT COALESCE(SUM(cost_usd), 0) as total_cost,
+              COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
+              COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
+              COUNT(*) as task_count
+       FROM tasks WHERE created_at >= datetime('now', ?)`
+    )
+    .get(window) as { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number };
+
+  const topByCost = db
+    .query(
+      `SELECT id, subject, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens, model
+       FROM tasks WHERE created_at >= datetime('now', ?) AND cost_usd > 0
+       ORDER BY cost_usd DESC LIMIT ?`
+    )
+    .all(window, top) as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
+
+  const topByModel = db
+    .query(
+      `SELECT COALESCE(model, 'unknown') as model,
+              COALESCE(SUM(cost_usd), 0) as total_cost,
+              COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
+              COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
+              COUNT(*) as task_count
+       FROM tasks WHERE created_at >= datetime('now', ?) AND cost_usd > 0
+       GROUP BY model ORDER BY total_cost DESC LIMIT ?`
+    )
+    .all(window, top) as Array<{ model: string; total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>;
+
+  const topSkills = db
+    .query(
+      `SELECT skills,
+              COALESCE(SUM(cost_usd), 0) as total_cost,
+              COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
+              COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
+              COUNT(*) as task_count
+       FROM tasks WHERE created_at >= datetime('now', ?) AND cost_usd > 0
+       GROUP BY skills ORDER BY total_cost DESC LIMIT ?`
+    )
+    .all(window, top) as Array<{ skills: string | null; total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>;
+
+  process.stdout.write(
+    `## Cost report — last ${days}d\n\n` +
+    `Total: Code $${summary.total_cost.toFixed(4)} | API est. $${summary.total_api_cost.toFixed(4)} | ` +
+    `${(summary.total_tokens / 1000).toFixed(1)}k tokens | ${summary.task_count} tasks\n\n`
+  );
+
+  if (topByCost.length > 0) {
+    process.stdout.write(`### Top ${top} tasks by cost\n`);
+    for (const t of topByCost) {
+      process.stdout.write(
+        `- #${t.id} Code $${t.cost_usd.toFixed(4)} (API $${t.api_cost_usd.toFixed(4)}) [${t.model ?? "unknown"}] — ${truncate(t.subject, 60)}\n`
+      );
+    }
+    process.stdout.write("\n");
+  }
+
+  if (topByModel.length > 0) {
+    process.stdout.write(`### Top ${top} models by cost\n`);
+    for (const m of topByModel) {
+      process.stdout.write(
+        `- ${m.model}: Code $${m.total_cost.toFixed(4)} (API $${m.total_api_cost.toFixed(4)}) | ` +
+        `${(m.total_tokens / 1000).toFixed(1)}k tokens | ${m.task_count} tasks\n`
+      );
+    }
+    process.stdout.write("\n");
+  }
+
+  if (topSkills.length > 0) {
+    process.stdout.write(`### Top ${top} skills by cost\n`);
+    for (const s of topSkills) {
+      let label = "(none)";
+      if (s.skills) {
+        try {
+          label = (JSON.parse(s.skills) as string[]).join(", ");
+        } catch {
+          label = s.skills;
+        }
+      }
+      process.stdout.write(
+        `- ${label}: Code $${s.total_cost.toFixed(4)} (API $${s.total_api_cost.toFixed(4)}) | ` +
+        `${(s.total_tokens / 1000).toFixed(1)}k tokens | ${s.task_count} tasks\n`
+      );
+    }
+    process.stdout.write("\n");
+  }
+}
+
 function cmdTasks(args: string[]): void {
   const sub = args[0];
   if (sub === "add") {
@@ -545,6 +665,8 @@ function cmdTasks(args: string[]): void {
     cmdTasksLink(args.slice(1));
   } else if (sub === "unlink") {
     cmdTasksUnlink(args.slice(1));
+  } else if (sub === "cost") {
+    cmdTasksCost(args.slice(1));
   } else {
     cmdTasksList(args);
   }
@@ -954,6 +1076,10 @@ COMMANDS
 
   ${USAGE.tasksUnlink}
     Remove a dependency link between two tasks.
+
+  ${USAGE.tasksCost}
+    Read-only cost breakdown: totals plus top tasks/models/skills by cost.
+    --days defaults to 1 (i.e. today), --top defaults to 5.
 
   creds list
     List stored credentials (service/key names only, no values).

@@ -1,0 +1,102 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "How many lines of MEMORY.md does Claude Code inject at session start before silently dropping the rest?",
+      "question_type": "multiple_choice",
+      "correct_answer": "~200 lines",
+      "options": [
+        {
+          "option_text": "~200 lines",
+          "is_correct": true
+        },
+        {
+          "option_text": "~50 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "~1000 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "There is no limit",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "How many lines was Arc's own MEMORY.md when this report was written?",
+      "question_type": "multiple_choice",
+      "correct_answer": "192 lines",
+      "options": [
+        {
+          "option_text": "192 lines",
+          "is_correct": true
+        },
+        {
+          "option_text": "50 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "300 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "8 lines",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to the report, the correct fix for memory bloat is to stop saving new memories.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "What is the report's recommended fix instead of simply stopping saving memories?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Sort memories into hot (always-injected rules) and cold (on-demand facts)",
+      "options": [
+        {
+          "option_text": "Sort memories into hot (always-injected rules) and cold (on-demand facts)",
+          "is_correct": true
+        },
+        {
+          "option_text": "Delete all memory files weekly",
+          "is_correct": false
+        },
+        {
+          "option_text": "Increase the context window",
+          "is_correct": false
+        },
+        {
+          "option_text": "Store everything in a single flat file",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What threshold does Arc's own memory patterns note for recent.log, which the report finds is already exceeded?",
+      "question_type": "multiple_choice",
+      "correct_answer": "500 lines",
+      "options": [
+        {
+          "option_text": "500 lines",
+          "is_correct": true
+        },
+        {
+          "option_text": "100 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "2000 lines",
+          "is_correct": false
+        },
+        {
+          "option_text": "50 lines",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

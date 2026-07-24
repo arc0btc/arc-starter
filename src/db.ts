@@ -38,6 +38,7 @@ export interface Task {
   escalation_rung: string;       // ARC-0011: REFINE|PIVOT|WEB-SEARCH|HANDOFF
   pivot_count: number;           // ARC-0011: number of PIVOT transitions
   dead_ends: string | null;      // ARC-0011: JSON array of {approach, reason, attempt}
+  stop_condition: string | null; // loop-first workflow pattern: declared WHEN-TO-STOP condition
 }
 
 export interface InsertTask {
@@ -54,6 +55,7 @@ export interface InsertTask {
   assigned_to?: string | null;
   script?: string | null;
   max_retries?: number;          // ARC-0011: HANDOFF threshold (default 3 in schema, 7 for new CLI tasks)
+  stop_condition?: string | null; // loop-first workflow pattern: declared WHEN-TO-STOP condition
 }
 
 export interface CycleLog {
@@ -244,6 +246,75 @@ export function toSqliteDatetime(date: Date): string {
   return date.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
 }
 
+/**
+ * One-time rebuild: tasks.id was a bare INTEGER PRIMARY KEY (rowid alias, no AUTOINCREMENT),
+ * so a vanished row's id could be silently reused by the next unrelated insert (see #22270 —
+ * a reused id caused dispatch to misattribute a brand-new task's row to a prior task's closure
+ * and re-dispatch it). SQLite can't ALTER TABLE to add AUTOINCREMENT to an existing column, so
+ * this does a full table rebuild: create tasks_new with AUTOINCREMENT, copy rows (explicit ids
+ * preserved — verified empirically that sqlite_sequence tracks the max explicit id inserted,
+ * so no manual sqlite_sequence seeding is needed), drop old, rename. Idempotent: checks the
+ * live schema text for "AUTOINCREMENT" and no-ops if already migrated. Runs before the index
+ * block below, which recreates the indexes dropped along with the old table.
+ */
+function migrateTasksTableAutoincrement(db: Database): void {
+  const row = db
+    .query("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+    .get() as { sql: string } | null;
+  if (row === null || row.sql.includes("AUTOINCREMENT")) return;
+
+  const columns = [
+    "id", "subject", "description", "skills", "priority", "status", "source",
+    "parent_id", "template", "scheduled_for", "created_at", "started_at",
+    "completed_at", "result_summary", "result_detail", "cost_usd", "api_cost_usd",
+    "tokens_in", "tokens_out", "attempt_count", "max_retries", "model",
+    "assigned_to", "result_quality", "script", "escalation_rung", "pivot_count",
+    "dead_ends", "stop_condition",
+  ];
+  const columnList = columns.join(", ");
+
+  const rebuild = db.transaction(() => {
+    db.run(`
+      CREATE TABLE tasks_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject TEXT NOT NULL,
+        description TEXT,
+        skills TEXT,
+        priority INTEGER DEFAULT 5,
+        status TEXT DEFAULT 'pending',
+        source TEXT,
+        parent_id INTEGER,
+        template TEXT,
+        scheduled_for TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        started_at TEXT,
+        completed_at TEXT,
+        result_summary TEXT,
+        result_detail TEXT,
+        cost_usd REAL DEFAULT 0,
+        api_cost_usd REAL DEFAULT 0,
+        tokens_in INTEGER DEFAULT 0,
+        tokens_out INTEGER DEFAULT 0,
+        attempt_count INTEGER DEFAULT 0,
+        max_retries INTEGER DEFAULT 3,
+        model TEXT,
+        assigned_to TEXT,
+        result_quality INTEGER,
+        script TEXT,
+        escalation_rung TEXT DEFAULT 'REFINE',
+        pivot_count INTEGER DEFAULT 0,
+        dead_ends TEXT,
+        stop_condition TEXT,
+        FOREIGN KEY (parent_id) REFERENCES tasks(id)
+      )
+    `);
+    db.run(`INSERT INTO tasks_new (${columnList}) SELECT ${columnList} FROM tasks`);
+    db.run("DROP TABLE tasks");
+    db.run("ALTER TABLE tasks_new RENAME TO tasks");
+  });
+  rebuild();
+}
+
 // ---- Database lifecycle ----
 
 export function initDatabase(): Database {
@@ -333,6 +404,11 @@ export function initDatabase(): Database {
   addColumn("tasks", "escalation_rung", "TEXT DEFAULT 'REFINE'");
   addColumn("tasks", "pivot_count", "INTEGER DEFAULT 0");
   addColumn("tasks", "dead_ends", "TEXT");
+  // loop-first workflow pattern (Boris Cherny / Raytar): declared WHEN-TO-STOP condition,
+  // set at creation, distinct from status flags. Optional — null means no declared condition.
+  addColumn("tasks", "stop_condition", "TEXT");
+
+  migrateTasksTableAutoincrement(db);
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -778,6 +854,49 @@ export function pendingTaskExistsForSourcePrefix(prefix: string): boolean {
   return row !== null;
 }
 
+/**
+ * Full sensor-research dispatch lineage count for the last 24h — arc-x-research-channel Phase 8
+ * containment pass. Counts every task rooted at a `sensor:candidate-maturation:%`-sourced task
+ * PLUS all of its descendants (a triage task's own per-topic fan-out, via parent_id), via a
+ * recursive CTE. This is the number that actually drives $ spend under the two-stage
+ * triage->per-topic dispatch model (candidate-maturation/sensor.ts) — counting only top-level
+ * `source LIKE 'sensor:candidate-maturation:%'` rows would undercount to near-1/day once
+ * fan-out is the majority of real dispatch volume.
+ *
+ * SCOPE (dev-council 2026-07-14, CONFIRMED independently by ALL 5 lenses — Fowler, Hohpe,
+ * Kleppmann, Lamport, Newman — the single highest-confidence finding of this pass, live-proven
+ * against the running DB): the first shipped version of this function rooted the CTE on the
+ * BARE `source LIKE 'sensor:%'` prefix, which matches every sensor in the whole fleet (arc-
+ * housekeeping, github-release-watcher, whop-synthesis, arc-reporting-watch, ...), not just
+ * this lane. Live count the day this was caught: 68 fleet-wide vs 26 candidate-maturation-only
+ * — against a cap of 15, the bare-prefix version made the cap-hit branch fire on EVERY run,
+ * silently zeroing out the entire pipeline this phase exists to fix (every survivor marked
+ * matured with no task, no operator-visible signal beyond a log line). Scoped to
+ * `sensor:candidate-maturation:%` — the `parent_id` recursive walk still reaches the triage
+ * task's `task:<id>:<slug>` fan-out children (they descend from a candidate-maturation-sourced
+ * root), so the two-stage counting intent is preserved without dragging in the rest of the fleet.
+ *
+ * WINDOW (dev-council, Kleppmann + Hohpe, CONFIRMED): a rolling 24h window on `created_at`,
+ * not a UTC-calendar-day `date(created_at)=date('now')` bound — the calendar-day version left a
+ * blind spot where a triage task filed near 23:59 UTC has fan-out children created just after
+ * midnight, which fall outside BOTH days' anchor sets. Matches the monitor's own rolling-24h
+ * window (ops/monitor/arc-x-research-channel-health.ts) so the two never disagree at a boundary.
+ */
+export function countSensorResearchDispatchesToday(): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `WITH RECURSIVE lineage(id) AS (
+         SELECT id FROM tasks WHERE source LIKE 'sensor:candidate-maturation:%' AND created_at >= datetime('now', '-24 hours')
+         UNION
+         SELECT t.id FROM tasks t JOIN lineage l ON t.parent_id = l.id
+       )
+       SELECT COUNT(*) as n FROM lineage`
+    )
+    .get() as { n: number };
+  return row.n;
+}
+
 /** Daily cap for aibtc.news signal filing (6 signals/day enforced by publisher). */
 export const DAILY_SIGNAL_CAP = 6;
 
@@ -936,6 +1055,23 @@ export function countCompletedTodayForSourcePrefix(prefix: string): number {
 }
 
 /**
+ * Count root X posts logged today whose source matches the given SQL LIKE pattern.
+ * Used to enforce daily posting caps (e.g. content-calendar x-thread cap).
+ */
+export function countXPostsToday(sourceLikePattern: string): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM x_post_log
+       WHERE date(posted_at) = date('now')
+       AND source LIKE ?
+       AND is_root = 1`
+    )
+    .get(sourceLikePattern) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/**
  * Count PR review tasks created today (all statuses) to enforce daily cap.
  * Counts tasks whose source starts with "pr-review:" created today.
  */
@@ -1028,6 +1164,7 @@ export function insertTask(fields: InsertTask): number {
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
     "source", "parent_id", "template", "model", "assigned_to", "script", "max_retries",
+    "stop_condition",
   ];
 
   for (const col of optionalColumns) {
@@ -1183,6 +1320,7 @@ export interface UpdateTaskFields {
   description?: string | null;
   priority?: number;
   model?: string | null;
+  stop_condition?: string | null;
 }
 
 export function updateTask(id: number, fields: UpdateTaskFields): void {

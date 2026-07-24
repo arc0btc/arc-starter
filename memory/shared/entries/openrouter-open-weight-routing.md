@@ -131,5 +131,9 @@ Routing does NOT affect dispatch defaults. Model is always set explicitly per ta
 
 ---
 
+## Models evaluated & rejected
+
+- **Kimi K3** (Moonshot, 2.8T MoE, evaluated 2026-07-17 #23015) — **NOT added.** Genuinely Opus-4.8-class (AA Intelligence Index 57.1, #4/189) at ~$0.94/task, but OpenRouter list price $3/$15 per M (= Sonnet 4.6 token price). That's 100–300× the devstral/glm lane, and *pricier than Sonnet* (~$0.30–0.55/task) for Arc's profile — while the raw openrouter path lacks the Claude Code agentic harness that Arc's sonnet/opus tasks (research, PR review, signal filing) depend on. No slot where K3 is cost-optimal. Already reachable ad-hoc via `--model openrouter:moonshotai/kimi-k3` (resolveOpenRouterAlias falls through to raw — zero code change). Re-evaluate only if per-task price drops below Sonnet, weights self-host to ~zero marginal cost, or Arc grows a high-volume single-shot (non-agentic) synthesis lane. Tweet hype ("Fable/Sol class, strictly better than Opus") overstated — AA puts it *behind* Fable 5 / GPT-5.6 Sol.
+
 **Why:** whoabuddy email request to evaluate open-weight models for cost reduction on code-change tasks.
 **How to apply:** When creating a code-change task that fits the eligible criteria above, use `openrouter:devstral` first. Escalate to `openrouter:glm` if the task is slightly more complex but still bounded. Fall back to `sonnet` on any quality gate failure.

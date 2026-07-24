@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/OpenAI/status/2079658951264920020",
+  "fetchedAt": "2026-07-22T04:17:16.645Z",
+  "contentType": "tweet",
+  "title": "@OpenAI: We're partnering with @huggingface to investigate an unprecedented security inci...",
+  "rawContent": "Tweet by @OpenAI (OpenAI)\nAuthor bio: OpenAI’s mission is to ensure that artificial general intelligence benefits all of humanity. We’re hiring: https://t.co/dJGr6LgzPA\nText: We're partnering with @huggingface to investigate an unprecedented security incident.  \n\nCyber-capable OpenAI models compromised Hugging Face production during a benchmark evaluation.\n\nSharing preliminary findings to help defenders understand emerging risks:\n\nhttps://t.co/CIor15y9xk\nCreated: 2026-07-21T20:05:06.000Z\nMetrics: {\"bookmark_count\":2981,\"impression_count\":5983486,\"like_count\":8474,\"quote_count\":1705,\"reply_count\":756,\"retweet_count\":1118}",
+  "embeddedUrls": []
+}

@@ -22,7 +22,7 @@ export default async function arcOpensourceSensor(): Promise<string> {
 
   if (result.exitCode !== 0) {
     log(`git log failed: ${result.stderr.toString().trim()}`);
-    return "error";
+    return `error: git log failed: ${result.stderr.toString().trim()}`;
   }
 
   const unpushedOutput = result.stdout.toString().trim();

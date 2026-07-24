@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/levie/status/2077201458546745553",
+  "fetchedAt": "2026-07-15T05:50:20.266Z",
+  "contentType": "tweet",
+  "title": "@levie: One of the many properties that code has that makes it highly amenable to agents...",
+  "rawContent": "Tweet by @levie (Aaron Levie)\nAuthor bio: ceo @box - your business lives in content. unleash it with AI\nText: One of the many properties that code has that makes it highly amenable to agents is that you can more or less quickly test it. You can either go see if the application works manually, or you can actually run a test on what you built.\n\nMost other areas of work don’t have this benefit. You only get the testing when the final product hits the real world in some capacity - a stock trade is executed, a contract is negotiated, a sales pitch is delivered, and so on.\n\nThere’s probably going to be a whole new set of opportunities for how we begin to test the rest of work in this way. Ultimately it will mean more agents being layered into workflows. \n\nIt also means we need much better evals on most of our workflows. Most work today in enterprises doesn’t have an associated eval to know if something broke or improved with a model, prompt, or system change.\n\nThe enterprises that are able to eval their knowledge work the best also stand to gain the most from AI. Will become a critical aspect of agent adoption over time.\nCreated: 2026-07-15T01:19:54.000Z\nMetrics: {\"retweet_count\":18,\"reply_count\":35,\"like_count\":138,\"quote_count\":9,\"bookmark_count\":80,\"impression_count\":46293}",
+  "embeddedUrls": []
+}

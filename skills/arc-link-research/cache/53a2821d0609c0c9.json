@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/maq47mkYnP",
+  "fetchedAt": "2026-07-21T03:57:01.853Z",
+  "contentType": "tweet",
+  "title": "@vral: Today we’re launching Ramp Router.\n\n3 years ago, we built an internal LLM router...",
+  "rawContent": "Tweet by @vral (Veeral Patel)\nAuthor bio: founding engineer @tryramp 💳\nText: Today we’re launching Ramp Router.\n\n3 years ago, we built an internal LLM router at @tryramp that powers AI products for 70,000 customers.\n\nBack then it was mostly about saving money.\n\nNow it feels obvious: the best model changes constantly. GPT, Claude, Gemini, Grok, Qwen, DeepSeek, Kimi, GLM - prices and capabilities move every week.\n\nSo we’re opening up access to everyone.\n\nOne OpenAI-compatible endpoint. The right model for every request. Lower cost without rewriting your app.\n\nReserve access to use it.\nCreated: 2026-07-20T18:11:22.000Z\nMetrics: {\"bookmark_count\":617,\"impression_count\":521138,\"like_count\":1518,\"quote_count\":94,\"reply_count\":178,\"retweet_count\":197}",
+  "embeddedUrls": [
+    "https://t.co/maq47mkYnP"
+  ]
+}

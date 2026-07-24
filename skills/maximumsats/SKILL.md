@@ -8,6 +8,7 @@ tags:
   - wot
   - reputation
   - read-only
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # MaximumSats — Nostr Web of Trust

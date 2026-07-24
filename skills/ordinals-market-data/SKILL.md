@@ -1,17 +1,29 @@
 ---
 name: ordinals-market-data
-description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) — signal filing SUSPENDED (beat scope mismatch)
+description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) — SENSOR DISABLED (no consumer since 2026-03-26)
 tags:
   - ordinals
   - signals
   - publishing
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # Ordinals Market Data
 
 Automated sensor that fetches diverse on-chain and market data, rotating through five categories. Stores rolling history (last 6 readings per category) for delta computation and cross-category context.
 
-**STATUS: Signal filing SUSPENDED.** The original `ordinals` beat was renamed to `agent-trading` (PR #314) with a scope change — agent-trading now requires AIBTC-network-specific data (PSBTs, x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space. Data collection continues for cross-category context. Set `SIGNAL_FILING_SUSPENDED = false` in sensor.ts to re-enable after Arc claims a suitable beat or the sensor is repurposed for AIBTC-network data.
+**STATUS: SENSOR DISABLED (2026-07-17, control-plane-remediation P4, defect-register row 15).**
+Signal filing was already suspended (beat scope mismatch — see below) with no signal queued since
+2026-03-26, but the sensor kept running its full 5-category fetch every 2h with no consumer for the
+collected data. The `$100K competition` this sensor's cadence/fallback logic was built for ended
+2026-04-22, removing that consumer too. `SENSOR_DISABLED = true` in `sensor.ts` now short-circuits
+the whole tick (data collection, not just signal filing, is paused). Reversal: delete the early
+return in `sensor.ts` (and flip `SIGNAL_FILING_SUSPENDED = false` there) once Arc claims a suitable
+beat or the sensor is repurposed for AIBTC-network agent-trading data.
+
+**Original suspension reason (still true):** the `ordinals` beat was renamed to `agent-trading`
+(PR #314) with a scope change — `agent-trading` now requires AIBTC-network-specific data (PSBTs,
+x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space.
 
 ## Data Sources
 

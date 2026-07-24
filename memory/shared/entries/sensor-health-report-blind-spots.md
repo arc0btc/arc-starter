@@ -5,9 +5,13 @@ source: task-21054
 created: 2026-07-04
 ---
 
-`sensor-health-report` (skills/arc-skill-manager/cli.ts `cmdSensorHealthReport`) looked
-clean (85/85 "ok", zero alerts) but two structural blind spots make that reading
-unreliable — audited 2026-07-04, follow-ups filed as #21064 and #21065.
+**[RESOLVED 2026-07-04, reverified 2026-07-11 #22028]** `sensor-health-report`
+(skills/arc-skill-manager/cli.ts `cmdSensorHealthReport`) looked clean (85/85 "ok",
+zero alerts) but two structural blind spots made that reading unreliable — audited
+2026-07-04, fixed same day (#21064 commit e4aa3c80, #21065 commit 3f863b9f). Reverified
+2026-07-11: `src/sensors.ts` (`runSensors()`) does persist `last_result`/`consecutive_failures`
+to hook-state per cycle now; current report shows 86/86 sensors with real `consecutive_failures=0`,
+no alerts, genuinely trustworthy. Original blind-spot description kept below for context.
 
 **1. consecutive_failures / interval_minutes are almost never populated.** `claimSensorRun`
 in `src/sensors.ts` always writes `last_result: 'ok'` unconditionally and never writes

@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/cursor_ai/status/2079360997106618463",
+  "fetchedAt": "2026-07-21T04:07:56.978Z",
+  "contentType": "tweet",
+  "title": "@jonoringer: RT @cursor_ai: We had a team of agents rebuild SQLite from its 835-page manual.\n...",
+  "rawContent": "Tweet by @jonoringer (Jon Oringer)\nAuthor bio: Founder of Shutterstock. Spinning up agents, building network effects, and skipping permissions.\nText: RT @cursor_ai: We had a team of agents rebuild SQLite from its 835-page manual.\n\nIt created a replica in Rust which passed 100% of a held-o…\nCreated: 2026-07-21T00:21:09.000Z\nMetrics: {\"bookmark_count\":0,\"impression_count\":19,\"like_count\":0,\"quote_count\":0,\"reply_count\":0,\"retweet_count\":603}",
+  "embeddedUrls": []
+}

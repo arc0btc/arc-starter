@@ -1,0 +1,25 @@
+{
+  "url": "https://github.com/screenpipe/screenpipe",
+  "fetchedAt": "2026-07-16T00:06:58.390Z",
+  "contentType": "github",
+  "title": "screenpipe",
+  "rawContent": "Repo: screenpipe/screenpipe\nDescription: YC (S26) | AI that knows what you've seen, said, or heard. Records everything you do, say, hear 24/7, local, private, secure. Connect to OpenClaw, Hermes agent and 100+ apps\nTopics: ai, computer-vision, llm, machine-learning, multimodal, agents, agi, audio-recording, local-ai, local-first, privacy, screen-recording, speech-to-text, ycombinator, hermes, hermes-agent, openclaw, ai-memory, mcp, rewind\nStars: 20101\n\nREADME:\n\n<img width=\"1500\" height=\"500\" alt=\"image\" src=\"https://github.com/user-attachments/assets/058a44b8-fcad-4a37-92d8-830167dbd400\" />\n\n\n<p align=\"center\">\n   <a href =\"https://screenpi.pe\">\n      <img src=\"https://github.com/user-attachments/assets/d3b1de26-c3c0-4c84-b9c4-b03213b97a30\" alt=\"logo\" width=\"200\">\n   </a>\n</p>\n\n<h1 align=\"center\">[ screenpipe | YC S26 ]</h1>\n\n\n\n\n<p align=\"center\">screenpipe remembers how you actually work</p>\n<p align=\"center\">It captures what you see, say, and do, locally, then turns real work into searchable memory, SOPs, and automations for AI agents.</p>\n\n\n\n\n<p align=\"center\">\n<a align=\"center\" href=\"https://trendshift.io/repositories/20386\" target=\"_blank\"><img align=\"center\" src=\"https://trendshift.io/api/badge/repositories/20386\" alt=\"screenpipe%2Fscreenpipe | Trendshift\" style=\"width: 250px; height: 55px;\" width=\"250\" height=\"55\"/></a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://screenpi.pe/onboarding\" target=\"_blank\">\n    <img src=\"https://img.shields.io/badge/download-desktop%20app-black?style=for-the-badge\" alt=\"download\">\n  </a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://discord.gg/screenpipe\">\n    <img src=\"https://img.shields.io/discord/823813159592001537?style=for-the-badge&logo=discord&logoColor=white\" alt=\"discord\">\n  </a>\n  <a href=\"https://twitter.com/screenpipe\">\n    <img src=\"https://img.shields.io/twitter/follow/screenpipe?style=for-the-badge&logo=x&logoColor=white&label=follow\" alt=\"twitter\">\n  </a>\n  <a href=\"https://www.youtube.com/@screen_pipe\">\n    <img src=\"https://img.shields.io/youtube/channel/subscribers/UCwjkpAsb70_mENKvy7hT5bw?style=for-the-badge&logo=youtube&logoColor=white&label=subscribers\" alt=\"youtube\">\n  </a>\n</p>\n\n\n\n\n\n![image](https://github.com/user-attachments/assets/5b977f48-0355-498f-a3ba-37e5de3b6c62)\n![image](https://github.com/user-attachments/assets/dec2e07c-b3d5-46dd-9f36-c0c26a82c9fb)\n\n\n---\n\n## news\n\n- 06/10 - **we updated our license to keep screenpipe sustainable** â more funding, more shipping, better product\n- 05/29 - **we released an [alpha version of our AI PII model](https://screenpipe.github.io/screenleak/) outperforming Google, Microsoft, and OpenAI models** on computer recording data and running at 9ms on consumer device\n- 05/14 - **we joined YC S26** \n\n\n\n## what is this?\n\nscreenpipe turns your computer into a personal AI that knows everything you've done. record. search. automate. all local, all private, all yours\n\n```\nâââââââââââââââââââââââââââââââââââââââââââ\nâ  screen + audio â local storage â ai   â\nâââââââââââââââââââââââââââââââââââââââââââ\n```\n\n- **remember everything** - never forget what you saw, heard, or did\n- **run agents that work based on what you do** - pipes are agents triggered by your work activity\n\n<img width=\"360\" height=\"311\" alt=\"image\" src=\"https://github.",
+  "embeddedUrls": [
+    "https://github.com/user-attachments/assets/058a44b8-fcad-4a37-92d8-830167dbd400",
+    "https://screenpi.pe",
+    "https://github.com/user-attachments/assets/d3b1de26-c3c0-4c84-b9c4-b03213b97a30",
+    "https://trendshift.io/repositories/20386",
+    "https://trendshift.io/api/badge/repositories/20386",
+    "https://screenpi.pe/onboarding",
+    "https://img.shields.io/badge/download-desktop%20app-black?style=for-the-badge",
+    "https://discord.gg/screenpipe",
+    "https://img.shields.io/discord/823813159592001537?style=for-the-badge&logo=discord&logoColor=white",
+    "https://img.shields.io/twitter/follow/screenpipe?style=for-the-badge&logo=x&logoColor=white&label=follow",
+    "https://www.youtube.com/@screen_pipe",
+    "https://img.shields.io/youtube/channel/subscribers/UCwjkpAsb70_mENKvy7hT5bw?style=for-the-badge&logo=youtube&logoColor=white&label=subscribers",
+    "https://github.com/user-attachments/assets/5b977f48-0355-498f-a3ba-37e5de3b6c62",
+    "https://github.com/user-attachments/assets/dec2e07c-b3d5-46dd-9f36-c0c26a82c9fb",
+    "https://screenpipe.github.io/screenleak/",
+    "https://github."
+  ]
+}

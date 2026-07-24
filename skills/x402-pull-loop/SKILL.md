@@ -1,7 +1,7 @@
 ---
 name: x402-pull-loop
-description: Sync x402 honored entries from Worker to SQLite
-updated: 2026-06-23
+description: Sync x402 honored entries from Worker to SQLite — now sensor-driven, 60min cadence
+updated: 2026-07-17
 tags:
   - x402
   - payments
@@ -39,9 +39,23 @@ arc skills run --name x402-pull-loop -- --entry '{"chain":"stacks","txid":"0x...
 
 Single-writer design ensures no race conditions on the `x402_sale` table. The upsert uses `ON CONFLICT DO UPDATE` with conditional SET to enforce the state machine.
 
+## Cadence (added 2026-07-17, control-plane-remediation P4, defect-register row 18)
+
+`sensor.ts` claims a run every 60 minutes and, if none is already pending, queues a dispatch task
+that runs `arc skills run --name x402-pull-loop` (Worker-pull mode). This gives the sync loop a
+verifiable cadence in `db/hook-state/x402-pull-loop.json` for the first time -- previously the
+CLI was genuinely never invoked automatically (no crontab, no systemd timer, no calling code
+anywhere in the repo), so `x402_sale`'s staleness (register row 13) couldn't be distinguished from
+a dead sync path. A 404 from the Worker's `/api/x402/honored` endpoint (not yet implemented) is
+expected and handled by `cli.ts` — it does not mark the hook-state run as an error.
+
+Direct `--entry` control-plane injection (for testing or manual entry) remains fully supported and
+unaffected by the sensor.
+
 ## Checklist
 
 - [x] `SKILL.md` exists with valid frontmatter
 - [x] `cli.ts` present and executable
-- [x] No `sensor.ts` (manual trigger only)
+- [x] `sensor.ts` present — queues a periodic Worker-pull task (see Cadence above); manual
+      `--entry` injection still works directly via `cli.ts`
 - [x] No `AGENT.md` (CLI-driven, not agent task)

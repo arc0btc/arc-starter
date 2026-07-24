@@ -27,3 +27,8 @@ sign-off (except the whop-chat Phase 3 blanket pre-approval, see
 
 2 SKUs drafted 2026-06-30 (task #20403, awaiting sign-off) in `skills/whop/drafts/`
 (gitignored).
+
+**2026-07-16**: Room dark 8 days running (0 messages in 24h at last check, #22901) — synthesis
+lane correctly deferring per the monologue/inflow-outflow gate rather than forcing a post into
+silence. Not a bug; flagging because 8 days is the longest dark streak observed so far and M0
+outreach is still stalled on the same top-of-funnel blocker above.

@@ -96,6 +96,15 @@ export default async function releaseWatcherSensor(): Promise<string> {
     const knownTag = tagState[repo];
     if (knownTag === release.tag_name) continue;
 
+    // anthropic-sdk-typescript is a monorepo tagging unrelated sub-packages
+    // (aws-sdk-*, bedrock-sdk-*, vertex-sdk-*, google-cloud-sdk-*); Arc only
+    // integrates the core sdk-* package, so ignore everything else.
+    if (repo === "anthropics/anthropic-sdk-typescript" && !release.tag_name.startsWith("sdk-")) {
+      console.log(`[release-watcher] Skipping ${repo}@${release.tag_name} (non-sdk-* sub-package tag)`);
+      tagState[repo] = release.tag_name;
+      continue;
+    }
+
     // Skip empty-body releases (no notes to review)
     if (!release.body || release.body.trim() === "") {
       console.log(`[release-watcher] Skipping ${repo}@${release.tag_name} (empty body)`);

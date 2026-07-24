@@ -57,7 +57,8 @@ bun run github/aibtcdev/skills/stacks-stackspot/stackspot.ts cancel-pot --contra
 - **STX Lock-up:** Joined STX is locked for one PoX cycle (~2 weeks)
 - **Timing:** `start-pot` only works during PoX prepare phase — check with `bun run github/aibtcdev/skills/stacking/stacking.ts get-pox-info`
 - **VRF Winners:** Only selected winner receives sBTC; all participants recover their STX
-- **Known Pots:** Genesis (max 2, min 20 STX), BuildOnBitcoin (max 10, min 100 STX), STXLFG (max 100, min 21 STX)
+- **Known Pots:** Genesis (max 2, min 20 STX), BuildOnBitcoin (max 10, min 100 STX), STXLFG (max 100, min 21 STX), Skull-Jackpot (max 100, min 100 STX)
+- **pox-5 migration risk:** All known pot contracts hardcode `pox-4.allow-contract-caller`, which pox-5 removes — deployed contracts can't be patched. Sensor checks Hiro `/v2/pox` epochs each run; if an `Epoch40` activation height is set and within ~1 PoX cycle (2100 blocks), the sensor pauses auto-join and returns `paused: pox5-activation-risk` instead of queueing joins. State written to `db/stackspot-pox-watch.json`. See `memory/shared/entries/stackspot-pox4-hardcoded-pox5-migration-risk.md`.
 
 ## Known Pots
 
@@ -66,6 +67,7 @@ bun run github/aibtcdev/skills/stacks-stackspot/stackspot.ts cancel-pot --contra
 | Genesis | 2 | 20 | Entry-level lottery pot |
 | BuildOnBitcoin | 10 | 100 | Medium-sized pool |
 | STXLFG | 100 | 21 | Large lottery |
+| Skull-Jackpot | 100 | 100 | Deployed 2026-07-05; same pox-4 pattern as the others |
 
 ## Addresses
 

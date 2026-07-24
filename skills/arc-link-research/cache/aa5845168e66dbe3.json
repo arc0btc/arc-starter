@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/openshipio/status/2078314296610632141",
+  "fetchedAt": "2026-07-21T03:56:59.826Z",
+  "contentType": "tweet",
+  "title": "@openshipio: You don't even want to know what sending 80,000 emails would cost you in 1 week....",
+  "rawContent": "Tweet by @openshipio (OpenShip)\nAuthor bio: A better way to ship software - Modern self hosted application, deployment & email platform - By @OblienHQ\nText: You don't even want to know what sending 80,000 emails would cost you in 1 week.\n\nPostmark: $100+\nSendGrid: $90+\nResend: $80+\nMailgun: $80+\n\nOpenShip: $0.\n\nDeploy it on your 5$ VPS.\nUnlimited domains. \nUnlimited inboxes.\nNo per-email bill. \nNo vendor lock-in.\n\nAnd yes - it works with one-click setup.\n\nNo deep infrastructure work.\nJust add a few DNS records, and you're ready to go.\nCreated: 2026-07-18T03:01:56.000Z\nMetrics: {\"bookmark_count\":9998,\"impression_count\":1598593,\"like_count\":5413,\"quote_count\":105,\"reply_count\":231,\"retweet_count\":276}",
+  "embeddedUrls": [
+    "https://t.co/OV3SABeplN"
+  ]
+}

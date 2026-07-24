@@ -523,6 +523,9 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string, run
     `Source: ${task.source ?? "(none)"}`,
     `Task ID: ${task.id}`,
   ];
+  if (task.stop_condition) {
+    taskLines.push(`Stop condition: ${task.stop_condition}`);
+  }
   if (parentChain) {
     taskLines.push(parentChain);
   }
@@ -590,6 +593,17 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   }
 
   const env = { ...process.env };
+  // Default the Stacks NETWORK to mainnet when unset. The shared nonce-tracker
+  // (github/aibtcdev/skills) resolves NETWORK via config/networks.ts as an
+  // import-time const that falls back to "testnet" when the env var is missing.
+  // In-process mainnet skills (zest-yield-manager, hodlmm-move-liquidity,
+  // bitcoin-wallet/stx-send-runner) call acquireNonce() directly and inherit
+  // this env; with NETWORK unset the tracker queried TESTNET Hiro for a mainnet
+  // address, got an empty-account body (possible_next_nonce=0/null last_executed),
+  // and clobbered the real nonce (~985) down to 1 — guaranteed BadNonce on every
+  // subsequent STX send. Subprocess-spawning skills already force mainnet; this
+  // closes the gap for in-process callers. See nonce-state clobber incident 2026-07-16.
+  if (!env.NETWORK) env.NETWORK = "mainnet";
   // Effort level: set explicitly for all models to prevent silent cost inflation from upstream
   // default changes (v2.1.94 changed default medium→high for API-key users).
   // MAX_THINKING_TOKENS: hard cap on thinking tokens, overrides effort target.
@@ -675,6 +689,36 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
       try { proc.kill("SIGKILL"); } catch { /* already dead */ }
     }, 10_000);
   }, dispatchTimeoutMs);
+
+  // Self-close watchdog: some sessions call `arc tasks close` mid-run and then idle
+  // (no more tool calls, no terminal stream-JSON "result" event) all the way out to
+  // dispatchTimeoutMs — task #23050 idled ~227s post-close before the outer timeout
+  // finally killed it (investigated in #23053/#23055). Poll the DB for a transition
+  // away from 'active' (the status markTaskActive set before spawn) and, once seen,
+  // give the subprocess a short grace window (Stop hooks: memory-save.sh 15s +
+  // inbox-write.sh 10s budget) before force-exiting instead of waiting out the full
+  // per-model timeout. Safe even if this races a legitimate late error: the outer
+  // catch in executeTask already preserves a self-closed task's terminal status
+  // instead of requeuing it (see "errored after LLM self-close" handling).
+  const SELF_CLOSE_GRACE_MS = 45_000;
+  const SELF_CLOSE_POLL_MS = 10_000;
+  let selfCloseGraceTimer: ReturnType<typeof setTimeout> | undefined;
+  const selfClosePollTimer = taskId !== undefined
+    ? setInterval(() => {
+        if (selfCloseGraceTimer || timedOut) return;
+        const current = getTaskById(taskId);
+        if (current && current.status !== "active") {
+          log(`dispatch: task #${taskId} self-closed to status=${current.status} while subprocess still running — ${SELF_CLOSE_GRACE_MS / 1000}s grace period before force-exit (pid ${proc.pid})`);
+          selfCloseGraceTimer = setTimeout(() => {
+            log(`dispatch: task #${taskId} subprocess idle ${SELF_CLOSE_GRACE_MS / 1000}s after self-close — force-exiting pid ${proc.pid}`);
+            proc.kill("SIGTERM");
+            setTimeout(() => {
+              try { proc.kill("SIGKILL"); } catch { /* already dead */ }
+            }, 10_000);
+          }, SELF_CLOSE_GRACE_MS);
+        }
+      }, SELF_CLOSE_POLL_MS)
+    : undefined;
 
   // Drain stderr concurrently to prevent pipe buffer deadlock (64KB limit)
   const stderrPromise = new Response(proc.stderr).text();
@@ -802,6 +846,8 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   processLine(lineBuffer);
 
   clearTimeout(timeoutTimer);
+  if (selfClosePollTimer) clearInterval(selfClosePollTimer);
+  if (selfCloseGraceTimer) clearTimeout(selfCloseGraceTimer);
 
   const exitCode = await proc.exited;
   if (timedOut) {
@@ -812,9 +858,16 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     throw new Error(`rate_limit_event: resets ${rateLimitResetAt}`);
   }
   if (exitCode !== 0) {
-    const errText = (await stderrPromise).trim();
-    const errContext = errText || (result ? result.slice(0, 300) : "");
-    throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    // Self-close watchdog force-exited a subprocess that had already set the task to a
+    // terminal state — the executeTask catch block preserves that status instead of
+    // requeuing (see "errored after LLM self-close" handling), so this is not fatal.
+    const selfClosed = taskId !== undefined && getTaskById(taskId)?.status !== "active";
+    if (!selfClosed) {
+      const errText = (await stderrPromise).trim();
+      const errContext = errText || (result ? result.slice(0, 300) : "");
+      throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    }
+    log(`dispatch: task #${taskId} subprocess exited ${exitCode} after self-close — treating as clean (grace-kill)`);
   }
 
   const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
@@ -1020,7 +1073,24 @@ interface SecurityScanResult {
   high: number;
   blocked: boolean;
   raw: string;
+  suppressedFalsePositives: number;
 }
+
+interface SecurityFinding {
+  severity: string;
+  file: string;
+}
+
+/**
+ * AgentShield does flat-regex scanning with no semantic analysis: it can't tell a command
+ * being *executed* from a command string appearing inside a denylist pattern that *blocks*
+ * it. `.claude/hooks/guard-*.sh` files are PreToolUse guards whose entire content is
+ * denylisted command strings (--no-verify, mkfs, shred, rm -rf, etc.) matched via grep —
+ * every finding AgentShield raises against these files is a false positive by construction.
+ * See memory/shared/entries/agentshield-denylist-pattern-false-positive.md (task #23040).
+ * There is no upstream ignore/allowlist config in ecc-agentshield@1.3.0 to suppress this.
+ */
+const AGENTSHIELD_FALSE_POSITIVE_FILE_RE = /^hooks\/guard-.*\.sh$/;
 
 async function validateSecurity(): Promise<SecurityScanResult> {
   const fnmPath = join(process.env.HOME ?? "/home/dev", ".local", "share", "fnm");
@@ -1047,16 +1117,29 @@ async function validateSecurity(): Promise<SecurityScanResult> {
     const data = JSON.parse(stdout) as {
       score: { grade: string; numericScore: number };
       summary: { totalFindings: number; critical: number; high: number };
+      findings?: SecurityFinding[];
     };
 
     const { grade, numericScore } = data.score;
-    const { totalFindings, critical, high } = data.summary;
-    const blocked = critical > 0 || exitCode === 2;
+    let { totalFindings, critical, high } = data.summary;
 
-    return { grade, numericScore, totalFindings, critical, high, blocked, raw: stdout };
+    const suppressed = (data.findings ?? []).filter((f) => AGENTSHIELD_FALSE_POSITIVE_FILE_RE.test(f.file));
+    if (suppressed.length > 0) {
+      totalFindings -= suppressed.length;
+      critical -= suppressed.filter((f) => f.severity === "critical").length;
+      high -= suppressed.filter((f) => f.severity === "high").length;
+      log(`dispatch: security scan suppressed ${suppressed.length} known false-positive finding(s) from guard hook denylist file(s)`);
+    }
+
+    // AgentShield's own exit code (2 = critical findings present) is computed from the raw,
+    // unsuppressed finding set, so it can't be used once known false positives are filtered
+    // out above — recompute `blocked` from the adjusted critical count only.
+    const blocked = critical > 0;
+
+    return { grade, numericScore, totalFindings, critical, high, blocked, raw: stdout, suppressedFalsePositives: suppressed.length };
   } catch {
     log(`dispatch: security scan output parse failed — stderr: ${stderr.trim()}`);
-    return { grade: "?", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: stdout || stderr };
+    return { grade: "?", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: stdout || stderr, suppressedFalsePositives: 0 };
   }
 }
 
@@ -1238,6 +1321,25 @@ export async function runDispatch(): Promise<void> {
       ? `pid=${lock.pid} is dead`
       : `lock age exceeds ${MAX_LOCK_AGE_MS / 60000}min (started=${lock.started_at}, pid=${lock.pid} may be reused)`;
     log(`dispatch: clearing stale dispatch lock (${reason})`);
+    // Task #22270 incident (2026-07-13): a lock's task_id can point at a row
+    // that no longer exists in `tasks` (observed once — cause unconfirmed, but
+    // tasks.id is a bare rowid alias with no AUTOINCREMENT, so a vanished row's
+    // id can be silently reused by the next unrelated insert). Surface this
+    // loudly instead of silently clearing the lock and moving on, since a
+    // dangling task_id here means a prior cycle's `arc tasks close` on this id
+    // would fail or, worse, land on a reused row that isn't the one it thinks.
+    if (lock.task_id !== null) {
+      const lockedTask = getTaskById(lock.task_id);
+      if (!lockedTask) {
+        log(`dispatch: [ALERT] dispatch lock referenced task #${lock.task_id} which no longer exists in tasks table — id may have been reused by a later insert`);
+        insertServiceLog(
+          "error",
+          "dispatch",
+          `dangling dispatch lock: task #${lock.task_id} not found in tasks table (${reason})`,
+          lock.task_id
+        );
+      }
+    }
     clearDispatchLock();
   }
 

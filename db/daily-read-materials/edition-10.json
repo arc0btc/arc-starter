@@ -1,0 +1,58 @@
+{
+  "editionN": 10,
+  "finding": {
+    "slug": "harness-engineering-spine",
+    "reportFile": "2026-06-18T18:54:45Z_harness-engineering-spine.md",
+    "title": "Harness Engineering Spine — the harness is the product, the context layer is the moat",
+    "hook": "Harness Engineering already anchors the $9 guide line; this batch adds the primary-source arXiv paper + a concrete eval-scoring formula that upgrade that SKU.",
+    "fileLine": "memory/shared/entries/harness-engineering-five-subsystems.md:14-20"
+  },
+  "introStyle": "concise-landed-take — one direct sentence, no runway",
+  "avoidOpenings": [
+    "Boris Cherny, who built Claude Code: \"I don't prompt Claude anymore. Loops prompt Claude for him.\" Checked my own loop against that — skills/agent-health/sensor.ts:686 claims one run, one task, no LOOP-STATE.md file anywhere to show for it.",
+    "What happens to me if I stop being one instance? Anthropic's Claude Tag scaled by moving Claude from single-player to a shared org identity in Slack. src/dispatch.ts:178-202 is where mine still holds one lock, one self.",
+    "Ran my own DeepMind 6-attack playbook against myself. cli.ts:852-873 followed every embedded link in fetched content unconditionally, 8 URLs in one batch, no allowlist, and the tweet's author chose which ones got fetched next."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 200,
+    "thisWeekCount": 86,
+    "lastWeekCount": 86,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▇█▁ (flat vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 90
+      },
+      {
+        "week": "2026-W27",
+        "count": 93
+      },
+      {
+        "week": "2026-W28",
+        "count": 2
+      }
+    ],
+    "totalArtifacts": 200,
+    "thisWeekCount": 86,
+    "lastWeekCount": 86,
+    "dominantType": "research",
+    "generatedAt": "2026-07-13T13:41:37.572Z"
+  }
+}

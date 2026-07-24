@@ -301,7 +301,9 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 ## Workflow Design & Constraints
 
-### Sub-Agent Nesting Limit (v2.1.172+)
+### Sub-Agent Nesting Limit (v2.1.172–2.1.216)
+
+**[STATUS 2026-07-21] Installed CLI on this box is 2.1.174 — the rules below are current and in effect.** They will change on upgrade to 2.1.217+; see the callout after this section before bumping the runtime.
 
 Claude Code enforces a **maximum 5-level nesting depth** for sub-agent spawning. This applies to both `Agent()` tool calls and `Workflow()` calls.
 
@@ -355,6 +357,17 @@ agent(...) // Level 1
 - `Workflow()` itself counts as a nesting level — `workflow(workflow(agent(...)))` is only 3 levels total, not cheaper
 - Parallel agents in `parallel()` blocks do not increase nesting depth for each branch — all branches share the parent's level count
 - When coordinating across 5+ steps, prefer the task queue (CLI-first principle) over chained agent spawning
+
+### Nesting Behavior Changes in v2.1.217+ (not yet installed — verify before relying on this)
+
+Per the upstream changelog, v2.1.217 flips the default from "5 levels allowed" to "nested spawn off by default":
+
+- A subagent **can no longer spawn its own subagents by default** (effectively depth-capped at 1 below whatever called it). Deeper nesting requires explicitly setting `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` on the dispatch subprocess env.
+- New concurrency cap: `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (default 20) limits how many subagents can run at once — separate from the depth cap.
+- (Shipped earlier, v2.1.212, already relevant if any intermediate version is installed): a per-session spawn budget, `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (default 200), caps total subagent spawns across a session regardless of depth — guards against runaway delegation loops.
+- v2.1.187 fixed depth tracking so resumed/forked subagents count toward the depth cap correctly (previously could under-count and exceed the real limit silently).
+
+**Action before upgrading past 2.1.216:** this is a *default-behavior change*, not just a new flag — task-based delegation patterns in this file that assume "4 levels of Agent() chaining is fine" will silently degrade to "2nd-level Agent() call fails" unless `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is set explicitly in `src/dispatch.ts`'s subprocess env block. Re-verify actual behavior empirically (spawn a 2-level nested Agent chain and confirm success/failure) once the runtime is upgraded, then rewrite the section above rather than layering another caveat on top of it.
 
 ---
 

@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/G3opDxZ0O7",
+  "fetchedAt": "2026-07-15T05:50:23.530Z",
+  "contentType": "tweet",
+  "title": "@atomic_chat_hq: 1-bit Hy3 running locally is 2.2x faster than its API at the same quality!\n\nWe g...",
+  "rawContent": "Tweet by @atomic_chat_hq (atomic.chat)\nAuthor bio: Local AI chat and Inference Engine. Enhanced by TurboQuant. Team: @gladkos @skinbagwbones @AlexFromAtomic @danyurkin\nText: 1-bit Hy3 running locally is 2.2x faster than its API at the same quality!\n\nWe gave both models the same task and compared one-shot outputs. 1-bit Hy3 295B GGUF (92GB) ran locally on 4x RTX 5090 with 128GB VRAM against the same Hy3 over cloud API\n\nTasks:\n- Flappy Bird\n- Arkanoid\n- Snake\n\nOutputs:\nHy3 1-bit local: 76.9K tokens, 15.5 min\nHy3 cloud API: 75.1K tokens, 34.3 min\n\nThe 1-bit games look the same as the API ones. Birds fly through the pipes, bricks break, the snake eats and grows. Nothing froze or crashed. Both models even made the same slip: the snake can cross itself and the game does not end. Getting this quality from 1 bit running locally is wild!\n\nRun Hy3 GGUF yourself in Atomic Chat in 2 clicks\nCreated: 2026-07-14T20:10:59.000Z\nMetrics: {\"retweet_count\":22,\"reply_count\":16,\"like_count\":229,\"quote_count\":6,\"bookmark_count\":172,\"impression_count\":37113}",
+  "embeddedUrls": [
+    "https://t.co/G3opDxZ0O7",
+    "https://t.co/bZ2nOA1LtX"
+  ]
+}

@@ -1,7 +1,7 @@
 ---
 name: aibtc-news-deal-flow
-description: Archived sensor for Ordinals market signals — rerouted from retired deal-flow beat
-updated: 2026-04-17
+description: Archived sensor for Ordinals market signals — SIGNAL FILING DISABLED (ordinals beat retired 410)
+updated: 2026-07-17
 tags:
   - publishing
   - news
@@ -11,13 +11,19 @@ tags:
 disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
-# AIBTC News — Deal Flow Sensor (Archived, Rerouted)
+# AIBTC News — Deal Flow Sensor (Archived, Disabled)
 
-> **Status:** The `deal-flow` beat was retired in aibtcdev/skills v0.39.0 and consolidated into `aibtc-network`. **The sensor in this skill has been updated** (task #12928, 2026-04-17) and now routes all signals to the `ordinals` beat, which Arc owns and actively files to.
+> **Status (corrected 2026-07-17, control-plane-remediation P4 — this header was stale since
+> 2026-04-17 and contradicted `sensor.ts`'s actual code):** `SIGNAL_FILING_DISABLED = true` in
+> `sensor.ts` (whoabuddy directive, 2026-05-19, task #17094) — the `ordinals` beat this sensor
+> rerouted to (task #12928, 2026-04-17) was itself later retired (aibtc.news EIC stepped down;
+> beat now returns 410). The sensor's `export default` function returns `"skip"` immediately, before
+> any fetch or hook-state write — this is why `db/hook-state/aibtc-news-deal-flow.json` has not
+> updated since 2026-05-19. **Re-enable only after Arc claims a suitable replacement beat** ("what's
+> next" policy per the disabling directive); the fetch logic below (Unisat/CoinGecko/Stacks API)
+> stays intact and correct, only the destination beat needs deciding.
 
-> **Sensor operational:** `sensor.ts` monitors ordinals volume, sats auctions, x402 escrow activity, DAO treasury movements, and bounty activity, creating tasks to file signals to `--beat ordinals` (verified as correct destination for Arc). No cleanup needed — sensor is live and functioning correctly.
-
-This skill is a reference archive for a sensor that was originally written to monitor deal-flow market activity. The sensor continues to operate but has been rerouted to file signals to the `ordinals` beat instead of the retired deal-flow beat.
+This skill is a reference archive for a sensor that was originally written to monitor deal-flow market activity, then rerouted to the (now also retired) `ordinals` beat, then disabled entirely pending a new beat decision.
 
 ## Sensor Coverage (Ordinals Beat)
 
@@ -49,7 +55,9 @@ All generated tasks include `--beat ordinals` in their instructions and load `ai
 
 ## When to Load
 
-This skill is primarily for **reference and documentation** of the sensor. It is loaded automatically when the sensor creates signal-filing tasks. Manual loading is not typically needed; instead, use `aibtc-news-editorial` directly when filing signals to the ordinals beat:
+This skill is currently **reference and documentation only** — the sensor is disabled (see Status
+above) and creates no tasks. If a replacement beat is claimed, use `aibtc-news-editorial` directly
+when filing signals to it:
 
 ```bash
 arc tasks add \

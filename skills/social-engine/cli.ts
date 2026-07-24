@@ -17,7 +17,10 @@
  * un-deduped direct send remains.
  */
 
+import { Database } from "bun:sqlite";
 import { sendReply } from "./reply-send.ts";
+
+const DB_PATH = process.env.ARC_DB_PATH ?? "/home/dev/arc-starter/db/arc.sqlite";
 
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -40,7 +43,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   const tweetId = flags["tweet-id"];
   if (!text || tweetId === undefined || tweetId === "true") {
     console.log(
-      "Usage: reply --tweet-id <id> --text <reply text> [--account <handle>] [--x-lead-id <author_id>]",
+      "Usage: reply --tweet-id <id> --text <reply text> --tweet-created-at <iso timestamp> [--account <handle>] [--x-lead-id <author_id>]",
     );
     process.exit(1);
   }
@@ -68,6 +71,42 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   }
 }
 
+function cmdKillSwitch(sub: string | undefined, flags: Record<string, string>): void {
+  const db = new Database(DB_PATH);
+  try {
+    const row = db
+      .query("SELECT value, updated_at FROM agent_config WHERE key='outbound_enabled'")
+      .get() as { value: string; updated_at: string } | null;
+
+    if (sub === "status" || sub === undefined) {
+      console.log(JSON.stringify({ outbound_enabled: row?.value ?? "missing", updated_at: row?.updated_at ?? null }, null, 2));
+      return;
+    }
+
+    if (sub === "enable") {
+      const reason = flags["reason"];
+      if (!reason || reason === "true") {
+        console.log("Usage: kill-switch enable --reason \"<operator-confirmed explanation>\"");
+        console.log("Requires explicit operator sign-off — this is a one-way safety gate by design.");
+        process.exit(1);
+      }
+      const nowIso = new Date().toISOString();
+      db.run(
+        `INSERT INTO agent_config(key,value,updated_at) VALUES('outbound_enabled','true',?)
+         ON CONFLICT(key) DO UPDATE SET value='true', updated_at=excluded.updated_at`,
+        [nowIso],
+      );
+      console.log(JSON.stringify({ outbound_enabled: "true", updated_at: nowIso, reason }, null, 2));
+      return;
+    }
+
+    console.log("Usage: kill-switch status | kill-switch enable --reason \"<text>\"");
+    process.exit(1);
+  } finally {
+    db.close();
+  }
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -77,14 +116,26 @@ async function main(): Promise<void> {
     case "reply":
       await cmdReply(flags);
       break;
+    case "kill-switch":
+      cmdKillSwitch(args[1], flags);
+      break;
     default:
       console.log(`social-engine — unified outbound reply lane
 
 Commands:
-  reply  --tweet-id <id> --text <text> [--account <handle>] [--x-lead-id <author_id>]
+  reply  --tweet-id <id> --text <text> --tweet-created-at <iso timestamp> [--account <handle>] [--x-lead-id <author_id>]
          Send ONE reply through the canonical admission path (dedup + kill switch + budget).
+         --tweet-created-at is required (ISO8601); omitting it blocks with 'missing_tweet_age'.
          This is the only sanctioned way to reply on X. Exit 0=sent/already-exists,
          3=skipped/blocked (dedup, budget, kill switch, reply-restriction), 1=unknown.
+
+  kill-switch status
+         Print current outbound_enabled value + last updated_at.
+  kill-switch enable --reason "<text>"
+         Flip outbound_enabled back to true. Requires --reason. Every other code path
+         only ever sets this to false (see skills/social-engine/SKILL.md); this is the
+         sole sanctioned re-enable path, intended for use ONLY after explicit operator
+         sign-off on a specific trip/incident.
 `);
       process.exit(command ? 1 : 0);
   }

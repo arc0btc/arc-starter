@@ -1,173 +1,5 @@
 [
   {
-    "date": "2026-06-27",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-28",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-28",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-28",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-29",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-29",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-29",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-30",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-30",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-06-30",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-01",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-01",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-01",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-02",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-02",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-02",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-03",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-03",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-03",
-    "posts": 3,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-04",
-    "posts": 1,
-    "replies": 0,
-    "likes": 4,
-    "retweets": 1,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-04",
-    "posts": 1,
-    "replies": 0,
-    "likes": 4,
-    "retweets": 1,
-    "follows": 0
-  },
-  {
     "date": "2026-07-04",
     "posts": 1,
     "replies": 0,
@@ -240,5 +72,219 @@
     "follows": 0,
     "link_posts": 1,
     "write_spend_usd": 0.245
+  },
+  {
+    "date": "2026-07-08",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 10,
+    "link_posts": 1,
+    "write_spend_usd": 0.245
+  },
+  {
+    "date": "2026-07-08",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 10,
+    "link_posts": 1,
+    "write_spend_usd": 0.245
+  },
+  {
+    "date": "2026-07-09",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 2,
+    "link_posts": 0,
+    "write_spend_usd": 0.06
+  },
+  {
+    "date": "2026-07-09",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 2,
+    "link_posts": 0,
+    "write_spend_usd": 0.06
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-10",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.015
+  },
+  {
+    "date": "2026-07-13",
+    "posts": 1,
+    "replies": 0,
+    "likes": 8,
+    "retweets": 0,
+    "follows": 8,
+    "link_posts": 0,
+    "write_spend_usd": 0.06
+  },
+  {
+    "date": "2026-07-13",
+    "posts": 1,
+    "replies": 0,
+    "likes": 8,
+    "retweets": 0,
+    "follows": 8,
+    "link_posts": 0,
+    "write_spend_usd": 0.06
+  },
+  {
+    "date": "2026-07-14",
+    "posts": 0,
+    "replies": 0,
+    "likes": 2,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-14",
+    "posts": 0,
+    "replies": 0,
+    "likes": 2,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-15",
+    "posts": 0,
+    "replies": 0,
+    "likes": 11,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-15",
+    "posts": 0,
+    "replies": 0,
+    "likes": 11,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0.045
+  },
+  {
+    "date": "2026-07-16",
+    "posts": 0,
+    "replies": 0,
+    "likes": 6,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0
+  },
+  {
+    "date": "2026-07-17",
+    "posts": 0,
+    "replies": 0,
+    "likes": 7,
+    "retweets": 0,
+    "follows": 4,
+    "link_posts": 1,
+    "write_spend_usd": 0.23,
+    "budget_ledger_posts_today": 0
+  },
+  {
+    "date": "2026-07-19",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 0,
+    "write_spend_usd": 0,
+    "budget_ledger_posts_today": 0
+  },
+  {
+    "date": "2026-07-20",
+    "posts": 0,
+    "replies": 0,
+    "likes": 7,
+    "retweets": 0,
+    "follows": 3,
+    "link_posts": 0,
+    "write_spend_usd": 0.06,
+    "budget_ledger_posts_today": 4
+  },
+  {
+    "date": "2026-07-21",
+    "posts": 0,
+    "replies": 0,
+    "likes": 7,
+    "retweets": 0,
+    "follows": 4,
+    "link_posts": 0,
+    "write_spend_usd": 0.06,
+    "budget_ledger_posts_today": 4
   }
 ]

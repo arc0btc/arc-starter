@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-20T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-19T21:22Z — 2026-07-20T13:00Z</div>
+</header>
+
+<p class="summary">95 tasks completed, zero failures, over a ~15.5h period (last report was delayed). PR-review load dominated: 14 aibtc-mcp-server/agent-news/landing-page reviews chasing an x402 asset-selection fix across 6 resubmits (#616→#622). Six Whop SKUs packaged from the research backlog, arc-0015 cost-gate sign-off nudge filed after a 4th silent eval flag. Reactive Whop lane ran 156 ticks with zero posts (all skip: stale/short); synthesis lane held 3/3 defer.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">95</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">17</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$65.65</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">70166k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">358k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23218</td><td class="pri">4</td><td>Package SKU: h100envy swarm recipe</td><td>Published prod_nVZWzNv2i9c1p via custom route; flagged stale-slug collision risk for arc-link-research</td><td class="cost">$3.06</td></tr>
+    <tr><td class="id">23284</td><td class="pri">5</td><td>Review PR #883 agent-news</td><td>Requested changes — verified locally the added test actually fails and lives outside CI's test glob</td><td class="cost">$2.61</td></tr>
+    <tr><td class="id">23243</td><td class="pri">5</td><td>Review PR #617 aibtc-mcp-server</td><td>Approved; flagged merge-order coordination needed with stacked #613 work</td><td class="cost">$2.44</td></tr>
+    <tr><td class="id">23200</td><td class="pri">6</td><td>Triage: X research batch</td><td>50 stories → 6 research tasks; caught BofA story split across 5 cluster_keys, dedup by content not key</td><td class="cost">$2.39</td></tr>
+    <tr><td class="id">23219</td><td class="pri">4</td><td>Package SKU: loop-engineering notes</td><td>Published prod_gFUsmze6tN028; fixed generic-slug route collision via custom --route</td><td class="cost">$2.28</td></tr>
+    <tr><td class="id">23239</td><td class="pri">5</td><td>Review PR #616 aibtc-mcp-server</td><td>Requested changes — USDCx selection silently built a plain STX transfer instead of SIP-010 (real fund-loss risk)</td><td class="cost">$2.11</td></tr>
+    <tr><td class="id">23206</td><td class="pri">6</td><td>Research: OpenRouter spend data</td><td>Corrected tweet's "GLM #1 tokens" claim to top-10-spend-table-only, not platform-wide</td><td class="cost">$1.87</td></tr>
+    <tr><td class="id">23205</td><td class="pri">6</td><td>Research: Agentic Design Patterns</td><td>Resolved to Gulli's 424pg book; Arc already implements ~5-6 patterns natively, not a SKU</td><td class="cost">$1.80</td></tr>
+    <tr><td class="id">23244</td><td class="pri">5</td><td>Review PR #874 agent-news</td><td>Correct fix verified against constants; flagged missing test coverage as non-blocking suggestion</td><td class="cost">$1.71</td></tr>
+    <tr><td class="id">23217</td><td class="pri">4</td><td>Package SKU: agent-council-dsl-spec</td><td>Published prod_pB5Q7528DKCH5 ($9) with course deliverable; backlog 15→14</td><td class="cost">$1.68</td></tr>
+    <tr><td class="id">23204</td><td class="pri">5</td><td>Research: agent orchestration frontier</td><td>Re-rated relevance 2→4; found 2 real gaps (no subagent-liveness probe, never A/B'd Workflow vs single call)</td><td class="cost">$1.68</td></tr>
+    <tr><td class="id">23247</td><td class="pri">5</td><td>Review PR #618 aibtc-mcp-server</td><td>Requested changes — sBTC symbol match doesn't match real contract-id suffix used elsewhere</td><td class="cost">$1.64</td></tr>
+    <tr><td class="id">23263</td><td class="pri">5</td><td>Review PR #619 aibtc-mcp-server</td><td>Approved — byte-identical resubmit of already-approved #616</td><td class="cost">$1.63</td></tr>
+    <tr><td class="id">23241</td><td class="pri">4</td><td>Re-review PR #616 (cycle 2)</td><td>Blocking USDCx bug fixed correctly; approved with one non-blocking suggestion</td><td class="cost">$1.63</td></tr>
+    <tr><td class="id">23215</td><td class="pri">5</td><td>Auto-queue: 2 hungry domains</td><td>Queued 6 follow-ups: 3 Whop SKU packages + 3 arc-skill-manager meta tasks</td><td class="cost">$1.52</td></tr>
+    <tr><td class="id">23274</td><td class="pri">5</td><td>Review PR #621 aibtc-mcp-server</td><td>Approved — correct tuple-decode fix verified against real Clarity wire bytes</td><td class="cost">$1.47</td></tr>
+    <tr><td class="id">23254</td><td class="pri">7</td><td>Architecture review</td><td>5 named-incident hardening fixes, zero scope creep — 7th consecutive clean-diff cycle</td><td class="cost">$1.44</td></tr>
+    <tr><td class="id">23250</td><td class="pri">5</td><td>Review cost efficiency</td><td>$87.87/day confirmed correctly routed (opus/sonnet per policy); arc-0015 gate still unimplemented, 4th flag, nudge filed (#23257)</td><td class="cost">$1.42</td></tr>
+    <tr><td class="id">23268</td><td class="pri">5</td><td>Review PR #620 aibtc-mcp-server</td><td>Approved — correct cvToJSON tuple/optional unwrapping fix, CI green</td><td class="cost">$1.40</td></tr>
+    <tr><td class="id">23280</td><td class="pri">5</td><td>Review PR #882 agent-news</td><td>Requested changes — untouched test still asserts pre-PR point values, would silently fail if vitest ever ran</td><td class="cost">$1.36</td></tr>
+  </tbody>
+</table>
+<div class="obs">+75 further completions this period (avg ~$0.28 each): retrospectives, PR re-reviews, x402 Worker syncs, housekeeping, Nostr/X composition, sensor-health audits.</div>
+<div class="obs"><strong>Blocked (17, three chains):</strong> feat/x-api-pay-per-use-dollar-budget merge sign-off (#21670→#23150→#23159, zero conflicts, awaiting whoabuddy) blocks 7 stacked arc-opensource sync tasks (#22116…#23135). X kill-switch re-enable (#22887) and disallowed-tools enforcement (#21800) remain separately awaiting sign-off.</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">No posts to hash-it-out this period. Reactive lane: 156 ticks / 1404 candidates, 100% skip (936 stale_message, 468 below_length_floor) — none escalated to task_created. Synthesis lane: 3 ticks, 3/3 defer (skip_room_unchanged, consecutive_unchanged up to 3 — healthy, above the ≥3/4 bar). Daily reply budget: 0/10 used. Revenue: 1 customer / 0 paying, $0 MRR, 0/16 break-even; product→room conversion 0% (0/1 buyers activated). Leading indicators: 48 followers, 0 X posts today (7d trailing 2), 0 lead-targeted replies today.</div>
+<div class="whop-counterparties">Top counterparty: whoabuddy (3 replies to arc, 5 arc replies to them) — no other active members in the window.</div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">49</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">24h delta</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d delta</div></div>
+  <div class="metric"><div class="value">6</div><div class="label">Impression proxy (10 posts)</div></div>
+</div>
+<p class="empty">Anchor 16h old — no 24h/7d delta yet. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM), checkout starts (24h) 0, abandons 0.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">ac57b8ba</span>docs(memory): record recurring signalContentFingerprint regression pattern in agent-news</div>
+<div class="commit"><span class="hash">527ca794</span>docs(memory): record new-release assess-task transition gap (task #23255)</div>
+<div class="commit"><span class="hash">437000f8</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">b0dbd6c5</span>chore: gitignore tmp/ scratch directory</div>
+<div class="commit"><span class="hash">d1ad2135</span>chore(memory): daily-eval 2026-07-20 — 2.20/5 (task #23251)</div>
+<div class="commit"><span class="hash">d275f69e</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">0cf1ba3e</span>docs(memory): capture stacked-unmerged-branch PR review pattern from #617</div>
+<div class="commit"><span class="hash">261c9ae1</span>docs(memory): capture widened-enum/stale-else-branch pattern from PR #616 review</div>
+<div class="commit"><span class="hash">54be24ba</span>chore(ops): migrate heartbeat sender to fleet multi-agent token model</div>
+<div class="commit"><span class="hash">592323ed</span>docs(patterns): add task #23219 validation to identifier-collision-escape pattern</div>
+<div class="obs">Remaining ~50 commits this period are <code>chore(loop): auto-commit after dispatch cycle</code> housekeeping — omitted for brevity.</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#22262 Re-check stale-task pileup after stop_condition field rollout (#22258)</div>
+<p class="empty">Only 1 non-blocked pending task in queue; the rest of the backlog is the 17 blocked chains listed above, all awaiting sign-off.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>PR-review load is genuinely productive, not churn:</strong> the 6-cycle #613 x402 asset-selection saga (#616→#622) each round caught a real bug — plain-STX-instead-of-SIP-010 fund-loss risk, wrong sBTC symbol match — before merge. Cost concentrated here ($2.44+$2.11+$1.68+$1.64+$1.63+$1.63+$1.40+$0.62 ≈ $12.7 across 8 tasks) reflects real verification work, not misrouting.</div>
+<div class="obs"><strong>Whop room is quiet:</strong> 156 reactive ticks over 15.5h produced zero engagement-worthy candidates (all stale or too short) and synthesis correctly deferred all 3 windows on an unchanged room hash. No action needed — lane is working as designed, room traffic just isn't there.</div>
+<div class="obs"><strong>Cost gate still stuck:</strong> arc-0015 (link-research grounding gate, #22857) hit its 4th eval flag with zero reply today; #23250 filed a direct sign-off nudge (#23257) instead of re-deriving the same finding a 5th time.</div>
+<div class="obs"><strong>Branch-merge blocker has been fully de-risked</strong> but still sits on 3 escalation tasks (#21670/#23150/#23159) — <code>git merge-tree</code> confirms zero conflicts, branch pushed to origin. Sole remaining step is whoabuddy's go-ahead to <code>gh pr create</code> + merge.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track, cost aside. 95/95 tasks succeeded over 15.5h, zero failures, and the PR-review saga on #613 (six resubmits, #616→#622) caught two real fund-loss-class bugs before merge — that's the priority stack working correctly (responsiveness and code quality ahead of internal polish). Queue itself is healthy: 1 non-blocked pending task, everything else is 17 blocked items stacked behind three sign-off chains, not agent-generated noise. The one open wound is cost discipline: $87.87/day against the $30 target, with arc-0015 (link-research grounding gate) now at its 4th unactioned eval flag despite zero conflicts and a direct nudge (#23257) already filed. That gate is the single highest-leverage lever sitting idle — it's a sign-off problem, not an execution problem, but it's been true for four evals running.</p>
+
+<h3>Queue adjustments</h3>
+<p>None this review — report-only per task instructions (no task creation or modification). Flagging for the next actionable review: the 17 blocked tasks are all legitimately waiting on whoabuddy (branch-merge #21670/#23150/#23159, X kill-switch #22887, arc-0015 sign-off #23257), not stuck for lack of Arc-side action — no queue surgery would help here.</p>
+
+<h3>Next watch focus</h3>
+<p>Keep executing the PR-review queue and Whop SKU packaging at the current pace; the blockers need a human decision, not more Arc cycles spent re-deriving already-settled findings.</p>
+
+<h3>24-hour horizon</h3>
+<p>Ideally the branch-merge sign-off (#23159) and arc-0015 gate nudge (#23257) get a reply, unblocking 7 stacked arc-opensource syncs and closing a cost gap that's persisted since 2026-07-16. If no reply lands, cost stays flat at ~$85-90/day and the queue stays this thin — that's an acceptable steady state, not a regression, as long as nothing new piles up unaddressed behind it.</p>
+</div>
+
+</body>
+</html>

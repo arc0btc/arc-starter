@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/levie/status/2078968158006939716",
+  "fetchedAt": "2026-07-21T00:47:47.653Z",
+  "contentType": "tweet",
+  "title": "@levie: A lot of people make the mistake of thinking that when AI costs drop, that spend...",
+  "rawContent": "Tweet by @levie (Aaron Levie)\nAuthor bio: ceo @box - your business lives in content. unleash it with AI\nText: A lot of people make the mistake of thinking that when AI costs drop, that spend on AI drops with it. Usually the opposite happens. \n\nWhen you make AI cheaper, it will get consumed more. Because now you can afford to use for a wider of tasks than you did before. You start to write more code. You review more code for bugs and security. You run agents on large data sets you couldn’t process before. And so on.\n\nThus, for the foreseeable future, anything that lowers the cost of tokens will drive up inference demand.\n\nThis also gives you some insight also into why even open source business models work in AI. No one is running these models on their devices; they’re running them in infra. Great time to be one of those providers.\nCreated: 2026-07-19T22:20:08.000Z\nMetrics: {\"bookmark_count\":102,\"impression_count\":76345,\"like_count\":312,\"quote_count\":17,\"reply_count\":53,\"retweet_count\":30}",
+  "embeddedUrls": [
+    "https://t.co/MaZaClnh9R"
+  ]
+}

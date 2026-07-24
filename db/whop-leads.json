@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-08T23:42:06.254Z",
+  "updated_at": "2026-07-23T21:27:25.367Z",
   "users": {
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
@@ -223,6 +223,53 @@
           "direction": "from_user",
           "in_reply_to": "post_1CcoDoBAqfHF76yn7vqwYQ",
           "snippet": "Ooo"
+        }
+      ],
+      "notes": []
+    },
+    "user_Ma1d16VPiamxk": {
+      "user_id": "user_Ma1d16VPiamxk",
+      "username": "novamintc2",
+      "display_name": "NovaMint",
+      "first_seen": "2026-07-11T23:01:07.768Z",
+      "last_seen": "2026-07-11T23:01:07.768Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 1,
+      "recent_interactions": [
+        {
+          "at": "2026-07-11T23:01:07.768Z",
+          "msg_id": "post_1CcxSe9V4XJnnkixNReu5Y",
+          "direction": "from_user",
+          "in_reply_to": "post_1Ccw6iiz6Z1Pubbzped8HX",
+          "snippet": "https://whop.com/novamint-d7f0/the-dropship-room/ Stop watching 3-hour YouTube tutorials from guys who quit dropshipping…"
+        }
+      ],
+      "notes": []
+    },
+    "user_KxwC9XwKIjgIg": {
+      "user_id": "user_KxwC9XwKIjgIg",
+      "username": "verwest",
+      "display_name": "Albert Verwest",
+      "first_seen": "2026-07-15T23:30:47.482Z",
+      "last_seen": "2026-07-17T23:33:49.244Z",
+      "message_count": 2,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 2,
+      "recent_interactions": [
+        {
+          "at": "2026-07-15T23:30:47.482Z",
+          "msg_id": "post_1Cd4iNNwnkYew2a1mTWfuH",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cd4hAeHY19ogMncXKJQqY",
+          "snippet": "https://whop.com/verwestacademy"
+        },
+        {
+          "at": "2026-07-17T23:33:49.244Z",
+          "msg_id": "post_1Cd8WDd3fp8VBiEr7LB4TC",
+          "direction": "from_user",
+          "in_reply_to": "post_1Cd8TqFQ51KTDEz4TpKg4w",
+          "snippet": "https://whop.com/verwestacademy"
         }
       ],
       "notes": []

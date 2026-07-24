@@ -1,27 +1,27 @@
-# Research Report — Mining Session Logs for Self-Improvement
+# Research Report — Evals as Strategic IP
 
-@cathrynlavery shared a single prompt that reads your last 20 Claude Code / Codex sessions and proposes concrete harness improvements. It is the clearest worked example of the "latent supervision" idea Arc has flagged but never operationalized.
+@GarrettLord (Handshake CEO) makes the case that AI programs stall at pilot because of inconsistent quality and unquantified accuracy, and that production-grade agents start with **evals**. @contralabs_ai's Design Crit is a worked example of *multi-dimensional* evaluation done right.
 
 ## TL;DR
-- A reusable prompt reads `~/.claude/projects/*/*.jsonl` and `~/.codex/sessions/.../rollout-*.jsonl`, finds patterns (errors, retries, corrections, rediscovered setup steps), and routes each to a destination: content idea, CLAUDE.md line, slash command/skill, hook, CLI fix, or config change.
-- It outputs a numbered proposal list with one evidence line each, changes nothing, and waits for human approval.
-- This is Arc's weak Feedback subsystem as a 30-line prompt. Arc *has* the logs (`cycle_log`, `recent.log`, the session JSONL) and never harvests them.
+- The pattern across "hundreds of execs": "AI isn't delivering ROI yet, but we're all in" — programs stall on inconsistent output, low confidence, security uncertainty, and token-cost spikes.
+- The fix is private evals as strategic IP — capturing judgment, tone, taste, and agentic tool use, not thumbs-up/down. Satya quoted: private evals should measure improvement against business outcomes, not external benchmarks.
+- @contralabs_ai proves the method: "you can't improve what you can't measure" → Design Crit scores image models across nine dimensions because a single "which is better?" label averages away the signal.
 
 ## Key Takeaways
-- The prompt's evidence categories are precisely the high-signal moments: "commands that errored or ran several times before working," and "moments I corrected you (no / actually / that is wrong / do not do that again)." ([cache 8f326226](../skills/arc-link-research/cache/8f326226df1b01fb.json))
-- Each pattern is classified to a destination — content idea, an AGENTS/CLAUDE.md line, a slash command/skill, a hook, a CLI fix, a config change, or "nothing if it was a one-off." That destination-routing is the part most "review your transcripts" tools miss.
-- It is read-only by design: "Do not change anything yet. Give me a numbered list of proposals, each with the one evidence line it came from." Human stays at the gate.
-- Redaction is built in ("redact emails, tokens, keys in what you show me") — relevant because Arc processes untrusted content and stores memory.
+- Stall causes are concrete and measurable: inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes. ([cache b7f02db3](../skills/arc-link-research/cache/b7f02db323d2ea49.json))
+- "A strong evaluation suite captures the nuances of judgment, tone, and taste; assesses agentic use of tools" — evals are multi-dimensional, not scalar.
+- Design Crit's lesson: a single overall verdict hides *why* — "nail the spatial structure and butcher the color intent" both get one thumbs-up. Resolve criteria into separate axes. ([cache f7b44842](../skills/arc-link-research/cache/f7b44842edbe37b0.json))
+- Private/business-outcome evals beat external benchmarks — the moat is your eval, not the model.
 
 ## Arc-alignment (grounded in real code)
-- **Arc already names this gap and doesn't fill it.** tracebase-agent-session-observability (local-first trace capture reading `~/.claude/projects`) and recursive-improve-failure-detectors (insight→metric→fix discipline) and agent-reliability-at-scale ("latent correction signals — re-opens, whoabuddy fixes — are unharvested supervision") all point at the same hole. This prompt is the cheapest possible first harvest.
-- **The data exists.** Arc's dispatch runs Claude Code as a subprocess, so the session JSONL is on disk; `cycle_log` records every cycle; `memory/recent.log` is the one-line reflection log (threshold 500 lines per MEMORY.md). The "moments I corrected you" signal maps to Arc's *task re-queues and whoabuddy email corrections* — a richer correction signal than a solo dev's "no, actually."
-- **Destination routing already has homes.** CLAUDE.md line → `memory/MEMORY.md` / CLAUDE.md; new skill → `arc-skill-manager`; hook → `.claude/settings.json` (see path-conditional-hook-guards); CLI fix → the skill's `cli.ts`. Arc has every destination the prompt routes to; it lacks the *harvester* that proposes the routing.
-- **This is a sensor, not a chat tool.** The right Arc shape is a weekly `session-miner` sensor that reads the last N `cycle_log` rows + their session JSONL, emits a proposals task (priority ~4, model sonnet), and lets a dispatch cycle apply the approved ones. That keeps it in the task queue (CLI-first), unlike a one-off pasted prompt.
+- **Arc already runs a multi-dimensional eval — and it's Arc's weakest subsystem.** `daily-eval` in MEMORY.md scores 7 axes (S/O/E/C/Ad/Co/Se) — exactly the "judgment/tone/tool-use" decomposition Handshake describes. But it's self-scored, rolling, and not validated by an independent model. agent-reliability-at-scale and maintainability-sensors-coding-agents both name Feedback as the gap.
+- **"You can't improve what you can't measure" = the golden-cases discipline Arc has documented but underuses.** agent-eval-volume-taxonomy (Stumbles→Issues→Signals→Experiments; golden cases; 3-month retention) is Arc's own version of Design Crit's argument. The taxonomy exists in memory; the golden-case *corpus* doesn't.
+- **Stall causes map to Arc's tracking.** Token cost spikes → `cost_usd`/`api_cost_usd` dual tracking + the $0.336/task benchmark; inconsistent quality → the daily-eval `--quality 1-5` field on task close; security → the untrusted-content posture. Arc measures more than most pilots — the gap is *independent* scoring and a frozen case set.
+- **Design Crit's "resolve into axes" validates Arc's 7-axis score** over a scalar. The fix isn't a new metric; it's (a) an independent judge and (b) frozen golden cases so scores are comparable over time.
 
-**Port to agent-runtime?** Strongly yes. Every fleet agent generates the same logs; a shared `session-miner` in `agent-runtime` turns each agent's mistakes into harness upgrades for all of them — the single highest-leverage Feedback investment, and it compounds across the fleet.
+**Port to agent-runtime?** Yes — the eval rubric + golden-case store is fleet IP. If `agent-runtime` is the shared base, a shared eval harness (rubric, golden cases, independent judge) lets every agent be scored on the same axes — the "private eval as strategic IP" that compounds across the fleet.
 
 ## How this was verified
-- Source: @cathrynlavery — https://x.com/cathrynlavery/status/2069193102586474781
-- Cache: `skills/arc-link-research/cache/8f326226df1b01fb.json`
+- Sources: @GarrettLord (evals), @contralabs_ai (Design Crit multi-axis eval)
+- Cache: `skills/arc-link-research/cache/{b7f02db3,f7b44842}.json`
 - Fetched 2026-06-23T13:31:13Z · task #19751

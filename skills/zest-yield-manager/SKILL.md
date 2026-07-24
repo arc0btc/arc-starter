@@ -64,20 +64,23 @@ Core execution. Accepts sub-commands:
 bun run zest-yield-manager/zest-yield-manager.ts run --action=status
 ```
 
-**Supply sBTC to earn yield:**
+**Supply sBTC to earn yield (dry run — omit `--confirm` to preview):**
 ```bash
 bun run zest-yield-manager/zest-yield-manager.ts run --action=supply --amount=50000
 ```
+Add `--confirm --password <pass>` to actually sign and broadcast the supply transaction.
 
 **Withdraw sBTC from pool:**
 ```bash
-bun run zest-yield-manager/zest-yield-manager.ts run --action=withdraw --amount=50000
+bun run zest-yield-manager/zest-yield-manager.ts run --action=withdraw --amount=50000 --confirm --password <pass>
 ```
 
 **Claim wSTX incentive rewards:**
 ```bash
-bun run zest-yield-manager/zest-yield-manager.ts run --action=claim
+bun run zest-yield-manager/zest-yield-manager.ts run --action=claim --confirm --password <pass>
 ```
+
+All three write actions default to a dry run (pre-flight checks only, no broadcast) unless both `--confirm` and `--password <pass>` are supplied. `--password` decrypts the wallet keystore at `~/.aibtc/wallets/<id>/keystore.json` (or reads `STACKS_PRIVATE_KEY` directly if set).
 
 ### install-packs
 Checks and reports on required dependencies: `@stacks/transactions`, `@stacks/network`.
@@ -110,23 +113,46 @@ All outputs are JSON to stdout. The `status` field determines how the agent shou
 }
 ```
 
-**Supply/withdraw/claim (`--action=supply|withdraw|claim`):**
+**Supply/withdraw/claim dry run (no `--confirm`):**
 ```json
 {
   "status": "success",
-  "action": "Execute supply transaction via MCP zest_supply tool",
+  "action": "Dry run. Add --confirm --password <pass> to execute supply of 1000 sats via SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.borrow-helper-v2-1-7.",
   "data": {
     "operation": "supply",
     "asset": "sBTC",
     "amount_sats": 1000,
-    "mcp_command": {
-      "tool": "zest_supply",
-      "params": { "asset": "sBTC", "amount": "1000" }
-    },
+    "contract": "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.borrow-helper-v2-1-7",
+    "function": "supply",
     "pre_checks_passed": {
       "gas_sufficient": true,
       "balance_sufficient": true,
       "within_spend_limit": true
+    }
+  },
+  "error": null
+}
+```
+
+**Supply/withdraw/claim with `--confirm --password <pass>` (signed and broadcast):**
+```json
+{
+  "status": "success",
+  "action": "Supply transaction broadcast",
+  "data": {
+    "operation": "supply",
+    "asset": "sBTC",
+    "amount_sats": 1000,
+    "contract": "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.borrow-helper-v2-1-7",
+    "function": "supply",
+    "pre_checks_passed": {
+      "gas_sufficient": true,
+      "balance_sufficient": true,
+      "within_spend_limit": true
+    },
+    "transaction": {
+      "txid": "8f9eed213f1cd9198e4c3e45190ac1799926b87e70a61088c4e47253c73292a",
+      "explorer": "https://explorer.hiro.so/txid/8f9eed213f1cd9198e4c3e45190ac1799926b87e70a61088c4e47253c73292a?chain=mainnet"
     }
   },
   "error": null
@@ -149,7 +175,7 @@ All outputs are JSON to stdout. The `status` field determines how the agent shou
 
 **Key fields:**
 - `rewards_pending_ustx` (number) — wSTX incentive rewards in microSTX. Check `> 0` to decide whether to claim.
-- `mcp_command` — the exact MCP tool call and parameters for the agent framework to execute.
+- `transaction.txid` / `transaction.explorer` — present only when `--confirm --password <pass>` broadcasts a real transaction.
 - `pre_checks_passed` — which safety gates passed before generating the transaction payload.
 
 ## Known constraints

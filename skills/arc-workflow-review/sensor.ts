@@ -103,6 +103,42 @@ const KNOWN_PATTERNS = new Set([
   // which lane a given blocked task happened to belong to, not a distinct process).
   // Bare entry so suffix variants are covered too.
   "sensor:arc-blocked-review",
+  // "Draft Arc's next amplified article — Article N" -> retrospective chain (task #21912,
+  // 3 recurrences, avg 2.7 steps), surfacing via SOURCE-grouping this time
+  // ("sensor:arc-article-pipeline:v2") rather than the subject-grouping already exempted
+  // above ("draft arc's next amplified article", line ~179). Same underlying tasks, same
+  // already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md — arc-article-pipeline's own
+  // article_queue_log already tracks draft->stage->publish with idempotent resume, so a
+  // second generic workflow would duplicate that, not add value. Bare entry so the ":v2"
+  // and future suffix variants are covered too.
+  "sensor:arc-article-pipeline",
+  // "Regenerate and deploy skills/sensors catalog" -> retrospective chain (task #21912,
+  // 3 recurrences, avg 2.0 steps), skills arc-catalog + blog-deploy + arc-skill-manager —
+  // same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md (scheduleRetrospective() fires
+  // after every completed task above the cost/priority threshold; the deploy step is a
+  // single atomic regen+publish action, not a multi-stage process needing dedup).
+  "sensor:arc-catalog",
+  // "Triage: X research batch (...)" -> N per-story "Research: ..." tasks + retrospective
+  // chain (task #22896, 3 recurrences, avg 10.0 steps — inflated by the fan-out width, not
+  // process depth). Verified via direct task-chain inspection (#22828/#22703/#22614): each
+  // triage root fans out flat (root -> research subtask x N -> retrospective), no branching,
+  // no gating, no cross-instance coordination — already the intended shape of
+  // candidate-maturation's batching fix (see memory/shared/entries/
+  // arc-link-research-dedup-measurement.md). Same already-rejected ad-hoc retrospective
+  // shape as retrospective-pattern-no-generic-machine-needed.md; a state machine would add
+  // bookkeeping, not value. Bare entry so ":triage:<timestamp>" suffix variants are covered.
+  "sensor:candidate-maturation",
+  // "Package a research report into a Whop SKU — <report>" -> retrospective chain
+  // (task #23118, 3 recurrences, avg 2.3 steps, skills arc-packaging + arc-skill-manager) —
+  // same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md. arc-packaging already has its own
+  // deterministic 3-step contract (materials -> draft -> stage, see
+  // skills/arc-packaging/SKILL.md) with idempotent resume via packaging_queue_log; a second
+  // generic workflow would duplicate that state tracking, not add value. Bare entry so
+  // ":<timestamp>" suffix variants are covered too.
+  "sensor:arc-packaging",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
@@ -128,6 +164,27 @@ function isKnownPattern(src: string): boolean {
 
 /** Source prefixes to skip — human-initiated tasks are inherently varied. */
 const SKIP_SOURCE_PREFIXES = ["human:"];
+
+// Source prefixes emitted by workflow state machines (state-machine.ts insertTask calls,
+// e.g. `content-calendar:${slug}:course`, `publish-fanout:${slug}:whop-forum`). Each hop's
+// slug/suffix varies per work-piece, so these never group under bySource (normalizeSource
+// leaves the unique slug in place), but they DO collapse under bySubject grouping since the
+// task subject text is identical across hops — surfacing as a false-positive "unmodeled
+// pattern" even though the chain is already produced by an existing workflow transition
+// (see task #22799: 'assess course candidacy' flagged as unmodeled despite being
+// ContentCalendarMachine's terminal course_candidate state, state-machine.ts:874-909).
+const WORKFLOW_SOURCE_PREFIXES = [
+  "content-calendar:",
+  "publish-fanout:",
+  "pr-review:",
+  "quest:",
+  "retrospective:",
+];
+
+function isWorkflowEmittedSource(source: string | null): boolean {
+  if (!source) return false;
+  return WORKFLOW_SOURCE_PREFIXES.some((p) => source.startsWith(p));
+}
 
 const KNOWN_SUBJECT_PREFIXES = [
   "[github-issue-monitor]",
@@ -200,6 +257,28 @@ const KNOWN_SUBJECT_PREFIXES = [
   // source-uniqueness reasoning as the whop-forum entry above. Prefix (not exact match)
   // so "post x" alone covers both variants via startsWith.
   "post x",
+  // "Research: ecosystem signal — matured candidate (...)" -> retrospective chain (task
+  // #22590), avg 2.3 steps, arc-link-research + arc-skill-manager + candidate-maturation.
+  // Same already-rejected ad-hoc "task closes -> Retrospective: extract learnings from
+  // task #N" shape as retrospective-pattern-no-generic-machine-needed.md — root task
+  // subjects vary per matured candidate so it only surfaces via subject-grouping, not a
+  // new pattern.
+  "research",
+  // "Whop free-forum digest [<date>]: syndicate Arc status into the Public forum" ->
+  // retrospective chain (task #22896, 3 recurrences, avg 2.0 steps), whop + arc-brand-voice
+  // + arc-skill-manager. Source is "sensor:whop-free-forum:<date>" (unique per day, so it
+  // never dedups via source-grouping) — verified via direct chain inspection
+  // (#22121/#22200/#22810): each digest is a single atomic post-then-retrospective, no
+  // branching or gating. Same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md.
+  "whop free-forum digest",
+  // "sensor:context-review" -> "Retrospective: extract learnings from task #N" chain
+  // (task #23043, 3 recurrences, avg 2.0 steps), context-review + arc-skill-manager.
+  // context-review's own findings-review task is atomic (audit skill coverage on recent
+  // tasks, no branching/gating) followed by the standard ad-hoc retrospective — same
+  // already-rejected shape as retrospective-pattern-no-generic-machine-needed.md, not a
+  // new pattern requiring a dedicated state machine.
+  "sensor:context-review",
 ];
 
 function normalizeSource(source: string | null): string {
@@ -364,6 +443,11 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
     if (isKnownPattern(src)) continue;
     if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
+    // Every root in this subject group came from a workflow-driven hop (e.g. each
+    // course-candidate task's source is `content-calendar:<unique-slug>:course`) — the
+    // chain is already modeled by that workflow's state machine, the subject text just
+    // happens to be identical across work-pieces. Not an unmodeled pattern.
+    if (group.every((c) => isWorkflowEmittedSource(c.rootSource))) continue;
 
     const avgSteps =
       group.reduce((sum, c) => sum + 1 + c.childCount, 0) / group.length;

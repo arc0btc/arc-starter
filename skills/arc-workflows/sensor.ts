@@ -14,6 +14,7 @@ import {
   insertWorkflow,
   completeWorkflow,
   getDatabase,
+  countXPostsToday,
   type Workflow,
 } from "../../src/db.ts";
 
@@ -169,6 +170,15 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
  * Fetch PRs from GitHub using `gh api graphql` (uses gh CLI auth, no separate token needed).
  * Batches all repos into a single GraphQL query for efficiency.
  */
+// Max repos per GraphQL batch. A single query covering all 10 watched repos now
+// trips GitHub's query resource-cost limit ("Resource limits for this query
+// exceeded") as PR/review counts have grown — gh then exits non-zero, and the old
+// code silently returned [] for the ENTIRE batch with no exception, so the sensor
+// kept reporting last_result=ok while producing zero workflow rows for 3+ days
+// (#23168). 5 repos/query verified to stay under the limit; chunking bounds cost
+// regardless of how much any single repo grows.
+const PR_SYNC_CHUNK_SIZE = 5;
+
 function fetchGitHubPRs(repos: string[]): GithubPR[] {
   const validRepos: Array<{ owner: string; repo: string; full: string }> = [];
   for (const repoPath of repos) {
@@ -182,8 +192,30 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
 
   if (validRepos.length === 0) return [];
 
-  // Batch all repos into one GraphQL query (like aibtc-repo-maintenance sensor)
-  const fragments = validRepos.map((r, i) => `repo${i}: repository(owner: "${r.owner}", name: "${r.repo}") {
+  type PRNode = {
+    number: number;
+    title: string;
+    url: string;
+    author?: { login: string };
+    state: string;
+    merged?: boolean;
+    reviewDecision?: string | null;
+    headRefOid?: string;
+    closingIssuesReferences?: { nodes?: Array<{ number: number }> };
+    reviews?: { nodes?: Array<{ author?: { login: string }; state: string }> };
+  };
+
+  type RepoData = {
+    pullRequests: { nodes: PRNode[] };
+  };
+
+  const prs: GithubPR[] = [];
+
+  for (let chunkStart = 0; chunkStart < validRepos.length; chunkStart += PR_SYNC_CHUNK_SIZE) {
+    const chunk = validRepos.slice(chunkStart, chunkStart + PR_SYNC_CHUNK_SIZE);
+
+    // Batch this chunk of repos into one GraphQL query (like aibtc-repo-maintenance sensor)
+    const fragments = chunk.map((r, i) => `repo${chunkStart + i}: repository(owner: "${r.owner}", name: "${r.repo}") {
       pullRequests(last: 50, states: [OPEN, CLOSED]) {
         nodes {
           number
@@ -207,75 +239,58 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
       }
     }`);
 
-  const query = `query { ${fragments.join("\n")} }`;
-  const result = Bun.spawnSync(["gh", "api", "graphql", "-f", `query=${query}`], {
-    timeout: 30_000,
-  });
+    const query = `query { ${fragments.join("\n")} }`;
+    const result = Bun.spawnSync(["gh", "api", "graphql", "-f", `query=${query}`], {
+      timeout: 30_000,
+    });
 
-  if (result.exitCode !== 0) {
-    log(`pr-lifecycle: gh api graphql failed: ${result.stderr.toString().trim()}`);
-    return [];
-  }
+    if (result.exitCode !== 0) {
+      log(`pr-lifecycle: gh api graphql failed for chunk [${chunk.map((r) => r.full).join(", ")}]: ${result.stderr.toString().trim()}`);
+      continue;
+    }
 
-  type PRNode = {
-    number: number;
-    title: string;
-    url: string;
-    author?: { login: string };
-    state: string;
-    merged?: boolean;
-    reviewDecision?: string | null;
-    headRefOid?: string;
-    closingIssuesReferences?: { nodes?: Array<{ number: number }> };
-    reviews?: { nodes?: Array<{ author?: { login: string }; state: string }> };
-  };
+    let data: Record<string, RepoData>;
+    try {
+      const parsed = JSON.parse(result.stdout.toString().trim()) as { data: Record<string, RepoData> };
+      data = parsed.data;
+    } catch {
+      log(`pr-lifecycle: failed to parse GraphQL response for chunk [${chunk.map((r) => r.full).join(", ")}]`);
+      continue;
+    }
 
-  type RepoData = {
-    pullRequests: { nodes: PRNode[] };
-  };
+    for (let i = 0; i < chunk.length; i++) {
+      const { owner, repo } = chunk[i];
+      const repoData = data[`repo${chunkStart + i}`];
+      if (!repoData) continue;
 
-  let data: Record<string, RepoData>;
-  try {
-    const parsed = JSON.parse(result.stdout.toString().trim()) as { data: Record<string, RepoData> };
-    data = parsed.data;
-  } catch {
-    log("pr-lifecycle: failed to parse GraphQL response");
-    return [];
-  }
-
-  const prs: GithubPR[] = [];
-  for (let i = 0; i < validRepos.length; i++) {
-    const { owner, repo } = validRepos[i];
-    const repoData = data[`repo${i}`];
-    if (!repoData) continue;
-
-    for (const node of repoData.pullRequests.nodes) {
-      const closingIssueNumbers = (node.closingIssuesReferences?.nodes || []).map(
-        (n) => n.number,
-      );
-      prs.push({
-        owner,
-        repo,
-        number: node.number,
-        title: node.title,
-        url: node.url,
-        author: node.author?.login || "unknown",
-        state: (node.state.toLowerCase() === "open"
-          ? "open"
-          : "closed") as "open" | "closed",
-        merged: node.merged,
-        reviewDecision: node.reviewDecision as
-          | "APPROVED"
-          | "CHANGES_REQUESTED"
-          | "PENDING"
-          | null
-          | undefined,
-        closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
-        arcHasReview: (node.reviews?.nodes || []).some(
-          (r) => r.author?.login === "arc0btc" && (r.state === "APPROVED" || r.state === "COMMENTED"),
-        ) || undefined,
-        headCommitSha: node.headRefOid || undefined,
-      });
+      for (const node of repoData.pullRequests.nodes) {
+        const closingIssueNumbers = (node.closingIssuesReferences?.nodes || []).map(
+          (n) => n.number,
+        );
+        prs.push({
+          owner,
+          repo,
+          number: node.number,
+          title: node.title,
+          url: node.url,
+          author: node.author?.login || "unknown",
+          state: (node.state.toLowerCase() === "open"
+            ? "open"
+            : "closed") as "open" | "closed",
+          merged: node.merged,
+          reviewDecision: node.reviewDecision as
+            | "APPROVED"
+            | "CHANGES_REQUESTED"
+            | "PENDING"
+            | null
+            | undefined,
+          closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
+          arcHasReview: (node.reviews?.nodes || []).some(
+            (r) => r.author?.login === "arc0btc" && (r.state === "APPROVED" || r.state === "COMMENTED"),
+          ) || undefined,
+          headCommitSha: node.headRefOid || undefined,
+        });
+      }
     }
   }
 
@@ -962,10 +977,7 @@ export default async function workflowsSensor(): Promise<string> {
           ) {
             let ccXRootsToday = 0;
             try {
-              const row = getDatabase().query(
-                "SELECT COUNT(*) as total_count FROM x_post_log WHERE date(posted_at) = date('now') AND source LIKE 'content-calendar:%:x' AND is_root = 1"
-              ).get() as { total_count: number } | null;
-              ccXRootsToday = row?.total_count ?? 0;
+              ccXRootsToday = countXPostsToday("content-calendar:%:x");
             } catch { /* non-fatal — if DB unavailable, allow task */ }
             if (ccXRootsToday >= 1) {
               log(`content-calendar daily x-thread cap reached (${ccXRootsToday}/1) — deferring ${action.source} to tomorrow`);

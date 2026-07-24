@@ -112,17 +112,6 @@ export default async function blockedReviewSensor(): Promise<string> {
     }
 
     // 3. Check if tasks referencing this blocked task's ID in their subject/description completed.
-    // Excludes retrospective/audit tasks, which mention many unrelated task IDs by design
-    // (e.g. "Retrospective: extract learnings from task #N...") and are not signals that
-    // task #N's actual blocker was resolved. Also excludes this sensor's own review-cycle
-    // output tasks and their direct follow-ups — otherwise reviewing a still-blocked task
-    // manufactures a new "completed task mentioning #N" every cycle, permanently self-triggering
-    // re-review even when nothing about the block has changed.
-    // Also excludes digest/rollup tasks (e.g. arc-purpose-eval's "PURPOSE eval: N/5" reports),
-    // which quote other tasks' result_summary text verbatim under a "## Completed Tasks"
-    // section — this can re-mention a blocked task's ID with zero actual resolution. Matched
-    // by marker rather than enumerating sources by name so future digest-style sensors don't
-    // reintroduce the same false positive.
     const mentioningTasks = db
       .query(
         `SELECT id, subject, status FROM tasks
@@ -134,6 +123,7 @@ export default async function blockedReviewSensor(): Promise<string> {
          AND source != ?
          AND source NOT IN (SELECT 'task:' || id FROM tasks WHERE source = ?)
          AND (description IS NULL OR description NOT LIKE '%## Completed Tasks%')
+         AND (description IS NULL OR description NOT LIKE '%Context wells%')
          LIMIT 5`
       )
       .all(
@@ -173,7 +163,6 @@ export default async function blockedReviewSensor(): Promise<string> {
   }
 
   // Split into signal-triggered (new context) vs stale-only (dead-ends with no new signals).
-  // Stale-only candidates are suppressed if a review already ran within DEAD_END_REVIEW_COOLDOWN_HOURS.
   const signaledCandidates = candidates.filter((c) =>
     c.reasons.some((r) => !r.startsWith("blocked for "))
   );
@@ -182,15 +171,13 @@ export default async function blockedReviewSensor(): Promise<string> {
   );
 
   // Signal-triggered candidates with no stale reason of their own get a per-task cooldown:
-  // suppress re-flagging within SIGNAL_REVIEW_COOLDOWN_HOURS of the task's last review close.
-  // Tasks that also carry a stale reason are left alone — the stale threshold already forces
-  // their re-review structurally, so this cooldown would be redundant.
   const activeSignaledCandidates = signaledCandidates.filter((c) => {
     const hasStaleReason = c.reasons.some((r) => r.startsWith("blocked for "));
-    if (hasStaleReason) return true;
     const lastReviewedAt = getLastSignalReviewAt(db, c.task.id);
     if (!lastReviewedAt) return true;
     const ageHours = (Date.now() - new Date(lastReviewedAt + "Z").getTime()) / 3_600_000;
+    
+    // Apply cooldown regardless of stale reason presence
     if (ageHours < SIGNAL_REVIEW_COOLDOWN_HOURS) {
       log(
         `task #${c.task.id} signal match reviewed ${Math.round(ageHours)}h ago — skipping until ${SIGNAL_REVIEW_COOLDOWN_HOURS}h cooldown clears`
@@ -235,9 +222,9 @@ export default async function blockedReviewSensor(): Promise<string> {
       )
       .join("\n\n") +
     "\n\nIf verification confirms a task's blocker is resolved, close it now " +
-    "(`arc tasks close --id <id> --status completed|failed --summary ...`) instead of " +
-    "only reporting — an unclosed blocked task gets re-flagged and re-reviewed at full cost " +
-    "on a later cycle even when the finding hasn't changed.";
+    "(`arc tasks close --id N --status completed`) and optionally add a follow-up. " +
+    "If still blocked, leave as-is or update the `result_summary` with current status. " +
+    "Close this review task with a summary of actions taken.";
 
   // Build valid skill set to filter out renamed/removed skills
   const validSkillNames = new Set(discoverSkills().map((s) => s.name));
@@ -254,7 +241,7 @@ export default async function blockedReviewSensor(): Promise<string> {
   // Cap at 6 skills to stay within context budget
   const reviewSkills = [...skillSet].slice(0, 6);
 
-  const id = insertTaskIfNew(TASK_SOURCE, {
+  const reviewTaskId = insertTaskIfNew(TASK_SOURCE, {
     subject: `Review ${reviewCandidates.length} blocked task(s) for possible unblock`,
     description,
     skills: JSON.stringify(reviewSkills),
@@ -262,8 +249,8 @@ export default async function blockedReviewSensor(): Promise<string> {
     model: "sonnet",
   });
 
-  if (id !== null) {
-    log(`created review task #${id} for ${reviewCandidates.length} candidate(s)`);
+  if (reviewTaskId !== null) {
+    log(`created review task #${reviewTaskId} for ${reviewCandidates.length} candidate(s)`);
   } else {
     log("review task already exists, skipping");
   }

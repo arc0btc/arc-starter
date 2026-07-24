@@ -17,6 +17,13 @@ import {
   releaseSingleReservation, releaseAbandonedReservations,
   type Lane as EngineLane,
 } from "../social-engine/admission.ts";
+// arc-x-research-channel Phase 4 (2026-07-13): username->id resolution for List-membership
+// sync and the follow-policy hook needs to be READ-BUDGET METERED (the confirmed $0.010/
+// resource "user reads" rate — Phase 1 console reconciliation). cmdFollow's own internal
+// username lookup below still uses the unmetered `apiRequest` (a pre-existing gap, out of
+// this phase's scope to refactor) — `resolveUserId` is a NEW call site that does it right
+// from day one instead of perpetuating the gap.
+import { xApiGet, loadXCreds as loadMeteredXCreds } from "./lib/x-api.ts";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
@@ -199,6 +206,14 @@ interface DailyBudget {
   // on-disk budget files (which lack them) still parse.
   link_posts?: number;      // count of link-bearing posts today ($0.20 tier)
   write_spend_usd?: number; // dollars spent on writes today
+  // Split-brain reconciliation (control-plane-remediation Phase 2, defect row 56, 2026-07-16/17):
+  // `posts` above is INTENTIONALLY legacy-lane-only (it gates checkBudget's 3/day cap, and
+  // coupling reserved-group volume into that cap would let daily-read/content-calendar traffic
+  // lock out the unrelated legacy lane). But that means `posts` undercounts real X output on any
+  // day with reserved-group activity — a reader of this file alone gets a false picture. This
+  // field is DERIVED (never independently written) straight from budget_ledger — the table both
+  // paths already feed — so it can never drift from it. See reconcileFromLedger().
+  budget_ledger_posts_today?: number;
 }
 
 // Pay-per-use write rates (2026 X API). See research/2026-07-06_x-api-budget-ground-truth.md.
@@ -304,7 +319,29 @@ function todayDateStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function loadBudget(): Promise<DailyBudget> {
+// Split-brain reconciliation (defect row 56): budget_ledger is fed by BOTH the legacy path
+// (dual-write, see cmdPost's "legacy budget_ledger dual-write" comment) and the reserved-group
+// fast path (engineMarkSent) — it is already the complete picture. x-budget.json's own `posts`
+// field only ever sees the legacy path (by design — see budget_ledger_posts_today's doc comment
+// on DailyBudget). This computes the TRUE total straight from budget_ledger so a reader of the
+// JSON file alone gets an accurate number without touching the cap-coupled `posts` field. Never
+// throws — a reconciliation failure must not block a real budget save.
+export async function reconcileFromLedger(dateStr: string): Promise<number> {
+  try {
+    const { initDatabase, getDatabase } = await import("../../src/db.ts");
+    initDatabase();
+    const db = getDatabase();
+    const row = db
+      .query(`SELECT COALESCE(SUM(sent_count), 0) as n FROM budget_ledger WHERE channel='x' AND utc_day=? AND lane != 'reply'`)
+      .get(dateStr) as { n: number } | null;
+    return row?.n ?? 0;
+  } catch (e) {
+    log(`reconcileFromLedger failed (non-fatal, budget_ledger_posts_today left stale): ${e instanceof Error ? e.message : String(e)}`);
+    return -1; // sentinel: reconciliation unavailable this call, not "zero posts"
+  }
+}
+
+export async function loadBudget(): Promise<DailyBudget> {
   const today = todayDateStr();
   try {
     const file = Bun.file(BUDGET_PATH);
@@ -313,15 +350,33 @@ async function loadBudget(): Promise<DailyBudget> {
       if (data.date === today) return data;
       // AI-005: Day rolled over — archive yesterday's budget to the history file before resetting.
       // x-budget-history.json is a JSON array, capped at 30 entries (trailing ~1 month).
+      //
+      // Row 57 fix (2026-07-16/17): `loadBudget()` is called on EVERY action attempt (via
+      // checkBudget), not just once per rollover. The old code appended to history here but
+      // never persisted the reset — so every call between midnight UTC and the FIRST successful
+      // saveBudget() that day re-read this same stale file and appended ANOTHER duplicate history
+      // row (live evidence: 9 duplicate dates, up to 6x on 07-05/07-10). Two independent fixes,
+      // both idempotent so either alone would close the gap:
       try {
         const histFile = Bun.file(BUDGET_HISTORY_PATH);
         const existing = histFile.size > 0 ? ((await histFile.json()) as DailyBudget[]) : [];
-        const trimmed = Array.isArray(existing) ? existing.slice(-29) : []; // keep last 29 + new = 30
-        trimmed.push(data);
-        await Bun.write(BUDGET_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+        const existingArr = Array.isArray(existing) ? existing : [];
+        // (a) dedup-by-date guard — never append a date already archived, regardless of races.
+        const alreadyArchived = existingArr.some((e) => e?.date === data.date);
+        if (!alreadyArchived) {
+          const trimmed = existingArr.slice(-29); // keep last 29 + new = 30
+          trimmed.push(data);
+          await Bun.write(BUDGET_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+        }
       } catch {
         // History write is best-effort — never block the budget reset
       }
+      // (b) persist the reset immediately — a second loadBudget() call the same day now sees
+      // the already-rolled-over file instead of the stale one, closing the window fast even
+      // without the dedup guard.
+      const fresh: DailyBudget = { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
+      await saveBudget(fresh);
+      return fresh;
     }
   } catch {
     // corrupt file, start fresh
@@ -329,7 +384,13 @@ async function loadBudget(): Promise<DailyBudget> {
   return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0, link_posts: 0, write_spend_usd: 0 };
 }
 
-async function saveBudget(budget: DailyBudget): Promise<void> {
+export async function saveBudget(budget: DailyBudget): Promise<void> {
+  // Row 56 fix: stamp the ledger-derived reconciliation field on every save so it's always
+  // current for whatever action just mutated the budget (legacy increment, reserved-group
+  // recordWriteSpend, or this rollover reset). -1 sentinel (reconciliation unavailable) is
+  // written as-is rather than silently coerced to 0 — a reader can tell "no posts today" from
+  // "couldn't reconcile" apart.
+  budget.budget_ledger_posts_today = await reconcileFromLedger(budget.date);
   // P2 arc-funnel-hardening: atomic temp-and-rename (crash-safe, matches saveReadBudget).
   const temporaryFilePath = BUDGET_PATH + ".tmp";
   await Bun.write(temporaryFilePath, JSON.stringify(budget, null, 2));
@@ -824,6 +885,23 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
             detail: ((err as Error).message ?? "403 Forbidden").slice(0, 300),
           }));
           process.exit(3);
+        }
+        // CONFIRMED LIVE (task #22087): any OTHER apiRequest() failure — notably 402
+        // CreditsDepleted, which has no `.status` set and previously fell straight
+        // through to `throw err` below with zero release — leaked this row's own
+        // reservation AND its atomic-group siblings' `reserved_count` forever (the
+        // root eventually got swept to 'unknown' by releaseAbandonedReservations()
+        // once its lease expired, but 'queued' siblings with no lease never get
+        // swept). Release both on ANY send failure, not just the terminal-403 case,
+        // before re-throwing so the caller still sees/handles the real error.
+        log(`Reserved-group send failed for source=${flags["source"]} (${(err as Error).message ?? "unknown error"}) — releasing reservation before re-throw.`);
+        releaseSingleReservation(engineDb, engineRow.id, `send failure: ${((err as Error).message ?? "unknown").slice(0, 300)}`);
+        if (engineRow.atomic_group_id) {
+          const released = releaseGroupRemainder(
+            engineDb, engineRow.atomic_group_id,
+            `send failure on source_key=${flags["source"]}`
+          );
+          log(`Released own row + ${released.length} remaining queued row(s) in atomic_group_id=${engineRow.atomic_group_id}`);
         }
         throw err;
       }
@@ -1586,12 +1664,262 @@ async function cmdUnretweet(flags: Record<string, string>): Promise<void> {
   log(`Unretweeted: ${tweetId}`);
 }
 
+// ---- Lists (arc-x-research-channel Phase 4, 2026-07-13) --------------------
+// Private X List over the curated roster (social_accounts) — the chosen read
+// mechanism (List-poll over Activity API push, decided in Phase 1's console
+// reconciliation §2: cost is a wash, List-poll needs zero new standing
+// infrastructure and fits this codebase's scheduled-poll-per-tick architecture
+// everywhere else). These are WRITES (create the list, add a member) — same
+// proven OAuth 1.0a `apiRequest` path every other write in this file uses, so
+// they live here, not in the read-metered `lib/x-api.ts`. Pricing for List
+// WRITES (create/add-member) is NOT on the public rate card and NOT confirmed
+// this phase — disclosed, not invented (dev-council, Phase 4 verify artifact).
+
+/** Create a private X List. One-time setup call (idempotency is the CALLER's
+ * job — `skills/list-roster/sensor.ts` only calls this once, persisting the
+ * returned id to `db/hook-state/list-roster-state.json` so it's never called
+ * twice). Throws on failure — a failed list-create has no safe fallback for
+ * the caller to paper over. */
+export async function createXList(name: string, description: string): Promise<{ id: string; name: string }> {
+  const creds = await loadCreds();
+  const result = await apiRequest("POST", "/lists", creds, { name, description, private: true });
+  const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+  if (!data["id"]) {
+    throw new Error(`createXList: no id in response — ${JSON.stringify(result)}`);
+  }
+  return { id: String(data["id"]), name: String(data["name"] ?? name) };
+}
+
+/** Add one member to an existing X List. Non-throwing (a batch caller syncing
+ * ~138 roster accounts must keep going past one bad id) — mirrors cmdFollow's
+ * catch shape. X returns 200 with `is_member: true` on both a fresh add AND a
+ * repeat add (same idempotent shape as follow), so a re-run never double-errors.
+ *
+ * `alreadyMember` (despite the name — kept for API-compat with the first
+ * version of this function) is the ACTUAL membership-confirmation signal
+ * (`data.is_member === true`), NOT merely "the HTTP call returned 2xx."
+ * dev-council (Lamport lens, 2026-07-13): the ORIGINAL callers gated their
+ * `list_member_added_at` UPDATE on `result.ok` alone and never read this
+ * field — i.e. the one signal that actually confirms membership was computed
+ * and then discarded, so a 200-with-`is_member:false` response (e.g. a
+ * pending/queued add X hasn't confirmed yet) would have been recorded as a
+ * confirmed member. Both call sites (skills/list-roster/sensor.ts,
+ * src/follow-policy.ts) now gate on `result.ok && result.alreadyMember`. */
+export async function addListMember(listId: string, userId: string): Promise<{ ok: boolean; alreadyMember?: boolean; status?: number; error?: string }> {
+  try {
+    const result = await apiRequest("POST", `/lists/${listId}/members`, await loadCreds(), { user_id: userId });
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, alreadyMember: data["is_member"] === true };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    return { ok: false, status: e.status ?? null as unknown as number, error: e.message };
+  }
+}
+
+/** Resolve a username to its numeric X user id via the METERED read path
+ * (`lib/x-api.ts`'s `xApiGet`, NOT this file's own unmetered `apiRequest` —
+ * Phase 1's console reconciliation confirmed user reads bill $0.010/resource,
+ * a real cost every caller should show up in `db/x-read-budget.json`'s
+ * `by_lane.users`). `cmdFollow` below still does its OWN unmetered lookup —
+ * a pre-existing gap this function does NOT retroactively fix (out of this
+ * phase's scope), it just avoids adding a NEW unmetered call site. Returns
+ * `null` (never throws) on a not-found/failed lookup — a bad handle in a
+ * batch sync shouldn't crash the whole run. */
+export async function resolveUserId(username: string): Promise<string | null> {
+  const xCreds = await loadMeteredXCreds();
+  if (!xCreds) return null;
+  try {
+    const resp = await xApiGet(`/users/by/username/${username.replace(/^@/, "")}`, xCreds, { "user.fields": "id" }, { costUsd: 0.010, lane: "users" });
+    const data = resp["data"] as Record<string, unknown> | undefined;
+    return data?.["id"] ? String(data["id"]) : null;
+  } catch (error) {
+    log(`resolveUserId(${username}) failed: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+async function cmdListCreate(flags: Record<string, string>): Promise<void> {
+  const name = flags["name"];
+  const description = flags["description"] ?? "";
+  if (!name) {
+    console.log("Usage: list-create --name <name> [--description <desc>]");
+    process.exit(1);
+  }
+  const result = await createXList(name, description);
+  console.log(JSON.stringify({ ok: true, ...result }, null, 2));
+}
+
+async function cmdListAddMember(flags: Record<string, string>): Promise<void> {
+  const listId = flags["list-id"];
+  const userId = flags["user-id"];
+  if (!listId || !userId) {
+    console.log("Usage: list-add-member --list-id <id> --user-id <id>");
+    process.exit(1);
+  }
+  const result = await addListMember(listId, userId);
+  console.log(JSON.stringify(result, null, 2));
+  if (!result.ok) process.exit(3);
+}
+
 // ---- Follow (audience exposure + reply-permission) ----
 // Mirrors cmdRetweet/cmdLike exactly: same apiRequest signed-POST path, same daily
 // budget plumbing (the "follows" limit already existed in BUDGET_LIMITS). Reuses the
 // proven OAuth 1.0a helper — no auth duplication. Accept either --username (resolves
 // via /users/by/username) or --target-id (caller pre-resolved the id to save a read).
 // Output is single-line JSON so a batch orchestrator can parse ok/already/error.
+export interface FollowByIdResult {
+  ok: boolean;
+  following?: boolean;
+  pendingFollow?: boolean;
+  deferred?: boolean; // true = daily 20/day cap reached (normal, not a failure)
+  status?: number | null;
+  error?: string;
+}
+
+/**
+ * Follow a pre-resolved user id, IN-PROCESS (no subprocess). Extracted from
+ * `cmdFollow` (2026-07-13, arc-x-research-channel Phase 4, dev-council/Newman
+ * lens — "highest-leverage change... one structural fix retires two
+ * findings"): `src/follow-policy.ts` previously shelled out to
+ * `bun cli.ts follow --target-id ...` and parsed the last stdout line as
+ * JSON — but `checkBudget("follows")` throws BEFORE `cmdFollow`'s try/catch,
+ * so a daily-cap hit propagated to the TOP-LEVEL `main().catch` (stderr-only,
+ * `process.exit(1)`, no stdout JSON at all), making the caller's "budget
+ * exhausted = deferred, not a failure" branch dead code (confirmed
+ * independently by BOTH the Lamport and Newman lenses) — every over-cap
+ * follow was silently misreported as a generic failure. This function
+ * returns a STRUCTURED result instead of throwing/exiting, so a cap hit is a
+ * plain `{ok: false, deferred: true}` value, not a parsed-stdout guess. Also
+ * removes the per-follow subprocess boot (fresh Bun process + cold creds
+ * reload + a fresh `getMyUserId` read, every single follow) `follow-policy.ts`
+ * was paying for no reason — `addListMember`/`resolveUserId` were already
+ * in-process; follow is now consistent with them.
+ */
+export async function followByTargetId(targetId: string): Promise<FollowByIdResult> {
+  try {
+    await checkBudget("follows");
+  } catch (error) {
+    return { ok: false, deferred: true, error: error instanceof Error ? error.message : String(error) };
+  }
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+  try {
+    const result = await apiRequest("POST", `/users/${userId}/following`, creds, { target_user_id: targetId });
+    await incrementBudget("follows");
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, following: data["following"] === true, pendingFollow: data["pending_follow"] === true };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    // Re-following an account you already follow returns 200 with following:true on X,
+    // so a thrown error here is a real failure (429/restriction/etc).
+    return { ok: false, status: e.status ?? null, error: e.message };
+  }
+}
+
+// ---- Like, in-process (arc-x-research-channel Phase 7, 2026-07-13) ----------
+// Extracted the same way followByTargetId was (2026-07-13, Phase 4): a structured
+// result the caller can branch on (ok/deferred/error), no throw, no subprocess.
+// cmdLike (above, ~line 1541) already does this write via apiRequest but as a
+// standalone CLI command with no in-process caller — this is the first in-process
+// caller (arc-link-research's cmdProcess, via a best-effort "like the source
+// tweet" step alongside the existing follow-policy hook).
+//
+// Algo-shaping context (operator directive, 2026-07-13): a READ (personalized_trends,
+// already consumed since Phase 3) reflects Arc's follow graph back — it doesn't
+// feed X's own personalization of what Arc sees. A WRITE (follow/like) is the only
+// plausible signal that shapes it going forward. Same documented-removed-but-
+// empirically-live status as follow writes (2026-04-20 announcement removed
+// follow/like/quote-post from all self-serve tiers; @arc0btc's follows kept
+// working past that date per the 2026-07-13 console reconciliation doc) — treated
+// identically here: live, unpriced in $ terms (goes through BUDGET_LIMITS.likes,
+// a count cap, same precedent as follows — NOT threaded into x-read-budget.json,
+// which is reads-only by design).
+//
+// dev-council 2026-07-13 (Phase 7, CONFIRMED independently by the Fowler and Hohpe
+// lenses): the FIRST version of this function called the existing
+// `enforceInterSendSpacing("like")` — but that function's clock is
+// MAX(x_post_log.posted_at, x_reply_log.replied_at) (tweet/reply timing), a
+// resource likes never write to. Spacing a like against that clock is both
+// meaningless (a like never advances it, so the "spacing" measures unrelated
+// tweet/reply activity) and expensive (up to 120s bounded sleep, called up to 5x
+// per `process` run — up to ~10 minutes of serial blocking on the research
+// pipeline for a cosmetic side effect that gate wasn't even protecting).
+// enforceInterSendSpacing itself is ALSO not currently called by cmdLike or
+// followByTargetId (it only guards the three POST /tweets call sites per its own
+// header comment) — a pre-existing gap for follow, disclosed not fixed here.
+// Fixed: likes get their OWN dedicated 45-90s clock (enforceLikeSpacing /
+// recordLikeSpacing below, a tiny JSON state file — same atomic tmp+rename
+// pattern as saveFollowerCache above), honoring the operator's explicit
+// "respect the spacing rule" directive against a clock likes actually advance.
+const LIKE_SPACING_MIN_SECONDS = 45;
+const LIKE_SPACING_JITTER_SECONDS = 45; // effective gap 45-90s, matching enforceInterSendSpacing's own shape
+const LIKE_SPACING_STATE_PATH = join(import.meta.dir, "..", "..", "db", "hook-state", "last-like-at.json");
+
+async function enforceLikeSpacing(): Promise<void> {
+  let lastAt: string | null = null;
+  try {
+    const f = Bun.file(LIKE_SPACING_STATE_PATH);
+    if (await f.exists()) {
+      const state = (await f.json()) as { lastLikeAt?: string };
+      lastAt = state.lastLikeAt ?? null;
+    }
+  } catch {
+    // missing/corrupt state = no prior recorded like — proceed immediately, don't block on a
+    // bookkeeping read failure.
+  }
+  if (!lastAt) return;
+  const elapsedMs = Date.now() - new Date(lastAt).getTime();
+  const requiredMs = (LIKE_SPACING_MIN_SECONDS + Math.floor(Math.random() * LIKE_SPACING_JITTER_SECONDS)) * 1000;
+  if (elapsedMs >= requiredMs) return;
+  const waitMs = Math.min(requiredMs - elapsedMs, 120_000);
+  await Bun.sleep(waitMs);
+}
+
+async function recordLikeSpacing(): Promise<void> {
+  try {
+    const { mkdirSync, renameSync } = await import("node:fs");
+    const dir = join(import.meta.dir, "..", "..", "db", "hook-state");
+    mkdirSync(dir, { recursive: true });
+    const temporaryPath = LIKE_SPACING_STATE_PATH + ".tmp";
+    await Bun.write(temporaryPath, JSON.stringify({ lastLikeAt: new Date().toISOString() }, null, 2) + "\n");
+    renameSync(temporaryPath, LIKE_SPACING_STATE_PATH);
+  } catch {
+    // best-effort bookkeeping only — never block or fail the like itself over a write hiccup.
+  }
+}
+
+export interface LikeByIdResult {
+  ok: boolean;
+  liked?: boolean;
+  deferred?: boolean; // true = daily likes budget cap reached (normal, not a failure)
+  status?: number | null;
+  error?: string;
+}
+
+export async function likeByTargetId(tweetId: string): Promise<LikeByIdResult> {
+  try {
+    await checkBudget("likes");
+  } catch (error) {
+    return { ok: false, deferred: true, error: error instanceof Error ? error.message : String(error) };
+  }
+  await enforceLikeSpacing();
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+  try {
+    const result = await apiRequest("POST", `/users/${userId}/likes`, creds, { tweet_id: tweetId });
+    await incrementBudget("likes");
+    await recordLikeSpacing();
+    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
+    return { ok: true, liked: data["liked"] !== false };
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    // Liking an already-liked tweet returns 200 with liked:true on X, so a thrown
+    // error here is a real failure (429/restriction/etc), same reasoning as
+    // followByTargetId's own catch above.
+    return { ok: false, status: e.status ?? null, error: e.message };
+  }
+}
+
 async function cmdFollow(flags: Record<string, string>): Promise<void> {
   const rawHandle = (flags["username"] ?? "").replace(/^@/, "");
   let targetId = flags["target-id"] ?? "";
@@ -1600,11 +1928,8 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
-  await checkBudget("follows");
-  const creds = await loadCreds();
-  const userId = await getMyUserId(creds);
-
   if (!targetId) {
+    const creds = await loadCreds();
     const lk = await apiRequest("GET", `/users/by/username/${rawHandle}`, creds, undefined, { "user.fields": "id" });
     const u = lk["data"] as Record<string, unknown> | undefined;
     if (!u || !u["id"]) {
@@ -1615,19 +1940,14 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
   }
 
   log(`Following ${rawHandle || targetId} (id=${targetId})...`);
-  try {
-    const result = await apiRequest("POST", `/users/${userId}/following`, creds, { target_user_id: targetId });
-    await incrementBudget("follows");
-    const data = (result["data"] as Record<string, unknown> | undefined) ?? {};
-    const following = data["following"] === true;
-    const pendingFollow = data["pending_follow"] === true;
-    console.log(JSON.stringify({ ok: true, following, pending_follow: pendingFollow, target_id: targetId, username: rawHandle || null }));
-  } catch (err) {
-    const e = err as Error & { status?: number; body?: unknown };
-    // Re-following an account you already follow returns 200 with following:true on X,
-    // so a thrown error here is a real failure (429/restriction/etc). Surface status so
-    // the orchestrator can back off on 429.
-    console.log(JSON.stringify({ ok: false, status: e.status ?? null, error: e.message, target_id: targetId, username: rawHandle || null }));
+  const result = await followByTargetId(targetId);
+  if (result.ok) {
+    console.log(JSON.stringify({ ok: true, following: result.following, pending_follow: result.pendingFollow, target_id: targetId, username: rawHandle || null }));
+  } else if (result.deferred) {
+    console.log(JSON.stringify({ ok: false, deferred: true, error: result.error, target_id: targetId, username: rawHandle || null }));
+    process.exit(4); // distinct exit code from a real failure (3) — CLI callers can distinguish "cap hit" from "broken"
+  } else {
+    console.log(JSON.stringify({ ok: false, status: result.status ?? null, error: result.error, target_id: targetId, username: rawHandle || null }));
     process.exit(3);
   }
 }
@@ -1698,6 +2018,12 @@ async function main(): Promise<void> {
     case "follow":
       await cmdFollow(flags);
       break;
+    case "list-create":
+      await cmdListCreate(flags);
+      break;
+    case "list-add-member":
+      await cmdListAddMember(flags);
+      break;
     case "budget":
       await cmdBudget(flags);
       break;
@@ -1739,6 +2065,8 @@ Commands:
   retweet    --tweet-id <id>                   Retweet a tweet
   unretweet  --tweet-id <id>                   Undo a retweet
   follow     --username <handle>|--target-id <id>  Follow an account (audience exposure)
+  list-create --name <name> [--description <desc>] Create a private X List (arc-x-research-channel P4)
+  list-add-member --list-id <id> --user-id <id>     Add a member to an X List
   timeline   [--limit <n>]                     Show recent tweets (default: 10)
   mentions   [--limit <n>]                     Show recent mentions (default: 10)
   search     --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)

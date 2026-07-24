@@ -8,6 +8,7 @@ import {
   createSensorLogger,
   fetchWithRetry,
   insertTaskIfNew,
+  SENSOR_FETCH_TIMEOUT_MS,
 } from "../../src/sensors.ts";
 import { getActiveTasks } from "../../src/db.ts";
 import { ARC_STX_ADDRESS } from "../../src/identity.ts";
@@ -51,7 +52,13 @@ function serializeCVToHex(cv: unknown): string {
 
 async function getSbtcBalance(): Promise<number> {
   const ftKey = `${SBTC_ADDR}.${SBTC_NAME}::${SBTC_NAME}`;
-  const response = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/balances`);
+  const response = await fetchWithRetry(
+    `${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/balances`,
+    undefined,
+    1,
+    2000,
+    SENSOR_FETCH_TIMEOUT_MS,
+  );
   if (!response.ok) {
     log(`warn: balances API returned ${response.status}`);
     return -1;
@@ -62,7 +69,13 @@ async function getSbtcBalance(): Promise<number> {
 }
 
 async function getStxBalance(): Promise<number> {
-  const response = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/stx`);
+  const response = await fetchWithRetry(
+    `${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/stx`,
+    undefined,
+    1,
+    2000,
+    SENSOR_FETCH_TIMEOUT_MS,
+  );
   if (!response.ok) {
     log(`warn: STX balance API returned ${response.status}`);
     return -1;
@@ -74,17 +87,23 @@ async function getStxBalance(): Promise<number> {
 async function getZestPosition(): Promise<{ supplied: number; borrowed: number } | null> {
   try {
     const url = `${HIRO_API}/v2/contracts/call-read/${POOL_BORROW_ADDR}/${POOL_BORROW_NAME}/get-user-reserve-data`;
-    const response = await fetchWithRetry(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sender: ARC_STX_ADDRESS,
-        arguments: [
-          serializeCVToHex(principalCV(ARC_STX_ADDRESS)),
-          serializeCVToHex(contractPrincipalCV(SBTC_ADDR, SBTC_NAME)),
-        ],
-      }),
-    });
+    const response = await fetchWithRetry(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: ARC_STX_ADDRESS,
+          arguments: [
+            serializeCVToHex(principalCV(ARC_STX_ADDRESS)),
+            serializeCVToHex(contractPrincipalCV(SBTC_ADDR, SBTC_NAME)),
+          ],
+        }),
+      },
+      1,
+      2000,
+      SENSOR_FETCH_TIMEOUT_MS,
+    );
 
     if (!response.ok) {
       log(`warn: get-user-reserve-data returned ${response.status}`);
@@ -114,8 +133,17 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
 
 async function getMempoolDepth(): Promise<number> {
   try {
+    // No retry here: this runs sequentially before the interval claim and the
+    // main balance/position fetches, so a slow/hanging Hiro response can eat
+    // most of the 90s sensor watchdog before the real work even starts. It
+    // already degrades gracefully to 0 on any failure, so one fast attempt
+    // is enough — a real congestion signal will resolve on the next 1min tick.
     const response = await fetchWithRetry(
       `${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/mempool?limit=50`,
+      undefined,
+      0,
+      0,
+      SENSOR_FETCH_TIMEOUT_MS,
     );
     if (!response.ok) {
       log(`warn: mempool API returned ${response.status} — assuming 0`);
@@ -132,18 +160,24 @@ async function getMempoolDepth(): Promise<number> {
 async function getRewardsPending(): Promise<number | null> {
   try {
     const url = `${HIRO_API}/v2/contracts/call-read/${INCENTIVES_ADDR}/${INCENTIVES_NAME}/get-vault-rewards`;
-    const response = await fetchWithRetry(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sender: ARC_STX_ADDRESS,
-        arguments: [
-          serializeCVToHex(principalCV(ARC_STX_ADDRESS)),
-          serializeCVToHex(contractPrincipalCV(SBTC_ADDR, SBTC_NAME)),
-          serializeCVToHex(contractPrincipalCV(WSTX_ADDR, WSTX_NAME)),
-        ],
-      }),
-    });
+    const response = await fetchWithRetry(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: ARC_STX_ADDRESS,
+          arguments: [
+            serializeCVToHex(principalCV(ARC_STX_ADDRESS)),
+            serializeCVToHex(contractPrincipalCV(SBTC_ADDR, SBTC_NAME)),
+            serializeCVToHex(contractPrincipalCV(WSTX_ADDR, WSTX_NAME)),
+          ],
+        }),
+      },
+      1,
+      2000,
+      SENSOR_FETCH_TIMEOUT_MS,
+    );
 
     if (!response.ok) {
       log(`warn: get-vault-rewards returned ${response.status}`);

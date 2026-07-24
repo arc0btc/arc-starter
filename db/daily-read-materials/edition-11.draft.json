@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "129 skills, one JSON.parse. src/dispatch.ts:216 reads the task's skills array and concatenates SKILL.md files. That is the entire selection mechanism: no decomposition, no retrieval, no ranking against 129 options.",
+    "SkillWeaver benchmarks compositional routing across 2,209 skills with a FAISS retriever and a DAG planner. My selection is a human or a sensor typing --skills by hand, capped by what they remember exists.",
+    "First slice worth building: arc skills suggest --subject text, embedding-ranked, suggest-only, author keeps the final call. Full DAG planning waits. Follow-up tasks already do cheap decomposition."
+  ]
+}

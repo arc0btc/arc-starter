@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-21T01:01Z — 2026-07-21T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-21T01:01:28Z — 2026-07-21T13:01:46Z</div>
+</header>
+
+<p class="summary">Busy 12h window: 72 tasks completed, zero failures, $43.76 actual cost ($0.61/task) — driven by a PR-review cluster (4 reviews + 1 re-review across agent-news/aibtc-mcp-server/landing-page), a 7-task research batch off the X read pipeline, full content-pipeline run (weekly deck, blog draft/publish/snippets, X post), and routine memory/architecture housekeeping. Sonnet carried 87% of period cost (32 tasks/$38.01); no new blocked items. Whop room stayed quiet; X read budget sits near its daily cap.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">72</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked (new)</div></div>
+  <div class="metric"><div class="value">$43.76</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">42962k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">238k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23397</td><td class="pri">-</td><td>Review PR #624 aibtc-mcp-server</td><td>Nudge agents to hunt bounties</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">23378</td><td class="pri">-</td><td>Consolidate memory/patterns.md</td><td>Trimmed 166-line file back under threshold</td><td class="cost">$2.29</td></tr>
+    <tr><td class="id">23399</td><td class="pri">-</td><td>Review PR #884 agent-news</td><td>Cache purge on compile/inscribe</td><td class="cost">$1.83</td></tr>
+    <tr><td class="id">23385</td><td class="pri">-</td><td>Research: CLARITY Act</td><td>Crypto market-structure regulation stretch</td><td class="cost">$1.69</td></tr>
+    <tr><td class="id">23412</td><td class="pri">-</td><td>Architecture review</td><td>Codebase diff since last review (b546157→5576bd7)</td><td class="cost">$1.47</td></tr>
+    <tr><td class="id">23380</td><td class="pri">-</td><td>Triage X research batch (opus)</td><td>50 stories from 52 candidates sorted</td><td class="cost">$1.40</td></tr>
+    <tr><td class="id">23383</td><td class="pri">-</td><td>Research: crypto key-compromise</td><td>Theft stats + long-horizon cyber capability</td><td class="cost">$1.28</td></tr>
+    <tr><td class="id">23401</td><td class="pri">-</td><td>context-review</td><td>2 context-loading issues found</td><td class="cost">$1.25</td></tr>
+    <tr><td class="id">23387</td><td class="pri">-</td><td>Research: self-improving AI evaluator</td><td>Bottleneck + agent-rebuilds-SQLite</td><td class="cost">$1.16</td></tr>
+    <tr><td class="id">23382</td><td class="pri">-</td><td>Research: x402 agent-payment</td><td>Apify/Base $1 autonomous tool use</td><td class="cost">$1.09</td></tr>
+    <tr><td class="id">23402</td><td class="pri">-</td><td>Review PR #885 agent-news</td><td>Flat inscription_id/inscribed_txid on brief endpoints</td><td class="cost">$1.09</td></tr>
+    <tr><td class="id">23428</td><td class="pri">-</td><td>Chop blog into snippets</td><td>"Isolated Contexts" → 3-5 quote cards</td><td class="cost">$1.03</td></tr>
+    <tr><td class="id">23396</td><td class="pri">-</td><td>Fix stale skill reference</td><td>landing-page PR review template pointed at deleted skill</td><td class="cost">$0.99</td></tr>
+    <tr><td class="id">23406</td><td class="pri">-</td><td>Re-review PR #885 (cycle 2)</td><td>Confirmed fix, approved</td><td class="cost">$0.94</td></tr>
+    <tr><td class="id">23424</td><td class="pri">-</td><td>X cadence compose</td><td>Nugget-fed post, blog-snippet lane</td><td class="cost">$0.92</td></tr>
+    <tr><td class="id">23416</td><td class="pri">-</td><td>Regenerate skills/sensors catalog</td><td>Deployed refreshed catalog</td><td class="cost">$0.90</td></tr>
+    <tr><td class="id">23395</td><td class="pri">-</td><td>Review PR #1043 landing-page</td><td>earning.md → earn.md redirect</td><td class="cost">$0.70</td></tr>
+    <tr><td class="id">23426</td><td class="pri">-</td><td>Generate research blog draft</td><td>1 fresh arxiv nugget</td><td class="cost">$0.65</td></tr>
+    <tr><td class="id">23384</td><td class="pri">-</td><td>Research: Ramp LLM router</td><td>Per-step model routing at scale</td><td class="cost">$0.69</td></tr>
+    <tr><td class="id">23394</td><td class="pri">-</td><td>Generate weekly presentation</td><td>2026-07-21 deck</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">23417</td><td class="pri">-</td><td>Whop synthesis tick</td><td>0 messages in window, deferred</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">23371</td><td class="pri">-</td><td>sensor-health-report audit</td><td>No new failing/stalled sensors to file</td><td class="cost">$0.58</td></tr>
+    <tr><td class="id">23372</td><td class="pri">-</td><td>lint-skills full tree</td><td>No violations found</td><td class="cost">$0.52</td></tr>
+  </tbody>
+</table>
+<p class="empty">+ 49 more tasks this period: ~14 retrospectives (haiku, $0.13–$0.35 each), 12 zero-cost script tasks (x402 sync ×8, housekeeping scans ×4), arXiv digest fetch, GOALS.md correction, blog publish, and remaining triage — combined ≈$17.58.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+No new room messages this period — reactive lane ticked repeatedly against the same June conversation (all outcomes <code>skip</code>: <code>stale_message</code> / <code>below_length_floor</code>), synthesis lane's 09:28Z tick saw 0 messages in its 24h window and deferred. Daily reply budget: 0/10 used. Revenue unchanged: 0/16 recurring members, $0 MRR, 1 product buyer (0% buyer→member conversion) — pre-M0.
+</div>
+<div class="whop-counterparties">
+Top counterparty (all-time, unchanged this period): whoabuddy — 20 msgs, 5 arc replies to them, 3 their replies to arc.
+</div>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">b16fc5d1</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">5576bd75</span>fix(context-review): exclude arc-link-research 'Research: &lt;topic&gt;' tasks from keyword false-positives</div>
+<div class="commit"><span class="hash">52dbc7f1</span>fix(skills): restore dev-landing-page-review, deleted in error</div>
+<div class="commit"><span class="hash">be57b74e</span>chore(arc-weekly-presentation): generate 2026-07-21 weekly deck</div>
+<div class="commit"><span class="hash">724bcb08</span>docs(memory): capture arc-link-research check-before-process dedup gap</div>
+<div class="commit"><span class="hash">0b6cf399</span>chore(memory): consolidate patterns.md Operational/Agent Design sections</div>
+<p class="empty">+ 54 routine "auto-commit after dispatch cycle" commits (61 total this period).</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#22262 Re-check stale-task pileup after stop_condition field rollout (#22258)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#23431 Deploy arc0me-site to Cloudflare</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#23435 Retrospective: extract learnings from task #23433</div>
+<p class="empty">17 blocked chains awaiting sign-off (unchanged mix from prior reports): 6 arc-opensource sync escalations (accumulating since 07-11, gated on the #23159 branch-reconciliation decision), the x402 pay-per-use branch merge itself (#23150/#23159/#21670), X outbound re-enable (#22887), and 8 smaller one-off asks.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Cost concentrated in sonnet (32 tasks, $38.01, 87% of period spend) across PR reviews, the research batch, and content pipeline — the arc-0015 grounding-gate cost lever (#22857, sign-off nudge #23257) remains the largest unactioned cost reduction on the table.</div>
+<div class="obs">X read budget is at $1.971/$2.00 for the day — the candidate-maturation sensor's 9 consecutive "failures" are budget exhaustion, not a regression (self-resolves at midnight UTC).</div>
+<div class="obs">Whop room activity is fully quiet: reactive lane is repeatedly re-evaluating the same stale June thread rather than finding new candidates, and synthesis has now seen 0 new messages for multiple consecutive ticks. Nothing actionable, but worth a glance if this persists past a few more cycles.</div>
+<div class="obs">Zero failures, zero new blocked items this period — clean operational run. The 17-item blocked backlog is unchanged and entirely sign-off-gated, not a health issue.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track operationally, off track on the cost lever that actually matters. 72/72 completed, zero failures, PR reviews and the content pipeline both delivered real external artifacts this watch. But the arc-0015 grounding-gate fix has now sat unactioned since 2026-07-16 despite being the single largest identified cost reduction (~$11.74/day driver), and the 17-item sign-off-gated backlog (branch reconciliation, X re-enable, arc-opensource syncs) keeps accumulating without movement. Activity is healthy; the decisions that would change the trajectory are stalled outside Arc's control.</p>
+
+<h3>Queue adjustments</h3>
+<p>None this cycle — this review is report-only per task instructions (no task creation or modification authorized). For reference, the queue itself is thin and healthy: only #22262 (P6, stale-task recheck) and #23431/#23435 (P7/P8, deploy + retrospective) pending; the 17-item blocked pile is unchanged and entirely sign-off-gated, not a queue-management problem.</p>
+
+<h3>Next watch focus</h3>
+<p>Keep the PR-review and content cadence going; no operational fires to fight. The highest-leverage non-authored action remains getting whoabuddy's eyes on the stacked sign-off asks (#23159 branch reconciliation, #22887 X re-enable, arc-0015 grounding gate nudge #23257).</p>
+
+<h3>24-hour horizon</h3>
+<p>Same clean-running state, ideally with at least one of the stalled sign-off decisions resolved — branch reconciliation (#23159) is the one unblocking the most downstream work (6 arc-opensource syncs + the x402 merge itself).</p>
+</div>
+
+</body>
+</html>

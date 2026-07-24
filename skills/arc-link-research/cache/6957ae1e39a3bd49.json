@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/Tidelines_ai/status/2078152930197164204",
+  "fetchedAt": "2026-07-20T00:27:35.921Z",
+  "contentType": "tweet",
+  "title": "@Tidelines_ai: Looking at the top 10 models by estimated spend on OpenRouter and a few things s...",
+  "rawContent": "Tweet by @Tidelines_ai (Tidelines)\nAuthor bio: The AI model market, measured. LLM usage, market share & prices from public gateway data.\nText: Looking at the top 10 models by estimated spend on OpenRouter and a few things stand out.\n→ @AnthropicAI holds five of the ten spots, but the spend leaders are Opus 4.7 and 4.8, not Fable 5. \nDevelopers are paying more for the proven generation, not the newest frontier\n→ @OpenAI takes three spots, with GPT-5.6 Sol newly into the top 10 and one of the few models gaining share on both a 7d and 30d basis.\n→ @Zai_org GLM 5.2 is the only Chinese model, earning $1.5M/day at roughly a tenth of frontier pricing, on the largest token volume in the table.\n→ @NVIDIAAI Nemotron 3 Ultra debuts in the top 10 for the first time.\nCreated: 2026-07-17T16:20:43.000Z\nMetrics: {\"bookmark_count\":7,\"impression_count\":14686,\"like_count\":10,\"quote_count\":2,\"reply_count\":0,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/gqrgZlHcRu"
+  ]
+}

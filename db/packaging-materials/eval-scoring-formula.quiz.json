@@ -1,0 +1,102 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "In the weighted eval formula, what score does a mechanical check contribute if it fails?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Zero — it contributes nothing on fail",
+      "options": [
+        {
+          "option_text": "Zero — it contributes nothing on fail",
+          "is_correct": true
+        },
+        {
+          "option_text": "Half its weight",
+          "is_correct": false
+        },
+        {
+          "option_text": "Its full weight regardless of pass/fail",
+          "is_correct": false
+        },
+        {
+          "option_text": "A negative penalty score",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is the passing threshold for the overall_score in the formula?",
+      "question_type": "multiple_choice",
+      "correct_answer": "0.7",
+      "options": [
+        {
+          "option_text": "0.7",
+          "is_correct": true
+        },
+        {
+          "option_text": "0.5",
+          "is_correct": false
+        },
+        {
+          "option_text": "0.9",
+          "is_correct": false
+        },
+        {
+          "option_text": "1.0",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which of these is NOT one of the five trace-failure modes named in the report?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Running too slowly",
+      "options": [
+        {
+          "option_text": "Running too slowly",
+          "is_correct": true
+        },
+        {
+          "option_text": "Calling a tool that doesn't exist",
+          "is_correct": false
+        },
+        {
+          "option_text": "Hiding a failure from the final answer",
+          "is_correct": false
+        },
+        {
+          "option_text": "Making up the tool's result",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "The report concludes that harness variants should be promoted to production purely based on a single human's subjective approval.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "According to the report's frame, what is the actual optimization object in harness engineering?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The harness itself — prompts, tools, routing, context policy, memory, subagents, orchestration",
+      "options": [
+        {
+          "option_text": "The harness itself — prompts, tools, routing, context policy, memory, subagents, orchestration",
+          "is_correct": true
+        },
+        {
+          "option_text": "The underlying model's weights",
+          "is_correct": false
+        },
+        {
+          "option_text": "The GPU hardware running inference",
+          "is_correct": false
+        },
+        {
+          "option_text": "The pricing tier of the API plan",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}

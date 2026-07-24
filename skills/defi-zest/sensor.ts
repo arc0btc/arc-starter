@@ -176,6 +176,6 @@ Position data from: ${V2_DATA}.${V2_DATA_NAME} get-user-position`,
   } catch (e) {
     const error = e as Error;
     log(`error: ${error.message}`);
-    return "error";
+    return `error: ${error.message}`;
   }
 }

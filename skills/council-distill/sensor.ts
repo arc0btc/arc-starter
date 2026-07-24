@@ -1,21 +1,35 @@
 // skills/council-distill/sensor.ts
 //
-// 24h cadence with cheap fast-path SHA watch. Refreshes the council content
-// well by reading the latest patterns from genesis-works/agent-coordination
-// and emitting 5 distilled nuggets into artifacts/distilled/council/.
+// 24h cadence with cheap fast-path hash watch. Refreshes the council content
+// well by reading the latest fleet-digest snapshot delivered by the control
+// plane (manage-agents `skills/fleet-digest/generate.ts`) and emitting up to
+// 5 distilled nuggets into artifacts/distilled/council/.
 //
 // Each tick:
-//   1. gh api commits?per_page=1 → HEAD SHA (read-only, cheap)
-//   2. Compare to hookState.lastSeenHeadSha
-//   3. If SHA unchanged AND last distill < 7d ago → skip (no work, no cost)
-//   4. Otherwise queue a sonnet refresh task that produces 5 nuggets
+//   1. sha256(fleet-digest/latest.md) → content hash (read-only, cheap, no network)
+//   2. Compare to hookState.lastSeenDigestHash
+//   3. If hash unchanged AND last distill < 7d ago → skip (no work, no cost)
+//   4. Otherwise queue a sonnet refresh task that produces up to 5 nuggets
 //
-// External-failure tracking: on gh non-zero exit, increment
-// consecutiveGhFailures. At ≥3, emit one blocked task for whoabuddy + apply a
-// 48h cooldown. Reset to 0 on next successful call. This matches MEMORY [P]
-// blocked-external-dependency rule.
+// Source repoint (2026-07-17, control-plane-remediation Phase 3 / defect row 49):
+// this sensor used to watch `Genesis-Works/agent-coordination` via `gh api`. That
+// repo was RETIRED as a coordination channel in favor of direct-to-dispatch
+// (still exists, nothing new lands there — the sensor reported "nothing new"
+// forever). It now watches a local file delivered by the control plane instead
+// of a GitHub repo: the Arc VM cannot push/pull `manage-agents` (VM-local
+// commits only), so the control plane pushes ("scp") a fresh digest snapshot to
+// `fleet-digest/latest.md` after every `bun skills/fleet-digest/generate.ts`
+// run on that side. This sensor only ever reads that local file — no gh call,
+// no network dependency at all.
+//
+// Missing-file tracking: if the delivered file is absent (never delivered, or
+// deleted), increment consecutiveMissingDigest. At ≥3, emit one blocked task
+// for whoabuddy + apply a 48h cooldown. Reset to 0 once the file reappears.
+// Same shape as the old gh-failure handling, new failure mode.
 
-import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import {
   claimSensorRun,
@@ -27,10 +41,10 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 export const SENSOR_NAME = "council-distill";
 const INTERVAL_MINUTES = 24 * 60;
-const COUNCIL_REPO = "Genesis-Works/agent-coordination";
+const DIGEST_PATH = join(import.meta.dir, "fleet-digest", "latest.md");
 const HEAD_STABLE_SKIP_DAYS = 7;
-const GH_FAILURE_ESCALATION_THRESHOLD = 3;
-const GH_FAILURE_COOLDOWN_HOURS = 48;
+const MISSING_DIGEST_ESCALATION_THRESHOLD = 3;
+const MISSING_DIGEST_COOLDOWN_HOURS = 48;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -38,30 +52,24 @@ interface CouncilHookState {
   last_ran: string;
   last_result: "ok" | "error" | "skip";
   version: number;
-  lastSeenHeadSha?: string;
+  lastSeenDigestHash?: string;
   lastDistillAt?: string;
-  consecutiveGhFailures?: number;
+  consecutiveMissingDigest?: number;
   failureCooldownUntil?: string;
 }
 
-/** Fetch HEAD commit SHA for the council repo. null on any failure. */
-function fetchCouncilHead(): { sha: string | null; rawError?: string } {
-  const result = spawnSync(
-    "gh",
-    [
-      "api",
-      `repos/${COUNCIL_REPO}/commits?per_page=1`,
-      "--jq",
-      ".[0].sha",
-    ],
-    { timeout: 30_000, encoding: "utf8" },
-  );
-  if (result.status !== 0) {
-    return { sha: null, rawError: result.stderr || `exit ${result.status}` };
+/** Fetch a sha256 hash of the delivered fleet-digest file. null if missing/unreadable. */
+function fetchDigestHash(): { hash: string | null; rawError?: string } {
+  if (!existsSync(DIGEST_PATH)) {
+    return { hash: null, rawError: `not found at ${DIGEST_PATH} — control plane has not delivered a digest yet` };
   }
-  const sha = result.stdout.trim();
-  if (!/^[0-9a-f]{40}$/.test(sha)) return { sha: null, rawError: `unexpected output: ${sha.slice(0, 60)}` };
-  return { sha };
+  try {
+    const content = readFileSync(DIGEST_PATH, "utf8");
+    const hash = createHash("sha256").update(content).digest("hex");
+    return { hash };
+  } catch (error) {
+    return { hash: null, rawError: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
@@ -76,40 +84,43 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
   if (state.failureCooldownUntil) {
     const cooldownEndsMs = Date.parse(state.failureCooldownUntil);
     if (Date.now() < cooldownEndsMs) {
-      log(`gh failure cooldown active until ${state.failureCooldownUntil} — skip`);
+      log(`missing-digest cooldown active until ${state.failureCooldownUntil} — skip`);
       return "skip";
     }
   }
 
-  const { sha, rawError } = fetchCouncilHead();
-  if (!sha) {
-    const newCount = (state.consecutiveGhFailures ?? 0) + 1;
-    log(`gh api failure #${newCount}: ${rawError ?? "unknown"}`);
+  const { hash, rawError } = fetchDigestHash();
+  if (!hash) {
+    const newCount = (state.consecutiveMissingDigest ?? 0) + 1;
+    log(`digest read failure #${newCount}: ${rawError ?? "unknown"}`);
     const nextState: CouncilHookState = {
       ...state,
       last_ran: new Date().toISOString(),
       last_result: "error",
       version: (state.version ?? 0) + 1,
-      consecutiveGhFailures: newCount,
+      consecutiveMissingDigest: newCount,
     };
-    if (newCount >= GH_FAILURE_ESCALATION_THRESHOLD) {
-      const cooldownUntil = new Date(Date.now() + GH_FAILURE_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
+    if (newCount >= MISSING_DIGEST_ESCALATION_THRESHOLD) {
+      const cooldownUntil = new Date(Date.now() + MISSING_DIGEST_COOLDOWN_HOURS * 60 * 60 * 1000).toISOString();
       nextState.failureCooldownUntil = cooldownUntil;
       // Idempotent escalation: only emit if no prior blocked task for this incident.
       const escalationSource = `sensor:council-distill:escalate-${new Date().toISOString().slice(0, 10)}`;
       if (!pendingTaskExistsForSource(escalationSource)) {
         insertTask({
-          subject: `[ESCALATED] council-distill: ${newCount} consecutive gh api failures`,
+          subject: `[ESCALATED] council-distill: ${newCount} consecutive missing-digest reads`,
           description: [
-            `\`gh api repos/${COUNCIL_REPO}/commits?per_page=1\` has failed ${newCount} times in a row.`,
+            `\`${DIGEST_PATH}\` has been missing or unreadable ${newCount} times in a row.`,
             `Last error: ${rawError ?? "unknown"}`,
             "",
-            "Possible causes: gh CLI not authenticated, token revoked, rate-limit, repo access lost.",
+            "Possible causes: the control plane hasn't run `bun skills/fleet-digest/generate.ts` yet,",
+            "the scp delivery step failed, or the local file was deleted.",
             "",
             "Triage:",
-            "1. Verify auth: `gh auth status`",
-            "2. Test the call directly: `gh api 'repos/Genesis-Works/agent-coordination/commits?per_page=1' --jq '.[0].sha'`",
-            "3. Once resolved, clear the cooldown in db/hook-state/council-distill.json (remove failureCooldownUntil + reset consecutiveGhFailures to 0).",
+            "1. Check the file exists: `ls -la skills/council-distill/fleet-digest/latest.md`",
+            "2. From the control plane (manage-agents repo), re-run: `bun skills/fleet-digest/generate.ts`",
+            "   (delivers to this exact path via scp).",
+            "3. Once resolved, clear the cooldown in db/hook-state/council-distill.json (remove",
+            "   failureCooldownUntil + reset consecutiveMissingDigest to 0).",
             "",
             `48h cooldown applied — sensor will not retry until ${cooldownUntil}.`,
           ].join("\n"),
@@ -126,30 +137,30 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
     return "skip";
   }
 
-  // gh success: clear any prior failure counter.
-  const lastSeenSha = state.lastSeenHeadSha;
+  // digest read success: clear any prior failure counter.
+  const lastSeenHash = state.lastSeenDigestHash;
   const lastDistillIso = state.lastDistillAt;
   const distillAgeMs = lastDistillIso ? Date.now() - Date.parse(lastDistillIso) : Infinity;
   const distillStaleMs = HEAD_STABLE_SKIP_DAYS * 24 * 60 * 60 * 1000;
 
-  if (sha === lastSeenSha && distillAgeMs < distillStaleMs) {
-    log(`HEAD stable (${sha.slice(0, 7)}) and last distill ${Math.round(distillAgeMs / 86400000)}d ago — skip`);
+  if (hash === lastSeenHash && distillAgeMs < distillStaleMs) {
+    log(`digest stable (${hash.slice(0, 7)}) and last distill ${Math.round(distillAgeMs / 86400000)}d ago — skip`);
     await writeHookState(SENSOR_NAME, {
       ...state,
       last_ran: new Date().toISOString(),
       last_result: "skip",
       version: (state.version ?? 0) + 1,
-      lastSeenHeadSha: sha,
-      consecutiveGhFailures: 0,
+      lastSeenDigestHash: hash,
+      consecutiveMissingDigest: 0,
       failureCooldownUntil: undefined,
     } as Parameters<typeof writeHookState>[1]);
     return "skip";
   }
 
-  // SHA changed OR distill stale — queue a refresh.
-  const source = `sensor:council-distill:${sha.slice(0, 7)}`;
+  // hash changed OR distill stale — queue a refresh.
+  const source = `sensor:council-distill:${hash.slice(0, 7)}`;
   if (pendingTaskExistsForSource(source)) {
-    log(`refresh task already queued for HEAD ${sha.slice(0, 7)} — skip`);
+    log(`refresh task already queued for digest ${hash.slice(0, 7)} — skip`);
     return "skip";
   }
 
@@ -157,57 +168,55 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
   const dryRunPrefix = dryRun ? "[DRY-RUN] " : "";
 
   const taskId = insertTask({
-    subject: `${dryRunPrefix}Distill council content well from ${COUNCIL_REPO}@${sha.slice(0, 7)}`,
+    subject: `${dryRunPrefix}Distill council content well from fleet-digest@${hash.slice(0, 7)}`,
     description: [
-      `Source: ${COUNCIL_REPO}@${sha} (HEAD)`,
+      `Source: fleet-digest snapshot delivered to skills/council-distill/fleet-digest/latest.md`,
+      `Content hash: ${hash}`,
       "Static brief on disk: skills/whop/COUNCIL-CONTENT-WELL.md (last refresh, may be stale)",
       "",
       "## Goal",
-      "Produce 5 ISO8601 council nuggets in artifacts/distilled/council/ — one per pattern.",
+      "Produce up to 5 ISO8601 council nuggets in artifacts/distilled/council/ — one per pattern",
+      "that has a genuine match in the current digest. Fewer strong nuggets beats five with filler.",
       "Each nugget is a *selection* (direct quote with citation), NOT a paraphrase.",
       "",
       "## Five topic slugs (use exactly these — taxonomy is fixed)",
-      "  - coordination-primitive    (substrate / shared-DB / FOR UPDATE SKIP LOCKED)",
-      "  - mandate-loop              (council / structural disagreement / mandate cycle)",
-      "  - autonomy-tier             (tier model / earned autonomy / charter tiers)",
-      "  - paired-artifact           (artifact + immutable log / Notch / audit ledger)",
-      "  - budget-rail               (hard budget rails / trustless delegation / RFC 0012)",
+      "  - coordination-primitive    (the fleet's live coordination mechanism — direct-to-dispatch,",
+      "                                sensor/task patterns visible in the digest)",
+      "  - mandate-loop              (self-review / retrospective loops visible in a host's task chain)",
+      "  - autonomy-tier             (per-host status/service tiers — legacy-arc-starter vs base-agent-runtime)",
+      "  - paired-artifact           (the digest + this narration sensor IS a paired-artifact pattern —",
+      "                                a record file paired with an immutable distilled-nugget log)",
+      "  - budget-rail               (cost/budget discipline visible in task activity, e.g. X budget",
+      "                                guardrails from recent Arc work)",
       "",
       "## Source access",
-      "Use `gh api repos/Genesis-Works/agent-coordination/contents/<path>` to read files",
-      "from the private repo. Recent activity hints (last commit window 2026-05-22 to",
-      "2026-05-30): substrate-activation phase 1, 9-phase shared-substrate quest, CRM +",
-      "commission ledger Postgres migration, management profile + GREEN health.",
-      "",
-      "Suggested reads (start here, add more if needed):",
-      "  - README.md",
-      "  - fleet/2026-05-29T184700Z-shared-substrate-FINAL.md",
-      "  - fleet/2026-05-29T184600Z-shared-substrate-phase-9.md",
-      "  - tiers / charter docs if present",
+      "Read `skills/council-distill/fleet-digest/latest.md` directly — it is already local, no gh",
+      "call or network access needed. It is a read-only sweep of every agent VM's recent task",
+      "activity, delivered by the control plane (manage-agents `skills/fleet-digest/generate.ts`).",
       "",
       "## Per-nugget constraints (writeDistilled enforces)",
       "- type: \"council\"",
       "- topic: one of the five slugs above",
       "- nugget: ≤ 1200 chars. Format: `\"<direct quote from source>\" — <citation>` plus a",
       "  one-sentence framing line. Selection, not paraphrase. Never invent.",
-      "- citation: short pattern name + source ref (e.g. \"council:substrate-phase-9\")",
+      "- citation: short pattern name + source ref (e.g. \"fleet-digest:2026-07-17T...\")",
       "- suggested_channels: [\"whop-chat\", \"blog\", \"reactive\", \"x\"]",
       "  (the X agent-philosophy beat reads council nuggets on a 14d window)",
       "",
       dryRun
-        ? "## DRY-RUN MODE (default)\nWrite the 5 nuggets via writeDistilled normally — the pool itself is dry-run-safe.\nBut do NOT update skills/whop/COUNCIL-CONTENT-WELL.md until human voice review.\nClose completed with --summary describing each pattern's source quote + any gaps you saw in the repo."
-        : "## LIVE MODE\nWrite nuggets and update skills/whop/COUNCIL-CONTENT-WELL.md with the same 5 patterns.",
+        ? "## DRY-RUN MODE\nWrite the nuggets via writeDistilled normally — the pool itself is dry-run-safe.\nBut do NOT update skills/whop/COUNCIL-CONTENT-WELL.md until human voice review.\nClose completed with --summary describing each pattern's source quote + any gaps you saw."
+        : "## LIVE MODE (default as of 2026-07-17)\nWrite nuggets and update skills/whop/COUNCIL-CONTENT-WELL.md with the same patterns.",
       "",
       "## Steps",
-      "1. Read at least the README + the FINAL summary. Branch to other files if helpful.",
-      "2. For each of 5 topics, find the strongest quote in the repo and write a nugget via:",
+      "1. Read skills/council-distill/fleet-digest/latest.md in full.",
+      "2. For each of 5 topics, find the strongest genuine match in the digest and write a nugget via:",
       "   `import { writeDistilled } from \"../../src/artifacts.ts\"; writeDistilled({...});`",
-      "3. Verify all 5 landed on disk.",
+      "3. Verify all landed on disk.",
       "4. Close completed with the summary line.",
       "",
       "## Skipping is OK",
-      "If a topic has no fresh quote (council hasn't touched that area), skip it and",
-      "document the gap. Better 3 strong nuggets than 5 with filler.",
+      "If a topic has no fresh match in this digest, skip it and document the gap. Better 2-3",
+      "strong nuggets than 5 with filler.",
     ].join("\n"),
     skills: JSON.stringify(["council-distill", "whop"]),
     priority: 5,
@@ -221,13 +230,13 @@ export async function pollCouncilDistill(): Promise<"ok" | "skip"> {
     last_ran: new Date().toISOString(),
     last_result: "ok",
     version: (state.version ?? 0) + 1,
-    lastSeenHeadSha: sha,
+    lastSeenDigestHash: hash,
     lastDistillAt: new Date().toISOString(),
-    consecutiveGhFailures: 0,
+    consecutiveMissingDigest: 0,
     failureCooldownUntil: undefined,
   } as Parameters<typeof writeHookState>[1]);
 
-  log(`queued ${dryRun ? "(dry-run)" : "(LIVE)"} distill task ${taskId} for HEAD ${sha.slice(0, 7)}`);
+  log(`queued ${dryRun ? "(dry-run)" : "(LIVE)"} distill task ${taskId} for digest ${hash.slice(0, 7)}`);
   return "ok";
 }
 

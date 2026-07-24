@@ -28,6 +28,20 @@ Import path (from skills/social-engine/ scripts):
 import { admitAction, deferAction } from './admission.ts';
 ```
 
+### cli.ts (kill switch re-enable, added 2026-07-16 #22887)
+`outbound_enabled` in `agent_config` is a one-way safety gate — every code path in this skill
+(admission.ts, monitor-post-lane.ts, monitor-reply-lane.ts, reply-send.ts) only ever sets it to
+`false` on a trip. The sole sanctioned re-enable path is:
+
+```
+arc skills run --name social-engine -- kill-switch status
+arc skills run --name social-engine -- kill-switch enable --reason "<operator-confirmed explanation>"
+```
+
+`--reason` is mandatory (no default/blank). Use only after explicit operator sign-off on the
+specific trip/incident — this command performs the flip mechanically but does not itself
+constitute authorization to flip it.
+
 ### Pipeline Scripts (run via bun directly)
 | Script | Purpose |
 |--------|---------|
@@ -40,6 +54,7 @@ import { admitAction, deferAction } from './admission.ts';
 | `011-p7-moltbook.ts` | P7 migration: adds `moltbook_post` table and seeds `checkout_config` |
 | `research-input-loop.ts` | P5 arc-demand-flywheel: derives X handles from research-corpus consumption frequency (`source_url` frontmatter), folds new ones into `social_accounts` (idempotent, re-runnable, never auto-follows) |
 | `reply-watchlist-sensor.ts` | P2 arc-reach-unblock autonomous reply-guy sensor: discovers + replies to in-network watchlist tweets, 403 circuit-breaker (2 consecutive = 7-day lock), P5 pre-filters discovery by `consecutive_403_count` |
+| `follow-curated.ts` | Batch-follows `social_accounts` rows with `targeting_status='eligible'` (X-truth dedup, 20/day follows-budget cap, 8s spacing), priority research_core → A → bitcoin_thesis → B. Backfills the pre-existing eligible backlog that `src/follow-policy.ts`'s report-triggered promotion never touches (that path only follows accounts newly promoted at report-acceptance time, not accounts already sitting at `eligible`/unfollowed). Wired to cron (see Environment) 2026-07-13 after #22500 confirmed 92 eligible/unfollowed rows (53 highest-priority `research_core` tier) with no other periodic follow path. |
 
 ### Producers
 Ingest external content into `research_nugget` rows. READ-ONLY ingestion.
@@ -75,6 +90,8 @@ export ARC_DB_PATH=/home/dev/arc-starter/db/arc.sqlite
 ```
 
 Scripts that shell out to `social-x-posting` require the Arc credential store (`ARC_CREDS_PASSWORD`) and `arc creds` to be provisioned.
+
+**Scheduling**: this skill's periodic scripts run via host `crontab -l`, NOT via the `skills/<name>/sensor.ts` auto-discovery mechanism (`src/sensors.ts`) — the skill directory has no `sensor.ts`. Current entries: `monitor-reply-lane.ts` (*/15min), `monitor-post-lane.ts` (daily 01:00 UTC), `reply-watchlist-sensor.ts` (every 2h), `follow-curated.ts` (daily 05:00 UTC, added 2026-07-13 #22500). This is undocumented elsewhere in-repo — check `crontab -l` before assuming a script is dormant just because it has no `sensor.ts` or in-repo caller.
 
 ## Key DB Tables
 
