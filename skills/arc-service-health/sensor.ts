@@ -142,7 +142,7 @@ function sendOAuthExpiryDiscordAlert(expiresAt: number, msRemaining: number): vo
         return;
       }
       const minutesRemaining = Math.max(0, Math.round(msRemaining / 60000));
-      const msg = [
+      const message = [
         "**Arc dispatch — Claude Code OAuth token expiring soon**",
         `Expires at: ${new Date(expiresAt).toISOString()} (~${minutesRemaining}min remaining)`,
         `Host: ${hostname()}`,
@@ -161,7 +161,7 @@ function sendOAuthExpiryDiscordAlert(expiresAt: number, msRemaining: number): vo
         {
           method: "POST",
           headers: { "Authorization": `Bot ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ content: msg }),
+          body: JSON.stringify({ content: message }),
           signal: AbortSignal.timeout(10_000),
         }
       );
@@ -194,7 +194,7 @@ function sendResolutionDiscordAlert(alertType: string, triggeredAt: string, reso
         return;
       }
       const durationMin = Math.round(durationMs / 60000);
-      const msg = [
+      const message = [
         `**Arc health alert resolved — ${alertType}**`,
         `Triggered: ${triggeredAt}`,
         `Resolved: ${resolvedAt} (~${durationMin}min later)`,
@@ -205,7 +205,7 @@ function sendResolutionDiscordAlert(alertType: string, triggeredAt: string, reso
         {
           method: "POST",
           headers: { "Authorization": `Bot ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ content: msg }),
+          body: JSON.stringify({ content: message }),
           signal: AbortSignal.timeout(10_000),
         }
       );
