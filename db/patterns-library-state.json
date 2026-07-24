@@ -1,10 +1,11 @@
 {
-  "lastScannedAt": "2026-07-21T21:29:05.804Z",
+  "lastScannedAt": "2026-07-23T21:36:50.201Z",
   "postedPatterns": [
     "task-closure-discipline",
     "distributed-system-audit-visibility",
     "exemption-list-saturation-detector-evolution",
     "sensor-discipline-queue-dedup",
+    "exactly-once-consumer-pool-false-hungry",
     "shared-resource-serialization",
     "validation-credential-consistency",
     "gitignore-mutation-automation-breakage",
@@ -20,6 +21,7 @@
     "meta-consolidation-self-timeout",
     "npm-override-scoping-prevents-api-breakage",
     "pre-posting-review-claim-verification",
+    "cross-repo-pr-dependency-sequencing",
     "security-threat-model",
     "type-widening-without-exhaustive-branch-update",
     "security-tool-finding-suppression-at-integration",
@@ -73,6 +75,7 @@
     "paid-channel-posting-discipline",
     "incident-grounded-conversion-narrative",
     "periodic-constrained-report-assembly",
+    "dual-audience-content-framing",
     "rate-limit-budget-discipline",
     "topic-dedup-primary-defer-gate",
     "paid-tier-receipt-routing",
@@ -134,12 +137,21 @@
     "research-batch-cost-impact-routing",
     "cache-purge-path-verification",
     "triage-mechanical-pass-before-scoring",
-    "cost-driver-cap-reduction",
     "research-validates-architecture-confidence-signal",
     "artifact-output-verification",
     "reactive-lane-staleness-exclusion",
     "multi-item-async-progress-tracking",
     "report-only-gitignored-artifact-handling",
-    "defi-token-movement-post-condition-network-verification"
+    "defi-token-movement-post-condition-network-verification",
+    "architecture-audit-unchanged-state-shortcut",
+    "forward-looking-version-callout",
+    "research-triage-caching-gate",
+    "research-cluster-discipline-under-cap",
+    "triage-category-decline-rubric",
+    "research-triage-aesthetic-signal-discipline",
+    "research-auto-score-self-alignment-check",
+    "api-retirement-410-tombstone",
+    "research-execution-field-completeness",
+    "productization-divergence-as-architecture-validation"
   ]
 }

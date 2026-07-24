@@ -8,14 +8,6 @@
     "follows": 0
   },
   {
-    "date": "2026-07-04",
-    "posts": 1,
-    "replies": 0,
-    "likes": 4,
-    "retweets": 1,
-    "follows": 0
-  },
-  {
     "date": "2026-07-05",
     "posts": 2,
     "replies": 0,
@@ -280,6 +272,17 @@
     "likes": 7,
     "retweets": 0,
     "follows": 3,
+    "link_posts": 0,
+    "write_spend_usd": 0.06,
+    "budget_ledger_posts_today": 4
+  },
+  {
+    "date": "2026-07-21",
+    "posts": 0,
+    "replies": 0,
+    "likes": 7,
+    "retweets": 0,
+    "follows": 4,
     "link_posts": 0,
     "write_spend_usd": 0.06,
     "budget_ledger_posts_today": 4
