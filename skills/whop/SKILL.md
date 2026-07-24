@@ -65,73 +65,13 @@ out when scanning for messages to reply to.
   channel for a matching message — re-dispatch can duplicate. (See MEMORY [P] idempotency rule.)
 - Whop rate limits are undocumented; on HTTP 429 back off, do not hammer.
 
-## Discovered IDs (hash-it-out, verified 2026-06-12 — API-driven, this session)
+## Discovered IDs & API Reference
 
-- **Company:** `biz_zQbfh5SnRnAF5Y` ("hash it out"). `whoami` hits `/v5/company` (a company key 403s on `/v5/me`).
-- **arc-the-agent App:** `app_2800dX1s1c0ul0`, status `hidden`, owned by hash-it-out (creator: whoabuddy).
-  Replaces the original `app_VSfoFN0h5UWdCV` arc0btc App, which was orphaned 2026-06-12 when its
-  auto-generated install access pass (`prod_CvDEeSPhRLLp1` / `plan_joVsg8haU8Mgt` notes: "App Access")
-  was manually deleted from the products list — that pass is the install link and must NOT be deleted.
-  All 12 permissions declared on the new App, all required: `chat:message:create`, `chat:read`,
-  `chat:moderate`, `chat:manage_webhook`, `forum:read`, `forum:post:create`, `forum:moderate`,
-  `courses:read`, `courses:update`, `course_lesson_interaction:read`, `course_analytics:read`,
-  `webhook_receive:courses`. Auto-install record: `prod_M6LD5bS1EkNwD` + `plan_ML3AaWeYrLqU4`.
-  Agent user: `user_cd5Q1fTcrgua1` — username `arc0btc`, display name `arc` (renamed via
-  dashboard UI 2026-06-12). Programmatic profile edits need `user:profile:update` scope
-  (NOT on the key); dashboard UI edits don't.
-  (Old `app_VSfoFN0h5UWdCV` still in registry but uninstalled; whoabuddy can't access it to delete.)
-- **Products** (`GET /v2/products`):
-  - `prod_TJknsIOzPDlQS` — "hash it out — Membership" (**paid**, $49/mo, plan `plan_axYMvJ4cBnq8v`).
-    4 experiences: AI Prefers Bitcoin, Forums, Courses, Updates & Resources.
-  - `prod_4liMVXKGP4E4L` — "hash it out - Public" (**free**, plan `plan_eABmkrD8PU7Yf` one_time $0).
-    Route `whop.com/hash-it-out-public`. 1 experience: Public forum. Created 2026-06-12 via API.
-  - `prod_CvDEeSPhRLLp1` — "arc0btc" (App access container, not the public funnel — earlier MEMORY
-    entries calling this the free product were wrong; that confusion is fixed here).
-- **Plans** (`GET /v2/plans`):
-  - `plan_axYMvJ4cBnq8v` — renewal, **$49 initial / $49 renewal**, 30d billing (flipped 2026-06-12 from
-    initial=0 first-month-free to day-one $49 per whoabuddy intent).
-  - `plan_eABmkrD8PU7Yf` — one_time $0, free public access.
-- **Experiences** (`GET /v2/experiences`):
-  - `exp_I2Wew0PqJQ50a8` — "AI Prefers Bitcoin" (paid; approved chat channel)
-  - `exp_dlYgb6mrXuRIq8` — "Forums" (paid)
-  - `exp_rm8XtYSqYIBzrl` — "Courses" (paid)
-  - `exp_bbQpqIAEToAweQ` — "Patterns Library" (paid; renamed 2026-06-12 from "Updates & Resources")
-  - `exp_YRtS3kgMVeBGzu` — "Public forum" (free, attached to `prod_4liMVXKGP4E4L` 2026-06-12)
-- **Chat feed (canonical channel id):** `chat_feed_1CbxMbfsj2yvpGqNnMcuCg` — backs `exp_I2Wew0PqJQ50a8`.
-  Discover via `list-channels` (`GET /api/v1/chat_channels?company_id=biz_xxx`). `channel_id` accepts the
-  `exp_` or the `chat_feed_` id; stored `chat_channel_id` cred = `exp_I2Wew0PqJQ50a8`.
-
-## API endpoints (verified empirically against /api/v1 write surface)
-
-The write surface lives on **`/api/v1`**, not v2 or v5 (those return 401/404 for POST/PATCH). The company
-API key is full-admin against v1; only `/v1/apps` and `/v1/access_tokens` distinguish between company-key
-and app-key auth.
-
-| Op | Endpoint | Notes |
-|---|---|---|
-| Send message | `POST /api/v1/messages` `{channel_id, content}` | v1, not v5 (v5 404s). Requires the **key** scope `chat:message:create`. |
-| List forums | `GET /api/v1/forums?company_id=biz_xxx` | Returns one `forum_feed_xxx` per forum experience, with `who_can_post` (`admins`/`everyone`). |
-| List forum posts | `GET /api/v1/forum_posts?experience_id=exp_xxx&limit=N` | **Keyed by `experience_id`, NOT `forum_feed_id`** — forum_feed_id and channel_id are both rejected. |
-| Post forum thread | `POST /api/v1/forum_posts` `{experience_id, content, title?}` | App scope `forum:post:create`. Posts as the app's bot user (`is_poster_admin: false`) even when `who_can_post: "admins"` — the App scope satisfies the gate. |
-| Edit forum post | `PATCH /api/v1/forum_posts/{id}` `{content, title?}` | Sets `is_edited: true`. **No DELETE endpoint exists on v1**; PATCH-to-blank (or to a neutral redaction string) is the only soft-delete path. Policy 2026-06-12: redaction is the accepted cleanup — the original post slot stays in the timeline with `is_edited: true`. Full removal requires the Whop dashboard. |
-| Mint access token | `POST /api/v1/access_tokens` `{company_id}` | App key + company_id alone returns a company-scoped bot token (`resource_bot_tag` = company). |
-| List chat feeds | `GET /api/v1/chat_channels?company_id=biz_xxx` | — |
-| Create product | `POST /api/v1/products` `{company_id, title, ...}` | Optional `plan_options` is silently ignored — create plan explicitly. |
-| Create plan | `POST /api/v1/plans` `{product_id, plan_type, ...}` | Renewal plans require ≥ $1. Free plans must be `plan_type: "one_time"` with `initial_price: 0`. |
-| Update plan | `PATCH /api/v1/plans/{id}` `{initial_price, renewal_price, ...}` | — |
-| Attach experience | `POST /api/v1/experiences/{id}/attach` `{accessPassId}` | **Body field is `accessPassId` (camelCase)**, NOT `product_id` as docs say. Docs and reality diverge here. |
-| Rename experience | `PATCH /api/v1/experiences/{id}` `{name}` | **Field is `name`, NOT `title`** — title is rejected with parameter_invalid. |
-| Update product | `PATCH /api/v1/products/{id}` `{title, description, headline, visibility, ...}` | Requires `access_pass:update` scope — **company key has it; app key does NOT** (the 12-scope app key returns 403). For `gallery_images`, pass `[{id: "file_xxx"}]` (object form, not string-id array). |
-| Create file (upload slot) | `POST /api/v1/files` `{filename: "x.jpg"}` | Returns `{id, upload_url, upload_status: "pending"}`. **Content-type is INFERRED from the filename extension** — passing `content_type` or `mime_type` returns parameter_invalid. |
-| Upload file bytes | `PUT <upload_url>` (presigned S3) `Content-Type: image/<ext>` `--data-binary @file` | Whop returns a presigned S3 URL. After PUT, file flips to `upload_status: "ready"` within ~3s. |
-| Files are resource-scoped | — | An existing file from one product can't be reused on another — PATCH errors with `"Attachment does not belong to this resource"`. To copy an image across products, **re-upload it** (new `file_id` per product). |
-| Detach experience | `POST /api/v1/experiences/{id}/detach` `{accessPassId: "prod_xxx"}` | Body field is `accessPassId` (camelCase). Company key works. Returns the experience object with `products: []` on success. Verified 2026-06-13 detaching `exp_bbQpqIAEToAweQ` from `prod_TJknsIOzPDlQS`. |
-| Update app | `PATCH /api/v1/apps/{id}` | `required_scopes` field accepts only `read_user` per docs — App-level permissions are configured in dashboard. |
-| List apps | `GET /api/v1/apps?company_id=biz_xxx` | Find arc0btc App. |
-| Whoami | `GET /api/v5/company` | Returns the company for any key bound to it (app or company). |
-| List products | `GET /api/v2/products` | Includes `experiences[]` and `plans[]` arrays. |
-| List plans | `GET /api/v2/plans` | All plans across all products in the company. |
-| List experiences | `GET /api/v2/experiences` | `/v5/experiences` 404s. |
+Full discovered IDs (company/app/product/plan/experience IDs), the empirically-verified
+`/api/v1` write-surface endpoint table, dashboard status history, original-blocker
+post-mortem, and the Autonomous Receipt Mechanic (AI-073) design all moved to
+`skills/whop/REFERENCE.md` (2026-07-24, kept SKILL.md under the token guideline). Load that
+file for deep API/dashboard work; the CLI table above covers routine usage.
 
 ## Polling & reply (reactive + synthesis lanes)
 
@@ -181,84 +121,6 @@ Dashboard pass done via API this session:
    to `POST /v1/messages` works directly — no two-step access-token mint needed).
 
 `sensor.ts` remains gated off (`WHOP_SENSOR_ENABLED = false`) until whoabuddy signs off on a recurring
-cadence — first post was manually triggered with explicit in-session OK.
-
-## Original-blocker history (kept for future reference)
-
-The original blocker was diagnosed and locked in this session, then dissolved when a fresh App was
-registered:
-
-- The App's `requested_permissions` declares what the App wants; the **issued API key has its own
-  separate action set**. The Whop UI surfaces these in two different tabs.
-- Original arc0btc App API key carried **zero of 12 declared actions** (`actions: []` in minted tokens).
-  Probable cause: the key was issued before the App's permissions were declared, and Whop doesn't
-  auto-include newly-declared permissions on existing keys.
-- API-key management isn't exposed via the public API (`/v1/api_keys` and `/v1/apps/:id/api_keys` 404).
-- Fix path that worked: register a fresh App with permissions pre-declared. Fresh API key issuance
-  auto-includes the App's declared permissions. (Trying to edit the old key in the dashboard never
-  panned out — the install record had also been deleted, so the App's dashboard page was empty.)
-- Lesson: **the auto-generated "App Access" product + plan that appears when an App is installed on a
-  company is the install link. NEVER delete it.** Identify by `internal_notes: "App Access"`,
-  `accepted_payment_methods: ["free"]`, title matches the App name.
-
----
-
-## Autonomous Receipt Mechanic (AI-073, P8)
-
-> **Status (2026-06-18):** Wired as second-hop (AI-060/062 resolved in P2). NOT sensor-direct.
-
-### Trigger path
-
-```
-pollWhopEvents()       → skills/whop/sensor.ts
-  ingestWhopEvent()    → skills/whop/lib/events.ts  (idempotent, source-PK dedup)
-    surfaceProductBuyer()  → events.ts line ~508    (fires on membership.activated + PRODUCT_SCOPE)
-      insertTask(title="whop-product-buyer:{buyerId}", ...)
-```
-
-The task description carries 3 explicit CLI steps:
-
-**STEP 1 — RECEIPT:**
-```
-arc skills run --name whop-sales -- receipt
-```
-Reads live paying-customer count; composes M0 receipt post (SOUL.md voice).
-Post to X (primary) + paid forum.
-
-**STEP 2 — TEASER:**
-```
-arc skills run --name whop-sales -- teaser
-```
-Composes a public-forum teaser for the free discovery forum.
-
-**STEP 3 — CONTINUITY BRIDGE:**
-```
-arc skills run --name whop -- post-chat --content "<invite text>" \
-  --source whop-room-invite:{buyerId} --channel exp_dlYgb6mrXuRIq8
-```
-Invites the buyer into the paid room. Idempotent via post-chat local ledger.
-
-### Idempotency
-
-- `ingestWhopEvent()` source-PK dedup prevents double-ingest of the same event.
-- `post-chat` uses `--source whop-room-invite:{buyerId}` — a re-run with the same
-  source is suppressed by the local `whop_post_log` SQLite ledger.
-- `receipt` and `teaser` use their own source keys internally.
-
-### Sensor-direct gap (AI-060/062 context)
-
-The receipt fires autonomously **only if** a dispatch session picks up the
-`whop-product-buyer:{buyerId}` task within the next sensor cycle. The sensor
-does NOT call `tick-receipt` or `teaser` directly — it delegates to the
-dispatched session by embedding the CLI instructions in the task description.
-This is the approved second-hop pattern (P2 resolution of AI-062).
-
-### Post-M0 path (AI-084)
-
-The `reviews` SDK namespace (`client.reviews.list`, `client.reviews.retrieve`) exists and is
-callable. A day-7 review-request nudge after course completion would:
-1. Query `courseLessonInteractions` to detect completion.
-2. Check if a review has been left (`reviews.list({ company_id, product_id })`).
-3. Send a nudge via `post-chat` to the buyer's channel.
-Implement only after first real paying buyers (post-M0; ship-board phase).
-Implement only after first real paying buyers (post-M0; ship-board phase).
+cadence — first post was manually triggered with explicit in-session OK. Full dashboard-pass
+checklist, original-blocker post-mortem, and the Autonomous Receipt Mechanic (AI-073) trigger
+path/idempotency design are in `skills/whop/REFERENCE.md`.

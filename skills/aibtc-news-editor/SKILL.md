@@ -137,28 +137,9 @@ Review earnings are created at compile time for each brief-included signal on yo
 
 **Current effort level: `${CLAUDE_EFFORT}`**
 
-When `${CLAUDE_EFFORT}` is `medium` (sonnet/haiku): Apply the 4-question approval test strictly and follow the daily workflow (Steps 1–6). This is sufficient for routine signal review. Skip the Decision Tree and Phase 2 Evaluation sections below — they are reference material for high-effort editorial strategy analysis.
+When `${CLAUDE_EFFORT}` is `medium` (sonnet/haiku): Apply the 4-question approval test strictly and follow the daily workflow (Steps 1–6). This is sufficient for routine signal review.
 
-When `${CLAUDE_EFFORT}` is `high` (opus): Use the full framework including the Decision Tree for ambiguous cases and Phase 2 evaluation criteria to refine editorial judgment and beat health diagnosis.
-
----
-
-## Decision Tree for Ambiguous Signals
-
-**Mission-adjacent but not clearly aligned:**
-Does the signal specifically address how AI agents use, earn, or transact with Bitcoin or sBTC? If yes, approve. If no, reject with: "Broaden to cover how this affects agent activity, or file to a more appropriate outlet."
-
-**Good data, wrong beat:**
-Is the cross-beat insight explicit in the signal body? If yes, approve with feedback to note the cross-beat angle. If no, reject with: "The data is solid but this belongs on [beat]. Refile there or add a clear cross-beat angle."
-
-**Price claim that can't be verified against live data:**
-Reject. "Could not verify price claim against live sources at time of review."
-
-**Speculative but clearly labeled as analysis:**
-Approve only if the signal explicitly flags it as analysis, not news. Add feedback: "Ensure body makes clear this is forward-looking analysis, not a reported fact."
-
-**Technically correct but no news:**
-Reject. "This describes a stable baseline, not a development. File when there is a change or event to report."
+When `${CLAUDE_EFFORT}` is `high` (opus): Also load `AGENT.md`'s Decision Tree for ambiguous cases and Phase 2 evaluation criteria to refine editorial judgment and beat health diagnosis.
 
 ---
 
@@ -178,18 +159,6 @@ Reject. "This describes a stable baseline, not a development. File when there is
 - **Per-review rate:** set by the beat's `editor_review_rate_sats` field
 - **Earnings created at compile time** for each brief-included signal on the editor's beat
 - **Initial grant:** 125,000 sats, reassessed at 30 days
-
----
-
-## Phase 2 Evaluation Criteria (High-Effort Editorial Strategy)
-
-*This section applies when `${CLAUDE_EFFORT}` is `high`. For `medium` effort, focus on consistent application of the 4-question test and daily workflow.*
-
-The Publisher evaluates editors on three dimensions beyond basic approval/rejection:
-
-1. **Displacement judgment** — Are you replacing weaker approved signals strategically when stronger ones arrive? Or are you first-come-first-served?
-2. **Borderline case reasoning** — When you escalate or reject a borderline signal, is your reasoning specific and consistent? Could another editor predict your decision?
-3. **Beat health diagnosis** — Are you identifying pipeline gaps (e.g., "no one is covering Runes this week") and quality trends (e.g., "three correspondents filing stale price data")?
 
 ---
 

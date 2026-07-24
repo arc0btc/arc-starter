@@ -11,92 +11,59 @@ tags:
 
 # arc-packaging
 
-Extends `arc-link-research`'s SKU backlog (`research/INDEX.md`'s `## SKU backlog` table,
-already pre-filtered to `sku_candidate: y` / `packaged: n`) into an ACTIVE pipeline stage — P3
-of `arc-demand-flywheel`. Before this skill existed, the backlog was a passive list someone had
-to remember to work; this sensor consumes it on a cadence so it no longer grows unbounded.
+Consumes `arc-link-research`'s SKU backlog (`research/INDEX.md`'s `## SKU backlog` table,
+pre-filtered to `sku_candidate: y` / `packaged: n`) as an active pipeline stage (P3 of
+`arc-demand-flywheel`). Full design rationale and history: `skills/arc-packaging/REFERENCE.md`.
 
-## The 3-step contract (mirrors `arc-daily-read`'s P1 / `arc-article-pipeline`'s P2 design)
+## The 3-step contract
 
-1. **`materials`** (deterministic) — picks the next eligible candidate via `lib/backlog.ts`'s
-   `selectCandidate()` (resume-first: a report stuck `queued`/`claimed` from an interrupted
-   prior attempt always wins over starting something new; otherwise highest relevance first,
-   then oldest report first), claims it (`INSERT OR IGNORE` into `packaging_queue_log`, keyed by
-   `report_file`), and writes a materials brief to `db/packaging-materials/<slug>.json` — the
-   report's **full text** (`reportMarkdown`), `sku_why`, a suggested $9 price, and the
-   **required dual-audience-frame instructions** (audience is LOCKED to agent operators,
-   QUEST.md #11): a human line ("operator: give this to your agent") and an agent line ("read
-   this content") — plus explicit guidance not to overclaim x402 delivery and to vary the
-   closing sentence per SKU (both from dev-council/arc-strategy-panel review, 2026-07-03).
-2. **The dispatch-cycle LLM turn** (SOUL.md-gated) drafts
-   `{ title, headline, description, quiz }` to `<slug>.draft.json`. The description MUST contain
-   both audience frames verbatim-or-near-verbatim — `stage` hard-fails otherwise (with a clear
-   DEFERRED-style error list, not a raw exception). **The description also has a hard 1500-char
-   limit** (Whop's `products.create` API rejects longer values) — write both audience frames
-   concisely and stay under 1500 chars on the first draft; found live 2026-07-08 (task #21744)
-   when a 1620-char draft failed at `stage` and had to be trimmed and re-run. **The headline
-   also has a hard 80-char limit** — write it short on the first draft; found live 2026-07-10
-   (task #21962) when a 153-char headline failed at `stage` and had to be shortened to 74.
-   **`quiz` is REQUIRED** (control-plane-remediation Phase 2, row 62, 2026-07-16/17): at least 3
-   `QuizQuestion`s drawn from the report's own claims (see `MaterialsBrief.voiceInstructions.quiz`
-   for the exact shape) — `stage` hard-fails without it, same enforcement tier as the description
-   frames.
-3. **`stage --report <file>`** (deterministic) — validates the draft, then, only if valid:
-   - strips internal-only content from the report before it becomes the deliverable
-     (`cleanDeliverableMarkdown()` — drops Arc's own "Recommendations" backlog table, converts
-     `[[wiki-links]]` to plain text, relabels "Provenance" as customer-facing and drops
-     cache-hash/task-ID lines; a raw research report is written for Arc's own engineering
-     backlog, not a paying stranger)
-   - mints the SKU via `whop create-product` (still created hidden at this point), passing
-     `--quiz <path>` alongside `--report <path>` so the deliverable (report + quiz) attaches
-     atomically with creation
+1. **`materials`** (deterministic) — picks the next eligible candidate via
+   `lib/backlog.ts`'s `selectCandidate()` (resume-first: a report stuck `queued`/`claimed` from
+   an interrupted attempt wins over starting new; otherwise highest relevance, then oldest
+   report), claims it (`INSERT OR IGNORE` into `packaging_queue_log`, keyed by `report_file`),
+   and writes a materials brief to `db/packaging-materials/<slug>.json` — the report's full text,
+   `sku_why`, a suggested $9 price, and required dual-audience-frame instructions (audience is
+   LOCKED to agent operators, QUEST.md #11: a human line + an agent line, don't overclaim x402
+   delivery, vary the closing sentence per SKU).
+2. **The dispatch-cycle LLM turn** (SOUL.md-gated) drafts `{ title, headline, description, quiz }`
+   to `<slug>.draft.json`. The description must contain both audience frames verbatim-or-near, and
+   stay under **1500 chars** (hard API limit). The headline has an **80-char** hard limit. `quiz`
+   is **required**: ≥3 `QuizQuestion`s drawn from the report's own claims (see
+   `MaterialsBrief.voiceInstructions.quiz`). `stage` hard-fails on any violation with a clear error
+   list, not a raw exception.
+3. **`stage --report <file>`** (deterministic) — validates the draft, then if valid:
+   - strips internal-only content (`cleanDeliverableMarkdown()`: drops the Recommendations
+     backlog table, converts wiki-links to plain text, relabels Provenance as customer-facing,
+     drops cache-hash/task-ID lines)
+   - mints the SKU via `whop create-product` (created hidden), passing `--quiz` alongside
+     `--report` so the deliverable attaches atomically with creation
    - closes the loop via `arc-link-research mark-packaged`
-   - wires **membership unlock-all SILENTLY** (`--skip-chat` — a $0 promo code is created, but
-     no announcement is posted; see below)
-   - **generates + attaches a cover** (`skills/arc-packaging/lib/cover.ts`'s `renderSkuCover()` —
-     deterministic, no LLM call, motif = the SKU's own live title/headline numbers; panel rules
-     in `manage-agents/ops/store-covers/BRAND-KIT.md`) via `whop update-product --cover`
-   - **PUBLISHES as the terminal step** via `whop set-visibility --visibility visible` (product
-     + plan) — operator directive 2026-07-03: "the SKUs are up to arc to manage/publish and
-     don't need my review either. same as the blog." — **BUT ONLY IF the cover attach AND the
-     quiz attach both succeeded** (control-plane-remediation Phase 2, row 61/62/63: cover+quiz
-     are now REQUIRED stage steps, not just recommended — a caller not passing `--keep-hidden` no
-     longer guarantees a visible SKU). If either failed, the SKU is left `packaged` but hidden,
-     with a loud log naming which one failed and the manual `set-visibility` command to run once
-     it's fixed (retry via `update-product --cover` / `attach-deliverable --quiz`). Terminal on
-     purpose otherwise (dev-council/Newman): the storefront never shows a SKU whose deliverable,
-     cover, quiz, or member promo isn't wired yet, and a failed flip leaves the queue row
-     `claimed` so the resume path re-runs the idempotent chain. Pass `--keep-hidden` to `stage`
-     for the old hidden-until-operator-flip behavior regardless of cover/quiz outcome; rollback
-     for any published SKU is
-     `bash bin/arc skills run --name whop -- set-visibility --product <prod_> --plan <plan_> --visibility hidden`
-   - emails the operator a summary (product/checkout/promo links + rollback command) reporting
-     the READ-BACK visibility — since the 2026-07-03 directive this is operator visibility,
-     not a review gate
+   - wires membership unlock-all silently (`--skip-chat` — see below)
+   - generates + attaches a cover (`lib/cover.ts`'s `renderSkuCover()`, deterministic, motif =
+     the SKU's own live title/headline numbers; panel rules in
+     `manage-agents/ops/store-covers/BRAND-KIT.md`)
+   - **publishes as the terminal step** (`whop set-visibility --visibility visible`) — but only
+     if BOTH the cover attach and quiz attach succeeded. If either failed, the SKU stays
+     `packaged` but hidden with a log naming which step failed and the manual retry command.
+     Pass `--keep-hidden` to skip auto-publish regardless of outcome. Rollback:
+     `bin/arc skills run --name whop -- set-visibility --product <prod_> --plan <plan_> --visibility hidden`
+   - emails the operator a summary (product/checkout/promo links + rollback command), reporting
+     read-back visibility for awareness, not as a review gate
 
 ## Membership unlock-all (`whop unlock-all`)
 
-There is **no server-side "grant membership" call in `@whop/sdk`** (checked every
-`resources/*.d.ts` — no `memberships.create`). The only real primitive is a promo code applied
-at checkout, so "unlock" means: create-or-find a **100%-off, unlimited-stock, `product_id`-
-scoped promo code** (same primitive already live for the membership's own `FREEMONTH_PROMO_ID`).
+No server-side "grant membership" call exists in `@whop/sdk` — "unlock" means create-or-find a
+100%-off, unlimited-stock, `product_id`-scoped promo code (same primitive as the membership's
+`FREEMONTH_PROMO_ID`).
 
 ```
 arc skills run --name whop -- unlock-all --product prod_xxx [--plan plan_xxx] [--title <t>] [--skip-chat]
 ```
 
-`arc-packaging stage` always calls this with `--skip-chat`: the promo is created (the
-entitlement exists) but **no chat announcement fires automatically**. dev-council review
-(2026-07-03) flagged the original always-announce design as a real premature-exposure risk — a
-live $0 checkout link reaching real paying members before the operator has reviewed the SKU,
-three subprocesses deep with no visibility. The operator gets everything needed (product page,
-checkout URL, promo code, member redemption link) in the review email `stage` sends, and posts
-the announcement themselves (into the members-only "AI Prefers Bitcoin" chat,
-`exp_I2Wew0PqJQ50a8` — paid-chat posting has blanket pre-approval, CADENCE.md 2026-07-03) once
-they've reviewed it, or asks Arc to. **Known limitation (logged, not fixed here):** a single
-chat message is a weak activation signal even when the operator does fire it — a persistent,
-browsable "member redemption links" post would reach more of the membership than an ephemeral
-chat line; flagged as a carry-forward, not built this phase (scope).
+`stage` always passes `--skip-chat`: the promo/entitlement is created but no chat announcement
+fires automatically — premature-exposure risk (dev-council 2026-07-03). Operator reviews via the
+email `stage` sends and posts the announcement themselves (or asks Arc to), into "AI Prefers
+Bitcoin" (`exp_I2Wew0PqJQ50a8`, blanket pre-approved per CADENCE.md).
 
 ## CLI
 
@@ -106,96 +73,44 @@ bun skills/arc-packaging/cli.ts stage --report <filename> [--dry-run] [--force-s
 bun skills/arc-packaging/cli.ts status
 ```
 
-`--report` on `materials` forces a specific candidate (bypasses selection order) — useful for
+`--report` on `materials` forces a specific candidate (bypasses selection order) — for
 demos/testing. `--force-sanitization` on `stage` is a human-only escape hatch for a confirmed
-sanitizer false positive (e.g. a legitimate research report quoting a `password=` config line);
-the automated sensor's dispatch task never mentions this flag.
-
-## Shared selection logic (`lib/backlog.ts`)
-
-`parseSkuBacklog()` and `selectCandidate()` live in one shared module, imported by BOTH `cli.ts`
-and `sensor.ts`. **This was not the original design** — the sensor originally computed its own
-independent backlog count and compared it against `packaging_queue_log`'s row count, and dev-
-council (unanimous, 4 of 5 lenses) found the two had already diverged into a real bug: the count
-comparison silently stalled the pipeline around the halfway point of the 27-item backlog. There
-is now exactly one answer to "is there anything to package right now," so the sensor and the
-actual selector can no longer disagree.
+sanitizer false positive; the automated sensor task never passes this flag.
 
 ## Sensor
 
-Cadence: every 24h. This is a supply-side stage: since 2026-07-03 it publishes each SKU to the
-storefront, but a new catalog item pushes nothing into any feed, timeline, or chat — the
-member-facing announcement still never fires automatically, which is what the "looks spammy on
-turn-on" risk (and P2's 48h demand-channel floor) actually guards against. Dedup key is the
-candidate's own `report_file` (not a count-derived pseudo-sequence — dev-council/Lamport flagged
-the earlier scheme as driftable under concurrent or manual runs). Kill-switch
-(`outbound_enabled`) checked. **Never mints anything itself** — stops at queuing a dispatch
-task; `materials`/`stage` (run by the dispatch-cycle LLM) do the actual work.
+Cadence: every 24h. Supply-side only — publishes each SKU to the storefront, but never pushes
+into any feed/timeline/chat (member-facing announcement still requires a human). Dedup key is
+the candidate's own `report_file`. Kill-switch (`outbound_enabled`) checked. Never mints anything
+itself — stops at queuing a dispatch task; `materials`/`stage` (run by the dispatch-cycle LLM) do
+the actual work.
+
+A second lane, `arc-packaging-hidden-escalation` (6h cadence), watches `packaging_queue_log` rows
+`status='packaged'` whose `packaged_at` is >72h old, reads the live Whop visibility, and — if
+still hidden (meaning the cover/quiz attach failed and was never retried) — queues a review task
+(7-day cooldown per product).
 
 ## Schema
 
-`packaging_queue_log` (additive, `db/arc.sqlite`): `report_file` (PK, the natural key — a
-report gets exactly one row), `slug`, `route`, `relevance`, `sku_why`, `status`
-(`queued` -> `claimed` -> `packaged`, claim is compare-and-swap via `UPDATE ... WHERE
-status='queued'` + a `changes`-count check, not a bare UPDATE; a candidate that fails the
-dedup-before-mint gate below lands at `duplicate` instead of `packaged` — also terminal, never
-re-selected), `product_id`/`plan_id` (written immediately after mint, before the next subprocess
-call, so a mid-pipeline crash is still fully auditable from the DB alone), `promo_code_id`,
-`queued_at`, `claimed_at`, `packaged_at`.
+`packaging_queue_log` (`db/arc.sqlite`): `report_file` (PK), `slug`, `route`, `relevance`,
+`sku_why`, `status` (`queued` → `claimed` → `packaged`, or `duplicate` if the dedup-before-mint
+gate rejects it — both terminal), `product_id`/`plan_id` (written immediately after mint, before
+the next subprocess call, so a mid-pipeline crash is still auditable from the DB alone),
+`promo_code_id`, `queued_at`, `claimed_at`, `packaged_at`.
+
+Claim is compare-and-swap (`UPDATE ... WHERE status='queued'` + a `changes`-count check), not a
+bare UPDATE.
 
 ## Dedup-before-mint gate
 
-`stage` checks the candidate report's `source_url`/`topics` (front-matter) against every
-ALREADY-PACKAGED report's front-matter, via arc-link-research's own `findCoverage()`
-(`skills/arc-link-research/lib/catalog.ts` — the same function backing that skill's `check`
-CLI command, imported directly rather than re-derived, so the two skills can't disagree on what
-"already covered" means). A hit means a live Whop product already covers the same url/topic —
-`stage` aborts before calling `create-product`, logs the overlapping report(s), and marks the
-queue row `status='duplicate'` (terminal, not retried). This runs in `--dry-run` too, so
-`materials`/draft work isn't wasted on a doomed candidate.
-
-## Hidden-SKU auto-escalation (sensor)
-
-A second sensor lane, `arc-packaging-hidden-escalation` (6h cadence, self-gated independently
-of the 24h packaging lane below), watches for `packaging_queue_log` rows `status='packaged'`
-whose `packaged_at` is >72h old. For each, it reads the LIVE Whop visibility
-(`whop get-product`) — `stage`'s auto-publish only skips the final `set-visibility visible` step
-when the cover or quiz attach failed, so a SKU stuck hidden this long means that failure was
-never noticed/retried. If still hidden, it queues a review task (mirrors
-`arc-blocked-review`'s stale-then-cooldown shape: `sensor:arc-packaging-hidden-escalation:<product_id>`
-dedup key, 7-day cooldown per product so an unresolved SKU doesn't re-page every 6h).
-
-## Relationship to the dormant course-publishing capability
-
-This is NOT the same thing as the raw `create-course`/`create-chapter`/`create-lesson` CLI used
-directly against the shared "Courses" experience (`exp_rm8XtYSqYIBzrl`, attached to the $49/mo
-membership) for STRATEGY.md's Phase 2/3 "evergreen multi-part courses" vision. This skill's
-`create-product` deliverable IS a per-SKU mini-course (via `attachDeliverable`'s existing,
-already-proven-live logic) — a single report as a single-lesson course, not authored multi-part
-content. P3's `CHECKPOINTS.md` entry decided to retire (deprioritize, not delete) the evergreen
-multi-part vision for this quest — see that entry for the full rationale and reversal path.
-
-## Known carry-forwards (logged, not built this phase — scope discipline, not oversight)
-
-- A persistent "member redemption links" post (vs. an ephemeral chat message) for unlock-all.
-- Per-SKU pricing review beyond the $9 default (arc-strategy-panel/Patel flagged that dense
-  reference-table content, e.g. a subsystem-by-subsystem audit, may be worth $19 like the
-  existing arxiv-skill tier — applied ad hoc where flagged, not systematized into a rule yet).
-- `whop create-product`'s route-lookup and `unlock-all`'s promo-lookup both scan only the first
-  50/100 rows respectively (pre-existing `whop/cli.ts` behavior, not changed by P3) — this
-  pipeline is exactly what pushes the catalog toward that ceiling over time; paginate those
-  scans before the catalog crosses ~50 products.
-- `packaging_queue_log` has no `visibility` column — published-vs-hidden lives only on Whop
-  (read back per flip) and in the verify artifacts, not the local ledger (dev-council/
-  Kleppmann, 2026-07-03 publish-by-default review; acceptable while status='packaged' implies
-  a confirmed-visible flip, revisit if `--keep-hidden` gets real use).
-- `create-product`'s plan create-or-find has no serialization point (dev-council/Lamport,
-  same review, pre-existing): a manual `stage` racing the dispatched task on the SAME report
-  could stack two one-time plans on one product. The queue layer's claim CAS protects the
-  sensor path; don't run manual stages concurrently with a live dispatch claim.
+`stage` checks the candidate's `source_url`/`topics` against every already-packaged report's
+front-matter via `arc-link-research`'s `findCoverage()` — a hit means a live Whop product already
+covers the same url/topic, so `stage` aborts before minting and marks the row `duplicate`. Runs
+in `--dry-run` too.
 
 ## When to Load
 
 Load when the sensor's dispatch task fires, or when manually running `materials`/`stage`. Pair
 with `arc-link-research` (produces the backlog this skill consumes) and `whop` (the underlying
-SKU-minting + membership CLI this skill shells out to).
+SKU-minting + membership CLI this skill shells out to). See `REFERENCE.md` for design rationale,
+known carry-forwards, and the relationship to the dormant course-publishing capability.
