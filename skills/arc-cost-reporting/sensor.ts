@@ -24,20 +24,20 @@ function buildReport(today: string): string {
            COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
            COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
            COUNT(*) as task_count
-    FROM tasks WHERE date(created_at) = date('now')
-  `).get() as { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number };
+    FROM tasks WHERE date(created_at) = ?
+  `, [today]).get() as { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number };
 
   const topByCost = db.query(`
     SELECT id, subject, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens, model
-    FROM tasks WHERE date(created_at) = date('now') AND cost_usd > 0
+    FROM tasks WHERE date(created_at) = ? AND cost_usd > 0
     ORDER BY cost_usd DESC LIMIT 5
-  `).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
+  `, [today]).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
 
   const topByTokens = db.query(`
     SELECT id, subject, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens, model
-    FROM tasks WHERE date(created_at) = date('now') AND (tokens_in + tokens_out) > 0
+    FROM tasks WHERE date(created_at) = ? AND (tokens_in + tokens_out) > 0
     ORDER BY (tokens_in + tokens_out) DESC LIMIT 5
-  `).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
+  `, [today]).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
 
   const topSkills = db.query(`
     SELECT skills,
@@ -45,15 +45,15 @@ function buildReport(today: string): string {
            COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
            COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
            COUNT(*) as task_count
-    FROM tasks WHERE date(created_at) = date('now') AND cost_usd > 0
+    FROM tasks WHERE date(created_at) = ? AND cost_usd > 0
     GROUP BY skills ORDER BY total_cost DESC LIMIT 5
-  `).all() as Array<{ skills: string | null; total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>;
+  `, [today]).all() as Array<{ skills: string | null; total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>;
 
   // Fetch sensor-sourced tasks and aggregate by sensor name in TypeScript
   const sensorRows = db.query(`
     SELECT source, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens
-    FROM tasks WHERE date(created_at) = date('now') AND source LIKE 'sensor:%' AND cost_usd > 0
-  `).all() as Array<{ source: string; cost_usd: number; api_cost_usd: number; tokens: number }>;
+    FROM tasks WHERE date(created_at) = ? AND source LIKE 'sensor:%' AND cost_usd > 0
+  `, [today]).all() as Array<{ source: string; cost_usd: number; api_cost_usd: number; tokens: number }>;
 
   const sensorMap = new Map<string, { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>();
   for (const row of sensorRows) {
@@ -143,14 +143,15 @@ export default async function costReportingSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   const today = todayStr();
-  const source = `sensor:${SENSOR_NAME}:${today}`;
+  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().slice(0, 10);
+  const source = `sensor:${SENSOR_NAME}:${yesterday}`;
 
   if (pendingTaskExistsForSource(source)) return "skip";
 
-  const report = buildReport(today);
+  const report = buildReport(yesterday);
 
   insertTask({
-    subject: `daily cost report — ${today}`,
+    subject: `daily cost report — ${yesterday}`,
     description: report,
     skills: '["arc-cost-reporting"]',
     priority: 9,
@@ -158,6 +159,6 @@ export default async function costReportingSensor(): Promise<string> {
     source,
   });
 
-  log(`daily cost report created for ${today}`);
+  log(`daily cost report created for ${yesterday}`);
   return "ok";
 }
