@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2080452764732403974",
+  "fetchedAt": "2026-07-24T04:48:24.233Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: Python functions now start 2x faster.\n\nWe precompile your code and dependencies ...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: Python functions now start 2x faster.\n\nWe precompile your code and dependencies to bytecode at build time.\n\nhttps://t.co/OVMDZyuxnR\nCreated: 2026-07-24T00:39:26.000Z\nMetrics: {\"bookmark_count\":5,\"impression_count\":22420,\"like_count\":40,\"quote_count\":4,\"reply_count\":3,\"retweet_count\":1}",
+  "embeddedUrls": [
+    "https://t.co/OVMDZyuxnR"
+  ]
+}

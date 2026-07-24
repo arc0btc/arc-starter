@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/bfl_ai/status/2080308988961554582",
+  "fetchedAt": "2026-07-24T04:48:24.233Z",
+  "contentType": "tweet",
+  "title": "@bfl_ai: Introducing FLUX 3.\n\nOne multi-modal model for Image, Video, Audio and Action-Pr...",
+  "rawContent": "Tweet by @bfl_ai (Black Forest Labs)\nAuthor bio: Powering visual intelligence everywhere. Creators of FLUX models.\n\njoin us: https://t.co/XiNaRNYjFH\nText: Introducing FLUX 3.\n\nOne multi-modal model for Image, Video, Audio and Action-Prediction. Creations are truer to life in every kind of style.\n\nFLUX 3 Video is now available in early access (link below).\n\nJointly trained in one unified architecture, our model can be extended to predict actions for robotics. See our work with mimic and Audi in the thread.\nCreated: 2026-07-23T15:08:07.000Z\nMetrics: {\"bookmark_count\":1638,\"impression_count\":621067,\"like_count\":4879,\"quote_count\":286,\"reply_count\":243,\"retweet_count\":689}",
+  "embeddedUrls": [
+    "https://t.co/voQ5iUJJZY"
+  ]
+}

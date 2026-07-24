@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/OVMDZyuxnR",
+  "fetchedAt": "2026-07-24T04:48:24.773Z",
+  "contentType": "html",
+  "title": "t.co",
+  "rawContent": "# Python function bundles now include precompiled bytecode **Published:** July 21, 2026 | **Authors:** Greg Schofield, Elvis Pranskevichus --- Vercel now compiles Python functions to bytecode at build time. In our benchmarks, cold starts for the median-sized function dropped from **2.8s to 1.3s**. Cold starts are already rare in practice. Pre-warmed instances keep at least one function instance active for production deployments on paid plans, and [automatic concurrency scaling](https://vercel.com/docs/functions/concurrency-scaling#automatic-concurrency-scaling) reduces how often new instances start cold. Precompiling to bytecode makes starts faster across the board, so proactive initialization finishes sooner and fewer requests ever hit a cold start. When Python imports a module without cached bytecode, it parses and compiles the source before executing it. That compilation step adds startup time for functions with large dependency trees. Vercel now compiles both application code and dependencies and includes the resulting `.pyc` files in the function bundle, so the interpreter skips compilation at startup. Vercel automatically adds as much precompiled bytecode as fits in the function bundle. Functions near the size limit have little room left, so they see smaller gains. No code changes are required. See the [Python documentation](https://vercel.com/docs/functions/runtimes/python) to learn more about Python support on Vercel. --- 📚 **More updates:** [View all changelog entries](/changelog/sitemap.md) | [Blog](/blog/sitemap.md)",
+  "embeddedUrls": [
+    "https://vercel.com/docs/functions/concurrency-scaling#automatic-concurrency-scaling",
+    "https://vercel.com/docs/functions/runtimes/python"
+  ]
+}
