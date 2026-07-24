@@ -14,9 +14,10 @@ import { join } from "node:path";
 const SENSOR_NAME = "arc-umbrel";
 const INTERVAL_MINUTES = 30;
 const STATE_FILE = join(import.meta.dir, "../../db/umbrel-sensor-state.json");
-const UMBREL_HOST = "192.168.1.106";
-const UMBREL_USER = "umbrel";
-const UMBREL_PASS = "umbrel";
+// LAN host and credentials come from env — no internal IP or password committed to the repo.
+const UMBREL_HOST = process.env.UMBREL_HOST || "umbrel.local";
+const UMBREL_USER = process.env.UMBREL_USER || "umbrel";
+const UMBREL_PASS = process.env.UMBREL_PASS || "";
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -77,7 +78,7 @@ export default async function umbrelSensor(): Promise<string> {
     if (!state.installPrompted && !pendingTaskExistsForSource("sensor:arc-umbrel:install")) {
       insertTask({
         subject: "Install Bitcoin Core on Umbrel node",
-        description: "Umbrel at 192.168.1.106 has no Bitcoin Core installed. Run: arc skills run --name arc-umbrel -- install-bitcoin",
+        description: `Umbrel at ${UMBREL_HOST} has no Bitcoin Core installed. Run: arc skills run --name arc-umbrel -- install-bitcoin`,
         skills: '["arc-umbrel"]',
         priority: 3,
         model: "sonnet",

@@ -1,6 +1,6 @@
 ---
 name: arc-umbrel
-description: Bitcoin Core RPC integration and Stacks node management via local Umbrel node at 192.168.1.106
+description: Bitcoin Core RPC integration and Stacks node management via local Umbrel node
 updated: 2026-03-11
 tags:
   - bitcoin
@@ -10,12 +10,12 @@ tags:
 
 # arc-umbrel
 
-Local Umbrel node integration at 192.168.1.106. Provides Bitcoin Core JSON-RPC access and node management. Removes dependency on external APIs (Unisat, Magic Eden, OKX) for chain data.
+Local Umbrel node integration. Provides Bitcoin Core JSON-RPC access and node management. Removes dependency on external APIs (Unisat, Magic Eden, OKX) for chain data.
 
 ## Node Details
 
-- **Host:** 192.168.1.106
-- **SSH:** umbrel@192.168.1.106 (password: umbrel)
+- **Host:** set via `UMBREL_HOST` env var (LAN address of your Umbrel node)
+- **SSH:** `UMBREL_USER`/`UMBREL_PASS` env vars. If still on Umbrel's documented default password, change it first — see Umbrel's own "change the default password" guidance in the dashboard settings.
 - **Umbrel OS:** v1.5.0
 - **Storage:** 180GB data partition (pruned node, prune=100GB, no txindex)
 - **Stacks node:** Not available in Umbrel app store. Manual Docker install required.

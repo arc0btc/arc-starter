@@ -17,7 +17,7 @@
  *   9. No live DB write — safety check enforced
  *
  * Usage: bun run fixture-p6-entitlement.ts <path-to-fixture-db>
- * Tip:   scp dev@192.168.1.10:/home/dev/arc-starter/db/arc.sqlite /tmp/fixture-p6.sqlite
+ * Tip:   scp dev@<host>:/home/dev/arc-starter/db/arc.sqlite /tmp/fixture-p6.sqlite
  *        bun run fixture-p6-entitlement.ts /tmp/fixture-p6.sqlite
  */
 
@@ -143,7 +143,7 @@ const workPath = fixtureArg.replace(".sqlite", "-p6-work.sqlite");
 // Remove stale work copy if exists
 try { rmSync(workPath); } catch { /* ok if not exists */ }
 if (!existsSync(fixtureArg)) {
-  process.stderr.write(`Fixture not found: ${fixtureArg}\nCreate one with:\n  scp dev@192.168.1.10:/home/dev/arc-starter/db/arc.sqlite ${fixtureArg}\n`);
+  process.stderr.write(`Fixture not found: ${fixtureArg}\nCreate one with:\n  scp dev@<host>:/home/dev/arc-starter/db/arc.sqlite ${fixtureArg}\n`);
   process.exit(1);
 }
 copyFileSync(fixtureArg, workPath);

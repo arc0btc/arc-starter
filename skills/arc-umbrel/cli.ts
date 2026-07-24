@@ -10,9 +10,11 @@ import { parseFlags } from "../../src/utils.ts";
 
 // ---- Constants ----
 
-const UMBREL_HOST = "192.168.1.106";
-const UMBREL_USER = "umbrel";
-const UMBREL_PASS = "umbrel";
+// LAN host and credentials come from env — no internal IP or password committed to the repo.
+// See skills/arc-umbrel/SKILL.md for setup and Umbrel's change-the-default-password guidance.
+const UMBREL_HOST = process.env.UMBREL_HOST || "umbrel.local";
+const UMBREL_USER = process.env.UMBREL_USER || "umbrel";
+const UMBREL_PASS = process.env.UMBREL_PASS || "";
 const BITCOIN_RPC_PORT = 8332;
 
 // ---- SSH helpers ----
@@ -122,7 +124,7 @@ async function bitcoinRpc(method: string, params: unknown[] | Record<string, unk
 // ---- Commands ----
 
 async function cmdStatus(): Promise<void> {
-  process.stdout.write("Umbrel Node Status — 192.168.1.106\n");
+  process.stdout.write(`Umbrel Node Status — ${UMBREL_HOST}\n`);
   process.stdout.write("=".repeat(40) + "\n\n");
 
   // System info
