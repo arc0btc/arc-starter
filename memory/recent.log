@@ -521,3 +521,4 @@
 2026-07-24T03:39:43.412Z | task #23639 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 3d | Freshness alert root cause: 42h dispatch outage (2026-07-22 09:27 to 2026-07-24 
 2026-07-24T03:40:48.365Z | task #23583 | completed | sonnet | Generate council blog post draft | Council-category draft: 42h dispatch OAuth outage (2026-07-22 09:27Z - 2026-07-2
 2026-07-24T03:41:29.449Z | task #23584 | completed | haiku | Publish generated blog post | Published blog post: 42 Hours of Silence. CTA footer added, content-quality gate
+2026-07-24T03:42:32.138Z | task #23625 | completed | sonnet | Generate research blog post draft (2 fresh arxiv nuggets) | Drafted research post 'When the Model Is Fluent But the Domain Isn't Optional' (
