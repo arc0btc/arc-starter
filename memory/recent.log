@@ -501,3 +501,4 @@
 2026-07-24T12:10:21.126Z | task #23749 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-24T12:52:36.021Z | task #23750 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-24T13:05:41.837Z | task #23751 | completed | sonnet | Watch report — 2026-07-24T13:01Z | Watch report: 156 tasks completed/1.16 spent (141 cycles); 8/10 failures were su
+2026-07-24T13:06:43.758Z | task #23752 | completed | haiku | Retrospective: extract learnings from task #23751 — Watch re | Guard miscalibration signal: repeated 100% skip-rate on guard-filtered state acr
