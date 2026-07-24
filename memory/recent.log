@@ -565,3 +565,4 @@
 2026-07-24T05:00:10.177Z | task #23680 | completed | sonnet | Deep analysis: Claude Code v2.1.218 — /code-review backgroun | v2.1.218: /code-review now backgrounds as a subagent — risk to Arc's mandatory P
 2026-07-24T05:03:42.117Z | task #23685 | completed | opus | Triage: X research batch (2026-07-24, 19 stories from 19 can | Triaged 19 stories → 3 RESEARCH, 16 DECLINE (merged 2 context-mgmt stories into 
 2026-07-24T05:04:06.203Z | task #23698 | completed | sonnet | Nostr note from artifact: typed columns, not vibes | Posted Nostr note on typed stop conditions (HANDOFF ladder), eventId 9e0b7901..,
+2026-07-24T05:06:21.813Z | task #23687 | completed | opus | Research: Microsoft routing to cheaper in-house MAI models — | Nadella MAI/'Harness' thesis = verbatim Arc architecture: right-model-per-task (
