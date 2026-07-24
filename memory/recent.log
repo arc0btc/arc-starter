@@ -500,3 +500,9 @@
 2026-07-24T14:11:35.259Z | task #23757 | completed | sonnet | CEO review — 2026-07-24T14:07 | CEO review: on track — shipped real fixes (dedup gate, OAuth alert) over inciden
 2026-07-24T14:11:46.673Z | task #23758 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-24T14:23:11.898Z | task #23759 | completed | sonnet | Email watch report to whoabuddy — 2026-07-24T14:07 | Sent watch report (2026-07-24T13:01Z) to whoabuddy@gmail.com via arc-email-sync 
+2026-07-24T14:53:01.777Z | task #23760 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T15:25:11.779Z | task #23761 | failed | unknown | Charter corrective 1: deploy /go/:ref attribution route + fi | No model set — task requires explicit model column (opus/sonnet/haiku)
+2026-07-24T15:26:12.324Z | task #23762 | failed | unknown | Charter corrective 2: rolling-window catch-up — ONE Arc-voic | No model set — task requires explicit model column (opus/sonnet/haiku)
+2026-07-24T15:27:12.524Z | task #23763 | failed | unknown | Charter corrective 3: wire rolling-3 enforcement INTO the mi | No model set — task requires explicit model column (opus/sonnet/haiku)
+2026-07-24T15:28:13.453Z | task #23764 | failed | unknown | Charter corrective 4: invert the mint gate (free-first, rece | No model set — task requires explicit model column (opus/sonnet/haiku)
+[UNTRUSTED-SRC] 2026-07-24T15:41:22.869Z | task #23765 | completed | sonnet | Whop synthesis [2026-07-24T15]: read the room, defer or post | DEFER: whop synthesis tick, 0 messages in 24h window, quiet room, no post
