@@ -527,3 +527,4 @@
 2026-07-24T05:57:18.621Z | task #23718 | completed | sonnet | Fix: dispatch-stale health alerts self-cancel silently on re | Fixed clearResolvedAlerts() in arc-service-health/sensor.ts (commit 9c40800ce): 
 2026-07-24T05:59:36.969Z | task #23655 | completed | haiku | Retrospective: extract learnings from task #23624 — Overnigh | Extracted alert-resolution-visibility pattern: when health alerts correctly fire
 2026-07-24T06:00:14.227Z | task #23659 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Not a new pattern — third documented consequence of the already-tracked 42h disp
+2026-07-24T06:01:42.879Z | task #23662 | completed | haiku | Retrospective: extract learnings from task #23643 — Investig | Added p-headless-external-dependency-ttl-monitoring pattern: OAuth token lifecyc
