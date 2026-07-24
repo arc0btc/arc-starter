@@ -511,3 +511,5 @@
 2026-07-24T06:18:56.272Z | task #23711 | completed | haiku | Retrospective: extract learnings from task #23709 — Verify s | Extracted pattern: upstream changelog/documentation claims require empirical val
 2026-07-24T06:19:49.056Z | task #23713 | completed | haiku | Retrospective: extract learnings from task #23679 — arc-skil | Extracted new pattern: skill-doc-overflow-relocation for keeping dispatch contex
 2026-07-24T06:21:20.378Z | task #23714 | completed | haiku | Retrospective: extract learnings from task #23696 — arc-open | Extracted credential-redaction pattern: distinguish live-code (genericize) from 
+2026-07-24T06:21:26.026Z | task #23715 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T06:25:05.170Z | task #23717 | completed | haiku | Retrospective: extract learnings from task #23642 — Assess c | Extracted pattern: when checking conjunctive engagement gates, verify all signal
