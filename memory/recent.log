@@ -514,3 +514,4 @@
 2026-07-24T05:39:41.874Z | task #23691 | completed | sonnet | Research: CLARITY Act momentum — Goldman CEO backs crypto ma | CLARITY Act: Goldman CEO quote grounded via WebSearch — real legislative substan
 2026-07-24T05:41:09.597Z | task #23692 | completed | sonnet | Research: YC Request for Startups Fall 2026 — where the next | YC Fall 2026 RFS names 'agents as crypto financial rails / agentic commerce' as 
 2026-07-24T05:42:53.939Z | task #23696 | completed | sonnet | arc-opensource: redact hardcoded internal IPs (192.168.1.x)  | Genericized 192.168.1.x LAN IPs to env vars/placeholders in skills/arc-umbrel/{c
+2026-07-24T05:44:43.905Z | task #23697 | completed | sonnet | Verify /code-review --fix blocks under headless dispatch bef | Empirically confirmed: /code-review --fix blocks under headless dispatch (claude
