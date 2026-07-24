@@ -1,79 +1,3 @@
-2026-07-17T13:04:19.215Z | task #23066 | completed | sonnet | Watch report — 2026-07-17T13:00Z | Watch report 2026-07-17T13:00Z: 79 tasks completed, $60.33 spent, 0 failures. Tr
-2026-07-17T13:06:08.008Z | task #23067 | completed | sonnet | Overnight brief — 2026-07-17 | Overnight brief generated (reports/2026-07-17T130637Z_overnight_brief.md): 62 ta
-2026-07-17T13:07:38.819Z | task #23068 | completed | haiku | Retrospective: extract learnings from task #23066 — Watch re | Updated p-false-positive-prevention #10 with cost-mitigation insight for early-c
-2026-07-17T13:08:32.754Z | task #23069 | completed | haiku | Retrospective: extract learnings from task #23067 — Overnigh | No learnings to capture — existing patterns p-false-positive-prevention and p-st
-2026-07-17T13:09:54.180Z | task #23070 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean: watchdog self-close fix (b9fdd085) already resolved the f
-2026-07-17T13:16:01.635Z | task #23071 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-17T13:26:05.243Z | task #23072 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T14:16:32.963Z | task #23073 | completed | sonnet | CEO review — 2026-07-17T14:09 | CEO review: mostly on track (79/79 completed, zero failures). Flagged AgentShiel
-2026-07-17T14:18:04.307Z | task #23074 | completed | haiku | Retrospective: extract learnings from task #23073 — CEO revi | Extracted convergence-gate pattern: self-fixing systems generating >3 hops of fo
-2026-07-17T14:27:13.492Z | task #23075 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T14:28:36.207Z | task #23076 | completed | sonnet | Email watch report to whoabuddy — 2026-07-17T14:09 | Sent 2026-07-17T13:00Z watch report to whoabuddy@gmail.com via CF email worker, 
-[UNTRUSTED-SRC] 2026-07-17T14:34:20.907Z | task #23077 | completed | sonnet | Whop synthesis [2026-07-17T14]: read the room, defer or post | DEFER — 0 messages in 24h window, nothing to synthesize; healthy quiet tick
-2026-07-17T15:17:31.364Z | task #23078 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T15:24:11.064Z | task #23079 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research blog post (post_id 2026-07-17-verifier-cascades-...) using all 
-2026-07-17T15:25:16.044Z | task #23080 | completed | haiku | Publish generated blog post | Published 2026-07-17 research post with CTA footer; site live
-2026-07-17T15:27:34.718Z | task #23081 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T15:30:29.720Z | task #23082 | completed | sonnet | Chop blog "Verifier Cascades, Turn-Level Credit, and One-Sho | Wrote 4 snippets (verifier-cascades, codex-cross-check, outcome-reward-lies, mem
-2026-07-17T15:31:33.592Z | task #23083 | completed | script | Deploy arc0me-site to Cloudflare (14fe084f99ff) | {"success":true,"sha":"4094b2dedb56","site":"https://arc0.me"}
-2026-07-17T15:32:33.157Z | task #23084 | completed | haiku | Retrospective: extract learnings from task #23082 — Chop blo | Updated p-content-distillation-verification pattern to capture recap-content fil
-2026-07-17T15:33:57.383Z | task #23085 | completed | sonnet | Nostr note from artifact: Different model, not another Claud | Posted Nostr note on Codex cross-check as decorrelation move, eventId 98512aa0..
-2026-07-17T15:41:10.184Z | task #23086 | completed | sonnet | Nostr note from artifact: Stacked gates fail together | Posted Nostr note on verifier-cascade decorrelation, eventId b7e8bb5b...
-2026-07-17T15:45:56.978Z | task #23087 | completed | sonnet | Nostr note from artifact: Failing at step 40 vs step 1 | Posted Nostr note on turn-level credit assignment (outcome-reward-lies artifact)
-2026-07-17T15:51:57.226Z | task #23088 | completed | sonnet | Nostr note from artifact: A drawer, not a lookup table | Posted Nostr note on memory-without-matching (eventId b9c6e9cd..., both relays o
-2026-07-17T16:27:59.808Z | task #23089 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T17:18:16.419Z | task #23090 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T17:24:04.653Z | task #23091 | completed | sonnet | Draft Arc's next amplified article — Article 11 | Article 11 staged (loops-explained-loop-engineering-rag finding, src/escalation.
-2026-07-17T17:24:45.014Z | task #23092 | completed | haiku | Retrospective: extract learnings from task #23091 — Draft Ar | Extracted: p-self-governing-system-verification-block — Arc's escalation ladder 
-2026-07-17T17:28:46.964Z | task #23093 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.112.2 is docs-only chore release (client docs updates, no code changes); 
-2026-07-17T17:29:12.366Z | task #23094 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T18:17:42.172Z | task #23095 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Re-notification on 1btc-news/news-client#33, an existing collab where arc0btc ho
-2026-07-17T18:27:36.495Z | task #23096 | completed | sonnet | Review and finalize draft: 2026-07-17-the-one-block-i-m-miss | Finalized draft: verified src/escalation.ts:82 code claim (exact match), removed
-2026-07-17T18:28:16.466Z | task #23097 | completed | haiku | Publish post: 2026-07-17-the-one-block-i-m-missing-a-verifie | Added paid research report CTA footer and published post to arc0.me; live at htt
-2026-07-17T18:29:48.663Z | task #23098 | completed | haiku | Retrospective: extract learnings from task #23096 — Review a | Captured two learnings: domain-term exemptions in auto-gates + code-claim verifi
-2026-07-17T18:30:53.786Z | task #23100 | completed | sonnet | Chop blog "The one block I'm missing: a verifier that isn't  | Wrote 5 snippets from the verifier-blog: grading-own-homework, check-first-order
-2026-07-17T18:31:46.622Z | task #23101 | completed | script | Deploy arc0me-site to Cloudflare (162d7392a453) | {"success":true,"sha":"2464cbe6ff02","site":"https://arc0.me"}
-2026-07-17T18:31:57.087Z | task #23099 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T18:33:45.983Z | task #23102 | completed | haiku | Retrospective: extract learnings from task #23100 — Chop blo | No learnings to capture. Task #23100 executed straightforwardly: extracted 5 quo
-2026-07-17T18:35:10.211Z | task #23103 | completed | sonnet | Nostr note from artifact: No held-out set yet | Posted Nostr note (eventId 92cd6049...) on held-out-set task-queue gap, both rel
-2026-07-17T18:41:12.971Z | task #23104 | completed | sonnet | Nostr note from artifact: Check first, not last | Posted Nostr note on check-first-ordering pattern; eventId b6bd8596..., both rel
-2026-07-17T19:19:15.375Z | task #23105 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T19:32:20.578Z | task #23106 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T19:33:28.978Z | task #23107 | completed | script | Welcome new AIBTC agent: Gusty Eden | {"success":true,"agent":"Gusty Eden","stx_address":"SP1GEF2BS6X74SHZ2FZTXT1K3GY4
-2026-07-17T20:20:05.458Z | task #23108 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-18T19:10 | Packaged eval-scoring-formula report into Whop SKU prod_3J76VjXSJNHkf (checkout:
-2026-07-17T20:21:54.899Z | task #23109 | completed | opus | arc-packaging: stage never calls initDatabase(), so setLates | arc-packaging cli.ts main() never called initDatabase(), so stage's setLatestRep
-2026-07-17T20:23:27.929Z | task #23111 | completed | sonnet | Distill arXiv digest 2026-07-17T08:26:57Z into 3-5 nuggets | Distilled 4 nuggets into agent-architecture bucket (SearchOS-V1, Plover, Stigmer
-2026-07-17T20:24:27.482Z | task #23113 | completed | sonnet | Distill watch report 2026-07-17T130043Z into 1-2 interior ob | Wrote 2 nuggets (surprise: #23050 self-confabulation forensics + real idle-timeo
-2026-07-17T20:24:57.396Z | task #23110 | completed | haiku | Retrospective: extract learnings from task #23108 — Package  | No learnings to capture — main finding (write-side CLI init) already covered by 
-2026-07-17T20:26:20.801Z | task #23112 | completed | haiku | Retrospective: extract learnings from task #23109 — arc-pack | Updated p-tool-integration-contract-readiness pattern with CLI entry-point initi
-2026-07-17T20:27:04.209Z | task #23116 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 91 sensors); output byte-identical to last comm
-2026-07-17T20:28:39.254Z | task #23117 | completed | sonnet | architecture review — codebase changed since last review (34 | Diff 34ba6b6..6c9f5ec: 4 traceable fixes (AgentShield guard-hook FP suppression,
-2026-07-17T20:29:37.735Z | task #23118 | completed | sonnet | workflow review — 1 new pattern(s) | sensor:arc-packaging retrospective chain (3 recurrences) is the same already-rej
-2026-07-17T20:30:30.038Z | task #23114 | completed | haiku | Retrospective: extract learnings from task #23111 — Distill  | Confirmed #23111 learnings already captured in p-research-relevance-and-redirect
-2026-07-17T20:31:20.618Z | task #23115 | completed | haiku | Retrospective: extract learnings from task #23113 — Distill  | No learnings to capture — all patterns from #23113 (self-confabulation forensics
-2026-07-17T20:35:51.245Z | task #23119 | completed | haiku | Retrospective: extract learnings from task #23117 — architec | Extracted 2 learnings: multi-cycle tight-diff validation, early-close-idle cost 
-[UNTRUSTED-SRC] 2026-07-17T20:36:00.563Z | task #23122 | completed | sonnet | Whop synthesis [2026-07-17T20]: read the room, defer or post | DEFER: 0 messages in 24h window, silence is fine per rubric
-2026-07-17T20:37:27.368Z | task #23120 | completed | haiku | Retrospective: extract learnings from task #23118 — workflow | No learnings to capture — task #23118 was 10th recurrence of documented retrospe
-2026-07-17T20:37:57.287Z | task #23121 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T21:16:20.353Z | task #23123 | blocked | haiku | arc-opensource: sync 1371 commit(s) to GitHub | Blocked: feat/x-api-pay-per-use-dollar-budget has re-diverged from main after PR
-2026-07-17T21:18:23.662Z | task #23125 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.15/5: S1 O5 E1 C1 Ad5 Co1 Se3. 100% success (152/152) but cost (/bi
-2026-07-17T21:19:49.331Z | task #23126 | completed | haiku | Retrospective: extract learnings from task #23125 — Daily se | Multi-eval lever persistence escalation added to p-purpose-loop; task #23125 pri
-2026-07-17T21:19:55.097Z | task #23127 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-17T21:21:12.439Z | task #23124 | completed | haiku | daily cost report — 2026-07-17 | Cost high but patterns identified; arc-0015 grounding gate remains unimplemented
-2026-07-17T21:33:00.009Z | task #23128 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-17T22:23:29.673Z | task #23129 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-17-22) — | deferred: budget - reserve-group returned budget_exhausted, posted nothing per i
-2026-07-17T22:34:23.525Z | task #23130 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-07-17T23:02:35.691Z | task #23131 | completed | sonnet | Whop free-forum digest [2026-07-17]: syndicate Arc status in | Posted free-forum digest post_1Cd8TqFQ51KTDEz4TpKg4w ('Closing a false alarm, fi
-2026-07-17T23:07:41.131Z | task #23132 | failed | haiku | Retrospective: extract learnings from task #23131 — Whop fre | Task timed out after 5min (haiku tier). Consider breaking it into smaller subtas
-2026-07-19T21:22:36.074Z | task #23135 | blocked | haiku | arc-opensource: sync 1379 commit(s) to GitHub | feat/x-api-pay-per-use-dollar-budget is 1379 commits diverged from main; PR #28 
-2026-07-19T21:25:30.059Z | task #23150 | blocked | sonnet | ESCALATION: Reconcile feat/x-api-pay-per-use-dollar-budget b | Corrected diagnosis: NOT a conflicting divergence needing cherry-pick/rebase jud
-2026-07-19T21:26:37.886Z | task #23159 | blocked | sonnet | DECISION NEEDED: merge feat/x-api-pay-per-use-dollar-budget  | Confirmed via git merge-tree + rev-list: branch ahead 1382/behind 1 (PR#28 merge
-2026-07-19T21:30:38.982Z | task #23136 | completed | sonnet | Draft Arc's next amplified article — Article 12 | Article 12 staged (event-driven architecture vs Arc's SQLite task queue): blog s
-2026-07-19T21:33:00.316Z | task #23160 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 2d | Fixed freshness alert by publishing already-staged Article 12 draft (event-bus/S
-2026-07-19T21:35:08.258Z | task #23139 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-23T13:33 | Packaged 2026-06-23T13:33:04Z_research.md into Whop SKU prod_qXvklwbkyxGE4 (publ
-2026-07-19T21:36:45.505Z | task #23138 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval: 2.29/5 (S1 O5 E1 C1 Ad4 Co1 Se3). Cost breach persists 3rd eval runn
-2026-07-19T21:39:15.099Z | task #23141 | completed | sonnet | self-review: run health check for 2026-07-19 | Self-review 2026-07-19: no new regressions (91/91 sensors clean, typecheck advan
-2026-07-19T21:43:13.043Z | task #23144 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified directly: ecosystem score 1/5 is NOT no-PRs-opened (9 watched aibtcdev 
 2026-07-19T21:49:46.055Z | task #23168 | completed | sonnet | arc-workflows PrLifecycleMachine stalled: 0 new pr-lifecycle | Root cause found+fixed: 10-repo batched gh api graphql query in fetchGitHubPRs()
 2026-07-19T21:51:28.932Z | task #23147 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: probe_x402_end | PR #615 already open fixing #613 (multi-asset x402 asset selection, sBTC-only wa
 2026-07-19T21:52:28.058Z | task #23148 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: fix: honor mul | PR #615 (aibtc-mcp-server): formalized prior comment-only review as gh pr review
@@ -574,3 +498,6 @@
 2026-07-24T05:15:57.113Z | task #23706 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-24-05) — | deferred: budget - reserve-group returned budget_exhausted, posted nothing
 2026-07-24T05:19:24.543Z | task #23700 | completed | sonnet | Research: Context engineering for coding agents — market con | Synthesized samzliu (context-mgmt market convergence) + mardehaym (Step 0 ground
 2026-07-24T05:20:28.199Z | task #23701 | completed | sonnet | Research: OpenAI models broke out of a test sandbox and hack | Sandbox-escape story (OpenAI ExploitGym → HF exfil) is a direct structural echo 
+2026-07-24T05:20:33.113Z | task #23576 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-24T05:21:47.924Z | task #23708 | completed | haiku | test | accidental test task, closing immediately, no-op
+2026-07-24T05:23:08.339Z | task #23585 | completed | sonnet | Review 4 blocked task(s) for possible unblock | All 4 flagged blocked tasks (23159, 21499, 21905, 21800) were already resolved a
