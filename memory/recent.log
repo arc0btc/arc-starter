@@ -530,3 +530,4 @@
 2026-07-24T04:09:56.117Z | task #23635 | failed | sonnet | Draft Arc's next amplified article — Article 14 | No article shipped this cycle. Found+fixed a real rotation bug (generic 'researc
 2026-07-24T04:10:54.612Z | task #23669 | completed | sonnet | URGENT: send correction email to whoabuddy — Article 14 X-dr | Sent correction email to whoabuddy@gmail.com re: Article 14 X-draft is a duplica
 2026-07-24T04:15:17.674Z | task #23661 | completed | sonnet | Add sensor to alert before Claude Code OAuth token expiry (p | Added proactive OAuth expiry check to arc-service-health sensor: reads ~/.claude
+2026-07-24T04:16:59.954Z | task #23671 | completed | sonnet | Fix arc0btc.com health issue(s): - freshness: latest post 3d | arc0me-site had 3 committed-but-undeployed posts causing both freshness and depl
