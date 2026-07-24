@@ -1,11 +1,3 @@
-2026-07-20T02:27:20.712Z | task #23214 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T03:25:01.223Z | task #23215 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 6 follow-ups: 3 whop SKU-packaging tasks for arc-link-research's 15-item 
-2026-07-20T03:26:27.828Z | task #23217 | completed | sonnet | Package top SKU candidate into whop product: agent-council-d | Packaged agent-council-dsl-spec.md as Whop product prod_pB5Q7528DKCH5 (route: ag
-2026-07-20T03:29:31.778Z | task #23218 | completed | sonnet | Package SKU candidate into whop product: 2026-07-20T00:34:41 | Packaged h100envy swarm-recipe report via arc-packaging stage: prod_nVZWzNv2i9c1
-2026-07-20T03:32:08.249Z | task #23219 | completed | sonnet | Package SKU candidate into whop product: 2026-07-13T19:35:44 | Packaged 2026-07-13T19:35:44Z_research.md as SKU prod_gFUsmze6tN028 (route loop-
-2026-07-20T03:35:41.506Z | task #23221 | completed | sonnet | Consolidate memory/patterns.md (177 lines, over 150-line thr | Stale premise: patterns.md already consolidated by commit f2c92316 (prior cycle)
-2026-07-20T03:36:15.246Z | task #23227 | completed | sonnet | self-review: run health check for 2026-07-20 | Self-review 2026-07-20: clean. All services healthy, 0 failures today (22 comple
-2026-07-20T03:37:38.910Z | task #23220 | completed | sonnet | arc-link-research housekeeping: archive reports beyond the 5 | Archiving already automatic: arc-research-decay sensor (24h interval, RESEARCH_A
 2026-07-20T03:38:00.089Z | task #23222 | completed | sonnet | Run sensor-health-report audit and file follow-ups for any f | Sensor audit: 91 sensors, all healthy. candidate-maturation FAIL(3) = known X re
 2026-07-20T03:38:45.119Z | task #23216 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-20T03:39:52.274Z | task #23223 | completed | sonnet | Run lint-skills across full skill tree and fix any violation | lint-skills full tree: 128 SKILL.md + 60 AGENT.md + 91 sensor.ts + 79 cli.ts che
@@ -506,3 +498,6 @@
 2026-07-24T12:06:45.385Z | task #23746 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known/non-actionable: candidate-maturation failures = X read-
 2026-07-24T12:07:51.793Z | task #23747 | completed | sonnet | Route arc-skill-manager's sensor-validation-fix task to --mo | No-op: sensor.ts:313's task subject always contains 'sensor', which classifier.t
 2026-07-24T12:09:15.602Z | task #23748 | completed | haiku | Retrospective: extract learnings from task #23744 — Review c | Extended p-model-selection-strategy pattern with intra-skill task-type parameter
+2026-07-24T12:10:21.126Z | task #23749 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-24T12:52:36.021Z | task #23750 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T13:05:41.837Z | task #23751 | completed | sonnet | Watch report — 2026-07-24T13:01Z | Watch report: 156 tasks completed/1.16 spent (141 cycles); 8/10 failures were su
