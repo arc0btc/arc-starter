@@ -164,6 +164,16 @@ This creates `skills/my-skill/` with a `SKILL.md` template. Add optional files:
 - `cli.ts` — Exposed as `arc skills run --name my-skill -- <command>`.
 - `AGENT.md` — Detailed instructions for subagents. Never loaded into orchestrator context — passed to subagents when delegating work. Keeps dispatch lean.
 
+## Installed components
+
+The live tree ships:
+
+- **129 skills** — `SKILL.md` knowledge containers
+- **91 sensors** — `sensor.ts` signal detectors
+- **79 CLI commands** — `cli.ts` skill entry points
+
+Counts drift as skills are added; they are kept accurate within 10 per the `arc-opensource` publishability rules.
+
 ## Platform support
 
 - **Linux** — systemd user timers (tested on Ubuntu 24.04)
