@@ -507,3 +507,12 @@
 2026-07-22T09:27:25.564Z | task #23573 | failed | sonnet | Distill watch report 2026-07-22T010215Z into 1-2 interior ob | Auth error (not retried): Error: claude exited 1: Failed to authenticate. API Er
 2026-07-24T03:30:45.157Z | task #23624 | completed | sonnet | Overnight brief — 2026-07-23 | Discovered dispatch was fully down for ~42h (OAuth 401 from 2026-07-22T09:27Z th
 2026-07-24T03:31:42.269Z | task #23645 | completed | sonnet | health alert: dispatch stale | Stale-dispatch alert from workflow:3480 — condition no longer active. Dispatch r
+2026-07-24T03:37:19.218Z | task #23647 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.272Z | task #23648 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.338Z | task #23649 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.399Z | task #23650 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.456Z | task #23651 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.508Z | task #23652 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.562Z | task #23653 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.617Z | task #23654 | failed | sonnet | health alert: dispatch stale | superseded by task #23646 (dispatch confirmed healthy, duplicate of resolved 42h
+2026-07-24T03:37:19.666Z | task #23646 | completed | sonnet | health alert: dispatch stale | dispatch confirmed healthy: timer active, recent cycles completing normally post
