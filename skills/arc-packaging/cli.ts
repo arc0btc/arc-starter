@@ -43,6 +43,12 @@ import { renderSkuCover } from "./lib/cover.ts";
 // embed one durable URL instead of a SKU-specific one that goes stale as the rolling window
 // rotates. Never called on a failed/hidden publish (see the `published` gate below).
 import { setLatestReportCheckoutUrl } from "../arc-attribution/lib/checkout-url.ts";
+// Dedup-before-mint gate (panel #21499 pipeline fix, promised in the published post/thread but
+// not shipped at the time — see task #23665): reuse arc-link-research's own catalog dedup logic
+// instead of re-implementing url/topic matching here (findCoverage is already the single answer
+// to "is this already covered?" for the research shelf itself).
+import { findCoverage, type CatalogEntry } from "../arc-link-research/lib/catalog.ts";
+import { parseFrontmatter } from "../arc-link-research/lib/frontmatter.ts";
 
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const DB_PATH = process.env.ARC_PACKAGING_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc.sqlite");
@@ -406,6 +412,37 @@ function parseJsonTail(stdout: string): Record<string, unknown> {
   return JSON.parse(stdout.slice(jsonStart));
 }
 
+/**
+ * Dedup-before-mint gate: does an ALREADY-PACKAGED report (a report with a live Whop product)
+ * cover the same url/topics as the candidate about to be minted? Reuses arc-link-research's own
+ * findCoverage() rather than re-deriving overlap logic — this skill and arc-link-research must
+ * never disagree on what "already covered" means (same class of dual-source-of-truth trap
+ * lib/backlog.ts's doc comment already warns about for backlog SELECTION; this is the same
+ * discipline applied to dedup).
+ */
+function findDuplicateCoverage(reportFile: string): CatalogEntry[] {
+  const files = fs.readdirSync(RESEARCH_DIR).filter((f) => f.endsWith(".md") && f !== "INDEX.md");
+  const packaged: CatalogEntry[] = [];
+  for (const f of files) {
+    if (f === reportFile) continue; // never compare a candidate against itself
+    let content: string;
+    try {
+      content = fs.readFileSync(join(RESEARCH_DIR, f), "utf-8");
+    } catch {
+      continue; // unreadable (e.g. removed mid-scan) — skip, don't crash stage over it
+    }
+    const fm = parseFrontmatter(content);
+    if (fm && fm.packaged) packaged.push({ path: f, fm });
+  }
+
+  const ownContent = fs.existsSync(join(RESEARCH_DIR, reportFile))
+    ? fs.readFileSync(join(RESEARCH_DIR, reportFile), "utf-8")
+    : "";
+  const ownFm = parseFrontmatter(ownContent);
+  if (!ownFm) return [];
+  return findCoverage(packaged, { url: ownFm.source_url, topics: ownFm.topics });
+}
+
 type ClaimResult = "claimed" | "resumed" | "already-packaged";
 
 /**
@@ -487,9 +524,28 @@ async function cmdStage(
     process.exit(1);
   }
 
+  const dupes = findDuplicateCoverage(reportFile);
+  if (dupes.length > 0) {
+    console.error(
+      `DEFERRED — dedup-before-mint gate: ${reportFile} overlaps ${dupes.length} already-packaged report(s), no SKU will be minted:`,
+    );
+    for (const d of dupes) console.error(`  - ${d.path} (product ${d.fm.product_id || "?"}, topics: ${d.fm.topics.join(", ")})`);
+    if (dryRun) {
+      db.close();
+      return;
+    }
+    db.run(
+      `UPDATE packaging_queue_log SET status = 'duplicate', claimed_at = ? WHERE report_file = ?`,
+      [new Date().toISOString(), reportFile],
+    );
+    console.error(`Marked ${reportFile} 'duplicate' in packaging_queue_log — will not be re-selected.`);
+    db.close();
+    process.exit(1);
+  }
+
   if (dryRun) {
     console.log(
-      `[DRY-RUN] validation + sanitization scan passed. Would claim, create-product (hidden), mark-packaged, unlock-all (silent)${keepHidden ? ", then stop (--keep-hidden)" : ", then set-visibility visible (live on the storefront)"}.`,
+      `[DRY-RUN] validation + sanitization scan passed, no duplicate coverage found. Would claim, create-product (hidden), mark-packaged, unlock-all (silent)${keepHidden ? ", then stop (--keep-hidden)" : ", then set-visibility visible (live on the storefront)"}.`,
     );
     db.close();
     return;

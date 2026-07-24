@@ -20,7 +20,14 @@
 import { join } from "path";
 import { Database } from "bun:sqlite";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
-import { initDatabase, getDatabase, insertTaskDeduped, pendingTaskExistsForSource } from "../../src/db.ts";
+import {
+  initDatabase,
+  getDatabase,
+  insertTaskDeduped,
+  pendingTaskExistsForSource,
+  recentTaskExistsForSource,
+} from "../../src/db.ts";
+import { runCommand } from "../../src/utils.ts";
 import { selectCandidate } from "./lib/backlog.ts";
 
 const SENSOR_NAME = "arc-packaging";
@@ -36,9 +43,122 @@ const INDEX_PATH = join(ARC_STARTER_ROOT, "research/INDEX.md");
 
 const log = createSensorLogger(SENSOR_NAME);
 
+// ---- Hidden-SKU auto-escalation lane (panel #21499 pipeline fix — task #23665) ----
+//
+// stage's terminal step publishes a packaged SKU (visibility=visible) automatically, UNLESS the
+// cover or quiz attach failed, in which case it deliberately leaves the SKU 'packaged' but
+// hidden pending manual retry/decision (see cli.ts's cmdStage). Without a watchdog, a hidden SKU
+// that nobody notices just sits there forever — this lane reuses arc-blocked-review's
+// stale-then-cooldown pattern, scoped to hidden Whop products instead of blocked tasks.
+const ESCALATION_SENSOR_NAME = "arc-packaging-hidden-escalation";
+const ESCALATION_INTERVAL_MINUTES = 360; // 6h — cheap DB scan; the Whop read only fires on actual candidates
+const HIDDEN_ESCALATION_HOURS = 72;
+const ESCALATION_REVIEW_COOLDOWN_HOURS = 168; // 7 days — mirrors arc-blocked-review's dead-end cooldown
+
+const escalationLog = createSensorLogger(ESCALATION_SENSOR_NAME);
+
+async function checkHiddenSkuEscalation(db: Database): Promise<void> {
+  let rows: Array<{ report_file: string; product_id: string; packaged_at: string }>;
+  try {
+    rows = db
+      .query(
+        `SELECT report_file, product_id, packaged_at FROM packaging_queue_log
+         WHERE status = 'packaged' AND product_id IS NOT NULL AND packaged_at IS NOT NULL`,
+      )
+      .all() as Array<{ report_file: string; product_id: string; packaged_at: string }>;
+  } catch (e) {
+    escalationLog(`packaging_queue_log query failed (table likely not created yet): ${e instanceof Error ? e.message : String(e)}`);
+    return;
+  }
+
+  const stale = rows.filter((r) => {
+    const ageHours = (Date.now() - new Date(r.packaged_at + "Z").getTime()) / 3_600_000;
+    return ageHours > HIDDEN_ESCALATION_HOURS;
+  });
+
+  if (stale.length === 0) {
+    escalationLog(`${rows.length} packaged SKU(s), none past ${HIDDEN_ESCALATION_HOURS}h`);
+    return;
+  }
+
+  let created = 0;
+  let checked = 0;
+  for (const r of stale) {
+    const source = `sensor:${ESCALATION_SENSOR_NAME}:${r.product_id}`;
+    if (recentTaskExistsForSource(source, ESCALATION_REVIEW_COOLDOWN_HOURS * 60)) continue;
+
+    checked++;
+    let visibility: string | undefined;
+    try {
+      const result = await runCommand("bash", [
+        "bin/arc",
+        "skills",
+        "run",
+        "--name",
+        "whop",
+        "--",
+        "get-product",
+        "--product",
+        r.product_id,
+      ]);
+      if (result.exitCode !== 0) {
+        escalationLog(`get-product failed for ${r.product_id}: ${result.stderr || result.stdout}`);
+        continue;
+      }
+      visibility = (JSON.parse(result.stdout) as { visibility?: string }).visibility;
+    } catch (e) {
+      escalationLog(`get-product error for ${r.product_id}: ${e instanceof Error ? e.message : String(e)}`);
+      continue;
+    }
+    if (visibility !== "hidden") continue;
+
+    const description = [
+      `Whop product ${r.product_id} (report ${r.report_file}) has been visibility=hidden for over`,
+      `${HIDDEN_ESCALATION_HOURS}h since packaging (packaged_at ${r.packaged_at}). stage only leaves a`,
+      `packaged SKU hidden when its cover or quiz attach failed (see arc-packaging/SKILL.md's`,
+      `publish gate) — this needs a decision, not silence.`,
+      ``,
+      `1. Check why it's hidden: bash bin/arc skills run --name whop -- get-product --product ${r.product_id}`,
+      `2. If the cover/quiz just failed to attach, fix and retry (whop update-product --cover / attach-deliverable --quiz),`,
+      `   then publish: bash bin/arc skills run --name whop -- set-visibility --product ${r.product_id} --visibility visible`,
+      `3. If it should NOT be published (e.g. content issue), leave it hidden and record why in this task's summary`,
+      `   (Whop has no API archive — a real archive needs the operator dashboard).`,
+      ``,
+      `Close this review task with the decision made.`,
+    ].join("\n");
+
+    const taskId = insertTaskDeduped({
+      subject: `Hidden Whop SKU stuck >${HIDDEN_ESCALATION_HOURS}h — ${r.product_id}`,
+      description,
+      skills: JSON.stringify(["arc-packaging", "whop"]),
+      priority: 5,
+      model: "sonnet",
+      source,
+    });
+    if (taskId !== null) created++;
+  }
+
+  escalationLog(
+    `${stale.length} stale packaged SKU(s), ${checked} checked live (rest in ${ESCALATION_REVIEW_COOLDOWN_HOURS}h cooldown), ${created} escalation task(s) created`,
+  );
+}
+
 export default async function arcPackagingSensor(): Promise<string> {
+  let result: "ok" | "skip" = "skip";
+
+  const escalationClaimed = await claimSensorRun(ESCALATION_SENSOR_NAME, ESCALATION_INTERVAL_MINUTES);
+  if (escalationClaimed) {
+    initDatabase();
+    try {
+      await checkHiddenSkuEscalation(getDatabase());
+      result = "ok";
+    } catch (e) {
+      escalationLog(`lane error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
+  if (!claimed) return result;
 
   initDatabase();
   const db: Database = getDatabase();

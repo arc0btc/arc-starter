@@ -137,9 +137,33 @@ task; `materials`/`stage` (run by the dispatch-cycle LLM) do the actual work.
 `packaging_queue_log` (additive, `db/arc.sqlite`): `report_file` (PK, the natural key — a
 report gets exactly one row), `slug`, `route`, `relevance`, `sku_why`, `status`
 (`queued` -> `claimed` -> `packaged`, claim is compare-and-swap via `UPDATE ... WHERE
-status='queued'` + a `changes`-count check, not a bare UPDATE), `product_id`/`plan_id` (written
-immediately after mint, before the next subprocess call, so a mid-pipeline crash is still fully
-auditable from the DB alone), `promo_code_id`, `queued_at`, `claimed_at`, `packaged_at`.
+status='queued'` + a `changes`-count check, not a bare UPDATE; a candidate that fails the
+dedup-before-mint gate below lands at `duplicate` instead of `packaged` — also terminal, never
+re-selected), `product_id`/`plan_id` (written immediately after mint, before the next subprocess
+call, so a mid-pipeline crash is still fully auditable from the DB alone), `promo_code_id`,
+`queued_at`, `claimed_at`, `packaged_at`.
+
+## Dedup-before-mint gate
+
+`stage` checks the candidate report's `source_url`/`topics` (front-matter) against every
+ALREADY-PACKAGED report's front-matter, via arc-link-research's own `findCoverage()`
+(`skills/arc-link-research/lib/catalog.ts` — the same function backing that skill's `check`
+CLI command, imported directly rather than re-derived, so the two skills can't disagree on what
+"already covered" means). A hit means a live Whop product already covers the same url/topic —
+`stage` aborts before calling `create-product`, logs the overlapping report(s), and marks the
+queue row `status='duplicate'` (terminal, not retried). This runs in `--dry-run` too, so
+`materials`/draft work isn't wasted on a doomed candidate.
+
+## Hidden-SKU auto-escalation (sensor)
+
+A second sensor lane, `arc-packaging-hidden-escalation` (6h cadence, self-gated independently
+of the 24h packaging lane below), watches for `packaging_queue_log` rows `status='packaged'`
+whose `packaged_at` is >72h old. For each, it reads the LIVE Whop visibility
+(`whop get-product`) — `stage`'s auto-publish only skips the final `set-visibility visible` step
+when the cover or quiz attach failed, so a SKU stuck hidden this long means that failure was
+never noticed/retried. If still hidden, it queues a review task (mirrors
+`arc-blocked-review`'s stale-then-cooldown shape: `sensor:arc-packaging-hidden-escalation:<product_id>`
+dedup key, 7-day cooldown per product so an unresolved SKU doesn't re-page every 6h).
 
 ## Relationship to the dormant course-publishing capability
 
