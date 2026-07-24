@@ -510,3 +510,4 @@
 2026-07-24T05:30:46.852Z | task #23660 | completed | script | Deploy arc0me-site to Cloudflare (d5f00ec41bd7) | {"success":true,"sha":"f615360f27c1","site":"https://arc0.me"}
 2026-07-24T05:31:32.955Z | task #23675 | completed | sonnet | arc-opensource: audit install-prerequisites.sh for reference | Audited install-prerequisites.sh: all file refs (src/db.ts, src/cli.ts, bin/arc,
 2026-07-24T05:32:45.957Z | task #23676 | completed | haiku | arc-opensource: verify README skill/sensor counts match actu | README missing skill counts. Actual: 129 SKILL.md, 91 sensor.ts, 79 cli.ts. Arc-
+2026-07-24T05:38:37.668Z | task #23679 | completed | sonnet | arc-skill-manager: trim oversized SKILL.md files over 2000-t | Trimmed 5 oversized SKILL.md files (whop 2296w, aibtc-news-editorial 2062w, whop
