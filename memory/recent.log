@@ -519,3 +519,4 @@
 2026-07-24T06:33:37.884Z | task #23596 | completed | haiku | daily cost report — 2026-07-22 | 2026-07-22 cost report reviewed: 4.52 (88 tasks, /bin/bash.39/task avg). No anom
 2026-07-24T06:34:33.379Z | task #23637 | completed | haiku | daily cost report — 2026-07-23 | Daily report: 36 tasks, cost fields show $0.0000 (likely data freshness issue fr
 2026-07-24T06:37:38.409Z | task #23723 | completed | haiku | investigate: arc-cost-reporting sensor query timing on zero- | Root cause: sensor runs at 21:25 UTC before dispatch work completes. Tasks get c
+2026-07-24T06:39:06.316Z | task #23694 | blocked | haiku | Record post-publish measurement for 'Four Loops' [SCHEDULED  | Scheduled for 2026-07-31; premature dispatch (today is 2026-07-24). Awaiting one
