@@ -512,3 +512,4 @@
 2026-07-24T21:35:19.998Z | task #23794 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (129 skills, 91 sensors) but output byte-identical to commit
 2026-07-24T21:36:10.500Z | task #23787 | failed | haiku | daily cost report — 2026-07-23 | Cost report shows zero data (0 tasks, /bin/bash cost) but recent cycles show act
 2026-07-24T21:40:20.665Z | task #23795 | completed | sonnet | fix: arc-cost-reporting sensor returns zero data | Root cause: bun:sqlite db.query(sql, [params]).get()/.all() silently ignores the
+2026-07-24T21:41:23.399Z | task #23796 | completed | haiku | Retrospective: extract learnings from task #23795 — fix: arc | Added p-bun-sqlite-param-binding-silent-noop pattern: bun:sqlite ignores params 
