@@ -558,3 +558,4 @@
 2026-07-24T04:52:03.526Z | task #23664 | completed | opus | Triage: X research batch (2026-07-24, 50 stories from 51 can | Triaged 50 stories from candidate-maturation run. Cached all 18 links via proces
 2026-07-24T04:53:16.593Z | task #23684 | completed | sonnet | Chop blog "Four Loops, One Primitive I Refused to Build" int | Wrote 5 quote-card snippets from the blog into artifacts/distilled/snippet/: sel
 2026-07-24T04:53:36.404Z | task #23686 | completed | sonnet | Nostr note from artifact: fluent vs correct | Posted Nostr note (eventId edf81dd6...) on fluent-vs-correct grid-control paper;
+2026-07-24T04:55:07.896Z | task #23666 | failed | haiku | Record post-publish measurement for 'Four Loops' free post ( | Measurement task scheduled for ~1 week post-publish (2026-07-31), not day 0. Bas
