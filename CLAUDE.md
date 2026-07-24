@@ -301,11 +301,13 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 ## Workflow Design & Constraints
 
-### Sub-Agent Nesting Limit (v2.1.218, verified 2026-07-24)
+### Sub-Agent Nesting Limit (v2.1.218 empirical, confirmed by v2.1.219 changelog 2026-07-24)
+
+**[CONFIRMED 2026-07-24, #23775]** v2.1.219 release notes state explicitly: "Subagents can now spawn nested subagents up to depth 3 by default (was 1); set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` to disable nesting." This resolves the ambiguity below — the 2.1.218 empirical result (3-level nesting working with no env var set) was correct and is now documented, intentional default behavior, not an undocumented wider-than-spec default. The env var is only documented as a disable switch (`=1`), not as a way to raise the cap above 3 — treat depth 4+ as still unverified/uncapped-by-doc, not confirmed-safe.
 
 **[STATUS 2026-07-24, #23709]** Installed CLI is 2.1.218 (upgraded out-of-band past the 2.1.217 threshold per #21905). `src/dispatch.ts` does **not** set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`, `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`, or `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` — all three are left at upstream defaults.
 
-**Empirical result:** dispatched a live task (level 1) that spawned an `Agent()` (level 2), which in turn spawned another `Agent()` (level 3). Both spawns succeeded — no `NestingLimitExceeded`, no permission denial, Agent tool available at level 2 with no extra flag needed. This contradicts the changelog text previously quoted here (which described v2.1.217+ as flipping to "nested spawn off by default," i.e. a level-2 agent unable to spawn level 3 without `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` set). Either that changelog description was inaccurate, the default ships wider than documented, or it hasn't taken effect in this build. Depth was only verified to 3 levels (not the full 5) — treat 4–5 level chains as unverified, not confirmed-safe.
+**Empirical result:** dispatched a live task (level 1) that spawned an `Agent()` (level 2), which in turn spawned another `Agent()` (level 3). Both spawns succeeded — no `NestingLimitExceeded`, no permission denial, Agent tool available at level 2 with no extra flag needed. Depth was only verified to 3 levels (not the full 5) — treat 4–5 level chains as unverified, not confirmed-safe.
 
 **What this means for now:**
 
