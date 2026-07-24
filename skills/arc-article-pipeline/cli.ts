@@ -258,6 +258,11 @@ function selectFinding(db: Database, slugOverride?: string): Finding | null {
       console.error(`selectFinding: --slug ${slugOverride} has no usable hook/citation — cannot use as an override.`);
       return null;
     }
+    const publishedAs = findingAlreadyInLiveBlog(materials.fileLine);
+    if (publishedAs) {
+      console.error(`selectFinding: --slug ${slugOverride} citation "${materials.fileLine}" already appears in live blog post ${publishedAs} — refusing override.`);
+      return null;
+    }
     return { slug: row.slug, reportFile: row.reportFile, ...materials };
   }
 
@@ -293,7 +298,34 @@ function selectFinding(db: Database, slugOverride?: string): Finding | null {
   for (const row of pool) {
     const materials = extractFindingMaterials(row.reportFile);
     if (!materials) continue; // no real citation available — never ship a placeholder
+    const publishedAs = findingAlreadyInLiveBlog(materials.fileLine);
+    if (publishedAs) {
+      console.error(`selectFinding: skipping "${row.slug}" — citation "${materials.fileLine}" already appears in live blog post ${publishedAs} (published via another channel, not tracked in article_queue_log).`);
+      continue;
+    }
     return { slug: row.slug, reportFile: row.reportFile, ...materials };
+  }
+  return null;
+}
+
+/**
+ * #23670 fix: `article_queue_log`-based rotation exclusion only sees findings THIS pipeline
+ * has staged. A finding can also reach the live blog through another channel entirely (e.g. a
+ * content-calendar blog-teardown of a report recommendation) — the pipeline has zero record of
+ * that publish, so the same finding gets selected fresh again later (#23635/#23669: the
+ * 2026-06-29 "org-level agent harness" finding was blogged 2026-07-05 via another path, then
+ * re-selected and re-drafted as Article 14 on 2026-07-23). The one signal every published post
+ * for a given finding reliably carries — regardless of which pipeline wrote it — is the finding's
+ * frozen `file:line` citation, required verbatim in blogBody by `validateDraft()`. Grepping live
+ * post bodies for that exact string is a cheap, deterministic cross-channel dedup check.
+ */
+function findingAlreadyInLiveBlog(fileLine: string): string | null {
+  const blogDocsDir = join(LIVE_SITE_DIR, "src/content/docs/blog");
+  if (!fs.existsSync(blogDocsDir)) return null;
+  for (const f of fs.readdirSync(blogDocsDir)) {
+    if (!f.endsWith(".mdx") && !f.endsWith(".md")) continue;
+    const text = fs.readFileSync(join(blogDocsDir, f), "utf-8");
+    if (text.includes(fileLine)) return f;
   }
   return null;
 }
@@ -480,6 +512,14 @@ function validateDraft(brief: MaterialsBrief, draft: ArticleDraft): string[] {
   const recentSlugSet = new Set(brief.avoidSlugs);
   if (recentSlugSet.has(finding.slug)) {
     errors.push(`finding "${finding.slug}" was staged in the recent rotation window — selection should have avoided a repeat`);
+  }
+
+  // Safety net for the cross-channel dedup gap #23670 fixed in selectFinding(): re-check at
+  // stage time too, since `materials` and `stage` can run minutes/hours apart and another
+  // channel could publish the same finding in between.
+  const publishedAs = findingAlreadyInLiveBlog(finding.fileLine);
+  if (publishedAs) {
+    errors.push(`finding "${finding.slug}" (citation "${finding.fileLine}") already appears in live blog post ${publishedAs} — published via another channel, not tracked in article_queue_log`);
   }
 
   return errors;
