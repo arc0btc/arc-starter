@@ -503,3 +503,4 @@
 2026-07-24T13:05:41.837Z | task #23751 | completed | sonnet | Watch report — 2026-07-24T13:01Z | Watch report: 156 tasks completed/1.16 spent (141 cycles); 8/10 failures were su
 2026-07-24T13:06:43.758Z | task #23752 | completed | haiku | Retrospective: extract learnings from task #23751 — Watch re | Guard miscalibration signal: repeated 100% skip-rate on guard-filtered state acr
 2026-07-24T13:09:18.448Z | task #23753 | completed | sonnet | Overnight brief — 2026-07-24 | Overnight brief 2026-07-24: 84 tasks completed, 0 failed, 1 benign scheduled blo
+2026-07-24T13:10:21.338Z | task #23754 | completed | haiku | Retrospective: extract learnings from task #23753 — Overnigh | Added p-overnight-report-resource-budgeting pattern; other learnings covered by 
