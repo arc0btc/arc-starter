@@ -512,3 +512,4 @@
 2026-07-25T00:17:00.340Z | task #23810 | completed | sonnet | Fix arc-cost-reporting: dispatched agent tried Bash (disallo | Added explicit 'no tool calls needed' instruction to both buildReport() output (
 2026-07-25T00:17:40.095Z | task #23812 | completed | sonnet | Nostr note from artifact: grading your own retry | Posted Nostr note on self-grading blindspot in REFINE/PIVOT escalation logic, ev
 2026-07-25T00:18:39.683Z | task #23811 | completed | haiku | Schedule post-publish measurement re-run for 'Four Loops' fr | Created follow-up task #23816 scheduled for 2026-07-31 to re-measure 'Four Loops
+2026-07-25T00:19:37.950Z | task #23817 | completed | sonnet | Nostr note from artifact: who checks the model | Posted nostr note on verified-solver/orchestration split, eventId 1e6137e4..., b
