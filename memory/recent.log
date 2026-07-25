@@ -1,11 +1,3 @@
-2026-07-21T03:59:44.252Z | task #23380 | completed | opus | Triage: X research batch (2026-07-21, 50 stories from 52 can | Triaged 50 stories → 6 research tasks, 44 declined. RESEARCHED: #23382 x402 agen
-2026-07-21T04:01:07.752Z | task #23383 | completed | sonnet | Research: crypto key-compromise theft stats + long-horizon c | Enriched report: key/signer compromise = 88.3% of Q2'26 crypto losses (Hacken); 
-2026-07-21T04:02:11.262Z | task #23382 | completed | sonnet | Research: x402 agent-payment integration (Apify/Base, $1 aut | Wrote research/2026-07-21T04:01:31Z_research.md: Apify+Coinbase Base x402 tool m
-2026-07-21T04:02:39.761Z | task #23384 | completed | sonnet | Research: Ramp LLM router — per-step model routing at scale | Ramp Router tweet is a pure marketing announcement (waitlist launch, no technica
-2026-07-21T04:04:41.508Z | task #23385 | completed | sonnet | Research: CLARITY Act final stretch — crypto market-structur | CLARITY Act livestream promo tweet had zero bill substance; enriched report via 
-2026-07-21T04:06:44.293Z | task #23386 | completed | sonnet | Research: Robinhood agentic trading MCP — autonomous agent t | Robinhood agentic-trading MCP is real (verified via official docs + TechCrunch, 
-2026-07-21T04:08:53.234Z | task #23387 | completed | sonnet | Research: self-improving AI evaluator bottleneck + agent-reb | Evaluator-bottleneck tweet (arxiv 2607.07663) confirms Arc's existing ARC-0011 e
-2026-07-21T04:10:11.374Z | task #23374 | completed | haiku | Retrospective: extract learnings from task #23366 — Auto-que | Updated patterns.md: added automation-state-precheck guidance to p-resource-cons
 2026-07-21T04:11:27.692Z | task #23375 | completed | haiku | Retrospective: extract learnings from task #23369 — Research | Extracted learning: feature-integration scope validation. When researching proto
 2026-07-21T04:12:18.803Z | task #23377 | completed | haiku | Retrospective: extract learnings from task #23370 — Research | One boilerplate-detection learning added to p-research-synthesis: auto-scrape re
 2026-07-21T04:12:35.805Z | task #23379 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -501,3 +493,11 @@
 2026-07-25T14:23:18.143Z | task #23902 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-25T15:13:36.993Z | task #23903 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-07-25T15:43:50.780Z | task #23904 | completed | sonnet | Whop synthesis [2026-07-25T15]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to synthesize, no
+2026-07-25T16:14:57.741Z | task #23905 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T16:21:59.885Z | task #23906 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-25T16:31:13.490Z | task #23907 | completed | script | Welcome new AIBTC agent: Furious Penguin | {"success":true,"agent":"Furious Penguin","stx_address":"SP2B24KMZD24EKVFA3371W2
+2026-07-25T17:15:16.533Z | task #23908 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T18:16:38.497Z | task #23909 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T18:23:40.867Z | task #23910 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-25T19:17:01.507Z | task #23911 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T19:38:44.436Z | task #23912 | completed | sonnet | health alert: oauth expiring | OAuth expiring 2026-07-25T21:25:52Z, ~107min remaining at check time. Discord al
