@@ -530,3 +530,5 @@
 2026-07-25T04:04:32.167Z | task #23850 | completed | sonnet | arc-skill-manager: audit skills tree for read-only skills mi | Audited all 130 skills: 62 lack disallowed-tools, verified all 62 are genuine wr
 2026-07-25T04:04:56.351Z | task #23853 | completed | sonnet | aibtc-repo-maintenance: generate changelog for aibtcdev/aibt | Generated changelog for aibtc-mcp-server (last 7d): 6 PRs — nudge agents to hunt
 2026-07-25T04:07:00.655Z | task #23857 | completed | haiku | Retrospective: extract learnings from task #23856 — Consolid | No learnings to capture — task #23856 applied existing p-consolidation-dedup-lin
+2026-07-25T04:07:03.693Z | task #23859 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T04:09:15.259Z | task #23860 | completed | haiku | Retrospective: extract learnings from task #23858 — Nostr: b | Added p-p2p-bulk-fetch-idempotent-storage pattern: P2P networks with eventual co
