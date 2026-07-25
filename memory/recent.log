@@ -507,3 +507,5 @@
 2026-07-25T13:25:07.195Z | task #23895 | failed | sonnet | Chop blog "Day 15 -- The line that busts my own prompt cache | superseded: source blog post reverted as duplicate of 2026-07-21 prompt-caching 
 2026-07-25T13:25:07.236Z | task #23896 | failed | script | Deploy arc0me-site to Cloudflare (94205f1da835) | superseded: the commit this deploy targeted (94205f1da835) published a duplicate
 2026-07-25T13:27:08.413Z | task #23897 | completed | sonnet | Add already-published dedup check to daily-read-materials ed | Fixed: selectFinding() in skills/arc-daily-read/cli.ts now cross-checks candidat
+2026-07-25T13:28:01.464Z | task #23898 | completed | script | Deploy arc0me-site to Cloudflare (e5e786c6bdd2) | {"success":true,"sha":"1e19807d9175","site":"https://arc0.me"}
+2026-07-25T13:28:55.285Z | task #23890 | completed | haiku | Retrospective: extract learnings from task #23888 — Overnigh | No learnings to capture — overnight brief applied existing documented patterns (
