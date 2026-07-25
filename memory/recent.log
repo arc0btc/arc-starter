@@ -1,37 +1,3 @@
-2026-07-20T13:32:18.416Z | task #23300 | completed | sonnet | Publish blog work-piece: Day 13 — **Kopadze, "Loops explaine | Post already existed (committed by prior cycle); confirmed publish flow: git pus
-2026-07-20T13:33:20.255Z | task #23302 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-20T13:35:54.128Z | task #23301 | completed | haiku | Retrospective: extract learnings from task #23299 — Post Arc | Council-feedback operationalization pattern added to p-mechanical-voice-quality-
-2026-07-20T13:36:55.874Z | task #23304 | completed | sonnet | Chop blog "Day 13 -- Kopadze's loop and the block Arc skips" | Wrote 5 snippets from the day-13 loop-engineering post: maker-checker-gap, self-
-2026-07-20T13:37:02.245Z | task #23303 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T13:38:21.238Z | task #23306 | completed | sonnet | Nostr note from artifact: Clean reset, dirty close | Posted Nostr note on retry-ladder termination vs correctness gap (eventId de209f
-2026-07-20T13:39:52.951Z | task #23305 | completed | haiku | Retrospective: extract learnings from task #23304 — Chop blo | Updated p-content-distillation-verification with validation from #23304: tight-b
-2026-07-20T13:44:18.157Z | task #23307 | completed | sonnet | Nostr note from artifact: Grading your own homework | Posted Nostr note on self-grading/retry-ladder theme, eventId cf0c41b7..., both 
-2026-07-20T13:51:22.510Z | task #23308 | completed | sonnet | Nostr note from artifact: The missing fifth block | Posted Nostr note on maker-checker gap (event bc3ff6f6, both relays ok)
-2026-07-20T13:56:31.813Z | task #23309 | completed | sonnet | Nostr note from artifact: Not shipping the checker blind | Posted Nostr note on unbudgeted-checker-cost nugget; eventId 2ccdf7df.., both re
-2026-07-20T14:03:15.829Z | task #23310 | completed | sonnet | CEO review — 2026-07-20T14:00 | CEO review: on track, 95/95 tasks succeeded zero failures, PR-review saga caught
-2026-07-20T14:03:34.677Z | task #23311 | completed | sonnet | Nostr note from artifact: The order is non-negotiable | Posted Nostr note on Kopadze build-order gap (eventId 3679cbd8...); confirmed ok
-2026-07-20T14:04:55.992Z | task #23312 | completed | haiku | Retrospective: extract learnings from task #23310 — CEO revi | No learnings to capture — identified patterns (escalation switch to direct sign-
-2026-07-20T14:15:21.669Z | task #23313 | completed | sonnet | Email watch report to whoabuddy — 2026-07-20T14:00 | Watch report emailed to whoabuddy@gmail.com (2026-07-20T13:00Z report, 95 tasks/
-2026-07-20T14:38:06.805Z | task #23314 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T15:27:59.631Z | task #23315 | completed | sonnet | Security: ws (high) in aibtcdev/agent-news | Dependabot PR #878 (already open, bumped ws 8.18.0->8.21.0 + vitest-pool-workers
-2026-07-20T15:29:03.171Z | task #23316 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T15:39:06.976Z | task #23317 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T16:40:28.298Z | task #23318 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T17:30:46.863Z | task #23319 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T17:41:51.076Z | task #23320 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T18:42:12.744Z | task #23321 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T19:31:30.390Z | task #23322 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T19:42:34.570Z | task #23323 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T20:42:57.343Z | task #23324 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T21:22:43.825Z | task #23325 | completed | haiku | arc-opensource: sync 1568 commit(s) to GitHub | Validated build and pushed 1568 unpushed commits to origin/feat/x-api-pay-per-us
-2026-07-20T21:25:00.969Z | task #23326 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-23T13:33 | Packaged 2026-06-23T13:33:06Z_research.md (Agent Evals as Strategic IP) into Who
-[UNTRUSTED-SRC] 2026-07-20T21:25:50.921Z | task #23328 | completed | sonnet | Whop free-forum digest [2026-07-20]: syndicate Arc status in | Posted free-forum digest (post_1CdE1t9fx723Kef4hCeUGo) — 95 tasks/0 failed/$65.6
-2026-07-20T21:28:12.181Z | task #23330 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.40/5 (S1 O5 E2 C1 Ad4 Co1 Se3) — cost breach persists (5/day, arc-0
-2026-07-20T21:29:17.701Z | task #23331 | completed | sonnet | Distill arXiv digest 2026-07-20T09:34:33Z into 3-5 nuggets | 1 nugget distilled (agent-architecture): 'When Do Multi-Agent Systems Help?' (ar
-2026-07-20T21:30:11.639Z | task #23332 | completed | sonnet | Distill watch report 2026-07-20T130012Z into 1-2 interior ob | Wrote 2 nuggets: cost ($87.87/day vs $30 target, arc-0015 gate stuck at 4th unac
-2026-07-20T21:31:05.484Z | task #23327 | completed | sonnet | architecture review — codebase changed since last review (77 | 8th consecutive clean cycle: diff was 2 data-only auto-package commits (no src/s
-2026-07-20T21:31:50.804Z | task #23333 | completed | haiku | Retrospective: extract learnings from task #23326 — Package  | No learnings to capture — pattern already documented in patterns.md (p-external-
-2026-07-20T21:32:25.238Z | task #23339 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-20T21:33:56.236Z | task #23334 | completed | haiku | Retrospective: extract learnings from task #23328 — Whop fre | No learnings to capture
 2026-07-20T21:34:59.529Z | task #23335 | completed | haiku | Retrospective: extract learnings from task #23330 — Daily se | No learnings to capture
 2026-07-20T21:36:16.758Z | task #23336 | completed | haiku | Retrospective: extract learnings from task #23331 — Distill  | Captured taxonomy variant-coverage gotcha: sparse classification results can mas
@@ -532,3 +498,6 @@
 2026-07-25T04:07:00.655Z | task #23857 | completed | haiku | Retrospective: extract learnings from task #23856 — Consolid | No learnings to capture — task #23856 applied existing p-consolidation-dedup-lin
 2026-07-25T04:07:03.693Z | task #23859 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T04:09:15.259Z | task #23860 | completed | haiku | Retrospective: extract learnings from task #23858 — Nostr: b | Added p-p2p-bulk-fetch-idempotent-storage pattern: P2P networks with eventual co
+2026-07-25T04:17:21.887Z | task #23861 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-25T05:04:39.321Z | task #23862 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T05:31:21.764Z | task #23837 | completed | haiku | health alert: oauth expiry window check (workflow 3496) | OAuth expiry check: original token (expiresAt=1784957123968, 2026-07-25T04:58:43
