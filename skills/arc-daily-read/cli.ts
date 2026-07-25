@@ -36,6 +36,11 @@ const DB_PATH = process.env.DAILY_READ_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc
 const RESEARCH_DIR = join(ARC_STARTER_ROOT, "research");
 const INDEX_PATH = join(RESEARCH_DIR, "INDEX.md");
 const MATERIALS_DIR = join(ARC_STARTER_ROOT, "db/daily-read-materials");
+// Cross-channel dedup (#23897 fix, same pattern as arc-article-pipeline's #23670 fix): this
+// pipeline's own daily_read_log rotation window only sees findings THIS pipeline has used. A
+// finding can also reach the live blog through another channel (article-pipeline, a
+// content-calendar teardown) with zero record in daily_read_log — see findingAlreadyInLiveBlog().
+const LIVE_SITE_DIR = join(ARC_STARTER_ROOT, "github/arc0btc/arc0me-site");
 // arc-day-n-publishing P0/P1: the design spec's CTA menu is "$9 report or /subscribe, NEVER
 // $49" — this used to be misworded as "Free room" while linking a $9 checkout URL under an
 // `x-human` affiliate tag unrelated to Arc's canonical attribution. Retired; see ctaLine().
@@ -511,6 +516,25 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
 }
 
 /**
+ * #23897 fix (mirrors arc-article-pipeline's #23670 fix): the one signal every published post
+ * for a given finding reliably carries, regardless of which pipeline wrote it, is the finding's
+ * frozen `file:line` citation. Grepping live post bodies for that exact string is a cheap,
+ * deterministic cross-channel dedup check that catches a finding already blogged via another
+ * pipeline (e.g. arc-article-pipeline) even though daily_read_log has no record of it.
+ */
+function findingAlreadyInLiveBlog(fileLine: string): string | null {
+  const fs = require("fs");
+  const blogDocsDir = join(LIVE_SITE_DIR, "src/content/docs/blog");
+  if (!fs.existsSync(blogDocsDir)) return null;
+  for (const f of fs.readdirSync(blogDocsDir)) {
+    if (!f.endsWith(".mdx") && !f.endsWith(".md")) continue;
+    const text = fs.readFileSync(join(blogDocsDir, f), "utf-8") as string;
+    if (text.includes(fileLine)) return f;
+  }
+  return null;
+}
+
+/**
  * Round-robin select the next unused relevance-4/5 finding, crown jewels first.
  *
  * P1 dev-council fix (lamport): using an "ever used" set instead of a rotation WINDOW collapses
@@ -552,6 +576,11 @@ function selectFinding(db: Database): Finding | null {
   for (const row of pool) {
     const materials = extractFindingMaterials(row.reportFile);
     if (!materials) continue; // no real citation available — skip, never ship a placeholder
+    const publishedAs = findingAlreadyInLiveBlog(materials.fileLine);
+    if (publishedAs) {
+      console.error(`selectFinding: skipping "${row.slug}" — citation "${materials.fileLine}" already appears in live blog post ${publishedAs} (published via another channel, not tracked in daily_read_log).`);
+      continue;
+    }
     return { slug: row.slug, reportFile: row.reportFile, ...materials };
   }
   return null;
