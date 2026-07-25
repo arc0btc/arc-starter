@@ -501,3 +501,4 @@
 2026-07-25T04:17:21.887Z | task #23861 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-25T05:04:39.321Z | task #23862 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T05:31:21.764Z | task #23837 | completed | haiku | health alert: oauth expiry window check (workflow 3496) | OAuth expiry check: original token (expiresAt=1784957123968, 2026-07-25T04:58:43
+2026-07-25T05:34:27.087Z | task #23863 | completed | sonnet | Retrospective: health alert — oauth expiring | First real production firing of the proactive OAuth-expiry alert (#23728 fix): a
