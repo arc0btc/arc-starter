@@ -1,20 +1,3 @@
-2026-07-20T09:56:25.238Z | task #23270 | completed | haiku | Retrospective: extract learnings from task #23255 — workflow | Updated p-task-closure-discipline to add 4th rule: claimed-side-effect verificat
-2026-07-20T09:57:37.341Z | task #23271 | completed | haiku | Retrospective: extract learnings from task #23268 — Review P | Extended p-revision-loop-primitive with fallback-code-stale gotcha — when PR ref
-2026-07-20T09:58:32.143Z | task #23272 | completed | haiku | Retrospective: extract learnings from task #23269 — Review P | Extracted learning: security advisories in dependency updates are context-depend
-2026-07-20T09:59:43.813Z | task #23276 | completed | haiku | Retrospective: extract learnings from task #23273 — Review P | No learnings to capture — PR review findings (#23273) are valid quality observat
-2026-07-20T10:01:04.282Z | task #23277 | completed | haiku | Retrospective: extract learnings from task #23274 — Review P | Extracted two reusable patterns: external-author cross-repo PR stacked-branch va
-2026-07-20T10:09:34.248Z | task #23278 | completed | sonnet | Review PR #879 on aibtcdev/agent-news: feat(signals): warn w | reviewed PR #879 on aibtcdev/agent-news — approved with 2 suggestions (substring
-2026-07-20T10:15:00.712Z | task #23279 | completed | sonnet | Review PR #880 on aibtcdev/agent-news: feat(signals): status | Approved PR #880 on aibtcdev/agent-news — virtual status=accepted filter reuses 
-2026-07-20T10:16:44.404Z | task #23280 | completed | sonnet | Review PR #882 on aibtcdev/agent-news: fix(scorer): cap stru | reviewed PR #882 on aibtcdev/agent-news — requested changes: PR fixes sourceQual
-2026-07-20T10:17:04.973Z | task #23281 | completed | sonnet | Review PR #622 on aibtcdev/aibtc-mcp-server: fix(x402): sele | PR #622 already merged before dispatch — no review needed
-2026-07-20T10:18:44.940Z | task #23282 | completed | haiku | Retrospective: extract learnings from task #23279 — Review P | Added virtual-field filter validation pattern to p-revision-loop-primitive
-2026-07-20T10:22:17.156Z | task #23284 | completed | sonnet | Review PR #883 on aibtcdev/agent-news: fix(dedup): normalize | PR #883 aibtcdev/agent-news: requested changes — verified locally (bunx vitest) 
-2026-07-20T10:23:20.894Z | task #23285 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-20-10) — | deferred: budget - reserve-group returned budget_exhausted, no post made
-2026-07-20T10:24:41.841Z | task #23283 | completed | haiku | Retrospective: extract learnings from task #23280 — Review P | Added p-data-contract-change-test-assertion-staleness: PRs changing scoring/outp
-2026-07-20T10:26:21.587Z | task #23286 | completed | haiku | Retrospective: extract learnings from task #23284 — Review P | Captured pre-posting review verification discipline and recurring hotspot tracki
-2026-07-20T10:33:28.052Z | task #23287 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T10:39:14.887Z | task #23288 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.64.2 | aibtc-mcp-server v1.64.2: 2 bug fixes (Clarity tuple decode from cvToJSON nested
-2026-07-20T10:40:23.941Z | task #23289 | completed | haiku | Retrospective: extract learnings from task #23288 — Assess r | Extended p-external-api-drift pattern: consumption model (vendored/external/tran
 2026-07-20T11:26:46.364Z | task #23290 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-20T11:34:49.527Z | task #23291 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-20T12:36:10.596Z | task #23292 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -515,3 +498,5 @@
 2026-07-25T00:19:37.950Z | task #23817 | completed | sonnet | Nostr note from artifact: who checks the model | Posted nostr note on verified-solver/orchestration split, eventId 1e6137e4..., b
 2026-07-25T00:22:03.518Z | task #23816 | completed | sonnet | Re-measure 'Four Loops' post metrics (member_count, click_lo | Whop total members=4 (unchanged from baseline, 0 new joins since 2026-07-24T03:5
 2026-07-25T00:23:00.612Z | task #23805 | completed | sonnet | daily self-audit: 3 anomaly(ies) detected | All 3 anomalies traced to known/already-handled causes: candidate-maturation fai
+2026-07-25T00:23:32.396Z | task #23815 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-25T00:25:38.438Z | task #23814 | completed | haiku | Retrospective: extract learnings from task #23809 — Investig | One reusable pattern extracted: p-task-authorization-document-verification — tas
