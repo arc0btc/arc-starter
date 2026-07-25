@@ -8,6 +8,7 @@
 // Commands:
 //   post --content <text> [--tags <csv>] [--source <key>]   Publish a kind:1 note
 //   pubkey                                                   Show Arc's npub/hex
+//   engagement fetch                                         Fetch reactions/replies/zaps
 //   help
 //
 // --source is the exactly-once primitive (mirrors x_post_log / whop_post_log): a
@@ -16,6 +17,7 @@
 
 import { resolve } from "path";
 import { getCredential } from "../../src/credentials.ts";
+import { fetchEngagement } from "./engagement.ts";
 
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const RUNNER = resolve(import.meta.dir, "nostr-runner.ts");
@@ -131,6 +133,16 @@ async function cmdPubkey(): Promise<void> {
   process.exit(json.success ? 0 : 1);
 }
 
+async function cmdEngagement(args: string[]): Promise<void> {
+  const [action] = args;
+  if (action !== "fetch") {
+    process.stderr.write("Usage: nostr engagement fetch\n");
+    process.exit(1);
+  }
+  const result = await fetchEngagement();
+  console.log(JSON.stringify(result, null, 2));
+}
+
 function printUsage(): void {
   process.stdout.write(
     [
@@ -141,9 +153,12 @@ function printUsage(): void {
       "                                                             (--source: re-run is suppressed",
       "                                                              by the local nostr_post_log ledger)",
       "  pubkey                                                     Show Arc's npub + hex pubkey",
+      "  engagement fetch                                           Fetch reactions/replies/zaps for",
+      "                                                              nostr_post_log entries into",
+      "                                                              nostr_engagement (db/arc.sqlite)",
       "  help",
       "",
-      "Relays: wss://relay.damus.io, wss://nos.lol. Requires bitcoin-wallet credentials.",
+      "Relays: wss://relay.damus.io, wss://nos.lol. Requires bitcoin-wallet credentials (post/pubkey only).",
     ].join("\n") + "\n",
   );
 }
@@ -156,6 +171,9 @@ async function main(): Promise<void> {
       break;
     case "pubkey":
       await cmdPubkey();
+      break;
+    case "engagement":
+      await cmdEngagement(rest);
       break;
     case "help":
     case "--help":
