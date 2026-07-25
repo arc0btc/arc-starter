@@ -53,3 +53,13 @@ just queue backlog from the same 42h stall. Fix was operational (bump both chain
 above (gap #1) has real downstream cost beyond "42 pending tasks" — anything time-sensitive
 queued during a dispatch outage silently ages out of freshness windows with no separate alert
 path. Doesn't change the fix directions above; same root cause, same unimplemented fix.
+
+**First real-world confirmation, 2026-07-25 (#23863):** proactive OAuth-expiry alert (shipped
+2026-07-23, #23728, commits d99ae2333 + 9c40800ce) fired for the first time under real
+production conditions. Alert sent 2026-07-25T03:30:39Z, ~1.5h ahead of actual token expiry
+(04:58:43Z); operator completed re-auth inside that window; dispatch never went stale. This
+closes gap #1 (zero advance warning) empirically, not just by code review. Caveat: the
+re-auth was a manual operator action, not an automated token refresh — "recovery stability"
+(the open question above about whether the refresh path itself is flaky) is still
+unconfirmed and is a distinct claim from advance-warning working. Treat those two as separate
+tracking items going forward if either regresses.
