@@ -509,3 +509,5 @@
 2026-07-25T13:27:08.413Z | task #23897 | completed | sonnet | Add already-published dedup check to daily-read-materials ed | Fixed: selectFinding() in skills/arc-daily-read/cli.ts now cross-checks candidat
 2026-07-25T13:28:01.464Z | task #23898 | completed | script | Deploy arc0me-site to Cloudflare (e5e786c6bdd2) | {"success":true,"sha":"1e19807d9175","site":"https://arc0.me"}
 2026-07-25T13:28:55.285Z | task #23890 | completed | haiku | Retrospective: extract learnings from task #23888 — Overnigh | No learnings to capture — overnight brief applied existing documented patterns (
+2026-07-25T13:29:14.038Z | task #23891 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T13:30:27.355Z | task #23892 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window, nothing anomalous: OAuth advance-warning fix already con
