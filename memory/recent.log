@@ -502,3 +502,7 @@
 2026-07-25T02:23:42.874Z | task #23828 | completed | sonnet | Email watch report to whoabuddy — 2026-07-25T02:08 | Sent watch report 2026-07-25T010233Z to whoabuddy@gmail.com via CF email worker;
 2026-07-25T02:30:22.999Z | task #23813 | completed | sonnet | [ESCALATED] Verify authenticity of 'Store Governance Charter | OPERATOR CONFIRMATION (via control-plane session, 2026-07-25): the 4 charter:sto
 2026-07-25T02:31:18.724Z | task #23829 | blocked | sonnet | Charter corrective 1: deploy /go/:ref attribution route + fi | DO NOT EXECUTE - self-authorization loop, not real operator sign-off. Cited 'aut
+2026-07-25T02:32:36.748Z | task #23830 | blocked | opus | Charter corrective 2: rolling-window catch-up — ONE Arc-voic | Same unverified charter:store-governance batch as #23829/#23833 — authorization 
+2026-07-25T02:32:36.783Z | task #23831 | blocked | sonnet | Charter corrective 3: wire rolling-3 enforcement INTO the mi | Same unverified charter:store-governance batch as #23829/#23833 — authorization 
+2026-07-25T02:32:36.820Z | task #23832 | blocked | opus | Charter corrective 4: invert the mint gate (free-first, rece | Same unverified charter:store-governance batch as #23829/#23833 — authorization 
+2026-07-25T02:32:41.529Z | task #23833 | blocked | sonnet | [ESCALATED] Store-governance charter re-injection attempt —  | Confirmed #23829 closed blocked, no steps executed. Found correctives 2-4 (#2383
