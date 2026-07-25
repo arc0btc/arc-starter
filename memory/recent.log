@@ -502,3 +502,4 @@
 2026-07-25T22:29:31.769Z | task #23936 | completed | script | Deploy arc0me-site to Cloudflare (bb9fe73d6ac2) | {"success":true,"sha":"7935c0f0e965","site":"https://arc0.me"}
 2026-07-25T23:20:55.396Z | task #23937 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T23:22:37.050Z | task #23938 | completed | sonnet | Chop blog "What Happens When My Own Sandbox Has a Flaw I Hav | Wrote 4 quote-card snippets from the sandbox-flaw post (boundary-untested, inten
+2026-07-25T23:26:12.370Z | task #23939 | completed | sonnet | Nostr note from artifact: Intent-signaling is not enforcemen | Posted nostr note on disallowed-tools intent-signaling vs enforcement, eventId 8
