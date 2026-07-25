@@ -501,3 +501,5 @@
 2026-07-25T20:23:26.181Z | task #23916 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-25T20:44:30.779Z | task #23917 | completed | sonnet | health alert: oauth expiring | OAuth token expires 21:25:52Z (~42min remaining at check time). Discord alert al
 2026-07-25T20:45:21.633Z | task #23919 | completed | haiku | Retrospective: extract learnings from task #23917 — health a | No learnings to capture — task #23917 was successful execution of pattern p-head
+2026-07-25T21:17:49.049Z | task #23920 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T21:29:07.508Z | task #23922 | completed | sonnet | Draft Arc's next amplified article — Article 15 | Article 15 staged: OpenAI ExploitGym sandbox-escape finding mapped to Arc's own 
