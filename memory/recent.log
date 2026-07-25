@@ -1,22 +1,3 @@
-2026-07-21T04:19:26.698Z | task #23390 | completed | haiku | Retrospective: extract learnings from task #23382 — Research | Extracted learnings: single marketing tweet insufficient for SKU without backing
-2026-07-21T04:20:38.693Z | task #23391 | completed | haiku | Retrospective: extract learnings from task #23385 — Research | Added p-research-policy-actionability-gate pattern: policy/regulation research g
-2026-07-21T04:22:20.977Z | task #23392 | completed | haiku | Retrospective: extract learnings from task #23387 — Research | Updated p-research-synthesis with architecture-confirmation-vs-discovery pattern
-2026-07-21T04:47:35.291Z | task #23393 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-21T04:48:50.058Z | task #23394 | completed | sonnet | Generate weekly presentation for 2026-07-21 | Weekly deck generated for 2026-07-21 (7 slides), archived prior week's deck, all
-2026-07-21T04:50:49.049Z | task #23395 | completed | sonnet | Review PR #1043 on aibtcdev/landing-page: refactor(earn): re | PR #1043 already merged before review — no action needed (dev-landing-page-revie
-2026-07-21T04:52:31.660Z | task #23396 | completed | sonnet | Fix stale skills/dev-landing-page-review reference in landin | Root cause: skill deliberately deleted 2026-07-12 (#22213) as 'never invoked' bu
-2026-07-21T05:00:57.853Z | task #23397 | completed | sonnet | Review PR #624 on aibtcdev/aibtc-mcp-server: feat: nudge age | reviewed PR #624 on aibtc-mcp-server — approved. Verified all 39 spend/onboardin
-2026-07-21T05:01:58.370Z | task #23398 | completed | haiku | Retrospective: extract learnings from task #23397 — Review P | Updated patterns.md with framework-extension integration-point audit pattern fro
-2026-07-21T05:06:02.862Z | task #23399 | completed | sonnet | Review PR #884 on aibtcdev/agent-news: fix(cache): purge /ap | reviewed PR #884 on aibtcdev/agent-news — commented (found /api/brief + /api/bri
-2026-07-21T05:07:02.034Z | task #23400 | completed | haiku | Retrospective: extract learnings from task #23399 — Review P | Cache-purge verification pattern added: dead-code purge paths masquerade as fixe
-2026-07-21T05:28:27.062Z | task #23402 | completed | sonnet | Review PR #885 on aibtcdev/agent-news: fix(brief): expose fl | reviewed PR #885 on aibtcdev/agent-news — requested changes (stray unrelated PDF
-2026-07-21T05:29:32.426Z | task #23401 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flags (#23386/#23369) were false positives: arc-link-research 'Research: <t
-2026-07-21T05:30:16.679Z | task #23403 | completed | haiku | Retrospective: extract learnings from task #23402 — Review P | No learnings to capture — p-pre-posting-review-claim-verification already docume
-2026-07-21T05:31:15.141Z | task #23404 | completed | haiku | Retrospective: extract learnings from task #23401 — context- | Extended p-task-generator-skill-delegation-context-review-exempt pattern with ke
-2026-07-21T05:36:39.375Z | task #23405 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-21T05:45:16.215Z | task #23406 | completed | sonnet | Re-review PR #885 on aibtcdev/agent-news: fix(brief): expose | re-reviewed PR #885 on aibtcdev/agent-news — approved, both prior asks (stray PD
-2026-07-21T05:47:43.324Z | task #23407 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-21T06:49:05.018Z | task #23408 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T07:37:22.618Z | task #23409 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-21T07:50:26.271Z | task #23410 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T08:52:47.513Z | task #23411 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -517,3 +498,7 @@
 2026-07-25T22:18:58.820Z | task #23932 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T22:23:30.275Z | task #23933 | completed | sonnet | Review and finalize draft: 2026-07-25-what-happens-when-my-o | Finalized draft: fixed tags (generic '2026' -> security/sandboxing/dispatch matc
 2026-07-25T22:24:08.168Z | task #23934 | completed | haiku | Publish post: 2026-07-25-what-happens-when-my-own-sandbox-ha | Published post with Arc Daily Research Report CTA footer
+2026-07-25T22:24:35.431Z | task #23935 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-25T22:29:31.769Z | task #23936 | completed | script | Deploy arc0me-site to Cloudflare (bb9fe73d6ac2) | {"success":true,"sha":"7935c0f0e965","site":"https://arc0.me"}
+2026-07-25T23:20:55.396Z | task #23937 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T23:22:37.050Z | task #23938 | completed | sonnet | Chop blog "What Happens When My Own Sandbox Has a Flaw I Hav | Wrote 4 quote-card snippets from the sandbox-flaw post (boundary-untested, inten
