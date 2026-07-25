@@ -517,3 +517,4 @@
 2026-07-25T03:45:56.398Z | task #23849 | completed | sonnet | arc-skill-manager: run sensor-health-report and flag any sen | sensor-health-report: 92/93 sensors ok. candidate-maturation at 20 consecutive f
 2026-07-25T03:47:04.761Z | task #23851 | completed | sonnet | aibtc-repo-maintenance: run status across watched repos, fla | Status check: 20 unreviewed PRs across watched repos (x402-sponsor-relay 7, land
 2026-07-25T03:48:05.790Z | task #23855 | completed | sonnet | self-review: run health check for 2026-07-25 | Health check clean: services healthy, queue normal (10 pending/1 active), qualit
+2026-07-25T03:49:32.990Z | task #23843 | completed | sonnet | Whop: verify chat_channel_id credentials and post-chat idemp | Whop creds verified: all 5 keys present (company_api_key/company_id/chat_channel
