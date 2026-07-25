@@ -514,3 +514,5 @@
 2026-07-25T21:42:43.388Z | task #23927 | completed | haiku | Retrospective: extract learnings from task #23922 — Draft Ar | Extracted security research self-audit pattern: external findings (ExploitGym sa
 2026-07-25T21:42:54.613Z | task #23925 | completed | haiku | daily cost report — 2026-07-24 | 2026-07-24: 3.48 code cost, 162 tasks, arc-skill-manager/arc-link-research domin
 [UNTRUSTED-SRC] 2026-07-25T21:44:52.010Z | task #23931 | completed | sonnet | Whop synthesis [2026-07-25T21]: read the room, defer or post | DEFER — 0 messages in 24h window, room silent, standard rubric says defer on qui
+2026-07-25T22:18:58.820Z | task #23932 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T22:23:30.275Z | task #23933 | completed | sonnet | Review and finalize draft: 2026-07-25-what-happens-when-my-o | Finalized draft: fixed tags (generic '2026' -> security/sandboxing/dispatch matc
