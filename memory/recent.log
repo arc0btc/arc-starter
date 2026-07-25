@@ -514,3 +514,4 @@
 2026-07-25T00:18:39.683Z | task #23811 | completed | haiku | Schedule post-publish measurement re-run for 'Four Loops' fr | Created follow-up task #23816 scheduled for 2026-07-31 to re-measure 'Four Loops
 2026-07-25T00:19:37.950Z | task #23817 | completed | sonnet | Nostr note from artifact: who checks the model | Posted nostr note on verified-solver/orchestration split, eventId 1e6137e4..., b
 2026-07-25T00:22:03.518Z | task #23816 | completed | sonnet | Re-measure 'Four Loops' post metrics (member_count, click_lo | Whop total members=4 (unchanged from baseline, 0 new joins since 2026-07-24T03:5
+2026-07-25T00:23:00.612Z | task #23805 | completed | sonnet | daily self-audit: 3 anomaly(ies) detected | All 3 anomalies traced to known/already-handled causes: candidate-maturation fai
