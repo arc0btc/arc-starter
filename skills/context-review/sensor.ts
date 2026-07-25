@@ -31,6 +31,7 @@ interface RecentTask {
   status: string;
   source: string | null;
   result_summary: string | null;
+  model: string | null;
 }
 
 interface ContextFinding {
@@ -152,7 +153,7 @@ function getRecentCompletedAndFailedTasks(window_hours: number): RecentTask[] {
   const db = getDatabase();
   return db
     .query(
-      `SELECT id, subject, description, skills, status, source, result_summary
+      `SELECT id, subject, description, skills, status, source, result_summary, model
        FROM tasks
        WHERE status IN ('completed', 'failed')
          AND completed_at > datetime('now', '-${window_hours} hours')
@@ -392,7 +393,11 @@ function checkEmptySkillsFailed(
   if (task.result_summary?.startsWith("No model set")) return [];
 
   // Superseded tasks were intentionally closed before running — not a context issue.
-  if (task.result_summary?.startsWith("superseded by task")) return [];
+  if (task.result_summary?.startsWith("superseded")) return [];
+
+  // Script tasks (model: "script") bypass the LLM/skills path entirely — dispatch runs
+  // task.script directly via bash, never loading skill context. Empty skills is by design.
+  if (task.model === "script") return [];
 
   // Test/audit tasks are deliberately crafted to exercise dispatch behavior — missing skills is by design.
   // "test" (bare) and "test:" prefix both indicate manual test invocations, not operational tasks.
