@@ -504,3 +504,4 @@
 2026-07-25T00:05:08.737Z | task #23803 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Confirmed real PR-review backlog, not a zero-external-PR metric artifact: depend
 2026-07-25T00:05:49.657Z | task #23806 | completed | sonnet | Review PR #629 in aibtcdev/aibtc-mcp-server (external contri | Reviewed & approved PR #629 (biwasxyz, tx-schemas 0.7.0->^1.1.0): well-verified 
 2026-07-25T00:08:53.807Z | task #23807 | completed | sonnet | Clear stale unreviewed dependabot PRs across aibtcdev repos | Reviewed+approved all 18 backlogged dependabot PRs across 4 repos (landing-page,
+2026-07-25T00:09:15.644Z | task #23808 | completed | sonnet | Nostr note from artifact: the 18-day hold | Posted nostr note on the 18-day hold (eventId efa05ca1..., both relays ok). Skip
