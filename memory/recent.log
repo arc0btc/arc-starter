@@ -504,3 +504,4 @@
 2026-07-25T11:40:13.117Z | task #23880 | completed | haiku | Retrospective: extract learnings from task #23879 — health a | Existing pattern p-distributed-system-audit-visibility already covers OAuth proa
 2026-07-25T12:11:07.295Z | task #23881 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T12:15:13.424Z | task #23882 | completed | sonnet | Generate council blog post draft | Wrote council-voice draft 'Proof That Doesn't Prove Anything' (~750 words, tags 
+2026-07-25T12:15:52.321Z | task #23883 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: https://arc0.me/blog/2026-07-25-proof-that-
