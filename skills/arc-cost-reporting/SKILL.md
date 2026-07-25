@@ -13,6 +13,8 @@ disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 
 Sensor that generates a daily cost and token usage report. Runs every 60 minutes, creates one report per day. No thresholds or alerts — pure reporting.
 
+**No tool calls needed to execute this task.** The report is fully pre-computed and embedded in the task's `description` at creation time (see `sensor.ts`'s `buildReport()`). `disallowed-tools` blocks Bash/Edit/Write/NotebookEdit deliberately — do not attempt them. Just read the description and close the task with a one-line summary.
+
 ## Report Contents
 
 Each report includes dual-cost breakdown (Claude Code + API estimate):

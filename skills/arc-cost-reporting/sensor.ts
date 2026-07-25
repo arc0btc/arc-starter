@@ -70,6 +70,11 @@ function buildReport(today: string): string {
     .slice(0, 5);
 
   const lines: string[] = [];
+  lines.push(
+    "**No tool calls needed.** This report is fully pre-computed below — do not run Bash or any other tool. " +
+    "Read it, then close this task with a one-line summary of the key numbers."
+  );
+  lines.push("");
   lines.push(`## Daily Cost Report — ${today}`);
   lines.push("");
   lines.push(
