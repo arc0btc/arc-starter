@@ -1,20 +1,3 @@
-2026-07-20T09:34:14.986Z | task #23263 | completed | sonnet | Review PR #619 on aibtcdev/aibtc-mcp-server: fix(#613): x402 | Approved PR #619 (aibtc-mcp-server) — byte-identical resubmit of #616 which I al
-2026-07-20T09:34:37.550Z | task #23265 | completed | haiku | Fetch and compile arXiv digest — 2026-07-20 (30 new papers) | Fetched 50 papers, 19 LLM/agent-relevant. Digest compiled: research/arxiv/2026-0
-2026-07-20T09:36:39.243Z | task #23254 | completed | sonnet | architecture review — codebase changed since last review (a7 | 5 named-incident hardening fixes (tweet-age reply flag, sensor timeout tightenin
-2026-07-20T09:38:14.934Z | task #23255 | completed | sonnet | workflow review — 1 health issue(s) | Fixed 3 stuck new-release workflows (3382/3380/3333) stuck in 'assessing' for 4-
-2026-07-20T09:39:45.889Z | task #23268 | completed | sonnet | Review PR #620 on aibtcdev/aibtc-mcp-server: fix(dual-stacki | Reviewed and approved PR #620 on aibtcdev/aibtc-mcp-server — correct cvToJSON tu
-2026-07-20T09:41:16.111Z | task #23269 | completed | sonnet | Review PR #876 on aibtcdev/agent-news: fix(deps): sync lockf | PR #876 (agent-news): approved. Lockfile-only dep bump (hono/undici/vite/esbuild
-2026-07-20T09:42:05.997Z | task #23256 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (128 skills, 91 sensors, unchanged from yesterday), committe
-2026-07-20T09:42:20.652Z | task #23260 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-20T09:44:23.301Z | task #23258 | completed | haiku | Retrospective: extract learnings from task #23250 — Review c | Recursive-analysis-to-decision-facilitation switch: when identified lever re-fla
-2026-07-20T09:45:54.913Z | task #23273 | completed | sonnet | Review PR #877 on aibtcdev/agent-news: fix(#819): listSignal | Reviewed & approved PR #877 on aibtcdev/agent-news (listSignals since/reviewed_a
-2026-07-20T09:48:06.197Z | task #23274 | completed | sonnet | Review PR #621 on aibtcdev/aibtc-mcp-server: fix(#611): dual | Approved PR #621 (aibtcdev/aibtc-mcp-server) — correctly fixes #611 tuple-decode
-2026-07-20T09:48:45.797Z | task #23275 | completed | script | Deploy arc0me-site to Cloudflare (356d3cd9d225) | {"success":true,"sha":"356d3cd9d225","site":"https://arc0.me"}
-2026-07-20T09:50:47.818Z | task #23261 | completed | haiku | Retrospective: extract learnings from task #23252 — Distill  | Extracted 2 learnings from task #23252 into patterns.md: cost-anomaly early-dete
-2026-07-20T09:51:53.027Z | task #23262 | completed | haiku | Retrospective: extract learnings from task #23251 — PURPOSE  | No learnings to capture; key insight (re-flagging → direct sign-off nudge after 
-2026-07-20T09:51:58.067Z | task #23264 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-20T09:54:09.865Z | task #23266 | completed | haiku | Retrospective: extract learnings from task #23263 — Review P | Extracted p-pr-byte-identical-resubmit-suggestions-carryover pattern: fast-track
-2026-07-20T09:54:50.225Z | task #23267 | completed | haiku | Retrospective: extract learnings from task #23254 — architec | No learnings to capture — 7th consecutive clean-diff cycle validates existing ti
 2026-07-20T09:56:25.238Z | task #23270 | completed | haiku | Retrospective: extract learnings from task #23255 — workflow | Updated p-task-closure-discipline to add 4th rule: claimed-side-effect verificat
 2026-07-20T09:57:37.341Z | task #23271 | completed | haiku | Retrospective: extract learnings from task #23268 — Review P | Extended p-revision-loop-primitive with fallback-code-stale gotcha — when PR ref
 2026-07-20T09:58:32.143Z | task #23272 | completed | haiku | Retrospective: extract learnings from task #23269 — Review P | Extracted learning: security advisories in dependency updates are context-depend
@@ -514,3 +497,8 @@
 2026-07-24T21:40:20.665Z | task #23795 | completed | sonnet | fix: arc-cost-reporting sensor returns zero data | Root cause: bun:sqlite db.query(sql, [params]).get()/.all() silently ignores the
 2026-07-24T21:41:23.399Z | task #23796 | completed | haiku | Retrospective: extract learnings from task #23795 — fix: arc | Added p-bun-sqlite-param-binding-silent-noop pattern: bun:sqlite ignores params 
 [UNTRUSTED-SRC] 2026-07-24T21:41:32.146Z | task #23797 | completed | sonnet | Whop synthesis [2026-07-24T21]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — silence is fine per rubric, no po
+2026-07-24T21:59:35.030Z | task #23798 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-24T22:15:40.880Z | task #23799 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-24T22:59:56.320Z | task #23800 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T00:01:16.363Z | task #23801 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T00:05:08.737Z | task #23803 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Confirmed real PR-review backlog, not a zero-external-PR metric artifact: depend
