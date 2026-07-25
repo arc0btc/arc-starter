@@ -1,3 +1,26 @@
+## 2026-07-25T21:38:00.000Z — two named-incident correctness fixes, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #23928** | Diff: 883abce..aad8f5e (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-daily-read/cli.ts` (3f98a22b4, #23897) — adds `findingAlreadyInLiveBlog()`: greps the live blog's `.mdx`/`.md` bodies for a candidate finding's frozen `file:line` citation before `selectFinding()` picks it, closing the cross-channel-duplicate gap that let Edition 15 re-select a finding already blogged 2026-07-21 via another pipeline. Exact mirror of `arc-article-pipeline`'s existing #23670 fix — same root cause pattern (per-pipeline rotation logs can't see cross-channel publishes), same fix shape.
+- `skills/context-review/sensor.ts` (aad8f5efe) — `checkEmptySkillsFailed` now exempts `model === "script"` tasks (dispatch runs `task.script` directly via bash, never loading skill context — empty skills is by design there, not a gap) and broadens the "superseded" guard from an exact-phrase prefix match to any string starting `"superseded"`, so summaries like `"superseded: ..."` aren't mis-flagged.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both commits trace to named incidents (#23897 live duplicate; the script/superseded fixes trace to real false-positive misses in `context-review`'s own detection logic). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: The daily-read fix is the second occurrence of the identical cross-channel-dedup-by-citation pattern (article-pipeline #23670, now daily-read #23897). If a third pipeline needs the same check, worth extracting `findingAlreadyInLiveBlog`-style logic into a shared helper (e.g. `skills/lib/blog-dedup.ts`) instead of a third copy-pasted implementation — not yet at 3, so not actioned this cycle, just flagged for the next occurrence.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None new. Watch report (`2026-07-25T130234Z_watch_report.html`) checked for CEO/whoabuddy feedback — only boilerplate section headers matched (ceo/escalat/whoabuddy strings), no new actionable content beyond what's already tracked in MEMORY.md's Active Items.
+
+---
+
 ## 2026-07-25T09:30:00.000Z — five named-incident fixes, one net-new read-only engagement query; 129 skills / 91 sensors (unchanged)
 
 **Task #23871** | Diff: efe81c6..883abce (5 substantive commits) | Sensors: 91 | Skills: 129
@@ -91,26 +114,3 @@
 ### Flags
 
 - None. Two active reports checked (`2026-07-23T140000Z_overnight_brief.md`, `2026-07-24T010316Z_watch_report.html`) — the overnight brief's failures are all the already-tracked 42h OAuth outage (dispatch-oauth-42h-outage-2026-07-22, MEMORY.md), no new structural finding. No follow-up task warranted.
-
----
-
-## 2026-07-21T09:23:58.000Z — one net-new skill-tree entry (a self-inflicted deletion reversed), one narrow false-positive fix; 129 skills / 91 sensors
-
-**Task #23412** | Diff: b546157..5576bd7 (2 substantive commits; 1 data-only weekly-deck generation; rest are arc-link-research cache auto-commits) | Sensors: 91 | Skills: 129 (up from 128)
-
-### Changed files (substantive only)
-
-- `skills/dev-landing-page-review/AGENT.md` + `SKILL.md` (52dbc7f1) — restores a skill deleted in error five days earlier by this very review process (3811deed, task #22213, "never invoked" audit). It was in fact live: `PrLifecycleMachine` (`skills/arc-workflows/state-machine.ts`) generates React-repo PR review tasks that load it, and `github-release-watcher/sensor.ts` references it. Task #23395 hit the dead reference reviewing `aibtcdev/landing-page#1043` before this restore landed.
-- `skills/context-review/sensor.ts` (5576bd75) — adds a narrow subject-prefix exemption (`"Research:"` + `arc-link-research` loaded) to `checkMissingSkillCoverage`, joining two prior near-identical exemptions (`"Research X article:"`, `"Research orchestrator:"`) on the same function. Traces to a real false-flag (#23401, defi-zest topic misread as a skill requirement) — correctly reasoned (arc-link-research disallows Bash/Edit/Write, so it structurally cannot act on a topic name) rather than a blind allowlist add.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both substantive commits trace to named live incidents (#23395 dead reference, #23401 false-flag). No speculative scope.
-- **Step 2 — Delete**: None recommended this cycle — but the dev-landing-page-review restore is itself a live data point on Step 2 risk: a prior review's "never invoked" deletion call was wrong because it checked direct-invocation traces, not generative call sites (a state-machine class dynamically producing tasks that load the skill). Deletion recommendations from this review should now explicitly check state-machine/generator call sites, not just static `--skills` grep hits, before recommending removal.
-- **Step 3 — Simplify**: `checkMissingSkillCoverage` now carries three near-identical subject-prefix exemptions (`"Research X article:"`, `"Research orchestrator:"`, `"Research:"` + arc-link-research). Not yet consolidating — each has a distinct guard condition and a distinct named incident — but if a fourth prefix-based exemption lands on this function, it's worth generalizing to "any task loading a Bash/Edit/Write-disallowed research skill is exempt from missing-skill-coverage checks" instead of accumulating prefix strings.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **[LESSON]** See Step 2 above — this review's own prior deletion call (#22213) produced a 5-day-later user-visible failure (#23395) before being caught and reversed. Recommend: before this skill recommends deleting a skill as "unused," grep not just for `--skills <name>` CLI/task references but also for the skill's directory name appearing inside any `skills/*/state-machine.ts` or generator logic that might dynamically emit it.
