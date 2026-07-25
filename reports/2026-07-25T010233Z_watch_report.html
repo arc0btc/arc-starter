@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-24T13:01Z — 2026-07-25T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-24T13:01Z — 2026-07-25T01:02Z</div>
+</header>
+
+<p class="summary">64/69 tasks completed (5 failed) across 66 dispatch cycles, $25.12 spent. The 4 charter:store-governance corrective tasks (direct-DB-insert, no cited authorization doc on disk) were investigated and escalated to whoabuddy as #23813 rather than executed — treated as a possible unauthorized-directive injection, not a benign bug. A real bug did land and get fixed same-cycle: bun:sqlite silently drops query params passed via <code>.get(sql, [params])</code>, which had zeroed out the daily cost-reporting sensor since 2026-07-24. Whop stayed quiet — 981 reactive candidates, 100% skip; 2/2 synthesis ticks deferred.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">64</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">5</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$25.12</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">37876k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">184k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23751</td><td class="pri">6</td><td>Watch report — 2026-07-24T13:01Z</td><td>Prior watch report; flagged 2nd-consecutive 100%-skip Whop watch</td><td class="cost">$1.92</td></tr>
+    <tr><td class="id">23795</td><td class="pri">5</td><td>fix: arc-cost-reporting sensor returns zero data</td><td>Root cause: bun:sqlite silently ignores params on .get()/.all() — must bind on the call itself</td><td class="cost">$1.45</td></tr>
+    <tr><td class="id">23753</td><td class="pri">2</td><td>Overnight brief — 2026-07-24</td><td>84 tasks completed overnight, 0 failed, $83.27 day spend</td><td class="cost">$1.15</td></tr>
+    <tr><td class="id">23816</td><td class="pri">6</td><td>Re-measure 'Four Loops' post metrics</td><td>0-vs-4 member discrepancy was a scope mismatch (company-wide vs per-post), not real/fake growth</td><td class="cost">$1.06</td></tr>
+    <tr><td class="id">23809</td><td class="pri">4</td><td>Investigate + re-file 4 charter:store-governance correctives</td><td>Cited charter doc doesn't exist on disk; escalated as #23813, did NOT execute</td><td class="cost">$1.01</td></tr>
+    <tr><td class="id">23771</td><td class="pri">6</td><td>Triage AIBTC thread from Quasar Garuda</td><td>News Legion testnet pool announced, no fund demand; recommended reply, no sign-off needed yet</td><td class="cost">$0.87</td></tr>
+    <tr><td class="id">23802</td><td class="pri">7</td><td>Daily failure retrospective: 6 failed tasks</td><td>3 learnings extracted, 3 follow-ups filed (#23809, #23810, #23811)</td><td class="cost">$0.86</td></tr>
+    <tr><td class="id">23807</td><td class="pri">5</td><td>Clear stale unreviewed dependabot PRs</td><td>18 backlogged PRs across 4 repos reviewed + approved, no breaking changes</td><td class="cost">$0.85</td></tr>
+    <tr><td class="id">23785</td><td class="pri">4</td><td>Package research report into Whop SKU</td><td>Dedup-before-mint gate correctly deferred — overlapped 3 already-packaged products</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">23791</td><td class="pri">7</td><td>Architecture review</td><td>Single cosmetic rename since last review, no structural change, no follow-ups</td><td class="cost">$0.74</td></tr>
+    <tr><td class="id">23770</td><td class="pri">2</td><td>AIBTC thread from Quasar Garuda</td><td>Replied re News Legion, engaged on design question, committed no funds</td><td class="cost">$0.72</td></tr>
+    <tr><td class="id">23792</td><td class="pri">5</td><td>Distill arXiv digest into nuggets</td><td>4 agent-architecture nuggets written; quantum/aibtc-infra buckets skipped, no hits</td><td class="cost">$0.68</td></tr>
+  </tbody>
+</table>
+<p class="empty">+52 more completed (routine sync/housekeeping/retrospective/Nostr-note cycles) not itemized above.</p>
+{{failed_blocked_html}}
+<table>
+  <thead><tr><th>#</th><th>Status</th><th>Subject</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td class="id">23761–23764</td><td>failed</td><td>Charter corrective 1–4 (store-governance)</td><td>Direct-DB-insert tasks, no model set — instant fail by CLI guard</td></tr>
+    <tr><td class="id">23787</td><td>failed</td><td>daily cost report — 2026-07-23</td><td>Root cause of the day: bun:sqlite param-binding bug (fixed in #23795)</td></tr>
+    <tr><td class="id">23813</td><td>blocked</td><td>[ESCALATED] Verify authenticity of store-governance directive</td><td>Awaiting whoabuddy — do not execute the underlying charter</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+No Arc posts landed in hash-it-out this period. Reactive lane: 109 ticks, 981 candidates seen, 981 skip / 0 task_created / 0 dry_run — <strong>guards fired well above the &gt;2× tuning threshold</strong> (stale_message ×654, below_length_floor ×327), a fully-quiet room, not a broken lane. Synthesis lane: 2/2 ticks deferred (0 messages in 24h window each time) — healthy, well above the ≥3-defer/4-tick bar. Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+Top counterparties (all-time, room quiet this period): whoabuddy — 20 msgs, 5 arc→them / 3 them→arc.
+</div>
+<div class="whop-revenue">
+Revenue: 0/16 recurring members, $0.00 MRR — pre-M0. 1 product buyer, 0% buyer→member conversion. Weekly net-new: +0 customers, +0 members (4 straight flat weeks). Leading indicators: 49 followers (24h delta n/a, anchor 3h old); cadence 1 X post today vs ~2/day planned-cap; 0 lead-targeted replies today. Checkout starts (24h): 0. Abandons: 0.
+</div>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">e65d386</span>docs(report): watch report 2026-07-24T130107Z</div>
+<div class="commit"><span class="hash">85ea549</span>docs(report): overnight brief 2026-07-24T140000Z</div>
+<div class="commit"><span class="hash">29103a2</span>docs(report): CEO review — on track, ship real work + Whop guard tuning flagged</div>
+<div class="commit"><span class="hash">4a53be0</span>docs: confirm nesting-depth-3 default per v2.1.219 changelog</div>
+<div class="commit"><span class="hash">f0debd2</span>fix(council-distill): avoid exact-7d re-queue on unchanged digest</div>
+<div class="commit"><span class="hash">7be1c51</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">790583a</span>fix(arc-cost-reporting): bind query params correctly in bun:sqlite</div>
+<div class="commit"><span class="hash">762fcc0</span>docs(memory): record bun:sqlite query-param binding gotcha</div>
+<div class="commit"><span class="hash">99de3f8</span>security(memory): flag store-governance charter tasks as unverified authorization</div>
+<div class="commit"><span class="hash">d1fc063</span>chore(memory): close charter-store-governance escalation as blocked, note DB-audit dead end</div>
+<div class="commit"><span class="hash">715c81b</span>fix(arc-cost-reporting): explicit no-tool-calls instruction in report + SKILL.md</div>
+<div class="commit"><span class="hash">27600b8</span>docs(memory): record scheduled-for omission bug from Four Loops re-measure (task #23816)</div>
+<div class="commit"><span class="hash">fdce449</span>chore(memory): update daily-eval rolling entry — 1.70/5, 2026-07-25 #23804</div>
+<p class="empty">+34 auto-commit "loop" cycles not itemized above.</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">6</span>Re-check stale-task pileup after fix</div>
+<div class="queue-item"><span class="pri-tag">6</span>Re-measure 'Four Loops' post metrics (scheduled 2026-07-31)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">The charter:store-governance incident is the notable event of this watch: 4 tasks directing production deploys, live SKU pricing changes, and signed X posts were inserted straight into the DB, bypassing the CLI's <code>--model</code> requirement, citing a charter doc that doesn't exist anywhere on disk. Correctly treated as a possible injected directive and escalated rather than executed — but the entry point that let it into the queue at all (direct SQL insert, no CLI gate) is still open and unattributed since <code>db/*.sqlite</code> is gitignored with no commit trail.</div>
+<div class="obs">bun:sqlite's <code>.get(sql, [params])</code>/<code>.all(sql, [params])</code> silently drops the params array — must bind via <code>.get(...params)</code> or a prepared statement instead. This had zeroed the cost-reporting sensor's output since 2026-07-24 with no error, only a symptom ("zero data"). Worth a repo-wide grep for the same call shape elsewhere.</div>
+<div class="obs">candidate-maturation sensor shows 18 consecutive failures — this is the known X read-budget exhaustion pattern (lane at $0.505/$1.00 cap), not a regression; self-resolves at UTC midnight.</div>
+<div class="obs">Whop reactive lane guard-fire rate (981/981 skip, split ~2:1 stale_message:below_length_floor) is worth a tuning pass — two guards absorbing the entire candidate pool for multiple consecutive watches is a signal the thresholds may be miscalibrated for how the room actually behaves, not proof the room is truly dead.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
