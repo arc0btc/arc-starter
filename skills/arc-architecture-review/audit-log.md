@@ -1,3 +1,27 @@
+## 2026-07-25T09:30:00.000Z — five named-incident fixes, one net-new read-only engagement query; 129 skills / 91 sensors (unchanged)
+
+**Task #23871** | Diff: efe81c6..883abce (5 substantive commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/nostr/{SKILL.md,cli.ts,engagement.ts}` (883abcee) — new `engagement fetch` subcommand queries relays read-only (kind:7/1/9735) for every posted event, upserts into new `nostr_engagement` table. Correctly runs in-process (no wallet unlock needed for reads), mirroring the existing signing-isolation pattern in `nostr-runner.ts`. Not sensor-scheduled yet — on-demand only, by design.
+- `skills/whop/SKILL.md` (7e4753648) — doc-drift fix: reply/synthesis lanes were documented as dry-run-by-default but are actually live-by-default in `sensor.ts` (`WHOP_REPLY_DRY_RUN` hardcoded `false`, `WHOP_SYNTHESIS_DRY_RUN` only true if explicitly set). Docs now match code; no behavior change. Worth a glance at whether MEMORY.md's Whop summary still implies dry-run-first — it doesn't contradict, but doesn't state the live default either.
+- `skills/arc-cost-reporting/sensor.ts` (790583a60, 715c81b0b) — fixes bun:sqlite param binding (`db.query(sql, [today])` silently ignored params; params must go on `.get()`/`.all()` instead) and adds an explicit "no tool calls needed" instruction to the pre-computed report body. Both close standing MEMORY.md-tracked gaps (`bun-sqlite-query-params-silent-noop`, `arc-cost-reporting-bash-disallowed-zero-data-2026-07-24`, #23810).
+- `skills/council-distill/sensor.ts` (f0debd2f0) — `<` → `<=` off-by-one on the stale-digest skip window, closing an exact-7d re-queue edge case.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All five commits trace to a named incident, follow-up task, or standing memory flag. No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None new. Generic (non-diff) skill-tree audit re-run this cycle surfaced only pre-existing boilerplate (missing dedup checks on older sensors, 3 SKILL.md files slightly over the 2000-token guideline, MEMORY.md at ~4370 tokens) — all long-standing, none newly introduced by this diff, so not itemized here to keep this log lean; re-flag only if a fix is proposed.
+
+---
 ## 2026-07-24T21:34:00.000Z — single naming-compliance commit, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #23791** | Diff: 51924ee..efe81c6 (1 commit) | Sensors: 91 | Skills: 129
@@ -67,28 +91,6 @@
 ### Flags
 
 - None. Two active reports checked (`2026-07-23T140000Z_overnight_brief.md`, `2026-07-24T010316Z_watch_report.html`) — the overnight brief's failures are all the already-tracked 42h OAuth outage (dispatch-oauth-42h-outage-2026-07-22, MEMORY.md), no new structural finding. No follow-up task warranted.
-
----
-
-## 2026-07-20T21:30:00.000Z — quietest diff yet: two data-only auto-package commits, zero code changes; 128 skills / 91 sensors
-
-**Task #23327** | Diff: 776f5b2..b546157 (2 commits, both `chore(article-pipeline)` auto-package data writes) | Sensors: 91 | Skills: 128
-
-### Changed files (substantive only)
-
-- None. Both commits (`9804cde2`, `b546157a`) are `arc-operator-loop` P4 auto-package writes to `skills/arc-article-pipeline/drafts/article-{11,12}-x-article.json` (plus `.bak` snapshots) — pure data, no `src/` or skill code touched. Skill/sensor counts unchanged from the prior review (128/91).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None. Eighth consecutive cycle with fully-traceable, single-incident-per-commit (or zero-code) changes. No CEO/watch-report architectural feedback this cycle — the two active reports checked (`2026-07-20T130407Z_overnight_brief.md`, `2026-07-20T130012Z_watch_report.html`) surface known, already-tracked sign-off asks (PR #28 push, arc-0015 grounding gate, kill-switch re-enable, Whop SKU overlap) with no new structural findings.
 
 ---
 
