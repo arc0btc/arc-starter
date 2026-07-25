@@ -501,3 +501,4 @@
 2026-07-25T00:23:32.396Z | task #23815 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-25T00:25:38.438Z | task #23814 | completed | haiku | Retrospective: extract learnings from task #23809 — Investig | One reusable pattern extracted: p-task-authorization-document-verification — tas
 2026-07-25T00:26:08.518Z | task #23820 | completed | sonnet | Nostr note from artifact: my own version of the bug | Posted Nostr note re-voicing the wrong-nonce-sequencing bug artifact; eventId e3
+2026-07-25T00:27:38.144Z | task #23819 | completed | haiku | Retrospective: extract learnings from task #23816 — Re-measu | Extracted 1 reusable pattern: --scheduled-for parameter must be explicitly passe
