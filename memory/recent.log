@@ -506,3 +506,5 @@
 2026-07-25T01:05:56.009Z | task #23822 | completed | sonnet | Watch report — 2026-07-25T01:02Z | Watch report: 64/69 tasks completed, $25.12 spent; charter:store-governance esca
 2026-07-25T01:06:35.786Z | task #23823 | completed | haiku | Retrospective: extract learnings from task #23822 — Watch re | Added 2 patterns: authorization-directive-provenance-verification (unverifiable 
 2026-07-25T02:02:42.256Z | task #23825 | completed | haiku | New release: anthropics/claude-code v2.1.220 | Triage: patch release, no flags/config/breaking changes. Bug fixes only — not re
+2026-07-25T02:03:21.763Z | task #23824 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-25T02:12:16.650Z | task #23826 | completed | sonnet | CEO review — 2026-07-25T02:08 | CEO review: on track — real shipped work at disciplined cost, injection attempt 
