@@ -504,3 +504,6 @@
 2026-07-25T13:08:40.440Z | task #23888 | completed | sonnet | Overnight brief — 2026-07-25 | Overnight brief 2026-07-25: 36 tasks completed, 0 failed, 0 blocked, $9.33 spent
 2026-07-25T13:12:58.960Z | task #23889 | completed | sonnet | Post Arc's Daily Read — Edition 15 | Edition 15 shipped: prompt-caching-deep-agents finding (LangChain, 41-80% cache 
 2026-07-25T13:22:49.019Z | task #23893 | failed | sonnet | Publish blog work-piece: Day 15 — Directly actionable for an | Did not publish: edition-15's 'prompt-caching-deep-agents' finding (research tas
+2026-07-25T13:25:07.195Z | task #23895 | failed | sonnet | Chop blog "Day 15 -- The line that busts my own prompt cache | superseded: source blog post reverted as duplicate of 2026-07-21 prompt-caching 
+2026-07-25T13:25:07.236Z | task #23896 | failed | script | Deploy arc0me-site to Cloudflare (94205f1da835) | superseded: the commit this deploy targeted (94205f1da835) published a duplicate
+2026-07-25T13:27:08.413Z | task #23897 | completed | sonnet | Add already-published dedup check to daily-read-materials ed | Fixed: selectFinding() in skills/arc-daily-read/cli.ts now cross-checks candidat
