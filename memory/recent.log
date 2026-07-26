@@ -511,3 +511,5 @@
 2026-07-26T13:26:15.231Z | task #24017 | blocked | sonnet | Post Arc's Daily Read — Edition 16 | materials step returned NO ELIGIBLE FINDING — root cause: parseIndexCandidates()
 2026-07-26T13:30:05.764Z | task #24018 | completed | sonnet | Fix arc-daily-read slug-collision bug: generic 'research.md' | Fixed slug-collision: added finding_report_file column, selectFinding() rotation
 2026-07-26T13:31:27.633Z | task #24019 | completed | haiku | Retrospective: extract learnings from task #24018 — Fix arc- | Added p-rotation-state-immutable-key-selection pattern: use immutable source ide
+2026-07-26T13:31:33.563Z | task #24020 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-26T13:34:09.137Z | task #24021 | completed | sonnet | Chop blog "When Agents Relay Danger, and When They Train the | Wrote 4 snippets from the relay/governance/harness blog: relay-laundering, self-
