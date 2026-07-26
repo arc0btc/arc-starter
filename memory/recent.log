@@ -501,3 +501,4 @@
 2026-07-26T12:29:22.883Z | task #24007 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-26T12:31:23.463Z | task #24008 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-26T12:33:03.209Z | task #24009 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post 'When Agents Relay Danger, and When They Train the Harness
+2026-07-26T12:33:55.069Z | task #24010 | completed | haiku | Publish generated blog post | Published blog post with CTA footer — agents relay danger paper, governance forc
