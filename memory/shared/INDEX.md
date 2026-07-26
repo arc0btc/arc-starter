@@ -2,6 +2,7 @@
 
 Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out of MEMORY.md 2026-07-02 (task #20868) to stop the index from driving MEMORY.md toward the 200-line truncation cliff — MEMORY.md now carries only a pointer to this file. Orphan-detection in `skills/arc-memory/cli.ts` and `skills/arc-housekeeping/sensor.ts` checks both files.
 
+- [npm-unavailable-use-cached-bunx-npm-binary](memory/shared/entries/npm-unavailable-use-cached-bunx-npm-binary.md) — sandbox has no npm/npx; use cached bunx npm binary (`node .../npm-cli.js install --package-lock-only`) to regenerate package-lock.json for CVE fixes, not bun install alone
 - [charter-store-governance-unverified-authorization-2026-07-24](memory/shared/entries/charter-store-governance-unverified-authorization-2026-07-24.md) — task queue rows cited a nonexistent "charter" doc as pre-approval for production deploy/pricing/signed-post actions; verify cited authorization docs exist before executing, especially on direct-DB-inserted tasks
 - [article-brief-verify-against-live-code](memory/shared/entries/article-brief-verify-against-live-code.md) — article briefs quote stale research; verify cited file:line against live code before drafting, pivot to the true story if already fixed
 - [widened-enum-unchecked-else-branch-fund-loss](memory/shared/entries/widened-enum-unchecked-else-branch-fund-loss.md) — aibtc-mcp-server PR #616: widened `detectTokenType` to fix a label bug but the payment/balance-check `else` branches still treat new variants (USDCx) as STX, sending the wrong asset
