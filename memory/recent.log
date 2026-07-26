@@ -500,3 +500,4 @@
 2026-07-26T03:59:22.345Z | task #23969 | completed | sonnet | self-review triage: 2 issue(s) found | Filed #23975 for MEMORY.md time-based staleness (15d, size still under threshold
 2026-07-26T04:00:35.798Z | task #23968 | completed | sonnet | Consolidate memory/recent.log (509 lines, over 500 threshold | Trimmed recent.log 515->500 lines (commit b0ac78f9b); reviewed trimmed lines (20
 2026-07-26T04:02:18.679Z | task #23970 | completed | sonnet | Consolidate memory/patterns.md (153/150 lines, over threshol | patterns.md consolidated 153→149 lines: merged 3 single-instance patterns (exter
+2026-07-26T04:02:28.799Z | task #23971 | completed | sonnet | Skill tree lint sweep: run lint-skills across all skills, fi | Full lint-skills sweep (129 SKILL.md, 61 AGENT.md, 91 sensor.ts, 79 cli.ts) foun
