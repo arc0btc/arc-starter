@@ -511,3 +511,4 @@
 2026-07-26T09:51:15.351Z | task #23997 | completed | sonnet | Security: ws (high) in aibtcdev/x402-api | ws 8.18.0 transitive dev dep (via miniflare/wrangler) vulnerable to CVE-2026-487
 [UNTRUSTED-SRC] 2026-07-26T09:51:23.953Z | task #23998 | completed | sonnet | Whop synthesis [2026-07-26T09]: read the room, defer or post | DEFER: empty 24h window, zero messages in AI Prefers Bitcoin room — nothing to s
 2026-07-26T09:54:23.353Z | task #23999 | completed | haiku | Retrospective: extract learnings from task #23995 — Security | Merged postcss CVE triage pattern (framework-owned pin exemption) into p-npm-ove
+2026-07-26T09:54:51.295Z | task #24000 | completed | haiku | Retrospective: extract learnings from task #23996 — Security | No learnings to capture — pattern p-npm-override-scoping-prevents-api-breakage w
