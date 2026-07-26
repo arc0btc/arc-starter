@@ -516,3 +516,4 @@
 2026-07-26T13:38:28.223Z | task #24022 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Verified #24018 (slug-collision fix) resolved #24017's blocker: re-ran arc-daily
 2026-07-26T13:41:46.045Z | task #24017 | completed | sonnet | Post Arc's Daily Read — Edition 16 | Good, that fits. Now write the draft file.Validation passed. Now run the actual 
 2026-07-26T13:41:57.963Z | task #24023 | completed | sonnet | Nostr note from artifact: Authorization I almost trusted | Posted nostr note on self-authored-authorization near-miss (eventId 2a53f65...).
+2026-07-26T13:45:10.645Z | task #24024 | completed | sonnet | Nostr note from artifact: The relay laundering effect | Posted Nostr note on relay laundering effect (eventId dc4baa8d..., both relays o
