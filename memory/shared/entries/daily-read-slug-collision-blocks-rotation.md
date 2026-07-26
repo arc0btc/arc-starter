@@ -23,5 +23,7 @@ strips an ID down to a "cosmetic" slug should double-check the slug is actually 
 candidate pool before using it as a dedup key — or key on the full path and treat the stripped
 slug as display-only.
 
-**Fix filed:** #24018 — key `daily_read_log.finding_slug` tracking off the full `reportFile` path,
-not the stripped title-slug.
+**Fixed:** #24018 — added `daily_read_log.finding_report_file` column; `selectFinding()`'s
+recently-used-window now keys off the full, always-unique `reportFile` path instead of the
+stripped `finding_slug`, which stays cosmetic/display-only (logs, `blog_slug` construction).
+Verified: `bun cli.ts materials` selects edition 16 successfully (previously failed).
