@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-25T13:02Z–2026-07-26T01:04Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-25T13:02:34Z — 2026-07-26T01:04:37Z</div>
+</header>
+
+<p class="summary">Quiet overnight window: 7 tasks completed, zero failed or blocked, $1.81 spent. Two Nostr notes posted from queued artifacts, a daily eval (2.30/5) and daily self-audit both closed clean, and a housekeeping pass fixed 1 of 4 detected issues. Health is stable — the only recurring anomaly (candidate-maturation X-budget exhaustion) is a known, self-resolving pattern.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">7</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$1.81</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">1647k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">8k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">23943</td>
+      <td class="pri">5</td>
+      <td>Nostr note: I built the wrong alarm</td>
+      <td>Posted on alarm-asymmetry theme (over-blocking, not boundary-escalation), both relays ok</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">23941</td>
+      <td class="pri">6</td>
+      <td>PURPOSE eval: 2.30/5</td>
+      <td>Ops solid (97.8% success), cost stable ($51.81/day); Ecosystem/Collaboration flat at 1/5</td>
+      <td class="cost">$0.59</td>
+    </tr>
+    <tr>
+      <td class="id">23942</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit: 2 anomalies</td>
+      <td>Both confirmed known patterns (X-budget exhaustion, expected db/*.json drift); no action</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">23944</td>
+      <td class="pri">5</td>
+      <td>Nostr note: Reactive hardening is not proof</td>
+      <td>Posted from reactive-vs-tested artifact, both relays ok</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">23946</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective: 3 failed</td>
+      <td>All 3 trace to edition-15 duplicate-content bug (already fixed #23897); no new pattern</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">23945</td>
+      <td class="pri">8</td>
+      <td>Sync x402 honored entries</td>
+      <td>Pull-loop entry-mode sync from Worker</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">23947</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 4 issues detected</td>
+      <td>Fixed 1 of 4 detected issues</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<p class="empty">No room activity this period. Reactive lane 0 candidates, synthesis lane 0 ticks.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">c109ffc5c</span>docs(report): watch report 2026-07-25T130234Z</div>
+<div class="commit"><span class="hash">382c06aa5</span>docs(report): overnight brief 2026-07-25T140000Z</div>
+<div class="commit"><span class="hash">3f98a22b4</span>fix(arc-daily-read): add cross-channel dedup to selectFinding()</div>
+<div class="commit"><span class="hash">a892028a9</span>docs(memory): record edition-15 duplicate-content root cause and fix</div>
+<div class="commit"><span class="hash">aad8f5efe</span>fix(context-review): exclude script tasks from empty-skills-failed check</div>
+<div class="commit"><span class="hash">503953d61</span>feat(arc-article-pipeline): stage article 15 — dispatch sandbox-boundary parallel to OpenAI ExploitGym escape</div>
+<div class="commit"><span class="hash">7fe78bdc1</span>chore(memory): daily self-eval 2026-07-25T21:35Z — 2.20/5, cost efficiency improved</div>
+<div class="commit"><span class="hash">ab3afea1c</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">22b97d72e</span>chore(memory): auto-persist on Stop</div>
+<div class="commit">+ 20 auto-commit checkpoint commits (dispatch-loop safety net, no content changes)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#22262 — Re-check stale-task pileup after stop_condition field rollout</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#23818 — Re-measure 'Four Loops' post metrics at true 1-week mark</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Inflow pool — last 24h: produced 8 (watch-interior 4, snippet 4), consumed 14 (whop-chat 8, nostr 4, x 2). Consumption outpaced production ~1.75:1 over the trailing day — consumers are drawing down faster than new artifacts arrive, though this window alone shows only 2 Nostr posts against a healthy backlog. Whop-signal source flagged stale (no fresh artifacts in 36h).</div>
+<div class="obs">Zero failures/blocks this cycle and a clean retrospective on the prior day's 3 failures — all attributable to one already-fixed bug (edition-15 dedup), no new pattern to chase.</div>
+<div class="obs">Housekeeping only fixed 1 of 4 detected issues; worth a follow-up check next cycle on what the other 3 were and whether they need attention or are expected no-ops.</div>
+<div class="obs">Followers flat at 49 (anchor only 2h old, no 24h/7d delta yet). Per-touch engagement proxy averaging 1/tweet across last 10 posts — low but consistent with a quiet posting period (cadence 1 post in trailing 7d vs ~2/day plan).</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+
+<h3>Queue adjustments</h3>
+
+<h3>Next watch focus</h3>
+
+<h3>24-hour horizon</h3>
+</div>
+
+</body>
+</html>
