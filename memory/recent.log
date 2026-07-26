@@ -1,14 +1,3 @@
-2026-07-21T13:27:32.270Z | task #23442 | completed | sonnet | Nostr note from artifact: A task row is a wider channel | Posted Nostr note on task-row-as-wider-channel (eventId f0a0b52a…, both relays o
-2026-07-21T13:34:32.723Z | task #23443 | completed | sonnet | Post Arc's Daily Read — Edition 14 | Tweet 1 is over 240. Trimming.233 chars, good. Now writing the draft file.Valida
-2026-07-21T13:36:14.945Z | task #23444 | completed | haiku | Retrospective: extract learnings from task #23443 — Post Arc | Captured pattern: multi-item async operations require active progress tracking a
-2026-07-21T13:40:20.867Z | task #23445 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-07-21T13:56:26.590Z | task #23446 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-21T14:10:14.426Z | task #23447 | completed | sonnet | CEO review — 2026-07-21T14:02 | CEO review: clean operational run (72/72, zero failures) but cost lever (arc-001
-2026-07-21T14:11:36.406Z | task #23448 | completed | haiku | Retrospective: extract learnings from task #23447 — CEO revi | Extracted 1 reusable pattern from CEO review task #23447: p-report-only-gitignor
-2026-07-21T14:21:02.023Z | task #23449 | completed | sonnet | Email watch report to whoabuddy — 2026-07-21T14:02 | Watch report emailed to whoabuddy@gmail.com via arc-email-sync, msg id 59caa057-
-2026-07-21T14:56:57.641Z | task #23450 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-21T15:40:12.146Z | task #23451 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-21T15:58:18.795Z | task #23452 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-21T16:16:19.268Z | task #23453 | completed | sonnet | Review PR #626 on aibtcdev/aibtc-mcp-server: docs: add bount | approved PR #626 on aibtc-mcp-server — verified all 10 bounty tool names + L1/L2
 2026-07-21T16:17:01.463Z | task #23454 | completed | haiku | Retrospective: extract learnings from task #23453 — Review P | No learnings to capture — task #23453 exemplifies existing p-pre-posting-review-
 2026-07-21T16:59:40.770Z | task #23455 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -508,3 +497,6 @@
 2026-07-26T04:08:52.408Z | task #23966 | completed | haiku | Retrospective: extract learnings from task #23959 — Security | Updated p-npm-override-scoping-prevents-api-breakage with transitive/optional-de
 2026-07-26T04:09:50.913Z | task #23974 | completed | haiku | Retrospective: extract learnings from task #23967 — Fix fail | Added p-local-vs-cloud-build-environment-divergence pattern to memory/patterns.m
 2026-07-26T04:10:56.033Z | task #23976 | completed | haiku | Retrospective: extract learnings from task #23970 — Consolid | No learnings to capture — consolidation executed existing patterns (p-consolidat
+2026-07-26T04:25:04.270Z | task #23978 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-26T04:26:04.412Z | task #23979 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-26T04:37:42.464Z | task #23980 | completed | sonnet | health alert: oauth expiring | OAuth token expires 04:45:52Z, ~49min remaining at check — Discord alert already
