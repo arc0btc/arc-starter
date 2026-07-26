@@ -145,6 +145,13 @@ function getDb(): Database {
     "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_sent INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_sent_at TEXT",
     "ALTER TABLE daily_read_log ADD COLUMN subscriber_email_recipient_count INTEGER",
+    // #24018 fix: finding_slug is derived from reportFile with the date-timestamp prefix
+    // stripped, which collapses every generically-named "<timestamp>_research.md" report to the
+    // identical slug "research" — selectFinding()'s recently-used-window check then treats any
+    // one of those distinct files as if it were the same finding once one has been used. Track
+    // rotation against the full, always-unique reportFile path instead; finding_slug remains
+    // cosmetic/display-only (used for logs and blog_slug construction).
+    "ALTER TABLE daily_read_log ADD COLUMN finding_report_file TEXT",
   ]) {
     try {
       db.run(migration);
@@ -558,18 +565,21 @@ function selectFinding(db: Database): Finding | null {
   const ordered = [...candidates].sort((a, b) => rank(a) - rank(b));
 
   // Rotation window = one full cycle (candidate count), not "ever used" — see doc comment above.
+  // Keyed off the full reportFile path (always unique per report), NOT the stripped slug — see
+  // #24018: generically-named "<timestamp>_research.md" reports all strip to the identical slug
+  // "research", so keying off slug treats distinct files as interchangeable once any one is used.
   const recentRows = db.query(
-    "SELECT finding_slug FROM daily_read_log WHERE finding_slug IS NOT NULL ORDER BY edition_n DESC LIMIT ?"
-  ).all(ordered.length) as { finding_slug: string }[];
-  const recentlyUsed = new Set(recentRows.map((r) => r.finding_slug));
+    "SELECT finding_report_file FROM daily_read_log WHERE finding_report_file IS NOT NULL ORDER BY edition_n DESC LIMIT ?"
+  ).all(ordered.length) as { finding_report_file: string }[];
+  const recentlyUsed = new Set(recentRows.map((r) => r.finding_report_file));
 
-  let pool = ordered.filter((r) => !recentlyUsed.has(r.slug));
+  let pool = ordered.filter((r) => !recentlyUsed.has(r.reportFile));
   if (pool.length === 0) {
     // Every candidate appeared within the last full cycle. Exclude only the single most recent
     // finding (guarantees no immediate back-to-back repeat) so rotation continues rather than
     // collapsing to always-the-first-candidate.
-    const mostRecent = recentRows[0]?.finding_slug;
-    pool = ordered.filter((r) => r.slug !== mostRecent);
+    const mostRecent = recentRows[0]?.finding_report_file;
+    pool = ordered.filter((r) => r.reportFile !== mostRecent);
     if (pool.length === 0) pool = ordered; // only one candidate exists at all
   }
 
@@ -605,6 +615,7 @@ interface Beat {
   thesis: string;
   chartData: ChartData | null;
   findingSlug: string | null;
+  findingReportFile: string | null;
   openingLine: string | null;
   /** arc-day-n-publishing P1 (design spec §3.4): true for the 1-tweet never-skip fallback —
    *  the streak still advances, but no blog-publish task is queued (nothing to mirror). */
@@ -620,7 +631,7 @@ interface VoiceDraft {
 
 interface MaterialsBrief {
   editionN: number;
-  finding: { slug: string; title: string; hook: string; fileLine: string } | null;
+  finding: { slug: string; reportFile: string; title: string; hook: string; fileLine: string } | null;
   introStyle: string;
   avoidOpenings: string[];
   statsFooter: {
@@ -784,6 +795,7 @@ function composeBeat(brief: MaterialsBrief, voiceDraft: VoiceDraft): Beat {
     thesis: brief.finding.hook,
     chartData: brief.chartData, // reuse — avoid a second identical generateChart() DB round-trip
     findingSlug: brief.finding.slug,
+    findingReportFile: brief.finding.reportFile,
     openingLine,
     isMinimal: false,
   };
@@ -824,6 +836,7 @@ function composeMinimalBeat(brief: MaterialsBrief): Beat {
       thesis: brief.finding?.hook ?? "(no finding available)",
       chartData: brief.chartData ?? null,
       findingSlug: brief.finding?.slug ?? null,
+      findingReportFile: brief.finding?.reportFile ?? null,
       openingLine: rebuilt,
       isMinimal: true,
     };
@@ -835,6 +848,7 @@ function composeMinimalBeat(brief: MaterialsBrief): Beat {
     thesis: brief.finding?.hook ?? "(no finding available)",
     chartData: brief.chartData ?? null,
     findingSlug: brief.finding?.slug ?? null,
+    findingReportFile: brief.finding?.reportFile ?? null,
     openingLine: tweet,
     isMinimal: true,
   };
@@ -1188,11 +1202,11 @@ async function sendAmplificationEmail(
  * migration backfilled (all confirmed fully shipped in the P0 live-state re-read); a FRESH claim
  * has shipped nothing yet and must never silently inherit that default.
  */
-function claimEdition(db: Database, editionN: number, findingSlug: string | null, openingLine: string | null): boolean {
+function claimEdition(db: Database, editionN: number, findingSlug: string | null, findingReportFile: string | null, openingLine: string | null): boolean {
   try {
     db.run(
-      `INSERT INTO daily_read_log (edition_n, beat_source, finding_slug, opening_line, status) VALUES (?, ?, ?, ?, 'reserving')`,
-      [editionN, `${PRIMARY_THREAD_LANE}:${editionN}`, findingSlug, openingLine]
+      `INSERT INTO daily_read_log (edition_n, beat_source, finding_slug, finding_report_file, opening_line, status) VALUES (?, ?, ?, ?, ?, 'reserving')`,
+      [editionN, `${PRIMARY_THREAD_LANE}:${editionN}`, findingSlug, findingReportFile, openingLine]
     );
     return true;
   } catch (error) {
@@ -1522,7 +1536,7 @@ async function cmdPost(dryRun: boolean, voiceFilePath?: string, simulateFailure:
     const claimDb = getDb();
     let claimed = false;
     try {
-      claimed = claimEdition(claimDb, beat.editionN, beat.findingSlug, beat.openingLine);
+      claimed = claimEdition(claimDb, beat.editionN, beat.findingSlug, beat.findingReportFile, beat.openingLine);
     } catch (claimErr) {
       claimDb.close();
       console.log(`ERROR: claimEdition threw — releasing reservation before rethrowing: ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
