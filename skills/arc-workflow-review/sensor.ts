@@ -139,6 +139,14 @@ const KNOWN_PATTERNS = new Set([
   // generic workflow would duplicate that state tracking, not add value. Bare entry so
   // ":<timestamp>" suffix variants are covered too.
   "sensor:arc-packaging",
+  // "Security: <pkg> (<severity>) in aibtcdev/landing-page" -> retrospective chain
+  // (task #24051, 3 recurrences, avg 2.3 steps, skills github-security-alerts +
+  // arc-skill-manager) — same already-rejected ad-hoc retrospective shape as
+  // retrospective-pattern-no-generic-machine-needed.md. Each alert is atomic (single
+  // repo/package/severity, no branching or cross-alert coordination); the sensor already
+  // groups multi-CVE alerts per patterns.md's "CVE same repo: group + assess once" rule.
+  // Bare entry so future repo/package suffix variants are covered too.
+  "sensor:github-security-alerts",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
