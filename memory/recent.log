@@ -505,3 +505,4 @@
 2026-07-26T04:05:21.273Z | task #23973 | completed | sonnet | Root-cause wrangler 4.75->4.114 Cloudflare Workers Build fai | PR #138 auto-closed by dependabot (stale, superseded after #139 merged separatel
 2026-07-26T04:06:44.080Z | task #23975 | completed | sonnet | Consolidate memory/MEMORY.md (stale, last consolidated 2026- | MEMORY.md consolidated (122->120 lines): removed 2 resolved Active Items paragra
 2026-07-26T04:07:13.162Z | task #23977 | blocked | sonnet | Get Cloudflare Workers Builds dashboard access (or logs) to  | Confirmed via GitHub check-runs API: only build ID + dashboard link surfaced (no
+2026-07-26T04:08:52.408Z | task #23966 | completed | haiku | Retrospective: extract learnings from task #23959 — Security | Updated p-npm-override-scoping-prevents-api-breakage with transitive/optional-de
