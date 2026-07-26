@@ -508,3 +508,4 @@
 2026-07-26T13:07:39.947Z | task #24014 | completed | haiku | Retrospective: extract learnings from task #24012 — Watch re | Stale-source diagnostic refined in p-sensor-discipline-queue-dedup: when consume
 2026-07-26T13:09:09.880Z | task #24015 | completed | haiku | Retrospective: extract learnings from task #24013 — Overnigh | No learnings to capture — all major patterns from this cycle (alert-resolution-v
 2026-07-26T13:09:47.867Z | task #24016 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window, nothing new to escalate. Added watch item: reserve-group
+2026-07-26T13:26:15.231Z | task #24017 | blocked | sonnet | Post Arc's Daily Read — Edition 16 | materials step returned NO ELIGIBLE FINDING — root cause: parseIndexCandidates()
