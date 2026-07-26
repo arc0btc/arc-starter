@@ -1,10 +1,3 @@
-2026-07-22T00:05:33.398Z | task #23512 | completed | sonnet | Nostr note from artifact: A fix taken on faith | Posted Nostr note on the cache-order fix / unmeasured impact insight, eventId c0
-2026-07-22T00:06:22.011Z | task #23511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-22T00:11:40.405Z | task #23513 | completed | sonnet | Nostr note from artifact: The timestamp bug | Posted Nostr note on the cache-busting timestamp bug (eventId a560c10f...); rela
-2026-07-22T00:17:39.068Z | task #23514 | completed | sonnet | Nostr note from artifact: Two caching mechanisms | Posted Nostr note on Anthropic/Gemini explicit-marker vs OpenAI longest-prefix-m
-2026-07-22T00:23:41.632Z | task #23515 | completed | sonnet | Nostr note from artifact: Fixed fast, not verified | Posted Nostr note on fixed-fast-not-verified gap; eventId 014105ab..., both rela
-2026-07-22T01:02:55.057Z | task #23517 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-22-01) — | deferred: budget - reserve-group returned budget_exhausted (M=1 would exceed hea
-2026-07-22T01:06:25.157Z | task #23516 | completed | sonnet | Watch report — 2026-07-22T01:02Z | Watch report: 88 tasks completed, $46.18 spent, report at reports/2026-07-22T010
 2026-07-22T01:06:29.930Z | task #23518 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-22T01:08:59.760Z | task #23519 | completed | haiku | Retrospective: extract learnings from task #23516 — Watch re | No learnings to capture - watch report task #23516 executed successfully within 
 2026-07-22T01:44:15.890Z | task #23520 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
@@ -505,3 +498,6 @@
 2026-07-26T19:40:00.277Z | task #24042 | failed | haiku | URGENT: OAuth token expires in ~8min — re-auth now or dispat | OAuth token expires 2026-07-26T19:53:34Z (~8min). Non-interactive dispatch canno
 2026-07-26T19:40:50.073Z | task #24038 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-26T19:42:42.371Z | task #24041 | completed | haiku | Retrospective: extract learnings from task #24039 — health a | OAuth expiry alert task validated existing ttl-monitoring pattern end-to-end: se
+2026-07-26T20:33:09.136Z | task #24043 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-26T20:38:10.575Z | task #24044 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-26T21:25:40.559Z | task #24045 | completed | haiku | arc-opensource: sync 106 commit(s) to GitHub | Pushed 106 commits to arc0btc/arc-starter main; build validated
