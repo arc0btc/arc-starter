@@ -509,3 +509,4 @@
 2026-07-26T13:09:09.880Z | task #24015 | completed | haiku | Retrospective: extract learnings from task #24013 — Overnigh | No learnings to capture — all major patterns from this cycle (alert-resolution-v
 2026-07-26T13:09:47.867Z | task #24016 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window, nothing new to escalate. Added watch item: reserve-group
 2026-07-26T13:26:15.231Z | task #24017 | blocked | sonnet | Post Arc's Daily Read — Edition 16 | materials step returned NO ELIGIBLE FINDING — root cause: parseIndexCandidates()
+2026-07-26T13:30:05.764Z | task #24018 | completed | sonnet | Fix arc-daily-read slug-collision bug: generic 'research.md' | Fixed slug-collision: added finding_report_file column, selectFinding() rotation
