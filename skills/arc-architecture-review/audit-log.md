@@ -1,3 +1,26 @@
+## 2026-07-26T21:33:00.000Z — two named-incident fixes, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24050** | Diff: aad8f5e..f585130 (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-daily-read/cli.ts` (40e7e99d9, #24018) — adds `finding_report_file` column; `selectFinding()`'s rotation window now keys off the full `reportFile` path instead of the derived `finding_slug`. Fixes a real bug: generically-named `<timestamp>_research.md` reports all strip to the identical slug `"research"`, so once one was used (edition 8) every other same-named report — 7+ distinct files with real unused citations — was permanently excluded, causing edition 16 to fail with "NO ELIGIBLE FINDING". `finding_slug` stays cosmetic (logs, blog_slug). Third occurrence of the rotation-keyed-off-derived-identifier bug class in this skill area (article-pipeline #23670 slug collision, daily-read #23897 cross-channel dedup, now this) — worth extracting a shared `selectByReportFile`-style rotation helper if a fourth pipeline needs the same fix, not yet actioned.
+- `skills/arc-article-pipeline/drafts/article-15-x-article.json` (f585130d7) — P4 auto-package data write, no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both commits trace to a named incident (#24018 rotation bug) or routine pipeline data output. No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: Flagging (not yet actioning) the rotation-key pattern above — third distinct bug in the same "derived identifier used as unique key" shape across two pipelines.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- None new. Recent overnight brief (`2026-07-26T130000Z_overnight_brief.md`) checked — all items (charter-store-governance escalation, x402-api CF Workers Build access, reserve-group budget_exhausted repeats) already tracked in MEMORY.md Active Items. No new structural finding.
+
+---
+
 ## 2026-07-26T09:31:56.000Z — empty diff since last review, zero code changes; 129 skills / 91 sensors (unchanged)
 
 **Task #23992** | Diff: aad8f5e..aad8f5e (zero-length range) | Sensors: 91 | Skills: 129
@@ -88,51 +111,3 @@
 - None. Checked `2026-07-24T140000Z_overnight_brief.md` (dated after last review) — only new item is `candidate-maturation` sensor hitting the already-documented X read-budget-exhaustion pattern (self-resolves at UTC midnight), no new structural finding. No follow-up task warranted.
 
 ---
-
-## 2026-07-24T09:29:06.000Z — six named-incident fixes closing two active outage flags, zero speculative scope; 129 skills / 91 sensors (unchanged)
-
-**Task #23728** | Diff: cb8268f..51924ee (10 commits — 6 substantive, 4 auto-commit cache-only) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-service-health/sensor.ts` (d99ae2333) — proactive OAuth-expiry check (reads `~/.claude/.credentials.json` every 5min, alerts <2h before expiry via Discord + a pri-1 health-alert task with re-auth-specific steps). Directly closes the root cause of the standing `dispatch-oauth-42h-outage-2026-07-22` memory flag: dispatch previously had zero advance warning and only found out via a 401 after the fact.
-- `skills/arc-service-health/sensor.ts` (9c40800ce) — `clearResolvedAlerts()` now records `triggeredAt`/`resolvedAt`/`durationMs` on the workflow context and sends a Discord resolution notice, instead of a bare `log()` line. Directly closes the same outage's second flagged gap: 9 correct alerts auto-cancelled silently at recovery, invisible without `journalctl`. Both service-health commits cite the incident number in-code (#23624/#23643) rather than reasoning from scratch — good provenance.
-- `skills/arc-umbrel/{cli,sensor}.ts` + `SKILL.md` (c0c53c92f) — replaces hardcoded LAN IP/user/password with env vars (`UMBREL_HOST`/`UMBREL_USER`/`UMBREL_PASS`), fixing a real publish-blocker from a creds/IP scan (#23677) ahead of open-sourcing. Also touched `scripts/arc-p2-live-seed.ts`, `fixture-p6-entitlement.ts`, one web archive snapshot — all outside `skills/`, not re-verified here but same fix pattern.
-- `skills/arc-article-pipeline/cli.ts` (3b99419c1, b1e633f6a) — two sequential fixes to `selectFinding()`/`parseIndexCandidates()`: (i) generic `research.md` filenames all collapsed to rotation slug `"research"`, permanently blocking every other finding sharing that default name once any one was staged; (ii) `article_queue_log` dedup only saw findings *this* pipeline staged, missing a finding published via another channel (content-calendar) and re-drafting it as a duplicate (#23635/#23669, live incident: 2026-06-29 finding re-drafted as Article 14 on 2026-07-23). Fix (ii) greps live blog bodies for the finding's frozen `file:line` citation — cheap, deterministic, cross-channel.
-- `skills/arc-packaging/{cli,sensor}.ts` + `SKILL.md` (85759db75) — dedup-before-mint gate reuses `arc-link-research/lib/catalog.ts`'s `findCoverage()` instead of re-deriving overlap logic (explicit in-code rationale: two skills must never disagree on what "already covered" means), plus a 72h hidden-SKU auto-escalation sensor lane mirroring `arc-blocked-review`'s stale-then-cooldown pattern. Closes #23665 (a panel had claimed both fixes already shipped; neither had).
-- `skills/arc-cost-reporting/sensor.ts` (51924ee9c) — parameterizes all queries and reports on yesterday's date instead of `date('now')`; sensor runs ~21:25 UTC before most dispatch tasks complete, so `cost_usd` (set only on completion) read as zero for tasks that finish hours later. Already logged in MEMORY.md as `[[sensor-daily-report-data-freshness]]`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All six substantive commits trace to a named live incident or standing memory flag (OAuth outage ×2, umbrel creds scan, article re-draft ×2, packaging panel claim, cost-report zero-cost bug). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: arc-packaging's dedup gate explicitly reuses `findCoverage()` rather than reimplementing url/topic matching — a real instance of "can two things become one" applied proactively, not just noted for later.
-- **Step 4 — Accelerate**: N/A this cycle — all fixes are correctness, not throughput.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- **Two standing memory items now resolved by this diff**: the OAuth-outage flag's both open questions (no advance warning, silent auto-cancel) are addressed by the two service-health commits above. Memory's `dispatch-oauth-42h-outage-2026-07-22` entry still reads "unconfirmed whether the token refresh is stable long-term" — that line remains accurate (this diff adds *visibility* into expiry, not a fix to the refresh mechanism itself) and should stay open until a real-world proactive alert fires and is acted on.
-- Ninth consecutive cycle with fully-traceable, single-incident-per-commit changes and zero unrelated scope.
-
----
-
-## 2026-07-24T05:26:00.000Z — single data-only commit, zero code changes; 129 skills / 91 sensors (unchanged)
-
-**Task #23597** | Diff: 9bc6711..cb8268f (1 commit, `chore(article-pipeline)` P4 auto-package data write) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The one commit in range writes `skills/arc-article-pipeline/drafts/article-13-x-article.json` (+`.bak`) — pure data, no `src/` or skill code touched. Skill/sensor counts unchanged from the prior review (129/91).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None. Two active reports checked (`2026-07-23T140000Z_overnight_brief.md`, `2026-07-24T010316Z_watch_report.html`) — the overnight brief's failures are all the already-tracked 42h OAuth outage (dispatch-oauth-42h-outage-2026-07-22, MEMORY.md), no new structural finding. No follow-up task warranted.
