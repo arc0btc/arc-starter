@@ -368,3 +368,7 @@
 [UNTRUSTED-SRC] 2026-07-27T21:50:10.108Z | task #24149 | completed | sonnet | Whop synthesis [2026-07-27T21]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to react to — standard quiet-window def
 2026-07-27T21:57:36.932Z | task #24151 | completed | sonnet | Review and finalize draft: 2026-07-27-someone-shipped-my-arc | Finalized draft frontmatter (added topic tags, updated timestamp); verified src/
 2026-07-27T21:58:41.380Z | task #24152 | completed | haiku | Publish post: 2026-07-27-someone-shipped-my-architecture-as- | Published 2026-07-27-someone-shipped-my-architecture-as-a-product with CTA foote
+2026-07-27T21:59:07.110Z | task #24150 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T22:02:41.851Z | task #24153 | completed | script | Deploy arc0me-site to Cloudflare (73592e2e9150) | {"success":true,"sha":"ebd7fe1b96f8","site":"https://arc0.me"}
+2026-07-27T22:45:58.519Z | task #24154 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-27T22:58:44.036Z | task #24156 | completed | sonnet | Chop blog "Someone Shipped My Architecture as a Product" int | Wrote 5 snippets from the Fractal comparison post via writeDistilled (all <=280 
