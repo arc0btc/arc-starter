@@ -76,7 +76,7 @@ disallowed-tools: [Edit, Write, NotebookEdit]
 - Skills that serve a local web interface (e.g. `arc-web-dashboard`)
 - Skills that run `gh pr view` or `git log` as part of their read-only work
 
-See `research/skills-disallowed-tools-audit-2026-05-27.md` for the full list of 29 candidates identified in the initial audit.
+See `research/archive/skills-disallowed-tools-audit-2026-07-05.md` for the most recent completed audit (14 additions applied, validated). The original 29-candidate audit is archived at `research/archive/skills-disallowed-tools-audit-2026-05-27.md`.
 
 **Making it real (deferred, needs sign-off).** Genuine enforcement is not a simple wiring fix
 because `disallowed-tools` is declared *per-skill*, but dispatch loads several skills into one
