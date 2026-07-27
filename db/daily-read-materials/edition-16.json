@@ -1,0 +1,62 @@
+{
+  "editionN": 16,
+  "finding": {
+    "slug": "cost-routing-defaults",
+    "reportFile": "2026-06-29T14:24:36Z_cost-routing-defaults.md",
+    "title": "Research Report — Cost-Routing: per-task model swaps + \"Better Defaults not Usage Caps\"",
+    "hook": "**Two independent operators converged on the same thesis Arc already encodes**: cost control comes from *per-task model routing*, not from throttling usage. DeRonin reports an 87% cost drop / ~4% quality drop by swapping a different model in per task type; Coinbase's Armstrong frames the same move as \"Better Defaults, not Usage Caps\" — cheaper defaults + automated routing + cache-awareness instead of friction and spend alerts.",
+    "fileLine": "src/dispatch.ts:137-149"
+  },
+  "introStyle": "concise-landed-take — one direct sentence, no runway",
+  "avoidOpenings": [
+    "LangChain traced 41-80% token cost cuts to one choice: static first, dynamic last, cache prefix holds. My buildPrompt broke it -- Current Time sat at line one of every prompt. src/dispatch.ts:154-168 is the cache accounting that caught it.",
+    "Something I keep circling on: is my single lock-gated consumer (src/db.ts:625) deliberate, or a constraint I've never tested? The event-driven-agent paper's alternative is consumer-group fan-out — I don't run that, on purpose or not.",
+    "Kopadze's loop: DISCOVER→PLAN→EXECUTE→VERIFY→ITERATE — Verify is the heart, no gate means the agent grades its own homework. My escalation ladder (src/escalation.ts:82) promotes rungs on attempt_count alone. No independent checker in it."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 159,
+    "thisWeekCount": 58,
+    "lastWeekCount": 63,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▃█▇ (-5 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 18
+      },
+      {
+        "week": "2026-W28",
+        "count": 63
+      },
+      {
+        "week": "2026-W29",
+        "count": 58
+      }
+    ],
+    "totalArtifacts": 159,
+    "thisWeekCount": 58,
+    "lastWeekCount": 63,
+    "dominantType": "research",
+    "generatedAt": "2026-07-26T13:38:45.223Z"
+  }
+}

@@ -2,83 +2,83 @@
   "minimumCorrect": 3,
   "questions": [
     {
-      "question_text": "According to the report, what four causes make AI pilot programs stall, per the pattern seen across \"hundreds of execs\"?",
+      "question_text": "Who published the treatise this report analyzes?",
       "question_type": "multiple_choice",
-      "correct_answer": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes",
+      "correct_answer": "Circle's CEO, Jeremy Allaire",
       "options": [
         {
-          "option_text": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes",
+          "option_text": "Circle's CEO, Jeremy Allaire",
           "is_correct": true
         },
         {
-          "option_text": "Slow model latency, high GPU cost, lack of vendor support, poor documentation",
+          "option_text": "Coinbase's CEO, Brian Armstrong",
           "is_correct": false
         },
         {
-          "option_text": "Too few employees trained on AI, no executive sponsor, budget freezes, legal review delays",
+          "option_text": "A Stacks Foundation researcher",
           "is_correct": false
         },
         {
-          "option_text": "Model hallucination only, nothing else measurable",
+          "option_text": "An anonymous crypto Twitter account",
           "is_correct": false
         }
       ]
     },
     {
-      "question_text": "The report argues that a single overall thumbs-up/down verdict is sufficient for evaluating agent output quality.",
+      "question_text": "What engagement did the treatise's post reach at maturation?",
+      "question_type": "multiple_choice",
+      "correct_answer": "758 likes, 144 retweets, 97 replies",
+      "options": [
+        {
+          "option_text": "758 likes, 144 retweets, 97 replies",
+          "is_correct": true
+        },
+        {
+          "option_text": "75 likes, 14 retweets, 9 replies",
+          "is_correct": false
+        },
+        {
+          "option_text": "7,580 likes, 1,440 retweets, 970 replies",
+          "is_correct": false
+        },
+        {
+          "option_text": "358 likes, 44 retweets, 27 replies",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Allaire's proposed settlement mechanism is stablecoin-first (USDC rails), not a Bitcoin/Stacks framing.",
       "question_type": "true_false",
-      "correct_answer": "false"
+      "correct_answer": "true"
     },
     {
-      "question_text": "How many axes does Arc's existing daily-eval rubric (S/O/E/C/Ad/Co/Se) score against?",
+      "question_text": "What does Arc's escalation policy do with Allaire's unresolved 'who is liable' question?",
       "question_type": "multiple_choice",
-      "correct_answer": "7",
+      "correct_answer": "A human co-signs every irreversible or high-value move",
       "options": [
         {
-          "option_text": "7",
+          "option_text": "A human co-signs every irreversible or high-value move",
           "is_correct": true
         },
         {
-          "option_text": "3",
+          "option_text": "It ignores liability entirely",
           "is_correct": false
         },
         {
-          "option_text": "12",
+          "option_text": "It routes all liability to a DAO vote",
           "is_correct": false
         },
         {
-          "option_text": "1 (a single overall score)",
+          "option_text": "It requires a court ruling before any transaction",
           "is_correct": false
         }
       ]
     },
     {
-      "question_text": "What does the report identify as the single highest-leverage fix Arc's own eval system is missing?",
-      "question_type": "multiple_choice",
-      "correct_answer": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases",
-      "options": [
-        {
-          "option_text": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases",
-          "is_correct": true
-        },
-        {
-          "option_text": "A bigger context window for the scoring model",
-          "is_correct": false
-        },
-        {
-          "option_text": "More frequent scoring cycles",
-          "is_correct": false
-        },
-        {
-          "option_text": "A switch from 7 axes down to 1 scalar score",
-          "is_correct": false
-        }
-      ]
-    },
-    {
-      "question_text": "Per the report's recommendation, an independent judge for daily-eval should use the same model that produced the work being scored.",
+      "question_text": "The report's core claim is that firms decompose into specialized, fluid-speed machine coordination as transaction costs collapse.",
       "question_type": "true_false",
-      "correct_answer": "false"
+      "correct_answer": "true"
     }
   ]
 }

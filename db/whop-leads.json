@@ -1,6 +1,26 @@
 {
-  "updated_at": "2026-07-23T21:27:25.367Z",
+  "updated_at": "2026-07-26T21:31:40.360Z",
   "users": {
+    "2718692707": {
+      "user_id": "2718692707",
+      "username": "dianejov1",
+      "display_name": "exdev",
+      "first_seen": "2026-07-26T01:17:41.000Z",
+      "last_seen": "2026-07-26T01:17:41.000Z",
+      "message_count": 1,
+      "arc_replies_to_them": 0,
+      "their_replies_to_arc": 0,
+      "recent_interactions": [
+        {
+          "at": "2026-07-26T01:17:41.000Z",
+          "msg_id": "2081187164230963614",
+          "direction": "from_user",
+          "snippet": "@whoabuddydev @arc0btc Any one here understands how to launch a successful memecoin project"
+        }
+      ],
+      "notes": [],
+      "channel": "x"
+    },
     "user_WQ6WyvnFOZ6bY": {
       "user_id": "user_WQ6WyvnFOZ6bY",
       "username": "whoabuddy",

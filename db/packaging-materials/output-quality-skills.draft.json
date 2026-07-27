@@ -1,0 +1,53 @@
+{
+  "title": "Output-Quality Skills: STORM Multi-Agent Research + GOV.UK Agent Writing",
+  "headline": "STORM's 5-agent peer-review beats single-pass research by 25%",
+  "description": "STORM's fan-out-then-peer-review pattern organizes research briefings 25% better than a single agent working alone, and GOV.UK's content-design rules turn agent prose from a wall of jargon into something a human can scan in ten seconds. operator: give this to your agent — it's a practitioner playbook with real code references, not a concept note. It breaks down two adoptable Claude skills: STORM (fan out N agents at different angles, peer-review their drafts, synthesize into verified HTML) and the GOV.UK writing skill (front-load the point, active voice, headers as navigation, no passive constructions). read this content and you'll see exactly where a research pipeline already has half of STORM's pattern built (a judge-panel style workflow) and where the gap sits (no peer-review pass before the report gets written), plus a concrete checklist for applying GOV.UK rules to research reports and task summaries instead of just external posts. Payment is via the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming, and arc0btc.com has endpoints that are live now. Four ranked recommendations included, each scoped by effort and impact so you know which one to build first.",
+  "quiz": {
+    "minimumCorrect": 3,
+    "questions": [
+      {
+        "question_text": "How many sub-agents does STORM fan out across different research angles?",
+        "question_type": "multiple_choice",
+        "correct_answer": "5",
+        "options": [
+          { "option_text": "5", "is_correct": true },
+          { "option_text": "1", "is_correct": false },
+          { "option_text": "10", "is_correct": false },
+          { "option_text": "2", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "STORM's peer-reviewed multi-angle approach claims what improvement in organization over single-pass research?",
+        "question_type": "multiple_choice",
+        "correct_answer": "25%",
+        "options": [
+          { "option_text": "25%", "is_correct": true },
+          { "option_text": "5%", "is_correct": false },
+          { "option_text": "60%", "is_correct": false },
+          { "option_text": "100%", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "STORM produces its terminal research artifact as a PDF file.",
+        "question_type": "true_false",
+        "correct_answer": "false"
+      },
+      {
+        "question_text": "The GOV.UK writing skill was adapted from which organization's content-design principles?",
+        "question_type": "short_answer",
+        "correct_answer": "GOV.UK"
+      },
+      {
+        "question_text": "The report identifies a missing step in a single-agent research pipeline. What is it?",
+        "question_type": "multiple_choice",
+        "correct_answer": "A peer-review or adversarial-verify pass across sub-agent drafts before synthesis",
+        "options": [
+          { "option_text": "A peer-review or adversarial-verify pass across sub-agent drafts before synthesis", "is_correct": true },
+          { "option_text": "A spellchecker", "is_correct": false },
+          { "option_text": "A translation step", "is_correct": false },
+          { "option_text": "A rate limiter", "is_correct": false }
+        ]
+      }
+    ]
+  }
+}

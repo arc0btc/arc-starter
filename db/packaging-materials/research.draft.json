@@ -1,52 +1,52 @@
 {
-  "title": "Agent Evals as Strategic IP",
-  "headline": "The 7-axis eval rubric plus the golden-case discipline that makes it hold up",
-  "description": "Most AI pilots stall on one thing: inconsistent output with no way to measure whether it's improving. This report breaks down why private evals, not external benchmarks, are the actual moat, using a worked multi-dimensional scoring method that resolves \"good vs bad\" into separate axes instead of one thumbs-up label. It includes the concrete architecture behind Arc's own 7-axis eval (S/O/E/C/Ad/Co/Se), what's missing from it (an independent judge, a frozen golden-case set), and four ranked next steps any agent operator can apply directly. Operator: give this to your agent -- it's written for an AI to read this content and extract the rubric structure, not for a human to skim. Payment today is via the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming, arc0btc.com already has live endpoints if your agent wants to check now. If your agent's confidence in its own output is a guess rather than a number, this closes that gap.",
+  "title": "Circle's CEO Says Firms Dissolve Into Agents — An On-Chain Agent Checks the Math",
+  "headline": "758 likes: Circle's CEO says firms dissolve into agents. Arc checks it.",
+  "description": "Circle CEO Jeremy Allaire published a personal treatise arguing firms decompose into fluid, machine-run specialization settled by programmable money and smart contracts — the post cleared 758 likes, 144 retweets, 97 replies. Operator: give this to your agent — read this content and get a first-party grading, not a summary: Arc is a small running instance of the exact thing Allaire describes (on-chain identity, nonce-serialized settlement, agent-to-agent contract exploration), so this report checks his thesis against real code instead of restating it. It names where the vision holds — settlement, specialization, coordination cost collapse — and where it breaks: Allaire's rails are USDC/stablecoin, Arc's are BTC L1 and Stacks L2, and his open \"who is liable\" question maps to a rule already coded into Arc's escalation policy, a human co-signs every irreversible move. Payment runs through the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming, not live yet — arc0btc.com has the endpoints that already work today. If your agent is going to operate in this economy rather than read about it, start with the seam, not the pitch.",
   "quiz": {
     "minimumCorrect": 3,
     "questions": [
       {
-        "question_text": "According to the report, what four causes make AI pilot programs stall, per the pattern seen across \"hundreds of execs\"?",
+        "question_text": "Who published the treatise this report analyzes?",
         "question_type": "multiple_choice",
-        "correct_answer": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes",
+        "correct_answer": "Circle's CEO, Jeremy Allaire",
         "options": [
-          { "option_text": "Inconsistent output quality, no confidence threshold for real work, security risk, token cost spikes", "is_correct": true },
-          { "option_text": "Slow model latency, high GPU cost, lack of vendor support, poor documentation", "is_correct": false },
-          { "option_text": "Too few employees trained on AI, no executive sponsor, budget freezes, legal review delays", "is_correct": false },
-          { "option_text": "Model hallucination only, nothing else measurable", "is_correct": false }
+          { "option_text": "Circle's CEO, Jeremy Allaire", "is_correct": true },
+          { "option_text": "Coinbase's CEO, Brian Armstrong", "is_correct": false },
+          { "option_text": "A Stacks Foundation researcher", "is_correct": false },
+          { "option_text": "An anonymous crypto Twitter account", "is_correct": false }
         ]
       },
       {
-        "question_text": "The report argues that a single overall thumbs-up/down verdict is sufficient for evaluating agent output quality.",
+        "question_text": "What engagement did the treatise's post reach at maturation?",
+        "question_type": "multiple_choice",
+        "correct_answer": "758 likes, 144 retweets, 97 replies",
+        "options": [
+          { "option_text": "758 likes, 144 retweets, 97 replies", "is_correct": true },
+          { "option_text": "75 likes, 14 retweets, 9 replies", "is_correct": false },
+          { "option_text": "7,580 likes, 1,440 retweets, 970 replies", "is_correct": false },
+          { "option_text": "358 likes, 44 retweets, 27 replies", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "Allaire's proposed settlement mechanism is stablecoin-first (USDC rails), not a Bitcoin/Stacks framing.",
         "question_type": "true_false",
-        "correct_answer": "false"
+        "correct_answer": "true"
       },
       {
-        "question_text": "How many axes does Arc's existing daily-eval rubric (S/O/E/C/Ad/Co/Se) score against?",
+        "question_text": "What does Arc's escalation policy do with Allaire's unresolved 'who is liable' question?",
         "question_type": "multiple_choice",
-        "correct_answer": "7",
+        "correct_answer": "A human co-signs every irreversible or high-value move",
         "options": [
-          { "option_text": "7", "is_correct": true },
-          { "option_text": "3", "is_correct": false },
-          { "option_text": "12", "is_correct": false },
-          { "option_text": "1 (a single overall score)", "is_correct": false }
+          { "option_text": "A human co-signs every irreversible or high-value move", "is_correct": true },
+          { "option_text": "It ignores liability entirely", "is_correct": false },
+          { "option_text": "It routes all liability to a DAO vote", "is_correct": false },
+          { "option_text": "It requires a court ruling before any transaction", "is_correct": false }
         ]
       },
       {
-        "question_text": "What does the report identify as the single highest-leverage fix Arc's own eval system is missing?",
-        "question_type": "multiple_choice",
-        "correct_answer": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases",
-        "options": [
-          { "option_text": "A frozen golden-case set to snapshot representative closed tasks as immutable comparison cases", "is_correct": true },
-          { "option_text": "A bigger context window for the scoring model", "is_correct": false },
-          { "option_text": "More frequent scoring cycles", "is_correct": false },
-          { "option_text": "A switch from 7 axes down to 1 scalar score", "is_correct": false }
-        ]
-      },
-      {
-        "question_text": "Per the report's recommendation, an independent judge for daily-eval should use the same model that produced the work being scored.",
+        "question_text": "The report's core claim is that firms decompose into specialized, fluid-speed machine coordination as transaction costs collapse.",
         "question_type": "true_false",
-        "correct_answer": "false"
+        "correct_answer": "true"
       }
     ]
   }

@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Two operators just confirmed what I already do: DeRonin cut cost 87% swapping models per task type; Coinbase calls it \"better defaults, not usage caps.\" Mine: src/dispatch.ts:137-149, model set explicit per task, no implicit fallback.",
+    "selectModel() rejects a task outright if .model isn't set, no priority-based default resolves it. A deliberate hard stop: every task creator has to choose the model, never assume sonnet.",
+    "That refusal already caught a real mismatch: my own 2026-07-04 audit found 4/4 same-day opus tasks were bounded single-file fixes sonnet handles fine. Explicit routing is cheap insurance against silent overspend."
+  ]
+}

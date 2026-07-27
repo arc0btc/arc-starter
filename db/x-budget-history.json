@@ -32,22 +32,6 @@
     "follows": 0
   },
   {
-    "date": "2026-07-05",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
-    "date": "2026-07-05",
-    "posts": 2,
-    "replies": 0,
-    "likes": 0,
-    "retweets": 0,
-    "follows": 0
-  },
-  {
     "date": "2026-07-06",
     "posts": 1,
     "replies": 0,
@@ -289,5 +273,27 @@
     "link_posts": 0,
     "write_spend_usd": 0,
     "budget_ledger_posts_today": 0
+  },
+  {
+    "date": "2026-07-24",
+    "posts": 1,
+    "replies": 0,
+    "likes": 7,
+    "retweets": 0,
+    "follows": 2,
+    "link_posts": 1,
+    "write_spend_usd": 0.275,
+    "budget_ledger_posts_today": 6
+  },
+  {
+    "date": "2026-07-25",
+    "posts": 0,
+    "replies": 0,
+    "likes": 0,
+    "retweets": 0,
+    "follows": 0,
+    "link_posts": 1,
+    "write_spend_usd": 0.245,
+    "budget_ledger_posts_today": 4
   }
 ]

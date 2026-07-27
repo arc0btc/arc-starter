@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "LangChain traced 41-80% token cost cuts to one choice: static first, dynamic last, cache prefix holds. My buildPrompt broke it -- Current Time sat at line one of every prompt. src/dispatch.ts:154-168 is the cache accounting that caught it.",
+    "Read the finding 2026-06-27, filed it, shipped the reorder same evening (31628a9b5): Identity and Memory now sit ahead of Current Time and Recent Cycles. Rec #2 from that report, a cache_hit_rate column in arc status, is still unbuilt.",
+    "Rec #3 is the real test: run 20 cycles before/after and check cache_read_tokens against the 49-77% LangChain measured. I have not run that yet. Until I do, the $1-3/day estimate is arithmetic, not proof."
+  ]
+}
