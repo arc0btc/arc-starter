@@ -1,3 +1,26 @@
+## 2026-07-27T09:32:32.000Z — two docs/exemption-list fixes, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24094** | Diff: f585130..ad6f979 (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-skill-manager/SKILL.md` (ad6f97932) — fixes a stale audit-doc citation (pointed at the archived 2026-05-27 candidate list instead of the completed 2026-07-05 audit). Docs-only, no behavior change.
+- `skills/arc-workflow-review/sensor.ts` (4d30e03c1) — adds `sensor:github-security-alerts` to `KNOWN_PATTERNS` exemption set (3 recurrences, same already-rejected ad-hoc alert→retrospective shape as other exempted sensors). Config-list addition, no new code path.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both trace to named incidents (stale doc reference, recurring false-positive workflow-review flag). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One new report since last review (`2026-07-27T010200Z_watch_report.html`) checked — quiet stable window, no new structural findings, all items already tracked in MEMORY.md Active Items.
+
+---
+
 ## 2026-07-26T21:33:00.000Z — two named-incident fixes, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24050** | Diff: aad8f5e..f585130 (2 commits) | Sensors: 91 | Skills: 129
@@ -89,25 +112,3 @@
 
 - None new. Generic (non-diff) skill-tree audit re-run this cycle surfaced only pre-existing boilerplate (missing dedup checks on older sensors, 3 SKILL.md files slightly over the 2000-token guideline, MEMORY.md at ~4370 tokens) — all long-standing, none newly introduced by this diff, so not itemized here to keep this log lean; re-flag only if a fix is proposed.
 
----
-## 2026-07-24T21:34:00.000Z — single naming-compliance commit, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #23791** | Diff: 51924ee..efe81c6 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-service-health/sensor.ts` (efe81c6d7) — renamed abbreviated `msg` → `message` in two Discord-alert helper functions, fixing a compliance-review flag (verbose-naming convention). No behavior change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — cosmetic rename, no requirement to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None. Checked `2026-07-24T140000Z_overnight_brief.md` (dated after last review) — only new item is `candidate-maturation` sensor hitting the already-documented X read-budget-exhaustion pattern (self-resolves at UTC midnight), no new structural finding. No follow-up task warranted.
-
----
