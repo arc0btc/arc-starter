@@ -1,3 +1,25 @@
+## 2026-07-27T21:33:09.000Z — one mechanical prompt-hardening fix, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24144** | Diff: ad6f979..847ac71 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/social-x-posting/sensor.ts` (847ac7170, #24113→#24114) — `runCadenceBeat`'s task template now requires dispatched sessions to paste the literal `reserve-group` stdout into `result_summary`/`result_detail` for both deferrals and successes. Root cause of the recurring "budget_exhausted" deferrals (investigated #24113): dispatched agents were pattern-matching the memory-note phrasing ("recurring pattern per #24016") instead of actually running the reservation CLI — `outbound_action` had zero real `sensor:x-cadence%` rows ever. Task-prompt text change only, no code path added or removed.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named incident (#24113 investigation found the admission layer was never actually invoked). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two reports checked since last review: `2026-07-27T130033Z_watch_report.html` and `2026-07-27T130646Z_overnight_brief.md`. Both quiet — clean overnight (35 tasks, 0 failed), a near-miss (untracked reverted blog post caught before redeploy, already tracked as [[blog-deploy-untracked-reverted-content-resurrection]]), an OAuth expiry alert (#24076) correctly handled without self-reauth, and a reserve-group deferral at 12:53Z that predates this cycle's 13:22Z fix landing (expected, not a regression). No new structural findings.
+
+---
+
 ## 2026-07-27T09:32:32.000Z — two docs/exemption-list fixes, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24094** | Diff: f585130..ad6f979 (2 commits) | Sensors: 91 | Skills: 129
@@ -86,29 +108,4 @@
 ### Flags
 
 - None new. Watch report (`2026-07-25T130234Z_watch_report.html`) checked for CEO/whoabuddy feedback — only boilerplate section headers matched (ceo/escalat/whoabuddy strings), no new actionable content beyond what's already tracked in MEMORY.md's Active Items.
-
----
-
-## 2026-07-25T09:30:00.000Z — five named-incident fixes, one net-new read-only engagement query; 129 skills / 91 sensors (unchanged)
-
-**Task #23871** | Diff: efe81c6..883abce (5 substantive commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/nostr/{SKILL.md,cli.ts,engagement.ts}` (883abcee) — new `engagement fetch` subcommand queries relays read-only (kind:7/1/9735) for every posted event, upserts into new `nostr_engagement` table. Correctly runs in-process (no wallet unlock needed for reads), mirroring the existing signing-isolation pattern in `nostr-runner.ts`. Not sensor-scheduled yet — on-demand only, by design.
-- `skills/whop/SKILL.md` (7e4753648) — doc-drift fix: reply/synthesis lanes were documented as dry-run-by-default but are actually live-by-default in `sensor.ts` (`WHOP_REPLY_DRY_RUN` hardcoded `false`, `WHOP_SYNTHESIS_DRY_RUN` only true if explicitly set). Docs now match code; no behavior change. Worth a glance at whether MEMORY.md's Whop summary still implies dry-run-first — it doesn't contradict, but doesn't state the live default either.
-- `skills/arc-cost-reporting/sensor.ts` (790583a60, 715c81b0b) — fixes bun:sqlite param binding (`db.query(sql, [today])` silently ignored params; params must go on `.get()`/`.all()` instead) and adds an explicit "no tool calls needed" instruction to the pre-computed report body. Both close standing MEMORY.md-tracked gaps (`bun-sqlite-query-params-silent-noop`, `arc-cost-reporting-bash-disallowed-zero-data-2026-07-24`, #23810).
-- `skills/council-distill/sensor.ts` (f0debd2f0) — `<` → `<=` off-by-one on the stale-digest skip window, closing an exact-7d re-queue edge case.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: All five commits trace to a named incident, follow-up task, or standing memory flag. No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None new. Generic (non-diff) skill-tree audit re-run this cycle surfaced only pre-existing boilerplate (missing dedup checks on older sensors, 3 SKILL.md files slightly over the 2000-token guideline, MEMORY.md at ~4370 tokens) — all long-standing, none newly introduced by this diff, so not itemized here to keep this log lean; re-flag only if a fix is proposed.
 
