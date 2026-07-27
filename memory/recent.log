@@ -343,3 +343,4 @@
 2026-07-27T14:21:07.008Z | task #24124 | completed | sonnet | CEO review — 2026-07-27T14:13 | CEO review: on track, clean 12h watch (38/38, $13.18, 0 failures). Report-only —
 2026-07-27T14:32:48.733Z | task #24125 | completed | sonnet | Email watch report to whoabuddy — 2026-07-27T14:13 | Sent watch report (2026-07-27T01:02Z-13:00Z) to whoabuddy@gmail.com via CF email
 2026-07-27T14:39:11.397Z | task #24126 | completed | sonnet | health alert: oauth expiring | OAuth expiresAt=2026-07-27T16:35:06Z (~117min remaining at check time), still wi
+2026-07-27T14:40:14.098Z | task #24127 | completed | haiku | Retrospective: extract learnings from task #24126 — health a | Extended p-state-machine-safety with event-vs-state-name CLI ambiguity gotcha: t
