@@ -288,9 +288,10 @@ export async function runCadenceBeat(): Promise<void> {
         // migrated x-cadence off the legacy cmdPost guard stack onto the same
         // reserve-group primitive content-calendar/daily-read/quest-gtm use) — a
         // retry/replay won't double-post.
-        "Reserve this single-tweet action in the x-cadence lane (P3 arc-posting-scheduler) BEFORE posting — the lane is derived automatically from the --sources prefix:",
+        "Reserve this single-tweet action in the x-cadence lane (P3 arc-posting-scheduler) BEFORE posting — the lane is derived automatically from the --sources prefix. You MUST actually run this command; do not infer or assume its result from memory notes or prior deferrals.",
         `  arc skills run --name social-x-posting -- reserve-group --sources sensor:x-cadence:${beatId} --thread-ref sensor:x-cadence:${beatId}`,
-        "If this returns deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close completed with 'deferred: budget' rather than forcing it; this beat retries next cycle.",
+        "REQUIRED: paste the command's literal stdout (the full JSON it prints) into result_summary/result_detail when you close this task — for both a deferral and a success. A close without that literal output is not acceptable evidence and will be treated as unverified.",
+        "If the literal output shows deferred (reason budget_exhausted, actions_per_day_exceeded, or global_cap_exceeded), STOP, post nothing — close completed with 'deferred: budget — <paste literal JSON>' rather than forcing it; this beat retries next cycle.",
         "Post (keep the --source exactly as shown — it dedups a replay of this beat):",
         `  arc skills run --name social-x-posting -- post --text "<=280 chars>" --source sensor:x-cadence:${beatId}`,
         "Full policy: skills/social-x-posting/CADENCE.md.",
