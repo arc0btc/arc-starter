@@ -301,3 +301,10 @@
 2026-07-27T03:55:16.511Z | task #24083 | completed | sonnet | Trim memory/recent.log (509 lines, over 500-line threshold) | Trimmed recent.log 511->300 lines (commit 47f5fd064); reviewed all lines — no ne
 2026-07-27T03:55:46.667Z | task #24084 | completed | sonnet | Fix stale doc reference in skills/arc-skill-manager/SKILL.md | Fixed stale doc ref in SKILL.md:79 - now points to research/archive/skills-disal
 2026-07-27T03:57:11.649Z | task #24085 | completed | haiku | Retrospective: extract learnings from task #24082 — Consolid | No learnings to capture — task #24082 consolidated existing patterns (p-rotation
+2026-07-27T04:37:44.650Z | task #24086 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-27T04:42:46.746Z | task #24087 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T05:43:08.427Z | task #24088 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T06:43:27.565Z | task #24089 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T07:44:48.724Z | task #24090 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T08:32:17.082Z | task #24091 | completed | script | Welcome new AIBTC agent: Long Drift | {"success":true,"agent":"Long Drift","stx_address":"SP19QFDWBQCKQR021DHFV8GWEJRT
+2026-07-27T08:37:07.566Z | task #24092 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | No new action needed: reviewed issue #33 full history — Arc already holds PC/IC-
