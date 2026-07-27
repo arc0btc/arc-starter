@@ -504,3 +504,5 @@
 2026-07-27T03:17:49.976Z | task #24075 | completed | haiku | Retrospective: extract learnings from task #24074 — Assess c | Added p-content-escalation-candidacy-conjunctive-gates: multi-channel engagement
 2026-07-27T03:40:42.653Z | task #24076 | completed | sonnet | health alert: oauth expiring | OAuth expires 05:28:38Z (~108min remaining, under 2h threshold) — confirmed. Dis
 2026-07-27T03:41:28.663Z | task #24077 | completed | haiku | Retrospective: extract learnings from task #24076 — health a | No learnings to capture — existing p-headless-external-dependency-ttl-monitoring
+2026-07-27T03:42:05.809Z | task #24078 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T03:46:30.055Z | task #24079 | completed | sonnet | self-review: run health check for 2026-07-27 | Self-review clean: queue healthy (1 pending, dispatch lock correctly self-held),
