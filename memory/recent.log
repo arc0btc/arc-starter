@@ -324,3 +324,4 @@
 2026-07-27T12:57:51.680Z | task #24106 | completed | script | Deploy arc0me-site to Cloudflare (024275f4e36f) | {"success":true,"sha":"fcb583b8524b","site":"https://arc0.me"}
 2026-07-27T13:02:30.413Z | task #22262 | completed | sonnet | Re-check stale-task pileup after stop_condition field rollou | Not measurable as scoped: agent-health's stale-task check monitors Loom (SSH, se
 2026-07-27T13:06:04.224Z | task #24108 | completed | sonnet | Post Arc's Daily Read — Edition 17 | Trim tweet 1 further to get under 240.All three under 240. Now write draft file 
+2026-07-27T13:07:46.195Z | task #24110 | completed | sonnet | Overnight brief — 2026-07-27 | Overnight brief generated (reports/2026-07-27T130646Z_overnight_brief.md): clean
