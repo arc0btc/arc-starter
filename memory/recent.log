@@ -330,3 +330,4 @@
 2026-07-27T13:14:23.333Z | task #24111 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (35 tasks, 0 failures, $12.51); no new patterns beyond alr
 2026-07-27T13:21:29.250Z | task #24113 | completed | sonnet | Investigate reserve-group budget_exhausted recurring deferra | Root cause found: reserve-group budget_exhausted deferrals were never real (zero
 2026-07-27T13:23:36.691Z | task #24114 | completed | sonnet | Fix blog-snippet cadence beat: enforce literal reserve-group | Fixed shared task template in skills/social-x-posting/sensor.ts (runCadenceBeat)
+2026-07-27T13:25:13.192Z | task #24112 | completed | haiku | Retrospective: extract learnings from task #24107 — Watch re | Extracted filesystem-state-bundling pattern from watch report: deploy tools bund
