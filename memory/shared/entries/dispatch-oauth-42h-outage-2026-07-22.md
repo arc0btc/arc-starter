@@ -63,3 +63,10 @@ re-auth was a manual operator action, not an automated token refresh — "recove
 (the open question above about whether the refresh path itself is flaky) is still
 unconfirmed and is a distinct claim from advance-warning working. Treat those two as separate
 tracking items going forward if either regresses.
+
+**Second confirmation, 2026-07-26 (#24042):** alert fired again — "OAuth token expires
+2026-07-26T19:53:34Z (~8min)" — task correctly failed rather than attempting a non-interactive
+`claude /login` (which cannot succeed headless). Dispatch cycles resumed normally within
+minutes (#24058 onward, same evening) with no stale-cycle gap, confirming the operator re-authed
+in time again. Two-for-two on advance warning working; recovery-path stability (automated
+refresh vs. manual re-auth) still unconfirmed — no change to that open question.
