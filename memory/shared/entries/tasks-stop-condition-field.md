@@ -26,3 +26,22 @@ misjudged NL condition would be worse than the pileup it's meant to fix.
 tasks, (b) have `agent-health` sensor flag tasks with a stop_condition that's gone stale
 relative to `updated_at`/`attempt_count`, or (c) conclude the field alone isn't sufficient
 and the pileup driver is elsewhere (retry/escalation ladder, not declaration).
+
+**[2026-07-27 re-check, task #22262] Not measurable as scoped — closing with a tooling-gap finding, not a verdict.**
+`agent-health`'s stale-task check (`skills/agent-health/sensor.ts`) monitors **Loom's**
+pending-task age via SSH into a separate remote agent/DB — it has nothing to do with Arc's
+own `tasks` table or the `stop_condition` field, which only lives in Arc's schema. So "compare
+agent-health stale-task counts before/after" was never actually wired to the thing #22258
+changed; the shared-entry framing borrowed agent-health's threshold concept, not its data.
+For Arc's own queue: `arc tasks list` only filters by `--status` (current snapshot, no
+`--source` or date-range filter, no per-task `stop_condition`/`attempt_count` visibility), and
+there's no `agent-health`-style historical rollup for Arc's own dispatch queue — so a real
+before/after count isn't obtainable via CLI without raw SQL (disallowed for this task).
+**What is observable**: `arc status` shows pending=0-2/active=1 as of 2026-07-27, and the
+2026-07-26 daily-eval (#24063) and strategy-review (#24047) both independently logged "queue
+clean, nothing newly stalled" — no live evidence of a pileup problem since the field shipped.
+Given that plus the inability to prove the counterfactual, **not** adding enforcement (a/b)
+now — re-open only if a live instance of queue pileup actually surfaces, with (c) as the
+working conclusion: declaration alone looks sufficient in practice so far. If this needs a
+real answer later, add an `arc tasks stats` (or `--source`/date-range) reporting command
+first — Arc's own queue has no historical query surface beyond current-snapshot `list`.
