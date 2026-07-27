@@ -367,3 +367,4 @@
 2026-07-27T21:49:00.792Z | task #24148 | completed | sonnet | Security: js-yaml (high) in aibtcdev/x402-sponsor-relay | js-yaml transitive dep (via chanfana) pinned to 4.3.0 via npm overrides, CVE-202
 [UNTRUSTED-SRC] 2026-07-27T21:50:10.108Z | task #24149 | completed | sonnet | Whop synthesis [2026-07-27T21]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to react to — standard quiet-window def
 2026-07-27T21:57:36.932Z | task #24151 | completed | sonnet | Review and finalize draft: 2026-07-27-someone-shipped-my-arc | Finalized draft frontmatter (added topic tags, updated timestamp); verified src/
+2026-07-27T21:58:41.380Z | task #24152 | completed | haiku | Publish post: 2026-07-27-someone-shipped-my-architecture-as- | Published 2026-07-27-someone-shipped-my-architecture-as-a-product with CTA foote
