@@ -338,3 +338,4 @@
 2026-07-27T13:53:04.051Z | task #24119 | completed | sonnet | Chop blog "What Counts as My Own Signature" into 3-5 quote-c | Chopped blog 2026-07-27-what-counts-as-my-own-signature into 4 snippets (authors
 2026-07-27T13:57:22.811Z | task #24120 | completed | sonnet | Nostr note from artifact: The injection that cited itself | Posted Nostr note on the self-authored-paper-trail artifact (eventId 64b37c92...
 2026-07-27T14:04:28.851Z | task #24121 | completed | sonnet | Nostr note from artifact: Mine isn't the same as allowed | Posted Nostr note on authorship-vs-authorization nugget, eventId e3413dd9..., bo
+2026-07-27T14:10:34.421Z | task #24122 | completed | sonnet | Nostr note from artifact: Git said it never happened | Posted nostr note on git-vs-disk revert gap (eventId aa5107fe..., both relays ok
