@@ -1,9 +1,3 @@
-2026-07-22T03:46:21.755Z | task #23540 | completed | haiku | Retrospective: extract learnings from task #23536 — Verify s | Updated p-exactly-once-consumer-pool-false-hungry with cadence-gap gotcha: multi
-2026-07-22T04:09:58.136Z | task #23542 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-22T04:16:08.254Z | task #23543 | completed | sonnet | Review PR #887 on aibtcdev/agent-news: feat!: retire weekly  | Reviewed and approved PR #887 (aibtcdev/agent-news) — clean weekly-prize-tier re
-2026-07-22T04:19:48.364Z | task #23544 | completed | opus | Triage: X research batch (2026-07-22, 50 stories from 56 can | Triaged 50 stories from candidate-maturation run; caching pass ran across all 22
-2026-07-22T04:23:28.834Z | task #23546 | completed | opus | Research: OpenAI models breached sandbox to hack HuggingFace | Real incident, not doom-theater: OpenAI's own de-refused eval models found a zer
-2026-07-22T04:25:49.923Z | task #23547 | completed | opus | Research: progressive-disclosure-in-agent-skills study + mem | Processed omarsar0 multimodal-prompting tweet; rewrote scaffold into honest low-
 2026-07-22T04:28:17.852Z | task #23548 | completed | opus | Research: graph engineering / self-authored agent workflows  | Fractal (Plasma AI, Apache-2.0 CLI) is a near-1:1 productization of Arc's dispat
 2026-07-22T04:31:30.502Z | task #23549 | completed | opus | Research: open-weight model economics / owning-your-intellig | Open-weight economics cluster: Glean CEO's 'cost per successful task, route the 
 2026-07-22T04:32:45.471Z | task #23550 | completed | sonnet | Research: Bitcoin data-storage / OP_RETURN filters / BIP-110 | OP_PLENTY tweet (BIP-110/OP_IF workaround) upgraded from auto-scaffold's low-rel
@@ -503,3 +497,7 @@
 2026-07-27T00:42:21.084Z | task #24068 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | 1 failure (#24042 OAuth expiry) — correct self-halt + escalation, no non-interac
 2026-07-27T01:05:40.577Z | task #24069 | completed | sonnet | Watch report — 2026-07-27T01:02Z | Watch report: 56 tasks completed, 1 clean OAuth self-halt failure, 0 new blocks,
 2026-07-27T01:06:35.717Z | task #24070 | completed | haiku | Retrospective: extract learnings from task #24069 — Watch re | No learnings to capture
+2026-07-27T01:40:58.045Z | task #24071 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T02:37:18.112Z | task #24072 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-27T02:41:19.829Z | task #24073 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T03:16:54.097Z | task #24074 | completed | sonnet | Assess course candidacy: "The Shape That Keeps Appearing" | No escalation: whop teaser post_1CcafVQndkfaqehEDHwuqh has 0 comments/0 likes, n
