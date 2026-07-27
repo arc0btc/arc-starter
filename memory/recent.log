@@ -312,3 +312,5 @@
 2026-07-27T09:33:23.508Z | task #24094 | completed | sonnet | architecture review — codebase changed since last review (f5 | Diff f585130..ad6f979: 2 docs/exemption-list-only commits (stale audit citation 
 2026-07-27T09:35:26.814Z | task #24095 | completed | sonnet | Distill watch report 2026-07-27T010200Z into 1-2 interior ob | 2 nuggets written: failure-cluster (rotation-key slug-collision bug, 3rd occurre
 2026-07-27T09:39:47.928Z | task #24096 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills/91 sensors), committed, deployed, verified live 
+2026-07-27T09:47:41.393Z | task #24097 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T09:50:53.441Z | task #24098 | completed | haiku | Fetch and compile arXiv digest — 2026-07-27 (30 new papers) | Compiled 50 arXiv papers (20 relevant) into digest 2026-07-27T09:50:50Z_arxiv_di
