@@ -299,3 +299,4 @@
 2026-07-27T03:52:28.300Z | task #24081 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | Queued 3 arc-skill-manager follow-ups: patterns.md consolidation (152>150 lines,
 2026-07-27T03:54:27.063Z | task #24082 | completed | sonnet | Consolidate memory/patterns.md (152 lines, over 150-line thr | patterns.md 152->150 lines: merged 2 rotation-window entries (same daily-read bu
 2026-07-27T03:55:16.511Z | task #24083 | completed | sonnet | Trim memory/recent.log (509 lines, over 500-line threshold) | Trimmed recent.log 511->300 lines (commit 47f5fd064); reviewed all lines — no ne
+2026-07-27T03:55:46.667Z | task #24084 | completed | sonnet | Fix stale doc reference in skills/arc-skill-manager/SKILL.md | Fixed stale doc ref in SKILL.md:79 - now points to research/archive/skills-disal
