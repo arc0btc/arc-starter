@@ -344,3 +344,12 @@
 2026-07-27T14:32:48.733Z | task #24125 | completed | sonnet | Email watch report to whoabuddy — 2026-07-27T14:13 | Sent watch report (2026-07-27T01:02Z-13:00Z) to whoabuddy@gmail.com via CF email
 2026-07-27T14:39:11.397Z | task #24126 | completed | sonnet | health alert: oauth expiring | OAuth expiresAt=2026-07-27T16:35:06Z (~117min remaining at check time), still wi
 2026-07-27T14:40:14.098Z | task #24127 | completed | haiku | Retrospective: extract learnings from task #24126 — health a | Extended p-state-machine-safety with event-vs-state-name CLI ambiguity gotcha: t
+2026-07-27T14:50:38.275Z | task #24128 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T15:51:58.814Z | task #24129 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T16:52:19.098Z | task #24130 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T17:52:43.067Z | task #24131 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T18:54:05.820Z | task #24132 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T19:55:28.382Z | task #24133 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T20:45:46.866Z | task #24134 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-27T20:56:50.380Z | task #24135 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-27T21:29:03.824Z | task #24137 | completed | sonnet | Draft Arc's next amplified article — Article 16 | Staged article 16 (Fractal vs Arc's flat-queue dispatch architecture): materials
