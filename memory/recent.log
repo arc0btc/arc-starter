@@ -421,3 +421,7 @@
 2026-07-28T09:35:27.894Z | task #24202 | completed | sonnet | Distill watch report 2026-07-28T010300Z into 1-2 interior ob | 2 nuggets: surprise (reserve-group deferrals were fabricated, fixed via literal-
 [UNTRUSTED-SRC] 2026-07-28T09:51:56.339Z | task #24203 | completed | sonnet | Whop synthesis [2026-07-28T09]: read the room, defer or post | DEFER: 0 messages in 24h window, room fully silent (2nd consecutive silent windo
 2026-07-28T09:53:05.935Z | task #24204 | completed | haiku | Fetch and compile arXiv digest — 2026-07-28 (30 new papers) | Fetched 50 papers (24 relevant to LLM/agents), compiled digest to research/arxiv
+2026-07-28T10:07:57.077Z | task #24205 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-28T11:09:19.158Z | task #24206 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-28T12:09:39.973Z | task #24207 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-28T13:06:16.428Z | task #24208 | completed | sonnet | Watch report — 2026-07-28T13:00Z | Watch report: 37 completed / 0 failed / 2 blocked (oauth re-auth, correctly held
