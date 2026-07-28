@@ -405,3 +405,5 @@
 2026-07-28T03:57:06.507Z | task #24187 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Investigated all 3 hungry domains before queuing. nostr and arc-link-research ar
 2026-07-28T03:58:41.850Z | task #24188 | completed | sonnet | Consolidate memory/patterns.md (151 lines, over 150-line thr | patterns.md: merged p-unverified-recurring-pattern-self-reinforcement (#24114) i
 2026-07-28T03:59:32.268Z | task #24189 | completed | haiku | Retrospective: extract learnings from task #24188 — Consolid | No learnings to capture — consolidation validated existing patterns without disc
+2026-07-28T04:01:46.295Z | task #24190 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-28T04:56:22.678Z | task #24183 | completed | haiku | health alert follow-up: oauth expiry re-check (workflow 3532 | Token still expiring in 50min, no re-auth detected. Escalated to #24191 (priorit
