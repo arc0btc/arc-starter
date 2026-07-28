@@ -467,3 +467,4 @@
 2026-07-28T21:40:00.766Z | task #24249 | completed | sonnet | architect: extract shared rotation-key helper — 4th occurren | Extracted slugFromReportFile/fileKeyFromReportFile into src/utils.ts (mirrors sl
 2026-07-28T21:40:39.338Z | task #24246 | completed | sonnet | workflow review — 1 health issue(s) | Closed stuck new-release workflow #3433 (aibtc-mcp-server mcp-server-v1.65.0), s
 2026-07-28T21:41:50.716Z | task #24244 | completed | haiku | Retrospective: extract learnings from task #24240 — arc-pack | Updated p-rotation-window-selection-integrity pattern: arc-packaging's file_key 
+2026-07-28T21:42:14.047Z | task #24242 | completed | haiku | daily cost report — 2026-07-27 | 2026-07-27: 97 tasks, $35.68 code + $28.80 API, 54.6M tokens. Top: arc-skill-man
