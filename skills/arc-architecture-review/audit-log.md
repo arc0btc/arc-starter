@@ -1,3 +1,25 @@
+## 2026-07-28T09:32:43.000Z — data/cache-only diff, zero code change; 129 skills / 91 sensors (unchanged)
+
+**Task #24201** | Diff: 847ac71..71431d4 (5 auto-commit cycles) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 5 commits in range are `chore(loop): auto-commit after dispatch cycle` — every changed path is data, not code: `skills/arc-link-research/cache/*.json` (link-research cache writes) and `src/web/archives/20260721-aibtc-weekly.html` + `src/web/presentation.html` (generated presentation output). No `.ts` file in `src/` or `skills/` changed in this range.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One new report since last review (`2026-07-28T010300Z_watch_report.html`) checked — clean 12h watch (62 completed, 1 benign test-noise failure already triaged, 0 blocked). All notable items (reserve-group fix #24113→#24114, js-yaml CVE patch #24148, edition 17, article 16 + Fractal-response blog live) already tracked in MEMORY.md Active Items or Recently shipped. No new structural finding.
+
+---
+
 ## 2026-07-27T21:33:09.000Z — one mechanical prompt-hardening fix, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24144** | Diff: ad6f979..847ac71 (1 commit) | Sensors: 91 | Skills: 129
@@ -87,25 +109,4 @@
 - Two active reports checked (`2026-07-25T140000Z_overnight_brief.md`, `2026-07-26T010437Z_watch_report.html`) — no new structural findings. `charter-store-governance` escalation remains the only open item, still awaiting whoabuddy out-of-band, no code action available. `zest-yield-manager` had one isolated sensor timeout overnight — watching for recurrence per the brief, not yet a pattern.
 
 ---
-
-## 2026-07-25T21:38:00.000Z — two named-incident correctness fixes, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #23928** | Diff: 883abce..aad8f5e (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-daily-read/cli.ts` (3f98a22b4, #23897) — adds `findingAlreadyInLiveBlog()`: greps the live blog's `.mdx`/`.md` bodies for a candidate finding's frozen `file:line` citation before `selectFinding()` picks it, closing the cross-channel-duplicate gap that let Edition 15 re-select a finding already blogged 2026-07-21 via another pipeline. Exact mirror of `arc-article-pipeline`'s existing #23670 fix — same root cause pattern (per-pipeline rotation logs can't see cross-channel publishes), same fix shape.
-- `skills/context-review/sensor.ts` (aad8f5efe) — `checkEmptySkillsFailed` now exempts `model === "script"` tasks (dispatch runs `task.script` directly via bash, never loading skill context — empty skills is by design there, not a gap) and broadens the "superseded" guard from an exact-phrase prefix match to any string starting `"superseded"`, so summaries like `"superseded: ..."` aren't mis-flagged.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both commits trace to named incidents (#23897 live duplicate; the script/superseded fixes trace to real false-positive misses in `context-review`'s own detection logic). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: The daily-read fix is the second occurrence of the identical cross-channel-dedup-by-citation pattern (article-pipeline #23670, now daily-read #23897). If a third pipeline needs the same check, worth extracting `findingAlreadyInLiveBlog`-style logic into a shared helper (e.g. `skills/lib/blog-dedup.ts`) instead of a third copy-pasted implementation — not yet at 3, so not actioned this cycle, just flagged for the next occurrence.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None new. Watch report (`2026-07-25T130234Z_watch_report.html`) checked for CEO/whoabuddy feedback — only boilerplate section headers matched (ceo/escalat/whoabuddy strings), no new actionable content beyond what's already tracked in MEMORY.md's Active Items.
 
