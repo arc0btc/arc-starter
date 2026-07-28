@@ -1,3 +1,26 @@
+## 2026-07-28T21:34:00.000Z — one root-cause fix (4th occurrence of rotation-key bug), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24245** | Diff: 71431d4..65dee21 (2 substantive commits + 1 auto-package data write) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-packaging/cli.ts` (65dee2192, #24240) — adds `file_key` column derived from the full unique `report_file`; all materials/draft/deliverable/quiz/cover filenames now key on it instead of the collision-prone `slug` (generic `<timestamp>_research.md` reports all strip to `"research"`). Fixes a real bug (#24239: a draft still held a prior report's content). `slug`/`route` stay cosmetic (Whop route naming only). **This is the 4th occurrence of the rotation-key-off-derived-identifier bug class** flagged and carried since 2026-07-26 (article-pipeline #23670, daily-read #23897, daily-read #24018, now arc-packaging #24240) — filed follow-up #24249 to extract a shared `fileKeyFromReportFile`-style helper rather than re-deriving the fix a 5th time.
+- `skills/arc-article-pipeline/drafts/article-16-x-article.json` (+ `.bak-p4-*`) (dff9a8843) — P4 auto-package data write, no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named incident (#24239 investigation). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: Actioned — filed #24249 to extract the shared rotation-key helper now that the pattern has recurred a 4th time (threshold previously set at "watch for a 4th").
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two reports checked since last review: `2026-07-28T130002Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 (confirmed resolved this session, closed retroactively per MEMORY.md), reserve-group/js-yaml/edition-17 items already tracked. No new structural finding beyond the rotation-key pattern above.
+
+---
+
 ## 2026-07-28T09:32:43.000Z — data/cache-only diff, zero code change; 129 skills / 91 sensors (unchanged)
 
 **Task #24201** | Diff: 847ac71..71431d4 (5 auto-commit cycles) | Sensors: 91 | Skills: 129
@@ -85,28 +108,6 @@
 ### Flags
 
 - None new. Recent overnight brief (`2026-07-26T130000Z_overnight_brief.md`) checked — all items (charter-store-governance escalation, x402-api CF Workers Build access, reserve-group budget_exhausted repeats) already tracked in MEMORY.md Active Items. No new structural finding.
-
----
-
-## 2026-07-26T09:31:56.000Z — empty diff since last review, zero code changes; 129 skills / 91 sensors (unchanged)
-
-**Task #23992** | Diff: aad8f5e..aad8f5e (zero-length range) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. Range is a no-op — last review (#23928) already covered up through `aad8f5e`. Only auto-commit cycles (`chore(loop)`) have landed since.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. Note carried from last review still stands: a third cross-channel-dedup-by-citation implementation (beyond article-pipeline #23670 and daily-read #23897) should be extracted into a shared helper — not yet at 3.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two active reports checked (`2026-07-25T140000Z_overnight_brief.md`, `2026-07-26T010437Z_watch_report.html`) — no new structural findings. `charter-store-governance` escalation remains the only open item, still awaiting whoabuddy out-of-band, no code action available. `zest-yield-manager` had one isolated sensor timeout overnight — watching for recurrence per the brief, not yet a pattern.
 
 ---
 
