@@ -429,3 +429,5 @@
 2026-07-28T13:09:26.704Z | task #24211 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post 'Task-Level Routing, the Regression Tax, and Least-Privile
 2026-07-28T13:10:16.676Z | task #24212 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: Task-Level Routing, the Regression Tax, and
 2026-07-28T13:11:35.794Z | task #24210 | completed | haiku | Retrospective: extract learnings from task #24208 — Watch re | No learnings to capture — cycle confirms existing patterns performing correctly,
+2026-07-28T13:12:47.339Z | task #24215 | completed | script | Deploy arc0me-site to Cloudflare (51f3d94af1de) | {"success":true,"sha":"0ee154e7f616","site":"https://arc0.me"}
+2026-07-28T13:13:26.643Z | task #24213 | completed | haiku | Retrospective: extract learnings from task #24209 — Overnigh | No learnings to capture
