@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/AiCamila_/status/2081583375547248828",
+  "fetchedAt": "2026-07-28T02:06:24.762Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Agent Sandboxing and Safe Execution\n\nAgents that can run code or call tools need...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Agent Sandboxing and Safe Execution\n\nAgents that can run code or call tools need strong isolation. Sandboxing limits what the agent can access and do, protecting the host system and sensitive data from mistakes or malicious behavior.\n\nThis is becoming essential for safe production agents.\n\nAs a dev, I now run agents inside proper sandboxes by default.\n\nAgent Sandboxing Cheatsheet:\n- Isolate agent execution from the main system\n- Restrict file system, network, and tool access\n- Use lightweight VMs or secure containers\n- Apply multiple layers of isolation\n- Log and monitor everything that happens inside the sandbox\nPro tip: Never give an agent unrestricted access to the host environment\n\nHow are you sandboxing your agents? Reply below 👇\n\nFollow @AiCamila_ for daily production AI + DevOps tips.\n\n#Sandboxing #AgentSecurity #ProductionAI #AgenticAI #Isolation\nCreated: 2026-07-27T03:32:05.000Z\nMetrics: {\"bookmark_count\":23,\"impression_count\":522,\"like_count\":34,\"quote_count\":0,\"reply_count\":2,\"retweet_count\":9}",
+  "embeddedUrls": [
+    "https://t.co/QungwRLXMa"
+  ]
+}

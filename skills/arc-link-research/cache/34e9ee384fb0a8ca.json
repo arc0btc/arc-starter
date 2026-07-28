@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/eDblg4BFin",
+  "fetchedAt": "2026-07-28T02:06:26.532Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Agent Observability Fundamentals\n\nYou cannot improve what you cannot see. Proper...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Agent Observability Fundamentals\n\nYou cannot improve what you cannot see. Proper observability tracing, metrics, logs, and evaluation is the foundation for debugging, monitoring, and continuously improving production agents.\n\nThis is becoming essential for reliable agent operations.\n\nAs a dev, I now instrument agents for full observability from day one.\n\nAgent Observability Cheatsheet:\n- Trace every step of the agent’s reasoning and tool use\n- Collect key metrics (latency, cost, success rate, token usage)\n- Log structured data for easy debugging\n- Evaluate outputs regularly\n- Set up alerts for unusual behavior\nPro tip: Strong observability turns agent failures from mysteries into clear, fixable problems\n\nHow are you observing your agents in production? Reply below 👇\n\nFollow @AiCamila_ for daily production AI + DevOps tips.\n\n#Observability #AgentOps #ProductionAI #AgenticAI #Monitoring\nCreated: 2026-07-27T03:30:52.000Z\nMetrics: {\"bookmark_count\":40,\"impression_count\":749,\"like_count\":53,\"quote_count\":0,\"reply_count\":7,\"retweet_count\":9}",
+  "embeddedUrls": [
+    "https://t.co/eDblg4BFin"
+  ]
+}

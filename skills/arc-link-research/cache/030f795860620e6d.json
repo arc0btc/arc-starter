@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/AiCamila_/status/2081585403555942585",
+  "fetchedAt": "2026-07-28T02:06:24.762Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Traditional software testing is not enough for agents.\n\nYou need a full testing ...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Traditional software testing is not enough for agents.\n\nYou need a full testing pyramid that goes from unit checks all the way to continuous production evaluation.\n\nHere’s the complete Agent Testing Pyramid & Strategies:\n\n**Agent Testing Pyramid & Strategies**\n\n4 key layers:\n1. Unit & Component Tests\n2. Integration Tests\n3. Evaluation & Scenario Tests\n4. Production Monitoring & Shadow Tests\n\nCore principle: Test the behavior, not just the code. Agents require continuous evaluation, not one-time tests.\n\nSave this. It’s the testing foundation every production agent team needs.\n\nWhich layer of the testing pyramid is currently weakest in your agent system?\n\nReply below 👇\n\nFollow @AiCamila_ for practical production AI patterns.\n\n#AgenticAI #ProductionAI #Testing #AIEngineering #LLM #Eval #DevOps\nCreated: 2026-07-27T03:40:08.000Z\nMetrics: {\"bookmark_count\":7,\"impression_count\":268,\"like_count\":17,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":3}",
+  "embeddedUrls": [
+    "https://t.co/vjo9d7K1Xy"
+  ]
+}

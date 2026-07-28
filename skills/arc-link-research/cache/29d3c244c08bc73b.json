@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/sTD2yq5hdS",
+  "fetchedAt": "2026-07-28T02:06:26.457Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Most agents are built for short conversations.\n\nLong-running agents need a compl...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Most agents are built for short conversations.\n\nLong-running agents need a completely different architecture.\n\nHere’s the complete set of Long-Running Agent Architecture Patterns:\n\n**Long-Running Agent Architecture Patterns**\n\n6 key patterns:\n1. Checkpointing & State Persistence\n2. Event-Driven & Asynchronous Execution\n3. Heartbeats & Liveness Monitoring\n4. Graceful Pause & Resume\n5. Progress Tracking & Visibility\n6. Timeout, Circuit Breaking & Recovery\n\nCore principle: Long-running agents must be designed for interruption, recovery, and visibility not just continuous execution.\n\nSave this. It’s essential if you’re building agents that need to run for hours or days.\n\nWhich of these patterns are you already using (or missing) in your long-running agents?\n\nReply below 👇\n\nFollow @AiCamila_ for practical production AI patterns.\n\n#AgenticAI #ProductionAI #LongRunningAgents #AIEngineering #LLM #Architecture #DevOps\nCreated: 2026-07-27T03:45:25.000Z\nMetrics: {\"bookmark_count\":14,\"impression_count\":335,\"like_count\":22,\"quote_count\":0,\"reply_count\":2,\"retweet_count\":8}",
+  "embeddedUrls": [
+    "https://t.co/sTD2yq5hdS"
+  ]
+}

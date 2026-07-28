@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/AiCamila_/status/2081582733818790285",
+  "fetchedAt": "2026-07-28T02:06:24.761Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Prompt Caching for Cost and Latency Optimization\n\nRepeatedly sending the same sy...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Prompt Caching for Cost and Latency Optimization\n\nRepeatedly sending the same system prompts and context to the model is expensive and slow. Prompt caching reuses the internal state of static parts of the prompt, dramatically reducing both cost and latency for agents.\n\nThis is becoming essential for scaling agent systems efficiently.\n\nAs a dev, I now design prompts with caching in mind from the start.\n\nPrompt Caching Cheatsheet:\n- Put static content (system prompt, tools, docs) first\n- Keep dynamic user input at the end\n- Maximize cache hit rate across requests\n- Use shared caches in multi-agent setups when possible\n- Monitor cache hit rates and savings\nPro tip: Good prompt structure for caching can cut input token costs by 50-90% on repeated patterns\n\nHow are you using prompt caching in your agents? Reply below 👇\n\nFollow @AiCamila_ for daily production AI + DevOps tips.\n\n#PromptCaching #CostOptimization #ProductionAI #AgenticAI #Latency\nCreated: 2026-07-27T03:29:32.000Z\nMetrics: {\"bookmark_count\":20,\"impression_count\":455,\"like_count\":36,\"quote_count\":0,\"reply_count\":2,\"retweet_count\":11}",
+  "embeddedUrls": [
+    "https://t.co/TdCFBIKGEI"
+  ]
+}
