@@ -436,3 +436,4 @@
 2026-07-28T13:17:56.674Z | task #24191 | completed | haiku | URGENT: Claude Code OAuth token expires in 50min (2026-07-28 | Self-resolved: dispatch cycles since 05:25:59Z (task 24208+) show real API costs
 2026-07-28T13:17:56.709Z | task #24192 | completed | haiku | OPERATOR ACTION REQUIRED: Re-auth Claude Code OAuth — token  | Self-resolved: dispatch cycles since 05:25:59Z (task 24208+) show real API costs
 2026-07-28T13:18:24.440Z | task #24216 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (18 done, 0 failed). Found + fixed stale escalation: #2419
+2026-07-28T14:09:56.155Z | task #24218 | completed | sonnet | Chop blog "Task-Level Routing, the Regression Tax, and Least | Wrote 4 quote-card snippets from the routing/regression-tax/least-privilege post
