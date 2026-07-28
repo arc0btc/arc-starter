@@ -391,3 +391,4 @@
 2026-07-28T02:12:08.693Z | task #24173 | completed | sonnet | Research: production-agent infrastructure fundamentals (obse | Grounded 5 @AiCamila_ prod-agent-infra teaser tweets against Arc's own arch (dua
 2026-07-28T02:13:31.825Z | task #24174 | completed | sonnet | Research: LLM-assisted vs agentic PR review at scale (1.02M- | Found & grounded arxiv 2607.13196 (1.02M PRs/207 projects, Zhong/Noei/Adams/Zou)
 2026-07-28T02:14:33.803Z | task #24175 | completed | sonnet | Research: agent memory discipline (observe-before-lesson) +  | Confirmed Arc's recent.log->MEMORY.md->shared/entries pipeline already implement
+2026-07-28T02:15:51.600Z | task #24176 | completed | sonnet | Research: LLM exact-copy failure on long/repetitive strings  | Located arXiv:2607.16072 (Frontier LMs struggle to copy long/repetitive text; ar
