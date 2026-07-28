@@ -86,11 +86,30 @@ function getDb(): Database {
     )
   `);
 
+  // #24240 fix: slug is derived from reportFile with the date-timestamp prefix stripped, which
+  // collapses every generically-named "<timestamp>_research.md" report to the identical slug
+  // "research" — every materials/draft/deliverable/quiz/cover file on disk was keyed on that
+  // colliding slug, so a stale draft from a prior report could be silently read (or overwritten)
+  // by the wrong candidate. Key on the full, always-unique report_file instead; slug/route stay
+  // cosmetic (Whop product route only). SQLite has no "ADD COLUMN IF NOT EXISTS" — catch-and-
+  // ignore duplicate-column errors, matching arc-daily-read's finding_report_file migration.
+  try {
+    db.run("ALTER TABLE packaging_queue_log ADD COLUMN file_key TEXT");
+  } catch (error) {
+    if (!String(error).includes("duplicate column")) throw error;
+  }
+
   return db;
 }
 
 function slugFromReportFile(reportFile: string): string {
   return reportFile.replace(/^\d{4}-\d{2}-\d{2}T[\d:-]+Z_/, "").replace(/\.md$/, "");
+}
+
+// Unique per report_file (unlike slug, which collapses generically-named reports to "research")
+// — every on-disk materials/draft/deliverable/quiz/cover filename keys on this, not slug.
+function fileKeyFromReportFile(reportFile: string): string {
+  return reportFile.replace(/\.md$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
 }
 
 // ---------- Sanitization net (deterministic regex pre-flight; the qualitative dev-council
@@ -193,6 +212,7 @@ function cleanDeliverableMarkdown(text: string): string {
 interface MaterialsBrief {
   reportFile: string;
   slug: string;
+  fileKey: string;
   route: string;
   relevance: number;
   skuWhy: string;
@@ -221,17 +241,26 @@ function composeMaterials(
   // isn't a meaningless URL. Auto-derived otherwise.
   const slug = slugOverride ? slugify(slugOverride) : slugFromReportFile(candidate.reportFile);
   const route = slugify(slug);
+  const fileKey = fileKeyFromReportFile(candidate.reportFile);
   const reportPath = join(RESEARCH_DIR, candidate.reportFile);
   const reportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
 
   db.run(
-    `INSERT OR IGNORE INTO packaging_queue_log (report_file, slug, route, relevance, sku_why, status) VALUES (?, ?, ?, ?, ?, 'queued')`,
-    [candidate.reportFile, slug, route, candidate.relevance, candidate.skuWhy],
+    `INSERT OR IGNORE INTO packaging_queue_log (report_file, slug, route, relevance, sku_why, status, file_key) VALUES (?, ?, ?, ?, ?, 'queued', ?)`,
+    [candidate.reportFile, slug, route, candidate.relevance, candidate.skuWhy, fileKey],
   );
+  // A resumed row (materials re-run on an already-queued candidate, e.g. after an interrupted
+  // attempt) may predate this fix and have a NULL file_key — backfill it so stage's SELECT * read
+  // is never stuck with the old, potentially-colliding value.
+  db.run(`UPDATE packaging_queue_log SET file_key = ? WHERE report_file = ? AND file_key IS NULL`, [
+    fileKey,
+    candidate.reportFile,
+  ]);
 
   const brief: MaterialsBrief = {
     reportFile: candidate.reportFile,
     slug,
+    fileKey,
     route,
     relevance: candidate.relevance,
     skuWhy: candidate.skuWhy,
@@ -278,15 +307,15 @@ async function cmdMaterials(reportOverride?: string, slugOverride?: string): Pro
     process.exit(1);
   }
   console.log(`Candidate: ${brief.reportFile} (relevance ${brief.relevance})`);
-  console.log(`Slug: ${brief.slug} | Route: ${brief.route}`);
+  console.log(`Slug: ${brief.slug} | Route: ${brief.route} | File key: ${brief.fileKey}`);
   console.log(`sku_why: ${brief.skuWhy}`);
 
   if (!fs.existsSync(MATERIALS_DIR)) fs.mkdirSync(MATERIALS_DIR, { recursive: true });
-  const outPath = join(MATERIALS_DIR, `${brief.slug}.json`);
+  const outPath = join(MATERIALS_DIR, `${brief.fileKey}.json`);
   fs.writeFileSync(outPath, JSON.stringify(brief, null, 2));
   console.log(`\nWrote brief to ${outPath} (includes the report's full text — reportMarkdown).`);
   console.log(`Next: draft { "title": "...", "headline": "...", "description": "...", "quiz": {...} } to`);
-  console.log(`  ${join(MATERIALS_DIR, `${brief.slug}.draft.json`)}`);
+  console.log(`  ${join(MATERIALS_DIR, `${brief.fileKey}.draft.json`)}`);
   console.log(`  (quiz is REQUIRED — see voiceInstructions.quiz in the brief above; stage attaches it AND`);
   console.log(`  generates+attaches a cover automatically, but will keep the SKU hidden if either fails)`);
   console.log(`Then run: bun cli.ts stage --report ${brief.reportFile}`);
@@ -313,8 +342,8 @@ interface Draft {
   quiz: { questions: QuizQuestion[]; minimumCorrect?: number };
 }
 
-export function loadDraft(slug: string): Draft {
-  const p = join(MATERIALS_DIR, `${slug}.draft.json`);
+export function loadDraft(fileKey: string): Draft {
+  const p = join(MATERIALS_DIR, `${fileKey}.draft.json`);
   if (!fs.existsSync(p)) {
     throw new Error(`DEFERRED — missing draft: ${p}. Write { title, headline, description, quiz } first (see materials output), then re-run stage.`);
   }
@@ -487,7 +516,7 @@ async function cmdStage(
   console.log(`=== arc-packaging — Stage ${reportFile} ${dryRun ? "(DRY-RUN)" : ""} ===`);
   const db = getDb();
   const row = db.query("SELECT * FROM packaging_queue_log WHERE report_file = ?").get(reportFile) as
-    | { report_file: string; slug: string; route: string; status: string }
+    | { report_file: string; slug: string; route: string; status: string; file_key: string | null }
     | null;
   if (!row) {
     console.error(`no queued row for ${reportFile} — run 'materials' first`);
@@ -499,10 +528,14 @@ async function cmdStage(
     db.close();
     return;
   }
+  // Pre-#24240 rows may have a NULL file_key (materials never re-run since the migration) —
+  // fall back to deriving it fresh rather than silently reading the old, potentially-colliding
+  // slug-keyed files.
+  const fileKey = row.file_key ?? fileKeyFromReportFile(row.report_file);
 
   let draft: Draft;
   try {
-    draft = loadDraft(row.slug);
+    draft = loadDraft(fileKey);
   } catch (e) {
     console.error(e instanceof Error ? e.message : String(e));
     db.close();
@@ -587,7 +620,7 @@ async function cmdStage(
   } else {
     cleanedMarkdown = cleanDeliverableMarkdown(rawReportMarkdown);
   }
-  const cleanedPath = join(MATERIALS_DIR, `${row.slug}.deliverable.md`);
+  const cleanedPath = join(MATERIALS_DIR, `${fileKey}.deliverable.md`);
   fs.writeFileSync(cleanedPath, cleanedMarkdown);
 
   // Quiz — REQUIRED (row 62): write the validated draft.quiz to its own JSON file, in the exact
@@ -595,7 +628,7 @@ async function cmdStage(
   // *.quiz.json is the live-proven format). Passed at create time so the deliverable (report +
   // quiz) attaches atomically with the SKU's mint, matching create-product's own "no bare SKU"
   // design instead of a separate attach-deliverable follow-up call.
-  const quizPath = join(MATERIALS_DIR, `${row.slug}.quiz.json`);
+  const quizPath = join(MATERIALS_DIR, `${fileKey}.quiz.json`);
   fs.writeFileSync(quizPath, JSON.stringify(draft.quiz, null, 2));
 
   const createArgs = [
@@ -697,7 +730,7 @@ async function cmdStage(
   let coverOk = false;
   try {
     const coverPng = await renderSkuCover(draft.title, draft.headline ?? "", new Date().toISOString().slice(0, 10));
-    const coverPath = join(MATERIALS_DIR, `${row.slug}.cover.png`);
+    const coverPath = join(MATERIALS_DIR, `${fileKey}.cover.png`);
     fs.writeFileSync(coverPath, coverPng);
     const coverResult = await runCommand("bash", [
       "bin/arc", "skills", "run", "--name", "whop", "--",
