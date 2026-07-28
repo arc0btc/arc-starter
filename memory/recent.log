@@ -409,3 +409,4 @@
 2026-07-28T04:56:22.678Z | task #24183 | completed | haiku | health alert follow-up: oauth expiry re-check (workflow 3532 | Token still expiring in 50min, no re-auth detected. Escalated to #24191 (priorit
 2026-07-28T04:57:18.625Z | task #24191 | blocked | haiku | URGENT: Claude Code OAuth token expires in 50min (2026-07-28 | ESCALATION: OAuth token expires 2026-07-28T05:25:59Z (~27min remaining). Require
 2026-07-28T04:58:14.708Z | task #24192 | blocked | haiku | OPERATOR ACTION REQUIRED: Re-auth Claude Code OAuth — token  | Token expires 2026-07-28T05:25:59Z (27min remaining). Non-interactive dispatch c
+2026-07-28T05:02:21.239Z | task #24194 | completed | sonnet | Generate weekly presentation for 2026-07-28 | Generated 2026-07-28 weekly deck from local git+task DB data (7 slides, 537 comm
