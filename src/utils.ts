@@ -101,3 +101,28 @@ export function truncate(s: string, max: number): string {
 export function slugify(text: string): string {
   return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
+
+/**
+ * Derives a cosmetic, human-readable slug from a report filename by stripping the leading
+ * ISO-timestamp prefix. NOT collision-free — many reports share a generic post-timestamp name
+ * (e.g. "<timestamp>_research.md" all strip to "research") — so never key rotation/dedup logic
+ * on this. Use for display/route naming only; use `fileKeyFromReportFile` for anything that
+ * needs to distinguish reports.
+ */
+export function slugFromReportFile(reportFile: string): string {
+  return reportFile.replace(/^\d{4}-\d{2}-\d{2}T[\d:-]+Z_/, "").replace(/\.md$/, "");
+}
+
+/**
+ * Derives a per-report rotation/dedup key from a report filename, keyed on the full filename
+ * (not the collapsible slug above) so it stays unique even across generically-named reports.
+ * Extracted 2026-07-28 (#24249) after the same derived-identifier-collision bug shipped
+ * independently three times — arc-article-pipeline (#23670), arc-daily-read (#23897/#24018),
+ * and arc-packaging (#24240) — each fixed by adding a full-filename-keyed column instead of the
+ * stripped slug. Mirrors the `slugify` extraction precedent above (P3, 2026-07-03): new code
+ * that needs a rotation/dedup key from a report filename should import this rather than
+ * re-deriving one; existing shipped call sites are left as-is.
+ */
+export function fileKeyFromReportFile(reportFile: string): string {
+  return reportFile.replace(/\.md$/, "").replace(/[^a-zA-Z0-9_-]/g, "-");
+}
