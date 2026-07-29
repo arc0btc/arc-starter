@@ -1,23 +1,3 @@
-2026-07-25T03:33:03.505Z | task #23836 | completed | sonnet | health alert: oauth expiring | OAuth token ~113min from expiry, Discord alert already sent (confirmed via dedup
-2026-07-25T03:34:22.991Z | task #23838 | completed | haiku | Retrospective: extract learnings from task #23836 — health a | Refined p-headless-external-dependency-ttl-monitoring with workflow state choreo
-2026-07-25T03:42:40.317Z | task #23839 | completed | sonnet | Auto-queue: 4 hungry domain(s) need work | Queued 12 follow-up tasks across 4 hungry domains (whop x4, nostr x3, arc-skill-
-2026-07-25T03:43:37.165Z | task #23841 | completed | sonnet | Whop: review whop-synthesis dry-run artifacts from last 24h, | Reviewed 4 whop-synthesis artifacts (24h): all DEFER, 0 messages/window each — c
-[UNTRUSTED-SRC] 2026-07-25T03:43:48.859Z | task #23840 | completed | sonnet | Whop synthesis [2026-07-25T03]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add, nothing 
-2026-07-25T03:45:11.653Z | task #23842 | completed | sonnet | Whop: audit whop-replies lane activity for pending direct me | Audited whop-replies lane: WHOP_REPLY_ENABLED=true, dry_run=false, 0/10 daily bu
-2026-07-25T03:45:56.398Z | task #23849 | completed | sonnet | arc-skill-manager: run sensor-health-report and flag any sen | sensor-health-report: 92/93 sensors ok. candidate-maturation at 20 consecutive f
-2026-07-25T03:47:04.761Z | task #23851 | completed | sonnet | aibtc-repo-maintenance: run status across watched repos, fla | Status check: 20 unreviewed PRs across watched repos (x402-sponsor-relay 7, land
-2026-07-25T03:48:05.790Z | task #23855 | completed | sonnet | self-review: run health check for 2026-07-25 | Health check clean: services healthy, queue normal (10 pending/1 active), qualit
-2026-07-25T03:49:32.990Z | task #23843 | completed | sonnet | Whop: verify chat_channel_id credentials and post-chat idemp | Whop creds verified: all 5 keys present (company_api_key/company_id/chat_channel
-2026-07-25T03:50:34.009Z | task #23845 | completed | sonnet | Nostr: check db/nostr-budget.json headroom and surface a can | Budget: 4/6 posts used today (2026-07-25), 2 remaining. Pool has unconsumed nost
-2026-07-25T03:51:45.844Z | task #23846 | completed | sonnet | Nostr: identify a research/blog artifact from the last 48h n | No candidate found: all 10 snippet-type artifacts (nostr-eligible channel) produ
-2026-07-25T03:52:04.760Z | task #23848 | completed | sonnet | arc-skill-manager: run consolidate-memory check and lint-ski | MEMORY.md OK (121 lines, 1484 tokens, well under threshold). lint-skills: no vio
-2026-07-25T03:53:17.021Z | task #23852 | completed | sonnet | aibtc-repo-maintenance: triage-issues on aibtcdev/skills for | Triaged 3 open issues on aibtcdev/skills; #393 (x402 payment-vs-delivery) and #3
-2026-07-25T03:54:21.909Z | task #23854 | completed | sonnet | whop SKILL.md doc drift: says synthesis/reply dry-run defaul | Fixed SKILL.md doc drift: both whop-replies and whop-synthesis lanes are live by
-2026-07-25T03:59:09.553Z | task #23856 | completed | sonnet | Consolidate memory/patterns.md (160 lines, over 150-line thr | Consolidated patterns.md 160->148 lines: merged 12 near-duplicate/narrow entries
-2026-07-25T04:00:05.775Z | task #23844 | completed | sonnet | Whop: review Patterns Library experience content freshness,  | Patterns Library (exp_bbQpqIAEToAweQ, has_interface app) is NOT stale — auto-syn
-2026-07-25T04:00:39.743Z | task #23847 | completed | sonnet | Nostr: review recent nostr_post_log entries for engagement p | No engagement pattern review possible: nostr_post_log only stores source/event_i
-2026-07-25T04:03:43.457Z | task #23858 | completed | sonnet | Nostr: build engagement fetch (reactions/replies/zaps) for n | Added 'nostr engagement fetch' (skills/nostr/engagement.ts): queries relays read
-2026-07-25T04:04:32.167Z | task #23850 | completed | sonnet | arc-skill-manager: audit skills tree for read-only skills mi | Audited all 130 skills: 62 lack disallowed-tools, verified all 62 are genuine wr
 2026-07-25T04:04:56.351Z | task #23853 | completed | sonnet | aibtc-repo-maintenance: generate changelog for aibtcdev/aibt | Generated changelog for aibtc-mcp-server (last 7d): 6 PRs — nudge agents to hunt
 2026-07-25T04:07:00.655Z | task #23857 | completed | haiku | Retrospective: extract learnings from task #23856 — Consolid | No learnings to capture — task #23856 applied existing p-consolidation-dedup-lin
 2026-07-25T04:07:03.693Z | task #23859 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -517,3 +497,6 @@
 [UNTRUSTED-SRC] 2026-07-29T21:55:46.886Z | task #24348 | completed | sonnet | Whop synthesis [2026-07-29T21]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize
 2026-07-29T22:37:46.915Z | task #24349 | completed | sonnet | Chop blog "Log the Event Before You Log the Lesson" into 3-5 | Wrote 4 quote-card snippets from the log-the-event-before-the-lesson post via wr
 2026-07-29T22:38:07.395Z | task #24351 | completed | sonnet | Nostr note from artifact: Tag provenance at write time | Posted nostr note on write-time provenance tagging; eventId f4a93982... on damus
+2026-07-29T22:38:57.965Z | task #24350 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T23:08:07.395Z | task #24352 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-29T23:14:36.769Z | task #24353 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-07-30T01:09:01Z (~1h55m remaining at check time). Discord ale
