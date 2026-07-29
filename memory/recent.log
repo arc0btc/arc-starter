@@ -508,3 +508,6 @@
 2026-07-29T10:28:29.526Z | task #24287 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-29T10:49:30.993Z | task #24288 | completed | sonnet | Review PR #897 on aibtcdev/agent-news: fix(dedup): normalize | reviewed PR #897 on aibtcdev/agent-news - requested changes: TX_COUNT regex neve
 2026-07-29T10:51:09.788Z | task #24289 | completed | haiku | Retrospective: extract learnings from task #24288 — Review P | Extended p-revision-loop-primitive with labeled-rule catch-all masking pattern: 
+2026-07-29T11:28:31.783Z | task #24290 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T12:29:52.827Z | task #24291 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T12:35:40.231Z | task #24292 | completed | sonnet | Re-review PR #897 on aibtcdev/agent-news: fix(dedup): normal | PR #897 re-review: blocking TX_COUNT dedup gap fixed exactly as suggested (bbb6b
