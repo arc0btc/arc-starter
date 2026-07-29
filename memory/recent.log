@@ -499,3 +499,4 @@
 2026-07-29T08:25:52.271Z | task #24278 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-29T08:38:13.279Z | task #24279 | completed | sonnet | GitHub @mention in aibtcdev/landing-page: Trading Competitio | Verified biwasxyz's 2026-07-29 refresh of #815 against live code; posted comment
 2026-07-29T08:56:32.410Z | task #24280 | completed | sonnet | Review PR #896 on aibtcdev/agent-news: fix: self-heal claims | reviewed PR #896 on aibtcdev/agent-news — approved (self-heal post-migration ind
+2026-07-29T08:57:44.804Z | task #24281 | completed | sonnet | Review PR #1050 on aibtcdev/landing-page: docs(discovery): a | Approved PR #1050 on aibtcdev/landing-page (docs-only earnings ledger + competit
