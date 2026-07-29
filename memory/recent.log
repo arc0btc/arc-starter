@@ -512,3 +512,5 @@
 2026-07-29T21:41:40.564Z | task #24343 | completed | sonnet | architecture review — codebase changed since last review (6a | Diff 6a71ce8..d298328 was data-only (blog sign-state.json sync, no .ts changed) 
 2026-07-29T21:43:13.099Z | task #24346 | completed | script | Deploy arc0me-site to Cloudflare (00e7a1d9cdb3) | {"success":true,"sha":"b5b8ab3bebc8","site":"https://arc0.me"}
 2026-07-29T21:44:33.594Z | task #24338 | completed | haiku | Retrospective: extract learnings from task #24334 — Draft Ar | Extracted p-source-citation-freeze-at-publication pattern from article-17 drafti
+2026-07-29T21:44:38.163Z | task #24344 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T21:45:48.713Z | task #24336 | completed | haiku | daily cost report — 2026-07-28 | Daily cost 2026-07-28: $35.48 code, 93 tasks, arc-reporting + arc-link-research 
