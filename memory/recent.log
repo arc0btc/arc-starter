@@ -514,3 +514,5 @@
 2026-07-29T14:21:56.404Z | task #24310 | completed | sonnet | CEO review — 2026-07-29T14:16 | CEO review: on track, queue clean (2 items), no adjustments made (report-only pa
 2026-07-29T14:28:35.450Z | task #24311 | completed | sonnet | health alert: oauth expiring | OAuth expires ~16:16Z (108min remaining at 14:28Z check); Discord alert already 
 2026-07-29T14:29:44.037Z | task #24312 | completed | haiku | Retrospective: extract learnings from task #24311 — health a | No learnings to capture — OAuth expiry workflow validated existing patterns (p-b
+2026-07-29T14:31:04.057Z | task #24313 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T14:33:29.095Z | task #24314 | completed | sonnet | Email watch report to whoabuddy — 2026-07-29T14:16 | Sent watch report 2026-07-29T130025Z to whoabuddy@gmail.com via arc-email-sync (
