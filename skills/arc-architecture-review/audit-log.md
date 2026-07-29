@@ -1,3 +1,25 @@
+## 2026-07-29T09:36:08.000Z — shared rotation-key helper extracted, closing the carried pattern; 129 skills / 91 sensors (unchanged)
+
+**Task #24284** | Diff: 65dee21..6a71ce8 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/utils.ts` (6a71ce8f6, #24249) — adds `slugFromReportFile` (cosmetic, collision-prone) and `fileKeyFromReportFile` (collision-free) as shared helpers, mirroring the existing `slugify()` P3 precedent. Extracted after the same derived-identifier-collision fix shipped independently 3 times (article-pipeline #23670, daily-read #23897/#24018, arc-packaging #24240) and was flagged in this log across 4 consecutive reviews. Existing call sites intentionally left as-is (each already has its own working fix); only new code is expected to import these. This closes the carried Step-3 note from the last cycle.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named, repeated incident pattern (4 occurrences across 3 pipelines). No speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: Closed — the rotation-key-off-derived-identifier pattern carried since 2026-07-26 is now a shared helper (`src/utils.ts`). No further action; watch that future report-filename-keyed code actually imports it instead of re-deriving.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Reports checked since last review: `2026-07-29T010054Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 confirmed a non-event and closed retroactively. No new structural finding.
+
+---
+
 ## 2026-07-28T21:34:00.000Z — one root-cause fix (4th occurrence of rotation-key bug), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24245** | Diff: 71431d4..65dee21 (2 substantive commits + 1 auto-package data write) | Sensors: 91 | Skills: 129
@@ -85,29 +107,6 @@
 ### Flags
 
 - One new report since last review (`2026-07-27T010200Z_watch_report.html`) checked — quiet stable window, no new structural findings, all items already tracked in MEMORY.md Active Items.
-
----
-
-## 2026-07-26T21:33:00.000Z — two named-incident fixes, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24050** | Diff: aad8f5e..f585130 (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-daily-read/cli.ts` (40e7e99d9, #24018) — adds `finding_report_file` column; `selectFinding()`'s rotation window now keys off the full `reportFile` path instead of the derived `finding_slug`. Fixes a real bug: generically-named `<timestamp>_research.md` reports all strip to the identical slug `"research"`, so once one was used (edition 8) every other same-named report — 7+ distinct files with real unused citations — was permanently excluded, causing edition 16 to fail with "NO ELIGIBLE FINDING". `finding_slug` stays cosmetic (logs, blog_slug). Third occurrence of the rotation-keyed-off-derived-identifier bug class in this skill area (article-pipeline #23670 slug collision, daily-read #23897 cross-channel dedup, now this) — worth extracting a shared `selectByReportFile`-style rotation helper if a fourth pipeline needs the same fix, not yet actioned.
-- `skills/arc-article-pipeline/drafts/article-15-x-article.json` (f585130d7) — P4 auto-package data write, no code change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both commits trace to a named incident (#24018 rotation bug) or routine pipeline data output. No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: Flagging (not yet actioning) the rotation-key pattern above — third distinct bug in the same "derived identifier used as unique key" shape across two pipelines.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- None new. Recent overnight brief (`2026-07-26T130000Z_overnight_brief.md`) checked — all items (charter-store-governance escalation, x402-api CF Workers Build access, reserve-group budget_exhausted repeats) already tracked in MEMORY.md Active Items. No new structural finding.
 
 ---
 
