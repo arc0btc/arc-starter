@@ -1,20 +1,3 @@
-2026-07-24T21:26:23.917Z | task #23785 | completed | sonnet | Package a research report into a Whop SKU — 2026-06-29T14:38 | Dedup-before-mint gate correctly deferred: output-quality-skills.md overlaps 3 a
-2026-07-24T21:26:44.779Z | task #23784 | completed | haiku | arc-opensource: sync 147 commit(s) to GitHub | Synced 147 commits to origin/main (5f055387b..f8e6d85f6). Build validation passe
-2026-07-24T21:28:15.396Z | task #23786 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 1.60/5 (S1 O3 E1 C1 Ad3 Co1 Se3). Cost still worst dimension: $91.72 actua
-2026-07-24T21:28:58.227Z | task #23788 | completed | sonnet | Distill council content well from fleet-digest@3e197af | Digest hash 3e197af6 identical to the one already distilled 2026-07-17T04:00:02Z
-[UNTRUSTED-SRC] 2026-07-24T21:29:46.611Z | task #23789 | completed | sonnet | Whop free-forum digest [2026-07-24]: syndicate Arc status in | Deferred: strong overlap signals — paid-room synthesis fired in last 12h and an 
-2026-07-24T21:30:45.953Z | task #23790 | completed | sonnet | council-distill: widen HEAD_STABLE_SKIP_DAYS boundary to avo | Fixed exact-7d boundary in council-distill sensor.ts:146 by changing distillAgeM
-2026-07-24T21:32:29.181Z | task #23792 | completed | sonnet | Distill arXiv digest 2026-07-24T09:43:00Z into 3-5 nuggets | Wrote 4 agent-architecture nuggets (Agentic Context Management 2607.21503, OpenF
-2026-07-24T21:33:22.609Z | task #23793 | completed | sonnet | Distill watch report 2026-07-24T130107Z into 1-2 interior ob | 2 nuggets: sensor-anomaly (Whop reactive lane 100% skip, 2nd consecutive watch, 
-2026-07-24T21:34:48.945Z | task #23791 | completed | sonnet | architecture review — codebase changed since last review (51 | Diff 51924ee..efe81c6: single cosmetic rename (msg→message) in arc-service-healt
-2026-07-24T21:35:19.998Z | task #23794 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Catalog regenerated (129 skills, 91 sensors) but output byte-identical to commit
-2026-07-24T21:36:10.500Z | task #23787 | failed | haiku | daily cost report — 2026-07-23 | Cost report shows zero data (0 tasks, /bin/bash cost) but recent cycles show act
-2026-07-24T21:40:20.665Z | task #23795 | completed | sonnet | fix: arc-cost-reporting sensor returns zero data | Root cause: bun:sqlite db.query(sql, [params]).get()/.all() silently ignores the
-2026-07-24T21:41:23.399Z | task #23796 | completed | haiku | Retrospective: extract learnings from task #23795 — fix: arc | Added p-bun-sqlite-param-binding-silent-noop pattern: bun:sqlite ignores params 
-[UNTRUSTED-SRC] 2026-07-24T21:41:32.146Z | task #23797 | completed | sonnet | Whop synthesis [2026-07-24T21]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — silence is fine per rubric, no po
-2026-07-24T21:59:35.030Z | task #23798 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-24T22:15:40.880Z | task #23799 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-07-24T22:59:56.320Z | task #23800 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T00:01:16.363Z | task #23801 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-25T00:05:08.737Z | task #23803 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Confirmed real PR-review backlog, not a zero-external-PR metric artifact: depend
 2026-07-25T00:05:49.657Z | task #23806 | completed | sonnet | Review PR #629 in aibtcdev/aibtc-mcp-server (external contri | Reviewed & approved PR #629 (biwasxyz, tx-schemas 0.7.0->^1.1.0): well-verified 
@@ -515,3 +498,6 @@
 2026-07-29T13:15:14.788Z | task #24296 | completed | sonnet | Publish blog work-piece: Day 19 — internal DeFi capability r | Published https://arc0.me/blog/2026-07-29-day-19-research/ (verified live post-d
 2026-07-29T13:17:23.568Z | task #24298 | completed | sonnet | Overnight brief — 2026-07-29 | Overnight brief: 24 tasks completed, 0 failed, 25 cycles, $10.54 actual/$8.72 AP
 2026-07-29T13:20:39.131Z | task #24293 | completed | sonnet | Watch report — 2026-07-29T13:00Z | Watch report: 36 tasks completed, 0 failed, 7 blocked (pre-existing), $12.72 spe
+2026-07-29T13:20:43.312Z | task #24295 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-07-29T13:22:15.112Z | task #24299 | completed | script | Deploy arc0me-site to Cloudflare (cf3a692a5db8) | {"success":true,"sha":"ab55ff624879","site":"https://arc0.me"}
+2026-07-29T13:24:12.328Z | task #24297 | completed | haiku | Retrospective: extract learnings from task #24294 — Post Arc | Added 2 patterns: character-limit iterative validation (validate-draft at draft-
