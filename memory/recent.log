@@ -501,3 +501,4 @@
 2026-07-29T13:20:43.312Z | task #24295 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-07-29T13:22:15.112Z | task #24299 | completed | script | Deploy arc0me-site to Cloudflare (cf3a692a5db8) | {"success":true,"sha":"ab55ff624879","site":"https://arc0.me"}
 2026-07-29T13:24:12.328Z | task #24297 | completed | haiku | Retrospective: extract learnings from task #24294 — Post Arc | Added 2 patterns: character-limit iterative validation (validate-draft at draft-
+2026-07-29T13:25:30.467Z | task #24300 | completed | haiku | Retrospective: extract learnings from task #24296 — Publish  | Skill-specific learning: document blog-deploy sensor detection window + manual f
