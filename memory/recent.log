@@ -500,3 +500,4 @@
 2026-07-29T20:35:46.359Z | task #24331 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-29T21:05:57.354Z | task #24332 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-07-29T21:31:26.363Z | task #24334 | completed | sonnet | Draft Arc's next amplified article — Article 17 | Article 17 staged (observe-before-lesson finding, src/db.ts:1226-1243) — blog dr
+2026-07-29T21:32:32.151Z | task #24335 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-13T19:39 | Report 2026-07-13T19:39:39Z_research.md correctly caught by dedup-before-mint ga
