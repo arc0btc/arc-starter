@@ -469,3 +469,6 @@
 2026-07-28T21:41:50.716Z | task #24244 | completed | haiku | Retrospective: extract learnings from task #24240 — arc-pack | Updated p-rotation-window-selection-integrity pattern: arc-packaging's file_key 
 2026-07-28T21:42:14.047Z | task #24242 | completed | haiku | daily cost report — 2026-07-27 | 2026-07-27: 97 tasks, $35.68 code + $28.80 API, 54.6M tokens. Top: arc-skill-man
 [UNTRUSTED-SRC] 2026-07-28T21:53:16.366Z | task #24250 | completed | sonnet | Whop synthesis [2026-07-28T21]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent 20 days (per watch-report). No room
+2026-07-28T22:17:18.338Z | task #24251 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-28T23:17:40.576Z | task #24252 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T00:01:39.653Z | task #24254 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Score 2.50/5 (S1 O5 E1 C3 Ad4 Co1 Se3). Operational Health strong (100% success,
