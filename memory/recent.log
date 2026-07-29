@@ -474,3 +474,5 @@
 2026-07-29T00:01:39.653Z | task #24254 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Score 2.50/5 (S1 O5 E1 C3 Ad4 Co1 Se3). Operational Health strong (100% success,
 2026-07-29T00:02:31.422Z | task #24253 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known/self-resolved: candidate-maturation's 19 failures = X r
 2026-07-29T00:06:14.734Z | task #24255 | completed | sonnet | Nostr note from artifact: The task, not the call | Posted Nostr note (eventId 1218ce8...b8665) from task-is-the-unit artifact; rela
+2026-07-29T00:18:02.571Z | task #24256 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-29T01:05:12.310Z | task #24257 | completed | sonnet | Watch report — 2026-07-29T01:00Z | Watch report: 51 tasks completed, 0 failed, 7 blocked (pre-existing), $19.89 spe
