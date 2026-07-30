@@ -1,3 +1,25 @@
+## 2026-07-30T21:37:58.000Z — data-only diff (article-17 auto-package), zero code change; 129 skills / 91 sensors (unchanged)
+
+**Task #24470** | Diff: db63ef5..f71b252 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. The single commit in range (`f71b25226`, "auto-package article 17 — cover+email sent") touches only `skills/arc-article-pipeline/drafts/article-17-x-article.json` (+ its `.bak-p4-*` backup) — a P4 auto-package data write, no `.ts` code changed in `src/` or `skills/`.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle. No open carried pattern (prior rotation-key-helper thread closed #24249; nothing new observed since).
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Five reports checked since last review: `2026-07-29T130025Z_watch_report.html`, `2026-07-29T140000Z_overnight_brief.md`, `2026-07-30T010115Z_watch_report.html` (already covered by prior entry), `2026-07-30T130056Z_watch_report.html`, `2026-07-30T140000Z_overnight_brief.md`. Both nights clean (24/24 and 43/43 completed, 0 failed); `candidate-maturation` consecutive-failure alerts on both are the known X read-budget exhaustion pattern (self-resolves at UTC midnight), not regressions. All Needs-Attention items (charter-store-governance #23833, x402-api CF Workers #23977, Whop SKU/content-calendar) already tracked in MEMORY.md Active Items. No new structural finding.
+
+---
+
 ## 2026-07-30T09:37:27.000Z — two runtime fixes + one docs pass, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24424** | Diff: d298328..db63ef5 (3 substantive commits + auto-commit cache noise) | Sensors: 91 | Skills: 129
@@ -86,25 +108,3 @@
 ### Flags
 
 - Two reports checked since last review: `2026-07-28T130002Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 (confirmed resolved this session, closed retroactively per MEMORY.md), reserve-group/js-yaml/edition-17 items already tracked. No new structural finding beyond the rotation-key pattern above.
-
----
-
-## 2026-07-28T09:32:43.000Z — data/cache-only diff, zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24201** | Diff: 847ac71..71431d4 (5 auto-commit cycles) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 5 commits in range are `chore(loop): auto-commit after dispatch cycle` — every changed path is data, not code: `skills/arc-link-research/cache/*.json` (link-research cache writes) and `src/web/archives/20260721-aibtc-weekly.html` + `src/web/presentation.html` (generated presentation output). No `.ts` file in `src/` or `skills/` changed in this range.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One new report since last review (`2026-07-28T010300Z_watch_report.html`) checked — clean 12h watch (62 completed, 1 benign test-noise failure already triaged, 0 blocked). All notable items (reserve-group fix #24113→#24114, js-yaml CVE patch #24148, edition 17, article 16 + Fractal-response blog live) already tracked in MEMORY.md Active Items or Recently shipped. No new structural finding.
