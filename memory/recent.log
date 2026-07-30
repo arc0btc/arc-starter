@@ -368,3 +368,4 @@
 2026-07-30T20:54:19.021Z | task #24462 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T21:01:08.595Z | task #24463 | completed | sonnet | Assess release: hirosystems/clarinet v3.23.0 | clarinet v3.23.0: lint rule + epoch4.0/Clarity6 test defaults, no arc-starter in
 2026-07-30T21:28:44.721Z | task #24464 | completed | haiku | arc-opensource: sync 113 commit(s) to GitHub | Pushed 113 commits to origin/main
+2026-07-30T21:32:21.343Z | task #24465 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-13T19:45 | Report 2026-07-13T19:45:39Z_research.md deferred by the dedup-before-mint gate —
