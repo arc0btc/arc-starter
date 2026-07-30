@@ -46,6 +46,10 @@ const ROOT = join(import.meta.dir, "..", "..");
 const RESEARCH_DIR = join(ROOT, "research");
 const CACHE_DIR = join(import.meta.dir, "cache");
 const INDEX_FILE = "INDEX.md";
+// Dot-prefixed so loadCatalogEntries()'s readdir filter (`!f.startsWith(".")`)
+// never picks it up as a report — arc_relevance<=1 batches append here instead
+// of minting a catalogued report (see the allLow fast-path in cmdProcess).
+const SKIP_LOG_FILE = ".skip-log.md";
 
 // Signal filing paused 2026-05-19 per whoabuddy policy (task #17094).
 // Mirrors the gate in aibtc-news-editorial, arxiv-research, bitcoin-macro sensors.
@@ -983,8 +987,51 @@ export async function cmdProcess(args: string[]): Promise<void> {
   const counts = { high: 0, medium: 0, low: 0 };
   for (const r of results) counts[r.relevance]++;
 
-  // Generate report
   const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+
+  // Fast-path (#24410, follows the #22556 anti-slop skip path): when every link in the
+  // batch is mechanically rated "low" (arc_relevance caps at 1 — see relevanceToNumber),
+  // a catalogued report is pure shelf noise — it ships with topics:[] (nothing meaningful
+  // to tag), which both inflates the report count and trips reindex's own
+  // "at/below skip threshold — should this be a one-line skip note, not a report?"
+  // warning (see RELEVANCE_SKIP_AT_OR_BELOW in lib/frontmatter.ts). So: no front-matter,
+  // no research/<ts>_research.md file at all — append one line per link to a dot-prefixed
+  // log instead. loadCatalogEntries()'s readdir filter already excludes dotfiles, so this
+  // never enters the catalog, dedup (`check`), or reindex's warnings.
+  const allLow = counts.high === 0 && counts.medium === 0;
+  if (allLow) {
+    ensureResearchDir();
+    const skipLogPath = join(RESEARCH_DIR, SKIP_LOG_FILE);
+    const noteLines = [
+      `## ${timestamp} (${results.length} link(s), all low relevance)`,
+      ...(skippedTweets.length > 0 ? [`Skipped (inaccessible X links): ${skippedTweets.length}`] : []),
+      ...results.map((r) => `- ${r.url} — ${r.justification || "low relevance"}`),
+      "",
+    ].join("\n") + "\n";
+    const existing = existsSync(skipLogPath) ? readFileSync(skipLogPath, "utf8") : "# Skipped Low-Relevance Links\n\nOne-line notes for batches where every link scored low relevance — no full report was written. See lib/frontmatter.ts RELEVANCE_SKIP_AT_OR_BELOW.\n\n";
+    writeFileSync(skipLogPath, existing + noteLines);
+    process.stdout.write(`All ${results.length} link(s) low relevance — skip note appended to research/${SKIP_LOG_FILE} (no report written)\n`);
+
+    // Best-effort nugget-bridge so low-relevance links are still tracked once, even
+    // without a catalogued report (never fails an already-written skip note).
+    try {
+      const bridgeSummary = bridgeReportToNuggets({
+        reportPath: `research/${SKIP_LOG_FILE}`,
+        fetchedAt: timestamp,
+        results: results.map((r) => ({ url: r.url, title: r.title, relevance: r.relevance, takeaways: r.takeaways })),
+      });
+      process.stdout.write(
+        `[nugget-bridge] ${bridgeSummary.inserted} inserted, ${bridgeSummary.updated} updated, ${bridgeSummary.faninAdded} fan-in, ${bridgeSummary.errors} errors\n`,
+      );
+    } catch (e) {
+      process.stdout.write(`[nugget-bridge] hook threw (non-fatal, skip note already written) — ${e instanceof Error ? e.message : String(e)}\n`);
+    }
+
+    process.stdout.write(JSON.stringify({ file: null, skipNote: SKIP_LOG_FILE, links: results.length, high: 0, medium: 0, low: counts.low }, null, 2) + "\n");
+    return;
+  }
+
+  // Generate report
   const filename = `${timestamp}_research.md`;
   const filepath = join(RESEARCH_DIR, filename);
 
@@ -1004,98 +1051,74 @@ export async function cmdProcess(args: string[]): Promise<void> {
     packaged: false,
   };
 
-  // Anti-slop skip path (2026-07-14, #22556): when every link in the batch is
-  // mechanically rated "low" (fm.arc_relevance caps at 1 — see relevanceToNumber),
-  // a full report with takeaways/summary sections is pure shelf noise. Write a
-  // compact one-line-per-link skip note instead. Front-matter is unchanged so
-  // dedup (`check`) and the catalog (`reindex`) still work off it.
-  const allLow = counts.high === 0 && counts.medium === 0;
+  const lines: string[] = [
+    `# Research Report — ${timestamp}`,
+    "",
+    `**Links analyzed:** ${results.length}`,
+    `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
+    ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
+    "",
+    "---",
+    "",
+  ];
 
-  let lines: string[];
-  if (allLow) {
-    lines = [
-      `# Research Report — ${timestamp} (skipped: low relevance)`,
-      "",
-      `**Links analyzed:** ${results.length} — all low relevance, skip note only`,
-      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
-      "",
-      "---",
-      "",
-    ];
-    for (const r of results) {
-      lines.push(`- ${r.url} — ${r.justification || "low relevance"}`);
+  for (const r of results) {
+    lines.push(`## ${r.title}`);
+    lines.push("");
+    lines.push(`**URL:** ${r.url}`);
+    if (r.fetchError) {
+      lines.push(`**Fetch error:** ${r.fetchError}`);
+    }
+    lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
+    lines.push("");
+    lines.push("### Key Takeaways");
+    for (const t of r.takeaways) {
+      lines.push(`- ${t}`);
     }
     lines.push("");
-  } else {
-    lines = [
-      `# Research Report — ${timestamp}`,
-      "",
-      `**Links analyzed:** ${results.length}`,
-      `**Relevance breakdown:** ${counts.high} high, ${counts.medium} medium, ${counts.low} low`,
-      ...(skippedTweets.length > 0 ? [`**Skipped (inaccessible X links):** ${skippedTweets.length}`] : []),
-      "",
-      "---",
-      "",
-    ];
-
-    for (const r of results) {
-      lines.push(`## ${r.title}`);
-      lines.push("");
-      lines.push(`**URL:** ${r.url}`);
-      if (r.fetchError) {
-        lines.push(`**Fetch error:** ${r.fetchError}`);
-      }
-      lines.push(`**Relevance:** ${r.relevance} — ${r.justification}`);
-      lines.push("");
-      lines.push("### Key Takeaways");
-      for (const t of r.takeaways) {
-        lines.push(`- ${t}`);
-      }
-      lines.push("");
-      lines.push("---");
-      lines.push("");
-    }
-
-    if (skippedTweets.length > 0) {
-      lines.push("## Skipped (Inaccessible X Links)");
-      lines.push("");
-      for (const s of skippedTweets) {
-        lines.push(`- ${s.url} — ${s.reason}`);
-      }
-      lines.push("");
-      lines.push("---");
-      lines.push("");
-    }
-
-    if (embeddedUrlAudit.length > 0) {
-      lines.push("## Embedded URL Audit");
-      lines.push("");
-      lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
-      lines.push("");
-      for (const entry of embeddedUrlAudit) {
-        lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
-      }
-      lines.push("");
-      lines.push("---");
-      lines.push("");
-    }
-
-    lines.push("## Summary");
-    lines.push("");
-    lines.push("### Mission Relevance");
-    if (counts.high > 0) {
-      const highLinks = results.filter((r) => r.relevance === "high");
-      lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
-    }
-    if (counts.medium > 0) {
-      const medLinks = results.filter((r) => r.relevance === "medium");
-      lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
-    }
-    if (counts.low > 0) {
-      lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
-    }
+    lines.push("---");
     lines.push("");
   }
+
+  if (skippedTweets.length > 0) {
+    lines.push("## Skipped (Inaccessible X Links)");
+    lines.push("");
+    for (const s of skippedTweets) {
+      lines.push(`- ${s.url} — ${s.reason}`);
+    }
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+  }
+
+  if (embeddedUrlAudit.length > 0) {
+    lines.push("## Embedded URL Audit");
+    lines.push("");
+    lines.push("No allowlist or depth cap is configured — every embedded URL discovered in fetched content is a candidate to auto-follow. This table is the audit trail for that behavior.");
+    lines.push("");
+    for (const entry of embeddedUrlAudit) {
+      lines.push(`- ${entry.embedded} ← from ${entry.source} — ${entry.reason}`);
+    }
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+  }
+
+  lines.push("## Summary");
+  lines.push("");
+  lines.push("### Mission Relevance");
+  if (counts.high > 0) {
+    const highLinks = results.filter((r) => r.relevance === "high");
+    lines.push(`- **High relevance (${counts.high}):** ${highLinks.map((r) => r.title).join(", ")}`);
+  }
+  if (counts.medium > 0) {
+    const medLinks = results.filter((r) => r.relevance === "medium");
+    lines.push(`- **Medium relevance (${counts.medium}):** ${medLinks.map((r) => r.title).join(", ")}`);
+  }
+  if (counts.low > 0) {
+    lines.push(`- **Low relevance (${counts.low}):** tangential or unfetchable`);
+  }
+  lines.push("");
 
   const report = serializeFrontmatter(fm) + "\n" + lines.join("\n");
   await Bun.write(filepath, report);
