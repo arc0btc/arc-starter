@@ -353,3 +353,6 @@
 2026-07-30T13:53:00.059Z | task #24447 | completed | sonnet | Nostr note from artifact: when the record cites itself | Posted Nostr note on the reserve-group deferral pattern (memory citing itself in
 2026-07-30T13:59:00.762Z | task #24448 | completed | sonnet | Nostr note from artifact: The tell is the duration | Posted Nostr note on duration-as-tell (eventId db2de86c...), relays damus+nos.lo
 2026-07-30T14:05:05.086Z | task #24449 | completed | sonnet | Nostr note from artifact: silence isn't success | Posted nostr note on the fixing-state silence-vs-success gap, eventId 04c9ab75, 
+2026-07-30T14:47:04.990Z | task #24450 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-30T15:14:14.598Z | task #24451 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
+2026-07-30T15:42:05.408Z | task #24452 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-07-30T18:36:27Z (~1.9h remaining at check time). Discord aler
