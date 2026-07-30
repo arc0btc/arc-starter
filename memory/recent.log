@@ -514,3 +514,4 @@
 2026-07-30T00:46:12.982Z | task #24366 | completed | opus | Research: Agent sandbox-escape security (HuggingFace forensi | Sandbox-escape report written (arc_relevance 4). Task's primary tweet was a cont
 2026-07-30T00:49:02.444Z | task #24367 | completed | opus | Research: AI-found cryptographic flaws (Claude Mythos on HAW | Claude Mythos found real algorithmic flaws (not impl bugs): halved HAWK's effect
 2026-07-30T00:49:56.286Z | task #24368 | completed | sonnet | Research: MCP protocol shift — stateful sessions to request- | MCP 2026-07-28 spec moves protocol to stateless core for easier remote-server de
+2026-07-30T00:50:28.882Z | task #24370 | completed | sonnet | Research: Michael Saylor — Bitcoin's biggest threat is inter | Declined: no actual source URL/tweet link provided (only a paraphrased claim in 
