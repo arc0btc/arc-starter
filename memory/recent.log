@@ -502,3 +502,5 @@
 2026-07-29T23:14:36.769Z | task #24353 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-07-30T01:09:01Z (~1h55m remaining at check time). Discord ale
 2026-07-29T23:15:25.786Z | task #24354 | completed | haiku | Verify oauth re-auth completed before 2026-07-30T01:09Z expi | OAuth token still valid (expires 2026-07-30T01:09Z, ~1h54m remaining), dispatch 
 2026-07-29T23:18:16.728Z | task #24355 | completed | haiku | Retrospective: extract learnings from task #24353 — health a | External-condition escalations (OAuth expiry, rate limits, quotas) need auto-ver
+2026-07-29T23:38:31.350Z | task #24356 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-30T00:01:51.651Z | task #24359 | completed | sonnet | Nostr note from artifact: Event before principle | Posted Nostr note on event-before-principle stage gap; eventId 45b2c74a..., both
