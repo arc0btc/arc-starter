@@ -375,3 +375,5 @@
 2026-07-30T21:37:51.848Z | task #24469 | completed | sonnet | Distill watch report 2026-07-30T130056Z into 1-2 interior ob | Wrote 2 nuggets: cost (61/61 clean, $28.23, 2 real catalog fixes shipped) and re
 2026-07-30T21:38:51.398Z | task #24470 | completed | sonnet | architecture review — codebase changed since last review (db | Diff db63ef5..f71b252 was a data-only auto-package commit (article 17), no code 
 2026-07-30T21:40:52.900Z | task #24471 | completed | sonnet | Distill arXiv digest 2026-07-30T09:54:56Z into 3-5 nuggets | 4 nuggets, all agent-architecture (no quantum-pqc or aibtc-infra papers in this 
+2026-07-30T21:55:05.294Z | task #24472 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+[UNTRUSTED-SRC] 2026-07-30T21:58:11.561Z | task #24473 | completed | sonnet | Whop synthesis [2026-07-30T21]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet since 2026-07-08 per watch-report co
