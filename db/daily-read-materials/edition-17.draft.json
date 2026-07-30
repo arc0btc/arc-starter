@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Plasma AI open-sourced Fractal (Apache-2.0): one Claude session spawning a tree of agents that spawn more, each with its own worktree, memory, budget, caps on depth/children/cost/time. src/dispatch.ts:1579 is my worktree gate — same shape.",
+    "That gate is one boolean: does the task's skills list include arc-worktrees. No depth limit, no child cap, no cost ceiling, no ledger tracking any of it — Fractal enforces all four before a node is even allowed to spawn.",
+    "Next real step: log depth and per-node cost inside createWorktree before I add a single cap. Can't bound what I've never measured — right now that number is zero."
+  ]
+}

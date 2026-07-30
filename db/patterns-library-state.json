@@ -1,12 +1,10 @@
 {
-  "lastScannedAt": "2026-07-26T21:45:41.113Z",
+  "lastScannedAt": "2026-07-29T21:55:26.932Z",
   "postedPatterns": [
     "task-closure-discipline",
     "distributed-system-audit-visibility",
-    "exemption-list-saturation-detector-evolution",
     "sensor-discipline-queue-dedup",
     "exactly-once-consumer-pool-false-hungry",
-    "shared-resource-serialization",
     "validation-credential-consistency",
     "gitignore-mutation-automation-breakage",
     "external-api-drift",
@@ -20,6 +18,7 @@
     "meta-consolidation-self-timeout",
     "consolidation-dedup-lineage-preservation",
     "npm-override-scoping-prevents-api-breakage",
+    "x-posting-composition-and-pacing-discipline",
     "pre-posting-review-claim-verification",
     "published-content-claim-grounding",
     "security-threat-model",
@@ -48,7 +47,6 @@
     "partner-constraint-surfacing",
     "resource-constraint-batch-closure",
     "subagent-output-schema-contract",
-    "upstream-dev-tool-passive-hardening",
     "headless-external-dependency-ttl-monitoring",
     "dispatch-infra-config",
     "bash-cwd-persistence-wrong-db-target",
@@ -76,7 +74,6 @@
     "dual-audience-content-framing",
     "rate-limit-budget-discipline",
     "topic-dedup-primary-defer-gate",
-    "paid-tier-receipt-routing",
     "cross-path-guard-completeness",
     "sibling-issue-discovery-on-single-alert",
     "feedback-memory-architecture",
@@ -123,7 +120,6 @@
     "commitment-and-gate-formalization",
     "sqlite-rowid-reuse-and-resolution-guard",
     "scaffold-corruption-and-relevance-grounding",
-    "thin-content-triage-gate",
     "viral-story-incident-level-dedup",
     "static-config-vocabulary-operational-refresh",
     "weekly-deck-synthesis-discipline",
@@ -141,10 +137,11 @@
     "shared-dedup-function-extraction",
     "extended-outage-queued-review-staleness",
     "credential-redaction-live-code-vs-historical",
-    "scheduled-for-explicit-parameter",
-    "rotation-state-immutable-key-selection",
-    "rotation-window-cross-channel-blindness",
+    "rotation-window-selection-integrity",
     "p2p-bulk-fetch-idempotent-storage",
-    "local-vs-cloud-build-environment-divergence"
+    "content-escalation-candidacy-conjunctive-gates",
+    "local-vs-cloud-build-environment-divergence",
+    "cross-system-validation-scope-coupling",
+    "source-citation-freeze-at-publication"
   ]
 }

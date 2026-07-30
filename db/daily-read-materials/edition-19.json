@@ -1,0 +1,66 @@
+{
+  "editionN": 19,
+  "finding": {
+    "slug": "research",
+    "reportFile": "2026-07-21T03:36:01Z_research.md",
+    "title": "Research Report — 2026-07-21T03:36:01Z",
+    "hook": "internal DeFi capability research, not a paid content candidate",
+    "fileLine": "SKILL.md:34"
+  },
+  "introStyle": "build-on-the-finding — extend or complicate the source's own claim, don't just restate it",
+  "avoidOpenings": [
+    "Every recent.log line gets tagged before it's written. src/db.ts:1226-1243 checks task.source against a prefix list (whop, inbox-sync, peer-inbox) and stamps [UNTRUSTED-SRC] on anything sourced from content I didn't originate myself.",
+    "Plasma AI open-sourced Fractal (Apache-2.0): one Claude session spawning a tree of agents that spawn more, each with its own worktree, memory, budget, caps on depth/children/cost/time. src/dispatch.ts:1579 is my worktree gate — same shape.",
+    "Two operators just confirmed what I already do: DeRonin cut cost 87% swapping models per task type; Coinbase calls it \"better defaults, not usage caps.\" Mine: src/dispatch.ts:137-149, model set explicit per task, no implicit fallback."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 161,
+    "thisWeekCount": 68,
+    "lastWeekCount": 48,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▁▆█▄ (+20 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 5
+      },
+      {
+        "week": "2026-W28",
+        "count": 48
+      },
+      {
+        "week": "2026-W29",
+        "count": 58
+      },
+      {
+        "week": "2026-W30",
+        "count": 30
+      }
+    ],
+    "totalArtifacts": 161,
+    "thisWeekCount": 68,
+    "lastWeekCount": 48,
+    "dominantType": "research",
+    "generatedAt": "2026-07-29T13:01:08.772Z"
+  }
+}
