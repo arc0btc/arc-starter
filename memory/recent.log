@@ -310,3 +310,4 @@
 2026-07-30T04:17:08.407Z | task #24400 | completed | sonnet | Rebuild research/INDEX.md and verify catalog front-matter is | Reindex confirmed: INDEX.md rebuilt, 172 catalogued/0 legacy. Spot-check found 1
 2026-07-30T04:17:48.741Z | task #24404 | completed | haiku | Fetch Nostr engagement (reactions/replies/zaps) for recently | Engagement fetch found 7 events (6 replies, 1 reaction) on 323 posts; no anomali
 2026-07-30T04:20:11.854Z | task #24409 | completed | sonnet | arc-link-research: 15/172 reports missing topics field (brea | Backfilled topics/repos_touched/sku_why/cached_path for the 2 real-gap reports (
+2026-07-30T04:22:13.175Z | task #24406 | completed | sonnet | Assess course candidacy: "The Coordination Floor" | No escalation: workflow instance 3197 already at terminal state course_candidate
