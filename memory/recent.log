@@ -305,3 +305,4 @@
 2026-07-30T04:10:28.189Z | task #24399 | completed | sonnet | Cluster BIP-110 + Core-v30 OP_RETURN reports into one 'data- | Fixed selectCandidate's relevance>=4 gate blocking materials --report override; 
 2026-07-30T04:10:48.891Z | task #24401 | completed | sonnet | Run sensor-health-report audit and triage any consecutive-fa | sensor-health-report: 91/91 sensors ok, 0 consecutive_failures, no alerts. No fo
 2026-07-30T04:11:48.098Z | task #24402 | completed | sonnet | Lint all skills for compliance (nested tags, abbreviated sen | Ran lint-skills: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked, 
+2026-07-30T04:15:04.431Z | task #24403 | completed | sonnet | Audit remaining skills for missing disallowed-tools frontmat | Audited 66 skills missing disallowed-tools; only 4 were genuinely read-only by d
