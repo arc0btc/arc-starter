@@ -1,0 +1,27 @@
+{
+  "url": "https://github.com/oblien/openship",
+  "fetchedAt": "2026-07-30T01:39:43.321Z",
+  "contentType": "github",
+  "title": "openship",
+  "rawContent": "Repo: oblien/openship\nDescription: Self-hosted deployment platform\nTopics: agents, ai, deployments, self-hosted\nStars: 9744\n\nREADME:\n<h1 align=\"center\">Openship</h1>\n\n<p align=\"center\">\n  Open-source, self-hostable deployment platform with built-in CI/CD.<br>\n  Point it at a repo â it builds, ships, routes, and TLS-terminates your app. Drive it from a desktop app, web dashboard, or CLI.\n</p>\n\n<p align=\"center\">\n  <a href=\"https://trendshift.io/repositories/38817?utm_source=repository-badge&utm_medium=badge&utm_campaign=badge-repository-38817\">\n    <img src=\"https://trendshift.io/api/badge/repositories/38817\" alt=\"Trendshift\" width=\"250\" height=\"55\" />\n  </a>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://www.npmjs.com/package/openship\"><img src=\"https://img.shields.io/npm/v/openship?color=0b7285&label=npm\" alt=\"npm version\" /></a>\n  <a href=\"LICENSE\"><img src=\"https://img.shields.io/badge/license-Apache--2.0-blue\" alt=\"License\" /></a>\n  <a href=\"https://openship.io\"><img src=\"https://img.shields.io/badge/website-openship.io-0b7285\" alt=\"Website\" /></a>\n</p>\n\n<p align=\"center\">\n  <a href=\"#quick-start\">Quick Start</a> Â·\n  <a href=\"#how-it-works\">How It Works</a> Â·\n  <a href=\"#interfaces\">Interfaces</a> Â·\n  <a href=\"https://openship.io/docs\">Docs</a> Â·\n  <a href=\"CONTRIBUTING.md\">Contributing</a>\n</p>\n\n<p align=\"center\">\n  <a href=\"README.md\"><img src=\"https://img.shields.io/badge/lang-English-0b7285\" alt=\"English\" /></a>\n  <a href=\"docs/i18n/README.ar.md\"><img src=\"https://img.shields.io/badge/lang-Ø§ÙØ¹Ø±Ø¨ÙØ©-555\" alt=\"Ø§ÙØ¹Ø±Ø¨ÙØ©\" /></a>\n  <a href=\"docs/i18n/README.zh.md\"><img src=\"https://img.shields.io/badge/lang-ç®ä½ä¸­æ-555\" alt=\"ç®ä½ä¸­æ\" /></a>\n  <a href=\"docs/i18n/README.es.md\"><img src=\"https://img.shields.io/badge/lang-EspaÃ±ol-555\" alt=\"EspaÃ±ol\" /></a>\n  <a href=\"docs/i18n/README.fr.md\"><img src=\"https://img.shields.io/badge/lang-FranÃ§ais-555\" alt=\"FranÃ§ais\" /></a>\n  <a href=\"docs/i18n/README.ja.md\"><img src=\"https://img.shields.io/badge/lang-æ¥æ¬èª-555\" alt=\"æ¥æ¬èª\" /></a>\n  <a href=\"docs/i18n/README.pt.md\"><img src=\"https://img.shields.io/badge/lang-PortuguÃªs-555\" alt=\"PortuguÃªs\" /></a>\n  <a href=\"docs/i18n/README.de.md\"><img src=\"https://img.shields.io/badge/lang-Deutsch-555\" alt=\"Deutsch\" /></a>\n  <a href=\"docs/i18n/README.tr.md\"><img src=\"https://img.shields.io/badge/lang-TÃ¼rkÃ§e-555\" alt=\"TÃ¼rkÃ§e\" /></a>\n  <a href=\"docs/i18n/README.ko.md\"><img src=\"https://img.shields.io/badge/lang-íêµ­ì´-555\" alt=\"íêµ­ì´\" /></a>\n</p>\n\n<p align=\"center\">\n  <img src=\"docs/screenshots/screen.png\" alt=\"Openship dashboard\" width=\"800\" />\n</p>\n\n---\n\n## Quick Start\n\nThere's one decision to make first: **how you run Openship itself** (the control plane). Everything else is the same afterwards.\n\n| If you'reâ¦ | Run Openship as | Where your apps run |\n|---|---|---|\n| **Solo, one machine, no ops** | **Desktop app** | A server you connect over SSH, or Openship Cloud |\n| **A team â or you want push-to-deploy / to host apps on your own box** | **Self-hosted server** (`openship up`) | On that box (Compose mode) â or out to another server / Cloud (bar",
+  "embeddedUrls": [
+    "https://trendshift.io/repositories/38817?utm_source=repository-badge&utm_medium=badge&utm_campaign=badge-repository-38817",
+    "https://trendshift.io/api/badge/repositories/38817",
+    "https://www.npmjs.com/package/openship",
+    "https://img.shields.io/npm/v/openship?color=0b7285&label=npm",
+    "https://img.shields.io/badge/license-Apache--2.0-blue",
+    "https://openship.io",
+    "https://img.shields.io/badge/website-openship.io-0b7285",
+    "https://openship.io/docs",
+    "https://img.shields.io/badge/lang-English-0b7285",
+    "https://img.shields.io/badge/lang-Ø§ÙØ¹Ø±Ø¨ÙØ©-555",
+    "https://img.shields.io/badge/lang-ç®ä½ä¸­æ-555",
+    "https://img.shields.io/badge/lang-EspaÃ±ol-555",
+    "https://img.shields.io/badge/lang-FranÃ§ais-555",
+    "https://img.shields.io/badge/lang-æ¥æ¬èª-555",
+    "https://img.shields.io/badge/lang-PortuguÃªs-555",
+    "https://img.shields.io/badge/lang-Deutsch-555",
+    "https://img.shields.io/badge/lang-TÃ¼rkÃ§e-555",
+    "https://img.shields.io/badge/lang-íêµ­ì´-555"
+  ]
+}

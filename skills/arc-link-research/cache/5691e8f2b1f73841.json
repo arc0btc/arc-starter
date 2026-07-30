@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/Yz5uWeMbIm",
+  "fetchedAt": "2026-07-30T01:39:47.275Z",
+  "contentType": "tweet",
+  "title": "@Kimi_Moonshot: Releasing the model weights and technical report of Kimi K3.\n\nKimi K3 is our mos...",
+  "rawContent": "Tweet by @Kimi_Moonshot (Kimi.ai)\nAuthor bio: Built by Moonshot AI to empower everyone to be superhuman. \n@Kimidevs built for developers\n⚡️API: https://t.co/XCrgjXAqMw\nDC: https://t.co/wBsBTn6Ncc\nText: Releasing the model weights and technical report of Kimi K3.\n\nKimi K3 is our most capable model: a 2.8T MoE model with native visual understanding and a 1M-token context window.\n\nNew model architecture: 2.5x the intelligence per unit of compute, not just more params.\n\nAlongside Kimi K3, we're opening up more of the stack behind it — high-performance attention kernels, MoE communication library, and infrastructure for running agent environments at scale.\n\nModel weights: https://t.co/7m7eEg6Y0B\nTech report:  https://t.co/yeu6cjpMCT\nTech blog: https://t.co/YTfiMSNM1f\nCreated: 2026-07-27T15:14:40.000Z\nMetrics: {\"bookmark_count\":14397,\"impression_count\":12626977,\"like_count\":45746,\"quote_count\":2299,\"reply_count\":1466,\"retweet_count\":7237}",
+  "embeddedUrls": [
+    "https://t.co/Yz5uWeMbIm"
+  ]
+}

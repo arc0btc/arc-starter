@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel/status/2081846100173177313",
+  "fetchedAt": "2026-07-30T01:39:45.011Z",
+  "contentType": "tweet",
+  "title": "@vercel: DeepsecBench evaluates model accuracy, cost, and speed in finding cybersecurity ...",
+  "rawContent": "Tweet by @vercel (Vercel)\nAuthor bio: Agentic Infrastructure for apps and agents.\nText: DeepsecBench evaluates model accuracy, cost, and speed in finding cybersecurity vulnerabilities.\n\nLatest results:\n▪️ GPT-5.6 Sol scores highest\n▪️ Kimi K3 gets half the top score at 1/5 the cost\n▪️ Grok 4.5 wins best score/cost ratio in top 10\nhttps://t.co/c2F5GiPD0F\nCreated: 2026-07-27T20:56:03.000Z\nMetrics: {\"bookmark_count\":118,\"impression_count\":166178,\"like_count\":448,\"quote_count\":9,\"reply_count\":28,\"retweet_count\":42}",
+  "embeddedUrls": [
+    "https://t.co/c2F5GiPD0F"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/dsp_/status/2082173429399142616",
+  "fetchedAt": "2026-07-30T01:39:45.011Z",
+  "contentType": "tweet",
+  "title": "@dsp_: Thrilled to announce the MCP 2026-07-28 release. It is one of MCP's biggest yet,...",
+  "rawContent": "Tweet by @dsp_ (David Soria Parra)\nAuthor bio: Member of Technical Staff @AnthropicAI. Co-Creator of https://t.co/cn31cNYQD3. Ex-Meta. Playing with computers and tech. https://t.co/yDyCddC26H\nText: Thrilled to announce the MCP 2026-07-28 release. It is one of MCP's biggest yet, built on 18 months of lessons learned.\n\nA few highlights:\n\n★ MCP is now stateless, with semantics for multi-round-trip requests. Serving MCP just got much simpler and more scalable.\n\n★ MCP now has extensions. MCP Apps, Tasks, Enterprise Managed Auth, and more. Domain-specific ways to use MCP, plus room for experimental additions.\n\n★ Python, Typescript, C# (soon) SDKs released a v2.0.0 for the new spec with improved ergonomics!  \n\nBut the biggest highlight for me: this release is a true community effort. Individuals and companies alike — Anthropic, Google, Microsoft, OpenAI, and many others helped shape this specification.\n\nAnd there's much more. Full details: https://t.co/NHd9cQmPCu\nCreated: 2026-07-28T18:36:45.000Z\nMetrics: {\"bookmark_count\":358,\"impression_count\":197180,\"like_count\":677,\"quote_count\":24,\"reply_count\":23,\"retweet_count\":113}",
+  "embeddedUrls": []
+}
