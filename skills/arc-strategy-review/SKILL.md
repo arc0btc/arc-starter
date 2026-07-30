@@ -8,6 +8,7 @@ tags:
   - directives
   - milestones
   - purpose
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # arc-strategy-review

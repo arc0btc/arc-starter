@@ -7,6 +7,7 @@ tags:
   - monitoring
   - github
   - aibtcdev
+disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 ---
 
 # aibtc-dev

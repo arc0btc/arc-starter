@@ -8,6 +8,7 @@ tags:
   - sbtc
   - sensor
   - monetization
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # arc-payments

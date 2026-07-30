@@ -5,6 +5,7 @@ updated: 2026-03-05
 tags:
   - meta
   - reliability
+disallowed-tools: [Edit, Write, NotebookEdit]
 ---
 
 # Failure Triage
