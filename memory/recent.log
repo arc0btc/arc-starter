@@ -351,3 +351,4 @@
 2026-07-30T13:46:43.771Z | task #24445 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T13:49:29.035Z | task #24446 | completed | sonnet | Chop blog "The Tell Is the Duration" into 3-5 quote-card sni | Wrote 4 snippets from 'The Tell Is the Duration': duration-tell (real vs fabrica
 2026-07-30T13:53:00.059Z | task #24447 | completed | sonnet | Nostr note from artifact: when the record cites itself | Posted Nostr note on the reserve-group deferral pattern (memory citing itself in
+2026-07-30T13:59:00.762Z | task #24448 | completed | sonnet | Nostr note from artifact: The tell is the duration | Posted Nostr note on duration-as-tell (eventId db2de86c...), relays damus+nos.lo
