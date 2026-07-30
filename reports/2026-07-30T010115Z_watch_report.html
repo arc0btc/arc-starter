@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-07-29T13:00Z – 2026-07-30T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-07-29T13:00:25Z — 2026-07-30T01:01:15Z</div>
+</header>
+
+<p class="summary">20/20 tasks completed, 0 failed, 21 dispatch cycles for $11.12 actual ($8.63 API-rate). Bulk of the period was an X research triage batch (50 stories → 8 accepted, 42 declined) plus three follow-up research writeups and three retrospectives, alongside three Nostr notes and the daily self-audit/PURPOSE eval pair. OAuth token expiry alert fired and self-resolved with no downtime. No new failures or blocks — the 7 blocked tasks are all carried over, awaiting whoabuddy sign-off.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">20</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">7</div><div class="label">Blocked (carried)</div></div>
+  <div class="metric"><div class="value">$11.12</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10841k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">74k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">24359</td><td class="pri">5</td><td>Nostr note: Event before principle</td><td>Posted, both relays ok</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">24358</td><td class="pri">6</td><td>PURPOSE eval</td><td>2.50/5 (up from 2.37) — 104/104 tasks today, 100% success</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">24357</td><td class="pri">7</td><td>Daily self-audit</td><td>2 anomalies, both confirmed benign (X read-budget exhaustion)</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">24360</td><td class="pri">5</td><td>Nostr note: Own docs aren't authorization</td><td>Posted, both relays ok</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">24361</td><td class="pri">5</td><td>Nostr note: The gap stays manual</td><td>Posted, both relays ok</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">24362</td><td class="pri">1</td><td>Health alert: oauth expiring</td><td>Confirmed ~50min remaining at check time, Discord alert already sent</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">24363</td><td class="pri">8</td><td>Retrospective — task #24362</td><td>Pattern already captured; no new learning</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">24364</td><td class="pri">6</td><td>X research triage (50 stories)</td><td>8 research tasks spawned, 42 declined; caching pass on 18 links</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">24366</td><td class="pri">5</td><td>Research: Agent sandbox-escape security</td><td>Report written (relevance 4)</td><td class="cost">$1.73</td></tr>
+    <tr><td class="id">24367</td><td class="pri">5</td><td>Research: AI-found cryptographic flaws (HAWK)</td><td>Report written — real algorithmic flaws, halved HAWK keysize</td><td class="cost">$1.48</td></tr>
+    <tr><td class="id">24368</td><td class="pri">5</td><td>Research: MCP protocol shift</td><td>Stateless-core spec shift, Arc implications noted</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">24370</td><td class="pri">5</td><td>Research: Saylor consensus-threat claim</td><td>Declined — no source URL, only paraphrase</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">24371</td><td class="pri">5</td><td>Research: PayPal agentic payments</td><td>Declined — no source URL provided</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">24369</td><td class="pri">6</td><td>Research: AI-governance cluster</td><td>General policy chatter, no Bitcoin/AIBTC angle</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">24372</td><td class="pri">6</td><td>Research: Dorsey Buzz AI agent</td><td>Declined — no citable source, secondhand paraphrase</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">24373</td><td class="pri">6</td><td>Research: Model landscape (Kimi K3, Poolside)</td><td>Thin but real relevance — confirmed</td><td class="cost">$0.66</td></tr>
+    <tr><td class="id">24365</td><td class="pri">8</td><td>Sync x402 honored entries</td><td>Pull-loop sync, no new entries</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">24374</td><td class="pri">8</td><td>Retrospective — task #24364</td><td>Pattern: shell-quoting discipline in CLI task generation</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">24375</td><td class="pri">8</td><td>Retrospective — task #24366</td><td>Pattern: thin-promo-link-substance-mismatch-verification</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">24376</td><td class="pri">8</td><td>Retrospective — task #24367</td><td>Two patterns on reading raw sources over thin scaffolds</td><td class="cost">$0.23</td></tr>
+  </tbody>
+</table>
+
+<p class="empty">No new failures or blocks this period. 7 tasks remain blocked from prior periods (charter-store-governance escalation, x402-api CF Workers build, Whop SKU/content-calendar sign-off) — all awaiting whoabuddy, no change.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Whop Activity</h2>
+<div class="section">
+<div class="whop-summary">
+No posts to AI Prefers Bitcoin this period. Reactive lane: 118 ticks, 1,062 candidates evaluated, all skipped — 708 stale_message, 354 below_length_floor (both guards fired well above 2×, consistent with a quiet room, not a tuning issue). Synthesis lane: 2 ticks, both DEFER (0 messages in the 24h window each time) — healthy, matches the empty room. Daily reply budget: 0/10 used.
+</div>
+<div class="whop-counterparties">
+Top counterparty (all-time, room otherwise quiet): whoabuddy — 20 msgs, 5 arc→them, 3 them→arc. No other tracked members.
+</div>
+</div>
+
+<h2>North-Star Gauges</h2>
+<div class="section">
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Followers</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">24h delta</div></div>
+  <div class="metric"><div class="value dim">n/a</div><div class="label">7d delta</div></div>
+  <div class="metric"><div class="value">7</div><div class="label">Per-touch proxy (10 tweets)</div></div>
+</div>
+<p class="empty">Anchor 1h old — 24h/7d deltas not yet available. Micro-funnel: profile clicks n/a (no API access), bio-link clicks n/a (no UTM in profile), checkout starts (24h) 0, abandons 0.</p>
+</div>
+
+<h2>Inflow Pool</h2>
+<div class="section">
+<pre style="background: var(--nav-bg); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.9rem 1rem; font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace; font-size: 0.8rem; color: var(--gray-2); overflow-x: auto; white-space: pre-wrap;">Inflow pool — last 24h
+
+Produced (source-artifact pool):
+  arxiv: 4
+  council: 0
+  watch-interior: 4
+  snippet: 8
+  whop-signal: 0
+  total: 16
+
+Consumed (by channel):
+  blog: 0
+  whop-chat: 8
+  whop-forum: 0
+  public-forum: 0
+  x: 2
+  nostr: 8
+  aibtc-news: 0
+  reactive: 0
+  total: 18
+
+⚠️  No fresh artifacts in 36h: whop-signal
+    (gates off, sensor stalled, or upstream source is quiet)</pre>
+<p class="obs" style="border-bottom:none;padding-top:0.5rem;">Consumed (18) exceeds produced (16) over 24h — producers are running slightly behind consumers, not badly out of balance. The whop-signal stall is the one dead lane (0 produced, no fresh artifact in 36h+); no stuck-distill alerts otherwise.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">ebc95f6</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">ff76fa5</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">532325f</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">2495d40</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">b2b492d</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">2f92eba</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">727ecd1</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">11975d4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">de2e90e</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">82685c6</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">4740a9e</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">b5324a1</span>chore(loop): auto-commit after dispatch cycle [29 file(s)]</div>
+<div class="commit"><span class="hash">7301748</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">33b5dd4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">2822bfc</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">7bf94e5</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">7345fcb</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">bf28549</span>chore(db): sync operational state, prune stale reports</div>
+<div class="commit"><span class="hash">33b3339</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">9e3b2ec</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">1f11723</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">05b1960</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">06a615f</span>docs(patterns): add external-condition-escalation-verification variant to task-closure-discipline</div>
+<div class="commit"><span class="hash">16026a0</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">9c632ec</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">1fb186d</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">cb681ee</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">f9127f1</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">c5d04a9</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">38dca6e</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">99f93e9</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">86d84d9</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">90b41a9</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">b4308ba</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">11e9895</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">0561184</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">aa65134</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">78d02f6</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">c9768b1</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">5a8fe79</span>chore(arc-strategy-review): daily eval 2026-07-29T21:33Z — 2.71/5, task #24337</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">6</span>#23818 — Re-measure 'Four Loops' post metrics at true 1-week mark (scheduled ~2026-07-31)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">X research triage batch (#24364) was the biggest single spend of the period at $2.14, spawning 8 follow-up research tasks (~$5.4 combined) — of those, 3 were correctly declined for lacking a citable source URL, showing the no-source guard is working rather than rubber-stamping paraphrased tweets.</div>
+<div class="obs">Whop reactive lane ran 118 ticks and evaluated 1,062 candidates with a 100% skip rate (708 stale_message, 354 below_length_floor) — both guards are firing at volume because the room itself has been quiet since 2026-07-08, not because thresholds are miscalibrated.</div>
+<div class="obs">OAuth expiry alert (#24362) fired with ~50min runway and self-resolved without a gap in dispatch cycles — consistent with the pattern from the prior non-outage (see MEMORY.md oauth-token-expiry-escalation-2026-07-28).</div>
+<div class="obs">All 263 tracked sensors reported zero consecutive failures this period — no operational drift to flag.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track, operationally. 20/20 completed, 0 failed, the OAuth expiry alert self-resolved without a gap, and the no-source guard correctly declined 3 of 8 spawned research follow-ups rather than rubber-stamping paraphrased tweets. Ecosystem output this watch is thin — no external PRs, no blog, activity was internal (research triage, Nostr notes, retrospectives) — and the queue is now essentially empty (0 pending besides a scheduled remeasure task), so the next watch has open capacity to spend on priority-1 work (shipped PRs, Whop conversion) rather than more sensor-driven research triage. The 7 blocked items are unchanged and all correctly held pending whoabuddy — no drift there.</p>
+
+<h3>Queue adjustments</h3>
+<p class="empty">None — this review is report-only per task instructions; no tasks were reprioritized, modified, or killed.</p>
+
+<h3>Next watch focus</h3>
+<p>Queue is empty going into the next watch — use the open capacity for external-facing work (PR review/contribution, Whop funnel activity) over further internal research triage, which has been the dominant cost driver for several watches running.</p>
+
+<h3>24-hour horizon</h3>
+<p>At least one external PR opened/reviewed and the Whop reactive lane still healthy at low volume (room has been quiet since 2026-07-08); no change expected on the 7 blocked items until whoabuddy responds out-of-band.</p>
+</div>
+
+</body>
+</html>
