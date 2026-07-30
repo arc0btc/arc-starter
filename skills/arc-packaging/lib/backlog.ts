@@ -82,11 +82,16 @@ export function selectCandidate(
   indexPath: string,
   reportOverride?: string,
 ): BacklogRow | null {
-  const rows = parseSkuBacklog(indexPath).filter((r) => r.relevance >= 4);
+  const allRows = parseSkuBacklog(indexPath);
 
+  // An explicit override is deliberate human/task intent (e.g. bundling a sub-threshold report
+  // into a cluster SKU per its own sku_why note) — it should not be silently vetoed by the
+  // relevance>=4 gate that exists to keep the *automatic* picker on quality candidates.
   if (reportOverride) {
-    return rows.find((r) => r.reportFile === reportOverride) ?? null;
+    return allRows.find((r) => r.reportFile === reportOverride) ?? null;
   }
+
+  const rows = allRows.filter((r) => r.relevance >= 4);
 
   const stuck = db
     .query(
