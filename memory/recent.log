@@ -324,3 +324,6 @@
 2026-07-30T06:42:27.714Z | task #24418 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T07:17:31.854Z | task #24419 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~107min (2026-07-30T09:24:10Z); Discord alert already sen
 2026-07-30T07:18:06.456Z | task #24420 | completed | haiku | Retrospective: extract learnings from task #24419 — health a | No learnings to capture — task matches existing [[external-condition-escalation-
+2026-07-30T07:43:48.991Z | task #24421 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-30T08:43:10.280Z | task #24422 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-30T09:37:19.295Z | task #24423 | completed | sonnet | Distill watch report 2026-07-30T010115Z into 1-2 interior ob | Wrote 2 nuggets: cost (X triage .14 spike, no-source guard held, declined 3/8 fo
