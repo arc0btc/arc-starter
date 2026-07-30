@@ -521,3 +521,4 @@
 2026-07-30T00:55:15.958Z | task #24373 | completed | sonnet | Research: Model landscape — Kimi K3 tops Arena fullstack + P | Kimi K3 tops Arena fullstack + Calacanis harness-independence tweet: thin but re
 2026-07-30T00:55:21.933Z | task #24365 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T00:57:23.760Z | task #24374 | completed | haiku | Retrospective: extract learnings from task #24364 — Triage:  | One pattern captured: shell-quoting discipline in CLI task generation. Caching/c
+2026-07-30T00:58:11.828Z | task #24375 | completed | haiku | Retrospective: extract learnings from task #24366 — Research | Extracted pattern: thin-promo-link-substance-mismatch-verification — don't decli
