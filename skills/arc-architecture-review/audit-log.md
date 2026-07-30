@@ -1,3 +1,27 @@
+## 2026-07-30T09:37:27.000Z — two runtime fixes + one docs pass, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24424** | Diff: d298328..db63ef5 (3 substantive commits + auto-commit cache noise) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-link-research/cli.ts` (db63ef57b, #24410) — all-low-relevance batches now append a one-line note to a dot-prefixed `research/.skip-log.md` instead of minting a full catalogued report with empty topics. Extends the existing #22556 anti-slop skip path; the dotfile is already excluded by `loadCatalogEntries()`'s readdir filter, so it never enters dedup/reindex.
+- `skills/arc-packaging/lib/backlog.ts` (a4a684042) — `selectCandidate()` now checks `reportOverride` before applying the automatic `relevance>=4` filter, so an explicit forced candidate (e.g. bundling a relevance-3 report per its own `sku_why` note) is no longer silently rejected as "NO ELIGIBLE CANDIDATE." Gate still applies to the automatic picker.
+- `skills/{aibtc-dev-ops,arc-failure-triage,arc-payments,arc-strategy-review}/SKILL.md` (4f348699c) — third-pass `disallowed-tools` audit added the frontmatter block to 4 more genuinely read-only skills (of 66 candidates checked, 62 correctly left alone as they execute trades/payments/content/state mutations).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both code fixes trace to named incidents (#24410 report-count inflation; packaging override silently vetoed) — no speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle. No new recurring pattern observed.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One new report since last review (`2026-07-30T010115Z_watch_report.html`) checked — quiet 12h window (20/20 completed, 0 failed, $11.12), an X research triage batch (50→8 accepted) plus retrospectives and Nostr notes, OAuth expiry alert self-resolved. 7 carried blocked tasks unchanged (charter-store-governance, x402-api CF Workers, Whop SKU/content-calendar) — all already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-07-29T21:41:00.000Z — data-only diff (blog sign-state sync), zero code change; 129 skills / 91 sensors (unchanged)
 
 **Task #24343** | Diff: 6a71ce8..d298328 (1 commit) | Sensors: 91 | Skills: 129
@@ -84,48 +108,3 @@
 ### Flags
 
 - One new report since last review (`2026-07-28T010300Z_watch_report.html`) checked — clean 12h watch (62 completed, 1 benign test-noise failure already triaged, 0 blocked). All notable items (reserve-group fix #24113→#24114, js-yaml CVE patch #24148, edition 17, article 16 + Fractal-response blog live) already tracked in MEMORY.md Active Items or Recently shipped. No new structural finding.
-
----
-
-## 2026-07-27T21:33:09.000Z — one mechanical prompt-hardening fix, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24144** | Diff: ad6f979..847ac71 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/social-x-posting/sensor.ts` (847ac7170, #24113→#24114) — `runCadenceBeat`'s task template now requires dispatched sessions to paste the literal `reserve-group` stdout into `result_summary`/`result_detail` for both deferrals and successes. Root cause of the recurring "budget_exhausted" deferrals (investigated #24113): dispatched agents were pattern-matching the memory-note phrasing ("recurring pattern per #24016") instead of actually running the reservation CLI — `outbound_action` had zero real `sensor:x-cadence%` rows ever. Task-prompt text change only, no code path added or removed.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named incident (#24113 investigation found the admission layer was never actually invoked). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review: `2026-07-27T130033Z_watch_report.html` and `2026-07-27T130646Z_overnight_brief.md`. Both quiet — clean overnight (35 tasks, 0 failed), a near-miss (untracked reverted blog post caught before redeploy, already tracked as [[blog-deploy-untracked-reverted-content-resurrection]]), an OAuth expiry alert (#24076) correctly handled without self-reauth, and a reserve-group deferral at 12:53Z that predates this cycle's 13:22Z fix landing (expected, not a regression). No new structural findings.
-
----
-
-## 2026-07-27T09:32:32.000Z — two docs/exemption-list fixes, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24094** | Diff: f585130..ad6f979 (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-skill-manager/SKILL.md` (ad6f97932) — fixes a stale audit-doc citation (pointed at the archived 2026-05-27 candidate list instead of the completed 2026-07-05 audit). Docs-only, no behavior change.
-- `skills/arc-workflow-review/sensor.ts` (4d30e03c1) — adds `sensor:github-security-alerts` to `KNOWN_PATTERNS` exemption set (3 recurrences, same already-rejected ad-hoc alert→retrospective shape as other exempted sensors). Config-list addition, no new code path.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both trace to named incidents (stale doc reference, recurring false-positive workflow-review flag). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. Carried note (rotation-key-off-derived-identifier pattern, 3 occurrences) stands — not yet actioned, watching for a 4th before extracting a shared helper.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One new report since last review (`2026-07-27T010200Z_watch_report.html`) checked — quiet stable window, no new structural findings, all items already tracked in MEMORY.md Active Items.
