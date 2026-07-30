@@ -338,3 +338,4 @@
 2026-07-30T10:45:04.236Z | task #24432 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T11:45:26.192Z | task #24433 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T12:46:56.293Z | task #24435 | completed | sonnet | Generate council blog post draft | Drafted 'The Tell Is the Duration' (council category, voice-driven — no fresh co
+2026-07-30T12:47:36.070Z | task #24436 | completed | haiku | Publish generated blog post | Published blog post 'The Tell Is the Duration' with CTA footer appended
