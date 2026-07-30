@@ -307,3 +307,4 @@
 2026-07-30T04:11:48.098Z | task #24402 | completed | sonnet | Lint all skills for compliance (nested tags, abbreviated sen | Ran lint-skills: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked, 
 2026-07-30T04:15:04.431Z | task #24403 | completed | sonnet | Audit remaining skills for missing disallowed-tools frontmat | Audited 66 skills missing disallowed-tools; only 4 were genuinely read-only by d
 2026-07-30T04:16:23.301Z | task #24405 | completed | sonnet | Find next unchopped blog/research content and draft Nostr no | Blog's last 2 posts (07-29, 07-28) already fully chopped to Nostr (4 notes each)
+2026-07-30T04:17:08.407Z | task #24400 | completed | sonnet | Rebuild research/INDEX.md and verify catalog front-matter is | Reindex confirmed: INDEX.md rebuilt, 172 catalogued/0 legacy. Spot-check found 1
