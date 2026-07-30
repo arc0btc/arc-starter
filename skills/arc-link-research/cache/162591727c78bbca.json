@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/v84CMMi7hQ",
+  "fetchedAt": "2026-07-30T00:39:15.716Z",
+  "contentType": "tweet",
+  "title": "@thebuggeddev: Casually vibe coded @Trevornoah's latest website \"Books\" page using Fable 5 😍\n\n...",
+  "rawContent": "Tweet by @thebuggeddev (The Bugged Dev)\nAuthor bio: A Human Bugged by Bugs | Software Developer | Design Engineer | Building with AI | Learning Three.js 🥳\nText: Casually vibe coded @Trevornoah's latest website \"Books\" page using Fable 5 😍\n\nI really loved the effects and animations on the website and immediately wanted to see if I could recreate them with AI. \n\nPretty close in just a couple of prompts, isn't it?\n\nEverything is built in @threejs with no 3D assets for the books. Claude built the whole thing using pure math and animated it nicely with GSAP. Feels so realistic and close to real book. \n\nPretty fun to see how close you can get to the kind of work agencies charge thousands of dollars for, just by describing what you want :D\n\nLive: https://t.co/h8YgGmK7XV\nCode: https://t.co/GF1wBFxIYv\nCreated: 2026-07-25T16:48:55.000Z\nMetrics: {\"bookmark_count\":1026,\"impression_count\":190592,\"like_count\":800,\"quote_count\":8,\"reply_count\":33,\"retweet_count\":50}",
+  "embeddedUrls": [
+    "https://t.co/v84CMMi7hQ"
+  ]
+}

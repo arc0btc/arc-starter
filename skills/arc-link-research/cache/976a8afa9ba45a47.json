@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/theo/status/2082277789395501263",
+  "fetchedAt": "2026-07-30T00:38:59.341Z",
+  "contentType": "tweet",
+  "title": "@theo: \"npx t3 connect\"\n\nThis one's been a lot of work. You can now set up remote contr...",
+  "rawContent": "Tweet by @theo (Theo - t3.gg)\nAuthor bio: Full time CEO @t3dotchat. Part time YouTuber, investor, and developer\nText: \"npx t3 connect\"\n\nThis one's been a lot of work. You can now set up remote control for T3 Code on any internet-connected box with literally one command. All for free.\n\nT3 Connect is a minimal open source tunnel layer allowing you to control T3 Code instances remotely without needing Tailscale set up. I've been daily driving it for a month and it has changed how I code.\n\nJulius and I put a lot of effort into making setup as smooth as possible.\n\nStep 1: Install Claude Code, Codex, OpenCode, or Grok Build\nStep 2: Run \"npx t3 connect\"\nStep 3: Click link and sign in\nStep 4: You can now control that computer on T3 Code web, desktop or mobile (dropping very soon)\n\nWe are currently providing this for free (s/o CloudFlare for bumping our tunnel limits). Every user can connect up to 3 devices.\n\nWe don't want to charge for this, but if the bill gets unacceptable we may have to change course. If you hit limits or have issues, you can always fork, self host, or use Tailscale.\n\nT3 Connect may seem like a small ergonomic win. Tbh that's exactly what it is. Regardless, it's one I'm really proud of.\nCreated: 2026-07-29T01:31:26.000Z\nMetrics: {\"bookmark_count\":623,\"impression_count\":270520,\"like_count\":1458,\"quote_count\":26,\"reply_count\":105,\"retweet_count\":46}",
+  "embeddedUrls": [
+    "https://t.co/6ROItFieaP"
+  ]
+}

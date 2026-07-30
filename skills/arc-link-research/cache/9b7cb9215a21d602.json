@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/1353836358901501952/status/2082153297670992134",
+  "fetchedAt": "2026-07-30T00:38:59.341Z",
+  "contentType": "tweet",
+  "title": "@AnthropicAI: New Anthropic research: Discovering cryptographic weaknesses with Claude.\n\nClaud...",
+  "rawContent": "Tweet by @AnthropicAI (Anthropic)\nAuthor bio: We're an AI safety and research company that builds reliable, interpretable, and steerable AI systems. Talk to our AI assistant @claudeai on https://t.co/FhDI3KQh0n.\nText: New Anthropic research: Discovering cryptographic weaknesses with Claude.\n\nClaude Mythos Preview has helped our researchers find weaknesses in cryptographic algorithms—the mathematical methods that are used to keep data private.\n\nRead more: https://t.co/TYKLjb3Q7V\nCreated: 2026-07-28T17:16:45.000Z\nMetrics: {\"bookmark_count\":2303,\"impression_count\":2414880,\"like_count\":5904,\"quote_count\":430,\"reply_count\":407,\"retweet_count\":779}",
+  "embeddedUrls": [
+    "https://t.co/TYKLjb3Q7V"
+  ]
+}
