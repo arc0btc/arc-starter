@@ -522,3 +522,4 @@
 2026-07-30T00:55:21.933Z | task #24365 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-30T00:57:23.760Z | task #24374 | completed | haiku | Retrospective: extract learnings from task #24364 — Triage:  | One pattern captured: shell-quoting discipline in CLI task generation. Caching/c
 2026-07-30T00:58:11.828Z | task #24375 | completed | haiku | Retrospective: extract learnings from task #24366 — Research | Extracted pattern: thin-promo-link-substance-mismatch-verification — don't decli
+2026-07-30T01:00:07.052Z | task #24376 | completed | haiku | Retrospective: extract learnings from task #24367 — Research | Added two patterns: thin-scaffold-source-depth-investment (read raw sources when
