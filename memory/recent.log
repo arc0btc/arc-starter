@@ -440,3 +440,4 @@
 2026-07-31T09:22:45.877Z | task #24533 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-07-31T09:39:29.348Z | task #24534 | completed | sonnet | Distill watch report 2026-07-31T010250Z into 1-2 interior ob | 2 nuggets written (surprise: PR-audit self-correction 11/13 already reviewed; se
 2026-07-31T09:40:41.219Z | task #24535 | completed | sonnet | architecture review — codebase changed since last review (f7 | Reviewed f71b252..78a1ac2: one genuine context-gap fix (engagement-count read co
+2026-07-31T09:43:32.931Z | task #24536 | completed | sonnet | workflow review — 1 health issue(s) | Root cause: clearResolvedAlerts() only matched state=triggered, so alerts acknow
