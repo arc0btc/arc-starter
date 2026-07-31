@@ -66,29 +66,6 @@
 
 ---
 
-## 2026-07-29T09:36:08.000Z — shared rotation-key helper extracted, closing the carried pattern; 129 skills / 91 sensors (unchanged)
-
-**Task #24284** | Diff: 65dee21..6a71ce8 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/utils.ts` (6a71ce8f6, #24249) — adds `slugFromReportFile` (cosmetic, collision-prone) and `fileKeyFromReportFile` (collision-free) as shared helpers, mirroring the existing `slugify()` P3 precedent. Extracted after the same derived-identifier-collision fix shipped independently 3 times (article-pipeline #23670, daily-read #23897/#24018, arc-packaging #24240) and was flagged in this log across 4 consecutive reviews. Existing call sites intentionally left as-is (each already has its own working fix); only new code is expected to import these. This closes the carried Step-3 note from the last cycle.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named, repeated incident pattern (4 occurrences across 3 pipelines). No speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: Closed — the rotation-key-off-derived-identifier pattern carried since 2026-07-26 is now a shared helper (`src/utils.ts`). No further action; watch that future report-filename-keyed code actually imports it instead of re-deriving.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Reports checked since last review: `2026-07-29T010054Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 confirmed a non-event and closed retroactively. No new structural finding.
-
-
----
-
 ## 2026-07-31T09:40:00.000Z — one genuine context-gap fix (read path for engagement counts), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24535** | Diff: f71b252..78a1ac2 (2 substantive commits + auto-commit cache/data churn) | Sensors: 91 | Skills: 129
@@ -109,3 +86,25 @@
 ### Flags
 
 - No active reports since last review (`2026-07-31T010250Z_watch_report.html` is the only one newer than the last audit and contains no architecture-relevant feedback). No new structural finding.
+
+---
+
+## 2026-07-31T21:39:50.000Z — targeted state-machine bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24586** | Diff: 78a1ac2..32b6bc6 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-service-health/sensor.ts` (32b6bc681, #24536/#24537) — `clearResolvedAlerts()` previously matched only `state=triggered`, but the `HealthAlertMachine`'s own task instructions move workflows `triggered→acknowledging` on dispatch pickup, so any alert acknowledged before its condition cleared (the common `oauth-expiring` case) had no automated path to close out. Found via workflow-health audit (14/15 active `oauth-expiring` instances stuck, oldest 7 days). Fix adds the `acknowledging` branch, routing through `updateWorkflowState(..., "retrospective_pending", ...)` so the retrospective still fires instead of silently completing. Backlog manually cleared same-cycle.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named audit finding (#24536, 14 stuck instances) — a real decision-point gap (the state machine's own documented transition had no matching resolver branch), not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two reports checked since last review: `2026-07-31T130000Z_overnight_brief.md` and `2026-07-31T130051Z_watch_report.html` (same 01:02Z–13:00Z window, overlapping content). Clean night (37/37 completed, 0 failed, $12.69), both real fixes shipped that window (this one plus the engagement-count CLI work already reflected in the prior audit-log entry). A fresh, legitimate `oauth-expiring` alert followed later that morning — expected, unrelated to the fix (token lifecycle vs. stuck-state bug). No new structural finding.
