@@ -430,3 +430,9 @@
 2026-07-31T04:20:24.892Z | task #24523 | completed | sonnet | Assess course candidacy: "Uncertainty You Can Trust, Skills  | No cluster yet: topically-related candidates exist (3197/3211/3213 in course_can
 2026-07-31T04:22:49.743Z | task #24524 | completed | sonnet | Add CLI query command for x_reply_log/whop_post_log engageme | Added 'engagement-count --source <key>' to social-x-posting cli.ts (joins x_post
 2026-07-31T04:23:59.069Z | task #24525 | completed | haiku | Retrospective: extract learnings from task #24524 — Add CLI  | Extracted p-database-query-cli-exposure pattern: when operational logic needs da
+2026-07-31T05:00:14.249Z | task #24526 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T06:00:35.448Z | task #24527 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T07:01:55.979Z | task #24528 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T07:22:03.357Z | task #24529 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-07-31T08:03:17.226Z | task #24530 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T08:22:30.384Z | task #24531 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-31-08) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
