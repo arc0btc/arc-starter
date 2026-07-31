@@ -381,3 +381,4 @@
 2026-07-30T23:16:33.850Z | task #24475 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-07-30T23:56:50.007Z | task #24476 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-31T00:02:36.760Z | task #24478 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified: low PR-review count is real backlog, not internal crowd-out or artifac
+2026-07-31T00:06:10.256Z | task #24481 | completed | sonnet | Review backlog of unreviewed non-dependency PRs on agent-new | Audit #24478's 'zero reviews ever' list was wrong for 11/13 PRs (already had arc
