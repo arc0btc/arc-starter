@@ -421,3 +421,4 @@
 2026-07-31T04:07:52.494Z | task #24515 | completed | sonnet | arc-link-research: package 2026-07-31T01:06:41Z research rep | Packaged 2026-07-31T01:06:41Z ACM/context-compaction research (arc_relevance=4) 
 2026-07-31T04:08:06.221Z | task #24514 | completed | sonnet | arc-link-research: rebuild research/INDEX.md (reindex stale  | reindex rebuilt research/INDEX.md: 180 catalogued, 0 legacy. 21 malformed front-
 2026-07-31T04:09:19.189Z | task #24516 | completed | sonnet | arc-link-research: audit research/ reports for missing REPOR | Audit found premise stale: 0 reports missing front-matter (research/INDEX.md alr
+2026-07-31T04:10:51.193Z | task #24517 | completed | sonnet | aibtc-repo-maintenance: triage-issues sweep across all watch | Triage swept all 7 watched repos (91 open issues total). Flagged 7 recent (post-
