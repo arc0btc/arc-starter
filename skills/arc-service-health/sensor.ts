@@ -8,7 +8,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir, hostname } from "node:os";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource } from "../../src/sensors.ts";
-import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey, getWorkflowsByTemplate, completeWorkflow, updateWorkflowContext } from "../../src/db.ts";
+import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey, getWorkflowsByTemplate, completeWorkflow, updateWorkflowContext, updateWorkflowState } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
@@ -220,25 +220,54 @@ function sendResolutionDiscordAlert(alertType: string, triggeredAt: string, reso
   })();
 }
 
-/** Auto-complete any triggered health-alert workflows for a given alertType when the condition is no longer active. */
+/**
+ * Auto-resolve open health-alert workflows for a given alertType when the condition is no
+ * longer active.
+ *
+ * Handles two states:
+ * - "triggered" (dispatch never picked up the task yet) — completed directly, matching the
+ *   original behavior.
+ * - "acknowledging" (dispatch already moved the workflow past "triggered" per the state
+ *   machine's task instructions) — transitioned to "retrospective_pending" via the machine's
+ *   "resolved" event, so the retrospective still fires instead of the workflow going stale
+ *   forever. Before this fix, "acknowledging" was never matched here, so any alert dispatch
+ *   acknowledged before the condition cleared (the common case — oauth-expiring alerts get
+ *   acknowledged immediately, then the condition clears once the token refreshes) would sit
+ *   in "acknowledging" indefinitely with no automated path to close it out (14 stuck instances
+ *   found in #24536 audit).
+ */
 function clearResolvedAlerts(alertType: string): void {
   const workflows = getWorkflowsByTemplate("health-alert");
   for (const wf of workflows) {
     if (wf.completed_at !== null) continue;
-    if (wf.current_state !== "triggered") continue;
+    if (wf.current_state !== "triggered" && wf.current_state !== "acknowledging") continue;
     try {
       const ctx = JSON.parse(wf.context ?? "{}") as { alertType?: string };
-      if (ctx.alertType === alertType) {
-        const resolvedAt = new Date().toISOString();
-        const durationMs = Date.now() - new Date(wf.created_at).getTime();
-        // Record a durable resolution summary on the workflow before completing it, so the
-        // outage is visible from `getAllWorkflows()`/`getWorkflowsByTemplate` history alone —
-        // not just journalctl. See #23624/#23643/#23718.
-        updateWorkflowContext(wf.id, { resolvedAt, triggeredAt: wf.created_at, durationMs });
+      if (ctx.alertType !== alertType) continue;
+      const resolvedAt = new Date().toISOString();
+      const durationMs = Date.now() - new Date(wf.created_at).getTime();
+      // Record a durable resolution summary on the workflow before completing it, so the
+      // outage is visible from `getAllWorkflows()`/`getWorkflowsByTemplate` history alone —
+      // not just journalctl. See #23624/#23643/#23718.
+      updateWorkflowContext(wf.id, { resolvedAt, triggeredAt: wf.created_at, durationMs });
+      if (wf.current_state === "acknowledging") {
+        updateWorkflowState(
+          wf.id,
+          "retrospective_pending",
+          JSON.stringify({
+            ...ctx,
+            resolvedAt,
+            triggeredAt: wf.created_at,
+            durationMs,
+            resolutionSummary: `Auto-resolved: ${alertType} condition cleared (sensor observed at ${resolvedAt}).`,
+          })
+        );
+        log(`auto-resolved acknowledged ${alertType} workflow id=${wf.id} -> retrospective_pending (triggered=${wf.created_at}, duration=${Math.round(durationMs / 60000)}min)`);
+      } else {
         completeWorkflow(wf.id);
         log(`auto-completed resolved ${alertType} workflow id=${wf.id} (triggered=${wf.created_at}, duration=${Math.round(durationMs / 60000)}min)`);
-        sendResolutionDiscordAlert(alertType, wf.created_at, resolvedAt, durationMs);
       }
+      sendResolutionDiscordAlert(alertType, wf.created_at, resolvedAt, durationMs);
     } catch {
       // skip unparseable context
     }
