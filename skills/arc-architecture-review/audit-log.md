@@ -86,25 +86,26 @@
 
 - Reports checked since last review: `2026-07-29T010054Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 confirmed a non-event and closed retroactively. No new structural finding.
 
+
 ---
 
-## 2026-07-28T21:34:00.000Z — one root-cause fix (4th occurrence of rotation-key bug), zero structural change; 129 skills / 91 sensors (unchanged)
+## 2026-07-31T09:40:00.000Z — one genuine context-gap fix (read path for engagement counts), zero structural change; 129 skills / 91 sensors (unchanged)
 
-**Task #24245** | Diff: 71431d4..65dee21 (2 substantive commits + 1 auto-package data write) | Sensors: 91 | Skills: 129
+**Task #24535** | Diff: f71b252..78a1ac2 (2 substantive commits + auto-commit cache/data churn) | Sensors: 91 | Skills: 129
 
 ### Changed files (substantive only)
 
-- `skills/arc-packaging/cli.ts` (65dee2192, #24240) — adds `file_key` column derived from the full unique `report_file`; all materials/draft/deliverable/quiz/cover filenames now key on it instead of the collision-prone `slug` (generic `<timestamp>_research.md` reports all strip to `"research"`). Fixes a real bug (#24239: a draft still held a prior report's content). `slug`/`route` stay cosmetic (Whop route naming only). **This is the 4th occurrence of the rotation-key-off-derived-identifier bug class** flagged and carried since 2026-07-26 (article-pipeline #23670, daily-read #23897, daily-read #24018, now arc-packaging #24240) — filed follow-up #24249 to extract a shared `fileKeyFromReportFile`-style helper rather than re-deriving the fix a 5th time.
-- `skills/arc-article-pipeline/drafts/article-16-x-article.json` (+ `.bak-p4-*`) (dff9a8843) — P4 auto-package data write, no code change.
+- `skills/social-x-posting/cli.ts` + `skills/whop/cli.ts` (9313bc63d, #AI-054) — adds `engagement-count --source <key>` to both skills. `arc-workflows` state-machine course-candidacy assessment needed to check reply/engagement counts by source key but only had raw SQL (disallowed during dispatch) or a conservative-default fallback — a real context-delivery gap (decision point lacked what it needed). Fix closes it directly: joins `x_post_log -> x_reply_log` for X, counts `whop_post_log` by source/prefix for Whop. `78a1ac276` documents both new commands in SKILL.md.
+- Remaining 47 commits in range are `arc-link-research/cache/*.json` auto-commit churn (no code change) — excluded per standing convention.
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: Traces to a named incident (#24239 investigation). No speculative scope.
+- **Step 1 — Requirements**: Traces to a named gap (AI-054, course-candidacy assessment falling back to conservative defaults). Scope matched the gap exactly — two read-only CLI commands, no speculative extension.
 - **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: Actioned — filed #24249 to extract the shared rotation-key helper now that the pattern has recurred a 4th time (threshold previously set at "watch for a 4th").
+- **Step 3 — Simplify**: N/A — already minimal (mirrors existing read-command patterns in both CLIs).
 - **Step 4 — Accelerate**: N/A this cycle.
 - **Step 5 — Automate**: N/A this cycle.
 
 ### Flags
 
-- Two reports checked since last review: `2026-07-28T130002Z_watch_report.html` and `2026-07-28T130622Z_overnight_brief.md`. Both already reflected in MEMORY.md — clean overnight (18 tasks, 0 failed), OAuth expiry escalation #24191/#24192 (confirmed resolved this session, closed retroactively per MEMORY.md), reserve-group/js-yaml/edition-17 items already tracked. No new structural finding beyond the rotation-key pattern above.
+- No active reports since last review (`2026-07-31T010250Z_watch_report.html` is the only one newer than the last audit and contains no architecture-relevant feedback). No new structural finding.
