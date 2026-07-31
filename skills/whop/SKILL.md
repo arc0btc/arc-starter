@@ -48,6 +48,7 @@ arc skills run --name whop -- reply-chat --to <message_id> --content "<markdown>
 arc skills run --name whop -- create-course --experience exp_xxx --title "Title"
 arc skills run --name whop -- create-chapter --course cou_xxx --title "Title" --order 1
 arc skills run --name whop -- create-lesson --chapter cha_xxx --title "Title" --type text --content "<md>" --order 1
+arc skills run --name whop -- engagement-count --source <key>           # count/list whop_post_log rows for --source (exact + prefix match)
 ```
 
 `list-messages` returns newest-first (default limit 20). Pagination: use the opaque cursor string from

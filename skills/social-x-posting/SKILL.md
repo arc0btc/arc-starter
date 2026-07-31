@@ -31,6 +31,7 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 | `lookup --username <handle>` | Look up a user by username |
 | `budget` | Show daily action budget usage and remaining |
 | `status` | Check credential status and account info |
+| `engagement-count --source <key>` | Count replies (x_reply_log) to the tweet posted under `--source` (x_post_log) — read path for course-candidacy/engagement checks, no raw SQL needed |
 
 ## Daily Budget
 
