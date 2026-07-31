@@ -114,6 +114,28 @@ async function recordPost(source: string, channelId: string, messageId: string |
   ).run(source, channelId, messageId, new Date().toISOString());
 }
 
+// AI-054: course-candidacy assessment (arc-workflows/state-machine.ts) needs a read
+// path over whop_post_log to check "did we post under this --source key, and how
+// many rows share this prefix" without raw SQL. whop_post_log has no reply/engagement
+// data of its own (it only records Arc's own outbound posts, keyed by source), so
+// this counts/lists posted rows matching a source prefix — the caller treats "did a
+// post land under this prefix" as the signal, same scope as the exact --source lookup.
+async function cmdEngagementCount(flags: Record<string, string>): Promise<void> {
+  const source = flags["source"];
+  if (!source) fail("engagement-count requires --source <key> (prefix-matched, e.g. content-calendar:my-slug:)");
+
+  const db = await whopPostLog();
+  const rows = db.query(
+    "SELECT source, channel_id, message_id, posted_at FROM whop_post_log WHERE source = ? OR source LIKE ? ORDER BY posted_at ASC",
+  ).all(source, `${source}%`) as { source: string; channel_id: string; message_id: string | null; posted_at: string }[];
+
+  process.stdout.write(JSON.stringify({
+    source_prefix: source,
+    post_count: rows.length,
+    posts: rows,
+  }, null, 2) + "\n");
+}
+
 // The created message/forum-post id for the ledger. SDK create() return types
 // don't surface `.id` uniformly, so this localizes the one narrow cast.
 const createdId = (x: unknown): string | null => (x as { id?: string }).id ?? null;
@@ -200,6 +222,7 @@ function printHelp(): void {
       "  tick-free-forum                        run pollWhopFreeForumDigest() once, bypassing the 24h self-gate",
       "  tick-events                            run pollWhopEvents() once (intake memberships/payments -> ledger)",
       "  revenue                                members / MRR / break-even + weekly net-new + MRR-ladder + leading indicators (captured Whop events)",
+      "  engagement-count --source <key>        count/list whop_post_log rows for --source (exact + prefix match, e.g. content-calendar:my-slug:) — AI-054 read path",
       "",
     ].join("\n"),
   );
@@ -1696,6 +1719,10 @@ async function main(): Promise<void> {
       initDatabase();
       const { formatReadout } = await import("./lib/events.ts");
       console.log(await formatReadout());
+      break;
+    }
+    case "engagement-count": {
+      await cmdEngagementCount(flags);
       break;
     }
     default:

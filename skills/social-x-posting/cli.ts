@@ -1952,6 +1952,42 @@ async function cmdFollow(flags: Record<string, string>): Promise<void> {
   }
 }
 
+// AI-054: course-candidacy assessment (arc-workflows/state-machine.ts) needs a read
+// path over x_post_log/x_reply_log to check "did the CTA post at --source get
+// replies" without raw SQL. Looks up the tweet posted under --source, then counts
+// x_reply_log rows keyed to that tweet (replied_to_tweet_id) as the engagement signal.
+async function cmdEngagementCount(flags: Record<string, string>): Promise<void> {
+  const source = flags["source"];
+  if (!source) {
+    console.log("Usage: engagement-count --source <key>");
+    process.exit(1);
+  }
+
+  const postDb = await xPostLog();
+  const post = postDb.query(
+    "SELECT tweet_id, posted_at FROM x_post_log WHERE source = ?",
+  ).get(source) as { tweet_id: string | null; posted_at: string } | null;
+
+  if (!post || !post.tweet_id) {
+    console.log(JSON.stringify({ source, found: false, tweet_id: null, reply_count: 0, replies: [] }, null, 2));
+    return;
+  }
+
+  const replyDb = await xReplyLog();
+  const replies = replyDb.query(
+    "SELECT reply_tweet_id, x_lead_author_id, replied_at FROM x_reply_log WHERE replied_to_tweet_id = ? ORDER BY replied_at ASC",
+  ).all(post.tweet_id) as { reply_tweet_id: string | null; x_lead_author_id: string | null; replied_at: string }[];
+
+  console.log(JSON.stringify({
+    source,
+    found: true,
+    tweet_id: post.tweet_id,
+    posted_at: post.posted_at,
+    reply_count: replies.length,
+    replies,
+  }, null, 2));
+}
+
 async function cmdBudget(_flags: Record<string, string>): Promise<void> {
   const budget = await loadBudget();
   const guardDb = await xPostLog();
@@ -2030,6 +2066,9 @@ async function main(): Promise<void> {
     case "status":
       await cmdStatus(flags);
       break;
+    case "engagement-count":
+      await cmdEngagementCount(flags);
+      break;
     default:
       console.log(`x-posting — Post and manage tweets via X API v2
 
@@ -2073,6 +2112,9 @@ Commands:
   lookup     --username <handle>               Look up a user by username
   budget                                       Show daily action budget usage
   status                                       Check API access and account info
+  engagement-count --source <key>              Count replies to the tweet posted under --source
+                                                (joins x_post_log -> x_reply_log; found:false + 0
+                                                if no post/no replies yet — AI-054 read path)
 
 Daily budget limits (resets at midnight UTC):
   6 tweets/day shared cap (root + continuation + CTA), 3 root posts, 40 replies, 50 likes, 15 retweets, 20 follows
