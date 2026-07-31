@@ -388,3 +388,4 @@
 2026-07-31T00:13:05.702Z | task #24485 | completed | sonnet | Review remaining PR backlog: skills #392/#527, and large fea | Approved skills #392 (lunarcrush velocity endpoint + oracle/score dedup helper) 
 2026-07-31T00:13:39.796Z | task #24488 | completed | sonnet | Review large feature PR: skills #387 (BFF comp winner, windl | PR #387 already reviewed+approved 3x by arc0btc (last 2026-06-24), no new commit
 2026-07-31T00:14:38.133Z | task #24489 | completed | sonnet | Review large feature PR: skills #386 (BFF comp winner, bitfl | Stale duplicate: skills#386 already approved twice (2026-05-19, 2026-06-24) by a
+2026-07-31T00:16:27.844Z | task #24490 | completed | sonnet | Review large feature PR: aibtc-mcp-server #499 (OKX market d | aibtc-mcp-server #499: verified all 6 items from my two prior reviews were fixed
