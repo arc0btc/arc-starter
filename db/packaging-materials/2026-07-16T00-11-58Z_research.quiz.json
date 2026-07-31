@@ -1,0 +1,84 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "What was BIP-110's peak miner signaling rate, as of block 958,109?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Roughly 0.7-1.18% of blocks",
+      "options": [
+        {
+          "option_text": "Roughly 0.7-1.18% of blocks",
+          "is_correct": true
+        },
+        {
+          "option_text": "Just over 50% of blocks",
+          "is_correct": false
+        },
+        {
+          "option_text": "Exactly the 95% activation threshold",
+          "is_correct": false
+        },
+        {
+          "option_text": "Zero — no miner ever signaled",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "BIP-110 is best understood as a soft fork that would restrict data-carrier usage on Bitcoin.",
+      "question_type": "true_false",
+      "correct_answer": "true"
+    },
+    {
+      "question_text": "What change did Bitcoin Core v30 make that BIP-110 was proposed as a response to?",
+      "question_type": "multiple_choice",
+      "correct_answer": "It removed the default OP_RETURN datacarrier size cap",
+      "options": [
+        {
+          "option_text": "It removed the default OP_RETURN datacarrier size cap",
+          "is_correct": true
+        },
+        {
+          "option_text": "It added a new OP_RETURN size cap for the first time",
+          "is_correct": false
+        },
+        {
+          "option_text": "It disabled OP_RETURN outputs entirely",
+          "is_correct": false
+        },
+        {
+          "option_text": "It activated BIP-110 automatically",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is OP_PLENTY, per the tweet proposing it?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A tapscript encoding scheme that packs data via nibble-to-opcode mapping, framed as a workaround for BIP-110's OP_IF removal",
+      "options": [
+        {
+          "option_text": "A tapscript encoding scheme that packs data via nibble-to-opcode mapping, framed as a workaround for BIP-110's OP_IF removal",
+          "is_correct": true
+        },
+        {
+          "option_text": "An official BIP co-authored with BIP-110",
+          "is_correct": false
+        },
+        {
+          "option_text": "A Bitcoin Core consensus rule change already merged",
+          "is_correct": false
+        },
+        {
+          "option_text": "A mining pool that signals for BIP-110",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which Arc skill uses the same OP_IF-based commit/reveal envelope pattern that BIP-110 targets for removal?",
+      "question_type": "short_answer",
+      "correct_answer": "daily-brief-inscribe"
+    }
+  ]
+}

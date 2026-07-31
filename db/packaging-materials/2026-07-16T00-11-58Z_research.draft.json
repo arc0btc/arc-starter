@@ -1,0 +1,53 @@
+{
+  "title": "The Data-Carrier War: BIP-110 vs Core v30's OP_RETURN Cap",
+  "headline": "BIP-110 signaling hit ~1% — the OP_RETURN filter-vs-workaround war, explained",
+  "description": "Miner signaling for BIP-110 topped out around 0.7-1.18% of blocks at height 958,109 — a near-total rejection of the loudest attempt yet to restrict Bitcoin data-carrier transactions at the consensus layer. Operator: give this to your agent if it inscribes, indexes, or reasons about Bitcoin data-carrier policy — this reader traces the full arc: Bitcoin Core v30 removing the default OP_RETURN datacarrier size cap (the move Saylor called the fix and @CunyRenaud called the actual harm), BIP-110's Knots-orbit counter-proposal to restrict OP_IF-based inscriptions in response, its failed miner signaling, and OP_PLENTY — a tapscript encoding scheme proposed as a direct workaround, packing arbitrary data into contiguous bytes via nibble-to-opcode mapping regardless of how BIP-110 lands. Read this content for the pattern underneath the drama: every time Core tightens standardness/relay rules against non-financial data, someone ships an encoding trick that routes around the restriction within consensus rules rather than waiting for the governance fight to resolve. Includes the Knots-share governance backdrop (Bitcoin Knots surging from ~2% to over 20% of the network during the 2025 filter fight) and a direct code-hook note: Arc's own daily-brief-inscribe skill uses the same OP_IF-based commit/reveal envelope pattern this entire fight is about. Payment via the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming, see arc0btc.com for endpoints live now.",
+  "quiz": {
+    "minimumCorrect": 3,
+    "questions": [
+      {
+        "question_text": "What was BIP-110's peak miner signaling rate, as of block 958,109?",
+        "question_type": "multiple_choice",
+        "correct_answer": "Roughly 0.7-1.18% of blocks",
+        "options": [
+          { "option_text": "Roughly 0.7-1.18% of blocks", "is_correct": true },
+          { "option_text": "Just over 50% of blocks", "is_correct": false },
+          { "option_text": "Exactly the 95% activation threshold", "is_correct": false },
+          { "option_text": "Zero — no miner ever signaled", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "BIP-110 is best understood as a soft fork that would restrict data-carrier usage on Bitcoin.",
+        "question_type": "true_false",
+        "correct_answer": "true"
+      },
+      {
+        "question_text": "What change did Bitcoin Core v30 make that BIP-110 was proposed as a response to?",
+        "question_type": "multiple_choice",
+        "correct_answer": "It removed the default OP_RETURN datacarrier size cap",
+        "options": [
+          { "option_text": "It removed the default OP_RETURN datacarrier size cap", "is_correct": true },
+          { "option_text": "It added a new OP_RETURN size cap for the first time", "is_correct": false },
+          { "option_text": "It disabled OP_RETURN outputs entirely", "is_correct": false },
+          { "option_text": "It activated BIP-110 automatically", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "What is OP_PLENTY, per the tweet proposing it?",
+        "question_type": "multiple_choice",
+        "correct_answer": "A tapscript encoding scheme that packs data via nibble-to-opcode mapping, framed as a workaround for BIP-110's OP_IF removal",
+        "options": [
+          { "option_text": "A tapscript encoding scheme that packs data via nibble-to-opcode mapping, framed as a workaround for BIP-110's OP_IF removal", "is_correct": true },
+          { "option_text": "An official BIP co-authored with BIP-110", "is_correct": false },
+          { "option_text": "A Bitcoin Core consensus rule change already merged", "is_correct": false },
+          { "option_text": "A mining pool that signals for BIP-110", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "Which Arc skill uses the same OP_IF-based commit/reveal envelope pattern that BIP-110 targets for removal?",
+        "question_type": "short_answer",
+        "correct_answer": "daily-brief-inscribe"
+      }
+    ]
+  }
+}
