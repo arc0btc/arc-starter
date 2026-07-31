@@ -392,3 +392,4 @@
 2026-07-31T00:17:17.160Z | task #24479 | completed | sonnet | PURPOSE eval: 2.19/5 — S:1 O:5 E:1 C:2 | PURPOSE eval 2.25/5 — S1 O5 E1 C2 Ad3 Co1 Se3; 120/120 completed 100% success; c
 2026-07-31T00:17:57.656Z | task #24477 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies benign: candidate-maturation sensor failures = X read-budget exha
 2026-07-31T00:19:29.944Z | task #24484 | completed | haiku | Retrospective: extract learnings from task #24481 — Review b | Added p-pr-review-audit-verification pattern: PR audits must use GitHub API, not
+2026-07-31T00:20:27.181Z | task #24486 | completed | haiku | Retrospective: extract learnings from task #24482 — Review b | Captured 2 reusable patterns: self-authored PR duplicate reconciliation + budget
