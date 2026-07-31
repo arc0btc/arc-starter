@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/I5C2xcsm9y",
+  "fetchedAt": "2026-07-31T00:59:39.585Z",
+  "contentType": "tweet",
+  "title": "@thsottiaux: Turns out GPT-5.6 Sol is actually SoTA on ARC-AGI-3. \n\nJust took two setting cha...",
+  "rawContent": "Tweet by @thsottiaux (Tibo)\nAuthor bio: Codex & ChatGPT @OpenAI\nText: Turns out GPT-5.6 Sol is actually SoTA on ARC-AGI-3. \n\nJust took two setting changes. You just have to allow it to reason and work over multiple context windows with the help of our canonical compaction implementation.\n\nhttps://t.co/wHjaNsvIv8\nCreated: 2026-07-29T23:30:11.000Z\nMetrics: {\"bookmark_count\":3264,\"impression_count\":2666478,\"like_count\":9258,\"quote_count\":359,\"reply_count\":651,\"retweet_count\":608}",
+  "embeddedUrls": [
+    "https://t.co/36rofGztdS",
+    "https://t.co/I5C2xcsm9y"
+  ]
+}

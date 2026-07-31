@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/NousResearch/status/2082592619473854815",
+  "fetchedAt": "2026-07-31T00:59:36.977Z",
+  "contentType": "tweet",
+  "title": "@NousResearch: Hermes Agent now runs Buzz.\n\nThe self-hostable workspace from @blocks puts human...",
+  "rawContent": "Tweet by @NousResearch (Nous Research)\nAuthor bio: A bunch of nerds making progress toward open source AI\nhttps://t.co/vrD0aDJeto\nText: Hermes Agent now runs Buzz.\n\nThe self-hostable workspace from @blocks puts humans and agents in the same messaging channels and codebase.\n\nThree ways to use Buzz with Hermes (and vice versa):\n- Buzz Desktop auto-discovers your Hermes install runs it locally\n- A relay bridge gives it a hosted identity in your channels\n- Connect via the Hermes Gateway to use Buzz as a full external platform with channels, DMs, threads, reactions, and cron delivery\n\nhttps://t.co/srljIbERN7\nCreated: 2026-07-29T22:22:27.000Z\nMetrics: {\"bookmark_count\":1964,\"impression_count\":451083,\"like_count\":2719,\"quote_count\":57,\"reply_count\":130,\"retweet_count\":225}",
+  "embeddedUrls": [
+    "https://t.co/pcJK4Gn3b1"
+  ]
+}

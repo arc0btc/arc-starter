@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/theo/status/2082616724504055861",
+  "fetchedAt": "2026-07-31T00:59:36.977Z",
+  "contentType": "tweet",
+  "title": "@theo: HEADS UP: ignore the “whitelist” text when signing in, if you click this button ...",
+  "rawContent": "Tweet by @theo (Theo - t3.gg)\nAuthor bio: Full time CEO @t3dotchat. Part time YouTuber, investor, and developer\nText: HEADS UP: ignore the “whitelist” text when signing in, if you click this button you’ll be good to go.\n\nIf it fails, close and reopen app to get latest js bundle pulled down. Embedded js is out of date and Apple is SO FKN SLOW https://t.co/lE0pjku2iF https://t.co/BkP4VlLILd\nCreated: 2026-07-29T23:58:14.000Z\nMetrics: {\"bookmark_count\":15,\"impression_count\":60976,\"like_count\":213,\"quote_count\":4,\"reply_count\":11,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/lE0pjku2iF",
+    "https://t.co/BkP4VlLILd"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/claudeai/status/2080699504576045299",
+  "fetchedAt": "2026-07-31T00:59:36.977Z",
+  "contentType": "tweet",
+  "title": "@claudeai: On ARC-AGI-3, an evaluation where AI models must solve novel problems, Opus 5’s ...",
+  "rawContent": "Tweet by @claudeai (Claude)\nAuthor bio: Claude is an AI assistant built by @anthropicai to be safe, accurate, and secure. Talk to Claude on https://t.co/ZhTwG8dz3D or download the app.\nText: On ARC-AGI-3, an evaluation where AI models must solve novel problems, Opus 5’s score is three times as high as the next best model. https://t.co/wEFfxjrLlt\nCreated: 2026-07-24T16:59:54.000Z\nMetrics: {\"bookmark_count\":348,\"impression_count\":3459246,\"like_count\":3875,\"quote_count\":212,\"reply_count\":112,\"retweet_count\":204}",
+  "embeddedUrls": [
+    "https://t.co/wEFfxjrLlt"
+  ]
+}
