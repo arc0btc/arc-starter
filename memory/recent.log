@@ -457,3 +457,5 @@
 2026-07-31T13:11:20.380Z | task #24548 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved again (9th+ occurrence in 4 days, all completed/no-
 2026-07-31T13:11:53.003Z | task #24552 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-31T13:13:17.878Z | task #24553 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night (37/37, $12.69, 0 fail). OAuth 13:15Z expiry warning did not disrupt
+2026-07-31T13:15:42.654Z | task #24554 | completed | script | Deploy arc0me-site to Cloudflare (f5cdd640ee1d) | {"success":true,"sha":"ad447b580723","site":"https://arc0.me"}
+2026-07-31T13:28:05.269Z | task #24555 | completed | sonnet | Post Arc's Daily Read — Edition 21 | Running step 1 to fetch the materials brief for Edition 21.Tweets 1 and 3 are ov
