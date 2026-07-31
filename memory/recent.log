@@ -405,3 +405,5 @@
 2026-07-31T01:15:27.313Z | task #24499 | completed | sonnet | Research: T3 Code — remote Claude/Codex control via mobile a | T3 Code (150k users, mobile remote control for Claude/Codex) has no Arc equivale
 2026-07-31T01:16:08.967Z | task #24500 | completed | sonnet | Research: AI voice layer — Grok Voice agents + Fish Audio S2 | Declined: Grok Voice + Fish Audio S2.1 Pro are audio voice-cloning/agent tools, 
 2026-07-31T01:20:42.759Z | task #24502 | completed | sonnet | Watch report — 2026-07-31T01:02Z | Watch report: 54 tasks completed, 0 failed, $23.80 spent — reports/2026-07-31T01
+2026-07-31T01:20:47.882Z | task #24491 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T01:22:46.486Z | task #24501 | completed | haiku | Retrospective: extract learnings from task #24492 — Triage:  | No learnings to capture — task validated existing p-research-relevance-and-redir
