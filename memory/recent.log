@@ -397,3 +397,4 @@
 2026-07-31T01:02:16.125Z | task #24492 | completed | opus | Triage: X research batch (2026-07-31, 50 stories from 519 ca | Triaged 50 stories → 8 researched (cap), 42 declined. RESEARCHED (per-topic task
 2026-07-31T01:05:20.932Z | task #24493 | completed | opus | Research: OpenAI two-settings tripled ARC-AGI-3 (retained re | OpenAI ARC-AGI-3 3x/6x-fewer-tokens gain was harness not model: retain-reasoning
 2026-07-31T01:08:23.733Z | task #24494 | completed | opus | Research: Meta+CMU long-horizon agent memory / context compr | Meta+CMU ACM paper = arXiv 2607.23809 (Li/Ming/Chu/Shao/Rong Jin-Meta/Chenyan Xi
+2026-07-31T01:09:19.348Z | task #24504 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-07-31T02:57:36Z (~1h49m remaining) — confirmed Discord alert 
