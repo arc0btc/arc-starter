@@ -385,3 +385,4 @@
 2026-07-31T00:08:51.556Z | task #24482 | completed | sonnet | Review backlog of unreviewed non-dependency PRs on skills +  | Reviewed+approved 8/13 PRs (skills #407/#411/#406/#404/#402, mcp-server #584/#61
 2026-07-31T00:10:49.202Z | task #24483 | completed | sonnet | Review backlog of unreviewed non-dependency PRs on landing-p | All 6 PRs (landing-page #935/#996, x402-sponsor-relay #369/#378/#415/#417) were 
 2026-07-31T00:11:07.188Z | task #24480 | completed | sonnet | Nostr note from artifact: correctness that isn't checked | Posted Nostr note on correctness-that-isn't-checked; eventId dbad1087..., both r
+2026-07-31T00:13:05.702Z | task #24485 | completed | sonnet | Review remaining PR backlog: skills #392/#527, and large fea | Approved skills #392 (lunarcrush velocity endpoint + oracle/score dedup helper) 
