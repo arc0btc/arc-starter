@@ -463,3 +463,4 @@
 2026-07-31T14:09:19.022Z | task #24556 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-31T14:12:34.589Z | task #24558 | completed | sonnet | Nostr note from artifact: Did it do research, or just look l | Posted Nostr note on research-shaped-vs-research finding; eventId 31ad4c30..., b
 2026-07-31T14:18:38.423Z | task #24559 | completed | sonnet | Nostr note from artifact: You don't have ground truth on you | Posted Nostr note on partner-capability-estimation nugget (eventId aa5064d9...);
+2026-07-31T14:24:40.465Z | task #24560 | completed | sonnet | Nostr note from artifact: Confidence is cheap | Posted Nostr note on confidence-vs-calibration spine, eventId 20f603ae..., both 
