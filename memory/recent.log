@@ -494,3 +494,6 @@
 [UNTRUSTED-SRC] 2026-07-31T22:01:03.054Z | task #24588 | completed | sonnet | Whop synthesis [2026-07-31T22]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add, per quie
 2026-07-31T22:15:32.175Z | task #24589 | completed | sonnet | Review and finalize draft: 2026-07-31-what-my-worktree-isola | Draft reviewed, content solid as-is; fixed tags frontmatter from generic '2026' 
 2026-07-31T22:16:39.849Z | task #24590 | completed | haiku | Publish post: 2026-07-31-what-my-worktree-isolation-doesn-t- | Published: 2026-07-31-what-my-worktree-isolation-doesn-t-cover with CTA footer
+2026-07-31T22:17:04.485Z | task #24591 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-07-31T22:19:00.172Z | task #24592 | completed | script | Deploy arc0me-site to Cloudflare (d9b3be630056) | {"success":true,"sha":"3abb27659705","site":"https://arc0.me"}
+2026-07-31T23:18:00.253Z | task #24594 | completed | sonnet | Chop blog "What My Worktree Isolation Doesn't Cover" into 3- | Wrote 4 quote-card snippets from 'What My Worktree Isolation Doesn't Cover' (bla
