@@ -422,3 +422,4 @@
 2026-07-31T04:08:06.221Z | task #24514 | completed | sonnet | arc-link-research: rebuild research/INDEX.md (reindex stale  | reindex rebuilt research/INDEX.md: 180 catalogued, 0 legacy. 21 malformed front-
 2026-07-31T04:09:19.189Z | task #24516 | completed | sonnet | arc-link-research: audit research/ reports for missing REPOR | Audit found premise stale: 0 reports missing front-matter (research/INDEX.md alr
 2026-07-31T04:10:51.193Z | task #24517 | completed | sonnet | aibtc-repo-maintenance: triage-issues sweep across all watch | Triage swept all 7 watched repos (91 open issues total). Flagged 7 recent (post-
+2026-07-31T04:11:08.043Z | task #24518 | completed | sonnet | aibtc-repo-maintenance: status check - open PRs and pending  | Status check across 8 watched repos: 112 open PRs, 36 unreviewed (x402-sponsor-r
