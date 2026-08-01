@@ -183,7 +183,7 @@ function calculateApiCostUsd(
  * to execute arc CLI commands, read/write files, etc. The loop continues
  * until the model produces a final text response (no more tool calls).
  *
- * @param explicitModelId — Full OpenRouter model ID (e.g. "moonshotai/kimi-k2.5").
+ * @param explicitModelId — Full OpenRouter model ID (e.g. "moonshotai/kimi-k3").
  *   When set, overrides the Claude tier→model mapping. Used for `openrouter:` prefix routing.
  */
 export async function dispatchOpenRouter(

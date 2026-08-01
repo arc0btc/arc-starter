@@ -29,7 +29,7 @@ const CLAUDE_TIERS: Set<string> = new Set(["opus", "sonnet", "haiku"]);
  * Used when tasks specify `openrouter:<alias>` in the model field.
  */
 export const OPENROUTER_ALIASES: Record<string, string> = {
-  kimi: "moonshotai/kimi-k2.5",
+  kimi: "moonshotai/kimi-k3",
   minimax: "minimax/minimax-m2-5",
   qwen: "qwen/qwen3-coder",
   glm: "z-ai/glm-5.2",
@@ -41,11 +41,11 @@ export const OPENROUTER_ALIASES: Record<string, string> = {
  * Used for api_cost_usd estimation. Models not listed default to sonnet-tier pricing.
  */
 export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
-  "moonshotai/kimi-k2.5": {
-    input_per_million: 2.0,
-    output_per_million: 8.0,
-    cache_read_per_million: 0.5,
-    cache_write_per_million: 2.0,
+  "moonshotai/kimi-k3": {
+    input_per_million: 2.9,
+    output_per_million: 14.0,
+    cache_read_per_million: 0.29,
+    cache_write_per_million: 2.9,
   },
   "minimax/minimax-m2-5": {
     input_per_million: 1.0,
