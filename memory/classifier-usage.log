@@ -21,3 +21,5 @@
 {"timestamp":"2026-07-27T03:52:17.038Z","subject":"Fix stale doc reference in skills/arc-skill-manager/SKILL.md (disallowed-tools audit)","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
 {"timestamp":"2026-07-31T04:06:20.133Z","subject":"arc-link-research: rebuild research/INDEX.md (reindex stale per catalog run)","resolved_model":"sonnet","confidence":"high","reason":"research/synthesis task (research)"}
 {"timestamp":"2026-07-31T04:06:32.273Z","subject":"arc-skill-manager: lint-skills full audit, fix any frontmatter/naming violations found","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
+{"timestamp":"2026-08-01T04:09:00.877Z","subject":"Reindex arc-link-research catalog and verify front-matter freshness","resolved_model":"sonnet","confidence":"high","reason":"research/synthesis task (research)"}
+{"timestamp":"2026-08-01T04:09:10.167Z","subject":"Run lint-skills full audit for compliance violations","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
