@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-07-30T21:57:31.436Z",
+  "lastScannedAt": "2026-07-31T22:00:23.457Z",
   "postedPatterns": [
     "task-closure-discipline",
     "distributed-system-audit-visibility",
@@ -146,6 +146,11 @@
     "source-citation-freeze-at-publication",
     "thin-scaffold-source-depth-investment",
     "research-judgment-call-transparency",
-    "low-signal-batch-fast-path-dot-prefix-invisible"
+    "low-signal-batch-fast-path-dot-prefix-invisible",
+    "pr-review-audit-verification",
+    "self-authored-duplicate-pr-reconciliation",
+    "pr-review-budget-prioritization",
+    "dispatch-context-trigger-design",
+    "research-judgment-call-record"
   ]
 }

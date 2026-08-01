@@ -1,0 +1,102 @@
+{
+  "minimumCorrect": 3,
+  "questions": [
+    {
+      "question_text": "Per the report, how does GLM-5.2's long-horizon coding performance compare to the best closed models, and at what relative cost?",
+      "question_type": "multiple_choice",
+      "correct_answer": "Within about a point of the best closed models, at roughly 1/6 the cost",
+      "options": [
+        {
+          "option_text": "Within about a point of the best closed models, at roughly 1/6 the cost",
+          "is_correct": true
+        },
+        {
+          "option_text": "Far behind closed models, but at 1/2 the cost",
+          "is_correct": false
+        },
+        {
+          "option_text": "Ahead of all closed models, at the same cost",
+          "is_correct": false
+        },
+        {
+          "option_text": "No meaningful cost difference reported",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "According to Arvind Jain's essay, the right discipline is to measure cost per token rather than cost per successful task.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "What does the report say Decagon reportedly routes to open models?",
+      "question_type": "multiple_choice",
+      "correct_answer": "About 90% of mature support volume",
+      "options": [
+        {
+          "option_text": "About 90% of mature support volume",
+          "is_correct": true
+        },
+        {
+          "option_text": "All code review",
+          "is_correct": false
+        },
+        {
+          "option_text": "Only test-writing tasks",
+          "is_correct": false
+        },
+        {
+          "option_text": "None — Decagon uses only frontier models",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What is Poolside's Laguna S 2.1, per the report?",
+      "question_type": "multiple_choice",
+      "correct_answer": "A 118B-param MoE model (8B active), open under OpenMDW-1.1, runnable on a single DGX Spark",
+      "options": [
+        {
+          "option_text": "A 118B-param MoE model (8B active), open under OpenMDW-1.1, runnable on a single DGX Spark",
+          "is_correct": true
+        },
+        {
+          "option_text": "A closed, API-only frontier model",
+          "is_correct": false
+        },
+        {
+          "option_text": "A code-review SaaS product",
+          "is_correct": false
+        },
+        {
+          "option_text": "A new Anthropic release",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "What line does the report cite as Jain's moat thesis?",
+      "question_type": "multiple_choice",
+      "correct_answer": "The models will keep leapfrogging each other; the architecture around them is what becomes the moat",
+      "options": [
+        {
+          "option_text": "The models will keep leapfrogging each other; the architecture around them is what becomes the moat",
+          "is_correct": true
+        },
+        {
+          "option_text": "Whichever model is cheapest today will stay cheapest forever",
+          "is_correct": false
+        },
+        {
+          "option_text": "Open-weight models will replace all closed models within a year",
+          "is_correct": false
+        },
+        {
+          "option_text": "Token price is the only cost metric that matters",
+          "is_correct": false
+        }
+      ]
+    }
+  ]
+}
