@@ -1,0 +1,8 @@
+{
+  "url": "https://pypistats.org/packages/deepagents",
+  "fetchedAt": "2026-08-01T01:23:05.624Z",
+  "contentType": "html",
+  "title": "PyPI Download Stats",
+  "rawContent": "PyPI Download Stats PyPI Stats Search All packages Top packages Track packages deepagents PyPI page Home page Author: None License: MIT Summary: General purpose &#39;deep agent&#39; with sub-agent spawning, todo list capabilities, and mock file system. Built on LangGraph. Latest version: 0.7.1 Required dependencies: langchain | langchain-anthropic | langchain-core | langchain-google-genai | langsmith | packaging | wcmatch Optional dependencies: av | langchain-aws | langchain-quickjs | pillow Downloads last day: 201,746 Downloads last week: 1,211,970 Downloads last month: 6,279,665 API About FAQs Hosted by The PSF",
+  "embeddedUrls": []
+}

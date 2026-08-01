@@ -1,0 +1,20 @@
+{
+  "url": "https://github.com/langchain-ai/deepagents",
+  "fetchedAt": "2026-08-01T01:23:04.532Z",
+  "contentType": "github",
+  "title": "deepagents",
+  "rawContent": "Repo: langchain-ai/deepagents\nDescription: The batteries-included agent harness.\nTopics: deepagents, langchain, langgraph, ai, python, typescript\nStars: 27169\n\nREADME:\n<div align=\"center\">\n  <a href=\"https://docs.langchain.com/oss/python/deepagents/overview#deep-agents-overview\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\".github/images/logo-dark.svg\">\n      <source media=\"(prefers-color-scheme: light)\" srcset=\".github/images/logo-light.svg\">\n      <img alt=\"Deep Agents Logo\" src=\".github/images/logo-dark.svg\" width=\"50%\">\n    </picture>\n  </a>\n</div>\n\n<div align=\"center\">\n  <h3>The batteries-included agent harness.</h3>\n</div>\n\n<div align=\"center\">\n  <a href=\"https://opensource.org/licenses/MIT\" target=\"_blank\"><img src=\"https://img.shields.io/pypi/l/deepagents\" alt=\"PyPI - License\"></a>\n  <a href=\"https://pypistats.org/packages/deepagents\" target=\"_blank\"><img src=\"https://img.shields.io/pepy/dt/deepagents\" alt=\"PyPI - Downloads\"></a>\n  <a href=\"https://pypi.org/project/deepagents/#history\" target=\"_blank\"><img src=\"https://img.shields.io/pypi/v/deepagents?label=%20\" alt=\"Version\"></a>\n  <a href=\"https://x.com/langchain_oss\" target=\"_blank\"><img src=\"https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&label=Follow%20%40LangChain\" alt=\"Twitter / X\"></a>\n</div>\n\n<br>\n\nDeep Agents is an open source agent harness â an opinionated agent that runs out of the box. Extend, override, or replace any piece.\n\n**Principles:**\n\n- **Opinionated** â defaults tuned for long-horizon, multi-step work\n- **Extensible** â override or replace any piece without forking\n- **Model-agnostic** â works with any LLM that supports tool calling: frontier, open-weight, or local\n- **Production-ready** â built on LangGraph (streaming, persistence, checkpointing) with first-class tracing, evaluation, and deployment via LangSmith\n\n**Features include:**\n\n- **Sub-agents** â delegate tasks to agents with isolated context windows\n- **Filesystem** â read, write, edit, or search over pluggable local, sandboxed, or remote backends\n- **Context management** â summarize long threads and offload tool outputs to disk\n- **Shell access** â run commands in your sandbox of choice\n- **Persistent memory** â pluggable state and store backends for cross-session recall\n- **Human-in-the-loop** â approve, edit, or reject tool calls before they run\n- **Skills** â reusable behaviors the agent can load on demand\n- **Tools** â bring your own functions or any MCP server\n\nDeep Agents is available as a JavaScript/TypeScript library â see [deepagents.js](https://github.com/langchain-ai/deepagentsjs).\n\n> [!NOTE]\n> **Deep Agents Code** â a pre-built coding agent in your terminal, similar to Claude Code or Cursor, powered by any LLM. Install with `curl -LsSf https://langch.in/dcode | bash`. See the [documentation](https://docs.langchain.com/deepagents-code) for the full feature set.\n\n## Quickstart\n\n```bash\nuv add deepagents\n```\n\n```python\nfrom deepagents import create_deep_agent\n\nagent = create_deep_agent(\n    model=\"openai:gpt-5.5\",\n    tools=[my_custom_tool],\n    system_prompt=\"You are ",
+  "embeddedUrls": [
+    "https://docs.langchain.com/oss/python/deepagents/overview#deep-agents-overview",
+    "https://opensource.org/licenses/MIT",
+    "https://img.shields.io/pypi/l/deepagents",
+    "https://pypistats.org/packages/deepagents",
+    "https://img.shields.io/pepy/dt/deepagents",
+    "https://pypi.org/project/deepagents/#history",
+    "https://img.shields.io/pypi/v/deepagents?label=%20",
+    "https://img.shields.io/twitter/url/https/twitter.com/langchain_oss.svg?style=social&label=Follow%20%40LangChain",
+    "https://github.com/langchain-ai/deepagentsjs",
+    "https://langch.in/dcode",
+    "https://docs.langchain.com/deepagents-code"
+  ]
+}
