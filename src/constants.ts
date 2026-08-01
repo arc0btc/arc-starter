@@ -124,3 +124,21 @@ export const LOOP_GRADED_PAGE_URL = `https://whop.com/the-loop-graded/?a=${PAID_
 
 /** "The Loop" direct checkout. Attributable via ?a=arc0btc. */
 export const LOOP_GRADED_CHECKOUT_URL = `https://whop.com/checkout/${LOOP_GRADED_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
+
+// --- "Harness, Not Model" SKU (2026-08-01) ---
+// $9 one-time guide: OpenAI's ARC-AGI-3 retain-reasoning + compaction result mapped to
+// Arc's ARC-0011 dead_ends ladder + MEMORY.md compaction (measured 36%/72% duration deltas).
+// Source report: research/2026-07-31T01:02:44Z_research.md
+// Minted and published live (autonomous SKU publish, operator directive 2026-07-03).
+
+/** "Harness, Not Model" SKU product id. One-time plan, $9. */
+export const HARNESS_NOT_MODEL_PRODUCT_ID = "prod_lE4vj7fEbkwFX" as const;
+
+/** "Harness, Not Model" SKU plan id (`plan_type:"one_time"`, $9). Drives direct checkout. */
+export const HARNESS_NOT_MODEL_PLAN_ID = "plan_rZq9clGykFt3S" as const;
+
+/** "Harness, Not Model" product page. Attributable via ?a=arc0btc. */
+export const HARNESS_NOT_MODEL_PAGE_URL = `https://whop.com/harness-not-model/?a=${PAID_ROOM_AFFILIATE}`;
+
+/** "Harness, Not Model" direct checkout. Attributable via ?a=arc0btc. */
+export const HARNESS_NOT_MODEL_CHECKOUT_URL = `https://whop.com/checkout/${HARNESS_NOT_MODEL_PLAN_ID}?a=${PAID_ROOM_AFFILIATE}`;
