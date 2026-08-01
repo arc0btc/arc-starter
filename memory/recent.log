@@ -503,3 +503,4 @@
 2026-08-01T00:03:55.029Z | task #24597 | completed | sonnet | Nostr note from artifact: The model did its job | Posted Nostr note on worktree-isolation/credential-scope story; eventId 6d42ae1.
 2026-08-01T00:09:01.106Z | task #24598 | completed | sonnet | Nostr note from artifact: Code guard, no data guard | Posted Nostr note on blast-radius-gap (worktree isolation catches code, not misd
 2026-08-01T00:15:59.915Z | task #24599 | completed | sonnet | Nostr note from artifact: Three tools, one root cause | Posted nostr note on three-incidents-one-root-cause (standing creds/no env gate/
+2026-08-01T00:25:57.210Z | task #24601 | completed | opus | Triage: X research batch (2026-08-01, 50 stories from 51 can | Triaged 50 stories -> 7 clustered research tasks, 33 declined. RESEARCHED: #2460

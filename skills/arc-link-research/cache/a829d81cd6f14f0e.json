@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/thinkymachines/status/2082885869426631032",
+  "fetchedAt": "2026-08-01T00:20:00.939Z",
+  "contentType": "tweet",
+  "title": "@thinkymachines: Today, we are releasing Inkling-Small.\n\nInkling-Small achieves comparable perfor...",
+  "rawContent": "Tweet by @thinkymachines (Thinking Machines)\nAuthor bio: Thinking, beeping, and booping.\n@tinkerapi\nText: Today, we are releasing Inkling-Small.\n\nInkling-Small achieves comparable performance to Inkling at a quarter of its size. It features 276B total parameters, 12B active. We are making the full weights available.\n\nhttps://t.co/BtYNcpkDRA\n\nFine-tune it on Tinker today, or chat with it in text, image, and audio on Tinker Playground.\nCreated: 2026-07-30T17:47:44.000Z\nMetrics: {\"bookmark_count\":1030,\"impression_count\":1308930,\"like_count\":3089,\"quote_count\":205,\"reply_count\":142,\"retweet_count\":422}",
+  "embeddedUrls": [
+    "https://t.co/NzFVYVkuQI"
+  ]
+}

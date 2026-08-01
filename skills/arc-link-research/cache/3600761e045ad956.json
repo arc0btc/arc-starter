@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2082933724724015362",
+  "fetchedAt": "2026-08-01T00:20:00.939Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: You can now run multiple isolated agents in a single Vercel Sandbox, each as its...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: You can now run multiple isolated agents in a single Vercel Sandbox, each as its own Linux user.\n\nLearn more ↓\nhttps://t.co/DM8wb4i9T3\nCreated: 2026-07-30T20:57:53.000Z\nMetrics: {\"bookmark_count\":55,\"impression_count\":36831,\"like_count\":114,\"quote_count\":2,\"reply_count\":4,\"retweet_count\":3}",
+  "embeddedUrls": [
+    "https://t.co/DM8wb4i9T3"
+  ]
+}

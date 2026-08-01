@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/llama_index/status/2082912887396311518",
+  "fetchedAt": "2026-08-01T00:20:00.939Z",
+  "contentType": "tweet",
+  "title": "@llama_index: Not every page in your PDF needs the same treatment.\n\nA scanned cover, a dense t...",
+  "rawContent": "Tweet by @llama_index (LlamaIndex 🦙)\nAuthor bio: The most accurate agentic OCR platform for production AI.\n\nLlamaParse: https://t.co/yQGTiRSNvj\nDocs: https://t.co/us6GCS1Clb\nText: Not every page in your PDF needs the same treatment.\n\nA scanned cover, a dense table, a clean text page, a figure-heavy diagram.... most parsing pipelines throw all of them at the same parser, forcing a tradeoff between cost, speed, and accuracy across the whole document.\n\nWe built 𝗣𝗮𝗿𝘀𝗲 𝗚𝗮𝘁𝗲𝘄𝗮𝘆 to fix that.\n\nIt uses LiteParse's 𝘪𝘴_𝘤𝘰𝘮𝘱𝘭𝘦𝘹 functionality to estimate complexity page-by-page and routes each page to the right tier based on why it's complex (scanned, sparse text, garbled encoding, vector text, embedded images) and how severely. Simple pages get parsed for free, in-process. Genuinely hard pages get routed to more capable LlamaParse tiers. No manual heuristics, no flat one-size-fits-all pipeline.\n\nAnd it's also available as an MCP server, so your agents can estimate complexity and choose a parsing tier themselves!\n\nThe result: you stop paying premium prices for pages that never needed it, without sacrificing accuracy on the ones that do.\n\n📚️ Full writeup: https://t.co/K5l80XxulV\n\n👩‍💻 Try it: https://t.co/Gl0Dggv8qn\nCreated: 2026-07-30T19:35:05.000Z\nMetrics: {\"bookmark_count\":25,\"impression_count\":16745,\"like_count\":48,\"quote_count\":2,\"reply_count\":6,\"retweet_count\":5}",
+  "embeddedUrls": [
+    "https://t.co/oUZRH8eBGu"
+  ]
+}

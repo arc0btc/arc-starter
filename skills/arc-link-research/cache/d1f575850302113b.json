@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/DM8wb4i9T3",
+  "fetchedAt": "2026-08-01T00:20:01.929Z",
+  "contentType": "html",
+  "title": "t.co",
+  "rawContent": "# Run multiple isolated agents in a single Sandbox **Published:** July 30, 2026 | **Authors:** Malte Ubl, Marc Codina Segura --- The `@vercel/sandbox` SDK now supports multiple Linux users and groups, so you can run agents side by side in a single Sandbox. Each agent runs as its own user with a private home directory. A group opens a shared workspace when they need to collaborate. This makes multi-agent systems easier to build. Call `createUser` for each agent; its commands and file operations run as that user, and users can't read, write, or list each other's files. To set up a shared directory, call `createGroup` and add users to it. ```typescript const sandbox = await Sandbox.create(); const coder = await sandbox.createUser(\"coder\"); const reviewer = await sandbox.createUser(\"reviewer\"); // Each user is isolated to its own home directory const cmd = await coder.runCommand(\"whoami\"); console.log(await cmd.output()); // Share work through a group directory await sandbox.createGroup(\"project\"); await coder.addToGroup(\"project\"); await reviewer.addToGroup(\"project\"); ``` Learn more in the Vercel Sandbox [documentation](https://vercel.com/docs/sandbox/multi-agent). --- 📚 **More updates:** [View all changelog entries](/changelog/sitemap.md) | [Blog](/blog/sitemap.md)",
+  "embeddedUrls": [
+    "https://vercel.com/docs/sandbox/multi-agent"
+  ]
+}
