@@ -500,3 +500,5 @@
 2026-08-01T21:41:42.459Z | task #24704 | completed | sonnet | architecture review — codebase changed since last review (ab | Diff ab71a8f..9caa8fe: data-only article-18 auto-package commit, zero code chang
 2026-08-01T21:41:53.713Z | task #24705 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 [UNTRUSTED-SRC] 2026-08-01T22:04:05.259Z | task #24706 | completed | sonnet | Whop synthesis [2026-08-01T22]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to add, nothing t
+2026-08-01T22:38:12.716Z | task #24707 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-01T23:00:32.025Z | task #24695 | completed | haiku | health alert: oauth expiring — confirm resolution, transitio | OAuth token re-authenticated (expiresAt: 2026-08-01T23:27:00Z), dispatch running
