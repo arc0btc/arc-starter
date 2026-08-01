@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/morganlinton/status/2082961189555126745",
+  "fetchedAt": "2026-08-01T01:20:38.374Z",
+  "contentType": "tweet",
+  "title": "@morganlinton: Then of course, loops are all the rage, so you should know that Grok Build has /...",
+  "rawContent": "Tweet by @morganlinton (Morgan)\nAuthor bio: CTO @BoldMetrics. Open source: @VulcanBench, @AlbatrossCoding. Giving back: https://t.co/yjmfmBSk1i, https://t.co/RJqKRqT51Z, https://t.co/DZZOGG8gbi.\nText: Then of course, loops are all the rage, so you should know that Grok Build has /loop built in\n\nI often call this, agentic cron.\n\nUse this when you want to check on things periodically. Pick an interval you want it to run, and your prompt runs, each time it's a fresh agent turn.\n\nAnd yeah, you can go nuts here with up to 50 active loops, but maybe don't get that carried away.\nCreated: 2026-07-30T22:47:01.000Z\nMetrics: {\"bookmark_count\":2,\"impression_count\":670,\"like_count\":6,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":0}",
+  "embeddedUrls": []
+}

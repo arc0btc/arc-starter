@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/morganlinton/status/2082961193854284075",
+  "fetchedAt": "2026-08-01T01:20:38.374Z",
+  "contentType": "tweet",
+  "title": "@morganlinton: And now for my combo move and what I recommend for anyone who wants to really se...",
+  "rawContent": "Tweet by @morganlinton (Morgan)\nAuthor bio: CTO @BoldMetrics. Open source: @VulcanBench, @AlbatrossCoding. Giving back: https://t.co/yjmfmBSk1i, https://t.co/RJqKRqT51Z, https://t.co/DZZOGG8gbi.\nText: And now for my combo move and what I recommend for anyone who wants to really see some real efficiencies using Grok Build for long running tasks.\n\nUse workflows and goals together. Here's an example of how to do this:\n\n1. I put together a workflow to triage a bunch of issues\n\n2. then I take the report it puts together, with the prioritization list, and pick say the top 10 highest priority issues to tackle\n\n3. Give those prioritized findings to /goal and let it tackle them, continuing until it's done\nCreated: 2026-07-30T22:47:02.000Z\nMetrics: {\"bookmark_count\":4,\"impression_count\":725,\"like_count\":9,\"quote_count\":0,\"reply_count\":2,\"retweet_count\":0}",
+  "embeddedUrls": []
+}

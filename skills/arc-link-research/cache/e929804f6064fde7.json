@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/morganlinton/status/2082961191975223762",
+  "fetchedAt": "2026-08-01T01:20:38.373Z",
+  "contentType": "tweet",
+  "title": "@morganlinton: Workflows is one of the newest features in Grok Build and one I find still soooo...",
+  "rawContent": "Tweet by @morganlinton (Morgan)\nAuthor bio: CTO @BoldMetrics. Open source: @VulcanBench, @AlbatrossCoding. Giving back: https://t.co/yjmfmBSk1i, https://t.co/RJqKRqT51Z, https://t.co/DZZOGG8gbi.\nText: Workflows is one of the newest features in Grok Build and one I find still soooo many ppl don't know about.\n\nWhenever I talk about how good Grok Build is at long running tasks people like to give me a hard time and say they already know it all.\n\nThen I sure hope you know about workflows, because this is a monster feature.\n\nUse /create-workflow to make them, then /workflows will give you a live dashboard to track them.\n\nI use this for tasks that are too big for a single conversation, like, \"review every feature in this PR\" or \"triage the last 100 issues\" and then I just let it jam.\n\nA lot of people don't realize how powerful this is on the orchestration side, it's really powerful.\nCreated: 2026-07-30T22:47:02.000Z\nMetrics: {\"bookmark_count\":2,\"impression_count\":582,\"like_count\":10,\"quote_count\":0,\"reply_count\":2,\"retweet_count\":1}",
+  "embeddedUrls": []
+}
