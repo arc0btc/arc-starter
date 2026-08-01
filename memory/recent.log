@@ -501,3 +501,4 @@
 2026-08-01T00:01:28.367Z | task #24595 | completed | sonnet | PURPOSE eval: 2.19/5 — S:1 O:5 E:1 C:2 | 2.25/5 — S:1 O:5 E:1 C:2 Ad:3 Co:1 Se:3. Ops steady at 100% success (119/119), s
 2026-08-01T00:01:58.287Z | task #24596 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies were known self-resolving patterns: candidate-maturation's 22 fai
 2026-08-01T00:03:55.029Z | task #24597 | completed | sonnet | Nostr note from artifact: The model did its job | Posted Nostr note on worktree-isolation/credential-scope story; eventId 6d42ae1.
+2026-08-01T00:09:01.106Z | task #24598 | completed | sonnet | Nostr note from artifact: Code guard, no data guard | Posted Nostr note on blast-radius-gap (worktree isolation catches code, not misd
