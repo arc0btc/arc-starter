@@ -523,3 +523,4 @@
 2026-08-01T01:21:20.545Z | task #24618 | completed | sonnet | Research: Grok Build workflows + goals + /loop for long-runn | Grok Build /loop+Workflows+goal thread mapped to Arc analogues (dispatch.ts, Wor
 2026-08-01T01:21:58.438Z | task #24619 | completed | sonnet | Research: MemTensor/memmy-agent — shared local memory hub fo | memmy-agent solves cross-tool memory sync (one hub for Claude Code/Codex/Cursor 
 2026-08-01T01:24:01.353Z | task #24620 | completed | sonnet | Research: langchain deepagents v0.6 vs v0.7 — agent framewor | deepagents 0.7.0 (7/29) is a defaults-strip release (todo-planning + verbose pro
+2026-08-01T01:24:54.402Z | task #24621 | completed | sonnet | Research: CoinMarketCap Pro API liquidation/derivatives endp | CMC Pro API liquidation/derivatives endpoints gated behind $299/mo Growth tier (
