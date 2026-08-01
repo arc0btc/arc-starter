@@ -44,28 +44,6 @@
 
 ---
 
-## 2026-07-29T21:41:00.000Z — data-only diff (blog sign-state sync), zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24343** | Diff: 6a71ce8..d298328 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`d298328a5`, "sign-state sync after day-19 publish") touches only `skills/blog-publishing/sign-state.json` — a data write recording the Day 19 blog publish, no `.ts` code changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. Previous cycle's rotation-key-off-derived-identifier pattern is closed (shared helper landed #24249); no new recurring pattern observed.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review: `2026-07-29T130025Z_watch_report.html` and `2026-07-29T140000Z_overnight_brief.md`. Clean overnight window (24 tasks, 0 failed), above-average PR-review activity (3 reviews + 1 re-review on `aibtcdev` repos) already reflected in MEMORY.md strategy review. `candidate-maturation` 32-consecutive-failure alert is the known X read-budget exhaustion pattern (self-resolves at UTC midnight), not a regression. No new structural finding.
-
----
-
 ## 2026-07-31T09:40:00.000Z — one genuine context-gap fix (read path for engagement counts), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24535** | Diff: f71b252..78a1ac2 (2 substantive commits + auto-commit cache/data churn) | Sensors: 91 | Skills: 129
@@ -108,3 +86,26 @@
 ### Flags
 
 - Two reports checked since last review: `2026-07-31T130000Z_overnight_brief.md` and `2026-07-31T130051Z_watch_report.html` (same 01:02Z–13:00Z window, overlapping content). Clean night (37/37 completed, 0 failed, $12.69), both real fixes shipped that window (this one plus the engagement-count CLI work already reflected in the prior audit-log entry). A fresh, legitimate `oauth-expiring` alert followed later that morning — expected, unrelated to the fix (token lifecycle vs. stuck-state bug). No new structural finding.
+
+---
+
+## 2026-08-01T09:41:11.000Z — two small additive changes (model alias bump + new Whop SKU constants), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24657** | Diff: 32b6bc6..ab71a8f (2 substantive commits + arc-link-research cache churn) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/models.ts` + `src/openrouter.ts` (216cbef11) — bumps stale `openrouter:kimi` alias from `moonshotai/kimi-k2.5` to the newly-released `moonshotai/kimi-k3`, updating pricing table and a doc comment to match. Pure alias/pricing swap, no new code path.
+- `src/constants.ts` (ab71a8f80) — adds four new exported constants for a "Harness, Not Model" $9 Whop SKU (product/plan IDs, page/checkout URLs), following the exact same shape as the existing `LOOP_GRADED_*` constants directly above it in the file. No new abstraction.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both trace to named triggers (Moonshot's K3 release; operator directive to package a specific research report as a SKU) — no speculative scope.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — both changes mirror an established pattern (alias table entry; SKU constant block) rather than introducing one.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One report checked since last review (`2026-08-01T010231Z_watch_report.html`): clean window, 120 tasks / 37 completed of visible slice, 0 failed, ~$26.23 spent, content pipeline ran end-to-end. No architecture-relevant feedback. No new structural finding.
