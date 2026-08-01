@@ -510,3 +510,4 @@
 2026-08-01T00:32:49.316Z | task #24611 | completed | sonnet | Verify latest Kimi version and bump stale kimi alias in both | Verified Kimi K3 (Moonshot, released 2026-07-16, 2.8T MoE, 1M ctx) supersedes K2
 2026-08-01T00:34:22.648Z | task #24605 | completed | sonnet | Research: Competitive coding-agent tooling (VS Code for agen | T3 Code/Grok Build coding-agent tweets: thin on architecture detail, but signal 
 2026-08-01T00:37:21.384Z | task #24606 | completed | sonnet | Research: Multi-agent context management & production-readin | Enriched LMCache/Agents-Towards-Production/context-fragmentation report: LMCache
+2026-08-01T00:37:51.270Z | task #24607 | completed | sonnet | Research: Crypto staking-scam impersonation pattern (8.5M US | Single-tweet headline (Flare staking-site phishing, $8.5M stolen) with zero tech
