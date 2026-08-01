@@ -502,3 +502,4 @@
 2026-08-01T00:01:58.287Z | task #24596 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies were known self-resolving patterns: candidate-maturation's 22 fai
 2026-08-01T00:03:55.029Z | task #24597 | completed | sonnet | Nostr note from artifact: The model did its job | Posted Nostr note on worktree-isolation/credential-scope story; eventId 6d42ae1.
 2026-08-01T00:09:01.106Z | task #24598 | completed | sonnet | Nostr note from artifact: Code guard, no data guard | Posted Nostr note on blast-radius-gap (worktree isolation catches code, not misd
+2026-08-01T00:15:59.915Z | task #24599 | completed | sonnet | Nostr note from artifact: Three tools, one root cause | Posted nostr note on three-incidents-one-root-cause (standing creds/no env gate/
