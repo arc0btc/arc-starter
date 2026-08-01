@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2082999597002027042",
+  "fetchedAt": "2026-08-01T00:34:49.333Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Getting an AI agent demo working is easier than covering the pieces that make it...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Getting an AI agent demo working is easier than covering the pieces that make it deployable, observable, and safer to operate.\n\nAgents Towards Production is a hands-on tutorial collection for builders moving GenAI agents beyond isolated prototypes.\n\nIt helps you work through the agent stack with runnable notebooks and code organized around specific components and integration patterns.\n\nKey features:\n• Stateful orchestration – build graph-based, multi-step workflows with LangGraph.\n• Memory and RAG – explore Redis, Mem0, Cognee, and Contextual AI tutorials.\n• Deployment paths – work through Docker, FastAPI, Ollama, AWS AgentCore, and GPU examples.\n• Security and evaluation – study guardrails, prompt-injection testing, tracing, and automated evaluation.\n• Tool and agent integration – cover MCP, A2A, web access, and secure OAuth2 tool calling.\n\nPublic GitHub repo under a custom non-commercial license; commercial use requires written permission.\n\nLink in the reply 👇\nCreated: 2026-07-31T01:19:38.000Z\nMetrics: {\"bookmark_count\":21,\"impression_count\":2362,\"like_count\":11,\"quote_count\":0,\"reply_count\":4,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/r104OS5wfb"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/rpSaHJHCsn",
+  "fetchedAt": "2026-08-01T00:34:50.879Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Long-context LLM apps can waste time recomputing KV state they have already seen...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nAI Engineering Guild: https://t.co/t6IXkLDX2T\nText: Long-context LLM apps can waste time recomputing KV state they have already seen.\n\nLMCache is a KV cache management layer for builders serving LLMs.\n\nIt helps you reduce repeated prefill work and time to first token by storing, offloading, and reusing KV caches across requests, sessions, and serving-engine instances.\n\nKey features:\n• Engine-independent deployment – runs as a standalone daemon, separate from the inference engine process.\n• Tiered offloading – moves KV caches from GPU memory to CPU RAM, local disk, or remote storage.\n• Persistent reuse – shares stored KV state across requests, sessions, and engine instances.\n• Cache observability – exposes health, cache-hit, lifecycle, performance, and usage metrics.\n• Flexible reuse and transfer – supports non-prefix caching plus prefill-to-decode transfer over NVLink, RDMA, or TCP.\n\nIt’s open-source (Apache 2.0 license).\n\nLink in the reply 👇\nCreated: 2026-07-30T23:42:58.000Z\nMetrics: {\"bookmark_count\":21,\"impression_count\":2871,\"like_count\":16,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":1}",
+  "embeddedUrls": [
+    "https://t.co/rpSaHJHCsn"
+  ]
+}

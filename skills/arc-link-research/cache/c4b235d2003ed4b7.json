@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/fQ2xievDa9",
+  "fetchedAt": "2026-08-01T00:34:51.234Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: If you use Cursor for coding, Claude Code for debugging, and local agents for au...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: If you use Cursor for coding, Claude Code for debugging, and local agents for automation, you almost certainly have a context problem.\n\nEvery tool acts like an isolated employee.\n\nOne assistant forgets what the other just learned.\n\nThe biggest bottleneck in multi-agent workflows right now isn’t reasoning.\n\nIt’s collective amnesia, combined with zero communication between agents.\n\n@Memmy_ai just launched a smart fix for this: a local, cross-agent memory layer.\n\nInstead of re-pasting your context everywhere, Memmy gives your stack a shared memory hub:\n\n→ accumulate knowledge once, then use it across Cursor, Codex, and OpenClaw\n→ automatically scan and import your existing agent history, so you don’t have to start from zero\n→ keep your memory local, while model usage depends on your chosen provider or BYOK setup\n\nAnd it isn’t just a memory plugin.\n\nIt’s a complete personal AI runtime with both MCP and a CLI.\n\nMemmy officially launched on Product Hunt, and the team is giving early users experiencing context fragmentation a free trial with 2M GPT tokens.\n\nCheck it out and support the team with an upvote:\n\n→ https://t.co/uxNXi2WtwB\n\nBest part?\n\nIt’s also open-source for devs who want to build their own agents 🔥\n\nRepo in 🧵↓\nCreated: 2026-07-31T01:36:01.000Z\nMetrics: {\"bookmark_count\":15,\"impression_count\":97678,\"like_count\":67,\"quote_count\":2,\"reply_count\":24,\"retweet_count\":21}",
+  "embeddedUrls": [
+    "https://t.co/fQ2xievDa9"
+  ]
+}
