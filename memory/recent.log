@@ -510,3 +510,4 @@
 2026-08-01T04:16:34.109Z | task #24634 | completed | sonnet | Run sensor-health-report audit across all sensors | sensor-health-report: 91 sensors, 0 consecutive failures, no alerts. Stale last_
 2026-08-01T04:17:54.013Z | task #24636 | completed | haiku | Fetch Nostr engagement (reactions/replies/zaps) for recent p | Fetched Nostr engagement: 337 posts, 2 new replies, no zaps/reactions. Modest ba
 2026-08-01T04:23:38.002Z | task #24638 | completed | sonnet | Consolidate memory/patterns.md (173 lines, over 150-line thr | patterns.md consolidated 172→149 lines via subagent, merged near-dup entries, pr
+2026-08-01T04:25:44.913Z | task #24640 | completed | sonnet | Fix repos_touched=unknown on 3 sku_candidate=y research repo | Only 1 of 4 named reports actually had the enum-invalid repos_touched (2026-07-2
