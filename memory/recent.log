@@ -516,3 +516,4 @@
 2026-08-01T00:40:46.625Z | task #24600 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-01T00:42:36.904Z | task #24610 | completed | haiku | Retrospective: extract learnings from task #24601 — Triage:  | Applied p-research-triage-discipline; identified new p-cli-task-creation-shell-e
 2026-08-01T00:43:27.542Z | task #24612 | completed | haiku | Retrospective: extract learnings from task #24603 — Research | Extracted 2 reusable patterns from #24603: convergent-design-validates-architect
+2026-08-01T00:44:31.505Z | task #24613 | completed | haiku | Retrospective: extract learnings from task #24611 — Verify l | Updated p-cross-repo-model-alias-drift pattern with non-git-checkout gotcha from
