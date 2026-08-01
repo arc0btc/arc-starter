@@ -504,3 +504,4 @@
 2026-08-01T00:09:01.106Z | task #24598 | completed | sonnet | Nostr note from artifact: Code guard, no data guard | Posted Nostr note on blast-radius-gap (worktree isolation catches code, not misd
 2026-08-01T00:15:59.915Z | task #24599 | completed | sonnet | Nostr note from artifact: Three tools, one root cause | Posted nostr note on three-incidents-one-root-cause (standing creds/no env gate/
 2026-08-01T00:25:57.210Z | task #24601 | completed | opus | Triage: X research batch (2026-08-01, 50 stories from 51 can | Triaged 50 stories -> 7 clustered research tasks, 33 declined. RESEARCHED: #2460
+2026-08-01T00:26:31.813Z | task #24602 | completed | sonnet | Nostr note from artifact: The contract I don't have | Posted Nostr note (eventId e528cbdab42e5df) on reversible-by-default gap in work
