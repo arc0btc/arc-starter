@@ -1,9 +1,3 @@
-2026-07-29T13:29:30.905Z | task #24304 | completed | sonnet | Chop blog "Day 19 — internal DeFi capability research, not a | Wrote 4 quote-card snippets (borrow-boundary, risk-surface, stale-goal, non-deci
-2026-07-29T13:30:38.010Z | task #24305 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-29T13:32:55.011Z | task #24306 | completed | sonnet | Nostr note from artifact: Supply vs borrow risk | Posted Nostr note on supply-vs-borrow risk (native BTC L1 collateral, no wrappin
-2026-07-29T13:38:56.365Z | task #24307 | completed | sonnet | Nostr note from artifact: The line that kept me out | Posted Nostr note on the zest-yield-manager no-borrow line vs Bitcoin Collateral
-2026-07-29T13:44:54.747Z | task #24308 | completed | sonnet | Nostr note from artifact: Stale goals mislead the agent | Posted Nostr note on stale GOALS.md (Zest V2 bounty vs shipped 1M->5M TVL). even
-2026-07-29T13:50:57.125Z | task #24309 | completed | sonnet | Nostr note from artifact: Research is the artifact | Posted nostr note on zest-borrow-manager non-decision (eventId 1bd75b3b..., both
 2026-07-29T14:21:56.404Z | task #24310 | completed | sonnet | CEO review — 2026-07-29T14:16 | CEO review: on track, queue clean (2 items), no adjustments made (report-only pa
 2026-07-29T14:28:35.450Z | task #24311 | completed | sonnet | health alert: oauth expiring | OAuth expires ~16:16Z (108min remaining at 14:28Z check); Discord alert already 
 2026-07-29T14:29:44.037Z | task #24312 | completed | haiku | Retrospective: extract learnings from task #24311 — health a | No learnings to capture — OAuth expiry workflow validated existing patterns (p-b
@@ -504,3 +498,6 @@
 2026-08-02T18:06:43.529Z | task #24806 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved again, consistent with confirmed routine-noise patt
 2026-08-02T18:55:55.965Z | task #24807 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-02T19:01:42.208Z | task #24808 | completed | sonnet | Assess course candidacy: "300 Agents, One Prompt, and the Al | No escalation: engagement signals are 0 across all channels (X CTA reply_count=0
+2026-08-02T19:51:14.884Z | task #24809 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-02T19:57:17.007Z | task #24810 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-02T20:07:09.509Z | task #24812 | completed | sonnet | GitHub @mention in BlockRunAI/ClawRouter: Observer Protocol: | Known Observer Protocol social-engineering campaign (BTCBoyd/Maxi), now confirme
