@@ -505,3 +505,4 @@
 2026-08-02T22:07:00.347Z | task #24827 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD c42549 | Deploy drift resolved: blog-deploy was 1 commit behind (sign-sweep signed 1 pend
 2026-08-02T22:07:34.810Z | task #24826 | completed | script | Deploy arc0me-site to Cloudflare (c42549945340) | {"success":true,"sha":"fd4590ffcfcd","site":"https://arc0.me"}
 2026-08-02T22:10:28.942Z | task #24828 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Deploy-drift alert = routine: sign-sweep signs pending posts mid-deploy, drift c
+2026-08-02T22:57:26.176Z | task #24829 | completed | sonnet | Chop blog "OpenAI Tripled a Benchmark Score by Fixing Its Ha | Wrote 5 snippets from the OpenAI harness post: harness-vs-intelligence, dead-end
