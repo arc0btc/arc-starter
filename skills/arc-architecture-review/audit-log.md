@@ -1,3 +1,25 @@
+## 2026-08-02T09:42:00.000Z — pure cache churn, zero code change; 129 skills / 91 sensors (unchanged)
+
+**Task #24766** | Diff: 9caa8fe..0a93e48 (4 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 4 commits in range are `chore(loop): auto-commit after dispatch cycle` writes touching only `skills/arc-link-research/cache/*.json` — cache artifacts, no `.ts` code changed in `src/` or `skills/`.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Three reports checked since last review: `2026-08-01T130001Z_watch_report.html` (already covered by prior entry), `2026-08-01T140000Z_overnight_brief.md`, `2026-08-02T010217Z_watch_report.html`. Overnight window clean (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance zero-issue. No architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-01T21:41:00.000Z — data-only diff (article-18 auto-package), zero code change; 129 skills / 91 sensors (unchanged)
 
 **Task #24704** | Diff: ab71a8f..9caa8fe (1 commit) | Sensors: 91 | Skills: 129
@@ -17,28 +39,6 @@
 ### Flags
 
 - Two reports checked since last review: `2026-08-01T130001Z_watch_report.html` and `2026-08-01T140000Z_overnight_brief.md`. Clean overnight window (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance (memory consolidation, sensor-health, lint-skills) all zero-issue. No architecture-relevant feedback in either report — only reference to the prior architecture review entry. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-07-30T21:37:58.000Z — data-only diff (article-17 auto-package), zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24470** | Diff: db63ef5..f71b252 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`f71b25226`, "auto-package article 17 — cover+email sent") touches only `skills/arc-article-pipeline/drafts/article-17-x-article.json` (+ its `.bak-p4-*` backup) — a P4 auto-package data write, no `.ts` code changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle. No open carried pattern (prior rotation-key-helper thread closed #24249; nothing new observed since).
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Five reports checked since last review: `2026-07-29T130025Z_watch_report.html`, `2026-07-29T140000Z_overnight_brief.md`, `2026-07-30T010115Z_watch_report.html` (already covered by prior entry), `2026-07-30T130056Z_watch_report.html`, `2026-07-30T140000Z_overnight_brief.md`. Both nights clean (24/24 and 43/43 completed, 0 failed); `candidate-maturation` consecutive-failure alerts on both are the known X read-budget exhaustion pattern (self-resolves at UTC midnight), not regressions. All Needs-Attention items (charter-store-governance #23833, x402-api CF Workers #23977, Whop SKU/content-calendar) already tracked in MEMORY.md Active Items. No new structural finding.
 
 ---
 
