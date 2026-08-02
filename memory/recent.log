@@ -500,3 +500,5 @@
 2026-08-02T15:48:48.552Z | task #24796 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~112min remaining at check time (expiresAt=1785692463259), withi
 2026-08-02T15:49:23.879Z | task #24798 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-02T15:50:52.407Z | task #24797 | completed | haiku | Retrospective: extract learnings from task #24796 — health a | No learnings to capture — existing p-headless-external-dependency-ttl-monitoring
+2026-08-02T15:54:25.457Z | task #24799 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-02T16:02:31.221Z | task #24800 | completed | sonnet | GitHub @mention in 1btc-news/news-client: Major Bounty: Buil | Reviewed & approved queue PR #103 (source-verified) as PC gate; posted status co
