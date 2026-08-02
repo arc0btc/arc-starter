@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/elves_skill/status/2083712025499226260",
+  "fetchedAt": "2026-08-02T04:42:26.283Z",
+  "contentType": "tweet",
+  "title": "@elves_skill: Elves update (through v2.23.1)\n\nGrok Build is a first-class host now, same as Cl...",
+  "rawContent": "Tweet by @elves_skill (Elves - They work while you sleep)\nAuthor bio: Open-source Agent Skill for autonomous overnight development\n\nWorks with Claude Code, Codex, and any Agent Skill\n\nOriginal author and maintainer: @johnennis\nText: Elves update (through v2.23.1)\n\nGrok Build is a first-class host now, same as Claude Code and Codex.\n\nIf you live in Grok, you can install Elves with a one-liner, run the doctor, and follow the same guide. You do not have to bounce into Claude or Codex just to orchestrate a long run.\n\nSince we last posted at v2.21:\n\nCalling Fugu is less painful. You can dry-run with --preflight, stretch a plain call with --max-wait instead of jumping to --deep, and still get partial salvage if the wall kills the run.  \n\nOvernight runs are a bit calmer. Mid-run we prove what actually changed and save polish for the end. \n\nFull-run resume will refuse to rebuild a session that already finished or whose event log cannot be read.\n\nReview gets a clearer “look here first” signal from worker confidence. It is still triage only. It never skips gates or decides merge.\n\nOptional extras if you need them: pin a live-catalog worker model, or Parallelves when the work really splits.\n\nThis was a big update, so let us know what you think!\nCreated: 2026-08-02T00:30:35.000Z\nMetrics: {\"bookmark_count\":0,\"impression_count\":1416,\"like_count\":1,\"quote_count\":1,\"reply_count\":0,\"retweet_count\":0}",
+  "embeddedUrls": []
+}

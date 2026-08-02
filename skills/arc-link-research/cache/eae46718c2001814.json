@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/cline/status/2083638204037820734",
+  "fetchedAt": "2026-08-02T04:42:26.282Z",
+  "contentType": "tweet",
+  "title": "@cline: While DeepSeek V4-Flash is significantly cheaper on price per token, this can be...",
+  "rawContent": "Tweet by @cline (Cline)\nAuthor bio: The open source coding agent that takes over your editor, terminal, and browser to complete work autonomously.\n\nnpm i -g cline\nText: While DeepSeek V4-Flash is significantly cheaper on price per token, this can be misleading if the overall cost per task ends up being higher due to more turns being made.\n\nHowever, @ArtificialAnlys reports DeepSeek completing the same benchmark tasks as Fable at 105x lower cost. https://t.co/ZwMQMPobua\nCreated: 2026-08-01T19:37:14.000Z\nMetrics: {\"bookmark_count\":547,\"impression_count\":588763,\"like_count\":2863,\"quote_count\":95,\"reply_count\":106,\"retweet_count\":242}",
+  "embeddedUrls": [
+    "https://t.co/ZwMQMPobua"
+  ]
+}

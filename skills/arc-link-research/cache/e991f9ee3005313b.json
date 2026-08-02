@@ -1,0 +1,12 @@
+{
+  "url": "https://github.com/openclaw/esp-openclaw-node/",
+  "fetchedAt": "2026-08-02T04:42:25.273Z",
+  "contentType": "github",
+  "title": "esp-openclaw-node",
+  "rawContent": "Repo: openclaw/esp-openclaw-node\nDescription: ESP OpenClaw Node\nTopics: \nStars: 67\n\nREADME:\n![esp-openclaw-node banner](docs/assets/esp-openclaw-node-banner.png)\n\n# esp-openclaw-node\n\nThis repository contains the `esp-openclaw-node` ESP-IDF component, example applications, and documentation for running ESP32 boards as [OpenClaw Nodes](https://docs.openclaw.ai/nodes).\n\n<a href=\"docs/assets/openclaw-gateway-esp-box-3-message-flow.png\">\n  <img src=\"docs/assets/openclaw-gateway-esp-box-3-message-flow.png\" alt=\"OpenClaw Gateway to ESP-BOX-3 message flow\" width=\"900\">\n</a>\n\n## Repository Layout\n\n- `components/esp-openclaw-node/`: The `esp-openclaw-node` ESP-IDF component that handles OpenClaw transport, pairing, reconnect, and command dispatch.  \nSee the [Component README](./components/esp-openclaw-node/README.md) for more details on component internals.\n- `components/esp-openclaw-talk/`: Provider-neutral OpenClaw Talk signaling for Espressif's WebRTC stack.\n- `examples/`: Example applications for supported boards.\n- `docs/`: Getting-started and troubleshooting guides.\n\n## Start Here\n\n<a href=\"https://espressif.github.io/esp-openclaw-node/\">\n  <img alt=\"Try it with ESP Launchpad\" src=\"https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png\" width=\"220\" height=\"62\">\n</a>\n\n1. Read [Getting Started](./docs/getting-started.md).\n2. Choose an example from [Examples](./examples/README.md).\n3. Use [Troubleshooting](./docs/troubleshooting.md) if the node pairs, connects, or advertises commands differently than expected.\n",
+  "embeddedUrls": [
+    "https://docs.openclaw.ai/nodes",
+    "https://espressif.github.io/esp-openclaw-node/",
+    "https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png"
+  ]
+}
