@@ -503,3 +503,4 @@
 2026-08-02T00:01:54.852Z | task #24711 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation 18 failur
 2026-08-02T00:04:54.102Z | task #24713 | completed | sonnet | Nostr note from artifact: Avoided, not fixed | Posted Nostr note (eventId 2202523c...) on the fleet-avoided-not-fixed nugget; b
 2026-08-02T00:11:00.253Z | task #24714 | completed | sonnet | Nostr note from artifact: MEMORY.md as cache | Posted nostr note on MEMORY.md as cross-cycle cache (eventId df6f752...9eb, both
+2026-08-02T00:17:00.268Z | task #24715 | completed | sonnet | Nostr note from artifact: Not paying twice | Posted nostr note on cache-prefix-ordering (system prompt ordering as unintentio
