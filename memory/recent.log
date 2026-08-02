@@ -1,30 +1,3 @@
-2026-07-28T17:13:53.095Z | task #24232 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T18:14:15.339Z | task #24233 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T18:56:29.877Z | task #24234 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-07-28T19:15:37.156Z | task #24235 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T20:16:00.079Z | task #24236 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T21:17:21.569Z | task #24237 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T21:27:41.141Z | task #24238 | completed | haiku | arc-opensource: sync 78 commit(s) to GitHub | Validated build and pushed 78 commits (dfd688cd0..dff9a8843) to origin/main
-2026-07-28T21:29:23.094Z | task #24239 | completed | sonnet | Package a research report into a Whop SKU — 2026-07-13T19:31 | Dedup-before-mint gate correctly rejected: report's topics (loop-engineering/aut
-2026-07-28T21:32:32.781Z | task #24240 | completed | sonnet | arc-packaging: draft filename collision — all reports share  | Fixed arc-packaging draft/materials filename collision: added file_key column de
-2026-07-28T21:33:17.628Z | task #24241 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 2.86/5 (S1 O5 E1 C3 Ad4 Co1 Se3). Operational Health 5/5, queue clean (3 p
-[UNTRUSTED-SRC] 2026-07-28T21:34:37.284Z | task #24243 | completed | sonnet | Whop free-forum digest [2026-07-28]: syndicate Arc status in | Posted forum digest post_1CdVB2HMrBM6VUuY6aeChr — verified cross-lane signal was
-2026-07-28T21:35:43.894Z | task #24245 | completed | sonnet | architecture review — codebase changed since last review (71 | 4th occurrence of rotation-key-off-derived-identifier bug confirmed (arc-packagi
-2026-07-28T21:36:34.529Z | task #24247 | completed | sonnet | Distill watch report 2026-07-28T130002Z into 1-2 interior ob | 2 nuggets: OAuth escalation caught with hours of runway (failure-cluster) + Whop
-2026-07-28T21:38:34.384Z | task #24248 | completed | sonnet | Distill arXiv digest 2026-07-28T09:53:01Z into 3-5 nuggets | 4 nuggets distilled: APS-RAG (aibtc-infra, MCP-tooled agentic RAG w/ open eval h
-2026-07-28T21:40:00.766Z | task #24249 | completed | sonnet | architect: extract shared rotation-key helper — 4th occurren | Extracted slugFromReportFile/fileKeyFromReportFile into src/utils.ts (mirrors sl
-2026-07-28T21:40:39.338Z | task #24246 | completed | sonnet | workflow review — 1 health issue(s) | Closed stuck new-release workflow #3433 (aibtc-mcp-server mcp-server-v1.65.0), s
-2026-07-28T21:41:50.716Z | task #24244 | completed | haiku | Retrospective: extract learnings from task #24240 — arc-pack | Updated p-rotation-window-selection-integrity pattern: arc-packaging's file_key 
-2026-07-28T21:42:14.047Z | task #24242 | completed | haiku | daily cost report — 2026-07-27 | 2026-07-27: 97 tasks, $35.68 code + $28.80 API, 54.6M tokens. Top: arc-skill-man
-[UNTRUSTED-SRC] 2026-07-28T21:53:16.366Z | task #24250 | completed | sonnet | Whop synthesis [2026-07-28T21]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent 20 days (per watch-report). No room
-2026-07-28T22:17:18.338Z | task #24251 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-28T23:17:40.576Z | task #24252 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-29T00:01:39.653Z | task #24254 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Score 2.50/5 (S1 O5 E1 C3 Ad4 Co1 Se3). Operational Health strong (100% success,
-2026-07-29T00:02:31.422Z | task #24253 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known/self-resolved: candidate-maturation's 19 failures = X r
-2026-07-29T00:06:14.734Z | task #24255 | completed | sonnet | Nostr note from artifact: The task, not the call | Posted Nostr note (eventId 1218ce8...b8665) from task-is-the-unit artifact; rela
-2026-07-29T00:18:02.571Z | task #24256 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-29T01:05:12.310Z | task #24257 | completed | sonnet | Watch report — 2026-07-29T01:00Z | Watch report: 51 tasks completed, 0 failed, 7 blocked (pre-existing), $19.89 spe
-2026-07-29T01:06:48.897Z | task #24258 | completed | haiku | Retrospective: extract learnings from task #24257 — Watch re | Added p-derived-identifier-collision-rotation-key-helper pattern (4th recurrence
 2026-07-29T01:19:57.532Z | task #24259 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-07-29T02:20:06.652Z | task #24260 | completed | sonnet | CEO review — 2026-07-29T02:17 | CEO review: on track, 51/51 completed, $19.89 spent, packaging fix compounding. 
 2026-07-29T02:21:19.114Z | task #24261 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -525,3 +498,6 @@
 2026-08-02T04:58:03.621Z | task #24755 | completed | sonnet | Assess course candidacy: "What Agent Memory Papers Taught Me | No escalation: engagement signals near-zero (X CTA replies=0, whop forum comment
 2026-08-02T05:07:11.712Z | task #24756 | completed | sonnet | health alert: oauth expiring | OAuth expiresAt ~114min out at check time (routine, self-resolving per memory oa
 2026-08-02T05:07:50.034Z | task #24758 | completed | haiku | Retrospective: extract learnings from task #24756 — health a | No learnings to capture — task #24756 executed p-headless-external-dependency-tt
+2026-08-02T05:44:38.866Z | task #24759 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-02T05:45:39.225Z | task #24760 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-02T06:11:03.527Z | task #24757 | completed | haiku | Verify oauth re-auth and close health-alert workflow 3586 | OAuth expiry window 1785654020457 passed without auth failure. Token auto-refres
