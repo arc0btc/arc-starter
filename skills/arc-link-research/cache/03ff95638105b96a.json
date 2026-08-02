@@ -1,0 +1,20 @@
+{
+  "url": "https://github.com/567-labs/instructor",
+  "fetchedAt": "2026-08-02T00:48:00.058Z",
+  "contentType": "github",
+  "title": "instructor",
+  "rawContent": "Repo: 567-labs/instructor\nDescription: structured outputs for llms \nTopics: openai, python, pydantic-v2, openai-functions, validation, openai-function-calli\nStars: 13663\n\nREADME:\n# Instructor: Structured Outputs for LLMs\n\nGet reliable JSON from any LLM. Built on Pydantic for validation, type safety, and IDE support.\n\n```python\nimport instructor\nfrom pydantic import BaseModel\n\n\n# Define what you want\nclass User(BaseModel):\n    name: str\n    age: int\n\n\n# Extract it from natural language\nclient = instructor.from_provider(\"openai/gpt-4o-mini\")\nuser = client.chat.completions.create(\n    response_model=User,\n    messages=[{\"role\": \"user\", \"content\": \"John is 25 years old\"}],\n)\n\nprint(user)  # User(name='John', age=25)\n```\n\n**That's it.** No JSON parsing, no error handling, no retries. Just define a model and get structured data.\n\n[![PyPI](https://img.shields.io/pypi/v/instructor?style=flat-square)](https://pypi.org/project/instructor/)\n[![Downloads](https://img.shields.io/pypi/dm/instructor?style=flat-square)](https://pypi.org/project/instructor/)\n[![GitHub Stars](https://img.shields.io/github/stars/567-labs/instructor?style=flat-square)](https://github.com/567-labs/instructor)\n[![Discord](https://img.shields.io/discord/1192334452110659664?style=flat-square)](https://discord.gg/bD9YE9JArw)\n[![Twitter](https://img.shields.io/twitter/follow/jxnlco?style=flat-square)](https://twitter.com/jxnlco)\n\n> **Use Instructor for fast extraction, reach for PydanticAI when you need agents.** Instructor keeps schema-first flows simple and cheap. If your app needs richer agent runs, built-in observability, or shareable traces, try [PydanticAI](https://ai.pydantic.dev/). PydanticAI is the official agent runtime from the Pydantic team, adding typed tools, replayable datasets, evals, and production dashboards while using the same Pydantic models. Dive into the [PydanticAI docs](https://ai.pydantic.dev/) to see how it extends Instructor-style workflows.\n\n## Why Instructor?\n\nGetting structured data from LLMs is hard. You need to:\n\n1. Write complex JSON schemas\n2. Handle validation errors  \n3. Retry failed extractions\n4. Parse unstructured responses\n5. Deal with different provider APIs\n\n**Instructor handles all of this with one simple interface:**\n\n<table>\n<tr>\n<td><b>Without Instructor</b></td>\n<td><b>With Instructor</b></td>\n</tr>\n<tr>\n<td>\n\n```python\nresponse = openai.chat.completions.create(\n    model=\"gpt-5.4-mini\",\n    messages=[{\"role\": \"user\", \"content\": \"...\"}],\n    tools=[\n        {\n            \"type\": \"function\",\n            \"function\": {\n                \"name\": \"extract_user\",\n                \"parameters\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"name\": {\"type\": \"string\"},\n                        \"age\": {\"type\": \"integer\"},\n                    },\n                },\n            },\n        }\n    ],\n)\n\n# Parse response\ntool_call = response.choices[0].message.tool_calls[0]\nuser_data = json.loads(tool_call.function.arguments)\n\n# Validate manually\nif \"name\" not in user_data:\n    # Handle error...\n    pass\n```\n\n</td>\n<td>\n\n```python\nclient = instructor.from_provider(\"openai/gpt-5.4-mini",
+  "embeddedUrls": [
+    "https://img.shields.io/pypi/v/instructor?style=flat-square",
+    "https://pypi.org/project/instructor/",
+    "https://img.shields.io/pypi/dm/instructor?style=flat-square",
+    "https://pypi.org/project/instructor/",
+    "https://img.shields.io/github/stars/567-labs/instructor?style=flat-square",
+    "https://github.com/567-labs/instructor",
+    "https://img.shields.io/discord/1192334452110659664?style=flat-square",
+    "https://discord.gg/bD9YE9JArw",
+    "https://img.shields.io/twitter/follow/jxnlco?style=flat-square",
+    "https://ai.pydantic.dev/",
+    "https://ai.pydantic.dev/"
+  ]
+}
