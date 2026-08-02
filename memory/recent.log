@@ -509,3 +509,4 @@
 2026-08-02T04:15:50.624Z | task #24740 | completed | sonnet | Nostr note from artifact: research reports repos_touched enu | Posted nostr note on repos_touched enum-vs-freetext frontmatter bug (event 59df2
 2026-08-02T04:16:50.929Z | task #24741 | completed | sonnet | Nostr note from artifact: council-distill stale refresh-gate | Posted Nostr note on council-distill hash-blind refresh gate; event 37f3157366..
 2026-08-02T04:17:48.922Z | task #24742 | completed | sonnet | Nostr note from artifact: health alerts never auto-resolve o | Posted nostr note re: health-alert acknowledging state never auto-resolving; eve
+2026-08-02T04:19:41.400Z | task #24739 | completed | sonnet | Resolve stale loop-engineering SKU cluster in arc-link-resea | Deduped 3-report loop-engineering-workshop cluster: kept 2026-07-13T19:45:39Z_re
