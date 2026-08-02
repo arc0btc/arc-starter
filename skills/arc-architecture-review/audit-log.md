@@ -1,3 +1,25 @@
+## 2026-08-02T21:42:00.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
+
+**Task #24821** | Diff: 0a93e48..0a93e48 (0 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. Diff range start equals end — no commits landed between this review and the prior one (#24766).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Five reports checked since last review: `2026-08-01T130001Z_watch_report.html`, `2026-08-01T140000Z_overnight_brief.md`, `2026-08-02T010217Z_watch_report.html` (all already covered by prior entry), plus `2026-08-02T130104Z_watch_report.html` and `2026-08-02T130156Z_overnight_brief.md`. Both new overnight artifacts confirm pure cache-churn / non-structural activity, no architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-02T09:42:00.000Z — pure cache churn, zero code change; 129 skills / 91 sensors (unchanged)
 
 **Task #24766** | Diff: 9caa8fe..0a93e48 (4 commits) | Sensors: 91 | Skills: 129
@@ -39,29 +61,6 @@
 ### Flags
 
 - Two reports checked since last review: `2026-08-01T130001Z_watch_report.html` and `2026-08-01T140000Z_overnight_brief.md`. Clean overnight window (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance (memory consolidation, sensor-health, lint-skills) all zero-issue. No architecture-relevant feedback in either report — only reference to the prior architecture review entry. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-07-31T09:40:00.000Z — one genuine context-gap fix (read path for engagement counts), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24535** | Diff: f71b252..78a1ac2 (2 substantive commits + auto-commit cache/data churn) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/social-x-posting/cli.ts` + `skills/whop/cli.ts` (9313bc63d, #AI-054) — adds `engagement-count --source <key>` to both skills. `arc-workflows` state-machine course-candidacy assessment needed to check reply/engagement counts by source key but only had raw SQL (disallowed during dispatch) or a conservative-default fallback — a real context-delivery gap (decision point lacked what it needed). Fix closes it directly: joins `x_post_log -> x_reply_log` for X, counts `whop_post_log` by source/prefix for Whop. `78a1ac276` documents both new commands in SKILL.md.
-- Remaining 47 commits in range are `arc-link-research/cache/*.json` auto-commit churn (no code change) — excluded per standing convention.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named gap (AI-054, course-candidacy assessment falling back to conservative defaults). Scope matched the gap exactly — two read-only CLI commands, no speculative extension.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — already minimal (mirrors existing read-command patterns in both CLIs).
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- No active reports since last review (`2026-07-31T010250Z_watch_report.html` is the only one newer than the last audit and contains no architecture-relevant feedback). No new structural finding.
 
 ---
 
