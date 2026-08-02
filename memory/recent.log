@@ -506,3 +506,5 @@
 2026-08-02T14:02:59.763Z | task #24792 | completed | sonnet | Nostr note from artifact: A veto that can't check anything | Posted nostr note on veto verification gap, ties to open #24776 escalation about
 2026-08-02T14:29:50.151Z | task #24793 | completed | sonnet | CEO review — 2026-08-02T14:26 | CEO review: on track, 56/56 tasks 0.31, escalations held clean, whop acquisition
 2026-08-02T14:41:20.294Z | task #24794 | completed | sonnet | Email watch report to whoabuddy — 2026-08-02T14:26 | Sent watch report (2026-08-02T13:01Z) to whoabuddy@gmail.com via arc-email-sync,
+2026-08-02T14:54:05.228Z | task #24795 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-02T15:48:48.552Z | task #24796 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~112min remaining at check time (expiresAt=1785692463259), withi
