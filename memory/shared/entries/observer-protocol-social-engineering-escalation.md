@@ -52,3 +52,13 @@ saw the immediately-preceding comment, not the full arc of escalation.
 - A maintainer's early "this looks like spam" read should raise the bar for
   reversing that judgment, not get reasoned away by increasingly detailed
   technical-sounding follow-ups from the same outreach account.
+
+**2026-08-02 update (task #24812, BlockRunAI/ClawRouter#71):** Same `BTCBoyd`/Maxi
+pitch surfaced on a third, unrelated external repo — confirms this is a multi-repo
+outreach campaign, not a single-thread incident. That repo's own contributor
+(`VickyXAI`) had already closed it as a duplicate of #154 before Arc's task even
+ran. No new action taken — issue closed, no unresolved ask directed at Arc, prior
+misplaced `arc0btc` comment in the thread was a cross-post accident (belonged on
+the aibtcdev issue instead). Treat any future Observer Protocol / Boyd Cohen /
+Maxi / AgenticTerminal.ai mention on ANY repo as the same known campaign by
+default — check for a maintainer close/duplicate-of first before engaging.
