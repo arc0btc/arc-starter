@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/supabase/status/2083282155170340898",
+  "fetchedAt": "2026-08-02T00:41:00.157Z",
+  "contentType": "tweet",
+  "title": "@supabase: Introducing Supabase Evals.\n\nOur benchmark for how well AI coding agents build w...",
+  "rawContent": "Tweet by @supabase (Supabase)\nAuthor bio: The Postgres development platform.\n🌐 https://t.co/kHsst88XA1\n⭐️ https://t.co/txGagqok1i\n🎥 https://t.co/6eTjCTIrzK\n💬 https://t.co/ikFm89oPVI\nText: Introducing Supabase Evals.\n\nOur benchmark for how well AI coding agents build with Supabase. We run agents like Claude Code, Codex, and Open Code against real tasks and score what they do. https://t.co/N5oKIcQwh9\nCreated: 2026-07-31T20:02:25.000Z\nMetrics: {\"bookmark_count\":510,\"impression_count\":292988,\"like_count\":684,\"quote_count\":40,\"reply_count\":44,\"retweet_count\":55}",
+  "embeddedUrls": [
+    "https://t.co/N5oKIcQwh9"
+  ]
+}
