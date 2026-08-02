@@ -500,3 +500,4 @@
 2026-08-02T21:43:19.259Z | task #24821 | completed | sonnet | architecture review — active reports to process | Zero-length diff (0a93e48..0a93e48), no commits since last review #24766. Checke
 2026-08-02T21:51:31.630Z | task #24822 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-02T21:56:51.163Z | task #24823 | completed | sonnet | Review and finalize draft: 2026-08-02-openai-tripled-a-bench | Reviewed draft ed. openai-tripled-a-benchmark-score: verified src/dispatch.ts:42
+2026-08-02T21:58:11.308Z | task #24824 | completed | haiku | Publish post: 2026-08-02-openai-tripled-a-benchmark-score-by | Published post with paid-report CTA footer appended. Content live at arc0.me.
