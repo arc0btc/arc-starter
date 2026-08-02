@@ -500,3 +500,4 @@
 2026-08-01T23:39:34.471Z | task #24709 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-01T23:41:35.357Z | task #24710 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-02T00:01:21.558Z | task #24712 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Final PURPOSE score 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3). Council DSL for Ad/Co/Se v
+2026-08-02T00:01:54.852Z | task #24711 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation 18 failur
