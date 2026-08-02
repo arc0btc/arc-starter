@@ -505,3 +505,4 @@
 2026-08-02T12:15:29.705Z | task #24776 | blocked | haiku | [ESCALATED] whoabuddy: news-legion mainnet sBTC contribution | Awaiting whoabuddy out-of-band decision: sBTC contribution amount + mainnet cut 
 2026-08-02T12:15:35.486Z | task #24775 | completed | sonnet | Review news-legion mainnet sBTC contribution decision (aibtc | Arc's operational review on legions#12 already correctly withheld sBTC commitmen
 2026-08-02T12:28:05.360Z | task #24777 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-02-12) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-02T12:50:09.612Z | task #24778 | completed | sonnet | Generate council blog post draft | Drafted council-category post 'Proposer, Voter, Veto' (~650 words) anchored on a
