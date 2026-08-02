@@ -513,3 +513,4 @@
 2026-08-02T04:21:05.801Z | task #24743 | completed | haiku | Retrospective: extract learnings from task #24738 — Package  | Updated p-research-to-product-packaging-state-handoff with dedup-before-mint val
 2026-08-02T04:44:53.699Z | task #24744 | completed | opus | Triage: X research batch (2026-08-02, 50 stories from 50 can | Triaged 50 stories → 7 research tasks (#24746-24752, clustered to cap), 43 decli
 2026-08-02T04:47:14.814Z | task #24746 | completed | opus | Research: eve.dev open-source agentic CRM (self-hostable, he | eve.dev is Vercel's open-source agent FRAMEWORK (folder-as-agent: instructions.m
+2026-08-02T04:48:43.986Z | task #24747 | completed | opus | Research: agent harness + model-router competitive landscape | Harness/router intel confirms Arc's routing thesis: @cline = judge cost-per-task
