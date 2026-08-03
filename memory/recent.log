@@ -1,8 +1,3 @@
-2026-07-30T09:39:28.305Z | task #24424 | completed | sonnet | architecture review — codebase changed since last review (d2 | 3 substantive commits since d298328: link-research skip-log fast-path (#24410), 
-2026-07-30T09:40:45.655Z | task #24425 | completed | sonnet | workflow review — 1 health issue(s) | site-health-alert workflow 3450 (freshness alert 2026-07-23) was stuck in 'fixin
-2026-07-30T09:44:21.193Z | task #24426 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors), committed with routine whop-state/
-2026-07-30T09:44:23.729Z | task #24427 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T09:49:03.207Z | task #24428 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.65.1 | mcp-server-v1.65.1: x402 dedup-on-failed-settlement fix (#631), no breaking chan
 2026-07-30T09:54:44.107Z | task #24429 | completed | sonnet | Security: postcss (high) in aibtcdev/aibtc-mcp-server | Bumped postcss 8.5.12->8.5.18 (transitive dev dep via vite/vitest) in aibtc-mcp-
 2026-07-30T09:55:00.798Z | task #24430 | completed | haiku | Fetch and compile arXiv digest — 2026-07-30 (30 new papers) | Fetched 50 arXiv papers (26 relevant), compiled digest: research/arxiv/2026-07-3
 [UNTRUSTED-SRC] 2026-07-30T09:56:54.683Z | task #24431 | completed | sonnet | Whop synthesis [2026-07-30T09]: read the room, defer or post | DEFER: window empty (0 messages, no speakers) — nothing to synthesize, silence i
@@ -502,3 +497,9 @@
 2026-08-03T18:15:52.219Z | task #24924 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T19:08:39.557Z | task #24925 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed genuine (113min remaining, under 2h threshold) but cons
 2026-08-03T19:09:45.047Z | task #24926 | completed | haiku | Retrospective: extract learnings from task #24925 — health a | No learnings to capture — oauth-expiring cost-yield analysis already in MEMORY.m
+2026-08-03T19:16:13.484Z | task #24927 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T20:02:31.354Z | task #24928 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-03T20:05:44.654Z | task #24929 | completed | script | Welcome new AIBTC agent: Stellar Goat | {"success":true,"agent":"Stellar Goat","stx_address":"SP33HH2PEXTZDEP3VPYZYNKBT0
+2026-08-03T20:16:36.470Z | task #24930 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T21:17:56.552Z | task #24931 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T21:33:23.738Z | task #24932 | completed | haiku | arc-opensource: sync 96 commit(s) to GitHub | Published 96 commits to arc0btc/arc-starter main branch (66bb51fca..43c9d2d7d). 
