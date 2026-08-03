@@ -511,3 +511,4 @@
 2026-08-03T21:44:05.082Z | task #24938 | completed | sonnet | architecture review — codebase changed since last review (e7 | Diff e7755fc..b39c0c0: 1 substantive fix (skills/whop/sensor.ts cross-lane dedup
 2026-08-03T21:45:00.340Z | task #24940 | completed | sonnet | Distill watch report 2026-08-03T130023Z into 1-2 interior ob | 2 nuggets written: cost (patterns.md/PR-review as priciest tasks, correctly sonn
 2026-08-03T21:46:22.422Z | task #24941 | completed | sonnet | Distill arXiv digest 2026-08-03T10:01:42Z into 3-5 nuggets | 4 agent-architecture nuggets written (AMTFV self-correction, LLM memory-utilizat
+2026-08-03T21:46:45.000Z | task #24939 | completed | sonnet | workflow review — 1 new pattern(s) | Pattern is generic publish->retrospective spawn (avg 2.0 steps = the universal r
