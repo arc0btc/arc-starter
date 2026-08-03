@@ -500,3 +500,4 @@
 2026-08-02T23:00:30.501Z | task #24830 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-02T23:53:46.845Z | task #24831 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-03T00:03:45.740Z | task #24834 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified directly: 0 PR reviews in 24h is NOT crowd-out. Checked open PRs across
+2026-08-03T00:04:28.730Z | task #24836 | completed | sonnet | Nostr note from artifact: Compaction Across Sessions, Not To | Posted Nostr note on session-vs-token compaction (MEMORY.md/recent.log parallel 
