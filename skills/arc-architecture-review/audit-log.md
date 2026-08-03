@@ -1,3 +1,27 @@
+## 2026-08-03T21:43:03.000Z — single-file cross-lane dedup fix (task-existence → ground-truth), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24938** | Diff: e7755fc..b39c0c0 (2 substantive commits, excluding this skill's own) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/whop/sensor.ts` (b39c0c025, `pollWhopFreeForumDigest`) — cross-lane check `recentSynthesisPost` previously used `recentTaskExistsForSourcePrefix`, which is true on every 6h synthesis tick regardless of outcome (the synthesis lane always queues a dispatch task, even when it defers with 0 messages). This misled the free-forum digest into skipping on a false "just posted" premise (2026-08-01 #24701, 2026-08-02 #24819). Fix swaps the signal to `whop_post_log`, a table only written when post-chat actually posts — decision point now checks the real world-state instead of a proxy for intent. Good pattern: the fix lazily `CREATE TABLE IF NOT EXISTS`s the log table inline, matching how `cli.ts`'s post-chat path creates it, so a fresh DB doesn't throw on first tick. No new abstraction, single query, correctly scoped.
+- `skills/arc-article-pipeline/drafts/article-19-x-article.json` (165cfa161) — P4 auto-package data write, not a code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to two named false-defer incidents (#24701, #24819) — a real decision-point bug (gate used task-queuing as a proxy for "content already posted," but queuing happens unconditionally), not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — fix replaces one signal with a more accurate one at the same call site, no added complexity.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- General pattern worth watching elsewhere in the skill tree: any cross-lane or dedup gate built on `recentTaskExistsForSourcePrefix` (or equivalent "was a task queued" checks) is vulnerable to the same false-positive if the queuing lane can queue-then-defer. This is the second occurrence of the class (see [[task-existence-vs-actual-effect-dedup-gate]] per docs(memory) commit d42c23b6d) — worth a follow-up grep for other `recentTaskExistsForSourcePrefix` call sites if a third instance surfaces, not yet warranted for one repeat.
+- No new reports since last review beyond the standard overnight brief (2026-08-03T14:00:00Z) — already reviewed same-day, no architecture-relevant feedback beyond what's tracked in MEMORY.md. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held.
+
+---
+
 ## 2026-08-03T09:43:51.000Z — single mechanical CLI addition (escalation-ladder visibility), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24882** | Diff: 0a93e48..e7755fc (1 commit) | Sensors: 91 | Skills: 129
@@ -85,23 +109,3 @@
 - Two reports checked since last review: `2026-08-01T130001Z_watch_report.html` and `2026-08-01T140000Z_overnight_brief.md`. Clean overnight window (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance (memory consolidation, sensor-health, lint-skills) all zero-issue. No architecture-relevant feedback in either report — only reference to the prior architecture review entry. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
 
 ---
-
-## 2026-07-31T21:39:50.000Z — targeted state-machine bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24586** | Diff: 78a1ac2..32b6bc6 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-service-health/sensor.ts` (32b6bc681, #24536/#24537) — `clearResolvedAlerts()` previously matched only `state=triggered`, but the `HealthAlertMachine`'s own task instructions move workflows `triggered→acknowledging` on dispatch pickup, so any alert acknowledged before its condition cleared (the common `oauth-expiring` case) had no automated path to close out. Found via workflow-health audit (14/15 active `oauth-expiring` instances stuck, oldest 7 days). Fix adds the `acknowledging` branch, routing through `updateWorkflowState(..., "retrospective_pending", ...)` so the retrospective still fires instead of silently completing. Backlog manually cleared same-cycle.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named audit finding (#24536, 14 stuck instances) — a real decision-point gap (the state machine's own documented transition had no matching resolver branch), not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review: `2026-07-31T130000Z_overnight_brief.md` and `2026-07-31T130051Z_watch_report.html` (same 01:02Z–13:00Z window, overlapping content). Clean night (37/37 completed, 0 failed, $12.69), both real fixes shipped that window (this one plus the engagement-count CLI work already reflected in the prior audit-log entry). A fresh, legitimate `oauth-expiring` alert followed later that morning — expected, unrelated to the fix (token lifecycle vs. stuck-state bug). No new structural finding.
