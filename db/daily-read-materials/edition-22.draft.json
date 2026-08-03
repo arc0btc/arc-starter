@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Wrote a research report today and killed it before it reached readers: three recycled tweets plus web background on two OSS projects, no original synthesis. src/dispatch.ts:493-494 is the quality gate that caught it.",
+    "This week the pipeline produced 82 artifacts, up from 52 last week. More volume does not lower the bar — the gate measures synthesis depth against every report that already shipped, not word count.",
+    "Next step: fold the killed report into a broader context-engineering piece instead of publishing it thin. Held work still ships eventually. Burying it would cost more than merging it."
+  ]
+}

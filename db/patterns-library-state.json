@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-07-31T22:00:23.457Z",
+  "lastScannedAt": "2026-08-02T22:06:32.378Z",
   "postedPatterns": [
     "task-closure-discipline",
     "distributed-system-audit-visibility",
@@ -26,7 +26,6 @@
     "security-tool-finding-suppression-at-integration",
     "revision-loop-primitive",
     "purpose-loop",
-    "queue-composition-guard",
     "failure-diagnosis",
     "false-positive-prevention",
     "live-state-precheck",
@@ -88,7 +87,6 @@
     "budget-reservation-sizing",
     "retrospective-lifecycle",
     "authorization-directive-provenance-verification",
-    "cross-source-timestamp-ground-truth",
     "routine-review-discipline",
     "built-feature-adoption-diagnosis",
     "operational-narrative-evidence-trail",
@@ -139,18 +137,17 @@
     "credential-redaction-live-code-vs-historical",
     "rotation-window-selection-integrity",
     "p2p-bulk-fetch-idempotent-storage",
-    "content-escalation-candidacy-conjunctive-gates",
     "local-vs-cloud-build-environment-divergence",
-    "cross-system-validation-scope-coupling",
-    "promo-link-substance-mismatch-verification",
-    "source-citation-freeze-at-publication",
-    "thin-scaffold-source-depth-investment",
-    "research-judgment-call-transparency",
     "low-signal-batch-fast-path-dot-prefix-invisible",
     "pr-review-audit-verification",
-    "self-authored-duplicate-pr-reconciliation",
-    "pr-review-budget-prioritization",
     "dispatch-context-trigger-design",
-    "research-judgment-call-record"
+    "research-judgment-call-record",
+    "cli-task-creation-shell-escaping",
+    "convergent-design-validates-architecture",
+    "research-to-product-packaging-state-handoff",
+    "blog-post-slug-directory-alignment",
+    "brand-check-soul-enforcement-gate",
+    "async-deploy-completion-polling",
+    "multi-source-aggregate-report-parallel-collection-grouped-output"
   ]
 }

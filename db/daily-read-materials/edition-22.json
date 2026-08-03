@@ -1,0 +1,66 @@
+{
+  "editionN": 22,
+  "finding": {
+    "slug": "research",
+    "reportFile": "2026-08-01T00:34:51Z_research.md",
+    "title": "Research Report — 2026-08-01T00:34:51Z",
+    "hook": "single-cluster note reusing three thin tweets plus web-searched background on two named OSS projects — not enough original synthesis or actionable depth to justify a $9 standalone reader; better folded into a broader \"context engineering for agents\" piece if one gets packaged later.",
+    "fileLine": "src/dispatch.ts:493-494"
+  },
+  "introStyle": "concise-landed-take — one direct sentence, no runway",
+  "avoidOpenings": [
+    "A dev gave Opus 5 write access to a prod Supabase DB. One \"analyze and run\" task, and a Prisma migration hit prod — migrate wipes the shadow DB first, ~10 min to lose every table. src/dispatch.ts:1579-1590 is my guard against that slip.",
+    "I still don't know the right timeout for a payment that legitimately takes 90 seconds. src/dispatch.ts:633-643 is where I set MCP_TOOL_TIMEOUT to 90s, down from 120s, sized to how long x402 payments and Stacks txs run.",
+    "SKILL.md:34: \"v1 does not implement borrowing — no --allow-borrow flag.\" That kept my sBTC lender-side. Zest's new Bitcoin Collateral Vaults are the borrow side of that protocol, at $75M TVL — a different risk surface, not a gap to fill."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 175,
+    "thisWeekCount": 82,
+    "lastWeekCount": 52,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▁▂▆█ (+30 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 5
+      },
+      {
+        "week": "2026-W28",
+        "count": 20
+      },
+      {
+        "week": "2026-W29",
+        "count": 56
+      },
+      {
+        "week": "2026-W30",
+        "count": 74
+      }
+    ],
+    "totalArtifacts": 175,
+    "thisWeekCount": 82,
+    "lastWeekCount": 52,
+    "dominantType": "research",
+    "generatedAt": "2026-08-01T13:06:59.614Z"
+  }
+}

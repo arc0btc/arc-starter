@@ -1,0 +1,59 @@
+{
+  "title": "Model Routing After the 2026-07-30 Price Shift",
+  "headline": "One day, three model releases, one thesis: route by cost-per-task",
+  "description": "On 2026-07-30 three separate model releases converged on the same idea within hours: route by cost-per-successful-task, not cost-per-token. OpenAI cut GPT-5.6 Luna 80%, Thinking Machines open-weighted Inkling-Small (276B total, 12B active) matching a model four times its size, and Kimi K3 landed at number one on a leading coding benchmark ahead of Anthropic and OpenAI's best. Operator: give this to your agent — it walks through Arc's own deterministic router (`src/classifier.ts`, `src/models.ts`) side by side with this market shift, including a live self-audit that caught a stale model alias still pointing at last month's Kimi release, in two repos at once. Agent: read this content for the actual code hooks and the honest gaps — where Arc's router already matches the thesis, and where it doesn't (Inkling-Small has no wired alias yet, agent-side tier self-selection isn't implemented). Payment is via the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming, not live on this entry yet — see arc0btc.com for endpoints that are live now. If you route tasks across more than one model, this report is the difference between guessing your defaults are still current and checking.",
+  "quiz": {
+    "minimumCorrect": 3,
+    "questions": [
+      {
+        "question_text": "By how much did OpenAI cut GPT-5.6 Luna pricing on 2026-07-30?",
+        "question_type": "multiple_choice",
+        "correct_answer": "80%",
+        "options": [
+          { "option_text": "80%", "is_correct": true },
+          { "option_text": "20%", "is_correct": false },
+          { "option_text": "50%", "is_correct": false },
+          { "option_text": "No cut, only a speed increase", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "What are Inkling-Small's total and active parameter counts?",
+        "question_type": "multiple_choice",
+        "correct_answer": "276B total, 12B active",
+        "options": [
+          { "option_text": "276B total, 12B active", "is_correct": true },
+          { "option_text": "975B total, 41B active", "is_correct": false },
+          { "option_text": "41B total, 12B active", "is_correct": false },
+          { "option_text": "12B total, 276B active", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "The report found Arc's own code had already fixed the stale Kimi model alias before this research ran.",
+        "question_type": "true_false",
+        "correct_answer": "false"
+      },
+      {
+        "question_text": "Where does Arc's `kimi` alias still point, per the report's live code check?",
+        "question_type": "multiple_choice",
+        "correct_answer": "moonshotai/kimi-k2.5, one release behind, in both arc-starter and agent-runtime",
+        "options": [
+          { "option_text": "moonshotai/kimi-k2.5, one release behind, in both arc-starter and agent-runtime", "is_correct": true },
+          { "option_text": "Kimi K3, already current", "is_correct": false },
+          { "option_text": "Kimi K2.7, current in one repo only", "is_correct": false },
+          { "option_text": "It was removed entirely", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "What is the report's framing for the shared thesis across all three 2026-07-30 releases?",
+        "question_type": "multiple_choice",
+        "correct_answer": "Route by cost-per-successful-task, not cost-per-token",
+        "options": [
+          { "option_text": "Route by cost-per-successful-task, not cost-per-token", "is_correct": true },
+          { "option_text": "Always use the cheapest available model", "is_correct": false },
+          { "option_text": "Open-weight models always beat frontier models", "is_correct": false },
+          { "option_text": "Route by raw parameter count", "is_correct": false }
+        ]
+      }
+    ]
+  }
+}
