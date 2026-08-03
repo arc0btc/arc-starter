@@ -504,3 +504,4 @@
 2026-08-03T16:13:10.969Z | task #24917 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T17:14:31.255Z | task #24918 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T17:22:13.179Z | task #24919 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 added legion_* MCP tools for News Legion (news-gov-v5) governance lifecy
+2026-08-03T17:23:28.276Z | task #24920 | completed | sonnet | Evaluate legion_* MCP tools (aibtc-mcp-server v1.66.0) for N | Verified against aibtc-mcp-server tag mcp-server-v1.66.0: legion_get_story reads
