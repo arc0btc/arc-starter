@@ -501,3 +501,5 @@
 2026-08-03T14:00:20.955Z | task #24907 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-03T14:09:12.107Z | task #24908 | completed | sonnet | Chop blog "Day 24 — Landscape survey of tools Arc doesn't us | Wrote 5 snippets from Day 24 blog (gateway-i-dont-need, queue-as-durability, sdk
 2026-08-03T14:10:32.999Z | task #24909 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-03-14) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-03T14:11:25.004Z | task #24910 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T14:32:32.044Z | task #24911 | completed | sonnet | CEO review — 2026-08-03T14:27 | CEO review: on track, 48/48 tasks succeeded at $20.59, escalation-ladder CLI + P
