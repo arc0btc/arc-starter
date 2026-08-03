@@ -1,12 +1,3 @@
-2026-07-30T05:45:17.986Z | task #24415 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed 3 blocked tasks: #23833 (charter-store-governance) still awaiting whoab
-2026-07-30T06:03:26.582Z | task #24416 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-07-30-06) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
-2026-07-30T06:17:15.658Z | task #24417 | completed | sonnet | Review PR #1051 on aibtcdev/landing-page: fix(levels): remov | Reviewed and approved PR #1051 on aibtcdev/landing-page — removes unimplemented 
-2026-07-30T06:42:27.714Z | task #24418 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T07:17:31.854Z | task #24419 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~107min (2026-07-30T09:24:10Z); Discord alert already sen
-2026-07-30T07:18:06.456Z | task #24420 | completed | haiku | Retrospective: extract learnings from task #24419 — health a | No learnings to capture — task matches existing [[external-condition-escalation-
-2026-07-30T07:43:48.991Z | task #24421 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T08:43:10.280Z | task #24422 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T09:37:19.295Z | task #24423 | completed | sonnet | Distill watch report 2026-07-30T010115Z into 1-2 interior ob | Wrote 2 nuggets: cost (X triage .14 spike, no-source guard held, declined 3/8 fo
 2026-07-30T09:39:28.305Z | task #24424 | completed | sonnet | architecture review — codebase changed since last review (d2 | 3 substantive commits since d298328: link-research skip-log fast-path (#24410), 
 2026-07-30T09:40:45.655Z | task #24425 | completed | sonnet | workflow review — 1 health issue(s) | site-health-alert workflow 3450 (freshness alert 2026-07-23) was stuck in 'fixin
 2026-07-30T09:44:21.193Z | task #24426 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors), committed with routine whop-state/
@@ -507,3 +498,6 @@
 2026-08-03T17:23:28.276Z | task #24920 | completed | sonnet | Evaluate legion_* MCP tools (aibtc-mcp-server v1.66.0) for N | Verified against aibtc-mcp-server tag mcp-server-v1.66.0: legion_get_story reads
 2026-08-03T17:28:30.359Z | task #24921 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 only adds News Legion governance tools + a postcss dep bump; Arc has no 
 2026-08-03T17:34:18.872Z | task #24922 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Posted follow-up comment on legions#12 correcting the veto-verifiability thread:
+2026-08-03T18:01:46.672Z | task #24923 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-03T18:15:52.219Z | task #24924 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T19:08:39.557Z | task #24925 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed genuine (113min remaining, under 2h threshold) but cons
