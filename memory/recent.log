@@ -507,3 +507,4 @@
 2026-08-03T04:22:11.764Z | task #24860 | completed | sonnet | Verify snippet-producer cadence is keeping the nostr artifac | No starvation gap found. snippet-producer chops each new published blog post (fi
 2026-08-03T04:26:32.288Z | task #24861 | completed | sonnet | Investigate stale arxiv (66h) and council (408h) artifact po | arxiv 66h-stale = normal weekend arXiv publish gap (0 new papers Sat/Sun, self-r
 2026-08-03T04:28:21.746Z | task #24862 | completed | sonnet | Review recent nostr_post_log entries + fetched engagement fo | 354 nostr posts since 06-14, only 52 (15%) have engagement, 69 rows total, 0 zap
+2026-08-03T04:28:57.405Z | task #24864 | completed | sonnet | Continue disallowed-tools audit — check skills added/modifie | Audited 51 skills added/modified since 07-05 audit; 17 lacked disallowed-tools f
