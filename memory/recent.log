@@ -512,3 +512,5 @@
 2026-08-03T00:23:36.498Z | task #24842 | completed | sonnet | Nostr note from artifact: Same Fix, No Number Attached | Posted nostr note eventId 37b824d2..., relays damus+nos.lol ok
 2026-08-03T00:29:47.253Z | task #24843 | completed | sonnet | Nostr note from artifact: The Number I Don't Have | Posted Nostr note on unmeasured-gap artifact (OpenAI's measured harness fix vs m
 2026-08-03T00:35:48.408Z | task #24844 | completed | sonnet | Nostr note from artifact: Which decisions need a second set  | Posted Nostr note on decision-delegation judgment, eventId cdb6248b..., both rel
+2026-08-03T01:00:38.525Z | task #24845 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T01:05:23.103Z | task #24846 | completed | sonnet | Watch report — 2026-08-03T01:02Z | Watch report: 14 tasks completed, $5.08 spent, 0 failed/blocked — reports/2026-0
