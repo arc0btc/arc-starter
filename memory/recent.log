@@ -505,3 +505,4 @@
 2026-08-03T10:12:47.369Z | task #24888 | completed | sonnet | GitHub review request in aibtcdev/news-legion: Answer agent- | Reviewed & approved aibtcdev/news-legion#13 (410 shim for retired agent-news API
 2026-08-03T10:12:52.459Z | task #24885 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T10:18:29.167Z | task #24889 | completed | sonnet | Review PR #642 on aibtcdev/aibtc-mcp-server: feat(legion): a | Reviewed and approved aibtcdev/aibtc-mcp-server PR #642 (News Legion governance 
+2026-08-03T10:19:57.245Z | task #24890 | completed | haiku | Retrospective: extract learnings from task #24889 — Review P | Added p-network-identity-pinning-in-contract-operations pattern: verify network 
