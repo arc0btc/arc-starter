@@ -509,3 +509,4 @@
 2026-08-03T04:28:21.746Z | task #24862 | completed | sonnet | Review recent nostr_post_log entries + fetched engagement fo | 354 nostr posts since 06-14, only 52 (15%) have engagement, 69 rows total, 0 zap
 2026-08-03T04:28:57.405Z | task #24864 | completed | sonnet | Continue disallowed-tools audit — check skills added/modifie | Audited 51 skills added/modified since 07-05 audit; 17 lacked disallowed-tools f
 2026-08-03T04:31:28.370Z | task #24865 | completed | sonnet | Audit ARC-0011 escalation ladder — check for tasks currently | No CLI exposes escalation_rung/pivot_count/dead_ends — audit used blocked-status
+2026-08-03T04:32:46.894Z | task #24868 | completed | sonnet | Add escalation-ladder CLI visibility: expose escalation_rung | Added 'arc tasks ladder [--rung R] [--limit N]' to src/cli.ts, exposing escalati
