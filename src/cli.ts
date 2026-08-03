@@ -53,6 +53,7 @@ const USAGE = {
   tasksLink: 'arc tasks link --from N --to M --type blocks|related|discovered-from',
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
   tasksCost: 'arc tasks cost [--days N] [--top N]',
+  tasksLadder: 'arc tasks ladder [--rung REFINE|PIVOT|WEB-SEARCH|HANDOFF] [--limit N]',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
 } as const;
@@ -204,6 +205,64 @@ function cmdTasksList(args: string[]): void {
       pad(truncate(row.subject, 32), 34) +
       pad(truncate(row.source ?? "", 12), 14) +
       truncate(row.created_at, 16);
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdTasksLadder(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
+  const rungFilter = flags["rung"];
+
+  const db = initDatabase();
+
+  let rows: Array<{
+    id: number;
+    priority: number;
+    status: string;
+    subject: string;
+    escalation_rung: string;
+    pivot_count: number;
+    attempt_count: number;
+    max_retries: number;
+    dead_ends: string | null;
+  }>;
+
+  if (rungFilter) {
+    rows = db
+      .query(
+        "SELECT id, priority, status, subject, escalation_rung, pivot_count, attempt_count, max_retries, dead_ends FROM tasks WHERE escalation_rung = ? ORDER BY priority ASC, id ASC LIMIT ?"
+      )
+      .all(rungFilter, limit) as typeof rows;
+  } else {
+    rows = db
+      .query(
+        "SELECT id, priority, status, subject, escalation_rung, pivot_count, attempt_count, max_retries, dead_ends FROM tasks WHERE escalation_rung != 'REFINE' ORDER BY priority ASC, id ASC LIMIT ?"
+      )
+      .all(limit) as typeof rows;
+  }
+
+  if (rows.length === 0) {
+    process.stdout.write("No tasks found.\n");
+    return;
+  }
+
+  const header =
+    pad("id", 4) + pad("pri", 4) + pad("status", 10) + pad("rung", 12) + pad("pivots", 7) + pad("attempts", 9) + pad("subject", 34) + "dead_ends";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const row of rows) {
+    const deadEndCount = row.dead_ends ? (JSON.parse(row.dead_ends) as unknown[]).length : 0;
+    const line =
+      pad(String(row.id), 4) +
+      pad(String(row.priority), 4) +
+      pad(row.status, 10) +
+      pad(row.escalation_rung, 12) +
+      pad(String(row.pivot_count), 7) +
+      pad(`${row.attempt_count}/${row.max_retries}`, 9) +
+      pad(truncate(row.subject, 32), 34) +
+      String(deadEndCount);
     process.stdout.write(line + "\n");
   }
 }
@@ -667,6 +726,8 @@ function cmdTasks(args: string[]): void {
     cmdTasksUnlink(args.slice(1));
   } else if (sub === "cost") {
     cmdTasksCost(args.slice(1));
+  } else if (sub === "ladder") {
+    cmdTasksLadder(args.slice(1));
   } else {
     cmdTasksList(args);
   }
@@ -1080,6 +1141,10 @@ COMMANDS
   ${USAGE.tasksCost}
     Read-only cost breakdown: totals plus top tasks/models/skills by cost.
     --days defaults to 1 (i.e. today), --top defaults to 5.
+
+  ${USAGE.tasksLadder}
+    List tasks by ARC-0011 escalation rung. Default: all tasks past REFINE
+    (PIVOT/WEB-SEARCH/HANDOFF). --rung filters to a single rung.
 
   creds list
     List stored credentials (service/key names only, no values).
