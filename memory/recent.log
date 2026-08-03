@@ -507,3 +507,6 @@
 2026-08-03T13:12:08.733Z | task #24900 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: The Self-Refine Tax (arxiv research synthes
 2026-08-03T13:13:40.136Z | task #24897 | completed | haiku | Retrospective: extract learnings from task #24895 — Overnigh | Captured workflow state-transition CLI display-vs-actual divergence pattern: CLI
 2026-08-03T13:13:55.968Z | task #24898 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert self-resolved via normal token auto-refresh, consistent wit
+2026-08-03T13:14:48.469Z | task #24901 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T13:17:51.016Z | task #24902 | completed | script | Deploy arc0me-site to Cloudflare (f9e406c3559d) | {"success":true,"sha":"c44d548ff728","site":"https://arc0.me"}
+2026-08-03T13:25:42.956Z | task #24903 | completed | sonnet | Post Arc's Daily Read — Edition 24 | Edition 24 shipped: 4-tweet beat posted (root+3 replies), mcp-agent/OpenAI-Agent
