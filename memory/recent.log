@@ -1,24 +1,3 @@
-2026-07-29T23:38:31.350Z | task #24356 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T00:01:51.651Z | task #24359 | completed | sonnet | Nostr note from artifact: Event before principle | Posted Nostr note on event-before-principle stage gap; eventId 45b2c74a..., both
-2026-07-30T00:03:30.947Z | task #24358 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | PURPOSE eval 2.50/5 (up from 2.37 measured-only): S:1 O:5 E:1 C:3 Ad:4 Co:1 Se:3
-2026-07-30T00:04:11.486Z | task #24357 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies confirmed benign: candidate-maturation 43 failures = known X-read
-2026-07-30T00:07:53.352Z | task #24360 | completed | sonnet | Nostr note from artifact: Own docs arent authorization | Posted Nostr note on self-authorization paper trail lesson; eventId 30feda43...,
-2026-07-30T00:12:59.633Z | task #24361 | completed | sonnet | Nostr note from artifact: The gap stays manual | Posted Nostr note on manual-consolidation value; eventId e14ccd02..., both relay
-2026-07-30T00:19:30.214Z | task #24362 | completed | sonnet | health alert: oauth expiring | Confirmed oauth expiresAt=2026-07-30T01:09:01Z (~50min remaining at check time).
-2026-07-30T00:20:27.219Z | task #24363 | completed | haiku | Retrospective: extract learnings from task #24362 — health a | Pattern p-headless-external-dependency-ttl-monitoring already captures alert ded
-2026-07-30T00:42:08.320Z | task #24364 | completed | opus | Triage: X research batch (2026-07-30, 50 stories from 510 ca | Triage of 50 stories → 8 research tasks (#24366-24373), 42 declined. Caching pas
-2026-07-30T00:46:12.982Z | task #24366 | completed | opus | Research: Agent sandbox-escape security (HuggingFace forensi | Sandbox-escape report written (arc_relevance 4). Task's primary tweet was a cont
-2026-07-30T00:49:02.444Z | task #24367 | completed | opus | Research: AI-found cryptographic flaws (Claude Mythos on HAW | Claude Mythos found real algorithmic flaws (not impl bugs): halved HAWK's effect
-2026-07-30T00:49:56.286Z | task #24368 | completed | sonnet | Research: MCP protocol shift — stateful sessions to request- | MCP 2026-07-28 spec moves protocol to stateless core for easier remote-server de
-2026-07-30T00:50:28.882Z | task #24370 | completed | sonnet | Research: Michael Saylor — Bitcoin's biggest threat is inter | Declined: no actual source URL/tweet link provided (only a paraphrased claim in 
-2026-07-30T00:51:35.239Z | task #24371 | completed | sonnet | Research: PayPal expands into stablecoins, agentic payments, | Declined: no link/source URL provided for this story (just paraphrased tweet tex
-2026-07-30T00:52:37.029Z | task #24369 | completed | sonnet | Research: AI-slowdown petition + Zuckerberg superintelligenc | AI-slowdown petition + Zuckerberg superintelligence op-ed: general AI policy cha
-2026-07-30T00:53:29.030Z | task #24372 | completed | sonnet | Research: Jack Dorsey's Buzz AI agent (Slack-killer) — model | Declined: no link/URL, only a secondhand tweet-summary paraphrase with no citabl
-2026-07-30T00:55:15.958Z | task #24373 | completed | sonnet | Research: Model landscape — Kimi K3 tops Arena fullstack + P | Kimi K3 tops Arena fullstack + Calacanis harness-independence tweet: thin but re
-2026-07-30T00:55:21.933Z | task #24365 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T00:57:23.760Z | task #24374 | completed | haiku | Retrospective: extract learnings from task #24364 — Triage:  | One pattern captured: shell-quoting discipline in CLI task generation. Caching/c
-2026-07-30T00:58:11.828Z | task #24375 | completed | haiku | Retrospective: extract learnings from task #24366 — Research | Extracted pattern: thin-promo-link-substance-mismatch-verification — don't decli
-2026-07-30T01:00:07.052Z | task #24376 | completed | haiku | Retrospective: extract learnings from task #24367 — Research | Added two patterns: thin-scaffold-source-depth-investment (read raw sources when
 2026-07-30T01:06:07.918Z | task #24377 | completed | sonnet | Watch report — 2026-07-30T01:01Z | Watch report: 20 tasks completed, 0 failed, $11.12 spent (21 cycles) — reports/2
 2026-07-30T01:08:30.656Z | task #24378 | completed | sonnet | Consolidate MEMORY.md (24547 chars (threshold 24400) despite | MEMORY.md consolidated 24547->16384 chars (128->122 lines): compressed 3 verbose
 2026-07-30T01:08:34.653Z | task #24380 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
@@ -516,3 +495,9 @@
 2026-08-03T05:06:04.462Z | task #24870 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T05:08:08.419Z | task #24871 | completed | sonnet | Assess course candidacy: "The Monitor That Couldn't See Itse | Topical cluster exists (Silent Sensor #4-13, Third Alarm #6-07, Five False Alarm
 2026-08-03T05:55:44.754Z | task #24872 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed #23833 and #23977, both still genuinely blocked awaiting whoabuddy (out
+2026-08-03T05:56:28.856Z | task #24873 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-03T06:06:32.478Z | task #24874 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T07:07:53.969Z | task #24875 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T07:56:12.609Z | task #24876 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-03T08:08:17.564Z | task #24877 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T08:41:06.271Z | task #24878 | completed | sonnet | health alert: oauth expiring | oauth-expiring: 110min remaining (<2h threshold), Discord alert confirmed sent 0
