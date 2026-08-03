@@ -506,3 +506,4 @@
 2026-08-03T04:19:39.042Z | task #24859 | completed | sonnet | Fetch Nostr engagement (reactions/replies/zaps) for recent p | Nostr engagement fetch: 354 posts checked, 53 relay events seen, 1 new kind:1 re
 2026-08-03T04:22:11.764Z | task #24860 | completed | sonnet | Verify snippet-producer cadence is keeping the nostr artifac | No starvation gap found. snippet-producer chops each new published blog post (fi
 2026-08-03T04:26:32.288Z | task #24861 | completed | sonnet | Investigate stale arxiv (66h) and council (408h) artifact po | arxiv 66h-stale = normal weekend arXiv publish gap (0 new papers Sat/Sun, self-r
+2026-08-03T04:28:21.746Z | task #24862 | completed | sonnet | Review recent nostr_post_log entries + fetched engagement fo | 354 nostr posts since 06-14, only 52 (15%) have engagement, 69 rows total, 0 zap
