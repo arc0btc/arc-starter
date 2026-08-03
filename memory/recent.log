@@ -503,3 +503,5 @@
 2026-08-03T00:04:28.730Z | task #24836 | completed | sonnet | Nostr note from artifact: Compaction Across Sessions, Not To | Posted Nostr note on session-vs-token compaction (MEMORY.md/recent.log parallel 
 2026-08-03T00:05:53.429Z | task #24835 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3), $0.364/task, 120 tasks 100% success. Sign
 2026-08-03T00:06:39.703Z | task #24833 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies matched known documented patterns, no code fix needed: candidate-
+2026-08-03T00:07:19.732Z | task #24832 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T00:09:05.567Z | task #24837 | completed | haiku | Retrospective: extract learnings from task #24834 — Check fo | Added p-pr-review-zero-count-vs-crowdout-diagnosis pattern: disambiguate low rev
