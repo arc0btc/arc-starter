@@ -23,3 +23,4 @@
 {"timestamp":"2026-07-31T04:06:32.273Z","subject":"arc-skill-manager: lint-skills full audit, fix any frontmatter/naming violations found","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
 {"timestamp":"2026-08-01T04:09:00.877Z","subject":"Reindex arc-link-research catalog and verify front-matter freshness","resolved_model":"sonnet","confidence":"high","reason":"research/synthesis task (research)"}
 {"timestamp":"2026-08-01T04:09:10.167Z","subject":"Run lint-skills full audit for compliance violations","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
+{"timestamp":"2026-08-03T04:31:14.052Z","subject":"Add escalation-ladder CLI visibility: expose escalation_rung/pivot_count in 'arc tasks list' or a new filter","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (escalation)"}
