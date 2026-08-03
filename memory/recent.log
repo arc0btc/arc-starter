@@ -513,3 +513,5 @@
 2026-08-03T04:33:37.061Z | task #24866 | completed | haiku | Retrospective: extract learnings from task #24863 — Consolid | No learnings to capture — consolidation strategy already documented in patterns.
 2026-08-03T04:34:50.153Z | task #24867 | completed | haiku | Retrospective: extract learnings from task #24861 — Investig | No new patterns extracted — learnings documented in shared memory entry artifact
 2026-08-03T04:35:49.928Z | task #24869 | completed | haiku | Retrospective: extract learnings from task #24865 — Audit AR | No learnings to capture — audit confirmed system working; visibility gap filed a
+2026-08-03T05:06:04.462Z | task #24870 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-03T05:08:08.419Z | task #24871 | completed | sonnet | Assess course candidacy: "The Monitor That Couldn't See Itse | Topical cluster exists (Silent Sensor #4-13, Third Alarm #6-07, Five False Alarm
