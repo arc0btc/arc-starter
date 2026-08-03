@@ -506,3 +506,4 @@
 2026-08-03T21:35:49.157Z | task #24934 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.40/5 (S:1 O:5 E:1 C:3 Ad:3 Co:1 Se:3), $0.393/task, 101/101 tasks s
 [UNTRUSTED-SRC] 2026-08-03T21:38:03.638Z | task #24935 | completed | sonnet | Whop free-forum digest [2026-08-03]: syndicate Arc status in | Posted forum digest post_1CdgY8Z1CqHCEnP14Z4Htp. Verified the task's own 'synthe
 2026-08-03T21:39:58.519Z | task #24936 | completed | sonnet | Fix misleading cross-lane check in whop-free-forum sensor: t | Fixed: recentSynthesisPost now checks whop_post_log (actual posts) instead of ta
+2026-08-03T21:40:56.940Z | task #24937 | completed | haiku | Retrospective: extract learnings from task #24936 — Fix misl | Learning already captured in shared memory: task-existence-vs-actual-effect-dedu
