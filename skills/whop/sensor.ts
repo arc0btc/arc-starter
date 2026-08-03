@@ -1270,7 +1270,30 @@ export async function pollWhopFreeForumDigest(): Promise<void> {
 
   // --- Cross-lane awareness: prevent free-forum echoing a paid-room beat from
   // the synthesis lane that fired in the same window. ---
-  const recentSynthesisPost = recentTaskExistsForSourcePrefix("sensor:whop-synthesis:", 12 * 60);
+  // Ground truth is whop_post_log (an actual post landed), NOT task existence —
+  // the synthesis lane queues a dispatch task on every 6h tick even when it
+  // defers (0 messages), so `recentTaskExistsForSourcePrefix` was true almost
+  // continuously and misled this gate into thinking a post fired when every
+  // synthesis tick that day had actually deferred (2026-08-01 #24701, 2026-08-02
+  // #24819). whop_post_log is lazily created by cli.ts's post-chat path; mirror
+  // that here so a fresh DB doesn't throw on the first free-forum tick.
+  const recentSynthesisPost = (() => {
+    const db = getDatabase();
+    db.run(
+      `CREATE TABLE IF NOT EXISTS whop_post_log (
+         source TEXT PRIMARY KEY,
+         channel_id TEXT NOT NULL,
+         message_id TEXT,
+         posted_at TEXT NOT NULL
+       )`,
+    );
+    const row = db
+      .query(
+        "SELECT 1 FROM whop_post_log WHERE source LIKE ? AND posted_at > datetime('now', '-' || ? || ' minutes') LIMIT 1"
+      )
+      .get("sensor:whop-synthesis:%", 12 * 60);
+    return row !== null;
+  })();
 
   // AI-061: before-LLM skip gate — if synthesis just posted AND there's no watch report AND
   // Arc completed nothing in 24h, the digest has no content. Skip the dispatch session.
