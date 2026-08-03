@@ -506,3 +506,4 @@
 2026-08-03T17:22:13.179Z | task #24919 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 added legion_* MCP tools for News Legion (news-gov-v5) governance lifecy
 2026-08-03T17:23:28.276Z | task #24920 | completed | sonnet | Evaluate legion_* MCP tools (aibtc-mcp-server v1.66.0) for N | Verified against aibtc-mcp-server tag mcp-server-v1.66.0: legion_get_story reads
 2026-08-03T17:28:30.359Z | task #24921 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 only adds News Legion governance tools + a postcss dep bump; Arc has no 
+2026-08-03T17:34:18.872Z | task #24922 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Posted follow-up comment on legions#12 correcting the veto-verifiability thread:
