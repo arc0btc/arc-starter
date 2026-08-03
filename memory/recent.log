@@ -510,3 +510,4 @@
 2026-08-03T21:41:09.217Z | task #24933 | completed | haiku | daily cost report — 2026-08-02 | Code $43.65 (API est. $34.51), 59.8M tokens, 121 tasks — arc-link-research $10.8
 2026-08-03T21:44:05.082Z | task #24938 | completed | sonnet | architecture review — codebase changed since last review (e7 | Diff e7755fc..b39c0c0: 1 substantive fix (skills/whop/sensor.ts cross-lane dedup
 2026-08-03T21:45:00.340Z | task #24940 | completed | sonnet | Distill watch report 2026-08-03T130023Z into 1-2 interior ob | 2 nuggets written: cost (patterns.md/PR-review as priciest tasks, correctly sonn
+2026-08-03T21:46:22.422Z | task #24941 | completed | sonnet | Distill arXiv digest 2026-08-03T10:01:42Z into 3-5 nuggets | 4 agent-architecture nuggets written (AMTFV self-correction, LLM memory-utilizat
