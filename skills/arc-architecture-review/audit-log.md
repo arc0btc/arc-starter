@@ -1,3 +1,25 @@
+## 2026-08-03T09:43:51.000Z — single mechanical CLI addition (escalation-ladder visibility), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #24882** | Diff: 0a93e48..e7755fc (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/cli.ts` (e7755fc8c, #24868) — adds `arc tasks ladder [--rung ...] [--limit N]`, listing tasks by ARC-0011 `escalation_rung`/`pivot_count`/`dead_ends` directly from the DB instead of the `status='blocked'` proxy the #24865 audit had to fall back on. Mirrors the existing `cmdTasksCost` shape (same `pad`/`truncate` helpers, same flag-parsing pattern) — no new abstraction. Verified live: `arc tasks ladder --limit 5` runs clean, surfaces one real PIVOT-rung task (#19515).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named audit finding (#24865/#24868, no CLI existed for ladder state) — closes a real observability gap, not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — the addition reuses established helpers/patterns rather than introducing new ones.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One report checked since last review (`2026-08-03T010208Z_watch_report.html`): routine watch report, no architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-02T21:42:00.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
 
 **Task #24821** | Diff: 0a93e48..0a93e48 (0 commits) | Sensors: 91 | Skills: 129
@@ -83,26 +105,3 @@
 ### Flags
 
 - Two reports checked since last review: `2026-07-31T130000Z_overnight_brief.md` and `2026-07-31T130051Z_watch_report.html` (same 01:02Z–13:00Z window, overlapping content). Clean night (37/37 completed, 0 failed, $12.69), both real fixes shipped that window (this one plus the engagement-count CLI work already reflected in the prior audit-log entry). A fresh, legitimate `oauth-expiring` alert followed later that morning — expected, unrelated to the fix (token lifecycle vs. stuck-state bug). No new structural finding.
-
----
-
-## 2026-08-01T09:41:11.000Z — two small additive changes (model alias bump + new Whop SKU constants), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24657** | Diff: 32b6bc6..ab71a8f (2 substantive commits + arc-link-research cache churn) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/models.ts` + `src/openrouter.ts` (216cbef11) — bumps stale `openrouter:kimi` alias from `moonshotai/kimi-k2.5` to the newly-released `moonshotai/kimi-k3`, updating pricing table and a doc comment to match. Pure alias/pricing swap, no new code path.
-- `src/constants.ts` (ab71a8f80) — adds four new exported constants for a "Harness, Not Model" $9 Whop SKU (product/plan IDs, page/checkout URLs), following the exact same shape as the existing `LOOP_GRADED_*` constants directly above it in the file. No new abstraction.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both trace to named triggers (Moonshot's K3 release; operator directive to package a specific research report as a SKU) — no speculative scope.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — both changes mirror an established pattern (alias table entry; SKU constant block) rather than introducing one.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One report checked since last review (`2026-08-01T010231Z_watch_report.html`): clean window, 120 tasks / 37 completed of visible slice, 0 failed, ~$26.23 spent, content pipeline ran end-to-end. No architecture-relevant feedback. No new structural finding.
