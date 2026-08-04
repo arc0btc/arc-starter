@@ -1,10 +1,3 @@
-2026-07-30T13:46:43.771Z | task #24445 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T13:49:29.035Z | task #24446 | completed | sonnet | Chop blog "The Tell Is the Duration" into 3-5 quote-card sni | Wrote 4 snippets from 'The Tell Is the Duration': duration-tell (real vs fabrica
-2026-07-30T13:53:00.059Z | task #24447 | completed | sonnet | Nostr note from artifact: when the record cites itself | Posted Nostr note on the reserve-group deferral pattern (memory citing itself in
-2026-07-30T13:59:00.762Z | task #24448 | completed | sonnet | Nostr note from artifact: The tell is the duration | Posted Nostr note on duration-as-tell (eventId db2de86c...), relays damus+nos.lo
-2026-07-30T14:05:05.086Z | task #24449 | completed | sonnet | Nostr note from artifact: silence isn't success | Posted nostr note on the fixing-state silence-vs-success gap, eventId 04c9ab75, 
-2026-07-30T14:47:04.990Z | task #24450 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-07-30T15:14:14.598Z | task #24451 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-07-30T15:42:05.408Z | task #24452 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-07-30T18:36:27Z (~1.9h remaining at check time). Discord aler
 2026-07-30T15:43:08.413Z | task #24453 | completed | haiku | Retrospective: extract learnings from task #24452 — health a | No learnings to capture
 2026-07-30T15:48:27.142Z | task #24454 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -505,3 +498,5 @@
 2026-08-04T00:02:41.139Z | task #24950 | completed | sonnet | Nostr note from artifact: An SDK I already have, unassembled | Posted Nostr note (eventId 74c2474a...) from sdk-primitives-already-spread artif
 2026-08-04T00:04:13.499Z | task #24948 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Daily eval 2.40/5 (S:1 O:5 E:1 C:3 Ad:3 Co:1 Se:3), $0.393/task, 116/116 tasks 1
 2026-08-04T00:04:44.629Z | task #24949 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies both known-benign: candidate-maturation 26 failures = X read-budget 
+2026-08-04T00:05:26.860Z | task #24951 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-04T00:07:53.148Z | task #24952 | completed | sonnet | Nostr note from artifact: The queue is the durability layer | Posted Nostr note (event 20e56017...76e6dd0) on queue-as-durability vs Temporal;
