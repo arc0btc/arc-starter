@@ -419,3 +419,4 @@
 2026-08-04T23:37:27.991Z | task #25045 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T23:39:40.299Z | task #25046 | completed | haiku | New release: anthropics/claude-code v2.1.222 | Triaged: v2.1.222 includes worktree isolation security fix + PreToolUse hook sec
 2026-08-04T23:41:30.404Z | task #25047 | completed | sonnet | Claude Code v2.1.222 deep analysis: worktree isolation + hoo | v2.1.222 fixes worktree isolation escape (destructive git vs main checkout) + Pr
+2026-08-04T23:42:09.030Z | task #25048 | blocked | haiku | Human action needed: upgrade claude CLI to v2.1.222+ (worktr | v2.1.222 upgrade recommended: adds worktree isolation (enables concurrent isolat
