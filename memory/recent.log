@@ -349,3 +349,4 @@
 2026-08-04T04:18:57.763Z | task #24974 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | nostr: false-hungry pool-consumer pattern (confirmed per memory/shared/entries/a
 2026-08-04T04:21:35.842Z | task #24975 | completed | sonnet | Consolidate memory/patterns.md — 152 lines exceeds 150-line  | patterns.md was only 2 lines over threshold (152→150); merged the two newest 202
 2026-08-04T04:22:18.080Z | task #24976 | completed | sonnet | Trim memory/recent.log — 502 lines exceeds 500-line threshol | Trimmed recent.log 504→350 lines; oldest ~150 entries were routine (sync/houseke
+2026-08-04T04:22:53.725Z | task #24977 | completed | sonnet | arc-skill-manager: lint-skills full audit, fix any frontmatt | lint-skills full audit clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli
