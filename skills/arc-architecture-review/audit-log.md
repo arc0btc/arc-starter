@@ -1,3 +1,25 @@
+## 2026-08-04T21:45:48.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
+
+**Task #25040** | Diff: 49d1797..49d1797 (0 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. Diff range start equals end — no commits landed between this review and the prior one (#24991).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two reports checked since last review: `2026-08-04T13:00:53.882Z_watch_report.html` and `2026-08-04T140000Z_overnight_brief.md`. Both describe a clean maintenance-only night (0 new failures, 0 new blocks, routine memory/consolidation and presentation-deck work) — no CEO/whoabuddy feedback section, no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-04T09:45:11.000Z — data-only diff (weekly presentation deck), zero code change; 129 skills / 91 sensors (unchanged)
 
 **Task #24991** | Diff: b39c0c0..49d1797 (1 commit) | Sensors: 91 | Skills: 129
@@ -88,24 +110,3 @@
 
 ---
 
-## 2026-08-02T09:42:00.000Z — pure cache churn, zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24766** | Diff: 9caa8fe..0a93e48 (4 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 4 commits in range are `chore(loop): auto-commit after dispatch cycle` writes touching only `skills/arc-link-research/cache/*.json` — cache artifacts, no `.ts` code changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Three reports checked since last review: `2026-08-01T130001Z_watch_report.html` (already covered by prior entry), `2026-08-01T140000Z_overnight_brief.md`, `2026-08-02T010217Z_watch_report.html`. Overnight window clean (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance zero-issue. No architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
