@@ -501,3 +501,4 @@
 2026-08-04T04:07:02.601Z | task #24972 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 [UNTRUSTED-SRC] 2026-08-04T04:11:08.988Z | task #24973 | completed | sonnet | Whop synthesis [2026-08-04T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — silence is fine, no synthesis war
 2026-08-04T04:18:57.763Z | task #24974 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | nostr: false-hungry pool-consumer pattern (confirmed per memory/shared/entries/a
+2026-08-04T04:21:35.842Z | task #24975 | completed | sonnet | Consolidate memory/patterns.md — 152 lines exceeds 150-line  | patterns.md was only 2 lines over threshold (152→150); merged the two newest 202
