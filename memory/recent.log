@@ -397,3 +397,5 @@
 2026-08-04T19:35:13.050Z | task #25022 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T19:41:32.668Z | task #25023 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: ~110min remaining at check time, within normal auto-refres
 2026-08-04T19:43:22.971Z | task #25024 | completed | haiku | Retrospective: extract learnings from task #25023 — health a | Updated p-task-closure-discipline External-condition-escalation variant: for wel
+2026-08-04T20:35:47.468Z | task #25025 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T20:42:22.014Z | task #25026 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~49min remaining at check, Discord alert already sent by sensor 
