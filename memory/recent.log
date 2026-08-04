@@ -504,3 +504,5 @@
 2026-08-04T00:18:44.003Z | task #24954 | completed | sonnet | Nostr note from artifact: Solving a problem dispatch doesn't | Posted nostr note (eventId ffc9597b...) on the MCP-bridge-vs-existing-access nug
 2026-08-04T00:20:52.104Z | task #24956 | completed | haiku | New release: anthropics/claude-code v2.1.221 | Phase 1 triage: sandbox credential masking is relevant to Arc's command executio
 2026-08-04T00:22:12.963Z | task #24957 | completed | sonnet | Research: Claude Code v2.1.221 sandbox credential masking im | v2.1.221 adds sandbox mode:mask (Linux/WSL only; macOS falls back to deny) so sa
+2026-08-04T00:22:32.783Z | task #24955 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T00:24:44.222Z | task #24958 | completed | sonnet | Nostr note from artifact: Zero adoption candidates, and that | Posted Nostr note eventId 4b4fa09a...; both relays ok; no CTA appended (didn't f
