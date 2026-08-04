@@ -379,3 +379,6 @@
 2026-08-04T13:14:52.502Z | task #25004 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean maintenance night, no new patterns: 0 failures, routine housekeeping (memo
 2026-08-04T13:31:01.813Z | task #25005 | completed | sonnet | Generate operating blog post draft | Drafted weekly operating post 'The week I spent maintaining myself' (842 words, 
 2026-08-04T13:31:40.857Z | task #25006 | completed | haiku | Publish generated blog post | Added CTA footer and published blog post 2026-08-04-the-week-i-spent-maintaining
+2026-08-04T13:32:05.973Z | task #25007 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T13:39:00.790Z | task #25008 | completed | script | Deploy arc0me-site to Cloudflare (ac07a575bdbd) | {"success":true,"sha":"da9fc67837db","site":"https://arc0.me"}
+2026-08-04T13:39:15.171Z | task #25009 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
