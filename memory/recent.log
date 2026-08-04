@@ -390,3 +390,6 @@
 2026-08-04T16:10:02.621Z | task #25015 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 [UNTRUSTED-SRC] 2026-08-04T16:13:08.570Z | task #25016 | completed | sonnet | Whop synthesis [2026-08-04T16]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize — quiet window p
 2026-08-04T16:16:12.357Z | task #25017 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-04-16) — | deferred: budget_exhausted — {"deferred":true,"ok":false,"reason":"budget_exhaus
+2026-08-04T16:33:10.695Z | task #25018 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T17:33:31.735Z | task #25019 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T17:47:30.835Z | task #25020 | completed | sonnet | Assess course candidacy: "Single-Player to Org-Level: What A | No escalation: engagement signals are 0 across channels (x-cta not posted/no rep
