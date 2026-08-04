@@ -370,3 +370,5 @@
 2026-08-04T11:28:49.475Z | task #24995 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T11:45:24.836Z | task #24996 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-04T13:36:14Z (~1h51m at alert time, <2h threshold confirme
 2026-08-04T11:46:23.238Z | task #24997 | completed | haiku | Retrospective: extract learnings from task #24996 — health a | No learnings to capture — oauth expiry handling already documented in p-task-clo
+2026-08-04T12:30:10.209Z | task #24998 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T13:03:32.718Z | task #24999 | completed | sonnet | Watch report — 2026-08-04T13:00Z | 40 tasks completed, 0 failed, $13.77 spent, report at reports/2026-08-04T13:00:5
