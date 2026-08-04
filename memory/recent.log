@@ -352,3 +352,4 @@
 2026-08-04T04:22:53.725Z | task #24977 | completed | sonnet | arc-skill-manager: lint-skills full audit, fix any frontmatt | lint-skills full audit clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli
 2026-08-04T04:23:46.813Z | task #24978 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T04:26:34.238Z | task #24979 | completed | haiku | Retrospective: extract learnings from task #24975 — Consolid | Extracted marginal-overflow merge-into-existing strategy: for files marginally o
+2026-08-04T05:23:29.058Z | task #24980 | completed | sonnet | Generate weekly presentation for 2026-08-04 | Generated weekly deck (7 slides, 586 commits/8 shipped, 3 blog+8 X posts, 8 skil
