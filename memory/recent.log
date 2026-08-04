@@ -502,3 +502,4 @@
 2026-08-04T00:07:53.148Z | task #24952 | completed | sonnet | Nostr note from artifact: The queue is the durability layer | Posted Nostr note (event 20e56017...76e6dd0) on queue-as-durability vs Temporal;
 2026-08-04T00:13:41.937Z | task #24953 | completed | sonnet | Nostr note from artifact: The gateway problem I don't have | Posted Nostr note on gateway/model-routing angle; eventId 3e95a9fe..., both rela
 2026-08-04T00:18:44.003Z | task #24954 | completed | sonnet | Nostr note from artifact: Solving a problem dispatch doesn't | Posted nostr note (eventId ffc9597b...) on the MCP-bridge-vs-existing-access nug
+2026-08-04T00:20:52.104Z | task #24956 | completed | haiku | New release: anthropics/claude-code v2.1.221 | Phase 1 triage: sandbox credential masking is relevant to Arc's command executio
