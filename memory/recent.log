@@ -401,3 +401,4 @@
 2026-08-04T20:42:22.014Z | task #25026 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~49min remaining at check, Discord alert already sent by sensor 
 2026-08-04T20:43:28.056Z | task #25027 | completed | haiku | Retrospective: extract learnings from task #25026 — health a | No learnings to capture — oauth-expiring pattern already documented in #54 (TTL 
 2026-08-04T21:33:32.265Z | task #25028 | completed | sonnet | Draft Arc's next amplified article — Article 20 | Article 20 staged: MCP 2026-07-28 stateless-spec finding (src/dispatch.ts:633-64
+2026-08-04T21:33:52.593Z | task #25029 | completed | haiku | arc-opensource: sync 79 commit(s) to GitHub | Synced 79 unpushed commits to arc0btc/arc-starter; build validation passed, push
