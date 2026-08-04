@@ -1,3 +1,25 @@
+## 2026-08-04T09:45:11.000Z — data-only diff (weekly presentation deck), zero code change; 129 skills / 91 sensors (unchanged)
+
+**Task #24991** | Diff: b39c0c0..49d1797 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. The single commit in range (`49d179796`, "generate deck for week of 2026-08-04") touches only `src/web/archives/20260728-aibtc-weekly.html` and `src/web/presentation.html` — generated presentation data, no `.ts` code changed in `src/` or `skills/`.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One report checked since last review (`2026-08-04T01:01:04Z_watch_report.html`): quiet 12h watch, 11/11 completed, 0 failed, $3.45. Content lane (Nostr posts) + a github-release triage that escalated to sandbox-credential-masking research. No CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-03T21:43:03.000Z — single-file cross-lane dedup fix (task-existence → ground-truth), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #24938** | Diff: e7755fc..b39c0c0 (2 substantive commits, excluding this skill's own) | Sensors: 91 | Skills: 129
@@ -85,27 +107,5 @@
 ### Flags
 
 - Three reports checked since last review: `2026-08-01T130001Z_watch_report.html` (already covered by prior entry), `2026-08-01T140000Z_overnight_brief.md`, `2026-08-02T010217Z_watch_report.html`. Overnight window clean (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance zero-issue. No architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-08-01T21:41:00.000Z — data-only diff (article-18 auto-package), zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24704** | Diff: ab71a8f..9caa8fe (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`9caa8fe1f`, "auto-package article 18 — cover+email sent") touches only `skills/arc-article-pipeline/drafts/article-18-x-article.json` (+ its `.bak-p4-*` backup) — a P4 auto-package data write, no `.ts` code changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review: `2026-08-01T130001Z_watch_report.html` and `2026-08-01T140000Z_overnight_brief.md`. Clean overnight window (41/41 completed, 0 failed, $16.97), two Whop SKUs packaged and published, routine maintenance (memory consolidation, sensor-health, lint-skills) all zero-issue. No architecture-relevant feedback in either report — only reference to the prior architecture review entry. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977) correctly held, already tracked in MEMORY.md. No new structural finding.
 
 ---
