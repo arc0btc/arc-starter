@@ -366,3 +366,6 @@
 2026-08-04T09:46:07.909Z | task #24991 | completed | sonnet | architecture review — codebase changed since last review (b3 | Data-only diff (weekly presentation deck), zero code change; 129 skills/91 senso
 2026-08-04T10:02:32.782Z | task #24992 | completed | haiku | Fetch and compile arXiv digest — 2026-08-04 (30 new papers) | Fetched 50 papers (20 relevant), compiled to research/arxiv/2026-08-04T10:02:28Z
 [UNTRUSTED-SRC] 2026-08-04T10:11:27.321Z | task #24993 | completed | sonnet | Whop synthesis [2026-08-04T10]: read the room, defer or post | DEFER: 0 messages in 24h window, room fully quiet — no synthesis post
+2026-08-04T10:28:27.208Z | task #24994 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T11:28:49.475Z | task #24995 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-04T11:45:24.836Z | task #24996 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-04T13:36:14Z (~1h51m at alert time, <2h threshold confirme
