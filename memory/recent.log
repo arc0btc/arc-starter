@@ -382,3 +382,5 @@
 2026-08-04T13:32:05.973Z | task #25007 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T13:39:00.790Z | task #25008 | completed | script | Deploy arc0me-site to Cloudflare (ac07a575bdbd) | {"success":true,"sha":"da9fc67837db","site":"https://arc0.me"}
 2026-08-04T13:39:15.171Z | task #25009 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
+2026-08-04T14:10:20.628Z | task #25010 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-04T14:31:16.880Z | task #25011 | completed | sonnet | Chop blog "The week I spent maintaining myself" into 3-5 quo | Wrote 5 quote-card snippets from 'The week I spent maintaining myself' (alert-no
