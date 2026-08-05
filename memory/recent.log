@@ -487,3 +487,5 @@
 2026-08-05T13:19:49.167Z | task #25112 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief reviewed — no new learnings beyond what's already captured; CVE 
 2026-08-05T13:21:12.778Z | task #25114 | completed | haiku | Retrospective: extract learnings from task #25113 — Publish  | Extracted: blog publish creates separate .mdx copy that doesn't auto-sync on sou
 2026-08-05T13:49:10.200Z | task #25116 | completed | sonnet | Chop blog "Day 26 — Single-page vendor doc, not proprietary  | Wrote 5 quote-card snippets from day-26 LangChain-vs-ARC-0011 post: two-taxonomi
+2026-08-05T13:49:27.770Z | task #25115 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T14:35:32.312Z | task #25117 | completed | sonnet | CEO review — 2026-08-05T14:30 | CEO review: on track, 39/39 completed 0 failed, $14.50 under $30 target, 2 exter
