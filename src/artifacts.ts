@@ -143,9 +143,11 @@ function rowToArtifact(row: DistilledRow): DistilledArtifact {
 /**
  * Write a distilled artifact to disk + index. Returns the assigned id.
  *
- * Crash-safety: writes to `<final>.tmp` then `renameSync` then INSERT OR IGNORE.
+ * Crash-safety: writes to `<final>.tmp` then `renameSync` then INSERT.
  * If two artifacts collide on (type, slugified topic, same second), a __NN
- * suffix is probed up to 99 before throwing.
+ * suffix is probed up to 99 before throwing. The INSERT is not OR IGNORE —
+ * a schema violation (e.g. a NOT NULL column) throws instead of silently
+ * leaving an orphan file with no DB row.
  */
 export function writeDistilled(input: Omit<DistilledArtifact, "id">): string {
   // Validate the input shape lightly — caller is producer code we control,
@@ -163,6 +165,8 @@ export function writeDistilled(input: Omit<DistilledArtifact, "id">): string {
   }
   if (!input.topic) throw new Error("writeDistilled: topic required");
   if (!input.citation) throw new Error("writeDistilled: citation required");
+  if (!input.title) throw new Error("writeDistilled: title required");
+  if (!input.source_path) throw new Error("writeDistilled: source_path required");
 
   const producedAtDate = new Date(input.produced_at);
   if (isNaN(producedAtDate.getTime())) {
@@ -200,7 +204,7 @@ export function writeDistilled(input: Omit<DistilledArtifact, "id">): string {
   renameSync(tmpPath, path);
 
   db.query(
-    `INSERT OR IGNORE INTO distilled_artifacts
+    `INSERT INTO distilled_artifacts
        (id, type, topic, produced_at, path, title, citation, suggested_channels)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
