@@ -431,3 +431,4 @@
 2026-08-05T00:34:05.053Z | task #25057 | completed | sonnet | Nostr note from artifact: trimming isn't housekeeping | Posted Nostr note on memory-trimming-as-performance-requirement (eventId 41ebc1f
 2026-08-05T00:43:40.262Z | task #25058 | completed | opus | Triage: X research batch (2026-08-05, 50 stories from 510 ca | Triaged 50 stories → 7 clustered research tasks (#25060 agent token-cost/routing
 2026-08-05T00:44:53.812Z | task #25060 | completed | sonnet | Research: agent token-cost optimization & cost-per-task mode | Confirmed cluster (barbell strategy, cost-per-task metric, tokenization overhead
+2026-08-05T00:46:37.122Z | task #25061 | completed | sonnet | Research: does agent memory need an LLM? (dair_ai paper) | Found paper: 'Diagnosing Retrieval vs. Utilization Bottlenecks in LLM Agent Memo
