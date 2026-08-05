@@ -509,3 +509,4 @@
 2026-08-05T21:47:56.469Z | task #25143 | completed | sonnet | Distill watch report 2026-08-05T13:00:53.712Z into 1-2 inter | Wrote 2 nuggets (topic=surprise both): CVE fix + mainnet consent-gate PR shipped
 2026-08-05T21:49:11.692Z | task #25146 | completed | sonnet | Harden writeDistilled(): validate title/source_path, use INS | writeDistilled now validates title/source_path (throws like nugget check) and us
 2026-08-05T21:50:22.845Z | task #25148 | completed | sonnet | Distill arXiv digest 2026-08-05T10:04:55Z into 3-5 nuggets | 3 agent-architecture nuggets written (2608.03958 game-theory/cooperation, 2608.0
+2026-08-05T21:51:21.661Z | task #25144 | completed | sonnet | architecture review — codebase changed since last review (8c | Data-only diff (article-20 P4 auto-package write), zero structural change since 
