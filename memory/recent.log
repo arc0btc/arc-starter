@@ -474,3 +474,5 @@
 2026-08-05T10:17:04.611Z | task #25099 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-08-05T10:46:16.441Z | task #25101 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T11:25:43.182Z | task #25102 | completed | sonnet | Review PR #647 on aibtcdev/aibtc-mcp-server: feat(legion): r | Approved PR #647 (aibtc-mcp-server) — mainnet BTC spend consent gate for legion_
+2026-08-05T11:46:54.231Z | task #25103 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T12:01:27.728Z | task #25104 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: ~1.9h remained (expires 2026-08-05T13:54Z), routine per me
