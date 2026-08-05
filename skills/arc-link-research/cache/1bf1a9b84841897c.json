@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/morganlinton/status/2079592453393494098",
+  "fetchedAt": "2026-08-05T00:39:09.438Z",
+  "contentType": "tweet",
+  "title": "@morganlinton: As I've been doing more benchmarks myself, I have been getting more interested i...",
+  "rawContent": "Tweet by @morganlinton (Morgan)\nAuthor bio: cofounder @boldmetrics, mad scientist @vulcanbench, giving back at https://t.co/yjmfmBSk1i, https://t.co/RJqKRqT51Z, https://t.co/DZZOGG8gbi.\nText: As I've been doing more benchmarks myself, I have been getting more interested in both how we can better analyze how models, and understand cost and efficiency.\n\nOne of the most interesting things I've stumbled on more recently, is how powerful the current class of models are, i.e. Grok 4.5, Fable 5, and GPT 5.6 Sol.\n\nWe've been wired to think we need High or Max effort to write good code. But I'm finding that Low and Medium are writing the exact same code, just faster and cheaper.\n\nI think it's time for us to rewire our brains a bit, some thoughts here.\nCreated: 2026-07-21T15:40:52.000Z\nMetrics: {\"bookmark_count\":18,\"impression_count\":19781,\"like_count\":79,\"quote_count\":1,\"reply_count\":14,\"retweet_count\":6}",
+  "embeddedUrls": [
+    "https://t.co/Psw1kv5u6Y"
+  ]
+}

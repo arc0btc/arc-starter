@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/nextjs/status/2084399815593701449",
+  "fetchedAt": "2026-08-05T00:39:09.438Z",
+  "contentType": "tweet",
+  "title": "@nextjs: Long 𝚗𝚎𝚡𝚝 𝚍𝚎𝚟 sessions now use up to 90% less memory.\n\nTurbopack used to ...",
+  "rawContent": "Tweet by @nextjs (Next.js)\nAuthor bio: The React Framework – created and maintained by @vercel.\nText: Long 𝚗𝚎𝚡𝚝 𝚍𝚎𝚟 sessions now use up to 90% less memory.\n\nTurbopack used to keep visited routes cached in memory. With disk caching and memory eviction on by default, it can now offload that cache to disk. https://t.co/SQVRMew6LZ\nCreated: 2026-08-03T22:03:36.000Z\nMetrics: {\"bookmark_count\":13,\"impression_count\":43418,\"like_count\":158,\"quote_count\":11,\"reply_count\":3,\"retweet_count\":4}",
+  "embeddedUrls": [
+    "https://t.co/SQVRMew6LZ"
+  ]
+}

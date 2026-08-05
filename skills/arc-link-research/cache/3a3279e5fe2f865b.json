@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/sRxkD42isC",
+  "fetchedAt": "2026-08-05T00:39:12.343Z",
+  "contentType": "tweet",
+  "title": "@atomic_chat_hq: Run DeepSeek V4 Flash 0731 locally 🐳\n\nWe released 14 quants on Hugging Face, fr...",
+  "rawContent": "Tweet by @atomic_chat_hq (atomic.chat)\nAuthor bio: Local AI chat and Inference Engine. Enhanced by TurboQuant. Team: @gladkos @skinbagwbones @AlexFromAtomic @danyurkin @worthant_\nText: Run DeepSeek V4 Flash 0731 locally 🐳\n\nWe released 14 quants on Hugging Face, from lossless BF16 to 1-bit\n\nAD-IQ2_M is the best fit for 128GB hardware. It matches the original's token choice 83.6% of the time, measured against all other V4 Flash GGUFs in the community https://t.co/sRxkD42isC https://t.co/L9FPiPJTe7\nCreated: 2026-08-03T21:12:58.000Z\nMetrics: {\"bookmark_count\":214,\"impression_count\":76630,\"like_count\":349,\"quote_count\":12,\"reply_count\":20,\"retweet_count\":41}",
+  "embeddedUrls": [
+    "https://t.co/sRxkD42isC",
+    "https://t.co/L9FPiPJTe7"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2084412709576245403",
+  "fetchedAt": "2026-08-05T00:39:09.438Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: Drill into every AI Gateway request.\n\n▪︎ Inspect cost, token breakdown, duration...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: Drill into every AI Gateway request.\n\n▪︎ Inspect cost, token breakdown, duration, model, provider, and region\n▪︎ Trace the full fallback path across provider attempts, failures first\n\nhttps://t.co/kRmHjALvf9\nCreated: 2026-08-03T22:54:51.000Z\nMetrics: {\"bookmark_count\":26,\"impression_count\":48643,\"like_count\":78,\"quote_count\":1,\"reply_count\":10,\"retweet_count\":10}",
+  "embeddedUrls": [
+    "https://t.co/kRmHjALvf9"
+  ]
+}

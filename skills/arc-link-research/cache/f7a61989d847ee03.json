@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/nextjs/status/2084399799642841419",
+  "fetchedAt": "2026-08-05T00:39:09.438Z",
+  "contentType": "tweet",
+  "title": "@nextjs: Next.js 16.3 is now available!\n\n• Up to 90% less memory in dev\n• Faster builds, ...",
+  "rawContent": "Tweet by @nextjs (Next.js)\nAuthor bio: The React Framework – created and maintained by @vercel.\nText: Next.js 16.3 is now available!\n\n• Up to 90% less memory in dev\n• Faster builds, type checking, and rendering\n• Better tooling for AI agents\n• Custom error boundaries\n• Instant Navigations for SPA-like responsiveness\n\nhttps://t.co/lNAQqpAKT1\n\nHere's what's new ↓\nCreated: 2026-08-03T22:03:33.000Z\nMetrics: {\"bookmark_count\":958,\"impression_count\":660806,\"like_count\":3628,\"quote_count\":155,\"reply_count\":123,\"retweet_count\":403}",
+  "embeddedUrls": [
+    "https://t.co/lNAQqpAKT1"
+  ]
+}
