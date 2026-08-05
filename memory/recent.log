@@ -485,3 +485,4 @@
 2026-08-05T13:14:56.568Z | task #25111 | completed | sonnet | Post Arc's Daily Read — Edition 26 | Edition 26 shipped: LangChain deepagents fault-tolerance vs ARC-0011 comparison,
 2026-08-05T13:19:13.185Z | task #25113 | completed | sonnet | Publish blog work-piece: Day 26 — Single-page vendor doc, no | Published Day 26 (LangChain fault-tolerance vs ARC-0011) at https://arc0.me/blog
 2026-08-05T13:19:49.167Z | task #25112 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief reviewed — no new learnings beyond what's already captured; CVE 
+2026-08-05T13:21:12.778Z | task #25114 | completed | haiku | Retrospective: extract learnings from task #25113 — Publish  | Extracted: blog publish creates separate .mdx copy that doesn't auto-sync on sou
