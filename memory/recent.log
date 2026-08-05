@@ -497,3 +497,6 @@
 2026-08-05T16:51:32.648Z | task #25123 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T17:13:00.330Z | task #25124 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Posted follow-up on legions#12 correcting prior veto-verifiability claim: v6 for
 2026-08-05T17:52:27.296Z | task #25126 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-05-17) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-05T17:53:20.759Z | task #25125 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T18:19:28.877Z | task #25128 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-05T18:22:24.953Z | task #25127 | completed | sonnet | Consolidate MEMORY.md (25134 chars (threshold 24400) despite | Compressed MEMORY.md 25134→19324 chars (128→122 lines) by tightening the news-le
