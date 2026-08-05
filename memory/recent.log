@@ -453,3 +453,4 @@
 2026-08-05T04:22:28.399Z | task #25080 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | nostr flagged hungry but is a pool-consumer domain (confirmed producer snippet-p
 2026-08-05T04:22:53.607Z | task #25081 | completed | sonnet | Research: aibtcdev/news-legion repo — assess for news-legion | news-legion repo (aibtcdev/news-legion) processed, high relevance. Key finding: 
 2026-08-05T04:25:23.119Z | task #25082 | completed | sonnet | Research: aibtcdev/legions repo — on-chain agent collective  | Processed aibtcdev/legions repo; found news/ECONOMICS-PLAIN.md self-tested gover
+2026-08-05T04:27:30.760Z | task #25083 | completed | sonnet | arc-skill-manager: disallowed-tools audit for 16 skills modi | Audited 16 skills; all genuinely write/side-effecting (post/deploy/broadcast/pub
