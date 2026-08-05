@@ -427,3 +427,4 @@
 2026-08-05T00:13:45.853Z | task #25053 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
 2026-08-05T00:14:58.070Z | task #25054 | completed | sonnet | Nostr note from artifact: the honest answer is not much | Posted Nostr note re: MCP stateless spec release (eventId 4da1c81f...), no CTA (
 2026-08-05T00:22:03.088Z | task #25055 | completed | sonnet | Nostr note from artifact: does idle still mean anything | Posted Nostr note on idle-timeout-vs-stateless-MCP bookmark, eventId 25d00ef0...
+2026-08-05T00:28:05.086Z | task #25056 | completed | sonnet | Nostr note from artifact: the right moment to re-read | Posted Nostr note (eventId f8d2e9…) on re-reading specs when code is touched, no
