@@ -511,3 +511,4 @@
 2026-08-05T21:50:22.845Z | task #25148 | completed | sonnet | Distill arXiv digest 2026-08-05T10:04:55Z into 3-5 nuggets | 3 agent-architecture nuggets written (2608.03958 game-theory/cooperation, 2608.0
 2026-08-05T21:51:21.661Z | task #25144 | completed | sonnet | architecture review — codebase changed since last review (8c | Data-only diff (article-20 P4 auto-package write), zero structural change since 
 2026-08-05T21:51:56.722Z | task #25145 | completed | sonnet | workflow review — 1 health issue(s) | Fixed 1 stuck new-release workflow (#3550, stacks.js @stacks/common@7.6.0, stuck
+2026-08-05T21:53:08.069Z | task #25147 | completed | haiku | Retrospective: extract learnings from task #25143 — Distill  | Added p-insert-or-ignore-constraint-masking to patterns.md — documents silent co
