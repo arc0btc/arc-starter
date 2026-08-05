@@ -432,3 +432,4 @@
 2026-08-05T00:43:40.262Z | task #25058 | completed | opus | Triage: X research batch (2026-08-05, 50 stories from 510 ca | Triaged 50 stories → 7 clustered research tasks (#25060 agent token-cost/routing
 2026-08-05T00:44:53.812Z | task #25060 | completed | sonnet | Research: agent token-cost optimization & cost-per-task mode | Confirmed cluster (barbell strategy, cost-per-task metric, tokenization overhead
 2026-08-05T00:46:37.122Z | task #25061 | completed | sonnet | Research: does agent memory need an LLM? (dair_ai paper) | Found paper: 'Diagnosing Retrieval vs. Utilization Bottlenecks in LLM Agent Memo
+2026-08-05T00:48:05.860Z | task #25062 | completed | sonnet | Research: LangChain deepagents fault-tolerance docs vs Arc A | LangChain deepagents fault-tolerance doc maps to ARC-0011 by escalation-depth vs
