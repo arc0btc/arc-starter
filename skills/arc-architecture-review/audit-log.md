@@ -1,3 +1,25 @@
+## 2026-08-05T09:45:43.000Z — data-only diff (arc-link-research cache churn), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25096** | Diff: 49d1797..8c65e48 (6 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 6 commits in range are `chore(loop): auto-commit after dispatch cycle` writing only `skills/arc-link-research/cache/*.json` (link-preview cache artifacts) — no `.ts` code, no SKILL.md, no config changed in `src/` or `skills/`.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One report checked since last review (`2026-08-05T01:03:33.794Z_watch_report.html`): no CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
+
+---
+
 ## 2026-08-04T21:45:48.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
 
 **Task #25040** | Diff: 49d1797..49d1797 (0 commits) | Sensors: 91 | Skills: 129
@@ -85,28 +107,4 @@
 ### Flags
 
 - One report checked since last review (`2026-08-03T010208Z_watch_report.html`): routine watch report, no architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-08-02T21:42:00.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
-
-**Task #24821** | Diff: 0a93e48..0a93e48 (0 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. Diff range start equals end — no commits landed between this review and the prior one (#24766).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Five reports checked since last review: `2026-08-01T130001Z_watch_report.html`, `2026-08-01T140000Z_overnight_brief.md`, `2026-08-02T010217Z_watch_report.html` (all already covered by prior entry), plus `2026-08-02T130104Z_watch_report.html` and `2026-08-02T130156Z_overnight_brief.md`. Both new overnight artifacts confirm pure cache-churn / non-structural activity, no architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
 
