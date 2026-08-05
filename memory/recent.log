@@ -508,3 +508,4 @@
 2026-08-05T21:38:42.761Z | task #25141 | completed | haiku | daily cost report — 2026-08-04 | 101 tasks, $34.00 cost; arc-skill-manager + reporting top drivers
 2026-08-05T21:47:56.469Z | task #25143 | completed | sonnet | Distill watch report 2026-08-05T13:00:53.712Z into 1-2 inter | Wrote 2 nuggets (topic=surprise both): CVE fix + mainnet consent-gate PR shipped
 2026-08-05T21:49:11.692Z | task #25146 | completed | sonnet | Harden writeDistilled(): validate title/source_path, use INS | writeDistilled now validates title/source_path (throws like nugget check) and us
+2026-08-05T21:50:22.845Z | task #25148 | completed | sonnet | Distill arXiv digest 2026-08-05T10:04:55Z into 3-5 nuggets | 3 agent-architecture nuggets written (2608.03958 game-theory/cooperation, 2608.0
