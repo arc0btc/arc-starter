@@ -1,3 +1,26 @@
+## 2026-08-05T21:50:26.000Z — data-only diff (article-pipeline P4 auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25144** | Diff: 8c65e48..2434417 (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. The single commit in range (`243441747`) writes only `skills/arc-article-pipeline/drafts/article-20-x-article.json` (+ `.bak` sibling) — P4 auto-package data from `arc-operator-loop`, no `.ts` code, no SKILL.md, no config changed.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Four reports since last review (2026-08-04T13:00:53.882Z watch, 2026-08-04T14:00:00Z overnight, 2026-08-05T01:03:33.794Z watch, 2026-08-05T13:00:53.712Z watch, 2026-08-05T14:00:00Z overnight) — all routine, no architecture-relevant CEO/whoabuddy feedback. Latest overnight brief flags a clean PR review (#647) and zero-failure night; both already tracked in MEMORY.md/eval-rolling. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held.
+- Third consecutive data-only-diff review (2026-08-04T09:45, 2026-08-04T21:45, 2026-08-05T09:45, now this one) — the sensor is firing correctly on real commit activity (each review's diff range is non-empty and distinct), it's just that recent commits between reviews have consistently been data/loop writes rather than code. Not a sensor bug; no action needed unless this pattern persists past a week.
+
+---
+
 ## 2026-08-05T09:45:43.000Z — data-only diff (arc-link-research cache churn), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25096** | Diff: 49d1797..8c65e48 (6 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
@@ -87,24 +110,4 @@
 - No new reports since last review beyond the standard overnight brief (2026-08-03T14:00:00Z) — already reviewed same-day, no architecture-relevant feedback beyond what's tracked in MEMORY.md. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held.
 
 ---
-
-## 2026-08-03T09:43:51.000Z — single mechanical CLI addition (escalation-ladder visibility), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24882** | Diff: 0a93e48..e7755fc (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/cli.ts` (e7755fc8c, #24868) — adds `arc tasks ladder [--rung ...] [--limit N]`, listing tasks by ARC-0011 `escalation_rung`/`pivot_count`/`dead_ends` directly from the DB instead of the `status='blocked'` proxy the #24865 audit had to fall back on. Mirrors the existing `cmdTasksCost` shape (same `pad`/`truncate` helpers, same flag-parsing pattern) — no new abstraction. Verified live: `arc tasks ladder --limit 5` runs clean, surfaces one real PIVOT-rung task (#19515).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a named audit finding (#24865/#24868, no CLI existed for ladder state) — closes a real observability gap, not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — the addition reuses established helpers/patterns rather than introducing new ones.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One report checked since last review (`2026-08-03T010208Z_watch_report.html`): routine watch report, no architecture-relevant feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
 
