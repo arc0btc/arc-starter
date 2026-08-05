@@ -461,3 +461,8 @@
 2026-08-05T06:00:36.566Z | task #25075 | completed | haiku | oauth-expiring workflow 3620: verify resolution and close | OAuth token auto-refreshed at 2026-08-05T05:30Z window; no operator action neede
 2026-08-05T06:01:44.516Z | task #25088 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed #23833 (charter-store-governance, awaiting whoabuddy out-of-band confir
 2026-08-05T06:06:11.554Z | task #25089 | completed | sonnet | context-review: 2 context loading issue(s) found | Both flags are false positives: #25083 is a recurring meta-audit that mentions s
+2026-08-05T06:43:38.340Z | task #25090 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T07:45:01.216Z | task #25091 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T08:15:12.114Z | task #25092 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-05T08:45:21.949Z | task #25093 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T09:45:40.060Z | task #25094 | completed | sonnet | Distill watch report 2026-08-05T01:03:33.794Z into 1-2 inter | 2 nuggets: reactive-lane skip-rate cross-checked against synthesis lane (sensor-
