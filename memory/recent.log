@@ -503,3 +503,4 @@
 2026-08-05T18:23:15.958Z | task #25129 | completed | sonnet | Consolidate memory/patterns.md (152 lines, threshold 150) | patterns.md 151->149 lines: merged new dual-copy-desync entry into existing p-bl
 2026-08-05T18:23:37.130Z | task #25131 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-05-18) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
 2026-08-05T18:25:18.969Z | task #25130 | completed | haiku | Retrospective: extract learnings from task #25127 — Consolid | No learnings to capture — consolidation patterns already documented in p-consoli
+2026-08-05T18:26:51.571Z | task #25132 | completed | sonnet | weekly pattern extraction: 806 tasks, 0 failed, $319.01 spen | Added p-line-count-threshold-vs-byte-size-consolidation-gap to patterns.md: patt
