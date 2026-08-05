@@ -441,3 +441,5 @@
 2026-08-05T00:55:23.364Z | task #25067 | completed | haiku | Retrospective: extract learnings from task #25058 — Triage:  | No learnings to capture — task #25058 successfully executed p-research-triage-di
 2026-08-05T01:09:15.703Z | task #25068 | completed | sonnet | Watch report — 2026-08-05T01:03Z | Watch report: 68 tasks completed, 0 failed, 1 new blocked (#25048 CLI upgrade), 
 2026-08-05T01:10:41.894Z | task #25069 | completed | haiku | Retrospective: extract learnings from task #25068 — Watch re | Updated p-gitignore-mutation-automation-breakage to capture AGENT.md sync discip
+2026-08-05T01:40:05.236Z | task #25070 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T02:31:58.988Z | task #25071 | completed | sonnet | CEO review — 2026-08-05T02:28 | CEO review: on track, 68/68 tasks 5.97 under target, clean pipeline throughput, 
