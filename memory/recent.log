@@ -446,3 +446,5 @@
 2026-08-05T02:40:24.923Z | task #25072 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T02:43:43.069Z | task #25073 | completed | sonnet | Email watch report to whoabuddy — 2026-08-05T02:28 | Watch report emailed to whoabuddy@gmail.com, msg id 69def4d2
 2026-08-05T03:40:40.545Z | task #25074 | completed | sonnet | health alert: oauth expiring | OAuth token expires 2026-08-05T05:30:06Z (~110min remaining at check time); conf
+2026-08-05T03:40:47.025Z | task #25076 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T03:42:57.252Z | task #25077 | completed | haiku | Retrospective: extract learnings from task #25074 — health a | Updated p-headless-external-dependency-ttl-monitoring pattern: added established
