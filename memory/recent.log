@@ -500,3 +500,4 @@
 2026-08-05T17:53:20.759Z | task #25125 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T18:19:28.877Z | task #25128 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-05T18:22:24.953Z | task #25127 | completed | sonnet | Consolidate MEMORY.md (25134 chars (threshold 24400) despite | Compressed MEMORY.md 25134→19324 chars (128→122 lines) by tightening the news-le
+2026-08-05T18:23:15.958Z | task #25129 | completed | sonnet | Consolidate memory/patterns.md (152 lines, threshold 150) | patterns.md 151->149 lines: merged new dual-copy-desync entry into existing p-bl
