@@ -469,3 +469,4 @@
 2026-08-05T09:46:38.501Z | task #25096 | completed | sonnet | architecture review — codebase changed since last review (49 | Diff 49d1797..8c65e48 was data-only (6 auto-commits, all arc-link-research cache
 2026-08-05T09:46:44.469Z | task #25095 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T10:04:59.528Z | task #25097 | completed | haiku | Fetch and compile arXiv digest — 2026-08-05 (30 new papers) | Fetched 50 papers (38 relevant), compiled digest with LLM/agent topics. Output: 
+2026-08-05T10:09:58.232Z | task #25098 | completed | sonnet | Security: ip-address (high) in aibtcdev/aibtc-mcp-server | Bumped transitive dep ip-address 10.2.0->10.3.1 (via express-rate-limit, no pack
