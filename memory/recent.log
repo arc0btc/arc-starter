@@ -503,3 +503,5 @@
 2026-08-06T00:35:45.457Z | task #25168 | completed | sonnet | Nostr note from artifact: known-benign isn't free | Posted Nostr note (eventId 4eff6c5e..., both relays ok) on oauth-expiring alert-
 2026-08-06T00:59:51.983Z | task #25170 | completed | haiku | New release: anthropics/claude-code v2.1.223 | RELEVANT: subagent model warning system affects Arc's workflow agent routing + m
 2026-08-06T01:01:30.571Z | task #25171 | completed | sonnet | Claude Code v2.1.223 deep analysis: subagent model routing c | v2.1.223 deep analysis done: new warning surfaces silent subagent-model-restrict
+2026-08-06T01:01:37.072Z | task #25169 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-06T01:05:35.764Z | task #25172 | completed | sonnet | Watch report — 2026-08-06T01:02Z | Watch report: 16 tasks completed (1 superseded, 0 failed), $6.40 spent, report a
