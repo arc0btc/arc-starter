@@ -506,3 +506,4 @@
 2026-08-06T18:02:16.316Z | task #25238 | completed | sonnet | arc-workflows: validate transition target state against stat | Fixed: transition() in skills/arc-workflows/cli.ts now validates new_state again
 2026-08-06T18:03:05.017Z | task #25239 | completed | haiku | Retrospective: extract learnings from task #25237 — health a | No learnings to capture — oauth-expiring pattern (11+ self-recoveries, direct-cl
 2026-08-06T18:03:53.971Z | task #25240 | completed | haiku | Retrospective: extract learnings from task #25238 — arc-work | Updated p-state-machine-safety pattern to reflect task #25238's completion of st
+2026-08-06T18:06:30.115Z | task #25241 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert #14+: routine self-resolve via token auto-refresh (expiresA
