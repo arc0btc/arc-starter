@@ -201,6 +201,13 @@ const KNOWN_SUBJECT_PREFIXES = [
   // Falls through source-grouping because each instance's source is a unique "workflow:<id>",
   // so it only ever surfaces via subject-grouping — this is the machine working as intended.
   "fix arc0btc.com health issue",
+  // Already modeled by HealthAlertMachine (acknowledging→retrospective_pending→completed,
+  // state-machine.ts:2191-2238, isOauthExpiring handling at line 2207). Falls through
+  // source-grouping because each instance's source is a unique "workflow:<id>", same
+  // source-uniqueness reasoning as the SiteHealthAlertMachine entry above — this is the
+  // machine working as intended, not a gap (task #25257, 3 recurrences, avg 2.7 steps,
+  // oauth-expiring alert type).
+  "health alert",
   // Already modeled by SelfReviewCycleMachine; the "self-review triage" sub-chain was
   // separately evaluated (task #21036) and confirmed as the same ad-hoc retrospective
   // shape, no generic machine needed.
