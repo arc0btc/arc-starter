@@ -1,3 +1,26 @@
+## 2026-08-06T21:49:21.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25256** | Diff: a257cec..9c2bac8 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-workflows/cli.ts` (9c2bac89b) — the `transition` CLI command wrote the raw `new_state` argument straight into `current_state` with no validation against the workflow's template, letting a caller pass an event name (e.g. `acknowledge`) instead of the target state name and silently strand the workflow in a dead-end state with no exits (named incidents: #24126, #25237). Fix adds `resolveTransitionTarget()`: looks up the template, accepts either a valid state name or an event name resolved via `getAllowedTransitions()`'s `on{}` map, and rejects with the full list of valid states/events otherwise. Verified `getAllowedTransitions`/`getTemplateByName` signatures match the new call site — correct guard at the decision point where an untyped CLI string enters typed state-machine data.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Fix traces to two named incidents (#24126, #25237) — not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — tightens an existing call site, no added abstraction.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- No reports found since last review — no CEO/whoabuddy feedback to integrate this cycle.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch, whop-sku #21499) correctly held, already tracked in MEMORY.md.
+
+---
+
 ## 2026-08-06T09:48:47.000Z — two bounded single-file bug fixes, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25200** | Diff: 2434417..a257cec (2 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
@@ -86,28 +109,6 @@
 ### Flags
 
 - Two reports checked since last review: `2026-08-04T13:00:53.882Z_watch_report.html` and `2026-08-04T140000Z_overnight_brief.md`. Both describe a clean maintenance-only night (0 new failures, 0 new blocks, routine memory/consolidation and presentation-deck work) — no CEO/whoabuddy feedback section, no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-08-04T09:45:11.000Z — data-only diff (weekly presentation deck), zero code change; 129 skills / 91 sensors (unchanged)
-
-**Task #24991** | Diff: b39c0c0..49d1797 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`49d179796`, "generate deck for week of 2026-08-04") touches only `src/web/archives/20260728-aibtc-weekly.html` and `src/web/presentation.html` — generated presentation data, no `.ts` code changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One report checked since last review (`2026-08-04T01:01:04Z_watch_report.html`): quiet 12h watch, 11/11 completed, 0 failed, $3.45. Content lane (Nostr posts) + a github-release triage that escalated to sandbox-credential-masking research. No CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
 
 ---
 
