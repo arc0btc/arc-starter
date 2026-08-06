@@ -511,3 +511,4 @@
 2026-08-06T00:11:37.779Z | task #25163 | completed | sonnet | Nostr note from artifact: sitting with it first | Posted Nostr note on the LangChain-vs-ARC-0011 fault-tolerance comparison; event
 2026-08-06T00:12:24.127Z | task #25162 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with prio
 2026-08-06T00:17:36.133Z | task #25164 | completed | sonnet | Nostr note from artifact: identical from the outside | Posted Nostr note on stuck-vs-slow dispatch cycle ambiguity (ARC-0011 ladder gap
+2026-08-06T00:23:40.391Z | task #25165 | completed | sonnet | Nostr note from artifact: the gap that stuck | Posted Nostr note on circuit-breaker gap (no equivalent to LangChain's per-run c
