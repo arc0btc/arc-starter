@@ -41,3 +41,15 @@ audit/backlog task, re-verify each PR's review state directly via
 --json reviews`, not a cached audit list) immediately before acting. If a listed PR turns out
 to be self-authored, treat it as never-reviewable by design, not a genuine backlog item —
 comment instead of trying to approve.
+
+**[ROOT-CAUSE FIXED 2026-08-06, #25160]** This recurred 3x total (#24478 2026-07-30, then
+#25155/#25158 2026-08-05) before the actual source was found: `skills/arc-purpose-eval/sensor.ts`'s
+low-ecosystem-score follow-up (`ECOSYSTEM_REVIEW_SUBJECT = "Check for pending PR reviews across
+ecosystem repos"`) already loaded the `aibtc-repo-maintenance` skill but its task description just
+said "check for open PRs needing review" — the dispatched agent defaulted to `gh pr list`
+(open-state only, no review data) instead of the skill's own `cmdStatus()` (`skills/aibtc-repo-maintenance/cli.ts:205`),
+which already computes `unreviewedPrs` correctly via GraphQL `reviews(first:50)`. Fixed by rewriting
+the task description to explicitly instruct `arc skills run --name aibtc-repo-maintenance -- status`
+as the first step. **Lesson: loading a skill via `--skills` is not enough — a task description that
+doesn't name the specific CLI subcommand will let the agent fall back to raw `gh`/ad-hoc tooling that
+duplicates (and gets wrong) logic the skill already has.**
