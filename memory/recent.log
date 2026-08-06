@@ -507,3 +507,4 @@
 2026-08-06T00:05:13.202Z | task #25160 | completed | sonnet | Fix PR-review-backlog audit sensor/task-source to use aibtc- | Fixed root cause: arc-purpose-eval's PR-backlog follow-up task description didn'
 2026-08-06T00:06:04.782Z | task #25156 | completed | sonnet | PURPOSE eval: 2.19/5 — S:1 O:5 E:1 C:2 | Daily eval 2.25/5 (S:1 O:5 E:1 C:2 Ad:3 Co:1 Se:3): Ops strong (100% success/106
 2026-08-06T00:06:30.974Z | task #25161 | completed | sonnet | Nostr note from artifact: the value is the mapping | Posted Nostr note on 'value is the mapping' nugget, eventId a081dda8..., both re
+2026-08-06T00:07:31.203Z | task #25157 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies, both known non-issues: candidate-maturation 23 failures = X read-bu
