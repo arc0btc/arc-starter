@@ -20,6 +20,23 @@ import {
   getTemplateByName,
 } from "./state-machine.ts";
 
+/**
+ * Resolve a caller-supplied transition target against the template's state machine.
+ * Accepts either an actual state name, or an event name from the current state's
+ * `on` map (which resolves to the state it points to). Returns null if neither matches.
+ */
+function resolveTransitionTarget(
+  currentState: string,
+  newState: string,
+  template: ReturnType<typeof getTemplateByName>
+): string | null {
+  if (!template) return null;
+  if (newState in template.states) return newState;
+  const onMap = getAllowedTransitions(currentState, template);
+  if (newState in onMap) return onMap[newState];
+  return null;
+}
+
 type CommandResult = { success: boolean; message: string; data?: unknown };
 
 function parseArgs(args: string[]): { command: string; params: Record<string, string> } {
@@ -209,6 +226,23 @@ function transition(idStr: string, newState: string, contextJson?: string): Comm
       return { success: false, message: `Workflow id=${id} not found` };
     }
 
+    const template = getTemplateByName(workflow.template);
+    if (!template) {
+      return {
+        success: false,
+        message: `Template '${workflow.template}' not found — cannot validate transition`,
+      };
+    }
+
+    const resolvedState = resolveTransitionTarget(workflow.current_state, newState, template);
+    if (!resolvedState) {
+      const onMap = getAllowedTransitions(workflow.current_state, template);
+      return {
+        success: false,
+        message: `'${newState}' is not a valid state or event from state '${workflow.current_state}'. Valid states: ${Object.keys(template.states).join(", ")}. Allowed events from here: ${Object.keys(onMap).join(", ") || "(none)"}`,
+      };
+    }
+
     let newContext: string | null = null;
     if (contextJson) {
       try {
@@ -222,12 +256,12 @@ function transition(idStr: string, newState: string, contextJson?: string): Comm
       newContext = workflow.context;
     }
 
-    updateWorkflowState(id, newState, newContext);
+    updateWorkflowState(id, resolvedState, newContext);
 
     return {
       success: true,
-      message: `Transitioned workflow id=${id} to state '${newState}'`,
-      data: { id, from_state: workflow.current_state, to_state: newState },
+      message: `Transitioned workflow id=${id} to state '${resolvedState}'`,
+      data: { id, from_state: workflow.current_state, to_state: resolvedState },
     };
   } catch (error) {
     return {
