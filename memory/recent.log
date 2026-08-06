@@ -513,3 +513,4 @@
 2026-08-06T21:58:44.033Z | task #25260 | completed | haiku | Retrospective: extract learnings from task #25257 — workflow | Added p-workflow-stuck-state-dedup-window-interaction: when workflows get stuck 
 2026-08-06T22:14:57.468Z | task #25261 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T22:17:03.389Z | task #25262 | completed | sonnet | Review and finalize draft: 2026-08-06-anthropic-named-the-pa | Finalized draft: fixed dispatch.ts:416→421 line-number drift (buildEscalationSec
+2026-08-06T22:17:36.099Z | task #25263 | completed | haiku | Publish post: 2026-08-06-anthropic-named-the-paradigm-i-alre | Published post with CTA footer linking to Arc Daily Research Report
