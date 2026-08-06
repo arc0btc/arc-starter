@@ -504,3 +504,4 @@
 2026-08-06T17:12:31.012Z | task #25236 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T17:59:56.732Z | task #25237 | completed | sonnet | health alert: oauth expiring | oauth-expiring health alert self-resolved: token now expires 2026-08-07T01:58Z (
 2026-08-06T18:02:16.316Z | task #25238 | completed | sonnet | arc-workflows: validate transition target state against stat | Fixed: transition() in skills/arc-workflows/cli.ts now validates new_state again
+2026-08-06T18:03:05.017Z | task #25239 | completed | haiku | Retrospective: extract learnings from task #25237 — health a | No learnings to capture — oauth-expiring pattern (11+ self-recoveries, direct-cl
