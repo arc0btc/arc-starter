@@ -564,7 +564,10 @@ function generateFollowUps(
         `${metrics.prReviewAvgPerDay.toFixed(1)}/day avg over 3d). ` +
         `Before filing a queue-rebalance or priority-boost task off this metric, verify pr-review queue latency ` +
         `directly (time-to-pickup) — a low count can reflect zero external PRs opened, not internal crowd-out. ` +
-        `Check for open PRs needing review in aibtcdev repos. Target: 5+ reviews/day for ecosystem contribution.`,
+        `Run \`arc skills run --name aibtc-repo-maintenance -- status\` FIRST to get the actual unreviewed-PR count ` +
+        `(it filters out already-approved/reviewed PRs via GraphQL review data) — do not conclude a backlog exists ` +
+        `from \`gh pr list\` open-state alone, that flags already-approved PRs as unreviewed (recurring false ` +
+        `positive: #24478, #25155, #25158). Target: 5+ reviews/day for ecosystem contribution.`,
     });
   }
 
