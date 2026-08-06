@@ -502,3 +502,4 @@
 2026-08-06T00:29:40.658Z | task #25167 | completed | sonnet | Nostr note from artifact: who fixes it vs how deep | Posted nostr note (eventId a955147...) on LangChain error-taxonomy vs ARC-0011 l
 2026-08-06T00:35:45.457Z | task #25168 | completed | sonnet | Nostr note from artifact: known-benign isn't free | Posted Nostr note (eventId 4eff6c5e..., both relays ok) on oauth-expiring alert-
 2026-08-06T00:59:51.983Z | task #25170 | completed | haiku | New release: anthropics/claude-code v2.1.223 | RELEVANT: subagent model warning system affects Arc's workflow agent routing + m
+2026-08-06T01:01:30.571Z | task #25171 | completed | sonnet | Claude Code v2.1.223 deep analysis: subagent model routing c | v2.1.223 deep analysis done: new warning surfaces silent subagent-model-restrict
