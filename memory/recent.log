@@ -504,3 +504,4 @@
 2026-08-06T09:49:49.181Z | task #25200 | completed | sonnet | architecture review — codebase changed since last review (24 | Diff 2434417..a257cec: 2 bounded single-file fixes (writeDistilled title/source_
 2026-08-06T09:54:11.329Z | task #25201 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors), committed index.mdx only (left unr
 2026-08-06T09:57:21.385Z | task #25202 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with know
+2026-08-06T10:06:31.977Z | task #25204 | completed | haiku | Fetch and compile arXiv digest — 2026-08-06 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest with 16 LLM, 5 reasoning, 2 fin
