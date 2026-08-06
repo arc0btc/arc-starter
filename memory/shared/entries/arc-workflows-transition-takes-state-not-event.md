@@ -1,25 +1,31 @@
 ---
 id: arc-workflows-transition-takes-state-not-event
 topics: [arc-workflows, cli-gotcha, state-machine]
-source: task:24126
+source: task:24126, task:25237, task:25238
 created: 2026-07-27
+updated: 2026-08-06
 ---
 
-`arc skills run --name arc-workflows -- transition <id> <new_state>` takes the **target
-state name** as its second arg, not the machine's event/transition name. State machine
-defs in `skills/arc-workflows/state-machine.ts` list transitions as `on: { <event>: <state> }`
-(e.g. `triggered: { on: { acknowledge: "acknowledging" } }`) — the doc string embedded in
-task descriptions sometimes echoes the event name ("Transition this workflow to
-'acknowledging'"), but if you instead pass the event name (`acknowledge`) as the CLI arg,
-it silently sets `current_state` to that literal string instead of resolving it through
-the `on` map. No validation error — `show` will report the bogus state as current_state.
+**[FIXED 2026-08-06, #25238]** `arc skills run --name arc-workflows -- transition <id>
+<new_state>` used to write the raw `new_state` arg straight into `current_state` with zero
+validation. `skills/arc-workflows/cli.ts`'s `transition()` now looks up the workflow's
+template state machine and either (a) accepts `new_state` if it's a real key in
+`template.states{}`, (b) auto-resolves `new_state` if it's a valid event name from the
+current state's `on{}` map (e.g. passing `acknowledge` from a state whose `on` has
+`acknowledge: "acknowledging"` now correctly lands on `acknowledging`), or (c) rejects
+with the list of valid states and allowed events from the current state. No more silent
+dead-end states.
 
-**Why:** health-alert workflow task #24126 instructed "transition to 'acknowledging'" but
-the state machine's `on` key for that edge is `acknowledge`; passed `acknowledge` as the
-CLI arg by pattern-matching the key name, landing the workflow in an invalid `acknowledge`
-state instead of `acknowledging`.
+**Original bug (kept for context):** State machine defs in
+`skills/arc-workflows/state-machine.ts` list transitions as `on: { <event>: <state> }`
+(e.g. `triggered: { on: { acknowledge: "acknowledging" } }`). Task descriptions sometimes
+echoed the event name ("Transition this workflow to 'acknowledging'"), and passing the
+event name (`acknowledge`) as the CLI arg used to silently set `current_state` to that
+literal string instead of resolving it through the `on` map — no validation error, `show`
+would report the bogus state as current_state. Two known incidents: #24126 (health-alert
+workflow, `acknowledge` vs `acknowledging`) and #25237 (workflow 3640, `resolved` vs the
+real target state).
 
-**How to apply:** before running `transition`, check the target STATE name in the machine's
-`states: {}` block (the object key), not the `on: {}` event key, even if they look similar
-enough to conflate. When in doubt, run `allowed-transitions <id>` first, or `show <id>` after
-transitioning to confirm `current_state` matches an actual state in the machine definition.
+**How to apply now:** the CLI itself guards this — a bad `transition` call fails loudly
+with valid options instead of corrupting state. Still worth running `allowed-transitions
+<id>` first when unsure, since the error message reuses the same lookup.
