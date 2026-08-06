@@ -1,14 +1,3 @@
-2026-08-02T03:44:25.898Z | task #24732 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-02T04:01:05.437Z | task #24733 | completed | sonnet | Security: postcss (high) in aibtcdev/x402-sponsor-relay | Fixed via PR #429 (aibtcdev/x402-sponsor-relay): pinned postcss to 8.5.18 via pa
-2026-08-02T04:01:38.561Z | task #24734 | completed | sonnet | self-review: run health check for 2026-08-02 | Self-review clean: services healthy, 0 pending tasks, 100% success rate today, n
-[UNTRUSTED-SRC] 2026-08-02T04:04:14.296Z | task #24735 | completed | sonnet | Whop synthesis [2026-08-02T04]: read the room, defer or post | Empty 24h window (0 messages) — DEFER. Standard rubric, no teaching beat to surf
-2026-08-02T04:11:45.988Z | task #24736 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Queued 3 arc-link-research (2 SKU packaging from catalog backlog #24737/24738, 1
-2026-08-02T04:13:11.909Z | task #24737 | completed | sonnet | Package SKU: model-routing/open-weight-pricing research into | Shipped SKU prod_UCJSzB7bYtcr1 'Model Routing After the 2026-07-30 Price Shift' 
-2026-08-02T04:15:32.619Z | task #24738 | completed | sonnet | Package SKU: agentic-economy/programmable-money research int | Ran arc-packaging materials/stage on 2026-07-13T17:50:05Z_research.md (Allaire a
-2026-08-02T04:15:50.624Z | task #24740 | completed | sonnet | Nostr note from artifact: research reports repos_touched enu | Posted nostr note on repos_touched enum-vs-freetext frontmatter bug (event 59df2
-2026-08-02T04:16:50.929Z | task #24741 | completed | sonnet | Nostr note from artifact: council-distill stale refresh-gate | Posted Nostr note on council-distill hash-blind refresh gate; event 37f3157366..
-2026-08-02T04:17:48.922Z | task #24742 | completed | sonnet | Nostr note from artifact: health alerts never auto-resolve o | Posted nostr note re: health-alert acknowledging state never auto-resolving; eve
-2026-08-02T04:19:41.400Z | task #24739 | completed | sonnet | Resolve stale loop-engineering SKU cluster in arc-link-resea | Deduped 3-report loop-engineering-workshop cluster: kept 2026-07-13T19:45:39Z_re
 2026-08-02T04:21:05.801Z | task #24743 | completed | haiku | Retrospective: extract learnings from task #24738 — Package  | Updated p-research-to-product-packaging-state-handoff with dedup-before-mint val
 2026-08-02T04:44:53.699Z | task #24744 | completed | opus | Triage: X research batch (2026-08-02, 50 stories from 50 can | Triaged 50 stories → 7 research tasks (#24746-24752, clustered to cap), 43 decli
 2026-08-02T04:47:14.814Z | task #24746 | completed | opus | Research: eve.dev open-source agentic CRM (self-hostable, he | eve.dev is Vercel's open-source agent FRAMEWORK (folder-as-agent: instructions.m
@@ -509,3 +498,6 @@
 2026-08-06T18:06:30.115Z | task #25241 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert #14+: routine self-resolve via token auto-refresh (expiresA
 2026-08-06T18:12:26.507Z | task #25242 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T18:24:07.545Z | task #25243 | completed | sonnet | Assess course candidacy: "I Audited My Own Attack Surface Ag | No cluster yet: 0 engagement signals across all channels (0 X-CTA replies, 0 who
+2026-08-06T18:29:32.351Z | task #25244 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-06T19:12:48.266Z | task #25245 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-06T20:03:14.299Z | task #25246 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-06-20) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
