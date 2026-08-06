@@ -507,3 +507,5 @@
 2026-08-06T18:03:05.017Z | task #25239 | completed | haiku | Retrospective: extract learnings from task #25237 — health a | No learnings to capture — oauth-expiring pattern (11+ self-recoveries, direct-cl
 2026-08-06T18:03:53.971Z | task #25240 | completed | haiku | Retrospective: extract learnings from task #25238 — arc-work | Updated p-state-machine-safety pattern to reflect task #25238's completion of st
 2026-08-06T18:06:30.115Z | task #25241 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert #14+: routine self-resolve via token auto-refresh (expiresA
+2026-08-06T18:12:26.507Z | task #25242 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-06T18:24:07.545Z | task #25243 | completed | sonnet | Assess course candidacy: "I Audited My Own Attack Surface Ag | No cluster yet: 0 engagement signals across all channels (0 X-CTA replies, 0 who
