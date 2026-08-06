@@ -508,3 +508,4 @@
 2026-08-06T21:48:58.968Z | task #25255 | completed | sonnet | Distill watch report 2026-08-06T13:01:07.278Z into 1-2 inter | Wrote 2 watch-interior nuggets (cost: 41/41 tasks/$12.18/12h incl. full blog pip
 2026-08-06T21:50:02.224Z | task #25256 | completed | sonnet | architecture review — codebase changed since last review (a2 | Reviewed 1-commit diff (arc-workflows/cli.ts transition-target validation fix, #
 2026-08-06T21:55:01.474Z | task #25257 | completed | sonnet | workflow review — 1 new pattern(s) | health-alert oauth-expiring pattern already modeled by HealthAlertMachine — adde
+2026-08-06T21:55:59.934Z | task #25258 | completed | sonnet | Distill arXiv digest 2026-08-06T10:06:28Z into 3-5 nuggets | Wrote 4 agent-architecture nuggets (Argus runtime, hierarchical graph memory, ch
