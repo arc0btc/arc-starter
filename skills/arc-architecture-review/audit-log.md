@@ -1,3 +1,27 @@
+## 2026-08-06T09:48:47.000Z — two bounded single-file bug fixes, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25200** | Diff: 2434417..a257cec (2 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/artifacts.ts` (719fa39f6) — `writeDistilled` previously validated `topic`/`citation` but not `title`/`source_path`, letting a missing title reach an `INSERT OR IGNORE` against a NOT NULL column, which silently no-op'd the DB insert while the file write to disk had already succeeded (`.tmp` → `renameSync` runs before the query) — orphan file, invisible to DB-backed readers, and a second call with the same `produced_at+topic` would overwrite it since the collision probe only checks the DB. Fix adds the two missing field checks and switches `INSERT OR IGNORE` → `INSERT` so any remaining schema violation throws instead of failing silently. Good pattern: turns a silent partial-write into a hard failure at the boundary where it's cheap to fix (already tracked in memory/shared/entries, see [[write-distilled-missing-required-field-silent-insert-ignore]]).
+- `skills/arc-purpose-eval/sensor.ts` (a257cec70) — 3rd recurrence (#24478, #25155, #25158) of a PR-backlog follow-up task instructing its dispatched agent to just "check for open PRs," which falls back to `gh pr list` (open-state only, flags already-approved PRs as unreviewed). Fix rewrites the follow-up description to run `aibtc-repo-maintenance -- status` first, which already computes `unreviewedPrs` correctly via GraphQL review data. Same failure class as the whop cross-lane fix reviewed 2026-08-03 (#24938): a proxy signal used instead of ground truth at a decision point, third occurrence now confirmed by name.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both fixes trace to named recurring incidents (write-distilled: prior audit-log entry; PR-backlog: 3 numbered task IDs) — not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — both fixes tighten an existing check/instruction at the same call site, no added abstraction.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two reports checked since last review (2026-08-05T14:00:00Z overnight, 2026-08-06T01:02:06.755Z watch) — both routine, no architecture-relevant CEO/whoabuddy feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch, whop-sku #21499) correctly held, already tracked in MEMORY.md.
+- Proxy-signal-instead-of-ground-truth is now a 3-occurrence pattern at decision points (whop synthesis dedup #24938, PR-backlog audit now x3, task-existence-vs-actual-effect noted 2026-08-03). Worth a dedicated grep sweep for other `gh pr list`/`recentTaskExistsForSourcePrefix`-style proxy checks if a 4th instance surfaces — not yet filing a follow-up task since each occurrence so far has been fixed at its own call site with no shared root cause to centralize.
+
+---
+
 ## 2026-08-05T21:50:26.000Z — data-only diff (article-pipeline P4 auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25144** | Diff: 8c65e48..2434417 (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
@@ -84,30 +108,6 @@
 ### Flags
 
 - One report checked since last review (`2026-08-04T01:01:04Z_watch_report.html`): quiet 12h watch, 11/11 completed, 0 failed, $3.45. Content lane (Nostr posts) + a github-release triage that escalated to sandbox-credential-masking research. No CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-08-03T21:43:03.000Z — single-file cross-lane dedup fix (task-existence → ground-truth), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #24938** | Diff: e7755fc..b39c0c0 (2 substantive commits, excluding this skill's own) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/whop/sensor.ts` (b39c0c025, `pollWhopFreeForumDigest`) — cross-lane check `recentSynthesisPost` previously used `recentTaskExistsForSourcePrefix`, which is true on every 6h synthesis tick regardless of outcome (the synthesis lane always queues a dispatch task, even when it defers with 0 messages). This misled the free-forum digest into skipping on a false "just posted" premise (2026-08-01 #24701, 2026-08-02 #24819). Fix swaps the signal to `whop_post_log`, a table only written when post-chat actually posts — decision point now checks the real world-state instead of a proxy for intent. Good pattern: the fix lazily `CREATE TABLE IF NOT EXISTS`s the log table inline, matching how `cli.ts`'s post-chat path creates it, so a fresh DB doesn't throw on first tick. No new abstraction, single query, correctly scoped.
-- `skills/arc-article-pipeline/drafts/article-19-x-article.json` (165cfa161) — P4 auto-package data write, not a code change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to two named false-defer incidents (#24701, #24819) — a real decision-point bug (gate used task-queuing as a proxy for "content already posted," but queuing happens unconditionally), not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — fix replaces one signal with a more accurate one at the same call site, no added complexity.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- General pattern worth watching elsewhere in the skill tree: any cross-lane or dedup gate built on `recentTaskExistsForSourcePrefix` (or equivalent "was a task queued" checks) is vulnerable to the same false-positive if the queuing lane can queue-then-defer. This is the second occurrence of the class (see [[task-existence-vs-actual-effect-dedup-gate]] per docs(memory) commit d42c23b6d) — worth a follow-up grep for other `recentTaskExistsForSourcePrefix` call sites if a third instance surfaces, not yet warranted for one repeat.
-- No new reports since last review beyond the standard overnight brief (2026-08-03T14:00:00Z) — already reviewed same-day, no architecture-relevant feedback beyond what's tracked in MEMORY.md. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held.
 
 ---
 
