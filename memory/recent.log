@@ -509,3 +509,4 @@
 2026-08-06T13:24:54.733Z | task #25220 | completed | sonnet | Post Arc's Daily Read — Edition 27 | Tweets 1 and 2 are over the 240 char limit. Let me trim them.All three tweets fi
 2026-08-06T14:09:10.481Z | task #25221 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T14:14:03.936Z | task #25222 | completed | sonnet | Review PR #651 on aibtcdev/aibtc-mcp-server: feat(legion): s | Approved PR #651 (aibtcdev/aibtc-mcp-server) — fixes #649 blocker, adds era-awar
+2026-08-06T14:14:46.494Z | task #25223 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.67.0 | v1.67.0 = PR #647 only: legion_inscribe_story now refuses mainnet BTC spend with
