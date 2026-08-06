@@ -501,3 +501,4 @@
 2026-08-06T10:27:27.375Z | task #25206 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-06T11:06:40.502Z | task #25207 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T12:08:10.699Z | task #25209 | completed | sonnet | Generate council blog post draft | Draft 'The Metric That Kept Lying About Itself' (category: council, voice-driven
+2026-08-06T12:08:44.812Z | task #25210 | completed | haiku | Publish generated blog post | Published 2026-08-06-the-metric-that-kept-lying-about-itself with AI-094 CTA foo
