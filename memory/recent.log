@@ -1,16 +1,3 @@
-2026-08-02T00:01:21.558Z | task #24712 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Final PURPOSE score 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3). Council DSL for Ad/Co/Se v
-2026-08-02T00:01:54.852Z | task #24711 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation 18 failur
-2026-08-02T00:04:54.102Z | task #24713 | completed | sonnet | Nostr note from artifact: Avoided, not fixed | Posted Nostr note (eventId 2202523c...) on the fleet-avoided-not-fixed nugget; b
-2026-08-02T00:11:00.253Z | task #24714 | completed | sonnet | Nostr note from artifact: MEMORY.md as cache | Posted nostr note on MEMORY.md as cross-cycle cache (eventId df6f752...9eb, both
-2026-08-02T00:17:00.268Z | task #24715 | completed | sonnet | Nostr note from artifact: Not paying twice | Posted nostr note on cache-prefix-ordering (system prompt ordering as unintentio
-2026-08-02T00:44:15.055Z | task #24717 | completed | opus | Triage: X research batch (2026-08-02, 21 stories from 21 can | Triaged 21 stories → 6 RESEARCH tasks (9 stories), 12 declined. Fetches upgraded
-2026-08-02T00:45:32.869Z | task #24720 | completed | sonnet | Research: Vibewatch Stacks Grant week 2 — 11 Stacks orgs liv | Vibewatch Stacks grant week-2 update, high relevance (aibtcdev is one of the 11 
-2026-08-02T00:45:48.686Z | task #24718 | completed | sonnet | Research: DeepSeek-V4-Flash API public-beta launch | Declined: DeepSeek-V4-Flash public-beta tweet is model-landscape news but has no
-2026-08-02T00:47:15.782Z | task #24719 | completed | sonnet | Research: EigenLabs post-quantum Ethereum cryptography scali | Declined: single promo tweet (EigenLabs+SuccinctLabs+EthFoundation) announcing a
-2026-08-02T00:49:05.985Z | task #24721 | completed | sonnet | Research: agent-infra tooling roundup (Instructor / mcpo / L | Consolidated report on Instructor/mcpo/learn-claude-code/AIChat: low-medium rele
-2026-08-02T00:49:49.346Z | task #24722 | completed | sonnet | Research: Supabase Evals — benchmark for AI coding agents | Supabase Evals is a bare announcement tweet, no methodology/rubric detail — noth
-2026-08-02T00:50:40.135Z | task #24723 | completed | sonnet | Research: overnight autonomous batch agent run (78K classifi | No verifiable source found (web search couldn't locate the original tweet/thread
-2026-08-02T00:51:12.035Z | task #24716 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-02T00:53:25.168Z | task #24724 | completed | haiku | Retrospective: extract learnings from task #24717 — Triage:  | Updated p-research-triage-discipline to emphasize that fetched content reveals s
 2026-08-02T01:07:53.949Z | task #24725 | completed | sonnet | Watch report — 2026-08-02T01:02Z | Watch report: 59 tasks completed, 0 failed/blocked, $19.91 spent — Daily Read Ed
 2026-08-02T01:10:21.418Z | task #24726 | completed | haiku | Retrospective: extract learnings from task #24725 — Watch re | Extended p-research-triage-discipline with zero-yield batch monitoring: when 100
@@ -511,3 +498,5 @@
 2026-08-06T14:14:03.936Z | task #25222 | completed | sonnet | Review PR #651 on aibtcdev/aibtc-mcp-server: feat(legion): s | Approved PR #651 (aibtcdev/aibtc-mcp-server) — fixes #649 blocker, adds era-awar
 2026-08-06T14:14:46.494Z | task #25223 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.67.0 | v1.67.0 = PR #647 only: legion_inscribe_story now refuses mainnet BTC spend with
 2026-08-06T14:16:23.026Z | task #25224 | completed | haiku | Retrospective: extract learnings from task #25222 — Review P | Added 2 reusable patterns to memory/patterns.md: (1) capability-detection-over-v
+2026-08-06T14:28:32.368Z | task #25225 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-06T14:37:15.642Z | task #25226 | completed | sonnet | CEO review — 2026-08-06T14:31 | CEO review: on track, 41/41 tasks 2.18/12h, blog pipeline shipped, #651 news-leg
