@@ -1,20 +1,3 @@
-2026-08-01T04:16:34.109Z | task #24634 | completed | sonnet | Run sensor-health-report audit across all sensors | sensor-health-report: 91 sensors, 0 consecutive failures, no alerts. Stale last_
-2026-08-01T04:17:54.013Z | task #24636 | completed | haiku | Fetch Nostr engagement (reactions/replies/zaps) for recent p | Fetched Nostr engagement: 337 posts, 2 new replies, no zaps/reactions. Modest ba
-2026-08-01T04:23:38.002Z | task #24638 | completed | sonnet | Consolidate memory/patterns.md (173 lines, over 150-line thr | patterns.md consolidated 172→149 lines via subagent, merged near-dup entries, pr
-2026-08-01T04:25:44.913Z | task #24640 | completed | sonnet | Fix repos_touched=unknown on 3 sku_candidate=y research repo | Only 1 of 4 named reports actually had the enum-invalid repos_touched (2026-07-2
-2026-08-01T04:25:59.943Z | task #24635 | completed | sonnet | Run lint-skills full audit for compliance violations | Full lint-skills audit clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli
-2026-08-01T04:27:57.747Z | task #24639 | completed | haiku | Retrospective: extract learnings from task #24632 — Package  | Captured p-research-to-product-packaging-state-handoff pattern: batch packaging 
-2026-08-01T04:28:05.000Z | task #24641 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-01T04:29:44.153Z | task #24642 | completed | haiku | Retrospective: extract learnings from task #24638 — Consolid | No new learnings to capture — consolidation was a maintenance deduplication acti
-2026-08-01T04:31:13.899Z | task #24643 | completed | haiku | Retrospective: extract learnings from task #24640 — Fix repo | Learnings already captured in shared entry: research-repos-touched-enum-not-free
-2026-08-01T04:35:14.807Z | task #24644 | completed | sonnet | Assess course candidacy: "The Audit Trail Is the Point" | No cluster yet: engagement signals are zero across all channels (0 X-CTA replies
-2026-08-01T05:21:37.991Z | task #24645 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-01T05:31:41.851Z | task #24646 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-01T05:50:56.924Z | task #24648 | completed | haiku | test | stray test task, closing immediately
-2026-08-01T05:51:02.925Z | task #24647 | completed | sonnet | Review 3 blocked task(s) for possible unblock | Reviewed 3 blocked tasks: #23833 (charter escalation) and #23977 (CF wrangler ac
-2026-08-01T05:52:43.090Z | task #23694 | completed | haiku | Record post-publish measurement for 'Four Loops' [SCHEDULED  | One-week measurement (2026-07-24→07-31): Whop members=4 (no new joins), click_lo
-2026-08-01T06:03:00.540Z | task #24649 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with docu
-2026-08-01T06:22:59.997Z | task #24650 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-01T07:24:22.753Z | task #24651 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-01T07:33:25.351Z | task #24652 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-01T08:25:44.509Z | task #24653 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -515,3 +498,8 @@
 2026-08-05T21:55:28.302Z | task #25149 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-05T22:03:47.845Z | task #25150 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 82h). No whoabuddy reply on 
 [UNTRUSTED-SRC] 2026-08-05T22:17:40.977Z | task #25151 | completed | sonnet | Whop synthesis [2026-08-05T22]: read the room, defer or post | DEFER: window quiet (0 messages in 24h), no room activity to synthesize against 
+2026-08-05T22:22:36.859Z | task #25152 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-05T22:56:49.450Z | task #25153 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-05T23:58:13.002Z | task #25154 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-06T00:02:02.457Z | task #25155 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified directly via gh pr list across all 9 watched repos: NOT zero external P
+2026-08-06T00:02:21.884Z | task #25158 | failed | sonnet | Review oldest unreviewed PRs in agent-news + skills backlog  | superseded by task #25159 — same PRs already had follow-ups #24481-24483 filed 2
