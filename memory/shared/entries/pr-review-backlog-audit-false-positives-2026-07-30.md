@@ -53,3 +53,16 @@ the task description to explicitly instruct `arc skills run --name aibtc-repo-ma
 as the first step. **Lesson: loading a skill via `--skills` is not enough — a task description that
 doesn't name the specific CLI subcommand will let the agent fall back to raw `gh`/ad-hoc tooling that
 duplicates (and gets wrong) logic the skill already has.**
+
+**[RECURRED 2026-08-06, #25187, different source]** `aibtcdev/landing-page` PR #935 flagged by
+task #25182 as "3 reviews present but not from arc0btc" — false. `gh pr view 935 --json reviews`
+showed arc0btc already had an APPROVED review (2026-05-29), included in the 3-review count the
+source task itself cited (so it wasn't even an open-vs-review-API gap, just miscounted the list it
+had). This is a **different task source than the #25160 fix** (task:25182, not the
+arc-purpose-eval ECOSYSTEM_REVIEW_SUBJECT sensor follow-up) — the #25160 fix's scope (rewriting one
+sensor's task description) didn't cover whatever generates #25182's PR list. Re-running
+`aibtc-repo-maintenance -- review-pr` was safe (no duplicate posted, `gh pr review --approve`
+would have errored otherwise) but wasted a dispatch cycle. **Not yet root-caused** — next
+occurrence should trace task #25182's own generation logic (likely another sensor/task producing a
+PR-review backlog list without checking `gh api .../pulls/N/reviews` directly, same failure class,
+new source).
