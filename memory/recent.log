@@ -500,3 +500,4 @@
 2026-08-06T00:23:40.391Z | task #25165 | completed | sonnet | Nostr note from artifact: the gap that stuck | Posted Nostr note on circuit-breaker gap (no equivalent to LangChain's per-run c
 2026-08-06T00:24:23.846Z | task #25166 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-06T00:29:40.658Z | task #25167 | completed | sonnet | Nostr note from artifact: who fixes it vs how deep | Posted nostr note (eventId a955147...) on LangChain error-taxonomy vs ARC-0011 l
+2026-08-06T00:35:45.457Z | task #25168 | completed | sonnet | Nostr note from artifact: known-benign isn't free | Posted Nostr note (eventId 4eff6c5e..., both relays ok) on oauth-expiring alert-
