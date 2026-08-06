@@ -507,3 +507,4 @@
 2026-08-06T21:39:27.837Z | task #25253 | completed | haiku | daily cost report — 2026-08-05 | 2026-08-05 cost 4.30, 106 tasks, watch reports + link-research primary drivers, 
 2026-08-06T21:48:58.968Z | task #25255 | completed | sonnet | Distill watch report 2026-08-06T13:01:07.278Z into 1-2 inter | Wrote 2 watch-interior nuggets (cost: 41/41 tasks/$12.18/12h incl. full blog pip
 2026-08-06T21:50:02.224Z | task #25256 | completed | sonnet | architecture review — codebase changed since last review (a2 | Reviewed 1-commit diff (arc-workflows/cli.ts transition-target validation fix, #
+2026-08-06T21:55:01.474Z | task #25257 | completed | sonnet | workflow review — 1 new pattern(s) | health-alert oauth-expiring pattern already modeled by HealthAlertMachine — adde
