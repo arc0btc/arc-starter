@@ -508,3 +508,4 @@
 2026-08-07T09:54:31.299Z | task #25312 | completed | sonnet | architecture review — codebase changed since last review (9c | Diff 9c2bac8..53ec3be was config-only (workflow-review exemption entry), zero st
 2026-08-07T09:55:05.582Z | task #25313 | completed | sonnet | architect: fix stale dedup-check heuristic in arc-architectu | Fixed audit dedup heuristic in cli.ts to recognize insertTaskIfNew/insertTaskDed
 2026-08-07T09:56:09.720Z | task #25314 | completed | haiku | Retrospective: extract learnings from task #25312 — architec | Extracted audit heuristic blind spot pattern: wrapper functions (insertTaskIfNew
+2026-08-07T10:09:55.538Z | task #25315 | completed | haiku | Fetch and compile arXiv digest — 2026-08-07 (30 new papers) | Fetched 50 papers (28 relevant), compiled digest: 19 LLM + 3 reasoning + 2 agent
