@@ -507,3 +507,4 @@
 2026-08-07T04:19:41.478Z | task #25293 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T04:22:38.189Z | task #25294 | completed | sonnet | self-review: run health check for 2026-08-07 | Self-review clean: 0 sensor errors, dispatch queue near-empty (pending=1 active=
 [UNTRUSTED-SRC] 2026-08-07T04:22:46.246Z | task #25295 | completed | sonnet | Whop synthesis [2026-08-07T04]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat to add
+2026-08-07T04:29:47.290Z | task #25296 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Both flagged domains are false-hungry: nostr is pool-consumer (per existing patt

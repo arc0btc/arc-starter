@@ -22,3 +22,20 @@ likely also any future producer→consumer artifact-channel pair, e.g. whop-foru
 public-forum/x consumers) as hungry, do NOT queue synthetic work items. Instead
 verify the *producer* side is still feeding the pool (e.g. task #23536 checks
 `snippet-producer` cadence) and treat the domain's 0-pending state as healthy.
+
+**[EXTENDED 2026-08-07, #25296]** Same false-positive shape applies to
+`arc-skill-manager` as an auto-queue domain, for a different reason: its
+completions aren't pool-consumption but periodic-sensor output (`consolidate-memory`
+360min, `arc-workflow-review` 720min, `arc-cost-reporting` 1440min,
+`aibtc-repo-maintenance` 15min, `disallowed-tools` audits) each on independent
+schedules. 0 pending between ticks is expected steady state, not a backlog gap —
+and memory already flags `arc-skill-manager` as a recurring #1 cost-driver skill
+from meta-work (retrospectives/audits), so manually backfilling more tasks here
+actively works against the known cost concern. Verified via
+`arc-skill-manager -- sensor-health-report`: all relevant sensors (`arc-skill-manager`,
+`arc-workflow-review`, `arc-cost-reporting`, `aibtc-repo-maintenance`, `nostr`,
+`snippet-producer`) showed 0 consecutive failures and recent runs — no backfill needed.
+**General rule**: before batch-creating tasks for an auto-queue "hungry" domain,
+check whether that domain is driven by its own periodic sensor(s) rather than
+human/dispatch-initiated demand. If so, verify sensor health instead of queuing
+synthetic work.
