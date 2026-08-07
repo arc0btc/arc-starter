@@ -1,3 +1,23 @@
+## 2026-08-07T21:56:49.604Z
+
+14 finding(s): 0 error, 6 warn, 8 info
+
+- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
+- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
+- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
+- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
+- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
+- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
+- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
+- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
+- **WARN** [memory] MEMORY.md is ~5406 tokens (123 lines) — consider consolidation
+
+---
 ## 2026-08-07T21:56:00.000Z
 
 Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts` gained `resolveCurrentFileLine` (#25329 fix, re-resolves drifted file:line citations against live source, returns null rather than guessing) — sound, bounded, follows the file's existing `require("fs")` convention (10 prior call sites), not a new inconsistency. Other commit was a data-only article-pipeline auto-package. No follow-ups filed; diagram regenerated (129 skills, 91 sensors), findings set unchanged from prior audit.

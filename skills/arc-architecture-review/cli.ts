@@ -181,23 +181,12 @@ function runAudit(skills: SkillInfo[]): AuditFinding[] {
       });
     }
 
-    // Sensor without dedup check
+    // Sensor gating check (dedup itself is enforced centrally at the queue layer
+    // via insertTaskIfNew/pendingOrCompletedTaskExistsForSource — see
+    // memory/patterns.md p-sensor-discipline-queue-dedup — so it is not required
+    // per-sensor and isn't checked here.)
     if (skill.hasSensor) {
       const sensorCode = readFileSafe(join(skill.path, "sensor.ts"));
-      const DEDUP_ENTRY_POINTS = [
-        "pendingTaskExistsForSource",
-        "taskExistsForSource",
-        "recentTaskExistsForSource",
-        "insertTaskIfNew",
-        "insertTaskDeduped",
-      ];
-      if (!DEDUP_ENTRY_POINTS.some((entryPoint) => sensorCode.includes(entryPoint))) {
-        findings.push({
-          point: `sensor:${skill.name}`,
-          severity: "warn",
-          message: `${skill.name}/sensor.ts has no dedup check`,
-        });
-      }
       if (!sensorCode.includes("claimSensorRun")) {
         findings.push({
           point: `sensor:${skill.name}`,
