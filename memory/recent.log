@@ -510,3 +510,4 @@
 2026-08-07T21:52:12.699Z | task #25357 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated var 'fn' -> 'entryPoint' in arc-architecture-review/cli.ts:194
 2026-08-07T21:55:03.375Z | task #25356 | completed | sonnet | architecture review — codebase changed since last review (53 | Diff 53ec3be..c55b3fa: 2 commits, no structural changes (1 sound bounded fix in 
 2026-08-07T21:56:12.218Z | task #25358 | completed | sonnet | Distill arXiv digest 2026-08-07T10:09:51Z into 3-5 nuggets | 4 nuggets written: 1 aibtc-infra (Beyond Top-K retrieval, MCP-tagged), 3 agent-a
+2026-08-07T21:57:00.330Z | task #25359 | completed | sonnet | architect: remove or rework no-op per-sensor dedup-check heu | Removed no-op per-sensor dedup-check heuristic from audit CLI (cli.ts:184-200) —
