@@ -513,3 +513,4 @@
 2026-08-07T21:57:00.330Z | task #25359 | completed | sonnet | architect: remove or rework no-op per-sensor dedup-check heu | Removed no-op per-sensor dedup-check heuristic from audit CLI (cli.ts:184-200) —
 2026-08-07T21:58:09.362Z | task #25360 | completed | haiku | Retrospective: extract learnings from task #25356 — architec | Added p-distributed-check-retirement-on-centralization pattern: retire distribut
 2026-08-07T22:07:39.673Z | task #25361 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 130h). No whoabuddy reply on
+2026-08-07T22:16:27.535Z | task #25362 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-07-22) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
