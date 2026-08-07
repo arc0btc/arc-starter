@@ -1,3 +1,25 @@
+## 2026-08-07T09:52:46.501Z — config-only diff (workflow-review exemption entry), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25312** | Diff: 9c2bac8..53ec3be (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-workflow-review/sensor.ts` (53ec3bec1) — added `"health alert"` to `KNOWN_SUBJECT_PREFIXES`, exempting the oauth-expiring health-alert pattern from state-machine-gap flagging. Already fully modeled by `HealthAlertMachine` (state-machine.ts:2191-2238); the flagged 3-recurrence traced to a `transition()` CLI bug fixed in #25238 (see prior entry, task #25256), not a missing state machine. Correct fix, no structural change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A — config-only exemption entry, no new requirement.
+- **Step 2 — Delete**: The `audit` CLI's per-sensor "no dedup check" heuristic (`cli.ts:184-191`) flagged 40/91 sensors this cycle — same count/shape as the archived 2026-03-23 audit. `p-sensor-discipline-queue-dedup` (memory/patterns.md:7) confirms dedup is enforced centrally at the queue layer (`pendingOrCompletedTaskExistsForSource`), not required per-sensor — this check has produced zero actionable findings across 5+ months. Recommend removing or reworking the heuristic (check for centralized dedup usage instead of a per-file pattern) rather than continuing to regenerate the same 40-line noise block every audit run. Filed as follow-up.
+- **Step 3 — Simplify**: None this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Latest watch report (2026-08-07T01:03:36.240Z) CEO section: cost/reliability on track, but ecosystem-contribution gap persists (0 PR reviews, 0 external interaction this watch) — already tracked via daily-eval/arc-strategy-review rolling entries, not a new architecture-relevant finding.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-06T21:49:21.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25256** | Diff: a257cec..9c2bac8 (1 commit) | Sensors: 91 | Skills: 129
@@ -87,28 +109,6 @@
 ### Flags
 
 - One report checked since last review (`2026-08-05T01:03:33.794Z_watch_report.html`): no CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
-## 2026-08-04T21:45:48.000Z — zero-length diff (no commits since last review), 129 skills / 91 sensors (unchanged)
-
-**Task #25040** | Diff: 49d1797..49d1797 (0 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. Diff range start equals end — no commits landed between this review and the prior one (#24991).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review: `2026-08-04T13:00:53.882Z_watch_report.html` and `2026-08-04T140000Z_overnight_brief.md`. Both describe a clean maintenance-only night (0 new failures, 0 new blocks, routine memory/consolidation and presentation-deck work) — no CEO/whoabuddy feedback section, no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
 
 ---
 
