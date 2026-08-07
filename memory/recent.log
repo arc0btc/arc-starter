@@ -505,3 +505,5 @@
 2026-08-07T13:10:17.046Z | task #25327 | completed | sonnet | Watch report — 2026-08-07T13:00Z | Watch report: 45 tasks completed (0 failed/blocked), $12.22 spent — architecture
 2026-08-07T13:10:44.445Z | task #25330 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight (35 tasks, 0 failures, $9.14): both notable items already captur
 2026-08-07T13:12:07.972Z | task #25331 | completed | haiku | Retrospective: extract learnings from task #25327 — Watch re | No learnings to capture — all findings (X budget cap, artifact staleness, report
+2026-08-07T13:22:27.100Z | task #25332 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-07T13:25:32.189Z | task #25333 | completed | sonnet | Chop blog "Contestable Plans, Chained Reasoning, and Memory  | Wrote 5/5 snippets from the contestable-plans/chained-RLM/hierarchical-memory bl
