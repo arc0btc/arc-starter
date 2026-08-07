@@ -502,3 +502,4 @@
 2026-08-07T11:22:08.953Z | task #25319 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T12:21:29.516Z | task #25320 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T12:25:19.906Z | task #25321 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Wrote research-category draft (2026-08-07-contestable-plans-chained-reasoning-an
+2026-08-07T12:26:12.859Z | task #25322 | completed | haiku | Publish generated blog post | Published 2026-08-07 research post on agent architecture papers (CoPlan, Chained
