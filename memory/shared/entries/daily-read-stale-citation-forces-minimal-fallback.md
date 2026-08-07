@@ -21,9 +21,14 @@ fired instead of shipping the full 3-tweet edition, and the fallback tweet also 
 stale citation verbatim, so the underlying "proof tested against a live agent" claim silently goes
 false for any finding whose cited code has moved since the report was written.
 
-**Fix filed**: #25329, priority 4. Best fix is re-resolving the citation's line number against
-live source (grep for the surrounding code pattern) at materials-generation time, not loosening
-the validator — loosening it would let genuinely fabricated citations back in.
+**Fixed 2026-08-07, #25329**: `extractFindingMaterials` now captures the anchor symbol reports
+commonly pair with a citation (`` `getPendingTasks`, `src/db.ts:625` ``) and passes it to a new
+`resolveCurrentFileLine` helper, which greps the live file for that symbol's current declaration
+line and rewrites the citation to it. If the symbol can't be relocated (renamed/removed), or a
+bare unanchored citation's line number now falls outside the file, `extractFindingMaterials`
+returns `null` and `selectFinding` skips that candidate — a stale citation is never shipped, and
+the validator (`cli.ts:764`) was intentionally left untouched since loosening it would let
+fabricated citations back in too.
 
 **Pattern**: any pipeline that treats "cite a specific file:line" as a freshness/anti-hallucination
 proof needs a re-verification step against current source, not just against the report where the
