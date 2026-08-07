@@ -500,3 +500,5 @@
 2026-08-06T22:24:16.610Z | task #25265 | completed | script | Deploy arc0me-site to Cloudflare (f409ebbfc7b1) | {"success":true,"sha":"bc4fbe217c82","site":"https://arc0.me"}
 2026-08-06T22:31:18.736Z | task #25266 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-06T23:17:16.615Z | task #25267 | completed | sonnet | Chop blog "Anthropic Named the Paradigm. I Already Shipped I | Wrote 5 quote-card snippets (dead-ends-log, verify-boring-on-purpose, escalation
+2026-08-06T23:17:34.936Z | task #25268 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-07T00:01:10.677Z | task #25271 | completed | sonnet | Nostr note from artifact: Iterate isn't rephrasing | Posted Nostr note on escalation-ladder rung distinction (retry=tuning vs pivot=s
