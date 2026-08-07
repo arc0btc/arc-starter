@@ -1,3 +1,59 @@
+## 2026-08-07T09:54:57.955Z
+
+22 finding(s): 0 error, 14 warn, 8 info
+
+- **WARN** [sensor:aibtc-inbox-sync] aibtc-inbox-sync/sensor.ts has no dedup check
+- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
+- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
+- **WARN** [sensor:aibtc-repo-maintenance] aibtc-repo-maintenance/sensor.ts has no dedup check
+- **WARN** [sensor:arc-artifacts] arc-artifacts/sensor.ts has no dedup check
+- **WARN** [sensor:arc-introspection] arc-introspection/sensor.ts has no dedup check
+- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
+- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
+- **WARN** [sensor:arc-self-review] arc-self-review/sensor.ts has no dedup check
+- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
+- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [sensor:defi-bitflow] defi-bitflow/sensor.ts has no dedup check
+- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
+- **WARN** [sensor:list-roster] list-roster/sensor.ts has no dedup check
+- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
+- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
+- **WARN** [sensor:x-news-trends] x-news-trends/sensor.ts has no dedup check
+- **WARN** [memory] MEMORY.md is ~5519 tokens (123 lines) — consider consolidation
+
+---
+## 2026-08-07T09:54:54.889Z
+
+22 finding(s): 0 error, 14 warn, 8 info
+
+- **WARN** [sensor:aibtc-inbox-sync] aibtc-inbox-sync/sensor.ts has no dedup check
+- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
+- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
+- **WARN** [sensor:aibtc-repo-maintenance] aibtc-repo-maintenance/sensor.ts has no dedup check
+- **WARN** [sensor:arc-artifacts] arc-artifacts/sensor.ts has no dedup check
+- **WARN** [sensor:arc-introspection] arc-introspection/sensor.ts has no dedup check
+- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
+- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
+- **WARN** [sensor:arc-self-review] arc-self-review/sensor.ts has no dedup check
+- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
+- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [sensor:defi-bitflow] defi-bitflow/sensor.ts has no dedup check
+- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
+- **WARN** [sensor:list-roster] list-roster/sensor.ts has no dedup check
+- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
+- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
+- **WARN** [sensor:x-news-trends] x-news-trends/sensor.ts has no dedup check
+- **WARN** [memory] MEMORY.md is ~5519 tokens (123 lines) — consider consolidation
+
+---
 ## 2026-08-07T09:52:46.501Z — config-only diff (workflow-review exemption entry), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25312** | Diff: 9c2bac8..53ec3be (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
