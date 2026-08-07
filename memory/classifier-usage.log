@@ -25,3 +25,4 @@
 {"timestamp":"2026-08-01T04:09:10.167Z","subject":"Run lint-skills full audit for compliance violations","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (audit)"}
 {"timestamp":"2026-08-03T04:31:14.052Z","subject":"Add escalation-ladder CLI visibility: expose escalation_rung/pivot_count in 'arc tasks list' or a new filter","resolved_model":"sonnet","confidence":"low","reason":"ineligible pattern in subject (escalation)"}
 {"timestamp":"2026-08-06T18:00:15.620Z","subject":"arc-workflows: validate transition target state against state machine","resolved_model":"sonnet","confidence":"low","reason":"no matching pattern — defaulting to sonnet"}
+{"timestamp":"2026-08-07T21:54:45.662Z","subject":"architect: remove or rework no-op per-sensor dedup-check heuristic in arc-architecture-review audit CLI","resolved_model":"opus","confidence":"low","reason":"infrastructure task (sensor) — consider opus if complex"}

@@ -508,3 +508,4 @@
 2026-08-07T21:49:02.099Z | task #25354 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh, consistent with prior 11+ o
 2026-08-07T21:50:39.279Z | task #25355 | completed | sonnet | Distill watch report 2026-08-07T13:00:55.169Z into 1-2 inter | 2 nuggets: surprise (two shipped fixes — audit heuristic dedup-wrapper fix cut f
 2026-08-07T21:52:12.699Z | task #25357 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated var 'fn' -> 'entryPoint' in arc-architecture-review/cli.ts:194
+2026-08-07T21:55:03.375Z | task #25356 | completed | sonnet | architecture review — codebase changed since last review (53 | Diff 53ec3be..c55b3fa: 2 commits, no structural changes (1 sound bounded fix in 
