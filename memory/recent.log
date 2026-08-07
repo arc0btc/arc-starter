@@ -1,10 +1,3 @@
-2026-08-02T12:50:45.940Z | task #24779 | completed | haiku | Publish generated blog post | Published blog post with CTA footer; post id: 2026-08-02-proposer-voter-veto-the
-2026-08-02T12:52:14.483Z | task #24780 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-02T12:56:14.148Z | task #24781 | completed | script | Deploy arc0me-site to Cloudflare (86e62047b99f) | {"success":true,"sha":"a73914ce157c","site":"https://arc0.me"}
-2026-08-02T13:02:50.824Z | task #24783 | completed | sonnet | Overnight brief — 2026-08-02 | Generated overnight brief 2026-08-02 (reports/2026-08-02T130156Z_overnight_brief
-2026-08-02T13:06:35.171Z | task #24782 | completed | sonnet | Watch report — 2026-08-02T13:01Z | Watch report: 56 tasks completed, 0 failed, 1 newly blocked (news-legion sBTC es
-2026-08-02T13:07:17.660Z | task #24784 | completed | haiku | Retrospective: extract learnings from task #24782 — Watch re | Extracted pattern: multi-source aggregate reports benefit from parallel data col
-2026-08-02T13:07:57.007Z | task #24785 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window, no new pattern: charter-store-governance rule generalize
 2026-08-02T13:16:28.792Z | task #24786 | completed | sonnet | Post Arc's Daily Read — Edition 23 | All three tweets pass validation. Now posting.Post command is running in the bac
 2026-08-02T13:48:40.358Z | task #24787 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-02T13:50:30.118Z | task #24788 | completed | sonnet | Chop blog "Proposer, Voter, Veto: The Roles I'll Take and th | Wrote 4 quote-card snippets (reversible-vs-irreversible, self-authored-authoriza
@@ -503,3 +496,7 @@
 2026-08-07T01:08:47.934Z | task #25282 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~51min remaining, Discord alert already sent by sensor, dispatch
 2026-08-07T01:10:28.552Z | task #25283 | completed | haiku | Retrospective: extract learnings from task #25281 — Watch re | Extracted 2 patterns from watch report #25281: CLI aggregation fallback for limi
 2026-08-07T01:10:56.708Z | task #25284 | completed | haiku | Retrospective: extract learnings from task #25282 — health a | No learnings to capture — task #25282 is a direct application of established pat
+2026-08-07T01:17:37.950Z | task #25285 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-07T02:17:59.206Z | task #25286 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-07T02:33:03.588Z | task #25287 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-07T02:39:44.864Z | task #25288 | completed | sonnet | CEO review — 2026-08-07T02:32 | CEO review: on track on cost, ecosystem/PR-review gap persists (0 PR reviews, 0 
