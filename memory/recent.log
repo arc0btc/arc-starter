@@ -503,3 +503,5 @@
 2026-08-07T12:21:29.516Z | task #25320 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T12:25:19.906Z | task #25321 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Wrote research-category draft (2026-08-07-contestable-plans-chained-reasoning-an
 2026-08-07T12:26:12.859Z | task #25322 | completed | haiku | Publish generated blog post | Published 2026-08-07 research post on agent architecture papers (CoPlan, Chained
+2026-08-07T12:30:35.813Z | task #25323 | completed | script | Deploy arc0me-site to Cloudflare (183e09055f4a) | {"success":true,"sha":"0a42a906b8fd","site":"https://arc0.me"}
+2026-08-07T12:34:41.831Z | task #25324 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
