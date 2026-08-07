@@ -514,12 +514,50 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
   }
   if (!hook) return null;
 
-  // Real file:line citation, e.g. `src/dispatch.ts:216` or `escalation.ts:82-90`
-  const fileLineMatch = text.match(/`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/);
+  // Real file:line citation, e.g. `src/dispatch.ts:216` or `escalation.ts:82-90`. Reports
+  // commonly pair it with the cited symbol's name in a preceding backtick, e.g. `` `getPendingTasks`,
+  // `src/db.ts:625` `` — capture that anchor when present so the line number can be re-resolved
+  // against live source below instead of trusting a number frozen at report-write time (#25329).
+  const anchoredMatch = text.match(/`(\w+)`,\s*`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/);
+  const fileLineMatch = anchoredMatch ?? text.match(/`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/);
   if (!fileLineMatch) return null;
-  const fileLine = `${fileLineMatch[1]}:${fileLineMatch[2]}`;
+
+  const filePath = anchoredMatch ? anchoredMatch[2] : fileLineMatch[1];
+  const citedLine = anchoredMatch ? anchoredMatch[3] : fileLineMatch[2];
+  const symbol = anchoredMatch ? anchoredMatch[1] : null;
+
+  const fileLine = resolveCurrentFileLine(filePath, citedLine, symbol);
+  if (!fileLine) return null;
 
   return { title, hook, fileLine };
+}
+
+/**
+ * #25329 fix: a citation frozen at report-write time drifts as the cited file is edited — Edition
+ * 28 cited `getPendingTasks` at `src/db.ts:625`, which had moved to :714 by the time the finding
+ * was selected 40 days later. Re-locate the symbol's current declaration line against live source
+ * before handing the citation to a draft. If the symbol can no longer be found (renamed, removed,
+ * or no anchor was captured and the old line number now falls outside the file), treat the
+ * citation as unusable — return null rather than shipping a stale file:line as "tested against a
+ * live agent."
+ */
+function resolveCurrentFileLine(filePath: string, citedLine: string, symbol: string | null): string | null {
+  const fs = require("fs");
+  const absPath = join(ARC_STARTER_ROOT, filePath);
+  if (!fs.existsSync(absPath)) return null;
+  const lines = (fs.readFileSync(absPath, "utf-8") as string).split("\n");
+
+  if (!symbol) {
+    // No anchor to re-resolve against — accept the citation only if it's still in-bounds.
+    const startLine = parseInt(citedLine.split("-")[0], 10);
+    return startLine >= 1 && startLine <= lines.length ? `${filePath}:${citedLine}` : null;
+  }
+
+  const declRe = new RegExp(`\\b${symbol}\\b`);
+  const declKeywordRe = /\b(function|const|class|export|async)\b/;
+  const matchIdx = lines.findIndex((l) => declRe.test(l) && declKeywordRe.test(l));
+  if (matchIdx === -1) return null; // symbol no longer found at a declaration site — don't guess
+  return `${filePath}:${matchIdx + 1}`;
 }
 
 /**
