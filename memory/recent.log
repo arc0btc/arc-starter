@@ -505,3 +505,4 @@
 2026-08-07T09:20:51.510Z | task #25309 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T09:27:01.644Z | task #25310 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-07-09) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-07T09:50:50.573Z | task #25311 | completed | sonnet | Distill watch report 2026-08-07T01:03:36.240Z into 1-2 inter | 2 nuggets: relationship-delta (whop dormancy confirmed via 3 independent signals
+2026-08-07T09:54:31.299Z | task #25312 | completed | sonnet | architecture review — codebase changed since last review (9c | Diff 9c2bac8..53ec3be was config-only (workflow-review exemption entry), zero st
