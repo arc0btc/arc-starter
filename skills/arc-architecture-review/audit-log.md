@@ -1,32 +1,8 @@
+## 2026-08-07T21:56:00.000Z
+
+Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts` gained `resolveCurrentFileLine` (#25329 fix, re-resolves drifted file:line citations against live source, returns null rather than guessing) — sound, bounded, follows the file's existing `require("fs")` convention (10 prior call sites), not a new inconsistency. Other commit was a data-only article-pipeline auto-package. No follow-ups filed; diagram regenerated (129 skills, 91 sensors), findings set unchanged from prior audit.
+
 ## 2026-08-07T09:54:57.955Z
-
-22 finding(s): 0 error, 14 warn, 8 info
-
-- **WARN** [sensor:aibtc-inbox-sync] aibtc-inbox-sync/sensor.ts has no dedup check
-- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
-- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
-- **WARN** [sensor:aibtc-repo-maintenance] aibtc-repo-maintenance/sensor.ts has no dedup check
-- **WARN** [sensor:arc-artifacts] arc-artifacts/sensor.ts has no dedup check
-- **WARN** [sensor:arc-introspection] arc-introspection/sensor.ts has no dedup check
-- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
-- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
-- **WARN** [sensor:arc-self-review] arc-self-review/sensor.ts has no dedup check
-- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
-- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [sensor:defi-bitflow] defi-bitflow/sensor.ts has no dedup check
-- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
-- **WARN** [sensor:list-roster] list-roster/sensor.ts has no dedup check
-- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
-- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
-- **WARN** [sensor:x-news-trends] x-news-trends/sensor.ts has no dedup check
-- **WARN** [memory] MEMORY.md is ~5519 tokens (123 lines) — consider consolidation
-
----
-## 2026-08-07T09:54:54.889Z
 
 22 finding(s): 0 error, 14 warn, 8 info
 
@@ -122,49 +98,3 @@
 - Proxy-signal-instead-of-ground-truth is now a 3-occurrence pattern at decision points (whop synthesis dedup #24938, PR-backlog audit now x3, task-existence-vs-actual-effect noted 2026-08-03). Worth a dedicated grep sweep for other `gh pr list`/`recentTaskExistsForSourcePrefix`-style proxy checks if a 4th instance surfaces — not yet filing a follow-up task since each occurrence so far has been fixed at its own call site with no shared root cause to centralize.
 
 ---
-
-## 2026-08-05T21:50:26.000Z — data-only diff (article-pipeline P4 auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25144** | Diff: 8c65e48..2434417 (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`243441747`) writes only `skills/arc-article-pipeline/drafts/article-20-x-article.json` (+ `.bak` sibling) — P4 auto-package data from `arc-operator-loop`, no `.ts` code, no SKILL.md, no config changed.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Four reports since last review (2026-08-04T13:00:53.882Z watch, 2026-08-04T14:00:00Z overnight, 2026-08-05T01:03:33.794Z watch, 2026-08-05T13:00:53.712Z watch, 2026-08-05T14:00:00Z overnight) — all routine, no architecture-relevant CEO/whoabuddy feedback. Latest overnight brief flags a clean PR review (#647) and zero-failure night; both already tracked in MEMORY.md/eval-rolling. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held.
-- Third consecutive data-only-diff review (2026-08-04T09:45, 2026-08-04T21:45, 2026-08-05T09:45, now this one) — the sensor is firing correctly on real commit activity (each review's diff range is non-empty and distinct), it's just that recent commits between reviews have consistently been data/loop writes rather than code. Not a sensor bug; no action needed unless this pattern persists past a week.
-
----
-
-## 2026-08-05T09:45:43.000Z — data-only diff (arc-link-research cache churn), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25096** | Diff: 49d1797..8c65e48 (6 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 6 commits in range are `chore(loop): auto-commit after dispatch cycle` writing only `skills/arc-link-research/cache/*.json` (link-preview cache artifacts) — no `.ts` code, no SKILL.md, no config changed in `src/` or `skills/`.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One report checked since last review (`2026-08-05T01:03:33.794Z_watch_report.html`): no CEO/whoabuddy feedback section present — no architecture-relevant input. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776) correctly held, already tracked in MEMORY.md. No new structural finding.
-
----
-
