@@ -184,7 +184,14 @@ function runAudit(skills: SkillInfo[]): AuditFinding[] {
     // Sensor without dedup check
     if (skill.hasSensor) {
       const sensorCode = readFileSafe(join(skill.path, "sensor.ts"));
-      if (!sensorCode.includes("pendingTaskExistsForSource") && !sensorCode.includes("taskExistsForSource")) {
+      const DEDUP_ENTRY_POINTS = [
+        "pendingTaskExistsForSource",
+        "taskExistsForSource",
+        "recentTaskExistsForSource",
+        "insertTaskIfNew",
+        "insertTaskDeduped",
+      ];
+      if (!DEDUP_ENTRY_POINTS.some((fn) => sensorCode.includes(fn))) {
         findings.push({
           point: `sensor:${skill.name}`,
           severity: "warn",
