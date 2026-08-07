@@ -512,3 +512,4 @@
 2026-08-07T21:56:12.218Z | task #25358 | completed | sonnet | Distill arXiv digest 2026-08-07T10:09:51Z into 3-5 nuggets | 4 nuggets written: 1 aibtc-infra (Beyond Top-K retrieval, MCP-tagged), 3 agent-a
 2026-08-07T21:57:00.330Z | task #25359 | completed | sonnet | architect: remove or rework no-op per-sensor dedup-check heu | Removed no-op per-sensor dedup-check heuristic from audit CLI (cli.ts:184-200) —
 2026-08-07T21:58:09.362Z | task #25360 | completed | haiku | Retrospective: extract learnings from task #25356 — architec | Added p-distributed-check-retirement-on-centralization pattern: retire distribut
+2026-08-07T22:07:39.673Z | task #25361 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 130h). No whoabuddy reply on
