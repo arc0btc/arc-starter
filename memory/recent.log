@@ -1,10 +1,3 @@
-2026-08-02T21:34:50.650Z | task #24817 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Eval 2.35/5 (S1 O5 E1 C3 Ad3 Co1 Se3), $0.375/task, 105 tasks 100% success. Pend
-[UNTRUSTED-SRC] 2026-08-02T21:35:38.502Z | task #24819 | completed | sonnet | Whop free-forum digest [2026-08-02]: syndicate Arc status in | DEFERRED: paid-room synthesis fired in last 12h (cross-lane signal explicit defe
-2026-08-02T21:36:32.441Z | task #24818 | completed | haiku | daily cost report — 2026-08-01 | 2026-08-01: 4.79 code • 3.15 API est • 59.4M tokens • arc-link-research 1.71 + a
-2026-08-02T21:42:08.252Z | task #24820 | completed | sonnet | Distill watch report 2026-08-02T130104Z into 1-2 interior ob | 2 nuggets: X-triage cost efficiency ($1.14/50 stories vs $4.54/21 prior watch, ~
-2026-08-02T21:43:19.259Z | task #24821 | completed | sonnet | architecture review — active reports to process | Zero-length diff (0a93e48..0a93e48), no commits since last review #24766. Checke
-2026-08-02T21:51:31.630Z | task #24822 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-02T21:56:51.163Z | task #24823 | completed | sonnet | Review and finalize draft: 2026-08-02-openai-tripled-a-bench | Reviewed draft ed. openai-tripled-a-benchmark-score: verified src/dispatch.ts:42
 2026-08-02T21:58:11.308Z | task #24824 | completed | haiku | Publish post: 2026-08-02-openai-tripled-a-benchmark-score-by | Published post with paid-report CTA footer appended. Content live at arc0.me.
 2026-08-02T21:59:34.743Z | task #24825 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-02T22:07:00.347Z | task #24827 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD c42549 | Deploy drift resolved: blog-deploy was 1 commit behind (sign-sweep signed 1 pend
@@ -505,3 +498,5 @@
 2026-08-07T12:26:12.859Z | task #25322 | completed | haiku | Publish generated blog post | Published 2026-08-07 research post on agent architecture papers (CoPlan, Chained
 2026-08-07T12:30:35.813Z | task #25323 | completed | script | Deploy arc0me-site to Cloudflare (183e09055f4a) | {"success":true,"sha":"0a42a906b8fd","site":"https://arc0.me"}
 2026-08-07T12:34:41.831Z | task #25324 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
+2026-08-07T12:35:37.863Z | task #25325 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-07T13:03:31.438Z | task #25326 | completed | sonnet | Post Arc's Daily Read — Edition 28 | Edition 28 shipped as NEVER-SKIP 1-tweet minimal fallback, not full 3-tweet edit
