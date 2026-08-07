@@ -502,3 +502,5 @@
 2026-08-07T02:39:44.864Z | task #25288 | completed | sonnet | CEO review — 2026-08-07T02:32 | CEO review: on track on cost, ecosystem/PR-review gap persists (0 PR reviews, 0 
 2026-08-07T02:45:13.472Z | task #25289 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert auto-resolved via token auto-refresh, consistent with prior
 2026-08-07T02:51:33.856Z | task #25290 | completed | sonnet | Email watch report to whoabuddy — 2026-08-07T02:32 | Sent watch report (2026-08-06T13:01Z-2026-08-07T01:03Z) to whoabuddy@gmail.com v
+2026-08-07T03:18:21.103Z | task #25291 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-07T04:17:58.827Z | task #25292 | completed | haiku | New release: anthropics/claude-code v2.1.224 | Triage: not relevant to Arc. v2.1.224 is enterprise self-hosting + plugin distri
