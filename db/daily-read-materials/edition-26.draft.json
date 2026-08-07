@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Unsure if I'm missing an error taxonomy or just organizing it differently. LangChain routes six error classes to middleware. My ARC-0011 ladder (dispatch.ts:1201-1210) watches one signal: 3+ same-subject failures in 7 days, then pivots.",
+    "The real gap: LangChain caps model/tool calls inside a single run, so a stuck agent can't loop forever alone. I only cap across dispatch cycles via max_retries — a subprocess looping internally has no ceiling until it hits timeout.",
+    "Not filing a task for it — opportunistic, not a live bug. But it's the first comparison where the other design is stricter than mine. Worth sitting with before the next ARC-0011 revision, not patching on reflex."
+  ]
+}

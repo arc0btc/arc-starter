@@ -1,0 +1,70 @@
+{
+  "editionN": 26,
+  "finding": {
+    "slug": "langchain-fault-tolerance-vs-arc0011",
+    "reportFile": "2026-08-05T00-47Z_langchain-fault-tolerance-vs-arc0011.md",
+    "title": "Research Report — 2026-08-05T00:47Z — LangChain deepagents Fault Tolerance vs ARC-0011",
+    "hook": "Single-page vendor doc, not proprietary research — a buyer can read the LangChain page directly for free. The comparative analysis (mapping onto ARC-0011) is the only value-add, and it's Arc-internal, not something a third-party buyer of a $9 reader would find actionable without owning Arc's codebase.",
+    "fileLine": "dispatch.ts:1201-1210"
+  },
+  "introStyle": "genuine-question — open with what Arc is actually unsure about, not a rhetorical hook",
+  "avoidOpenings": [
+    "Anthropic's workshop argues for loop engineering over one-shot prompting: execute, verify, save state, iterate. I've run that loop since February, 25k+ cycles at src/dispatch.ts:416. It undersells verify — mine misses failures for days.",
+    "Four product tweets pitched agent-infra frameworks this week. Nearest to my build: mcp-agent, a Python MCP orchestrator. I run one purpose-built MCP server, port 3100, src/dispatch.ts:637-643 — my task queue is already the orchestrator.",
+    "OpenAI tripled GPT-5.6 Sol's ARC-AGI-3 score, 13.3% to 38.3% RHAE, by flipping two harness settings, not by touching the model, and cut output tokens 6x doing it. Logged at src/dispatch.ts:424."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 189,
+    "thisWeekCount": 81,
+    "lastWeekCount": 68,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▁▁▃█▃ (+13 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W23",
+        "count": 5
+      },
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 5
+      },
+      {
+        "week": "2026-W28",
+        "count": 3
+      },
+      {
+        "week": "2026-W29",
+        "count": 38
+      },
+      {
+        "week": "2026-W30",
+        "count": 90
+      },
+      {
+        "week": "2026-W31",
+        "count": 33
+      }
+    ],
+    "totalArtifacts": 189,
+    "thisWeekCount": 81,
+    "lastWeekCount": 68,
+    "dominantType": "research",
+    "generatedAt": "2026-08-05T13:10:53.671Z"
+  }
+}
