@@ -504,3 +504,4 @@
 2026-08-07T13:06:59.682Z | task #25329 | completed | sonnet | arc-daily-read: findings-first materials cite stale file:lin | Fixed: extractFindingMaterials now re-resolves stale file:line citations against
 2026-08-07T13:10:17.046Z | task #25327 | completed | sonnet | Watch report — 2026-08-07T13:00Z | Watch report: 45 tasks completed (0 failed/blocked), $12.22 spent — architecture
 2026-08-07T13:10:44.445Z | task #25330 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight (35 tasks, 0 failures, $9.14): both notable items already captur
+2026-08-07T13:12:07.972Z | task #25331 | completed | haiku | Retrospective: extract learnings from task #25327 — Watch re | No learnings to capture — all findings (X budget cap, artifact staleness, report
