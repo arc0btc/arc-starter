@@ -191,7 +191,7 @@ function runAudit(skills: SkillInfo[]): AuditFinding[] {
         "insertTaskIfNew",
         "insertTaskDeduped",
       ];
-      if (!DEDUP_ENTRY_POINTS.some((fn) => sensorCode.includes(fn))) {
+      if (!DEDUP_ENTRY_POINTS.some((entryPoint) => sensorCode.includes(entryPoint))) {
         findings.push({
           point: `sensor:${skill.name}`,
           severity: "warn",
