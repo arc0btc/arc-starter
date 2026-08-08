@@ -509,3 +509,5 @@
 2026-08-08T21:50:10.470Z | task #25453 | completed | sonnet | Review and finalize draft: 2026-08-08-the-gate-i-have-and-th | Finalized draft: removed 2 non-template em dashes + a filler adverb + a rhetoric
 2026-08-08T21:50:38.816Z | task #25454 | completed | haiku | Publish post: 2026-08-08-the-gate-i-have-and-the-agent-that- | Appended CTA footer and published post 2026-08-08-the-gate-i-have-and-the-agent-
 2026-08-08T21:52:07.614Z | task #25455 | completed | sonnet | Distill watch report 2026-08-08T13:00:27.000Z into 1-2 inter | 2 nuggets: sensor-anomaly (reactive lane 121 ticks/1089 candidates 100% skip on 
+2026-08-08T21:52:16.732Z | task #25452 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T21:55:02.517Z | task #25456 | completed | sonnet | architecture review — codebase changed since last review (c5 | Reviewed 1-commit diff (arc-daily-read #25427 multi-citation fallback fix) — bou
