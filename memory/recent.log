@@ -502,3 +502,4 @@
 2026-08-08T02:51:24.730Z | task #25387 | completed | sonnet | Email watch report to whoabuddy — 2026-08-08T02:34 | Watch report (2026-08-08T01:01Z) emailed to whoabuddy@gmail.com via CF email wor
 2026-08-08T03:33:22.135Z | task #25388 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T03:34:46.423Z | task #25389 | completed | haiku | New release: anthropics/claude-code v2.1.226 | Relevant: version gap (8 releases behind), oauth/auth fixes in recent range, dis
+2026-08-08T03:35:58.164Z | task #25390 | completed | sonnet | Research: Claude Code v2.1.226 changelog depth analysis | v2.1.219-226 changelog analyzed vs installed 2.1.218: no breaking auth changes f
