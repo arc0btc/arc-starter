@@ -507,3 +507,4 @@
 2026-08-08T03:46:19.320Z | task #25392 | completed | haiku | Retrospective: extract learnings from task #25391 — health a | No learnings to capture
 [UNTRUSTED-SRC] 2026-08-08T04:22:52.670Z | task #25393 | completed | sonnet | Whop synthesis [2026-08-08T04]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
 2026-08-08T04:26:36.093Z | task #25394 | completed | sonnet | self-review: run health check for 2026-08-08 | Self-review clean: 91 sensors OK, dispatch 26/26 today 100% success at $9.27/day
+2026-08-08T04:31:04.319Z | task #25395 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Both nostr and claude-code-releases are known false-positive hungry domains per 
