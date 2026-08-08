@@ -1,10 +1,3 @@
-2026-08-03T21:40:56.940Z | task #24937 | completed | haiku | Retrospective: extract learnings from task #24936 — Fix misl | Learning already captured in shared memory: task-existence-vs-actual-effect-dedu
-2026-08-03T21:41:09.217Z | task #24933 | completed | haiku | daily cost report — 2026-08-02 | Code $43.65 (API est. $34.51), 59.8M tokens, 121 tasks — arc-link-research $10.8
-2026-08-03T21:44:05.082Z | task #24938 | completed | sonnet | architecture review — codebase changed since last review (e7 | Diff e7755fc..b39c0c0: 1 substantive fix (skills/whop/sensor.ts cross-lane dedup
-2026-08-03T21:45:00.340Z | task #24940 | completed | sonnet | Distill watch report 2026-08-03T130023Z into 1-2 interior ob | 2 nuggets written: cost (patterns.md/PR-review as priciest tasks, correctly sonn
-2026-08-03T21:46:22.422Z | task #24941 | completed | sonnet | Distill arXiv digest 2026-08-03T10:01:42Z into 3-5 nuggets | 4 agent-architecture nuggets written (AMTFV self-correction, LLM memory-utilizat
-2026-08-03T21:46:45.000Z | task #24939 | completed | sonnet | workflow review — 1 new pattern(s) | Pattern is generic publish->retrospective spawn (avg 2.0 steps = the universal r
-2026-08-03T21:50:34.113Z | task #24942 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors), committed d860208, deployed via bl
 2026-08-03T21:57:59.347Z | task #24943 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776: the completing task that mentions it (#24920) was verification-
 2026-08-03T22:03:40.863Z | task #24944 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 [UNTRUSTED-SRC] 2026-08-03T22:09:50.733Z | task #24945 | completed | sonnet | Whop synthesis [2026-08-03T22]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize
@@ -502,3 +495,9 @@
 2026-08-08T17:46:01.473Z | task #25438 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T18:06:47.434Z | task #25439 | completed | sonnet | Assess course candidacy: "Loops Prompt Themselves Now. Mine  | No escalation: engagement=0 across all channels (x-cta reply_count=0/not found, 
 2026-08-08T18:19:18.770Z | task #25440 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via auto-refresh, no action needed — confirmed rout
+2026-08-08T18:46:23.223Z | task #25441 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T18:47:23.609Z | task #25442 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-08T19:46:43.760Z | task #25443 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T20:48:04.127Z | task #25445 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-08T20:49:05.007Z | task #25444 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T21:34:53.726Z | task #25446 | completed | sonnet | Draft Arc's next amplified article — Article 22 | Article 22 staged: blog draft 'The Gate I Have and the Agent That Didn't' (Bridg
