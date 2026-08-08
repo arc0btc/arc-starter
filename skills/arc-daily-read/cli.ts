@@ -476,8 +476,8 @@ function parseIndexCandidates(): IndexRow[] {
   return rows;
 }
 
-/** Extract a measured-claim hook + a real file:line citation from a report body. */
-function extractFindingMaterials(reportFile: string): { title: string; hook: string; fileLine: string } | null {
+/** Extract a measured-claim hook + all real file:line citations from a report body. */
+function extractFindingMaterials(reportFile: string): { title: string; hook: string; fileLines: string[] } | null {
   const fs = require("fs");
   const path = join(RESEARCH_DIR, reportFile);
   if (!fs.existsSync(path)) return null;
@@ -514,22 +514,42 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
   }
   if (!hook) return null;
 
-  // Real file:line citation, e.g. `src/dispatch.ts:216` or `escalation.ts:82-90`. Reports
-  // commonly pair it with the cited symbol's name in a preceding backtick, e.g. `` `getPendingTasks`,
-  // `src/db.ts:625` `` — capture that anchor when present so the line number can be re-resolved
-  // against live source below instead of trusting a number frozen at report-write time (#25329).
-  const anchoredMatch = text.match(/`(\w+)`,\s*`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/);
-  const fileLineMatch = anchoredMatch ?? text.match(/`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/);
-  if (!fileLineMatch) return null;
+  // Real file:line citation(s), e.g. `src/dispatch.ts:216` or `escalation.ts:82-90`. Reports
+  // commonly pair a citation with the cited symbol's name in a preceding backtick, e.g. ``
+  // `getPendingTasks`, `src/db.ts:625` `` — capture that anchor when present so the line number
+  // can be re-resolved against live source below instead of trusting a number frozen at
+  // report-write time (#25329). A report body can carry more than one such citation — collect
+  // (and dedup) all of them, not just the first, so a caller can fall back to a later citation
+  // when the first is already in a live blog post (#25427).
+  const anchoredRe = /`(\w+)`,\s*`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/g;
+  const bareRe = /`([\w./-]+\.(?:ts|tsx|js|md|json)):(\d+(?:-\d+)?)`/g;
 
-  const filePath = anchoredMatch ? anchoredMatch[2] : fileLineMatch[1];
-  const citedLine = anchoredMatch ? anchoredMatch[3] : fileLineMatch[2];
-  const symbol = anchoredMatch ? anchoredMatch[1] : null;
+  const seen = new Set<string>();
+  const fileLines: string[] = [];
+  const consumedSpans: Array<[number, number]> = [];
 
-  const fileLine = resolveCurrentFileLine(filePath, citedLine, symbol);
-  if (!fileLine) return null;
+  for (const m of text.matchAll(anchoredRe)) {
+    consumedSpans.push([m.index!, m.index! + m[0].length]);
+    const resolved = resolveCurrentFileLine(m[2], m[3], m[1]);
+    if (resolved && !seen.has(resolved)) {
+      seen.add(resolved);
+      fileLines.push(resolved);
+    }
+  }
+  for (const m of text.matchAll(bareRe)) {
+    const start = m.index!;
+    const end = start + m[0].length;
+    if (consumedSpans.some(([s, e]) => start < e && end > s)) continue; // already matched as anchored
+    const resolved = resolveCurrentFileLine(m[1], m[2], null);
+    if (resolved && !seen.has(resolved)) {
+      seen.add(resolved);
+      fileLines.push(resolved);
+    }
+  }
 
-  return { title, hook, fileLine };
+  if (fileLines.length === 0) return null;
+
+  return { title, hook, fileLines };
 }
 
 /**
@@ -624,12 +644,19 @@ function selectFinding(db: Database): Finding | null {
   for (const row of pool) {
     const materials = extractFindingMaterials(row.reportFile);
     if (!materials) continue; // no real citation available — skip, never ship a placeholder
-    const publishedAs = findingAlreadyInLiveBlog(materials.fileLine);
-    if (publishedAs) {
-      console.error(`selectFinding: skipping "${row.slug}" — citation "${materials.fileLine}" already appears in live blog post ${publishedAs} (published via another channel, not tracked in daily_read_log).`);
-      continue;
+    const { fileLines, ...rest } = materials;
+    let publishedAs: string | null = null;
+    let fileLine: string | null = null;
+    for (const candidate of fileLines) {
+      publishedAs = findingAlreadyInLiveBlog(candidate);
+      if (!publishedAs) {
+        fileLine = candidate;
+        break;
+      }
+      console.error(`selectFinding: skipping citation "${candidate}" in "${row.slug}" — already appears in live blog post ${publishedAs} (published via another channel, not tracked in daily_read_log); trying next citation if any.`);
     }
-    return { slug: row.slug, reportFile: row.reportFile, ...materials };
+    if (!fileLine) continue; // every citation in this report is already blogged
+    return { slug: row.slug, reportFile: row.reportFile, fileLine, ...rest };
   }
   return null;
 }
