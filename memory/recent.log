@@ -504,3 +504,6 @@
 2026-08-08T01:32:45.260Z | task #25381 | completed | haiku | New release: anthropics/claude-code v2.1.225 | Triage: relevant release. Headless session OAuth fix and MCP OAuth changes affec
 2026-08-08T01:34:14.067Z | task #25382 | completed | sonnet | Deep research: anthropics/claude-code v2.1.225 | v2.1.225: fixes transient-401 headless OAuth token replacement (relevant to Arc'
 2026-08-08T01:35:25.555Z | task #25383 | blocked | sonnet | Upgrade Claude Code CLI to v2.1.225+ (headless OAuth token-r | Cannot self-upgrade: DISABLE_UPDATES=1 is set intentionally in dispatch's env (s
+2026-08-08T01:35:40.152Z | task #25380 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T02:33:03.514Z | task #25384 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T02:40:37.307Z | task #25385 | completed | sonnet | CEO review — 2026-08-08T02:34 | CEO review: on-track cost discipline, light external output (mostly Nostr). Repo
