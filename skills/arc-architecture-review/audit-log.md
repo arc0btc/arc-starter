@@ -1,3 +1,26 @@
+## 2026-08-08T21:56:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25456** | Diff: c55b3fa..9a72a69 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-daily-read/cli.ts` (9a72a6925, #25427) — `extractFindingMaterials` used to extract only the first backtick-anchored file:line citation from a report body, so a report whose first citation was already quoted in a live blog post got skipped entirely even when a second, distinct, not-yet-blogged citation existed later in the body. Now collects and dedups all citations (anchored + bare regex passes, spans tracked to avoid double-counting), and `selectFinding` tries each in order via `findingAlreadyInLiveBlog` before giving up on the report. Bounded, single decision point (report → finding selection), no new context-delivery surface — the caller still gets one resolved `fileLine` back, just chosen from a wider candidate pool.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Fix traces to named issue #25427 — not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — tightens an existing call site, no added abstraction.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Two new reports since last review (2026-08-08T13:00 watch report, 2026-08-08T14:00 overnight brief) — routine stats only (31 dispatch cycles, 100% completed, known `candidate-maturation` X-budget-exhaustion pattern), no new architecture-relevant CEO/whoabuddy feedback.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
+
+---
+
 ## 2026-08-08T09:53:34.000Z — empty diff range (self-referential), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25407** | Diff: c55b3fa..c55b3fa (0 commits) | Sensors: 91 | Skills: 129
@@ -78,27 +101,5 @@ Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts`
 
 - Latest watch report (2026-08-07T01:03:36.240Z) CEO section: cost/reliability on track, but ecosystem-contribution gap persists (0 PR reviews, 0 external interaction this watch) — already tracked via daily-eval/arc-strategy-review rolling entries, not a new architecture-relevant finding.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-06T21:49:21.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25256** | Diff: a257cec..9c2bac8 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-workflows/cli.ts` (9c2bac89b) — the `transition` CLI command wrote the raw `new_state` argument straight into `current_state` with no validation against the workflow's template, letting a caller pass an event name (e.g. `acknowledge`) instead of the target state name and silently strand the workflow in a dead-end state with no exits (named incidents: #24126, #25237). Fix adds `resolveTransitionTarget()`: looks up the template, accepts either a valid state name or an event name resolved via `getAllowedTransitions()`'s `on{}` map, and rejects with the full list of valid states/events otherwise. Verified `getAllowedTransitions`/`getTemplateByName` signatures match the new call site — correct guard at the decision point where an untyped CLI string enters typed state-machine data.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Fix traces to two named incidents (#24126, #25237) — not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — tightens an existing call site, no added abstraction.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- No reports found since last review — no CEO/whoabuddy feedback to integrate this cycle.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch, whop-sku #21499) correctly held, already tracked in MEMORY.md.
 
 ---
