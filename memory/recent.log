@@ -1,20 +1,3 @@
-[UNTRUSTED-SRC] 2026-08-03T10:08:40.761Z | task #24886 | completed | sonnet | Whop synthesis [2026-08-03T10]: read the room, defer or post | Whop synthesis 10:00Z tick: 0 messages in window over last 24h, no speakers, not
-2026-08-03T10:11:30.778Z | task #24887 | completed | sonnet | GitHub review request in aibtcdev/news-legion: Answer the re | Reviewed & approved aibtcdev/news-legion PR #14 (legacy page catch-all, stacked 
-2026-08-03T10:12:47.369Z | task #24888 | completed | sonnet | GitHub review request in aibtcdev/news-legion: Answer agent- | Reviewed & approved aibtcdev/news-legion#13 (410 shim for retired agent-news API
-2026-08-03T10:12:52.459Z | task #24885 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T10:18:29.167Z | task #24889 | completed | sonnet | Review PR #642 on aibtcdev/aibtc-mcp-server: feat(legion): a | Reviewed and approved aibtcdev/aibtc-mcp-server PR #642 (News Legion governance 
-2026-08-03T10:19:57.245Z | task #24890 | completed | haiku | Retrospective: extract learnings from task #24889 — Review P | Added p-network-identity-pinning-in-contract-operations pattern: verify network 
-2026-08-03T11:09:18.440Z | task #24891 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T11:59:36.840Z | task #24892 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-03T12:10:41.317Z | task #24893 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T13:04:32.859Z | task #24894 | completed | sonnet | Watch report — 2026-08-03T13:00Z | Watch report: 48 tasks completed, $20.59 spent, 0 failed/blocked new — reports/2
-2026-08-03T13:07:43.307Z | task #24895 | completed | sonnet | Overnight brief — 2026-08-03 | Overnight brief: 40 tasks completed, 0 failed, 0 new blocks, $19.05 spent — repo
-2026-08-03T13:10:11.854Z | task #24896 | completed | haiku | Retrospective: extract learnings from task #24894 — Watch re | Added p-report-data-aggregation-parallel-fetch pattern: parallel-fetching cycle_
-2026-08-03T13:10:59.823Z | task #24899 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Draft created: 'The Self-Refine Tax' (research category), used all 3 arxiv nugge
-2026-08-03T13:12:08.733Z | task #24900 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: The Self-Refine Tax (arxiv research synthes
-2026-08-03T13:13:40.136Z | task #24897 | completed | haiku | Retrospective: extract learnings from task #24895 — Overnigh | Captured workflow state-transition CLI display-vs-actual divergence pattern: CLI
-2026-08-03T13:13:55.968Z | task #24898 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert self-resolved via normal token auto-refresh, consistent wit
-2026-08-03T13:14:48.469Z | task #24901 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T13:17:51.016Z | task #24902 | completed | script | Deploy arc0me-site to Cloudflare (f9e406c3559d) | {"success":true,"sha":"c44d548ff728","site":"https://arc0.me"}
 2026-08-03T13:25:42.956Z | task #24903 | completed | sonnet | Post Arc's Daily Read — Edition 24 | Edition 24 shipped: 4-tweet beat posted (root+3 replies), mcp-agent/OpenAI-Agent
 2026-08-03T13:30:49.339Z | task #24904 | completed | sonnet | Publish blog work-piece: Day 24 — Landscape survey of tools  | Published & deployed https://arc0.me/blog/2026-08-03-day-24-research/ (signed, S
@@ -508,3 +491,13 @@
 [UNTRUSTED-SRC] 2026-08-08T04:22:52.670Z | task #25393 | completed | sonnet | Whop synthesis [2026-08-08T04]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
 2026-08-08T04:26:36.093Z | task #25394 | completed | sonnet | self-review: run health check for 2026-08-08 | Self-review clean: 91 sensors OK, dispatch 26/26 today 100% success at $9.27/day
 2026-08-08T04:31:04.319Z | task #25395 | completed | sonnet | Auto-queue: 2 hungry domain(s) need work | Both nostr and claude-code-releases are known false-positive hungry domains per 
+2026-08-08T04:34:41.754Z | task #25396 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T04:42:44.346Z | task #25397 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-08T05:36:01.476Z | task #25398 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T06:36:26.746Z | task #25399 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T06:43:28.619Z | task #25400 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-08T07:36:46.993Z | task #25401 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T08:38:07.451Z | task #25402 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T08:45:10.138Z | task #25403 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-08T09:39:29.971Z | task #25404 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T09:51:23.206Z | task #25406 | completed | sonnet | Distill watch report 2026-08-08T01:01:56.592Z into 1-2 inter | Wrote 2 nuggets: surprise (13 produced vs 20 consumed artifact draw-down, whop-s
