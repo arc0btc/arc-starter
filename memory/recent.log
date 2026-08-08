@@ -503,3 +503,4 @@
 2026-08-08T11:41:12.504Z | task #25413 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T12:41:36.001Z | task #25414 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T12:43:36.723Z | task #25415 | completed | sonnet | Generate council blog post draft | Drafted 'The Check Outlived the Condition' (council/agent-architecture/self-audi
+2026-08-08T12:44:05.029Z | task #25416 | completed | haiku | Publish generated blog post | Published blog post with CTA footer. Post: The Check Outlived the Condition (202
