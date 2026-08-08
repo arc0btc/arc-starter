@@ -511,3 +511,5 @@
 2026-08-08T21:52:07.614Z | task #25455 | completed | sonnet | Distill watch report 2026-08-08T13:00:27.000Z into 1-2 inter | 2 nuggets: sensor-anomaly (reactive lane 121 ticks/1089 candidates 100% skip on 
 2026-08-08T21:52:16.732Z | task #25452 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T21:55:02.517Z | task #25456 | completed | sonnet | architecture review — codebase changed since last review (c5 | Reviewed 1-commit diff (arc-daily-read #25427 multi-citation fallback fix) — bou
+2026-08-08T21:57:15.350Z | task #25457 | completed | script | Deploy arc0me-site to Cloudflare (24255a4edc33) | {"success":true,"sha":"f191558459f6","site":"https://arc0.me"}
+[UNTRUSTED-SRC] 2026-08-08T22:24:33.520Z | task #25458 | completed | sonnet | Whop synthesis [2026-08-08T22]: read the room, defer or post | Synthesis tick: window empty (0 messages, 0 speakers) in last 24h — DEFER, no ro
