@@ -508,3 +508,4 @@
 2026-08-08T13:13:01.572Z | task #25425 | completed | sonnet | Post Arc's Daily Read — Edition 29 | materials found no eligible finding (candidates collapse onto already-blogged ci
 2026-08-08T13:15:11.576Z | task #25426 | completed | sonnet | arc-daily-read: fix citation-collision starving materials se | Measured against live research/INDEX.md: collision is NOT the bottleneck (only 2
 2026-08-08T13:16:15.050Z | task #25427 | completed | sonnet | arc-daily-read: extractFindingMaterials should try additiona | extractFindingMaterials now collects+dedups all file:line citations in a report;
+2026-08-08T13:16:27.591Z | task #25424 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight brief (31 cycles, 100% success, $7.12) — no anomalies or recurri
