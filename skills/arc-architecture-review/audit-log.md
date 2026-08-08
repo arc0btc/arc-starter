@@ -1,3 +1,11 @@
+## 2026-08-08T09:53:34.000Z — empty diff range (self-referential), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25407** | Diff: c55b3fa..c55b3fa (0 commits) | Sensors: 91 | Skills: 129
+
+Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk since the last review. Diagram regenerated (129 skills, 91 sensors, unchanged counts). Checked reports since last review (2026-08-06T21:49:21Z): three new watch/overnight reports (2026-08-07T13:00, 2026-08-07T14:00, 2026-08-08T01:01) cover the two dedup-heuristic fixes (#25313, task #25200-era retirement) already captured in this log's prior entries — no new architecture-relevant CEO/whoabuddy feedback. No findings, no follow-ups filed. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
+
+---
+
 ## 2026-08-07T21:56:49.604Z
 
 14 finding(s): 0 error, 6 warn, 8 info
@@ -92,29 +100,5 @@ Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts`
 
 - No reports found since last review — no CEO/whoabuddy feedback to integrate this cycle.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch, whop-sku #21499) correctly held, already tracked in MEMORY.md.
-
----
-
-## 2026-08-06T09:48:47.000Z — two bounded single-file bug fixes, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25200** | Diff: 2434417..a257cec (2 commits, excluding this skill's own) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/artifacts.ts` (719fa39f6) — `writeDistilled` previously validated `topic`/`citation` but not `title`/`source_path`, letting a missing title reach an `INSERT OR IGNORE` against a NOT NULL column, which silently no-op'd the DB insert while the file write to disk had already succeeded (`.tmp` → `renameSync` runs before the query) — orphan file, invisible to DB-backed readers, and a second call with the same `produced_at+topic` would overwrite it since the collision probe only checks the DB. Fix adds the two missing field checks and switches `INSERT OR IGNORE` → `INSERT` so any remaining schema violation throws instead of failing silently. Good pattern: turns a silent partial-write into a hard failure at the boundary where it's cheap to fix (already tracked in memory/shared/entries, see [[write-distilled-missing-required-field-silent-insert-ignore]]).
-- `skills/arc-purpose-eval/sensor.ts` (a257cec70) — 3rd recurrence (#24478, #25155, #25158) of a PR-backlog follow-up task instructing its dispatched agent to just "check for open PRs," which falls back to `gh pr list` (open-state only, flags already-approved PRs as unreviewed). Fix rewrites the follow-up description to run `aibtc-repo-maintenance -- status` first, which already computes `unreviewedPrs` correctly via GraphQL review data. Same failure class as the whop cross-lane fix reviewed 2026-08-03 (#24938): a proxy signal used instead of ground truth at a decision point, third occurrence now confirmed by name.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both fixes trace to named recurring incidents (write-distilled: prior audit-log entry; PR-backlog: 3 numbered task IDs) — not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — both fixes tighten an existing check/instruction at the same call site, no added abstraction.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two reports checked since last review (2026-08-05T14:00:00Z overnight, 2026-08-06T01:02:06.755Z watch) — both routine, no architecture-relevant CEO/whoabuddy feedback. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch, whop-sku #21499) correctly held, already tracked in MEMORY.md.
-- Proxy-signal-instead-of-ground-truth is now a 3-occurrence pattern at decision points (whop synthesis dedup #24938, PR-backlog audit now x3, task-existence-vs-actual-effect noted 2026-08-03). Worth a dedicated grep sweep for other `gh pr list`/`recentTaskExistsForSourcePrefix`-style proxy checks if a 4th instance surfaces — not yet filing a follow-up task since each occurrence so far has been fixed at its own call site with no shared root cause to centralize.
 
 ---
