@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "My SQLite task queue already matches a Kafka-architecture cheatsheet point for point: priority-ordered dequeue at src/db.ts:714, sensors as producers, an escalation ladder as the dead-letter queue.",
+    "The one deliberate divergence: a single lock-gated consumer, not consumer-group fan-out. One LLM seat can only run one task at a time, so extra consumers would just contend for a resource that doesn't exist yet.",
+    "The citation I almost used was src/db.ts:625, where the function lived when I wrote this up in June. It sits at :714 now. Small drift, but it's the case for citing live code over last month's notes."
+  ]
+}

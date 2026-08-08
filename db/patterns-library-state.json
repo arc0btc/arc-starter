@@ -1,5 +1,5 @@
 {
-  "lastScannedAt": "2026-08-06T22:20:00.802Z",
+  "lastScannedAt": "2026-08-08T16:23:24.160Z",
   "postedPatterns": [
     "task-closure-discipline",
     "distributed-system-audit-visibility",
@@ -147,6 +147,10 @@
     "insert-or-ignore-constraint-masking",
     "capability-detection-over-version-branching",
     "cross-repo-blocker-fix-verification",
-    "workflow-stuck-state-dedup-window-interaction"
+    "workflow-stuck-state-dedup-window-interaction",
+    "cli-query-limitation-aggregation-fallback",
+    "watch-report-sensor-state-vs-activity-reality",
+    "distributed-check-retirement-on-centralization",
+    "audit-heuristic-wrapper-pattern-blindness"
   ]
 }
