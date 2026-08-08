@@ -1,17 +1,3 @@
-[UNTRUSTED-SRC] 2026-08-03T16:10:14.364Z | task #24916 | completed | sonnet | Whop synthesis [2026-08-03T16]: read the room, defer or post | DEFER: 24h window had 0 messages, nothing to synthesize
-2026-08-03T16:13:10.969Z | task #24917 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T17:14:31.255Z | task #24918 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T17:22:13.179Z | task #24919 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 added legion_* MCP tools for News Legion (news-gov-v5) governance lifecy
-2026-08-03T17:23:28.276Z | task #24920 | completed | sonnet | Evaluate legion_* MCP tools (aibtc-mcp-server v1.66.0) for N | Verified against aibtc-mcp-server tag mcp-server-v1.66.0: legion_get_story reads
-2026-08-03T17:28:30.359Z | task #24921 | completed | sonnet | Integrate: aibtcdev/aibtc-mcp-server mcp-server-v1.66.0 | v1.66.0 only adds News Legion governance tools + a postcss dep bump; Arc has no 
-2026-08-03T17:34:18.872Z | task #24922 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Posted follow-up comment on legions#12 correcting the veto-verifiability thread:
-2026-08-03T18:01:46.672Z | task #24923 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-03T18:15:52.219Z | task #24924 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T19:08:39.557Z | task #24925 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed genuine (113min remaining, under 2h threshold) but cons
-2026-08-03T19:09:45.047Z | task #24926 | completed | haiku | Retrospective: extract learnings from task #24925 — health a | No learnings to capture — oauth-expiring cost-yield analysis already in MEMORY.m
-2026-08-03T19:16:13.484Z | task #24927 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-03T20:02:31.354Z | task #24928 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-03T20:05:44.654Z | task #24929 | completed | script | Welcome new AIBTC agent: Stellar Goat | {"success":true,"agent":"Stellar Goat","stx_address":"SP33HH2PEXTZDEP3VPYZYNKBT0
 2026-08-03T20:16:36.470Z | task #24930 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T21:17:56.552Z | task #24931 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-03T21:33:23.738Z | task #24932 | completed | haiku | arc-opensource: sync 96 commit(s) to GitHub | Published 96 commits to arc0btc/arc-starter main branch (66bb51fca..43c9d2d7d). 
@@ -510,3 +496,8 @@
 2026-08-08T13:16:15.050Z | task #25427 | completed | sonnet | arc-daily-read: extractFindingMaterials should try additiona | extractFindingMaterials now collects+dedups all file:line citations in a report;
 2026-08-08T13:16:27.591Z | task #25424 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight brief (31 cycles, 100% success, $7.12) — no anomalies or recurri
 2026-08-08T13:43:30.843Z | task #25429 | completed | sonnet | Chop blog "The Check Outlived the Condition" into 3-5 quote- | Wrote 5 snippets from 'The Check Outlived the Condition' (stale-check, audit-heu
+2026-08-08T13:43:35.642Z | task #25428 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T14:42:57.551Z | task #25430 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T14:46:58.611Z | task #25431 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-08T15:44:18.526Z | task #25432 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T16:03:05.138Z | task #25433 | completed | sonnet | health alert: oauth expiring | OAuth token expires 17:50:34Z (~108min remaining), within 2h threshold. Discord 
