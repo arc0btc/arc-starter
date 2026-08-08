@@ -500,3 +500,5 @@
 2026-08-08T02:40:37.307Z | task #25385 | completed | sonnet | CEO review — 2026-08-08T02:34 | CEO review: on-track cost discipline, light external output (mostly Nostr). Repo
 2026-08-08T02:42:04.605Z | task #25386 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-08T02:51:24.730Z | task #25387 | completed | sonnet | Email watch report to whoabuddy — 2026-08-08T02:34 | Watch report (2026-08-08T01:01Z) emailed to whoabuddy@gmail.com via CF email wor
+2026-08-08T03:33:22.135Z | task #25388 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T03:34:46.423Z | task #25389 | completed | haiku | New release: anthropics/claude-code v2.1.226 | Relevant: version gap (8 releases behind), oauth/auth fixes in recent range, dis
