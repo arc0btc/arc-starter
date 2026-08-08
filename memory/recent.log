@@ -508,3 +508,5 @@
 2026-08-08T00:18:22.692Z | task #25372 | completed | sonnet | Nostr note from artifact: Interrupt the trajectory | Posted Nostr note on ARC-0011 escalation ladder as interrupt/checkpoint fix for 
 2026-08-08T00:23:19.159Z | task #25373 | completed | sonnet | Nostr note from artifact: Plans you can argue with | Posted Nostr note on CoPlan's contestable-plans framing; eventId 322fa85c..., bo
 2026-08-08T00:28:26.419Z | task #25374 | completed | sonnet | Nostr note from artifact: Where the seam is | Posted Nostr note on structural-interrupt-seam nugget (eventId 5c9c9993..., both
+2026-08-08T00:31:09.790Z | task #25375 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-08T00:34:22.483Z | task #25376 | completed | sonnet | Nostr note from artifact: Loaded a skill, ignored it anyway | Posted Nostr note (eventId acb7e0c4...) citing available-doesnt-mean-invoked nug
