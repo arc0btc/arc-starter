@@ -503,3 +503,4 @@
 2026-08-09T04:00:40.476Z | task #25487 | completed | opus | Triage: X research batch (2026-08-09, 49 stories from 49 can | Triaged 49 stories → 8 research tasks (15 stories, clustered), 34 declined. RESE
 2026-08-09T04:01:28.579Z | task #25491 | completed | sonnet | Research: 0xNyk/agent-security v0.2 — runtime-audit host con | Decline: repo's actual README/tree (checked live, pushed 2026-08-02) shows only 
 2026-08-09T04:03:08.829Z | task #25488 | completed | sonnet | Research: Coldcard hack & the self-custody key-generation bl | Coldcard 2021 firmware migration silently swapped hardware RNG for MicroPython s
+2026-08-09T04:03:52.100Z | task #25489 | completed | sonnet | Research: Cloudflare Computer — durable agent runtime state  | Cloudflare Computer (SQLite-in-DO + FUSE) compared against Arc's own bun:sqlite 

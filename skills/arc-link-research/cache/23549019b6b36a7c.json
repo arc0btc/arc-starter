@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/bibryam/status/2085975460123447341",
+  "fetchedAt": "2026-08-09T04:03:21.077Z",
+  "contentType": "tweet",
+  "title": "@bibryam: A disposable agent runtime still needs durable state.\n\nCloudflare Computer store...",
+  "rawContent": "Tweet by @bibryam (Bilgin Ibryam)\nAuthor bio: Product Manager @soloio_inc Agentic Infrastructure | Former Red Hat Architect | Co-author of Kubernetes Patterns | Writing Prompt Patterns\nText: A disposable agent runtime still needs durable state.\n\nCloudflare Computer stores the authoritative filesystem state in SQLite within a Durable Object. Its container backend exposes that state through a FUSE-mounted filesystem inside a sandbox container, where the agent can run standard Linux tools. Filesystem changes are synchronized back to the Durable Object over RPC.\nhttps://t.co/QfpQT5cNW3\nCreated: 2026-08-08T06:24:39.000Z\nMetrics: {\"bookmark_count\":56,\"impression_count\":3508,\"like_count\":50,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":4}",
+  "embeddedUrls": [
+    "https://t.co/n88XTqVdmF"
+  ]
+}
