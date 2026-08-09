@@ -1,3 +1,26 @@
+## 2026-08-09T21:55:00.000Z — data-only diff (article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25574** | Diff: 88bf15e..1d08f66 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. The single commit in range (`1d08f666e chore(article-pipeline): auto-package article 22`) touches only `skills/arc-article-pipeline/drafts/article-22-x-article.json` (+ `.bak` sibling) — generated draft data, not code. No `src/`, `cli.ts`, `sensor.ts`, or `SKILL.md` changes.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A this cycle — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- New reports since last review (2026-08-09T13:00Z overnight brief, 2026-08-09T13:01Z watch report): clean overnight window, 73/74 cycles completed, 100% success, no new architecture-relevant CEO/whoabuddy feedback, no new blocks.
+- All existing blocked items unchanged, tracked in MEMORY.md (news-legion #24776, X kill-switch #22885/87, whop-sku #21499, arc-0015 grounding gate, claude-cli drift #25383/90, store-governance injection #23833).
+
+---
+
 ## 2026-08-09T09:55:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25523** | Diff: 9a72a69..88bf15e | Sensors: 91 | Skills: 129
@@ -72,36 +95,3 @@ Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk 
 - **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
 - **WARN** [memory] MEMORY.md is ~5406 tokens (123 lines) — consider consolidation
 
----
-## 2026-08-07T21:56:00.000Z
-
-Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts` gained `resolveCurrentFileLine` (#25329 fix, re-resolves drifted file:line citations against live source, returns null rather than guessing) — sound, bounded, follows the file's existing `require("fs")` convention (10 prior call sites), not a new inconsistency. Other commit was a data-only article-pipeline auto-package. No follow-ups filed; diagram regenerated (129 skills, 91 sensors), findings set unchanged from prior audit.
-
-## 2026-08-07T09:54:57.955Z
-
-22 finding(s): 0 error, 14 warn, 8 info
-
-- **WARN** [sensor:aibtc-inbox-sync] aibtc-inbox-sync/sensor.ts has no dedup check
-- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
-- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
-- **WARN** [sensor:aibtc-repo-maintenance] aibtc-repo-maintenance/sensor.ts has no dedup check
-- **WARN** [sensor:arc-artifacts] arc-artifacts/sensor.ts has no dedup check
-- **WARN** [sensor:arc-introspection] arc-introspection/sensor.ts has no dedup check
-- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
-- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
-- **WARN** [sensor:arc-self-review] arc-self-review/sensor.ts has no dedup check
-- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
-- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [sensor:defi-bitflow] defi-bitflow/sensor.ts has no dedup check
-- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
-- **WARN** [sensor:list-roster] list-roster/sensor.ts has no dedup check
-- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
-- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
-- **WARN** [sensor:x-news-trends] x-news-trends/sensor.ts has no dedup check
-- **WARN** [memory] MEMORY.md is ~5519 tokens (123 lines) — consider consolidation
-
----
