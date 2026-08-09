@@ -513,3 +513,4 @@
 [UNTRUSTED-SRC] 2026-08-09T04:24:55.415Z | task #25497 | completed | sonnet | Whop synthesis [2026-08-09T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — posting into a silent room is exa
 2026-08-09T04:28:17.205Z | task #25498 | completed | sonnet | self-review: run health check for 2026-08-09 | Health check clean: 0 pending, 35/35 today completed (100% success), sensors/dis
 2026-08-09T04:34:51.829Z | task #25499 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 7 follow-ups: #25500 (link-research reindex/sku_backlog check, since rese
+2026-08-09T04:41:21.751Z | task #25504 | completed | sonnet | Consolidate memory/patterns.md — 170 lines exceeds 150-line  | Consolidated patterns.md 290KB/170 lines -> 279KB/150 lines: tightened prose on 
