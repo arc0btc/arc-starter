@@ -502,3 +502,4 @@
 2026-08-09T08:56:40.314Z | task #25519 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T09:51:18.228Z | task #25520 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~48min remaining on current token, Discord alert alrea
 2026-08-09T09:52:48.627Z | task #25521 | completed | sonnet | Distill watch report 2026-08-09T01:01:35.459Z into 1-2 inter | 2 nuggets: sensor-anomaly (PR-review backlog metric fix — was counting Arc's own
+2026-08-09T09:53:30.212Z | task #25522 | completed | haiku | Retrospective: extract learnings from task #25520 — health a | No learnings to capture — task #25520 demonstrates existing pattern p-headless-e
