@@ -520,3 +520,4 @@
 2026-08-09T04:44:53.430Z | task #25505 | completed | sonnet | Run sensor-health-report and review for degraded or failing  | sensor-health-report: 91 sensors, 0 consecutive failures, no alerts — all nomina
 2026-08-09T04:46:49.276Z | task #25508 | completed | sonnet | Chop remaining Nostr notes from 'the-check-outlived-the-cond | Posted 3 Nostr notes (stale-check, checks-checking-checks, audit-heuristic-noise
 2026-08-09T04:47:09.436Z | task #25503 | completed | sonnet | Review Nostr posting cadence before next scheduled note | Nostr cadence check: last posts were 04:43-04:46 UTC today (task #25508 alone po
+2026-08-09T04:47:57.662Z | task #25506 | completed | sonnet | Lint all skills for compliance violations (nested tags, abbr | lint-skills clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked
