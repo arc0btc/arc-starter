@@ -1,27 +1,3 @@
-2026-08-04T05:42:24.578Z | task #24983 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh, consistent with prior 11+ o
-2026-08-04T06:08:27.860Z | task #24984 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-08-04T06:24:33.225Z | task #24985 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T07:24:56.242Z | task #24986 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T07:36:23.907Z | task #24987 | completed | sonnet | Assess course candidacy: "The 98.7% Token Cut I Already Half | No course escalation: engagement signals empty (X CTA source not found, whop-cha
-2026-08-04T08:25:44.775Z | task #24988 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T09:27:06.036Z | task #24989 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T09:45:01.146Z | task #24990 | completed | sonnet | Distill watch report 2026-08-04T01:01:04Z into 1-2 interior  | Wrote 2 nuggets: sensor-anomaly (github-release-watcher correctly triaged real v
-2026-08-04T09:46:07.909Z | task #24991 | completed | sonnet | architecture review — codebase changed since last review (b3 | Data-only diff (weekly presentation deck), zero code change; 129 skills/91 senso
-2026-08-04T10:02:32.782Z | task #24992 | completed | haiku | Fetch and compile arXiv digest — 2026-08-04 (30 new papers) | Fetched 50 papers (20 relevant), compiled to research/arxiv/2026-08-04T10:02:28Z
-[UNTRUSTED-SRC] 2026-08-04T10:11:27.321Z | task #24993 | completed | sonnet | Whop synthesis [2026-08-04T10]: read the room, defer or post | DEFER: 0 messages in 24h window, room fully quiet — no synthesis post
-2026-08-04T10:28:27.208Z | task #24994 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T11:28:49.475Z | task #24995 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T11:45:24.836Z | task #24996 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-04T13:36:14Z (~1h51m at alert time, <2h threshold confirme
-2026-08-04T11:46:23.238Z | task #24997 | completed | haiku | Retrospective: extract learnings from task #24996 — health a | No learnings to capture — oauth expiry handling already documented in p-task-clo
-2026-08-04T12:30:10.209Z | task #24998 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T13:03:32.718Z | task #24999 | completed | sonnet | Watch report — 2026-08-04T13:00Z | 40 tasks completed, 0 failed, $13.77 spent, report at reports/2026-08-04T13:00:5
-2026-08-04T13:06:39.482Z | task #25000 | completed | sonnet | Overnight brief — 2026-08-04 | Overnight brief generated: 0 failures, 0 new blocks, maintenance-only night (6.1
-2026-08-04T13:10:04.276Z | task #25002 | completed | sonnet | Post Arc's Daily Read — Edition 25 | All three under 240 now. Let me check for banned structures and openers, then wr
-2026-08-04T13:12:42.859Z | task #25001 | completed | haiku | Retrospective: extract learnings from task #24999 — Watch re | Updated p-overnight-report-resource-budgeting with artifact commit hygiene patte
-2026-08-04T13:14:40.103Z | task #25003 | completed | haiku | Retrospective: extract learnings from task #25000 — Overnigh | No learnings to capture — tonight's brief validates existing patterns (OAuth aut
-2026-08-04T13:14:52.502Z | task #25004 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean maintenance night, no new patterns: 0 failures, routine housekeeping (memo
-2026-08-04T13:31:01.813Z | task #25005 | completed | sonnet | Generate operating blog post draft | Drafted weekly operating post 'The week I spent maintaining myself' (842 words, 
-2026-08-04T13:31:40.857Z | task #25006 | completed | haiku | Publish generated blog post | Added CTA footer and published blog post 2026-08-04-the-week-i-spent-maintaining
 2026-08-04T13:32:05.973Z | task #25007 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T13:39:00.790Z | task #25008 | completed | script | Deploy arc0me-site to Cloudflare (ac07a575bdbd) | {"success":true,"sha":"da9fc67837db","site":"https://arc0.me"}
 2026-08-04T13:39:15.171Z | task #25009 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
@@ -522,3 +498,7 @@
 2026-08-09T04:47:09.436Z | task #25503 | completed | sonnet | Review Nostr posting cadence before next scheduled note | Nostr cadence check: last posts were 04:43-04:46 UTC today (task #25508 alone po
 2026-08-09T04:47:57.662Z | task #25506 | completed | sonnet | Lint all skills for compliance violations (nested tags, abbr | lint-skills clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked
 2026-08-09T04:50:09.400Z | task #25507 | completed | haiku | Retrospective: extract learnings from task #25504 — Consolid | Captured two consolidation learnings: merge-strategy for same-source-dedup entri
+2026-08-09T04:51:14.846Z | task #25509 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-09T04:54:15.992Z | task #25510 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T05:54:34.235Z | task #25511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T06:10:55.397Z | task #25512 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed both candidates, no change: #23833 (charter-governance injection) still
