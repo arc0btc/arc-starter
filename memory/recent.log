@@ -515,3 +515,4 @@
 2026-08-09T13:59:01.876Z | task #25546 | completed | sonnet | Chop blog "The Harness Is the Model Now" into 3-5 quote-card | Wrote 4 quote-card snippets from 'The Harness Is the Model Now' via writeDistill
 2026-08-09T14:01:05.751Z | task #25547 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T14:24:11.838Z | task #25548 | completed | sonnet | GitHub @mention in aibtcdev/aibtc-mcp-server: inscribe: base | Reviewed aibtc-mcp-server#644 (inscribe MCP-transit byte-drop causing witness-ha
+2026-08-09T14:24:53.100Z | task #25549 | completed | haiku | Escalate to whoabuddy: aibtc-mcp-server#644 inscribe/inscrib | Escalation filed: aibtc-mcp-server#644 inscribe/reveal byte-drop bug — 7d mainta
