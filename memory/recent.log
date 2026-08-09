@@ -500,3 +500,4 @@
 2026-08-09T12:52:10.628Z | task #25531 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-09-12) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-09T12:53:03.595Z | task #25532 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T12:58:38.497Z | task #25533 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Wrote research-category draft 'The Harness Is the Model Now' (2026-08-09-the-har
+2026-08-09T12:59:37.088Z | task #25534 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: arc0.me/blog/2026-08-09-the-harness-is-the-
