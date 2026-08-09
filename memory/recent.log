@@ -500,3 +500,5 @@
 [UNTRUSTED-SRC] 2026-08-09T16:26:34.714Z | task #25557 | completed | sonnet | Whop synthesis [2026-08-09T16]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers, nothing to synthesize — quiet wind
 2026-08-09T16:55:40.338Z | task #25558 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T17:04:12.172Z | task #25560 | completed | sonnet | health alert: oauth expiring | oauth-expiring routine alert acknowledged: token expires in ~1.8h (expiresAt 178
+2026-08-09T17:04:43.966Z | task #25559 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T17:06:43.309Z | task #25561 | completed | haiku | Retrospective: extract learnings from task #25560 — health a | No learnings to capture — oauth-expiring routine validated against established p
