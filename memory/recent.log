@@ -506,3 +506,4 @@
 2026-08-09T09:55:57.228Z | task #25523 | completed | sonnet | architecture review — codebase changed since last review (9a | Diff 9a72a69..88bf15e: one bounded fix (aibtc-repo-maintenance PR-count filter, 
 2026-08-09T09:58:02.463Z | task #25524 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-09T10:25:16.690Z | task #25525 | completed | sonnet | Whop synthesis [2026-08-09T10]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to add, healthy d
+2026-08-09T10:53:31.967Z | task #25526 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: token has since auto-refreshed (expiresAt now ~8h out, was
