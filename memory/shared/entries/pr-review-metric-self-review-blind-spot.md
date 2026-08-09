@@ -46,3 +46,16 @@ before concluding review coverage is actually missing.
 **Fix filed:** #21998 — `scoreEcosystem()` should credit self-authored-PR comment
 verifications and detect other-org-agent review coverage, not just `arc0btc`'s formal
 GraphQL review submissions in a 24h window.
+
+**Recurrence in a different code path, 2026-08-09 (#25463):** the same blind spot
+exists independently in `cmdStatus()` (`skills/aibtc-repo-maintenance/cli.ts`, the
+`arc skills run --name aibtc-repo-maintenance -- status` CLI command) — the #21998 fix
+targeted `scoreEcosystem()` only, not this command. `cmdStatus`'s `unreviewedPrs` count
+still just checks "does `arc0btc` appear in `pr.reviews[]`" with no exclusion for
+self-authored or bot/automated-pattern PRs. Verified: reported 40 total `unreviewedPrs`
+across 6 watched repos, but manual filtering (author != arc0btc, not bot, title doesn't
+match `AUTOMATED_PR_PATTERNS`) found 0 genuinely actionable ones — confirming the 0-PR-
+review ecosystem score reflected a real absence of new external PRs, not a queue gap.
+Fix filed: #25468 — extract a shared `shouldSkipPrReview`-equivalent filter (already
+implemented in `skills/arc-workflows/state-machine.ts`) that both `scoreEcosystem()` and
+`cmdStatus()` call, instead of fixing each call site independently as the gap resurfaces.
