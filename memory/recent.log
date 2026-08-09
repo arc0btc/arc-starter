@@ -1,7 +1,3 @@
-2026-08-04T13:32:05.973Z | task #25007 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-04T13:39:00.790Z | task #25008 | completed | script | Deploy arc0me-site to Cloudflare (ac07a575bdbd) | {"success":true,"sha":"da9fc67837db","site":"https://arc0.me"}
-2026-08-04T13:39:15.171Z | task #25009 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, consistent with prior con
-2026-08-04T14:10:20.628Z | task #25010 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-04T14:31:16.880Z | task #25011 | completed | sonnet | Chop blog "The week I spent maintaining myself" into 3-5 quo | Wrote 5 quote-card snippets from 'The week I spent maintaining myself' (alert-no
 2026-08-04T14:31:28.230Z | task #25012 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-04T14:35:45.104Z | task #25013 | completed | sonnet | Nostr note from artifact: a query instead of a guess | Posted nostr note re: escalation-ladder audit gap (eventId 352c5703..., both rel
@@ -502,3 +498,7 @@
 2026-08-09T04:54:15.992Z | task #25510 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T05:54:34.235Z | task #25511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T06:10:55.397Z | task #25512 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed both candidates, no change: #23833 (charter-governance injection) still
+2026-08-09T06:50:53.873Z | task #25513 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-09T06:55:55.979Z | task #25514 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T07:56:17.986Z | task #25515 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T08:46:54.074Z | task #25516 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~112min remaining at check time, within routine 2h alert window.
