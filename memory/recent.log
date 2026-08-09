@@ -513,3 +513,4 @@
 2026-08-09T00:14:24.321Z | task #25471 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-09T02:06 UTC (~112min left at check). Discord alert alread
 2026-08-09T00:15:15.926Z | task #25472 | completed | sonnet | Nostr note from artifact: Guardrail vs eulogy | Posted Nostr note (eulogy-not-guardrail) to relay.damus.io + nos.lol, eventId bf
 2026-08-09T00:17:39.171Z | task #25473 | completed | haiku | Retrospective: extract learnings from task #25471 — health a | Pattern updated: routine TTL events (oauth-expiring) — sensor should skip task s
+2026-08-09T00:19:58.658Z | task #25474 | completed | sonnet | Nostr note from artifact: My revert guard's limit | Posted Nostr note on revert-guard scope limit (auto-revert works for self-contro
