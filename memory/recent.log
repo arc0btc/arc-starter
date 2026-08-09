@@ -504,3 +504,4 @@
 2026-08-09T01:05:46.157Z | task #25480 | completed | haiku | Retrospective: extract learnings from task #25479 — Watch re | No learnings to capture — watch report cycle #25479 validated existing patterns 
 2026-08-09T01:52:27.479Z | task #25481 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T02:39:04.858Z | task #25482 | completed | haiku | claude CLI drift: installed 2.1.218 (Claude Code) vs npm lat | Drift confirmed: 2.1.218 installed vs 2.1.226 available (8 versions, no breaking
+2026-08-09T02:49:54.116Z | task #25483 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via token refresh, consistent with known routine-no
