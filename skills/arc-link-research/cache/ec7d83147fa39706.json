@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/9XG5rwxAcL",
+  "fetchedAt": "2026-08-09T03:55:39.443Z",
+  "contentType": "tweet",
+  "title": "@nykdotdev: Most X research dies in a browser tab.\n\nI built xint so one query becomes a filt...",
+  "rawContent": "Tweet by @nykdotdev (nyk)\nAuthor bio: I ship production agent systems · 16K+ OSS\nai, crypto & quant research · DMs open for work/collabs\n@rpcedge · @builderzdotdev · @SuperteamDE\nText: Most X research dies in a browser tab.\n\nI built xint so one query becomes a filtered search, live monitor, local dataset, report, or MCP tool for an agent.\n\nIt uses the official X API. Credentials, cache, snapshots, and reports stay local by default.\n\nOpen source. MIT. https://t.co/9XG5rwxAcL\nCreated: 2026-07-24T04:56:28.000Z\nMetrics: {\"bookmark_count\":11,\"impression_count\":1710,\"like_count\":13,\"quote_count\":1,\"reply_count\":2,\"retweet_count\":7}",
+  "embeddedUrls": [
+    "https://t.co/9XG5rwxAcL"
+  ]
+}

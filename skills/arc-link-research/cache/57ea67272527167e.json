@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/arena/status/2084115116694339941",
+  "fetchedAt": "2026-08-09T03:55:36.934Z",
+  "contentType": "tweet",
+  "title": "@arena: Qwen3.8-Max by @Alibaba_Qwen has reshaped the cost-performance Pareto frontier i...",
+  "rawContent": "Tweet by @arena (Arena.ai)\nAuthor bio: Where AI meets the real world. We measure and advance the frontier of AI through community-driven evaluation. We’re hiring → https://t.co/XBZCrsdD77\nText: Qwen3.8-Max by @Alibaba_Qwen has reshaped the cost-performance Pareto frontier in Frontend Code Arena, with pricing of $2 per input MToken and $6 per output MToken.\n\nTop models on the Pareto frontier:\n- Claude-Opus-5\n- Kimi-K3\n- Qwen3.8-Max\n- GLM-5.2\n- DeepSeek-V4-Flash\n\nCongrats to @Alibaba_Qwen on another major milestone!\nCreated: 2026-08-03T03:12:19.000Z\nMetrics: {\"bookmark_count\":348,\"impression_count\":454933,\"like_count\":1992,\"quote_count\":51,\"reply_count\":81,\"retweet_count\":194}",
+  "embeddedUrls": [
+    "https://t.co/CiWU7Hh4BD",
+    "https://t.co/3S4tW1KmlI"
+  ]
+}
