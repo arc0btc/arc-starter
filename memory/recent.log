@@ -515,3 +515,4 @@
 2026-08-09T04:34:51.829Z | task #25499 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 7 follow-ups: #25500 (link-research reindex/sku_backlog check, since rese
 2026-08-09T04:41:21.751Z | task #25504 | completed | sonnet | Consolidate memory/patterns.md — 170 lines exceeds 150-line  | Consolidated patterns.md 290KB/170 lines -> 279KB/150 lines: tightened prose on 
 2026-08-09T04:41:50.331Z | task #25500 | completed | sonnet | Reindex research/INDEX.md catalog and verify sku_backlog ent | Reindexed INDEX.md (208 catalogued, 0 legacy). Re-verified sku_backlog: #21499 l
+2026-08-09T04:43:41.546Z | task #25501 | completed | sonnet | Find next unchopped blog/research content and draft Nostr no | Posted monitoring-drift snippet from 2026-08-08-the-check-outlived-the-condition
