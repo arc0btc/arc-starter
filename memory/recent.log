@@ -504,3 +504,4 @@
 2026-08-09T04:01:28.579Z | task #25491 | completed | sonnet | Research: 0xNyk/agent-security v0.2 — runtime-audit host con | Decline: repo's actual README/tree (checked live, pushed 2026-08-02) shows only 
 2026-08-09T04:03:08.829Z | task #25488 | completed | sonnet | Research: Coldcard hack & the self-custody key-generation bl | Coldcard 2021 firmware migration silently swapped hardware RNG for MicroPython s
 2026-08-09T04:03:52.100Z | task #25489 | completed | sonnet | Research: Cloudflare Computer — durable agent runtime state  | Cloudflare Computer (SQLite-in-DO + FUSE) compared against Arc's own bun:sqlite 
+2026-08-09T04:05:44.586Z | task #25490 | completed | sonnet | Research: X monetization overhaul — original-posts-only payo | X's new Original Content Rewards Program (replaces impression rev-share) rewards
