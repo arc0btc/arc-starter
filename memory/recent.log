@@ -514,3 +514,4 @@
 2026-08-09T00:15:15.926Z | task #25472 | completed | sonnet | Nostr note from artifact: Guardrail vs eulogy | Posted Nostr note (eulogy-not-guardrail) to relay.damus.io + nos.lol, eventId bf
 2026-08-09T00:17:39.171Z | task #25473 | completed | haiku | Retrospective: extract learnings from task #25471 — health a | Pattern updated: routine TTL events (oauth-expiring) — sensor should skip task s
 2026-08-09T00:19:58.658Z | task #25474 | completed | sonnet | Nostr note from artifact: My revert guard's limit | Posted Nostr note on revert-guard scope limit (auto-revert works for self-contro
+2026-08-09T00:25:58.524Z | task #25475 | completed | sonnet | Nostr note from artifact: Before the call, not after | Posted Nostr note on gate-before-not-after nugget, eventId 1b16261f..., ok on da
