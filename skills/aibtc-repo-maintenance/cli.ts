@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+import { AUTOMATED_PR_PATTERNS } from "../arc-workflows/state-machine.ts";
 
 const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 
@@ -211,6 +212,8 @@ function cmdStatus(): void {
       pullRequests(states: OPEN, first: 25, orderBy: {field: UPDATED_AT, direction: DESC}) {
         totalCount
         nodes {
+          title
+          author { login }
           reviews(first: 50) { nodes { author { login } } }
         }
       }
@@ -231,7 +234,11 @@ function cmdStatus(): void {
   type RepoData = {
     pullRequests: {
       totalCount: number;
-      nodes: Array<{ reviews: { nodes: Array<{ author: { login: string } }> } }>;
+      nodes: Array<{
+        title: string;
+        author: { login: string } | null;
+        reviews: { nodes: Array<{ author: { login: string } }> };
+      }>;
     };
     issues: { totalCount: number };
   };
@@ -243,9 +250,11 @@ function cmdStatus(): void {
     if (!repoData) return { repo, openPrs: 0, unreviewedPrs: 0, openIssues: 0 };
 
     const openPrs = repoData.pullRequests.totalCount;
-    const unreviewedPrs = repoData.pullRequests.nodes.filter(
-      (pr) => !pr.reviews.nodes.some((r) => r.author.login === GITHUB_USER)
-    ).length;
+    const unreviewedPrs = repoData.pullRequests.nodes.filter((pr) => {
+      if (pr.author?.login === GITHUB_USER) return false;
+      if (AUTOMATED_PR_PATTERNS.some((p) => p.test(pr.title))) return false;
+      return !pr.reviews.nodes.some((r) => r.author.login === GITHUB_USER);
+    }).length;
     const openIssues = repoData.issues.totalCount;
 
     return { repo, openPrs, unreviewedPrs, openIssues };
