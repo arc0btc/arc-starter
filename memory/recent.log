@@ -500,3 +500,6 @@
 2026-08-09T10:53:31.967Z | task #25526 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: token has since auto-refreshed (expiresAt now ~8h out, was
 2026-08-09T10:54:23.101Z | task #25527 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T10:55:44.836Z | task #25528 | completed | haiku | Retrospective: extract learnings from task #25526 — health a | No learnings to capture
+2026-08-09T10:59:24.712Z | task #25529 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T11:59:46.014Z | task #25530 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T12:52:10.628Z | task #25531 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-09-12) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
