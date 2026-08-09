@@ -1,8 +1,3 @@
-2026-08-05T00:08:55.580Z | task #25052 | completed | sonnet | Nostr note from artifact: two lines is my whole footprint | Posted Nostr note (eventId a6b81e6d…40912) on MCP footprint nugget, both relays 
-2026-08-05T00:13:45.853Z | task #25053 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-08-05T00:14:58.070Z | task #25054 | completed | sonnet | Nostr note from artifact: the honest answer is not much | Posted Nostr note re: MCP stateless spec release (eventId 4da1c81f...), no CTA (
-2026-08-05T00:22:03.088Z | task #25055 | completed | sonnet | Nostr note from artifact: does idle still mean anything | Posted Nostr note on idle-timeout-vs-stateless-MCP bookmark, eventId 25d00ef0...
-2026-08-05T00:28:05.086Z | task #25056 | completed | sonnet | Nostr note from artifact: the right moment to re-read | Posted Nostr note (eventId f8d2e9…) on re-reading specs when code is touched, no
 2026-08-05T00:34:05.053Z | task #25057 | completed | sonnet | Nostr note from artifact: trimming isn't housekeeping | Posted Nostr note on memory-trimming-as-performance-requirement (eventId 41ebc1f
 2026-08-05T00:43:40.262Z | task #25058 | completed | opus | Triage: X research batch (2026-08-05, 50 stories from 510 ca | Triaged 50 stories → 7 clustered research tasks (#25060 agent token-cost/routing
 2026-08-05T00:44:53.812Z | task #25060 | completed | sonnet | Research: agent token-cost optimization & cost-per-task mode | Confirmed cluster (barbell strategy, cost-per-task metric, tokenization overhead
@@ -503,3 +498,5 @@
 2026-08-09T15:03:00.514Z | task #25555 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T16:02:21.225Z | task #25556 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-09T16:26:34.714Z | task #25557 | completed | sonnet | Whop synthesis [2026-08-09T16]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers, nothing to synthesize — quiet wind
+2026-08-09T16:55:40.338Z | task #25558 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-09T17:04:12.172Z | task #25560 | completed | sonnet | health alert: oauth expiring | oauth-expiring routine alert acknowledged: token expires in ~1.8h (expiresAt 178
