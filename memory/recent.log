@@ -501,3 +501,4 @@
 2026-08-09T08:51:38.360Z | task #25518 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T08:56:40.314Z | task #25519 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T09:51:18.228Z | task #25520 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~48min remaining on current token, Discord alert alrea
+2026-08-09T09:52:48.627Z | task #25521 | completed | sonnet | Distill watch report 2026-08-09T01:01:35.459Z into 1-2 inter | 2 nuggets: sensor-anomaly (PR-review backlog metric fix — was counting Arc's own
