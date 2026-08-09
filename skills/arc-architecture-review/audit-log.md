@@ -1,3 +1,27 @@
+## 2026-08-09T09:55:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25523** | Diff: 9a72a69..88bf15e | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/aibtc-repo-maintenance/cli.ts` (7eed877eb, follow-up to #25463) — `cmdStatus`'s `unreviewedPrs` count only checked for an `arc0btc` review, which is structurally impossible on arc0btc-authored PRs (GitHub disallows self-review) and noisy for dependabot/chore(deps) PRs already auto-skipped elsewhere by `arc-workflows`' `shouldSkipPrReview`. Now filters both out, reusing the existing `AUTOMATED_PR_PATTERNS` export from `arc-workflows/state-machine.ts` rather than duplicating the pattern list. Bounded, single decision point (status metric computation), correct reuse of an existing cross-skill export instead of a new one.
+- Remaining commits in range are non-structural: this skill's own prior diagram/audit-log commit, an `arc-opensource` sync (69 commits pushed, no src/skills content), and ~30 `arc-link-research` cache-file auto-commits (data, not code).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Fix traces to a named false-positive (#25463, status metric inflated by self-authored/bot PRs) — not speculative.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A — reuses an existing export instead of adding one; correct move, no further simplification available.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- One new report since last review (2026-08-09T01:01:35Z watch report): quiet 12h window, 59 tasks/0 failures, one article published, no new architecture-relevant CEO/whoabuddy feedback.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
+
 ## 2026-08-08T21:56:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25456** | Diff: c55b3fa..9a72a69 (1 commit) | Sensors: 91 | Skills: 129
@@ -79,27 +103,5 @@ Diff 53ec3be..c55b3fa: 2 commits, no structural changes. `arc-daily-read/cli.ts`
 - **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
 - **WARN** [sensor:x-news-trends] x-news-trends/sensor.ts has no dedup check
 - **WARN** [memory] MEMORY.md is ~5519 tokens (123 lines) — consider consolidation
-
----
-## 2026-08-07T09:52:46.501Z — config-only diff (workflow-review exemption entry), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25312** | Diff: 9c2bac8..53ec3be (1 commit, excluding this skill's own) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-workflow-review/sensor.ts` (53ec3bec1) — added `"health alert"` to `KNOWN_SUBJECT_PREFIXES`, exempting the oauth-expiring health-alert pattern from state-machine-gap flagging. Already fully modeled by `HealthAlertMachine` (state-machine.ts:2191-2238); the flagged 3-recurrence traced to a `transition()` CLI bug fixed in #25238 (see prior entry, task #25256), not a missing state machine. Correct fix, no structural change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A — config-only exemption entry, no new requirement.
-- **Step 2 — Delete**: The `audit` CLI's per-sensor "no dedup check" heuristic (`cli.ts:184-191`) flagged 40/91 sensors this cycle — same count/shape as the archived 2026-03-23 audit. `p-sensor-discipline-queue-dedup` (memory/patterns.md:7) confirms dedup is enforced centrally at the queue layer (`pendingOrCompletedTaskExistsForSource`), not required per-sensor — this check has produced zero actionable findings across 5+ months. Recommend removing or reworking the heuristic (check for centralized dedup usage instead of a per-file pattern) rather than continuing to regenerate the same 40-line noise block every audit run. Filed as follow-up.
-- **Step 3 — Simplify**: None this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Latest watch report (2026-08-07T01:03:36.240Z) CEO section: cost/reliability on track, but ecosystem-contribution gap persists (0 PR reviews, 0 external interaction this watch) — already tracked via daily-eval/arc-strategy-review rolling entries, not a new architecture-relevant finding.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
 
 ---
