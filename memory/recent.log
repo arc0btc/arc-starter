@@ -508,3 +508,5 @@
 2026-08-09T21:53:22.008Z | task #25573 | completed | sonnet | Distill watch report 2026-08-09T13:01:06.293Z into 1-2 inter | Wrote 2 nuggets from 13:01Z watch report: surprise (49-story triage cut to 5 shi
 2026-08-09T21:56:16.381Z | task #25574 | completed | sonnet | architecture review — codebase changed since last review (88 | Data-only diff (article auto-package draft), no code changes to review. Diagram 
 2026-08-09T21:56:46.394Z | task #25575 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated oauth-expiring health-alert->retrospective chain (3 recurrences, avg 2
+2026-08-09T22:08:38.724Z | task #25576 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T22:12:13.149Z | task #25577 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776: still blocked, correctly. Sibling task completions were investi
