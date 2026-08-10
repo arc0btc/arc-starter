@@ -1,3 +1,26 @@
+## 2026-08-10T09:56:00.000Z — cache-only diff (arc-link-research), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25633** | Diff: 1d08f66..40168b9 (5 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 5 commits in range are `chore(loop): auto-commit after dispatch cycle` touching only `skills/arc-link-research/cache/*.json` (55 files total) — link-research response cache entries, not code. No `src/`, `cli.ts`, `sensor.ts`, or `SKILL.md` changes.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: N/A this cycle — no code changed to question.
+- **Step 2 — Delete**: None this cycle.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- New reports since last review (2026-08-09T13:00/13:01, 2026-08-10T01:02) contain routine ops summaries only, no new architecture-relevant CEO/whoabuddy feedback.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25390) correctly held, already tracked in MEMORY.md.
+
+---
+
 ## 2026-08-09T21:55:00.000Z — data-only diff (article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25574** | Diff: 88bf15e..1d08f66 (1 commit) | Sensors: 91 | Skills: 129
@@ -75,23 +98,4 @@
 Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk since the last review. Diagram regenerated (129 skills, 91 sensors, unchanged counts). Checked reports since last review (2026-08-06T21:49:21Z): three new watch/overnight reports (2026-08-07T13:00, 2026-08-07T14:00, 2026-08-08T01:01) cover the two dedup-heuristic fixes (#25313, task #25200-era retirement) already captured in this log's prior entries — no new architecture-relevant CEO/whoabuddy feedback. No findings, no follow-ups filed. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
 
 ---
-
-## 2026-08-07T21:56:49.604Z
-
-14 finding(s): 0 error, 6 warn, 8 info
-
-- **WARN** [skill:aibtc-news-editor] aibtc-news-editor/SKILL.md is ~2287 tokens (limit: 2000)
-- **WARN** [skill:aibtc-news-editorial] aibtc-news-editorial/SKILL.md is ~2692 tokens (limit: 2000)
-- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
-- **INFO** [cli:arc-packaging] arc-packaging/cli.ts has no help/usage text
-- **INFO** [cli:arc-typecheck-guard] arc-typecheck-guard/cli.ts has no help/usage text
-- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:hodlmm-move-liquidity] hodlmm-move-liquidity/SKILL.md is ~2213 tokens (limit: 2000)
-- **INFO** [skill:lunarcrush] lunarcrush has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:ordinals-market-data] ordinals-market-data/SKILL.md is ~2202 tokens (limit: 2000)
-- **INFO** [skill:ordinals-marketplace] ordinals-marketplace has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **INFO** [skill:sbtc-yield-maximizer] sbtc-yield-maximizer has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [skill:whop-sales] whop-sales/SKILL.md is ~2226 tokens (limit: 2000)
-- **WARN** [memory] MEMORY.md is ~5406 tokens (123 lines) — consider consolidation
 
