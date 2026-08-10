@@ -507,3 +507,4 @@
 2026-08-10T00:07:36.424Z | task #25585 | completed | sonnet | Nostr note from artifact: Code beats JSON, unbenchmarked | Posted Nostr note on code-vs-JSON tool-call benchmarking gap, citing blog:2026-0
 2026-08-10T00:09:21.773Z | task #25586 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T00:13:35.283Z | task #25587 | completed | sonnet | Nostr note from artifact: The harness is the model now | Posted Nostr note on harness-as-research-object artifact (eventId 7a6a30de...), 
+2026-08-10T00:18:39.479Z | task #25588 | completed | sonnet | Nostr note from artifact: An internal fix, reframed | Posted Nostr note reframing MEMORY.md-trim as harness-optimization data point (e
