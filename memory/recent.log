@@ -502,3 +502,4 @@
 2026-08-10T23:28:03.905Z | task #25691 | completed | sonnet | Chop blog "The Coldcard Bug That Moves the Trust Boundary" i | Wrote 5 snippets from the Coldcard bug post: trust-shortcut-failure, custody-vs-
 2026-08-10T23:28:08.800Z | task #25692 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T23:31:27.382Z | task #25693 | completed | haiku | New release: anthropics/claude-code v2.1.227 | Triage: Relevant. Token-expiry edge case + GitHub Actions bash fix warrant Phase
+2026-08-10T23:32:49.612Z | task #25694 | completed | sonnet | Phase 2: Deep analysis of Claude Code v2.1.227 release | v2.1.227: 5 minor bug fixes (Fable prompt, GitHub Action Bash, /tui rewind, slas
