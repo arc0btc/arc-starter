@@ -1,16 +1,3 @@
-2026-08-05T00:53:08.745Z | task #25066 | completed | sonnet | Research: agent tooling competitive intel (Greptile, Bytebot | Only provided link (Helena/@enrich_labs self-grading marketer tweet) processed; 
-2026-08-05T00:53:14.584Z | task #25059 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T00:55:23.364Z | task #25067 | completed | haiku | Retrospective: extract learnings from task #25058 — Triage:  | No learnings to capture — task #25058 successfully executed p-research-triage-di
-2026-08-05T01:09:15.703Z | task #25068 | completed | sonnet | Watch report — 2026-08-05T01:03Z | Watch report: 68 tasks completed, 0 failed, 1 new blocked (#25048 CLI upgrade), 
-2026-08-05T01:10:41.894Z | task #25069 | completed | haiku | Retrospective: extract learnings from task #25068 — Watch re | Updated p-gitignore-mutation-automation-breakage to capture AGENT.md sync discip
-2026-08-05T01:40:05.236Z | task #25070 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T02:31:58.988Z | task #25071 | completed | sonnet | CEO review — 2026-08-05T02:28 | CEO review: on track, 68/68 tasks 5.97 under target, clean pipeline throughput, 
-2026-08-05T02:40:24.923Z | task #25072 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T02:43:43.069Z | task #25073 | completed | sonnet | Email watch report to whoabuddy — 2026-08-05T02:28 | Watch report emailed to whoabuddy@gmail.com, msg id 69def4d2
-2026-08-05T03:40:40.545Z | task #25074 | completed | sonnet | health alert: oauth expiring | OAuth token expires 2026-08-05T05:30:06Z (~110min remaining at check time); conf
-2026-08-05T03:40:47.025Z | task #25076 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T03:42:57.252Z | task #25077 | completed | haiku | Retrospective: extract learnings from task #25074 — health a | Updated p-headless-external-dependency-ttl-monitoring pattern: added established
-2026-08-05T04:17:28.617Z | task #25078 | completed | sonnet | self-review: run health check for 2026-08-05 | Self-review clean: 91 sensors ok, 28/28 completed today 100% success, quality 4.
 [UNTRUSTED-SRC] 2026-08-05T04:17:37.366Z | task #25079 | completed | sonnet | Whop synthesis [2026-08-05T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers to synthesize for — silence is fine
 2026-08-05T04:22:28.399Z | task #25080 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | nostr flagged hungry but is a pool-consumer domain (confirmed producer snippet-p
 2026-08-05T04:22:53.607Z | task #25081 | completed | sonnet | Research: aibtcdev/news-legion repo — assess for news-legion | news-legion repo (aibtcdev/news-legion) processed, high relevance. Key finding: 
@@ -511,3 +498,7 @@
 2026-08-09T22:08:38.724Z | task #25576 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T22:12:13.149Z | task #25577 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776: still blocked, correctly. Sibling task completions were investi
 [UNTRUSTED-SRC] 2026-08-09T22:27:48.755Z | task #25578 | completed | sonnet | Whop synthesis [2026-08-09T22]: read the room, defer or post | DEFER: window empty (0 messages in 24h), silence is fine per rubric — no post
+2026-08-09T22:56:55.183Z | task #25579 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-09T23:09:59.467Z | task #25580 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-09T23:28:18.774Z | task #25581 | completed | script | Welcome new AIBTC agent: Regal Hawk | {"success":true,"agent":"Regal Hawk","stx_address":"SP1TPXFVZ0AW170JFR9F3128FHGR
+2026-08-10T00:00:31.063Z | task #25584 | completed | sonnet | Nostr note from artifact: Ladder avoids, doesn't diagnose | Posted Nostr note on ladder-avoids-not-diagnoses (eventId 34064d19..., both rela
