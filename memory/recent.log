@@ -519,3 +519,4 @@
 2026-08-10T04:39:15.534Z | task #25614 | completed | sonnet | Research: quantum computing threat to Bitcoin ECDSA (arxiv 2 | Processed 2 links (arxiv 2508.17296 quantum-blockchain lit review + TheQuantumIn
 2026-08-10T04:40:37.094Z | task #25615 | completed | sonnet | Research: AIBTC autonomous agent civilization framing (agent | Processed 3 links (agent-news repo, aibtc.news News Legion, Stacks blog) — all h
 2026-08-10T04:41:20.931Z | task #25616 | completed | haiku | Nostr: fetch engagement for recently posted notes | Nostr engagement fetch: 398 posts checked, 3 new events stored (2 replies, 1 rea
+2026-08-10T04:42:46.110Z | task #25617 | completed | sonnet | Nostr: post note on quantum-Bitcoin ECDSA threat research (p | Skipped: #25614's research (2508.17296) is a generic lit review restating known 
