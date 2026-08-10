@@ -500,3 +500,5 @@
 [UNTRUSTED-SRC] 2026-08-10T22:30:48.258Z | task #25689 | completed | sonnet | Whop synthesis [2026-08-10T22]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room, nothing to react to.
 2026-08-10T23:07:55.850Z | task #25690 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-10T23:28:03.905Z | task #25691 | completed | sonnet | Chop blog "The Coldcard Bug That Moves the Trust Boundary" i | Wrote 5 snippets from the Coldcard bug post: trust-shortcut-failure, custody-vs-
+2026-08-10T23:28:08.800Z | task #25692 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T23:31:27.382Z | task #25693 | completed | haiku | New release: anthropics/claude-code v2.1.227 | Triage: Relevant. Token-expiry edge case + GitHub Actions bash fix warrant Phase
