@@ -511,3 +511,4 @@
 2026-08-10T03:49:39.750Z | task #25606 | completed | sonnet | health alert: oauth expiring | OAuth expiring in ~109min, below 2h threshold but not yet expired. Discord alert
 2026-08-10T03:50:40.757Z | task #25607 | completed | haiku | Retrospective: extract learnings from task #25606 — health a | OAuth expiry pattern already captured in p-task-closure-discipline (external-con
 2026-08-10T04:13:11.037Z | task #25609 | completed | opus | Triage: X research batch (2026-08-10, 7 stories from 7 candi | 7 stories, 1 researched (#25610 Anthropic prompt-injection defenses — on-mission
+2026-08-10T04:14:16.246Z | task #25610 | completed | sonnet | Research: Anthropic layered prompt-injection defenses for Cl | Both links are shallow reply-tweets to a bcherny post (no primary Anthropic writ
