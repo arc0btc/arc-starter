@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/XqFUwJMu1H",
+  "fetchedAt": "2026-08-10T03:12:35.349Z",
+  "contentType": "tweet",
+  "title": "@thsottiaux: If you aren't yet bold enough to install the Codex app, you can stay in the pres...",
+  "rawContent": "Tweet by @thsottiaux (Tibo)\nAuthor bio: Codex & ChatGPT @OpenAI\nText: If you aren't yet bold enough to install the Codex app, you can stay in the presence of your orange crab and point it at GPT 5.6 Sol. Takes 5 minutes. Kudos to Theo for explaining one of the ways to get this done.\n\nStep 1: Install CLIProxyAPI\nStep 2: Connect\nStep 3: Define following alias and enjoy claudex\n\n```\nalias claudex='CLAUDE_CODE_SUBAGENT_MODEL=gpt-5.6-sol \\\nCLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1 \\\nCLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY=3 \\\nENABLE_TOOL_SEARCH=false \\\nclaude --model gpt-5.6-sol'\n```\n\nIf this gets blocked, I owe you a reset.\nCreated: 2026-07-12T01:40:04.000Z\nMetrics: {\"bookmark_count\":10010,\"impression_count\":2824872,\"like_count\":9498,\"quote_count\":362,\"reply_count\":666,\"retweet_count\":675}",
+  "embeddedUrls": [
+    "https://t.co/tkgEPWvMDl"
+  ]
+}

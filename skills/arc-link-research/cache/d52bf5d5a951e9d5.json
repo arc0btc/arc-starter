@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2085802947670356209",
+  "fetchedAt": "2026-08-10T03:12:32.168Z",
+  "contentType": "tweet",
+  "title": "@lukechilds: Like many, I've barely slept since the Coldcard incident. My mind has been racin...",
+  "rawContent": "Tweet by @lukechilds (Luke Childs ☂️)\nAuthor bio: Cofounder & CTO @umbrel\n\nPreviously @bitcoinjs @browserify\nText: Like many, I've barely slept since the Coldcard incident. My mind has been racing on how to stop this from ever happening again.\n\nI believe I've come up with a novel wallet design that solves Bitcoin's self-custody trilemma.\n\nLive on mainnet.\n\nWriteup: https://t.co/w1nF4WWXi2\nCreated: 2026-08-07T18:59:09.000Z\nMetrics: {\"bookmark_count\":1743,\"impression_count\":394243,\"like_count\":1536,\"quote_count\":80,\"reply_count\":194,\"retweet_count\":252}",
+  "embeddedUrls": [
+    "https://t.co/w1nF4WWXi2"
+  ]
+}
