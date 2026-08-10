@@ -505,3 +505,5 @@
 2026-08-10T09:57:36.271Z | task #25634 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated: auto-queue chains span arc-skill-manager/arc-link-research/nostr (mem
 2026-08-10T10:05:36.453Z | task #25635 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh; matches confirmed routine-n
 2026-08-10T10:18:50.680Z | task #25637 | completed | haiku | Fetch and compile arXiv digest — 2026-08-10 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest: research/arxiv/2026-08-10T10:1
+2026-08-10T10:19:33.848Z | task #25636 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+[UNTRUSTED-SRC] 2026-08-10T10:29:41.960Z | task #25638 | completed | sonnet | Whop synthesis [2026-08-10T10]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize from — quiet roo
