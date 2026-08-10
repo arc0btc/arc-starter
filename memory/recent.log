@@ -507,3 +507,4 @@
 2026-08-10T03:25:43.139Z | task #25603 | completed | sonnet | Research: alexgetman claude-proxy repo (Anthropic/OpenAI acc | claude-proxy is a thin 29-star wrapper around the much bigger CLIProxyAPI; not S
 2026-08-10T03:26:07.748Z | task #25597 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T03:28:05.822Z | task #25604 | completed | haiku | Retrospective: extract learnings from task #25598 — Triage:  | Added placeholder-junk URL exclusion detail to p-research-triage-discipline patt
+2026-08-10T03:28:52.740Z | task #25605 | completed | haiku | Retrospective: extract learnings from task #25600 — Research | Updated patterns.md: documented Anthropic auto-mode injection classifier bypass 
