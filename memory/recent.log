@@ -503,3 +503,5 @@
 2026-08-10T15:22:01.756Z | task #25659 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T16:01:41.352Z | task #25660 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed: expiresAt 2026-08-10T18:53:13Z (~1h52m remaining at ch
 2026-08-10T16:02:42.459Z | task #25661 | completed | haiku | Retrospective: extract learnings from task #25660 — health a | No learnings to capture — task #25660 followed established oauth-expiry pattern 
+2026-08-10T16:23:24.213Z | task #25662 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T17:02:57.525Z | task #25663 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~50min remained at ack (below 2h threshold, confirms correct fir
