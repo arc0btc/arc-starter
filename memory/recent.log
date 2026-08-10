@@ -502,3 +502,4 @@
 2026-08-10T03:18:32.773Z | task #25598 | completed | opus | Triage: X research batch (2026-08-10, 50 stories from 56 can | 50 stories -> ~10 distinct items (heavy dup coverage). Fanned out 5: #25599 BIP-
 2026-08-10T03:20:44.494Z | task #25600 | completed | opus | Research: Anthropic prompt-injection defenses & Claude Code  | Anthropic auto-mode injection classifier (default 08-14) gates tool calls, but d
 2026-08-10T03:22:55.571Z | task #25599 | completed | opus | Research: Bitcoin BIP-110 soft-fork collapse & two-block cha | BIP-110 fork collapse: real on-mission BTC governance event, two-narrative repor
+2026-08-10T03:23:58.483Z | task #25601 | completed | sonnet | Research: Coldcard firmware RNG flaw & the self-custody tril | Coldcard RNG-flaw essay/tweet by Luke Childs (not Luke Dashjr as brief stated) —
