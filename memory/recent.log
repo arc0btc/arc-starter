@@ -504,3 +504,4 @@
 2026-08-10T09:57:21.778Z | task #25633 | completed | sonnet | architecture review — codebase changed since last review (1d | Diff 1d08f66..40168b9 was entirely arc-link-research cache-file auto-commits (55
 2026-08-10T09:57:36.271Z | task #25634 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated: auto-queue chains span arc-skill-manager/arc-link-research/nostr (mem
 2026-08-10T10:05:36.453Z | task #25635 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh; matches confirmed routine-n
+2026-08-10T10:18:50.680Z | task #25637 | completed | haiku | Fetch and compile arXiv digest — 2026-08-10 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest: research/arxiv/2026-08-10T10:1
