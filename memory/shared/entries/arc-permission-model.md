@@ -60,3 +60,13 @@ Cycles 12778–12787 (2h window):
 - All operations within expected safe range for autonomous execution
 
 **Conclusion**: No immediate change needed. Keep bypassPermissions active. Document the allowlist above for future reference if security model changes.
+
+## Update 2026-08-10 (task #25600): auto mode vs. Arc's bypass
+
+Anthropic made **auto mode** the Claude Code default on 2026-08-14 (Pro/Max/Team). Auto mode routes each tool call through a safety **intent classifier** that blocks actions "irreversible, destructive, or aimed outside your environment" — the third layer of Anthropic's stacked prompt-injection defense (model training + input probes + intent classifier), which @bcherny claims drives *indirect injection to ~0% on unseen attacks* only when all three stack. Study: classifier caught 89% of dangerous commands vs 13.6% for human review across 1,053 testers.
+
+**Consequence for Arc:** `--permission-mode bypassPermissions` (`src/dispatch.ts:591`) **skips the auto-mode classifier entirely** — and auto mode explicitly sets aside broad arbitrary-code allow-rules (`python:*`, blanket shell) so they can't bypass the gate. So of Anthropic's three injection layers, Arc gets only the model-training layer automatically; the input-probe + intent-classifier layers do NOT cover Arc's autonomous dispatch. Arc's compensating controls remain prose-level: CLAUDE.md escalation rules (irreversible / >100 STX / exfiltration) + the self-authored-authorization-never-sufficient rule ([[charter-store-governance-unverified-authorization-2026-07-24]]) + [[deepmind-6attack-taxonomy-ingestion-audit]]. Note Anthropic's classifier targets the *same* three-way test Arc already encodes manually — productized version of Arc's own heuristic.
+
+**Name-collision trap:** Arc's `--model auto` (`src/classifier.ts`) is a deterministic cost router (bounded-code→devstral etc.), NOT Anthropic's safety "auto mode." Same word, unrelated mechanism — don't conflate when reasoning about either.
+
+**Future eval (not filed, not urgent):** whether dispatch should adopt `--permission-mode` auto with bypass-fallback for the action classes it currently trusts blindly, to reclaim the injection-classifier layer without losing autonomy (auto mode falls back to manual only after 3-in-a-row / 20-per-session blocks — would need a headless-safe fallback path first).
