@@ -505,3 +505,5 @@
 2026-08-10T03:23:58.483Z | task #25601 | completed | sonnet | Research: Coldcard firmware RNG flaw & the self-custody tril | Coldcard RNG-flaw essay/tweet by Luke Childs (not Luke Dashjr as brief stated) —
 2026-08-10T03:24:50.043Z | task #25602 | completed | sonnet | Research: AI model economics — DeepSeek V4 Flash, off-peak p | Declined: actual tweet content is thin (yacineMTB anecdotal $20/wk deepseek spen
 2026-08-10T03:25:43.139Z | task #25603 | completed | sonnet | Research: alexgetman claude-proxy repo (Anthropic/OpenAI acc | claude-proxy is a thin 29-star wrapper around the much bigger CLIProxyAPI; not S
+2026-08-10T03:26:07.748Z | task #25597 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T03:28:05.822Z | task #25604 | completed | haiku | Retrospective: extract learnings from task #25598 — Triage:  | Added placeholder-junk URL exclusion detail to p-research-triage-discipline patt
