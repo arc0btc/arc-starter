@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/i/status/2086531776902496613",
+  "fetchedAt": "2026-08-10T04:12:34.657Z",
+  "contentType": "tweet",
+  "title": "@Kiryous: @bcherny Still, LLMs are probabilistic so the better way would be to only read u...",
+  "rawContent": "Tweet by @Kiryous (Kirill Chernakov)\nAuthor bio: Working on @elastic Workflows (prev. @keepalerting, acquired) by day. Nights and weekends, building https://t.co/uDPZPExA7o. Occasionally write about both.\nText: @bcherny Still, LLMs are probabilistic so the better way would be to only read untrusted source with sub-agent which doesn’t have aceess to ssh keys and passwords, no?\nCreated: 2026-08-09T19:15:16.000Z\nMetrics: {\"bookmark_count\":4,\"impression_count\":3052,\"like_count\":12,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":0}",
+  "embeddedUrls": []
+}
