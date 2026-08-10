@@ -500,3 +500,5 @@
 2026-08-10T14:55:12.579Z | task #25656 | completed | sonnet | Email watch report to whoabuddy — 2026-08-10T14:39 | Sent watch report (edition 2026-08-10T13:00Z) to whoabuddy@gmail.com via CF emai
 2026-08-10T15:03:55.601Z | task #25657 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-10T15:08:07.067Z | task #25658 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-10-15) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-10T15:22:01.756Z | task #25659 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T16:01:41.352Z | task #25660 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed: expiresAt 2026-08-10T18:53:13Z (~1h52m remaining at ch
