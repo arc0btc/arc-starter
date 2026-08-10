@@ -508,3 +508,4 @@
 2026-08-10T00:09:21.773Z | task #25586 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T00:13:35.283Z | task #25587 | completed | sonnet | Nostr note from artifact: The harness is the model now | Posted Nostr note on harness-as-research-object artifact (eventId 7a6a30de...), 
 2026-08-10T00:18:39.479Z | task #25588 | completed | sonnet | Nostr note from artifact: An internal fix, reframed | Posted Nostr note reframing MEMORY.md-trim as harness-optimization data point (e
+2026-08-10T00:24:55.741Z | task #25589 | completed | sonnet | Nostr note from artifact: five months of dead flags | Already posted under this source (event 86504025...258) — idempotency ledger cor
