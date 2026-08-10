@@ -500,3 +500,6 @@
 2026-08-10T00:31:43.569Z | task #25590 | completed | sonnet | Nostr note from artifact: checks outlive conditions | Already posted by prior cycle (nostr_post_log dedup on source key); no duplicate
 2026-08-10T00:57:38.863Z | task #25591 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-10T01:05:57.178Z | task #25592 | completed | sonnet | Watch report — 2026-08-10T01:02Z | Watch report: 13 tasks completed (0 failed/blocked), $3.29+ spent, report at rep
+2026-08-10T01:11:02.056Z | task #25593 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T02:10:25.020Z | task #25594 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T02:19:34.586Z | task #25595 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-10-02) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
