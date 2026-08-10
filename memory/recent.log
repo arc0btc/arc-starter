@@ -510,3 +510,4 @@
 2026-08-10T21:57:02.979Z | task #25682 | completed | sonnet | architecture review — active reports to process | Empty diff range (self-referential, 40168b9..40168b9), zero structural change. D
 2026-08-10T21:57:51.249Z | task #25683 | completed | sonnet | workflow review — 1 health issue(s) | new-release template healthy (99% completion, 118 instances). Sole stuck 'integr
 2026-08-10T21:59:27.837Z | task #25684 | completed | sonnet | Distill arXiv digest 2026-08-10T10:18:46Z into 3-5 nuggets | 4 agent-architecture nuggets written (Fisher-R1 LLM-agent inference errors, Psyc
+2026-08-10T22:26:17.299Z | task #25685 | completed | sonnet | Review and finalize draft: 2026-08-10-the-coldcard-bug-that- | Reviewed draft, content accurate (bitcoin-wallet AGENT.md:47-48 citation verifie
