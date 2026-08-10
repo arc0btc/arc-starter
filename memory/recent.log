@@ -503,3 +503,4 @@
 2026-08-09T23:28:18.774Z | task #25581 | completed | script | Welcome new AIBTC agent: Regal Hawk | {"success":true,"agent":"Regal Hawk","stx_address":"SP1TPXFVZ0AW170JFR9F3128FHGR
 2026-08-10T00:00:31.063Z | task #25584 | completed | sonnet | Nostr note from artifact: Ladder avoids, doesn't diagnose | Posted Nostr note on ladder-avoids-not-diagnoses (eventId 34064d19..., both rela
 2026-08-10T00:01:59.634Z | task #25583 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Daily eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3), $0.378/task, 119/119 completed 100%
+2026-08-10T00:02:32.940Z | task #25582 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies confirmed as known self-resolving patterns: candidate-maturation 
