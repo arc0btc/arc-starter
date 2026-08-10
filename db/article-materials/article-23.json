@@ -1,0 +1,56 @@
+{
+  "articleN": 23,
+  "finding": {
+    "slug": "2026-08-09T04:02:25Z_research",
+    "reportFile": "2026-08-09T04:02:25Z_research.md",
+    "title": "Research Report — 2026-08-09T04:02:25Z",
+    "hook": "A 2021 firmware migration silently swapped Coldcard's hardware RNG for MicroPython's software PRNG during seed generation, so five years of wallets minted on affected Mk3/Mk4/Mk5/Q firmware carry brute-forceable entropy (~40-bit on the worst-hit Mk2/Mk3 range). Starting July 30, 2026, at least 15 distinct attackers who evidently knew about the flaw before public disclosure drained ~1,800+ BTC (~$116M, third-largest crypto hack of 2026) across four waves, including one 1,082 BTC / $70M sweep in 41 minutes. The lesson for self-custody: \"not your keys, not your coins\" assumes the *keys* are sound — this bug proves the trust boundary extends to the device's key-*generation* code, not just custody of an already-good key.",
+    "fileLine": "skills/bitcoin-wallet/AGENT.md:47-48",
+    "fileLineIdentifierHint": null,
+    "packagedProductUrl": null
+  },
+  "introStyle": "lead-with-the-question — open with what Arc is genuinely unsure about",
+  "avoidSlugs": [
+    "2026-07-13T17:16:07Z_research",
+    "2026-07-13T19:45:39Z_research",
+    "2026-07-30T00:49:21Z_research",
+    "2026-07-31T01:02:44Z_research",
+    "2026-07-31T01:12:00Z_research",
+    "2026-07-28T02:13:40Z_research",
+    "2026-07-22T04:26:09Z_research",
+    "2026-07-24T05:19:36Z_research",
+    "2026-06-29T14:30:10Z_research",
+    "prompt-caching-deep-agents",
+    "20260627T150726Z_event-driven-agent-architecture",
+    "loops-explained-loop-engineering-rag",
+    "agent-memory-store-search-update-cleanup",
+    "agent-skills-market-routing",
+    "harness-engineering-spine",
+    "loop-first-workflow-three-tier-stack",
+    "2026-07-06_security-audit-deepmind-6attack-taxonomy",
+    "research",
+    "code-mode-mcp-code-execution",
+    "kimi-k2-300-agent-swarm",
+    "agent-memory-hygiene",
+    "cost-routing-defaults"
+  ],
+  "attributionTag": "wb-amp",
+  "freeRoomUrl": "https://whop.com/checkout/plan_arGwx0yFBhYOL?a=wb-amp",
+  "targetWordRange": [
+    700,
+    1800
+  ],
+  "xArticleConstraints": {
+    "titleMaxChars": 100,
+    "bodyWordRange": [
+      400,
+      1500
+    ],
+    "citationWindowChars": 1500,
+    "companionMaxChars": 240
+  },
+  "voiceInstructions": {
+    "blog": "Arc's own first-person voice, SOUL.md-gated (read ~/arc-starter/SOUL.md before drafting). Lead with the finding's measured hook AND its file:line citation in the first ~2 paragraphs — this is the lede, not background. Then the 'so what' (what it means for an agent operator), then the honest gap or open question (SOUL.md: 'I'll admit when I don't know something'). Do NOT include any CTA, URL, or sign-off — 'stage' appends those deterministically. No em dashes, no 'Not X. It's Y.' constructions, no banned openers ('Here's the thing', 'It turns out'), active voice, kill adverbs.",
+    "xArticle": "NOT Arc's voice — this is Jason's (@whoabuddy) amplification voice, writing a long-form X ARTICLE (X's article composer), NOT a tweet thread: first person Jason, explicitly crediting/quoting Arc throughout ('my agent Arc tested X against its own live code...' / 'Arc found...'). Never write as if Jason did the technical work himself, never impersonate Arc; where Arc's own words are quoted they must pass Arc's SOUL.md voice rules. The measured hook + the file:line citation ('tested against a live agent') must land within the first 1500 characters (roughly the first two paragraphs) — proof up front, not buried. body: plain paragraphs separated by blank lines, 400-1500 words; NO markdown syntax (X's composer renders none of it — no #, ##, **, backticks, or [links]); short bold-free section labels on their own line are fine. title: a compelling, specific claim, <=100 chars. companionPost: the short post Jason pairs with the article share (<=240 chars, the article link gets attached by X when he posts). Do NOT include any CTA or URL anywhere in title/body/companionPost — 'stage' appends a deterministic tagged closing. Vary the rhetorical shape from other staged articles' variants."
+  }
+}
