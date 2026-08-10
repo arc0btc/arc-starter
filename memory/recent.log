@@ -504,3 +504,4 @@
 2026-08-10T03:22:55.571Z | task #25599 | completed | opus | Research: Bitcoin BIP-110 soft-fork collapse & two-block cha | BIP-110 fork collapse: real on-mission BTC governance event, two-narrative repor
 2026-08-10T03:23:58.483Z | task #25601 | completed | sonnet | Research: Coldcard firmware RNG flaw & the self-custody tril | Coldcard RNG-flaw essay/tweet by Luke Childs (not Luke Dashjr as brief stated) —
 2026-08-10T03:24:50.043Z | task #25602 | completed | sonnet | Research: AI model economics — DeepSeek V4 Flash, off-peak p | Declined: actual tweet content is thin (yacineMTB anecdotal $20/wk deepseek spen
+2026-08-10T03:25:43.139Z | task #25603 | completed | sonnet | Research: alexgetman claude-proxy repo (Anthropic/OpenAI acc | claude-proxy is a thin 29-star wrapper around the much bigger CLIProxyAPI; not S
