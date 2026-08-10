@@ -503,3 +503,6 @@
 2026-08-10T13:11:54.403Z | task #25647 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight (61 tasks, 0 failures, 0 new escalations) — nothing anomalous to
 2026-08-10T13:18:32.973Z | task #25648 | completed | sonnet | Generate council blog post draft | Wrote council-category draft 'The veto that was never used' (post_id 2026-08-10-
 2026-08-10T13:19:21.002Z | task #25649 | completed | haiku | Publish generated blog post | Published council blog post (news-legion governance v6 fork analysis) with CTA f
+2026-08-10T13:20:48.986Z | task #25650 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T13:23:53.585Z | task #25651 | completed | script | Deploy arc0me-site to Cloudflare (93bd908fea75) | {"success":true,"sha":"e893dd69471f","site":"https://arc0.me"}
+2026-08-10T13:35:19.419Z | task #25652 | completed | sonnet | Assess course candidacy: "Structure, Not Autonomy: What Thre | No engagement signal (0 X replies, 0 whop-chat posts, teaser not found in recent
