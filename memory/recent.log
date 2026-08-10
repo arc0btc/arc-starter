@@ -1,37 +1,3 @@
-2026-08-05T09:46:38.501Z | task #25096 | completed | sonnet | architecture review — codebase changed since last review (49 | Diff 49d1797..8c65e48 was data-only (6 auto-commits, all arc-link-research cache
-2026-08-05T09:46:44.469Z | task #25095 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T10:04:59.528Z | task #25097 | completed | haiku | Fetch and compile arXiv digest — 2026-08-05 (30 new papers) | Fetched 50 papers (38 relevant), compiled digest with LLM/agent topics. Output: 
-2026-08-05T10:09:58.232Z | task #25098 | completed | sonnet | Security: ip-address (high) in aibtcdev/aibtc-mcp-server | Bumped transitive dep ip-address 10.2.0->10.3.1 (via express-rate-limit, no pack
-[UNTRUSTED-SRC] 2026-08-05T10:16:08.676Z | task #25100 | completed | sonnet | Whop synthesis [2026-08-05T10]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room, nothing to synthesize
-2026-08-05T10:17:04.611Z | task #25099 | completed | script | housekeeping: 3 issue(s) detected | housekeeping: fixed 0 issue(s)
-2026-08-05T10:46:16.441Z | task #25101 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T11:25:43.182Z | task #25102 | completed | sonnet | Review PR #647 on aibtcdev/aibtc-mcp-server: feat(legion): r | Approved PR #647 (aibtc-mcp-server) — mainnet BTC spend consent gate for legion_
-2026-08-05T11:46:54.231Z | task #25103 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T12:01:27.728Z | task #25104 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: ~1.9h remained (expires 2026-08-05T13:54Z), routine per me
-2026-08-05T12:02:21.088Z | task #25105 | completed | haiku | Retrospective: extract learnings from task #25104 — health a | No learnings to capture
-2026-08-05T12:47:15.064Z | task #25106 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T13:05:16.343Z | task #25107 | completed | sonnet | Watch report — 2026-08-05T13:00Z | Watch report: 39 tasks completed, 0 failed, 0 blocked, $14.50 spent, report at r
-2026-08-05T13:06:00.004Z | task #25108 | completed | haiku | Retrospective: extract learnings from task #25107 — Watch re | No learnings to capture
-2026-08-05T13:08:43.124Z | task #25109 | completed | sonnet | Overnight brief — 2026-08-05 | Overnight brief 2026-08-05: 31 tasks completed, 0 failed, 0 blocked. Shipped ip-
-2026-08-05T13:09:43.525Z | task #25110 | completed | haiku | Retrospective: extract learnings from task #25109 — Overnigh | Task #25109 overnight brief followed established patterns (data-aggregation, git
-2026-08-05T13:14:56.568Z | task #25111 | completed | sonnet | Post Arc's Daily Read — Edition 26 | Edition 26 shipped: LangChain deepagents fault-tolerance vs ARC-0011 comparison,
-2026-08-05T13:19:13.185Z | task #25113 | completed | sonnet | Publish blog work-piece: Day 26 — Single-page vendor doc, no | Published Day 26 (LangChain fault-tolerance vs ARC-0011) at https://arc0.me/blog
-2026-08-05T13:19:49.167Z | task #25112 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief reviewed — no new learnings beyond what's already captured; CVE 
-2026-08-05T13:21:12.778Z | task #25114 | completed | haiku | Retrospective: extract learnings from task #25113 — Publish  | Extracted: blog publish creates separate .mdx copy that doesn't auto-sync on sou
-2026-08-05T13:49:10.200Z | task #25116 | completed | sonnet | Chop blog "Day 26 — Single-page vendor doc, not proprietary  | Wrote 5 quote-card snippets from day-26 LangChain-vs-ARC-0011 post: two-taxonomi
-2026-08-05T13:49:27.770Z | task #25115 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T14:35:32.312Z | task #25117 | completed | sonnet | CEO review — 2026-08-05T14:30 | CEO review: on track, 39/39 completed 0 failed, $14.50 under $30 target, 2 exter
-2026-08-05T14:40:53.023Z | task #25118 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh — confirmed routine noise 
-2026-08-05T14:47:20.705Z | task #25119 | completed | sonnet | Email watch report to whoabuddy — 2026-08-05T14:30 | Watch report emailed to whoabuddy, msg id 327ec8fd-7de4-46cd-94b6-acba8a00095c
-2026-08-05T14:48:48.945Z | task #25120 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T15:50:11.464Z | task #25121 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-08-05T16:17:25.910Z | task #25122 | completed | sonnet | Whop synthesis [2026-08-05T16]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
-2026-08-05T16:51:32.648Z | task #25123 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T17:13:00.330Z | task #25124 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Posted follow-up on legions#12 correcting prior veto-verifiability claim: v6 for
-2026-08-05T17:52:27.296Z | task #25126 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-05-17) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
-2026-08-05T17:53:20.759Z | task #25125 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-05T18:19:28.877Z | task #25128 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-05T18:22:24.953Z | task #25127 | completed | sonnet | Consolidate MEMORY.md (25134 chars (threshold 24400) despite | Compressed MEMORY.md 25134→19324 chars (128→122 lines) by tightening the news-le
 2026-08-05T18:23:15.958Z | task #25129 | completed | sonnet | Consolidate memory/patterns.md (152 lines, threshold 150) | patterns.md 151->149 lines: merged new dual-copy-desync entry into existing p-bl
 2026-08-05T18:23:37.130Z | task #25131 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-05-18) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
 2026-08-05T18:25:18.969Z | task #25130 | completed | haiku | Retrospective: extract learnings from task #25127 — Consolid | No learnings to capture — consolidation patterns already documented in p-consoli
@@ -526,3 +492,12 @@
 2026-08-10T04:46:06.067Z | task #25621 | completed | sonnet | arc-skill-manager: lint all skills for compliance | Full lint-skills run clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.t
 2026-08-10T04:48:21.318Z | task #25622 | completed | sonnet | arc-skill-manager: consolidate memory/patterns.md (152/150 l | patterns.md 151->149 lines: merged 2 marginal-overflow entries (stuck-workflow d
 2026-08-10T04:48:57.325Z | task #25623 | completed | haiku | Retrospective: extract learnings from task #25622 — arc-skil | No learnings to capture — marginal-overflow strategy already documented and vali
+2026-08-10T05:00:29.367Z | task #25624 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-10T05:12:33.961Z | task #25625 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T06:13:54.229Z | task #25626 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T07:02:11.355Z | task #25627 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-10T07:15:16.985Z | task #25628 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T08:16:36.950Z | task #25629 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T09:01:54.357Z | task #25630 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-10T09:17:00.472Z | task #25631 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T09:53:51.239Z | task #25632 | completed | sonnet | Distill watch report 2026-08-10T01:02:41.911Z into 1-2 inter | Wrote 1 nugget (topic: surprise) — Whop reactive lane live-but-dry: 9/9 scanned 
