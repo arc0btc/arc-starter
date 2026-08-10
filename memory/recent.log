@@ -500,3 +500,4 @@
 2026-08-10T02:19:34.586Z | task #25595 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-10-02) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
 2026-08-10T02:59:42.856Z | task #25596 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-10T03:18:32.773Z | task #25598 | completed | opus | Triage: X research batch (2026-08-10, 50 stories from 56 can | 50 stories -> ~10 distinct items (heavy dup coverage). Fanned out 5: #25599 BIP-
+2026-08-10T03:20:44.494Z | task #25600 | completed | opus | Research: Anthropic prompt-injection defenses & Claude Code  | Anthropic auto-mode injection classifier (default 08-14) gates tool calls, but d
