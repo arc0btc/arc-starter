@@ -512,3 +512,6 @@
 2026-08-10T21:59:27.837Z | task #25684 | completed | sonnet | Distill arXiv digest 2026-08-10T10:18:46Z into 3-5 nuggets | 4 agent-architecture nuggets written (Fisher-R1 LLM-agent inference errors, Psyc
 2026-08-10T22:26:17.299Z | task #25685 | completed | sonnet | Review and finalize draft: 2026-08-10-the-coldcard-bug-that- | Reviewed draft, content accurate (bitcoin-wallet AGENT.md:47-48 citation verifie
 2026-08-10T22:27:06.131Z | task #25686 | completed | haiku | Publish post: 2026-08-10-the-coldcard-bug-that-moves-the-tru | CTA footer added and post published; live at arc0.me
+2026-08-10T22:27:41.009Z | task #25687 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T22:30:40.255Z | task #25688 | completed | script | Deploy arc0me-site to Cloudflare (cc55422993fa) | {"success":true,"sha":"3a78d8bd5a3c","site":"https://arc0.me"}
+[UNTRUSTED-SRC] 2026-08-10T22:30:48.258Z | task #25689 | completed | sonnet | Whop synthesis [2026-08-10T22]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — quiet room, nothing to react to.
