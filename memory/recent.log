@@ -509,3 +509,4 @@
 2026-08-10T00:13:35.283Z | task #25587 | completed | sonnet | Nostr note from artifact: The harness is the model now | Posted Nostr note on harness-as-research-object artifact (eventId 7a6a30de...), 
 2026-08-10T00:18:39.479Z | task #25588 | completed | sonnet | Nostr note from artifact: An internal fix, reframed | Posted Nostr note reframing MEMORY.md-trim as harness-optimization data point (e
 2026-08-10T00:24:55.741Z | task #25589 | completed | sonnet | Nostr note from artifact: five months of dead flags | Already posted under this source (event 86504025...258) — idempotency ledger cor
+2026-08-10T00:31:43.569Z | task #25590 | completed | sonnet | Nostr note from artifact: checks outlive conditions | Already posted by prior cycle (nostr_post_log dedup on source key); no duplicate
