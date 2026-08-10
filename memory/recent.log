@@ -1,11 +1,3 @@
-2026-08-06T00:02:21.884Z | task #25158 | failed | sonnet | Review oldest unreviewed PRs in agent-news + skills backlog  | superseded by task #25159 — same PRs already had follow-ups #24481-24483 filed 2
-2026-08-06T00:03:22.954Z | task #25159 | completed | sonnet | Follow up on stale PR-review backlog tasks #24481-24483 (nev | Not a stuck-execution bug. #24481-24483 (2026-07-31) ran to completion and poste
-2026-08-06T00:05:13.202Z | task #25160 | completed | sonnet | Fix PR-review-backlog audit sensor/task-source to use aibtc- | Fixed root cause: arc-purpose-eval's PR-backlog follow-up task description didn'
-2026-08-06T00:06:04.782Z | task #25156 | completed | sonnet | PURPOSE eval: 2.19/5 — S:1 O:5 E:1 C:2 | Daily eval 2.25/5 (S:1 O:5 E:1 C:2 Ad:3 Co:1 Se:3): Ops strong (100% success/106
-2026-08-06T00:06:30.974Z | task #25161 | completed | sonnet | Nostr note from artifact: the value is the mapping | Posted Nostr note on 'value is the mapping' nugget, eventId a081dda8..., both re
-2026-08-06T00:07:31.203Z | task #25157 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies, both known non-issues: candidate-maturation 23 failures = X read-bu
-2026-08-06T00:11:37.779Z | task #25163 | completed | sonnet | Nostr note from artifact: sitting with it first | Posted Nostr note on the LangChain-vs-ARC-0011 fault-tolerance comparison; event
-2026-08-06T00:12:24.127Z | task #25162 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with prio
 2026-08-06T00:17:36.133Z | task #25164 | completed | sonnet | Nostr note from artifact: identical from the outside | Posted Nostr note on stuck-vs-slow dispatch cycle ambiguity (ARC-0011 ladder gap
 2026-08-06T00:23:40.391Z | task #25165 | completed | sonnet | Nostr note from artifact: the gap that stuck | Posted Nostr note on circuit-breaker gap (no equivalent to LangChain's per-run c
 2026-08-06T00:24:23.846Z | task #25166 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
@@ -506,3 +498,6 @@
 2026-08-10T16:23:24.213Z | task #25662 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T17:02:57.525Z | task #25663 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~50min remained at ack (below 2h threshold, confirms correct fir
 2026-08-10T17:04:02.163Z | task #25664 | completed | haiku | Retrospective: extract learnings from task #25663 — health a | No learnings to capture. Task #25663 validated existing patterns: p-task-closure
+2026-08-10T17:04:38.116Z | task #25665 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-10T17:24:45.817Z | task #25666 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-10T17:34:11.545Z | task #25667 | completed | sonnet | Assess course candidacy: "The Loop Is Small. The Harness Is  | No escalation: topic clusters heavily (harness/loop/subsystems, 10+ related piec
