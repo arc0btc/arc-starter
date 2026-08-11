@@ -21,6 +21,7 @@ const ARCHIVAL_DIRS = ["reports", "research"];
 const ARCHIVAL_KEEP = 5;
 const WORKTREES_DIR = join(ROOT, ".worktrees");
 const STALE_WORKTREE_HOURS = 6;
+const LINK_RESEARCH_CLI = join(ROOT, "skills/arc-link-research/cli.ts");
 
 // ---- Types ----
 
@@ -34,6 +35,7 @@ interface CheckReport {
   recentLogLines: number | null;
   archivalNeeded: string[];
   staleWorktrees: string[];
+  linkResearchCacheSweepCount: number | null;
   issueCount: number;
 }
 
@@ -50,6 +52,7 @@ function runChecks(): CheckReport {
     recentLogLines: null,
     archivalNeeded: [],
     staleWorktrees: [],
+    linkResearchCacheSweepCount: null,
     issueCount: 0,
   };
 
@@ -152,6 +155,20 @@ function runChecks(): CheckReport {
     }
   }
 
+  // 7. arc-link-research cache TTL sweep (dry-run count)
+  if (existsSync(LINK_RESEARCH_CLI)) {
+    try {
+      const result = Bun.spawnSync(["bun", LINK_RESEARCH_CLI, "sweep-cache", "--dry-run"], { cwd: ROOT });
+      const output = result.stdout.toString();
+      const match = output.match(/Cache sweep: (\d+)/);
+      if (match) {
+        report.linkResearchCacheSweepCount = Number(match[1]);
+      }
+    } catch {
+      // ignore — non-critical check
+    }
+  }
+
   // Count issues
   if (report.uncommitted.length > 0) report.issueCount++;
   if (report.untracked.length > 0) report.issueCount++;
@@ -161,6 +178,7 @@ function runChecks(): CheckReport {
   if (report.recentLogLines !== null && report.recentLogLines > RECENT_LOG_MAX_LINES) report.issueCount++;
   if (report.archivalNeeded.length > 0) report.issueCount++;
   if (report.staleWorktrees.length > 0) report.issueCount++;
+  if (report.linkResearchCacheSweepCount !== null && report.linkResearchCacheSweepCount > 0) report.issueCount++;
 
   return report;
 }
@@ -294,6 +312,18 @@ function runFix(): void {
       }
     }
     if (removedCount > 0) fixed++;
+  }
+
+  // 8. arc-link-research cache TTL sweep
+  if (report.linkResearchCacheSweepCount !== null && report.linkResearchCacheSweepCount > 0) {
+    process.stdout.write(`fixing: arc-link-research cache has ${report.linkResearchCacheSweepCount} expired entry(s)\n`);
+    const result = Bun.spawnSync(["bun", LINK_RESEARCH_CLI, "sweep-cache"], { cwd: ROOT });
+    if (result.exitCode === 0) {
+      process.stdout.write(`  ${result.stdout.toString().trim()}\n`);
+      fixed++;
+    } else {
+      process.stderr.write(`  cache sweep failed: ${result.stderr.toString().trim()}\n`);
+    }
   }
 
   process.stdout.write(`\nhousekeeping: fixed ${fixed} issue(s)\n`);

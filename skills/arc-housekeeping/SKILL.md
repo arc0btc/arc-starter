@@ -23,6 +23,7 @@ Runs every 120 minutes via `claimSensorRun("arc-housekeeping", 120)`. Creates a 
 4. **WAL size** — `db/arc.sqlite-wal` over 10 MB (needs checkpoint)
 5. **Memory bloat** — `memory/MEMORY.md` over 200 lines (~4k tokens)
 6. **ISO 8601 file accumulation** — directories with more than 5 timestamped files need archival
+7. **arc-link-research cache TTL sweep** — expired entries in `skills/arc-link-research/cache/` (default TTL 90d, via `sweep-cache --dry-run`)
 
 ## CLI
 
@@ -54,6 +55,7 @@ Auto-fixes what's safe:
 - Removes stale dispatch lock
 - Runs WAL checkpoint (`PRAGMA wal_checkpoint(TRUNCATE)`)
 - Moves old ISO 8601 files to `archive/` subdirectories (keeps most recent 5)
+- Runs `arc-link-research`'s `sweep-cache` (default TTL 90d) when the dry-run check finds expired entries
 
 Does NOT auto-fix:
 - Memory bloat (requires manage-skills consolidation)
