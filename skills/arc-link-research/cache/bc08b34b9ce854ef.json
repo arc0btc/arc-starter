@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/rauchg/status/2086513316265181213",
+  "fetchedAt": "2026-08-11T00:29:58.241Z",
+  "contentType": "tweet",
+  "title": "@rauchg: If you’re not reading the code, whether explicitly or through agentic inquiry, o...",
+  "rawContent": "Tweet by @rauchg (Guillermo Rauch)\nAuthor bio: @vercel CEO\nText: If you’re not reading the code, whether explicitly or through agentic inquiry, one or more of these is true:\n\n○ You’re a beginner\n○ Software is throwaway \n○ You’re prototyping \n○ You have no users / revenue \n○ You’re taking on debt & risk\n○ Your problems are basic\n\nAnd btw. All of this is fine. But the reality is that models are still not at the “full autonomy” stage yet. \n\nThey make rookie mistakes, they go down bad architectural paths. I just had the best model in the world add a nonsensical 700ms delay to “settle” something and it told me “you’re right, I was cargo-culting” 🤨 \n\nI am on the camp that this need will diminish more and more. Most code is indeed going to be assembly-like. But we also have the global internet and software infrastructure riding on these models and narrative, and we have to respect that.\nCreated: 2026-08-09T18:01:54.000Z\nMetrics: {\"bookmark_count\":2378,\"impression_count\":1159008,\"like_count\":7893,\"quote_count\":298,\"reply_count\":550,\"retweet_count\":723}",
+  "embeddedUrls": []
+}

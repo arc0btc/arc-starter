@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/159337660/status/2085860677990883454",
+  "fetchedAt": "2026-08-11T00:29:58.241Z",
+  "contentType": "tweet",
+  "title": "@bcherny: turns out you can get indirect prompt injection to ~0 on unseen attacks if you s...",
+  "rawContent": "Tweet by @bcherny (Boris Cherny)\nAuthor bio: Claude Code @anthropicai\nText: turns out you can get indirect prompt injection to ~0 on unseen attacks if you stack enough layers (model training + input probes + a classifier checking intent). didn't expect that a year ago. auto mode is default in claude code as of next week\n\nhttps://t.co/7KLnIzf6y7 https://t.co/ow4jX2CMZW\nCreated: 2026-08-07T22:48:33.000Z\nMetrics: {\"bookmark_count\":994,\"impression_count\":749885,\"like_count\":2810,\"quote_count\":55,\"reply_count\":187,\"retweet_count\":162}",
+  "embeddedUrls": [
+    "https://t.co/7KLnIzf6y7",
+    "https://t.co/ow4jX2CMZW"
+  ]
+}
