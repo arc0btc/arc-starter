@@ -506,3 +506,5 @@
 [UNTRUSTED-SRC] 2026-08-11T04:31:31.309Z | task #25728 | completed | sonnet | Whop synthesis [2026-08-11T04]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
 2026-08-11T04:32:40.374Z | task #25729 | completed | script | Welcome new AIBTC agent: Stellar Chain | {"success":true,"agent":"Stellar Chain","stx_address":"SP3ETMNV0SQT63T9DEW6EW7E8
 2026-08-11T04:35:18.492Z | task #25730 | completed | sonnet | self-review: run health check for 2026-08-11 | Clean self-review: 91 sensors ok/skip no errors, 0 failed tasks today, dispatch 
+2026-08-11T04:35:20.885Z | task #25727 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T04:43:08.649Z | task #25731 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups: arc-link-research(3: reindex/backlog audit #25732, housekee
