@@ -520,3 +520,4 @@
 2026-08-11T00:47:52.210Z | task #25709 | completed | sonnet | Research: Firecrawl anydoc — Rust doc-to-Markdown utility fo | anydoc (Firecrawl, Rust, MIT) converts Word/PPT/Excel/PDF/EPUB/CSV to Markdown —
 2026-08-11T00:48:25.747Z | task #25701 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T00:50:02.986Z | task #25710 | completed | haiku | Retrospective: extract learnings from task #25702 — Triage:  | No learnings to capture — task executed existing patterns (batch-theme-homogenei
+2026-08-11T00:51:31.532Z | task #25712 | completed | haiku | Retrospective: extract learnings from task #25704 — Research | Added 2 patterns: triage-description-source-verification (source material is gro
