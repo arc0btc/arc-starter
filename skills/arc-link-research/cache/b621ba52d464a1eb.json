@@ -1,0 +1,12 @@
+{
+  "url": "https://t.co/cu97QPUhXF",
+  "fetchedAt": "2026-08-11T05:33:43.451Z",
+  "contentType": "html",
+  "title": "t.co",
+  "rawContent": "# Simplified onboarding for deepsec **Published:** August 10, 2026 | **Authors:** Malte Ubl --- [deepsec](https://deepsec.sh/), the open-source security review harness from Vercel, now lets you set up a repository and run its first security review with a single command. ```bash npx deepsec init ``` The `init` command now automates the standard setup process: - creates the isolated `.deepsec/` workspace, the only thing added to your repository, and installs its dependencies - configures model access, through [Vercel AI Gateway](https://vercel.com/ai-gateway) or your own provider keys - generates a description of the codebase and its attack surface that every later review depends on - runs a pattern scan, generating extra scan patterns where the built-in set leaves coverage gaps - starts the AI review of the flagged files Setup is checkpointed after each step. If a run stops, whether from closing the process, a failed step, or a hit cost or duration limit, re-running `init` resumes from the last completed step. Run `npx deepsec init` to start your first scan, or read the [docs](https://deepsec.sh/docs/getting-started) to learn more. --- 📚 **More updates:** [View all changelog entries](/changelog/sitemap.md) | [Blog](/blog/sitemap.md)",
+  "embeddedUrls": [
+    "https://deepsec.sh/",
+    "https://vercel.com/ai-gateway",
+    "https://deepsec.sh/docs/getting-started"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/arena/status/2086943856289853931",
+  "fetchedAt": "2026-08-11T05:33:41.525Z",
+  "contentType": "tweet",
+  "title": "@arena: MAI-Image-2.6 by @MicrosoftAI has landed in the Text-to-Image Arena at #2 (1336 ...",
+  "rawContent": "Tweet by @arena (Arena.ai)\nAuthor bio: Where AI meets the real world. We measure and advance the frontier of AI through community-driven evaluation. We’re hiring → https://t.co/XBZCrsdD77\nText: MAI-Image-2.6 by @MicrosoftAI has landed in the Text-to-Image Arena at #2 (1336 pts)!\n\nThis release is just 45 pts behind GPT Image 2 (Medium) at #1, and ahead of #3 Grok Imagine Image 2.0 (Low) by 20 pts.\n\nMAI-Image-2.6 is a significant improvement from MAI-Image-2.5 overall at #10 with (1256 pts), and across all categories. MAI will also be making it available on Playground with early API access on Foundry next week. See post below for more details.\n\nCongrats to the @MicrosoftAI team on this release!\nCreated: 2026-08-10T22:32:43.000Z\nMetrics: {\"bookmark_count\":138,\"impression_count\":136533,\"like_count\":770,\"quote_count\":38,\"reply_count\":34,\"retweet_count\":63}",
+  "embeddedUrls": [
+    "https://t.co/7hxPZ7DrBF"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/Ht0dUdUdZ1",
+  "fetchedAt": "2026-08-11T05:33:44.894Z",
+  "contentType": "tweet",
+  "title": "@AIatMeta: Introducing Muse Glimmer, an open-weight 30B-parameter model optimized for local...",
+  "rawContent": "Tweet by @AIatMeta (AI at Meta)\nAuthor bio: Together with the AI community, we are pushing the boundaries of what’s possible through open science to create a more connected world.\nText: Introducing Muse Glimmer, an open-weight 30B-parameter model optimized for local, always-on agent workflows.\n\nMuse Glimmer delivers strong performance on key agentic use cases and benchmarks compared with leading models in its size category, and is designed to run entirely on consumer hardware like a Mac or PCs with performant GPUs.\n\nIn keeping with our long tradition of sharing fundamental AI research, we’re releasing model weights under a permissive Apache 2.0 license.\n\n🧵👇\nCreated: 2026-08-10T10:13:34.000Z\nMetrics: {\"bookmark_count\":2592,\"impression_count\":990363,\"like_count\":7331,\"quote_count\":347,\"reply_count\":264,\"retweet_count\":916}",
+  "embeddedUrls": [
+    "https://t.co/mI4z91GPnE"
+  ]
+}

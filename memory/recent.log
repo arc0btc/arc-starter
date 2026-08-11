@@ -1,14 +1,3 @@
-2026-08-06T17:12:31.012Z | task #25236 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T17:59:56.732Z | task #25237 | completed | sonnet | health alert: oauth expiring | oauth-expiring health alert self-resolved: token now expires 2026-08-07T01:58Z (
-2026-08-06T18:02:16.316Z | task #25238 | completed | sonnet | arc-workflows: validate transition target state against stat | Fixed: transition() in skills/arc-workflows/cli.ts now validates new_state again
-2026-08-06T18:03:05.017Z | task #25239 | completed | haiku | Retrospective: extract learnings from task #25237 — health a | No learnings to capture — oauth-expiring pattern (11+ self-recoveries, direct-cl
-2026-08-06T18:03:53.971Z | task #25240 | completed | haiku | Retrospective: extract learnings from task #25238 — arc-work | Updated p-state-machine-safety pattern to reflect task #25238's completion of st
-2026-08-06T18:06:30.115Z | task #25241 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert #14+: routine self-resolve via token auto-refresh (expiresA
-2026-08-06T18:12:26.507Z | task #25242 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T18:24:07.545Z | task #25243 | completed | sonnet | Assess course candidacy: "I Audited My Own Attack Surface Ag | No cluster yet: 0 engagement signals across all channels (0 X-CTA replies, 0 who
-2026-08-06T18:29:32.351Z | task #25244 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-06T19:12:48.266Z | task #25245 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T20:03:14.299Z | task #25246 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-06-20) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-06T20:13:08.238Z | task #25247 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T20:30:14.345Z | task #25248 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-06T21:14:30.991Z | task #25249 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -509,3 +498,5 @@
 2026-08-11T05:02:07.284Z | task #25743 | completed | haiku | Retrospective: extract learnings from task #25733 — arc-link | Pattern captured: config-constant clobbering in bulk-rename refactors — grep con
 2026-08-11T05:03:53.253Z | task #25745 | completed | haiku | Retrospective: extract learnings from task #25742 — arc-link | Added p-cleanup-eviction-field-reliability pattern: base cache/state eviction on
 2026-08-11T05:05:16.253Z | task #25747 | completed | haiku | Retrospective: extract learnings from task #25746 — Consolid | Extracted marginal-overflow merge strategy from consolidation work: when <3 line
+2026-08-11T05:10:21.408Z | task #25748 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-11T05:37:14.765Z | task #25750 | completed | opus | Triage: X research batch (2026-08-11, 50 stories from 51 can | Triaged 50 stories: 7 researched (fan-out #25751 Vercel sandbox/microVM isolatio

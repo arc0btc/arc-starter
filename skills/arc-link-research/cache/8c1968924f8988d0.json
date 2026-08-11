@@ -1,0 +1,16 @@
+{
+  "url": "https://github.com/teknium1/hermes-pixel-office-vscode",
+  "fetchedAt": "2026-08-11T05:33:39.622Z",
+  "contentType": "github",
+  "title": "hermes-pixel-office-vscode",
+  "rawContent": "Repo: teknium1/hermes-pixel-office-vscode\nDescription: VS Code extension: watch Hermes agents work as pixel characters in a virtual office\nTopics: \nStars: 7\n\nREADME:\n# Hermes Pixel Office â VS Code Extension â¤\n\nWatch your [Hermes](https://github.com/NousResearch/hermes-agent) agents work\nas animated pixel characters in a tiny office, inside VS Code.\n\n![live screenshot](screenshot-live.png)\n\nSessions walk in through the door and sit at desks. Subagents get gold\ncollars and their goal as a name tag. Characters type, read, browse, and run\nterminals based on what the agent is actually doing. When an agent needs a\ndangerous-command approval, its character throws up a red \"!\" bubble and the\nheader shows \"N waiting!\" â with an optional chime.\n\n## Requirements\n\n- [Hermes Agent](https://github.com/NousResearch/hermes-agent) with the\n  [pixel-office plugin](https://github.com/teknium1/hermes-pixel-office)\n  enabled:\n\n  ```bash\n  git clone https://github.com/teknium1/hermes-pixel-office ~/.hermes/plugins/pixel-office\n  hermes plugins enable pixel-office\n  ```\n\n- VS Code 1.85+\n\n## Use\n\n1. Start any Hermes session (new process â plugins load at startup).\n2. `Ctrl+Shift+P` â **Hermes: Open Pixel Office**.\n3. The **+ agent** button in the office header opens a terminal running\n   `hermes`.\n\n## How it connects\n\n```\nhermes agents ââhooksâââ¶ pixel-office plugin ââHTTP 127.0.0.1:8113/stateâââ¶ this panel\n```\n\nThe extension host polls the plugin's `/state` endpoint with Node's `http`\n(the webview itself needs no network access) and posts snapshots into the\ncanvas office. Visual only â it never sends anything to your agents.\n\n**Remote/SSH:** works out of the box â the extension host runs where Hermes\nruns, so `127.0.0.1` is correct on both ends.\n\n## Settings\n\n| Setting | Default | Purpose |\n|---|---|---|\n| `hermesPixelOffice.stateUrl` | `http://127.0.0.1:8113/state` | Match `plugins.entries.pixel-office.port` if you changed it |\n| `hermesPixelOffice.openOnStartup` | `false` | Auto-open the office when VS Code starts |\n\n## Troubleshooting\n\n- **\"hermes office unreachable\"** â the plugin's server isn't answering.\n  Check that the plugin is enabled and a *fresh* Hermes session has run at\n  least one tool, then `curl http://127.0.0.1:8113/state`. The plugin logs\n  loud WARNINGs (`hermes logs --level warning`) when its port is squatted,\n  including by stale VS Code port-forwards â a forward from a previous\n  remote window can shadow your local server and swallow every request.\n- Standalone mode (no VS Code): just open http://127.0.0.1:8113 in a\n  browser.\n\n## License\n\nMIT\n",
+  "embeddedUrls": [
+    "https://github.com/NousResearch/hermes-agent",
+    "https://github.com/NousResearch/hermes-agent",
+    "https://github.com/teknium1/hermes-pixel-office",
+    "https://github.com/teknium1/hermes-pixel-office",
+    "http://127.0.0.1:8113/state`",
+    "http://127.0.0.1:8113/state`.",
+    "http://127.0.0.1:8113"
+  ]
+}

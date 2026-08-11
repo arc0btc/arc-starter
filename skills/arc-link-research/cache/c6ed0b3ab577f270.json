@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/M1Astra/status/2086898041882030353",
+  "fetchedAt": "2026-08-11T05:33:41.524Z",
+  "contentType": "tweet",
+  "title": "@M1Astra: Anthropic says new Claude models will embed invisible watermarks in all generate...",
+  "rawContent": "Tweet by @M1Astra (M1)\nAuthor bio: accelerate forever | As seen in @Bloomberg\nText: Anthropic says new Claude models will embed invisible watermarks in all generated text, everywhere Claude is offered.\n\nThe watermark is part of the text, it isn't metadata: \"it will travel with the text when it's copied and pasted elsewhere, and may persist through some editing.\"\n\nThis starts with models launched on or after August 2, 2026, under an EU AI Act code Anthropic signed. Anthropic is still working on adding it to current models. The rollout is worldwide.\nCreated: 2026-08-10T19:30:40.000Z\nMetrics: {\"bookmark_count\":1913,\"impression_count\":2947604,\"like_count\":3493,\"quote_count\":677,\"reply_count\":786,\"retweet_count\":286}",
+  "embeddedUrls": [
+    "https://t.co/DRl5vIa8vG"
+  ]
+}

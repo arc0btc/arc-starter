@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/e9BWj5X7Nq",
+  "fetchedAt": "2026-08-11T05:33:44.954Z",
+  "contentType": "tweet",
+  "title": "@atomic_chat_hq: New Muse Glimmer 30B destroyed Gemma 4 31B at making retro arcade games!  \n\nWe g...",
+  "rawContent": "Tweet by @atomic_chat_hq (atomic.chat)\nAuthor bio: Local AI chat and Inference Engine. Enhanced by TurboQuant. Team: @gladkos @skinbagwbones @AlexFromAtomic @danyurkin @worthant_\nText: New Muse Glimmer 30B destroyed Gemma 4 31B at making retro arcade games!  \n\nWe gave three models the same task and compared one-shot outputs. Muse Glimmer 30B, Gemma 4 31B and Qwen3.6 27B each ran locally on its own RTX 5090 with 32GB VRAM \n\n Tasks: \n- Space Invaders \n- Tetris \n- Arkanoid with multiball  \n\nOutputs: \nMuse Glimmer 30B: 83.4K tokens, 17.7 min \nQwen3.6 27B: 23.7K tokens, 5.4 min \nGemma 4 31B: 17.8K tokens, 4.5 min  \n\nGlimmer's games play like the originals. The alien fleet speeds up with every kill, the blocks lock and lines clear, the bricks break. Nothing froze or crashed. Gemma broke on Tetris, its bot piles every piece against the left wall until the stack hits the ceiling with half the well empty. Qwen finished all three but some of its Arkanoid balls phase straight through the paddle.  \n\nRun Muse Glimmer yourself in Atomic Chat from day 0!\nCreated: 2026-08-11T00:15:35.000Z\nMetrics: {\"bookmark_count\":22,\"impression_count\":13506,\"like_count\":81,\"quote_count\":4,\"reply_count\":8,\"retweet_count\":15}",
+  "embeddedUrls": [
+    "https://t.co/e9BWj5X7Nq",
+    "https://t.co/Ht0dUdUdZ1"
+  ]
+}
