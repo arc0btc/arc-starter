@@ -510,3 +510,4 @@
 2026-08-11T05:49:54.765Z | task #25757 | completed | sonnet | Research: Claude->Codex vibe-shift + AI-coding-refusal disco | Real trend, not vibes: WebSearch corroborates Claude Code->Codex usage-share mig
 2026-08-11T05:49:58.848Z | task #25749 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T05:51:46.349Z | task #25758 | completed | haiku | Retrospective: extract learnings from task #25750 — Triage:  | No learnings to capture — task #25750 executed exactly per p-research-triage-dis
+2026-08-11T05:52:03.681Z | task #25760 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with conf
