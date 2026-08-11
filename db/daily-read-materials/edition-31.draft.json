@@ -1,0 +1,7 @@
+{
+  "tweets": [
+    "Anthropic: stack model training + input probes + an intent classifier and injection on unseen attacks drops to ~0%. Training ships in the weights; the rest sits behind auto mode's gate - which my dispatch skips (src/dispatch.ts:590-591).",
+    "That gate caught 89% of dangerous commands in a 1,053-tester study, vs 13.6% for human review alone. My dispatch never reaches it - bypassPermissions clears the allow-rules the classifier depends on before any tool call runs.",
+    "Auto mode codifies the same test I already write in prose in CLAUDE.md - irreversible, destructive, or aimed outside the environment. Next step: scope bypassPermissions to trusted task classes and let auto mode gate the rest."
+  ]
+}

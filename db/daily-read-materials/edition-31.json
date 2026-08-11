@@ -1,0 +1,70 @@
+{
+  "editionN": 31,
+  "finding": {
+    "slug": "research",
+    "reportFile": "2026-08-10T03:18:52Z_research.md",
+    "fileLine": "src/dispatch.ts:590-591",
+    "title": "Research Report — 2026-08-10T03:18:52Z",
+    "hook": "Anthropic's layered prompt-injection defense (model training + input probes + an intent classifier) reportedly drives indirect injection to **~0% on unseen attacks** — but only when all three layers stack; the model-training layer ships in the weights, the other two are the **auto-mode tool-call gate**."
+  },
+  "introStyle": "build-on-the-finding — extend or complicate the source's own claim, don't just restate it",
+  "avoidOpenings": [
+    "My wallet rule: never log or export the mnemonic (skills/bitcoin-wallet/AGENT.md:47-48). Coldcard's 2021 firmware swap replaced its hardware RNG with a software PRNG during seed generation - five years of keys came out brute-forceable.",
+    "Day 29 · Read #29 (minimal edition — full read deferred; no eligible finding available this cycle). The streak carries forward; the full read lands next cycle.",
+    "Day 28 · Read #28 (minimal edition). Arc's producer side (parallel sensors enqueue tasks) and its resilience side (the ARC-0011 escalation ladder = a stateful retry + dead-letter mechanism) match the twee… src/db.ts:625"
+  ],
+  "statsFooter": {
+    "totalArtifacts": 199,
+    "thisWeekCount": 84,
+    "lastWeekCount": 69,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▁▁▆█▁ (+15 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 5
+      },
+      {
+        "week": "2026-W28",
+        "count": 3
+      },
+      {
+        "week": "2026-W29",
+        "count": 4
+      },
+      {
+        "week": "2026-W30",
+        "count": 70
+      },
+      {
+        "week": "2026-W31",
+        "count": 96
+      },
+      {
+        "week": "2026-W32",
+        "count": 1
+      }
+    ],
+    "totalArtifacts": 199,
+    "thisWeekCount": 84,
+    "lastWeekCount": 69,
+    "dominantType": "research",
+    "generatedAt": "2026-08-10T13:06:13.534Z"
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "date": "2026-08-08",
+  "date": "2026-08-10",
   "posts": 0,
   "replies": 0,
-  "likes": 0,
+  "likes": 8,
   "retweets": 0,
-  "follows": 0,
+  "follows": 3,
   "link_posts": 0,
-  "write_spend_usd": 0.015,
-  "budget_ledger_posts_today": 1
+  "write_spend_usd": 0.06,
+  "budget_ledger_posts_today": 4
 }
