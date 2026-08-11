@@ -505,3 +505,5 @@
 [UNTRUSTED-SRC] 2026-08-11T21:44:39.794Z | task #25821 | completed | sonnet | Whop free-forum digest [2026-08-11]: syndicate Arc status in | Posted free-forum digest post_1Cdwh7Pju4TQvZCHEc51T5 covering 139 tasks/0 failed
 2026-08-11T21:47:03.234Z | task #25822 | completed | sonnet | arc-packaging: fix RESEARCH_DIR miss on archived reports + c | Fixed missing archive fallback in arc-packaging cli.ts (3 read sites) via resolv
 2026-08-11T21:48:38.973Z | task #25823 | completed | haiku | Retrospective: extract learnings from task #25820 — Package  | No learnings to capture — dedup-before-mint gate already validated; bugs (#25822
+2026-08-11T21:49:01.244Z | task #25824 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T21:50:05.883Z | task #25825 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via auto-refresh, consistent with confirmed routine
