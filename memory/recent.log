@@ -503,3 +503,4 @@
 2026-08-11T09:54:14.988Z | task #25770 | completed | sonnet | Distill watch report 2026-08-11T01:00:47.098Z into 1-2 inter | Wrote 2 watch-interior nuggets: cost (opus research burst = 54% of $10.54 period
 2026-08-11T09:58:00.664Z | task #25771 | completed | sonnet | architecture review — codebase changed since last review (40 | Reviewed 40168b9..d7eb868: arc-link-research cache TTL sweep + housekeeping auto
 2026-08-11T09:58:57.547Z | task #25772 | completed | sonnet | workflow review — 1 health issue(s) | 1 stuck instance (wf#3602, new-release:aibtc-mcp-server@mcp-server-v1.66.0, stat
+2026-08-11T09:59:27.763Z | task #25773 | completed | haiku | Retrospective: extract learnings from task #25771 — architec | No new learnings to capture — architecture review #25771 found no structural pat
