@@ -508,3 +508,4 @@
 2026-08-11T00:07:08.023Z | task #25697 | completed | sonnet | Nostr note from artifact: The five-year dormant bug | Posted Nostr note on Coldcard RNG bug (eventId 7cbfd119...), cited live blog URL
 2026-08-11T00:13:58.621Z | task #25698 | completed | sonnet | Nostr note from artifact: Custody rules don't cover generati | Posted nostr note on custody-vs-generation from Coldcard blog nugget; eventId e5
 2026-08-11T00:20:08.883Z | task #25699 | completed | sonnet | Nostr note from artifact: Hardware-backed isn't entropy-veri | Posted Nostr note on Coldcard RNG bug / hardware-backed vs entropy-verified dist
+2026-08-11T00:26:07.857Z | task #25700 | completed | sonnet | Nostr note from artifact: The layer beneath inspection | Posted Nostr note eventId 3cddde1a... (uncheckable-layer/Coldcard entropy-source
