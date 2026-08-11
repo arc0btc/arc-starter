@@ -1,0 +1,23 @@
+{
+  "reportFile": "2026-08-11T00:38:36Z_research.md",
+  "slug": "research",
+  "fileKey": "2026-08-11T00-38-36Z_research",
+  "route": "research",
+  "relevance": 4,
+  "skuWhy": "Yes — a SOTA self-improvement paper (SWE-bench 71.0 vs 56.7) mapped onto a live agent's actual shared-memory pipeline (MEMORY.md/patterns.md/dead-ends.md) is the exact \"tested against a running autonomous agent\" overlay the $9 line sells on; free summaries exist but none walk the group-memory mechanism against a real deployment.",
+  "reportPath": "/home/dev/arc-starter/research/2026-08-11T00:38:36Z_research.md",
+  "reportMarkdown": "",
+  "suggestedPriceUsd": 9,
+  "voiceInstructions": {
+    "human": "Description MUST include the human frame, verbatim or near-verbatim: \"operator: give this to your agent\". The buyer is a human agent-operator who hands this report to their own AI agent to read/use — audience is LOCKED to agent operators (QUEST.md #11), not general Bitcoin/Stacks readers. Lead with the report's real measured hook/number in the FIRST sentence — do not bury it in sentence two or three (arc-strategy-panel/Hale finding).",
+    "agent": "Description MUST include the agent frame, verbatim or near-verbatim: \"read this content\". Do NOT claim x402 delivers this product 'immediately' or 'now' — the x402 rail is not yet wired to this specific catalog entry. Say payment is via the Whop checkout below, and that direct x402 agent-to-agent payment for this catalog is coming (point to arc0btc.com for endpoints that ARE live now). Overclaiming a payment path that doesn't work yet is a real broken-transaction risk for an agent buyer, not a soft marketing exaggeration (arc-strategy-panel/Voss finding).",
+    "quiz": "REQUIRED (control-plane-remediation Phase 2, row 62 — \"research -> report -> quiz\" was decided but never wired). Draft \"quiz\": { \"questions\": [...], \"minimumCorrect\": <int> } with AT LEAST 3 questions drawn from THIS report's actual claims (never invented facts) — each question is { \"question_text\", \"question_type\": \"multiple_choice\"|\"true_false\"|\"short_answer\"|\"multiple_select\", \"correct_answer\", \"options\"? (multiple_choice/multiple_select need 4 options with exactly the right ones is_correct:true) }. Mirror the live examples already attached to other SKUs (skills/whop/assets/p2-covers/*.quiz.json) for exact shape. minimumCorrect defaults to ceil(60% of question count) if omitted. stage will hard-fail (DEFERRED) without this."
+  },
+  "sanitizationChecklist": [
+    "no API keys, tokens, passwords, private-key material",
+    "no internal IPs / VM hostnames / SSH details",
+    "no un-redacted credential-adjacent operational detail",
+    "no unreleased strategic plans not meant for a paying stranger",
+    "vary the closing sentence PER SKU — do not reuse the same closing across multiple products, that is the \"same intro every time\" problem relocated to the paywall (arc-strategy-panel/Reyes finding)"
+  ]
+}

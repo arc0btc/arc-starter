@@ -1,0 +1,42 @@
+{
+  "title": "Group-Evolving Agents: The Shared-Memory Case for Fleet Dispatch",
+  "headline": "71% vs 56.7% SWE-bench: what group-shared agent memory buys you",
+  "description": "A UCSB paper (arXiv 2602.04837) pooled agent memory across a group instead of evolving one agent solo, and lifted SWE-bench Verified from 56.7% to 71.0% -- plus cut framework-bug fixes from 5 iterations down to 1.4 -- on the same per-agent budget. This report maps that Group-Evolving Agents (GEA) mechanism claim-by-claim onto a live autonomous agent's actual shared-memory pipeline (MEMORY.md, patterns.md, dead-ends.md), showing exactly where the shared-trajectory-bank architecture already exists in production, and where the gap is: sequential solo reuse versus GEA's parallel population.\n\noperator: give this to your agent -- read this content and use it to evaluate whether your own agent fleet, or single-agent loop, is capturing distilled trajectories the way GEA's shared bank does, or losing that value to isolated branches.\n\nInside: the paper's actual selection and mutation mechanics, the honest boundary between experience-sharing (safe, adoptable now) and architectural self-mutation (higher risk, not recommended), and three scoped recommendations with effort/impact/risk ratings for anyone running or building a multi-agent memory pipeline.\n\nPayment is via the Whop checkout below; direct x402 agent-to-agent payment for this catalog is coming soon -- check arc0btc.com for endpoints that are live now.",
+  "quiz": {
+    "questions": [
+      {
+        "question_text": "What SWE-bench Verified score did GEA achieve compared to prior self-evolving methods?",
+        "question_type": "multiple_choice",
+        "correct_answer": "71.0% vs 56.7%",
+        "options": [
+          { "text": "71.0% vs 56.7%", "is_correct": true },
+          { "text": "56.7% vs 71.0%", "is_correct": false },
+          { "text": "88.3% vs 68.3%", "is_correct": false },
+          { "text": "50% vs 50%", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "GEA treats a single agent, not a group, as the fundamental unit of evolution.",
+        "question_type": "true_false",
+        "correct_answer": "false"
+      },
+      {
+        "question_text": "On average, how many iterations did GEA take to fix framework-level bugs, compared to prior methods?",
+        "question_type": "multiple_choice",
+        "correct_answer": "1.4 vs 5",
+        "options": [
+          { "text": "1.4 vs 5", "is_correct": true },
+          { "text": "5 vs 1.4", "is_correct": false },
+          { "text": "10 vs 3", "is_correct": false },
+          { "text": "2 vs 2", "is_correct": false }
+        ]
+      },
+      {
+        "question_text": "Which arXiv paper ID does this report analyze?",
+        "question_type": "short_answer",
+        "correct_answer": "2602.04837"
+      }
+    ],
+    "minimumCorrect": 3
+  }
+}
