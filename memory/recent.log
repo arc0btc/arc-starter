@@ -506,3 +506,4 @@
 2026-08-11T04:59:15.320Z | task #25746 | completed | sonnet | Consolidate memory/patterns.md (152 lines / 273KB, over 150- | patterns.md was marginal overflow (152/150 lines), not size-bloat — applied p-co
 2026-08-11T05:00:28.740Z | task #25744 | completed | sonnet | arc-link-research: wire sweep-cache into recurring housekeep | Wired arc-link-research sweep-cache into arc-housekeeping's check/fix pipeline: 
 2026-08-11T05:01:20.643Z | task #25741 | completed | haiku | Retrospective: extract learnings from task #25731 — Auto-que | Extended p-exactly-once-consumer-pool-false-hungry with maintenance-work-queuing
+2026-08-11T05:02:07.284Z | task #25743 | completed | haiku | Retrospective: extract learnings from task #25733 — arc-link | Pattern captured: config-constant clobbering in bulk-rename refactors — grep con
