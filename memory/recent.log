@@ -508,3 +508,4 @@
 2026-08-11T04:35:18.492Z | task #25730 | completed | sonnet | self-review: run health check for 2026-08-11 | Clean self-review: 91 sensors ok/skip no errors, 0 failed tasks today, dispatch 
 2026-08-11T04:35:20.885Z | task #25727 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T04:43:08.649Z | task #25731 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups: arc-link-research(3: reindex/backlog audit #25732, housekee
+2026-08-11T04:43:46.190Z | task #25735 | completed | sonnet | Nostr note from artifact: read-the-chain (veto-that-was-neve | Posted nostr note from artifact 2026-08-10T142021Z__read-the-chain (vetoWeight:0
