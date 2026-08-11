@@ -3,7 +3,7 @@
 // CLI for the research skill. Processes link batches into mission-relevant reports.
 // Usage: arc skills run --name arc-link-research -- <subcommand> [flags]
 
-import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, mkdirSync, readFileSync, writeFileSync, statSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
 // Read-budget guard (2026-07-12 operator spend audit): this skill's X lookups were
@@ -213,6 +213,59 @@ async function writeCache(entry: CachedContent): Promise<void> {
   const hash = await urlHash(entry.url);
   const path = join(CACHE_DIR, `${hash}.json`);
   await Bun.write(path, JSON.stringify(entry, null, 2));
+}
+
+// AI-030 (2026-08-11, #25742): TTL-based cache eviction, independent of report linkage.
+// Orphan-matching against reports.cached_path was considered but rejected — only 93/795
+// reports (12%) populate that field, so absence of a match doesn't prove a cache file is
+// unreferenced. fetchedAt is present on every cache entry (100% coverage), so TTL sweep
+// is the reliable mechanism; report-linkage cleanup can be revisited once cached_path
+// population is consistently written by `process`.
+const CACHE_TTL_DAYS_DEFAULT = 90;
+
+function cmdSweepCache(args: string[]): void {
+  const flags = parseFlags(args);
+  const ttlDays = flags["ttl-days"] ? Number(flags["ttl-days"]) : CACHE_TTL_DAYS_DEFAULT;
+  const dryRun = args.includes("--dry-run");
+  if (!Number.isFinite(ttlDays) || ttlDays <= 0) {
+    process.stderr.write(`Error: --ttl-days must be a positive number\n`);
+    process.exit(1);
+  }
+
+  ensureCacheDir();
+  const cutoff = Date.now() - ttlDays * 24 * 60 * 60 * 1000;
+  const files = readdirSync(CACHE_DIR).filter((f) => f.endsWith(".json") && f !== "slug-cache.json");
+
+  let swept = 0;
+  let kept = 0;
+  let unparseable = 0;
+  for (const file of files) {
+    const path = join(CACHE_DIR, file);
+    let fetchedAtMs: number | null = null;
+    try {
+      const entry = JSON.parse(readFileSync(path, "utf-8")) as Partial<CachedContent>;
+      if (entry.fetchedAt) fetchedAtMs = Date.parse(entry.fetchedAt);
+    } catch {
+      // fall through to mtime fallback below
+    }
+    if (fetchedAtMs === null || Number.isNaN(fetchedAtMs)) {
+      // Unparseable/legacy entry — fall back to file mtime rather than skipping silently.
+      fetchedAtMs = statSync(path).mtimeMs;
+      unparseable++;
+    }
+    if (fetchedAtMs < cutoff) {
+      if (!dryRun) unlinkSync(path);
+      swept++;
+    } else {
+      kept++;
+    }
+  }
+
+  process.stdout.write(
+    `${dryRun ? "[dry-run] " : ""}Cache sweep: ${swept} ${dryRun ? "would be swept" : "swept"}, ${kept} kept (TTL ${ttlDays}d)` +
+      (unparseable > 0 ? `, ${unparseable} used mtime fallback (missing/invalid fetchedAt)` : "") +
+      "\n"
+  );
 }
 
 function extractSectionUrls(readmeContent: string, sectionName: string): string[] {
@@ -1832,6 +1885,12 @@ SUBCOMMANDS
   list-compiled
     Print all compiled deliverables from the slug cache.
 
+  sweep-cache [--ttl-days N] [--dry-run]
+    Evict raw fetch cache entries (cache/*.json, excluding slug-cache.json) older than
+    N days (default 90), keyed off each entry's fetchedAt field. TTL-based, not
+    report-linkage-based: cached_path is only populated on 12% of reports, so absence
+    of a matching report doesn't prove a cache file is orphaned. Use --dry-run to preview.
+
 EXAMPLES
   arc skills run --name arc-link-research -- prescreen --links "https://x.com/user/status/123,https://x.com/user/status/456"
   arc skills run --name arc-link-research -- process --links "https://example.com/article,https://github.com/owner/repo"
@@ -1877,6 +1936,9 @@ async function main(): Promise<void> {
       break;
     case "list-compiled":
       cmdListCompiled();
+      break;
+    case "sweep-cache":
+      cmdSweepCache(args.slice(1));
       break;
     case "help":
     case "--help":
