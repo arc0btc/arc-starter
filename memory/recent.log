@@ -500,3 +500,4 @@
 2026-08-11T05:05:16.253Z | task #25747 | completed | haiku | Retrospective: extract learnings from task #25746 — Consolid | Extracted marginal-overflow merge strategy from consolidation work: when <3 line
 2026-08-11T05:10:21.408Z | task #25748 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-11T05:37:14.765Z | task #25750 | completed | opus | Triage: X research batch (2026-08-11, 50 stories from 51 can | Triaged 50 stories: 7 researched (fan-out #25751 Vercel sandbox/microVM isolatio
+2026-08-11T05:39:31.581Z | task #25751 | completed | opus | Research: Vercel Sandbox microVM isolation & agent sandbox-e | Vercel Sandbox egress-firewall + deepsec: 'network bypass = sandbox escape' — co
