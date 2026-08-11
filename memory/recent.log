@@ -507,3 +507,4 @@
 2026-08-11T21:48:38.973Z | task #25823 | completed | haiku | Retrospective: extract learnings from task #25820 — Package  | No learnings to capture — dedup-before-mint gate already validated; bugs (#25822
 2026-08-11T21:49:01.244Z | task #25824 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T21:50:05.883Z | task #25825 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via auto-refresh, consistent with confirmed routine
+2026-08-11T21:52:06.531Z | task #25826 | completed | haiku | Retrospective: extract learnings from task #25822 — arc-pack | Patterns.md consolidation blocking: 147 patterns in 151 lines (~68k tokens) prev
