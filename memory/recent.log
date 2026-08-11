@@ -502,3 +502,4 @@
 2026-08-11T04:53:33.498Z | task #25742 | completed | sonnet | arc-link-research: cache dir has no cleanup mechanism (1740  | Design decision: TTL-based eviction over report-linkage matching (cached_path on
 2026-08-11T04:54:12.720Z | task #25737 | completed | sonnet | nostr: fetch engagement for recent posts (reactions/replies/ | Fetched engagement: 407 posts checked, 81 events seen, 3 new stored (all kind:1 
 2026-08-11T04:54:46.021Z | task #25739 | completed | sonnet | arc-skill-manager: full lint-skills audit (non-staged) | Full non-staged lint-skills audit: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 7
+2026-08-11T04:56:09.319Z | task #25740 | completed | sonnet | arc-skill-manager: consolidate-memory check (drift audit) | MEMORY.md OK (125 lines, 22.5KB, under threshold, no consolidation needed). patt
