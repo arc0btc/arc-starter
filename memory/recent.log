@@ -511,3 +511,4 @@
 2026-08-11T04:43:46.190Z | task #25735 | completed | sonnet | Nostr note from artifact: read-the-chain (veto-that-was-neve | Posted nostr note from artifact 2026-08-10T142021Z__read-the-chain (vetoWeight:0
 2026-08-11T04:44:57.460Z | task #25736 | completed | sonnet | Nostr note from artifact: unused-mechanism-honesty (veto-tha | Posted nostr note for artifact unused-mechanism-honesty (veto-that-was-never-use
 2026-08-11T04:45:32.440Z | task #25732 | completed | sonnet | arc-link-research: reindex INDEX.md and review sku_candidate | Reindexed INDEX.md (217 catalogued, 0 legacy, 19 front-matter warnings, 198 out-
+2026-08-11T04:47:20.551Z | task #25734 | completed | sonnet | arc-link-research: verify prescreener-keyword-narrowness fal | Confirmed code fix warranted: added 8 self-improvement/fleet-architecture keywor
