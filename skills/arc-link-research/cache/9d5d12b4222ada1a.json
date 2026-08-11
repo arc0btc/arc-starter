@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2086557637983027459",
+  "fetchedAt": "2026-08-11T00:46:30.060Z",
+  "contentType": "tweet",
+  "title": "@EXM7777: long form writing is where AI falls apart... so i built a pipeline that fixes it...",
+  "rawContent": "Tweet by @EXM7777 (Machina)\nAuthor bio: running ai-powered agencies | https://t.co/fMOmHWBgHG\nText: long form writing is where AI falls apart... so i built a pipeline that fixes it\n\nthe stack is GPT-5.6, Kimi K3, Fable 5 and Obsidian\n\nhere's how you can build the same (step-by-step):\n\nthe first fix is what the model sees... give it your full research and it uses every single fact, and the piece comes back dense and unreadable\n\nso before writing, one prompt picks the few receipts the piece needs and hides everything else\n\nthe second fix is who does what, because every model is good at one stage and bad at the rest:\n\n> Kimi K3 brainstorms and simplifies, the only model i've found that dumbs ideas down instead of dressing them up\n> GPT-5.6 writes the first draft, the best drafts i've tested and the worst final passes\n> Fable 5 adds the style and humanized layer at the end\n\nthe model that starts a piece never finishes it\n\nthe last fix is structure, because a model left alone invents a new shape every time\n\ni keep a template for every part of a piece:\n\n> how to open\n> how to sequence an argument\n> how to name the reader's pains\n> how to close...\n\nand my Obsidian vault holds great writing broken into those same parts, one note each, so the model builds from proven parts instead of imitating whole pieces\n\nyour job is dumping the idea, approving the outline, and doing the final edit\n\nwhat makes a piece good is the value inside, and no model provides that...\nCreated: 2026-08-09T20:58:01.000Z\nMetrics: {\"bookmark_count\":303,\"impression_count\":15619,\"like_count\":222,\"quote_count\":2,\"reply_count\":21,\"retweet_count\":10}",
+  "embeddedUrls": [
+    "https://t.co/Y0cgPGvxxx"
+  ]
+}
