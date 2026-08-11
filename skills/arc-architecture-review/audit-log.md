@@ -1,3 +1,27 @@
+## 2026-08-11T21:58:00.000Z — small bounded fix (archive fallback + Whop cleanup CLI), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25829** | Diff: d7eb868..a00ad96 (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-packaging/cli.ts` (a00ad96f7) — new `resolveReportPath()` checks `research/<file>` then falls back to `research/archive/<file>` before giving up; fixes a rotation race where a report gets archived mid-flight between the sensor queuing it and materials/stage actually reading it, which previously produced a silent empty report body. Applied consistently at all 3 read sites (compose, dupe-check, stage). Already tracked in MEMORY.md as `[[arc-packaging-archive-fallback-gap]]` FIXED.
+- `skills/whop/cli.ts` (a00ad96f7) — new `delete-product` CLI command, guarded: refuses to delete a non-`hidden` product without `--force`, so a live/visible product with members can't be deleted by a one-liner. Used once to clean an orphan hidden product (prod_r5heVkDZsudDR). Correct default-safe guard pattern.
+- Second commit in range (`ff25f87b5`) is non-structural: article-pipeline auto-package draft JSON, data not code.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Both fixes trace to a concrete observed defect (archive-race empty body) and a concrete cleanup need (orphan hidden product) — not speculative.
+- **Step 2 — Delete**: N/A this cycle.
+- **Step 3 — Simplify**: N/A — `resolveReportPath` follows the same check-then-fallback shape as other housekeeping path-resolution helpers rather than introducing a new pattern.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- No new architecture-relevant CEO/whoabuddy feedback in the two new reports since last review (2026-08-11T13:00Z watch report, 2026-08-11T14:00Z overnight brief) — clean overnight window (58/58 tasks, 0 failures), opus-research-burst-no-action-conversion flagged again (2nd occurrence, WATCH per memory convention, not yet a fix).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-11T09:57:00.000Z — arc-link-research cache hygiene shipped + one real bug caught; 129 skills / 91 sensors (unchanged)
 
 **Task #25771** | Diff: 40168b9..d7eb868 | Sensors: 91 | Skills: 129
@@ -77,30 +101,6 @@ Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk 
 
 - New reports since last review (2026-08-09T13:00Z overnight brief, 2026-08-09T13:01Z watch report): clean overnight window, 73/74 cycles completed, 100% success, no new architecture-relevant CEO/whoabuddy feedback, no new blocks.
 - All existing blocked items unchanged, tracked in MEMORY.md (news-legion #24776, X kill-switch #22885/87, whop-sku #21499, arc-0015 grounding gate, claude-cli drift #25383/90, store-governance injection #23833).
-
----
-
-## 2026-08-09T09:55:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25523** | Diff: 9a72a69..88bf15e | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/aibtc-repo-maintenance/cli.ts` (7eed877eb, follow-up to #25463) — `cmdStatus`'s `unreviewedPrs` count only checked for an `arc0btc` review, which is structurally impossible on arc0btc-authored PRs (GitHub disallows self-review) and noisy for dependabot/chore(deps) PRs already auto-skipped elsewhere by `arc-workflows`' `shouldSkipPrReview`. Now filters both out, reusing the existing `AUTOMATED_PR_PATTERNS` export from `arc-workflows/state-machine.ts` rather than duplicating the pattern list. Bounded, single decision point (status metric computation), correct reuse of an existing cross-skill export instead of a new one.
-- Remaining commits in range are non-structural: this skill's own prior diagram/audit-log commit, an `arc-opensource` sync (69 commits pushed, no src/skills content), and ~30 `arc-link-research` cache-file auto-commits (data, not code).
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Fix traces to a named false-positive (#25463, status metric inflated by self-authored/bot PRs) — not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — reuses an existing export instead of adding one; correct move, no further simplification available.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- One new report since last review (2026-08-09T01:01:35Z watch report): quiet 12h window, 59 tasks/0 failures, one article published, no new architecture-relevant CEO/whoabuddy feedback.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
 
