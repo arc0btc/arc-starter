@@ -518,3 +518,5 @@
 2026-08-11T00:46:19.443Z | task #25707 | completed | sonnet | Research: Hermes Agent ecosystem — local 24/7 agents, skills | Auto-scorer flagged all 4 links low-relevance (keyword-only match), but content 
 2026-08-11T00:46:54.092Z | task #25708 | completed | sonnet | Research: multi-model long-form content pipeline (research-c | Declined: thread describes generic multi-model writing pipeline (context curatio
 2026-08-11T00:47:52.210Z | task #25709 | completed | sonnet | Research: Firecrawl anydoc — Rust doc-to-Markdown utility fo | anydoc (Firecrawl, Rust, MIT) converts Word/PPT/Excel/PDF/EPUB/CSV to Markdown —
+2026-08-11T00:48:25.747Z | task #25701 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T00:50:02.986Z | task #25710 | completed | haiku | Retrospective: extract learnings from task #25702 — Triage:  | No learnings to capture — task executed existing patterns (batch-theme-homogenei
