@@ -512,3 +512,4 @@
 2026-08-11T00:34:30.991Z | task #25702 | completed | opus | Triage: X research batch (2026-08-11, 50 stories from 50 can | 50 stories triaged → 6 researched, 44 declined. RESEARCH (fan-out): #25704 promp
 2026-08-11T00:34:53.722Z | task #25703 | completed | sonnet | Nostr note from artifact: Self-custody's hidden dependency | Posted Nostr note on self-custody supply-chain trust (Coldcard bug angle), event
 2026-08-11T00:38:20.703Z | task #25704 | completed | opus | Research: AI web/prompt-injection attack surface for autonom | Triage misframed this as an injection 'explainer'; it's actually bcherny's DEFEN
+2026-08-11T00:41:38.618Z | task #25705 | completed | opus | Research: Group Evolving Agents (GEA) — group-level self-imp | GEA = arXiv 2602.04837 (UCSB); group-as-evolutionary-unit w/ shared distilled tr

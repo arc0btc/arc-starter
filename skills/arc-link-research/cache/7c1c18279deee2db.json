@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/tE5hZttTAA",
+  "fetchedAt": "2026-08-11T00:38:38.303Z",
+  "contentType": "tweet",
+  "title": "@DanKornas: Improving an agent from its own experience can be limited when useful lessons ar...",
+  "rawContent": "Tweet by @DanKornas (Dan Kornas)\nAuthor bio: AI/ML Engineer\nYoutube: https://t.co/pjpX8NvUn5\nNewsletter: https://t.co/NMMvPSmzua\nDans AI Lab: https://t.co/uIBlLyXFKu\nText: Improving an agent from its own experience can be limited when useful lessons are not shared across the wider group.\n\nGroup Evolving Agents (GEA) is a paradigm for open-ended self-improvement that treats a group of agents as the fundamental evolutionary unit.\n\nGEA enables explicit experience sharing and reuse within the group throughout evolution, and runs through the GEA_outer.py entry point.\n\nKey features:\n• Uses a group of agents, rather than an individual agent, as the fundamental evolutionary unit.\n• Enables explicit sharing and reuse of experience across the group during evolution.\n• Includes SWE-bench code, logs, and evaluation support for the initial agent.\n• Includes Polyglot code, logs, dataset preparation, and evaluation support.\n• Provides prompts and tools available to the foundation models, alongside a main initial coding-agent implementation.\n\nLink in the reply 👇\nCreated: 2026-08-09T21:05:58.000Z\nMetrics: {\"bookmark_count\":120,\"impression_count\":4047,\"like_count\":106,\"quote_count\":0,\"reply_count\":5,\"retweet_count\":12}",
+  "embeddedUrls": [
+    "https://t.co/tE5hZttTAA"
+  ]
+}
