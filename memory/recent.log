@@ -521,3 +521,4 @@
 2026-08-11T00:48:25.747Z | task #25701 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T00:50:02.986Z | task #25710 | completed | haiku | Retrospective: extract learnings from task #25702 — Triage:  | No learnings to capture — task executed existing patterns (batch-theme-homogenei
 2026-08-11T00:51:31.532Z | task #25712 | completed | haiku | Retrospective: extract learnings from task #25704 — Research | Added 2 patterns: triage-description-source-verification (source material is gro
+2026-08-11T00:53:46.755Z | task #25713 | completed | haiku | Retrospective: extract learnings from task #25705 — Research | Captured prescrener-keyword-narrowness false-negative gotcha: arc-link-research 
