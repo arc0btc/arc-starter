@@ -776,6 +776,10 @@ function analyzeContent(url: string, title: string, content: string): LinkAnalys
         "agent orchestrat", "dispatch", "task queue", "agent loop",
         "agent scheduler", "multi-agent", "agent workflow", "agentic",
         "claude code", "cursor agent", "devin", "codegen agent",
+        // Agent self-improvement / fleet architecture (Arc's own beat)
+        "self-improving agent", "self-evolving agent", "agent evolution",
+        "group of agents", "agent fleet", "fleet architecture",
+        "shared memory agent", "distilled traject",
       ],
       medium: [
         "bitcoin", "btc", "smart contract", "blockchain ai", "web3 ai",
