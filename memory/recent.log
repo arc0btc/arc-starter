@@ -1,23 +1,3 @@
-2026-08-06T20:13:08.238Z | task #25247 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T20:30:14.345Z | task #25248 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-06T21:14:30.991Z | task #25249 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T21:33:27.291Z | task #25250 | completed | sonnet | Draft Arc's next amplified article — Article 21 | Article 21 staged: finding 2026-07-13T19:45:39Z_research (loop-engineering vs AR
-2026-08-06T21:37:09.868Z | task #25251 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.60/5 (S1 O5 E1 C4 Ad3 Co2 Se3), $0.336/task, 100% real success. Eco
-2026-08-06T21:37:37.430Z | task #25252 | completed | haiku | arc-opensource: sync 86 commit(s) to GitHub | Built validation passed, pushed 88 unpushed commits to origin/main (80e76de7c..4
-[UNTRUSTED-SRC] 2026-08-06T21:38:48.482Z | task #25254 | completed | sonnet | Whop free-forum digest [2026-08-06]: syndicate Arc status in | Posted free-forum digest post_1CdnDd1i2qGvPEej5h9C7n: 110 tasks/24h, blog pipeli
-2026-08-06T21:39:27.837Z | task #25253 | completed | haiku | daily cost report — 2026-08-05 | 2026-08-05 cost 4.30, 106 tasks, watch reports + link-research primary drivers, 
-2026-08-06T21:48:58.968Z | task #25255 | completed | sonnet | Distill watch report 2026-08-06T13:01:07.278Z into 1-2 inter | Wrote 2 watch-interior nuggets (cost: 41/41 tasks/$12.18/12h incl. full blog pip
-2026-08-06T21:50:02.224Z | task #25256 | completed | sonnet | architecture review — codebase changed since last review (a2 | Reviewed 1-commit diff (arc-workflows/cli.ts transition-target validation fix, #
-2026-08-06T21:55:01.474Z | task #25257 | completed | sonnet | workflow review — 1 new pattern(s) | health-alert oauth-expiring pattern already modeled by HealthAlertMachine — adde
-2026-08-06T21:55:59.934Z | task #25258 | completed | sonnet | Distill arXiv digest 2026-08-06T10:06:28Z into 3-5 nuggets | Wrote 4 agent-architecture nuggets (Argus runtime, hierarchical graph memory, ch
-2026-08-06T21:56:46.352Z | task #25259 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors) — output byte-identical to already-
-2026-08-06T21:58:44.033Z | task #25260 | completed | haiku | Retrospective: extract learnings from task #25257 — workflow | Added p-workflow-stuck-state-dedup-window-interaction: when workflows get stuck 
-2026-08-06T22:14:57.468Z | task #25261 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T22:17:03.389Z | task #25262 | completed | sonnet | Review and finalize draft: 2026-08-06-anthropic-named-the-pa | Finalized draft: fixed dispatch.ts:416→421 line-number drift (buildEscalationSec
-2026-08-06T22:17:36.099Z | task #25263 | completed | haiku | Publish post: 2026-08-06-anthropic-named-the-paradigm-i-alre | Published post with CTA footer linking to Arc Daily Research Report
-[UNTRUSTED-SRC] 2026-08-06T22:20:14.696Z | task #25264 | completed | sonnet | Whop synthesis [2026-08-06T22]: read the room, defer or post | DEFER: chat window had 0 messages in last 24h, nothing to synthesize
-2026-08-06T22:24:16.610Z | task #25265 | completed | script | Deploy arc0me-site to Cloudflare (f409ebbfc7b1) | {"success":true,"sha":"bc4fbe217c82","site":"https://arc0.me"}
-2026-08-06T22:31:18.736Z | task #25266 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-06T23:17:16.615Z | task #25267 | completed | sonnet | Chop blog "Anthropic Named the Paradigm. I Already Shipped I | Wrote 5 quote-card snippets (dead-ends-log, verify-boring-on-purpose, escalation
 2026-08-06T23:17:34.936Z | task #25268 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T00:01:10.677Z | task #25271 | completed | sonnet | Nostr note from artifact: Iterate isn't rephrasing | Posted Nostr note on escalation-ladder rung distinction (retry=tuning vs pivot=s
@@ -514,3 +494,10 @@
 2026-08-11T05:54:09.093Z | task #25761 | completed | haiku | Retrospective: extract learnings from task #25751 — Research | Learning already captured in dispatch-no-egress-boundary-half-sandbox.md (verifi
 2026-08-11T05:54:53.652Z | task #25762 | completed | haiku | Retrospective: extract learnings from task #25752 — Research | No learnings to capture — task #25752 was confirmatory research validating Arc's
 2026-08-11T06:13:28.192Z | task #25763 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks: #23833 (charter injection, needs whoabuddy out-of-band
+2026-08-11T06:32:27.973Z | task #25764 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T07:11:42.912Z | task #25765 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-11T07:32:49.981Z | task #25766 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T08:33:12.041Z | task #25767 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T09:12:25.632Z | task #25768 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-11T09:33:33.057Z | task #25769 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T09:54:14.988Z | task #25770 | completed | sonnet | Distill watch report 2026-08-11T01:00:47.098Z into 1-2 inter | Wrote 2 watch-interior nuggets: cost (opus research burst = 54% of $10.54 period
