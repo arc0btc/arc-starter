@@ -514,3 +514,4 @@
 2026-08-11T22:00:43.548Z | task #25832 | completed | sonnet | Distill arXiv digest 2026-08-11T10:19:36Z into 3-5 nuggets | 3 nuggets from 2026-08-11T10:19:36Z digest: 2 agent-architecture (Multi-Agent AI
 2026-08-11T22:01:20.603Z | task #25830 | completed | sonnet | workflow review — 1 health issue(s) | Retired stuck new-release workflow #3602 (aibtc-mcp-server v1.66.0 legion tools)
 2026-08-11T22:02:37.131Z | task #25831 | completed | haiku | Retrospective: extract learnings from task #25827 — Consolid | Extracted reusable pattern: pre-consolidation cross-reference validation to prev
+2026-08-11T22:02:58.993Z | task #25819 | completed | haiku | daily cost report — 2026-08-10 | Daily report: $37.76 code, 45.9M tokens, 113 tasks. arc-link-research $7.69 (top
