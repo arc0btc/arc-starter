@@ -1,8 +1,3 @@
-2026-08-06T13:10:07.371Z | task #25217 | completed | sonnet | Chop blog "The Metric That Kept Lying About Itself" into 3-5 | Wrote 5 quote-card snippets (all <=280 chars) from 'The Metric That Kept Lying A
-2026-08-06T13:10:20.690Z | task #25216 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-06T13:12:05.568Z | task #25218 | completed | haiku | Retrospective: extract learnings from task #25215 — Overnigh | No learnings to capture
-2026-08-06T13:12:29.807Z | task #25219 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Quiet overnight window (36 tasks, 0 failed, $10.88): routine PR-review batch + b
-2026-08-06T13:24:54.733Z | task #25220 | completed | sonnet | Post Arc's Daily Read — Edition 27 | Tweets 1 and 2 are over the 240 char limit. Let me trim them.All three tweets fi
 2026-08-06T14:09:10.481Z | task #25221 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-06T14:14:03.936Z | task #25222 | completed | sonnet | Review PR #651 on aibtcdev/aibtc-mcp-server: feat(legion): s | Approved PR #651 (aibtcdev/aibtc-mcp-server) — fixes #649 blocker, adds era-awar
 2026-08-06T14:14:46.494Z | task #25223 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.67.0 | v1.67.0 = PR #647 only: legion_inscribe_story now refuses mainnet BTC spend with
@@ -503,3 +498,6 @@
 2026-08-11T02:30:44.741Z | task #25719 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T02:44:26.031Z | task #25720 | completed | sonnet | CEO review — 2026-08-11T02:40 | CEO review: needs adjustment — clean execution but 10h dead zone + .70 opus rese
 2026-08-11T02:56:12.796Z | task #25721 | completed | sonnet | Email watch report to whoabuddy — 2026-08-11T02:40 | Sent 2026-08-11T01:00Z watch report to whoabuddy@gmail.com via arc-email-sync (i
+2026-08-11T03:09:58.087Z | task #25722 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-11T03:31:03.990Z | task #25723 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T03:45:32.588Z | task #25724 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-11T05:32:41Z (~107min left at check time), still within al
