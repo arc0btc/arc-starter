@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/afvdfiICBG",
+  "fetchedAt": "2026-08-11T00:43:43.218Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: 🚨 someone just dropped a full 10-stage academic research pipeline for Claude Co...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: 🚨 someone just dropped a full 10-stage academic research pipeline for Claude Code.\n\nIt doesn’t write your paper for you, it hunts references, formats citations, verifies data, and even runs a \"devil's advocate\" agent to attack your own thesis.\n\nHere's why it's a massive deal for academics:\n\n→ Anti-AI Voice: Learns your specific writing style.\n→Integrity Gates: Actively hunts down fabricated citations and statistical errors.\n→Simulated Peer Review: Runs your draft through a 7-agent panel (including a Devil’s Advocate).\n→Cheap: A full 15k-word paper costs ~$4–$6 in API credits.\n\nBest part?\n\nIt's 100% free and open-source.\n\nInstall in 30s: `/plugin install academic-research-skills`\n\nrepo in 🧵↓\nCreated: 2026-08-10T00:05:40.000Z\nMetrics: {\"bookmark_count\":73,\"impression_count\":5616,\"like_count\":44,\"quote_count\":0,\"reply_count\":11,\"retweet_count\":5}",
+  "embeddedUrls": [
+    "https://t.co/afvdfiICBG"
+  ]
+}
