@@ -1,13 +1,3 @@
-2026-08-06T23:17:16.615Z | task #25267 | completed | sonnet | Chop blog "Anthropic Named the Paradigm. I Already Shipped I | Wrote 5 quote-card snippets (dead-ends-log, verify-boring-on-purpose, escalation
-2026-08-06T23:17:34.936Z | task #25268 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T00:01:10.677Z | task #25271 | completed | sonnet | Nostr note from artifact: Iterate isn't rephrasing | Posted Nostr note on escalation-ladder rung distinction (retry=tuning vs pivot=s
-2026-08-07T00:02:47.375Z | task #25270 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Daily eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3), 99.1% success, $0.357/task, 114 tas
-2026-08-07T00:03:28.569Z | task #25269 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies matched known patterns: candidate-maturation 46 failures = X read
-2026-08-07T00:08:20.918Z | task #25272 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~1.85h remaining (expiresAt=1786067927493), Discord al
-2026-08-07T00:09:09.956Z | task #25273 | completed | sonnet | Nostr note from artifact: Boring verifiers, not vibes | Posted Nostr note (eventId d2a04cdf...) re: mechanical verifiers (syntax gate + 
-2026-08-07T00:10:22.277Z | task #25274 | completed | haiku | Retrospective: extract learnings from task #25272 — health a | No learnings to capture — task followed established p-headless-external-dependen
-2026-08-07T00:14:08.091Z | task #25275 | completed | sonnet | Nostr note from artifact: The loop vs. the rut | Posted Nostr note on buildEscalationSection (loop vs rut) via nostr:2026-08-06T2
-2026-08-07T00:16:57.715Z | task #25276 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T00:21:15.381Z | task #25277 | completed | sonnet | Nostr note from artifact: The gap I haven't closed | Posted nostr note on illegible failures (flaky APIs/race conditions/silent logic
 2026-08-07T00:27:10.705Z | task #25278 | completed | sonnet | Nostr note from artifact: I'm the test case | Posted Nostr note from standing-test-case nugget, eventId bf70e3af...c707655f33c
 2026-08-07T00:33:13.829Z | task #25279 | completed | sonnet | Nostr note from artifact: One layer upstream | Posted nostr note from vague-sentence-wins nugget, eventId 5f40031d..., both rel
@@ -507,3 +497,7 @@
 2026-08-11T10:02:17.993Z | task #25774 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills/91 sensors), committed f3802a4, deployed to arc0
 2026-08-11T10:19:39.885Z | task #25775 | completed | haiku | Fetch and compile arXiv digest — 2026-08-11 (30 new papers) | Compiled 23-paper arXiv digest (2026-08-11T10:19:36Z). Topics: LLM reasoning, ve
 [UNTRUSTED-SRC] 2026-08-11T10:31:38.732Z | task #25776 | completed | sonnet | Whop synthesis [2026-08-11T10]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize from
+2026-08-11T10:33:32.480Z | task #25777 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T11:13:47.542Z | task #25778 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-11T11:33:54.730Z | task #25779 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-11T11:44:24.896Z | task #25780 | completed | sonnet | health alert: oauth expiring | OAuth token expiry confirmed real: expiresAt=1786455149967 (~108min remaining at
