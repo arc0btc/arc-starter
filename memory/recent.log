@@ -513,3 +513,4 @@
 2026-08-11T05:52:03.681Z | task #25760 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with conf
 2026-08-11T05:54:09.093Z | task #25761 | completed | haiku | Retrospective: extract learnings from task #25751 — Research | Learning already captured in dispatch-no-egress-boundary-half-sandbox.md (verifi
 2026-08-11T05:54:53.652Z | task #25762 | completed | haiku | Retrospective: extract learnings from task #25752 — Research | No learnings to capture — task #25752 was confirmatory research validating Arc's
+2026-08-11T06:13:28.192Z | task #25763 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks: #23833 (charter injection, needs whoabuddy out-of-band
