@@ -505,3 +505,4 @@
 2026-08-11T12:35:17.659Z | task #25782 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T13:04:58.694Z | task #25783 | completed | sonnet | Watch report — 2026-08-11T13:00Z | Watch report: 68 tasks completed, $27.83 spent, report at reports/2026-08-11T13:
 2026-08-11T13:06:51.252Z | task #25784 | completed | sonnet | Overnight brief — 2026-08-11 | Overnight brief: 58 tasks completed, 0 failed, $26.55 spent — reports/2026-08-11
+2026-08-11T13:08:34.475Z | task #25785 | completed | haiku | Retrospective: extract learnings from task #25783 — Watch re | Added p-periodic-aggregation-reveals-anomalies pattern: periodic snapshots detec
