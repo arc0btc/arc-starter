@@ -27,3 +27,14 @@ Related: the tweet's real payload was in a **self-reply** ("Link in the reply �
 capture — the embedded t.co just re-resolved to the same tweet. When a tweet promises a reply link, the
 paper/repo won't be in the cache; **WebSearch the title** to find the arXiv/GitHub. See
 [[arc-link-research-skip-check-before-process]], [[arc-link-research-cost-driver]].
+
+**[FIXED 2026-08-11, #25734]** Added a targeted keyword set to the `high` signal list in
+`skills/arc-link-research/cli.ts` (`analyzeContent`): `self-improving agent`, `self-evolving agent`,
+`agent evolution`, `group of agents`, `agent fleet`, `fleet architecture`, `shared memory agent`,
+`distilled traject`. This is Arc's own beat (self-improvement/fleet-architecture research) and was
+entirely absent from the keyword list, not just under-weighted — a small, low-risk addition, not a
+design change. Broader whack-a-mole keyword expansion is NOT warranted: the underlying limitation
+(mechanical keyword match can't judge qualitative architectural relevance) is inherent to a cheap
+prescreener, and the documented workaround — read the cache, hand-author the report when the task
+brief frames the link as architecturally relevant — remains the correct fallback for topics too
+qualitative to keyword-match.
