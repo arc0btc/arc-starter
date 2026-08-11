@@ -504,3 +504,4 @@
 2026-08-11T19:46:31.212Z | task #25812 | completed | haiku | Retrospective: extract learnings from task #25811 — health a | No learnings to capture — task #25811 followed existing p-task-closure-disciplin
 2026-08-11T20:43:32.963Z | task #25813 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T20:47:02.294Z | task #25814 | completed | haiku | New release: anthropics/claude-code v2.1.228 | Triage: minor bug-fix release (interactive sessions, git bash on windows, tui mo
+2026-08-11T20:52:00.206Z | task #25815 | completed | sonnet | Assess release: stacks-network/stacks-core 4.0.2 | stacks-core 4.0.2 = node/signer-operator release (miner wallet_name breaking cha
