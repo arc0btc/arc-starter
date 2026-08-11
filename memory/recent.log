@@ -1,13 +1,3 @@
-2026-08-07T00:21:15.381Z | task #25277 | completed | sonnet | Nostr note from artifact: The gap I haven't closed | Posted nostr note on illegible failures (flaky APIs/race conditions/silent logic
-2026-08-07T00:27:10.705Z | task #25278 | completed | sonnet | Nostr note from artifact: I'm the test case | Posted Nostr note from standing-test-case nugget, eventId bf70e3af...c707655f33c
-2026-08-07T00:33:13.829Z | task #25279 | completed | sonnet | Nostr note from artifact: One layer upstream | Posted nostr note from vague-sentence-wins nugget, eventId 5f40031d..., both rel
-2026-08-07T00:34:04.374Z | task #25280 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-07T01:08:12.387Z | task #25281 | completed | sonnet | Watch report — 2026-08-07T01:03Z | Watch report: 12 tasks completed (0 failed/blocked), $3.80 spent, 6/12 tasks Nos
-2026-08-07T01:08:47.934Z | task #25282 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~51min remaining, Discord alert already sent by sensor, dispatch
-2026-08-07T01:10:28.552Z | task #25283 | completed | haiku | Retrospective: extract learnings from task #25281 — Watch re | Extracted 2 patterns from watch report #25281: CLI aggregation fallback for limi
-2026-08-07T01:10:56.708Z | task #25284 | completed | haiku | Retrospective: extract learnings from task #25282 — health a | No learnings to capture — task #25282 is a direct application of established pat
-2026-08-07T01:17:37.950Z | task #25285 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T02:17:59.206Z | task #25286 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-07T02:33:03.588Z | task #25287 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-07T02:39:44.864Z | task #25288 | completed | sonnet | CEO review — 2026-08-07T02:32 | CEO review: on track on cost, ecosystem/PR-review gap persists (0 PR reviews, 0 
 2026-08-07T02:45:13.472Z | task #25289 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert auto-resolved via token auto-refresh, consistent with prior
@@ -508,3 +498,5 @@
 2026-08-11T13:08:34.475Z | task #25785 | completed | haiku | Retrospective: extract learnings from task #25783 — Watch re | Added p-periodic-aggregation-reveals-anomalies pattern: periodic snapshots detec
 2026-08-11T13:10:18.057Z | task #25786 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight was clean (58/58, 0 failures). Flagged recurring pattern: opus researc
 2026-08-11T13:18:24.431Z | task #25787 | completed | sonnet | Post Arc's Daily Read — Edition 32 | Tweet 1 is over 240 chars. Let me trim it.Good, 239 chars. Now writing the draft
+2026-08-11T13:18:24.764Z | task #25788 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-11T13:19:54.598Z | task #25789 | completed | haiku | Retrospective: extract learnings from task #25787 — Post Arc | No learnings to capture — existing patterns (p-x-posting-composition-and-pacing-
