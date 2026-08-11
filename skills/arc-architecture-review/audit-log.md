@@ -1,3 +1,31 @@
+## 2026-08-11T09:57:00.000Z — arc-link-research cache hygiene shipped + one real bug caught; 129 skills / 91 sensors (unchanged)
+
+**Task #25771** | Diff: 40168b9..d7eb868 | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/arc-link-research/cli.ts` (73e48c573, #25742) — new `sweep-cache --ttl-days N [--dry-run]` (default 90d) evicts raw fetch cache by `fetchedAt`, falling back to file mtime for legacy entries. Report-linkage (`cached_path`) was correctly rejected as the eviction key — only 12% of reports populate it. Ran once: 316/1739 stale entries swept.
+- `skills/arc-housekeeping/{SKILL.md,cli.ts}` (7b5221361) — wires `sweep-cache --dry-run` into `check`'s issue count and `sweep-cache` (real) into `fix`, following the existing `archivalNeeded` pattern. Closes the loop opened by the previous commit — a one-shot cleanup would've re-accumulated unbounded otherwise.
+- `skills/arc-housekeeping/cli.ts` (bfe6b158d) — **real bug, now fixed**: the 2026-03-04 skill-rename refactor (4ffd1a658) silently renamed `ARCHIVAL_DIRS` from `research` to `arc-link-research`, pointing the ISO-8601 archival check at an unused legacy dir instead of the real `research/` output. `research/` grew to 218 unarchived reports over 5 months with zero automated archival and no error signal — a rename that broke a check by string-matching a dir name that no longer existed, silently. Restored, ran fix, archived 202 backlogged reports.
+- `skills/arc-link-research/cli.ts` (44596416a) — added self-improvement/fleet keywords to the relevance heuristic after a retrospective (#25713) found a paper on Arc's own beat false-negatived for lacking a BTC/crypto token. Targeted addition, not a broad scope expansion.
+- Remaining commits in range are non-structural: this skill's own prior diagram commit, an `arc-weekly-presentation` deck generation, and ~75 `arc-link-research` cache-file auto-commits (data, not code — now subject to the new TTL sweep).
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: All four fixes trace to named issues (#25742, #25713) or a concretely observed defect (silent rename) — not speculative.
+- **Step 2 — Delete**: Applied by proxy — 316 stale cache files + 202 backlogged reports evicted/archived this cycle, and both are now recurring housekeeping fixes rather than one-shots.
+- **Step 3 — Simplify**: N/A this cycle — no new abstraction added; `sweep-cache` follows the existing `archivalNeeded` check/fix pattern instead of introducing a new one.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — automation only added after the TTL-vs-report-linkage design question (step 1) was settled first, correct ordering.
+
+### Flags
+
+- **Pattern worth naming**: `bfe6b158d` is a second confirmed case (after `misplaced-brace-scoped-out-normal-path` and `sensor-health-report-blind-spots` in shared memory) of a refactor silently disabling a check by renaming a string constant with no test/assertion tying it to the real directory. Housekeeping-style checks that key off literal path/dir strings are a recurring blind spot — no follow-up filed since housekeeping's own audit now caught and fixed it, but future skill-rename tasks should grep for string-literal directory/skill-name references, not just import paths.
+- Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's changed files — no new findings introduced by this cycle's commits.
+- No new reports since last review beyond the routine weekly deck generation (non-substantive, data only).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-10T21:56:00.000Z — empty diff range (self-referential), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25682** | Diff: 40168b9..40168b9 (0 commits) | Sensors: 91 | Skills: 129
@@ -75,28 +103,4 @@ Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk 
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
-
-## 2026-08-08T21:56:00.000Z — one bounded single-file bug fix, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25456** | Diff: c55b3fa..9a72a69 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-daily-read/cli.ts` (9a72a6925, #25427) — `extractFindingMaterials` used to extract only the first backtick-anchored file:line citation from a report body, so a report whose first citation was already quoted in a live blog post got skipped entirely even when a second, distinct, not-yet-blogged citation existed later in the body. Now collects and dedups all citations (anchored + bare regex passes, spans tracked to avoid double-counting), and `selectFinding` tries each in order via `findingAlreadyInLiveBlog` before giving up on the report. Bounded, single decision point (report → finding selection), no new context-delivery surface — the caller still gets one resolved `fileLine` back, just chosen from a wider candidate pool.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Fix traces to named issue #25427 — not speculative.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A — tightens an existing call site, no added abstraction.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Two new reports since last review (2026-08-08T13:00 watch report, 2026-08-08T14:00 overnight brief) — routine stats only (31 dispatch cycles, 100% completed, known `candidate-maturation` X-budget-exhaustion pattern), no new architecture-relevant CEO/whoabuddy feedback.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499) correctly held, already tracked in MEMORY.md.
-
----
-
 
