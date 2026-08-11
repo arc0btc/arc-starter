@@ -53,8 +53,20 @@ import { parseFrontmatter } from "../arc-link-research/lib/frontmatter.ts";
 const ARC_STARTER_ROOT = join(import.meta.dir, "../../");
 const DB_PATH = process.env.ARC_PACKAGING_DB_PATH ?? join(ARC_STARTER_ROOT, "db/arc.sqlite");
 const RESEARCH_DIR = join(ARC_STARTER_ROOT, "research");
+const RESEARCH_ARCHIVE_DIR = join(RESEARCH_DIR, "archive");
 const INDEX_PATH = join(RESEARCH_DIR, "INDEX.md");
 const MATERIALS_DIR = join(ARC_STARTER_ROOT, "db/packaging-materials");
+
+// Reports can be archived out of research/ into research/archive/ between the time the
+// sensor queues them and the time materials/stage actually reads the file — fall back to
+// the archive location so a rotation doesn't silently produce an empty report body.
+function resolveReportPath(reportFile: string): string {
+  const primary = join(RESEARCH_DIR, reportFile);
+  if (fs.existsSync(primary)) return primary;
+  const archived = join(RESEARCH_ARCHIVE_DIR, reportFile);
+  if (fs.existsSync(archived)) return archived;
+  return primary;
+}
 
 const DEFAULT_PRICE_USD = 9;
 
@@ -242,7 +254,7 @@ function composeMaterials(
   const slug = slugOverride ? slugify(slugOverride) : slugFromReportFile(candidate.reportFile);
   const route = slugify(slug);
   const fileKey = fileKeyFromReportFile(candidate.reportFile);
-  const reportPath = join(RESEARCH_DIR, candidate.reportFile);
+  const reportPath = resolveReportPath(candidate.reportFile);
   const reportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
 
   db.run(
@@ -464,9 +476,8 @@ function findDuplicateCoverage(reportFile: string): CatalogEntry[] {
     if (fm && fm.packaged) packaged.push({ path: f, fm });
   }
 
-  const ownContent = fs.existsSync(join(RESEARCH_DIR, reportFile))
-    ? fs.readFileSync(join(RESEARCH_DIR, reportFile), "utf-8")
-    : "";
+  const ownReportPath = resolveReportPath(reportFile);
+  const ownContent = fs.existsSync(ownReportPath) ? fs.readFileSync(ownReportPath, "utf-8") : "";
   const ownFm = parseFrontmatter(ownContent);
   if (!ownFm) return [];
   return findCoverage(packaged, { url: ownFm.source_url, topics: ownFm.topics });
@@ -542,7 +553,7 @@ async function cmdStage(
     process.exit(1);
   }
 
-  const reportPath = join(RESEARCH_DIR, reportFile);
+  const reportPath = resolveReportPath(reportFile);
   const rawReportMarkdown = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf-8") : "";
   const errors = validateDraft(draft, rawReportMarkdown, forceSanitization);
   if (errors.length > 0) {

@@ -745,6 +745,24 @@ async function cmdSetVisibility(apiKey: string, flags: Record<string, string>): 
   );
 }
 
+async function cmdDeleteProduct(apiKey: string, flags: Record<string, string>): Promise<void> {
+  if (!flags.product) fail("delete-product requires --product prod_xxx");
+  const client = whopClient(apiKey);
+  const before = await client.products.retrieve(flags.product);
+  // Guard: only delete products that were never exposed. A visible product could have live
+  // members/checkouts — deletion there needs a human call, not a CLI one-liner.
+  if (before.visibility !== "hidden" && !flags.force) {
+    fail(
+      `delete-product refuses to delete a non-hidden product (visibility=${before.visibility}). ` +
+        `Pass --force to override (only for a confirmed-safe orphan).`,
+    );
+  }
+  const deleted = await client.products.delete(flags.product);
+  process.stdout.write(
+    JSON.stringify({ product_id: flags.product, title: before.title, visibility_before: before.visibility, deleted }, null, 2) + "\n",
+  );
+}
+
 // ---- Per-SKU deliverable: a Whop course (report lesson + quiz lesson) attached to the SKU ----
 //
 // Whop delivers a digital product via an EXPERIENCE bound to the access pass; without one a buyer
@@ -1576,6 +1594,11 @@ async function main(): Promise<void> {
     case "set-visibility": {
       const apiKey = await requireApiKey();
       await cmdSetVisibility(apiKey, flags);
+      break;
+    }
+    case "delete-product": {
+      const apiKey = await requireApiKey();
+      await cmdDeleteProduct(apiKey, flags);
       break;
     }
     case "unlock-all": {
