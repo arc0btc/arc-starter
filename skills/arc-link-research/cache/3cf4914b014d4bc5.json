@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/ZTmRgLQKIF",
+  "fetchedAt": "2026-08-11T00:47:31.402Z",
+  "contentType": "tweet",
+  "title": "@DataChaz: 🚨 @FIRECRAWL JUST OPEN-SOURCED A MASSIVE UTILITY FOR AI DEVS\n\nIt is called anyd...",
+  "rawContent": "Tweet by @DataChaz (Charly Wargnier)\nAuthor bio: Ex @Streamlit @Snowflake Maestro • I write about AI agents, LLMs and automation • My ❤️ is open source • DM for collabs 📩\nText: 🚨 @FIRECRAWL JUST OPEN-SOURCED A MASSIVE UTILITY FOR AI DEVS\n\nIt is called anydoc.\n\nIt is a Rust library that converts almost any office document into clean Markdown in milliseconds.\n\nNo models involved.\n\nJust pure speed.\n\nWhat makes it interesting:\n→ Supports Word, PPT, Excel, PDF, EPUB, CSV\n→ Uses one shared document model for consistent output\n→ Runs locally via WebAssembly or CLI\n→ MIT licensed with 10.8k stars\n\nYou can also drop it straight into Claude Code or Cursor as an agent skill with a single command.\n\n100% free and open-source.\n\nRepo link in 🧵↓\nCreated: 2026-08-10T00:47:47.000Z\nMetrics: {\"bookmark_count\":192,\"impression_count\":12254,\"like_count\":148,\"quote_count\":1,\"reply_count\":12,\"retweet_count\":16}",
+  "embeddedUrls": [
+    "https://t.co/ZTmRgLQKIF"
+  ]
+}
