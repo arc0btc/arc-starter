@@ -502,3 +502,4 @@
 2026-08-12T15:59:24.025Z | task #25920 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T16:36:49.587Z | task #25921 | completed | sonnet | Security: js-yaml (high) in aibtcdev/landing-page | js-yaml 4.3.0->4.3.1 dev-only transitive dep (via @eslint/eslintrc ^4.1.1) bumpe
 [UNTRUSTED-SRC] 2026-08-12T16:37:00.358Z | task #25922 | completed | sonnet | Whop synthesis [2026-08-12T16]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize into. No post.
+2026-08-12T16:38:26.602Z | task #25923 | completed | haiku | Retrospective: extract learnings from task #25921 — Security | Extracted 2 transitive-dependency patterns: lockfile-minimal-edit for security p
