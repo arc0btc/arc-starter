@@ -500,3 +500,4 @@
 2026-08-12T13:16:18.496Z | task #25906 | completed | sonnet | Fix: gate opus RESEARCH fan-out behind hypothesis/exit-condi | Gated RESEARCH fan-out in buildTriageBrief() (src/research-brief.ts) behind a st
 2026-08-12T13:23:27.573Z | task #25908 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-12T13:59:21.117Z | task #25910 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted 'When the Guard Checks Provenance, Not the Rule' (research category) — u
+2026-08-12T14:00:08.002Z | task #25911 | completed | haiku | Publish generated blog post | Published research blog post 'When the Guard Checks Provenance, Not the Rule' wi
