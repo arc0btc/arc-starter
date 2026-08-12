@@ -1,27 +1,3 @@
-2026-08-07T14:37:00.341Z | task #25335 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-08-07T15:23:16.997Z | task #25336 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-08-07T16:21:41.484Z | task #25337 | completed | sonnet | Whop synthesis [2026-08-07T16]: read the room, defer or post | 0 messages in 24h window, room still dormant (matches 2026-08-07 watch-report fi
-2026-08-07T16:22:37.964Z | task #25338 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T16:37:42.408Z | task #25339 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-07T17:23:58.975Z | task #25340 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T18:26:20.212Z | task #25341 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T18:37:50.529Z | task #25342 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires 2026-08-07T20:24:30Z (~107min remaining), Discord 
-2026-08-07T18:38:24.859Z | task #25344 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-07T18:40:44.887Z | task #25343 | completed | haiku | Retrospective: extract learnings from task #25342 — health a | No learnings to capture — task #25342 executed established ttl-monitoring patter
-2026-08-07T19:27:04.950Z | task #25345 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T20:27:27.742Z | task #25346 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T20:39:32.336Z | task #25347 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-07T21:27:49.988Z | task #25348 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T21:36:19.101Z | task #25349 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Score 2.55/5 (S:1 O:5 E:1 C:4 Ad:3 Co:1 Se:3). 80/80 completed today (100%), 0 f
-2026-08-07T21:37:06.849Z | task #25350 | completed | haiku | arc-opensource: sync 68 commit(s) to GitHub | Synced 68 commits to arc0btc/arc-starter main; build validated, push successful
-[UNTRUSTED-SRC] 2026-08-07T21:38:21.210Z | task #25352 | completed | sonnet | Whop free-forum digest [2026-08-07]: syndicate Arc status in | Posted free-forum digest post_1Cdp7PxgSLk8W9CdPMNEtL — 99 tasks/1.89, arch-revie
-2026-08-07T21:39:18.773Z | task #25353 | completed | sonnet | Distill council content well from fleet-digest@3e197af | Digest unchanged since 2026-07-17 (same content hash 3e197af, already distilled 
-2026-08-07T21:40:01.783Z | task #25351 | completed | haiku | daily cost report — 2026-08-06 | 114 tasks, 0.66 code cost, /bin/bash.357/task avg — high-volume day within norma
-2026-08-07T21:49:02.099Z | task #25354 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh, consistent with prior 11+ o
-2026-08-07T21:50:39.279Z | task #25355 | completed | sonnet | Distill watch report 2026-08-07T13:00:55.169Z into 1-2 inter | 2 nuggets: surprise (two shipped fixes — audit heuristic dedup-wrapper fix cut f
-2026-08-07T21:52:12.699Z | task #25357 | completed | sonnet | compliance-review: 1 finding(s) [batch 1/1] | Fixed abbreviated var 'fn' -> 'entryPoint' in arc-architecture-review/cli.ts:194
-2026-08-07T21:55:03.375Z | task #25356 | completed | sonnet | architecture review — codebase changed since last review (53 | Diff 53ec3be..c55b3fa: 2 commits, no structural changes (1 sound bounded fix in 
-2026-08-07T21:56:12.218Z | task #25358 | completed | sonnet | Distill arXiv digest 2026-08-07T10:09:51Z into 3-5 nuggets | 4 nuggets written: 1 aibtc-infra (Beyond Top-K retrieval, MCP-tagged), 3 agent-a
 2026-08-07T21:57:00.330Z | task #25359 | completed | sonnet | architect: remove or rework no-op per-sensor dedup-check heu | Removed no-op per-sensor dedup-check heuristic from audit CLI (cli.ts:184-200) —
 2026-08-07T21:58:09.362Z | task #25360 | completed | haiku | Retrospective: extract learnings from task #25356 — architec | Added p-distributed-check-retirement-on-centralization pattern: retire distribut
 2026-08-07T22:07:39.673Z | task #25361 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 130h). No whoabuddy reply on
@@ -519,3 +495,8 @@
 2026-08-12T00:58:06.741Z | task #25854 | completed | haiku | Retrospective: extract learnings from task #25848 — Triage:  | Updated p-research-synthesis: preview-text divergence is gate trigger even for s
 2026-08-12T01:07:41.787Z | task #25855 | completed | sonnet | Watch report — 2026-08-12T01:04Z | Watch report: 72 tasks completed, 0 failed, $29.33 spent, report at reports/2026
 2026-08-12T01:08:39.778Z | task #25856 | completed | haiku | Retrospective: extract learnings from task #25855 — Watch re | No learnings to capture — findings (consolidation, SKU dedup, opus cost tracking
+2026-08-12T01:18:50.058Z | task #25857 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
+2026-08-12T01:48:00.986Z | task #25858 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T02:49:23.721Z | task #25859 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T03:20:35.900Z | task #25860 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-12T03:49:14.531Z | task #25861 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed 1.85h remaining, routine pattern (11+ prior occurrence
