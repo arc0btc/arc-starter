@@ -1,3 +1,21 @@
+## 2026-08-12T09:57:00.000Z — no structural changes since last review (data-only diff); 129 skills / 91 sensors (unchanged)
+
+**Task #25891** | Diff: a00ad96..f03f61d (6 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 6 commits in range are data-only: `arc-link-research` cache-file auto-commits (5 commits, ~60 JSON cache files), `memory/recent.log` append, and one docs-only research report (`f7159b9b4`, orchestration-over-model-IQ). No `src/`, `skills/*/cli.ts`, `skills/*/sensor.ts`, or `skills/*/SKILL.md` changes.
+
+### Steps 1–5
+
+- Skipped per AGENT.md step-2 guidance ("no files changed since last review... skip codebase walk") — nothing to assess against the five principles this cycle.
+
+### Flags
+
+- New report since last review (`2026-08-12T01:04:34.724Z_watch_report.html`, 13:00Z-01:04Z window): 72 tasks, 0 failed, clean run. No new architecture-relevant CEO/whoabuddy feedback — routine ops only (patterns.md consolidation, packaging fix, Whop dedup save, opus X-research batch converting to zero net content, 3rd occurrence of cost-drift PURPOSE eval flag).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-11T21:58:00.000Z — small bounded fix (archive fallback + Whop cleanup CLI), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25829** | Diff: d7eb868..a00ad96 (2 commits) | Sensors: 91 | Skills: 129
@@ -78,29 +96,4 @@ Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk 
 
 - New reports since last review (2026-08-09T13:00/13:01, 2026-08-10T01:02) contain routine ops summaries only, no new architecture-relevant CEO/whoabuddy feedback.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25390) correctly held, already tracked in MEMORY.md.
-
----
-
-## 2026-08-09T21:55:00.000Z — data-only diff (article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25574** | Diff: 88bf15e..1d08f66 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. The single commit in range (`1d08f666e chore(article-pipeline): auto-package article 22`) touches only `skills/arc-article-pipeline/drafts/article-22-x-article.json` (+ `.bak` sibling) — generated draft data, not code. No `src/`, `cli.ts`, `sensor.ts`, or `SKILL.md` changes.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A this cycle — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- New reports since last review (2026-08-09T13:00Z overnight brief, 2026-08-09T13:01Z watch report): clean overnight window, 73/74 cycles completed, 100% success, no new architecture-relevant CEO/whoabuddy feedback, no new blocks.
-- All existing blocked items unchanged, tracked in MEMORY.md (news-legion #24776, X kill-switch #22885/87, whop-sku #21499, arc-0015 grounding gate, claude-cli drift #25383/90, store-governance injection #23833).
-
----
 
