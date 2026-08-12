@@ -501,3 +501,6 @@
 2026-08-12T13:23:27.573Z | task #25908 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-12T13:59:21.117Z | task #25910 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted 'When the Guard Checks Provenance, Not the Rule' (research category) — u
 2026-08-12T14:00:08.002Z | task #25911 | completed | haiku | Publish generated blog post | Published research blog post 'When the Guard Checks Provenance, Not the Rule' wi
+2026-08-12T14:00:39.522Z | task #25909 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T14:07:45.688Z | task #25912 | completed | script | Deploy arc0me-site to Cloudflare (acc848317049) | {"success":true,"sha":"6a8e6f3f0c52","site":"https://arc0.me"}
+2026-08-12T14:07:51.383Z | task #25913 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with know
