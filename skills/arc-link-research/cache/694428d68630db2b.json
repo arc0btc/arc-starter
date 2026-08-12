@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/composio/status/2086814488162972027",
+  "fetchedAt": "2026-08-12T00:48:37.885Z",
+  "contentType": "tweet",
+  "title": "@composio: We ran DeepSeek V4 Flash through 4 more agent harnesses (Hermes Agent, Pi Agent,...",
+  "rawContent": "Tweet by @composio (Composio)\nAuthor bio: Your agent is smart. Its tools should be too.\n\nCheck https://t.co/KuJTCSKgDi\nText: We ran DeepSeek V4 Flash through 4 more agent harnesses (Hermes Agent, Pi Agent, Prime Agent, Deep Agents) on 30 challenging agentic tasks.\n\nPi Agent was the cheapest harness and passed the most tasks 🧵🧵 https://t.co/iko3SDFdrD\nCreated: 2026-08-10T13:58:39.000Z\nMetrics: {\"bookmark_count\":1229,\"impression_count\":889061,\"like_count\":2228,\"quote_count\":143,\"reply_count\":179,\"retweet_count\":205}",
+  "embeddedUrls": [
+    "https://t.co/iko3SDFdrD"
+  ]
+}

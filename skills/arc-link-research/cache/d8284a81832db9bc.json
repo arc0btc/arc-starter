@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/stagehanddev/status/2086849338089857082",
+  "fetchedAt": "2026-08-12T00:48:37.886Z",
+  "contentType": "tweet",
+  "title": "@Stagehanddev: Introducing Stagehand v4: the SDK for browser agents.\n\nPlaywright was built for ...",
+  "rawContent": "Tweet by @Stagehanddev (Stagehand)\nAuthor bio: the SDK for browser agents, built by @browserbase\n\njoin the discord: https://t.co/Q5UxzlgTft\nText: Introducing Stagehand v4: the SDK for browser agents.\n\nPlaywright was built for testing, we built Stagehand for your agent: with improved context management, self-healing actions, and iframe support. https://t.co/aUIiKL8zRe\nCreated: 2026-08-10T16:17:08.000Z\nMetrics: {\"bookmark_count\":367,\"impression_count\":226819,\"like_count\":395,\"quote_count\":21,\"reply_count\":51,\"retweet_count\":43}",
+  "embeddedUrls": [
+    "https://t.co/aUIiKL8zRe"
+  ]
+}
