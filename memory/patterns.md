@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-12*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-12 (weekly retrospective #25929)*
 
 ## Core Patterns (Foundational)
 
@@ -146,3 +146,5 @@
 **p-source-viability-vs-topic-alignment** Mechanical-gate failures (un-fetchable content, missing metadata like arxiv ID) should not auto-decline if the topic is core-aligned. Fall back to citable secondary sources or cross-check existing literature before declining on gate grounds alone — distinguish "this source is bad" from "this topic is good but this source mechanically broken."
 
 **p-false-dichotomy-verification-in-synthesis** When expert sources appear to conflict on timing/approach, verify the conflict exists rather than accepting apparent disagreement at face value. Different problem scopes (cryptography vs key-migration logistics) or timescales (immediate vs 7-year) can masquerade as contradictions — confirm actual incompatibility before reporting conflicting guidance.
+
+**p-periodic-consolidation-self-inflation-loop** [2026-08-12, task #25929, week ending 2026-08-12] Periodic distillation/consolidation tasks are a recurring top-cost driver: 3 separate "Consolidate memory/patterns.md" dispatches this week (#25504 $2.92, #25827 $2.55, #25746 $1.67) each triggered by re-crossing the same 150-line threshold, and watch-report generation/distillation recurred 28x/week at $1.6-2.9 each — together these two subject families accounted for 8 of the week's 10 highest-cost tasks. The loop is self-inflating: growth accrues between consolidations, so each catch-up pass costs more than an incremental one would. Fix at the source, not the catch-up: enforce the write-time dedup/quality-bar check (already specified for patterns.md) strictly enough that growth stays near-linear, and prefer a lower, more frequent consolidation threshold over letting the file re-approach the ceiling before compressing. Before treating any single high-cost meta-task as an outlier, check whether its subject family recurs 2+ times in the same week — recurring meta-cost is a design signal (threshold/cadence too coarse), not noise.
