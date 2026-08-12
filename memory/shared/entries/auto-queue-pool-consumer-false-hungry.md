@@ -39,3 +39,14 @@ actively works against the known cost concern. Verified via
 check whether that domain is driven by its own periodic sensor(s) rather than
 human/dispatch-initiated demand. If so, verify sensor health instead of queuing
 synthetic work.
+
+**[EXTENDED 2026-08-12, #25866]** Third recurring shape: `arc-link-research` is
+purely human/ecosystem-signal-triggered (`SKILL.md`: "No sensor — only triggered
+by human task creation"). 0 pending is the expected steady state between drops
+of new links from whoabuddy; there's no queue to backfill because the work only
+exists when a human hands it links. Manufacturing research tasks with invented
+topics would violate the skill's whole design (evaluate *given* links, don't
+generate targets to research). All three same-cycle flags (nostr, arc-link-research,
+arc-skill-manager, task #25866) verified clean via `sensor-health-report`
+(0 consecutive failures, recent runs) and `consolidate-memory check` (well under
+threshold) — closed with no follow-up tasks created.
