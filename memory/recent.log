@@ -501,3 +501,4 @@
 2026-08-12T19:26:04.887Z | task #25932 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-12T20:02:16.506Z | task #25933 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T20:07:40.821Z | task #25934 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert confirmed: ~111min remaining (expires 2026-08-12T21:58:39Z)
+2026-08-12T20:08:40.581Z | task #25935 | completed | haiku | Retrospective: extract learnings from task #25934 — health a | No learnings to capture — oauth-expiring alert pattern already validated in p-he
