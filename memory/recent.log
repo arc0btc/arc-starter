@@ -504,3 +504,4 @@
 2026-08-12T20:08:40.581Z | task #25935 | completed | haiku | Retrospective: extract learnings from task #25934 — health a | No learnings to capture — oauth-expiring alert pattern already validated in p-he
 2026-08-12T21:02:38.983Z | task #25936 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T21:07:09.168Z | task #25937 | completed | haiku | New release: anthropics/claude-code v2.1.229 | Phase 1 triage: SSE keepalive pings + server hooks relevant to dispatch stabilit
+2026-08-12T21:08:57.249Z | task #25938 | completed | sonnet | Research: Claude Code v2.1.229 release analysis | v2.1.229 delta analysis (2.1.219-229, 11 releases): SSE keepalive is Vertex/Bedr
