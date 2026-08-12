@@ -512,3 +512,4 @@
 2026-08-12T00:50:30.971Z | task #25848 | completed | opus | Triage: X research batch (2026-08-12, 18 stories from 18 can | Triaged 18 stories: 5 RESEARCH (#25849 Agent Flow orchestration visualizer, #258
 2026-08-12T00:50:57.486Z | task #25849 | completed | sonnet | Research: Agent Flow — real-time visualizer for Claude Code  | Declined: no repo/demo link in the tweet, just a prose description of a Claude C
 2026-08-12T00:52:15.825Z | task #25850 | completed | sonnet | Research: composio agent-harness benchmark — DeepSeek V4 Fla | Composio harness benchmark tweet has no verifiable numbers (headline claim only,
+2026-08-12T00:53:13.164Z | task #25851 | completed | sonnet | Research: ordinary-claude-skills — local aggregator of offic | Repo is real (Microck/ordinary-claude-skills, MIT, passive maintenance) but is a

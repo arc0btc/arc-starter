@@ -1,0 +1,21 @@
+{
+  "url": "https://github.com/Microck/ordinary-claude-skills",
+  "fetchedAt": "2026-08-12T00:53:00.024Z",
+  "contentType": "github",
+  "title": "ordinary-claude-skills",
+  "rawContent": "Repo: Microck/ordinary-claude-skills\nDescription: An unappealing collection of Claude Skills and resources.\nTopics: claude, claude-code, claude-skills, collection, list\nStars: 325\n\nREADME:\n<p align=\"center\">\n  <a href=\"https://github.com/Microck/ordinary-claude-skills\">\n    <img src=\"https://i.ibb.co/Q3kYxbBt/claudeskills.png\" alt=\"i drew this with my left hand. as you can deduce, im indeed right-handed\" width=\"600\">\n  </a>\n</p>\n\n<p align=\"center\">a massive local repository of official and community-built claude skills, organized by category.</p>\n\n<p align=\"center\">\n  <a href=\"https://microck.github.io/ordinary-claude-skills/#/\"><img alt=\"docs\" src=\"https://img.shields.io/badge/view-documentation-orange\" /></a>\n  <a href=\"https://github.com/Microck/ordinary-claude-skills/blob/main/LICENSE\"><img alt=\"license\" src=\"https://img.shields.io/badge/license-MIT-greene\" /></a>\n  <a href=\"https://github.com/Microck/ordinary-claude-skills\"><img alt=\"maintenance\" src=\"https://img.shields.io/badge/maintenance-passive-yellow\" /></a>\n  <a href=\"https://github.com/Microck/ordinary-claude-skills\"><img alt=\"claude\" src=\"https://img.shields.io/badge/AI-claude-purple\" /></a>\n</p>\n\n---\n\n## quickstart\n\nthere are two ways to consume this library.\n\n### 1. the civilized way (search & browse)\ngo to the **[static site](https://microck.github.io/ordinary-claude-skills/#/)**.\ni have indexed everything with search and categories. it is much easier than digging through folders.\n\n### 2. the developer way (raw files)\nclone the repo to map these skills into your own mcp servers or agents.\n\n1.  **clone the repo**\n    ```bash\n    git clone https://github.com/Microck/ordinary-claude-skills.git\n    cd ordinary-claude-skills\n    ```\n\n2.  **choose your weapon**\n    *   **for claude.ai:** go to your profile, hit `custom skills`, and upload the specific folder for the skill you want.\n    *   **for api/devs:** point your mcp client or system prompt config to the relevant skill directory.\n\n3.  **verify**\n    ask claude `can you use the [skill name] skill now?` if it says yes, you are gucci.\n\n## table of contents\n\n*   [overview](#overview)\n*   [features](#features)\n*   [skill catalog](#skill-catalog)\n*   [configuration](#configuration)\n*   [how-to examples](#how-to-examples)\n*   [troubleshooting](#troubleshooting)\n*   [dependencies](#dependencies)\n*   [license & credits](#license--credits)\n*   [changelog](./CHANGELOG.md)\n\n## overview\n\nskills are basically fancy prompt packages and scripts that teach claude how to do specific things without you having to explain the context every single time. they load lazily (only when needed), which saves context window space and keeps claude from getting confused by instructions it doesn't need yet.\n\nthis repo aggregates hundreds of skills from anthropic, composiohq, k-dense-ai, and random internet geniuses.\n\n## features\n\n*   **non-curated selection:** i dumped everything in here. if it doesnt work i probably havent noticed. just let me know and i may or may not fix it.\n*   **categorized:** everything is sorted so you don't have to doomscroll to find the python tools.\n*   **standardized:** i tried to keep the folder structures somewhat cons",
+  "embeddedUrls": [
+    "https://github.com/Microck/ordinary-claude-skills",
+    "https://i.ibb.co/Q3kYxbBt/claudeskills.png",
+    "https://microck.github.io/ordinary-claude-skills/#/",
+    "https://img.shields.io/badge/view-documentation-orange",
+    "https://github.com/Microck/ordinary-claude-skills/blob/main/LICENSE",
+    "https://img.shields.io/badge/license-MIT-greene",
+    "https://github.com/Microck/ordinary-claude-skills",
+    "https://img.shields.io/badge/maintenance-passive-yellow",
+    "https://github.com/Microck/ordinary-claude-skills",
+    "https://img.shields.io/badge/AI-claude-purple",
+    "https://microck.github.io/ordinary-claude-skills/#/",
+    "https://github.com/Microck/ordinary-claude-skills.git"
+  ]
+}
