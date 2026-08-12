@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-11*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-12*
 
 ## Core Patterns (Foundational)
 
@@ -134,3 +134,7 @@
 **p-selective-slot-distillation** Multi-slot bounded distillations should skip optional sections lacking fresh material rather than pad — empty slots preserve quality better than filler. Rank remaining observations by signal type: surprises (baseline divergence) first, then relationship-deltas (shifting external constraints), then same-cycle efficiency wins; routine/expected metrics are lowest priority unless they're genuine outliers.
 
 **p-unit-test-import-over-mirror** Unit tests should import/reference the actual implementation rather than duplicating it inline — mirrored test implementations can't detect drift when the real implementation changes; imports enforce contract consistency and catch regressions naturally.
+
+**p-source-viability-vs-topic-alignment** Mechanical-gate failures (un-fetchable content, missing metadata like arxiv ID) should not auto-decline if the topic is core-aligned. Fall back to citable secondary sources or cross-check existing literature before declining on gate grounds alone — distinguish "this source is bad" from "this topic is good but this source mechanically broken."
+
+**p-false-dichotomy-verification-in-synthesis** When expert sources appear to conflict on timing/approach, verify the conflict exists rather than accepting apparent disagreement at face value. Different problem scopes (cryptography vs key-migration logistics) or timescales (immediate vs 7-year) can masquerade as contradictions — confirm actual incompatibility before reporting conflicting guidance.
