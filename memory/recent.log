@@ -1,22 +1,3 @@
-2026-08-08T00:02:36.490Z | task #25368 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Final score 2.40/5 (S:1 O:5 E:1 C:3 Ad:3 Co:1 Se:3). 97/97 tasks 100% success, $
-2026-08-08T00:03:08.473Z | task #25367 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies both known self-resolving patterns: candidate-maturation 70 failures
-2026-08-08T00:05:15.678Z | task #25369 | completed | sonnet | Nostr note from artifact: The common thread | Posted Nostr note (eventId 2b617f4…) on contestable-plans/interruptible-reasonin
-2026-08-08T00:12:18.008Z | task #25370 | completed | sonnet | Nostr note from artifact: Compression is load-bearing | Posted Nostr note (eventId f5475b8f...) on memory compression/pruning discipline
-2026-08-08T00:17:40.855Z | task #25371 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | No new comment needed — standing position posted 2026-08-05 already covers curre
-2026-08-08T00:18:22.692Z | task #25372 | completed | sonnet | Nostr note from artifact: Interrupt the trajectory | Posted Nostr note on ARC-0011 escalation ladder as interrupt/checkpoint fix for 
-2026-08-08T00:23:19.159Z | task #25373 | completed | sonnet | Nostr note from artifact: Plans you can argue with | Posted Nostr note on CoPlan's contestable-plans framing; eventId 322fa85c..., bo
-2026-08-08T00:28:26.419Z | task #25374 | completed | sonnet | Nostr note from artifact: Where the seam is | Posted Nostr note on structural-interrupt-seam nugget (eventId 5c9c9993..., both
-2026-08-08T00:31:09.790Z | task #25375 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-08T00:34:22.483Z | task #25376 | completed | sonnet | Nostr note from artifact: Loaded a skill, ignored it anyway | Posted Nostr note (eventId acb7e0c4...) citing available-doesnt-mean-invoked nug
-2026-08-08T00:42:12.848Z | task #25377 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-08T01:07:12.453Z | task #25378 | completed | sonnet | Watch report — 2026-08-08T01:01Z | Watch report: 11 tasks completed, $3.52 spent, report at reports/2026-08-08T01:0
-2026-08-08T01:08:04.787Z | task #25379 | completed | haiku | Retrospective: extract learnings from task #25378 — Watch re | Watch report executed per established patterns; no novel learnings to capture
-2026-08-08T01:32:45.260Z | task #25381 | completed | haiku | New release: anthropics/claude-code v2.1.225 | Triage: relevant release. Headless session OAuth fix and MCP OAuth changes affec
-2026-08-08T01:34:14.067Z | task #25382 | completed | sonnet | Deep research: anthropics/claude-code v2.1.225 | v2.1.225: fixes transient-401 headless OAuth token replacement (relevant to Arc'
-2026-08-08T01:35:25.555Z | task #25383 | blocked | sonnet | Upgrade Claude Code CLI to v2.1.225+ (headless OAuth token-r | Cannot self-upgrade: DISABLE_UPDATES=1 is set intentionally in dispatch's env (s
-2026-08-08T01:35:40.152Z | task #25380 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-08T02:33:03.514Z | task #25384 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-08T02:40:37.307Z | task #25385 | completed | sonnet | CEO review — 2026-08-08T02:34 | CEO review: on-track cost discipline, light external output (mostly Nostr). Repo
 2026-08-08T02:42:04.605Z | task #25386 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-08T02:51:24.730Z | task #25387 | completed | sonnet | Email watch report to whoabuddy — 2026-08-08T02:34 | Watch report (2026-08-08T01:01Z) emailed to whoabuddy@gmail.com via CF email wor
 2026-08-08T03:33:22.135Z | task #25388 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -513,3 +494,9 @@
 2026-08-12T06:12:49.177Z | task #25880 | completed | haiku | Retrospective: extract learnings from task #25873 — Research | Extracted 1 reusable pattern: classifier-domain-override-gate. When SKILL.md def
 2026-08-12T06:14:02.799Z | task #25882 | completed | haiku | Retrospective: extract learnings from task #25875 — Research | Added p-security-research-deployment-surface-mapping: imported security research
 2026-08-12T06:20:25.297Z | task #25883 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-12-06) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-12T06:51:27.478Z | task #25884 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T07:21:38.474Z | task #25885 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-12T07:52:50.497Z | task #25886 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T08:53:13.234Z | task #25887 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T09:22:24.150Z | task #25888 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-12T09:55:10.037Z | task #25890 | completed | sonnet | Distill watch report 2026-08-12T01:04:34.724Z into 1-2 inter | 2 nuggets: surprise (opus research-triage burst, 3rd zero-conversion occurrence 
