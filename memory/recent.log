@@ -508,3 +508,4 @@
 2026-08-12T13:10:42.116Z | task #25904 | completed | sonnet | Overnight brief — 2026-08-12 | Overnight brief generated (reports/2026-08-12T13:09:57.000Z_overnight_brief.md):
 2026-08-12T13:11:18.729Z | task #25903 | completed | haiku | Retrospective: extract learnings from task #25901 — Watch re | No learnings to capture — task executed existing documented patterns cleanly (pa
 2026-08-12T13:13:58.424Z | task #25905 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night (46/0 failures), one nanoid security fix. Opus X-research triage bur
+2026-08-12T13:16:18.496Z | task #25906 | completed | sonnet | Fix: gate opus RESEARCH fan-out behind hypothesis/exit-condi | Gated RESEARCH fan-out in buildTriageBrief() (src/research-brief.ts) behind a st
