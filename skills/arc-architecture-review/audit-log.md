@@ -1,3 +1,26 @@
+## 2026-08-12T21:58:54.558Z — single scoped prose-template fix (opus-research-burst gate), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #25949** | Diff: f03f61d..2d0e107 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/research-brief.ts` (2d0e10779, `buildTriageBrief()`) — gates the RESEARCH fan-out branch behind a stated hypothesis + concrete exit condition; a story without both is now a DECLINE. Fixes a 4th-consecutive-overnight zero-conversion pattern (opus research producing prose but no follow-up task/memory entry/code change). Already tracked in MEMORY.md as `[[opus-research-burst-no-action-conversion]]` FIXED (#25906); this is a single-function prompt-template change, not a new decision point — no diagram/context-audit impact. Verification scheduled 2026-08-14 per memory.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a concretely observed defect (3 prior zero-conversion incidents, #25798/#25890/#25905) — not speculative.
+- **Step 2 — Delete**: N/A this cycle — the fix is a gate added to an existing decision point, not new surface area.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's one-file change — no new findings introduced.
+- MEMORY.md now flagged `[STALE: last updated 7d ago]` by the session's own SessionStart hook, at ~5869 tokens (125 lines) — over the audit's 2000-token skill threshold analog and past due for consolidation per the standing `arc-skill-manager` sensor (120min check, >500 lines trigger — line count is under that bar, but token size and staleness both argue for a consolidation pass regardless). Not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check; noting so the next reviewer doesn't need to re-derive it.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-12T09:57:00.000Z — no structural changes since last review (data-only diff); 129 skills / 91 sensors (unchanged)
 
 **Task #25891** | Diff: a00ad96..f03f61d (6 commits) | Sensors: 91 | Skills: 129
@@ -74,26 +97,4 @@
 
 Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk since the last review. Diagram regenerated (129 skills, 91 sensors, unchanged counts). Checked reports since last review (2026-08-10T01:02:41Z watch report): two new reports (2026-08-10T13:00/13:01 watch report, 2026-08-10T14:00Z overnight brief) — clean overnight window, housekeeping/memory consolidation dominated, no failures, no new architecture-relevant CEO/whoabuddy feedback, no new blocks. No findings, no follow-ups filed. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
----
-
-## 2026-08-10T09:56:00.000Z — cache-only diff (arc-link-research), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25633** | Diff: 1d08f66..40168b9 (5 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 5 commits in range are `chore(loop): auto-commit after dispatch cycle` touching only `skills/arc-link-research/cache/*.json` (55 files total) — link-research response cache entries, not code. No `src/`, `cli.ts`, `sensor.ts`, or `SKILL.md` changes.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: N/A this cycle — no code changed to question.
-- **Step 2 — Delete**: None this cycle.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- New reports since last review (2026-08-09T13:00/13:01, 2026-08-10T01:02) contain routine ops summaries only, no new architecture-relevant CEO/whoabuddy feedback.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25390) correctly held, already tracked in MEMORY.md.
 
