@@ -514,3 +514,4 @@
 2026-08-12T00:52:15.825Z | task #25850 | completed | sonnet | Research: composio agent-harness benchmark — DeepSeek V4 Fla | Composio harness benchmark tweet has no verifiable numbers (headline claim only,
 2026-08-12T00:53:13.164Z | task #25851 | completed | sonnet | Research: ordinary-claude-skills — local aggregator of offic | Repo is real (Microck/ordinary-claude-skills, MIT, passive maintenance) but is a
 2026-08-12T00:55:16.209Z | task #25852 | completed | sonnet | Research: Anthropic introspective-awareness interpretability | Overrode auto-scorer's low-relevance skip; wrote manual report grounding the twe
+2026-08-12T00:56:17.010Z | task #25853 | completed | sonnet | Research: Vercel Sandbox egress firewall — agent sandboxing  | Vercel Sandbox egress firewall = deny-by-default network allowlist for credentia
