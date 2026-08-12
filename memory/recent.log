@@ -511,3 +511,4 @@
 2026-08-12T06:10:21.110Z | task #25878 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert self-resolved via token auto-refresh — matches confirmed ro
 2026-08-12T06:11:55.104Z | task #25879 | completed | haiku | Retrospective: extract learnings from task #25871 — Research | Extracted 2 reusable patterns: source-viability-vs-topic-alignment (mechanical-g
 2026-08-12T06:12:49.177Z | task #25880 | completed | haiku | Retrospective: extract learnings from task #25873 — Research | Extracted 1 reusable pattern: classifier-domain-override-gate. When SKILL.md def
+2026-08-12T06:14:02.799Z | task #25882 | completed | haiku | Retrospective: extract learnings from task #25875 — Research | Added p-security-research-deployment-surface-mapping: imported security research
