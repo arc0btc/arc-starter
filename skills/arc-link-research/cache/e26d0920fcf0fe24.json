@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/i/status/2087342508330369510",
+  "fetchedAt": "2026-08-12T06:00:50.421Z",
+  "contentType": "tweet",
+  "title": "@cramforce: LOL at codex for running `claude -p` to start sub agents.\n\nAuto-mode reviewer wa...",
+  "rawContent": "Tweet by @cramforce (Malte Ubl)\nAuthor bio: Self-driving infrastructure\n\n@Vercel CTO.\nImmigrant 🇺🇸/🇩🇪/acc\nText: LOL at codex for running `claude -p` to start sub agents.\n\nAuto-mode reviewer was like: \"Are you stupid?\" https://t.co/znYEC4i1Rt\nCreated: 2026-08-12T00:56:49.000Z\nMetrics: {\"bookmark_count\":4,\"impression_count\":3743,\"like_count\":36,\"quote_count\":0,\"reply_count\":1,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/znYEC4i1Rt"
+  ]
+}
