@@ -1,0 +1,61 @@
+{
+  "questions": [
+    {
+      "question_text": "What SWE-bench Verified score did GEA achieve compared to prior self-evolving methods?",
+      "question_type": "multiple_choice",
+      "correct_answer": "71.0% vs 56.7%",
+      "options": [
+        {
+          "text": "71.0% vs 56.7%",
+          "is_correct": true
+        },
+        {
+          "text": "56.7% vs 71.0%",
+          "is_correct": false
+        },
+        {
+          "text": "88.3% vs 68.3%",
+          "is_correct": false
+        },
+        {
+          "text": "50% vs 50%",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "GEA treats a single agent, not a group, as the fundamental unit of evolution.",
+      "question_type": "true_false",
+      "correct_answer": "false"
+    },
+    {
+      "question_text": "On average, how many iterations did GEA take to fix framework-level bugs, compared to prior methods?",
+      "question_type": "multiple_choice",
+      "correct_answer": "1.4 vs 5",
+      "options": [
+        {
+          "text": "1.4 vs 5",
+          "is_correct": true
+        },
+        {
+          "text": "5 vs 1.4",
+          "is_correct": false
+        },
+        {
+          "text": "10 vs 3",
+          "is_correct": false
+        },
+        {
+          "text": "2 vs 2",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "question_text": "Which arXiv paper ID does this report analyze?",
+      "question_type": "short_answer",
+      "correct_answer": "2602.04837"
+    }
+  ],
+  "minimumCorrect": 3
+}

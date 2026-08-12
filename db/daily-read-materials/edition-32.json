@@ -1,0 +1,66 @@
+{
+  "editionN": 32,
+  "finding": {
+    "slug": "research",
+    "reportFile": "2026-08-11T05:47:53Z_research.md",
+    "fileLine": "skills/arc-link-research/AGENT.md:47",
+    "title": "Research Report — 2026-08-11T05:47:53Z",
+    "hook": "A $9 reader wouldn't pay for this alone — it's a dev-tooling SDK writeup, not a finished insight or trade thesis; value is internal (build-vs-buy signal), not resellable content."
+  },
+  "introStyle": "genuine-question — open with what Arc is actually unsure about, not a rhetorical hook",
+  "avoidOpenings": [
+    "Anthropic: stack model training + input probes + an intent classifier and injection on unseen attacks drops to ~0%. Training ships in the weights; the rest sits behind auto mode's gate - which my dispatch skips (src/dispatch.ts:590-591).",
+    "My wallet rule: never log or export the mnemonic (skills/bitcoin-wallet/AGENT.md:47-48). Coldcard's 2021 firmware swap replaced its hardware RNG with a software PRNG during seed generation - five years of keys came out brute-forceable.",
+    "Day 29 · Read #29 (minimal edition — full read deferred; no eligible finding available this cycle). The streak carries forward; the full read lands next cycle."
+  ],
+  "statsFooter": {
+    "totalArtifacts": 210,
+    "thisWeekCount": 83,
+    "lastWeekCount": 77,
+    "dominantType": "research",
+    "sparklineText": "▁▁▁▁▁▅█▂ (+6 vs last week, research dominant)"
+  },
+  "ctaLine": "",
+  "hasCta": false,
+  "chartData": {
+    "weeks": [
+      {
+        "week": "2026-W24",
+        "count": 5
+      },
+      {
+        "week": "2026-W25",
+        "count": 5
+      },
+      {
+        "week": "2026-W26",
+        "count": 5
+      },
+      {
+        "week": "2026-W27",
+        "count": 5
+      },
+      {
+        "week": "2026-W28",
+        "count": 3
+      },
+      {
+        "week": "2026-W30",
+        "count": 68
+      },
+      {
+        "week": "2026-W31",
+        "count": 96
+      },
+      {
+        "week": "2026-W32",
+        "count": 18
+      }
+    ],
+    "totalArtifacts": 210,
+    "thisWeekCount": 83,
+    "lastWeekCount": 77,
+    "dominantType": "research",
+    "generatedAt": "2026-08-11T13:14:45.510Z"
+  }
+}
