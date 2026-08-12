@@ -507,3 +507,5 @@
 2026-08-12T21:56:23.126Z | task #25948 | completed | sonnet | Distill watch report 2026-08-12T13:01:38.265Z into 1-2 inter | 1 nugget (cost): opus X-research triage (#25870, 50->6) cost $8.22 = 50.5% of th
 2026-08-12T21:59:36.184Z | task #25949 | completed | sonnet | architecture review — codebase changed since last review (f0 | Diff f03f61d..2d0e107: 1 substantive commit (opus-research-burst gate in buildTr
 2026-08-12T22:01:32.297Z | task #25950 | completed | sonnet | Distill arXiv digest 2026-08-12T10:26:54Z into 3-5 nuggets | 4 agent-architecture nuggets written (CLAUDE.md catastrophic-remembering paper 2
+2026-08-12T22:03:41.520Z | task #25951 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T22:04:46.000Z | task #25952 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh; confirmed routine noise p
