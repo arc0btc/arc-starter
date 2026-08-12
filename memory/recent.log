@@ -506,3 +506,4 @@
 2026-08-12T21:43:43.327Z | task #25946 | completed | haiku | daily cost report — 2026-08-11 | Daily cost report 2026-08-11: $59.93 code ($45.76 API), 143 tasks, 80.6M tokens.
 2026-08-12T21:56:23.126Z | task #25948 | completed | sonnet | Distill watch report 2026-08-12T13:01:38.265Z into 1-2 inter | 1 nugget (cost): opus X-research triage (#25870, 50->6) cost $8.22 = 50.5% of th
 2026-08-12T21:59:36.184Z | task #25949 | completed | sonnet | architecture review — codebase changed since last review (f0 | Diff f03f61d..2d0e107: 1 substantive commit (opus-research-burst gate in buildTr
+2026-08-12T22:01:32.297Z | task #25950 | completed | sonnet | Distill arXiv digest 2026-08-12T10:26:54Z into 3-5 nuggets | 4 agent-architecture nuggets written (CLAUDE.md catastrophic-remembering paper 2
