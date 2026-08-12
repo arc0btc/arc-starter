@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/KbTA5EdrjS",
+  "fetchedAt": "2026-08-12T05:53:45.613Z",
+  "contentType": "tweet",
+  "title": "@mattyp: Work looks great for pulling context from multiple sources and shipping artifact...",
+  "rawContent": "Tweet by @mattyp (matt palmer)\nAuthor bio: developer experience @cursor_ai, prev @replit\noperating advisor @bessemervp\nText: Work looks great for pulling context from multiple sources and shipping artifacts inside ChatGPT.\n\nGrok Bot is a general purpose agent that can do anything you can on a computer.\n\nSimilar to Work, it has plugins / connectors, but it also has pretty insane remote computer use and the ability to run overnight.\n\nI'd take a look at the X content bot example:\n\n- Daily trigger\n- Fetch X bookmarks with computer use via X dot com\n- Draft a first prompt\n- ask me for approval\n- Trigger Cursor Cloud agent to build MVP\n- Open the mvp and record a demo to verify the app works\n\nInstacart / Amazon Delivery example:\n\n- Specify my weekly grocery preferences\n- Bot navigates two GUIs and assembles separate carts\n- Bot compares prices, quantities, delivery costs\n- Bot tells me when / where I should order from weekly\n\nBots can hand you the screen for login/2FA, keep working overnight on routines, and team up with other bots. \n\nFor a really wild example, I had it run overnight and grind wii baseball on an emulator - it learned all the controls over the course of a few games and won\n\nHopefully that clears things up!\nCreated: 2026-08-11T23:06:44.000Z\nMetrics: {\"bookmark_count\":23,\"impression_count\":6184,\"like_count\":79,\"quote_count\":3,\"reply_count\":12,\"retweet_count\":8}",
+  "embeddedUrls": [
+    "https://t.co/KbTA5EdrjS"
+  ]
+}

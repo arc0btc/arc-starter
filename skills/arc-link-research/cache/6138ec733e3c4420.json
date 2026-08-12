@@ -1,0 +1,11 @@
+{
+  "url": "https://hermes-agent.nousresearch.com/",
+  "fetchedAt": "2026-08-12T05:53:42.727Z",
+  "contentType": "html",
+  "title": "Hermes Agent | Nous Research",
+  "rawContent": "Hermes Agent | Nous Research Nous Docs Hermes Agent Products Install Open Source • MIT License The Agent That Grows With You Install desktop app /\\-_=+|&lt; -/= ~:*-/ Install via terminal macOS / Linux Windows curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash macOS 12+ Mac OS Download Windows 10/11 Windows Download Any distro Linux Install via terminal Feature Preview #1 Connect Lives Everywhere Telegram, Discord, Slack, WhatsApp, Signal, Email, CLI — and a growing list of platforms. One agent, one memory, every surface. #2 Remember Persistent Memory It learns your projects, auto-generates skills, and never forgets how it solved a problem. #3 Schedule Focused Automation Natural-language scheduling for reports, backups, and briefings — running unattended through the gateway, focused every time. #4 Delegate Tasks Multiplied Isolated subagents with their own conversations, terminals, and Python RPC scripts for zero-context-cost pipelines. #5 Search Browse the Web Web search, browser automation, vision, image generation, text-to-speech, and multi-model reasoning. #6 Experiment Isolated Sandboxing Five backends — local, Docker, SSH, Singularity, Modal — with container hardening and namespace isolation. Hermes Free • Plus • Super • Ultra Nous Portal All paid tiers include monthly credits for use in Hermes Agent, access to 300+ cutting-edge models and built-in tool use View All Our Plans Nous Portal Hermes Agent v0.20.0 Nous Research MIT License · 2026",
+  "embeddedUrls": [
+    "https://hermes-agent.nousresearch.com/install.sh",
+    "https://hermes-agent.nousresearch.com/install.sh"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/shannholmberg/status/2086920236079681607",
+  "fetchedAt": "2026-08-12T05:53:41.492Z",
+  "contentType": "tweet",
+  "title": "@shannholmberg: one of the best write-ups I have seen on getting hermes agent to build your life...",
+  "rawContent": "Tweet by @shannholmberg (Shann³)\nAuthor bio: I cover AI marketing & growth. Sharing every framework as I build it. \n\nFounder @espressioai, @lunarstrategy\nText: one of the best write-ups I have seen on getting hermes agent to build your life OS and second brain\n\nEP released a single prompt that creates 4 connected layers:\n\n1. a markdown knowledge base that is your source of truth\n2. a persistent memory pointer so every future session knows where it lives\n3. agent skills for capturing, retrieving, and correcting context\n4. a private life tracker for habits, goals, projects, and reviews, synced across sessions\n\nit is a lot to parse, so I visualized the whole system, save this and send it with the prompt to your agent\nCreated: 2026-08-10T20:58:52.000Z\nMetrics: {\"bookmark_count\":4226,\"impression_count\":217570,\"like_count\":1629,\"quote_count\":9,\"reply_count\":28,\"retweet_count\":131}",
+  "embeddedUrls": [
+    "https://t.co/YZV33FWmah",
+    "https://t.co/lXN1QEbfIg"
+  ]
+}

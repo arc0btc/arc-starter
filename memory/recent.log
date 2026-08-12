@@ -1,11 +1,3 @@
-2026-08-07T21:57:00.330Z | task #25359 | completed | sonnet | architect: remove or rework no-op per-sensor dedup-check heu | Removed no-op per-sensor dedup-check heuristic from audit CLI (cli.ts:184-200) —
-2026-08-07T21:58:09.362Z | task #25360 | completed | haiku | Retrospective: extract learnings from task #25356 — architec | Added p-distributed-check-retirement-on-centralization pattern: retire distribut
-2026-08-07T22:07:39.673Z | task #25361 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 130h). No whoabuddy reply on
-2026-08-07T22:16:27.535Z | task #25362 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-07-22) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
-[UNTRUSTED-SRC] 2026-08-07T22:21:27.642Z | task #25363 | completed | sonnet | Whop synthesis [2026-08-07T22]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — silence rubric, nothing to synthe
-2026-08-07T22:29:25.216Z | task #25364 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-07T22:40:29.842Z | task #25365 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-07T23:29:47.520Z | task #25366 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-08T00:02:36.490Z | task #25368 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Final score 2.40/5 (S:1 O:5 E:1 C:3 Ad:3 Co:1 Se:3). 97/97 tasks 100% success, $
 2026-08-08T00:03:08.473Z | task #25367 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | 2 anomalies both known self-resolving patterns: candidate-maturation 70 failures
 2026-08-08T00:05:15.678Z | task #25369 | completed | sonnet | Nostr note from artifact: The common thread | Posted Nostr note (eventId 2b617f4…) on contestable-plans/interruptible-reasonin
@@ -505,3 +497,7 @@
 [UNTRUSTED-SRC] 2026-08-12T04:35:10.150Z | task #25864 | completed | sonnet | Whop synthesis [2026-08-12T04]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize against
 2026-08-12T04:38:50.794Z | task #25865 | completed | sonnet | self-review: run health check for 2026-08-12 | Health check clean: 0 failed tasks today, sensors nominal, cost $0.36/task withi
 2026-08-12T04:46:49.924Z | task #25866 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | All 3 flagged domains (nostr, arc-link-research, arc-skill-manager) are false-hu
+2026-08-12T04:50:57.491Z | task #25867 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T05:20:07.479Z | task #25868 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-12T05:51:19.974Z | task #25869 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T05:57:02.448Z | task #25870 | completed | opus | Triage: X research batch (2026-08-12, 50 stories from 50 can | Triaged 50 stories: 6 research tasks fanned out (#25871 quantum+Bitcoin Boneh/BI

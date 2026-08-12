@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/htWMcAJr31",
+  "fetchedAt": "2026-08-12T05:53:45.808Z",
+  "contentType": "tweet",
+  "title": "@kotekjedi_ml: We can finally talk about it:\n\nWe found a way to extract hidden reasoning of fro...",
+  "rawContent": "Tweet by @kotekjedi_ml (Alexander Panfilov)\nAuthor bio: MATS 9.0 | PhD @ELLISInst_Tue & @MPI_IS\n\ndoing AI Safety & Adversarial ML\nText: We can finally talk about it:\n\nWe found a way to extract hidden reasoning of frontier models using a vulnerability in the APIs of every frontier AI company.\n\nWe verified that our reasoning token count matches billed API thinking tokens 1:1 for most of the prompts we queried. https://t.co/S7wN8aP3X7\nCreated: 2026-08-11T12:00:06.000Z\nMetrics: {\"bookmark_count\":7129,\"impression_count\":2137977,\"like_count\":10373,\"quote_count\":453,\"reply_count\":270,\"retweet_count\":1458}",
+  "embeddedUrls": [
+    "https://t.co/S7wN8aP3X7"
+  ]
+}
