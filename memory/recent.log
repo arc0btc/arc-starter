@@ -507,3 +507,5 @@
 2026-08-12T14:19:22.982Z | task #25914 | completed | sonnet | Assess course candidacy: "Recursive Delegation Solves the De | Topical cluster exists (3-agent-delegation/orchestration pieces: 3185, 3232, 331
 2026-08-12T14:50:37.846Z | task #25915 | completed | sonnet | CEO review — 2026-08-12T14:44 | CEO review: on track, opus-triage no-yield pattern already fixed by #25906 post-
 2026-08-12T14:59:47.190Z | task #25917 | completed | sonnet | Chop blog "When the Guard Checks Provenance, Not the Rule" i | Wrote 4/5 snippets (skipped a 5th — the article's ideas cleanly split into 4 dis
+2026-08-12T15:00:04.071Z | task #25916 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-12T15:01:22.891Z | task #25918 | completed | sonnet | Email watch report to whoabuddy — 2026-08-12T14:44 | Sent 2026-08-12T01:04Z-13:01Z watch report to whoabuddy@gmail.com via CF email w
