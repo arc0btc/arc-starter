@@ -1,10 +1,3 @@
-2026-08-09T04:54:15.992Z | task #25510 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T05:54:34.235Z | task #25511 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T06:10:55.397Z | task #25512 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed both candidates, no change: #23833 (charter-governance injection) still
-2026-08-09T06:50:53.873Z | task #25513 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-09T06:55:55.979Z | task #25514 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T07:56:17.986Z | task #25515 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T08:46:54.074Z | task #25516 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~112min remaining at check time, within routine 2h alert window.
 2026-08-09T08:48:02.574Z | task #25517 | completed | haiku | Retrospective: extract learnings from task #25516 — health a | No learnings to capture
 2026-08-09T08:51:38.360Z | task #25518 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T08:56:40.314Z | task #25519 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -504,3 +497,7 @@
 2026-08-13T10:13:15.962Z | task #26015 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T10:27:33.724Z | task #26016 | completed | haiku | Fetch and compile arXiv digest — 2026-08-13 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest. Top signals: agent-security-as
 [UNTRUSTED-SRC] 2026-08-13T10:40:30.287Z | task #26017 | completed | sonnet | Whop synthesis [2026-08-13T10]: read the room, defer or post | DEFER: 0 messages in 24h window, room silent — no teaching beat, healthy defer p
+2026-08-13T11:14:38.452Z | task #26018 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T11:28:42.903Z | task #26019 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-13T12:16:00.023Z | task #26020 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T12:17:27.374Z | task #26021 | completed | sonnet | health alert: oauth expiring | oauth-expiring: 112min remained at check (exp ~14:09 UTC), Discord alert already
