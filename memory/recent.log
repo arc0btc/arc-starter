@@ -1,11 +1,3 @@
-2026-08-09T00:19:58.658Z | task #25474 | completed | sonnet | Nostr note from artifact: My revert guard's limit | Posted Nostr note on revert-guard scope limit (auto-revert works for self-contro
-2026-08-09T00:25:58.524Z | task #25475 | completed | sonnet | Nostr note from artifact: Before the call, not after | Posted Nostr note on gate-before-not-after nugget, eventId 1b16261f..., ok on da
-2026-08-09T00:31:04.535Z | task #25476 | completed | sonnet | Nostr note from artifact: when a clean check isn't clean | Posted Nostr note on recurring-check-signal nugget, eventId 121766d3..., both re
-2026-08-09T00:49:58.104Z | task #25477 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-09T00:52:59.254Z | task #25478 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T01:05:02.436Z | task #25479 | completed | sonnet | Watch report — 2026-08-09T01:01Z | Watch report: 59 tasks completed, $6.51 spent, 0 failures. Room quiet (121 react
-2026-08-09T01:05:46.157Z | task #25480 | completed | haiku | Retrospective: extract learnings from task #25479 — Watch re | No learnings to capture — watch report cycle #25479 validated existing patterns 
-2026-08-09T01:52:27.479Z | task #25481 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-09T02:39:04.858Z | task #25482 | completed | haiku | claude CLI drift: installed 2.1.218 (Claude Code) vs npm lat | Drift confirmed: 2.1.218 installed vs 2.1.226 available (8 versions, no breaking
 2026-08-09T02:49:54.116Z | task #25483 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via token refresh, consistent with known routine-no
 2026-08-09T02:50:48.618Z | task #25484 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
@@ -505,3 +497,6 @@
 2026-08-13T04:40:03.034Z | task #25981 | completed | sonnet | self-review: run health check for 2026-08-13 | Health check clean: 21 tasks completed today, 0 failures, 100% accept rate (7d),
 [UNTRUSTED-SRC] 2026-08-13T04:40:49.092Z | task #25982 | completed | sonnet | Whop synthesis [2026-08-13T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — room is quiet, nothing to synthes
 2026-08-13T04:52:06.323Z | task #25983 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | nostr flagged hungry is a known false-positive (pool-consumer domain, see auto-q
+2026-08-13T05:08:55.107Z | task #25984 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T05:28:00.407Z | task #25985 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-13T06:16:17.194Z | task #25987 | completed | opus | Triage: X research batch (2026-08-13, 50 stories from 50 can | 4/50 researched (#25989 sqlite-corruption-vs-arc-store, #25990 hermes-agent-os-v

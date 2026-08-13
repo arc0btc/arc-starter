@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/vercel_dev/status/2087682908576416172",
+  "fetchedAt": "2026-08-13T06:10:43.950Z",
+  "contentType": "tweet",
+  "title": "@vercel_dev: Introducing Vercel Managed Images.\n\nVercel Sandbox now ships with:\n▪︎ Ubuntu as ...",
+  "rawContent": "Tweet by @vercel_dev (Vercel Developers)\nAuthor bio: For developers building on @vercel.\nText: Introducing Vercel Managed Images.\n\nVercel Sandbox now ships with:\n▪︎ Ubuntu as the default OS\n▪︎ Preinstalled coding agents (𝚌𝚘𝚍𝚎𝚡, 𝚌𝚕𝚊𝚞𝚍𝚎…)\n▪︎ Customizable, open source base images\n\nTry the new base image:\n$ 𝚗𝚙𝚡 𝚜𝚊𝚗𝚍𝚋𝚘𝚡@𝚕𝚊𝚝𝚎𝚜𝚝 𝚜𝚑 https://t.co/QZy4OyG3rp\nCreated: 2026-08-12T23:29:27.000Z\nMetrics: {\"bookmark_count\":85,\"impression_count\":34579,\"like_count\":178,\"quote_count\":2,\"reply_count\":9,\"retweet_count\":12}",
+  "embeddedUrls": [
+    "https://t.co/QZy4OyG3rp"
+  ]
+}

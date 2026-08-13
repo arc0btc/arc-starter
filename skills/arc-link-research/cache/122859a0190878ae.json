@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/1756951802992349184/status/2087668323999756416",
+  "fetchedAt": "2026-08-13T06:10:43.950Z",
+  "contentType": "tweet",
+  "title": "@aimlapi: Grok 4.6 just made Opus look expensive!\n\nWe ran a real-world benchmark: Grok 4.6...",
+  "rawContent": "Tweet by @aimlapi (AI/ML API)\nAuthor bio: Platform for developers and entrepreneurs looking to integrate cutting-edge AI capabilities into their products. Team: @skinbagwbones @schwarzerrttr\nText: Grok 4.6 just made Opus look expensive!\n\nWe ran a real-world benchmark: Grok 4.6 and Claude Opus 5 one-shotted three 3D scenes of @elonmusk 's TERAFAB megafactory in three.js - the exterior at dusk, the cleanroom fab floor, and the central operations hall with walking workers. No edits, straight from the API.\n\nBoth delivered working code on the first try. But the economics aren't close:\n\nGrok 4.6 - $0.38\nClaude Opus 5 - $2.06\n\nThat's 5.4x cheaper for comparable output - and Grok also spent noticeably fewer tokens per scene. At demo scale that's pennies, at production volume it's the difference in your monthly bill!\nCreated: 2026-08-12T22:31:30.000Z\nMetrics: {\"bookmark_count\":6,\"impression_count\":15623,\"like_count\":33,\"quote_count\":4,\"reply_count\":8,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/k1Tvj6QJ55",
+    "https://t.co/qPAcLbkFL7"
+  ]
+}
