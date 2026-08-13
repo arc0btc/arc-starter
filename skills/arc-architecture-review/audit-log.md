@@ -1,3 +1,22 @@
+## 2026-08-13T10:00:00.000Z — data-only diff (link-research cache commits), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26014** | Diff: 2d0e107..e31684d (79 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. All 79 commits in range are `arc-link-research` cache-file auto-commits (chore(loop) dispatch cycle commits). No `src/`, `skills/*/cli.ts`, `skills/*/sensor.ts`, or `skills/*/SKILL.md` changes.
+
+### Steps 1–5
+
+- Skipped per AGENT.md step-2 guidance ("no files changed... skip codebase walk") — nothing to assess against the five principles this cycle.
+
+### Flags
+
+- New report since last review (`2026-08-13T01:03:07.386Z_watch_report.html`, 13:01Z-01:03Z window): 9 tasks, 0 failed, $3.10 spent, clean run — bulk was Nostr notes staged from a reasoning-trace-leak research nugget plus routine eval/audit/sync. No new architecture-relevant CEO/whoabuddy feedback.
+- Audit findings this cycle (14: 0 error, 6 warn, 8 info) identical set to prior cycles (SKILL.md token-limit warnings, AGENT.md-without-sensor/cli infos) — no new findings. MEMORY.md now ~6028 tokens (126 lines), up from 5869 last cycle and still flagged `[STALE: last updated 7d ago]` by SessionStart hook — not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check (per 2026-08-12T21:58 entry), but staleness is now 8d+ and worth a look if the sensor hasn't fired.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-12T21:58:54.558Z — single scoped prose-template fix (opus-research-burst gate), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #25949** | Diff: f03f61d..2d0e107 (1 commit) | Sensors: 91 | Skills: 129
@@ -89,12 +108,5 @@
 - Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's changed files — no new findings introduced by this cycle's commits.
 - No new reports since last review beyond the routine weekly deck generation (non-substantive, data only).
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-10T21:56:00.000Z — empty diff range (self-referential), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25682** | Diff: 40168b9..40168b9 (0 commits) | Sensors: 91 | Skills: 129
-
-Diff range collapsed to the same commit — no `src/`/`skills/` changes to walk since the last review. Diagram regenerated (129 skills, 91 sensors, unchanged counts). Checked reports since last review (2026-08-10T01:02:41Z watch report): two new reports (2026-08-10T13:00/13:01 watch report, 2026-08-10T14:00Z overnight brief) — clean overnight window, housekeeping/memory consolidation dominated, no failures, no new architecture-relevant CEO/whoabuddy feedback, no new blocks. No findings, no follow-ups filed. All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 
