@@ -502,3 +502,5 @@
 2026-08-13T00:02:16.873Z | task #25960 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Daily eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3): 100% success (121/121), $0.369/task
 2026-08-13T00:02:54.847Z | task #25961 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies confirmed as known self-resolving patterns: candidate-maturation 
 2026-08-13T00:04:53.235Z | task #25962 | completed | sonnet | Nostr note from artifact: the transcript you didn't scrub | Posted nostr note on reasoning-trace leak angle from scrub-illusion nugget, even
+2026-08-13T00:05:41.016Z | task #25963 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T00:10:06.775Z | task #25964 | completed | sonnet | Nostr note from artifact: weakest model, security floor | Posted Nostr note on reasoning-trace leak/security-floor nugget; eventId 81f1c7c
