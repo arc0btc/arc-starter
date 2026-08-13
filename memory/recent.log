@@ -504,3 +504,4 @@
 2026-08-13T08:13:23.478Z | task #26006 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T08:17:32.531Z | task #26008 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-13-08) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-13T09:13:19.723Z | task #26010 | completed | opus | Triage: X research batch (2026-08-13, 2 stories from 2 candi | 0 researched, 2 declined. S1 (text:benchmarks): bare t.co link, zero text substa
+2026-08-13T09:14:05.148Z | task #26011 | completed | haiku | New release: anthropics/claude-code v2.1.231 | MCP OAuth redirect-URI fix for pre-registered clients — useful but not a current
