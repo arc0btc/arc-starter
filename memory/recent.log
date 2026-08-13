@@ -508,3 +508,5 @@
 2026-08-13T22:03:11.655Z | task #26068 | completed | sonnet | Distill arXiv digest 2026-08-13T10:27:27Z into 3-5 nuggets | 4 agent-architecture nuggets written (simulator collapse in multi-agent RL, agen
 2026-08-13T22:09:29.433Z | task #26069 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh at 2026-08-13T22:03:2
 2026-08-13T22:19:41.689Z | task #26070 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 274h): still correctly block
+2026-08-13T22:22:25.502Z | task #26071 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+[UNTRUSTED-SRC] 2026-08-13T22:42:37.047Z | task #26072 | completed | sonnet | Whop synthesis [2026-08-13T22]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat context, silence 
