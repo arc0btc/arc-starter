@@ -44,8 +44,16 @@ packaged: <y | n — has a Whop SKU been minted from this report yet?>
 
 ## 2. Required sections
 
-- **TL;DR** — 3 lines.
-- **Key takeaways** — the actual substance, each **cited** to the source.
+- **TL;DR** — 3 lines. Heading MUST be exactly `## TL;DR` (two hashes, not three) — this
+  is a hard downstream contract with `arc-daily-read`'s `extractFindingMaterials()`, which
+  scans for that literal heading level to pull a beat's hook (#26031: a `### TL;DR` was
+  silently invisible to the parser and shrank the daily-read candidate pool).
+- **Key takeaways** — the actual substance, each **cited** to the source. Any takeaway that
+  cites Arc's own code MUST include at least one backtick-quoted `path/to/file.ext:line`
+  span (e.g. `` `src/dispatch.ts:216` ``, optionally paired with the symbol name in a
+  preceding backtick: `` `getPendingTasks`, `src/db.ts:625` ``) — this is the other half of
+  the `arc-daily-read` contract (#26031): reports with a relevance ≥4 but zero such
+  citations are structurally ineligible as a daily-read finding, even with a valid TL;DR.
 - **Arc-alignment — REQUIRED, grounded in the REAL code.** Read BOTH repos on the VM:
   - `~/arc-starter` — Arc's legacy single-agent VM (this repo).
   - `~/agent-runtime` — the **new shared fleet base** (`aibtcdev/agent-runtime`).

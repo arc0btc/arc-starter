@@ -491,7 +491,9 @@ function extractFindingMaterials(reportFile: string): { title: string; hook: str
   // split on bullet boundaries (lookahead), then flatten each bullet's lines to one string
   // so the hook isn't truncated mid-sentence at the first physical line break.
   let hook = "";
-  const tldrIdx = text.indexOf("## TL;DR");
+  // Accept "## TL;DR" or "### TL;DR" — reports are inconsistent about heading depth (#26031).
+  const tldrHeadingMatch = text.match(/^#{2,3}\s+TL;DR\s*$/m);
+  const tldrIdx = tldrHeadingMatch ? tldrHeadingMatch.index! : -1;
   if (tldrIdx !== -1) {
     const sectionEnd = text.indexOf("\n## ", tldrIdx + 1);
     const section = text.slice(tldrIdx, sectionEnd === -1 ? undefined : sectionEnd);
