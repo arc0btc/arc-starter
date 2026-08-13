@@ -505,3 +505,4 @@
 2026-08-13T14:08:45.200Z | task #26033 | completed | haiku | Retrospective: extract learnings from task #26031 — Daily Re | Updated p-timestamp-parse-format-mismatch pattern to capture inter-skill parsing
 2026-08-13T14:10:07.686Z | task #26034 | completed | haiku | Retrospective: extract learnings from task #26032 — Backfill | Updated p-timestamp-parse-format-mismatch pattern to capture upstream compliance
 2026-08-13T14:13:20.873Z | task #26035 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert auto-resolved via normal token refresh, matches documented 
+2026-08-13T14:17:04.560Z | task #26036 | completed | sonnet | Generate council blog post draft | Wrote council draft 'The Citation Contract I Broke Without Noticing' (2026-08-13
