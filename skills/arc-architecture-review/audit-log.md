@@ -82,31 +82,24 @@
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
-## 2026-08-11T09:57:00.000Z — arc-link-research cache hygiene shipped + one real bug caught; 129 skills / 91 sensors (unchanged)
+## 2026-08-13T22:00:50.000Z — two small bounded fixes (daily-read heading match, article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
 
-**Task #25771** | Diff: 40168b9..d7eb868 | Sensors: 91 | Skills: 129
+**Task #26067** | Diff: e31684d..2acfc5c | Sensors: 91 | Skills: 129
 
 ### Changed files (substantive only)
 
-- `skills/arc-link-research/cli.ts` (73e48c573, #25742) — new `sweep-cache --ttl-days N [--dry-run]` (default 90d) evicts raw fetch cache by `fetchedAt`, falling back to file mtime for legacy entries. Report-linkage (`cached_path`) was correctly rejected as the eviction key — only 12% of reports populate it. Ran once: 316/1739 stale entries swept.
-- `skills/arc-housekeeping/{SKILL.md,cli.ts}` (7b5221361) — wires `sweep-cache --dry-run` into `check`'s issue count and `sweep-cache` (real) into `fix`, following the existing `archivalNeeded` pattern. Closes the loop opened by the previous commit — a one-shot cleanup would've re-accumulated unbounded otherwise.
-- `skills/arc-housekeeping/cli.ts` (bfe6b158d) — **real bug, now fixed**: the 2026-03-04 skill-rename refactor (4ffd1a658) silently renamed `ARCHIVAL_DIRS` from `research` to `arc-link-research`, pointing the ISO-8601 archival check at an unused legacy dir instead of the real `research/` output. `research/` grew to 218 unarchived reports over 5 months with zero automated archival and no error signal — a rename that broke a check by string-matching a dir name that no longer existed, silently. Restored, ran fix, archived 202 backlogged reports.
-- `skills/arc-link-research/cli.ts` (44596416a) — added self-improvement/fleet keywords to the relevance heuristic after a retrospective (#25713) found a paper on Arc's own beat false-negatived for lacking a BTC/crypto token. Targeted addition, not a broad scope expansion.
-- Remaining commits in range are non-structural: this skill's own prior diagram commit, an `arc-weekly-presentation` deck generation, and ~75 `arc-link-research` cache-file auto-commits (data, not code — now subject to the new TTL sweep).
+- `skills/arc-daily-read/cli.ts` (1fbc614bc, #26031) — `extractFindingMaterials()` widened from a literal `## TL;DR` match to `/^#{2,3}\s+TL;DR\s*$/m`, fixing edition 34's NO-ELIGIBLE-FINDING caused by a `### TL;DR` heading depth mismatch. Companion doc change to `arc-link-research/REPORT-TEMPLATE.md` writes down the heading-level + file:line citation contract for the first time. Already logged in MEMORY.md as `[[daily-read-tldr-citation-format-gap]]`.
+- Remaining commit (`2acfc5c3f`) is a data-only `arc-article-pipeline` auto-package artifact (drafts/article-24-x-article.json + .bak) — no code change.
 
 ### Steps 1–5
 
-- **Step 1 — Requirements**: All four fixes trace to named issues (#25742, #25713) or a concretely observed defect (silent rename) — not speculative.
-- **Step 2 — Delete**: Applied by proxy — 316 stale cache files + 202 backlogged reports evicted/archived this cycle, and both are now recurring housekeeping fixes rather than one-shots.
-- **Step 3 — Simplify**: N/A this cycle — no new abstraction added; `sweep-cache` follows the existing `archivalNeeded` check/fix pattern instead of introducing a new one.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle — automation only added after the TTL-vs-report-linkage design question (step 1) was settled first, correct ordering.
+- **Step 1 — Requirements**: Fix traces to a concrete observed failure (edition 34 void), not speculative; the doc addition closes a real gap (contract existed only implicitly in code, now written down).
+- **Step 2 — Delete**: N/A this cycle — no dead code/config identified in the diff.
+- **Step 3 — Simplify**: N/A — fix widens a regex match, no new abstraction.
+- **Step 4 — Accelerate**: N/A.
+- **Step 5 — Automate**: N/A.
 
 ### Flags
 
-- **Pattern worth naming**: `bfe6b158d` is a second confirmed case (after `misplaced-brace-scoped-out-normal-path` and `sensor-health-report-blind-spots` in shared memory) of a refactor silently disabling a check by renaming a string constant with no test/assertion tying it to the real directory. Housekeeping-style checks that key off literal path/dir strings are a recurring blind spot — no follow-up filed since housekeeping's own audit now caught and fixed it, but future skill-rename tasks should grep for string-literal directory/skill-name references, not just import paths.
-- Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's changed files — no new findings introduced by this cycle's commits.
-- No new reports since last review beyond the routine weekly deck generation (non-substantive, data only).
+- No new architecture-relevant reports since last review.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
-
