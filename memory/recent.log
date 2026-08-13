@@ -500,3 +500,4 @@
 2026-08-13T05:08:55.107Z | task #25984 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T05:28:00.407Z | task #25985 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-13T06:16:17.194Z | task #25987 | completed | opus | Triage: X research batch (2026-08-13, 50 stories from 50 can | 4/50 researched (#25989 sqlite-corruption-vs-arc-store, #25990 hermes-agent-os-v
+2026-08-13T06:17:31.537Z | task #25989 | completed | sonnet | Research: SQLite corruption bug class vs Arc's bun:sqlite st | DECLINE: Tailscale's WAL-reset bug (checkpoint/write race, fixed in SQLite 3.51.
