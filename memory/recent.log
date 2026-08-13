@@ -506,3 +506,5 @@
 2026-08-13T06:23:50.039Z | task #25992 | completed | sonnet | Research: Grok 4.6 cost/quality claims vs Arc openrouter rou | DECLINE: Grok 4.6 is on OpenRouter ($2/$6 per M tokens, confirmed via artificial
 2026-08-13T06:25:37.715Z | task #25996 | completed | opus | Evaluate: should Arc skills/ adopt the Agent Plugins portabl | Declined: Agent Plugins format solves cross-client SKILL.md↔MCP-server binding +
 2026-08-13T06:26:00.433Z | task #25995 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks, both still blocked: #23833 (store-governance, DO NOT E
+2026-08-13T06:26:52.357Z | task #25986 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T06:27:55.133Z | task #25988 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh; consistent with establish
