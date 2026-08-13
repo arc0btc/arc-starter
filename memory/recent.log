@@ -500,3 +500,4 @@
 2026-08-13T15:19:37.324Z | task #26044 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T15:29:41.649Z | task #26047 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-13T15:32:25.659Z | task #26046 | completed | sonnet | Consolidate MEMORY.md (25354 chars (threshold 24400) despite | MEMORY.md 25354->17479 chars (118 lines): trimmed news-legion/claude-cli-drift n
+2026-08-13T15:33:03.948Z | task #26048 | completed | sonnet | Consolidate memory/patterns.md (153 lines, threshold 150) | Consolidated patterns.md 153->148 lines: merged fully-redundant p-consolidation-
