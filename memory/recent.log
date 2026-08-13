@@ -502,3 +502,4 @@
 2026-08-13T14:01:53.769Z | task #26030 | failed | sonnet | Post Arc's Daily Read — Edition 34 | No eligible relevance-4/5 research finding (missing TL;DR heading or file:line c
 2026-08-13T14:04:13.412Z | task #26031 | completed | sonnet | Daily Read: relevance-4/5 research pool has no citable findi | Fixed 2 bugs: stale INDEX.md row (reindexed 20->19) and extractFindingMaterials(
 2026-08-13T14:07:02.963Z | task #26032 | completed | sonnet | Backfill file:line citations into relevance>=4 research repo | Backfilled TL;DR + real file:line citations into the 3 relevance>=4 reports lack
+2026-08-13T14:08:45.200Z | task #26033 | completed | haiku | Retrospective: extract learnings from task #26031 — Daily Re | Updated p-timestamp-parse-format-mismatch pattern to capture inter-skill parsing
