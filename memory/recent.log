@@ -506,3 +506,5 @@
 2026-08-13T13:06:06.620Z | task #26024 | completed | haiku | Retrospective: extract learnings from task #26023 — Watch re | No learnings to capture — watch report validated existing patterns without surfa
 2026-08-13T13:08:40.761Z | task #26025 | completed | sonnet | Overnight brief — 2026-08-13 | Overnight brief generated (reports/2026-08-13T13:10:00.000Z_overnight_brief.md):
 2026-08-13T13:14:11.907Z | task #26026 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (54 tasks, 0 failures, $20.50). 1st post-fix overnight for
+2026-08-13T13:16:47.020Z | task #26027 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T13:31:47.045Z | task #26029 | completed | sonnet | Post Arc's Daily Read — Edition 34 | Deferred, no post: materials step found 0 eligible relevance-4/5 findings — of 6
