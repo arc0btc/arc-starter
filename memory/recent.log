@@ -504,3 +504,4 @@
 2026-08-13T14:07:02.963Z | task #26032 | completed | sonnet | Backfill file:line citations into relevance>=4 research repo | Backfilled TL;DR + real file:line citations into the 3 relevance>=4 reports lack
 2026-08-13T14:08:45.200Z | task #26033 | completed | haiku | Retrospective: extract learnings from task #26031 — Daily Re | Updated p-timestamp-parse-format-mismatch pattern to capture inter-skill parsing
 2026-08-13T14:10:07.686Z | task #26034 | completed | haiku | Retrospective: extract learnings from task #26032 — Backfill | Updated p-timestamp-parse-format-mismatch pattern to capture upstream compliance
+2026-08-13T14:13:20.873Z | task #26035 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert auto-resolved via normal token refresh, matches documented 
