@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/l3pIfq4U6c",
+  "fetchedAt": "2026-08-13T07:12:04.397Z",
+  "contentType": "tweet",
+  "title": "@Teknium: New in Hermes Agent: \n\nHave Hermes do an operation or set of operations on a web...",
+  "rawContent": "Tweet by @Teknium (Teknium 🪽)\nAuthor bio: Cofounder and Lead Engineer - Hermes Agent @NousResearch, prev @StabilityAI\nGithub: https://t.co/LZwHTUFwPq\nHuggingFace: https://t.co/sN2FFU8PVE\nText: New in Hermes Agent: \n\nHave Hermes do an operation or set of operations on a website, and it can watch the api calls made there - then can create a static api for your agent or scripts it builds to use forevermore with this new optional skill!\n\nJust run: \n`hermes skills install official/web-development/har-derived-api-client`\nCreated: 2026-08-12T23:43:34.000Z\nMetrics: {\"bookmark_count\":1204,\"impression_count\":106776,\"like_count\":1233,\"quote_count\":36,\"reply_count\":61,\"retweet_count\":66}",
+  "embeddedUrls": [
+    "https://t.co/l3pIfq4U6c"
+  ]
+}
