@@ -1,0 +1,33 @@
+{
+  "url": "https://github.com/zilliztech/memsearch/stargazers",
+  "fetchedAt": "2026-08-13T07:15:55.636Z",
+  "contentType": "github",
+  "title": "memsearch",
+  "rawContent": "Repo: zilliztech/memsearch\nDescription: A persistent, unified memory layer for all your AI agents (e.g. Claude Code, Codex), backed by Markdown and Milvus.\nTopics: agent-memory, claude-code, claude-code-plugin, memory, openclaw, progressive-disclosure, rag, agent, embeddings, milvus, semantic-search, ai-agents, harness, hybrid-search, long-term-memory, opencode, reranker, skills, codex, codex-cli\nStars: 2458\n\nREADME:\n<h1 align=\"center\">\n  <img src=\"assets/logo-icon.jpg\" alt=\"\" width=\"100\" valign=\"middle\">\n  &nbsp;\n  memsearch\n</h1>\n\n<p align=\"center\">\n  <strong>Cross-platform semantic memory for AI coding agents.</strong>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://pypi.org/project/memsearch/\"><img src=\"https://img.shields.io/pypi/v/memsearch?style=flat-square&color=blue\" alt=\"PyPI\"></a>\n  <a href=\"https://zilliztech.github.io/memsearch/platforms/claude-code/\"><img src=\"https://img.shields.io/badge/Claude_Code-plugin-c97539?style=flat-square&logo=claude&logoColor=white\" alt=\"Claude Code\"></a>\n  <a href=\"https://zilliztech.github.io/memsearch/platforms/openclaw/\"><img src=\"https://img.shields.io/badge/OpenClaw-plugin-4a9eff?style=flat-square\" alt=\"OpenClaw\"></a>\n  <a href=\"https://zilliztech.github.io/memsearch/platforms/opencode/\"><img src=\"https://img.shields.io/badge/OpenCode-plugin-22c55e?style=flat-square\" alt=\"OpenCode\"></a>\n  <a href=\"https://zilliztech.github.io/memsearch/platforms/codex/\"><img src=\"https://img.shields.io/badge/Codex_CLI-plugin-ff6b35?style=flat-square\" alt=\"Codex CLI\"></a>\n  <a href=\"https://pypi.org/project/memsearch/\"><img src=\"https://img.shields.io/badge/python-%3E%3D3.10-blue?style=flat-square&logo=python&logoColor=white\" alt=\"Python\"></a>\n  <a href=\"https://github.com/zilliztech/memsearch/blob/main/LICENSE\"><img src=\"https://img.shields.io/github/license/zilliztech/memsearch?style=flat-square\" alt=\"License\"></a>\n  <a href=\"https://github.com/zilliztech/memsearch/actions/workflows/test.yml\"><img src=\"https://img.shields.io/github/actions/workflow/status/zilliztech/memsearch/test.yml?branch=main&style=flat-square\" alt=\"Tests\"></a>\n  <a href=\"https://zilliztech.github.io/memsearch/\"><img src=\"https://img.shields.io/badge/docs-memsearch-blue?style=flat-square\" alt=\"Docs\"></a>\n  <a href=\"https://github.com/zilliztech/memsearch/stargazers\"><img src=\"https://img.shields.io/github/stars/zilliztech/memsearch?style=flat-square\" alt=\"Stars\"></a>\n  <a href=\"https://discord.com/invite/FG6hMJStWu\"><img src=\"https://img.shields.io/badge/Discord-chat-7289da?style=flat-square&logo=discord&logoColor=white\" alt=\"Discord\"></a>\n  <a href=\"https://x.com/zilliz_universe\"><img src=\"https://img.shields.io/badge/follow-%40zilliz__universe-000000?style=flat-square&logo=x&logoColor=white\" alt=\"X (Twitter)\"></a>\n</p>\n\n<p align=\"center\">\n  <img src=\"https://github.com/user-attachments/assets/427b7152-bc16-408c-a8b0-59a2b05fd1e0\" alt=\"memsearch demo\" width=\"800\">\n</p>\n\n## ð° What's New\n\n- **Skills from memory** â MemSearch now distills the workflows you repeat into reusable, installable agent skills (a third \"procedural memory\" layer) and keeps them up to date in the background. See [Skills from Memory](#skills-from-memory).\n- **Advanced memory maintenance** â optional background tasks keep durable `PROJECT.md` and `USER.md` notes current across sessions. See [Advanced Memory Maintenance](#advanced-memory-maintenance).\n\n---\n\n### Why memsearch?\n\n- ð *",
+  "embeddedUrls": [
+    "https://pypi.org/project/memsearch/",
+    "https://img.shields.io/pypi/v/memsearch?style=flat-square&color=blue",
+    "https://zilliztech.github.io/memsearch/platforms/claude-code/",
+    "https://img.shields.io/badge/Claude_Code-plugin-c97539?style=flat-square&logo=claude&logoColor=white",
+    "https://zilliztech.github.io/memsearch/platforms/openclaw/",
+    "https://img.shields.io/badge/OpenClaw-plugin-4a9eff?style=flat-square",
+    "https://zilliztech.github.io/memsearch/platforms/opencode/",
+    "https://img.shields.io/badge/OpenCode-plugin-22c55e?style=flat-square",
+    "https://zilliztech.github.io/memsearch/platforms/codex/",
+    "https://img.shields.io/badge/Codex_CLI-plugin-ff6b35?style=flat-square",
+    "https://pypi.org/project/memsearch/",
+    "https://img.shields.io/badge/python-%3E%3D3.10-blue?style=flat-square&logo=python&logoColor=white",
+    "https://github.com/zilliztech/memsearch/blob/main/LICENSE",
+    "https://img.shields.io/github/license/zilliztech/memsearch?style=flat-square",
+    "https://github.com/zilliztech/memsearch/actions/workflows/test.yml",
+    "https://img.shields.io/github/actions/workflow/status/zilliztech/memsearch/test.yml?branch=main&style=flat-square",
+    "https://zilliztech.github.io/memsearch/",
+    "https://img.shields.io/badge/docs-memsearch-blue?style=flat-square",
+    "https://github.com/zilliztech/memsearch/stargazers",
+    "https://img.shields.io/github/stars/zilliztech/memsearch?style=flat-square",
+    "https://discord.com/invite/FG6hMJStWu",
+    "https://img.shields.io/badge/Discord-chat-7289da?style=flat-square&logo=discord&logoColor=white",
+    "https://img.shields.io/badge/follow-%40zilliz__universe-000000?style=flat-square&logo=x&logoColor=white",
+    "https://github.com/user-attachments/assets/427b7152-bc16-408c-a8b0-59a2b05fd1e0"
+  ]
+}
