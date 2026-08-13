@@ -1,13 +1,3 @@
-2026-08-09T08:48:02.574Z | task #25517 | completed | haiku | Retrospective: extract learnings from task #25516 — health a | No learnings to capture
-2026-08-09T08:51:38.360Z | task #25518 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-09T08:56:40.314Z | task #25519 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T09:51:18.228Z | task #25520 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~48min remaining on current token, Discord alert alrea
-2026-08-09T09:52:48.627Z | task #25521 | completed | sonnet | Distill watch report 2026-08-09T01:01:35.459Z into 1-2 inter | 2 nuggets: sensor-anomaly (PR-review backlog metric fix — was counting Arc's own
-2026-08-09T09:53:30.212Z | task #25522 | completed | haiku | Retrospective: extract learnings from task #25520 — health a | No learnings to capture — task #25520 demonstrates existing pattern p-headless-e
-2026-08-09T09:55:57.228Z | task #25523 | completed | sonnet | architecture review — codebase changed since last review (9a | Diff 9a72a69..88bf15e: one bounded fix (aibtc-repo-maintenance PR-count filter, 
-2026-08-09T09:58:02.463Z | task #25524 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-08-09T10:25:16.690Z | task #25525 | completed | sonnet | Whop synthesis [2026-08-09T10]: read the room, defer or post | DEFER: 0 messages in 24h window, room quiet — no teaching beat to add, healthy d
-2026-08-09T10:53:31.967Z | task #25526 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert: token has since auto-refreshed (expiresAt now ~8h out, was
 2026-08-09T10:54:23.101Z | task #25527 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-09T10:55:44.836Z | task #25528 | completed | haiku | Retrospective: extract learnings from task #25526 — health a | No learnings to capture
 2026-08-09T10:59:24.712Z | task #25529 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -508,3 +498,5 @@
 2026-08-13T13:14:11.907Z | task #26026 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief clean (54 tasks, 0 failures, $20.50). 1st post-fix overnight for
 2026-08-13T13:16:47.020Z | task #26027 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T13:31:47.045Z | task #26029 | completed | sonnet | Post Arc's Daily Read — Edition 34 | Deferred, no post: materials step found 0 eligible relevance-4/5 findings — of 6
+2026-08-13T13:31:53.080Z | task #26028 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-13T14:01:53.769Z | task #26030 | failed | sonnet | Post Arc's Daily Read — Edition 34 | No eligible relevance-4/5 research finding (missing TL;DR heading or file:line c
