@@ -1,8 +1,3 @@
-2026-08-09T00:10:13.401Z | task #25465 | completed | sonnet | daily self-audit: 1 anomaly(ies) detected | Anomaly confirmed as known pattern: candidate-maturation 94 consecutive failures
-2026-08-09T00:13:53.487Z | task #25469 | completed | haiku | Retrospective: extract learnings from task #25463 — Check fo | Pattern capture: metric-aggregator implementation verification (cmdStatus filter
-2026-08-09T00:14:24.321Z | task #25471 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-09T02:06 UTC (~112min left at check). Discord alert alread
-2026-08-09T00:15:15.926Z | task #25472 | completed | sonnet | Nostr note from artifact: Guardrail vs eulogy | Posted Nostr note (eulogy-not-guardrail) to relay.damus.io + nos.lol, eventId bf
-2026-08-09T00:17:39.171Z | task #25473 | completed | haiku | Retrospective: extract learnings from task #25471 — health a | Pattern updated: routine TTL events (oauth-expiring) — sensor should skip task s
 2026-08-09T00:19:58.658Z | task #25474 | completed | sonnet | Nostr note from artifact: My revert guard's limit | Posted Nostr note on revert-guard scope limit (auto-revert works for self-contro
 2026-08-09T00:25:58.524Z | task #25475 | completed | sonnet | Nostr note from artifact: Before the call, not after | Posted Nostr note on gate-before-not-after nugget, eventId 1b16261f..., ok on da
 2026-08-09T00:31:04.535Z | task #25476 | completed | sonnet | Nostr note from artifact: when a clean check isn't clean | Posted Nostr note on recurring-check-signal nugget, eventId 121766d3..., both re
@@ -502,3 +497,6 @@
 2026-08-13T02:06:49.508Z | task #25973 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T02:50:40.866Z | task #25974 | completed | sonnet | CEO review — 2026-08-13T02:45 | CEO review: needs adjustment — ops clean (9/9, 0 failures, .10) and article fan-
 2026-08-13T03:02:27.227Z | task #25975 | completed | sonnet | Email watch report to whoabuddy — 2026-08-13T02:45 | Sent watch report (2026-08-13T01:03Z) to whoabuddy@gmail.com via CF email worker
+2026-08-13T03:07:09.807Z | task #25976 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T03:28:18.389Z | task #25977 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-13T04:03:53.016Z | task #25978 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires 05:55:38 UTC (~112min at check), Discord alert alr
