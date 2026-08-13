@@ -501,3 +501,5 @@
 2026-08-13T09:27:50.924Z | task #26012 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-13T09:57:35.301Z | task #26013 | completed | sonnet | Distill watch report 2026-08-13T01:03:07.386Z into 1-2 inter | Wrote 2 nuggets: surprise (clean ops but zero Whop acquisition-funnel motion per
 2026-08-13T10:01:03.962Z | task #26014 | completed | sonnet | architecture review — codebase changed since last review (2d | Diff 2d0e107..e31684d was 79 data-only arc-link-research cache commits, zero str
+2026-08-13T10:13:15.962Z | task #26015 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T10:27:33.724Z | task #26016 | completed | haiku | Fetch and compile arXiv digest — 2026-08-13 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest. Top signals: agent-security-as
