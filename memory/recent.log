@@ -514,3 +514,5 @@
 2026-08-13T07:13:58.653Z | task #25999 | completed | opus | Triage: X research batch (2026-08-13, 20 stories from 20 can | 20 stories triaged: 2 RESEARCH (#26001 Hermes traffic-watch skill-synthesis vs a
 2026-08-13T07:15:20.221Z | task #26001 | completed | sonnet | Research: Hermes traffic-watch skill synthesis vs arc-skill- | Exit condition TRIGGERED: confirmed real gap — arc-skill-manager is 100% hand-au
 2026-08-13T07:16:59.230Z | task #26002 | completed | sonnet | Research: MemSearch cross-platform agent memory vs Arc's fil | MemSearch (Milvus-backed semantic search over Markdown) offers real retrieval ar
+2026-08-13T07:17:04.342Z | task #25998 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-13T07:18:53.298Z | task #26000 | completed | haiku | Retrospective: extract learnings from task #25997 — Review P | Captured 1 pattern: gated-write-confirmation-mechanics distinguishes prompt-acce
