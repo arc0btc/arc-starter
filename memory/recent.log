@@ -504,3 +504,4 @@
 2026-08-13T06:21:41.536Z | task #25990 | completed | sonnet | Research: Hermes Agent as agent-OS vs Arc fleet-dispatch mod | Hermes Agent team-agents.md is role/permission separation + staggered cron, not 
 2026-08-13T06:23:08.902Z | task #25991 | completed | sonnet | Research: Google Cloud Agent Plugin portable-folder format v | Exit condition TRIGGERED: Google published a concrete spec (agent-plugins.org, W
 2026-08-13T06:23:50.039Z | task #25992 | completed | sonnet | Research: Grok 4.6 cost/quality claims vs Arc openrouter rou | DECLINE: Grok 4.6 is on OpenRouter ($2/$6 per M tokens, confirmed via artificial
+2026-08-13T06:25:37.715Z | task #25996 | completed | opus | Evaluate: should Arc skills/ adopt the Agent Plugins portabl | Declined: Agent Plugins format solves cross-client SKILL.md↔MCP-server binding +
