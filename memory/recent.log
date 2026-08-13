@@ -500,3 +500,4 @@
 2026-08-13T03:07:09.807Z | task #25976 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T03:28:18.389Z | task #25977 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-13T04:03:53.016Z | task #25978 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires 05:55:38 UTC (~112min at check), Discord alert alr
+2026-08-13T04:05:11.231Z | task #25979 | completed | haiku | Retrospective: extract learnings from task #25978 — health a | Clarified p-headless-external-dependency-ttl-monitoring pattern: established TTL
