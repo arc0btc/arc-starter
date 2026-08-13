@@ -507,3 +507,4 @@
 2026-08-13T22:01:32.772Z | task #26067 | completed | sonnet | architecture review — codebase changed since last review (e3 | Diff e31684d..2acfc5c: two small bounded fixes (daily-read TL;DR heading-depth m
 2026-08-13T22:03:11.655Z | task #26068 | completed | sonnet | Distill arXiv digest 2026-08-13T10:27:27Z into 3-5 nuggets | 4 agent-architecture nuggets written (simulator collapse in multi-agent RL, agen
 2026-08-13T22:09:29.433Z | task #26069 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh at 2026-08-13T22:03:2
+2026-08-13T22:19:41.689Z | task #26070 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 274h): still correctly block
