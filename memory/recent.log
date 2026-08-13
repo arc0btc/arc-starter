@@ -508,3 +508,4 @@
 2026-08-13T06:26:00.433Z | task #25995 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks, both still blocked: #23833 (store-governance, DO NOT E
 2026-08-13T06:26:52.357Z | task #25986 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T06:27:55.133Z | task #25988 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh; consistent with establish
+2026-08-13T06:29:29.824Z | task #25993 | completed | haiku | Retrospective: extract learnings from task #25987 — Triage:  | Updated p-research-synthesis with codebase-mapping gate discipline (hypothesis +
