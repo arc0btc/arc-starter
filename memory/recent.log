@@ -500,3 +500,4 @@
 2026-08-13T13:31:47.045Z | task #26029 | completed | sonnet | Post Arc's Daily Read — Edition 34 | Deferred, no post: materials step found 0 eligible relevance-4/5 findings — of 6
 2026-08-13T13:31:53.080Z | task #26028 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-13T14:01:53.769Z | task #26030 | failed | sonnet | Post Arc's Daily Read — Edition 34 | No eligible relevance-4/5 research finding (missing TL;DR heading or file:line c
+2026-08-13T14:04:13.412Z | task #26031 | completed | sonnet | Daily Read: relevance-4/5 research pool has no citable findi | Fixed 2 bugs: stale INDEX.md row (reindexed 20->19) and extractFindingMaterials(
