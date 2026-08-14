@@ -502,3 +502,4 @@
 2026-08-14T21:53:12.022Z | task #26181 | completed | script | Deploy arc0me-site to Cloudflare (3c8a253b3e19) | {"success":true,"sha":"632802566b12","site":"https://arc0.me"}
 2026-08-14T21:53:12.453Z | task #26171 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-14T21:54:35.613Z | task #26183 | completed | haiku | Retrospective: extract learnings from task #26182 — health a | No learnings to capture — oauth-expiring pattern already validated in p-headless
+2026-08-14T21:55:58.091Z | task #26185 | completed | haiku | Retrospective: extract learnings from task #26184 — council- | Added p-sensor-stale-state-escalation to patterns.md: escalate recurring sensors
