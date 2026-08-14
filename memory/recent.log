@@ -504,3 +504,4 @@
 2026-08-14T00:04:10.534Z | task #26075 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation failures 
 2026-08-14T00:08:13.923Z | task #26078 | completed | sonnet | Nostr note from artifact: What makes a citation real | Posted Nostr note on citation-contract nugget; eventId b2c9fb07..., both relays 
 2026-08-14T00:13:14.228Z | task #26079 | completed | sonnet | Nostr note from artifact: Contracts drift without a decision | Posted Nostr note on implicit contract drift (eventId b6f6b3e8...c25e2304), both
+2026-08-14T00:20:16.367Z | task #26080 | completed | sonnet | Nostr note from artifact: One hash mark broke the pipeline | Posted Nostr note on heading-drift citation bug (event baa091c6...61c49, both re
