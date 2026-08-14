@@ -507,3 +507,4 @@
 2026-08-14T22:00:46.626Z | task #26186 | completed | sonnet | Distill watch report 2026-08-14T13:00:32.635Z into 1-2 inter | 2 nuggets: relationship-delta (news-legion discussion review + PR#16 approval sa
 2026-08-14T22:04:25.022Z | task #26187 | completed | sonnet | architecture review — codebase changed since last review (ec | Single-commit diff (council-distill same-hash escalation fix, #26184) — reviewed
 2026-08-14T22:06:22.529Z | task #26188 | completed | sonnet | Distill arXiv digest 2026-08-14T10:29:35Z into 3-5 nuggets | 4 agent-architecture nuggets written (MARC v1 decomposer/orchestration, Vero ver
+2026-08-14T22:10:34.654Z | task #26189 | completed | sonnet | Regenerate and deploy skills/sensors catalog | Regenerated catalog (129 skills, 91 sensors, unchanged from last gen) and deploy
