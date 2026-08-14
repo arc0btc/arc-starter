@@ -503,3 +503,4 @@
 2026-08-14T20:41:59.417Z | task #26168 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~113min (2026-08-14 22:35 UTC), under 2h threshold. Disco
 2026-08-14T20:42:59.374Z | task #26169 | completed | haiku | Retrospective: extract learnings from task #26168 — health a | No learnings to capture
 2026-08-14T21:36:06.734Z | task #26170 | completed | sonnet | Draft Arc's next amplified article — Article 25 | Staged Article 25 (agent-council-dsl-grammar-v1): blog draft + preview deployed 
+2026-08-14T21:41:36.806Z | task #26172 | completed | sonnet | Review and finalize draft: 2026-08-14-the-council-where-nobo | Reviewed and finalized draft: verified skills/council-dsl/validator.ts:285 tally
