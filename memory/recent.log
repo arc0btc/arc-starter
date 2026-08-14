@@ -500,3 +500,4 @@
 2026-08-13T23:24:46.977Z | task #26073 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-13T23:33:49.651Z | task #26074 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-14T00:02:18.044Z | task #26077 | completed | sonnet | Nostr note from artifact: Where the bug actually lives | Posted Nostr note re-voicing 'boundary bug' nugget (citation-contract blog post)
+2026-08-14T00:03:30.861Z | task #26076 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | PURPOSE eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3, council DSL 7 moves 0 errors). Ops
