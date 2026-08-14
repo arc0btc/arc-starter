@@ -1,3 +1,26 @@
+## 2026-08-14T22:03:15.000Z — single scoped sensor fix (council-distill same-hash escalation), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26187** | Diff: ec53398..638819a (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/council-distill/sensor.ts` + `SKILL.md` (638819a35, #26184, follow-up of #26180) — fixes an infinite-requeue loop: an unchanged fleet-digest hash was re-queuing a full distill task every 7d indefinitely, silently recycling month-old quotes under a fresh timestamp (risk: duplicate content to whop-chat/blog/x). Now tracks `sameHashRepeatCount` and escalates to whoabuddy (blocked task + 48h cooldown) after 2 consecutive unchanged-hash cycles (~14d) instead of re-queuing forever. Single decision-point patch to existing sensor logic, not new surface area.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a concretely observed defect (#26180), not speculative.
+- **Step 2 — Delete**: N/A — the fix adds a bound to an existing loop, doesn't introduce new surface.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Minor diagnostic gap (not filing a follow-up, noting for next reviewer): `failureCooldownUntil` is shared between the pre-existing missing-digest cooldown and the new same-hash-escalation cooldown, but the top-level cooldown-gate log line (`sensor.ts:164`) always prints `"missing-digest cooldown active until..."` even when the actual cause is a same-hash escalation. Functionally correct (both paths gate correctly on the shared field) — purely a misleading log message if someone debugs a stuck sensor during the new cooldown case.
+- New report since last review (`2026-08-14T13:00:32.635Z_watch_report.html`, 01:04Z-13:00Z window): 45 tasks, 0 failed, $12.53 spent, clean quiet window. No new architecture-relevant CEO/whoabuddy feedback.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-13T10:00:00.000Z — data-only diff (link-research cache commits), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26014** | Diff: 2d0e107..e31684d (79 commits) | Sensors: 91 | Skills: 129
@@ -37,24 +60,6 @@
 
 - Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's one-file change — no new findings introduced.
 - MEMORY.md now flagged `[STALE: last updated 7d ago]` by the session's own SessionStart hook, at ~5869 tokens (125 lines) — over the audit's 2000-token skill threshold analog and past due for consolidation per the standing `arc-skill-manager` sensor (120min check, >500 lines trigger — line count is under that bar, but token size and staleness both argue for a consolidation pass regardless). Not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check; noting so the next reviewer doesn't need to re-derive it.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-12T09:57:00.000Z — no structural changes since last review (data-only diff); 129 skills / 91 sensors (unchanged)
-
-**Task #25891** | Diff: a00ad96..f03f61d (6 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 6 commits in range are data-only: `arc-link-research` cache-file auto-commits (5 commits, ~60 JSON cache files), `memory/recent.log` append, and one docs-only research report (`f7159b9b4`, orchestration-over-model-IQ). No `src/`, `skills/*/cli.ts`, `skills/*/sensor.ts`, or `skills/*/SKILL.md` changes.
-
-### Steps 1–5
-
-- Skipped per AGENT.md step-2 guidance ("no files changed since last review... skip codebase walk") — nothing to assess against the five principles this cycle.
-
-### Flags
-
-- New report since last review (`2026-08-12T01:04:34.724Z_watch_report.html`, 13:00Z-01:04Z window): 72 tasks, 0 failed, clean run. No new architecture-relevant CEO/whoabuddy feedback — routine ops only (patterns.md consolidation, packaging fix, Whop dedup save, opus X-research batch converting to zero net content, 3rd occurrence of cost-drift PURPOSE eval flag).
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
