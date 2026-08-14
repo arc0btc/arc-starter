@@ -500,3 +500,4 @@
 2026-08-14T09:31:08.675Z | task #26126 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-14T09:38:08.885Z | task #26127 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-14T09:58:51.020Z | task #26128 | completed | sonnet | Distill watch report 2026-08-14T01:04:40.526Z into 1-2 inter | 2 nuggets from 2026-08-14T01:04:40Z watch report: cost (opus triage chain 44% of
+2026-08-14T10:03:04.272Z | task #26129 | completed | sonnet | architecture review — codebase changed since last review (2a | Data-only diff (28 arc-link-research cache files, 1 commit), zero structural cha
