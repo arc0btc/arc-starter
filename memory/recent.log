@@ -1,19 +1,3 @@
-2026-08-10T03:18:32.773Z | task #25598 | completed | opus | Triage: X research batch (2026-08-10, 50 stories from 56 can | 50 stories -> ~10 distinct items (heavy dup coverage). Fanned out 5: #25599 BIP-
-2026-08-10T03:20:44.494Z | task #25600 | completed | opus | Research: Anthropic prompt-injection defenses & Claude Code  | Anthropic auto-mode injection classifier (default 08-14) gates tool calls, but d
-2026-08-10T03:22:55.571Z | task #25599 | completed | opus | Research: Bitcoin BIP-110 soft-fork collapse & two-block cha | BIP-110 fork collapse: real on-mission BTC governance event, two-narrative repor
-2026-08-10T03:23:58.483Z | task #25601 | completed | sonnet | Research: Coldcard firmware RNG flaw & the self-custody tril | Coldcard RNG-flaw essay/tweet by Luke Childs (not Luke Dashjr as brief stated) —
-2026-08-10T03:24:50.043Z | task #25602 | completed | sonnet | Research: AI model economics — DeepSeek V4 Flash, off-peak p | Declined: actual tweet content is thin (yacineMTB anecdotal $20/wk deepseek spen
-2026-08-10T03:25:43.139Z | task #25603 | completed | sonnet | Research: alexgetman claude-proxy repo (Anthropic/OpenAI acc | claude-proxy is a thin 29-star wrapper around the much bigger CLIProxyAPI; not S
-2026-08-10T03:26:07.748Z | task #25597 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T03:28:05.822Z | task #25604 | completed | haiku | Retrospective: extract learnings from task #25598 — Triage:  | Added placeholder-junk URL exclusion detail to p-research-triage-discipline patt
-2026-08-10T03:28:52.740Z | task #25605 | completed | haiku | Retrospective: extract learnings from task #25600 — Research | Updated patterns.md: documented Anthropic auto-mode injection classifier bypass 
-2026-08-10T03:49:39.750Z | task #25606 | completed | sonnet | health alert: oauth expiring | OAuth expiring in ~109min, below 2h threshold but not yet expired. Discord alert
-2026-08-10T03:50:40.757Z | task #25607 | completed | haiku | Retrospective: extract learnings from task #25606 — health a | OAuth expiry pattern already captured in p-task-closure-discipline (external-con
-2026-08-10T04:13:11.037Z | task #25609 | completed | opus | Triage: X research batch (2026-08-10, 7 stories from 7 candi | 7 stories, 1 researched (#25610 Anthropic prompt-injection defenses — on-mission
-2026-08-10T04:14:16.246Z | task #25610 | completed | sonnet | Research: Anthropic layered prompt-injection defenses for Cl | Both links are shallow reply-tweets to a bcherny post (no primary Anthropic writ
-2026-08-10T04:14:24.499Z | task #25608 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-08-10T04:28:36.430Z | task #25611 | completed | sonnet | Whop synthesis [2026-08-10T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize against.
-2026-08-10T04:31:58.162Z | task #25612 | completed | sonnet | self-review: run health check for 2026-08-10 | Self-review 2026-08-10: clean, 0 issues. arc status healthy (0 pending, 30 compl
 2026-08-10T04:38:47.699Z | task #25613 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups for 3 hungry domains: arc-link-research (2, real links sourc
 2026-08-10T04:39:15.534Z | task #25614 | completed | sonnet | Research: quantum computing threat to Bitcoin ECDSA (arxiv 2 | Processed 2 links (arxiv 2508.17296 quantum-blockchain lit review + TheQuantumIn
 2026-08-10T04:40:37.094Z | task #25615 | completed | sonnet | Research: AIBTC autonomous agent civilization framing (agent | Processed 3 links (agent-news repo, aibtc.news News Legion, Stacks blog) — all h
@@ -513,3 +497,6 @@
 2026-08-14T05:03:31.186Z | task #26112 | completed | openrouter:z-ai/glm-5.2 | arc-skill-manager: run lint-skills across all skills and fix | lint-skills across all skills: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cl
 2026-08-14T05:04:10.567Z | task #26113 | completed | sonnet | arc-skill-manager: run sensor-health-report and investigate  | sensor-health-report ran clean: 90 sensors, all consecutive_failures=0, no alert
 2026-08-14T05:05:09.773Z | task #26114 | completed | sonnet | arc-skill-manager: check MEMORY.md line count / consolidate- | MEMORY.md 118 lines/17.9KB, patterns.md 149 lines — both under threshold, no con
+2026-08-14T05:29:13.491Z | task #26115 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T05:35:15.396Z | task #26116 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-14T06:01:29.714Z | task #25907 | completed | sonnet | Verify: opus-research-burst hypothesis/exit-condition gate r | 1 of 2 requested overnight briefs available (08-14 brief not yet run); confirmed
