@@ -501,3 +501,5 @@
 2026-08-14T13:39:25.895Z | task #26147 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-14T14:35:20.603Z | task #26149 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post (arXiv:2608.12150 budget-dependent rankings, 2608.12273 sk
 2026-08-14T14:36:34.035Z | task #26150 | completed | haiku | Publish generated blog post | Published 2026-08-14 research post (rankings-that-move) with CTA footer appended
+2026-08-14T14:36:43.942Z | task #26148 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T14:40:51.070Z | task #26151 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via routine token refresh, matches known pattern (s
