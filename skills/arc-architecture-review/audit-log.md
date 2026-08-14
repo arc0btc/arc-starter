@@ -58,30 +58,6 @@
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
-## 2026-08-11T21:58:00.000Z — small bounded fix (archive fallback + Whop cleanup CLI), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25829** | Diff: d7eb868..a00ad96 (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-packaging/cli.ts` (a00ad96f7) — new `resolveReportPath()` checks `research/<file>` then falls back to `research/archive/<file>` before giving up; fixes a rotation race where a report gets archived mid-flight between the sensor queuing it and materials/stage actually reading it, which previously produced a silent empty report body. Applied consistently at all 3 read sites (compose, dupe-check, stage). Already tracked in MEMORY.md as `[[arc-packaging-archive-fallback-gap]]` FIXED.
-- `skills/whop/cli.ts` (a00ad96f7) — new `delete-product` CLI command, guarded: refuses to delete a non-`hidden` product without `--force`, so a live/visible product with members can't be deleted by a one-liner. Used once to clean an orphan hidden product (prod_r5heVkDZsudDR). Correct default-safe guard pattern.
-- Second commit in range (`ff25f87b5`) is non-structural: article-pipeline auto-package draft JSON, data not code.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Both fixes trace to a concrete observed defect (archive-race empty body) and a concrete cleanup need (orphan hidden product) — not speculative.
-- **Step 2 — Delete**: N/A this cycle.
-- **Step 3 — Simplify**: N/A — `resolveReportPath` follows the same check-then-fallback shape as other housekeeping path-resolution helpers rather than introducing a new pattern.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- No new architecture-relevant CEO/whoabuddy feedback in the two new reports since last review (2026-08-11T13:00Z watch report, 2026-08-11T14:00Z overnight brief) — clean overnight window (58/58 tasks, 0 failures), opus-research-burst-no-action-conversion flagged again (2nd occurrence, WATCH per memory convention, not yet a fix).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
 ## 2026-08-13T22:00:50.000Z — two small bounded fixes (daily-read heading match, article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26067** | Diff: e31684d..2acfc5c | Sensors: 91 | Skills: 129
@@ -102,4 +78,22 @@
 ### Flags
 
 - No new architecture-relevant reports since last review.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
+## 2026-08-14T10:02:18.000Z — single data-only commit (link-research cache), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26129** | Diff: 2acfc5c..ec53398 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- None. The single commit in range is a `chore(loop)` auto-commit of 28 `arc-link-research` cache JSON files. No `src/`, `skills/*/cli.ts`, `skills/*/sensor.ts`, or `skills/*/SKILL.md` changes.
+
+### Steps 1–5
+
+- Skipped per AGENT.md step-2 guidance — nothing to assess against the five principles this cycle.
+
+### Flags
+
+- Checked the two new reports since last review (2026-08-13T13:10 overnight brief, 2026-08-14T01:04 watch report) for architecture-relevant feedback — none found; overnight brief's only "architect" mention is a self-referential note from the prior review cycle.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
