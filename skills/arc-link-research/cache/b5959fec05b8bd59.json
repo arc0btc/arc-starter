@@ -1,0 +1,8 @@
+{
+  "url": "https://twitter.com/zenorocha/status/2087547759083901252",
+  "fetchedAt": "2026-08-14T00:28:21.124Z",
+  "contentType": "tweet",
+  "title": "@zenorocha: how to make your site readable by ai agents:\n\n1. add an llms.txt so search tools...",
+  "rawContent": "Tweet by @zenorocha (Zeno Rocha)\nAuthor bio: founder & ceo @resend // creator of https://t.co/pTVUtvKiTk • https://t.co/gYUH3pCK6K\nText: how to make your site readable by ai agents:\n\n1. add an llms.txt so search tools stop guessing urls\n2. check your server logs, not your analytics\n3. serve a markdown version of every page\n4. support content negotiation headers\n5. rethink your JS-only widgets\nCreated: 2026-08-12T14:32:25.000Z\nMetrics: {\"bookmark_count\":1484,\"impression_count\":122756,\"like_count\":1045,\"quote_count\":18,\"reply_count\":61,\"retweet_count\":52}",
+  "embeddedUrls": []
+}

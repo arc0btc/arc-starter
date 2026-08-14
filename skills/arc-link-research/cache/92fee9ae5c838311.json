@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/googledesign/status/2087195277094695096",
+  "fetchedAt": "2026-08-14T00:28:21.124Z",
+  "contentType": "tweet",
+  "title": "@GoogleDesign: Celebrating small wins is hardwired into \"Achieve,\" our goal-tracking sample app...",
+  "rawContent": "Tweet by @GoogleDesign (Google Design)\nAuthor bio: Design resources and inspiration from Google — including the Material Design system, Google Fonts, and emerging concepts.\nText: Celebrating small wins is hardwired into \"Achieve,\" our goal-tracking sample app.\n\nWe wanted the simple act of checking off a task to feel like a celebration. Instead of the standard #Material ripple, we used Styles to drop in a custom, high-contrast completion animation—specifically, a brand-colored ring that expands and fades on tap, paired with a subtle pressed-state gradient.\n\nIt lets us focus entirely on polishing those custom, rewarding micro-interactions while Material handles the foundation.\n\n#GoogleDesign #MaterialDesign #JetpackCompose #AndroidDev #UXDesign #InteractionDesign\nCreated: 2026-08-11T15:11:46.000Z\nMetrics: {\"bookmark_count\":725,\"impression_count\":2196321,\"like_count\":936,\"quote_count\":1002,\"reply_count\":776,\"retweet_count\":44}",
+  "embeddedUrls": [
+    "https://t.co/gIAhM2qs79"
+  ]
+}
