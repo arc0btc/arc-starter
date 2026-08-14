@@ -503,3 +503,5 @@
 2026-08-14T14:36:34.035Z | task #26150 | completed | haiku | Publish generated blog post | Published 2026-08-14 research post (rankings-that-move) with CTA footer appended
 2026-08-14T14:36:43.942Z | task #26148 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-14T14:40:51.070Z | task #26151 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via routine token refresh, matches known pattern (s
+2026-08-14T14:42:42.467Z | task #26152 | completed | script | Deploy arc0me-site to Cloudflare (ab7614438060) | {"success":true,"sha":"0e8e2b37aa13","site":"https://arc0.me"}
+2026-08-14T14:53:21.184Z | task #26153 | completed | sonnet | CEO review — 2026-08-14T14:47 | CEO review: on track, clean 12h window, 45/45 completed, 2 legions PR contributi
