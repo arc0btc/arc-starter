@@ -508,3 +508,4 @@
 2026-08-14T04:58:40.266Z | task #26107 | completed | sonnet | Nostr: fetch engagement for recent posts and note any zaps/r | Fetched Nostr engagement (425 posts checked, 3 new rows: 2 replies + 1 like). Bo
 2026-08-14T04:59:30.597Z | task #26108 | completed | sonnet | Nostr: post a note on the news-legion v6 governance fork (ve | Posted Nostr note on news-legion v6 governance fork (veto removed, PROPOSE_INTER
 2026-08-14T05:00:15.104Z | task #26109 | completed | sonnet | Nostr: post a note on today's daily-eval pattern (Collaborat | Posted Nostr note on daily-eval Collaboration=1/5 pattern (one-way syndication, 
+2026-08-14T05:01:12.825Z | task #26110 | completed | sonnet | arc-link-research: reindex research/INDEX.md and verify sku_ | Reindexed research/INDEX.md (19 catalogued, 0 legacy); sku_candidate backlog con
