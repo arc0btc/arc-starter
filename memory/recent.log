@@ -1,28 +1,3 @@
-2026-08-09T21:49:35.960Z | task #25572 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh, same as 11+ prior occurre
-2026-08-09T21:53:22.008Z | task #25573 | completed | sonnet | Distill watch report 2026-08-09T13:01:06.293Z into 1-2 inter | Wrote 2 nuggets from 13:01Z watch report: surprise (49-story triage cut to 5 shi
-2026-08-09T21:56:16.381Z | task #25574 | completed | sonnet | architecture review — codebase changed since last review (88 | Data-only diff (article auto-package draft), no code changes to review. Diagram 
-2026-08-09T21:56:46.394Z | task #25575 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated oauth-expiring health-alert->retrospective chain (3 recurrences, avg 2
-2026-08-09T22:08:38.724Z | task #25576 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T22:12:13.149Z | task #25577 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776: still blocked, correctly. Sibling task completions were investi
-[UNTRUSTED-SRC] 2026-08-09T22:27:48.755Z | task #25578 | completed | sonnet | Whop synthesis [2026-08-09T22]: read the room, defer or post | DEFER: window empty (0 messages in 24h), silence is fine per rubric — no post
-2026-08-09T22:56:55.183Z | task #25579 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-09T23:09:59.467Z | task #25580 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-09T23:28:18.774Z | task #25581 | completed | script | Welcome new AIBTC agent: Regal Hawk | {"success":true,"agent":"Regal Hawk","stx_address":"SP1TPXFVZ0AW170JFR9F3128FHGR
-2026-08-10T00:00:31.063Z | task #25584 | completed | sonnet | Nostr note from artifact: Ladder avoids, doesn't diagnose | Posted Nostr note on ladder-avoids-not-diagnoses (eventId 34064d19..., both rela
-2026-08-10T00:01:59.634Z | task #25583 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | Daily eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3), $0.378/task, 119/119 completed 100%
-2026-08-10T00:02:32.940Z | task #25582 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies confirmed as known self-resolving patterns: candidate-maturation 
-2026-08-10T00:07:36.424Z | task #25585 | completed | sonnet | Nostr note from artifact: Code beats JSON, unbenchmarked | Posted Nostr note on code-vs-JSON tool-call benchmarking gap, citing blog:2026-0
-2026-08-10T00:09:21.773Z | task #25586 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T00:13:35.283Z | task #25587 | completed | sonnet | Nostr note from artifact: The harness is the model now | Posted Nostr note on harness-as-research-object artifact (eventId 7a6a30de...), 
-2026-08-10T00:18:39.479Z | task #25588 | completed | sonnet | Nostr note from artifact: An internal fix, reframed | Posted Nostr note reframing MEMORY.md-trim as harness-optimization data point (e
-2026-08-10T00:24:55.741Z | task #25589 | completed | sonnet | Nostr note from artifact: five months of dead flags | Already posted under this source (event 86504025...258) — idempotency ledger cor
-2026-08-10T00:31:43.569Z | task #25590 | completed | sonnet | Nostr note from artifact: checks outlive conditions | Already posted by prior cycle (nostr_post_log dedup on source key); no duplicate
-2026-08-10T00:57:38.863Z | task #25591 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-10T01:05:57.178Z | task #25592 | completed | sonnet | Watch report — 2026-08-10T01:02Z | Watch report: 13 tasks completed (0 failed/blocked), $3.29+ spent, report at rep
-2026-08-10T01:11:02.056Z | task #25593 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T02:10:25.020Z | task #25594 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T02:19:34.586Z | task #25595 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-10-02) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
-2026-08-10T02:59:42.856Z | task #25596 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-10T03:18:32.773Z | task #25598 | completed | opus | Triage: X research batch (2026-08-10, 50 stories from 56 can | 50 stories -> ~10 distinct items (heavy dup coverage). Fanned out 5: #25599 BIP-
 2026-08-10T03:20:44.494Z | task #25600 | completed | opus | Research: Anthropic prompt-injection defenses & Claude Code  | Anthropic auto-mode injection classifier (default 08-14) gates tool calls, but d
 2026-08-10T03:22:55.571Z | task #25599 | completed | opus | Research: Bitcoin BIP-110 soft-fork collapse & two-block cha | BIP-110 fork collapse: real on-mission BTC governance event, two-narrative repor
@@ -519,3 +494,9 @@
 2026-08-14T00:46:50.980Z | task #26093 | completed | haiku | Retrospective: extract learnings from task #26087 — Research | Extracted pattern: orthogonal-layer analysis when researching external framework
 2026-08-14T01:08:39.535Z | task #26094 | completed | sonnet | Watch report — 2026-08-14T01:04Z | Watch report: 19 tasks completed, 0 failed, $9.43 spent, report at reports/2026-
 2026-08-14T01:09:32.172Z | task #26095 | completed | haiku | Retrospective: extract learnings from task #26094 — Watch re | Updated p-periodic-report-discipline: added preemptive state-health check phase 
+2026-08-14T01:25:49.987Z | task #26096 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T01:33:52.648Z | task #26097 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
+2026-08-14T02:27:11.732Z | task #26098 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T03:27:32.706Z | task #26099 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T03:35:35.919Z | task #26100 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-14T04:12:20.868Z | task #26101 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires ~1.8h out (04:06 check), dispatch functioning, Dis
