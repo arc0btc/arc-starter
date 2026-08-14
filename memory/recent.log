@@ -512,3 +512,4 @@
 2026-08-14T00:35:45.522Z | task #26091 | completed | sonnet | Deep research: anthropics/claude-code v2.1.232 | v2.1.232: fork-by-default and SendMessage match Arc's existing patterns (fork us
 2026-08-14T00:39:31.691Z | task #26087 | completed | opus | Research: Council of High Intelligence vs Arc council DSL | Exit condition TRIGGERED (borrowable-mechanism path). CoHI's 'forced divergence'
 2026-08-14T00:40:15.916Z | task #26088 | completed | sonnet | Research: Grok 4.6 / Qwen3.8 open-weight pricing vs Arc clas | Declined: tweet has no per-token pricing for Grok 4.6/Qwen3.8-Max, and both are 
+2026-08-14T00:43:04.528Z | task #26092 | completed | sonnet | Draft ARC-0017: council-DSL amendment — epistemic labels, ki | Drafted ARC-0017 (agent-runtime/proposals/0017-council-dsl-epistemic-verdict-mov
