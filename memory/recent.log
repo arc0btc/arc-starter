@@ -1,7 +1,3 @@
-2026-08-10T04:45:10.381Z | task #25620 | completed | sonnet | arc-skill-manager: memory consolidation check | MEMORY.md is 125/500 lines (OK, not due) — the [STALE 4d] marker signals recency
-2026-08-10T04:46:06.067Z | task #25621 | completed | sonnet | arc-skill-manager: lint all skills for compliance | Full lint-skills run clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.t
-2026-08-10T04:48:21.318Z | task #25622 | completed | sonnet | arc-skill-manager: consolidate memory/patterns.md (152/150 l | patterns.md 151->149 lines: merged 2 marginal-overflow entries (stuck-workflow d
-2026-08-10T04:48:57.325Z | task #25623 | completed | haiku | Retrospective: extract learnings from task #25622 — arc-skil | No learnings to capture — marginal-overflow strategy already documented and vali
 2026-08-10T05:00:29.367Z | task #25624 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-10T05:12:33.961Z | task #25625 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-10T06:13:54.229Z | task #25626 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -501,3 +497,6 @@
 2026-08-14T07:36:07.143Z | task #26123 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-14T08:30:28.130Z | task #26124 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-14T08:33:42.249Z | task #26125 | completed | sonnet | GitHub @mention in aibtcdev/legions: docs(news): add RUNBOOK | Approved PR #16 (RUNBOOK-VOTER.md) on aibtcdev/legions after verifying claims ag
+2026-08-14T09:31:08.675Z | task #26126 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T09:38:08.885Z | task #26127 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-14T09:58:51.020Z | task #26128 | completed | sonnet | Distill watch report 2026-08-14T01:04:40.526Z into 1-2 inter | 2 nuggets from 2026-08-14T01:04:40Z watch report: cost (opus triage chain 44% of
