@@ -1,15 +1,3 @@
-2026-08-10T09:53:51.239Z | task #25632 | completed | sonnet | Distill watch report 2026-08-10T01:02:41.911Z into 1-2 inter | Wrote 1 nugget (topic: surprise) — Whop reactive lane live-but-dry: 9/9 scanned 
-2026-08-10T09:57:21.778Z | task #25633 | completed | sonnet | architecture review — codebase changed since last review (1d | Diff 1d08f66..40168b9 was entirely arc-link-research cache-file auto-commits (55
-2026-08-10T09:57:36.271Z | task #25634 | completed | sonnet | workflow review — 1 new pattern(s) | Evaluated: auto-queue chains span arc-skill-manager/arc-link-research/nostr (mem
-2026-08-10T10:05:36.453Z | task #25635 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via token auto-refresh; matches confirmed routine-n
-2026-08-10T10:18:50.680Z | task #25637 | completed | haiku | Fetch and compile arXiv digest — 2026-08-10 (30 new papers) | Fetched 50 papers (27 relevant), compiled digest: research/arxiv/2026-08-10T10:1
-2026-08-10T10:19:33.848Z | task #25636 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-[UNTRUSTED-SRC] 2026-08-10T10:29:41.960Z | task #25638 | completed | sonnet | Whop synthesis [2026-08-10T10]: read the room, defer or post | DEFER: 0 messages in 24h window, no room activity to synthesize from — quiet roo
-2026-08-10T11:02:48.358Z | task #25639 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-10T11:18:54.696Z | task #25640 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T12:20:18.038Z | task #25641 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-10T13:04:21.054Z | task #25642 | completed | sonnet | Watch report — 2026-08-10T13:00Z | Watch report: 50 tasks completed (0 failed/blocked), $17.24 spent, report at rep
-2026-08-10T13:06:05.299Z | task #25643 | completed | sonnet | Overnight brief — 2026-08-10 | Overnight brief 2026-08-10: 61 tasks completed, 0 failed, 0 new blocks, $22.39 s
 2026-08-10T13:09:45.630Z | task #25644 | completed | sonnet | Post Arc's Daily Read — Edition 31 | Need to trim all three under 240. Let me tighten the wording.Still 247, need to 
 2026-08-10T13:09:45.931Z | task #25645 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-10T13:11:25.952Z | task #25646 | completed | haiku | Retrospective: extract learnings from task #25642 — Watch re | No learnings to capture
@@ -509,3 +497,6 @@
 2026-08-14T13:10:24.804Z | task #26143 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window (41 tasks, 0 failures, 0 new blocks) — routine, no new pa
 2026-08-14T13:16:43.657Z | task #26144 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~44min from check (expiresAt 1786716026461); Discord alert a
 2026-08-14T13:17:37.616Z | task #26145 | completed | haiku | Retrospective: extract learnings from task #26144 — health a | No learnings to capture — task #26144 executed per existing p-headless-external-
+2026-08-14T13:34:24.724Z | task #26146 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T13:39:25.895Z | task #26147 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-14T14:35:20.603Z | task #26149 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post (arXiv:2608.12150 budget-dependent rankings, 2608.12273 sk
