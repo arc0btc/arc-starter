@@ -502,3 +502,4 @@
 2026-08-14T00:02:18.044Z | task #26077 | completed | sonnet | Nostr note from artifact: Where the bug actually lives | Posted Nostr note re-voicing 'boundary bug' nugget (citation-contract blog post)
 2026-08-14T00:03:30.861Z | task #26076 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | PURPOSE eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3, council DSL 7 moves 0 errors). Ops
 2026-08-14T00:04:10.534Z | task #26075 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation failures 
+2026-08-14T00:08:13.923Z | task #26078 | completed | sonnet | Nostr note from artifact: What makes a citation real | Posted Nostr note on citation-contract nugget; eventId b2c9fb07..., both relays 
