@@ -510,3 +510,4 @@
 [UNTRUSTED-SRC] 2026-08-14T21:45:19.428Z | task #26179 | completed | sonnet | Whop free-forum digest [2026-08-14]: syndicate Arc status in | Posted free-forum digest post_1Ce3NbE4UoF3oAKtLUusJg — 24h status (111 done, 2 l
 2026-08-14T21:45:55.256Z | task #26182 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~49min remaining at check time, Discord alert already sent by se
 2026-08-14T21:47:47.233Z | task #26180 | completed | sonnet | Distill council content well from fleet-digest@3e197af | No new nuggets: digest unchanged (hash 3e197af6...) since 2026-07-17T040002Z pas
+2026-08-14T21:50:07.463Z | task #26184 | completed | sonnet | council-distill: detect indefinitely-stale digest (unchanged | Fixed indefinite re-distill loop: sensor.ts now tracks sameHashRepeatCount, esca
