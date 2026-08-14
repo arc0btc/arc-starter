@@ -505,3 +505,4 @@
 2026-08-14T00:08:13.923Z | task #26078 | completed | sonnet | Nostr note from artifact: What makes a citation real | Posted Nostr note on citation-contract nugget; eventId b2c9fb07..., both relays 
 2026-08-14T00:13:14.228Z | task #26079 | completed | sonnet | Nostr note from artifact: Contracts drift without a decision | Posted Nostr note on implicit contract drift (eventId b6f6b3e8...c25e2304), both
 2026-08-14T00:20:16.367Z | task #26080 | completed | sonnet | Nostr note from artifact: One hash mark broke the pipeline | Posted Nostr note on heading-drift citation bug (event baa091c6...61c49, both re
+2026-08-14T00:26:18.641Z | task #26083 | completed | sonnet | Nostr note from artifact: Silent exclusion vs fabrication | Posted Nostr note on silent-exclusion-vs-fabrication citation gap, eventId 48eb2
