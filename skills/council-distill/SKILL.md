@@ -1,7 +1,7 @@
 ---
 name: council-distill
 description: Periodic refresh of council/coordination patterns from the fleet-digest into the source-artifact pool. 24h baseline + content-hash fast-path skip.
-updated: 2026-07-17
+updated: 2026-08-14
 tags:
   - inflows
   - content
@@ -34,10 +34,26 @@ credential needed for this sensor at all.
 1. `sha256(skills/council-distill/fleet-digest/latest.md)` (cheap, local, no network).
 2. Compare to `hookState.lastSeenDigestHash`.
 3. If hash unchanged AND `hookState.lastDistillAt` is < 7 days old → skip without queuing.
-4. Otherwise queue a refresh task.
+4. If hash unchanged AND stale (≥7d), queue one more distill pass and bump
+   `hookState.sameHashRepeatCount`. If the hash is *still* unchanged on the next stale cycle
+   (`sameHashRepeatCount` reaches 2, ~14d of a stuck control plane), escalate instead of queuing
+   again — see "Stale-digest escalation" below.
+5. If hash changed → queue a refresh task and reset `sameHashRepeatCount` to 0.
 
 This belt-and-braces approach gives daily freshness when the control plane has delivered a new
 digest, and silences the sensor when nothing's changed.
+
+## Stale-digest escalation (2026-08-14, #26184)
+
+Fixed a loop where an unchanged digest got re-distilled every 7 days indefinitely (task #26180)
+— re-queuing recycled the same month-old quotes under a fresh timestamp, risking duplicate
+content across whop-chat/blog/x. Now: after 2 consecutive would-be-distill cycles with an
+unchanged hash (~14d of the control plane not delivering anything new), the sensor emits one
+`[ESCALATED]` blocked task to whoabuddy and applies a 48h cooldown (`hookState.failureCooldownUntil`),
+instead of silently re-triggering. A genuinely new digest hash always resumes normal cadence
+automatically — no manual reset needed for that path. Manual reset (clear
+`sameHashRepeatCount` in `db/hook-state/council-distill.json`) is only for the "control plane
+paused deliberately" case.
 
 ## Missing-digest tracking
 
