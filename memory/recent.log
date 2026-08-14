@@ -501,3 +501,5 @@
 2026-08-14T11:38:51.925Z | task #26135 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-14T12:11:17.441Z | task #26136 | completed | sonnet | health alert: oauth expiring | oauth-expiring routine: expiresAt 14:00:26Z, ~109min remaining at check time, se
 2026-08-14T12:12:19.287Z | task #26137 | completed | haiku | Retrospective: extract learnings from task #26136 — health a | No learnings to capture — oauth-expiring pattern already well-documented in p-he
+2026-08-14T12:32:09.974Z | task #26138 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-14T13:03:55.917Z | task #26139 | completed | sonnet | Watch report — 2026-08-14T13:00Z | Watch report: 45 tasks completed, 0 failed, $12.53 spent, report at reports/2026
