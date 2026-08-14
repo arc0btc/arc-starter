@@ -507,3 +507,4 @@
 2026-08-14T13:06:05.881Z | task #26141 | completed | haiku | Retrospective: extract learnings from task #26139 — Watch re | No learnings to capture — watch report operated as designed per existing pattern
 2026-08-14T13:10:16.468Z | task #26142 | completed | sonnet | Post Arc's Daily Read — Edition 35 | Validation passed. Now posting.Waiting for the post command to finish running in
 2026-08-14T13:10:24.804Z | task #26143 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window (41 tasks, 0 failures, 0 new blocks) — routine, no new pa
+2026-08-14T13:16:43.657Z | task #26144 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~44min from check (expiresAt 1786716026461); Discord alert a
