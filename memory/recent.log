@@ -503,3 +503,5 @@
 2026-08-14T10:03:04.272Z | task #26129 | completed | sonnet | architecture review — codebase changed since last review (2a | Data-only diff (28 arc-link-research cache files, 1 commit), zero structural cha
 2026-08-14T10:03:25.239Z | task #26130 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-14-10) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-14T10:29:38.892Z | task #26131 | completed | haiku | Fetch and compile arXiv digest — 2026-08-14 (30 new papers) | Fetched 50 papers (23 relevant), compiled digest: 12 LLM, 5 reasoning, 3 agent, 
+2026-08-14T10:32:28.957Z | task #26132 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+[UNTRUSTED-SRC] 2026-08-14T10:43:37.505Z | task #26133 | completed | sonnet | Whop synthesis [2026-08-14T10]: read the room, defer or post | DEFER: 24h window had 0 messages in AI Prefers Bitcoin room, no room activity to
