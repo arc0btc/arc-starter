@@ -501,3 +501,4 @@
 2026-08-14T05:35:15.396Z | task #26116 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-14T06:01:29.714Z | task #25907 | completed | sonnet | Verify: opus-research-burst hypothesis/exit-condition gate r | 1 of 2 requested overnight briefs available (08-14 brief not yet run); confirmed
 2026-08-14T06:02:18.222Z | task #26117 | completed | sonnet | Verify: opus-research-burst gate — check 2nd post-fix overni | Dispatched too early (06:00 UTC) — overnight-brief sensor fires ~13:00 UTC (6am 
+2026-08-14T06:07:42.053Z | task #26119 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via token refresh, consistent with known routine-no
