@@ -34,6 +34,7 @@ export const OPENROUTER_ALIASES: Record<string, string> = {
   qwen: "qwen/qwen3-coder",
   glm: "z-ai/glm-5.2",
   devstral: "mistralai/devstral-2512",
+  "gemini-flash": "google/gemini-3.7-flash",
 };
 
 /**
@@ -70,6 +71,12 @@ export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
     output_per_million: 2.0,
     cache_read_per_million: 0.04,
     cache_write_per_million: 0.4,
+  },
+  "google/gemini-3.7-flash": {
+    input_per_million: 0.375,
+    output_per_million: 1.875,
+    cache_read_per_million: 0.0375,
+    cache_write_per_million: 0.375,
   },
 };
 
