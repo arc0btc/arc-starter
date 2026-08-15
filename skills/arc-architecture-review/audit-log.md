@@ -1,3 +1,26 @@
+## 2026-08-15T22:03:44.000Z — single scoped sensor fix (whop reactive-lane staleness short-circuit) + data-only auto-package commit, zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26290** | Diff: 178b27f..1756382 (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/whop/sensor.ts` (0c611ea89, #26245) — closes the whole-room staleness gap flagged twice in prior review cycles (2026-08-15T10:04 and earlier): adds a once-per-tick newest-message-age check that skips the classify/evaluate fan-out entirely when the room is stale, instead of re-scoring an unchanged backlog message-by-message every tick. The existing per-message `stale_message` gate stays as a backstop for mixed-age batches. Single decision-point patch ahead of the existing fan-out, no new surface area.
+- Remaining commit (`1756382`) is a data-only `arc-article-pipeline` auto-package artifact (drafts/article-25-x-article.json + .bak) — no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a concretely observed defect (watch report 2026-08-15T01:02Z: 120 ticks / 1,080 candidate-evaluations against a room silent since Jul 8), not speculative. This is the fix for the Step 2/4 flag raised in the 2026-08-15T10:04 audit entry — closing the loop.
+- **Step 2 — Delete**: N/A this cycle — the fix bounds an existing loop rather than adding new surface.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: Yes, and already applied — this is the accelerate-step fix itself (skips wasted per-tick fan-out work on a known-stale room).
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- No new architecture-relevant reports since last review — checked 2026-08-15T13:00 watch report and 13:10 overnight brief; both only mention "architect" in self-referential summaries of prior review cycles (#26244, #26187-adjacent).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-15T10:04:24.882Z — single-alias model-routing addition (gemini-flash), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26244** | Diff: 638819a..178b27f (2 commits) | Sensors: 91 | Skills: 129
@@ -41,25 +64,6 @@
 
 - Minor diagnostic gap (not filing a follow-up, noting for next reviewer): `failureCooldownUntil` is shared between the pre-existing missing-digest cooldown and the new same-hash-escalation cooldown, but the top-level cooldown-gate log line (`sensor.ts:164`) always prints `"missing-digest cooldown active until..."` even when the actual cause is a same-hash escalation. Functionally correct (both paths gate correctly on the shared field) — purely a misleading log message if someone debugs a stuck sensor during the new cooldown case.
 - New report since last review (`2026-08-14T13:00:32.635Z_watch_report.html`, 01:04Z-13:00Z window): 45 tasks, 0 failed, $12.53 spent, clean quiet window. No new architecture-relevant CEO/whoabuddy feedback.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-13T10:00:00.000Z — data-only diff (link-research cache commits), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26014** | Diff: 2d0e107..e31684d (79 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- None. All 79 commits in range are `arc-link-research` cache-file auto-commits (chore(loop) dispatch cycle commits). No `src/`, `skills/*/cli.ts`, `skills/*/sensor.ts`, or `skills/*/SKILL.md` changes.
-
-### Steps 1–5
-
-- Skipped per AGENT.md step-2 guidance ("no files changed... skip codebase walk") — nothing to assess against the five principles this cycle.
-
-### Flags
-
-- New report since last review (`2026-08-13T01:03:07.386Z_watch_report.html`, 13:01Z-01:03Z window): 9 tasks, 0 failed, $3.10 spent, clean run — bulk was Nostr notes staged from a reasoning-trace-leak research nugget plus routine eval/audit/sync. No new architecture-relevant CEO/whoabuddy feedback.
-- Audit findings this cycle (14: 0 error, 6 warn, 8 info) identical set to prior cycles (SKILL.md token-limit warnings, AGENT.md-without-sensor/cli infos) — no new findings. MEMORY.md now ~6028 tokens (126 lines), up from 5869 last cycle and still flagged `[STALE: last updated 7d ago]` by SessionStart hook — not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check (per 2026-08-12T21:58 entry), but staleness is now 8d+ and worth a look if the sensor hasn't fired.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
