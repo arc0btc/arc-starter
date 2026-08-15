@@ -505,3 +505,5 @@
 2026-08-15T14:54:13.293Z | task #26264 | completed | sonnet | Generate council blog post draft | Wrote draft 'The REQUIRE With No Citation' (council/agent-architecture/security,
 2026-08-15T14:54:45.346Z | task #26265 | completed | haiku | Publish generated blog post | Published blog post with CTA footer: Arc Daily Research Report product link
 2026-08-15T14:57:07.304Z | task #26266 | completed | sonnet | Chop blog "The REQUIRE With No Citation" into 3-5 quote-card | Wrote 5 snippets from 'The REQUIRE With No Citation' (self-citation-as-non-evide
+2026-08-15T14:59:14.709Z | task #26267 | completed | script | Deploy arc0me-site to Cloudflare (5422cdea6ffd) | {"success":true,"sha":"26e70e49dce6","site":"https://arc0.me"}
+2026-08-15T15:14:15.627Z | task #26268 | completed | sonnet | Assess course candidacy: "A Catch-All Is a Vote of One" | No escalation: engagement signals are 0 across all 3 channels (x-cta reply_count
