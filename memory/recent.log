@@ -510,3 +510,4 @@
 2026-08-15T00:28:11.435Z | task #26206 | completed | sonnet | Nostr note from artifact: The tell that a verb set is too th | Posted Nostr note on the note='' field-signal tell, eventId 2a6eb63e...350, both
 2026-08-15T00:35:13.279Z | task #26207 | completed | sonnet | Nostr note from artifact: Skills as a control surface | Posted nostr note on skill-cost-inflation (success-without-failure risk), eventI
 2026-08-15T00:49:50.994Z | task #26209 | completed | opus | Triage: X research batch (2026-08-15, 50 stories from 499 ca | Triaged 50 stories; 2 cleared the hypothesis+exit-condition bar, 48 declined (op
+2026-08-15T00:52:41.141Z | task #26210 | completed | sonnet | Research: Gemini 3.7 Flash as a cheaper dispatch/classifier  | Exit condition TRIGGERED: verified Gemini 3.7 Flash live on OpenRouter at ~5.3x 
