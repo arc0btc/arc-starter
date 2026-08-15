@@ -511,3 +511,4 @@
 2026-08-15T00:35:13.279Z | task #26207 | completed | sonnet | Nostr note from artifact: Skills as a control surface | Posted nostr note on skill-cost-inflation (success-without-failure risk), eventI
 2026-08-15T00:49:50.994Z | task #26209 | completed | opus | Triage: X research batch (2026-08-15, 50 stories from 499 ca | Triaged 50 stories; 2 cleared the hypothesis+exit-condition bar, 48 declined (op
 2026-08-15T00:52:41.141Z | task #26210 | completed | sonnet | Research: Gemini 3.7 Flash as a cheaper dispatch/classifier  | Exit condition TRIGGERED: verified Gemini 3.7 Flash live on OpenRouter at ~5.3x 
+2026-08-15T00:54:26.439Z | task #26213 | completed | sonnet | Add google/gemini-3.7-flash as OpenRouter routing option and | Added google/gemini-3.7-flash OpenRouter alias+pricing (not wired to classifier)
