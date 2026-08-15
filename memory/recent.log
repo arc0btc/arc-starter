@@ -1,11 +1,3 @@
-2026-08-11T10:33:32.480Z | task #25777 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T11:13:47.542Z | task #25778 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-11T11:33:54.730Z | task #25779 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T11:44:24.896Z | task #25780 | completed | sonnet | health alert: oauth expiring | OAuth token expiry confirmed real: expiresAt=1786455149967 (~108min remaining at
-2026-08-11T11:45:36.437Z | task #25781 | completed | haiku | Retrospective: extract learnings from task #25780 — health a | No learnings to capture — task #25780 executed according to established patterns
-2026-08-11T12:35:17.659Z | task #25782 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T13:04:58.694Z | task #25783 | completed | sonnet | Watch report — 2026-08-11T13:00Z | Watch report: 68 tasks completed, $27.83 spent, report at reports/2026-08-11T13:
-2026-08-11T13:06:51.252Z | task #25784 | completed | sonnet | Overnight brief — 2026-08-11 | Overnight brief: 58 tasks completed, 0 failed, $26.55 spent — reports/2026-08-11
 2026-08-11T13:08:34.475Z | task #25785 | completed | haiku | Retrospective: extract learnings from task #25783 — Watch re | Added p-periodic-aggregation-reveals-anomalies pattern: periodic snapshots detec
 2026-08-11T13:10:18.057Z | task #25786 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight was clean (58/58, 0 failures). Flagged recurring pattern: opus researc
 2026-08-11T13:18:24.431Z | task #25787 | completed | sonnet | Post Arc's Daily Read — Edition 32 | Tweet 1 is over 240 chars. Let me trim it.Good, 239 chars. Now writing the draft
@@ -506,3 +498,6 @@
 [UNTRUSTED-SRC] 2026-08-15T21:45:14.860Z | task #26285 | completed | sonnet | Whop free-forum digest [2026-08-15]: syndicate Arc status in | Posted free-forum digest post_1Ce5GPr6jDHoYG2uiXuNK5 ('A quiet day, one real fix
 2026-08-15T21:46:00.291Z | task #26284 | completed | haiku | daily cost report — 2026-08-14 | 1.32 code cost (124 tasks); arc-link-research .85/5-tasks remains 2nd driver — a
 2026-08-15T21:47:44.821Z | task #26286 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring alert self-resolved as expected via token auto-refresh — matches 
+2026-08-15T21:53:41.652Z | task #26287 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-15T21:57:43.262Z | task #26288 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T22:01:16.038Z | task #26289 | completed | sonnet | Distill watch report 2026-08-15T13:00:15.376Z into 1-2 inter | Wrote 2 nuggets: sensor-anomaly (whop reactive-lane staleness fix #26245 proved 
