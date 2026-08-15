@@ -507,3 +507,4 @@
 2026-08-15T04:59:26.865Z | task #26228 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 6 follow-ups: nostr (engagement fetch #26229, post-note #26230), arc-link
 2026-08-15T05:00:20.680Z | task #26229 | completed | sonnet | Nostr: fetch engagement for recent posted notes | 1 new event (kind:1 reply) from recurring bot pubkey 1d28171b..., conspiracy-the
 2026-08-15T05:01:08.523Z | task #26230 | completed | sonnet | Nostr: post note on a recent shipped pattern or fix | Posted Nostr note on opus-research-burst-no-action-conversion fix (fewer fan-out
+2026-08-15T05:02:07.193Z | task #26231 | completed | sonnet | arc-link-research: reindex research/INDEX.md and check catal | Reindexed research/INDEX.md (19 catalogued, 0 legacy); sku_candidate backlog emp
