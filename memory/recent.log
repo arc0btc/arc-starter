@@ -1,22 +1,3 @@
-2026-08-11T02:44:26.031Z | task #25720 | completed | sonnet | CEO review — 2026-08-11T02:40 | CEO review: needs adjustment — clean execution but 10h dead zone + .70 opus rese
-2026-08-11T02:56:12.796Z | task #25721 | completed | sonnet | Email watch report to whoabuddy — 2026-08-11T02:40 | Sent 2026-08-11T01:00Z watch report to whoabuddy@gmail.com via arc-email-sync (i
-2026-08-11T03:09:58.087Z | task #25722 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-11T03:31:03.990Z | task #25723 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T03:45:32.588Z | task #25724 | completed | sonnet | health alert: oauth expiring | OAuth expires 2026-08-11T05:32:41Z (~107min left at check time), still within al
-2026-08-11T03:46:58.633Z | task #25725 | completed | haiku | Retrospective: extract learnings from task #25724 — health a | No learnings to capture — oauth-expiring pattern fully established and working a
-2026-08-11T04:01:21.977Z | task #25726 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-11-04) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
-[UNTRUSTED-SRC] 2026-08-11T04:31:31.309Z | task #25728 | completed | sonnet | Whop synthesis [2026-08-11T04]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize
-2026-08-11T04:32:40.374Z | task #25729 | completed | script | Welcome new AIBTC agent: Stellar Chain | {"success":true,"agent":"Stellar Chain","stx_address":"SP3ETMNV0SQT63T9DEW6EW7E8
-2026-08-11T04:35:18.492Z | task #25730 | completed | sonnet | self-review: run health check for 2026-08-11 | Clean self-review: 91 sensors ok/skip no errors, 0 failed tasks today, dispatch 
-2026-08-11T04:35:20.885Z | task #25727 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T04:43:08.649Z | task #25731 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 8 follow-ups: arc-link-research(3: reindex/backlog audit #25732, housekee
-2026-08-11T04:43:46.190Z | task #25735 | completed | sonnet | Nostr note from artifact: read-the-chain (veto-that-was-neve | Posted nostr note from artifact 2026-08-10T142021Z__read-the-chain (vetoWeight:0
-2026-08-11T04:44:57.460Z | task #25736 | completed | sonnet | Nostr note from artifact: unused-mechanism-honesty (veto-tha | Posted nostr note for artifact unused-mechanism-honesty (veto-that-was-never-use
-2026-08-11T04:45:32.440Z | task #25732 | completed | sonnet | arc-link-research: reindex INDEX.md and review sku_candidate | Reindexed INDEX.md (217 catalogued, 0 legacy, 19 front-matter warnings, 198 out-
-2026-08-11T04:47:20.551Z | task #25734 | completed | sonnet | arc-link-research: verify prescreener-keyword-narrowness fal | Confirmed code fix warranted: added 8 self-improvement/fleet-architecture keywor
-2026-08-11T04:47:34.956Z | task #25738 | completed | sonnet | arc-skill-manager: run sensor-health-report and triage any r | sensor-health-report: 91/91 sensors nominal, 0 consecutive_failures across the b
-2026-08-11T04:50:56.698Z | task #25733 | completed | sonnet | arc-link-research: audit research/ housekeeping (archive thr | Root cause found + fixed: arc-housekeeping's ARCHIVAL_DIRS pointed at unused leg
-2026-08-11T04:53:33.498Z | task #25742 | completed | sonnet | arc-link-research: cache dir has no cleanup mechanism (1740  | Design decision: TTL-based eviction over report-linkage matching (cached_path on
 2026-08-11T04:54:12.720Z | task #25737 | completed | sonnet | nostr: fetch engagement for recent posts (reactions/replies/ | Fetched engagement: 407 posts checked, 81 events seen, 3 new stored (all kind:1 
 2026-08-11T04:54:46.021Z | task #25739 | completed | sonnet | arc-skill-manager: full lint-skills audit (non-staged) | Full non-staged lint-skills audit: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 7
 2026-08-11T04:56:09.319Z | task #25740 | completed | sonnet | arc-skill-manager: consolidate-memory check (drift audit) | MEMORY.md OK (125 lines, 22.5KB, under threshold, no consolidation needed). patt
@@ -511,3 +492,12 @@
 2026-08-15T05:03:05.519Z | task #26232 | completed | sonnet | arc-link-research: package next sku_candidate into Whop SKU | catalog checked: sku_backlog empty (19 catalogued, 0 legacy), no unpackaged sku_
 2026-08-15T05:04:08.686Z | task #26233 | completed | sonnet | arc-skill-manager: run lint-skills across all skills and fix | lint-skills clean: 129 SKILL.md/61 AGENT.md/91 sensor.ts/79 cli.ts, 0 violations
 2026-08-15T05:05:10.007Z | task #26234 | completed | sonnet | arc-skill-manager: run sensor-health-report and investigate  | sensor-health-report: 1 alert (candidate-maturation 4 consecutive failures) = kn
+2026-08-15T05:44:12.886Z | task #26236 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-15T05:45:13.223Z | task #26235 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T06:44:35.464Z | task #26237 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T07:45:59.137Z | task #26239 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-15T07:46:59.461Z | task #26238 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T08:46:19.453Z | task #26240 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T09:46:37.664Z | task #26242 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-15T09:47:38.074Z | task #26241 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T10:02:17.453Z | task #26243 | completed | sonnet | Distill watch report 2026-08-15T01:02:54.151Z into 1-2 inter | Wrote 2 nuggets: surprise (two research exit-conditions converted to shipped cod
