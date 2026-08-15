@@ -439,6 +439,33 @@ export async function pollWhopReplies(): Promise<void> {
   const touched = updateFromMessages(store, messages);
   saveRelationships(store);
 
+  // Whole-room staleness short-circuit — if even the newest message predates
+  // MESSAGE_STALE_DAYS, every candidate would hit the per-message stale_message
+  // gate individually (see watch report 2026-08-15T01:02Z: 120 ticks / 1,080
+  // candidate-evaluations against a room silent since Jul 8). Skip the
+  // classify/evaluate fan-out entirely instead of re-scoring an unchanged
+  // backlog every tick. The per-message check below stays as a backstop for
+  // mixed-age batches where the newest message is fresh but older ones aren't.
+  const newestCreatedAtMs = messages.length > 0 ? Date.parse(messages[0].created_at) : NaN;
+  const roomStale =
+    !Number.isNaN(newestCreatedAtMs) &&
+    (Date.now() - newestCreatedAtMs) / (1000 * 60 * 60 * 24) > MESSAGE_STALE_DAYS;
+
+  if (roomStale) {
+    const artifactPath = writeArtifact("replies", {
+      tick_at: new Date().toISOString(),
+      channel_id: CHAT_CHANNEL_ID,
+      messages_seen: messages.length,
+      dry_run: WHOP_REPLY_DRY_RUN,
+      skip: "room_stale",
+      relationships_updated: touched,
+    });
+    repliesLog(
+      `tick: skip room_stale (newest message older than ${MESSAGE_STALE_DAYS}d) seen=${messages.length} artifact=${artifactPath}`
+    );
+    return;
+  }
+
   const budgetUsed = countRepliesQueuedToday();
   const candidates: CandidateDecision[] = [];
 
