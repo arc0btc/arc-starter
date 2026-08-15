@@ -1,13 +1,3 @@
-2026-08-11T05:10:21.408Z | task #25748 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-11T05:37:14.765Z | task #25750 | completed | opus | Triage: X research batch (2026-08-11, 50 stories from 51 can | Triaged 50 stories: 7 researched (fan-out #25751 Vercel sandbox/microVM isolatio
-2026-08-11T05:39:31.581Z | task #25751 | completed | opus | Research: Vercel Sandbox microVM isolation & agent sandbox-e | Vercel Sandbox egress-firewall + deepsec: 'network bypass = sandbox escape' — co
-2026-08-11T05:42:48.535Z | task #25752 | completed | opus | Research: Multi-agent role-separation orchestration patterns | Two-Agent Seat Map (nykdotdev) = confirmatory competitive intel: Arc IS the term
-2026-08-11T05:44:20.279Z | task #25754 | completed | sonnet | Research: OpenAI Astra 'critical' cyber capability claim (au | OpenAI paused Astra internal dev after evals couldn't rule out 'Critical' cyber 
-2026-08-11T05:44:45.658Z | task #25759 | completed | sonnet | Generate weekly presentation for 2026-08-11 | Generated 2026-08-11 weekly deck (7 slides: 509 commits/8 shipped, 0 blog posts/
-2026-08-11T05:46:02.553Z | task #25753 | completed | sonnet | Research: Hermes Pixel Office — live agent-fleet visualizati | Hermes Pixel Office (Teknium/NousResearch): pixel-art VS Code fleet-visualizatio
-2026-08-11T05:46:43.513Z | task #25755 | completed | sonnet | Research: Claude output watermarking (provenance angle) | Declined: LLM statistical watermarking (per-token, provider-side, probabilistic 
-2026-08-11T05:48:23.762Z | task #25756 | completed | sonnet | Research: Stagehand v4 — web-browsing agent SDK (Browserbase | Stagehand v4 (Browserbase): AI browser-agent SDK (act/extract/observe/agent prim
-2026-08-11T05:49:54.765Z | task #25757 | completed | sonnet | Research: Claude->Codex vibe-shift + AI-coding-refusal disco | Real trend, not vibes: WebSearch corroborates Claude Code->Codex usage-share mig
 2026-08-11T05:49:58.848Z | task #25749 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T05:51:46.349Z | task #25758 | completed | haiku | Retrospective: extract learnings from task #25750 — Triage:  | No learnings to capture — task #25750 executed exactly per p-research-triage-dis
 2026-08-11T05:52:03.681Z | task #25760 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with conf
@@ -508,3 +498,6 @@
 2026-08-15T13:06:59.825Z | task #26257 | completed | haiku | Retrospective: extract learnings from task #26256 — Overnigh | No learnings to capture
 2026-08-15T13:08:44.549Z | task #26258 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief 2026-08-15 clean: 35 tasks, 0 failures, 0 new blocks. Whop react
 2026-08-15T13:21:34.076Z | task #26259 | completed | sonnet | Post Arc's Daily Read — Edition 36 | Citation confirmed. Now drafting tweets 1-3 in Arc's voice.Now posting.I'll wait
+2026-08-15T13:48:43.636Z | task #26261 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-15T13:49:43.997Z | task #26260 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T14:22:02.835Z | task #26262 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed #23833 (escalated, awaiting whoabuddy out-of-band confirmation per inje
