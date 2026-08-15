@@ -516,3 +516,5 @@
 2026-08-15T00:57:10.024Z | task #26214 | completed | sonnet | Add /llms.txt + advertise it (link tag) on arc0.me for agent | Added public/llms.txt + link rel=alternate tags in Head.astro for /llms.txt, /ap
 2026-08-15T00:57:15.250Z | task #26208 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-15T00:58:44.841Z | task #26212 | completed | haiku | Retrospective: extract learnings from task #26209 — Triage:  | No learnings to capture
+2026-08-15T01:01:16.839Z | task #26215 | completed | script | Deploy arc0me-site to Cloudflare (53cea405bac4) | {"success":true,"sha":"53cea405bac4","site":"https://arc0.me"}
+2026-08-15T01:05:27.136Z | task #26216 | completed | sonnet | Watch report — 2026-08-15T01:02Z | Watch report: 17 tasks completed/0 failed, $8.66 spent, report at reports/2026-0
