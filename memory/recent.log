@@ -1,28 +1,3 @@
-2026-08-11T00:02:34.534Z | task #25696 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | PURPOSE eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3): 112/112 tasks completed (100% suc
-2026-08-11T00:02:56.184Z | task #25695 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies match known patterns: candidate-maturation X-read-budget exhausti
-2026-08-11T00:07:08.023Z | task #25697 | completed | sonnet | Nostr note from artifact: The five-year dormant bug | Posted Nostr note on Coldcard RNG bug (eventId 7cbfd119...), cited live blog URL
-2026-08-11T00:13:58.621Z | task #25698 | completed | sonnet | Nostr note from artifact: Custody rules don't cover generati | Posted nostr note on custody-vs-generation from Coldcard blog nugget; eventId e5
-2026-08-11T00:20:08.883Z | task #25699 | completed | sonnet | Nostr note from artifact: Hardware-backed isn't entropy-veri | Posted Nostr note on Coldcard RNG bug / hardware-backed vs entropy-verified dist
-2026-08-11T00:26:07.857Z | task #25700 | completed | sonnet | Nostr note from artifact: The layer beneath inspection | Posted Nostr note eventId 3cddde1a... (uncheckable-layer/Coldcard entropy-source
-2026-08-11T00:34:30.991Z | task #25702 | completed | opus | Triage: X research batch (2026-08-11, 50 stories from 50 can | 50 stories triaged → 6 researched, 44 declined. RESEARCH (fan-out): #25704 promp
-2026-08-11T00:34:53.722Z | task #25703 | completed | sonnet | Nostr note from artifact: Self-custody's hidden dependency | Posted Nostr note on self-custody supply-chain trust (Coldcard bug angle), event
-2026-08-11T00:38:20.703Z | task #25704 | completed | opus | Research: AI web/prompt-injection attack surface for autonom | Triage misframed this as an injection 'explainer'; it's actually bcherny's DEFEN
-2026-08-11T00:41:38.618Z | task #25705 | completed | opus | Research: Group Evolving Agents (GEA) — group-level self-imp | GEA = arXiv 2602.04837 (UCSB); group-as-evolutionary-unit w/ shared distilled tr
-2026-08-11T00:42:50.405Z | task #25711 | completed | sonnet | Nostr note from artifact: delayed, not stopped | Posted Nostr note on News Legion v6 rate-limit-vs-block distinction, eventId 581
-2026-08-11T00:44:19.397Z | task #25706 | completed | sonnet | Research: 10-stage academic research pipeline for Claude Cod | Traced tweet to Imbad0202/academic-research-skills (GitHub, ~21K stars): 10-stag
-2026-08-11T00:46:19.443Z | task #25707 | completed | sonnet | Research: Hermes Agent ecosystem — local 24/7 agents, skills | Auto-scorer flagged all 4 links low-relevance (keyword-only match), but content 
-2026-08-11T00:46:54.092Z | task #25708 | completed | sonnet | Research: multi-model long-form content pipeline (research-c | Declined: thread describes generic multi-model writing pipeline (context curatio
-2026-08-11T00:47:52.210Z | task #25709 | completed | sonnet | Research: Firecrawl anydoc — Rust doc-to-Markdown utility fo | anydoc (Firecrawl, Rust, MIT) converts Word/PPT/Excel/PDF/EPUB/CSV to Markdown —
-2026-08-11T00:48:25.747Z | task #25701 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T00:50:02.986Z | task #25710 | completed | haiku | Retrospective: extract learnings from task #25702 — Triage:  | No learnings to capture — task executed existing patterns (batch-theme-homogenei
-2026-08-11T00:51:31.532Z | task #25712 | completed | haiku | Retrospective: extract learnings from task #25704 — Research | Added 2 patterns: triage-description-source-verification (source material is gro
-2026-08-11T00:53:46.755Z | task #25713 | completed | haiku | Retrospective: extract learnings from task #25705 — Research | Captured prescrener-keyword-narrowness false-negative gotcha: arc-link-research 
-2026-08-11T00:54:49.490Z | task #25714 | completed | haiku | Retrospective: extract learnings from task #25707 — Research | No learnings to capture — task #25707 validated existing pattern p-research-rele
-2026-08-11T01:04:09.692Z | task #25715 | completed | sonnet | Watch report — 2026-08-11T01:00Z | Watch report: 20 tasks completed, $10.54 spent, report at reports/2026-08-11T01:
-2026-08-11T01:04:48.351Z | task #25716 | completed | haiku | Retrospective: extract learnings from task #25715 — Watch re | Pattern consolidation blocked: patterns.md grown to 27k+ tokens (target: ~150 li
-2026-08-11T01:10:16.381Z | task #25717 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-08-11T01:29:24.001Z | task #25718 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-11T02:30:44.741Z | task #25719 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-11T02:44:26.031Z | task #25720 | completed | sonnet | CEO review — 2026-08-11T02:40 | CEO review: needs adjustment — clean execution but 10h dead zone + .70 opus rese
 2026-08-11T02:56:12.796Z | task #25721 | completed | sonnet | Email watch report to whoabuddy — 2026-08-11T02:40 | Sent 2026-08-11T01:00Z watch report to whoabuddy@gmail.com via arc-email-sync (i
 2026-08-11T03:09:58.087Z | task #25722 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
@@ -519,3 +494,10 @@
 2026-08-15T01:01:16.839Z | task #26215 | completed | script | Deploy arc0me-site to Cloudflare (53cea405bac4) | {"success":true,"sha":"53cea405bac4","site":"https://arc0.me"}
 2026-08-15T01:05:27.136Z | task #26216 | completed | sonnet | Watch report — 2026-08-15T01:02Z | Watch report: 17 tasks completed/0 failed, $8.66 spent, report at reports/2026-0
 2026-08-15T01:05:57.421Z | task #26217 | completed | haiku | Retrospective: extract learnings from task #26216 — Watch re | No learnings to capture — watch report validated existing patterns work correctl
+2026-08-15T01:42:44.078Z | task #26219 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
+2026-08-15T01:43:44.455Z | task #26218 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T02:43:06.238Z | task #26220 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T03:44:29.241Z | task #26221 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T03:45:29.424Z | task #26222 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-15T04:44:51.450Z | task #26223 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-15T04:47:20.642Z | task #26225 | completed | sonnet | health alert: oauth expiring | OAuth expires in ~114min (real, under 2h threshold, not false positive). Discord
