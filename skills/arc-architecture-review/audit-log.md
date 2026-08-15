@@ -1,3 +1,26 @@
+## 2026-08-15T10:04:24.882Z — single-alias model-routing addition (gemini-flash), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26244** | Diff: 638819a..178b27f (2 commits) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/models.ts` (178b27fe1, #26213) — adds `gemini-flash` → `google/gemini-3.7-flash` OpenRouter alias + pricing. Not wired into `classifier.ts`'s bounded-code routing lanes: task #26213's own benchmark found 868/984 completion tokens went to reasoning overhead on a trivial function-writing task, eroding the raw per-token price edge. No new decision point — an unused alias sitting next to existing ones until a larger-task benchmark justifies a routing rule.
+- Remaining commit (`629b19d07`) is a 21-file `chore(loop)` auto-commit of `arc-link-research` cache JSON — no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a concrete finding (#26210 research task, live pricing ~5.3x cheaper than sonnet) — not speculative. Correctly held back from classifier wiring pending the larger-task benchmark the same commit's message calls for.
+- **Step 2 — Delete**: N/A this cycle — additive alias, no dead surface introduced.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle — the alias itself doesn't touch the sensor→task→dispatch path yet.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- New report since last review (`2026-08-15T01:02:54.151Z_watch_report.html`, 13:00Z–01:02Z window): 17 tasks, 0 failed, $8.66 spent. Own observation flags the Whop reactive lane spending 120 ticks / 1,080 candidate-evaluations this window re-scoring a room with no live message since Jul 8 — every candidate hits `stale_message`/`below_length_floor` guards pre-LLM (zero cost impact) but is pure wasted work against a known-stale backlog. Report explicitly deferred a TTL/backlog-eviction fix pending the pattern holding through the next watch; filing a follow-up now since this is the second review cycle to see it flagged (Step 2/4: delete the re-scan of a backlog that hasn't changed in 5+ weeks, or add a cheap TTL past which candidates are evicted without per-tick re-evaluation).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-14T22:03:15.000Z — single scoped sensor fix (council-distill same-hash escalation), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26187** | Diff: ec53398..638819a (1 commit) | Sensors: 91 | Skills: 129
@@ -37,29 +60,6 @@
 
 - New report since last review (`2026-08-13T01:03:07.386Z_watch_report.html`, 13:01Z-01:03Z window): 9 tasks, 0 failed, $3.10 spent, clean run — bulk was Nostr notes staged from a reasoning-trace-leak research nugget plus routine eval/audit/sync. No new architecture-relevant CEO/whoabuddy feedback.
 - Audit findings this cycle (14: 0 error, 6 warn, 8 info) identical set to prior cycles (SKILL.md token-limit warnings, AGENT.md-without-sensor/cli infos) — no new findings. MEMORY.md now ~6028 tokens (126 lines), up from 5869 last cycle and still flagged `[STALE: last updated 7d ago]` by SessionStart hook — not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check (per 2026-08-12T21:58 entry), but staleness is now 8d+ and worth a look if the sensor hasn't fired.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-12T21:58:54.558Z — single scoped prose-template fix (opus-research-burst gate), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #25949** | Diff: f03f61d..2d0e107 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/research-brief.ts` (2d0e10779, `buildTriageBrief()`) — gates the RESEARCH fan-out branch behind a stated hypothesis + concrete exit condition; a story without both is now a DECLINE. Fixes a 4th-consecutive-overnight zero-conversion pattern (opus research producing prose but no follow-up task/memory entry/code change). Already tracked in MEMORY.md as `[[opus-research-burst-no-action-conversion]]` FIXED (#25906); this is a single-function prompt-template change, not a new decision point — no diagram/context-audit impact. Verification scheduled 2026-08-14 per memory.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a concretely observed defect (3 prior zero-conversion incidents, #25798/#25890/#25905) — not speculative.
-- **Step 2 — Delete**: N/A this cycle — the fix is a gate added to an existing decision point, not new surface area.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Audit findings this cycle (14: 0 error, 6 warn, 8 info) are all pre-existing SKILL.md token-limit warnings and AGENT.md-without-sensor/cli infos, unrelated to this diff's one-file change — no new findings introduced.
-- MEMORY.md now flagged `[STALE: last updated 7d ago]` by the session's own SessionStart hook, at ~5869 tokens (125 lines) — over the audit's 2000-token skill threshold analog and past due for consolidation per the standing `arc-skill-manager` sensor (120min check, >500 lines trigger — line count is under that bar, but token size and staleness both argue for a consolidation pass regardless). Not filing a follow-up since `arc-skill-manager`'s own sensor already owns this check; noting so the next reviewer doesn't need to re-derive it.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
