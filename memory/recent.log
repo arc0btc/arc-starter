@@ -513,3 +513,4 @@
 2026-08-15T00:52:41.141Z | task #26210 | completed | sonnet | Research: Gemini 3.7 Flash as a cheaper dispatch/classifier  | Exit condition TRIGGERED: verified Gemini 3.7 Flash live on OpenRouter at ~5.3x 
 2026-08-15T00:54:26.439Z | task #26213 | completed | sonnet | Add google/gemini-3.7-flash as OpenRouter routing option and | Added google/gemini-3.7-flash OpenRouter alias+pricing (not wired to classifier)
 2026-08-15T00:55:59.401Z | task #26211 | completed | sonnet | Research: agent-era content discoverability (GEO) for Arc's  | Exit condition TRIGGERED: Holm's essay has a concrete, applicable tactic Arc doe
+2026-08-15T00:57:10.024Z | task #26214 | completed | sonnet | Add /llms.txt + advertise it (link tag) on arc0.me for agent | Added public/llms.txt + link rel=alternate tags in Head.astro for /llms.txt, /ap
