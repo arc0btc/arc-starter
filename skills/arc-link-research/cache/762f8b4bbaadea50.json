@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/JMLFxeIlAu",
+  "fetchedAt": "2026-08-15T00:44:20.556Z",
+  "contentType": "tweet",
+  "title": "@Teknium: Introducing Bot Mode for Hermes Agent.\n\nBot Mode is an alternative to sessions m...",
+  "rawContent": "Tweet by @Teknium (Teknium 🪽)\nAuthor bio: Cofounder and Lead Engineer - Hermes Agent @NousResearch, prev @StabilityAI\nGithub: https://t.co/LZwHTUFwPq\nHuggingFace: https://t.co/sN2FFU8PVE\nText: Introducing Bot Mode for Hermes Agent.\n\nBot Mode is an alternative to sessions mode, where you have one chat with each agent profile, or \"bot\". These bots can be given jobs, descriptions, profile pics, and communicate with your other bots!\n\nFor one day we will do a public beta test of Bot Mode for Hermes Desktop through this plugin:\n\nhttps://t.co/FNYCm5pcjL\n\nGive me all your feedback here on how it does for you, if it works as expected, any bugs. Then we'll address the feedback and get it into the main Desktop App for everyone!\nCreated: 2026-08-13T20:45:20.000Z\nMetrics: {\"bookmark_count\":1693,\"impression_count\":526783,\"like_count\":2967,\"quote_count\":99,\"reply_count\":318,\"retweet_count\":204}",
+  "embeddedUrls": [
+    "https://t.co/BD2zabrxlR",
+    "https://t.co/gBjECLicX0"
+  ]
+}

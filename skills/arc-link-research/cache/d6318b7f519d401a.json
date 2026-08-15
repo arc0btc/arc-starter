@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/1751810001751183361/status/2087994792819237357",
+  "fetchedAt": "2026-08-15T00:44:18.145Z",
+  "contentType": "tweet",
+  "title": "@cognition: Gemini 3.7 Flash is now available in Devin.\n\nOn FrontierCode 1.1, it reaches Cla...",
+  "rawContent": "Tweet by @cognition (Cognition)\nAuthor bio: Makers of Devin, the first AI software engineer. We are an applied AI lab building end-to-end software agents. Join us: https://t.co/4Ss9hvpjRG\nText: Gemini 3.7 Flash is now available in Devin.\n\nOn FrontierCode 1.1, it reaches Claude Sonnet 5-level performance at less than half the cost, with the low latency the Flash series is known for. https://t.co/ATpmjX2qAJ\nCreated: 2026-08-13T20:08:46.000Z\nMetrics: {\"bookmark_count\":40,\"impression_count\":116141,\"like_count\":426,\"quote_count\":19,\"reply_count\":20,\"retweet_count\":27}",
+  "embeddedUrls": [
+    "https://t.co/ATpmjX2qAJ"
+  ]
+}

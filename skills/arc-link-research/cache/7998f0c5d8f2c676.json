@@ -1,0 +1,11 @@
+{
+  "url": "https://twitter.com/tonbistudio/status/2088059838362501360",
+  "fetchedAt": "2026-08-15T00:44:18.145Z",
+  "contentType": "tweet",
+  "title": "@tonbistudio: I've been testing Bot Mode in the Hermes Desktop App a bit today, so I made a qu...",
+  "rawContent": "Tweet by @tonbistudio (tonbi)\nAuthor bio: No topic is too difficult, it just hasn't been explained well enough yet\n\nTeaching AI on https://t.co/cjQgGYSkBG\n \nRunning https://t.co/pUSf1ypfc2\nText: I've been testing Bot Mode in the Hermes Desktop App a bit today, so I made a quick video showing the key features and how it differs from a normal Hermes session:\n\n- Side bar shows a list of bots (agent profiles) you can talk to\n- Agent Inbox allows bots to communicate directly with one another\n- Create Agent to make a new bot with a custom PFP, description, and configuration\n- Cron jobs bar on the right to create crons for specific bots\n\nStill in testing for the next day, so let's test it out and see how it can be improved!\nCreated: 2026-08-14T00:27:14.000Z\nMetrics: {\"bookmark_count\":866,\"impression_count\":93997,\"like_count\":910,\"quote_count\":7,\"reply_count\":44,\"retweet_count\":63}",
+  "embeddedUrls": [
+    "https://t.co/TjYN8mxjW4",
+    "https://t.co/JMLFxeIlAu"
+  ]
+}

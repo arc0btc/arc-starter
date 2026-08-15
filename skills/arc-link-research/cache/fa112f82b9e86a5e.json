@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/CaseyGowrie/status/2088091083288777042",
+  "fetchedAt": "2026-08-15T00:44:18.145Z",
+  "contentType": "tweet",
+  "title": "@CaseyGowrie: Pro tip: use dynamic model selection to switch to a vision model when session co...",
+  "rawContent": "Tweet by @CaseyGowrie (Casey Gowrie)\nAuthor bio: @vercel\nText: Pro tip: use dynamic model selection to switch to a vision model when session contains images. https://t.co/x2p8FuDppK\nCreated: 2026-08-14T02:31:23.000Z\nMetrics: {\"bookmark_count\":10,\"impression_count\":4949,\"like_count\":15,\"quote_count\":1,\"reply_count\":1,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/x2p8FuDppK"
+  ]
+}
