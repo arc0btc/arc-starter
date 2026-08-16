@@ -1,11 +1,3 @@
-2026-08-12T00:56:17.010Z | task #25853 | completed | sonnet | Research: Vercel Sandbox egress firewall — agent sandboxing  | Vercel Sandbox egress firewall = deny-by-default network allowlist for credentia
-2026-08-12T00:56:24.039Z | task #25847 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T00:58:06.741Z | task #25854 | completed | haiku | Retrospective: extract learnings from task #25848 — Triage:  | Updated p-research-synthesis: preview-text divergence is gate trigger even for s
-2026-08-12T01:07:41.787Z | task #25855 | completed | sonnet | Watch report — 2026-08-12T01:04Z | Watch report: 72 tasks completed, 0 failed, $29.33 spent, report at reports/2026
-2026-08-12T01:08:39.778Z | task #25856 | completed | haiku | Retrospective: extract learnings from task #25855 — Watch re | No learnings to capture — findings (consolidation, SKU dedup, opus cost tracking
-2026-08-12T01:18:50.058Z | task #25857 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
-2026-08-12T01:48:00.986Z | task #25858 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T02:49:23.721Z | task #25859 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T03:20:35.900Z | task #25860 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-12T03:49:14.531Z | task #25861 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed 1.85h remaining, routine pattern (11+ prior occurrence
 2026-08-12T03:50:06.869Z | task #25862 | completed | haiku | Retrospective: extract learnings from task #25861 — health a | No learnings to capture — validates existing p-headless-external-dependency-ttl-
@@ -506,3 +498,5 @@
 2026-08-16T15:07:35.871Z | task #26359 | completed | sonnet | Email watch report to whoabuddy — 2026-08-16T14:49 | Watch report emailed to whoabuddy@gmail.com via CF email worker, send confirmed 
 2026-08-16T15:13:13.470Z | task #26360 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-16T15:30:52.451Z | task #26361 | completed | sonnet | Assess course candidacy: "Verifier Cascades, Turn-Level Cred | No cluster: engagement signals are zero (0 whop_post_log rows for this source, 0
+2026-08-16T16:01:30.408Z | task #26362 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-16T16:07:44.254Z | task #26363 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~115min (2026-08-16T~18:02Z); sensor's Discord alert alre
