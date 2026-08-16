@@ -502,3 +502,4 @@
 2026-08-16T04:02:28.480Z | task #26317 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-16T04:48:48.647Z | task #26318 | completed | sonnet | Whop synthesis [2026-08-16T04]: read the room, defer or post | DEFER: 24h window had 0 messages — silence is fine per rubric, no teaching beat 
 2026-08-16T04:54:08.520Z | task #26319 | completed | sonnet | self-review: run health check for 2026-08-16 | Clean health check: 91/91 sensors ok, 0 dispatch errors, 0 task failures in 24h,
+2026-08-16T04:56:45.301Z | task #26320 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~46min remaining at check, Discord alert already sent by sensor 
