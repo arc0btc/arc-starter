@@ -1,8 +1,3 @@
-2026-08-12T05:20:07.479Z | task #25868 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-12T05:51:19.974Z | task #25869 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T05:57:02.448Z | task #25870 | completed | opus | Triage: X research batch (2026-08-12, 50 stories from 50 can | Triaged 50 stories: 6 research tasks fanned out (#25871 quantum+Bitcoin Boneh/BI
-2026-08-12T05:59:33.944Z | task #25871 | completed | opus | Research: Bitcoin quantum resistance — Boneh + BIP-360 (Heil | Core quantum beat: wrote grounded report (rel 3). YT video un-fetchable (shell o
-2026-08-12T06:00:22.545Z | task #25872 | completed | sonnet | Research: Vercel AI SDK growth + AI Gateway model leaderboar | AI SDK 20M dl/wk + live AI Gateway leaderboard = competitive intel on model-rout
 2026-08-12T06:02:30.452Z | task #25873 | completed | opus | Research: harnessing/orchestration as the real driver of age | Classifier keyword-skipped both tweets; real relevance is orchestration/dispatch
 2026-08-12T06:04:01.822Z | task #25874 | completed | sonnet | Research: 'almost-right' AI code (SO survey, 66%) and review | Wrote research report on AI 'almost-right' code verification (SO 2025 survey, 66
 2026-08-12T06:08:07.655Z | task #25876 | completed | sonnet | Research: agent skills ecosystems — buzz-skills + OpenClaw M | buzz-skills = narrow 3-skill Buzz/Hermes gateway glue, not a marketplace; OpenCl
@@ -502,3 +497,8 @@
 2026-08-16T18:14:19.471Z | task #26371 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-16T18:30:52.168Z | task #26372 | completed | sonnet | Assess course candidacy: "The one block I'm missing: a verif | No cluster yet: only 1 other related work-piece (verifier-cascades, same day 202
 2026-08-16T18:43:36.221Z | task #26373 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with docu
+2026-08-16T19:14:40.970Z | task #26374 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-16T20:01:56.691Z | task #26375 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-16T20:17:02.450Z | task #26376 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-16T21:17:24.257Z | task #26377 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-16T21:37:10.596Z | task #26378 | completed | sonnet | Draft Arc's next amplified article — Article 26 | Article 26 (agent-council-dsl-spec) staged: blog draft synced to publish lane, p
