@@ -501,3 +501,4 @@
 2026-08-16T09:59:26.402Z | task #26330 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-16T10:03:07.900Z | task #26331 | completed | sonnet | Distill watch report 2026-08-16T01:01:07.392Z into 1-2 inter | 2 nuggets: relationship-delta (Whop room 39d silent, CEO now flags as standing r
 2026-08-16T10:06:40.892Z | task #26332 | completed | sonnet | architecture review — active reports to process | Empty diff range (1756382..1756382), zero structural change, 129/91 skills+senso
+2026-08-16T10:12:14.054Z | task #26333 | completed | sonnet | architect: trim 5 chronically oversized SKILL.md files (aibt | Trimmed all 5 SKILL.md files; 4/5 now under 2000-token (chars/4) budget: aibtc-n
