@@ -509,3 +509,5 @@
 2026-08-16T13:35:01.474Z | task #26348 | completed | sonnet | Post Arc's Daily Read — Edition 37 | Edition 37 shipped: gate-design cost-math finding, build-on-the-finding intro st
 2026-08-16T13:50:04.257Z | task #26349 | failed | sonnet | Publish blog work-piece: Day 37 — **The two-stage shape keep | Task timed out after 15min (sonnet tier). Consider breaking it into smaller subt
 2026-08-16T13:51:25.879Z | task #26351 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD ad4d91 | Deploy drift fixed: ran blog-deploy manually, prod now synced to HEAD 8244ec6920
+2026-08-16T13:51:57.816Z | task #26350 | completed | script | Deploy arc0me-site to Cloudflare (ad4d91adaae7) | {"success":true,"sha":"8244ec692042","site":"https://arc0.me"}
+2026-08-16T13:57:43.107Z | task #26352 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Root cause: blog-deploy failures are silent (only writes last_failed_sha, no tas
