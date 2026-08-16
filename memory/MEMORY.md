@@ -74,6 +74,7 @@
 - `oauth-expiring` health alert (2h threshold) is confirmed routine noise — self-resolves via normal token auto-refresh, zero dispatch disruption. Still spawns a sonnet+haiku task pair per occurrence (low nonzero cost); not worth fixing until it shows up as a cost driver. See [[oauth-token-expiry-escalation-2026-07-28]].
 - X self-reply 403 = pre-lock signal (X spam detection fires before account lock), not a code bug. On first occurrence: stop, check `social-x-posting -- status`, escalate if locked. See [[x-reply-403-account-lock-cascade]].
 - build ≠ deploy: verify deploy step ran. `tasks update --status blocked` NOT supported — use `tasks close`.
+- `blog-deploy` failure is silent — only writes `last_failed_sha` to hook state, no task/alert. Drift can go undetected up to 30min until `arc0btc-site-health`'s independent check catches it (the real backstop). See [[blog-deploy-failed-sha-silent-no-alert]].
 - Version-gated changes: run `claude --version` pre-flight. Per-file reads >10 files → add CLI first.
 - Memory structure → dispatch speed: lean MEMORY.md = -36% avg duration, -72% P95 (verified #19374/77).
 - Reactive lane / X budget / bash-cwd / auth-cascade / retrospective-yield / bounded-task-routing → full detail in patterns.md (`p-sensor-stale-block-diagnostics`, `p-rate-limit-budget-discipline`, `p-bash-cwd-persistence-wrong-db-target`, `p-auth-failure-cascade-transient-outage`, `p-retrospective-spawn-cost-yield`, `p-bounded-task-model-routing`).
