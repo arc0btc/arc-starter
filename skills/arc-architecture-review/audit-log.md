@@ -1,3 +1,26 @@
+## 2026-08-16T22:07:46.891Z — docs-only SKILL.md trim (previously-filed follow-up), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26385** | Diff: 1756382..1fe0c82 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/{aibtc-news-editor,aibtc-news-editorial,hodlmm-move-liquidity,ordinals-market-data,whop-sales}/SKILL.md` (1fe0c82, #26385's own predecessor follow-up from the 2026-08-16T10:05 review) — trims the 5 SKILL.md files flagged over the 2000-token budget. Docs-only, no code paths changed.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Trim traces directly to the prior review's own filed follow-up, not speculative.
+- **Step 2 — Delete**: Effectively applied — the trim removed content, didn't add abstraction.
+- **Step 3 — Simplify**: N/A this cycle.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle.
+
+### Flags
+
+- Context audit re-run: WARN count dropped 6→2. 4 of 5 trimmed files now under budget; `whop-sales/SKILL.md` still ~2053 tokens (barely over, was likely trimmed less aggressively than the other 4) — not re-filing a follow-up for a 53-token overage, noting for the next reviewer to fold into routine trim work if it recurs. `MEMORY.md` WARN (~4771 tokens/119 lines) is separately owned by `arc-skill-manager`'s consolidate-memory sensor (500-line threshold), not an architecture-review action item.
+- No new architecture-relevant reports since last review (newest watch report 2026-08-16T13:01Z and overnight brief 14:00Z have no architect-relevant content).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-16T10:05:45.755Z — empty diff range (1756382..1756382), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26332** | Diff: 1756382..1756382 (0 commits) | Sensors: 91 | Skills: 129
@@ -79,27 +102,4 @@ Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess 
 
 - Minor diagnostic gap (not filing a follow-up, noting for next reviewer): `failureCooldownUntil` is shared between the pre-existing missing-digest cooldown and the new same-hash-escalation cooldown, but the top-level cooldown-gate log line (`sensor.ts:164`) always prints `"missing-digest cooldown active until..."` even when the actual cause is a same-hash escalation. Functionally correct (both paths gate correctly on the shared field) — purely a misleading log message if someone debugs a stuck sensor during the new cooldown case.
 - New report since last review (`2026-08-14T13:00:32.635Z_watch_report.html`, 01:04Z-13:00Z window): 45 tasks, 0 failed, $12.53 spent, clean quiet window. No new architecture-relevant CEO/whoabuddy feedback.
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-13T22:00:50.000Z — two small bounded fixes (daily-read heading match, article auto-package), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26067** | Diff: e31684d..2acfc5c | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/arc-daily-read/cli.ts` (1fbc614bc, #26031) — `extractFindingMaterials()` widened from a literal `## TL;DR` match to `/^#{2,3}\s+TL;DR\s*$/m`, fixing edition 34's NO-ELIGIBLE-FINDING caused by a `### TL;DR` heading depth mismatch. Companion doc change to `arc-link-research/REPORT-TEMPLATE.md` writes down the heading-level + file:line citation contract for the first time. Already logged in MEMORY.md as `[[daily-read-tldr-citation-format-gap]]`.
-- Remaining commit (`2acfc5c3f`) is a data-only `arc-article-pipeline` auto-package artifact (drafts/article-24-x-article.json + .bak) — no code change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Fix traces to a concrete observed failure (edition 34 void), not speculative; the doc addition closes a real gap (contract existed only implicitly in code, now written down).
-- **Step 2 — Delete**: N/A this cycle — no dead code/config identified in the diff.
-- **Step 3 — Simplify**: N/A — fix widens a regex match, no new abstraction.
-- **Step 4 — Accelerate**: N/A.
-- **Step 5 — Automate**: N/A.
-
-### Flags
-
-- No new architecture-relevant reports since last review.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
