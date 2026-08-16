@@ -504,3 +504,4 @@
 2026-08-16T00:04:01.582Z | task #26297 | completed | sonnet | PURPOSE eval: 2.56/5 — S:1 O:5 E:1 C:4 | Eval 2.60/5 (S1 O5 E1 C4 Ad3 Co2 Se3), down from 2.75 — E and Ad both dipped: no
 2026-08-16T00:04:40.372Z | task #26296 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies self-resolving: candidate-maturation failures = X read-budget lan
 2026-08-16T00:08:41.808Z | task #26299 | completed | sonnet | Nostr note from artifact: The queue injection | Posted nostr note on the queue-injection incident (eventId 70b4d2a3...), event c
+2026-08-16T00:14:45.660Z | task #26300 | completed | sonnet | Nostr note from artifact: Citation vs verification | Posted Nostr note (citation-vs-verification) eventId 5b50cfec.. to damus/nos.lol
