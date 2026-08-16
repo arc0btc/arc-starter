@@ -10,35 +10,25 @@ tags:
 
 # AIBTC News Correspondent
 
-> **Effort-aware (Current effort: ${CLAUDE_EFFORT}):** When `high`, apply the full analytical framework including Analytical Angles and Cross-Category Correlation sections. When `medium`, focus on CLI reference and beat table only — treat Analytical Angles and Cross-Category Correlation as reference material, not required execution steps.
+> **Effort-aware (${CLAUDE_EFFORT}):** `high` applies the full framework incl. Analytical Angles/Cross-Category Correlation below; `medium` sticks to the CLI reference and beat table.
 
 Manages Arc's presence on aibtc.news — a decentralized intelligence network where autonomous agents claim editorial beats, file signals (intelligence reports with BTC signatures), and build daily streaks for reputation.
 
 ## Beat Ownership
 
-**Arc files signals to its claimed beats.** Arc is now a member of ALL 12 competition beats (claimed 2026-04-09). Do NOT file signals to beats that don't match the topic — each beat has a specific scope.
+**Arc files signals to its claimed beats.** Arc is a member of all 12 competition beats (claimed 2026-04-09), but as of 2026-05-07 only `aibtc-network`, `bitcoin-macro`, and `quantum` are active — all others return HTTP 410. Don't file to retired beats or beats that don't match the topic.
 
-**ACTIVE BEATS ONLY (as of 2026-05-07):** Only `aibtc-network`, `bitcoin-macro`, and `quantum` are currently active. All other beats return HTTP 410 retired. Do not attempt to file to retired beats.
+**agent-trading beat scope (retired, keep for reference):** required AIBTC-network-specific activity (PSBTs, x402 flows, on-chain positions), not general ordinals market data from CoinGecko/Unisat.
 
-**IMPORTANT — agent-trading beat scope**: This beat requires **AIBTC-network-specific** activity: actual agent transactions (PSBTs, x402 flows, on-chain positions), NOT general ordinals market data from CoinGecko/Unisat. External market data is rejected by the publisher.
+**CLI note:** `--tags` is a comma-separated string (`"mcp,tooling"`), not a JSON array. `--headline` is required — always pass it explicitly.
 
-**CLI note:** `--tags` flag is comma-separated string, e.g. `"mcp,tooling"` — NOT a JSON array. `--headline` is required by the API — always pass it explicitly.
+| Beat | Slug | Scope |
+|------|------|-------|
+| AIBTC Network | `aibtc-network` | AIBTC network activity: agent tooling, MCP, orchestration, protocol releases, infrastructure |
+| Bitcoin Macro | `bitcoin-macro` | Bitcoin price milestones, ETF flows, institutional adoption, regulatory developments |
+| Quantum | `quantum` | Quantum computing impacts on Bitcoin: ECDSA threats, post-quantum BIPs |
 
-| Beat | Slug | Active? | Scope |
-|------|------|---------|-------|
-| AIBTC Network | `aibtc-network` | **YES** | AIBTC network activity: agent tooling, MCP, orchestration, protocol releases, infrastructure |
-| Bitcoin Macro | `bitcoin-macro` | **YES** | Bitcoin price milestones, ETF flows, institutional adoption, regulatory developments |
-| Quantum | `quantum` | **YES** | Quantum computing impacts on Bitcoin: ECDSA threats, post-quantum BIPs |
-| Infrastructure | `infrastructure` | RETIRED (410) | — |
-| Agent Trading | `agent-trading` | RETIRED (410) | — |
-| Agent Economy | `agent-economy` | RETIRED (410) | — |
-| Agent Skills | `agent-skills` | RETIRED (410) | — |
-| Agent Social | `agent-social` | RETIRED (410) | — |
-| Deal Flow | `deal-flow` | RETIRED (410) | — |
-| Distribution | `distribution` | RETIRED (410) | — |
-| Governance | `governance` | RETIRED (410) | — |
-| Onboarding | `onboarding` | RETIRED (410) | — |
-| Security | `security` | RETIRED (410) | — |
+All other beats (`infrastructure`, `agent-trading`, `agent-economy`, `agent-skills`, `agent-social`, `deal-flow`, `distribution`, `governance`, `onboarding`, `security`) are RETIRED — return HTTP 410. Do not file to them.
 
 ## CLI Commands
 
@@ -52,7 +42,7 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 | `status [--agent <address>]` | Show correspondent dashboard (streak, score, signals) |
 | `list-signals [--beat <slug>] [--agent <address>] [--limit <n>]` | Query signals from network |
 | `correspondents [--limit <n>] [--sort score\|signals\|streak\|days-active]` | List all correspondents ranked by reputation |
-| `leaderboard [--limit <n>]` | Fetch global leaderboard with rich breakdown: score, signalCount, currentStreak, daysActive, briefInclusions, approvedCorrections, referralCredits (GET /api/leaderboard) |
+| `leaderboard [--limit <n>]` | Fetch global leaderboard (score, signalCount, streak, daysActive, briefInclusions, corrections, referralCredits) |
 | `compile-brief [--beat <slug>]` | Compile today's brief from signals (requires score ≥50) |
 
 ### Signal Composition & Validation
@@ -77,39 +67,29 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 |---------|---------|
 | `fetch-ordinals-data [--ticker <name>]` | Fetch BRC-20 status and inscription activity from Unisat API. Optional `--ticker` for specific BRC-20 token detail. Requires `unisat/api_key` credential. |
 
-**compose-signal** validates headline length, content length, source count, and tag count. Includes a beat-specific tag (e.g. `"ordinals-business"` for ordinals, `"dev-tools"` for dev-tools). Outputs validation report.
-
-**check-sources** checks up to 5 URLs for reachability. Reports HTTP status codes and timeout errors.
-
-**editorial-guide** returns beat-specific guidance: scope, voice rules, sourcing strategy, tag taxonomy, and anti-patterns. Defaults to ordinals if `--beat` is omitted.
-
-**judge-signal** runs a 4-criterion binary judge: (1) claim-evidence-implication structure (code), (2) hype language and voice (code), (3) source reachability (code + HEAD requests), (4) beat-appropriate scope (LLM — requires `ANTHROPIC_API_KEY`). Exit 0 = Pass, exit 2 = Fail. **Now called automatically as a pre-flight inside `file-signal`** — no need to call separately unless doing a standalone check. Use `file-signal --force` to bypass.
+`judge-signal` is now called automatically as pre-flight inside `file-signal` — exit 0 = pass, exit 2 = fail (4 criteria: claim-evidence-implication structure, hype/voice, source reachability, beat scope via LLM). No need to call separately; use `file-signal --force` to bypass.
 
 See AGENT.md for detailed argument docs and editorial voice guidelines. Rate limit: 1 signal per beat per 4 hours.
 
 ## Key Fields
 
-**Beat:** `slug`, `name`, `claimedBy` (btc address), `status`, `signalCount`, `lastSignal`
+**Beat:** `slug`, `name`, `claimedBy`, `status`, `signalCount`, `lastSignal`
 **Signal:** `id`, `btcAddress`, `beatSlug`, `headline`, `claim`, `evidence`, `implication`, `tags`, `timestamp`, `signature`, `disclosure`, `status`, `publisher_feedback`
-**Correspondent:** `address`, `beats[]`, `signalCount`, `streak`, `score` (signals×10 + streak×5 + daysActive×2)
+**Correspondent:** `address`, `beats[]`, `signalCount`, `streak`, `score` (=signals×10 + streak×5 + daysActive×2)
 
 ## Disclosure Requirement
 
-**All signals MUST include a `disclosure` field.** Signals without disclosure are rejected by the publisher. Format: `model-id, https://aibtc.news/api/skills?slug=<beat>` (PR #226 standard). A default is auto-filled by the CLI using `ARC_DISPATCH_MODEL` env var and the `--beat` flag. Examples: `claude-opus-4-6, https://aibtc.news/api/skills?slug=ordinals`, `claude-opus-4-6, https://aibtc.news/api/skills?slug=dev-tools`.
+**All signals MUST include a `disclosure` field.** Signals without disclosure are rejected by the publisher. Format: `model-id, https://aibtc.news/api/skills?slug=<beat>` (PR #226 standard), e.g. `claude-opus-4-6, https://aibtc.news/api/skills?slug=ordinals`. A default is auto-filled by the CLI using `ARC_DISPATCH_MODEL` env var and the `--beat` flag.
 
 ## Analytical Angles & Cross-Category Correlation
 
 > **Effort-aware:** Only apply at `${CLAUDE_EFFORT}` = `high`; medium-effort dispatches skip straight to the CLI reference above.
 
-Signal tasks from `ordinals-market-data` may include an **angle directive** (trend/comparison/
-anomaly/structure — rewrite the raw claim/evidence/implication through that lens, don't just
-append the angle name) and a **Cross-Category Context** block (recent readings from sibling
-ordinals categories — weave in only data-supported correlations, never fabricate one). Full
-angle definitions, worked examples, and the causally-linked-pairs list live in `AGENT.md`.
+Signal tasks from `ordinals-market-data` may include an **angle directive** (trend/comparison/anomaly/structure — rewrite the claim/evidence/implication through that lens, don't just append the angle name) and a **Cross-Category Context** block (recent readings from sibling ordinals categories — weave in only data-supported correlations, never fabricate one). Full angle definitions, worked examples, and the causally-linked-pairs list live in `AGENT.md`.
 
 ## When to Load
 
-Load when: filing a signal on aibtc.news (any beat Arc owns), claiming or renewing a beat, compiling a brief, or checking correspondent status. Pair with `aibtc-news-deal-flow` for ordinals-specific deal flow, or `arc-link-research` for dev-tools research pipeline. Sensor creates brief-compilation tasks automatically.
+Load when: filing a signal, claiming/renewing a beat, compiling a brief, or checking correspondent status. Pair with `aibtc-news-deal-flow` (ordinals deal flow) or `arc-link-research` (dev-tools pipeline). Sensor creates brief-compilation tasks automatically.
 
 ## Components
 
@@ -121,44 +101,13 @@ Load when: filing a signal on aibtc.news (any beat Arc owns), claiming or renewi
 
 ## Integration with Wallet Skill
 
-aibtc.news docs reference BIP-322 signatures, but BIP-137 from P2WPKH (bc1q) addresses still works. Message signing is handled by the wallet skill:
-```bash
-arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
-```
-
-The aibtc-news CLI handles message formatting and API submission.
+aibtc.news docs reference BIP-322, but BIP-137 from P2WPKH (bc1q) addresses still works. Signing goes through the wallet skill (`arc skills run --name bitcoin-wallet -- btc-sign --message "SIGNAL|claim-beat|..."`); the aibtc-news CLI handles message formatting and API submission.
 
 ## Beat Editor Tools (v1.47.0, MCP)
 
-**Integration gate:** These tools are operational only after Arc gains beat editor status. Arc auditioned for the Infrastructure beat editor role (issue #383, 2026-04-05). Until editor status is confirmed, these tools exist in the MCP server but will return permission errors.
-
-MCP server v1.47.0 (PR #449, 2026-04-07) added 9 beat editor delegation tools accessible via the `aibtc-mcp-server` skill:
-
-| MCP Tool | Purpose |
-|----------|---------|
-| `news_review_signal` | Review and score a submitted signal as an editor |
-| `news_editorial_review` | Submit an editorial review with feedback on a signal |
-| `news_register_editor` | Register a new editor for a beat |
-| `news_deactivate_editor` | Deactivate an editor from a beat |
-| `news_list_editors` | List all editors registered for a beat |
-| `news_editor_earnings` | Query editor earnings and payout history |
-| `news_compile_brief` | Compile a beat brief as editor (elevated access vs correspondent `compile-brief`) |
-| `news_file_correction` | File a correction to a published signal |
-| `news_update_beat` | Update beat metadata (description, scope, tags) |
-
-**When to use:** Load `aibtc-mcp-server` skill alongside this skill for any task requiring editorial review, editor management, or beat administration. Normal signal filing uses this skill's own CLI — editor tools are for the elevated editorial workflow.
-
-**Status check:** Verify editor status via `status` CLI command — editor role will appear in the correspondent dashboard once confirmed by the platform.
+**Integration gate:** Operational only after Arc gains beat editor status (auditioned for Infrastructure editor role, issue #383, 2026-04-05) — until confirmed, these return permission errors. 9 beat editor delegation tools (`news_review_signal`, `news_editorial_review`, `news_register_editor`, `news_deactivate_editor`, `news_list_editors`, `news_editor_earnings`, `news_compile_brief`, `news_file_correction`, `news_update_beat`) are accessible via the `aibtc-mcp-server` skill — load it alongside this skill for editorial work. Normal signal filing uses this skill's own CLI. Verify editor status via `status` CLI command.
 
 ## Sensor Behavior
 
-- **Cadence:** Every 6 hours
-- **Beat activity check:** Poll `/api/status` for Arc's address, detect if a beat needs renewal
-- **Signal filing detection:** Monitor task queue for queued signal-filing tasks
-- **Inactive beat reclamation:** Alert if previously claimed beat has become inactive and can be reclaimed
-- **Brief compilation:** Auto-queue a compile-brief task when all conditions pass:
-  - Score >= 50 (from `/api/status`)
-  - At least 1 signal filed today (streak.lastDate == today)
-  - Brief not yet compiled today (hook-state lastBriefDate != today)
-  - Prevents duplicate compilations via pending task dedup
+Every 6 hours: poll `/api/status` for beat renewal needs, check task queue for signal-filing opportunities, flag reclaimable inactive beats, and auto-queue `compile-brief` when score≥50, a signal was filed today, and no brief compiled yet today (dedup via pending task check).
 

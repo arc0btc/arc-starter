@@ -12,18 +12,9 @@ disallowed-tools: [Edit, Write, NotebookEdit, Bash]
 
 Automated sensor that fetches diverse on-chain and market data, rotating through five categories. Stores rolling history (last 6 readings per category) for delta computation and cross-category context.
 
-**STATUS: SENSOR DISABLED (2026-07-17, control-plane-remediation P4, defect-register row 15).**
-Signal filing was already suspended (beat scope mismatch — see below) with no signal queued since
-2026-03-26, but the sensor kept running its full 5-category fetch every 2h with no consumer for the
-collected data. The `$100K competition` this sensor's cadence/fallback logic was built for ended
-2026-04-22, removing that consumer too. `SENSOR_DISABLED = true` in `sensor.ts` now short-circuits
-the whole tick (data collection, not just signal filing, is paused). Reversal: delete the early
-return in `sensor.ts` (and flip `SIGNAL_FILING_SUSPENDED = false` there) once Arc claims a suitable
-beat or the sensor is repurposed for AIBTC-network agent-trading data.
+**STATUS: SENSOR DISABLED (2026-07-17, control-plane-remediation P4, defect-register row 15).** Signal filing was already suspended (beat scope mismatch — see below), no signal queued since 2026-03-26, but the sensor kept fetching all 5 categories every 2h with no consumer. The `$100K competition` this sensor was built for ended 2026-04-22, removing that consumer too. `SENSOR_DISABLED = true` in `sensor.ts` short-circuits the whole tick. Reversal: delete the early return (and flip `SIGNAL_FILING_SUSPENDED = false`) once Arc claims a suitable beat or the sensor is repurposed for AIBTC-network agent-trading data.
 
-**Original suspension reason (still true):** the `ordinals` beat was renamed to `agent-trading`
-(PR #314) with a scope change — `agent-trading` now requires AIBTC-network-specific data (PSBTs,
-x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space.
+**Original suspension reason (still true):** the `ordinals` beat was renamed to `agent-trading` (PR #314) with a scope change — it now requires AIBTC-network-specific data (PSBTs, x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space.
 
 ## Data Sources
 
@@ -46,33 +37,19 @@ x402 flows, on-chain agent positions), not external market data from CoinGecko/U
 
 ## Collection Event Detection (Phase 3)
 
-When the `nft-floors` category is fetched, the sensor also checks for collection-level events. These are high-signal, low-frequency events queued at **P5**, bypassing the regular 4-hour cooldown. Collection history is stored per-collection in hook state and accumulates regardless of whether the aggregate floor signal fires.
+When `nft-floors` is fetched, the sensor also checks collection-level events — high-signal, low-frequency, queued at **P5**, bypassing the 4h cooldown. Per-collection history accumulates in hook state regardless of whether the aggregate floor signal fires.
 
-| Event Type | Threshold | Tags |
-|------------|-----------|------|
-| Floor break | >25% floor drop vs prior reading | `floor-break` |
-| Floor surge | >25% floor rise vs prior reading | `floor-surge` |
-| Volume spike | >3x rolling average 24h volume | `volume-spike` |
-
-- **Source keys:** `sensor:ordinals-market-data:collection-event-<collectionId>-<eventType>` (e.g. `collection-event-bitcoin-frogs-floor-break`)
-- **Cooldown:** 24 hours per collection+event pair, enforced via `state.lastCollectionEvents`
-- **History:** Per-collection reading arrays (`collectionHistory`) — max 8 readings, used for rolling average volume and prior-floor comparison
-- **Tracked collections:** bitcoin-frogs, nodemonkes, bitcoin-puppets (same as aggregate NFT floors)
+- `floor-break`: >25% floor drop vs prior reading. `floor-surge`: >25% floor rise. `volume-spike`: >3x rolling 24h avg volume.
+- Source key: `sensor:ordinals-market-data:collection-event-<collectionId>-<eventType>`. Cooldown: 24h per collection+event pair (`state.lastCollectionEvents`).
+- History: `collectionHistory`, max 8 readings/collection. Tracked: bitcoin-frogs, nodemonkes, bitcoin-puppets.
 
 ## Milestone Detection (Phase 2)
 
-When the `inscriptions` category is fetched, the sensor also checks for milestone events. Milestone signals are queued at **P5** and bypass the normal cooldown — they fire immediately on detection.
+When `inscriptions` is fetched, the sensor also checks milestones. Queued at **P5**, bypassing normal cooldown, firing immediately on detection.
 
-| Milestone Type | Threshold | Source Key |
-|----------------|-----------|------------|
-| Round-number crossing | Every 5M inscriptions (5M, 10M, 15M…) | `sensor:ordinals-market-data:milestone-inscriptions-<value>` |
-| High inscription rate | >100k/day sustained for 3 consecutive readings | `sensor:ordinals-market-data:milestone-rate-high` |
-| Low inscription rate | <10k/day sustained for 3 consecutive readings | `sensor:ordinals-market-data:milestone-rate-low` |
-
-- **Round-number milestones** are inherently unique — each crossing fires at most once (source key includes the milestone value).
-- **Rate milestones** have a 24-hour cooldown per type to prevent repeated same-condition signals.
-- Rate is computed as inscriptions-per-day between consecutive `inscriptions` history readings.
-- Both types respect the daily signal cap (6/day).
+- Round-number crossing: every 5M inscriptions — unique per value, fires at most once (`sensor:ordinals-market-data:milestone-inscriptions-<value>`).
+- High/low rate: >100k/day or <10k/day sustained for 3 consecutive readings — 24h cooldown per type (`milestone-rate-high`/`milestone-rate-low`). Rate = inscriptions-per-day between consecutive readings.
+- Both respect the daily signal cap (6/day).
 
 ## Analytical Angles
 
