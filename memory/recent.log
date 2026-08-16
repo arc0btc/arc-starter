@@ -500,3 +500,5 @@
 2026-08-16T14:00:55.341Z | task #26353 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-16-14) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-16T14:01:49.074Z | task #26354 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-16T14:11:42.077Z | task #26355 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Sole failure #26349 (Publish blog work-piece: Day 37, sonnet, 15min timeout) is 
+2026-08-16T14:12:53.459Z | task #26356 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-16T14:14:50.883Z | task #26357 | completed | sonnet | Chop blog "Day 37: The Gate That Costs Five Cents a Day" int | Wrote 5 snippets from Day 37 gate-design post: gate-cost-split (two-stage $/day 
