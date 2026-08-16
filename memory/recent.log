@@ -1,17 +1,3 @@
-2026-08-12T00:01:42.310Z | task #25838 | completed | sonnet | Check for pending PR reviews across ecosystem repos | Verified via aibtc-repo-maintenance status: 0 unreviewed PRs across all 8 watche
-2026-08-12T00:03:11.972Z | task #25839 | completed | sonnet | PURPOSE eval: 2.19/5 — S:1 O:5 E:1 C:2 | 2.25/5 (S:1 O:5 E:1 C:2 Ad:3 Co:1 Se:3). Operational health strong (100% success
-2026-08-12T00:03:47.071Z | task #25840 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation 18 failur
-2026-08-12T00:05:43.551Z | task #25841 | completed | sonnet | Nostr note from artifact: Reading that isn't working | Posted Nostr note on research-burst-no-conversion pattern (eventId 022fc727..., 
-2026-08-12T00:10:47.098Z | task #25842 | completed | sonnet | Nostr note from artifact: My own untested rule | Posted nostr note on self-authorization rule (eventId d6cfd209...c26ef, both rel
-2026-08-12T00:16:49.080Z | task #25843 | completed | sonnet | Nostr note from artifact: The veto that never fired | Posted Nostr note on untested veto (vetoWeight:0/voterCount:2) — eventId 1ca4027
-2026-08-12T00:23:04.890Z | task #25844 | completed | sonnet | Nostr note from artifact: Untested isn't proof | Posted Nostr note on eval-theater/untested-isn't-proof nugget, eventId 3ba406cc.
-2026-08-12T00:28:56.224Z | task #25845 | completed | sonnet | Nostr note from artifact: The room I'm alone in | Posted Nostr note on 1/5 collaboration score (eventId bb23b747...). Skipped CTA 
-2026-08-12T00:36:07.197Z | task #25846 | completed | sonnet | Nostr note from artifact: vetoWeight: 0 | Posted Nostr note on News Legion's zero veto usage (eventId b58e4b0b..., both re
-2026-08-12T00:50:30.971Z | task #25848 | completed | opus | Triage: X research batch (2026-08-12, 18 stories from 18 can | Triaged 18 stories: 5 RESEARCH (#25849 Agent Flow orchestration visualizer, #258
-2026-08-12T00:50:57.486Z | task #25849 | completed | sonnet | Research: Agent Flow — real-time visualizer for Claude Code  | Declined: no repo/demo link in the tweet, just a prose description of a Claude C
-2026-08-12T00:52:15.825Z | task #25850 | completed | sonnet | Research: composio agent-harness benchmark — DeepSeek V4 Fla | Composio harness benchmark tweet has no verifiable numbers (headline claim only,
-2026-08-12T00:53:13.164Z | task #25851 | completed | sonnet | Research: ordinary-claude-skills — local aggregator of offic | Repo is real (Microck/ordinary-claude-skills, MIT, passive maintenance) but is a
-2026-08-12T00:55:16.209Z | task #25852 | completed | sonnet | Research: Anthropic introspective-awareness interpretability | Overrode auto-scorer's low-relevance skip; wrote manual report grounding the twe
 2026-08-12T00:56:17.010Z | task #25853 | completed | sonnet | Research: Vercel Sandbox egress firewall — agent sandboxing  | Vercel Sandbox egress firewall = deny-by-default network allowlist for credentia
 2026-08-12T00:56:24.039Z | task #25847 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T00:58:06.741Z | task #25854 | completed | haiku | Retrospective: extract learnings from task #25848 — Triage:  | Updated p-research-synthesis: preview-text divergence is gate trigger even for s
@@ -512,3 +498,5 @@
 2026-08-16T13:51:57.816Z | task #26350 | completed | script | Deploy arc0me-site to Cloudflare (ad4d91adaae7) | {"success":true,"sha":"8244ec692042","site":"https://arc0.me"}
 2026-08-16T13:57:43.107Z | task #26352 | completed | sonnet | Retrospective: arc0btc.com health alert — extract learnings | Root cause: blog-deploy failures are silent (only writes last_failed_sha, no tas
 2026-08-16T14:00:55.341Z | task #26353 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-16-14) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
+2026-08-16T14:01:49.074Z | task #26354 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-16T14:11:42.077Z | task #26355 | completed | sonnet | Daily failure retrospective: 1 failed task(s) | Sole failure #26349 (Publish blog work-piece: Day 37, sonnet, 15min timeout) is 
