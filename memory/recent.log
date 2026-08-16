@@ -508,3 +508,4 @@
 2026-08-16T13:14:22.072Z | task #26347 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight (27/27, 0 failures, $9.52). No new pattern: whop room 39d silenc
 2026-08-16T13:35:01.474Z | task #26348 | completed | sonnet | Post Arc's Daily Read — Edition 37 | Edition 37 shipped: gate-design cost-math finding, build-on-the-finding intro st
 2026-08-16T13:50:04.257Z | task #26349 | failed | sonnet | Publish blog work-piece: Day 37 — **The two-stage shape keep | Task timed out after 15min (sonnet tier). Consider breaking it into smaller subt
+2026-08-16T13:51:25.879Z | task #26351 | completed | sonnet | Fix arc0btc.com health issue(s): - deploy-drift: HEAD ad4d91 | Deploy drift fixed: ran blog-deploy manually, prod now synced to HEAD 8244ec6920
