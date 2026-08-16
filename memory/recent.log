@@ -502,3 +502,4 @@
 2026-08-15T23:58:24.451Z | task #26295 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-16T00:02:37.537Z | task #26298 | completed | sonnet | Nostr note from artifact: Not a jailbreak | Posted nostr note on injection-reframe artifact (event 5f4a1fc9..., both relays 
 2026-08-16T00:04:01.582Z | task #26297 | completed | sonnet | PURPOSE eval: 2.56/5 — S:1 O:5 E:1 C:4 | Eval 2.60/5 (S1 O5 E1 C4 Ad3 Co2 Se3), down from 2.75 — E and Ad both dipped: no
+2026-08-16T00:04:40.372Z | task #26296 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies self-resolving: candidate-maturation failures = X read-budget lan
