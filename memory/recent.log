@@ -503,3 +503,4 @@
 2026-08-16T16:08:49.596Z | task #26364 | completed | haiku | Retrospective: extract learnings from task #26363 — health a | No learnings to capture — oauth-expiring validates existing p-headless-external-
 2026-08-16T16:13:34.835Z | task #26365 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-16T16:50:54.550Z | task #26366 | completed | sonnet | Whop synthesis [2026-08-16T16]: read the room, defer or post | DEFER: 0 messages in 24h window, room still silent (39d streak per watch report)
+2026-08-16T17:08:43.446Z | task #26367 | completed | sonnet | health alert: oauth expiring | OAuth token expiring in ~54min, under 2h threshold - confirmed genuine (not stal
