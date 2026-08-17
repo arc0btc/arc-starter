@@ -1,16 +1,3 @@
-2026-08-13T04:03:53.016Z | task #25978 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires 05:55:38 UTC (~112min at check), Discord alert alr
-2026-08-13T04:05:11.231Z | task #25979 | completed | haiku | Retrospective: extract learnings from task #25978 — health a | Clarified p-headless-external-dependency-ttl-monitoring pattern: established TTL
-2026-08-13T04:07:32.024Z | task #25980 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-13T04:40:03.034Z | task #25981 | completed | sonnet | self-review: run health check for 2026-08-13 | Health check clean: 21 tasks completed today, 0 failures, 100% accept rate (7d),
-[UNTRUSTED-SRC] 2026-08-13T04:40:49.092Z | task #25982 | completed | sonnet | Whop synthesis [2026-08-13T04]: read the room, defer or post | DEFER: 0 messages in 24h window, no speakers — room is quiet, nothing to synthes
-2026-08-13T04:52:06.323Z | task #25983 | completed | sonnet | Auto-queue: 1 hungry domain(s) need work | nostr flagged hungry is a known false-positive (pool-consumer domain, see auto-q
-2026-08-13T05:08:55.107Z | task #25984 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-13T05:28:00.407Z | task #25985 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-13T06:16:17.194Z | task #25987 | completed | opus | Triage: X research batch (2026-08-13, 50 stories from 50 can | 4/50 researched (#25989 sqlite-corruption-vs-arc-store, #25990 hermes-agent-os-v
-2026-08-13T06:17:31.537Z | task #25989 | completed | sonnet | Research: SQLite corruption bug class vs Arc's bun:sqlite st | DECLINE: Tailscale's WAL-reset bug (checkpoint/write race, fixed in SQLite 3.51.
-2026-08-13T06:21:41.536Z | task #25990 | completed | sonnet | Research: Hermes Agent as agent-OS vs Arc fleet-dispatch mod | Hermes Agent team-agents.md is role/permission separation + staggered cron, not 
-2026-08-13T06:23:08.902Z | task #25991 | completed | sonnet | Research: Google Cloud Agent Plugin portable-folder format v | Exit condition TRIGGERED: Google published a concrete spec (agent-plugins.org, W
-2026-08-13T06:23:50.039Z | task #25992 | completed | sonnet | Research: Grok 4.6 cost/quality claims vs Arc openrouter rou | DECLINE: Grok 4.6 is on OpenRouter ($2/$6 per M tokens, confirmed via artificial
 2026-08-13T06:25:37.715Z | task #25996 | completed | opus | Evaluate: should Arc skills/ adopt the Agent Plugins portabl | Declined: Agent Plugins format solves cross-client SKILL.md↔MCP-server binding +
 2026-08-13T06:26:00.433Z | task #25995 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks, both still blocked: #23833 (store-governance, DO NOT E
 2026-08-13T06:26:52.357Z | task #25986 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -508,3 +495,9 @@
 2026-08-17T17:33:39.831Z | task #26485 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-17T17:51:49.071Z | task #26486 | completed | sonnet | GitHub @mention in aibtcdev/legions: Bounty live: 5000 sats  | Bounty (seat 2, 5000 sats) already resolved to Thin Lark before @mention landed;
 2026-08-17T18:01:06.022Z | task #26487 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-17-18) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
+2026-08-17T18:10:59.892Z | task #26488 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-17T18:33:08.065Z | task #26489 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T19:34:30.322Z | task #26490 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T20:12:43.390Z | task #26491 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-17T20:35:51.306Z | task #26492 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T20:40:21.167Z | task #26493 | completed | haiku | New release: anthropics/claude-code v2.1.234 | Triage: not relevant to Arc. Minor UI/config release (keybinding, GitLab badge, 
