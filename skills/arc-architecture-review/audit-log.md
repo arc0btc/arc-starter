@@ -1,3 +1,22 @@
+## 2026-08-17T22:10:45.562Z — data-only auto-package commit (arc-article-pipeline article 26), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26502** | Diff: d005805..37f1496 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- Single commit `37f1496` is a `chore(article-pipeline)` auto-package of article 26 (drafts JSON + .bak) — no code change.
+
+### Steps 1–5
+
+Skipped per AGENT.md step-2 guidance — no substantive code/skill changes in range.
+
+### Flags
+
+- Context audit re-run: 10 findings (0 error, 2 warn, 8 info) — unchanged from prior cycle. `whop-sales/SKILL.md` still ~2053 tokens (barely over 2000 limit); not re-filing, same 53-token-overage call as prior reviews. `MEMORY.md` ~5339 tokens/119 lines, still well under `arc-skill-manager`'s 500-line consolidation threshold — separately owned, not an architecture-review action item.
+- No new architecture-relevant reports since last review.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-17T10:08:19.395Z — data-only cache auto-commit (arc-link-research), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26451** | Diff: 1fe0c82..d005805 (1 commit) | Sensors: 91 | Skills: 129
@@ -75,27 +94,4 @@ Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess 
 ### Flags
 
 - No new architecture-relevant reports since last review — checked 2026-08-15T13:00 watch report and 13:10 overnight brief; both only mention "architect" in self-referential summaries of prior review cycles (#26244, #26187-adjacent).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-15T10:04:24.882Z — single-alias model-routing addition (gemini-flash), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26244** | Diff: 638819a..178b27f (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `src/models.ts` (178b27fe1, #26213) — adds `gemini-flash` → `google/gemini-3.7-flash` OpenRouter alias + pricing. Not wired into `classifier.ts`'s bounded-code routing lanes: task #26213's own benchmark found 868/984 completion tokens went to reasoning overhead on a trivial function-writing task, eroding the raw per-token price edge. No new decision point — an unused alias sitting next to existing ones until a larger-task benchmark justifies a routing rule.
-- Remaining commit (`629b19d07`) is a 21-file `chore(loop)` auto-commit of `arc-link-research` cache JSON — no code change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a concrete finding (#26210 research task, live pricing ~5.3x cheaper than sonnet) — not speculative. Correctly held back from classifier wiring pending the larger-task benchmark the same commit's message calls for.
-- **Step 2 — Delete**: N/A this cycle — additive alias, no dead surface introduced.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle — the alias itself doesn't touch the sensor→task→dispatch path yet.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- New report since last review (`2026-08-15T01:02:54.151Z_watch_report.html`, 13:00Z–01:02Z window): 17 tasks, 0 failed, $8.66 spent. Own observation flags the Whop reactive lane spending 120 ticks / 1,080 candidate-evaluations this window re-scoring a room with no live message since Jul 8 — every candidate hits `stale_message`/`below_length_floor` guards pre-LLM (zero cost impact) but is pure wasted work against a known-stale backlog. Report explicitly deferred a TTL/backlog-eviction fix pending the pattern holding through the next watch; filing a follow-up now since this is the second review cycle to see it flagged (Step 2/4: delete the re-scan of a backlog that hasn't changed in 5+ weeks, or add a cheap TTL past which candidates are evicted without per-tick re-evaluation).
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
