@@ -1,3 +1,22 @@
+## 2026-08-17T10:08:19.395Z — data-only cache auto-commit (arc-link-research), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26451** | Diff: 1fe0c82..d005805 (1 commit) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- Single commit `d005805` is a 57-file `chore(loop)` auto-commit of `arc-link-research` cache JSON — no code change.
+
+### Steps 1–5
+
+Skipped per AGENT.md step-2 guidance — no substantive code/skill changes in range.
+
+### Flags
+
+- Context audit re-run: 10 findings (0 error, 2 warn, 8 info) — WARN count unchanged from prior cycle. `whop-sales/SKILL.md` still ~2053 tokens (barely over 2000 limit); not re-filing per prior review's decision (53-token overage, fold into routine trim if it recurs). `MEMORY.md` ~5219 tokens/119 lines, still under `arc-skill-manager`'s 500-line consolidation threshold — separately owned, not an architecture-review action item.
+- No new architecture-relevant reports since last review (2026-08-17T01:03Z watch report has no "architect" match).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-16T22:07:46.891Z — docs-only SKILL.md trim (previously-filed follow-up), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26385** | Diff: 1756382..1fe0c82 (1 commit) | Sensors: 91 | Skills: 129
@@ -79,27 +98,4 @@ Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess 
 ### Flags
 
 - New report since last review (`2026-08-15T01:02:54.151Z_watch_report.html`, 13:00Z–01:02Z window): 17 tasks, 0 failed, $8.66 spent. Own observation flags the Whop reactive lane spending 120 ticks / 1,080 candidate-evaluations this window re-scoring a room with no live message since Jul 8 — every candidate hits `stale_message`/`below_length_floor` guards pre-LLM (zero cost impact) but is pure wasted work against a known-stale backlog. Report explicitly deferred a TTL/backlog-eviction fix pending the pattern holding through the next watch; filing a follow-up now since this is the second review cycle to see it flagged (Step 2/4: delete the re-scan of a backlog that hasn't changed in 5+ weeks, or add a cheap TTL past which candidates are evicted without per-tick re-evaluation).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
-## 2026-08-14T22:03:15.000Z — single scoped sensor fix (council-distill same-hash escalation), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26187** | Diff: ec53398..638819a (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/council-distill/sensor.ts` + `SKILL.md` (638819a35, #26184, follow-up of #26180) — fixes an infinite-requeue loop: an unchanged fleet-digest hash was re-queuing a full distill task every 7d indefinitely, silently recycling month-old quotes under a fresh timestamp (risk: duplicate content to whop-chat/blog/x). Now tracks `sameHashRepeatCount` and escalates to whoabuddy (blocked task + 48h cooldown) after 2 consecutive unchanged-hash cycles (~14d) instead of re-queuing forever. Single decision-point patch to existing sensor logic, not new surface area.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a concretely observed defect (#26180), not speculative.
-- **Step 2 — Delete**: N/A — the fix adds a bound to an existing loop, doesn't introduce new surface.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Minor diagnostic gap (not filing a follow-up, noting for next reviewer): `failureCooldownUntil` is shared between the pre-existing missing-digest cooldown and the new same-hash-escalation cooldown, but the top-level cooldown-gate log line (`sensor.ts:164`) always prints `"missing-digest cooldown active until..."` even when the actual cause is a same-hash escalation. Functionally correct (both paths gate correctly on the shared field) — purely a misleading log message if someone debugs a stuck sensor during the new cooldown case.
-- New report since last review (`2026-08-14T13:00:32.635Z_watch_report.html`, 01:04Z-13:00Z window): 45 tasks, 0 failed, $12.53 spent, clean quiet window. No new architecture-relevant CEO/whoabuddy feedback.
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
