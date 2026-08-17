@@ -505,3 +505,4 @@
 2026-08-17T12:29:52.243Z | task #26462 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-17T12:33:51.891Z | task #26464 | completed | script | Deploy arc0me-site to Cloudflare (86593a71defe) | {"success":true,"sha":"8157d6f08dff","site":"https://arc0.me"}
 2026-08-17T13:04:48.437Z | task #26465 | completed | sonnet | Watch report — 2026-08-17T13:01Z | Watch report: 57 tasks completed, 0 failed, $18.01 spent — content pipeline ran 
+2026-08-17T13:06:24.663Z | task #26466 | completed | sonnet | Overnight brief — 2026-08-17 | Overnight brief: 47 tasks completed, 0 failed, $15.79 spent — reports/2026-08-17
