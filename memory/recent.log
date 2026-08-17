@@ -512,3 +512,4 @@
 2026-08-17T10:03:25.467Z | task #26448 | completed | sonnet | health alert: oauth expiring | oauth-expiring confirmed: expiresAt matches workflow dedup key (~50min remaining
 2026-08-17T10:04:31.731Z | task #26449 | completed | haiku | Retrospective: extract learnings from task #26448 — health a | No learnings to capture — task #26448 executed existing p-headless-external-depe
 2026-08-17T10:05:57.335Z | task #26450 | completed | sonnet | Distill watch report 2026-08-17T01:03:15.725Z into 1-2 inter | 2 nuggets: surprise (clean 14/14 ops vs. flat $0 MRR revenue for 4 weeks — CEO r
+2026-08-17T10:08:59.312Z | task #26451 | completed | sonnet | architecture review — codebase changed since last review (1f | Diff 1fe0c82..d005805 was data-only (57-file arc-link-research cache auto-commit
