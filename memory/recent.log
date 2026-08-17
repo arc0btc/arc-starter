@@ -500,3 +500,5 @@
 2026-08-17T22:11:24.732Z | task #26502 | completed | sonnet | architecture review — codebase changed since last review (d0 | Diff d005805..37f1496 = 1 data-only auto-package commit (arc-article-pipeline ar
 2026-08-17T22:13:31.895Z | task #26503 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-17T22:26:58.635Z | task #26504 | completed | sonnet | Review 1 blocked task(s) for possible unblock | Reviewed #24776 (news-legion sBTC decision, blocked 370h): still correctly block
+2026-08-17T22:37:40.006Z | task #26505 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+[UNTRUSTED-SRC] 2026-08-17T22:53:51.114Z | task #26506 | completed | sonnet | Whop synthesis [2026-08-17T22]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize. Healthy defer per cadenc
