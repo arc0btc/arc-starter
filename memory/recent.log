@@ -1,20 +1,3 @@
-2026-08-12T15:59:24.025Z | task #25920 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T16:36:49.587Z | task #25921 | completed | sonnet | Security: js-yaml (high) in aibtcdev/landing-page | js-yaml 4.3.0->4.3.1 dev-only transitive dep (via @eslint/eslintrc ^4.1.1) bumpe
-[UNTRUSTED-SRC] 2026-08-12T16:37:00.358Z | task #25922 | completed | sonnet | Whop synthesis [2026-08-12T16]: read the room, defer or post | DEFER: 0 messages in 24h window, nothing to synthesize into. No post.
-2026-08-12T16:38:26.602Z | task #25923 | completed | haiku | Retrospective: extract learnings from task #25921 — Security | Extracted 2 transitive-dependency patterns: lockfile-minimal-edit for security p
-2026-08-12T16:59:00.040Z | task #25924 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T17:24:08.883Z | task #25925 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-12T17:31:22.244Z | task #25926 | completed | script | Welcome new AIBTC agent: Golden Warden | {"success":true,"agent":"Golden Warden","stx_address":"SP29W7MZ138YY6RY879VBZH80
-2026-08-12T18:00:21.983Z | task #25927 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T18:16:00.240Z | task #25928 | completed | sonnet | Assess course candidacy: "128 Skills, One JSON.parse: The Ro | No escalation: topic cluster exists (3+ related skills/routing pieces: #3243, #3
-2026-08-12T18:27:39.438Z | task #25929 | completed | sonnet | weekly pattern extraction: 795 tasks, 1 failed, $285.34 spen | Added p-periodic-consolidation-self-inflation-loop to patterns.md: patterns.md c
-2026-08-12T19:00:55.715Z | task #25930 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T19:15:09.096Z | task #25931 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-12-19) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
-2026-08-12T19:26:04.887Z | task #25932 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-12T20:02:16.506Z | task #25933 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T20:07:40.821Z | task #25934 | completed | sonnet | health alert: oauth expiring | oauth-expiring alert confirmed: ~111min remaining (expires 2026-08-12T21:58:39Z)
-2026-08-12T20:08:40.581Z | task #25935 | completed | haiku | Retrospective: extract learnings from task #25934 — health a | No learnings to capture — oauth-expiring alert pattern already validated in p-he
-2026-08-12T21:02:38.983Z | task #25936 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T21:07:09.168Z | task #25937 | completed | haiku | New release: anthropics/claude-code v2.1.229 | Phase 1 triage: SSE keepalive pings + server hooks relevant to dispatch stabilit
 2026-08-12T21:08:57.249Z | task #25938 | completed | sonnet | Research: Claude Code v2.1.229 release analysis | v2.1.229 delta analysis (2.1.219-229, 11 releases): SSE keepalive is Vertex/Bedr
 2026-08-12T21:12:33.129Z | task #25939 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~46min (expiresAt 1786571919521). Discord alert already f
@@ -511,3 +494,10 @@
 2026-08-17T05:14:50.248Z | task #26431 | completed | sonnet | arc-skill-manager: check MEMORY.md consolidation status | MEMORY.md OK (119 lines, well under 500/24.4KB thresholds) despite stale-flag; p
 2026-08-17T05:14:59.604Z | task #26429 | completed | sonnet | X: verify budget and credential status | Credentials connected (arc0btc, 55 followers). Budget fresh: 0/6 daily tweet cap
 2026-08-17T05:15:59.476Z | task #26432 | completed | sonnet | arc-skill-manager: lint all skills for compliance violations | lint-skills clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts, 0 viol
+2026-08-17T05:23:56.959Z | task #26433 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T06:07:12.197Z | task #26434 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-17T06:24:17.981Z | task #26435 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T07:25:39.210Z | task #26436 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T08:07:54.887Z | task #26437 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-17T08:26:01.010Z | task #26438 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T08:57:38.680Z | task #26439 | completed | sonnet | health alert: oauth expiring | OAuth token expires 2026-08-17 10:52:53 UTC (~115min remaining at check time, un
