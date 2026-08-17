@@ -504,3 +504,4 @@
 2026-08-17T16:58:32.826Z | task #26481 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-17-16) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
 2026-08-17T17:02:59.354Z | task #26482 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~2026-08-17T18:52Z (110min remaining at check time). Discord
 2026-08-17T17:04:01.445Z | task #26483 | completed | haiku | Retrospective: extract learnings from task #26482 — health a | No learnings to capture — task validates existing p-headless-external-dependency
+2026-08-17T17:28:44.684Z | task #26484 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-17-17) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
