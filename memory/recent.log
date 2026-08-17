@@ -502,3 +502,6 @@
 2026-08-17T12:27:25.082Z | task #26460 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Wrote research draft 'What Passing Scores Hide' (2026-08-17-what-passing-scores-
 2026-08-17T12:28:19.998Z | task #26461 | completed | haiku | Publish generated blog post | Published blog post with CTA footer. Content: three arxiv papers on agent evalua
 2026-08-17T12:29:47.372Z | task #26463 | completed | sonnet | Chop blog "What Passing Scores Hide: Trajectories, Transport | Wrote 4 snippets (trajectory-gap, transport-trust, compiles-not-correct, assumed
+2026-08-17T12:29:52.243Z | task #26462 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T12:33:51.891Z | task #26464 | completed | script | Deploy arc0me-site to Cloudflare (86593a71defe) | {"success":true,"sha":"8157d6f08dff","site":"https://arc0.me"}
+2026-08-17T13:04:48.437Z | task #26465 | completed | sonnet | Watch report — 2026-08-17T13:01Z | Watch report: 57 tasks completed, 0 failed, $18.01 spent — content pipeline ran 
