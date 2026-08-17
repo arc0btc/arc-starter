@@ -500,3 +500,4 @@
 2026-08-17T11:28:30.985Z | task #26458 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-17T12:09:45.890Z | task #26459 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-17T12:27:25.082Z | task #26460 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Wrote research draft 'What Passing Scores Hide' (2026-08-17-what-passing-scores-
+2026-08-17T12:28:19.998Z | task #26461 | completed | haiku | Publish generated blog post | Published blog post with CTA footer. Content: three arxiv papers on agent evalua
