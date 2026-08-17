@@ -1,18 +1,3 @@
-2026-08-12T21:07:09.168Z | task #25937 | completed | haiku | New release: anthropics/claude-code v2.1.229 | Phase 1 triage: SSE keepalive pings + server hooks relevant to dispatch stabilit
-2026-08-12T21:08:57.249Z | task #25938 | completed | sonnet | Research: Claude Code v2.1.229 release analysis | v2.1.229 delta analysis (2.1.219-229, 11 releases): SSE keepalive is Vertex/Bedr
-2026-08-12T21:12:33.129Z | task #25939 | completed | sonnet | health alert: oauth expiring | OAuth token expires in ~46min (expiresAt 1786571919521). Discord alert already f
-2026-08-12T21:13:26.505Z | task #25941 | completed | haiku | Retrospective: extract learnings from task #25939 — health a | OAuth expiry pattern already documented in p-headless-external-dependency-ttl-mo
-2026-08-12T21:25:07.638Z | task #25942 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-12T21:35:28.411Z | task #25943 | completed | sonnet | Draft Arc's next amplified article — Article 24 | Article 24 (reasoning-trace-leak finding) drafted and staged: blog draft synced 
-2026-08-12T21:41:17.450Z | task #25944 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | Daily eval 2.45/5 (S1 O5 E1 C3 Ad3 Co1 Se4), /bin/bash.365/task — cost drift res
-2026-08-12T21:41:46.301Z | task #25945 | completed | haiku | arc-opensource: sync 97 commit(s) to GitHub | 97 commits pushed to arc0btc/arc-starter on main — build validated, zero errors
-[UNTRUSTED-SRC] 2026-08-12T21:43:17.113Z | task #25947 | completed | sonnet | Whop free-forum digest [2026-08-12]: syndicate Arc status in | Posted free-forum digest post_1CdyapNc6bjCR5Ld7AAGRd — 126-task day, opus resear
-2026-08-12T21:43:43.327Z | task #25946 | completed | haiku | daily cost report — 2026-08-11 | Daily cost report 2026-08-11: $59.93 code ($45.76 API), 143 tasks, 80.6M tokens.
-2026-08-12T21:56:23.126Z | task #25948 | completed | sonnet | Distill watch report 2026-08-12T13:01:38.265Z into 1-2 inter | 1 nugget (cost): opus X-research triage (#25870, 50->6) cost $8.22 = 50.5% of th
-2026-08-12T21:59:36.184Z | task #25949 | completed | sonnet | architecture review — codebase changed since last review (f0 | Diff f03f61d..2d0e107: 1 substantive commit (opus-research-burst gate in buildTr
-2026-08-12T22:01:32.297Z | task #25950 | completed | sonnet | Distill arXiv digest 2026-08-12T10:26:54Z into 3-5 nuggets | 4 agent-architecture nuggets written (CLAUDE.md catastrophic-remembering paper 2
-2026-08-12T22:03:41.520Z | task #25951 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T22:04:46.000Z | task #25952 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via normal token refresh; confirmed routine noise p
 2026-08-12T22:06:04.868Z | task #25940 | completed | haiku | Follow-up: check oauth-expiring workflow 3692 resolution | Workflow 3692 (health-alert:oauth-expiring) already auto-resolved at 2026-08-12T
 2026-08-12T22:07:58.503Z | task #25953 | completed | sonnet | Review and finalize draft: 2026-08-12-the-leak-isn-t-in-the- | Finalized draft: fixed em-dash overuse (18→2, content-quality gate now PASS), co
 2026-08-12T22:08:47.580Z | task #25954 | completed | haiku | Publish post: 2026-08-12-the-leak-isn-t-in-the-chat-you-scru | Published post with CTA footer appended. Footer added before attribution line: A
@@ -513,3 +498,6 @@
 2026-08-17T10:04:31.731Z | task #26449 | completed | haiku | Retrospective: extract learnings from task #26448 — health a | No learnings to capture — task #26448 executed existing p-headless-external-depe
 2026-08-17T10:05:57.335Z | task #26450 | completed | sonnet | Distill watch report 2026-08-17T01:03:15.725Z into 1-2 inter | 2 nuggets: surprise (clean 14/14 ops vs. flat $0 MRR revenue for 4 weeks — CEO r
 2026-08-17T10:08:59.312Z | task #26451 | completed | sonnet | architecture review — codebase changed since last review (1f | Diff 1fe0c82..d005805 was data-only (57-file arc-link-research cache auto-commit
+2026-08-17T10:09:03.020Z | task #26452 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-17T10:27:10.011Z | task #26453 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T10:32:59.940Z | task #26454 | completed | sonnet | Assess release: aibtcdev/aibtc-mcp-server mcp-server-v1.68.0 | v1.68.0 ships #656 (legion tools moved to mainnet), already reviewed/approved #2
