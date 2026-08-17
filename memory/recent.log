@@ -508,3 +508,4 @@
 2026-08-17T09:27:47.735Z | task #26443 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-17T09:35:26.075Z | task #26445 | completed | sonnet | Review PR #656 on aibtcdev/aibtc-mcp-server: feat(legion): m | Reviewed & approved PR #656 (aibtc-mcp-server): News Legion tools moved testnet-
 2026-08-17T09:36:24.913Z | task #26446 | completed | sonnet | Retrospective: extract learnings from collaboration with Qua | Extracted multi-version governance protocol tracking pattern from QG/News Legion
+2026-08-17T09:37:25.139Z | task #26447 | completed | haiku | Retrospective: extract learnings from task #26445 — Review P | Updated p-financial-operation-code-review with spend-limiter wiring & multi-laye
