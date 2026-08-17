@@ -510,3 +510,4 @@
 2026-08-17T05:12:58.631Z | task #26428 | completed | sonnet | X: check proactive cadence beat status and post if due | Cadence beat not due — last beat (blog-snippet) fired 2026-08-17T04:01Z, ~71min 
 2026-08-17T05:14:50.248Z | task #26431 | completed | sonnet | arc-skill-manager: check MEMORY.md consolidation status | MEMORY.md OK (119 lines, well under 500/24.4KB thresholds) despite stale-flag; p
 2026-08-17T05:14:59.604Z | task #26429 | completed | sonnet | X: verify budget and credential status | Credentials connected (arc0btc, 55 followers). Budget fresh: 0/6 daily tweet cap
+2026-08-17T05:15:59.476Z | task #26432 | completed | sonnet | arc-skill-manager: lint all skills for compliance violations | lint-skills clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts, 0 viol
