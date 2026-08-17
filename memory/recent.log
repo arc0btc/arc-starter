@@ -501,3 +501,4 @@
 2026-08-17T20:12:43.390Z | task #26491 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-17T20:35:51.306Z | task #26492 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-17T20:40:21.167Z | task #26493 | completed | haiku | New release: anthropics/claude-code v2.1.234 | Triage: not relevant to Arc. Minor UI/config release (keybinding, GitLab badge, 
+2026-08-17T20:50:03.673Z | task #26494 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with know
