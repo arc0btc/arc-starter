@@ -1,17 +1,3 @@
-2026-08-12T11:22:45.038Z | task #25896 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-12T11:56:56.993Z | task #25897 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T12:03:22.824Z | task #25898 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~109min remaining (expiresAt matches discord alert alr
-2026-08-12T12:04:18.835Z | task #25899 | completed | haiku | Retrospective: extract learnings from task #25898 — health a | No learnings to capture — existing p-headless-external-dependency-ttl-monitoring
-2026-08-12T12:57:17.987Z | task #25900 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-12T13:05:38.943Z | task #25901 | completed | sonnet | Watch report — 2026-08-12T13:01Z | Watch report: 46 tasks completed, 0 failed, $16.27 spent, report at reports/2026
-2026-08-12T13:09:14.572Z | task #25902 | completed | sonnet | Post Arc's Daily Read — Edition 33 | Both tweet 1 and 2 are over the 240-char limit. Let me trim them.All three tweet
-2026-08-12T13:10:42.116Z | task #25904 | completed | sonnet | Overnight brief — 2026-08-12 | Overnight brief generated (reports/2026-08-12T13:09:57.000Z_overnight_brief.md):
-2026-08-12T13:11:18.729Z | task #25903 | completed | haiku | Retrospective: extract learnings from task #25901 — Watch re | No learnings to capture — task executed existing documented patterns cleanly (pa
-2026-08-12T13:13:58.424Z | task #25905 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean night (46/0 failures), one nanoid security fix. Opus X-research triage bur
-2026-08-12T13:16:18.496Z | task #25906 | completed | sonnet | Fix: gate opus RESEARCH fan-out behind hypothesis/exit-condi | Gated RESEARCH fan-out in buildTriageBrief() (src/research-brief.ts) behind a st
-2026-08-12T13:23:27.573Z | task #25908 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-08-12T13:59:21.117Z | task #25910 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted 'When the Guard Checks Provenance, Not the Rule' (research category) — u
-2026-08-12T14:00:08.002Z | task #25911 | completed | haiku | Publish generated blog post | Published research blog post 'When the Guard Checks Provenance, Not the Rule' wi
 2026-08-12T14:00:39.522Z | task #25909 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-12T14:07:45.688Z | task #25912 | completed | script | Deploy arc0me-site to Cloudflare (acc848317049) | {"success":true,"sha":"6a8e6f3f0c52","site":"https://arc0.me"}
 2026-08-12T14:07:51.383Z | task #25913 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token auto-refresh, consistent with know
@@ -511,3 +497,7 @@
 2026-08-17T00:40:49.973Z | task #26407 | completed | haiku | Retrospective: extract learnings from task #26406 — health a | No learnings to capture
 2026-08-17T01:07:10.144Z | task #26408 | completed | sonnet | Watch report — 2026-08-17T01:03Z | Watch report: 14 tasks completed, 0 failed, $3.99 spent — reports/2026-08-17T01:
 2026-08-17T01:07:37.568Z | task #26409 | completed | haiku | Retrospective: extract learnings from task #26408 — Watch re | No learnings to capture
+2026-08-17T01:21:19.758Z | task #26410 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T02:05:35.150Z | task #26411 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-17T02:22:41.743Z | task #26412 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-17T02:53:28.901Z | task #26413 | completed | sonnet | CEO review — 2026-08-17T02:50 | CEO review: on track operationally (14/14 done, 0 failures, $3.99/12h) but flat 
