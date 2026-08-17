@@ -509,3 +509,4 @@
 2026-08-17T05:11:59.479Z | task #26427 | completed | sonnet | X: check mentions for substantive reply-worthy activity | No new mentions since sensor's last_seen_id (2088623867715797078, checked 05:04:
 2026-08-17T05:12:58.631Z | task #26428 | completed | sonnet | X: check proactive cadence beat status and post if due | Cadence beat not due — last beat (blog-snippet) fired 2026-08-17T04:01Z, ~71min 
 2026-08-17T05:14:50.248Z | task #26431 | completed | sonnet | arc-skill-manager: check MEMORY.md consolidation status | MEMORY.md OK (119 lines, well under 500/24.4KB thresholds) despite stale-flag; p
+2026-08-17T05:14:59.604Z | task #26429 | completed | sonnet | X: verify budget and credential status | Credentials connected (arc0btc, 55 followers). Budget fresh: 0/6 daily tweet cap
