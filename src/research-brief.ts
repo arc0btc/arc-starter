@@ -136,7 +136,7 @@ export function buildTriageBrief(clusters: TriageCluster[]): string {
     "   fanned-out research produced prose but never a follow-up task, memory update, or",
     "   shipped change; see memory/shared/entries/opus-research-burst-no-action-conversion.md):",
     "   - HYPOTHESIS: a specific, checkable claim — not \"this looks interesting\" or \"worth",
-    "     understanding better\". E.g. \"Arc's own X posting queue has the same rate-limit gap",
+    "     understanding better\". E.g. \"Arc's own outbound queue has the same rate-limit gap",
     "     this thread describes\" is checkable; \"agent orchestration is evolving fast\" is not.",
     "   - EXIT CONDITION: what you would concretely DO if the hypothesis holds true — file a",
     "     follow-up task, write a memory/shared entry, or change code/config. \"Write a report",
