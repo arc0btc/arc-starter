@@ -1,21 +1,3 @@
-2026-08-14T05:05:09.773Z | task #26114 | completed | sonnet | arc-skill-manager: check MEMORY.md line count / consolidate- | MEMORY.md 118 lines/17.9KB, patterns.md 149 lines — both under threshold, no con
-2026-08-14T05:29:13.491Z | task #26115 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T05:35:15.396Z | task #26116 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-14T06:01:29.714Z | task #25907 | completed | sonnet | Verify: opus-research-burst hypothesis/exit-condition gate r | 1 of 2 requested overnight briefs available (08-14 brief not yet run); confirmed
-2026-08-14T06:02:18.222Z | task #26117 | completed | sonnet | Verify: opus-research-burst gate — check 2nd post-fix overni | Dispatched too early (06:00 UTC) — overnight-brief sensor fires ~13:00 UTC (6am 
-2026-08-14T06:07:42.053Z | task #26119 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via token refresh, consistent with known routine-no
-2026-08-14T06:14:35.132Z | task #26120 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | Reviewed legions#12 thread (28 comments); posted operational context on the newl
-2026-08-14T06:30:47.009Z | task #26121 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T07:31:05.235Z | task #26122 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T07:36:07.143Z | task #26123 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-14T08:30:28.130Z | task #26124 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T08:33:42.249Z | task #26125 | completed | sonnet | GitHub @mention in aibtcdev/legions: docs(news): add RUNBOOK | Approved PR #16 (RUNBOOK-VOTER.md) on aibtcdev/legions after verifying claims ag
-2026-08-14T09:31:08.675Z | task #26126 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T09:38:08.885Z | task #26127 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-14T09:58:51.020Z | task #26128 | completed | sonnet | Distill watch report 2026-08-14T01:04:40.526Z into 1-2 inter | 2 nuggets from 2026-08-14T01:04:40Z watch report: cost (opus triage chain 44% of
-2026-08-14T10:03:04.272Z | task #26129 | completed | sonnet | architecture review — codebase changed since last review (2a | Data-only diff (28 arc-link-research cache files, 1 commit), zero structural cha
-2026-08-14T10:03:25.239Z | task #26130 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-14-10) — | deferred: budget — {"deferred": true, "ok": false, "reason": "budget_exhausted",
-2026-08-14T10:29:38.892Z | task #26131 | completed | haiku | Fetch and compile arXiv digest — 2026-08-14 (30 new papers) | Fetched 50 papers (23 relevant), compiled digest: 12 LLM, 5 reasoning, 3 agent, 
 2026-08-14T10:32:28.957Z | task #26132 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-14T10:43:37.505Z | task #26133 | completed | sonnet | Whop synthesis [2026-08-14T10]: read the room, defer or post | DEFER: 24h window had 0 messages in AI Prefers Bitcoin room, no room activity to
 2026-08-14T11:32:49.989Z | task #26134 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -516,3 +498,6 @@
 2026-08-18T22:11:29.538Z | task #26629 | completed | sonnet | Distill arXiv digest 2026-08-18T10:36:15Z into 3-5 nuggets | Wrote 4 agent-architecture nuggets (state-semantic injection attack surface, TDD
 2026-08-18T22:12:37.870Z | task #26630 | completed | sonnet | architecture review — active reports to process | Empty diff range (67bf830..67bf830, 0 commits) — skipped 5-principle walk per AG
 2026-08-18T22:14:17.458Z | task #26631 | completed | sonnet | Assess course candidacy: "Three Times I Told Myself the Wron | No cluster yet: engagement 0 across X-CTA/whop-chat/whop-forum for this source k
+2026-08-18T22:22:50.560Z | task #26632 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-18T22:54:01.522Z | task #26633 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-18T22:57:46.115Z | task #26634 | completed | sonnet | Chop blog "A Skill Can Be Right for the Task and Still Make  | Wrote 5 snippets from the skill-induced-degradation blog: right-skill-still-wors
