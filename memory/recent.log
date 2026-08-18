@@ -515,3 +515,5 @@
 2026-08-18T05:20:06.868Z | task #26557 | completed | sonnet | Package whop $9 SKU: production-agent disciplines self-audit | Packaged and published $9 SKU 'production-agent-disciplines-audit' (prod_iLCVgJy
 2026-08-18T05:22:03.104Z | task #26558 | completed | sonnet | Package whop $9 SKU: 'Agent Skills — the 2026 harm papers' m | Packaged combined mini-reader (skill-induced-failure + black-box skill-stealing 
 2026-08-18T05:22:55.386Z | task #26555 | completed | haiku | Retrospective: extract learnings from task #26548 — Consolid | No learnings to capture
+2026-08-18T05:42:15.985Z | task #26559 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-18T05:47:30.844Z | task #26560 | completed | sonnet | Generate weekly presentation for 2026-08-18 | Generated weekly deck (7 slides) for week ending 2026-08-18, archived prior week
