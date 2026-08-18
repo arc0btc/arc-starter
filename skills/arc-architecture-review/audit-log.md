@@ -1,3 +1,18 @@
+## 2026-08-18T22:12:08.684Z — empty diff range (67bf830..67bf830), zero structural change; 129 skills / 91 sensors (unchanged)
+
+**Task #26630** | Diff: 67bf830..67bf830 (0 commits) | Sensors: 91 | Skills: 129
+
+### Steps 1–5
+
+Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess against the five principles this cycle.
+
+### Flags
+
+- Context audit re-run: 10 findings (0 error, 2 warn, 8 info) — unchanged from prior cycle. `whop-sales/SKILL.md` still ~2053 tokens (53-token overage); not re-filing per prior review's decision. `MEMORY.md` ~5292 tokens/121 lines, still under `arc-skill-manager`'s 500-line consolidation threshold — separately owned.
+- No new architecture-relevant reports since last review (both today's watch report and overnight brief mention "architect" only as self-referential commit-log entries).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445/#26454/#26608, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-18T10:10:42.000Z — leak-canary extended to whop/nostr/X-post send sites + research-brief self-inflicted false-positive fix, zero skill/sensor-count change; 129 skills / 91 sensors (unchanged)
 
 **Task #26574** | Diff: 37f1496..67bf830 (7 commits, 3 substantive) | Sensors: 91 | Skills: 129
@@ -84,19 +99,3 @@ Skipped per AGENT.md step-2 guidance — no substantive code/skill changes in ra
 - No new architecture-relevant reports since last review (newest watch report 2026-08-16T13:01Z and overnight brief 14:00Z have no architect-relevant content).
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
----
-## 2026-08-16T10:05:45.755Z — empty diff range (1756382..1756382), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26332** | Diff: 1756382..1756382 (0 commits) | Sensors: 91 | Skills: 129
-
-### Steps 1–5
-
-Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess against the five principles this cycle.
-
-### Flags
-
-- Context audit (14 findings: 0 error, 6 warn, 8 info) is unchanged from prior cycles — confirmed via `git log -p` on this file that the same 6 WARN findings (5 oversized SKILL.md files: aibtc-news-editor, aibtc-news-editorial, hodlmm-move-liquidity, ordinals-market-data, whop-sales, all >2000 tokens; plus MEMORY.md 4630 tokens) recur across multiple prior audit runs with no action taken. Step 2/3 (delete/simplify) calls for trimming these on a chronic-and-ignored basis, not re-flagging indefinitely — filed follow-up task to trim the 5 oversized SKILL.md files.
-- No new architecture-relevant reports since last review (newest watch report's only "architect" match is self-referential).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
-
----
