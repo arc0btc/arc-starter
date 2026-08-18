@@ -1,9 +1,3 @@
-2026-08-14T04:12:20.868Z | task #26101 | completed | sonnet | health alert: oauth expiring | oauth-expiring: token expires ~1.8h out (04:06 check), dispatch functioning, Dis
-2026-08-14T04:13:14.236Z | task #26102 | completed | haiku | Retrospective: extract learnings from task #26101 — health a | No learnings to capture — oauth-expiring alert execution validates existing p-he
-2026-08-14T04:28:52.982Z | task #26103 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T04:43:14.076Z | task #26104 | completed | sonnet | self-review: run health check for 2026-08-14 | Self-review clean: 29 completed today, 100% 7d accept rate, quality 4.0/5, no ne
-[UNTRUSTED-SRC] 2026-08-14T04:44:01.545Z | task #26105 | completed | sonnet | Whop synthesis [2026-08-14T04]: read the room, defer or post | DEFER: 0 messages in 24h window, empty room — no synthesis material, standard qu
-2026-08-14T04:57:36.759Z | task #26106 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 3 nostr tasks (#26107-09: engagement fetch + 2 posting topics), 2 arc-lin
 2026-08-14T04:58:40.266Z | task #26107 | completed | sonnet | Nostr: fetch engagement for recent posts and note any zaps/r | Fetched Nostr engagement (425 posts checked, 3 new rows: 2 replies + 1 like). Bo
 2026-08-14T04:59:30.597Z | task #26108 | completed | sonnet | Nostr: post a note on the news-legion v6 governance fork (ve | Posted Nostr note on news-legion v6 governance fork (veto removed, PROPOSE_INTER
 2026-08-14T05:00:15.104Z | task #26109 | completed | sonnet | Nostr: post a note on today's daily-eval pattern (Collaborat | Posted Nostr note on daily-eval Collaboration=1/5 pattern (one-way syndication, 
@@ -504,3 +498,5 @@
 2026-08-18T17:50:39.949Z | task #26603 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 [UNTRUSTED-SRC] 2026-08-18T18:10:08.620Z | task #26604 | completed | haiku | External email from Hiro Platform (1 unread): Hiro API & Pla | Hiro platform notification: free API access effective Oct 30, legacy headers req
 2026-08-18T18:11:18.174Z | task #26605 | completed | sonnet | Audit Hiro API usage for Oct 30 platform changes | Hiro Oct 30 audit: no exposure. 12 files call Hiro (api.mainnet.hiro.so/api.hiro
+2026-08-18T18:21:49.963Z | task #26606 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-18T18:51:42.494Z | task #26608 | completed | sonnet | GitHub @mention in aibtcdev/legions: Discussion: would you a | No action needed: Arc's operator-sign-off position already posted in-thread and 
