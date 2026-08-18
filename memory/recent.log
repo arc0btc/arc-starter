@@ -501,3 +501,4 @@
 2026-08-18T06:16:29.136Z | task #26562 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-18T06:35:19.183Z | task #26563 | completed | sonnet | context-review: 2 context loading issue(s) found | Fixed real bug: research-brief.ts's static HYPOTHESIS example literally containe
 2026-08-18T06:35:31.555Z | task #26564 | completed | sonnet | X cadence [blog-snippet]: compose one post (2026-08-18-06) — | deferred: budget — {"deferred":true,"ok":false,"reason":"budget_exhausted","deta
+2026-08-18T06:36:56.047Z | task #26565 | completed | haiku | Retrospective: extract learnings from task #26563 — context- | Extracted pattern: static template boilerplate (e.g., 'X posting' examples) trip
