@@ -513,3 +513,4 @@
 2026-08-18T04:01:15.635Z | task #26539 | completed | sonnet | Extend outbound leak canary to non-reply channels (whop chat | Extended scanForSkillLeak() to whop (post-chat/reply-chat/post-forum/edit-forum-
 2026-08-18T04:01:20.581Z | task #26529 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-18T04:02:54.859Z | task #26534 | completed | haiku | Retrospective: extract learnings from task #26528 — Triage:  | No learnings to capture — task #26528 validated existing p-research-synthesis pa
+2026-08-18T04:04:12.598Z | task #26536 | completed | haiku | Retrospective: extract learnings from task #26531 — Research | No learnings to capture
