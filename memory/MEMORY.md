@@ -81,6 +81,7 @@
 - Cost benchmarks: code-change tasks ~$1.78 each (outlier); standard ops ~$0.30 avg; mixed-night avg ~$0.35/task; content-heavy nights ~$0.48/task. Use task-type breakdown, not raw avg.
 - `arc status` tracks cache_hit_rate + cost/accepted-change for capacity planning.
 - Meta-work ratio: `arc-skill-manager` retrospectives are #1 cost skill (~$13.50/29 tasks/day, all sonnet, 100% sensor-driven). 3 of 4 task types (memory/patterns/recent.log consolidation) need judgment — sonnet is correct. 1 (export-pattern-fix, sensor.ts:313) is mechanical, no `--model auto` yet — filed #23747.
+- SKILL.md black-box extraction (arXiv 2604.21829): SKILL.md is extractable via reply channel to untrusted input; AGENT.md-not-in-orchestrator (src/dispatch.ts:245-253) is the existing mitigation, outbound leak canary filed #26535. See [[skillmd-black-box-extraction-exposure]].
 - `github-release-watcher` cost leak [FIXED 2026-07-17, #22982]: `anthropics/anthropic-sdk-typescript` is a monorepo tagging unrelated sub-packages Arc doesn't use; `/releases/latest` surfaced whichever tagged most recently, spawning a full sonnet assess+retrospective pair per release since Feb 2026, zero integrations. Cost-audit process: query `db/arc.sqlite` (real path, `src/db.ts`'s `DB_DIR/arc.sqlite` — `db/tasks.db`/`db/arc.db` are 0-byte stale placeholders) grouped by `skills`+`model` and `source` prefix to find recurring high-volume/high-cost sensor sources.
 
 ---
