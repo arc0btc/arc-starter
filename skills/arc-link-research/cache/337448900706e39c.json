@@ -1,0 +1,11 @@
+{
+  "url": "https://t.co/nCcbqKV2JQ",
+  "fetchedAt": "2026-08-18T03:41:30.343Z",
+  "contentType": "tweet",
+  "title": "@phosphenq: DeepSeek published the models, the harness and the 88-page paper under it, then ...",
+  "rawContent": "Tweet by @phosphenq (Phosphen)\nAuthor bio: Сhoose life\nText: DeepSeek published the models, the harness and the 88-page paper under it, then kept every researcher off camera\n\nThis one talked for 59 minutes, and he explains why your agent gets dumber the longer you run it\n\n19:04 - agents already past the self-improvement line\n20:11 - why an agent wiped its folder\n29:45 - why retrying makes RL models worse\n41:05 - how they measured reasoning collapse\n46:01 - the fix that made training faster\n\nHe co-authored DeepSeek-V2 and published the training methods behind R1\n\nWatch it before it goes the way of the founder's four-hour speech\n\nThe harness guide is below\nCreated: 2026-08-16T11:42:42.000Z\nMetrics: {\"bookmark_count\":1837,\"impression_count\":123048,\"like_count\":1113,\"quote_count\":5,\"reply_count\":17,\"retweet_count\":143}",
+  "embeddedUrls": [
+    "https://t.co/nCcbqKV2JQ",
+    "https://t.co/JEeKk3MRKU"
+  ]
+}
