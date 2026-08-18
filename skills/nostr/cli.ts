@@ -18,6 +18,7 @@
 import { resolve } from "path";
 import { getCredential } from "../../src/credentials.ts";
 import { fetchEngagement } from "./engagement.ts";
+import { scanForSkillLeak } from "../social-engine/leak-canary.ts";
 
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const RUNNER = resolve(import.meta.dir, "nostr-runner.ts");
@@ -109,6 +110,16 @@ async function cmdPost(args: string[]): Promise<void> {
     process.exit(1);
   }
   if (await dedupSkip(source)) return; // exactly-once short-circuit, before unlock/publish
+
+  // ── leak canary: block verbatim/near-verbatim SKILL.md/AGENT.md recovery ──
+  // (arXiv 2604.21829 black-box extraction defense-in-depth; see leak-canary.ts.
+  // Extends the reply-lane canary, task #26535, to the nostr post lane.)
+  const leakScan = scanForSkillLeak(content);
+  if (leakScan.leaked) {
+    log(`leak-canary: blocked post — matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile}`);
+    process.stderr.write(`blocked: skillmd_leak_detected (matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile})\n`);
+    process.exit(1);
+  }
 
   const runnerArgs = ["post", "--content", content];
   if (tags) runnerArgs.push("--tags", tags);

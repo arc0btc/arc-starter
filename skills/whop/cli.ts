@@ -14,6 +14,17 @@ import { parseFlags } from "../../src/utils.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { whopClient } from "./lib/whop-api.ts";
 import { PAID_ROOM_AFFILIATE } from "../../src/constants.ts";
+import { scanForSkillLeak } from "../social-engine/leak-canary.ts";
+
+// ── leak canary: block verbatim/near-verbatim SKILL.md/AGENT.md recovery ──
+// (arXiv 2604.21829 black-box extraction defense-in-depth; see leak-canary.ts.
+// Extends the reply-lane canary, task #26535, to whop chat/forum send sites.)
+function guardLeak(text: string): void {
+  const leakScan = scanForSkillLeak(text);
+  if (leakScan.leaked) {
+    fail(`leak-canary: blocked — matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile}`);
+  }
+}
 
 // Every Whop call routes through @whop/sdk (version-pinned in package.json) via
 // whopClient(); there is no hand-rolled REST left. Keys are still resolved from
@@ -298,6 +309,7 @@ async function cmdPostChat(apiKey: string, flags: Record<string, string>): Promi
   // or a chat_feed_xxx feed id. source is also sent as the SDK idempotencyKey
   // (correct header, but currently ignored by Whop — see whopPostLog note).
   if (await dedupSkip(flags.source)) return;
+  guardLeak(content);
   const message = await whopClient(apiKey).messages.create(
     { channel_id: channel, content },
     flags.source ? { idempotencyKey: flags.source } : undefined,
@@ -313,6 +325,7 @@ async function cmdReplyChat(apiKey: string, flags: Record<string, string>): Prom
   const channel = flags.channel ?? (await getCredential("whop", "chat_channel_id"));
   if (!channel) fail("reply-chat requires --channel (or set creds key chat_channel_id)");
   if (await dedupSkip(flags.source)) return;
+  guardLeak(content);
   const message = await whopClient(apiKey).messages.create(
     { channel_id: channel, content, replying_to_message_id: flags.to },
     flags.source ? { idempotencyKey: flags.source } : undefined,
@@ -349,6 +362,7 @@ async function cmdPostForum(apiKey: string, flags: Record<string, string>): Prom
   // the same --source dedup as post-chat (local-ledger short-circuit before any
   // API call; see whopPostLog note for the guarantee's exact scope).
   if (await dedupSkip(flags.source)) return;
+  guardLeak(flags.content);
   const post = await whopClient(apiKey).forumPosts.create({
     experience_id: flags.experience,
     content: flags.content,
@@ -366,6 +380,7 @@ async function cmdEditForumPost(apiKey: string, flags: Record<string, string>): 
   if (!flags.content) fail("edit-forum-post requires --content <markdown>");
   // forumPosts.update — the soft-delete path: forum posts have NO delete method on
   // the SDK (confirmed P1), so blanking content via PATCH stays the withdrawal path.
+  guardLeak(flags.content);
   const post = await whopClient(apiKey).forumPosts.update(flags.id, {
     content: flags.content,
     ...(flags.title ? { title: flags.title } : {}),

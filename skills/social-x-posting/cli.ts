@@ -24,6 +24,7 @@ import {
 // this phase's scope to refactor) — `resolveUserId` is a NEW call site that does it right
 // from day one instead of perpetuating the gap.
 import { xApiGet, loadXCreds as loadMeteredXCreds } from "./lib/x-api.ts";
+import { scanForSkillLeak } from "../social-engine/leak-canary.ts";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
@@ -724,6 +725,21 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     return inputText.replace(/&(gt|lt|amp|quot|apos);/g, (_, entity) => htmlEntities[`&${entity};`] || `_${entity}_`);
   };
   const unescapedText = unescapeHtml(text);
+
+  // ── leak canary: block verbatim/near-verbatim SKILL.md/AGENT.md recovery ──
+  // (arXiv 2604.21829 black-box extraction defense-in-depth; see leak-canary.ts.
+  // Extends the reply-lane canary, task #26535, to X root posts. Runs before the
+  // fast-path/legacy-path branch below so it covers both.)
+  const leakScan = scanForSkillLeak(unescapedText);
+  if (leakScan.leaked) {
+    log(`leak-canary: blocked post — matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile}`);
+    console.log(JSON.stringify({
+      skipped: true,
+      reason: "skillmd_leak_detected",
+      detail: `matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile}`,
+    }));
+    process.exit(1);
+  }
 
   // Pay-per-use write tier: a link post costs $0.20 vs $0.015 plain (task #21463).
   const hasLink = postContainsLink(unescapedText);
