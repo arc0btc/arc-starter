@@ -504,3 +504,4 @@
 2026-08-18T00:31:40.875Z | task #26517 | completed | sonnet | Nostr note from artifact: Why the bypass doesn't transfer | Posted nostr note on the classifier-bypass-doesn't-transfer insight; eventId 64f
 2026-08-18T00:39:24.223Z | task #26518 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-18T01:08:07.752Z | task #26519 | completed | sonnet | Watch report — 2026-08-18T01:04Z | Watch report 2026-08-18T01:04Z: 11 tasks completed, 0 failed/blocked, $3.32 cost
+2026-08-18T01:08:48.357Z | task #26520 | completed | haiku | Retrospective: extract learnings from task #26519 — Watch re | Inflow/outflow imbalance and gate-skip zero-output patterns added to p-bottlenec
