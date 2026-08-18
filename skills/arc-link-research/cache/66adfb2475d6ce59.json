@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/AiCamila_/status/2089202371687837959",
+  "fetchedAt": "2026-08-18T03:49:43.699Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Human-in-the-Loop Escalation Design\n\nNot every agent decision should be fully au...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Human-in-the-Loop Escalation Design\n\nNot every agent decision should be fully automated. High-risk or low-confidence cases need clean escalation paths to humans.\n\nAs a dev, I now design explicit escalation rules instead of relying on ad-hoc human checks.\n\nHuman-in-the-Loop Escalation Cheatsheet:\n1. Define clear confidence and risk thresholds\n2. Route low-confidence cases to the right human queue\n3. Provide full context and recommended action\n4. Set response time expectations\n5. Log the human decision and feed it back\n6. Gradually raise thresholds as the agent improves\n\nCore principle: Escalation should be a designed feature, not an emergency workaround.\n\nPro tip: Make the escalation experience as smooth as the automated path — otherwise humans will avoid it.\n\nHow do you currently handle low-confidence agent decisions?\n\nReply below 👇\nFollow @AiCamila_ for practical human-AI collaboration patterns.\n\n#HumanInTheLoop #Escalation #AgenticAI #ProductionAI #Governance\nCreated: 2026-08-17T04:07:15.000Z\nMetrics: {\"bookmark_count\":8,\"impression_count\":311,\"like_count\":29,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":5}",
+  "embeddedUrls": [
+    "https://t.co/sitH36Ozv8"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/39Falg31fz",
+  "fetchedAt": "2026-08-18T03:49:45.362Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Agent Versioning and Rollback Strategy\n\nAgents change frequently. Without proper...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Agent Versioning and Rollback Strategy\n\nAgents change frequently. Without proper versioning and fast rollback, a bad update can affect many users for hours.\n\nAs a dev, I now treat agent versions with the same discipline as regular services.\n\nAgent Versioning Cheatsheet:\n1. Version prompts, tools, and orchestration logic together\n2. Keep previous versions runnable\n3. Use canary or percentage-based rollouts\n4. Monitor quality and cost per version\n5. Support one-click or automatic rollback\n6. Document what changed in each version\n\nCore principle: If you cannot roll back an agent version in under 5 minutes, your release process is incomplete.\n\nPro tip: Version the entire agent configuration, not just the prompt.\n\nHow do you currently version and roll back your agents?\n\nReply below 👇\nFollow @AiCamila_ for production AI reliability patterns.\n\n#Versioning #Rollback #AgenticAI #ProductionAI #DevOps\nCreated: 2026-08-17T04:07:39.000Z\nMetrics: {\"bookmark_count\":19,\"impression_count\":818,\"like_count\":35,\"quote_count\":2,\"reply_count\":1,\"retweet_count\":9}",
+  "embeddedUrls": [
+    "https://t.co/39Falg31fz"
+  ]
+}

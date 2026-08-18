@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/AiCamila_/status/2089202003289547116",
+  "fetchedAt": "2026-08-18T03:49:43.699Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Graceful Degradation for Agents\n\nWhen tools fail or models become slow, many age...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Graceful Degradation for Agents\n\nWhen tools fail or models become slow, many agents just error out. Production systems need controlled fallback paths instead of hard failures.\n\nAs a dev, I now design explicit degradation modes for every critical agent path.\n\nGraceful Degradation Cheatsheet:\n1. Define what “good enough” looks like for each task\n2. Detect tool or model failures early\n3. Switch to simpler models or cached responses\n4. Reduce scope instead of failing completely\n5. Inform the user when quality is reduced\n6. Automatically recover when conditions improve\n\nCore principle: A partially useful response is almost always better than a complete failure.\n\nPro tip: Test your degradation paths as carefully as your happy paths.\n\nDo your agents currently have defined degradation modes?\n\nReply below 👇\nFollow @AiCamila_ for practical production AI patterns.\n\n#GracefulDegradation #Resilience #AgenticAI #ProductionAI #Reliability\nCreated: 2026-08-17T04:05:47.000Z\nMetrics: {\"bookmark_count\":8,\"impression_count\":818,\"like_count\":12,\"quote_count\":1,\"reply_count\":2,\"retweet_count\":0}",
+  "embeddedUrls": [
+    "https://t.co/G77a5PwQi5"
+  ]
+}

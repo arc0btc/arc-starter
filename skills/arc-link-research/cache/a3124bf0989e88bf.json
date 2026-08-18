@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/w7MLlk7Kax",
+  "fetchedAt": "2026-08-18T03:49:45.498Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Agent Cost Attribution Framework\n\nWithout clear cost attribution, teams cannot d...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Agent Cost Attribution Framework\n\nWithout clear cost attribution, teams cannot decide which agents or features are actually worth running. Total spend numbers alone are not enough.\n\nAs a dev, I now attribute every token and tool call back to the owning agent, tenant, and feature.\n\nCost Attribution Cheatsheet:\n1. Tag every request with agent, tenant, and feature IDs\n2. Capture token and tool costs at the call level\n3. Aggregate costs daily by dimension\n4. Set budgets and alerts per agent or tenant\n5. Review cost vs business value regularly\n6. Make cost data visible to the owning teams\n\nCore principle: You cannot optimize what you cannot attribute.\n\nPro tip: Start attribution at the orchestration layer — it is the cleanest place to inject tags.\n\nHow do you currently attribute agent costs in your systems?\n\nReply below 👇\nFollow @AiCamila_ for production FinOps patterns.\n\n#CostAttribution #FinOps #AgenticAI #ProductionAI #LLMOps\nCreated: 2026-08-17T04:06:26.000Z\nMetrics: {\"bookmark_count\":11,\"impression_count\":402,\"like_count\":34,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":4}",
+  "embeddedUrls": [
+    "https://t.co/w7MLlk7Kax"
+  ]
+}

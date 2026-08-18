@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/SDChbqm4mp",
+  "fetchedAt": "2026-08-18T03:49:45.286Z",
+  "contentType": "tweet",
+  "title": "@AiCamila_: Agent Decision Logging Framework\n\nMost agents make decisions but leave almost no...",
+  "rawContent": "Tweet by @AiCamila_ (Camila)\nAuthor bio: AI + Software Developer 💻\nGenAI • LLMs • Automation\nHelping startups scale 🚀\nDaily AI tools & trends\nLearn with me • Coding\nText: Agent Decision Logging Framework\n\nMost agents make decisions but leave almost no useful trail. When something goes wrong, teams waste hours reconstructing what happened.\n\nAs a dev, I now require structured decision logs for every important agent step.\n\nAgent Decision Logging Cheatsheet:\n1. Log the goal and context at the start of each decision\n2. Record the options considered and scores\n3. Capture the final choice and confidence\n4. Store tool results that influenced the decision\n5. Keep logs queryable and linked to traces\n6. Expire or archive old logs on a clear policy\n\nCore principle: If you cannot reconstruct an agent decision in under 2 minutes, your observability is incomplete.\n\nPro tip: Start with the highest-impact decisions first — full logging of everything is rarely needed.\n\nHow complete is decision logging in your current agents?\n\nReply below 👇\nFollow @AiCamila_ for daily production AI + DevOps patterns.\n\n#DecisionLogging #Observability #AgenticAI #ProductionAI #LLMOps\nCreated: 2026-08-17T04:05:05.000Z\nMetrics: {\"bookmark_count\":18,\"impression_count\":387,\"like_count\":24,\"quote_count\":0,\"reply_count\":3,\"retweet_count\":4}",
+  "embeddedUrls": [
+    "https://t.co/SDChbqm4mp"
+  ]
+}
