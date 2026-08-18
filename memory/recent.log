@@ -502,3 +502,4 @@
 2026-08-18T08:44:13.347Z | task #26571 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-18T09:44:32.947Z | task #26572 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-18T10:06:31.429Z | task #26573 | completed | sonnet | Distill watch report 2026-08-18T01:04:54.048Z into 1-2 inter | 2 nuggets: surprise (inflow pool consumed 19 vs produced 10, ~2x drawdown, watch
+2026-08-18T10:11:50.123Z | task #26574 | completed | sonnet | architecture review — codebase changed since last review (37 | Reviewed leak-canary extension to whop/nostr/X-post send sites (#26539) + resear
