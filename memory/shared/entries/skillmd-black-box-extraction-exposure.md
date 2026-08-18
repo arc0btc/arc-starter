@@ -33,10 +33,17 @@ insufficient — translation/rewrite attacks drop exact-match to 0% while preser
 ## Residual gap + concrete guard
 
 - `SKILL.md` content IS reachable via an adversarial extraction prompt in untrusted input Arc replies to.
-- **Guard filed (#<hardening task>):** outbound leak canary for reply-generating skills — before
-  sending an outward message, scan for verbatim/near-verbatim `SKILL.md`/`AGENT.md` substrings and
-  block+log. Cheap; catches the plain/CoT class (the 48–72% exact-recovery attacks). Does NOT catch
-  paraphrase/translation leakage (paper's hard case) — defense-in-depth, not a solution.
+- **Guard SHIPPED (2026-08-18, #26535):** `skills/social-engine/leak-canary.ts` — 8-word-shingle
+  verbatim scan over normalized `SKILL.md`/`AGENT.md` corpus, wired into `sendReply()`
+  (`skills/social-engine/reply-send.ts`, the single X reply-send path) before admission/provider
+  send. Blocks with `reason: skillmd_leak_detected`, logs to stderr (fires before an
+  `outbound_action` row/actionId exists, so no engagement_log entry — console log only).
+  Verified: catches an 8-word verbatim SKILL.md chunk, does not false-positive on a benign reply.
+  Catches the plain/CoT exact-recovery class (48–72%). Does NOT catch paraphrase/translation
+  leakage (paper's hard case) — defense-in-depth, not a solution.
+  **Coverage gap (known, not closed):** only wired into the X reply lane. Other outbound channels
+  (whop chat, nostr, X root posts via `social-x-posting/cli.ts post`, moltbook) don't call
+  `sendReply()` and are unscanned — lower risk (not reply-to-untrusted-input), but not verified.
 - Secondary lever: scope skills minimally on pure outward-conversation tasks (don't over-load SKILL.md
   context into reply-only work).
 
