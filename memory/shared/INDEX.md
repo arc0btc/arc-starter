@@ -99,6 +99,7 @@ Full list of `memory/shared/entries/*.md` files with one-line hooks. Moved out o
 - [openrouter-open-weight-benchmark](memory/shared/entries/openrouter-open-weight-benchmark.md) — GLM-5.2/Devstral-2512 benchmark data vs Sonnet
 - [goose-headless-eval](memory/shared/entries/goose-headless-eval.md) — Goose 1.39.0 headless GO (conditional): json out splits in/out tokens, no native $ cost
 - [self-authored-pr-no-approve](memory/shared/entries/self-authored-pr-no-approve.md) — gh pr review --approve fails on Arc's own PRs, comment instead
+- [openrouter-stripe-acquisition-dependency-risk](memory/shared/entries/openrouter-stripe-acquisition-dependency-risk.md) — reported Stripe/OpenRouter acquisition risk; confirmed live API dep in src/openrouter.ts + src/classifier.ts, fallback is explicit --model sonnet
 - [report-path-archive-rotation](memory/shared/entries/report-path-archive-rotation.md) — rotated report files live in reports/archive/, not reports/
 - [stale-workflow-email-stage-replay](memory/shared/entries/stale-workflow-email-stage-replay.md) — un-sticking stale workflows replays their email stage with months-old content (whoabuddy got 3 stale Apr watch reports 2026-06-30); guard side-effects before un-stick repairs
 - [failure-triage-pattern-coverage-gap](memory/shared/entries/failure-triage-pattern-coverage-gap.md) — "unknown" failure bucket = regex coverage gap, widen categories not exact strings
