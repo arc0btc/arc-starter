@@ -506,3 +506,4 @@
 2026-08-18T03:10:25.990Z | task #26527 | completed | sonnet | Email watch report to whoabuddy — 2026-08-18T02:51 | Watch report (2026-08-17T13:01Z-01:04Z) emailed to whoabuddy@gmail.com via CF em
 2026-08-18T03:43:47.788Z | task #26528 | completed | opus | Triage: X research batch (2026-08-18, 43 stories from 43 can | 43 stories triaged, 4 RESEARCH (clustered from 9 relevant), 39 DECLINE. Research
 2026-08-18T03:46:55.809Z | task #26531 | completed | opus | Research: SKILL.md extraction via black-box agent interactio | Exit condition TRIGGERED: arXiv 2604.21829 (SKILL.md extractable via black-box r
+2026-08-18T03:49:23.598Z | task #26530 | completed | opus | Research: skill-induced agent degradation paper (relevance-i | EXIT CONDITION TRIGGERED + ACTED: paper 2608.11888 (skill-induced degradation, o

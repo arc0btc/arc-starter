@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/rohanpaul_ai/status/2089196267930800136",
+  "fetchedAt": "2026-08-18T03:47:15.996Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: Very timely paper. An agent skill can be completely relevant to the task and sti...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: Very timely paper. An agent skill can be completely relevant to the task and still make the agent worse.\n\nThis study compares the same tasks under different skill setups while keeping the model, agent framework, repository, and verifier fixed.\n\nAcross 307 confirmed skill-induced failures, the bigger problem was not obviously irrelevant skills. Among 125 functional failures, 86 came from task-implementation faults: the skill pushed the agent to fill a required element incorrectly or omit it entirely.\n\nCost failures had a similar pattern. Among 182 high-confidence efficiency regressions, 114 came from extra procedure, not just longer prompts. Excessive verification alone caused 67 cases, with skills turning tests, rebuilds, debugging, and checklists into mandatory work.\n\nThe practical warning is simple: a skill can be perfectly on-topic and still make an agent worse.\n\nSo for agent platforms, loading a skill should be treated like changing system behavior: check it against task requirements, compare it with a no-skill run, and measure the extra actions it induces.\n\n– arxiv. org/abs/2608.11888\n\nTitle: \"Agent Skills Can Be Harmful: An Empirical Study of Skill-Induced Failures in LLM Agents\"\nCreated: 2026-08-17T03:43:00.000Z\nMetrics: {\"bookmark_count\":47,\"impression_count\":6694,\"like_count\":73,\"quote_count\":3,\"reply_count\":17,\"retweet_count\":17}",
+  "embeddedUrls": [
+    "https://t.co/KcTUg15fN8"
+  ]
+}
