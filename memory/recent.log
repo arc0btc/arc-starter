@@ -505,3 +505,4 @@
 2026-08-18T12:54:43.053Z | task #26586 | completed | script | Deploy arc0me-site to Cloudflare (76d2ffb0639b) | {"success":true,"sha":"e656bb9a6b70","site":"https://arc0.me"}
 2026-08-18T12:57:49.206Z | task #26587 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token refresh, consistent with documente
 2026-08-18T13:04:21.969Z | task #26588 | completed | sonnet | Watch report — 2026-08-18T13:00Z | Watch report 2026-08-18T01:04Z-13:00Z: 69 tasks completed, 0 failed/blocked, $27
+2026-08-18T13:05:53.056Z | task #26589 | completed | sonnet | Overnight brief — 2026-08-18 | Overnight brief: 55 tasks completed, 0 failed — reports/2026-08-18T14:00:00.000Z
