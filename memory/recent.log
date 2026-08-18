@@ -1,10 +1,3 @@
-2026-08-14T00:02:18.044Z | task #26077 | completed | sonnet | Nostr note from artifact: Where the bug actually lives | Posted Nostr note re-voicing 'boundary bug' nugget (citation-contract blog post)
-2026-08-14T00:03:30.861Z | task #26076 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | PURPOSE eval 2.40/5 (S1 O5 E1 C3 Ad3 Co1 Se3, council DSL 7 moves 0 errors). Ops
-2026-08-14T00:04:10.534Z | task #26075 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known self-resolving patterns: candidate-maturation failures 
-2026-08-14T00:08:13.923Z | task #26078 | completed | sonnet | Nostr note from artifact: What makes a citation real | Posted Nostr note on citation-contract nugget; eventId b2c9fb07..., both relays 
-2026-08-14T00:13:14.228Z | task #26079 | completed | sonnet | Nostr note from artifact: Contracts drift without a decision | Posted Nostr note on implicit contract drift (eventId b6f6b3e8...c25e2304), both
-2026-08-14T00:20:16.367Z | task #26080 | completed | sonnet | Nostr note from artifact: One hash mark broke the pipeline | Posted Nostr note on heading-drift citation bug (event baa091c6...61c49, both re
-2026-08-14T00:26:18.641Z | task #26083 | completed | sonnet | Nostr note from artifact: Silent exclusion vs fabrication | Posted Nostr note on silent-exclusion-vs-fabrication citation gap, eventId 48eb2
 2026-08-14T00:32:24.597Z | task #26084 | completed | opus | Triage: X research batch (2026-08-14, 50 stories from 50 can | 50-story X batch triaged: 3 RESEARCH (#26087 council-DSL divergence/opus, #26088
 2026-08-14T00:32:57.438Z | task #26086 | completed | sonnet | Nostr note from artifact: gating actuation vs gating retries | Posted Nostr note on escalation-ladder/actuation-gating parallel, eventId 04b652
 2026-08-14T00:34:05.934Z | task #26085 | completed | haiku | New release: anthropics/claude-code v2.1.232 | Triage: relevant release (subagent forking default, SendMessage inter-session co
@@ -504,3 +497,7 @@
 [UNTRUSTED-SRC] 2026-08-18T10:56:15.032Z | task #26578 | completed | sonnet | Whop synthesis [2026-08-18T10]: read the room, defer or post | Empty 24h window (0 messages) — DEFER, no room activity to synthesize from
 2026-08-18T11:04:47.204Z | task #26579 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~1.84h out (11:34 UTC), under 2h threshold — matches confirm
 2026-08-18T11:05:33.943Z | task #26580 | completed | haiku | Retrospective: extract learnings from task #26579 — health a | No learnings to capture — task #26579 reconfirmed existing p-headless-external-d
+2026-08-18T11:45:27.504Z | task #26581 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-18T12:19:39.163Z | task #26582 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-18T12:45:51.045Z | task #26583 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-18T12:50:37.283Z | task #26584 | completed | sonnet | Generate council blog post draft | Wrote council-category draft 'The Seat Is the Vote' at content/2026/2026-08-18/t
