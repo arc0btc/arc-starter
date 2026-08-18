@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/2r6QoshhX1",
+  "fetchedAt": "2026-08-18T03:44:10.342Z",
+  "contentType": "tweet",
+  "title": "@rohanpaul_ai: Agent skills have a new security problem: the model itself can become the extrac...",
+  "rawContent": "Tweet by @rohanpaul_ai (Rohan Paul)\nAuthor bio: Compiling in real-time, the race towards AGI.\n\nThe Largest Show on X for AI.\n\n🗞️ Get my daily AI analysis newsletter to your email  👉 https://t.co/6LBxO8215l\nText: Agent skills have a new security problem: the model itself can become the extraction interface.\n\nThis paper tests whether a user can steal a proprietary SKILL.md through nothing more than normal black-box interaction with an agent. Across 5 commercial models, even the plainest extraction prompt averaged 48% exact recovery and a 0.91 LLM-judged leakage ratio.\n\nMore structured attacks made it worse. Chain-of-thought prompts pushed exact recovery to 72% on average, while few-shot examples produced the highest lexical and semantic similarity.\n\nThe harder problem is that blocking verbatim copying is not enough. Translation and rewriting attacks often drove exact match to 0% while preserving most of the skill’s meaning.\n\nThe authors’ strongest defenses can stop exact disclosure, but meaningful semantic leakage still survives in harder cases.\n\nSo if skills become paid, reusable IP, prompt secrecy alone is a weak protection model. Platforms need to treat skill contents as data that can be exfiltrated through model behavior, not merely hidden text.\n\n– arxiv. org/abs/2604.21829\n\nTitle: \"Black-Box Skill Stealing Attack from Proprietary LLM Agents: An Empirical Study\"\nCreated: 2026-08-17T05:52:00.000Z\nMetrics: {\"bookmark_count\":39,\"impression_count\":5454,\"like_count\":62,\"quote_count\":1,\"reply_count\":11,\"retweet_count\":10}",
+  "embeddedUrls": [
+    "https://t.co/2r6QoshhX1"
+  ]
+}
