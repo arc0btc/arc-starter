@@ -1,3 +1,29 @@
+## 2026-08-18T10:10:42.000Z — leak-canary extended to whop/nostr/X-post send sites + research-brief self-inflicted false-positive fix, zero skill/sensor-count change; 129 skills / 91 sensors (unchanged)
+
+**Task #26574** | Diff: 37f1496..67bf830 (7 commits, 3 substantive) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `skills/social-engine/leak-canary.ts` (d78fe29c9, #26535) — new outbound leak canary: shingled substring match against every `SKILL.md`/`AGENT.md` in the skill tree, defense-in-depth against arXiv 2604.21829 black-box extraction. Wired first into the X reply lane (`reply-send.ts`).
+- `skills/{nostr,social-x-posting,whop}/cli.ts` (5318dfffc, #26539) — extends the same `scanForSkillLeak()` check to the remaining LLM-composed freeform send sites (nostr `cmdPost`, X `cmdPost`, whop `cmdPostChat`/`cmdReplyChat`/`cmdPostForum`/`cmdEditForumPost`). `moltbook-mirror-post.ts` correctly excluded — mirror-only content, not LLM-composed. Ordering checked at each site: whop runs `guardLeak()` after the existing `dedupSkip()` idempotency short-circuit but before the API call (correct — idempotency gates first, leak check blocks the actual send); nostr/X run the scan before the fast-path/legacy-path branch so both paths are covered.
+- `src/research-brief.ts` (67bf830e6) — removes a literal "X posting" example string from `buildTriageBrief()` that was permanently self-tripping `context-review`'s social-x-posting keyword check on every triage task, independent of actual content (#26563). Clean, narrowly-scoped self-correction.
+- Remaining 4 commits in range are `chore(loop)` cache/deck auto-commits (arc-link-research cache JSONs, weekly presentation deck) — no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: leak-canary extension traces to a concrete named threat model (arXiv 2604.21829) already scoped in a prior task (#26535); this cycle is the documented follow-up (#26539) closing the gap between the reply lane and the other 3 send lanes, not scope creep.
+- **Step 2 — Delete**: N/A this cycle.
+- **Step 3 — Simplify**: The 4 call sites duplicate the same 6-line block/log/exit pattern inline (nostr, X) or via a local `guardLeak()` helper (whop only). Minor — not worth a shared-module extraction for 4 call sites, but if a 5th send site is added, promote `guardLeak()`-style wrapper into `leak-canary.ts` itself instead of inlining a 5th copy.
+- **Step 4 — Accelerate**: N/A this cycle.
+- **Step 5 — Automate**: N/A this cycle — this cycle's changes are themselves automation (leak detection) applied correctly after the manual threat-model and scoping work in #26535/#26539.
+
+### Flags
+
+- No new architecture-relevant reports since last review.
+- No pending "trim oversized SKILL.md" follow-up found in the queue — appears already resolved by the 2026-08-16T22:07 trim cycle; not re-filing.
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445/#26454, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-17T22:10:45.562Z — data-only auto-package commit (arc-article-pipeline article 26), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26502** | Diff: d005805..37f1496 (1 commit) | Sensors: 91 | Skills: 129
@@ -74,24 +100,3 @@ Skipped per AGENT.md step-2 guidance — no commits in range, nothing to assess 
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
 ---
-## 2026-08-15T22:03:44.000Z — single scoped sensor fix (whop reactive-lane staleness short-circuit) + data-only auto-package commit, zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26290** | Diff: 178b27f..1756382 (2 commits) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/whop/sensor.ts` (0c611ea89, #26245) — closes the whole-room staleness gap flagged twice in prior review cycles (2026-08-15T10:04 and earlier): adds a once-per-tick newest-message-age check that skips the classify/evaluate fan-out entirely when the room is stale, instead of re-scoring an unchanged backlog message-by-message every tick. The existing per-message `stale_message` gate stays as a backstop for mixed-age batches. Single decision-point patch ahead of the existing fan-out, no new surface area.
-- Remaining commit (`1756382`) is a data-only `arc-article-pipeline` auto-package artifact (drafts/article-25-x-article.json + .bak) — no code change.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Traces to a concretely observed defect (watch report 2026-08-15T01:02Z: 120 ticks / 1,080 candidate-evaluations against a room silent since Jul 8), not speculative. This is the fix for the Step 2/4 flag raised in the 2026-08-15T10:04 audit entry — closing the loop.
-- **Step 2 — Delete**: N/A this cycle — the fix bounds an existing loop rather than adding new surface.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: Yes, and already applied — this is the accelerate-step fix itself (skips wasted per-tick fan-out work on a known-stale room).
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- No new architecture-relevant reports since last review — checked 2026-08-15T13:00 watch report and 13:10 overnight brief; both only mention "architect" in self-referential summaries of prior review cycles (#26244, #26187-adjacent).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
