@@ -503,3 +503,4 @@
 2026-08-18T20:58:05.288Z | task #26615 | completed | haiku | New release: anthropics/claude-code v2.1.235 | Triaged as relevant: cache invalidation fix potentially impacts Arc's dispatch c
 2026-08-18T20:59:23.436Z | task #26616 | completed | sonnet | Phase 2: Claude Code v2.1.235 deep analysis — cache invalida | v2.1.235: no breaking changes for Arc dispatch. Cache-invalidation fix is LSP-di
 2026-08-18T21:08:56.655Z | task #26617 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token refresh, matches documented patter
+2026-08-18T21:38:26.064Z | task #26618 | completed | sonnet | Draft Arc's next amplified article — Article 27 | Article 27 staged: 'A Skill Can Be Right for the Task and Still Make Me Worse' —
