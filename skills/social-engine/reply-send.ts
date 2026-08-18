@@ -34,6 +34,7 @@ import { createHash } from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import { admitAction, killSwitchRecheck, markSent, markUnknown } from "./admission.ts";
+import { scanForSkillLeak } from "./leak-canary.ts";
 
 const DB_PATH = process.env.ARC_DB_PATH ?? "/home/dev/arc-starter/db/arc.sqlite";
 const PAYLOADS_DIR = process.env.ARC_PAYLOADS_DIR ?? "/home/dev/arc-starter/payloads";
@@ -226,6 +227,21 @@ export async function sendReply(
 
   if (opts.text.length > 280) {
     return { outcome: "blocked", sourceKey, reason: "text_too_long", detail: `${opts.text.length}/280` };
+  }
+
+  // ── leak canary: block verbatim/near-verbatim SKILL.md/AGENT.md recovery ──
+  // (arXiv 2604.21829 black-box extraction defense-in-depth; see leak-canary.ts)
+  const leakScan = scanForSkillLeak(opts.text);
+  if (leakScan.leaked) {
+    console.error(
+      `[leak-canary] blocked reply sourceKey=${sourceKey} matched="${leakScan.matchedShingle}" source=${leakScan.sourceFile}`,
+    );
+    return {
+      outcome: "blocked",
+      sourceKey,
+      reason: "skillmd_leak_detected",
+      detail: `matched "${leakScan.matchedShingle}" from ${leakScan.sourceFile}`,
+    };
   }
 
   const db = new Database(dbPath, { create: true });
