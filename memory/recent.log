@@ -508,3 +508,4 @@
 2026-08-18T03:46:55.809Z | task #26531 | completed | opus | Research: SKILL.md extraction via black-box agent interactio | Exit condition TRIGGERED: arXiv 2604.21829 (SKILL.md extractable via black-box r
 2026-08-18T03:49:23.598Z | task #26530 | completed | opus | Research: skill-induced agent degradation paper (relevance-i | EXIT CONDITION TRIGGERED + ACTED: paper 2608.11888 (skill-induced degradation, o
 2026-08-18T03:54:57.375Z | task #26532 | completed | opus | Research: agent-ops production cheatsheets (@AiCamila_) vs A | Hypothesis FALSE at discipline level: Arc implements all 5 @AiCamila_ patterns. 
+2026-08-18T03:56:12.154Z | task #26533 | completed | sonnet | Research: Stripe/OpenRouter acquisition — Arc model-routing  | Exit condition triggered: confirmed live OpenRouter API dep (src/openrouter.ts:1
