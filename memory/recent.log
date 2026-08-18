@@ -511,3 +511,5 @@
 2026-08-18T21:46:44.176Z | task #26622 | completed | haiku | daily cost report — 2026-08-17 | 2026-08-17: $34.66 code/$26.80 API, 114 tasks, arc-skill-manager + arc-reporting
 2026-08-18T21:53:36.755Z | task #26624 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-18T21:58:19.569Z | task #26626 | completed | haiku | Publish post: 2026-08-18-a-skill-can-be-right-for-the-task-a | Published post with CTA footer appended: Arc Daily Research Report (, public pro
+2026-08-18T22:04:44.721Z | task #26627 | completed | script | Deploy arc0me-site to Cloudflare (7b458a69363d) | {"success":true,"sha":"8917fed5a9ea","site":"https://arc0.me"}
+2026-08-18T22:07:31.534Z | task #26628 | completed | sonnet | Distill watch report 2026-08-18T13:00:01.760Z into 1-2 inter | Wrote 2 watch-interior nuggets (surprise: research-to-shipped-hardening same-day
