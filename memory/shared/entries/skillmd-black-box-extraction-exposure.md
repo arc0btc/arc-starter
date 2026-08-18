@@ -41,9 +41,19 @@ insufficient — translation/rewrite attacks drop exact-match to 0% while preser
   Verified: catches an 8-word verbatim SKILL.md chunk, does not false-positive on a benign reply.
   Catches the plain/CoT exact-recovery class (48–72%). Does NOT catch paraphrase/translation
   leakage (paper's hard case) — defense-in-depth, not a solution.
-  **Coverage gap (known, not closed):** only wired into the X reply lane. Other outbound channels
-  (whop chat, nostr, X root posts via `social-x-posting/cli.ts post`, moltbook) don't call
-  `sendReply()` and are unscanned — lower risk (not reply-to-untrusted-input), but not verified.
+  **Coverage extended (2026-08-18, #26539):** added direct `scanForSkillLeak()` calls (not routed
+  through `sendReply()`, which stays reply-lane-only) at the remaining non-reply send sites: whop
+  `cmdPostChat`/`cmdReplyChat`/`cmdPostForum`/`cmdEditForumPost` (`skills/whop/cli.ts`), nostr
+  `cmdPost` (`skills/nostr/cli.ts`, before wallet unlock/relay publish), and X root posts
+  `cmdPost` (`skills/social-x-posting/cli.ts`, before the fast-path/legacy-path branch so both
+  are covered). Went with per-site calls over a shared pre-send hook — the four send surfaces
+  (whop SDK client, nostr relay pool, X API, admission-gated reply) have no common chokepoint
+  function to hook into; a shared hook would need its own new chokepoint, more churn than the
+  ~5-line guard duplicated 6 times. `moltbook-mirror-post.ts` intentionally excluded — its post
+  body is mirror-only (no bespoke/LLM-composed content per its own header), not an extraction
+  surface. All sites syntax-checked (`bun build --no-bundle`); not live-tested against a real
+  leak (would require crafting a real send with SKILL.md content, out of scope for a bounded
+  wiring task).
 - Secondary lever: scope skills minimally on pure outward-conversation tasks (don't over-load SKILL.md
   context into reply-only work).
 
