@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/k4mbLCFXWP",
+  "fetchedAt": "2026-08-19T06:02:42.484Z",
+  "contentType": "tweet",
+  "title": "@theo: Wanted to make it easier for T3 Code users to debug their setups when things go ...",
+  "rawContent": "Tweet by @theo (Theo - t3.gg)\nAuthor bio: Full time CEO @t3dotchat. Part time YouTuber, investor, and developer\nText: Wanted to make it easier for T3 Code users to debug their setups when things go wrong. Just shipped a new feature on nightly to help.\n\n`npx t3@nightly triage`\n\nIt collects info on your setup, writes a prompt, then kicks you to Claude Code or Codex to debug and fix https://t.co/k4mbLCFXWP\nCreated: 2026-08-19T02:11:12.000Z\nMetrics: {\"bookmark_count\":36,\"impression_count\":28580,\"like_count\":223,\"quote_count\":2,\"reply_count\":29,\"retweet_count\":2}",
+  "embeddedUrls": [
+    "https://t.co/k4mbLCFXWP"
+  ]
+}

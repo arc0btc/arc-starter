@@ -514,3 +514,5 @@
 2026-08-19T05:22:35.552Z | task #26677 | completed | sonnet | arc-link-research: audit legacy reports missing front-matter | Audit: active research/ catalog is 0/19 legacy (fully front-matter compliant). r
 2026-08-19T05:24:06.997Z | task #26678 | completed | sonnet | arc-link-research: review research/archive for further conso | Found and removed 6 exact-duplicate archive files (md5-identical pairs from the 
 2026-08-19T05:24:40.960Z | task #26679 | completed | sonnet | arc-skill-manager: consolidate patterns.md (152 lines, 2 ove | patterns.md was only 2 lines over 150-threshold with no real duplicate-content t
+2026-08-19T05:58:21.991Z | task #26680 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T06:10:14.036Z | task #26681 | completed | opus | Triage: X research batch (2026-08-19, 50 stories from 50 can | 50-story X batch triaged: 5 RESEARCH fanned out (all with checkable Arc-hypothes

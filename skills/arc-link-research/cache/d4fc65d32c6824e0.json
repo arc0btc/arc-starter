@@ -1,0 +1,10 @@
+{
+  "url": "https://twitter.com/rosmine/status/2089777640412782811",
+  "fetchedAt": "2026-08-19T06:02:40.505Z",
+  "contentType": "tweet",
+  "title": "@rosmine: Announcing Deft, a new AI lab for better writing, cofounded with @jmrphy\n\nSee th...",
+  "rawContent": "Tweet by @rosmine (Rosmine)\nAuthor bio: Independent researcher | AI advisor | Distribution Fine Tuning (DFT) for better LLM writing quality\nText: Announcing Deft, a new AI lab for better writing, cofounded with @jmrphy\n\nSee the picture for launch announcement the Deft model wrote for itself\n\nCurrently, 86% of user queries are fully human according to pangram.\n\nThis is still a small beta model and it might make mistakes. We are launching our public beta now to get more feedback before scaling up.\n\nTips for better performance:\n- Add more details to your prompt. If you just provide a short sentence prompt, it will likely get detected as AI.\n- Try changing the style in \"advanced options\"\n- Deft currently works better for some use cases like Analysis/Essays, Creative writing, and Rewrites. It works less well for Marketing copy and news articles.\n\nOur main goal is better writing, fooling AI detectors is just a side effect.\n\nLink below\nCreated: 2026-08-18T18:13:10.000Z\nMetrics: {\"bookmark_count\":1095,\"impression_count\":290288,\"like_count\":958,\"quote_count\":90,\"reply_count\":97,\"retweet_count\":58}",
+  "embeddedUrls": [
+    "https://t.co/4yp0zrq8uG"
+  ]
+}
