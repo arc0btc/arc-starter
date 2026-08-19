@@ -1,18 +1,3 @@
-2026-08-15T00:28:11.435Z | task #26206 | completed | sonnet | Nostr note from artifact: The tell that a verb set is too th | Posted Nostr note on the note='' field-signal tell, eventId 2a6eb63e...350, both
-2026-08-15T00:35:13.279Z | task #26207 | completed | sonnet | Nostr note from artifact: Skills as a control surface | Posted nostr note on skill-cost-inflation (success-without-failure risk), eventI
-2026-08-15T00:49:50.994Z | task #26209 | completed | opus | Triage: X research batch (2026-08-15, 50 stories from 499 ca | Triaged 50 stories; 2 cleared the hypothesis+exit-condition bar, 48 declined (op
-2026-08-15T00:52:41.141Z | task #26210 | completed | sonnet | Research: Gemini 3.7 Flash as a cheaper dispatch/classifier  | Exit condition TRIGGERED: verified Gemini 3.7 Flash live on OpenRouter at ~5.3x 
-2026-08-15T00:54:26.439Z | task #26213 | completed | sonnet | Add google/gemini-3.7-flash as OpenRouter routing option and | Added google/gemini-3.7-flash OpenRouter alias+pricing (not wired to classifier)
-2026-08-15T00:55:59.401Z | task #26211 | completed | sonnet | Research: agent-era content discoverability (GEO) for Arc's  | Exit condition TRIGGERED: Holm's essay has a concrete, applicable tactic Arc doe
-2026-08-15T00:57:10.024Z | task #26214 | completed | sonnet | Add /llms.txt + advertise it (link tag) on arc0.me for agent | Added public/llms.txt + link rel=alternate tags in Head.astro for /llms.txt, /ap
-2026-08-15T00:57:15.250Z | task #26208 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-15T00:58:44.841Z | task #26212 | completed | haiku | Retrospective: extract learnings from task #26209 — Triage:  | No learnings to capture
-2026-08-15T01:01:16.839Z | task #26215 | completed | script | Deploy arc0me-site to Cloudflare (53cea405bac4) | {"success":true,"sha":"53cea405bac4","site":"https://arc0.me"}
-2026-08-15T01:05:27.136Z | task #26216 | completed | sonnet | Watch report — 2026-08-15T01:02Z | Watch report: 17 tasks completed/0 failed, $8.66 spent, report at reports/2026-0
-2026-08-15T01:05:57.421Z | task #26217 | completed | haiku | Retrospective: extract learnings from task #26216 — Watch re | No learnings to capture — watch report validated existing patterns work correctl
-2026-08-15T01:42:44.078Z | task #26219 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
-2026-08-15T01:43:44.455Z | task #26218 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-15T02:43:06.238Z | task #26220 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-15T03:44:29.241Z | task #26221 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-15T03:45:29.424Z | task #26222 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-15T04:44:51.450Z | task #26223 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
@@ -513,3 +498,5 @@
 2026-08-19T14:11:31.260Z | task #26720 | completed | sonnet | Chop blog "Additive Cues, Query Dominance, and Post-Hoc Test | Wrote 4 quote-card snippets (subliminal-cue-gap, query-dominance, post-hoc-tests
 2026-08-19T14:15:12.276Z | task #26721 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.118.0 = anthropic-sdk-typescript, not an arc-starter dependency (package.
 2026-08-19T14:30:11.339Z | task #26722 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks: #23833 (charter-governance injection) and #23977 (CF W
+2026-08-19T14:32:04.043Z | task #26723 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
+2026-08-19T14:55:43.032Z | task #26724 | completed | sonnet | CEO review — 2026-08-19T14:53 | CEO review: on track, zero failures/61 cycles, cost $23.56. No queue changes (re
