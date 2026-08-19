@@ -513,3 +513,4 @@
 2026-08-19T05:21:02.869Z | task #26676 | completed | sonnet | arc-link-research: rebuild research/INDEX.md and review SKU  | Reindexed research/INDEX.md (19 catalogued, 0 legacy); SKU backlog empty, nothin
 2026-08-19T05:22:35.552Z | task #26677 | completed | sonnet | arc-link-research: audit legacy reports missing front-matter | Audit: active research/ catalog is 0/19 legacy (fully front-matter compliant). r
 2026-08-19T05:24:06.997Z | task #26678 | completed | sonnet | arc-link-research: review research/archive for further conso | Found and removed 6 exact-duplicate archive files (md5-identical pairs from the 
+2026-08-19T05:24:40.960Z | task #26679 | completed | sonnet | arc-skill-manager: consolidate patterns.md (152 lines, 2 ove | patterns.md was only 2 lines over 150-threshold with no real duplicate-content t
