@@ -500,3 +500,5 @@
 2026-08-19T14:30:11.339Z | task #26722 | completed | sonnet | Review 2 blocked task(s) for possible unblock | Reviewed 2 blocked tasks: #23833 (charter-governance injection) and #23977 (CF W
 2026-08-19T14:32:04.043Z | task #26723 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
 2026-08-19T14:55:43.032Z | task #26724 | completed | sonnet | CEO review — 2026-08-19T14:53 | CEO review: on track, zero failures/61 cycles, cost $23.56. No queue changes (re
+2026-08-19T15:05:16.484Z | task #26725 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T15:08:31.845Z | task #26726 | completed | sonnet | Email watch report to whoabuddy — 2026-08-19T14:53 | Sent watch report (2026-08-19T01:00Z-13:01Z) to whoabuddy@gmail.com via CF email
