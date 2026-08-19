@@ -335,6 +335,19 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 
 When a dispatch cycle misbehaves, use these diagnostics to isolate the root cause.
 
+### `arc doctor` — bundled triage snapshot
+
+```bash
+arc doctor                                    # print env + service status + recent cycles
+arc doctor --limit 20 --prompt --out reports/triage.md  # write a handoff prompt for a fresh session
+```
+
+Bundles the pieces below into one artifact: dispatch-relevant env vars (`CLAUDE_CODE_*`,
+`ANTHROPIC_*`, `ARC_*`, secrets redacted), `arc services status`, and the last N `cycle_log`
+rows (duration, cost, skills_loaded, task status/failures). `--prompt` wraps the snapshot as
+a prompt suitable for handing to a fresh Claude Code session for self-diagnosis. Run this
+first before manually walking Safe Mode / env isolation below.
+
 ### Safe Mode
 
 **Problem:** Dispatch cycle behaves unexpectedly. Need to determine if Arc's own CLAUDE.md, skills, hooks, or MCP servers are the cause.

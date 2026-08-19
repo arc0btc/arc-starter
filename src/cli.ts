@@ -901,6 +901,99 @@ async function cmdServices(args: string[]): Promise<void> {
   }
 }
 
+const DOCTOR_ENV_PREFIXES = ["CLAUDE_CODE_", "ANTHROPIC_", "ARC_"];
+const DOCTOR_SENSITIVE_ENV_PATTERN = /PASSWORD|SECRET|TOKEN|KEY|CREDS/i;
+
+/** Buffers writes from a synchronous stdout-writing function instead of printing them. */
+function captureStdout(fn: () => void): string {
+  const original = process.stdout.write.bind(process.stdout);
+  let buf = "";
+  (process.stdout.write as unknown) = (chunk: string | Uint8Array) => {
+    buf += chunk.toString();
+    return true;
+  };
+  try {
+    fn();
+  } finally {
+    process.stdout.write = original;
+  }
+  return buf;
+}
+
+async function cmdDoctor(args: string[]): Promise<void> {
+  const { flags } = parseFlags(args);
+  const cycleLimit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+  const asPrompt = flags["prompt"] !== undefined;
+  const outPath = flags["out"];
+
+  const sections: string[] = [];
+
+  // 1. Dispatch-relevant env vars (values redacted for anything password/secret/token/key/creds-shaped)
+  const envLines = Object.keys(process.env)
+    .filter(k => DOCTOR_ENV_PREFIXES.some(p => k.startsWith(p)))
+    .sort()
+    .map(k => `  ${k}=${DOCTOR_SENSITIVE_ENV_PATTERN.test(k) ? "<redacted>" : process.env[k]}`);
+  sections.push(
+    `## Environment (${DOCTOR_ENV_PREFIXES.join(", ")})\n` +
+      (envLines.length > 0 ? envLines.join("\n") : "  (none set)")
+  );
+
+  // 2. Service state (systemd on Linux, launchd on macOS)
+  const { servicesStatus } = await import("./services.ts");
+  const serviceOutput = captureStdout(() => servicesStatus());
+  sections.push(`## Services\n` + serviceOutput.trimEnd().split("\n").map(l => `  ${l}`).join("\n"));
+
+  // 3. Recent cycle_log rows, joined against task outcome
+  const db = initDatabase();
+  const cycles = db
+    .query(
+      `SELECT c.started_at, c.duration_ms, c.cost_usd, c.skills_loaded, c.model, c.task_id, t.status as task_status, t.subject as task_subject
+       FROM cycle_log c
+       LEFT JOIN tasks t ON t.id = c.task_id
+       ORDER BY c.started_at DESC
+       LIMIT ?`
+    )
+    .all(cycleLimit) as Array<{
+    started_at: string;
+    duration_ms: number | null;
+    cost_usd: number;
+    skills_loaded: string | null;
+    model: string | null;
+    task_id: number | null;
+    task_status: string | null;
+    task_subject: string | null;
+  }>;
+  const failedCount = cycles.filter(c => c.task_status === "failed").length;
+  const cycleLines = cycles.map(c => {
+    const dur = c.duration_ms !== null ? `${c.duration_ms}ms` : "running";
+    const cost = `$${c.cost_usd.toFixed(4)}`;
+    const skills = c.skills_loaded || "-";
+    const status = c.task_status ?? "-";
+    return `  ${c.started_at} task=${c.task_id ?? "-"} status=${status} model=${c.model ?? "-"} dur=${dur} cost=${cost} skills=${skills}`;
+  });
+  sections.push(
+    `## Recent cycles (last ${cycles.length}, ${failedCount} failed)\n` +
+      (cycleLines.length > 0 ? cycleLines.join("\n") : "  (no cycles recorded)")
+  );
+
+  const header = `# arc doctor triage — ${new Date().toISOString()}\n`;
+  const body = header + "\n" + sections.join("\n\n") + "\n";
+
+  const output = asPrompt
+    ? `${body}\n---\nYou are diagnosing an Arc dispatch cycle problem using the triage snapshot above. ` +
+      `Cross-reference it against CLAUDE.md's "Dispatch Troubleshooting" section (Safe Mode: ` +
+      `\`CLAUDE_CODE_SAFE_MODE=1 arc run\` isolates whether the issue is in CLAUDE.md/skills/hooks/MCP vs task logic). ` +
+      `Identify the likely root cause and propose a fix.\n`
+    : body;
+
+  if (outPath) {
+    await Bun.write(outPath, output);
+    process.stdout.write(`Wrote triage artifact to ${outPath}\n`);
+  } else {
+    process.stdout.write(output);
+  }
+}
+
 function cmdShutdown(args: string[]): void {
   const { flags } = parseFlags(args);
   const reason = flags["reason"] ?? "Manual shutdown via CLI";
@@ -1193,6 +1286,14 @@ COMMANDS
   services status
     Show service status.
 
+  doctor [--limit N] [--prompt] [--out PATH]
+    Bundle a self-triage artifact: dispatch-relevant env vars (CLAUDE_CODE_*, ANTHROPIC_*,
+    ARC_*, secrets redacted), service status, and the last N cycle_log rows (default 10)
+    with duration/cost/skills/failure state. --prompt wraps it as a handoff prompt for a
+    fresh Claude Code session to self-diagnose. --out PATH writes to a file instead of stdout.
+    See CLAUDE.md's "Dispatch Troubleshooting" section for the manual diagnostic steps this
+    bundles (Safe Mode, env isolation).
+
   shutdown [--reason TEXT]
     Enter shutdown state. Sensors and dispatch skip while shutdown is active.
     Idempotent — safe to call multiple times.
@@ -1245,6 +1346,8 @@ EXAMPLES
   arc sensors list
   arc sensors
   arc services install
+  arc doctor
+  arc doctor --limit 20 --prompt --out reports/triage.md
 `);
 }
 
@@ -1296,6 +1399,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "doctor":
+      await cmdDoctor(argv.slice(1));
       break;
     case "memory":
       cmdMemory(argv.slice(1));
