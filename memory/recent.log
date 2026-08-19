@@ -511,3 +511,4 @@
 2026-08-19T13:18:29.178Z | task #26718 | completed | script | Deploy arc0me-site to Cloudflare (da3f2c93a494) | {"success":true,"sha":"560975ca0fb6","site":"https://arc0.me"}
 2026-08-19T14:04:46.842Z | task #26719 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T14:11:31.260Z | task #26720 | completed | sonnet | Chop blog "Additive Cues, Query Dominance, and Post-Hoc Test | Wrote 4 quote-card snippets (subliminal-cue-gap, query-dominance, post-hoc-tests
+2026-08-19T14:15:12.276Z | task #26721 | completed | sonnet | Assess release: anthropics/anthropic-sdk-typescript sdk-v0.1 | sdk-v0.118.0 = anthropic-sdk-typescript, not an arc-starter dependency (package.
