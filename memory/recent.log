@@ -1,17 +1,3 @@
-2026-08-14T13:10:24.804Z | task #26143 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Clean overnight window (41 tasks, 0 failures, 0 new blocks) — routine, no new pa
-2026-08-14T13:16:43.657Z | task #26144 | completed | sonnet | health alert: oauth expiring | OAuth token expires ~44min from check (expiresAt 1786716026461); Discord alert a
-2026-08-14T13:17:37.616Z | task #26145 | completed | haiku | Retrospective: extract learnings from task #26144 — health a | No learnings to capture — task #26144 executed per existing p-headless-external-
-2026-08-14T13:34:24.724Z | task #26146 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T13:39:25.895Z | task #26147 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 2 issue(s)
-2026-08-14T14:35:20.603Z | task #26149 | completed | sonnet | Generate research blog post draft (3 fresh arxiv nuggets) | Drafted research post (arXiv:2608.12150 budget-dependent rankings, 2608.12273 sk
-2026-08-14T14:36:34.035Z | task #26150 | completed | haiku | Publish generated blog post | Published 2026-08-14 research post (rankings-that-move) with CTA footer appended
-2026-08-14T14:36:43.942Z | task #26148 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-14T14:40:51.070Z | task #26151 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring auto-resolved via routine token refresh, matches known pattern (s
-2026-08-14T14:42:42.467Z | task #26152 | completed | script | Deploy arc0me-site to Cloudflare (ab7614438060) | {"success":true,"sha":"0e8e2b37aa13","site":"https://arc0.me"}
-2026-08-14T14:53:21.184Z | task #26153 | completed | sonnet | CEO review — 2026-08-14T14:47 | CEO review: on track, clean 12h window, 45/45 completed, 2 legions PR contributi
-2026-08-14T14:54:34.380Z | task #26154 | completed | sonnet | Assess course candidacy: "When the Attack Is the Sum of Clea | No escalation: 0 engagement signals across all 3 channels (X CTA replies, Whop f
-2026-08-14T15:02:34.408Z | task #26118 | completed | sonnet | Verify: opus-research-burst gate — check 2nd post-fix overni | 2nd post-fix night confirmed (#26084: 50 candidates -> 3 RESEARCH, 1/3 converted
-2026-08-14T15:04:59.450Z | task #26155 | completed | sonnet | Email watch report to whoabuddy — 2026-08-14T14:47 | Watch report emailed to whoabuddy@gmail.com (msg dcc9bf6f), 12h window 01:04Z-13
 2026-08-14T15:36:43.692Z | task #26156 | completed | sonnet | Chop blog "Rankings That Move, Skills That Steer, Judges Tha | Wrote 4 snippets from the 'Rankings/Skills/Judges' arxiv-roundup blog: budget-de
 2026-08-14T15:36:51.658Z | task #26157 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-14T15:39:53.151Z | task #26158 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
@@ -511,3 +497,7 @@
 2026-08-19T01:16:53.779Z | task #26653 | completed | haiku | Retrospective: extract learnings from task #26649 — Research | Extracted 1 pattern: competitive-standard-adoption-triage. External adoption of 
 2026-08-19T01:18:19.945Z | task #26654 | completed | haiku | Retrospective: extract learnings from task #26650 — Research | Added p-task-timeout-external-hard-kill-validation pattern: external hard-kill t
 2026-08-19T01:18:53.572Z | task #26655 | completed | haiku | Retrospective: extract learnings from task #26648 — Watch re | No learnings to capture — watch report ran as designed, found all metrics health
+2026-08-19T01:55:39.984Z | task #26656 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T02:24:49.910Z | task #26657 | completed | script | housekeeping: 5 issue(s) detected | housekeeping: fixed 3 issue(s)
+2026-08-19T02:56:00.730Z | task #26658 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T02:59:30.135Z | task #26659 | completed | sonnet | CEO review — 2026-08-19T02:52 | CEO review: on track, no queue adjustments (report-only pass). Watch cost trend 
