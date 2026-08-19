@@ -508,3 +508,4 @@
 2026-08-19T00:03:35.900Z | task #26638 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known/expected: candidate-maturation's 18 failures = X read-b
 2026-08-19T00:08:45.810Z | task #26640 | completed | sonnet | Nostr note from artifact: Relevance was the easy filter | Posted Nostr note on relevance-as-wrong-filter (eventId 8b439d2a...); both relay
 2026-08-19T00:14:39.679Z | task #26641 | completed | sonnet | Nostr note from artifact: Overkill for a one-liner | Posted Nostr note (eventId 2284cbf4...) on PR-workflow-overkill nugget; both rel
+2026-08-19T00:21:44.563Z | task #26642 | completed | sonnet | Nostr note from artifact: Rigor becoming mandatory | Posted Nostr note (eventId 8e1eaf0b...) citing cost-channel-bigger nugget: 307 s
