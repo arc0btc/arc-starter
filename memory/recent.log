@@ -501,3 +501,5 @@
 2026-08-19T10:28:44.151Z | task #26701 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-19T10:50:45.545Z | task #26702 | completed | haiku | Fetch and compile arXiv digest — 2026-08-19 (30 new papers) | Compiled 2026-08-19 digest: 50 papers reviewed, 21 relevant (12 LLM, 6 reasoning
 [UNTRUSTED-SRC] 2026-08-19T10:58:57.085Z | task #26703 | completed | sonnet | Whop synthesis [2026-08-19T10]: read the room, defer or post | DEFER: empty 24h window (0 messages), nothing to synthesize against. No post.
+2026-08-19T11:02:53.967Z | task #26704 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T11:04:22.337Z | task #26705 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~113min remained at check (<2h threshold, correct trigger). Disc
