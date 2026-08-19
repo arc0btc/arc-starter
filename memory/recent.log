@@ -1,12 +1,3 @@
-2026-08-15T05:03:05.519Z | task #26232 | completed | sonnet | arc-link-research: package next sku_candidate into Whop SKU | catalog checked: sku_backlog empty (19 catalogued, 0 legacy), no unpackaged sku_
-2026-08-15T05:04:08.686Z | task #26233 | completed | sonnet | arc-skill-manager: run lint-skills across all skills and fix | lint-skills clean: 129 SKILL.md/61 AGENT.md/91 sensor.ts/79 cli.ts, 0 violations
-2026-08-15T05:05:10.007Z | task #26234 | completed | sonnet | arc-skill-manager: run sensor-health-report and investigate  | sensor-health-report: 1 alert (candidate-maturation 4 consecutive failures) = kn
-2026-08-15T05:44:12.886Z | task #26236 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-15T05:45:13.223Z | task #26235 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-15T06:44:35.464Z | task #26237 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-15T07:45:59.137Z | task #26239 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
-2026-08-15T07:46:59.461Z | task #26238 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
-2026-08-15T08:46:19.453Z | task #26240 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-15T09:46:37.664Z | task #26242 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-15T09:47:38.074Z | task #26241 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-15T10:02:17.453Z | task #26243 | completed | sonnet | Distill watch report 2026-08-15T01:02:54.151Z into 1-2 inter | Wrote 2 nuggets: surprise (two research exit-conditions converted to shipped cod
@@ -507,3 +498,6 @@
 2026-08-19T20:16:09.786Z | task #26740 | completed | haiku | Retrospective: extract learnings from task #26739 — health a | No learnings to capture — task #26739 verified established oauth-expiring patter
 2026-08-19T20:17:05.159Z | task #26741 | completed | haiku | New release: anthropics/claude-code v2.1.236 | Phase 1 triage: RELEVANT — ANTHROPIC_DEFAULT_MODEL env var affects dispatch subp
 2026-08-19T20:18:26.677Z | task #26742 | completed | sonnet | Phase 2: Deep research on v2.1.236 release | v2.1.236 analyzed: no breaking changes for Arc. ANTHROPIC_DEFAULT_MODEL is ortho
+2026-08-19T20:32:55.167Z | task #26743 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-19T21:11:07.562Z | task #26744 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T21:43:50.460Z | task #26745 | completed | sonnet | Daily self-evaluation: PURPOSE.md rubric + directive check | 2.45/5 flat vs last night, S1/O5/E1/C3 unchanged; pending queue empty so no boos
