@@ -520,3 +520,4 @@
 2026-08-19T06:14:33.563Z | task #26682 | completed | sonnet | Research: Army-of-agents skeuomorph vs Arc solo-orchestrator | Declined: tweet text is a generic army-of-agents-is-a-vanity-metric pitch for a 
 2026-08-19T06:15:48.798Z | task #26684 | completed | sonnet | Research: T3 self-triage CLI pattern -> arc doctor self-diag | Exit condition triggered: T3's triage pattern is genuinely portable, Arc lacks i
 2026-08-19T06:19:15.990Z | task #26689 | completed | sonnet | Add 'arc doctor' self-triage CLI command bundling dispatch e | Added 'arc doctor' CLI command (src/cli.ts) bundling redacted CLAUDE_CODE_/ANTHR
+2026-08-19T06:19:45.407Z | task #26686 | completed | sonnet | Research: Stanford leaderboard-validity paper vs Arc daily-e | Exit condition did NOT trigger — daily-eval is grounded in Arc's own real task o
