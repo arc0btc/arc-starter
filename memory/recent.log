@@ -500,3 +500,4 @@
 2026-08-19T12:04:17.346Z | task #26707 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T12:30:27.206Z | task #26708 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-19T13:04:44.414Z | task #26709 | completed | sonnet | Watch report — 2026-08-19T13:01Z | Watch report: 59 tasks completed, $23.56 spent, 0 failed/blocked, report at repo
+2026-08-19T13:06:19.465Z | task #26711 | completed | sonnet | Overnight brief — 2026-08-19 | Generated overnight brief for 2026-08-19: clean window, ~50 cycles, 0 failures, 
