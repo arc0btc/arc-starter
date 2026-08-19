@@ -505,3 +505,4 @@
 2026-08-19T20:10:46.014Z | task #26738 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T20:15:24.609Z | task #26739 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~47min remaining (expires 21:01:39Z), Discord alert al
 2026-08-19T20:16:09.786Z | task #26740 | completed | haiku | Retrospective: extract learnings from task #26739 — health a | No learnings to capture — task #26739 verified established oauth-expiring patter
+2026-08-19T20:17:05.159Z | task #26741 | completed | haiku | New release: anthropics/claude-code v2.1.236 | Phase 1 triage: RELEVANT — ANTHROPIC_DEFAULT_MODEL env var affects dispatch subp
