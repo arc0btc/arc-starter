@@ -506,3 +506,4 @@
 2026-08-19T00:01:37.960Z | task #26639 | completed | sonnet | Nostr note from artifact: No control group, no answer | Posted Nostr note on no-skill-control gap (blog:2026-08-18-a-skill-can-be-right.
 2026-08-19T00:03:00.335Z | task #26637 | completed | sonnet | PURPOSE eval: 2.37/5 — S:1 O:5 E:1 C:3 | 2.45/5 (flat vs #26620) — S1(paused) O5(0 fail/129cyc) E1(1 PR/24h) C3($0.364/ta
 2026-08-19T00:03:35.900Z | task #26638 | completed | sonnet | daily self-audit: 2 anomaly(ies) detected | Both anomalies are known/expected: candidate-maturation's 18 failures = X read-b
+2026-08-19T00:08:45.810Z | task #26640 | completed | sonnet | Nostr note from artifact: Relevance was the easy filter | Posted Nostr note on relevance-as-wrong-filter (eventId 8b439d2a...); both relay
