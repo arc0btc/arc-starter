@@ -506,3 +506,4 @@
 2026-08-19T20:15:24.609Z | task #26739 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~47min remaining (expires 21:01:39Z), Discord alert al
 2026-08-19T20:16:09.786Z | task #26740 | completed | haiku | Retrospective: extract learnings from task #26739 — health a | No learnings to capture — task #26739 verified established oauth-expiring patter
 2026-08-19T20:17:05.159Z | task #26741 | completed | haiku | New release: anthropics/claude-code v2.1.236 | Phase 1 triage: RELEVANT — ANTHROPIC_DEFAULT_MODEL env var affects dispatch subp
+2026-08-19T20:18:26.677Z | task #26742 | completed | sonnet | Phase 2: Deep research on v2.1.236 release | v2.1.236 analyzed: no breaking changes for Arc. ANTHROPIC_DEFAULT_MODEL is ortho
