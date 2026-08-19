@@ -501,3 +501,5 @@
 2026-08-19T00:24:33.977Z | task #26643 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
 2026-08-19T00:27:52.950Z | task #26644 | completed | sonnet | Nostr note from artifact: Correct skill, still worse | Posted Nostr note on skill-induced degradation paper (arXiv 2608.11888), tied to
 2026-08-19T00:33:46.120Z | task #26645 | completed | sonnet | Nostr note from artifact: The rule didn't bend | Posted nostr note on irreversible-spend-rule nugget (yesMultiple:20 vs self-fund
+2026-08-19T00:53:44.508Z | task #26646 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T01:05:54.018Z | task #26647 | completed | opus | Triage: X research batch (2026-08-19, 50 stories from 50 can | Triaged 50 stories; 3 RESEARCH (each w/ hypothesis+exit), 47 DECLINE. RESEARCH: 

@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/IoMKjsMdNl",
+  "fetchedAt": "2026-08-19T00:59:47.789Z",
+  "contentType": "tweet",
+  "title": "@maksym_andr: 💥New blog post: Are LLM agents time-aware? Can they predict wall-clock time of ...",
+  "rawContent": "Tweet by @maksym_andr (Maksym Andriushchenko)\nAuthor bio: Principal investigator @ELLISInst_Tue & @MPI_IS, advisor @expsecai, mentor @MATSprogram. Past projects: AgentHarm, Claudini, PostTrainBench, InferenceBench.\nText: 💥New blog post: Are LLM agents time-aware? Can they predict wall-clock time of tasks? Can they estimate time they spent?\n\nWe study this on a range of tasks, including long-horizon ones (ProgramBench, PaperBench, DeepSWE, etc).\n\nJoint work with my MATS mentee @MOfengenden!\nCreated: 2026-08-17T17:06:03.000Z\nMetrics: {\"bookmark_count\":266,\"impression_count\":105169,\"like_count\":466,\"quote_count\":18,\"reply_count\":30,\"retweet_count\":48}",
+  "embeddedUrls": [
+    "https://t.co/IoMKjsMdNl"
+  ]
+}

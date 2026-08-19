@@ -1,0 +1,10 @@
+{
+  "url": "https://t.co/icGc35LDQs",
+  "fetchedAt": "2026-08-19T00:59:47.694Z",
+  "contentType": "tweet",
+  "title": "@ClaudeDevs: Perf win of the day: Claude Code CLI now uses 2x less CPU at p99.\n\nBun's garbage...",
+  "rawContent": "Tweet by @ClaudeDevs (ClaudeDevs)\nAuthor bio: Official updates for developers building with @ClaudeAI\nText: Perf win of the day: Claude Code CLI now uses 2x less CPU at p99.\n\nBun's garbage collector was running on a fixed timer, so it would kick in mid-turn and steal CPU right when Claude Code was busiest. Now it waits until the process is idle. https://t.co/icGc35LDQs\nCreated: 2026-08-18T00:28:18.000Z\nMetrics: {\"bookmark_count\":644,\"impression_count\":529819,\"like_count\":6285,\"quote_count\":89,\"reply_count\":234,\"retweet_count\":215}",
+  "embeddedUrls": [
+    "https://t.co/icGc35LDQs"
+  ]
+}
