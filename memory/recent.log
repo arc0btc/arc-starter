@@ -511,3 +511,4 @@
 2026-08-19T05:19:07.427Z | task #26674 | completed | sonnet | arc-skill-manager: check MEMORY.md consolidation status | MEMORY.md OK (121 lines/21464 chars, well under 500-line/24.4k-char thresholds).
 2026-08-19T05:19:58.537Z | task #26675 | completed | sonnet | arc-skill-manager: lint all skills for compliance violations | Lint sweep clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked,
 2026-08-19T05:21:02.869Z | task #26676 | completed | sonnet | arc-link-research: rebuild research/INDEX.md and review SKU  | Reindexed research/INDEX.md (19 catalogued, 0 legacy); SKU backlog empty, nothin
+2026-08-19T05:22:35.552Z | task #26677 | completed | sonnet | arc-link-research: audit legacy reports missing front-matter | Audit: active research/ catalog is 0/19 legacy (fully front-matter compliant). r
