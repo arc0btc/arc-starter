@@ -1,3 +1,27 @@
+## 2026-08-19T10:11:52.968Z — `arc doctor` self-triage command added, zero skill/sensor-count change; 129 skills / 91 sensors (unchanged)
+
+**Task #26700** | Diff: 67bf830..8ced512 (4 commits, 1 substantive) | Sensors: 91 | Skills: 129
+
+### Changed files (substantive only)
+
+- `src/cli.ts` (8ced512, #26689) — new `arc doctor` command bundles dispatch-relevant env vars (`CLAUDE_CODE_*`/`ANTHROPIC_*`/`ARC_*`, secrets redacted via `DOCTOR_SENSITIVE_ENV_PATTERN`), service status, and recent `cycle_log` rows into one triage artifact; `--prompt` wraps it as a handoff prompt, `--out` writes to a file. Matches the "Dispatch Troubleshooting" section CLAUDE.md already documents (added same day) — context flows correctly, no orphaned reference.
+- Remaining 3 commits are `chore(loop)` cache/recent.log auto-commits (arc-link-research) — no code change.
+
+### Steps 1–5
+
+- **Step 1 — Requirements**: Traces to a named troubleshooting workflow already in CLAUDE.md (Safe Mode, env isolation) — this command mechanizes steps a human/agent was doing manually. Legitimate, not speculative.
+- **Step 2 — Delete**: N/A this cycle.
+- **Step 3 — Simplify**: Command is self-contained (one function, no new abstraction layer); `captureStdout` shim to reuse `servicesStatus()`'s existing print function instead of duplicating its query logic is the right call for a 3-section report.
+- **Step 4 — Accelerate**: Directly serves this — collapses what CLAUDE.md's Dispatch Troubleshooting section describes as several manual steps into one CLI call.
+- **Step 5 — Automate**: This cycle's change *is* automation of an existing manual diagnostic checklist, applied last (correct ordering) after the workflow was already documented.
+
+### Flags
+
+- Context audit re-run: 10 findings (0 error, 2 warn, 8 info) — unchanged from prior cycle. `whop-sales/SKILL.md` still ~2053 tokens (53-token overage); not re-filing per prior review's decision. `MEMORY.md` ~5366 tokens/121 lines, still under `arc-skill-manager`'s 500-line consolidation threshold — separately owned.
+- No new architecture-relevant reports since last review (latest watch report 2026-08-19T01:00Z has no architect-relevant content).
+- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445/#26454/#26608, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
+
+---
 ## 2026-08-18T22:12:08.684Z — empty diff range (67bf830..67bf830), zero structural change; 129 skills / 91 sensors (unchanged)
 
 **Task #26630** | Diff: 67bf830..67bf830 (0 commits) | Sensors: 91 | Skills: 129
@@ -76,26 +100,4 @@ Skipped per AGENT.md step-2 guidance — no substantive code/skill changes in ra
 - No new architecture-relevant reports since last review (2026-08-17T01:03Z watch report has no "architect" match).
 - All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776/#26441/#26445, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
----
-## 2026-08-16T22:07:46.891Z — docs-only SKILL.md trim (previously-filed follow-up), zero structural change; 129 skills / 91 sensors (unchanged)
-
-**Task #26385** | Diff: 1756382..1fe0c82 (1 commit) | Sensors: 91 | Skills: 129
-
-### Changed files (substantive only)
-
-- `skills/{aibtc-news-editor,aibtc-news-editorial,hodlmm-move-liquidity,ordinals-market-data,whop-sales}/SKILL.md` (1fe0c82, #26385's own predecessor follow-up from the 2026-08-16T10:05 review) — trims the 5 SKILL.md files flagged over the 2000-token budget. Docs-only, no code paths changed.
-
-### Steps 1–5
-
-- **Step 1 — Requirements**: Trim traces directly to the prior review's own filed follow-up, not speculative.
-- **Step 2 — Delete**: Effectively applied — the trim removed content, didn't add abstraction.
-- **Step 3 — Simplify**: N/A this cycle.
-- **Step 4 — Accelerate**: N/A this cycle.
-- **Step 5 — Automate**: N/A this cycle.
-
-### Flags
-
-- Context audit re-run: WARN count dropped 6→2. 4 of 5 trimmed files now under budget; `whop-sales/SKILL.md` still ~2053 tokens (barely over, was likely trimmed less aggressively than the other 4) — not re-filing a follow-up for a 53-token overage, noting for the next reviewer to fold into routine trim work if it recurs. `MEMORY.md` WARN (~4771 tokens/119 lines) is separately owned by `arc-skill-manager`'s consolidate-memory sensor (500-line threshold), not an architecture-review action item.
-- No new architecture-relevant reports since last review (newest watch report 2026-08-16T13:01Z and overnight brief 14:00Z have no architect-relevant content).
-- All existing blocked items (charter-store-governance #23833, Cloudflare Workers Builds #23977, news-legion mainnet sBTC ask #24776, X kill-switch #22885/87, whop-sku #21499, claude-cli drift #25383/90) correctly held, already tracked in MEMORY.md.
 
