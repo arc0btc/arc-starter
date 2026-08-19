@@ -512,3 +512,4 @@
 2026-08-19T05:19:58.537Z | task #26675 | completed | sonnet | arc-skill-manager: lint all skills for compliance violations | Lint sweep clean: 129 SKILL.md + 61 AGENT.md + 91 sensor.ts + 79 cli.ts checked,
 2026-08-19T05:21:02.869Z | task #26676 | completed | sonnet | arc-link-research: rebuild research/INDEX.md and review SKU  | Reindexed research/INDEX.md (19 catalogued, 0 legacy); SKU backlog empty, nothin
 2026-08-19T05:22:35.552Z | task #26677 | completed | sonnet | arc-link-research: audit legacy reports missing front-matter | Audit: active research/ catalog is 0/19 legacy (fully front-matter compliant). r
+2026-08-19T05:24:06.997Z | task #26678 | completed | sonnet | arc-link-research: review research/archive for further conso | Found and removed 6 exact-duplicate archive files (md5-identical pairs from the 
