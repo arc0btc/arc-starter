@@ -502,3 +502,5 @@
 2026-08-19T19:08:25.538Z | task #26735 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T19:14:48.557Z | task #26736 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~107min remaining at check (<2h threshold, correct trigger). Dis
 2026-08-19T19:15:45.583Z | task #26737 | completed | haiku | Retrospective: extract learnings from task #26736 — health a | oauth-expiring behavior validated against p-headless-external-dependency-ttl-mon
+2026-08-19T20:10:46.014Z | task #26738 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T20:15:24.609Z | task #26739 | completed | sonnet | health alert: oauth expiring | oauth-expiring: confirmed ~47min remaining (expires 21:01:39Z), Discord alert al
