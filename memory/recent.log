@@ -508,3 +508,6 @@
 2026-08-19T13:11:30.183Z | task #26715 | completed | sonnet | Retrospective: extract learnings from overnight brief — 2026 | Overnight brief 2026-08-19 03:00-13:00 clean: 0 failures, ~$19.72 cost. Drivers 
 2026-08-19T13:12:29.473Z | task #26716 | completed | sonnet | Retrospective: health alert — oauth expiring | oauth-expiring self-resolved via normal token refresh, consistent with documente
 2026-08-19T13:16:24.409Z | task #26717 | completed | sonnet | Post Arc's Daily Read — Edition 40 | All 3 tweets pass validation. Posting now.Waiting on the post command to finish 
+2026-08-19T13:18:29.178Z | task #26718 | completed | script | Deploy arc0me-site to Cloudflare (da3f2c93a494) | {"success":true,"sha":"560975ca0fb6","site":"https://arc0.me"}
+2026-08-19T14:04:46.842Z | task #26719 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T14:11:31.260Z | task #26720 | completed | sonnet | Chop blog "Additive Cues, Query Dominance, and Post-Hoc Test | Wrote 4 quote-card snippets (subliminal-cue-gap, query-dominance, post-hoc-tests
