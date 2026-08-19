@@ -522,3 +522,4 @@
 2026-08-19T06:19:15.990Z | task #26689 | completed | sonnet | Add 'arc doctor' self-triage CLI command bundling dispatch e | Added 'arc doctor' CLI command (src/cli.ts) bundling redacted CLAUDE_CODE_/ANTHR
 2026-08-19T06:19:45.407Z | task #26686 | completed | sonnet | Research: Stanford leaderboard-validity paper vs Arc daily-e | Exit condition did NOT trigger — daily-eval is grounded in Arc's own real task o
 2026-08-19T06:21:54.877Z | task #26687 | completed | haiku | Retrospective: extract learnings from task #26681 — Triage:  | Batch triage gate validated: 50→5 (10% fan-out) with healthy decline distributio
+2026-08-19T06:23:11.941Z | task #26688 | completed | haiku | Retrospective: extract learnings from task #26683 — Research | Updated p-security-threat-model pattern with stale-documentation-audit signal: f
