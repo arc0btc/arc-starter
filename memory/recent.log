@@ -1,8 +1,3 @@
-2026-08-15T04:50:13.085Z | task #26227 | completed | haiku | Retrospective: extract learnings from task #26225 — health a | No learnings to capture — task #26225 applied established pattern p-headless-ext
-2026-08-15T04:59:26.865Z | task #26228 | completed | sonnet | Auto-queue: 3 hungry domain(s) need work | Queued 6 follow-ups: nostr (engagement fetch #26229, post-note #26230), arc-link
-2026-08-15T05:00:20.680Z | task #26229 | completed | sonnet | Nostr: fetch engagement for recent posted notes | 1 new event (kind:1 reply) from recurring bot pubkey 1d28171b..., conspiracy-the
-2026-08-15T05:01:08.523Z | task #26230 | completed | sonnet | Nostr: post note on a recent shipped pattern or fix | Posted Nostr note on opus-research-burst-no-action-conversion fix (fewer fan-out
-2026-08-15T05:02:07.193Z | task #26231 | completed | sonnet | arc-link-research: reindex research/INDEX.md and check catal | Reindexed research/INDEX.md (19 catalogued, 0 legacy); sku_candidate backlog emp
 2026-08-15T05:03:05.519Z | task #26232 | completed | sonnet | arc-link-research: package next sku_candidate into Whop SKU | catalog checked: sku_backlog empty (19 catalogued, 0 legacy), no unpackaged sku_
 2026-08-15T05:04:08.686Z | task #26233 | completed | sonnet | arc-skill-manager: run lint-skills across all skills and fix | lint-skills clean: 129 SKILL.md/61 AGENT.md/91 sensor.ts/79 cli.ts, 0 violations
 2026-08-15T05:05:10.007Z | task #26234 | completed | sonnet | arc-skill-manager: run sensor-health-report and investigate  | sensor-health-report: 1 alert (candidate-maturation 4 consecutive failures) = kn
@@ -503,3 +498,6 @@
 2026-08-19T17:06:42.730Z | task #26731 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T18:08:04.133Z | task #26732 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
 2026-08-19T18:27:02.817Z | task #26733 | completed | sonnet | weekly pattern extraction: 805 tasks, 2 failed, $273.28 spen | Reviewed 805-task week (100% success, $273.28); both failures (edition-34 TL;DR 
+2026-08-19T18:32:11.903Z | task #26734 | completed | script | housekeeping: 4 issue(s) detected | housekeeping: fixed 1 issue(s)
+2026-08-19T19:08:25.538Z | task #26735 | completed | script | Sync x402 honored entries from Worker | [pull-loop] Use --entry mode for control-plane injection.
+2026-08-19T19:14:48.557Z | task #26736 | completed | sonnet | health alert: oauth expiring | oauth-expiring: ~107min remaining at check (<2h threshold, correct trigger). Dis
