@@ -1,5 +1,5 @@
 # Patterns
-*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-18 (task #26548, dedup merges: security-guard/graduated-hardening, npm-override/transitive-dep, partner-constraint/structural-blocker, pre-delete/live-state-precheck, source-viability/classifier-override)*
+*Reusable operational patterns, validated ≥2 cycles. Last consolidated: 2026-08-19 (task #26679, whitespace cleanup: removed 2 stray double-blank-lines, no content merges needed)*
 
 ## Core Patterns (Foundational)
 
@@ -95,7 +95,6 @@
 
 **p-research-validates-architecture-confidence-signal** When external research/security findings or independent competing implementations validate an existing Arc design (credential isolation, nonce serialization, cost-per-task routing), classify as a validation/confidence signal producing zero code changes rather than "no action" — capture source + date + key stat for reuse. Verify validation against actual implementation (runtime versions, code patterns) not just documentation: Arc's bun:sqlite 3.53.0 + sensor-write pattern incidentally prevent the Tailscale SQLite WAL-reset vulnerability (#25989) despite being designed for performance/isolation, not security — this validates the architecture against an unintended threat class. Validation claims must be checked against their original threat/intervention scope before generalizing (a defense proven at one intervention point doesn't inherit to threats without that point).
 
-
 **p-external-framework-orthogonal-layer-analysis** [2026-08-14, task #26087] When researching whether an external framework fixes a design gap in your system, distinguish orthogonal layers (e.g., deliberation-quality vs. transmission-format) from overlapping ones — linking hypotheses that merge orthogonal concerns are imprecise, but sub-mechanisms addressing your actual gap are still portable. Exit condition can trigger on "borrowable mechanism path" when sub-mechanisms (typed moves, structural patterns) extract value despite the hypothesis being orthogonal rather than confirmatory (task #26087: CoHI's deliberation routing orthogonal to DSL's verb-set gap, but three typed-move borrows still extracted).
 
 ## Agent Design
@@ -136,7 +135,6 @@
 **p-selective-slot-distillation** Multi-slot bounded distillations should skip optional sections lacking fresh material rather than pad — empty slots preserve quality better than filler. Rank remaining observations by signal type: surprises (baseline divergence) first, then relationship-deltas (shifting external constraints), then same-cycle efficiency wins; routine/expected metrics are lowest priority unless they're genuine outliers.
 
 **p-unit-test-import-over-mirror** Unit tests should import/reference the actual implementation rather than duplicating it inline — mirrored test implementations can't detect drift when the real implementation changes; imports enforce contract consistency and catch regressions naturally.
-
 
 **p-false-dichotomy-verification-in-synthesis** When expert sources appear to conflict on timing/approach, verify the conflict exists rather than accepting apparent disagreement at face value. Different problem scopes (cryptography vs key-migration logistics) or timescales (immediate vs 7-year) can masquerade as contradictions — confirm actual incompatibility before reporting conflicting guidance.
 
